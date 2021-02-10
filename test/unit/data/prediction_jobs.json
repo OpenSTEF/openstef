@@ -1,0 +1,132 @@
+{
+    "60": {
+        "id": 60,
+        "typ": "wind",
+        "model": "latest",
+        "horizon_minutes": 2880,
+        "resolution_minutes": 15,
+        "train_components": 0,
+        "name": "NijmegenNoord",
+        "lat": null,
+        "lon": null,
+        "sid": null,
+        "created": "2017-10-16 15:25:36",
+        "description": "",
+        "quantiles": []
+    },
+    "307": {
+        "id": 307,
+        "typ": "demand",
+        "model": "xgb",
+        "horizon_minutes": 2880,
+        "resolution_minutes": 15,
+        "train_components": 1,
+        "name": "Neerijnen",
+        "lat": 51.8336647,
+        "lon": 5.2137814,
+        "sid": "NrynRS_10-G_V12_P",
+        "created": "2019-04-05 12:08:23",
+        "description": "NrynRS_10-G_V12_P+NrynRS_10-G_V13_P+NrynRS_10-G_V14_P+NrynRS_10-G_V15_P+NrynRS_10-G_V16_P+NrynRS_10-G_V17_P+NrynRS_10-G_V18_P+NrynRS_10-G_V20_P+NrynRS_10-G_V21_P+NrynRS_10-G_V22_P+NrynRS_10-G_V23_P+NrynRS_10-G_V24_P+NrynRS_10-G_V25_P",
+        "quantiles": [
+            0.05,
+            0.1,
+            0.3,
+            0.5,
+            0.7,
+            0.9,
+            0.95
+        ]
+    },
+    "435": {
+        "id": 435,
+        "typ": "demand",
+        "model": "xgb",
+        "horizon_minutes": 2880,
+        "resolution_minutes": 15,
+        "train_components": 1,
+        "name": "Hallum",
+        "lat": 53.3256701,
+        "lon": 5.7532568,
+        "sid": "Hal-RS_10-G_V06_P",
+        "created": "2020-04-03 12:57:39",
+        "description": "Hal-RS_10-G_V06_P",
+        "quantiles": [
+            0.05,
+            0.1,
+            0.3,
+            0.5,
+            0.7,
+            0.9,
+            0.95
+        ]
+    },
+    "438": {
+        "id": 438,
+        "typ": "demand",
+        "model": "xgb",
+        "horizon_minutes": 2880,
+        "resolution_minutes": 15,
+        "train_components": 0,
+        "name": "Neerijnen",
+        "lat": 51.8336647,
+        "lon": 5.2137814,
+        "sid": "NrynRS_10-G_V12_P",
+        "created": "2020-06-11 14:49:40",
+        "description": "NrynRS_10-G_V12_P+NrynRS_10-G_V13_P+NrynRS_10-G_V14_P+NrynRS_10-G_V15_P+NrynRS_10-G_V16_P+NrynRS_10-G_V17_P+NrynRS_10-G_V18_P+NrynRS_10-G_V21_P+NrynRS_10-G_V22_P+NrynRS_10-G_V23_P+NrynRS_10-G_V24_P+NrynRS_10-G_V25_P",
+        "quantiles": [
+            0.05,
+            0.1,
+            0.3,
+            0.5,
+            0.7,
+            0.9,
+            0.95
+        ]
+    },
+    "442": {
+        "id": 442,
+        "typ": "demand",
+        "model": "xgb_quantile",
+        "horizon_minutes": 2880,
+        "resolution_minutes": 15,
+        "train_components": 1,
+        "name": "Neerijnen",
+        "lat": 51.8336647,
+        "lon": 5.2137814,
+        "sid": "NrynRS_10-G_V12_P",
+        "created": "2019-04-05 12:08:23",
+        "description": "NrynRS_10-G_V12_P+NrynRS_10-G_V13_P+NrynRS_10-G_V14_P+NrynRS_10-G_V15_P+NrynRS_10-G_V16_P+NrynRS_10-G_V17_P+NrynRS_10-G_V18_P+NrynRS_10-G_V20_P+NrynRS_10-G_V21_P+NrynRS_10-G_V22_P+NrynRS_10-G_V23_P+NrynRS_10-G_V24_P+NrynRS_10-G_V25_P",
+        "quantiles": [
+            0.05,
+            0.1,
+            0.3,
+            0.5,
+            0.7,
+            0.9,
+            0.95
+        ]
+    },
+    "443": {
+        "id": 443,
+        "typ": "demand",
+        "model": "xgb_quantile",
+        "horizon_minutes": 2880,
+        "resolution_minutes": 15,
+        "train_components": 1,
+        "name": "Lelystad",
+        "lat": 52.5150949,
+        "lon": 5.4768915,
+        "sid": "LC_Lelystad_windpark_IreneVorrink",
+        "created": "2019-05-16 14:55:34",
+        "description": "LC_Lelystad_windpark_IreneVorrink+Lls_150_TR1_P+Lls_150_TR2_P",
+        "quantiles": [
+            0.05,
+            0.1,
+            0.3,
+            0.5,
+            0.7,
+            0.9,
+            0.95
+        ]
+    }
+}

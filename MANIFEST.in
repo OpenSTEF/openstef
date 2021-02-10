@@ -1,0 +1,6 @@
+# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com>
+#
+# SPDX-License-Identifier: MPL-2.0
+
+include ktprognoses/feature_engineering/dutch_holidays_2020-2022.csv
+include ktprognoses/model/pv_single_coefs.csv
