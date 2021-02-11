@@ -116,6 +116,12 @@ class AbstractPredictionModel(ABC):
         basecase_forecast.dropna(inplace=True)
         # rename
         basecase_forecast = basecase_forecast.rename(columns=dict(load="forecast"))
+
+        # Also make basecase for component "other". We do this to make sure the sum of
+        # the basecase of components equals the basecase of the net load
+        # (basecase of wind and pv components is zero)
+        basecase_forecast['forecast_other'] = basecase_forecast['forecast']
+
         # Estimate the stdev a bit smart
         # use the stdev of the hour for historic_load
         std_per_hour = (
