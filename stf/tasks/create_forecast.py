@@ -29,13 +29,13 @@ Attributes:
 """
 from stf.model import predict
 from stf.model.general import ForecastType
-from stf.tasks.utils.general import check_status_change, update_status_change
+from stf.tasks.utils.utils import check_status_change, update_status_change
 from stf.tasks.utils.predictionjobloop import PredictionJobLoop
 from stf.tasks.utils.taskcontext import TaskContext
 
 
 def main():
-    with TaskContext("prognosis") as context:
+    with TaskContext(__file__) as context:
         model_type = ["xgb", "xgb_quantile"]
 
         # status file callback after every iteration

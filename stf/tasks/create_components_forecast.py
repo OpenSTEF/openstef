@@ -30,7 +30,7 @@ Attributes:
 
 """
 import stf.model.predict as predict
-from stf.tasks.utils.general import check_status_change, update_status_change
+from stf.tasks.utils.utils import check_status_change, update_status_change
 from stf.tasks.utils.predictionjobloop import PredictionJobLoop
 from stf.tasks.utils.taskcontext import TaskContext
 
@@ -48,7 +48,7 @@ def create_components_forecast_pj(pj, context):
 
 
 def main():
-    with TaskContext("create_components_forecast") as context:
+    with TaskContext(__file__) as context:
 
         # status file callback after every iteration
         # TODO change implementation to a database one

@@ -8,6 +8,12 @@ from pathlib import Path
 from ktpbase.config.config import ConfigManager
 
 
+def get_module_name(module_path):
+    # /home/user/git/project/package/module.py -> module
+    module_name = ".".join(str(module_path).split(os.path.sep)[-1].split(".")[:-1])
+    return module_name
+
+
 def load_status_file():
     """
     This function loads the json status file

@@ -163,7 +163,7 @@ def _send_teams_error_message(pj, num_load_errors, buttonurl):
 
 
 def main():
-    with TaskContext("validation_robot") as context:
+    with TaskContext(__file__) as context:
         datetime_start = datetime.utcnow() - timedelta(days=7)
         datetime_end = datetime.utcnow()
 

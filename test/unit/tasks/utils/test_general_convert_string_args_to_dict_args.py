@@ -4,7 +4,7 @@
 
 import unittest
 
-from stf.tasks.utils.general import convert_string_args_to_dict_args
+from stf.tasks.utils.utils import convert_string_args_to_dict_args
 
 from test.utils import BaseTestCase
 

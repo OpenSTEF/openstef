@@ -58,7 +58,7 @@ def make_wind_forcast_pj(pj, context):
 
 
 def main():
-    with TaskContext("wind") as context:
+    with TaskContext(__file__) as context:
         context.logger.info("Querying wind prediction jobs from database")
         prediction_jobs = context.database.get_prediction_jobs_wind()
         prediction_jobs = [x for x in prediction_jobs if x["model"] == "latest"]

@@ -10,7 +10,7 @@ from stf.tasks.utils.taskcontext import TaskContext
 
 
 def main():
-    with TaskContext("create_capacity_forecast") as context:
+    with TaskContext(__file__) as context:
         # prediction horizons
         y_hor = list(range(13))
 

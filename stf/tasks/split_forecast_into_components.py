@@ -32,7 +32,7 @@ from stf.tasks.utils.taskcontext import TaskContext
 
 
 def main():
-    with TaskContext("split_forecast_into_components") as context:
+    with TaskContext(__file__) as context:
         model_type = "xgb"
 
         PredictionJobLoop(

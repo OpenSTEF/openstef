@@ -10,8 +10,9 @@ from stf.model.capacity_prognosis import train_capacity_prognosis
 from stf.tasks.utils.predictionjobloop import PredictionJobLoop
 from stf.tasks.utils.taskcontext import TaskContext
 
+
 def main():
-    with TaskContext("train_capacity_model") as context:
+    with TaskContext(__file__) as context:
         # training horizons
         y_hor = [0, 6, 13]
 
@@ -29,6 +30,7 @@ def main():
             datetime_end=datetime_end,
             y_hor=y_hor,
         )
+
 
 if __name__ == "__main__":
     main()

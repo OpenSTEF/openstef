@@ -62,7 +62,7 @@ def make_solar_predicion_pj(pj, context):
 
 
 def main():
-    with TaskContext("solar") as context:
+    with TaskContext(__file__) as context:
         context.logger.info("Querying wind prediction jobs from database")
         prediction_jobs = context.database.get_prediction_jobs_solar()
         num_prediction_jobs = len(prediction_jobs)
