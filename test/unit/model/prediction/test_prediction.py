@@ -53,6 +53,7 @@ class TestAbstractPredictionModel(BaseTestCase):
         # check if colnames are correct
         basecase_forecast_columns = [
             "forecast",
+            "forecast_other",
             "stdev",
             "pid",
             "description",
