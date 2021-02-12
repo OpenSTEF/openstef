@@ -31,6 +31,7 @@ def get_database_mock():
 
 @patch("stf.model.ato_report.DataBase", get_database_mock)
 @patch("stf.model.ato_report.Path", MagicMock())
+@patch("stf.model.ato_report.ConfigManager", MagicMock())
 class TestPredict(BaseTestCase):
 
     def test_make_report_pj(self):

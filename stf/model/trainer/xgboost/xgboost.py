@@ -162,6 +162,7 @@ class XGBModelTrainer(AbstractModelTrainer):
         """
         # Check if the old model is not None and try to make a prediction with the old model
         if self.old_model is None:
+            self.logger.warning("No old model available")
             return True
         else:
             try:
@@ -174,12 +175,12 @@ class XGBModelTrainer(AbstractModelTrainer):
                 )
             except Exception as e:
                 prediction_old_model = np.nan
-                print("Could not compare to old model:", str(e)[:20])
+                self.logger.error("Could not compare to old model:", str(e)[:20])
                 return True
 
         # Check if returned object is not None and try to make a prediction with the new model
         if self.trained_model is None:
-            print("New model is not yet trained, could not compare performance!")
+            self.logger.warning("New model is not yet trained, could not compare performance!")
             return False
         else:
             try:
@@ -191,7 +192,7 @@ class XGBModelTrainer(AbstractModelTrainer):
                     ntree_limit=self.trained_model.best_ntree_limit,
                 )
             except Exception as e:
-                print("Could not get prediction from new model:", str(e)[:20])
+                self.logger.error("Could not get prediction from new model:", str(e)[:20])
                 return False
 
         # Calculate scores

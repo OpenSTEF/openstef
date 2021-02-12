@@ -59,7 +59,9 @@ class XGBModelSerializer(AbstractModelSerializer):
             FileNotFoundError: If no recent model file was found
 
         Returns:
-            [type]: [description]
+            tuple: Tuple with:
+                [0]: xgb.Booster: Loaded model
+                [1]: str: Path to loaded model
         """
 
         if pid_model_folder is None:

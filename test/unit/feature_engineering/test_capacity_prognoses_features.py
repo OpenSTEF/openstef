@@ -2,12 +2,11 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-from test.utils.data import TestData
+from test.utils import TestData, BaseTestCase
 import unittest
 
 import stf.feature_engineering.capacity_prognoses_features as cf
 
-from test.utils import TestData, BaseTestCase
 
 data = TestData.load("input_data_train.pickle")
 
