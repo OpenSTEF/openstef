@@ -8,7 +8,6 @@ from ktpbase.config.config import ConfigManager
 from ktpbase.database import DataBase
 from ktpbase.log import logging
 
-from stf import PROJECT_ROOT
 from stf.monitoring.teams import post_teams
 from stf.monitoring.performance_meter import PerformanceMeter
 from stf.tasks.utils.predictionjobloop import PredictionJobException
@@ -53,9 +52,7 @@ class TaskContext():
         self.on_end = on_end
 
     def __enter__(self):
-        self.config = ConfigManager.load_project_config(
-            project_root=PROJECT_ROOT
-        ).get_instance()
+        self.config = ConfigManager.get_instance()
 
         logging.configure_logging(
             loglevel=self.config.loglevel, runtime_env=self.config.env,

@@ -5,6 +5,7 @@
 import copy
 from datetime import datetime, timedelta
 from test.utils.data import TestData
+import unittest
 from unittest.mock import MagicMock, patch
 
 import numpy as np
@@ -32,7 +33,7 @@ params = {
     "gamma": 0.2,
     "colsample_bytree": 0.85,
     "silent": 1,
-    "objective": "reg:linear",
+    "objective": "reg:squarederror",
 }
 
 # Generate reference training input data
@@ -53,49 +54,56 @@ else:
     model_trainer_ref = TestData.load("model_trainer_reference.pickle")
 
 
+model, model_file = serializer.load(123, TestData.TRAINED_MODELS_FOLDER)
+model_path = TestData.TRAINED_MODELS_FOLDER / "<pid>/20191119120000/model.bin"
+
+
 class TestMoreTrain(BaseTestCase):
 
-    def test_better_than_old_model(self):
-        model, model_file = serializer.load(123, TestData.TRAINED_MODELS_FOLDER)
+    def test_better_than_old_model_no_old_model(self):
+        model_trainer = XGBModelTrainer(pj)
 
-        model_path = TestData.TRAINED_MODELS_FOLDER / "<pid>/20191119120000/model.bin"
+        # Old model not available
+        model_trainer.old_model = None
 
-        with patch.object(XGBModelSerializer, 'load', return_value=(model, model_path)):
-            # Make modeltrainer object
-            model_trainer_mock = XGBModelTrainer(pj)
+        model_trainer.trained_model = MagicMock()
+        model_trainer.trained_model.predict.return_value = (
+            testing_data_ref["load"] * 2
+        )
+        self.assertTrue(model_trainer.better_than_old_model(testing_data_ref))
 
-            # New model not available
-            model_trainer_mock.old_model.predict = MagicMock(
-                name="predict", return_value=testing_data_ref["load"] * 2
-            )
-            # Untrained model does not make better predictions than old model
-            result = model_trainer_mock.better_than_old_model(testing_data_ref)
-            self.assertFalse(result)
+    def test_better_than_old_model_no_new_model(self):
+        model_trainer = XGBModelTrainer(pj)
 
-            # New (trained) model makes better prediction than old model
-            model_trainer_mock = copy.deepcopy(model_trainer_ref)
-            result = model_trainer_mock.better_than_old_model(testing_data_ref)
-            self.assertTrue(result)
+        model_trainer.old_model = MagicMock()
+        model_trainer.old_model.predict.return_value = (
+            testing_data_ref["load"] * 2
+        )
+        # New model not available
+        model_trainer.trained_model = None
 
-            # Old model makes better prediction than new model
-            model_trainer_mock.old_model.predict = MagicMock(
-                name="predict", return_value=testing_data_ref["load"] * 1.2
-            )
-            model_trainer_mock.trained_model.predict = MagicMock(
-                name="predict", return_value=testing_data_ref["load"] * 2
-            )
-            result = model_trainer_mock.better_than_old_model(testing_data_ref)
-            self.assertFalse(result)
+        self.assertFalse(model_trainer.better_than_old_model(testing_data_ref))
 
-            # Old model not available
-            model_trainer_mock.old_model.predict = MagicMock(
-                name="predict", return_value=np.nan
-            )
-            model_trainer_mock.trained_model.predict = MagicMock(
-                name="predict", return_value=testing_data_ref["load"] * 2
-            )
-            result = model_trainer_mock.better_than_old_model(testing_data_ref)
-            self.assertTrue(result)
+    def test_better_than_old_model_new_model_better(self):
+        # New (trained) model makes better prediction than old model
+        model_trainer = copy.deepcopy(model_trainer_ref)
+
+        self.assertTrue(model_trainer.better_than_old_model(testing_data_ref))
+
+    def test_better_than_old_model_old_model_better(self):
+        model_trainer = XGBModelTrainer(pj)
+
+        # Old model makes better prediction than new model
+        model_trainer.old_model = MagicMock()
+        model_trainer.old_model.predict.return_value = testing_data_ref["load"] * 1.2
+
+        model_trainer.trained_model = MagicMock()
+        model_trainer.trained_model.predict.return_value = testing_data_ref["load"] * 2
+
+        result = model_trainer.better_than_old_model(testing_data_ref)
+
+        self.assertFalse(result)
+
 
 
 if __name__ == "__main__":

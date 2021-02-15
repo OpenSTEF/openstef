@@ -4,7 +4,8 @@
 
 from datetime import datetime, timedelta
 from test.utils.data import TestData
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
+import unittest
 
 import numpy as np
 import pandas as pd
@@ -17,9 +18,6 @@ from stf.model.trainer.creator import ModelTrainerCreator
 from stf.model.trainer.xgboost.xgboost import XGBModelTrainer
 
 from test.utils import BaseTestCase
-
-serializer_creator = ModelSerializerCreator()
-serializer = serializer_creator.create_model_serializer(MLModelType("xgb"))
 
 pj = TestData.get_prediction_job(pid=307)
 
@@ -67,7 +65,10 @@ class TestTrain(BaseTestCase):
         self.data = data
         self.confidence_interval_ref = confidence_interval_ref
 
+    @patch("ktpbase.config.config.ConfigManager", MagicMock())
     def test_model_trainer_creator(self):
+        serializer_creator = ModelSerializerCreator()
+        serializer = serializer_creator.create_model_serializer(MLModelType("xgb"))
         model, model_file = serializer.load(123, TestData.TRAINED_MODELS_FOLDER)
 
         model_path = TestData.TRAINED_MODELS_FOLDER / "<pid>/20191119120000/model.bin"

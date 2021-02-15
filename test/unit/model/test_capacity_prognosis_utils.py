@@ -4,6 +4,7 @@
 
 from datetime import datetime, timedelta
 from test.utils.data import TestData
+import unittest
 
 import numpy as np
 import pytz
