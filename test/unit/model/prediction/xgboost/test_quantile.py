@@ -40,7 +40,7 @@ class TestQuantileXGBPredictionModel(BaseTestCase):
         # Construct inputs
         forecast_index = pd.to_datetime(['2020-01-10 00:00:00', '2020-01-10 00:15:00',
                                          '2020-01-10 01:00:00', '2020-01-10 01:15:00'])
-        load_data = pd.DataFrame(index=forecast_index -timedelta(days=14),
+        load_data = pd.DataFrame(index=forecast_index - timedelta(days=14),
                                  data={'load': [10, 20, 30, 40]})
 
         m = PredictionModel(pj=dict(model=MLModelType.XGB_QUANTILE,
