@@ -84,8 +84,10 @@ class XGBModelTrainer(AbstractModelTrainer):
             index=["weight"]).T
         feature_weight /= feature_weight.sum()
 
-        feature_importance = pd.merge(feature_gain, feature_weight,
-            left_index=True, right_index=True)
+        feature_importance = pd.merge(
+            feature_gain, feature_weight,
+            left_index=True, right_index=True
+        )
         feature_importance.sort_values(by="gain", ascending=False, inplace=True)
 
         return feature_importance

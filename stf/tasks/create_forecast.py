@@ -54,7 +54,7 @@ def main():
             model_type=model_type,
             on_end=callback,
             # Debug specific pid
-            #prediction_jobs=[{'id':282}],
+            # prediction_jobs=[{'id':282}],
         ).map(predict.make_prediction, forecast_type=ForecastType.DEMAND)
 
 

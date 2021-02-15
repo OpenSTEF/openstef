@@ -300,7 +300,9 @@ def pre_process_data(data, featureset=None, horizons=None):
 
 
 def combine_forecasts(forecasts, combination_coefs):
-    """This function combines several independent forecasts into one, using predetermined coefficients.
+    """This function combines several independent forecasts into one, using
+        predetermined coefficients.
+
     Input:
         - forecasts: pd.DataFrame(index = datetime, algorithm1, ..., algorithmn)
         - combinationcoefs: pd.DataFrame(param1, ..., paramn, algorithm1, ..., algorithmn)
@@ -310,8 +312,9 @@ def combine_forecasts(forecasts, combination_coefs):
 
     models = [x for x in list(forecasts) if x not in ["created", "datetime"]]
 
-    ### Add subset parameters to df ###
-    # Identify which parameters should be used to define subsets based on the combinationcoefs
+    # Add subset parameters to df ###
+    # Identify which parameters should be used to define subsets based on the
+    # combinationcoefs
     subset_defs = [
         x
         for x in list(combination_coefs)
@@ -347,7 +350,8 @@ def combine_forecasts(forecasts, combination_coefs):
     if "hCreated" in subset_defs:
         df["hCreated"] = df.created.dt.hour
 
-    ### Start building combinationcoef dataframe that later will be multiplied with the individual forecasts ###
+    # Start building combinationcoef dataframe that later will be multiplied with the
+    # individual forecasts
     # This is the best way for a backtest:
     #    uniquevalues = list([np.unique(df[param].values) for param in subsetDefs])
     #    permutations = list(itertools.product(*uniquevalues))
@@ -355,7 +359,8 @@ def combine_forecasts(forecasts, combination_coefs):
     # This is the best way for a single forecast
     permutations = [tuple(x) for x in df[subset_defs].values]
 
-    # Define function which find closest match of a value from an array of values. Use this later to find best coefficient from the given subsetting dividers
+    # Define function which find closest match of a value from an array of values.
+    #  Use this later to find best coefficient from the given subsetting dividers
     def take_closest(num, collection):
         return min(collection, key=lambda x: abs(x - num))
 
@@ -368,9 +373,12 @@ def combine_forecasts(forecasts, combination_coefs):
             subset = subset.loc[subset[param] == value]
             coefs = coefs.loc[
                 coefs[param] == take_closest(value, coefs[param])
-            ]  # Find closest matching value for combinationCoefParams corresponding to available subsetValues
+            ]
+            # Find closest matching value for combinationCoefParams corresponding to
+            # available subsetValues
 
-        # Of course, not all possible subsets have to be defined in the forecast. Skip empty subsets
+        # Of course, not all possible subsets have to be defined in the forecast.
+        # Skip empty subsets
         if len(subset) == 0:
             continue
 
@@ -392,7 +400,8 @@ def combine_forecasts(forecasts, combination_coefs):
 
         result_df = result_df.append(result)
 
-    # for safety: remove duplicate results to prevent multiple forecasts for the same time created
+    # for safety: remove duplicate results to prevent multiple forecasts for the same
+    # time created
     # resultDF.drop_duplicates(keep='last', inplace = True)
 
     #    #rename created column to datetime and add datetime for export
