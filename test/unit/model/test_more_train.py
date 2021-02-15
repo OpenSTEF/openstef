@@ -58,12 +58,6 @@ model, model_file = serializer.load(123, TestData.TRAINED_MODELS_FOLDER)
 model_path = TestData.TRAINED_MODELS_FOLDER / "<pid>/20191119120000/model.bin"
 
 
-def get_serializer_mock():
-    serializer_mock = MagicMock()
-    serializer_mock.load.return_value = model, model_path
-
-
-# @patch("stf.model.serializer.creator.XGBModelSerializer", get_serializer_mock())
 class TestMoreTrain(BaseTestCase):
 
     def test_better_than_old_model_no_old_model(self):
