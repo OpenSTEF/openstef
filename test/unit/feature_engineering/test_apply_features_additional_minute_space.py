@@ -15,6 +15,7 @@ from test.utils import BaseTestCase, TestData
 class TestApplyFeaturesAditionalMinuteSpace(BaseTestCase):
 
     def setUp(self):
+        super().setUp()
         self.data = TestData.load("input_data_train.pickle")
 
     def test_additional_minutes_space(self):

@@ -13,7 +13,7 @@ from test.utils import BaseTestCase, TestData
 class TestSolar(BaseTestCase):
 
     def setUp(self) -> None:
-
+        super().setUp()
         self.test_solar_input = TestData.load('solar_input.csv')
         self.solar_ref = TestData.load('solar_ref.csv')
         self.pj = {'id': 71, 'typ': 'solar', 'model': 'latest', 'horizon_minutes': 2880, 'resolution_minutes': 15,

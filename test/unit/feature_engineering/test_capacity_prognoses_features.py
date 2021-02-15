@@ -14,6 +14,7 @@ data = TestData.load("input_data_train.pickle")
 class TestCapacityPrognosesFeatures(BaseTestCase):
 
     def setUp(self):
+        super().setUp()
         self.data = TestData.load("input_data_train.pickle")
 
     def test_happy_apply_resample(self):

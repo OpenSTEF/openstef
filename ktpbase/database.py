@@ -1,0 +1,2 @@
+class DataBase:
+    pass

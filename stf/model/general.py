@@ -2,8 +2,6 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-import os
-import warnings
 from datetime import timedelta
 from enum import Enum
 from pathlib import Path

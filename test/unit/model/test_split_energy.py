@@ -4,11 +4,6 @@
 
 import unittest
 from test.utils import BaseTestCase, TestData
-from unittest import mock
-
-from ktpbase.data_interface import _DataInterface
-from ktpbase.services.splitting import Splitting
-from ktpbase.services.weather import Weather
 
 from stf.model import split_energy
 
