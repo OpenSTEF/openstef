@@ -18,7 +18,7 @@ load = pd.DataFrame(
 )
 predicted_load = pd.DataFrame(
     data={'forecast_24.0h': 15},
-    index=[datetime.utcnow().replace(tzinfo=pytz.utc)+timedelta(days=1)]
+    index=[datetime.utcnow().replace(tzinfo=pytz.utc) +timedelta(days=1)]
 )
 
 

@@ -134,7 +134,7 @@ class QuantileXGBPredictionModel(XGBPredictionModel):
         forecast = super().predict_fallback(forecast_index, load)
 
         # Calculate quantiles per hour of day - list with items <1 can be copied from database
-        quantiles = [x*100 for x in [0.05, 0.1, 0.3, 0.5, 0.7, 0.9, 0.95]]
+        quantiles = [x *100 for x in [0.05, 0.1, 0.3, 0.5, 0.7, 0.9, 0.95]]
         q_vals = load.groupby(load.index.hour).apply(lambda x: np.percentile(x, quantiles))
 
         q_vals = pd.DataFrame(q_vals.values.tolist(),
