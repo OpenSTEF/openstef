@@ -57,5 +57,6 @@ def main():
             #prediction_jobs=[{'id':282}],
         ).map(predict.make_prediction, forecast_type=ForecastType.DEMAND)
 
+
 if __name__ == "__main__":
     main()

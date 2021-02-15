@@ -69,5 +69,6 @@ def main():
             on_end=callback,
         ).map(create_components_forecast_pj, context)
 
+
 if __name__ == "__main__":
     main()

@@ -40,5 +40,6 @@ def main():
             model_type=model_type,
         ).map(lambda pj: split_energy(pj["id"]))
 
+
 if __name__ == "__main__":
     main()
