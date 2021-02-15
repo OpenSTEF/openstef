@@ -100,7 +100,7 @@ def humidity_calculations(temperature, rh, pressure):
     is_series = isinstance(temperature, (np.ndarray, pd.core.series.Series))
     is_scalar = isinstance(temperature, (float, int))
 
-    if not is_scalar or not is_series:
+    if is_scalar is False and is_series is False:
         raise TypeError(
             "The input should be a pandas series or np.ndarry, or float or int"
         )
