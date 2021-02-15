@@ -312,41 +312,38 @@ def combine_forecasts(forecasts, combination_coefs):
 
     models = [x for x in list(forecasts) if x not in ["created", "datetime"]]
 
-    # Add subset parameters to df ###
+    # Add subset parameters to df
     # Identify which parameters should be used to define subsets based on the
     # combinationcoefs
-    subset_defs = [
-        x
-        for x in list(combination_coefs)
-        if x
-        in [
-            "tAhead",
-            "hForecasted",
-            "weekday",
-            "hForecastedPer6h",
-            "tAheadPer2h",
-            "hCreated",
-        ]
+    subset_columns = [
+        "tAhead", "hForecasted", "weekday", "hForecastedPer6h", "tAheadPer2h",
+        "hCreated",
     ]
+    subset_defs = [x for x in list(combination_coefs) if x in subset_columns]
 
     df = forecasts.copy()
     # Now add these subsetparams to df
     if "tAhead" in subset_defs:
         t_ahead = (df["datetime"] - df["created"]).dt.total_seconds() / 3600
         df["tAhead"] = t_ahead
+
     if "hForecasted" in subset_defs:
         df["hForecasted"] = df.datetime.dt.hour
+
     if "weekday" in subset_defs:
         df["weekday"] = df.datetime.dt.weekday
+
     if "hForecastedPer6h" in subset_defs:
         df["hForecastedPer6h"] = pd.to_numeric(
             np.floor(df.datetime.dt.hour / 6) * 6, downcast="integer"
         )
+
     if "tAheadPer2h" in subset_defs:
         df["tAheadPer2h"] = pd.to_numeric(
             np.floor((df.datetime - df.created).dt.total_seconds() / 60 / 60 / 2) * 2,
             downcast="integer",
         )
+
     if "hCreated" in subset_defs:
         df["hCreated"] = df.created.dt.hour
 
@@ -359,21 +356,19 @@ def combine_forecasts(forecasts, combination_coefs):
     # This is the best way for a single forecast
     permutations = [tuple(x) for x in df[subset_defs].values]
 
-    # Define function which find closest match of a value from an array of values.
-    #  Use this later to find best coefficient from the given subsetting dividers
-    def take_closest(num, collection):
-        return min(collection, key=lambda x: abs(x - num))
-
     result_df = pd.DataFrame()
+
     for subsetvalues in permutations:
         subset = df.copy()
         coefs = combination_coefs
+
         # Create subset based on all subsetparams, for forecasts and coefs
         for value, param in zip(subsetvalues, subset_defs):
             subset = subset.loc[subset[param] == value]
-            coefs = coefs.loc[
-                coefs[param] == take_closest(value, coefs[param])
-            ]
+            # Define function which find closest match of a value from an array of values.
+            #  Use this later to find best coefficient from the given subsetting dividers
+            closest_match = min(coefs[param], key=lambda x: abs(x - value))
+            coefs = coefs.loc[coefs[param] == closest_match]
             # Find closest matching value for combinationCoefParams corresponding to
             # available subsetValues
 
