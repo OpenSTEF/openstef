@@ -7,7 +7,9 @@ import os
 import numpy as np
 import pandas as pd
 
-HOLIDAY_CSV_PATH = os.path.dirname(__file__) + "/dutch_holidays_2020-2022.csv"
+from stf import PROJECT_ROOT
+
+HOLIDAY_CSV_PATH = PROJECT_ROOT / "data" / "dutch_holidays_2020-2022.csv"
 
 
 def create_holiday_functions():

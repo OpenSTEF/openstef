@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 from ktpbase.log import logging
 
+from stf import PROJECT_ROOT
 from stf.data_validation import data_validation
 from stf.feature_engineering.apply_features import (
     apply_multiple_horizon_features
@@ -30,6 +31,9 @@ class ForecastType(Enum):
     WIND = "wind"
     SOLAR = "solar"
     BASECASE = "basecase"
+
+# TODO move to config
+PV_COEFS_FILEPATH = PROJECT_ROOT / "data" / "pv_single_coefs.csv"
 
 
 def split_data_train_validation_test(
@@ -428,9 +432,8 @@ def fides(data, all_forecasts=False):
 
     df = insolation_forecast.merge(persistence, left_index=True, right_index=True)
 
-    # TODO move to config
-    pv_coefs_filepath = Path(__file__).absolute().parent / "pv_single_coefs.csv"
-    coefs = pd.read_csv(pv_coefs_filepath)
+
+    coefs = pd.read_csv(PV_COEFS_FILEPATH)
 
     # Apply combination coefs
     df["created"] = df.loc[df.load.isnull()].index.min()
