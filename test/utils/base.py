@@ -24,12 +24,11 @@ class BaseTestCase(unittest.TestCase):
         for patcher in self.patchers:
             patcher.stop()
 
-    # TODO for some reason this does not work : has not attribute addTypeEqualitty
-    # def __init__(self, *args, **kwargs):
-    #     super().__init__(*args, **kwargs)
-    #     self.addTypeEqualityFunc(pd.DataFrame, self.assertDataframeEqual)
-    #     self.addTypeEqualityFunc(pd.Series, self.assertSeriesEqual)
-    #     self.addTypeEqualityFun(np.array, self.assertArrayEqual)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.addTypeEqualityFunc(pd.DataFrame, self.assertDataframeEqual)
+        self.addTypeEqualityFunc(pd.Series, self.assertSeriesEqual)
+        self.addTypeEqualityFunc(np.array, self.assertArrayEqual)
 
     def assertDataframeEqual(self, *args, **kwargs):
         try:
