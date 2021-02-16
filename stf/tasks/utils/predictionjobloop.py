@@ -12,9 +12,9 @@ class PredictionJobLoop():
             context,
             stop_on_exception=False,
             random_order=True,
-            on_exception=None,
-            on_successful=None,
-            on_end=None,
+            on_exception_callback=None,
+            on_successful_callback=None,
+            on_end_callback=None,
             prediction_jobs=None,
             **pj_kwargs):
         """Convenience objects that maps a function over prediction jobs.
@@ -32,13 +32,13 @@ class PredictionJobLoop():
             random_order (bool, optional): Whether to randomize the order of the
                 prediction jobs. Defaults to True. Does not apply to manually
                 passed prediction jobs.
-            on_exception (callable, optional): Callback, will be called
+            on_exception_callback (callable, optional): Callback, will be called
                 everytime an exception is raised. Callable gets the pj and
                 exception raised as arguments
-            on_successful (callable, optional): Callback, will be called
+            on_successful_callback (callable, optional): Callback, will be called
                 everytime an iteration is successful (no exception is raised).
                 Callable gets the pj as argument.
-            on_end (callable, optional): Callback, will be called everytime an
+            on_end_callback (callable, optional): Callback, will be called everytime an
                 iteration is completed. Callable gets the pj and and bool
                 indicating success as argument.
             prediction_jobs (list of dicts, optional): Manually pass a list of
@@ -52,19 +52,20 @@ class PredictionJobLoop():
         self.context = context
         self.stop_on_exception = stop_on_exception
         self.random_order = random_order
-        self.on_exception = on_exception
-        self.on_successful = on_successful
-        self.on_end = on_end
+        self.on_exception_callback = on_exception_callback
+        self.on_successful_callback = on_successful_callback
+        self.on_end_callback = on_end_callback
         self.pj_kwargs = pj_kwargs
 
         if prediction_jobs is None:
-            self._get_prediction_jobs()
+            self.prediction_jobs = self._get_prediction_jobs()
         else:
-            # retrieve pj info if not provided
-            prediction_jobs = [pj if len(pj.keys()) > 1
-                               else self.context.database.get_prediction_job(pj['id'])
-                               for pj in prediction_jobs]
-            self.prediction_jobs = prediction_jobs
+            self.prediction_jobs = self._add_missing_info_prediction_jobs(
+                prediction_jobs
+            )
+
+        if self.random_order:
+            random.shuffle(self.prediction_jobs)
 
     def _get_prediction_jobs(self):
         """Fetches prediction jobs from database.
@@ -72,12 +73,23 @@ class PredictionJobLoop():
         self.context.logger.info(
             "Querying prediction jobs from database", **self.pj_kwargs
         )
-        self.prediction_jobs = self.context.database.get_prediction_jobs(
+        prediction_jobs = self.context.database.get_prediction_jobs(
             **self.pj_kwargs
         )
 
-        if self.random_order:
-            random.shuffle(self.prediction_jobs)
+        return prediction_jobs
+
+    def _add_missing_info_prediciton_jobs(self, prediction_jobs_input):
+        prediction_jobs = []
+
+        for pj in prediction_jobs_input:
+            if len(pj.keys()) > 1:
+                prediction_jobs.append(pj)
+                continue
+
+            prediction_jobs.append(self.context.database.get_prediction_job(pj['id']))
+
+        return prediction_jobs
 
     def map(self, function, *args, **kwargs):
         """Maps the passed function over all prediction jobs.
@@ -101,6 +113,7 @@ class PredictionJobLoop():
         num_jobs = len(self.prediction_jobs)
         self.context.perf_meter.checkpoint("pre-loop")
 
+        # loop over prefiction jobs's
         for i, prediction_job in enumerate(self.prediction_jobs):
             successful = False
 
@@ -119,56 +132,18 @@ class PredictionJobLoop():
                 pids_successful.append(prediction_job["id"])
                 successful = True
 
-                if self.on_successful is not None:
-                    try:
-                        self.on_successful(prediction_job)
-                    except Exception:
-                        _, exc_info, stack_info = sys.exc_info()
-                        self.context.logger.error(
-                            "An exception occured when executing the on_successful\
-                             callback function for this iteration",
-                            exc_info=exc_info,
-                            stack_info=stack_info,
-                        )
+                self._handle_successful_iteration(prediction_job)
 
             except Exception as exception:
-                last_job_exception = exception
-                _, exc_info, stack_info = sys.exc_info()
-                self.context.logger.error(
-                    "An exception occured during this iteration",
-                    exc_info=exc_info,
-                    stack_info=stack_info,
-                )
                 pids_unsuccessful.append(prediction_job["id"])
+                last_job_exception = exception
 
-                if self.on_exception is not None:
-                    try:
-                        self.on_exception(prediction_job, exception)
-                    except Exception:
-                        _, exc_info, stack_info = sys.exc_info()
-                        self.context.logger.error(
-                            "An exception occured when executing the on_exception\
-                             callback function for this iteration",
-                            exc_info=exc_info,
-                            stack_info=stack_info,
-                        )
+                self._handle_exception_during_iteration(prediction_job, exception)
 
                 if self.stop_on_exception:
                     break
             finally:
-                self.context.perf_meter.complete_level(successful)
-
-                if self.on_end is not None:
-                    try:
-                        self.on_end(prediction_job, successful)
-                    except Exception:
-                        _, exc_info, stack_info = sys.exc_info()
-                        self.context.logger.error(
-                            "An exception occured when executing the on_end callback\
-                            function for this iteration",
-                            exc_info=exc_info,
-                            stack_info=stack_info,
-                        )
+                self._handle_finished_last_iteration(prediction_job, successful)
 
             self.context.logger = self.context.logger.unbind("prediction_id")
 
@@ -197,6 +172,56 @@ class PredictionJobLoop():
             }
 
             raise PredictionJobException(metrics) from last_job_exception
+
+    def _handle_successful_iteration(self, prediction_job):
+        if self.on_successful_callback is not None:
+            try:
+                self.on_successful_callback(prediction_job)
+            except Exception:
+                _, exc_info, stack_info = sys.exc_info()
+                self.context.logger.error(
+                    "An exception occured when executing the on_successful_callback\
+                        callback function for this iteration",
+                    exc_info=exc_info,
+                    stack_info=stack_info,
+                )
+
+    def _handle_exception_during_iteration(self, prediction_job, e):
+        _, exc_info, stack_info = sys.exc_info()
+        self.context.logger.error(
+            "An exception occured during this iteration",
+            exc_info=exc_info, stack_info=stack_info,
+        )
+
+        if self.on_exception_callback is None:
+            return
+
+        try:
+            self.on_exception_callback(prediction_job, e)
+        except Exception:
+            _, exc_info, stack_info = sys.exc_info()
+            self.context.logger.error(
+                "An exception occured when executing the on_exception_callback "
+                "callback function for this iteration",
+                exc_info=exc_info,
+                stack_info=stack_info,
+            )
+
+    def _handle_finished_last_iteration(self, prediction_job, successful):
+
+        self.context.perf_meter.complete_level(successful)
+
+        if self.on_end_callback is not None:
+            try:
+                self.on_end_callback(prediction_job, successful)
+            except Exception:
+                _, exc_info, stack_info = sys.exc_info()
+                self.context.logger.error(
+                    "An exception occured when executing the on_end_callback callback\
+                    function for this iteration",
+                    exc_info=exc_info,
+                    stack_info=stack_info,
+                )
 
 
 class PredictionJobException(Exception):

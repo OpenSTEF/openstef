@@ -86,5 +86,6 @@ def main():
             prediction_jobs=prediction_jobs
         ).map(make_solar_predicion_pj, context)
 
+
 if __name__ == "__main__":
     main()

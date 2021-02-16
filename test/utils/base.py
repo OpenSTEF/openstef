@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 
 import unittest
+from unittest.mock import patch
 
 import numpy as np
 import pandas as pd
@@ -10,12 +11,24 @@ import pandas as pd
 
 class BaseTestCase(unittest.TestCase):
 
-    # TODO for some reason this does not work : has not attribute addTypeEqualitty
-    # def __init__(self, *args, **kwargs):
-    #     super().__init__(*args, **kwargs)
-    #     self.addTypeEqualityFunc(pd.DataFrame, self.assertDataframeEqual)
-    #     self.addTypeEqualityFunc(pd.Series, self.assertSeriesEqual)
-    #     self.addTypeEqualityFun(np.array, self.assertArrayEqual)
+    def setUp(self) -> None:
+        super().setUp()
+        self.patchers = []
+        self.patchers.append(patch("ktpbase.log.logging.get_logger", create=True))
+        self.patchers.append(patch("ktpbase.config.config.ConfigManager.get_instance", create=True))
+        for patcher in self.patchers:
+            patcher.start()
+
+    def tearDown(self) -> None:
+        super().tearDown()
+        for patcher in self.patchers:
+            patcher.stop()
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.addTypeEqualityFunc(pd.DataFrame, self.assertDataframeEqual)
+        self.addTypeEqualityFunc(pd.Series, self.assertSeriesEqual)
+        self.addTypeEqualityFunc(np.array, self.assertArrayEqual)
 
     def assertDataframeEqual(self, *args, **kwargs):
         try:

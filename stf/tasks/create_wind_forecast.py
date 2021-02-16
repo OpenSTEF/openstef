@@ -68,5 +68,6 @@ def main():
             prediction_jobs=prediction_jobs
         ).map(make_wind_forcast_pj, context)
 
+
 if __name__ == "__main__":
     main()

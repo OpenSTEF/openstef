@@ -12,7 +12,7 @@ from test.utils import BaseTestCase, TestData
 class TestFigure(BaseTestCase):
 
     def setUp(self):
-
+        super().setUp()
         self.data = TestData.load('input_data.pickle')
         self.train_data = TestData.load('input_data_train.pickle')
 

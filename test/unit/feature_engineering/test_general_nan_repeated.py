@@ -50,3 +50,7 @@ class GeneralTest(BaseTestCase):
         self.assertTrue(df_no_repeated["Column1"].equals(df_no_repeated["Column3"]))
         self.assertTrue(math.isnan(df_no_repeated.at[end_nan, "Column2"]))
         self.assertTrue(math.isnan(df_no_repeated.at[end_nan - 1, "Column2"]))
+
+
+if __name__ == "__main__":
+    unittest.main()

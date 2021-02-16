@@ -6,14 +6,14 @@ import unittest
 from test.utils.base import BaseTestCase
 
 import pandas as pd
-import numpy as np
 from datetime import timedelta
-from collections import defaultdict
 
 
-from stf.model.prediction.xgboost.quantile import \
+from stf.model.prediction.xgboost.quantile import (
     QuantileXGBPredictionModel as PredictionModel
+)
 from stf.model.general import ForecastType, MLModelType
+
 
 class TestQuantileXGBPredictionModel(BaseTestCase):
 
@@ -40,19 +40,18 @@ class TestQuantileXGBPredictionModel(BaseTestCase):
         # Construct inputs
         forecast_index = pd.to_datetime(['2020-01-10 00:00:00', '2020-01-10 00:15:00',
                                          '2020-01-10 01:00:00', '2020-01-10 01:15:00'])
-        load_data = pd.DataFrame(index=forecast_index-timedelta(days=14),
+        load_data = pd.DataFrame(index=forecast_index - timedelta(days=14),
                                  data={'load': [10, 20, 30, 40]})
 
-        m = PredictionModel(pj=dict(model=MLModelType.XGB_QUANTILE,
-                                id=999),
-                            forecast_type=ForecastType.DEMAND)
+        m = PredictionModel(
+            pj=dict(model=MLModelType.XGB_QUANTILE, id=999),
+            forecast_type=ForecastType.DEMAND
+        )
 
         forecast = m.predict_fallback(forecast_index, load_data)
 
         self.assertTrue('quantile_P90' in forecast.columns)
         self.assertTrue('substituted' in forecast.quality.values)
-
-
 
 
 if __name__ == "__main__":

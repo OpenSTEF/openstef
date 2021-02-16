@@ -30,3 +30,7 @@ class GeneralTest(BaseTestCase):
                               for key in expected_keys]), True)
         self.assertEqual(
             all([key in expected_keys for key in holiday_functions.keys()]), True)
+
+
+if __name__ == "__main__":
+    unittest.main()

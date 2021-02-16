@@ -31,7 +31,7 @@ def clean(data):
     len_original = len(data)
     # TODO Look into this
     # Remove where load is NA # # df.dropna?
-    data = data.loc[np.isnan(data.iloc[:, 0]) != True, :]
+    data = data.loc[np.isnan(data.iloc[:, 0]) != True, :]   # noqa E712
     num_removed_values = len_original - len(data)
     logger.debug(f"Removed {num_removed_values} NA values", num_removed_values=num_removed_values)
     return data

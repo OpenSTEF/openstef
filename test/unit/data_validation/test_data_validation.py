@@ -6,9 +6,11 @@ from stf.data_validation.data_validation import validate, clean
 
 from test.utils import BaseTestCase, TestData
 
+
 class TestDataValidation(BaseTestCase):
 
     def setUp(self):
+        super().setUp()
         self.data_train = TestData.load('input_data_train.pickle')
         self.data_predict = TestData.load('input_data.pickle')
 

@@ -11,7 +11,6 @@ import unittest
 from datetime import datetime, timedelta
 
 import pandas as pd
-from pandas.testing import assert_frame_equal
 
 from stf.model.validation_robot import nonzero_flatliner
 

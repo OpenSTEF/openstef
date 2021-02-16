@@ -52,10 +52,11 @@ def main():
         PredictionJobLoop(
             context,
             model_type=model_type,
-            on_end=callback,
+            on_end_callback=callback,
             # Debug specific pid
-            #prediction_jobs=[{'id':282}],
+            # prediction_jobs=[{'id':282}],
         ).map(predict.make_prediction, forecast_type=ForecastType.DEMAND)
+
 
 if __name__ == "__main__":
     main()

@@ -13,6 +13,7 @@ import stf.model.predict as predict
 NOW = datetime.now(timezone.utc)
 PJ = TestData.get_prediction_job(pid=60)
 
+
 @mock.patch("stf.model.predict.DataBase", MagicMock())
 class TestPredict(BaseTestCase):
 

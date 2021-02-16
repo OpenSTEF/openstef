@@ -14,7 +14,7 @@ from stf.model.capacity_prognosis import (
     predict_capacity_prognosis, train_capacity_prognosis
 )
 
-from test.utils import BaseTestCase, TestData
+from test.utils import BaseTestCase
 
 # define constants for mocking return values
 FUCNTION_ARGS = [
