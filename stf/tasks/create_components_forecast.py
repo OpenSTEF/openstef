@@ -66,7 +66,11 @@ def main():
         PredictionJobLoop(
             context,
             model_type=model_type,
+<<<<<<< HEAD
             on_end_cb=callback,
+=======
+            on_end_callback=callback,
+>>>>>>> develop
         ).map(create_components_forecast_pj, context)
 
 
