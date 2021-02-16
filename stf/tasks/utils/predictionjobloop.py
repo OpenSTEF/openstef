@@ -12,9 +12,9 @@ class PredictionJobLoop():
             context,
             stop_on_exception=False,
             random_order=True,
-            on_exception_cb=None,
-            on_successful_cb=None,
-            on_end_cb=None,
+            on_exception_callback=None,
+            on_successful_callback=None,
+            on_end_callback=None,
             prediction_jobs=None,
             **pj_kwargs):
         """Convenience objects that maps a function over prediction jobs.
@@ -32,13 +32,13 @@ class PredictionJobLoop():
             random_order (bool, optional): Whether to randomize the order of the
                 prediction jobs. Defaults to True. Does not apply to manually
                 passed prediction jobs.
-            on_exception_cb (callable, optional): Callback, will be called
+            on_exception_callback (callable, optional): Callback, will be called
                 everytime an exception is raised. Callable gets the pj and
                 exception raised as arguments
-            on_successful_cb (callable, optional): Callback, will be called
+            on_successful_callback (callable, optional): Callback, will be called
                 everytime an iteration is successful (no exception is raised).
                 Callable gets the pj as argument.
-            on_end_cb (callable, optional): Callback, will be called everytime an
+            on_end_callback (callable, optional): Callback, will be called everytime an
                 iteration is completed. Callable gets the pj and and bool
                 indicating success as argument.
             prediction_jobs (list of dicts, optional): Manually pass a list of
@@ -52,9 +52,9 @@ class PredictionJobLoop():
         self.context = context
         self.stop_on_exception = stop_on_exception
         self.random_order = random_order
-        self.on_exception_cb = on_exception_cb
-        self.on_successful_cb = on_successful_cb
-        self.on_end_cb = on_end_cb
+        self.on_exception_callback = on_exception_callback
+        self.on_successful_callback = on_successful_callback
+        self.on_end_callback = on_end_callback
         self.pj_kwargs = pj_kwargs
 
         if prediction_jobs is None:
@@ -174,13 +174,13 @@ class PredictionJobLoop():
             raise PredictionJobException(metrics) from last_job_exception
 
     def _handle_successful_iteration(self, prediction_job):
-        if self.on_successful_cb is not None:
+        if self.on_successful_callback is not None:
             try:
-                self.on_successful_cb(prediction_job)
+                self.on_successful_callback(prediction_job)
             except Exception:
                 _, exc_info, stack_info = sys.exc_info()
                 self.context.logger.error(
-                    "An exception occured when executing the on_successful_cb\
+                    "An exception occured when executing the on_successful_callback\
                         callback function for this iteration",
                     exc_info=exc_info,
                     stack_info=stack_info,
@@ -193,15 +193,15 @@ class PredictionJobLoop():
             exc_info=exc_info, stack_info=stack_info,
         )
 
-        if self.on_exception_cb is None:
+        if self.on_exception_callback is None:
             return
 
         try:
-            self.on_exception_cb(prediction_job, e)
+            self.on_exception_callback(prediction_job, e)
         except Exception:
             _, exc_info, stack_info = sys.exc_info()
             self.context.logger.error(
-                "An exception occured when executing the on_exception_cb "
+                "An exception occured when executing the on_exception_callback "
                 "callback function for this iteration",
                 exc_info=exc_info,
                 stack_info=stack_info,
@@ -211,13 +211,13 @@ class PredictionJobLoop():
 
         self.context.perf_meter.complete_level(successful)
 
-        if self.on_end_cb is not None:
+        if self.on_end_callback is not None:
             try:
-                self.on_end_cb(prediction_job, successful)
+                self.on_end_callback(prediction_job, successful)
             except Exception:
                 _, exc_info, stack_info = sys.exc_info()
                 self.context.logger.error(
-                    "An exception occured when executing the on_end_cb callback\
+                    "An exception occured when executing the on_end_callback callback\
                     function for this iteration",
                     exc_info=exc_info,
                     stack_info=stack_info,
