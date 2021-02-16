@@ -7,6 +7,7 @@ from setuptools import setup
 
 pkg_dir = Path(__file__).parent.absolute()
 
+
 def read_requirements_from_file():
     with open(pkg_dir / "requirements.txt") as fh:
         requirements = []
@@ -19,9 +20,11 @@ def read_requirements_from_file():
             requirements.append(line)
         return requirements
 
+
 def read_long_description_from_readme():
     with open("README.md", "r", encoding="utf-8") as fh:
         return fh.read()
+
 
 setup(
     name="stf",

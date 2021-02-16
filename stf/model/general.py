@@ -4,7 +4,6 @@
 
 from datetime import timedelta
 from enum import Enum
-from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -31,6 +30,7 @@ class ForecastType(Enum):
     WIND = "wind"
     SOLAR = "solar"
     BASECASE = "basecase"
+
 
 # TODO move to config
 PV_COEFS_FILEPATH = PROJECT_ROOT / "stf" / "data" / "pv_single_coefs.csv"
@@ -431,7 +431,6 @@ def fides(data, all_forecasts=False):
     persistence = apply_persistence(data, how="mean", smooth_entries=4, add_to_df=True)
 
     df = insolation_forecast.merge(persistence, left_index=True, right_index=True)
-
 
     coefs = pd.read_csv(PV_COEFS_FILEPATH)
 
