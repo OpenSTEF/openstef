@@ -24,57 +24,57 @@ class TestPredictionJob(BaseTestCase):
         # Build mocks
         context_mock = MagicMock()
         context_mock.database.get_prediction_jobs.return_value = PREDICTION_JOBS
-        on_exception_cb = Mock()
-        on_successful_cb = Mock()
-        on_end_cb = Mock()
+        on_exception_callback = Mock()
+        on_successful_callback = Mock()
+        on_end_callback = Mock()
         function_mock = Mock()
 
         # Create loop that succeeds
-        PredictionJobLoop(context_mock, False, True, on_exception_cb,
-                          on_successful_cb, on_end_cb).map(function_mock)
+        PredictionJobLoop(context_mock, False, True, on_exception_callback,
+                          on_successful_callback, on_end_callback).map(function_mock)
 
         self.assertEqual(function_mock.call_count, NUM_PREDICTION_JOBS)
-        self.assertEqual(on_exception_cb.call_count, 0)
-        self.assertEqual(on_successful_cb.call_count, NUM_PREDICTION_JOBS)
-        self.assertEqual(on_end_cb.call_count, NUM_PREDICTION_JOBS)
+        self.assertEqual(on_exception_callback.call_count, 0)
+        self.assertEqual(on_successful_callback.call_count, NUM_PREDICTION_JOBS)
+        self.assertEqual(on_end_callback.call_count, NUM_PREDICTION_JOBS)
 
     def test_prediction_job_loop_fail(self):
         # Build mocks
         context_mock = MagicMock()
         context_mock.database.get_prediction_jobs.return_value = PREDICTION_JOBS
-        on_exception_cb = Mock()
-        on_successful_cb = Mock()
-        on_end_cb = Mock()
+        on_exception_callback = Mock()
+        on_successful_callback = Mock()
+        on_end_callback = Mock()
         function_mock = Mock(side_effect=Exception("Test"))
 
         # Create loop that fails
         with self.assertRaises(PredictionJobException):
-            PredictionJobLoop(context_mock, False, True, on_exception_cb,
-                              on_successful_cb, on_end_cb).map(function_mock)
+            PredictionJobLoop(context_mock, False, True, on_exception_callback,
+                              on_successful_callback, on_end_callback).map(function_mock)
 
         self.assertEqual(function_mock.call_count, NUM_PREDICTION_JOBS)
-        self.assertEqual(on_exception_cb.call_count, NUM_PREDICTION_JOBS)
-        self.assertEqual(on_successful_cb.call_count, 0)
-        self.assertEqual(on_end_cb.call_count, NUM_PREDICTION_JOBS)
+        self.assertEqual(on_exception_callback.call_count, NUM_PREDICTION_JOBS)
+        self.assertEqual(on_successful_callback.call_count, 0)
+        self.assertEqual(on_end_callback.call_count, NUM_PREDICTION_JOBS)
 
     def test_prediction_job_loop_fail_once(self):
         # Build mocks
         context_mock = MagicMock()
         context_mock.database.get_prediction_jobs.return_value = PREDICTION_JOBS
-        on_exception_cb = Mock()
-        on_successful_cb = Mock()
-        on_end_cb = Mock()
+        on_exception_callback = Mock()
+        on_successful_callback = Mock()
+        on_end_callback = Mock()
         function_mock = Mock(side_effect=Exception("Test"))
 
         # Create loop that fails and stops
         with self.assertRaises(PredictionJobException):
-            PredictionJobLoop(context_mock, True, True, on_exception_cb,
-                              on_successful_cb, on_end_cb).map(function_mock)
+            PredictionJobLoop(context_mock, True, True, on_exception_callback,
+                              on_successful_callback, on_end_callback).map(function_mock)
 
         self.assertEqual(function_mock.call_count, 1)
-        self.assertEqual(on_exception_cb.call_count, 1)
-        self.assertEqual(on_successful_cb.call_count, 0)
-        self.assertEqual(on_end_cb.call_count, 1)
+        self.assertEqual(on_exception_callback.call_count, 1)
+        self.assertEqual(on_successful_callback.call_count, 0)
+        self.assertEqual(on_end_callback.call_count, 1)
 
 
 if __name__ == "__main__":
