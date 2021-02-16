@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501
 #
 # SPDX-License-Identifier: MPL-2.0
-name: Python package
+name: Python Build
 
 on: [push]
 
@@ -49,3 +49,7 @@ jobs:
       run: |
         pip install pytest pytest-cov
         pytest test
+    # Build
+    - name: Build Python package
+      run: |
+        python setup.py sdist bdist_wheel
