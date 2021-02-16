@@ -33,7 +33,7 @@ class ForecastType(Enum):
     BASECASE = "basecase"
 
 # TODO move to config
-PV_COEFS_FILEPATH = PROJECT_ROOT / "data" / "pv_single_coefs.csv"
+PV_COEFS_FILEPATH = PROJECT_ROOT / "stf" / "data" / "pv_single_coefs.csv"
 
 
 def split_data_train_validation_test(

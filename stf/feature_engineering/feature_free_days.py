@@ -9,7 +9,7 @@ import pandas as pd
 
 from stf import PROJECT_ROOT
 
-HOLIDAY_CSV_PATH = PROJECT_ROOT / "data" / "dutch_holidays_2020-2022.csv"
+HOLIDAY_CSV_PATH = PROJECT_ROOT / "stf" / "data" / "dutch_holidays_2020-2022.csv"
 
 
 def create_holiday_functions():
