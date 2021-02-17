@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pymsteams
 from ktpbase.config.config import ConfigManager
+from ktpbase.log import logging
 
 
 def post_teams(msg, url=None):
@@ -23,17 +24,22 @@ def post_teams(msg, url=None):
             https://docs.microsoft.com/en-us/outlook/actionable-messages/send-via-connectors
         url (string, optional): webhook url, monitoring by default
 
-    Returns:
-        connectorcard: The card created and send to the teams channel
-
     Note:
         This function is namespace-specific.
 
     """
     config = ConfigManager.get_instance()
+    logger = logging.get_logger(__name__)
 
-    if url is None:
-        url = config.teams.monitoring_url
+    # if Teams url is not configured just return
+    if (
+        url is None and (
+            hasattr(config, "teams") is False or
+            config.teams.monitoring_url is None
+        )
+    ):
+        logger.warning("Can't post Teams message, no url given")
+        return
 
     card = pymsteams.connectorcard(url)
 
@@ -75,7 +81,6 @@ def post_teams(msg, url=None):
         card.addSection(section)
 
     card.send()
-    return card
 
 
 def post_teams_alert(msg, url=None):
@@ -88,15 +93,15 @@ def post_teams_alert(msg, url=None):
             following keys: text, title, images, facts, markdown. Also see:
             https://docs.microsoft.com/en-us/outlook/actionable-messages/send-via-connectors
 
-    Returns:
-        connectorcard: The card created and send to the teams channel.
-
     Note:
         This function is namespace-specific.
 
     """
+    config = ConfigManager.get_instance()
+
     if url is None:
-        url = ConfigManager.get_instance().teams.alert_url
+        if hasattr(config, "teams") is True:
+            url = config.teams.alert_url
 
     return post_teams(msg, url=url)
 
