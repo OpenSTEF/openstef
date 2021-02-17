@@ -39,13 +39,14 @@ def predict_capacity_prognosis(
     load_data = db.get_load_pid(
         pid=pj["id"], datetime_start=datetime_start, datetime_end=datetime_end
     )
-    sjv_data = db.get_sjv(datetime_start, datetime_end)
-    input_data = pd.concat([load_data, sjv_data], axis=1)
+    load_profiles_data = db.get_tdcv_load_profiles(datetime_start, datetime_end)
+    load_profile_names = list(load_profiles_data.columns)
+    input_data = pd.concat([load_data, load_profiles_data], axis=1)
 
     # apply features
-    logger.info("Apply features")
+    logger.info("Apply capacity features")
     feature_data, _ = apply_capacity_features(
-        input_data, y_col="load_max", y_hor=y_hor
+        input_data, y_col="load_max", y_hor=y_hor, load_profile_names=load_profile_names
     )
 
     # prepare prediction points
@@ -97,13 +98,16 @@ def train_capacity_prognosis(pj, datetime_start, datetime_end, y_hor=[0, 6, 13])
     load_data = db.get_load_pid(
         pid=pj["id"], datetime_start=datetime_start, datetime_end=datetime_end
     )
-    sjv_data = db.get_sjv(datetime_start, datetime_end)
-    input_data = pd.concat([load_data, sjv_data], axis=1)
+    load_profiles_data = db.get_tdcv_load_profiles(datetime_start, datetime_end)
+    load_profile_names = list(load_profiles_data.columns)
+
+    input_data = pd.concat([load_data, load_profiles_data], axis=1)
 
     # apply features
     logger.info("Apply features")
     feature_data, classes = apply_capacity_features(
-        input_data, y_col="load_max", y_hor=y_hor, outlier_removal=False
+        input_data, y_col="load_max", y_hor=y_hor, outlier_removal=False,
+        load_profile_names=load_profile_names
     )
 
     # prepare data

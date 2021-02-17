@@ -16,18 +16,18 @@ def apply_resample(df, to_resample, timedelta):
             Example: {'column': ['mean'], ['sum']}
         timedelta (str): Resolution to resample to ('H', 'D', 'M', etc)
     Return:
-        pandas.DataFrame:
+        pandas.DataFrame: Resampled dataframe.
     """
-
     # Resampled dataframe
-    r_df = pd.DataFrame()
+    resampled_data = pd.DataFrame()
 
     # Resample data for each column
-    for column in to_resample:
-        for op in to_resample[column]:
-            r_df[column + "_" + op] = df[column].resample(timedelta).agg(op)
+    for column, resample_methods in to_resample.items():
+        for method in resample_methods:
+            new_column_name = f"{column}_{method}"
+            resampled_data[new_column_name] = df[column].resample(timedelta).agg(method)
 
-    return r_df
+    return resampled_data
 
 
 def apply_calender_features(df):
@@ -147,21 +147,25 @@ def apply_classes(df, y_col, classes):
 
 
 def apply_capacity_features(
-    df, y_col, y_hor, apply_class_labels=True, outlier_removal=False
+    df, y_col, y_hor, apply_class_labels=True, outlier_removal=False,
+    load_profile_names=None
 ):
-    # apply resample
-    to_resample = {
-        "load": ["mean", "min", "max"],
-        "sjv_E1A": ["max"],
-        "sjv_E1B": ["max"],
-        "sjv_E1C": ["max"],
-        "sjv_E2A": ["max"],
-        "sjv_E2B": ["max"],
-        "sjv_E3A": ["max"],
-        "sjv_E3B": ["max"],
-        "sjv_E3C": ["max"],
+    if load_profile_names is None:
+        load_profile_names = []
+
+    # resample load column
+    load_resample_config = {
+        "load": ["mean", "min", "max"]
     }
-    df = apply_resample(df, to_resample=to_resample, timedelta="D")
+    load_df = apply_resample(df, load_resample_config, timedelta="D")
+
+    # resample TDCV load profiles
+    load_profile_resample_config = {}
+    for name in load_profile_names:
+        load_profile_resample_config[name] = ["max"]
+    load_profiles_df = apply_resample(df, load_profile_resample_config, timedelta="D")
+
+    df = pd.concat([load_df, load_profiles_df], axis=1)
 
     # remove outliers
     if outlier_removal:
