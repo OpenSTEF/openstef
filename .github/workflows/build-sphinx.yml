@@ -9,7 +9,7 @@ jobs:
     - uses: actions/checkout@v1
     - uses: ammaraskar/sphinx-action@master
       with:
-        pre-build-command: "sphinx-apidoc -o docs/source/stf stf"
+        pre-build-command: "sphinx-apidoc -o docs/stf stf"
         docs-folder: "docs/"
         
     # Great extra actions to compose with:
