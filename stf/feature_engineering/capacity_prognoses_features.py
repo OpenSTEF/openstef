@@ -159,7 +159,7 @@ def apply_capacity_features(
     }
     load_df = apply_resample(df, load_resample_config, timedelta="D")
 
-    # resample TDCV load profiles
+    # resample TDCV (Typical Domestic Consumption Values) load profiles
     load_profile_resample_config = {}
     for name in load_profile_names:
         load_profile_resample_config[name] = ["max"]
