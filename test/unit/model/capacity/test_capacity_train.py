@@ -81,5 +81,6 @@ class TestCapacityTrain(BaseTestCase):
             "val_h",
         )
 
+
 if __name__ == "__main__":
     unittest.main()
