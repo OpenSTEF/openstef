@@ -7,7 +7,6 @@ env:
 
 on: 
   push:
-    branches: [*]
 
 
 jobs:
