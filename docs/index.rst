@@ -2,13 +2,13 @@
 ..
 .. SPDX-License-Identifier: MPL-2.0
 
-Welcome to the documentation of KorteTermijnPrognoses!
+Welcome to the documentation of Short Term Forecasting!
 
 .. toctree::
    :maxdepth: 2
-   :caption: ktprognoses:
+   :caption: Short Term Forecasting:
    
-   ktprognoses/modules.rst
+   ../stf/modules.rst
    test/modules.rst
    
 
