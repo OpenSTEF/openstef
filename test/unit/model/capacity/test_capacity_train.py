@@ -40,7 +40,7 @@ LOAD_DATA = pd.DataFrame(
     columns=["load"],
     index=TIME_IND,
 )
-SJV_DATA = pd.DataFrame(
+TDCV_DATA = pd.DataFrame(
     [
         [
             0.000023,
@@ -224,7 +224,7 @@ class TestCapacityTrain(BaseTestCase):
     ):
         # set database return values
         db_mock.return_value.get_load_pid.return_value = LOAD_DATA
-        db_mock.return_value.get_tdcv_load_profiles.return_value = SJV_DATA
+        db_mock.return_value.get_tdcv_load_profiles.return_value = TDCV_DATA
         # set return values for function which return more then 1 argument
         apply_features_mock.return_value = "feature_data", "_"
         # model_mock.return_value.predict.return_value = "y_pred", "y_pred_prob"

@@ -11,9 +11,8 @@ import pandas as pd
 
 # import project modules
 from stf.model.capacity.predict import predict_capacity_prognosis
-from stf.model.capacity.train import train_capacity_prognosis
 
-from test.utils import BaseTestCase
+from test.utils import BaseTestCase, TestData
 
 # define constants for mocking return values
 FUCNTION_ARGS = [
@@ -22,162 +21,8 @@ FUCNTION_ARGS = [
     datetime.utcnow().date(),
     list(range(13))
 ]
-TIME_IND = pd.date_range(
-    "2020-03-17 00:00:00+00:00", "2020-03-17 02:15:00+00:00", freq="15min"
-)
-LOAD_DATA = pd.DataFrame(
-    [
-        0.660000,
-        1.163333,
-        1.860000,
-        1.826667,
-        2.263333,
-        2.516667,
-        2.236667,
-        2.280000,
-        2.480000,
-        1.960000,
-    ],
-    columns=["load"],
-    index=TIME_IND,
-)
-SJV_DATA = pd.DataFrame(
-    [
-        [
-            0.000023,
-            0.000025,
-            0.000025,
-            0.000024,
-            0.000025,
-            0.000019,
-            0.000021,
-            0.000021,
-            0.000025,
-            6.024000e-05,
-        ],
-        [
-            0.000022,
-            0.000023,
-            0.000023,
-            0.000023,
-            0.000024,
-            0.000019,
-            0.000021,
-            0.000021,
-            0.000025,
-            6.024000e-05,
-        ],
-        [
-            0.000021,
-            0.000022,
-            0.000022,
-            0.000023,
-            0.000024,
-            0.000019,
-            0.000020,
-            0.000020,
-            0.000025,
-            6.024000e-05,
-        ],
-        [
-            0.000020,
-            0.000021,
-            0.000021,
-            0.000023,
-            0.000024,
-            0.000019,
-            0.000020,
-            0.000020,
-            0.000026,
-            6.024000e-05,
-        ],
-        [
-            0.000019,
-            0.000020,
-            0.000020,
-            0.000022,
-            0.000023,
-            0.000019,
-            0.000020,
-            0.000020,
-            0.000026,
-            6.024000e-05,
-        ],
-        [
-            0.000019,
-            0.000020,
-            0.000020,
-            0.000022,
-            0.000023,
-            0.000018,
-            0.000020,
-            0.000020,
-            0.000025,
-            6.024000e-05,
-        ],
-        [
-            0.000018,
-            0.000019,
-            0.000019,
-            0.000022,
-            0.000023,
-            0.000018,
-            0.000020,
-            0.000020,
-            0.000026,
-            6.024000e-05,
-        ],
-        [
-            0.000017,
-            0.000018,
-            0.000019,
-            0.000022,
-            0.000023,
-            0.000018,
-            0.000020,
-            0.000020,
-            0.000026,
-            6.024000e-05,
-        ],
-        [
-            0.000017,
-            0.000018,
-            0.000019,
-            0.000022,
-            0.000023,
-            0.000018,
-            0.000020,
-            0.000020,
-            0.000026,
-            6.024000e-05,
-        ],
-        [
-            0.000017,
-            0.000018,
-            0.000018,
-            0.000022,
-            0.000023,
-            0.000018,
-            0.000020,
-            0.000020,
-            0.000026,
-            6.024000e-05,
-        ],
-    ],
-    columns=[
-        "sjv_E1A",
-        "sjv_E1B",
-        "sjv_E1C",
-        "sjv_E2A",
-        "sjv_E2B",
-        "sjv_E3A",
-        "sjv_E3B",
-        "sjv_E3C",
-        "sjv_E3D",
-        "sjv_E4A",
-    ],
-    index=TIME_IND,
-)
+LOAD_DATA = TestData.load("capacity_load.csv")
+TDCV_DATA = TestData.load("capacity_tdcv_load_profiles.csv")
 
 
 @patch("stf.model.capacity.predict.visualize_predictions")
@@ -187,13 +32,9 @@ SJV_DATA = pd.DataFrame(
 @patch("stf.model.capacity.predict.DataBase")
 @patch("stf.model.capacity.predict.plotly")
 class TestCapacityPredict(BaseTestCase):
+
     def test_no_exception(
-        self,
-        plotly_mock,
-        db_mock,
-        apply_features_mock,
-        model_mock,
-        prepare_data_mock,
+        self, plotly_mock, db_mock, apply_features_mock, model_mock, prepare_data_mock,
         visualize_predictions_mock,
     ):
         self.add_mock_return_values(
@@ -204,7 +45,6 @@ class TestCapacityPredict(BaseTestCase):
             prepare_data_mock,
             visualize_predictions_mock,
         )
-
         # run function
         predict_capacity_prognosis(*FUCNTION_ARGS)
 
@@ -233,7 +73,7 @@ class TestCapacityPredict(BaseTestCase):
     ):
         # set database return values
         db_mock.return_value.get_load_pid.return_value = LOAD_DATA
-        db_mock.return_value.get_tdcv_load_profiles.return_value = SJV_DATA
+        db_mock.return_value.get_tdcv_load_profiles.return_value = TDCV_DATA
         # set return values for function which return more then 1 argument
         apply_features_mock.return_value = "feature_data", "_"
         model_mock.return_value.predict.return_value = "y_pred", "y_pred_prob"
