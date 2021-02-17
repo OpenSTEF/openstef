@@ -6,11 +6,13 @@ import os
 
 import numpy as np
 import pandas as pd
+from datetime import date
+import holidays
 
 HOLIDAY_CSV_PATH = os.path.dirname(__file__) + "/dutch_holidays_2020-2022.csv"
 
 
-def create_holiday_functions():
+def create_holiday_functions(country="FR", years=None):
     """
     This function provides functions for creating holiday feature.
     This improves forecast accuracy. Examples of features that are added are:
@@ -44,27 +46,31 @@ def create_holiday_functions():
                 consist of "Is" + the_name_of_the_holiday_to_be_checked
     """
 
-    # Manully generated csv including all dutch holidays for different regions
-    df_holidays = pd.read_csv(HOLIDAY_CSV_PATH, index_col=None)
-    df_holidays["datum"] = pd.to_datetime(df_holidays.datum).apply(lambda x: x.date())
+    if years is None:
+        years = [2020, 2021]
+
+    holidays_object = holidays.CountryHoliday(country, years=years)
 
     # Make holiday function dict
     holiday_functions = {}
     # Add check function that includes all holidays of the provided csv
     holiday_functions.update(
-        {"IsFeestdag": lambda x: np.isin(x.index.date, df_holidays.datum.values)}
+        {"IsHoliday": lambda x: np.isin(x.index.py_datetime().date, holidays)}
     )
 
     # Loop over list of holidays names
-    for holidayname in list(set(df_holidays.name)):
+    for date, holidayname in sorted(holidays_object.items()):
         # Define function explicitely to mitigate 'late binding' problem
         def make_holiday_func(holidayname=holidayname):
-            return lambda x: np.isin(
-                x.index.date, df_holidays.datum[df_holidays.name == holidayname].values
-            )
+            return lambda x: x.index.py_datetime().date is date
 
         # Create lag function for each holiday
         holiday_functions.update(
             {"Is" + holidayname: make_holiday_func(holidayname=holidayname)}
         )
     return holiday_functions
+
+
+if __name__ == "__main__":
+    holiday_functions = create_holiday_functions(country="NL")
+    print(holiday_functions)
