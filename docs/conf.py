@@ -20,9 +20,8 @@ import sys
 
 import sphinx_rtd_theme
 
-sys.path.insert(0, os.path.abspath("../../ktprognoses/"))
+sys.path.insert(0, os.path.abspath("../../stf/"))
 sys.path.insert(0, os.path.abspath("../../"))
-sys.path.insert(0, os.path.abspath("../../scripts/data_to_db/pvdata/"))
 
 # -- Project information -----------------------------------------------------
 
