@@ -10,9 +10,7 @@ from unittest.mock import patch
 import pandas as pd
 
 # import project modules
-from stf.model.capacity_prognosis import (
-    predict_capacity_prognosis, train_capacity_prognosis
-)
+from stf.model.capacity.train import train_capacity_prognosis
 
 from test.utils import BaseTestCase
 
@@ -181,70 +179,11 @@ SJV_DATA = pd.DataFrame(
 )
 
 
-@patch("stf.model.capacity_prognosis.visualize_predictions")
-@patch("stf.model.capacity_prognosis.prepare_prediction_data")
-@patch("stf.model.capacity_prognosis.CapacityPrognosisModel")
-@patch("stf.model.capacity_prognosis.apply_capacity_features")
-@patch("stf.model.capacity_prognosis.DataBase")
-@patch("stf.model.capacity_prognosis.plotly")
-class TestCapacityPrognosisPredict(BaseTestCase):
-    def test_no_exception(
-        self,
-        plotly_mock,
-        db_mock,
-        apply_features_mock,
-        model_mock,
-        prepare_data_mock,
-        visualize_predictions_mock,
-    ):
-        self.add_mock_return_values(
-            plotly_mock,
-            db_mock,
-            apply_features_mock,
-            model_mock,
-            prepare_data_mock,
-            visualize_predictions_mock,
-        )
-
-        # run function
-        predict_capacity_prognosis(*FUCNTION_ARGS)
-
-        # check mocks
-        mocks_called = [
-            db_mock.return_value.get_load_pid,
-            db_mock.return_value.get_tdcv_load_profiles,
-            apply_features_mock,
-            prepare_data_mock,
-            model_mock,
-            model_mock.return_value.predict,
-            visualize_predictions_mock,
-            plotly_mock.offline.plot,
-        ]
-        for mock in mocks_called:
-            mock.assert_called_once()
-
-    @staticmethod
-    def add_mock_return_values(
-        plotly_mock,
-        db_mock,
-        apply_features_mock,
-        model_mock,
-        prepare_data_mock,
-        visualize_predictions_mock,
-    ):
-        # set database return values
-        db_mock.return_value.get_load_pid.return_value = LOAD_DATA
-        db_mock.return_value.get_tdcv_load_profiles.return_value = SJV_DATA
-        # set return values for function which return more then 1 argument
-        apply_features_mock.return_value = "feature_data", "_"
-        model_mock.return_value.predict.return_value = "y_pred", "y_pred_prob"
-
-
-@patch("stf.model.capacity_prognosis.prepare_training_data")
-@patch("stf.model.capacity_prognosis.CapacityPrognosisModel")
-@patch("stf.model.capacity_prognosis.apply_capacity_features")
-@patch("stf.model.capacity_prognosis.DataBase")
-class TestCapacityPrognosisTrain(BaseTestCase):
+@patch("stf.model.capacity.train.prepare_training_data")
+@patch("stf.model.capacity.train.CapacityPredictionModel")
+@patch("stf.model.capacity.train.apply_capacity_features")
+@patch("stf.model.capacity.train.DataBase")
+class TestCapacityTrain(BaseTestCase):
     def test_no_exception(
         self,
         db_mock,
@@ -297,7 +236,6 @@ class TestCapacityPrognosisTrain(BaseTestCase):
             "val_y",
             "val_h",
         )
-
 
 if __name__ == "__main__":
     unittest.main()

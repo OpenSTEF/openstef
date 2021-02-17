@@ -9,7 +9,7 @@ import unittest
 import numpy as np
 import pytz
 
-from stf.model import capacity_prognosis_utils as cpu
+from stf.model.capacity import utils
 from stf.feature_engineering.capacity_prognoses_features import (
     apply_capacity_features
 )
@@ -26,7 +26,7 @@ class TestCapacityPrognosisUtils(BaseTestCase):
         feature_data, _ = apply_capacity_features(
             data, y_col="load_max", y_hor=[1, 2], load_profile_names=load_profile_names
         )
-        train_x, train_y, train_h, val_x, val_y, val_h = cpu.prepare_training_data(
+        train_x, train_y, train_h, val_x, val_y, val_h = utils.prepare_training_data(
             df=feature_data, y_col="load_max", val_n=4, val_width="14D"
         )
 
@@ -43,7 +43,7 @@ class TestCapacityPrognosisUtils(BaseTestCase):
             pc_input, y_col="load_max", y_hor=[1, 2],
             load_profile_names=load_profile_names
         )
-        x = cpu.prepare_prediction_data(
+        x = utils.prepare_prediction_data(
             df=feature_data, y_col="load_max", y_hor=[1, 2]
         )
         return x

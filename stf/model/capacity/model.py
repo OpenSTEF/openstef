@@ -12,7 +12,7 @@ import sklearn
 import xgboost as xgb
 
 
-class CapacityPrognosisModel:
+class CapacityPredictionModel:
     def __init__(self, classes=None, hyper_params=None):
         """ set default hyper-parameters"""
         if hyper_params is None:
