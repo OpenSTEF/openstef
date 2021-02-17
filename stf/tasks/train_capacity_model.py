@@ -6,7 +6,7 @@ from datetime import datetime
 
 import pandas as pd
 
-from stf.model.capacity_prognosis import train_capacity_prognosis
+from stf.model.capacity.train import train_capacity_prognosis
 from stf.tasks.utils.predictionjobloop import PredictionJobLoop
 from stf.tasks.utils.taskcontext import TaskContext
 

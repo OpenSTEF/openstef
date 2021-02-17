@@ -4,7 +4,7 @@
 
 from datetime import datetime, timedelta
 
-from stf.model.capacity_prognosis import predict_capacity_prognosis
+from stf.model.capacity.predict import predict_capacity_prognosis
 from stf.tasks.utils.predictionjobloop import PredictionJobLoop
 from stf.tasks.utils.taskcontext import TaskContext
 
