@@ -7,8 +7,6 @@ import unittest
 from datetime import datetime
 from unittest.mock import patch
 
-import pandas as pd
-
 # import project modules
 from stf.model.capacity.predict import predict_capacity_prognosis
 
