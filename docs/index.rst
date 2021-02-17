@@ -8,7 +8,7 @@ Welcome to the documentation of Short Term Forecasting!
    :maxdepth: 2
    :caption: Short Term Forecasting:
    
-   ../stf/modules.rst
+   stf/modules.rst
    test/modules.rst
    
 
