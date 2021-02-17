@@ -26,7 +26,7 @@ sys.path.insert(0, os.path.abspath("../../"))
 # -- Project information -----------------------------------------------------
 
 project = "KorteTermijnPrognoses"
-copyright = "2020, KorteTermijnPrognoses"
+copyright = "2017-2021 Alliander N.V."
 author = "Frank Kreuwel"
 
 
