@@ -212,7 +212,7 @@ class TestCapacityPrognosisPredict(BaseTestCase):
         # check mocks
         mocks_called = [
             db_mock.return_value.get_load_pid,
-            db_mock.return_value.get_sjv,
+            db_mock.return_value.get_tdcv_load_profiles,
             apply_features_mock,
             prepare_data_mock,
             model_mock,
@@ -234,7 +234,7 @@ class TestCapacityPrognosisPredict(BaseTestCase):
     ):
         # set database return values
         db_mock.return_value.get_load_pid.return_value = LOAD_DATA
-        db_mock.return_value.get_sjv.return_value = SJV_DATA
+        db_mock.return_value.get_tdcv_load_profiles.return_value = SJV_DATA
         # set return values for function which return more then 1 argument
         apply_features_mock.return_value = "feature_data", "_"
         model_mock.return_value.predict.return_value = "y_pred", "y_pred_prob"
@@ -265,7 +265,7 @@ class TestCapacityPrognosisTrain(BaseTestCase):
         # check mocks
         mocks_called = [
             db_mock.return_value.get_load_pid,
-            db_mock.return_value.get_sjv,
+            db_mock.return_value.get_tdcv_load_profiles,
             apply_features_mock,
             prepare_data_mock,
             model_mock,
@@ -285,7 +285,7 @@ class TestCapacityPrognosisTrain(BaseTestCase):
     ):
         # set database return values
         db_mock.return_value.get_load_pid.return_value = LOAD_DATA
-        db_mock.return_value.get_sjv.return_value = SJV_DATA
+        db_mock.return_value.get_tdcv_load_profiles.return_value = SJV_DATA
         # set return values for function which return more then 1 argument
         apply_features_mock.return_value = "feature_data", "_"
         # model_mock.return_value.predict.return_value = "y_pred", "y_pred_prob"
