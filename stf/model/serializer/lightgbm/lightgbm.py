@@ -77,10 +77,7 @@ class LGBModelSerializer(AbstractModelSerializer):
             return None, None
         model_file = str(model_file)
         lgb_model = lgb.Booster(model_file=model_file)
-
         self.logger.info(f"Loaded model from: {model_file}")
-
-        #lgb_model = self._add_atributes(model_folder, lgb_model)
 
         return lgb_model, model_file
 

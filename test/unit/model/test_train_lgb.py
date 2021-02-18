@@ -69,16 +69,12 @@ class TestTrain(BaseTestCase):
         self.model_trainer_ref = LGBModelTrainer(pj)
         self.model_trainer_ref.hyper_parameters.update(params)
         self.model_trainer_ref.train(self.training_data_ref, self.validation_data_ref)
-        #serializer_creator = ModelSerializerCreator()
-        #serializer = serializer_creator.create_model_serializer(MLModelType("lgb"))
-        #serializer.save(pj["id"], self.model_trainer_ref.trained_model)
-            #TestData.save(model_trainer_ref, "model_trainer_reference.pickle")
-        #self.model_trainer_ref = TestData.load("model_trainer_reference.pickle")
+
 
     def test_model_trainer_creator(self):
         serializer_creator = ModelSerializerCreator()
         serializer = serializer_creator.create_model_serializer(MLModelType("lgb"))
-        #model, model_file = serializer.load(123, TestData.TRAINED_MODELS_FOLDER)
+        # model, model_file = serializer.load(123, TestData.TRAINED_MODELS_FOLDER)
         model, model_file = serializer.load(pj["id"], TestData.TRAINED_MODELS_FOLDER)
 
         model_path = TestData.TRAINED_MODELS_FOLDER / f"{pj['id']}/20191119120000/model.bin"

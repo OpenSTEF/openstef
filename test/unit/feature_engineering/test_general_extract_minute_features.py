@@ -17,9 +17,9 @@ class TestGeneralExtractMinuteFeatures(BaseTestCase):
     def setUp(self):
         super().setUp()
         serializer_creator = ModelSerializerCreator()
-        serializer = serializer_creator.create_model_serializer(MLModelType('lgb'))
-        model_folder = TestData.TRAINED_MODELS_FOLDER
-        self.model, model_file = serializer.load(123, model_folder)
+        serializer = serializer_creator.create_model_serializer(MLModelType('xgb'))
+        model_folder = TestData.TRAINED_MODELS_FOLDER / "307"
+        self.model, model_file = serializer.load(307, model_folder)
 
     def test_extract_minute_features(self):
         testlist = extract_minute_features(self.model.feature_names)
