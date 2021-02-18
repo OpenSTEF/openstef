@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 
 import os
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 import numpy as np
 import pandas as pd
@@ -48,55 +48,56 @@ def create_holiday_functions(country="NL", years=None, path_to_school_holidays_c
     """
 
     if years is None:
-        years = [2020, 2021]
+        now = datetime.now()
+        years = [now.year - 1, now.year]
 
-    holidays_object = holidays.CountryHoliday(country, years=years)
+    country_holidays = holidays.CountryHoliday(country, years=years)
 
     # Make holiday function dict
     holiday_functions = {}
     # Add check function that includes all holidays of the provided csv
     holiday_functions.update(
-        {"IsNationalHoliday": lambda x: np.isin(x.index.py_datetime().date, holidays_object)}
+        {"IsNationalHoliday": lambda x: np.isin(x.index.py_datetime().date, country_holidays)}
     )
 
     # Loop over list of holidays names
-    for date, holidayname in sorted(holidays_object.items()):
+    for date, holiday_name in sorted(country_holidays.items()):
         # Define function explicitely to mitigate 'late binding' problem
         def make_holiday_func(date):
             return lambda x: x.index.py_datetime().date is date
 
         # Create lag function for each holiday
         holiday_functions.update(
-            {"Is" + holidayname: make_holiday_func(date)}
+            {"Is" + holiday_name: make_holiday_func(date)}
         )
 
         # Check for bridgedays
         # Looking forward: If day after tomorow is a national holiday or
         # a saturday check if tomorow is not a national holiday
-        if (date+timedelta(days=2)) in holidays_object or\
+        if (date+timedelta(days=2)) in country_holidays or\
                 (date+timedelta(days=2)).weekday() == 5:
 
             # If tomorow is not a national holiday or a weekend day make it a bridgeday
-            if not (date+timedelta(days=1)) in holidays_object \
+            if not (date+timedelta(days=1)) in country_holidays \
                     and not (date+timedelta(days=1)).weekday() in [5, 6]:
 
                 # Create feature function for each holiday
                 holiday_functions.update(
-                    {"IsBridgeday" + holidayname:
+                    {"IsBridgeday" + holiday_name:
                          make_holiday_func((date+timedelta(days=1)))}
                 )
         # Looking backward: If day before yesterday is a national holiday
         # or a sunday check if yesterday is a national holiday
-        if (date-timedelta(days=2)) in holidays_object or\
+        if (date-timedelta(days=2)) in country_holidays or\
                 (date-timedelta(days=2)).weekday() == 6:
 
             # If yesterday is a not a national holiday or a weekend day ymake it a bridgeday
-            if not (date-timedelta(days=1)) in holidays_object \
+            if not (date-timedelta(days=1)) in country_holidays \
                     and not (date-timedelta(days=1)).weekday() in [5, 6]:
 
                 # Create featurefunction for the bridge function
                 holiday_functions.update(
-                    {"IsBridgeday" + holidayname:
+                    {"IsBridgeday" + holiday_name:
                          make_holiday_func((date-timedelta(days=1)))}
                 )
 
@@ -110,16 +111,16 @@ def create_holiday_functions(country="NL", years=None, path_to_school_holidays_c
     )
 
     # Loop over list of holidays names
-    for holidayname in list(set(df_holidays.name)):
+    for holiday_name in list(set(df_holidays.name)):
         # Define function explicitely to mitigate 'late binding' problem
-        def make_holiday_func(holidayname=holidayname):
+        def make_holiday_func(holidayname=holiday_name):
             return lambda x: np.isin(
                 x.index.date,
                 df_holidays.datum[df_holidays.name == holidayname].values
             )
         # Create lag function for each holiday
         holiday_functions.update(
-            {"Is" + holidayname: make_holiday_func(holidayname=holidayname)}
+            {"Is" + holiday_name: make_holiday_func(holidayname=holiday_name)}
         )
 
     return holiday_functions
