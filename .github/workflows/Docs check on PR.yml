@@ -1,0 +1,13 @@
+name: "Docs Check on PR"
+on: 
+- pull_request
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - uses: ammaraskar/sphinx-action@master
+      with:
+        pre-build-command: "sphinx-apidoc -o docs/stf stf"
+        docs-folder: "docs/"

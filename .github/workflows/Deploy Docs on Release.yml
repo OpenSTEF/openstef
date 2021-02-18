@@ -1,6 +1,6 @@
-name: "Pull Request Docs Check"
-on: 
-- push
+name: "Docs Build on Release"
+on:
+- release
 
 jobs:
   docs:
@@ -11,7 +11,7 @@ jobs:
       with:
         pre-build-command: "sphinx-apidoc -o docs/stf stf"
         docs-folder: "docs/"
-        
+
     # Great extra actions to compose with:
     # Create an artifact of the html output.
     - uses: actions/upload-artifact@v1
