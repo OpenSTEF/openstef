@@ -40,6 +40,9 @@ To run a task use:
 python -m stf task <task_name>
 ```
 
+## License
+This project is licensed under the Mozilla Public License, version 2.0 - see the LICENSE directory for details
+
 ## Contributing
 
 Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
