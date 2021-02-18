@@ -43,7 +43,7 @@ jobs:
       run: |
         pip install flake8
         # stop the build if there are non ignored Python errors
-        flake8 . --count --show-source --statistics
+        flake8 . --count --show-source --statistics --ignore=E121,E123,E126,E226,E24,E704,W503,W504
     # Test
     - name: Test with pytest
       run: |
