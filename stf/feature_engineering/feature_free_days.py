@@ -75,29 +75,29 @@ def create_holiday_functions(country="NL", years=None, path_to_school_holidays_c
         # Check for bridgedays
         # Looking forward: If day after tomorow is a national holiday or
         # a saturday check if tomorow is not a national holiday
-        if (date+timedelta(days=2)) in country_holidays or\
-                (date+timedelta(days=2)).weekday() == 5:
+        if (date + timedelta(days=2)) in country_holidays or\
+                (date + timedelta(days=2)).weekday() == 5:
 
             # If tomorow is not a national holiday or a weekend day make it a bridgeday
-            if not (date+timedelta(days=1)) in country_holidays \
-                    and not (date+timedelta(days=1)).weekday() in [5, 6]:
+            if not (date + timedelta(days=1)) in country_holidays \
+                    and not (date + timedelta(days=1)).weekday() in [5, 6]:
 
                 # Create feature function for each holiday
                 holiday_functions.update(
-                    {"is_bridgeday" + holiday_name: make_holiday_func((date+timedelta(days=1)))}
+                    {"is_bridgeday" + holiday_name: make_holiday_func((date + timedelta(days=1)))}
                 )
         # Looking backward: If day before yesterday is a national holiday
         # or a sunday check if yesterday is a national holiday
-        if (date-timedelta(days=2)) in country_holidays or\
-                (date-timedelta(days=2)).weekday() == 6:
+        if (date - timedelta(days=2)) in country_holidays or\
+                (date - timedelta(days=2)).weekday() == 6:
 
             # If yesterday is a not a national holiday or a weekend day ymake it a bridgeday
-            if not (date-timedelta(days=1)) in country_holidays \
-                    and not (date-timedelta(days=1)).weekday() in [5, 6]:
+            if not (date - timedelta(days=1)) in country_holidays \
+                    and not (date - timedelta(days=1)).weekday() in [5, 6]:
 
                 # Create featurefunction for the bridge function
                 holiday_functions.update(
-                    {"is_bridgeday" + holiday_name: make_holiday_func((date-timedelta(days=1)))}
+                    {"is_bridgeday" + holiday_name: make_holiday_func((date - timedelta(days=1)))}
                 )
 
     # Manully generated csv including all dutch schoolholidays for different regions
