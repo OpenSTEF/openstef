@@ -245,8 +245,138 @@ True.</p></li>
 </dd></dl>
 
 </div>
-<div class="section" id="stf-monitoring-teams-module">
-<h2>stf.monitoring.teams module<a class="headerlink" href="#stf-monitoring-teams-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-stf.monitoring.teams">
+<span id="stf-monitoring-teams-module"></span><h2>stf.monitoring.teams module<a class="headerlink" href="#module-stf.monitoring.teams" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="stf.monitoring.teams.post_teams">
+<code class="sig-prename descclassname">stf.monitoring.teams.</code><code class="sig-name descname">post_teams</code><span class="sig-paren">(</span><em class="sig-param">msg</em>, <em class="sig-param">url=None</em><span class="sig-paren">)</span><a class="headerlink" href="#stf.monitoring.teams.post_teams" title="Permalink to this definition">¶</a></dt>
+<dd><p>Post a message to Teams - KTP</p>
+<p>Note that currently no authentication occurs.
+Security is given by keeping the URL secret.
+One should therefore refrain from using more enhanced features such as
+action buttons.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>msg</strong> (<em>mixed</em>) – For simple messages a string can be passed. For more
+complex messages pass a dict. The following keys are supported:
+text, links, sections. Each section can contain the following keys:
+text, title, images, facts, markdown. Also see:
+<a class="reference external" href="https://docs.microsoft.com/en-us/outlook/actionable-messages/send-via-connectors">https://docs.microsoft.com/en-us/outlook/actionable-messages/send-via-connectors</a></p></li>
+<li><p><strong>url</strong> (<em>string</em><em>, </em><em>optional</em>) – webhook url, monitoring by default</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The card created and send to the teams channel</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>connectorcard</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This function is namespace-specific.</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="stf.monitoring.teams.post_teams_alert">
+<code class="sig-prename descclassname">stf.monitoring.teams.</code><code class="sig-name descname">post_teams_alert</code><span class="sig-paren">(</span><em class="sig-param">msg</em>, <em class="sig-param">url=None</em><span class="sig-paren">)</span><a class="headerlink" href="#stf.monitoring.teams.post_teams_alert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Same as post_teams, but posts to alert channel.</p>
+<p>Args:
+msg (mixed): For simple messages a string can be passed. For more</p>
+<blockquote>
+<div><p>complex messages pass a dict. The following keys are supported:
+text, links, sections. Each section is a dict and can contain the
+following keys: text, title, images, facts, markdown. Also see:
+<a class="reference external" href="https://docs.microsoft.com/en-us/outlook/actionable-messages/send-via-connectors">https://docs.microsoft.com/en-us/outlook/actionable-messages/send-via-connectors</a></p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The card created and send to the teams channel.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>connectorcard</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This function is namespace-specific.</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="stf.monitoring.teams.send_report_teams_better">
+<code class="sig-prename descclassname">stf.monitoring.teams.</code><code class="sig-name descname">send_report_teams_better</code><span class="sig-paren">(</span><em class="sig-param">pj</em>, <em class="sig-param">feature_importance</em><span class="sig-paren">)</span><a class="headerlink" href="#stf.monitoring.teams.send_report_teams_better" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send a report to teams for monitoring input for an improved model.</p>
+<p>Post includes information (performance, figures, etc.) about the trained
+model. Use when the new trained model is better than the old model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pj</strong> (<em>dict</em>) – <p>A dictionarry specifying the prediction job. This dict should
+at least contain the following keys: {</p>
+<blockquote>
+<div><p>’id’: (int),
+‘sid’: (str),
+‘name’: (str),
+‘horizon_minutes’: (int),
+‘resolution_minutes’: (int),
+‘lat’: (float),
+‘lon’: (float),
+‘description’: (str)</p>
+</div></blockquote>
+<p>}.
+Usually this dictionary results from querrying the ‘predictions’
+table in the SQL database.</p>
+</p></li>
+<li><p><strong>feature_importance</strong> (<em>pandas.DataFrame</em>) – A DataFrame describing the
+feature importances and weights of the trained model.</p></li>
+</ul>
+</dd>
+</dl>
+<p>model: XGBoost model object of the newly trained model</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="stf.monitoring.teams.send_report_teams_worse">
+<code class="sig-prename descclassname">stf.monitoring.teams.</code><code class="sig-name descname">send_report_teams_worse</code><span class="sig-paren">(</span><em class="sig-param">pj</em><span class="sig-paren">)</span><a class="headerlink" href="#stf.monitoring.teams.send_report_teams_worse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send a report to teams for monitoring input for a worsened model.</p>
+<p>Post includes information (performance, figures, etc.) about the trained
+model. Use when the new trained model is worse than the old model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>pj</strong> (<em>dict</em>) – <p>A dictionarry specifying the prediction job. This dict should
+at least contain the following keys: {</p>
+<blockquote>
+<div><p>’id’: (int),
+‘sid’: (str),
+‘name’: (str),
+‘horizon_minutes’: (int),
+‘resolution_minutes’: (int),
+‘lat’: (float),
+‘lon’: (float),
+‘description’: (str)</p>
+</div></blockquote>
+<p>}.
+Usually this dictionary results from querrying the ‘predictions’
+table in the SQL database.</p>
+</p>
+</dd>
+</dl>
+<p>model: XGBoost model object of the newly trained model</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
 <div class="section" id="module-stf.monitoring.utils">
 <span id="stf-monitoring-utils-module"></span><h2>stf.monitoring.utils module<a class="headerlink" href="#module-stf.monitoring.utils" title="Permalink to this headline">¶</a></h2>

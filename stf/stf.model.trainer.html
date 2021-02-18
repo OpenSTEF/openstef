@@ -185,8 +185,8 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="stf.model.trainer.xgboost.html">stf.model.trainer.xgboost package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="stf.model.trainer.xgboost.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="stf.model.trainer.xgboost.html#stf-model-trainer-xgboost-quantile-module">stf.model.trainer.xgboost.quantile module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="stf.model.trainer.xgboost.html#stf-model-trainer-xgboost-xgboost-module">stf.model.trainer.xgboost.xgboost module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stf.model.trainer.xgboost.html#module-stf.model.trainer.xgboost.quantile">stf.model.trainer.xgboost.quantile module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stf.model.trainer.xgboost.html#module-stf.model.trainer.xgboost.xgboost">stf.model.trainer.xgboost.xgboost module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="stf.model.trainer.xgboost.html#module-stf.model.trainer.xgboost">Module contents</a></li>
 </ul>
 </li>
@@ -196,11 +196,114 @@
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="stf-model-trainer-creator-module">
-<h2>stf.model.trainer.creator module<a class="headerlink" href="#stf-model-trainer-creator-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-stf.model.trainer.creator">
+<span id="stf-model-trainer-creator-module"></span><h2>stf.model.trainer.creator module<a class="headerlink" href="#module-stf.model.trainer.creator" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="stf.model.trainer.creator.ModelTrainerCreator">
+<em class="property">class </em><code class="sig-prename descclassname">stf.model.trainer.creator.</code><code class="sig-name descname">ModelTrainerCreator</code><span class="sig-paren">(</span><em class="sig-param">pj</em><span class="sig-paren">)</span><a class="headerlink" href="#stf.model.trainer.creator.ModelTrainerCreator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Factory object for creating model trainer objects</p>
+<dl class="attribute">
+<dt id="stf.model.trainer.creator.ModelTrainerCreator.MODEL_TRAINER_CONSTRUCTORS">
+<code class="sig-name descname">MODEL_TRAINER_CONSTRUCTORS</code><em class="property"> = {&lt;MLModelType.XGB: 'xgb'&gt;: &lt;class 'stf.model.trainer.xgboost.xgboost.XGBModelTrainer'&gt;, &lt;MLModelType.XGB_QUANTILE: 'xgb_quantile'&gt;: &lt;class 'stf.model.trainer.xgboost.quantile.XGBQuantileModelTrainer'&gt;}</em><a class="headerlink" href="#stf.model.trainer.creator.ModelTrainerCreator.MODEL_TRAINER_CONSTRUCTORS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="stf.model.trainer.creator.ModelTrainerCreator.create_model_trainer">
+<code class="sig-name descname">create_model_trainer</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#stf.model.trainer.creator.ModelTrainerCreator.create_model_trainer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method returns model trainer objects that can be used to train models</p>
+<dl class="simple">
+<dt>Returns: Implementation of the AbstractModelTrainer class tailored to</dt><dd><p>a specific algorithm.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </div>
-<div class="section" id="stf-model-trainer-trainer-module">
-<h2>stf.model.trainer.trainer module<a class="headerlink" href="#stf-model-trainer-trainer-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-stf.model.trainer.trainer">
+<span id="stf-model-trainer-trainer-module"></span><h2>stf.model.trainer.trainer module<a class="headerlink" href="#module-stf.model.trainer.trainer" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="stf.model.trainer.trainer.AbstractModelTrainer">
+<em class="property">class </em><code class="sig-prename descclassname">stf.model.trainer.trainer.</code><code class="sig-name descname">AbstractModelTrainer</code><span class="sig-paren">(</span><em class="sig-param">pj</em><span class="sig-paren">)</span><a class="headerlink" href="#stf.model.trainer.trainer.AbstractModelTrainer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
+<dl class="method">
+<dt id="stf.model.trainer.trainer.AbstractModelTrainer.better_than_old_model">
+<em class="property">abstract </em><code class="sig-name descname">better_than_old_model</code><span class="sig-paren">(</span><em class="sig-param">test_data</em><span class="sig-paren">)</span><a class="headerlink" href="#stf.model.trainer.trainer.AbstractModelTrainer.better_than_old_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Abstract method that checks if new model is better than the old model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>test_data</strong> (<em>pandas.DataFrame</em>) – The test data</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if new model is better than old model, false otherwise</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="stf.model.trainer.trainer.AbstractModelTrainer.feature_importance">
+<em class="property">abstract property </em><code class="sig-name descname">feature_importance</code><a class="headerlink" href="#stf.model.trainer.trainer.AbstractModelTrainer.feature_importance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Abstract method that gets feature importances of trained model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><p>A DataFrame describing the feature importances of
+the trained model. At least the following columns should be
+included:</p>
+<p>index (str): Label of feature
+importance (float): Indication of how important the feature was to
+the trained model. Use only non-negative values. Does not need to
+sum to 1.
+weight (float): Indication of how often the feature was used in the
+trained model. Use only non-negative values. Should be normalized to
+sum to 1.</p>
+<p>If the model only supports a single importance/weight indication,
+i.e linear regression, set both columns to this value.</p>
+</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>pandas.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="stf.model.trainer.trainer.AbstractModelTrainer.hyper_params_objective">
+<em class="property">abstract </em><code class="sig-name descname">hyper_params_objective</code><span class="sig-paren">(</span><em class="sig-param">trial</em>, <em class="sig-param">clean_data_with_features=None</em>, <em class="sig-param">optimize_peak_prediction=False</em><span class="sig-paren">)</span><a class="headerlink" href="#stf.model.trainer.trainer.AbstractModelTrainer.hyper_params_objective" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="stf.model.trainer.trainer.AbstractModelTrainer.store_model">
+<em class="property">abstract </em><code class="sig-name descname">store_model</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#stf.model.trainer.trainer.AbstractModelTrainer.store_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Abstract method that should store the model.</p>
+<p>The general implementation is to just call _store_model. However this
+function exists if some other steps must be done before _store_model can
+be called.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="stf.model.trainer.trainer.AbstractModelTrainer.train">
+<em class="property">abstract </em><code class="sig-name descname">train</code><span class="sig-paren">(</span><em class="sig-param">train_data</em>, <em class="sig-param">validation_data</em>, <em class="sig-param">callbacks=None</em><span class="sig-paren">)</span><a class="headerlink" href="#stf.model.trainer.trainer.AbstractModelTrainer.train" title="Permalink to this definition">¶</a></dt>
+<dd><p>Abstract method to train a model based on train and validation data.</p>
+<p>The method should add the newly trained model to the trained_model
+attribute.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>train_data</strong> (<em>pandas.DataFrame</em>) – The train data</p></li>
+<li><p><strong>validation_data</strong> (<em>pandas.DataFrame</em>) – The validation data</p></li>
+<li><p><strong>callbacks</strong> (<em>list of callable</em>) – List of callback functions that can be
+called at the end of each training iteration</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 <div class="section" id="module-stf.model.trainer">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-stf.model.trainer" title="Permalink to this headline">¶</a></h2>

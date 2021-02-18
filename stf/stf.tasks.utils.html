@@ -181,8 +181,78 @@
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="stf-tasks-utils-general-module">
-<h2>stf.tasks.utils.general module<a class="headerlink" href="#stf-tasks-utils-general-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-stf.tasks.utils.general">
+<span id="stf-tasks-utils-general-module"></span><h2>stf.tasks.utils.general module<a class="headerlink" href="#module-stf.tasks.utils.general" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="stf.tasks.utils.general.check_status_change">
+<code class="sig-prename descclassname">stf.tasks.utils.general.</code><code class="sig-name descname">check_status_change</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">new_code</em><span class="sig-paren">)</span><a class="headerlink" href="#stf.tasks.utils.general.check_status_change" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if the old status code equals the new code.
+If no status if found it is assumed that the old code is 0
+:param name: name of the status field
+:param new_code: int
+:return: True if changed</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="stf.tasks.utils.general.convert_string_args_to_dict_args">
+<code class="sig-prename descclassname">stf.tasks.utils.general.</code><code class="sig-name descname">convert_string_args_to_dict_args</code><span class="sig-paren">(</span><em class="sig-param">argsstring</em><span class="sig-paren">)</span><a class="headerlink" href="#stf.tasks.utils.general.convert_string_args_to_dict_args" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function that converts a string of arguments to a dict of arguments.
+Coverts inputs to floats if possible. Assumes args are seperated by ‘,’ or ‘, ‘.</p>
+<p>input: str</p>
+<p>output: dict(args=[arg1, …, argN], kwargs=dict(kwarg1=val1, …, kwargN=valN)</p>
+<p class="rubric">Example</p>
+<p>‘5, seconds’ -&gt; dict(args=[5, ‘seconds’])
+‘3, val=blub -&gt; dict(args=[3], kwargs=dict(val=’blub’)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="stf.tasks.utils.general.interpret_string_as_functions">
+<code class="sig-prename descclassname">stf.tasks.utils.general.</code><code class="sig-name descname">interpret_string_as_functions</code><span class="sig-paren">(</span><em class="sig-param">function</em>, <em class="sig-param">args</em>, <em class="sig-param">kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#stf.tasks.utils.general.interpret_string_as_functions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Interpret a given function with args and kwargs to build a string suitable for eval
+input:</p>
+<blockquote>
+<div><p>function = str
+args = list(arg1, …, argN)
+kwargs = dict(kwarg1=val1, …, kwargN=valN)</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>function(arg1, …, argN, kwarg1=val1, …, kwargN=valN)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="stf.tasks.utils.general.load_status_file">
+<code class="sig-prename descclassname">stf.tasks.utils.general.</code><code class="sig-name descname">load_status_file</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#stf.tasks.utils.general.load_status_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function loads the json status file
+:return: dictionary (status object)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="stf.tasks.utils.general.update_status_change">
+<code class="sig-prename descclassname">stf.tasks.utils.general.</code><code class="sig-name descname">update_status_change</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">new_code</em><span class="sig-paren">)</span><a class="headerlink" href="#stf.tasks.utils.general.update_status_change" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – name of the status field</p></li>
+<li><p><strong>new_code</strong> – int</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="stf.tasks.utils.general.write_status_file">
+<code class="sig-prename descclassname">stf.tasks.utils.general.</code><code class="sig-name descname">write_status_file</code><span class="sig-paren">(</span><em class="sig-param">status</em><span class="sig-paren">)</span><a class="headerlink" href="#stf.tasks.utils.general.write_status_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function writes the given status object to a json file
+:param status: dictionary
+:return: None</p>
+</dd></dl>
+
 </div>
 <div class="section" id="module-stf.tasks.utils.predictionjobloop">
 <span id="stf-tasks-utils-predictionjobloop-module"></span><h2>stf.tasks.utils.predictionjobloop module<a class="headerlink" href="#module-stf.tasks.utils.predictionjobloop" title="Permalink to this headline">¶</a></h2>
@@ -223,8 +293,14 @@ logged.</p></li>
 </dd></dl>
 
 </div>
-<div class="section" id="stf-tasks-utils-taskcontext-module">
-<h2>stf.tasks.utils.taskcontext module<a class="headerlink" href="#stf-tasks-utils-taskcontext-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-stf.tasks.utils.taskcontext">
+<span id="stf-tasks-utils-taskcontext-module"></span><h2>stf.tasks.utils.taskcontext module<a class="headerlink" href="#module-stf.tasks.utils.taskcontext" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="stf.tasks.utils.taskcontext.TaskContext">
+<em class="property">class </em><code class="sig-prename descclassname">stf.tasks.utils.taskcontext.</code><code class="sig-name descname">TaskContext</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">suppress_exceptions=False</em>, <em class="sig-param">post_teams_on_exception=True</em>, <em class="sig-param">on_exception=None</em>, <em class="sig-param">on_successful=None</em>, <em class="sig-param">on_end=None</em><span class="sig-paren">)</span><a class="headerlink" href="#stf.tasks.utils.taskcontext.TaskContext" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
 </div>
 <div class="section" id="module-stf.tasks.utils">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-stf.tasks.utils" title="Permalink to this headline">¶</a></h2>
