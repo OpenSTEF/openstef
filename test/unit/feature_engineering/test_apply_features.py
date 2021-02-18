@@ -71,7 +71,7 @@ class TestApplyFeaturesModule(BaseTestCase):
         )
         self.assertDataframeEqual(
             input_data_with_features,
-            TestData.load("input_data_with_features.pickle"),
+            TestData.load("input_data_with_features.csv"),
             check_like=True,  # ignore the order of index & columns
         )
 
@@ -79,9 +79,10 @@ class TestApplyFeaturesModule(BaseTestCase):
         input_data_with_features = apply_features.apply_multiple_horizon_features(
             data=TestData.load("input_data.pickle"), h_aheads=[0.25]
         )
+
         self.assertDataframeEqual(
             input_data_with_features,
-            TestData.load("input_data_multi_horizon_features.pickle"),
+            TestData.load("input_data_multi_horizon_features.csv"),
             check_like=True,  # ignore the order of index & columns
         )
 
@@ -130,9 +131,10 @@ class TestApplyFeaturesModule(BaseTestCase):
         input_data_with_features = apply_features.apply_features(
             data=input_data, minute_list=[], h_ahead=24
         )
+
         self.assertDataframeEqual(
             input_data_with_features,
-            TestData.load("input_data_holiday_features.pickle"),
+            TestData.load("input_data_with_holiday_features.csv"),
             check_like=True,  # ignore the order of index & columns
         )
 
@@ -147,7 +149,6 @@ class TestApplyFeaturesModule(BaseTestCase):
         self.assertAlmostEqual(
             wind_speed_at_hub_height, expected_wind_speed_at_hub_height
         )
-        windspeed = 0
 
     def test_calculate_windspeed_at_hubheight_wrong_wind_speed_datatype(self):
         with self.assertRaises(TypeError):

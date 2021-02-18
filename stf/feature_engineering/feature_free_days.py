@@ -58,18 +58,18 @@ def create_holiday_functions(country="NL", years=None, path_to_school_holidays_c
     holiday_functions = {}
     # Add check function that includes all holidays of the provided csv
     holiday_functions.update(
-        {"is_national_holiday": lambda x: np.isin(x.index.py_datetime().date, country_holidays)}
+        {"is_national_holiday": lambda x: np.isin(x.index.date, np.array(list(country_holidays)))}
     )
 
     # Loop over list of holidays names
     for date, holiday_name in sorted(country_holidays.items()):
         # Define function explicitely to mitigate 'late binding' problem
         def make_holiday_func(date):
-            return lambda x: x.index.py_datetime().date is date
+            return lambda x: np.isin(x.index.date, np.array([date]))
 
         # Create lag function for each holiday
         holiday_functions.update(
-            {"is_" + holiday_name: make_holiday_func(date)}
+            {"is_" + holiday_name.replace(" ", "_").lower(): make_holiday_func(date)}
         )
 
         # Check for bridgedays
@@ -84,7 +84,7 @@ def create_holiday_functions(country="NL", years=None, path_to_school_holidays_c
 
                 # Create feature function for each holiday
                 holiday_functions.update(
-                    {"is_bridgeday" + holiday_name: make_holiday_func((date + timedelta(days=1)))}
+                    {"is_bridgeday" + holiday_name.replace(" ", "_").lower(): make_holiday_func((date + timedelta(days=1)))}
                 )
         # Looking backward: If day before yesterday is a national holiday
         # or a sunday check if yesterday is a national holiday
@@ -97,7 +97,7 @@ def create_holiday_functions(country="NL", years=None, path_to_school_holidays_c
 
                 # Create featurefunction for the bridge function
                 holiday_functions.update(
-                    {"is_bridgeday" + holiday_name: make_holiday_func((date - timedelta(days=1)))}
+                    {"is_bridgeday" + holiday_name.replace(" ", "_").lower(): make_holiday_func((date - timedelta(days=1)))}
                 )
 
     # Manully generated csv including all dutch schoolholidays for different regions
@@ -119,7 +119,7 @@ def create_holiday_functions(country="NL", years=None, path_to_school_holidays_c
             )
         # Create lag function for each holiday
         holiday_functions.update(
-            {"is_" + holiday_name: make_holiday_func(holidayname=holiday_name)}
+            {"is_" + holiday_name.replace(" ", "_").lower(): make_holiday_func(holidayname=holiday_name)}
         )
 
     return holiday_functions
