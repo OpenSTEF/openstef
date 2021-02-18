@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com>
+
+SPDX-License-Identifier: MPL-2.0
+-->
+
 # Documentation instructions
 Documentation is generated using Sphinx:
 https://www.sphinx-doc.org/en/master/index.html

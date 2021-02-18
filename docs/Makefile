@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2017-2021 Alliander N.V.
+#
+# SPDX-License-Identifier: MPL-2.0
+
 # Minimal makefile for Sphinx documentation
 #
 

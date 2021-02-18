@@ -1,3 +1,7 @@
+REM SPDX-FileCopyrightText: 2017-2021 Alliander N.V.
+REM
+REM SPDX-License-Identifier: MPL-2.0
+
 @ECHO OFF
 
 pushd %~dp0
