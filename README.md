@@ -19,7 +19,7 @@ git clone git@github.com:alliander-opensource/short-term-forecasting.git
 ## Install dependencies
 
 ```shell
-pip install -r requirements
+pip install -r requirements.txt
 ```
 
 ## Install the stf package

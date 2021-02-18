@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com>
+# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -204,7 +204,7 @@ def train_model_for_specific_pj(pj, context, retrain_young_models=False, compare
                 yaxis=dict(visible=False),
             )
             fig.write_image(
-                save_loc / "f{key}.jpg", format="jpg",scale=0.3
+                save_loc / "f{key}.jpg", format="jpg", scale=0.3
             )
             convert_to_base64_data_uri(
                 save_loc / "f{key}.jpg",

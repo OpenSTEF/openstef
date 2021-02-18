@@ -1,12 +1,10 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com>
+# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
 import unittest
 from test.utils import TestData
 from unittest.mock import MagicMock, patch
-
-from ktpbase.database import DataBase
 
 from stf.model.hyper_parameters import optimize_hyperparameters
 
@@ -26,35 +24,29 @@ XGB_HYPER_PARAMS = {
 }
 
 
-@patch("stf.model.hyper_parameters.optuna")
-@patch("stf.model.hyper_parameters.metrics")
+@patch("stf.model.hyper_parameters.post_teams")
 @patch("stf.model.hyper_parameters.ModelTrainerCreator")
 @patch("stf.model.hyper_parameters.is_data_sufficient")
-@patch("stf.model.hyper_parameters.post_teams")
 @patch("stf.model.hyper_parameters.pre_process_data")
-@patch.object(DataBase, "__init__", MagicMock(return_value=None))
-@patch.object(DataBase, "get_prediction_job", return_value=PJ)
-@patch.object(DataBase, "get_model_input")
-@patch.object(DataBase, "write_hyper_params")
+@patch("stf.model.hyper_parameters.DataBase")
+@patch("stf.model.hyper_parameters.optuna")
 class TestHyperParameters(BaseTestCase):
     def setUp(self):
+        super().setUp()
         self.db_mock = MagicMock()
         self.db_mock.get_prediction_job.return_value = PJ
 
     def test_optimize_hyper_parameters_no_exception(
         self,
-        DataBase_mock,
-        model_input_mock,
-        write_hyper_params_mock,
-        pre_process_data_mock,
-        post_teams_mock,
-        is_data_sufficient_mock,
-        ModelTrainerCreator_mock,
-        mt_mock,
         optuna_mock,
+        dataBase_mock,
+        pre_process_data_mock,
+        is_data_sufficient_mock,
+        modeltrainercreator_mock,
+        post_teams_mock
     ):
         self.add_mock_return_values(
-            pre_process_data_mock, is_data_sufficient_mock, optuna_mock
+            optuna_mock, dataBase_mock, pre_process_data_mock, is_data_sufficient_mock
         )
         # run function under test
         optimize_hyperparameters(PJ["id"])
@@ -63,8 +55,8 @@ class TestHyperParameters(BaseTestCase):
         study_mock = optuna_mock.create_study.return_value
 
         # test if the following methods are called
-        self.assertEqual(DataBase.get_prediction_job.call_count, 1)
-        self.assertEqual(DataBase.get_model_input.call_count, 1)
+        self.assertEqual(dataBase_mock.return_value.get_prediction_job.call_count, 1)
+        self.assertEqual(dataBase_mock.return_value.get_model_input.call_count, 1)
         self.assertEqual(pre_process_data_mock.call_count, 1)
         self.assertEqual(optuna_mock.create_study.call_count, 2)
         self.assertEqual(study_mock.optimize.call_count, 2)
@@ -73,28 +65,25 @@ class TestHyperParameters(BaseTestCase):
         # test if the following return arguments are used as input argument
         # for the given functions/methods
         self.assertEqual(
-            DataBase.get_model_input.return_value,
+            dataBase_mock.return_value.get_model_input.return_value,
             pre_process_data_mock.call_args[0][0],
         )
-        self.assertEqual(ModelTrainerCreator_mock.call_args[0][0], PJ)
+        self.assertEqual(modeltrainercreator_mock.call_args[0][0], PJ)
         self.assertEqual(
             pre_process_data_mock.return_value, is_data_sufficient_mock.call_args[0][0]
         )
 
     def test_optimize_hyper_parameters_exception(
         self,
-        DataBase_mock,
-        model_input_mock,
-        write_hyper_params_mock,
-        pre_process_data_mock,
-        post_teams_mock,
-        is_data_sufficient_mock,
-        ModelTrainerCreator_mock,
-        mt_mock,
         optuna_mock,
+        dataBase_mock,
+        pre_process_data_mock,
+        is_data_sufficient_mock,
+        modeltrainercreator_mock,
+        post_teams_mock
     ):
         self.add_mock_return_values(
-            pre_process_data_mock, is_data_sufficient_mock, optuna_mock
+            optuna_mock, dataBase_mock, pre_process_data_mock, is_data_sufficient_mock
         )
         # Set condition which should case an Exception
         is_data_sufficient_mock.return_value = False
@@ -105,9 +94,10 @@ class TestHyperParameters(BaseTestCase):
 
     @staticmethod
     def add_mock_return_values(
-        pre_process_data_mock, is_data_sufficient_mock, optuna_mock
+        optuna_mock, dataBase_mock, pre_process_data_mock, is_data_sufficient_mock
     ):
         # pre_process_data_mock.return_value = data_table
+        dataBase_mock.return_value.get_prediction_job.return_value = PJ
         is_data_sufficient_mock.return_value = True
         optuna_mock.create_study.return_value.best_params = XGB_HYPER_PARAMS
 

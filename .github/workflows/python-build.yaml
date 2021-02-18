@@ -1,4 +1,7 @@
-name: Python package
+# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501
+#
+# SPDX-License-Identifier: MPL-2.0
+name: Python Build
 
 on: [push]
 
@@ -8,16 +11,18 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.7, 3.8, 3.9]
+        python-version: [3.9]
 
     steps:
-    - uses: actions/checkout@v2
+    # Checkout
+    - name: Checkout code
+      uses: actions/checkout@v2
+    # Setup
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Display Python version
-      run: python -c "import sys; print(f'Python version is {sys.version}')"
+    # Restore
     - name: Restore pip cache
       uses: actions/cache@v2
       with:
@@ -28,18 +33,23 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-pip-
           ${{ runner.os }}-
+    # Install
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip setuptools wheel
         pip install -r requirements.txt
+    # Lint
     - name: Lint with flake8
       run: |
         pip install flake8
-        # stop the build if there are Python syntax errors or undefined names
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        # exit-zero treats all errors as warnings.
-        flake8 . --count --exit-zero --statistics
+        # stop the build if there are non ignored Python errors
+        flake8 . --count --show-source --statistics
+    # Test
     - name: Test with pytest
       run: |
         pip install pytest pytest-cov
         pytest test
+    # Build
+    - name: Build Python package
+      run: |
+        python setup.py sdist bdist_wheel

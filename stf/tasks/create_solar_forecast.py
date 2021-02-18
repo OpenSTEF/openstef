@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com>
+# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -85,6 +85,7 @@ def main():
             context,
             prediction_jobs=prediction_jobs
         ).map(make_solar_predicion_pj, context)
+
 
 if __name__ == "__main__":
     main()

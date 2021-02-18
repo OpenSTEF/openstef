@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com>
+# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -153,7 +153,7 @@ def calc_kpi_for_specific_pid(pid, start_time=None, end_time=None):
                     ),
                     "load_range": combined["load"].max() - combined["load"].min(),
                     "frac_in_1sdev": metrics.frac_in_stdev(combined["load"], fc, st),
-                    "frac_in_2sdev": metrics.frac_in_stdev(combined["load"], fc, 2*st),
+                    "frac_in_2sdev": metrics.frac_in_stdev(combined["load"], fc, 2 * st),
                     "completeness_realised": completeness_realised,
                     "completeness_predicted": completeness_predicted_load,
                     "date": date,  # cast to date

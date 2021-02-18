@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com>
+# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -299,7 +299,7 @@ def apply_fit_insol(data, add_to_df=True, hours_delta=None, polynomial=False):
 
     # Define subset, only keep non-NaN values and the most recent forecasts
     # This ensures a good training set
-    if hours_delta == None:
+    if hours_delta is None:
         subset = data.loc[(data[colname].notnull()) & (data[colname] > 0)]
     else:
         subset = data.loc[

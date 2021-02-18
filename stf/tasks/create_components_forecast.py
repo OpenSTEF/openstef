@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com>
+# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -66,8 +66,9 @@ def main():
         PredictionJobLoop(
             context,
             model_type=model_type,
-            on_end=callback,
+            on_end_callback=callback,
         ).map(create_components_forecast_pj, context)
+
 
 if __name__ == "__main__":
     main()

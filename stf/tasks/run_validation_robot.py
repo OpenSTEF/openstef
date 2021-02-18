@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com>
+# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -133,8 +133,6 @@ def _create_load_error_plot(pj, load_data, load_errors, config):
 
     web_link = f'{base_url}/{pj["id"]}/{image_name}'
 
-
-
     plotly.offline.plot(
         fig, show_link=False, filename=str(filename), auto_open=False,
     )
@@ -175,6 +173,7 @@ def main():
             datetime_start=datetime_start,
             datetime_end=datetime_end,
         )
+
 
 if __name__ == "__main__":
     main()

@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com>
+# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -21,3 +21,7 @@ class GeneralTest(BaseTestCase):
                               for key in expected_keys]), True)
         self.assertEqual(
             all([key in expected_keys for key in holiday_functions.keys()]), True)
+
+
+if __name__ == "__main__":
+    unittest.main()

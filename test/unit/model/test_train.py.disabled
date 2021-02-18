@@ -1,10 +1,10 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com>
+# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
 from datetime import datetime, timedelta
 from test.utils.data import TestData
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 import unittest
 
 import numpy as np
@@ -39,33 +39,37 @@ params = {
     "silent": 1,
     "objective": "reg:linear",
 }
-confidence_interval_ref = TestData.load("confidence_interval.csv")
-
-# Generate reference training input data
-(
-    training_data_ref,
-    validation_data_ref,
-    testing_data_ref,
-) = split_data_train_validation_test(data_table)
-
-# When True: generate a new reference model_trainer pickle:
-if False:
-    model_trainer_ref = XGBModelTrainer(pj)
-    model_trainer_ref.hyper_parameters.update(params)
-    model_trainer_ref.train(training_data_ref, validation_data_ref)
-    TestData.save(model_trainer_ref, "model_trainer_reference.pickle")
-else:
-    # Get reference model_trainer object
-    model_trainer_ref = TestData.load("model_trainer_reference.pickle")
 
 
 class TestTrain(BaseTestCase):
 
-    def setUp(self):
+    def setUp(self) -> None:
+        super().setUp()
         self.data = data
-        self.confidence_interval_ref = confidence_interval_ref
+        self.confidence_interval_ref = TestData.load("confidence_interval.csv")
+        (
+            self.training_data_ref,
+            self.validation_data_ref,
+            self.testing_data_ref,
+        ) = split_data_train_validation_test(data_table)
+        # If True: generate a new reference model_trainer pickle:
+        if True:
+            params = {
+                "subsample": 0.9,
+                "min_child_weight": 4,
+                "max_depth": 15,
+                "gamma": 0.2,
+                "colsample_bytree": 0.85,
+                "silent": 1,
+                "objective": "reg:squarederror",
+            }
+            model_trainer_ref = XGBModelTrainer(pj)
+            model_trainer_ref.hyper_parameters.update(params)
+            model_trainer_ref.train(self.training_data_ref, self.validation_data_ref)
+            TestData.save(model_trainer_ref, "model_trainer_reference.pickle")
+        breakpoint()
+        self.model_trainer_ref = TestData.load("model_trainer_reference.pickle")
 
-    @patch("ktpbase.config.config.ConfigManager", MagicMock())
     def test_model_trainer_creator(self):
         serializer_creator = ModelSerializerCreator()
         serializer = serializer_creator.create_model_serializer(MLModelType("xgb"))
@@ -119,14 +123,14 @@ class TestTrain(BaseTestCase):
 
     def test_xgboost_model_trainer_train_and_confidence_interval(self):
         # Train
-        model = model_trainer_ref.train(training_data_ref, validation_data_ref)
+        model = self.model_trainer_ref.train(self.training_data_ref, self.validation_data_ref)
 
         # verify a model has been trained
         self.assertTrue(hasattr(model, "predict"))
 
         # Calculate confidence interval
-        confidence_interval = model_trainer_ref.calculate_confidence_interval(
-            testing_data_ref)
+        confidence_interval = self.model_trainer_ref.calculate_confidence_interval(
+            self.testing_data_ref)
 
         # Check if same as reference
         pd.testing.assert_index_equal(

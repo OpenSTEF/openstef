@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com>
+# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 import unittest
@@ -15,6 +15,7 @@ from test.utils import BaseTestCase
 class TestGeneralExtractMinuteFeatures(BaseTestCase):
 
     def setUp(self):
+        super().setUp()
         serializer_creator = ModelSerializerCreator()
         serializer = serializer_creator.create_model_serializer(MLModelType('xgb'))
         model_folder = TestData.TRAINED_MODELS_FOLDER
