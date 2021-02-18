@@ -5,8 +5,7 @@
 import os
 
 import numpy as np
-import pandas as pd
-from datetime import date
+
 import holidays
 
 HOLIDAY_CSV_PATH = os.path.dirname(__file__) + "/dutch_holidays_2020-2022.csv"
@@ -68,6 +67,11 @@ def create_holiday_functions(country="FR", years=None):
         holiday_functions.update(
             {"Is" + holidayname: make_holiday_func(holidayname=holidayname)}
         )
+
+        # Extend with school holidays from workalendar here
+
+        # Make schoolholiday "IsHoliday" functions and combine with original one
+
     return holiday_functions
 
 

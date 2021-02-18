@@ -8,22 +8,16 @@ from stf.feature_engineering.feature_free_days import create_holiday_functions
 
 from test.utils import BaseTestCase
 
-expected_keys = ['IsFeestdag', 'IsVoorjaarsvakantieZuid', 'IsBouwvakMidden',
-                 'IsHerfstvakantieZuid', 'IsKoningsdag', 'IsZomervakantieMidden',
-                 'IsHerfstvakantieMidden', 'IsBevrijdingsdag', 'IsPinksteren',
-                 'IsBevrijdingsdag(brugdagen)', 'IsHerfstvakantieNoord',
-                 'IsPasen', 'IsPaasdag', 'IsKerstvakantie', 'IsBouwvakNoord',
-                 'IsVoorjaarsvakantieNoord', 'IsBouwvakZuid', 'IsHemelvaart(brugdagen)',
-                 'IsMeivakantie', 'IsZomervakantieNoord', 'IsNieuwjaarsdag',
-                 'IsVoorjaarsvakantieMidden', 'IsZomervakantieZuid', 'IsKerst',
-                 'IsHemelvaart']
+expected_keys = ['IsHoliday', 'IsNieuwjaarsdag', 'IsGoede Vrijdag', 'IsEerste paasdag', 'IsTweede paasdag', 'IsKoningsdag', 'IsBevrijdingsdag', 'IsHemelvaart', 'IsEerste Pinksterdag', 'IsTweede Pinksterdag', 'IsEerste Kerstdag', 'IsTweede Kerstdag']
 
 
 class GeneralTest(BaseTestCase):
 
     def test_create_holiday_functions(self):
 
-        holiday_functions = create_holiday_functions()
+        holiday_functions=create_holiday_functions(country = "NL")
+
+        print(holiday_functions.keys())
 
         # Assert for every holiday a function is available and no extra functions are generated
         self.assertEqual(all([key in holiday_functions.keys()
