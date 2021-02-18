@@ -57,7 +57,7 @@ def create_holiday_functions(country="NL", years=None, path_to_school_holidays_c
     holiday_functions = {}
     # Add check function that includes all holidays of the provided csv
     holiday_functions.update(
-        {"IsNationalHoliday": lambda x: np.isin(x.index.py_datetime().date, country_holidays)}
+        {"is_national_holiday": lambda x: np.isin(x.index.py_datetime().date, country_holidays)}
     )
 
     # Loop over list of holidays names
@@ -68,7 +68,7 @@ def create_holiday_functions(country="NL", years=None, path_to_school_holidays_c
 
         # Create lag function for each holiday
         holiday_functions.update(
-            {"Is" + holiday_name: make_holiday_func(date)}
+            {"is_" + holiday_name: make_holiday_func(date)}
         )
 
         # Check for bridgedays
@@ -83,7 +83,7 @@ def create_holiday_functions(country="NL", years=None, path_to_school_holidays_c
 
                 # Create feature function for each holiday
                 holiday_functions.update(
-                    {"IsBridgeday" + holiday_name:
+                    {"is_bridgeday" + holiday_name:
                          make_holiday_func((date+timedelta(days=1)))}
                 )
         # Looking backward: If day before yesterday is a national holiday
@@ -97,7 +97,7 @@ def create_holiday_functions(country="NL", years=None, path_to_school_holidays_c
 
                 # Create featurefunction for the bridge function
                 holiday_functions.update(
-                    {"IsBridgeday" + holiday_name:
+                    {"is_bridgeday" + holiday_name:
                          make_holiday_func((date-timedelta(days=1)))}
                 )
 
@@ -107,7 +107,7 @@ def create_holiday_functions(country="NL", years=None, path_to_school_holidays_c
 
     # Add check function that includes all holidays of the provided csv
     holiday_functions.update(
-        {"IsSchoolholiday": lambda x: np.isin(x.index.date, df_holidays.datum.values)}
+        {"is_schoolholiday": lambda x: np.isin(x.index.date, df_holidays.datum.values)}
     )
 
     # Loop over list of holidays names
@@ -120,7 +120,7 @@ def create_holiday_functions(country="NL", years=None, path_to_school_holidays_c
             )
         # Create lag function for each holiday
         holiday_functions.update(
-            {"Is" + holiday_name: make_holiday_func(holidayname=holiday_name)}
+            {"is_" + holiday_name: make_holiday_func(holidayname=holiday_name)}
         )
 
     return holiday_functions
