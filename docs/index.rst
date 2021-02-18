@@ -9,7 +9,6 @@ Welcome to the documentation of Short Term Forecasting!
    :caption: Short Term Forecasting:
    
    stf/modules.rst
-   test/modules.rst
    
 
 Indices and tables
