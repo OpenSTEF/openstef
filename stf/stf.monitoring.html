@@ -99,7 +99,7 @@
 <li class="toctree-l4"><a class="reference internal" href="stf.tasks.html">stf.tasks package</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="stf.html#module-contents">Module contents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stf.html#module-stf">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -180,8 +180,70 @@
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="stf-monitoring-performance-meter-module">
-<h2>stf.monitoring.performance_meter module<a class="headerlink" href="#stf-monitoring-performance-meter-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-stf.monitoring.performance_meter">
+<span id="stf-monitoring-performance-meter-module"></span><h2>stf.monitoring.performance_meter module<a class="headerlink" href="#module-stf.monitoring.performance_meter" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="stf.monitoring.performance_meter.PerformanceMeter">
+<em class="property">class </em><code class="sig-prename descclassname">stf.monitoring.performance_meter.</code><code class="sig-name descname">PerformanceMeter</code><span class="sig-paren">(</span><em class="sig-param">logger</em><span class="sig-paren">)</span><a class="headerlink" href="#stf.monitoring.performance_meter.PerformanceMeter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="stf.monitoring.performance_meter.PerformanceMeter.checkpoint">
+<code class="sig-name descname">checkpoint</code><span class="sig-paren">(</span><em class="sig-param">name_checkpoint</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#stf.monitoring.performance_meter.PerformanceMeter.checkpoint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a timing checkpoint and logs the runtime from the previous one.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name_checkpoint</strong> (<em>string</em>) – The name of the checkpoint. This will be logged as
+checkpoint: name_checkpoint</p></li>
+<li><p><strong>**kwargs</strong> – Any other kwargs are appended to the logging.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>self</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="stf.monitoring.performance_meter.PerformanceMeter.complete_level">
+<code class="sig-name descname">complete_level</code><span class="sig-paren">(</span><em class="sig-param">successful=True</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#stf.monitoring.performance_meter.PerformanceMeter.complete_level" title="Permalink to this definition">¶</a></dt>
+<dd><p>Completes the most inner level and logs the total runtime of that level.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>successful</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether the level was successful. Defaults to
+True.</p></li>
+<li><p><strong>**kwargs</strong> – Any other kwargs are appended to the logging.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>self</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="stf.monitoring.performance_meter.PerformanceMeter.start_level">
+<code class="sig-name descname">start_level</code><span class="sig-paren">(</span><em class="sig-param">level_label</em>, <em class="sig-param">level_name</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#stf.monitoring.performance_meter.PerformanceMeter.start_level" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enters a new level in the performance meter and logs it.</p>
+<p>This function also creates a checkpoint on the newly created level.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>level_label</strong> (<em>string</em>) – The label of the new level. This could i.e. be ‘task’</p></li>
+<li><p><strong>level_name</strong> (<em>string</em>) – The name of the specified level. This could i.e. be
+‘tracy_todo’</p></li>
+<li><p><strong>**kwargs</strong> – Any other kwargs are appended to the logging.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>self</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 <div class="section" id="stf-monitoring-teams-module">
 <h2>stf.monitoring.teams module<a class="headerlink" href="#stf-monitoring-teams-module" title="Permalink to this headline">¶</a></h2>
@@ -189,8 +251,8 @@
 <div class="section" id="stf-monitoring-utils-module">
 <h2>stf.monitoring.utils module<a class="headerlink" href="#stf-monitoring-utils-module" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="module-contents">
-<h2>Module contents<a class="headerlink" href="#module-contents" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-stf.monitoring">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-stf.monitoring" title="Permalink to this headline">¶</a></h2>
 </div>
 </div>
 

@@ -98,7 +98,7 @@
 <li class="toctree-l4 current"><a class="reference internal" href="stf.tasks.html">stf.tasks package</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="stf.html#module-contents">Module contents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stf.html#module-stf">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -184,14 +184,50 @@
 <div class="section" id="stf-tasks-utils-general-module">
 <h2>stf.tasks.utils.general module<a class="headerlink" href="#stf-tasks-utils-general-module" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="stf-tasks-utils-predictionjobloop-module">
-<h2>stf.tasks.utils.predictionjobloop module<a class="headerlink" href="#stf-tasks-utils-predictionjobloop-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-stf.tasks.utils.predictionjobloop">
+<span id="stf-tasks-utils-predictionjobloop-module"></span><h2>stf.tasks.utils.predictionjobloop module<a class="headerlink" href="#module-stf.tasks.utils.predictionjobloop" title="Permalink to this headline">¶</a></h2>
+<dl class="exception">
+<dt id="stf.tasks.utils.predictionjobloop.PredictionJobException">
+<em class="property">exception </em><code class="sig-prename descclassname">stf.tasks.utils.predictionjobloop.</code><code class="sig-name descname">PredictionJobException</code><span class="sig-paren">(</span><em class="sig-param">metrics={}</em><span class="sig-paren">)</span><a class="headerlink" href="#stf.tasks.utils.predictionjobloop.PredictionJobException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="stf.tasks.utils.predictionjobloop.PredictionJobLoop">
+<em class="property">class </em><code class="sig-prename descclassname">stf.tasks.utils.predictionjobloop.</code><code class="sig-name descname">PredictionJobLoop</code><span class="sig-paren">(</span><em class="sig-param">context</em>, <em class="sig-param">stop_on_exception=False</em>, <em class="sig-param">random_order=True</em>, <em class="sig-param">on_exception=None</em>, <em class="sig-param">on_successful=None</em>, <em class="sig-param">on_end=None</em>, <em class="sig-param">prediction_jobs=None</em>, <em class="sig-param">**pj_kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#stf.tasks.utils.predictionjobloop.PredictionJobLoop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="stf.tasks.utils.predictionjobloop.PredictionJobLoop.map">
+<code class="sig-name descname">map</code><span class="sig-paren">(</span><em class="sig-param">function</em>, <em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#stf.tasks.utils.predictionjobloop.PredictionJobLoop.map" title="Permalink to this definition">¶</a></dt>
+<dd><p>Maps the passed function over all prediction jobs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>function</strong> (<em>callable</em>) – The function that will be applied to each prediction
+job separately.</p></li>
+<li><p><strong>*args</strong> – Any other arguments or passed to the function.</p></li>
+<li><p><strong>**kwargs</strong> – All keyword arguments are passed to the function. This method is
+highly prefered over using args, since kwargs will be automatically
+logged.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference internal" href="#stf.tasks.utils.predictionjobloop.PredictionJobException" title="stf.tasks.utils.predictionjobloop.PredictionJobException"><strong>PredictionJobException</strong></a> – This exception will be raised if one or more</p></li>
+<li><p><strong>prediction jobs raised an exception during the loop.</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 <div class="section" id="stf-tasks-utils-taskcontext-module">
 <h2>stf.tasks.utils.taskcontext module<a class="headerlink" href="#stf-tasks-utils-taskcontext-module" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="module-contents">
-<h2>Module contents<a class="headerlink" href="#module-contents" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-stf.tasks.utils">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-stf.tasks.utils" title="Permalink to this headline">¶</a></h2>
 </div>
 </div>
 
