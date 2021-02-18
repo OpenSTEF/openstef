@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-import os
 from datetime import timedelta, datetime
 
 import numpy as np
@@ -85,8 +84,7 @@ def create_holiday_functions(country="NL", years=None, path_to_school_holidays_c
 
                 # Create feature function for each holiday
                 holiday_functions.update(
-                    {"is_bridgeday" + holiday_name:
-                         make_holiday_func((date+timedelta(days=1)))}
+                    {"is_bridgeday" + holiday_name: make_holiday_func((date+timedelta(days=1)))}
                 )
         # Looking backward: If day before yesterday is a national holiday
         # or a sunday check if yesterday is a national holiday
@@ -99,8 +97,7 @@ def create_holiday_functions(country="NL", years=None, path_to_school_holidays_c
 
                 # Create featurefunction for the bridge function
                 holiday_functions.update(
-                    {"is_bridgeday" + holiday_name:
-                         make_holiday_func((date-timedelta(days=1)))}
+                    {"is_bridgeday" + holiday_name: make_holiday_func((date-timedelta(days=1)))}
                 )
 
     # Manully generated csv including all dutch schoolholidays for different regions
