@@ -253,14 +253,133 @@
 <div class="section" id="stf-model-capacity-prognosis-module">
 <h2>stf.model.capacity_prognosis module<a class="headerlink" href="#stf-model-capacity-prognosis-module" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="stf-model-capacity-prognosis-model-module">
-<h2>stf.model.capacity_prognosis_model module<a class="headerlink" href="#stf-model-capacity-prognosis-model-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-stf.model.capacity_prognosis_model">
+<span id="stf-model-capacity-prognosis-model-module"></span><h2>stf.model.capacity_prognosis_model module<a class="headerlink" href="#module-stf.model.capacity_prognosis_model" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="stf.model.capacity_prognosis_model.CapacityPrognosisModel">
+<em class="property">class </em><code class="sig-prename descclassname">stf.model.capacity_prognosis_model.</code><code class="sig-name descname">CapacityPrognosisModel</code><span class="sig-paren">(</span><em class="sig-param">classes=None</em>, <em class="sig-param">hyper_params=None</em><span class="sig-paren">)</span><a class="headerlink" href="#stf.model.capacity_prognosis_model.CapacityPrognosisModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="stf.model.capacity_prognosis_model.CapacityPrognosisModel.evaluate">
+<code class="sig-name descname">evaluate</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">y_true</em><span class="sig-paren">)</span><a class="headerlink" href="#stf.model.capacity_prognosis_model.CapacityPrognosisModel.evaluate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="stf.model.capacity_prognosis_model.CapacityPrognosisModel.load">
+<code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param">directory</em><span class="sig-paren">)</span><a class="headerlink" href="#stf.model.capacity_prognosis_model.CapacityPrognosisModel.load" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="stf.model.capacity_prognosis_model.CapacityPrognosisModel.predict">
+<code class="sig-name descname">predict</code><span class="sig-paren">(</span><em class="sig-param">x</em><span class="sig-paren">)</span><a class="headerlink" href="#stf.model.capacity_prognosis_model.CapacityPrognosisModel.predict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="stf.model.capacity_prognosis_model.CapacityPrognosisModel.save">
+<code class="sig-name descname">save</code><span class="sig-paren">(</span><em class="sig-param">directory</em><span class="sig-paren">)</span><a class="headerlink" href="#stf.model.capacity_prognosis_model.CapacityPrognosisModel.save" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="stf.model.capacity_prognosis_model.CapacityPrognosisModel.train">
+<code class="sig-name descname">train</code><span class="sig-paren">(</span><em class="sig-param">train_x</em>, <em class="sig-param">train_y</em>, <em class="sig-param">val_x</em>, <em class="sig-param">val_y</em><span class="sig-paren">)</span><a class="headerlink" href="#stf.model.capacity_prognosis_model.CapacityPrognosisModel.train" title="Permalink to this definition">¶</a></dt>
+<dd><p>train model</p>
+</dd></dl>
+
+</dd></dl>
+
 </div>
-<div class="section" id="stf-model-capacity-prognosis-utils-module">
-<h2>stf.model.capacity_prognosis_utils module<a class="headerlink" href="#stf-model-capacity-prognosis-utils-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-stf.model.capacity_prognosis_utils">
+<span id="stf-model-capacity-prognosis-utils-module"></span><h2>stf.model.capacity_prognosis_utils module<a class="headerlink" href="#module-stf.model.capacity_prognosis_utils" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="stf.model.capacity_prognosis_utils.balance_classes">
+<code class="sig-prename descclassname">stf.model.capacity_prognosis_utils.</code><code class="sig-name descname">balance_classes</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">y</em><span class="sig-paren">)</span><a class="headerlink" href="#stf.model.capacity_prognosis_utils.balance_classes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="stf.model.capacity_prognosis_utils.prepare_prediction_data">
+<code class="sig-prename descclassname">stf.model.capacity_prognosis_utils.</code><code class="sig-name descname">prepare_prediction_data</code><span class="sig-paren">(</span><em class="sig-param">df</em>, <em class="sig-param">y_col</em>, <em class="sig-param">y_hor</em><span class="sig-paren">)</span><a class="headerlink" href="#stf.model.capacity_prognosis_utils.prepare_prediction_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="stf.model.capacity_prognosis_utils.prepare_training_data">
+<code class="sig-prename descclassname">stf.model.capacity_prognosis_utils.</code><code class="sig-name descname">prepare_training_data</code><span class="sig-paren">(</span><em class="sig-param">df</em>, <em class="sig-param">y_col</em>, <em class="sig-param">val_n=4</em>, <em class="sig-param">val_width='14D'</em><span class="sig-paren">)</span><a class="headerlink" href="#stf.model.capacity_prognosis_utils.prepare_training_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="stf.model.capacity_prognosis_utils.visualize_predictions">
+<code class="sig-prename descclassname">stf.model.capacity_prognosis_utils.</code><code class="sig-name descname">visualize_predictions</code><span class="sig-paren">(</span><em class="sig-param">df</em>, <em class="sig-param">classes</em><span class="sig-paren">)</span><a class="headerlink" href="#stf.model.capacity_prognosis_utils.visualize_predictions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </div>
-<div class="section" id="stf-model-figure-module">
-<h2>stf.model.figure module<a class="headerlink" href="#stf-model-figure-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-stf.model.figure">
+<span id="stf-model-figure-module"></span><h2>stf.model.figure module<a class="headerlink" href="#module-stf.model.figure" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="stf.model.figure.convert_to_base64_data_uri">
+<code class="sig-prename descclassname">stf.model.figure.</code><code class="sig-name descname">convert_to_base64_data_uri</code><span class="sig-paren">(</span><em class="sig-param">path_in</em>, <em class="sig-param">path_out</em>, <em class="sig-param">content_type</em><span class="sig-paren">)</span><a class="headerlink" href="#stf.model.figure.convert_to_base64_data_uri" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read file, convert it to a data_uri, then writes the data_uri to file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path_in</strong> (<em>str</em>) – Path of the file that will be converted</p></li>
+<li><p><strong>path_out</strong> (<em>str</em>) – Path of the file containing the data uri</p></li>
+<li><p><strong>content_type</strong> (<em>str</em>) – Content type of the data uri according to
+(<a class="reference external" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type">https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type</a>).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="stf.model.figure.plot_data_series">
+<code class="sig-prename descclassname">stf.model.figure.</code><code class="sig-name descname">plot_data_series</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">predict_data=None</em>, <em class="sig-param">horizon=47</em>, <em class="sig-param">names=None</em><span class="sig-paren">)</span><a class="headerlink" href="#stf.model.figure.plot_data_series" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots passed data and optionally prediction data for specified horizon.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>list of mixed</em>) – There are two options to use this function. Either
+pass a list of pandas.DataFrame where each dataframe contains a load
+column and a horizon column. Or pass a list of pandas.Series with
+unique indexing.</p></li>
+<li><p><strong>predict_data</strong> (<em>list of mixsed</em><em>, </em><em>optional</em>) – Similar to data, but
+for prediction data instead. When passing a list of pandas.DataFrame
+the column forecast should exist. Can be set to None.</p></li>
+<li><p><strong>horizon</strong> (<em>int</em><em>, </em><em>optional</em>) – This function will select only data matching
+this horizon. Defaults to 47.</p></li>
+<li><p><strong>names</strong> (<em>list of string</em><em>, </em><em>optional</em>) – The names that will be used in the
+legend of the plot. If None is passed, this will be build
+automatically based on the number of series passed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A line plot of each passed data series.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>plotly.graph_objects.Figure</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="stf.model.figure.plot_feature_importance">
+<code class="sig-prename descclassname">stf.model.figure.</code><code class="sig-name descname">plot_feature_importance</code><span class="sig-paren">(</span><em class="sig-param">feature_importance</em><span class="sig-paren">)</span><a class="headerlink" href="#stf.model.figure.plot_feature_importance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Created a treemap plot based on feature importance and weights.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>feature_importance</strong> (<em>pandas.DataFrame</em>) – A DataFrame describing the
+feature importances and weights of the trained model.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A treemap of the features.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>plotly.graph_objects.Figure</p>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
 <div class="section" id="stf-model-general-module">
 <h2>stf.model.general module<a class="headerlink" href="#stf-model-general-module" title="Permalink to this headline">¶</a></h2>
@@ -268,8 +387,153 @@
 <div class="section" id="stf-model-hyper-parameters-module">
 <h2>stf.model.hyper_parameters module<a class="headerlink" href="#stf-model-hyper-parameters-module" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="stf-model-metrics-module">
-<h2>stf.model.metrics module<a class="headerlink" href="#stf-model-metrics-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-stf.model.metrics">
+<span id="stf-model-metrics-module"></span><h2>stf.model.metrics module<a class="headerlink" href="#module-stf.model.metrics" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="stf.model.metrics.bias">
+<code class="sig-prename descclassname">stf.model.metrics.</code><code class="sig-name descname">bias</code><span class="sig-paren">(</span><em class="sig-param">realised</em>, <em class="sig-param">forecast</em><span class="sig-paren">)</span><a class="headerlink" href="#stf.model.metrics.bias" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that calculates the absolute bias in %
+based on the true and prediciton</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="stf.model.metrics.frac_in_stdev">
+<code class="sig-prename descclassname">stf.model.metrics.</code><code class="sig-name descname">frac_in_stdev</code><span class="sig-paren">(</span><em class="sig-param">realised</em>, <em class="sig-param">forecast</em>, <em class="sig-param">stdev</em><span class="sig-paren">)</span><a class="headerlink" href="#stf.model.metrics.frac_in_stdev" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that calculates the amount of measurements that are within one stdev of
+our predictions</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="stf.model.metrics.franks_skill_score">
+<code class="sig-prename descclassname">stf.model.metrics.</code><code class="sig-name descname">franks_skill_score</code><span class="sig-paren">(</span><em class="sig-param">realised</em>, <em class="sig-param">forecast</em>, <em class="sig-param">basecase</em>, <em class="sig-param">range_=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#stf.model.metrics.franks_skill_score" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="stf.model.metrics.franks_skill_score_peaks">
+<code class="sig-prename descclassname">stf.model.metrics.</code><code class="sig-name descname">franks_skill_score_peaks</code><span class="sig-paren">(</span><em class="sig-param">realised</em>, <em class="sig-param">forecast</em>, <em class="sig-param">basecase</em><span class="sig-paren">)</span><a class="headerlink" href="#stf.model.metrics.franks_skill_score_peaks" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="stf.model.metrics.mae">
+<code class="sig-prename descclassname">stf.model.metrics.</code><code class="sig-name descname">mae</code><span class="sig-paren">(</span><em class="sig-param">realised</em>, <em class="sig-param">forecast</em><span class="sig-paren">)</span><a class="headerlink" href="#stf.model.metrics.mae" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that calculates the mean absolute error
+based on the true and prediction</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="stf.model.metrics.nsme">
+<code class="sig-prename descclassname">stf.model.metrics.</code><code class="sig-name descname">nsme</code><span class="sig-paren">(</span><em class="sig-param">realised</em>, <em class="sig-param">forecast</em><span class="sig-paren">)</span><a class="headerlink" href="#stf.model.metrics.nsme" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that calculates the Nash-sutcliffe model efficiency
+based on the true and prediciton</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="stf.model.metrics.r_mae">
+<code class="sig-prename descclassname">stf.model.metrics.</code><code class="sig-name descname">r_mae</code><span class="sig-paren">(</span><em class="sig-param">realised</em>, <em class="sig-param">forecast</em><span class="sig-paren">)</span><a class="headerlink" href="#stf.model.metrics.r_mae" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that calculates the relative mean absolute error
+based on the true and prediction.
+The range is based on the load range of the previous two weeks</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="stf.model.metrics.r_mae_highest">
+<code class="sig-prename descclassname">stf.model.metrics.</code><code class="sig-name descname">r_mae_highest</code><span class="sig-paren">(</span><em class="sig-param">realised</em>, <em class="sig-param">forecast</em>, <em class="sig-param">percentile=0.95</em><span class="sig-paren">)</span><a class="headerlink" href="#stf.model.metrics.r_mae_highest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that calculates the relative mean absolute error
+based on the true and prediction for the 5 percent highest realised values.
+The range is based on the load range of the previous two weeks</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="stf.model.metrics.r_mae_lowest">
+<code class="sig-prename descclassname">stf.model.metrics.</code><code class="sig-name descname">r_mae_lowest</code><span class="sig-paren">(</span><em class="sig-param">realised</em>, <em class="sig-param">forecast</em>, <em class="sig-param">quantile=0.05</em><span class="sig-paren">)</span><a class="headerlink" href="#stf.model.metrics.r_mae_lowest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that calculates the relative mean absolute error
+based on the true and prediction for the 5 percent lowest realised values.
+The range is based on the load range of the previous two weeks</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="stf.model.metrics.r_mne_highest">
+<code class="sig-prename descclassname">stf.model.metrics.</code><code class="sig-name descname">r_mne_highest</code><span class="sig-paren">(</span><em class="sig-param">realised</em>, <em class="sig-param">forecast</em><span class="sig-paren">)</span><a class="headerlink" href="#stf.model.metrics.r_mne_highest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that calculates the relative mean negative error
+based on the true and prediction for the 5 percent highest realised values.
+The range is based on the load range of the previous two weeks, this measure
+quantifies how much we underestimate peaks</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="stf.model.metrics.r_mpe_highest">
+<code class="sig-prename descclassname">stf.model.metrics.</code><code class="sig-name descname">r_mpe_highest</code><span class="sig-paren">(</span><em class="sig-param">realised</em>, <em class="sig-param">forecast</em><span class="sig-paren">)</span><a class="headerlink" href="#stf.model.metrics.r_mpe_highest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that calculates the relative mean positive error
+based on the true and prediction for the 5 percent highest realised values.
+The range is based on the load range of the previous two weeks, this measure
+quantifies how much we overestimate peaks</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="stf.model.metrics.rmse">
+<code class="sig-prename descclassname">stf.model.metrics.</code><code class="sig-name descname">rmse</code><span class="sig-paren">(</span><em class="sig-param">realised</em>, <em class="sig-param">forecast</em><span class="sig-paren">)</span><a class="headerlink" href="#stf.model.metrics.rmse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that calculates the Root Mean Square Error
+based on the true and prediciton</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="stf.model.metrics.skill_score">
+<code class="sig-prename descclassname">stf.model.metrics.</code><code class="sig-name descname">skill_score</code><span class="sig-paren">(</span><em class="sig-param">realised</em>, <em class="sig-param">forecast</em>, <em class="sig-param">mean</em><span class="sig-paren">)</span><a class="headerlink" href="#stf.model.metrics.skill_score" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that calculates the skill score.</p>
+<p>Thise indicates model performance relative to a reference, in this case the mean
+of the realised values. The range is based on the load range of the previous
+two weeks</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="stf.model.metrics.skill_score_positive_peaks">
+<code class="sig-prename descclassname">stf.model.metrics.</code><code class="sig-name descname">skill_score_positive_peaks</code><span class="sig-paren">(</span><em class="sig-param">realised</em>, <em class="sig-param">forecast</em>, <em class="sig-param">mean</em><span class="sig-paren">)</span><a class="headerlink" href="#stf.model.metrics.skill_score_positive_peaks" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="stf.model.metrics.xgb_quantile_eval">
+<code class="sig-prename descclassname">stf.model.metrics.</code><code class="sig-name descname">xgb_quantile_eval</code><span class="sig-paren">(</span><em class="sig-param">preds</em>, <em class="sig-param">dmatrix</em>, <em class="sig-param">quantile=0.2</em><span class="sig-paren">)</span><a class="headerlink" href="#stf.model.metrics.xgb_quantile_eval" title="Permalink to this definition">¶</a></dt>
+<dd><p>Customized evaluational metric that equals
+to quantile regression loss (also known as
+pinball loss).
+Quantile regression is regression that
+estimates a specified quantile of target’s
+distribution conditional on given features.
+&#64;type preds: numpy.ndarray
+&#64;type dmatrix: xgboost.DMatrix
+&#64;type quantile: float
+&#64;rtype: float</p>
+<p># See also:
+<a class="reference external" href="https://gist.github.com/Nikolay-Lysenko/06769d701c1d9c9acb9a66f2f9d7a6c7">https://gist.github.com/Nikolay-Lysenko/06769d701c1d9c9acb9a66f2f9d7a6c7</a></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="stf.model.metrics.xgb_quantile_obj">
+<code class="sig-prename descclassname">stf.model.metrics.</code><code class="sig-name descname">xgb_quantile_obj</code><span class="sig-paren">(</span><em class="sig-param">preds</em>, <em class="sig-param">dmatrix</em>, <em class="sig-param">quantile=0.2</em><span class="sig-paren">)</span><a class="headerlink" href="#stf.model.metrics.xgb_quantile_obj" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes first-order derivative of quantile
+regression loss and a non-degenerate
+substitute for second-order derivative.
+Substitute is returned instead of zeros,
+because XGBoost requires non-zero
+second-order derivatives. See this page:
+<a class="reference external" href="https://github.com/dmlc/xgboost/issues/1825">https://github.com/dmlc/xgboost/issues/1825</a>
+to see why it is possible to use this trick.
+However, be sure that hyperparameter named
+<cite>max_delta_step</cite> is small enough to satisfy:
+<a href="#id1"><span class="problematic" id="id2">``</span></a><a href="#id3"><span class="problematic" id="id4">`</span></a>0.5 * max_delta_step &lt;=</p>
+<blockquote>
+<div><p>min(quantile, 1 - quantile)```.</p>
+</div></blockquote>
+<p>&#64;type preds: numpy.ndarray
+&#64;type dmatrix: xgboost.DMatrix
+&#64;type quantile: float
+&#64;rtype: tuple(numpy.ndarray)</p>
+<p># See also:
+<a class="reference external" href="https://gist.github.com/Nikolay-Lysenko/06769d701c1d9c9acb9a66f2f9d7a6c7">https://gist.github.com/Nikolay-Lysenko/06769d701c1d9c9acb9a66f2f9d7a6c7</a></p>
+<p>Reasoning for the hessian:
+<a class="reference external" href="https://gist.github.com/Nikolay-Lysenko/06769d701c1d9c9acb9a66f2f9d7a6c7#gistcomment-2322558">https://gist.github.com/Nikolay-Lysenko/06769d701c1d9c9acb9a66f2f9d7a6c7#gistcomment-2322558</a></p>
+</dd></dl>
+
 </div>
 <div class="section" id="stf-model-performance-module">
 <h2>stf.model.performance module<a class="headerlink" href="#stf-model-performance-module" title="Permalink to this headline">¶</a></h2>
@@ -283,8 +547,74 @@
 <div class="section" id="stf-model-train-module">
 <h2>stf.model.train module<a class="headerlink" href="#stf-model-train-module" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="stf-model-validation-robot-module">
-<h2>stf.model.validation_robot module<a class="headerlink" href="#stf-model-validation-robot-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-stf.model.validation_robot">
+<span id="stf-model-validation-robot-module"></span><h2>stf.model.validation_robot module<a class="headerlink" href="#module-stf.model.validation_robot" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="stf.model.validation_robot.check_data_for_each_trafo">
+<code class="sig-prename descclassname">stf.model.validation_robot.</code><code class="sig-name descname">check_data_for_each_trafo</code><span class="sig-paren">(</span><em class="sig-param">df</em>, <em class="sig-param">col</em><span class="sig-paren">)</span><a class="headerlink" href="#stf.model.validation_robot.check_data_for_each_trafo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that detects if each column contains zero-values at all, only zero-values and NaN values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> – pd.dataFrame(index=DatetimeIndex, columns = [load1, …, loadN]).
+Load_corrections should be indicated by ‘<a href="#id5"><span class="problematic" id="id6">LC_</span></a>’</p></li>
+<li><p><strong>col</strong> – column of pd.dataFrame</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>False if column contains above specified or True if not</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="stf.model.validation_robot.nonzero_flatliner">
+<code class="sig-prename descclassname">stf.model.validation_robot.</code><code class="sig-name descname">nonzero_flatliner</code><span class="sig-paren">(</span><em class="sig-param">df</em>, <em class="sig-param">threshold</em><span class="sig-paren">)</span><a class="headerlink" href="#stf.model.validation_robot.nonzero_flatliner" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that detects a stationflatliner and returns a list of datetimes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> – pd.dataFrame(index=DatetimeIndex, columns = [load1, …, loadN]).
+Load_corrections should be indicated by ‘<a href="#id7"><span class="problematic" id="id8">LC_</span></a>’</p></li>
+<li><p><strong>threshold</strong> – after how many timesteps should the function detect a flatliner.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns:
+# TODO: function returns None or a DataFrame</p>
+<blockquote>
+<div><p>list: flatline moments</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="function">
+<dt id="stf.model.validation_robot.replace_invalid_data">
+<code class="sig-prename descclassname">stf.model.validation_robot.</code><code class="sig-name descname">replace_invalid_data</code><span class="sig-paren">(</span><em class="sig-param">df</em>, <em class="sig-param">suspicious_moments</em><span class="sig-paren">)</span><a class="headerlink" href="#stf.model.validation_robot.replace_invalid_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that detects invalid data using the nonzero_flatliner function and converts the output to NaN values.</p>
+<p>Input:
+- df: pd.dataFrame(index=DatetimeIndex, columns = [load1, …, loadN]). Load_corrections should be indicated by ‘<a href="#id9"><span class="problematic" id="id10">LC_</span></a>’
+- suspicious_moments (pd.dataframe): output of function nonzero_flatliner in new variable</p>
+<p>return:
+- pd.DataFrame without invalid data (converted to NaN values)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="stf.model.validation_robot.zero_flatliner">
+<code class="sig-prename descclassname">stf.model.validation_robot.</code><code class="sig-name descname">zero_flatliner</code><span class="sig-paren">(</span><em class="sig-param">df</em>, <em class="sig-param">threshold</em>, <em class="sig-param">window=datetime.timedelta(seconds=1800)</em>, <em class="sig-param">load_threshold=0.3</em><span class="sig-paren">)</span><a class="headerlink" href="#stf.model.validation_robot.zero_flatliner" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that detects a zero value where the load is not compensated by the other trafo’s of the station.</p>
+<p>Input:
+- df: pd.dataFrame(index=DatetimeIndex, columns = [load1, …, loadN]). Load_corrections should be indicated by ‘<a href="#id11"><span class="problematic" id="id12">LC_</span></a>’
+- threshold (float): after how many hours should the function detect a flatliner.
+- window (timedelta object): for how many hours before the zero-value should the mean load be calculated.
+- load_threshold (fraction): how big may the difference be between the total station load
+before and during the zero-value(s).</p>
+<p>return:
+- pd.DataFrame of timestamps, or None if none</p>
+</dd></dl>
+
 </div>
 <div class="section" id="module-stf.model">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-stf.model" title="Permalink to this headline">¶</a></h2>

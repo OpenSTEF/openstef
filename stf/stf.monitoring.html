@@ -248,8 +248,49 @@ True.</p></li>
 <div class="section" id="stf-monitoring-teams-module">
 <h2>stf.monitoring.teams module<a class="headerlink" href="#stf-monitoring-teams-module" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="stf-monitoring-utils-module">
-<h2>stf.monitoring.utils module<a class="headerlink" href="#stf-monitoring-utils-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-stf.monitoring.utils">
+<span id="stf-monitoring-utils-module"></span><h2>stf.monitoring.utils module<a class="headerlink" href="#module-stf.monitoring.utils" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="stf.monitoring.utils.check_datetimes_unique">
+<code class="sig-prename descclassname">stf.monitoring.utils.</code><code class="sig-name descname">check_datetimes_unique</code><span class="sig-paren">(</span><em class="sig-param">pred</em><span class="sig-paren">)</span><a class="headerlink" href="#stf.monitoring.utils.check_datetimes_unique" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if the values of pred only have unique datetimes
+Input:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>pred: pd.DataFrame(columns=[‘datetimeFC’, <a href="#id1"><span class="problematic" id="id2">*</span></a>])</p></li>
+</ul>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p>True / False</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="stf.monitoring.utils.check_max_ahead">
+<code class="sig-prename descclassname">stf.monitoring.utils.</code><code class="sig-name descname">check_max_ahead</code><span class="sig-paren">(</span><em class="sig-param">pred</em>, <em class="sig-param">max_ahead</em><span class="sig-paren">)</span><a class="headerlink" href="#stf.monitoring.utils.check_max_ahead" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if the values of pred extend max_ahead hours into the future
+Input:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>pred: pd.DataFrame(columns=[‘datetimeFC’, <a href="#id3"><span class="problematic" id="id4">*</span></a>])</p></li>
+<li><p>max_ahead: float, time ahead in hours</p></li>
+</ul>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p>True / False</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
 <div class="section" id="module-stf.monitoring">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-stf.monitoring" title="Permalink to this headline">¶</a></h2>
