@@ -2,14 +2,11 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-import unittest
-
 from stf.feature_engineering.feature_free_days import create_holiday_functions
 
 from test.utils import BaseTestCase
 
-expected_keys = ['IsHoliday', 'IsNieuwjaarsdag', 'IsGoede Vrijdag', 'IsEerste paasdag', 'IsTweede paasdag', 'IsKoningsdag', 'IsBevrijdingsdag', 'IsHemelvaart', 'IsEerste Pinksterdag', 'IsTweede Pinksterdag', 'IsEerste Kerstdag', 'IsTweede Kerstdag']
-
+expected_keys = ['IsNationalHoliday', 'IsNieuwjaarsdag', 'IsGoede Vrijdag', 'IsEerste paasdag', 'IsTweede paasdag', 'IsKoningsdag', 'IsBevrijdingsdag', 'IsBridgedayBevrijdingsdag', 'IsHemelvaart', 'IsBridgedayHemelvaart', 'IsEerste Pinksterdag', 'IsTweede Pinksterdag', 'IsEerste Kerstdag', 'IsTweede Kerstdag', 'IsBridgedayKoningsdag', 'IsSchoolholiday', 'IsVoorjaarsvakantieNoord', 'IsHerfstvakantieZuid', 'IsZomervakantieZuid', 'IsHerfstvakantieMidden', 'IsVoorjaarsvakantieMidden', 'IsBouwvakNoord', 'IsMeivakantie', 'IsHerfstvakantieNoord', 'IsBouwvakMidden', 'IsVoorjaarsvakantieZuid', 'IsZomervakantieMidden', 'IsZomervakantieNoord', 'IsKerstvakantie', 'IsBouwvakZuid']
 
 class GeneralTest(BaseTestCase):
 
