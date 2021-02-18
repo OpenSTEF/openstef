@@ -17,5 +17,5 @@ Important files:
 - `ktpbase`: empty ktpbase implementation so other python modules do not give an exception when imported
 
 Running locally:
-`sphinx-apidoc -o docs/stf stf`
-`sphinx build `
+`sphinx-apidoc -o docs stf`
+`sphinx-build docs output`
