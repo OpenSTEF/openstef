@@ -60,7 +60,8 @@ def create_holiday_functions(country="NL", years=None, path_to_school_holidays_c
     holiday_functions.update(
         {"is_national_holiday": lambda x: np.isin(x.index.date, np.array(list(country_holidays)))}
     )
-
+    # Define empty list to keep track of bridgedays
+    bridge_days = []
     # Loop over list of holidays names
     for date, holiday_name in sorted(country_holidays.items()):
         # Define function explicitely to mitigate 'late binding' problem
@@ -86,6 +87,7 @@ def create_holiday_functions(country="NL", years=None, path_to_school_holidays_c
                 holiday_functions.update(
                     {"is_bridgeday" + holiday_name.replace(" ", "_").lower(): make_holiday_func((date + timedelta(days=1)))}
                 )
+                bridge_days.append((date + timedelta(days=1)))
         # Looking backward: If day before yesterday is a national holiday
         # or a sunday check if yesterday is a national holiday
         if (date - timedelta(days=2)) in country_holidays or\
@@ -99,6 +101,12 @@ def create_holiday_functions(country="NL", years=None, path_to_school_holidays_c
                 holiday_functions.update(
                     {"is_bridgeday" + holiday_name.replace(" ", "_").lower(): make_holiday_func((date - timedelta(days=1)))}
                 )
+                bridge_days.append((date - timedelta(days=1)))
+
+    # Add feature function that includes all bridgedays
+    holiday_functions.update(
+        {"is_bridgeday": lambda x: np.isin(x.index.date, np.array(list(bridge_days)))}
+    )
 
     # Manully generated csv including all dutch schoolholidays for different regions
     df_holidays = pd.read_csv(path_to_school_holidays_csv, index_col=None)
