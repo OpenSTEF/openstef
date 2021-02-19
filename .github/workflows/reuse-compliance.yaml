@@ -3,14 +3,14 @@
 # SPDX-License-Identifier: MPL-2.0
 name: REUSE Check Compliance
 
-on: [push, pull_request]
+on: [pull_request]
 
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
     # Checkout
-    - name:
+    - name: checkout
       uses: actions/checkout@v2
     # Reuse
     - name: REUSE Compliance Check
