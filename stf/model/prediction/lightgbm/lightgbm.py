@@ -73,9 +73,7 @@ class LGBPredictionModel(AbstractPredictionModel):
         # Add standard deviation from `confidence_df` or file (if exists and is not empty)
         forecast = self._add_standard_deviation_to_forecast(forecast)
 
-        forecast = self._add_quantiles_to_forecast(
-            forecast, self.pj["quantiles"]
-        )
+        forecast = self._add_quantiles_to_forecast(forecast, self.pj["quantiles"])
 
         # Add prediction job property to forecast
         forecast = self.add_prediction_job_properties_to_forecast(
@@ -108,16 +106,14 @@ class LGBPredictionModel(AbstractPredictionModel):
         """
 
         # Check if stdev and forecast are in the dataframe
-        if not all(
-            elem in forecast.columns for elem in ["forecast", "stdev"]
-        ):
+        if not all(elem in forecast.columns for elem in ["forecast", "stdev"]):
             raise ValueError("Forecast should contain a 'forecast' and 'stdev' column")
 
         for quantile in quantiles:
             quantile_key = f"quantile_P{quantile * 100:02.0f}"
             forecast[quantile_key] = (
-                forecast["forecast"] +
-                scipy.stats.norm.ppf(quantile) * forecast['stdev']
+                forecast["forecast"]
+                + scipy.stats.norm.ppf(quantile) * forecast["stdev"]
             )
 
         return forecast

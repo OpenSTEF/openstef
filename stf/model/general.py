@@ -26,6 +26,7 @@ class MLModelType(Enum):
     LGB = "lgb"
     LGB_QUANTILE = "lgb_quantile"
 
+
 class ForecastType(Enum):
     DEMAND = "demand"
     WIND = "wind"
