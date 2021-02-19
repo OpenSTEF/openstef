@@ -4,14 +4,16 @@
 
 from stf.model.prediction.xgboost.quantile import QuantileXGBPredictionModel
 from stf.model.prediction.xgboost.xgboost import XGBPredictionModel
+from stf.model.prediction.lightgbm.lightgbm import LGBPredictionModel
+
 
 
 class PredictionModelCreator:
 
-    PROGNOSIS_MODEL_CONSTRUCTORS = {
-        "xgb": XGBPredictionModel,
-        "xgb_quantile": QuantileXGBPredictionModel,
-    }
+    PROGNOSIS_MODEL_CONSTRUCTORS = {"xgb": XGBPredictionModel,
+                                    "xgb_quantile": QuantileXGBPredictionModel,
+                                    "lgb": LGBPredictionModel,
+                                   }
 
     @classmethod
     def create_prediction_model(cls, pj, forecast_type, model=None, confidence_df=None):

@@ -23,7 +23,8 @@ from stf.feature_engineering.general import (
 class MLModelType(Enum):
     XGB = "xgb"
     XGB_QUANTILE = "xgb_quantile"
-
+    LGB = "lgb"
+    LGB_QUANTILE = "lgb_quantile"
 
 class ForecastType(Enum):
     DEMAND = "demand"

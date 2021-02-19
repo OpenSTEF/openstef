@@ -60,7 +60,7 @@ class XGBModelSerializer(AbstractModelSerializer):
 
         Returns:
             tuple: Tuple with:
-                [0]: xgb.Booster: Loaded model
+                [0]: lgb.Booster: Loaded model
                 [1]: str: Path to loaded model
         """
 

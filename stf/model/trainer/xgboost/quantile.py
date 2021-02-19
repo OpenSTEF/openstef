@@ -52,7 +52,7 @@ class XGBQuantileModelTrainer(XGBModelTrainer):
         # Create result dictionary to house the models for the different quantiles
         self.quantile_models = dict()
 
-        # get the xgb (hyper) parameters
+        # get the lgb (hyper) parameters
         params = {k: self.hyper_parameters[k] for k in self._xgb_hyper_parameter_keys}
 
         for quantile in self.pj["quantiles"]:

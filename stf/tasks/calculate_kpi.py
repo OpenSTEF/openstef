@@ -64,7 +64,7 @@ def check_kpi_pj(pj, context, start_time, end_time):
 
 def main():
     with TaskContext(__file__) as context:
-        model_type = "xgb"
+        model_type = "lgb"
         # Set start and end time
         start_time = datetime.date(datetime.utcnow()) - timedelta(days=1)
         end_time = datetime.date(datetime.utcnow())

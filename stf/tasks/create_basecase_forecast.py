@@ -25,7 +25,7 @@ from stf.tasks.utils.taskcontext import TaskContext
 
 def main():
     with TaskContext(__file__) as context:
-        model_type = "xgb"
+        model_type = "lgb"
 
         PredictionJobLoop(context, model_type=model_type).map(
             predict.make_basecase_prediction

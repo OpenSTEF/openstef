@@ -110,7 +110,9 @@ class AbstractModelTrainer(ABC):
     def hyper_params_objective(
         self,
         trial,
+        error_function=None,
         clean_data_with_features=None,
+        featuresets=None,
         optimize_peak_prediction=False,
     ):
         print(
