@@ -7,18 +7,17 @@ import plotly
 from ktpbase.database import DataBase
 from ktpbase.log import logging
 
-from stf.feature_engineering.capacity_prognoses_features import (
-    apply_capacity_features
-)
+from stf.feature_engineering.capacity_prognoses_features import apply_capacity_features
 from stf.model.capacity_prognosis_model import CapacityPrognosisModel
 from stf.model.capacity_prognosis_utils import (
-    prepare_prediction_data, prepare_training_data, visualize_predictions
+    prepare_prediction_data,
+    prepare_training_data,
+    visualize_predictions,
 )
 from stf.model.serializer.xgboost.xgboost import XGBModelSerializer
 
 
-def predict_capacity_prognosis(
-        pj, datetime_start, datetime_end, y_hor=None):
+def predict_capacity_prognosis(pj, datetime_start, datetime_end, y_hor=None):
     """Predict capacity prognoses for specific prediction job
 
     Args:
@@ -44,9 +43,7 @@ def predict_capacity_prognosis(
 
     # apply features
     logger.info("Apply features")
-    feature_data, _ = apply_capacity_features(
-        input_data, y_col="load_max", y_hor=y_hor
-    )
+    feature_data, _ = apply_capacity_features(input_data, y_col="load_max", y_hor=y_hor)
 
     # prepare prediction points
     logger.info("Prepare prediction data")
@@ -82,7 +79,7 @@ def predict_capacity_prognosis(
 
 
 def train_capacity_prognosis(pj, datetime_start, datetime_end, y_hor=[0, 6, 13]):
-    """ Train a capacity prognoses model for a specific prediction job.
+    """Train a capacity prognoses model for a specific prediction job.
 
     Args:
         pj: (dict) prediction job

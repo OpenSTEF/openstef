@@ -6,17 +6,18 @@ import random
 import sys
 
 
-class PredictionJobLoop():
+class PredictionJobLoop:
     def __init__(
-            self,
-            context,
-            stop_on_exception=False,
-            random_order=True,
-            on_exception_callback=None,
-            on_successful_callback=None,
-            on_end_callback=None,
-            prediction_jobs=None,
-            **pj_kwargs):
+        self,
+        context,
+        stop_on_exception=False,
+        random_order=True,
+        on_exception_callback=None,
+        on_successful_callback=None,
+        on_end_callback=None,
+        prediction_jobs=None,
+        **pj_kwargs
+    ):
         """Convenience objects that maps a function over prediction jobs.
 
         Default behaviour is to automatically get prediction jobs from the
@@ -68,14 +69,11 @@ class PredictionJobLoop():
             random.shuffle(self.prediction_jobs)
 
     def _get_prediction_jobs(self):
-        """Fetches prediction jobs from database.
-        """
+        """Fetches prediction jobs from database."""
         self.context.logger.info(
             "Querying prediction jobs from database", **self.pj_kwargs
         )
-        prediction_jobs = self.context.database.get_prediction_jobs(
-            **self.pj_kwargs
-        )
+        prediction_jobs = self.context.database.get_prediction_jobs(**self.pj_kwargs)
 
         return prediction_jobs
 
@@ -87,7 +85,7 @@ class PredictionJobLoop():
                 prediction_jobs.append(pj)
                 continue
 
-            prediction_jobs.append(self.context.database.get_prediction_job(pj['id']))
+            prediction_jobs.append(self.context.database.get_prediction_job(pj["id"]))
 
         return prediction_jobs
 
@@ -190,7 +188,8 @@ class PredictionJobLoop():
         _, exc_info, stack_info = sys.exc_info()
         self.context.logger.error(
             "An exception occured during this iteration",
-            exc_info=exc_info, stack_info=stack_info,
+            exc_info=exc_info,
+            stack_info=stack_info,
         )
 
         if self.on_exception_callback is None:

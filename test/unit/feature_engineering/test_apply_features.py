@@ -12,7 +12,6 @@ from stf.feature_engineering import apply_features
 
 
 class TestApplyFeaturesModule(BaseTestCase):
-
     def test_generate_lag_functions(self):
         """Test generate lag functions.
 
@@ -67,7 +66,8 @@ class TestApplyFeaturesModule(BaseTestCase):
         """
         input_data_with_features = apply_features.apply_features(
             # data=self.test_data.INPUT_DATA, h_ahead=24
-            data=TestData.load("input_data.pickle"), h_ahead=24
+            data=TestData.load("input_data.pickle"),
+            h_ahead=24,
         )
         self.assertDataframeEqual(
             input_data_with_features,

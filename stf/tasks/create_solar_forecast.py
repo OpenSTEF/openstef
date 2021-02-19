@@ -24,7 +24,7 @@ from stf.tasks.utils.taskcontext import TaskContext
 
 
 def make_solar_predicion_pj(pj, context):
-    """ Make a solar prediction for a spcecific prediction job.
+    """Make a solar prediction for a spcecific prediction job.
 
     Args:
         pj: (dict) prediction job
@@ -36,7 +36,7 @@ def make_solar_predicion_pj(pj, context):
         pj["horizon_minutes"],
         pj["resolution_minutes"],
         radius=pj["radius"],
-        sid=pj['sid'],
+        sid=pj["sid"],
     )
 
     if len(solar_input) == 0:
@@ -53,10 +53,10 @@ def make_solar_predicion_pj(pj, context):
     if (pj["radius"] != 0) and (not np.isnan(pj["peak_power"])):
         power = pj["peak_power"] / max(solar_input.aggregated) * power
     context.logger.info("Store solar prediction in database")
-    power["pid"] = pj['id']
+    power["pid"] = pj["id"]
     power["type"] = "solar"
     power["algtype"] = "Fides"
-    power["customer"] = pj['name']
+    power["customer"] = pj["name"]
     power["description"] = pj["description"]
     context.database.write_forecast(power)
 
@@ -78,13 +78,12 @@ def main():
             context.logger.info(
                 "Remove 'Provincie' solar predictions",
                 num_removed_jobs=num_removed_jobs,
-                num_prediction_jobs=num_prediction_jobs
+                num_prediction_jobs=num_prediction_jobs,
             )
 
-        PredictionJobLoop(
-            context,
-            prediction_jobs=prediction_jobs
-        ).map(make_solar_predicion_pj, context)
+        PredictionJobLoop(context, prediction_jobs=prediction_jobs).map(
+            make_solar_predicion_pj, context
+        )
 
 
 if __name__ == "__main__":

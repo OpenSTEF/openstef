@@ -25,10 +25,9 @@ def main():
     with TaskContext(__file__) as context:
         model_type = ["xgb", "xgb_quantile"]
 
-        PredictionJobLoop(
-            context,
-            model_type=model_type
-        ).map(optimize_hyperparameters_pj)
+        PredictionJobLoop(context, model_type=model_type).map(
+            optimize_hyperparameters_pj
+        )
 
 
 if __name__ == "__main__":

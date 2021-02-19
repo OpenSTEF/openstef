@@ -11,7 +11,8 @@ import pandas as pd
 
 # import project modules
 from stf.model.capacity_prognosis import (
-    predict_capacity_prognosis, train_capacity_prognosis
+    predict_capacity_prognosis,
+    train_capacity_prognosis,
 )
 
 from test.utils import BaseTestCase
@@ -21,7 +22,7 @@ FUCNTION_ARGS = [
     {"id": 1, "name": "job1", "description": "description for job 1"},
     datetime.utcnow().date(),
     datetime.utcnow().date(),
-    list(range(13))
+    list(range(13)),
 ]
 TIME_IND = pd.date_range(
     "2020-03-17 00:00:00+00:00", "2020-03-17 02:15:00+00:00", freq="15min"
@@ -281,7 +282,6 @@ class TestCapacityPrognosisTrain(BaseTestCase):
         apply_features_mock,
         model_mock,
         prepare_data_mock,
-
     ):
         # set database return values
         db_mock.return_value.get_load_pid.return_value = LOAD_DATA

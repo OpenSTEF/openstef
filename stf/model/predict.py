@@ -26,7 +26,9 @@ def make_prediction(pj, forecast_type=ForecastType.DEMAND):
     logger = logging.get_logger(__name__)
     logger.info(
         "Start making prediction",
-        prediction_id=pj["id"], customer_name=pj["name"], prediction_type="prediction"
+        prediction_id=pj["id"],
+        customer_name=pj["name"],
+        prediction_type="prediction",
     )
     # preparation ######################################################################
     forecast_start, forecast_end = generate_forecast_datetime_range(
@@ -85,11 +87,13 @@ def make_components_prediction(pj):
     datetime_start, datetime_end = generate_inputdata_datetime_range(
         t_behind_days=0, t_ahead_days=3
     )
-    logger.info("Get predicted load", datetime_start=datetime_start,
-                datetime_end=datetime_end)
+    logger.info(
+        "Get predicted load", datetime_start=datetime_start, datetime_end=datetime_end
+    )
     # Get most recent load forecast
     forecast = DataBase().get_predicted_load(
-        pj, start_time=datetime_start, end_time=datetime_end)
+        pj, start_time=datetime_start, end_time=datetime_end
+    )
     # Check if forecast is not empty
     if len(forecast) == 0:
         logger.warning(f'No forecast found. Skipping pid {pj["id"]}')
@@ -101,7 +105,7 @@ def make_components_prediction(pj):
     forecast["type"] = pj["typ"]
     forecast = forecast.drop(["stdev"], axis=1)
 
-    logger.info('retrieving weather data')
+    logger.info("retrieving weather data")
     # Get required weather data
     weather_data = DataBase().get_weather_data(
         [pj["lat"], pj["lon"]],
@@ -236,7 +240,7 @@ def generate_input_data_id(pj, datetime_start, datetime_end):
 def _clear_input_data_cache():
     """Clear the input data cache dictionairy.
 
-        This is mainly useful for testing.
+    This is mainly useful for testing.
     """
     global _input_data_cache
     _input_data_cache = {}
@@ -260,7 +264,7 @@ def pre_process_input_data(input_data, flatliner_threshold):
         num_nan = sum([True for i, row in input_data.iterrows() if all(row.isnull())])
         logger.warning(
             "Found suspicious data points, converted to NaN value",
-            num_nan_values=num_nan
+            num_nan_values=num_nan,
         )
 
     return input_data
@@ -290,7 +294,8 @@ def is_complete_enough(completeness, completeness_threshold):
     if completeness < completeness_threshold:
         logger.warning(
             "Forecast data completeness too low",
-            completeness=completeness, completeness_threshold=completeness_threshold
+            completeness=completeness,
+            completeness_threshold=completeness_threshold,
         )
         return False
 

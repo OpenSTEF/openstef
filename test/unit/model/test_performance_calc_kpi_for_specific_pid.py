@@ -56,21 +56,22 @@ class TestPerformanceCalcKpiForSpecificPid(BaseTestCase):
     # Test whether correct kpis are calculated for specific test data
     @patch("stf.model.performance.DataBase", get_database_mock)
     def test_calc_kpi_for_specific_pid(self):
-        kpis = calc_kpi_for_specific_pid({'id': 295})
+        kpis = calc_kpi_for_specific_pid({"id": 295})
         # use this to store new kpis
         # json.dump(kpis, open(filename, "w"), default=str)
         kpis_ref = TestData.load("calculate_kpi_kpi.json")
 
         # convert to dataframe to make comparison easier
         self.assertDataframeEqual(
-            pd.DataFrame(kpis).drop("date"), pd.DataFrame(kpis_ref).drop("date"),
-            check_like=True
+            pd.DataFrame(kpis).drop("date"),
+            pd.DataFrame(kpis_ref).drop("date"),
+            check_like=True,
         )
 
     # Test whether none is returned in case of poor completeness for realisex data
     @patch("stf.model.performance.DataBase", get_database_mock_realised_nan)
     def test_calc_kpi_for_specific_pid_poor_completeness_realized(self):
-        kpis = calc_kpi_for_specific_pid({'id': 295})
+        kpis = calc_kpi_for_specific_pid({"id": 295})
         t_ahead_keys = kpis.keys()
         self.assertIs(kpis[list(t_ahead_keys)[0]]["rMAE"], np.NaN)
 
@@ -78,7 +79,7 @@ class TestPerformanceCalcKpiForSpecificPid(BaseTestCase):
 
     @patch("stf.model.performance.DataBase", get_database_mock_predicted_nan)
     def test_calc_kpi_for_specific_pid_poor_completeness_predicted(self):
-        kpis = calc_kpi_for_specific_pid({'id': 295})
+        kpis = calc_kpi_for_specific_pid({"id": 295})
 
         t_ahead_keys = kpis.keys()
         self.assertIs(kpis[list(t_ahead_keys)[0]]["rMAE"], np.NaN)

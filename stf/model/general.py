@@ -11,11 +11,11 @@ from ktpbase.log import logging
 
 from stf import PROJECT_ROOT
 from stf.data_validation import data_validation
-from stf.feature_engineering.apply_features import (
-    apply_multiple_horizon_features
-)
+from stf.feature_engineering.apply_features import apply_multiple_horizon_features
 from stf.feature_engineering.general import (
-    apply_fit_insol, apply_persistence, remove_features_not_in_set
+    apply_fit_insol,
+    apply_persistence,
+    remove_features_not_in_set,
 )
 
 
@@ -37,8 +37,12 @@ PV_COEFS_FILEPATH = PROJECT_ROOT / "stf" / "data" / "pv_single_coefs.csv"
 
 
 def split_data_train_validation_test(
-    data, test_fraction=0.0, validation_fraction=0.15, back_test=False,
-    period_sampling=True, period_timedelta=timedelta(days=2)
+    data,
+    test_fraction=0.0,
+    validation_fraction=0.15,
+    back_test=False,
+    period_sampling=True,
+    period_timedelta=timedelta(days=2),
 ):
     """Split input data into train, test and validation set.
 
@@ -78,7 +82,7 @@ def split_data_train_validation_test(
     logger = logging.get_logger(__name__)
 
     # Check input
-    train_fraction = (1 - (test_fraction + validation_fraction))
+    train_fraction = 1 - (test_fraction + validation_fraction)
 
     if train_fraction < 0:
         raise ValueError(
@@ -95,8 +99,7 @@ def split_data_train_validation_test(
     # Calculate total of quarter hours (PTU's) in input data
     number_indices = len(data.index.unique())  # Total number of unique timepoints
     delta = (
-        data.index.unique().sort_values()[1]
-        - data.index.unique().sort_values()[0]
+        data.index.unique().sort_values()[1] - data.index.unique().sort_values()[0]
     )  # Delta t, assumed to be constant troughout DataFrame
     delta = timedelta(
         seconds=delta.seconds
@@ -108,26 +111,22 @@ def split_data_train_validation_test(
         if back_test:
             start_date_val = start_date
             start_date_train = (
-                start_date_val
-                + np.round(number_indices * validation_fraction) * delta
+                start_date_val + np.round(number_indices * validation_fraction) * delta
             )
             start_date_test = (
                 start_date_train
-                + np.round(
-                    number_indices * (1 - validation_fraction - test_fraction)
-                ) * delta
+                + np.round(number_indices * (1 - validation_fraction - test_fraction))
+                * delta
             )
             train_data = data[start_date_train:start_date_test]
             test_data = data[start_date_test:None]
         else:
             start_date_test = start_date
             start_date_val = (
-                start_date
-                + np.round(number_indices * test_fraction) * delta
+                start_date + np.round(number_indices * test_fraction) * delta
             )
             start_date_train = (
-                start_date_val
-                + np.round(number_indices * validation_fraction) * delta
+                start_date_val + np.round(number_indices * validation_fraction) * delta
             )
             test_data = data[start_date_test:start_date_val]
             train_data = data[start_date_train:None]
@@ -141,8 +140,7 @@ def split_data_train_validation_test(
             start_date_combined = start_date
             start_date_test = (
                 start_date_combined
-                + np.round(number_indices * (1 - test_fraction))
-                * delta
+                + np.round(number_indices * (1 - test_fraction)) * delta
             )
 
             combined_data = data[start_date_combined:start_date_test]
@@ -166,9 +164,7 @@ def split_data_train_validation_test(
     return train_data, validation_data, test_data
 
 
-def sample_validation_data_periods(
-    data, validation_fraction=0.15, period_length=192
-):
+def sample_validation_data_periods(data, validation_fraction=0.15, period_length=192):
     """Splits data in train and validation dataset.
 
     Tries to sample random periods of given length to form a validation set of
@@ -213,15 +209,15 @@ def sample_validation_data_periods(
     # Sample indices as validation data
     try:
         validation_indices = _sample_indices(
-            data_size - max(period_lengths),
-            period_lengths,
-            buffer_length
+            data_size - max(period_lengths), period_lengths, buffer_length
         )
     except ValueError:
-        raise ValueError("Could not sample {} periods from data of size {}. Maybe the \
+        raise ValueError(
+            "Could not sample {} periods from data of size {}. Maybe the \
             validation_fraction is too high (>0.4)?".format(
-            period_lengths, data_size
-        ))
+                period_lengths, data_size
+            )
+        )
 
     # Select validation data
     validation_data = data.loc[data.index.unique()[validation_indices]]
@@ -260,10 +256,11 @@ def _sample_indices(number_indices, period_lengths, buffer_length):
         sampled |= set(range(start_point, end_point))
 
         # Remove sampled indices plus a buffer zone.
-        stockpile -= set(range(
-            start_point - period_length - buffer_length,
-            end_point + buffer_length
-        ))
+        stockpile -= set(
+            range(
+                start_point - period_length - buffer_length, end_point + buffer_length
+            )
+        )
 
     return np.sort(list(sampled))
 
@@ -320,7 +317,11 @@ def combine_forecasts(forecasts, combination_coefs):
     # Identify which parameters should be used to define subsets based on the
     # combinationcoefs
     subset_columns = [
-        "tAhead", "hForecasted", "weekday", "hForecastedPer6h", "tAheadPer2h",
+        "tAhead",
+        "hForecasted",
+        "weekday",
+        "hForecastedPer6h",
+        "tAheadPer2h",
         "hCreated",
     ]
     subset_defs = [x for x in list(combination_coefs) if x in subset_columns]
@@ -425,7 +426,7 @@ def fides(data, all_forecasts=False):
     data = pd.DataFrame(index = index,
                         data = dict(load=np.sin(index.hour/24*np.pi)*np.random.uniform(0.7,1.7, 300)))
     data['insolation'] = data.load * np.random.uniform(0.8, 1.2, len(index)) + 0.1
-    data.loc[int(len(index)/3*2):,"load"] = np.NaN """
+    data.loc[int(len(index)/3*2):,"load"] = np.NaN"""
 
     insolation_forecast = apply_fit_insol(data, add_to_df=False)
     persistence = apply_persistence(data, how="mean", smooth_entries=4, add_to_df=True)

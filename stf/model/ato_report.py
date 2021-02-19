@@ -24,7 +24,9 @@ def make_report_pj(pj):
     output_file = "report_{}.csv".format(pj["name"])
 
     # Define start and end of realized date
-    start = (datetime.utcnow() - timedelta(days=7)).replace(tzinfo=None, minute=0, hour=0)
+    start = (datetime.utcnow() - timedelta(days=7)).replace(
+        tzinfo=None, minute=0, hour=0
+    )
 
     end_realized = datetime.utcnow()
 

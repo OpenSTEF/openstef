@@ -14,7 +14,6 @@ from test.utils import BaseTestCase, TestData
 
 @patch("stf.monitoring.teams.pymsteams")
 class TestTeams(BaseTestCase):
-
     def setUp(self):
         super().setUp()
         self.pj = TestData.get_prediction_job(pid=307)
@@ -37,7 +36,7 @@ class TestTeams(BaseTestCase):
 
     def test_post_teams_better(self, teamsmock):
 
-        test_feature_weights = pd.DataFrame(data={'gain': [1, 2]})
+        test_feature_weights = pd.DataFrame(data={"gain": [1, 2]})
 
         teams.send_report_teams_better(self.pj, test_feature_weights)
         card_mock = teamsmock.connectorcard.return_value

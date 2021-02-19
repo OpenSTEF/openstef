@@ -33,9 +33,7 @@ THRESHOLD_OPTIMIZING = 0.50
 
 
 def check_kpi_pj(pj, context, start_time, end_time):
-    kpis = calc_kpi_for_specific_pid(
-        pj["id"], start_time=start_time, end_time=end_time
-    )
+    kpis = calc_kpi_for_specific_pid(pj["id"], start_time=start_time, end_time=end_time)
     # Write KPI's to database
     context.database.write_kpi(pj, kpis)
 
@@ -46,32 +44,22 @@ def check_kpi_pj(pj, context, start_time, end_time):
             "Need to retrain model, retraining threshold rMAE 47h exceeded",
             t_ahead="47.0h",
             rMAE=kpis["47.0h"]["rMAE"],
-            retraining_threshold=THRESHOLD_RETRAINING
+            retraining_threshold=THRESHOLD_RETRAINING,
         )
         function_name = "train_specific_model"
-        context.logger.info(
-            "Adding tracy job",
-            function=function_name
-        )
-        context.database.ktp_api.add_tracy_job(
-            pj["id"], function=function_name
-        )
+        context.logger.info("Adding tracy job", function=function_name)
+        context.database.ktp_api.add_tracy_job(pj["id"], function=function_name)
 
     if kpis["47.0h"]["rMAE"] > THRESHOLD_OPTIMIZING:
         context.logger.warning(
             "Need to optimize hyperparameters, optimizing threshold rMAE 47h exceeded",
             t_ahead="47.0h",
             rMAE=kpis["47.0h"]["rMAE"],
-            optimizing_threshold=THRESHOLD_OPTIMIZING
+            optimizing_threshold=THRESHOLD_OPTIMIZING,
         )
         function_name = "optimize_hyperparameters_for_specific_pid"
-        context.logger.info(
-            "Adding tracy job",
-            function=function_name
-        )
-        context.database.ktp_api.add_tracy_job(
-            pj["id"], function=function_name
-        )
+        context.logger.info("Adding tracy job", function=function_name)
+        context.database.ktp_api.add_tracy_job(pj["id"], function=function_name)
 
 
 def main():
@@ -82,10 +70,7 @@ def main():
         end_time = datetime.date(datetime.utcnow())
 
         if datetime.utcnow().weekday() in [0, 1, 2, 3, 4]:
-            PredictionJobLoop(
-                context,
-                model_type=model_type
-            ).map(
+            PredictionJobLoop(context, model_type=model_type).map(
                 check_kpi_pj,
                 context,
                 start_time=start_time,

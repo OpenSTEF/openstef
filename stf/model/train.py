@@ -12,16 +12,18 @@ from ktpbase.config.config import ConfigManager
 
 from stf.feature_engineering.general import calc_completeness
 from stf.model.figure import (
-    convert_to_base64_data_uri, plot_data_series, plot_feature_importance
+    convert_to_base64_data_uri,
+    plot_data_series,
+    plot_feature_importance,
 )
 from stf.model.general import (
-    ForecastType, pre_process_data, split_data_train_validation_test
+    ForecastType,
+    pre_process_data,
+    split_data_train_validation_test,
 )
 from stf.model.prediction.creator import PredictionModelCreator
 from stf.model.trainer.creator import ModelTrainerCreator
-from stf.monitoring.teams import (
-    send_report_teams_better, send_report_teams_worse
-)
+from stf.monitoring.teams import send_report_teams_better, send_report_teams_worse
 
 # TODO make this config more central
 # Set thresholds
@@ -54,7 +56,8 @@ def is_data_sufficient(data):
     if completeness < COMPLETENESS_THRESHOLD:
         logger.warning(
             "Input data is not sufficient, completeness too low",
-            completeness=completeness, completeness_threshold=COMPLETENESS_THRESHOLD
+            completeness=completeness,
+            completeness_threshold=COMPLETENESS_THRESHOLD,
         )
         is_sufficient = False
 
@@ -62,14 +65,17 @@ def is_data_sufficient(data):
     if table_length < MINIMAL_TABLE_LENGTH:
         logger.warning(
             "Input data is not sufficient, table length too short",
-            table_length=table_length, table_length_threshold=MINIMAL_TABLE_LENGTH
+            table_length=table_length,
+            table_length_threshold=MINIMAL_TABLE_LENGTH,
         )
         is_sufficient = False
 
     return is_sufficient
 
 
-def train_model_for_specific_pj(pj, context, retrain_young_models=False, compare_to_old=True):
+def train_model_for_specific_pj(
+    pj, context, retrain_young_models=False, compare_to_old=True
+):
     """Main function that controls the training process of one prediction job.
 
     Here, on a high level, the input data is collected, features are applied and the
@@ -100,7 +106,7 @@ def train_model_for_specific_pj(pj, context, retrain_young_models=False, compare
             context.logger.info(
                 "Skip training of model",
                 model_age_days=model_trainer.old_model_age,
-                retrain_young_models=retrain_young_models
+                retrain_young_models=retrain_young_models,
             )
             return
 
@@ -111,7 +117,9 @@ def train_model_for_specific_pj(pj, context, retrain_young_models=False, compare
 
     # Specify training period
     # use hyperparam training_period_days if available
-    lookback = float(model_trainer.hyper_parameters.get('training_period_days', TRAINING_PERIOD_DAYS))
+    lookback = float(
+        model_trainer.hyper_parameters.get("training_period_days", TRAINING_PERIOD_DAYS)
+    )
     datetime_start = datetime.utcnow() - timedelta(days=lookback)
     datetime_end = datetime.utcnow()
 
@@ -146,13 +154,20 @@ def train_model_for_specific_pj(pj, context, retrain_young_models=False, compare
 
     # Build predictor and create predictions
     predictor = PredictionModelCreator.create_prediction_model(
-        pj, ForecastType.DEMAND, model_trainer.trained_model, model_trainer.confidence_interval)
+        pj,
+        ForecastType.DEMAND,
+        model_trainer.trained_model,
+        model_trainer.confidence_interval,
+    )
     train_predict = predictor.make_forecast(
-        train_data.iloc[:, 1:].drop("Horizon", axis=1, errors="ignore"))
+        train_data.iloc[:, 1:].drop("Horizon", axis=1, errors="ignore")
+    )
     validation_predict = predictor.make_forecast(
-        validation_data.iloc[:, 1:].drop("Horizon", axis=1, errors="ignore"))
+        validation_data.iloc[:, 1:].drop("Horizon", axis=1, errors="ignore")
+    )
     test_predict = predictor.make_forecast(
-        test_data.iloc[:, 1:].drop("Horizon", axis=1, errors="ignore"))
+        test_data.iloc[:, 1:].drop("Horizon", axis=1, errors="ignore")
+    )
 
     context.perf_meter.checkpoint("predicting")
 
@@ -162,8 +177,9 @@ def train_model_for_specific_pj(pj, context, retrain_young_models=False, compare
         f"Predictor{horizon}": plot_data_series(
             [train_data, validation_data, test_data],
             [train_predict, validation_predict, test_predict],
-            horizon
-        ) for horizon in train_data.Horizon.unique()
+            horizon,
+        )
+        for horizon in train_data.Horizon.unique()
     }
 
     # Combine validation + train data
@@ -203,9 +219,7 @@ def train_model_for_specific_pj(pj, context, retrain_young_models=False, compare
                 xaxis=dict(visible=False),
                 yaxis=dict(visible=False),
             )
-            fig.write_image(
-                save_loc / "f{key}.jpg", format="jpg", scale=0.3
-            )
+            fig.write_image(save_loc / "f{key}.jpg", format="jpg", scale=0.3)
             convert_to_base64_data_uri(
                 save_loc / "f{key}.jpg",
                 save_loc / "f{key}.datauri",
@@ -237,4 +251,6 @@ def train_specific_model(context, pid):
     pj = db.get_prediction_job(pid)
 
     # Train model for pj
-    train_model_for_specific_pj(pj, context, compare_to_old=False, retrain_young_models=True)
+    train_model_for_specific_pj(
+        pj, context, compare_to_old=False, retrain_young_models=True
+    )

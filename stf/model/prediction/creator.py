@@ -8,8 +8,10 @@ from stf.model.prediction.xgboost.xgboost import XGBPredictionModel
 
 class PredictionModelCreator:
 
-    PROGNOSIS_MODEL_CONSTRUCTORS = {"xgb": XGBPredictionModel,
-                                    "xgb_quantile": QuantileXGBPredictionModel}
+    PROGNOSIS_MODEL_CONSTRUCTORS = {
+        "xgb": XGBPredictionModel,
+        "xgb_quantile": QuantileXGBPredictionModel,
+    }
 
     @classmethod
     def create_prediction_model(cls, pj, forecast_type, model=None, confidence_df=None):

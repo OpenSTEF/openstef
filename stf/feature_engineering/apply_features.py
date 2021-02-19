@@ -98,7 +98,7 @@ def additional_minute_space(data, height_treshold=0.1):
         mean = x.mean()
         var = np.var(x)
         xp = x - mean
-        corr = np.correlate(xp, xp, "full")[len(x) - 1:] / var / len(x)
+        corr = np.correlate(xp, xp, "full")[len(x) - 1 :] / var / len(x)
 
         return corr[: len(lags)]
 

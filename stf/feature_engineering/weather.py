@@ -49,7 +49,7 @@ def calc_dewpoint(vapour_pressure):
     Args:
         vapour_pressure (np.ndarray or float): The vapour pressure for which the dewpoint should be calculated
     Returns:
-        dewpoint (np.ndarray or float): """
+        dewpoint (np.ndarray or float):"""
 
     return TN / ((M / np.log10(vapour_pressure / A)) - 1)
 
@@ -93,7 +93,7 @@ def humidity_calculations(temperature, rh, pressure):
         pressure (np.array): The air pressure in hPa
     Returns:
         if the input is an np.ndarray: a pandas dataframe with the calculated moisture indices
-        if the input is numeric: a dict with the calculated moisture indices """
+        if the input is numeric: a dict with the calculated moisture indices"""
 
     # First: a sanity check on the relative humidity and the air pressure
     # We only check on the type of temperature, because they need to be the same anyway
@@ -108,8 +108,8 @@ def humidity_calculations(temperature, rh, pressure):
     # Suppres copy warnings
     with pd.option_context("mode.chained_assignment", None):
         if is_series:
-            rh[rh > 1] = rh / 100                   # This triggers copy warnings
-            pressure[pressure < 80000] = np.nan     # This triggers copy warnings
+            rh[rh > 1] = rh / 100  # This triggers copy warnings
+            pressure[pressure < 80000] = np.nan  # This triggers copy warnings
         else:
             if rh > 1:
                 rh /= 100

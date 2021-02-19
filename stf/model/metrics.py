@@ -167,9 +167,9 @@ def r_mae_lowest(realised, forecast, quantile=0.05):
 def skill_score(realised, forecast, mean):
     """Function that calculates the skill score.
 
-        Thise indicates model performance relative to a reference, in this case the mean
-        of the realised values. The range is based on the load range of the previous
-        two weeks
+    Thise indicates model performance relative to a reference, in this case the mean
+    of the realised values. The range is based on the load range of the previous
+    two weeks
     """
     combined = pd.concat([realised, forecast], axis=1)
     combined["mean"] = mean
@@ -246,6 +246,7 @@ def franks_skill_score_peaks(realised, forecast, basecase):
 #
 # SPDX-License-Identifier: MIT
 
+
 def xgb_quantile_eval(preds, dmatrix, quantile=0.2):
     """
     Customized evaluational metric that equals
@@ -264,9 +265,13 @@ def xgb_quantile_eval(preds, dmatrix, quantile=0.2):
 
     """
     labels = dmatrix.get_label()
-    return ('q{}_loss'.format(quantile),
-            np.nanmean((preds >= labels) * (1 - quantile) * (preds - labels) +
-                       (preds < labels) * quantile * (labels - preds)))
+    return (
+        "q{}_loss".format(quantile),
+        np.nanmean(
+            (preds >= labels) * (1 - quantile) * (preds - labels)
+            + (preds < labels) * quantile * (labels - preds)
+        ),
+    )
 
 
 def xgb_quantile_obj(preds, dmatrix, quantile=0.2):

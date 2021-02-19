@@ -31,6 +31,7 @@ from pathlib import Path
 
 import cufflinks
 import pandas as pd
+
 # Import third-party
 import plotly
 
@@ -45,7 +46,7 @@ colors = {"Flatliner": "rgba(255, 0, 0, 0.3)", "Zero_value": "rgba(0, 255, 0, 0.
 
 
 def validation_robot_pj(pj, context, datetime_start, datetime_end):
-    """ Run validation robot for specific prediction job.
+    """Run validation robot for specific prediction job.
 
     Args:
         pj: (dict) prediction job
@@ -76,7 +77,8 @@ def validation_robot_pj(pj, context, datetime_start, datetime_end):
         num_flatliners = len(flatliner_moments)
         context.logger.warning(
             "Flatliner detected",
-            prediction_name=pj["name"], num_flatliners=num_flatliners
+            prediction_name=pj["name"],
+            num_flatliners=num_flatliners,
         )
 
         flatliner_moments["type"] = "Flatliner"
@@ -86,7 +88,8 @@ def validation_robot_pj(pj, context, datetime_start, datetime_end):
         num_zero_values = len(zero_value_moments)
         context.logger.warning(
             "Zero-value detected",
-            prediction_name=pj["name"], num_zero_values=num_zero_values
+            prediction_name=pj["name"],
+            num_zero_values=num_zero_values,
         )
         zero_value_moments["type"] = "Zero_value"
         load_errors = load_errors.append(zero_value_moments)
@@ -134,7 +137,10 @@ def _create_load_error_plot(pj, load_data, load_errors, config):
     web_link = f'{base_url}/{pj["id"]}/{image_name}'
 
     plotly.offline.plot(
-        fig, show_link=False, filename=str(filename), auto_open=False,
+        fig,
+        show_link=False,
+        filename=str(filename),
+        auto_open=False,
     )
 
     return web_link
@@ -146,9 +152,7 @@ def _send_teams_error_message(pj, num_load_errors, buttonurl):
         "fallback": "Load data error(s) detected {0}: {1} timeperiods".format(
             pj["name"], num_load_errors
         ),
-        "title": "Load data error(s) detected {0} {1}".format(
-            pj["name"], pj["id"]
-        ),
+        "title": "Load data error(s) detected {0} {1}".format(pj["name"], pj["id"]),
         "links": dict(buttontext="Robot Result", buttonurl=buttonurl),
         "text": (
             "Found {0} moments where there is a load error at pid {1}!".format(
@@ -165,9 +169,7 @@ def main():
         datetime_start = datetime.utcnow() - timedelta(days=7)
         datetime_end = datetime.utcnow()
 
-        PredictionJobLoop(
-            context
-        ).map(
+        PredictionJobLoop(context).map(
             validation_robot_pj,
             context,
             datetime_start=datetime_start,
@@ -177,4 +179,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

@@ -12,7 +12,6 @@ data = TestData.load("input_data_train.pickle")
 
 
 class TestCapacityPrognosesFeatures(BaseTestCase):
-
     def setUp(self):
         super().setUp()
         self.data = TestData.load("input_data_train.pickle")
@@ -32,7 +31,11 @@ class TestCapacityPrognosesFeatures(BaseTestCase):
 
     def test_happy_apply_capacity_features(self):
         d, classes = cf.apply_capacity_features(
-            self.data, "load_mean", [1, 2], apply_class_labels=True, outlier_removal=True
+            self.data,
+            "load_mean",
+            [1, 2],
+            apply_class_labels=True,
+            outlier_removal=True,
         )
         return (d, classes)
 

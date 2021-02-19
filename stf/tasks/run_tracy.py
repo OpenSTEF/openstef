@@ -42,10 +42,12 @@ from functools import partial
 
 from stf.model.hyper_parameters import optimize_hyperparameters
 from stf.model.train import train_specific_model
+
 # Import project modules
 from stf.monitoring.teams import post_teams
 from stf.tasks.utils.utils import (
-    convert_string_args_to_dict_args, interpret_string_as_functions
+    convert_string_args_to_dict_args,
+    interpret_string_as_functions,
 )
 from stf.tasks.utils.taskcontext import TaskContext
 
@@ -71,11 +73,10 @@ def get_and_evaluate_todos(context):
 
         # First try to parse the input directly
         try:
-            interpreted_func = job["function"] + '(' + job["args"] + ')'
+            interpreted_func = job["function"] + "(" + job["args"] + ")"
         except Exception as e:
             context.logger.error(
-                "An exception occured while interpreting function",
-                exc_info=e, job=job
+                "An exception occured while interpreting function", exc_info=e, job=job
             )
             context.logger.info("Try alternative parsing of function and arguments")
 
@@ -106,7 +107,8 @@ def get_and_evaluate_todos(context):
             res = eval(interpreted_func, forbid_globals)
             context.logger.debug(
                 "Evaluated interpreted function",
-                return_value=res, interpreted_func=interpreted_func
+                return_value=res,
+                interpreted_func=interpreted_func,
             )
 
             teams_message = (
@@ -125,7 +127,7 @@ def get_and_evaluate_todos(context):
             context.database.ktp_api.update_tracy_job(job)
             context.logger.error(
                 "An exception occured during evaluation of the interpreted function",
-                exc_info=e
+                exc_info=e,
             )
             teams_message = (
                 f"Tracy could not execute job (`{interpreted_func}`), "
@@ -144,4 +146,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

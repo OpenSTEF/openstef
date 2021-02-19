@@ -21,7 +21,6 @@ from stf.model.trainer.xgboost.xgboost import XGBModelTrainer
 
 
 class XGBQuantileModelTrainer(XGBModelTrainer):
-
     def __init__(self, pj):
         super().__init__(pj)
         self.logger = logging.get_logger(self.__class__.__name__)
@@ -61,9 +60,11 @@ class XGBQuantileModelTrainer(XGBModelTrainer):
 
             # Define objective callback functions specifically for desired quantile
             xgb_quantile_eval_this_quantile = partial(
-                metrics.xgb_quantile_eval, quantile=quantile)
+                metrics.xgb_quantile_eval, quantile=quantile
+            )
             xgb_quantile_obj_this_quantile = partial(
-                metrics.xgb_quantile_obj, quantile=quantile)
+                metrics.xgb_quantile_obj, quantile=quantile
+            )
 
             # Train quantile model
             self.quantile_models[quantile] = xgb.train(

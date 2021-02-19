@@ -22,9 +22,9 @@ class AbstractModelTrainer(ABC):
         self.hyper_parameters = None
 
         self.serializer = ModelSerializerCreator().create_model_serializer(
-            MLModelType(self.pj['model'])
+            MLModelType(self.pj["model"])
         )
-        self.old_model, old_model_location = self.serializer.load(self.pj['id'])
+        self.old_model, old_model_location = self.serializer.load(self.pj["id"])
         self.old_model_age = self.serializer.determine_model_age_from_path(
             old_model_location
         )
@@ -126,8 +126,9 @@ class AbstractModelTrainer(ABC):
             model_type: ModelType enum that specifies to look for a component model
             name: str() name of the component
         """
-        self.serializer.save(self.pj['id'], self.trained_model,
-                             corrections=self.confidence_interval)
+        self.serializer.save(
+            self.pj["id"], self.trained_model, corrections=self.confidence_interval
+        )
 
     @staticmethod
     def _calculate_confidence_interval(realised, predicted):

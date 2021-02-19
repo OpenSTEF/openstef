@@ -32,11 +32,8 @@ def post_teams(msg, url=None):
     logger = logging.get_logger(__name__)
 
     # if Teams url is not configured just return
-    if (
-        url is None and (
-            hasattr(config, "teams") is False or
-            config.teams.monitoring_url is None
-        )
+    if url is None and (
+        hasattr(config, "teams") is False or config.teams.monitoring_url is None
     ):
         logger.warning("Can't post Teams message, no url given")
         return
@@ -147,21 +144,21 @@ def send_report_teams_better(pj, feature_importance):
                     ("Desc", pj["description"]),
                     ("pid", pj["id"]),
                 ],
-                "markdown": False
+                "markdown": False,
             },
             {
                 "title": "Dominant features",
                 "facts": [
                     (
                         feature_importance.index[0],
-                        f'{feature_importance["gain"][0]:.1%}'
+                        f'{feature_importance["gain"][0]:.1%}',
                     ),
                     (
                         feature_importance.index[1],
-                        f'{feature_importance["gain"][1]:.1%}'
+                        f'{feature_importance["gain"][1]:.1%}',
                     ),
-                ]
-            }
+                ],
+            },
         ],
         "links": [
             {
@@ -170,7 +167,7 @@ def send_report_teams_better(pj, feature_importance):
             },
             {
                 "buttontext": "Model Weights",
-                "buttonurl": f"{web_link}/weight_plot.html"
+                "buttonurl": f"{web_link}/weight_plot.html",
             },
         ],
         "color": "#764FA5",
@@ -225,13 +222,11 @@ def send_report_teams_worse(pj):
                     ("Desc", pj["description"]),
                     ("pid", pj["id"]),
                 ],
-                "markdown": False
+                "markdown": False,
             },
             {
                 "title": "New Model Performance",
-                "images": [
-                    graph
-                ],
+                "images": [graph],
             },
         ],
         "links": [
@@ -245,7 +240,7 @@ def send_report_teams_worse(pj):
             },
             {
                 "buttontext": "Old Model Weights",
-                "buttonurl": f"{web_link_old}/weight_plot.html"
+                "buttonurl": f"{web_link_old}/weight_plot.html",
             },
             {
                 "buttontext": "New Model Weights",

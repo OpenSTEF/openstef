@@ -10,7 +10,7 @@ import pandas as pd
 
 
 def nonzero_flatliner(df, threshold):
-    """ Function that detects a stationflatliner and returns a list of datetimes.
+    """Function that detects a stationflatliner and returns a list of datetimes.
 
     Args:
         df: pd.dataFrame(index=DatetimeIndex, columns = [load1, ..., loadN]).
@@ -39,12 +39,10 @@ def nonzero_flatliner(df, threshold):
     flatliner_total = (df[diff_columns] == 0).mean(axis=1) == 1
     # Find all first and last occurences of 0
     first_zeros = flatliner_total[:-1][
-        (flatliner_total.iloc[:-1] == 0).values
-        * (flatliner_total.iloc[1:] != 0).values
+        (flatliner_total.iloc[:-1] == 0).values * (flatliner_total.iloc[1:] != 0).values
     ]
     last_zeros = flatliner_total[1:][
-        (flatliner_total.iloc[:-1] != 0).values
-        * (flatliner_total.iloc[1:] == 0).values
+        (flatliner_total.iloc[:-1] != 0).values * (flatliner_total.iloc[1:] == 0).values
     ]
     last_zeros.index = last_zeros.index - pd.Timedelta("15m")
 
@@ -59,9 +57,7 @@ def nonzero_flatliner(df, threshold):
     )
 
     # Only keep periods which exceed threshold
-    interval_df = interval_df[
-        interval_df["duration_h"] >= timedelta(hours=threshold)
-    ]
+    interval_df = interval_df[interval_df["duration_h"] >= timedelta(hours=threshold)]
     if len(interval_df) == 0:
         interval_df = None
     return interval_df
@@ -111,7 +107,7 @@ def zero_flatliner(df, threshold, window=timedelta(minutes=30), load_threshold=0
     before and during the zero-value(s).
 
     return:
-    - pd.DataFrame of timestamps, or None if none """
+    - pd.DataFrame of timestamps, or None if none"""
     result_df = pd.DataFrame()
 
     for col in df.columns:
@@ -161,12 +157,12 @@ def zero_flatliner(df, threshold, window=timedelta(minutes=30), load_threshold=0
             for i, candidate in interval_df.iterrows():
                 # Calculate mean load before and after zero-moment
                 mean_load_before = (
-                    df[candidate.from_time - window: candidate.from_time]
+                    df[candidate.from_time - window : candidate.from_time]
                     .sum(axis=1)
                     .mean()
                 )
                 mean_full_timespan = (
-                    df[candidate.from_time: candidate.from_time + window]
+                    df[candidate.from_time : candidate.from_time + window]
                     .sum(axis=1)
                     .mean()
                 )
@@ -194,7 +190,7 @@ def zero_flatliner(df, threshold, window=timedelta(minutes=30), load_threshold=0
 
 
 def replace_invalid_data(df, suspicious_moments):
-    """ Function that detects invalid data using the nonzero_flatliner function and converts the output to NaN values.
+    """Function that detects invalid data using the nonzero_flatliner function and converts the output to NaN values.
 
     Input:
     - df: pd.dataFrame(index=DatetimeIndex, columns = [load1, ..., loadN]). Load_corrections should be indicated by 'LC_'
@@ -202,9 +198,9 @@ def replace_invalid_data(df, suspicious_moments):
 
 
     return:
-    - pd.DataFrame without invalid data (converted to NaN values) """
+    - pd.DataFrame without invalid data (converted to NaN values)"""
     if suspicious_moments is not None:
         for index, row in suspicious_moments.iterrows():
-            df[(row[0]): (row[1])] = np.nan
+            df[(row[0]) : (row[1])] = np.nan
         return df
     return df

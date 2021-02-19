@@ -16,7 +16,6 @@ PJ = TestData.get_prediction_job(pid=307)
 
 
 class TestAbstractPredictionModel(BaseTestCase):
-
     def test_make_fallback_forecast(self):
         # Load input data
         forecast = TestData.load("fallback_forecast.csv")

@@ -132,8 +132,8 @@ def find_components(df, zero_bound=True):
     coefs[coefs < 0.1] = 0
 
     # Reconstuct historical load
-    hist = weighted_sum(df.iloc[:, 1:].values.T, * coefs)
-    histp0 = weighted_sum(df.iloc[:, 1:].values.T, * p0)
+    hist = weighted_sum(df.iloc[:, 1:].values.T, *coefs)
+    histp0 = weighted_sum(df.iloc[:, 1:].values.T, *p0)
 
     # Make a nice dataframe to return the components
     components = df.iloc[:, [0]].copy()

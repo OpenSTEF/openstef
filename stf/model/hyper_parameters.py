@@ -21,7 +21,7 @@ SHOW_OPTUNA_PROGRESS_BAR = False
 
 
 def optimize_hyperparameters_pj(pj):
-    """ Optimized hyperparameters for a specific prediction job.
+    """Optimized hyperparameters for a specific prediction job.
     First the age of the last stored hyperparameters is determined. If these are older
      than MAX_AGE_HYPER_PARAMS_DAYS, the hyper parameters will be optimized.
 
@@ -107,8 +107,10 @@ def optimize_hyperparameters(pid, n_trials=150, datetime_end=datetime.utcnow()):
     # Carry out hyper-parameters and featureset optimization study
     first_stage_study.optimize(
         lambda trial: model_trainer.hyper_params_objective(
-            trial, metrics.mae, clean_data_with_all_features=clean_data_with_features,
-            featuresets=featuresets
+            trial,
+            metrics.mae,
+            clean_data_with_all_features=clean_data_with_features,
+            featuresets=featuresets,
         ),
         n_trials=n_trials,
         show_progress_bar=SHOW_OPTUNA_PROGRESS_BAR,
@@ -116,7 +118,7 @@ def optimize_hyperparameters(pid, n_trials=150, datetime_end=datetime.utcnow()):
     optimized_error = first_stage_study.best_trial.value
     logger.info(
         f"Optimized error before training-period optimization: {optimized_error}",
-        optimized_error=optimized_error
+        optimized_error=optimized_error,
     )
 
     # Carry out training-period optimization study
@@ -128,7 +130,7 @@ def optimize_hyperparameters(pid, n_trials=150, datetime_end=datetime.utcnow()):
             training_durations_days=TRAINING_DURATIONS_DAYS,
             # The training-period optimization makes use of the previously optimized parameters
             optimized_parameters=first_stage_study.best_trial.params,
-            featuresets=featuresets
+            featuresets=featuresets,
         ),
         n_trials=8,  # Ideally you'd test every duration only once but optuna does not work that way
         timeout=200,

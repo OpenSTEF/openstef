@@ -8,6 +8,7 @@ from test.utils import TestData
 from unittest.mock import MagicMock, Mock, patch
 
 from stf.tasks.utils.predictionjobloop import PredictionJobLoop
+
 # import project modules
 from stf.tasks.utils.taskcontext import TaskContext
 
@@ -22,7 +23,6 @@ NUM_PREDICTION_JOBS = len(PREDICTION_JOBS)
 @patch("stf.tasks.utils.taskcontext.ConfigManager", MagicMock())
 @patch("stf.tasks.utils.taskcontext.DataBase")
 class TestTaskContext(BaseTestCase):
-
     def test_task_context_database(self, db_mock):
         db_mock.return_value = 1234
 
@@ -35,8 +35,14 @@ class TestTaskContext(BaseTestCase):
         on_end = Mock()
 
         # Test with successful run
-        with TaskContext("unit_test_supposed_to_succeed", True, False, on_exception,
-                         on_successful, on_end):
+        with TaskContext(
+            "unit_test_supposed_to_succeed",
+            True,
+            False,
+            on_exception,
+            on_successful,
+            on_end,
+        ):
             pass
 
         on_exception.assert_not_called()
@@ -48,8 +54,14 @@ class TestTaskContext(BaseTestCase):
         on_successful.reset_mock()
         on_end.reset_mock()
 
-        with TaskContext("unit_test_supposed_to_fail", True, False, on_exception,
-                         on_successful, on_end):
+        with TaskContext(
+            "unit_test_supposed_to_fail",
+            True,
+            False,
+            on_exception,
+            on_successful,
+            on_end,
+        ):
             raise Exception("Forced exception")
 
         on_exception.assert_called_once()
