@@ -6,16 +6,6 @@ SPDX-License-Identifier: MPL-2.0
 
 Welcome to the documentation of Short Term Forecasting!
 
-.. toctree::
-   :maxdepth: 4
-   :caption: Short Term Forecasting:
-
-    stf/stf
-    docs/stf
-    docs/stf/stf
-
-
-
 Indices and tables
 ==================
 
