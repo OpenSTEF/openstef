@@ -3,7 +3,8 @@
 # SPDX-License-Identifier: MPL-2.0
 name: Python Build
 
-on: [push]
+on:
+  - push
 
 jobs:
   build:
