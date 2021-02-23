@@ -3,7 +3,9 @@
 # SPDX-License-Identifier: MPL-2.0
 name: REUSE Check Compliance
 
-on: [pull_request]
+on:
+  - push
+  - pull_request
 
 jobs:
   test:
