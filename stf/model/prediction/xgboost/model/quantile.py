@@ -6,8 +6,7 @@ import dill
 from ktpbase.log import logging
 
 
-class XGBQuantileModel():
-
+class XGBQuantileModel:
     def __init__(self, quantile_models=None, model_file=None):
 
         self.logger = logging.get_logger(self.__class__.__name__)
@@ -37,7 +36,7 @@ class XGBQuantileModel():
 
         # Save dict with quantile models
         save_location = save_location.parent / "model_quantile.bin"
-        dill.dump(self.quantile_models, file=open(save_location, 'wb'))
+        dill.dump(self.quantile_models, file=open(save_location, "wb"))
 
         # Save best n_trees
         for quantile in self.quantile_models.keys():
@@ -45,7 +44,7 @@ class XGBQuantileModel():
                 save_location = save_location.parent / f"best_iteration_{quantile}.pkl"
                 dill.dump(
                     self.quantile_models[quantile].best_ntree_limit,
-                    file=open(save_location, "wb")
+                    file=open(save_location, "wb"),
                 )
             except Exception as e:
                 print(
@@ -57,7 +56,7 @@ class XGBQuantileModel():
 
     def _load_from_disk(self, model_file):
         # Save dict with quantile models
-        self.quantile_models = dill.load(open(model_file, 'rb'))
+        self.quantile_models = dill.load(open(model_file, "rb"))
         # Save best n_trees
         for quantile in self.quantile_models.keys():
             try:
@@ -67,9 +66,7 @@ class XGBQuantileModel():
                 )
             except Exception as e:
                 print(
-                    "No best iteration found for quantile "
-                    + str(quantile)
-                    + ".",
+                    "No best iteration found for quantile " + str(quantile) + ".",
                     e,
                 )
                 self.quantile_models[quantile].best_ntree_limit = 15

@@ -22,27 +22,27 @@ def plot_feature_importance(feature_importance):
     """
     feature_importance["parent"] = "Feature importance"
 
-    return go.Figure(go.Treemap(
-        labels=feature_importance.index,
-        parents=feature_importance["parent"],
-        values=feature_importance["gain"],
-        customdata=feature_importance["weight"],
-        marker=dict(
-            colors=feature_importance["weight"],
-            colorscale="greens"
+    return go.Figure(
+        go.Treemap(
+            labels=feature_importance.index,
+            parents=feature_importance["parent"],
+            values=feature_importance["gain"],
+            customdata=feature_importance["weight"],
+            marker=dict(colors=feature_importance["weight"], colorscale="greens"),
+            hovertemplate=(
+                "<b>%{label}</b><br>importance: %{value:.1%}"
+                "<br>weight: %{customdata:.1%}<extra></extra>"
+            ),
         ),
-        hovertemplate=(
-            "<b>%{label}</b><br>importance: %{value:.1%}"
-            "<br>weight: %{customdata:.1%}<extra></extra>"
-        ),
-    ), layout={
-        "margin": {
-            "t": 0,
-            "r": 0,
-            "b": 0,
-            "l": 0,
-        }
-    })
+        layout={
+            "margin": {
+                "t": 0,
+                "r": 0,
+                "b": 0,
+                "l": 0,
+            }
+        },
+    )
 
 
 def plot_data_series(data, predict_data=None, horizon=47, names=None):
@@ -74,8 +74,10 @@ def plot_data_series(data, predict_data=None, horizon=47, names=None):
         elif len(data) == 3:
             names = ("train", "validation", "test")
         else:
-            ValueError("Cannot pass names=None when passing data with more \
-            than 3 series.")
+            ValueError(
+                "Cannot pass names=None when passing data with more \
+            than 3 series."
+            )
 
     if predict_data is None:
         # Check if horizon columns exists in the data
@@ -130,25 +132,27 @@ def _plot_data(names, series):
     # This step is important to create forced NaNs to create gaps in the plot.
     combined = []
     for name, sequence in zip(names, series):
-        combined.extend([
-            sequence.rename(name),
-        ])
+        combined.extend(
+            [
+                sequence.rename(name),
+            ]
+        )
     df_plot = pd.concat(combined, axis=1)
 
     fig = go.Figure()
 
     # Add a trace for every data series
     for i, name in enumerate(names):
-        fig.add_trace(go.Scatter(
-            x=df_plot.index,
-            y=df_plot[name],
-            name=name,
-            line=dict(color=px.colors.qualitative.Set2[i])
-        ))
+        fig.add_trace(
+            go.Scatter(
+                x=df_plot.index,
+                y=df_plot[name],
+                name=name,
+                line=dict(color=px.colors.qualitative.Set2[i]),
+            )
+        )
 
-    fig.update_layout(
-        yaxis_title="Load (MW)"
-    )
+    fig.update_layout(yaxis_title="Load (MW)")
 
     return fig
 
@@ -173,10 +177,12 @@ def _plot_data_and_predictions(names, actuals, predictions):
     # This step is important to create forced NaNs to create gaps in the plot.
     combined = []
     for name, actual, prediction in zip(names, actuals, predictions):
-        combined.extend([
-            actual.rename(f"{name}_actual"),
-            prediction.rename(f"{name}_predict"),
-        ])
+        combined.extend(
+            [
+                actual.rename(f"{name}_actual"),
+                prediction.rename(f"{name}_predict"),
+            ]
+        )
     df_plot = pd.concat(combined, axis=1)
 
     fig = go.Figure()
@@ -185,22 +191,24 @@ def _plot_data_and_predictions(names, actuals, predictions):
     for i, name in enumerate(names):
         actual, predict = f"{name}_actual", f"{name}_predict"
 
-        fig.add_trace(go.Scatter(
-            x=df_plot.index,
-            y=df_plot[actual],
-            name=actual,
-            line=dict(color=px.colors.qualitative.Set2[i])
-        ))
-        fig.add_trace(go.Scatter(
-            x=df_plot.index,
-            y=df_plot[predict],
-            name=predict,
-            line=dict(dash="dot", color=px.colors.qualitative.Dark2[i])
-        ))
+        fig.add_trace(
+            go.Scatter(
+                x=df_plot.index,
+                y=df_plot[actual],
+                name=actual,
+                line=dict(color=px.colors.qualitative.Set2[i]),
+            )
+        )
+        fig.add_trace(
+            go.Scatter(
+                x=df_plot.index,
+                y=df_plot[predict],
+                name=predict,
+                line=dict(dash="dot", color=px.colors.qualitative.Dark2[i]),
+            )
+        )
 
-    fig.update_layout(
-        yaxis_title="Load (MW)"
-    )
+    fig.update_layout(yaxis_title="Load (MW)")
 
     return fig
 
@@ -222,7 +230,7 @@ def convert_to_base64_data_uri(path_in, path_out, content_type):
     with open(path_in, "rb") as f:
         encoded = base64.b64encode(f.read()).decode()
 
-    data_uri = 'data:{0};base64,{1}'.format(content_type, encoded)
+    data_uri = "data:{0};base64,{1}".format(content_type, encoded)
 
     with open(path_out, "wt") as f:
         f.write(data_uri)

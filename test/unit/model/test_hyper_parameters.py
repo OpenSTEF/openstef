@@ -43,7 +43,7 @@ class TestHyperParameters(BaseTestCase):
         pre_process_data_mock,
         is_data_sufficient_mock,
         modeltrainercreator_mock,
-        post_teams_mock
+        post_teams_mock,
     ):
         self.add_mock_return_values(
             optuna_mock, dataBase_mock, pre_process_data_mock, is_data_sufficient_mock
@@ -80,7 +80,7 @@ class TestHyperParameters(BaseTestCase):
         pre_process_data_mock,
         is_data_sufficient_mock,
         modeltrainercreator_mock,
-        post_teams_mock
+        post_teams_mock,
     ):
         self.add_mock_return_values(
             optuna_mock, dataBase_mock, pre_process_data_mock, is_data_sufficient_mock

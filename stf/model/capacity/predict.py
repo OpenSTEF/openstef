@@ -7,18 +7,13 @@ import plotly
 from ktpbase.database import DataBase
 from ktpbase.log import logging
 
-from stf.feature_engineering.capacity_prognoses_features import (
-    apply_capacity_features
-)
+from stf.feature_engineering.capacity_prognoses_features import apply_capacity_features
 from stf.model.capacity.model import CapacityPredictionModel
-from stf.model.capacity.utils import (
-    prepare_prediction_data, visualize_predictions
-)
+from stf.model.capacity.utils import prepare_prediction_data, visualize_predictions
 from stf.model.serializer.xgboost.xgboost import XGBModelSerializer
 
 
-def predict_capacity_prognosis(
-        pj, datetime_start, datetime_end, y_hor=None):
+def predict_capacity_prognosis(pj, datetime_start, datetime_end, y_hor=None):
     """Predict capacity prognoses for specific prediction job
 
     Args:

@@ -10,12 +10,13 @@ import pandas as pd
 
 
 class BaseTestCase(unittest.TestCase):
-
     def setUp(self) -> None:
         super().setUp()
         self.patchers = []
         self.patchers.append(patch("ktpbase.log.logging.get_logger", create=True))
-        self.patchers.append(patch("ktpbase.config.config.ConfigManager.get_instance", create=True))
+        self.patchers.append(
+            patch("ktpbase.config.config.ConfigManager.get_instance", create=True)
+        )
         for patcher in self.patchers:
             patcher.start()
 

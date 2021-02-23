@@ -31,10 +31,9 @@ def main():
     with TaskContext(__file__) as context:
         model_type = ["lgb", "xgb_quantile"]
 
-        PredictionJobLoop(
-            context,
-            model_type=model_type
-        ).map(train_model_for_specific_pj, context)
+        PredictionJobLoop(context, model_type=model_type).map(
+            train_model_for_specific_pj, context
+        )
 
 
 if __name__ == "__main__":

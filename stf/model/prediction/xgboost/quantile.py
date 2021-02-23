@@ -69,7 +69,7 @@ class QuantileXGBPredictionModel(XGBPredictionModel):
         forecast_length = len(forecast)
         self.logger.info(
             f"Finished making quantile forecast with length '{forecast_length}'",
-            forecast_length=forecast_length
+            forecast_length=forecast_length,
         )
 
         return forecast
@@ -91,13 +91,15 @@ class QuantileXGBPredictionModel(XGBPredictionModel):
         num_quantile_columns = 0
 
         # calculate standard deviation for each quantile
-        for column_name in filter(lambda c: c.startswith("quantile_P"), forecast.columns):
+        for column_name in filter(
+            lambda c: c.startswith("quantile_P"), forecast.columns
+        ):
             quantile_value = forecast[column_name]
             quantile = float(column_name.split("quantile_P")[1]) / 100.0
             if quantile == 0.5:  # For this value we get inf values
                 continue
-            stdev = (
-                (quantile_value - forecast["forecast"]) / scipy.stats.norm.ppf(quantile)
+            stdev = (quantile_value - forecast["forecast"]) / scipy.stats.norm.ppf(
+                quantile
             )
 
             standard_deviations.append(stdev)
@@ -109,8 +111,9 @@ class QuantileXGBPredictionModel(XGBPredictionModel):
             )
 
         # calculate average standard deviation
-        standard_deviation = np.nansum(
-            standard_deviations, axis=0) / len(standard_deviations)
+        standard_deviation = np.nansum(standard_deviations, axis=0) / len(
+            standard_deviations
+        )
         forecast["stdev"] = standard_deviation
 
         return forecast
@@ -128,20 +131,24 @@ class QuantileXGBPredictionModel(XGBPredictionModel):
 
         Returns:
             pd.DataFrame(DatetimeIndex, forecast, quantile_Px,...)
-            """
+        """
 
         # Use default
         forecast = super().predict_fallback(forecast_index, load)
 
         # Calculate quantiles per hour of day - list with items <1 can be copied from database
         quantiles = [x * 100 for x in [0.05, 0.1, 0.3, 0.5, 0.7, 0.9, 0.95]]
-        q_vals = load.groupby(load.index.hour).apply(lambda x: np.percentile(x, quantiles))
+        q_vals = load.groupby(load.index.hour).apply(
+            lambda x: np.percentile(x, quantiles)
+        )
 
-        q_vals = pd.DataFrame(q_vals.values.tolist(),
-                              index=q_vals.index,
-                              columns=[f"quantile_P{quantile:02.0f}" for quantile in quantiles])
+        q_vals = pd.DataFrame(
+            q_vals.values.tolist(),
+            index=q_vals.index,
+            columns=[f"quantile_P{quantile:02.0f}" for quantile in quantiles],
+        )
 
         # Add quantiles to the forecast
         forecast = forecast.merge(q_vals, left_on=forecast.index.hour, right_index=True)
-        forecast = forecast.loc[:, [x for x in forecast.columns if x != 'key_0']]
-        return(forecast)
+        forecast = forecast.loc[:, [x for x in forecast.columns if x != "key_0"]]
+        return forecast

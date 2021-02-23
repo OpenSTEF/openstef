@@ -20,11 +20,8 @@ def main():
         datetime_end = datetime.utcnow()
         datetime_start = datetime_end - pd.Timedelta("400D")
 
-        model_type = "lgb"
-        PredictionJobLoop(
-            context,
-            model_type=model_type
-        ).map(
+        model_type = "xgb"
+        PredictionJobLoop(context, model_type=model_type).map(
             train_capacity_prognosis,
             datetime_start=datetime_start,
             datetime_end=datetime_end,
@@ -34,4 +31,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

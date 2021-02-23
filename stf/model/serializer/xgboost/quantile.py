@@ -9,7 +9,6 @@ from stf.model.serializer.xgboost.xgboost import XGBModelSerializer
 
 
 class XGBQuantileModelSerializer(XGBModelSerializer):
-
     def __init__(self):
         super().__init__()
         self.logger = logging.get_logger(self.__class__.__name__)

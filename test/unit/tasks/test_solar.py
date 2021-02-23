@@ -11,13 +11,24 @@ from test.utils import BaseTestCase, TestData
 
 
 class TestSolar(BaseTestCase):
-
     def setUp(self) -> None:
         super().setUp()
-        self.test_solar_input = TestData.load('solar_input.csv')
-        self.solar_ref = TestData.load('solar_ref.csv')
-        self.pj = {'id': 71, 'typ': 'solar', 'model': 'latest', 'horizon_minutes': 2880, 'resolution_minutes': 15,
-                   'name': 'Provincies', 'lat': 52.5, 'lon': 4.9, 'sid': None, 'radius': 30, 'peak_power': 180961000.0, 'description': ''}
+        self.test_solar_input = TestData.load("solar_input.csv")
+        self.solar_ref = TestData.load("solar_ref.csv")
+        self.pj = {
+            "id": 71,
+            "typ": "solar",
+            "model": "latest",
+            "horizon_minutes": 2880,
+            "resolution_minutes": 15,
+            "name": "Provincies",
+            "lat": 52.5,
+            "lon": 4.9,
+            "sid": None,
+            "radius": 30,
+            "peak_power": 180961000.0,
+            "description": "",
+        }
 
     def test_make_solar_predicion_pj(self):
 
@@ -29,7 +40,9 @@ class TestSolar(BaseTestCase):
         self.assertTrue(context.logger.info.called)
         self.assertTrue(context.database.write_forecast.called)
         refference_result = context.database.write_forecast.call_args
-        self.assertEqual(refference_result[0][0].columns.all(), self.solar_ref.columns.all())
+        self.assertEqual(
+            refference_result[0][0].columns.all(), self.solar_ref.columns.all()
+        )
         self.assertEqual(len(refference_result[0][0]), len(self.solar_ref))
 
 

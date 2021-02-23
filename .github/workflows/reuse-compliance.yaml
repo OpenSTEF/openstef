@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     # Checkout
-    - name:
+    - name: checkout
       uses: actions/checkout@v2
     # Reuse
     - name: REUSE Compliance Check

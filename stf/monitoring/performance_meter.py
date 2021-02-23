@@ -6,7 +6,7 @@ from collections import OrderedDict
 from time import perf_counter
 
 
-class PerformanceMeter():
+class PerformanceMeter:
     def __init__(self, logger):
         self.logger = logger
         self.levels = OrderedDict()

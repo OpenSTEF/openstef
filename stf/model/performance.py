@@ -153,7 +153,9 @@ def calc_kpi_for_specific_pid(pid, start_time=None, end_time=None):
                     ),
                     "load_range": combined["load"].max() - combined["load"].min(),
                     "frac_in_1sdev": metrics.frac_in_stdev(combined["load"], fc, st),
-                    "frac_in_2sdev": metrics.frac_in_stdev(combined["load"], fc, 2 * st),
+                    "frac_in_2sdev": metrics.frac_in_stdev(
+                        combined["load"], fc, 2 * st
+                    ),
                     "completeness_realised": completeness_realised,
                     "completeness_predicted": completeness_predicted_load,
                     "date": date,  # cast to date
@@ -168,18 +170,21 @@ def calc_kpi_for_specific_pid(pid, start_time=None, end_time=None):
             log.warning(
                 "Completeness realised load too low",
                 prediction_id=pj["id"],
-                start_time=start_time, end_time=end_time,
+                start_time=start_time,
+                end_time=end_time,
                 completeness=completeness_realised,
-                completeness_threshold=COMPLETENESS_REALISED_THRESHOLDS
+                completeness_threshold=COMPLETENESS_REALISED_THRESHOLDS,
             )
             set_incomplete_kpi_to_nan(kpis, t_ahead_h)
         if completeness_predicted_load < COMPLETENESS_PREDICTED_LOAD_THRESHOLD:
             log.warning(
                 "Completeness predicted load too low",
-                prediction_id=pj["id"], horizon=t_ahead_h,
-                start_time=start_time, end_time=end_time,
+                prediction_id=pj["id"],
+                horizon=t_ahead_h,
+                start_time=start_time,
+                end_time=end_time,
                 completeness=completeness_predicted_load,
-                completeness_threshold=COMPLETENESS_PREDICTED_LOAD_THRESHOLD
+                completeness_threshold=COMPLETENESS_PREDICTED_LOAD_THRESHOLD,
             )
             set_incomplete_kpi_to_nan(kpis, t_ahead_h)
 

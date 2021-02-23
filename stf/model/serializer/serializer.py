@@ -125,9 +125,7 @@ class AbstractModelSerializer(ABC):
 
         # trained_models/<pid>/<YYYYMMDDHHMMSS>/model.bin
         datetime_string = model_location.parent.name
-        model_datetime = datetime.strptime(
-            datetime_string, cls.FOLDER_DATETIME_FORMAT
-        )
+        model_datetime = datetime.strptime(datetime_string, cls.FOLDER_DATETIME_FORMAT)
         model_age = datetime.utcnow() - model_datetime
 
         model_age_days = model_age.days

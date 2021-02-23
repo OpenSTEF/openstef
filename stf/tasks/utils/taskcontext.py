@@ -14,15 +14,16 @@ from stf.tasks.utils.predictionjobloop import PredictionJobException
 from stf.tasks.utils import utils
 
 
-class TaskContext():
+class TaskContext:
     def __init__(
-            self,
-            task_file,
-            suppress_exceptions=False,
-            post_teams_on_exception=True,
-            on_exception=None,
-            on_successful=None,
-            on_end=None):
+        self,
+        task_file,
+        suppress_exceptions=False,
+        post_teams_on_exception=True,
+        on_exception=None,
+        on_successful=None,
+        on_end=None,
+    ):
         """A context manager that can be used to run tasks with.
 
         Should be used as:
@@ -55,7 +56,8 @@ class TaskContext():
         self.config = ConfigManager.get_instance()
 
         logging.configure_logging(
-            loglevel=self.config.loglevel, runtime_env=self.config.env,
+            loglevel=self.config.loglevel,
+            runtime_env=self.config.env,
         )
         self.logger = logging.get_logger(__name__).bind(task=self.name)
 
@@ -101,29 +103,35 @@ class TaskContext():
         msg = {
             "title": f"Task '{self.name}' raised an exception",
             "color": "#a54f4f",
-            "sections": []
+            "sections": [],
         }
         if exc_type is PredictionJobException:
             metrics = exc_info.metrics
-            msg["sections"].append({
-                "facts": [
-                    ("Number of pjs in this task", metrics["num_jobs"]),
-                    ("Number of pjs started", metrics["jobs_started"]),
-                    ("Number of pjs successful", metrics["jobs_successful"]),
-                    ("Number of pjs unsuccessful", metrics["jobs_unsuccessful"]),
-                ],
-            })
-            string_pids_unsuccessful = ", ".join([
-                f"{pid:d}" for pid in metrics["pids_unsuccessful"]
-            ])
-            msg["sections"].append({
-                "facts": [
-                    ("Unsuccessful pids", string_pids_unsuccessful),
-                ]
-            })
+            msg["sections"].append(
+                {
+                    "facts": [
+                        ("Number of pjs in this task", metrics["num_jobs"]),
+                        ("Number of pjs started", metrics["jobs_started"]),
+                        ("Number of pjs successful", metrics["jobs_successful"]),
+                        ("Number of pjs unsuccessful", metrics["jobs_unsuccessful"]),
+                    ],
+                }
+            )
+            string_pids_unsuccessful = ", ".join(
+                [f"{pid:d}" for pid in metrics["pids_unsuccessful"]]
+            )
+            msg["sections"].append(
+                {
+                    "facts": [
+                        ("Unsuccessful pids", string_pids_unsuccessful),
+                    ]
+                }
+            )
 
-        msg["sections"].append({
-            "text": f"    {stack_text}",
-        })
+        msg["sections"].append(
+            {
+                "text": f"    {stack_text}",
+            }
+        )
 
         post_teams(msg)

@@ -14,7 +14,7 @@ def read_requirements_from_file():
         for line in fh:
             line = line.strip()
             if "#" in line:
-                line = line[:line.index("#")].strip()
+                line = line[: line.index("#")].strip()
             if len(line) == 0:
                 continue
             requirements.append(line)
@@ -37,25 +37,21 @@ setup(
     author="Alliander N.V",
     author_email="korte.termijn.prognoses@alliander.com",
     license="MPL-2.0",
-    keywords=['energy', 'forecasting', 'machinelearning'],
+    keywords=["energy", "forecasting", "machinelearning"],
     package_data={
         # Include anythin in the data directory
         "stf": ["stf/data/*"]
     },
     python_requires=">=3.7.0",
     install_requires=read_requirements_from_file(),
-    setup_requires=[
-        "wheel~=0.36.2", "Cython~=0.29.21"
-    ],
-    tests_require=[
-        "pytest", "pytest-cov", "flake8"
-    ],
+    setup_requires=["wheel~=0.36.2", "Cython~=0.29.21"],
+    tests_require=["pytest", "pytest-cov", "flake8"],
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)",
         "Programming Language :: Python :: 3.7"
         "Programming Language :: Python :: 3.8"
-        "Programming Language :: Python :: 3.9"
+        "Programming Language :: Python :: 3.9",
     ],
 )

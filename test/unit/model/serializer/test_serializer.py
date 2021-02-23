@@ -10,15 +10,17 @@ from stf.model.serializer.serializer import AbstractModelSerializer
 
 
 class TestAbstractModelSerializer(unittest.TestCase):
-
     def test_determine_model_age_from_path(self):
         expected_model_age = 7
 
         model_datetime = datetime.utcnow() - timedelta(days=expected_model_age)
 
-        model_location = Path(
-            f"{model_datetime.strftime(AbstractModelSerializer.FOLDER_DATETIME_FORMAT)}"
-        ) / AbstractModelSerializer.MODEL_FILENAME
+        model_location = (
+            Path(
+                f"{model_datetime.strftime(AbstractModelSerializer.FOLDER_DATETIME_FORMAT)}"
+            )
+            / AbstractModelSerializer.MODEL_FILENAME
+        )
 
         model_age = AbstractModelSerializer.determine_model_age_from_path(
             model_location

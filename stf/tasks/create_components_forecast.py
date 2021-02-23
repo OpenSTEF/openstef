@@ -38,8 +38,7 @@ from stf.tasks.utils.taskcontext import TaskContext
 def create_components_forecast_pj(pj, context):
     if pj["train_components"] == 0:
         context.logger.info(
-            "Skip prediction job",
-            train_components=pj["train_components"]
+            "Skip prediction job", train_components=pj["train_components"]
         )
         return
 

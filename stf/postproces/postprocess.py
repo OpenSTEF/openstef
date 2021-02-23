@@ -32,14 +32,16 @@ def normalize_and_convert_weather_data_for_splitting(weather_data):
 
     # Normalize weather data
     output_dataframe["radiation"] = (
-        weather_data["radiation"] /
-        np.percentile(weather_data["radiation"].dropna(), 99.0) * -1
+        weather_data["radiation"]
+        / np.percentile(weather_data["radiation"].dropna(), 99.0)
+        * -1
     )
     wind_ref = apply_features.calculate_windspeed_at_hubheight(
-        weather_data['windspeed_100m'], fromheight=100)
+        weather_data["windspeed_100m"], fromheight=100
+    )
     wind_ref = wind_ref / np.abs(np.amax(wind_ref)) * -1
 
-    output_dataframe['windpower'] = wind_ref
+    output_dataframe["windpower"] = wind_ref
 
     return output_dataframe
 
@@ -73,7 +75,8 @@ def split_forecast_in_components(forecast, weather_data, split_coefs):
 
     # Merge to ensure datetime index is the same
     weather_ref_profiles = forecast.merge(
-        weather_ref_profiles, how='outer', right_index=True, left_index=True)
+        weather_ref_profiles, how="outer", right_index=True, left_index=True
+    )
     # Drop rows with duplicate indices
     weather_ref_profiles = weather_ref_profiles[
         ~weather_ref_profiles.index.duplicated()
@@ -144,7 +147,9 @@ def post_process_wind_solar(forecast: pd.Series, forecast_type):
         # Likewise for all values greater than zero
         forecast.loc[forecast > 0] = 0
     else:
-        logger.warning(f"Could not determine sign of the forecast, skip post-processing. Sum was {forecast_data_sum}")
+        logger.warning(
+            f"Could not determine sign of the forecast, skip post-processing. Sum was {forecast_data_sum}"
+        )
 
     # write changed back to forecast
     return forecast

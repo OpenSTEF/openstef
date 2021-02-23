@@ -30,9 +30,7 @@ class AbstractPredictionModel(ABC):
         self.model_file_path = None
 
         if self._bool_load_model_from_disk():
-            self.model, self.model_file_path = self.serializer.load(
-                pid=self.pj["id"]
-            )
+            self.model, self.model_file_path = self.serializer.load(pid=self.pj["id"])
 
     def _bool_load_model_from_disk(self):
         """Determine if model should be loaded from disk"""
@@ -120,7 +118,7 @@ class AbstractPredictionModel(ABC):
         # Also make a basecase forecast for the forecast_other component. This will make a
         # simple basecase components forecast available and ensures that the sum of
         # the components (other, wind and solar) is equal to the normal basecase forecast
-        basecase_forecast['forecast_other'] = basecase_forecast['forecast']
+        basecase_forecast["forecast_other"] = basecase_forecast["forecast"]
 
         # Estimate the stdev a bit smart
         # use the stdev of the hour for historic_load
@@ -136,11 +134,13 @@ class AbstractPredictionModel(ABC):
         del basecase_forecast["hour"]
 
         # - Add properties to forecast
-        basecase_forecast = AbstractPredictionModel.add_prediction_job_properties_to_forecast(
-            pj=pj,
-            forecast=basecase_forecast,
-            algorithm_type="basecase_lastweek",
-            forecast_quality="not_renewed",
+        basecase_forecast = (
+            AbstractPredictionModel.add_prediction_job_properties_to_forecast(
+                pj=pj,
+                forecast=basecase_forecast,
+                algorithm_type="basecase_lastweek",
+                forecast_quality="not_renewed",
+            )
         )
 
         return basecase_forecast.sort_index()
@@ -246,9 +246,9 @@ class AbstractPredictionModel(ABC):
 
         # -------- Moved from feature_engineering.add_stdev ------------------------- #
         # pivot
-        stdev = standard_deviation.pivot_table(
-            columns=["horizon"], index="hour"
-        )["stdev"]
+        stdev = standard_deviation.pivot_table(columns=["horizon"], index="hour")[
+            "stdev"
+        ]
         # Prepare input dataframes
         # Rename Near and Far to 0.25 and 47 respectively, if present.
         # Timehorizon in hours is preferred to less descriptive Near/Far
@@ -297,7 +297,7 @@ class AbstractPredictionModel(ABC):
 
         self.logger.info("Corrections added to forecast")
 
-        return forecast_copy.drop(columns=['hour'])
+        return forecast_copy.drop(columns=["hour"])
 
     # NOTE idea is that this can perhaps be removed since its not required to make a
     # prediction but more specific to how we (Alliander/KTP) store things

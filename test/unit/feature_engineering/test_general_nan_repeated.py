@@ -14,7 +14,6 @@ from test.utils import BaseTestCase
 
 
 class GeneralTest(BaseTestCase):
-
     def test_nan_repeated(self):
         start_nan = 8
         end_nan = 11

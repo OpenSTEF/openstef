@@ -12,7 +12,9 @@ from ktpbase.log import logging
 
 from stf.model import metrics
 from stf.model.general import (
-    pre_process_data, remove_features_not_in_set, split_data_train_validation_test
+    pre_process_data,
+    remove_features_not_in_set,
+    split_data_train_validation_test,
 )
 from stf.model.trainer.trainer import AbstractModelTrainer
 
@@ -32,9 +34,7 @@ class LGBModelTrainer(AbstractModelTrainer):
         # See LGBoost Parameters
         # https://lightgbm.readthedocs.io/en/latest/Python-Intro.html#setting-parameters
         # look at the parameters for Tree booster
-        self.hyper_parameters = {
-            "max_depth": 8
-        }
+        self.hyper_parameters = {"max_depth": 8}
         # self.hyper_parameters = {
         #     # general model specific hyper paramater (NOT optimized)
         #     # "silent": 1,
@@ -79,25 +79,25 @@ class LGBModelTrainer(AbstractModelTrainer):
 
         feature_gain = pd.DataFrame(
             self.trained_model.feature_importance(importance_type="gain"),
-            index=["gain"]).T
+            index=["gain"],
+        ).T
         feature_gain /= feature_gain.sum()
 
         feature_weight = pd.DataFrame(
             self.trained_model.feature_importance(importance_type="split"),
-            index=["weight"]).T
+            index=["weight"],
+        ).T
         feature_weight /= feature_weight.sum()
 
         feature_importance = pd.merge(
-            feature_gain, feature_weight,
-            left_index=True, right_index=True
+            feature_gain, feature_weight, left_index=True, right_index=True
         )
         feature_importance.sort_values(by="gain", ascending=False, inplace=True)
 
         return feature_importance
 
     def train(
-        self, train_data, validation_data, callbacks=None,
-        early_stopping_rounds=10
+        self, train_data, validation_data, callbacks=None, early_stopping_rounds=10
     ):
         """Method that trains LGBoost model based on train and validation data.
 
@@ -174,8 +174,7 @@ class LGBModelTrainer(AbstractModelTrainer):
                 # Ask old model for prediction
                 prediction_old_model = self.old_model.predict(
                     lgb.Dataset(
-                        test_data.iloc[:, 1:].drop(
-                            "Horizon", axis=1, errors="ignore")
+                        test_data.iloc[:, 1:].drop("Horizon", axis=1, errors="ignore")
                     )
                 )
             except Exception as e:
@@ -185,19 +184,22 @@ class LGBModelTrainer(AbstractModelTrainer):
 
         # Check if returned object is not None and try to make a prediction with the new model
         if self.trained_model is None:
-            self.logger.warning("New model is not yet trained, could not compare performance!")
+            self.logger.warning(
+                "New model is not yet trained, could not compare performance!"
+            )
             return False
         else:
             try:
                 prediction_new_model = self.trained_model.predict(
                     lgb.Dataset(
-                        test_data.iloc[:, 1:].drop(
-                            "Horizon", axis=1, errors="ignore")
+                        test_data.iloc[:, 1:].drop("Horizon", axis=1, errors="ignore")
                     ),
                     num_iteration=self.trained_model.best_iteration,
                 )
             except Exception as e:
-                self.logger.error("Could not get prediction from new model:", str(e)[:20])
+                self.logger.error(
+                    "Could not get prediction from new model:", str(e)[:20]
+                )
                 return False
 
         # Calculate scores
@@ -211,9 +213,7 @@ class LGBModelTrainer(AbstractModelTrainer):
         return False
 
     def store_model(self):
-        """Stores the model.
-
-        """
+        """Stores the model."""
         self._store_model()
 
     def calculate_confidence_interval(self, validation_data):
@@ -271,7 +271,7 @@ class LGBModelTrainer(AbstractModelTrainer):
         unprocessed_data,
         training_durations_days,
         optimized_parameters,
-        featuresets
+        featuresets,
     ):
         """Objective function that picks the optimal training_duration value.
 
@@ -324,7 +324,10 @@ class LGBModelTrainer(AbstractModelTrainer):
         # backtest option here because we assume hyperparameters do not change
         # much over time
         train_data, validation_data, test_data = split_data_train_validation_test(
-            total_data, test_fraction=0.1, validation_fraction=0.1, back_test=True,
+            total_data,
+            test_fraction=0.1,
+            validation_fraction=0.1,
+            back_test=True,
         )
 
         # Train model
@@ -333,7 +336,10 @@ class LGBModelTrainer(AbstractModelTrainer):
         # Make prediction on test data and prepare dataframes for comparison
         prediction = pd.DataFrame(
             model.predict(
-                lgb.Dataset(test_data.iloc[:, 1:].drop("Horizon", axis=1, errors="ignore")), num_iteration=model.best_iteration
+                lgb.Dataset(
+                    test_data.iloc[:, 1:].drop("Horizon", axis=1, errors="ignore")
+                ),
+                num_iteration=model.best_iteration,
             )
         )
         realised = pd.DataFrame(test_data.iloc[:, 0])
@@ -415,7 +421,8 @@ class LGBModelTrainer(AbstractModelTrainer):
         featureset_name = trial.suggest_categorical("featureset_name", featureset_names)
         self.logger.debug(
             "Current iteration of model trainer",
-            featureset_name=featureset_name, parameter_space=parameter_space
+            featureset_name=featureset_name,
+            parameter_space=parameter_space,
         )
         # Update hyper parameters (used by self.train())
         self.hyper_parameters.update(parameter_space)
@@ -442,7 +449,11 @@ class LGBModelTrainer(AbstractModelTrainer):
         # Make prediction on test data and prepare dataframes for comparison
         prediction = pd.DataFrame(
             model.predict(
-                lgb.Dataset(test_data.iloc[:, 1:].drop("Horizon", axis=1, errors="ignore")), num_iteration=model.best_iteration)
+                lgb.Dataset(
+                    test_data.iloc[:, 1:].drop("Horizon", axis=1, errors="ignore")
+                ),
+                num_iteration=model.best_iteration,
+            )
         )
         realised = pd.DataFrame(test_data.iloc[:, 0])
         prediction.index = realised.index  # Set correct DateTime index

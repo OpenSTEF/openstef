@@ -16,7 +16,6 @@ PJ = TestData.get_prediction_job(pid=60)
 
 @mock.patch("stf.model.predict.DataBase", MagicMock())
 class TestPredict(BaseTestCase):
-
     def test_generate_inputdata_datetime_range(self):
         t_behind_days = 14
         t_ahead_days = 3
@@ -50,7 +49,9 @@ class TestPredict(BaseTestCase):
         self.assertEqual(forecast_start, forecast_start_expected)
         self.assertEqual(forecast_end, forecast_end_expected)
 
-    def test_get_model_input_demand(self,):
+    def test_get_model_input_demand(
+        self,
+    ):
         predict._clear_input_data_cache()
         input_data = predict.get_model_input(
             pj=PJ, datetime_start=NOW, datetime_end=NOW

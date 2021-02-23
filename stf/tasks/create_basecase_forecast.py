@@ -27,10 +27,9 @@ def main():
     with TaskContext(__file__) as context:
         model_type = "lgb"
 
-        PredictionJobLoop(
-            context,
-            model_type=model_type
-        ).map(predict.make_basecase_prediction)
+        PredictionJobLoop(context, model_type=model_type).map(
+            predict.make_basecase_prediction
+        )
 
 
 if __name__ == "__main__":

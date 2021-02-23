@@ -21,7 +21,7 @@ def extract_minute_features(feature_names):
 
     Returns:
         minute_list (list[int]): list of minute lags that were used as features during training
-        """
+    """
 
     minutes_list = []
     for feature in feature_names:
@@ -147,7 +147,7 @@ def get_preprocessed_data(
         pj, the current prediction job
     Output:
         table: pd.DataFrame
-        completeness: percentage of data kept after pre-processing """
+        completeness: percentage of data kept after pre-processing"""
     location = [pj["lat"], pj["lon"]]
 
     if "+" in pj["description"]:
@@ -293,7 +293,7 @@ def apply_fit_insol(data, add_to_df=True, hours_delta=None, polynomial=False):
     data = pd.DataFrame(index = index,
                         data = dict(load=np.sin(index.hour/24*np.pi)*np.random.uniform(0.7,1.7, len(index))))
     data['insolation'] = data.load * np.random.uniform(0.8, 1.2, len(index)) + 0.1
-    data.loc[int(len(index)/3*2):,"load"] = np.NaN """
+    data.loc[int(len(index)/3*2):,"load"] = np.NaN"""
 
     colname = list(data)[0]
 
@@ -354,8 +354,8 @@ def apply_fit_insol(data, add_to_df=True, hours_delta=None, polynomial=False):
 def add_missing_feature_columns(input_data, featurelist):
     """Adds feature column for features in the featurelist.
 
-        Add feature columns for features in the feature list if these columns don't
-        exist in the input data. If a column is added, its value is set to NaN.
+    Add feature columns for features in the feature list if these columns don't
+    exist in the input data. If a column is added, its value is set to NaN.
     """
     missing_features = [f for f in featurelist if f not in list(input_data)]
 
