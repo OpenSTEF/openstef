@@ -5,32 +5,45 @@
 # Copied from https://github.com/psf/black/actions/runs/17913292/workflow
 
 # GitHub Action that uses Black to reformat the Python code in an incoming pull request.
-# If all Python code in the pull request is compliant with Black then this Action does nothing.
-# Otherwise, Black is run and its changes are committed back to the incoming pull request.
-# https://github.com/cclauss/autoblack
+# If all Python code in the pull request is compliant with Black then this Action
+# does nothing. Otherwise, Black is run and its changes are committed to the
+# incoming pull request. See https://github.com/cclauss/autoblack for a similar example.
 
-name: Auto Black on PR
+name: Black Format Code
+
 on: [pull_request]
+
 jobs:
   build:
+
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.7]
+
     steps:
-      - uses: actions/checkout@v1
-      - name: Set up Python 3.7
-        uses: actions/setup-python@v1
+      # Checkout
+      - name: Checkout
+        uses: actions/checkout@v1
+      # Setup
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
         with:
-          python-version: 3.7
+          python-version: ${{ matrix.python-version }}
+      # Install black
       - name: Install Black
         run: pip install black
+      # Run black --check
       - name: Run black --check .
         run: black --check .
+      # Run black (if needed)
       - name: If needed, commit black changes to the pull request
         if: failure()
         run: |
           black .
-          git config --global user.name 'autoblack'
+          git config --global user.name 'black'
           git config --global user.email 'action@github.com'
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY
           git checkout $GITHUB_HEAD_REF
-          git commit -am "fixup: Format Python code with Black"
+          git commit -am "Format Python code with Black"
           git push
