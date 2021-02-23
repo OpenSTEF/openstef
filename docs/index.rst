@@ -10,8 +10,8 @@ Welcome to the documentation of Short Term Forecasting!
    :maxdepth: 4
    :caption: Short Term Forecasting:
 
-    docs/stf.rst
-    docs/modules.rst
+    stf.rst
+    modules.rst
 
 
 Indices and tables
