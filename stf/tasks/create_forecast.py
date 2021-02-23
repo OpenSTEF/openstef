@@ -10,7 +10,7 @@ save them in to the database.
 This code assumes trained models are available from the persistent storage. If these
 are not available run model_train.py to train all models.
 To provide the prognoses the folowing steps are carried out:
-  1. Get historic training data (SJV, Load, Weather and APX price data)
+  1. Get historic training data (TDCV, Load, Weather and APX price data)
   2. Apply features
   3. Load model
   4. Make prediction
