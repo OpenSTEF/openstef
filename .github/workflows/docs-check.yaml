@@ -1,0 +1,21 @@
+# SPDX-FileCopyrightText: 2017-2021 Alliander N.V.
+#
+# SPDX-License-Identifier: MPL-2.0
+name: Docs Check
+
+on:
+- pull_request
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+    # Checkout
+    - name: Checkout code
+      uses: actions/checkout@v1
+    # Build documentation
+    - name: Build documentation
+      uses: ammaraskar/sphinx-action@master
+      with:
+        pre-build-command: "cp requirements.txt docs/requirements.txt | sphinx-apidoc -o docs stf"
+        docs-folder: "docs/"
