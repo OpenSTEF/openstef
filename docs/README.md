@@ -9,7 +9,10 @@ SPDX-License-Identifier: MPL-2.0
 Documentation is generated using Sphinx:
 https://www.sphinx-doc.org/en/master/index.html
 
-Automation works in these steps:
+For every *pull_request*:
+- check if documentation can be generated
+
+For every *release*:
 1. A github action triggers the building of documentation
     1. sphinx-apidoc generates automatically .rst files based on source code
     2. sphinx-build generates automatically .html files from the rst files
@@ -20,8 +23,8 @@ Important files:
 - `conf.py`: defining settings
 - `Makefile` and `make.bat`: not exactly sure, we use defaults
 - `index.rst`: Define the index of the final documentation
-- `requirements.txt`: requirements needed for building documentation. This is more than the package itself
-- `ktpbase`: empty ktpbase implementation so other python modules do not give an exception when imported
+- `requirements.txt`: requirements needed for building documentation. This is more than the package itself needs. I tried using the higher-level package requirements.txt but couldn't manage
+- `ktpbase`: empty ktpbase implementation so other python modules do not give an exception when imported.
 
 Running locally, documentation html files are generated but not added to gh-pages:
 `pip install docs/requirements.txt`
