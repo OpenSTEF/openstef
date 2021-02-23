@@ -27,6 +27,6 @@ Important files:
 - `ktpbase`: empty ktpbase implementation so other python modules do not give an exception when imported.
 
 Running locally, documentation html files are generated but not added to gh-pages:
-`pip install docs/requirements.txt`
-`sphinx-apidoc -o docs stf`
-`sphinx-build docs output`
+```pip install docs/requirements.txt
+sphinx-apidoc -o docs stf
+sphinx-build docs output```
