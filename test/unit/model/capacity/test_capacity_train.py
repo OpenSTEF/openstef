@@ -17,7 +17,7 @@ FUCNTION_ARGS = [
     {"id": 1, "name": "job1", "description": "description for job 1"},
     datetime.utcnow().date(),
     datetime.utcnow().date(),
-    list(range(13))
+    list(range(13)),
 ]
 LOAD_DATA = TestData.load("capacity_load.csv")
 TDCV_DATA = TestData.load("capacity_tdcv_load_profiles.csv")
@@ -64,7 +64,6 @@ class TestCapacityTrain(BaseTestCase):
         apply_features_mock,
         model_mock,
         prepare_data_mock,
-
     ):
         # set database return values
         db_mock.return_value.get_load_pid.return_value = LOAD_DATA

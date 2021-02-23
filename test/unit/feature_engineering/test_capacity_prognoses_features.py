@@ -32,8 +32,12 @@ class TestCapacityPrognosesFeatures(BaseTestCase):
 
     def test_happy_apply_capacity_features(self):
         d, classes = cf.apply_capacity_features(
-            self.data, "load_mean", [1, 2], apply_class_labels=True, outlier_removal=True,
-            load_profile_names=load_profile_names
+            self.data,
+            "load_mean",
+            [1, 2],
+            apply_class_labels=True,
+            outlier_removal=True,
+            load_profile_names=load_profile_names,
         )
         return d, classes
 

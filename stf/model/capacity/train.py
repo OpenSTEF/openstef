@@ -6,16 +6,14 @@ import pandas as pd
 from ktpbase.database import DataBase
 from ktpbase.log import logging
 
-from stf.feature_engineering.capacity_prognoses_features import (
-    apply_capacity_features
-)
+from stf.feature_engineering.capacity_prognoses_features import apply_capacity_features
 from stf.model.capacity.model import CapacityPredictionModel
 from stf.model.capacity.utils import prepare_training_data
 from stf.model.serializer.xgboost.xgboost import XGBModelSerializer
 
 
 def train_capacity_prognosis(pj, datetime_start, datetime_end, y_hor=[0, 6, 13]):
-    """ Train a capacity prognoses model for a specific prediction job.
+    """Train a capacity prognoses model for a specific prediction job.
 
     Args:
         pj: (dict) prediction job
@@ -38,8 +36,11 @@ def train_capacity_prognosis(pj, datetime_start, datetime_end, y_hor=[0, 6, 13])
     # apply features
     logger.info("Apply features")
     feature_data, classes = apply_capacity_features(
-        input_data, y_col="load_max", y_hor=y_hor, outlier_removal=False,
-        load_profile_names=load_profile_names
+        input_data,
+        y_col="load_max",
+        y_hor=y_hor,
+        outlier_removal=False,
+        load_profile_names=load_profile_names,
     )
 
     # prepare data
