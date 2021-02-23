@@ -15,6 +15,10 @@ Welcome to the documentation of Short Term Forecasting!
     stf/stf.rst
     docs/stf.rst
     docs/stf/stf.rst
+    stf\stf.rst
+    docs\stf.rst
+    docs\stf\stf.rst
+
 
 
 Indices and tables
