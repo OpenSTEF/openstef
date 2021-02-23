@@ -51,8 +51,7 @@ class TestTrain(BaseTestCase):
             self.validation_data_ref,
             self.testing_data_ref,
         ) = split_data_train_validation_test(data_table)
-        # If True: generate a new reference model_trainer pickle:
-        # if True:
+		
         params = {
             "subsample": 0.9,
             "min_child_weight": 4,
@@ -65,8 +64,6 @@ class TestTrain(BaseTestCase):
         self.model_trainer_ref = XGBModelTrainer(pj)
         self.model_trainer_ref.hyper_parameters.update(params)
         self.model_trainer_ref.train(self.training_data_ref, self.validation_data_ref)
-        # TestData.save(model_trainer_ref, "model_trainer_reference.pickle")
-        # self.model_trainer_ref = TestData.load("model_trainer_reference.pickle")
 
     def test_model_trainer_creator(self):
         serializer_creator = ModelSerializerCreator()

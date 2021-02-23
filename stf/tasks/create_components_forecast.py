@@ -60,7 +60,7 @@ def main():
 
                 update_status_change(status_id, status_code)
 
-        model_type = ["lgb", "xgb_quantile"]
+        model_type = ["xgb", "xgb_quantile", "lgb"]
 
         PredictionJobLoop(
             context,

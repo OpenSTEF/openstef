@@ -29,7 +29,7 @@ from stf.tasks.utils.taskcontext import TaskContext
 
 def main():
     with TaskContext(__file__) as context:
-        model_type = ["lgb", "xgb_quantile"]
+        model_type = ["xgb", "xgb_quantile", "lgb"]
 
         PredictionJobLoop(context, model_type=model_type).map(
             train_model_for_specific_pj, context

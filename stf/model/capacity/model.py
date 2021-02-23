@@ -28,7 +28,7 @@ class CapacityPredictionModel:
         # definition of classification classes
         self.classes = classes
 
-        # create lgb model
+        # create xgb model
         self.model = xgb.XGBClassifier(kwargs=self.hyper_params)
 
     def train(self, train_x, train_y, val_x, val_y):

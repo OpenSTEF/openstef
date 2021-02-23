@@ -12,13 +12,9 @@ import pandas as pd
 
 from stf.model.general import MLModelType, split_data_train_validation_test
 from stf.model.serializer.creator import ModelSerializerCreator
-
-# from stf.model.serializer.xgboost.xgboost import XGBModelSerializer
 from stf.model.serializer.lightgbm.lightgbm import LGBModelSerializer
 from stf.model.train import is_data_sufficient
 from stf.model.trainer.creator import ModelTrainerCreator
-
-# from stf.model.trainer.xgboost.xgboost import XGBModelTrainer
 from stf.model.trainer.lightgbm.lightgbm import LGBModelTrainer
 
 
@@ -56,8 +52,7 @@ class TestTrain(BaseTestCase):
             self.validation_data_ref,
             self.testing_data_ref,
         ) = split_data_train_validation_test(data_table)
-        # If True: generate a new reference model_trainer pickle:
-        # if True:
+
         params = {
             "subsample": 0.9,
             "min_child_weight": 4,
@@ -74,7 +69,6 @@ class TestTrain(BaseTestCase):
     def test_model_trainer_creator(self):
         serializer_creator = ModelSerializerCreator()
         serializer = serializer_creator.create_model_serializer(MLModelType("lgb"))
-        # model, model_file = serializer.load(123, TestData.TRAINED_MODELS_FOLDER)
         model, model_file = serializer.load(pj["id"], TestData.TRAINED_MODELS_FOLDER)
 
         model_path = (

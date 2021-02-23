@@ -20,22 +20,9 @@ class LGBModelSerializer(AbstractModelSerializer):
         save_folder.mkdir(parents=True, exist_ok=True)
 
         # save LGB model
-        print(save_folder)
+        self.logger.warning(f'Save folder: {save_folder}')
         lgb_model.save_model(str(save_folder / self.MODEL_FILENAME))
-        # save feature names
-        # with open(save_folder / self.FEATURE_NAMES_FILENAME, "w") as fh:
-        #     fh.write(str(lgb_model.feature_names))
-        # # save feature types
-        # with open(save_folder / self.FEATURE_TYPES_FILENAME, "w") as fh:
-        #     fh.write(str(lgb_model.feature_types))
-        # # save best iteration / best n_trees
-        # if getattr(xgb_model, "best_ntree_limit") is not None:
-        #     with open(save_folder / self.BEST_ITERATION_FILENAME, "wb") as fh:
-        #         pickle.dump(xgb_model.best_ntree_limit, fh)
-        # else:
-        #     self.logger.warning(
-        #         f"No best iteration found, no best iteration save for pid: {pid}"
-        #     )
+
         # save corrections
         if corrections is not None:
             if len(corrections) == len(corrections.dropna()):
@@ -80,42 +67,3 @@ class LGBModelSerializer(AbstractModelSerializer):
         self.logger.info(f"Loaded model from: {model_file}")
 
         return lgb_model, model_file
-
-    def _add_atributes(self, model_folder, model):
-
-        # load feature names
-        with open(model_folder / self.FEATURE_NAMES_FILENAME, "r") as fh:
-            # Reformat feature names
-            # TODO this is unnecessary when just saved properly (i.e yaml, json, xml, ini, pickle etc)
-            model.feature_names = (
-                fh.read()
-                .replace("[", "")
-                .replace("]", "")
-                .replace("'", "")
-                .replace(" ", "")
-                .split(",")
-            )
-        # Load feature types
-        with open(model_folder / self.FEATURE_TYPES_FILENAME, "r") as fh:
-            # Reformat feature types
-            model.feature_types = (
-                fh.read()
-                .replace("[", "")
-                .replace("]", "")
-                .replace("'", "")
-                .replace(" ", "")
-                .split(",")
-            )
-
-        # Load best iteration (if exist)
-        best_iteration_filepath = model_folder / self.BEST_ITERATION_FILENAME
-        if best_iteration_filepath.is_file() is True:
-            with open(best_iteration_filepath, "rb") as fh:
-                model.best_ntree_limit = pickle.load(fh)
-        else:
-            self.logger.warning(
-                f"Could not load best iteration, file does not exists '{best_iteration_filepath}'"
-            )
-            # TODO magic number?
-            model.best_ntree_limit = 15
-        return model
