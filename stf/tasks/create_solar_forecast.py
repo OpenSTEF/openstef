@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com>
+# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -62,7 +62,7 @@ def make_solar_predicion_pj(pj, context):
 
 
 def main():
-    with TaskContext("solar") as context:
+    with TaskContext(__file__) as context:
         context.logger.info("Querying wind prediction jobs from database")
         prediction_jobs = context.database.get_prediction_jobs_solar()
         num_prediction_jobs = len(prediction_jobs)
@@ -85,6 +85,7 @@ def main():
             context,
             prediction_jobs=prediction_jobs
         ).map(make_solar_predicion_pj, context)
+
 
 if __name__ == "__main__":
     main()

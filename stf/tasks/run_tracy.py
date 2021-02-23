@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com>
+# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -44,7 +44,7 @@ from stf.model.hyper_parameters import optimize_hyperparameters
 from stf.model.train import train_specific_model
 # Import project modules
 from stf.monitoring.teams import post_teams
-from stf.tasks.utils.general import (
+from stf.tasks.utils.utils import (
     convert_string_args_to_dict_args, interpret_string_as_functions
 )
 from stf.tasks.utils.taskcontext import TaskContext
@@ -138,7 +138,7 @@ def get_and_evaluate_todos(context):
 
 
 def main():
-    with TaskContext("run_tracy") as context:
+    with TaskContext(__file__) as context:
         get_and_evaluate_todos(context)
 
 

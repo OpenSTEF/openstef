@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com>
+# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -53,6 +53,7 @@ class TestAbstractPredictionModel(BaseTestCase):
         # check if colnames are correct
         basecase_forecast_columns = [
             "forecast",
+            "forecast_other",
             "stdev",
             "pid",
             "description",

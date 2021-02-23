@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com>
+# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -110,7 +110,9 @@ class AbstractModelTrainer(ABC):
     def hyper_params_objective(
         self,
         trial,
+        error_function=None,
         clean_data_with_features=None,
+        featuresets=None,
         optimize_peak_prediction=False,
     ):
         print(

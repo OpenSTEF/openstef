@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com>
+# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -59,7 +59,9 @@ class XGBModelSerializer(AbstractModelSerializer):
             FileNotFoundError: If no recent model file was found
 
         Returns:
-            [type]: [description]
+            tuple: Tuple with:
+                [0]: lgb.Booster: Loaded model
+                [1]: str: Path to loaded model
         """
 
         if pid_model_folder is None:

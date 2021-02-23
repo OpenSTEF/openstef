@@ -1,19 +1,20 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com>
+# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
-from test.utils.data import TestData
+from test.utils import TestData, BaseTestCase
+import unittest
 
 import stf.feature_engineering.capacity_prognoses_features as cf
 
-data = TestData.load("input_data_train.pickle")
 
-from test.utils import TestData, BaseTestCase
+data = TestData.load("input_data_train.pickle")
 
 
 class TestCapacityPrognosesFeatures(BaseTestCase):
 
     def setUp(self):
+        super().setUp()
         self.data = TestData.load("input_data_train.pickle")
 
     def test_happy_apply_resample(self):

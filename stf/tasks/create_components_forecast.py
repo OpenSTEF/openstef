@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com>
+# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -30,7 +30,7 @@ Attributes:
 
 """
 import stf.model.predict as predict
-from stf.tasks.utils.general import check_status_change, update_status_change
+from stf.tasks.utils.utils import check_status_change, update_status_change
 from stf.tasks.utils.predictionjobloop import PredictionJobLoop
 from stf.tasks.utils.taskcontext import TaskContext
 
@@ -48,7 +48,7 @@ def create_components_forecast_pj(pj, context):
 
 
 def main():
-    with TaskContext("create_components_forecast") as context:
+    with TaskContext(__file__) as context:
 
         # status file callback after every iteration
         # TODO change implementation to a database one
@@ -61,13 +61,14 @@ def main():
 
                 update_status_change(status_id, status_code)
 
-        model_type = ["xgb", "xgb_quantile"]
+        model_type = ["lgb", "xgb_quantile"]
 
         PredictionJobLoop(
             context,
             model_type=model_type,
-            on_end=callback,
+            on_end_callback=callback,
         ).map(create_components_forecast_pj, context)
+
 
 if __name__ == "__main__":
     main()

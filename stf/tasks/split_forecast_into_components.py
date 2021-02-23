@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com>
+# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -32,13 +32,14 @@ from stf.tasks.utils.taskcontext import TaskContext
 
 
 def main():
-    with TaskContext("split_forecast_into_components") as context:
-        model_type = "xgb"
+    with TaskContext(__file__) as context:
+        model_type = "lgb"
 
         PredictionJobLoop(
             context,
             model_type=model_type,
         ).map(lambda pj: split_energy(pj["id"]))
+
 
 if __name__ == "__main__":
     main()

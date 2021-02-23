@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com>
+# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -84,8 +84,10 @@ class XGBModelTrainer(AbstractModelTrainer):
             index=["weight"]).T
         feature_weight /= feature_weight.sum()
 
-        feature_importance = pd.merge(feature_gain, feature_weight,
-            left_index=True, right_index=True)
+        feature_importance = pd.merge(
+            feature_gain, feature_weight,
+            left_index=True, right_index=True
+        )
         feature_importance.sort_values(by="gain", ascending=False, inplace=True)
 
         return feature_importance
@@ -127,7 +129,7 @@ class XGBModelTrainer(AbstractModelTrainer):
         def custom_eval(preds, dset):
             return "MAE", metrics.mae(dset.get_label(), preds)
 
-        # get the xgb (hyper) parameters
+        # get the lgb (hyper) parameters
         params = {k: self.hyper_parameters[k] for k in self._xgb_hyper_parameter_keys}
 
         # Train and validate model
@@ -162,6 +164,7 @@ class XGBModelTrainer(AbstractModelTrainer):
         """
         # Check if the old model is not None and try to make a prediction with the old model
         if self.old_model is None:
+            self.logger.warning("No old model available")
             return True
         else:
             try:
@@ -174,12 +177,12 @@ class XGBModelTrainer(AbstractModelTrainer):
                 )
             except Exception as e:
                 prediction_old_model = np.nan
-                print("Could not compare to old model:", str(e)[:20])
+                self.logger.error("Could not compare to old model:", str(e)[:20])
                 return True
 
         # Check if returned object is not None and try to make a prediction with the new model
         if self.trained_model is None:
-            print("New model is not yet trained, could not compare performance!")
+            self.logger.warning("New model is not yet trained, could not compare performance!")
             return False
         else:
             try:
@@ -191,7 +194,7 @@ class XGBModelTrainer(AbstractModelTrainer):
                     ntree_limit=self.trained_model.best_ntree_limit,
                 )
             except Exception as e:
-                print("Could not get prediction from new model:", str(e)[:20])
+                self.logger.error("Could not get prediction from new model:", str(e)[:20])
                 return False
 
         # Calculate scores

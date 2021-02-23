@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com>
+# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -75,9 +75,8 @@ def check_kpi_pj(pj, context, start_time, end_time):
 
 
 def main():
-    with TaskContext("calculate_kpi") as context:
-        model_type = "xgb"
-
+    with TaskContext(__file__) as context:
+        model_type = "lgb"
         # Set start and end time
         start_time = datetime.date(datetime.utcnow()) - timedelta(days=1)
         end_time = datetime.date(datetime.utcnow())

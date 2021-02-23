@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com>
+# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -28,7 +28,7 @@ class CapacityPrognosisModel:
         # definition of classification classes
         self.classes = classes
 
-        # create xgb model
+        # create lgb model
         self.model = xgb.XGBClassifier(kwargs=self.hyper_params)
 
     def train(self, train_x, train_y, val_x, val_y):

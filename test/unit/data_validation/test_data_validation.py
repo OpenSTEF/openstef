@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com>
+# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -6,9 +6,11 @@ from stf.data_validation.data_validation import validate, clean
 
 from test.utils import BaseTestCase, TestData
 
+
 class TestDataValidation(BaseTestCase):
 
     def setUp(self):
+        super().setUp()
         self.data_train = TestData.load('input_data_train.pickle')
         self.data_predict = TestData.load('input_data.pickle')
 

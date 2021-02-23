@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com>
+# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -14,7 +14,7 @@ from stf.model.capacity_prognosis import (
     predict_capacity_prognosis, train_capacity_prognosis
 )
 
-from test.utils import BaseTestCase, TestData
+from test.utils import BaseTestCase
 
 # define constants for mocking return values
 FUCNTION_ARGS = [

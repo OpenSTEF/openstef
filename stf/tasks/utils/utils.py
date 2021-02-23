@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com>
+# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 import json
@@ -6,6 +6,12 @@ import os
 from pathlib import Path
 
 from ktpbase.config.config import ConfigManager
+
+
+def get_module_name(module_path):
+    # /home/user/git/project/package/module.py -> module
+    module_name = ".".join(str(module_path).split(os.path.sep)[-1].split(".")[:-1])
+    return module_name
 
 
 def load_status_file():

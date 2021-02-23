@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com>
+# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -53,7 +53,7 @@ class XGBQuantileModelTrainer(XGBModelTrainer):
         # Create result dictionary to house the models for the different quantiles
         self.quantile_models = dict()
 
-        # get the xgb (hyper) parameters
+        # get the lgb (hyper) parameters
         params = {k: self.hyper_parameters[k] for k in self._xgb_hyper_parameter_keys}
 
         for quantile in self.pj["quantiles"]:

@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com>
+# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -8,16 +8,16 @@ from ktpbase.config.config import ConfigManager
 from ktpbase.database import DataBase
 from ktpbase.log import logging
 
-from stf import PROJECT_ROOT
 from stf.monitoring.teams import post_teams
-from stf.tasks.utils.predictionjobloop import PredictionJobException
 from stf.monitoring.performance_meter import PerformanceMeter
+from stf.tasks.utils.predictionjobloop import PredictionJobException
+from stf.tasks.utils import utils
 
 
 class TaskContext():
     def __init__(
             self,
-            name,
+            task_file,
             suppress_exceptions=False,
             post_teams_on_exception=True,
             on_exception=None,
@@ -26,11 +26,11 @@ class TaskContext():
         """A context manager that can be used to run tasks with.
 
         Should be used as:
-        with TaskContext("name_of_task") as context:
+        with TaskContext("__file__") as context:
             pass
 
         Args:
-            name (string): Name of the task
+            task_file (string): Path of the task module provided by __file__
             suppress_exceptions (bool, optional): If set to False the context
                 manager will pass any raised exception on. Defaults to False.
             post_teams_on_exception (bool, optional): If set to True the context
@@ -44,7 +44,7 @@ class TaskContext():
             on_end (callable, optional): Callback, will be called if the task is
                 completed. Callable gets a bool indicating success as argument.
         """
-        self.name = name
+        self.name = utils.get_module_name(task_file)
         self.suppress_exceptions = suppress_exceptions
         self.post_teams_on_exception = post_teams_on_exception
         self.on_exception = on_exception
@@ -52,9 +52,7 @@ class TaskContext():
         self.on_end = on_end
 
     def __enter__(self):
-        self.config = ConfigManager.load_project_config(
-            project_root=PROJECT_ROOT
-        ).get_instance()
+        self.config = ConfigManager.get_instance()
 
         logging.configure_logging(
             loglevel=self.config.loglevel, runtime_env=self.config.env,

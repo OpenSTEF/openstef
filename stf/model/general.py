@@ -1,17 +1,15 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com>
+# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
-import os
-import warnings
 from datetime import timedelta
 from enum import Enum
-from pathlib import Path
 
 import numpy as np
 import pandas as pd
 from ktpbase.log import logging
 
+from stf import PROJECT_ROOT
 from stf.data_validation import data_validation
 from stf.feature_engineering.apply_features import (
     apply_multiple_horizon_features
@@ -25,13 +23,18 @@ from stf.feature_engineering.general import (
 class MLModelType(Enum):
     XGB = "xgb"
     XGB_QUANTILE = "xgb_quantile"
-
+    LGB = "lgb"
+    LGB_QUANTILE = "lgb_quantile"
 
 class ForecastType(Enum):
     DEMAND = "demand"
     WIND = "wind"
     SOLAR = "solar"
     BASECASE = "basecase"
+
+
+# TODO move to config
+PV_COEFS_FILEPATH = PROJECT_ROOT / "stf" / "data" / "pv_single_coefs.csv"
 
 
 def split_data_train_validation_test(
@@ -302,7 +305,9 @@ def pre_process_data(data, featureset=None, horizons=None):
 
 
 def combine_forecasts(forecasts, combination_coefs):
-    """This function combines several independent forecasts into one, using predetermined coefficients.
+    """This function combines several independent forecasts into one, using
+        predetermined coefficients.
+
     Input:
         - forecasts: pd.DataFrame(index = datetime, algorithm1, ..., algorithmn)
         - combinationcoefs: pd.DataFrame(param1, ..., paramn, algorithm1, ..., algorithmn)
@@ -312,44 +317,43 @@ def combine_forecasts(forecasts, combination_coefs):
 
     models = [x for x in list(forecasts) if x not in ["created", "datetime"]]
 
-    ### Add subset parameters to df ###
-    # Identify which parameters should be used to define subsets based on the combinationcoefs
-    subset_defs = [
-        x
-        for x in list(combination_coefs)
-        if x
-        in [
-            "tAhead",
-            "hForecasted",
-            "weekday",
-            "hForecastedPer6h",
-            "tAheadPer2h",
-            "hCreated",
-        ]
+    # Add subset parameters to df
+    # Identify which parameters should be used to define subsets based on the
+    # combinationcoefs
+    subset_columns = [
+        "tAhead", "hForecasted", "weekday", "hForecastedPer6h", "tAheadPer2h",
+        "hCreated",
     ]
+    subset_defs = [x for x in list(combination_coefs) if x in subset_columns]
 
     df = forecasts.copy()
     # Now add these subsetparams to df
     if "tAhead" in subset_defs:
         t_ahead = (df["datetime"] - df["created"]).dt.total_seconds() / 3600
         df["tAhead"] = t_ahead
+
     if "hForecasted" in subset_defs:
         df["hForecasted"] = df.datetime.dt.hour
+
     if "weekday" in subset_defs:
         df["weekday"] = df.datetime.dt.weekday
+
     if "hForecastedPer6h" in subset_defs:
         df["hForecastedPer6h"] = pd.to_numeric(
             np.floor(df.datetime.dt.hour / 6) * 6, downcast="integer"
         )
+
     if "tAheadPer2h" in subset_defs:
         df["tAheadPer2h"] = pd.to_numeric(
             np.floor((df.datetime - df.created).dt.total_seconds() / 60 / 60 / 2) * 2,
             downcast="integer",
         )
+
     if "hCreated" in subset_defs:
         df["hCreated"] = df.created.dt.hour
 
-    ### Start building combinationcoef dataframe that later will be multiplied with the individual forecasts ###
+    # Start building combinationcoef dataframe that later will be multiplied with the
+    # individual forecasts
     # This is the best way for a backtest:
     #    uniquevalues = list([np.unique(df[param].values) for param in subsetDefs])
     #    permutations = list(itertools.product(*uniquevalues))
@@ -357,22 +361,24 @@ def combine_forecasts(forecasts, combination_coefs):
     # This is the best way for a single forecast
     permutations = [tuple(x) for x in df[subset_defs].values]
 
-    # Define function which find closest match of a value from an array of values. Use this later to find best coefficient from the given subsetting dividers
-    def take_closest(num, collection):
-        return min(collection, key=lambda x: abs(x - num))
-
     result_df = pd.DataFrame()
+
     for subsetvalues in permutations:
         subset = df.copy()
         coefs = combination_coefs
+
         # Create subset based on all subsetparams, for forecasts and coefs
         for value, param in zip(subsetvalues, subset_defs):
             subset = subset.loc[subset[param] == value]
-            coefs = coefs.loc[
-                coefs[param] == take_closest(value, coefs[param])
-            ]  # Find closest matching value for combinationCoefParams corresponding to available subsetValues
+            # Define function which find closest match of a value from an array of values.
+            #  Use this later to find best coefficient from the given subsetting dividers
+            closest_match = min(coefs[param], key=lambda x: abs(x - value))
+            coefs = coefs.loc[coefs[param] == closest_match]
+            # Find closest matching value for combinationCoefParams corresponding to
+            # available subsetValues
 
-        # Of course, not all possible subsets have to be defined in the forecast. Skip empty subsets
+        # Of course, not all possible subsets have to be defined in the forecast.
+        # Skip empty subsets
         if len(subset) == 0:
             continue
 
@@ -394,7 +400,8 @@ def combine_forecasts(forecasts, combination_coefs):
 
         result_df = result_df.append(result)
 
-    # for safety: remove duplicate results to prevent multiple forecasts for the same time created
+    # for safety: remove duplicate results to prevent multiple forecasts for the same
+    # time created
     # resultDF.drop_duplicates(keep='last', inplace = True)
 
     #    #rename created column to datetime and add datetime for export
@@ -426,9 +433,7 @@ def fides(data, all_forecasts=False):
 
     df = insolation_forecast.merge(persistence, left_index=True, right_index=True)
 
-    # TODO move to config
-    pv_coefs_filepath = Path(__file__).absolute().parent / "pv_single_coefs.csv"
-    coefs = pd.read_csv(pv_coefs_filepath)
+    coefs = pd.read_csv(PV_COEFS_FILEPATH)
 
     # Apply combination coefs
     df["created"] = df.loc[df.load.isnull()].index.min()

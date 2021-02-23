@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com>
+# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -10,7 +10,7 @@ from stf.tasks.utils.taskcontext import TaskContext
 
 
 def main():
-    with TaskContext("create_capacity_forecast") as context:
+    with TaskContext(__file__) as context:
         # prediction horizons
         y_hor = list(range(13))
 
@@ -18,7 +18,7 @@ def main():
         datetime_start = datetime.utcnow().date() - timedelta(days=30)
         datetime_end = datetime.utcnow().date() + timedelta(days=max(y_hor) + 1)
 
-        model_type = "xgb"
+        model_type = "lgb"
         PredictionJobLoop(
             context,
             model_type=model_type

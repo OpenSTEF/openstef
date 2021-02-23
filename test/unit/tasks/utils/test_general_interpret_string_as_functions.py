@@ -1,10 +1,10 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com>
+# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
 import unittest
 
-from stf.tasks.utils.general import interpret_string_as_functions
+from stf.tasks.utils.utils import interpret_string_as_functions
 
 from test.utils import BaseTestCase
 

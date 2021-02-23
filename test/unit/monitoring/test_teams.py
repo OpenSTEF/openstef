@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com>
+# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -13,10 +13,10 @@ from test.utils import BaseTestCase, TestData
 
 
 @patch("stf.monitoring.teams.pymsteams")
-@patch("stf.monitoring.teams.ConfigManager", MagicMock())
 class TestTeams(BaseTestCase):
 
     def setUp(self):
+        super().setUp()
         self.pj = TestData.get_prediction_job(pid=307)
 
     def test_post_teams(self, teamsmock):
@@ -27,7 +27,6 @@ class TestTeams(BaseTestCase):
         card_mock = teamsmock.connectorcard.return_value
         self.assertTrue(card_mock.send.called)
 
-
     def test_post_teams_alert(self, teamsmock):
 
         msg = "test"
@@ -35,7 +34,6 @@ class TestTeams(BaseTestCase):
         teams.post_teams_alert(msg)
         card_mock = teamsmock.connectorcard.return_value
         self.assertTrue(card_mock.send.called)
-
 
     def test_post_teams_better(self, teamsmock):
 

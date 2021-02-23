@@ -1,0 +1,55 @@
+# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501
+#
+# SPDX-License-Identifier: MPL-2.0
+name: Python Build
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.9]
+
+    steps:
+    # Checkout
+    - name: Checkout code
+      uses: actions/checkout@v2
+    # Setup
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    # Restore
+    - name: Restore pip cache
+      uses: actions/cache@v2
+      with:
+        # This path is specific to Ubuntu
+        path: ~/.cache/pip
+        # Look to see if there is a cache hit for the corresponding requirements file
+        key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+          ${{ runner.os }}-
+    # Install
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip setuptools wheel
+        pip install -r requirements.txt
+    # Lint
+#    - name: Lint with flake8
+#      run: |
+#        pip install flake8
+#        # stop the build if there are non ignored Python errors
+#        flake8 . --count --show-source --statistics --ignore=E121,E123,E126,E226,E24,E704,W503,W504,E501,W292,E265
+    # Test
+    - name: Test with pytest
+      run: |
+        pip install pytest pytest-cov
+        pytest test
+    # Build
+    - name: Build Python package
+      run: |
+        python setup.py sdist bdist_wheel

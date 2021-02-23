@@ -1,15 +1,20 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com>
+# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
 from stf.model.prediction.xgboost.quantile import QuantileXGBPredictionModel
 from stf.model.prediction.xgboost.xgboost import XGBPredictionModel
+from stf.model.prediction.lightgbm.lightgbm import LGBPredictionModel
+
 
 
 class PredictionModelCreator:
 
     PROGNOSIS_MODEL_CONSTRUCTORS = {"xgb": XGBPredictionModel,
-                                    "xgb_quantile": QuantileXGBPredictionModel}
+                                    "xgb_quantile": QuantileXGBPredictionModel,
+                                    "lgb": LGBPredictionModel,
+                                    #"lgb_quantile": QuantileLGBPredictionModel,
+                                   }
 
     @classmethod
     def create_prediction_model(cls, pj, forecast_type, model=None, confidence_df=None):

@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com>
+# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -50,3 +50,7 @@ class GeneralTest(BaseTestCase):
         self.assertTrue(df_no_repeated["Column1"].equals(df_no_repeated["Column3"]))
         self.assertTrue(math.isnan(df_no_repeated.at[end_nan, "Column2"]))
         self.assertTrue(math.isnan(df_no_repeated.at[end_nan - 1, "Column2"]))
+
+
+if __name__ == "__main__":
+    unittest.main()
