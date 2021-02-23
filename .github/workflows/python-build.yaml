@@ -41,6 +41,7 @@ jobs:
     # Very limited linting with Flake8 (see setup.cfg for configuration)
     - name: Lint
       run: |
+        pip install flake8
         # Stop build on a couple more serious violations
         # See https://flake8.pycqa.org/en/latest/user/error-codes.html for more details
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
