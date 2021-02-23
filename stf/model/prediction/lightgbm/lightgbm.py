@@ -51,7 +51,7 @@ class LGBPredictionModel(AbstractPredictionModel):
         return completeness
 
     def make_forecast(self, forcast_input_data):
-        """Make a forecast using a trained XGBoost model
+        """Make a forecast using a trained model
 
         Args:
             forcast_input_data (pandas.DataFrame): Forcast (section) input data

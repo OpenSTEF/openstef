@@ -18,7 +18,7 @@ def main():
         datetime_start = datetime.utcnow().date() - timedelta(days=30)
         datetime_end = datetime.utcnow().date() + timedelta(days=max(y_hor) + 1)
 
-        model_type = "lgb"
+        model_type = ["xgb", "lgb"]
         PredictionJobLoop(
             context,
             model_type=model_type

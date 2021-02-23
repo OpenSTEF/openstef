@@ -36,7 +36,7 @@ from stf.tasks.utils.taskcontext import TaskContext
 
 def main():
     with TaskContext(__file__) as context:
-        model_type = ["lgb", "xgb_quantile"]
+        model_type = ["xgb", "xgb_quantile", "lgb"]
 
         # status file callback after every iteration
         # TODO change implementation to a database one

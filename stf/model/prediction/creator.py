@@ -13,7 +13,6 @@ class PredictionModelCreator:
     PROGNOSIS_MODEL_CONSTRUCTORS = {"xgb": XGBPredictionModel,
                                     "xgb_quantile": QuantileXGBPredictionModel,
                                     "lgb": LGBPredictionModel,
-                                    #"lgb_quantile": QuantileLGBPredictionModel,
                                    }
 
     @classmethod
