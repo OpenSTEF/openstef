@@ -23,6 +23,7 @@ Important files:
 - `requirements.txt`: requirements needed for building documentation. This is more than the package itself
 - `ktpbase`: empty ktpbase implementation so other python modules do not give an exception when imported
 
-Running locally:
+Running locally, documentation html files are generated but not added to gh-pages:
+`pip install docs/requirements.txt`
 `sphinx-apidoc -o docs stf`
 `sphinx-build docs output`
