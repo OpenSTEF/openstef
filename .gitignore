@@ -9,6 +9,7 @@ config.user.yaml
 prof/
 /trained_models/
 docs/build/
+output
 certificates/
 ktprognoses.egg-info/
 .idea/

@@ -9,9 +9,11 @@ Welcome to the documentation of Short Term Forecasting!
 .. toctree::
    :maxdepth: 4
    :caption: Short Term Forecasting:
-   
-   stf/modules.rst
-   
+
+    stf.rst
+    modules.rst
+    stf/modules.rst
+
 
 Indices and tables
 ==================
