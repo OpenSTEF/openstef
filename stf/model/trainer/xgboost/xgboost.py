@@ -129,7 +129,7 @@ class XGBModelTrainer(AbstractModelTrainer):
         def custom_eval(preds, dset):
             return "MAE", metrics.mae(dset.get_label(), preds)
 
-        # get the xgb (hyper) parameters
+        # get the lgb (hyper) parameters
         params = {k: self.hyper_parameters[k] for k in self._xgb_hyper_parameter_keys}
 
         # Train and validate model

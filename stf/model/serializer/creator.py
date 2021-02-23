@@ -5,13 +5,16 @@
 from stf.model.general import MLModelType
 from stf.model.serializer.xgboost.quantile import XGBQuantileModelSerializer
 from stf.model.serializer.xgboost.xgboost import XGBModelSerializer
-
+#from stf.model.serializer.lightgbm.quantile import LGBQuantileModelSerializer
+from stf.model.serializer.lightgbm.lightgbm import LGBModelSerializer
 
 class ModelSerializerCreator:
 
     MODEL_SERIALIZER_CONTRUCTORS = {
         MLModelType.XGB: XGBModelSerializer,
         MLModelType.XGB_QUANTILE: XGBQuantileModelSerializer,
+        MLModelType.LGB: LGBModelSerializer,
+        #MLModelType.LGB_QUANTILE: LGBQuantileModelSerializer
     }
 
     @classmethod

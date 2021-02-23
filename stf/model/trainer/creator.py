@@ -5,7 +5,8 @@
 from stf.model.general import MLModelType
 from stf.model.trainer.xgboost.quantile import XGBQuantileModelTrainer
 from stf.model.trainer.xgboost.xgboost import XGBModelTrainer
-
+#from stf.model.trainer.lightgbm.quantile import LGBQuantileModelTrainer
+from stf.model.trainer.lightgbm.lightgbm import LGBModelTrainer
 
 class ModelTrainerCreator:
     """Factory object for creating model trainer objects"""
@@ -14,6 +15,8 @@ class ModelTrainerCreator:
     MODEL_TRAINER_CONSTRUCTORS = {
         MLModelType.XGB: XGBModelTrainer,
         MLModelType.XGB_QUANTILE: XGBQuantileModelTrainer,
+        MLModelType.LGB: LGBModelTrainer,
+        #MLModelType.XGB_QUANTILE: XGBQuantileModelTrainer
     }
 
     def __init__(self, pj):
