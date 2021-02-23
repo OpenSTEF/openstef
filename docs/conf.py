@@ -26,7 +26,7 @@ sys.path.insert(0, os.path.abspath("../docs"))
 
 # -- Project information -----------------------------------------------------
 
-project = "KorteTermijnPrognoses"
+project = "Short Term Forecasting"
 copyright = "2017-2021 Alliander N.V."
 author = "Frank Kreuwel"
 
