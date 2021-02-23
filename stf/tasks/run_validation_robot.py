@@ -9,7 +9,7 @@ This module contains the CRON job that is periodically executed to detect
 non zero stationsflatliners.
 
 To provide the detection the folowing steps are caried out:
-  1. Get historic training data (SJV, Load, Weather and APX price data)
+  1. Get historic training data (TDCV, Load, Weather and APX price data)
   2. Set threshold
   3. Detect flatliners
   4. Send slack message if at least one flatliner is found

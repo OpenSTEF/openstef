@@ -6,6 +6,7 @@
 Cython~=0.29.21
 cufflinks~=0.17.3
 dill~=0.3.3
+lightgbm~=3.1.1
 numpy~=1.20.0
 optuna~=2.5.0
 pandas~=1.2.1
@@ -24,3 +25,4 @@ lightgbm~=3.1.1
 # for ddocumentation
 sphinx
 sphinx_rtd_theme
+

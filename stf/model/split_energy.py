@@ -83,7 +83,7 @@ def find_components(df, zero_bound=True):
 
     Args:
         df: Pandas data frame with input data. The dataframe should contain these
-            columns in exactly this order: [load, wind_ref, pv_ref, mulitple sjv colums]
+            columns in exactly this order: [load, wind_ref, pv_ref, mulitple tdcv colums]
         zerobound: Tells us wheter coefficients can be negative, true if this cannot be
             the case.
 
