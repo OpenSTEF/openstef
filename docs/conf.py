@@ -38,7 +38,7 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.napoleon",
     "sphinx.ext.autosummary",
-#    "recommonmark",
+    #    "recommonmark",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
