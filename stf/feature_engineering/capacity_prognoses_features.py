@@ -147,16 +147,18 @@ def apply_classes(df, y_col, classes):
 
 
 def apply_capacity_features(
-    df, y_col, y_hor, apply_class_labels=True, outlier_removal=False,
-    load_profile_names=None
+    df,
+    y_col,
+    y_hor,
+    apply_class_labels=True,
+    outlier_removal=False,
+    load_profile_names=None,
 ):
     if load_profile_names is None:
         load_profile_names = []
 
     # resample load column
-    load_resample_config = {
-        "load": ["mean", "min", "max"]
-    }
+    load_resample_config = {"load": ["mean", "min", "max"]}
     load_df = apply_resample(df, load_resample_config, timedelta="D")
 
     # resample TDCV (Typical Domestic Consumption Values) load profiles

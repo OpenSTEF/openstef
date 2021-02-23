@@ -10,9 +10,7 @@ import numpy as np
 import pytz
 
 from stf.model.capacity import utils
-from stf.feature_engineering.capacity_prognoses_features import (
-    apply_capacity_features
-)
+from stf.feature_engineering.capacity_prognoses_features import apply_capacity_features
 
 from test.utils import BaseTestCase
 
@@ -39,8 +37,10 @@ class TestCapacityPrognosisUtils(BaseTestCase):
         pc_input.index = pc_input.index + offset
 
         feature_data, _ = apply_capacity_features(
-            pc_input, y_col="load_max", y_hor=[1, 2],
-            load_profile_names=load_profile_names
+            pc_input,
+            y_col="load_max",
+            y_hor=[1, 2],
+            load_profile_names=load_profile_names,
         )
         x = utils.prepare_prediction_data(
             df=feature_data, y_col="load_max", y_hor=[1, 2]
