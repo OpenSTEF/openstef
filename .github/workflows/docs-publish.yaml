@@ -19,7 +19,7 @@ jobs:
     - name: Build documentation
       uses: ammaraskar/sphinx-action@master
       with:
-        pre-build-command: "sphinx-apidoc -o docs/stf stf"
+        pre-build-command: "cp requirements.txt docs/requirements.txt |sphinx-apidoc -o docs stf"
         docs-folder: "docs/"
     # Upload artifact so it is available from the action-window
     - name: Upload artifact
