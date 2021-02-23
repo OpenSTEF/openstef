@@ -15,13 +15,13 @@ jobs:
     # Checkout
     - name: Checkout code
       uses: actions/checkout@v1
-    # Build documentation
+    # Run Apidoc and subsequently build documentation (implicit in action). 
     - name: Build documentation
       uses: ammaraskar/sphinx-action@master
       with:
         pre-build-command: "sphinx-apidoc -o docs/stf stf"
         docs-folder: "docs/"
-    # Upload artifact
+    # Upload artifact so it is available from the action-window
     - name: Upload artifact
       uses: actions/upload-artifact@v1
       with:
