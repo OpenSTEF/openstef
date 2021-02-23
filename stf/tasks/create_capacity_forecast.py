@@ -4,7 +4,7 @@
 
 from datetime import datetime, timedelta
 
-from stf.model.capacity_prognosis import predict_capacity_prognosis
+from stf.model.capacity.predict import predict_capacity_prognosis
 from stf.tasks.utils.predictionjobloop import PredictionJobLoop
 from stf.tasks.utils.taskcontext import TaskContext
 
@@ -18,7 +18,7 @@ def main():
         datetime_start = datetime.utcnow().date() - timedelta(days=30)
         datetime_end = datetime.utcnow().date() + timedelta(days=max(y_hor) + 1)
 
-        model_type = "xgb"
+        model_type = "lgb"
         PredictionJobLoop(
             context,
             model_type=model_type
