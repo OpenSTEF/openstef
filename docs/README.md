@@ -23,12 +23,11 @@ Important files:
 - `conf.py`: defining settings
 - `Makefile` and `make.bat`: not exactly sure, we use defaults
 - `index.rst`: Define the index of the final documentation
-- `requirements.txt`: requirements needed for building documentation. This is more than the package itself needs. I tried using the higher-level package requirements.txt but couldn't manage
 - `ktpbase`: empty ktpbase implementation so other python modules do not give an exception when imported.
 
 Running locally, documentation html files are generated but not added to gh-pages:
 ```
-pip install docs/requirements.txt
+pip install requirements.txt
 sphinx-apidoc -o docs stf
 sphinx-build docs output
 ```
