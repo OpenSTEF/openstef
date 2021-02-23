@@ -10,7 +10,7 @@ in solar and wind contributions.
 This is achieved by carrying out the folowing steps:
   1. Get the wind and solar reference data for the specific location of the
      customer
-  2. Get the SJV (Standaard JaarVebruik) data
+  2. Get the TDCV (Typical Domestic Consumption Values) data
   3. Fit a linear combination of above time series to the historic load data to
      determine the contributions of each energy source.
   4. Write the resulting coeficients to the SQL database.

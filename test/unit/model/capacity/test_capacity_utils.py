@@ -9,21 +9,25 @@ import unittest
 import numpy as np
 import pytz
 
-import stf.model.capacity_prognosis_utils as cpu
-from stf.feature_engineering.capacity_prognoses_features import apply_capacity_features
+from stf.model.capacity import utils
+from stf.feature_engineering.capacity_prognoses_features import (
+    apply_capacity_features
+)
 
 from test.utils import BaseTestCase
 
 data = TestData.load("input_data_train.pickle")
+load_profile_names = TestData.load("input_data_train_load_profile_names.json")
 
 
 class TestCapacityPrognosisUtils(BaseTestCase):
     def test_happy_prepare_training_data(self):
-        feature_data, _ = apply_capacity_features(data, y_col="load_max", y_hor=[1, 2])
-        train_x, train_y, train_h, val_x, val_y, val_h = cpu.prepare_training_data(
+        feature_data, _ = apply_capacity_features(
+            data, y_col="load_max", y_hor=[1, 2], load_profile_names=load_profile_names
+        )
+        train_x, train_y, train_h, val_x, val_y, val_h = utils.prepare_training_data(
             df=feature_data, y_col="load_max", val_n=4, val_width="14D"
         )
-        return ()
 
     def test_happy_prepare_prediction_data(self):
         # move data to present and set load for last 14 days to zero
@@ -35,9 +39,12 @@ class TestCapacityPrognosisUtils(BaseTestCase):
         pc_input.index = pc_input.index + offset
 
         feature_data, _ = apply_capacity_features(
-            pc_input, y_col="load_max", y_hor=[1, 2]
+            pc_input, y_col="load_max", y_hor=[1, 2],
+            load_profile_names=load_profile_names
         )
-        x = cpu.prepare_prediction_data(df=feature_data, y_col="load_max", y_hor=[1, 2])
+        x = utils.prepare_prediction_data(
+            df=feature_data, y_col="load_max", y_hor=[1, 2]
+        )
         return x
 
 

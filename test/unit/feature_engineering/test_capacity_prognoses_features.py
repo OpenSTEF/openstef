@@ -9,6 +9,7 @@ import stf.feature_engineering.capacity_prognoses_features as cf
 
 
 data = TestData.load("input_data_train.pickle")
+load_profile_names = TestData.load("input_data_train_load_profile_names.json")
 
 
 class TestCapacityPrognosesFeatures(BaseTestCase):
@@ -31,13 +32,10 @@ class TestCapacityPrognosesFeatures(BaseTestCase):
 
     def test_happy_apply_capacity_features(self):
         d, classes = cf.apply_capacity_features(
-            self.data,
-            "load_mean",
-            [1, 2],
-            apply_class_labels=True,
-            outlier_removal=True,
+            self.data, "load_mean", [1, 2], apply_class_labels=True, outlier_removal=True,
+            load_profile_names=load_profile_names
         )
-        return (d, classes)
+        return d, classes
 
 
 # Run all tests
