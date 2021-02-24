@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com>
+# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -10,13 +10,12 @@ from test.utils.data import TestData
 import numpy as np
 import pandas as pd
 
-from stf.model.prediction.prediction import AbstractPredictionModel
+from openstf.model.prediction.prediction import AbstractPredictionModel
 
 PJ = TestData.get_prediction_job(pid=307)
 
 
 class TestAbstractPredictionModel(BaseTestCase):
-
     def test_make_fallback_forecast(self):
         # Load input data
         forecast = TestData.load("fallback_forecast.csv")
@@ -53,6 +52,7 @@ class TestAbstractPredictionModel(BaseTestCase):
         # check if colnames are correct
         basecase_forecast_columns = [
             "forecast",
+            "forecast_other",
             "stdev",
             "pid",
             "description",

@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com>
+# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -11,9 +11,8 @@ import unittest
 from datetime import datetime, timedelta
 
 import pandas as pd
-from pandas.testing import assert_frame_equal
 
-from stf.model.validation_robot import nonzero_flatliner
+from openstf.model.validation_robot import nonzero_flatliner
 
 from test.utils import BaseTestCase
 
@@ -69,7 +68,7 @@ df_zero_flatliner = df_zero_flatliner.set_index("date6")
 
 
 # eerste column invoegen (die weer verwijderd wordt)
-# @mock.patch("stf.model.nonzero_flatliner_detection.query_load_data", return_value = df_no_flatliner)
+# @mock.patch("openstf.model.nonzero_flatliner_detection.query_load_data", return_value = df_no_flatliner)
 class NonZeroFlatlinerTest(BaseTestCase):
     def test_no_flatliner(self):
         df = df_no_flatliner

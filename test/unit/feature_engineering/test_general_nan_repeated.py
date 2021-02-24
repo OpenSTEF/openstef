@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com>
+# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -8,13 +8,12 @@ import unittest
 import numpy as np
 import pandas as pd
 
-from stf.feature_engineering.general import nan_repeated
+from openstf.feature_engineering.general import nan_repeated
 
 from test.utils import BaseTestCase
 
 
 class GeneralTest(BaseTestCase):
-
     def test_nan_repeated(self):
         start_nan = 8
         end_nan = 11
@@ -50,3 +49,7 @@ class GeneralTest(BaseTestCase):
         self.assertTrue(df_no_repeated["Column1"].equals(df_no_repeated["Column3"]))
         self.assertTrue(math.isnan(df_no_repeated.at[end_nan, "Column2"]))
         self.assertTrue(math.isnan(df_no_repeated.at[end_nan - 1, "Column2"]))
+
+
+if __name__ == "__main__":
+    unittest.main()

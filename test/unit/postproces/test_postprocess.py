@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com>
+# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -8,13 +8,12 @@ from unittest.mock import patch
 
 import pandas as pd
 
-from stf.model.general import ForecastType
-from stf.postproces import postprocess
+from openstf.model.general import ForecastType
+from openstf.postproces import postprocess
 
 
-@patch("stf.model.predict.DataBase")
+@patch("openstf.model.predict.DataBase")
 class TestPostProcess(BaseTestCase):
-
     def test_post_process_wind_solar(self, db_mock):
         forecast_positive_sum = pd.DataFrame({"forecast": [10, 15, 33, -1, -2]})
         forecast_negative_sum = pd.DataFrame({"forecast": [-10, -15, -33, 1, 2]})
@@ -43,25 +42,27 @@ class TestPostProcess(BaseTestCase):
         weather_data_norm_ref = pd.DataFrame(
             {
                 "radiation": [
-                    - 0.309406,
-                    - 0.495050,
-                    - 1.021040,
+                    -0.309406,
+                    -0.495050,
+                    -1.021040,
                     0.030941,
                     0.061881,
                 ],
                 "windpower": [
-                    - 0.303030,
-                    - 0.454545,
-                    - 1.000000,
-                    - 0.030303,
-                    - 0.060606,
+                    -0.303030,
+                    -0.454545,
+                    -1.000000,
+                    -0.030303,
+                    -0.060606,
                 ],
             }
         )
 
         # Carry out test
-        weather_data_norm_test = postprocess.normalize_and_convert_weather_data_for_splitting(
-            weather_data_test
+        weather_data_norm_test = (
+            postprocess.normalize_and_convert_weather_data_for_splitting(
+                weather_data_test
+            )
         )
         print(weather_data_norm_test.columns)
         # Check column names are correctly set
@@ -74,8 +75,7 @@ class TestPostProcess(BaseTestCase):
 
         # Check dataframe content are equal
         self.assertDataframeEqual(
-            weather_data_norm_test, weather_data_norm_ref,
-            check_exact=False, rtol=1E-3
+            weather_data_norm_test, weather_data_norm_ref, check_exact=False, rtol=1e-3
         )
 
     def test_split_forecast_in_components(self, db_mock):

@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com>
+# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -16,8 +16,20 @@ class TestData:
     TRAINED_MODELS_FOLDER = DATA_FILES_FOLDER / "trained_models"
 
     LAG_FUNCTIONS_KEYS = [
-        "T-1d", "T-2d", "T-3d", "T-4d", "T-5d", "T-6d", "T-7d",
-        "T-8d", "T-9d", "T-10d", "T-11d", "T-12d", "T-13d", "T-14d",
+        "T-1d",
+        "T-2d",
+        "T-3d",
+        "T-4d",
+        "T-5d",
+        "T-6d",
+        "T-7d",
+        "T-8d",
+        "T-9d",
+        "T-10d",
+        "T-11d",
+        "T-12d",
+        "T-13d",
+        "T-14d",
     ]
 
     _FILE_READER_KWARGS = {}
