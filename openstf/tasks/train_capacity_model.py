@@ -21,10 +21,7 @@ def main():
         datetime_start = datetime_end - pd.Timedelta("400D")
 
         model_type = ["xgb", "lgb"]
-        PredictionJobLoop(
-            context,
-            model_type=model_type
-        ).map(
+        PredictionJobLoop(context, model_type=model_type).map(
             train_capacity_prognosis,
             datetime_start=datetime_start,
             datetime_end=datetime_end,

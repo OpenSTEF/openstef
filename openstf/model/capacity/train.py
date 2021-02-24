@@ -6,7 +6,9 @@ import pandas as pd
 from ktpbase.database import DataBase
 from ktpbase.log import logging
 
-from openstf.feature_engineering.capacity_prognoses_features import apply_capacity_features
+from openstf.feature_engineering.capacity_prognoses_features import (
+    apply_capacity_features,
+)
 from openstf.model.capacity.model import CapacityPredictionModel
 from openstf.model.capacity.utils import prepare_training_data
 from openstf.model.serializer.xgboost.xgboost import XGBModelSerializer

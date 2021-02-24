@@ -13,7 +13,7 @@ class ModelSerializerCreator:
     MODEL_SERIALIZER_CONTRUCTORS = {
         MLModelType.XGB: XGBModelSerializer,
         MLModelType.XGB_QUANTILE: XGBQuantileModelSerializer,
-        MLModelType.LGB: LGBModelSerializer
+        MLModelType.LGB: LGBModelSerializer,
     }
 
     @classmethod

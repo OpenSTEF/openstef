@@ -20,7 +20,7 @@ class LGBModelSerializer(AbstractModelSerializer):
         save_folder.mkdir(parents=True, exist_ok=True)
 
         # save LGB model
-        self.logger.warning(f'Save folder: {save_folder}')
+        self.logger.warning(f"Save folder: {save_folder}")
         lgb_model.save_model(str(save_folder / self.MODEL_FILENAME))
 
         # save corrections

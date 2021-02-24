@@ -10,7 +10,9 @@ import numpy as np
 import pytz
 
 from openstf.model.capacity import utils
-from openstf.feature_engineering.capacity_prognoses_features import apply_capacity_features
+from openstf.feature_engineering.capacity_prognoses_features import (
+    apply_capacity_features,
+)
 
 from test.utils import BaseTestCase
 
