@@ -10,12 +10,12 @@ import unittest
 import numpy as np
 import pandas as pd
 
-from stf.model.general import MLModelType, split_data_train_validation_test
-from stf.model.serializer.creator import ModelSerializerCreator
-from stf.model.serializer.xgboost.xgboost import XGBModelSerializer
-from stf.model.train import is_data_sufficient
-from stf.model.trainer.creator import ModelTrainerCreator
-from stf.model.trainer.xgboost.xgboost import XGBModelTrainer
+from openstf.model.general import MLModelType, split_data_train_validation_test
+from openstf.model.serializer.creator import ModelSerializerCreator
+from openstf.model.serializer.xgboost.xgboost import XGBModelSerializer
+from openstf.model.train import is_data_sufficient
+from openstf.model.trainer.creator import ModelTrainerCreator
+from openstf.model.trainer.xgboost.xgboost import XGBModelTrainer
 
 from test.utils import BaseTestCase
 
@@ -51,7 +51,7 @@ class TestTrain(BaseTestCase):
             self.validation_data_ref,
             self.testing_data_ref,
         ) = split_data_train_validation_test(data_table)
-		
+
         params = {
             "subsample": 0.9,
             "min_child_weight": 4,

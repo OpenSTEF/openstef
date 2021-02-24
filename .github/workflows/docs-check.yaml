@@ -17,5 +17,5 @@ jobs:
     - name: Build documentation
       uses: ammaraskar/sphinx-action@master
       with:
-        pre-build-command: "cp requirements.txt docs/requirements.txt | sphinx-apidoc -o docs stf"
+        pre-build-command: "cp requirements.txt docs/requirements.txt | sphinx-apidoc -o docs openstf"
         docs-folder: "docs/"

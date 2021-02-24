@@ -8,11 +8,11 @@ from unittest.mock import patch
 
 import pandas as pd
 
-from stf.model.general import ForecastType
-from stf.postproces import postprocess
+from openstf.model.general import ForecastType
+from openstf.postproces import postprocess
 
 
-@patch("stf.model.predict.DataBase")
+@patch("openstf.model.predict.DataBase")
 class TestPostProcess(BaseTestCase):
     def test_post_process_wind_solar(self, db_mock):
         forecast_positive_sum = pd.DataFrame({"forecast": [10, 15, 33, -1, -2]})

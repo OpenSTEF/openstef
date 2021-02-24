@@ -10,12 +10,12 @@ import unittest
 import numpy as np
 import pandas as pd
 
-from stf.model.general import MLModelType, split_data_train_validation_test
-from stf.model.serializer.creator import ModelSerializerCreator
-from stf.model.serializer.lightgbm.lightgbm import LGBModelSerializer
-from stf.model.train import is_data_sufficient
-from stf.model.trainer.creator import ModelTrainerCreator
-from stf.model.trainer.lightgbm.lightgbm import LGBModelTrainer
+from openstf.model.general import MLModelType, split_data_train_validation_test
+from openstf.model.serializer.creator import ModelSerializerCreator
+from openstf.model.serializer.lightgbm.lightgbm import LGBModelSerializer
+from openstf.model.train import is_data_sufficient
+from openstf.model.trainer.creator import ModelTrainerCreator
+from openstf.model.trainer.lightgbm.lightgbm import LGBModelTrainer
 
 
 from test.utils import BaseTestCase

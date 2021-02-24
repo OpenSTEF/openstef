@@ -7,7 +7,7 @@ from test.utils.base import BaseTestCase
 
 import pandas as pd
 
-from stf.model.prediction.xgboost.xgboost import XGBPredictionModel
+from openstf.model.prediction.xgboost.xgboost import XGBPredictionModel
 
 
 class TestXGBPredictionModel(BaseTestCase):

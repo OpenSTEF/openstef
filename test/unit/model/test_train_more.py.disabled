@@ -7,8 +7,8 @@ from test.utils.data import TestData
 import unittest
 from unittest.mock import MagicMock
 
-from stf.model.general import split_data_train_validation_test
-from stf.model.trainer.xgboost.xgboost import XGBModelTrainer
+from openstf.model.general import split_data_train_validation_test
+from openstf.model.trainer.xgboost.xgboost import XGBModelTrainer
 
 from test.utils import BaseTestCase
 

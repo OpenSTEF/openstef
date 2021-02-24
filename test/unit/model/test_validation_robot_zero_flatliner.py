@@ -14,7 +14,7 @@ from datetime import datetime, timedelta
 
 import pandas as pd
 
-from stf.model.validation_robot import zero_flatliner
+from openstf.model.validation_robot import zero_flatliner
 
 from test.utils import BaseTestCase
 

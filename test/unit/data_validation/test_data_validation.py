@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-from stf.data_validation.data_validation import validate, clean
+from openstf.data_validation.data_validation import validate, clean
 
 from test.utils import BaseTestCase, TestData
 

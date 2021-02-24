@@ -28,6 +28,6 @@ Important files:
 Running locally, documentation html files are generated but not added to gh-pages:
 ```
 pip install requirements.txt
-sphinx-apidoc -o docs stf
+sphinx-apidoc -o docs openstf
 sphinx-build docs output
 ```
