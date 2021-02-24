@@ -4,6 +4,10 @@ SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@allian
 SPDX-License-Identifier: MPL-2.0
 -->
 
+![Main build](https://github.com/alliander-opensource/short-term-forecasting/actions/workflows/python-build.yaml/badge.svg?branch=main)
+![Develop build](https://github.com/alliander-opensource/short-term-forecasting/actions/workflows/python-build.yaml/badge.svg?branch=develop)
+![REUSE compliance](https://github.com/alliander-opensource/short-term-forecasting/actions/workflows/reuse-compliance.yaml/badge.svg?branch=main)
+
 # Short Term Forcasting
 
 Short term forcasting is a Python package which is used to make short term forecasts for the energy sector. This repository contains all components for the machine learning pipeline required to make a forecast. In order to use the package you need to provide your own data storage and retrieval interface.
