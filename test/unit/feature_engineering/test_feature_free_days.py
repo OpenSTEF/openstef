@@ -4,7 +4,7 @@
 
 import unittest
 
-from stf.feature_engineering.feature_free_days import create_holiday_functions
+from openstf.feature_engineering.feature_free_days import create_holiday_functions
 
 from test.utils import BaseTestCase
 

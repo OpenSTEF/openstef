@@ -5,7 +5,7 @@
 from test.utils import TestData, BaseTestCase
 import unittest
 
-import stf.feature_engineering.capacity_prognoses_features as cf
+import openstf.feature_engineering.capacity_prognoses_features as cf
 
 
 data = TestData.load("input_data_train.pickle")

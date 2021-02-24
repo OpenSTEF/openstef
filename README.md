@@ -22,10 +22,10 @@ git clone git@github.com:alliander-opensource/short-term-forecasting.git
 pip install -r requirements.txt
 ```
 
-## Install the stf package
+## Install the openstf package
 
 ```shell
-pip install -e stf
+pip install -e openstf
 ```
 
 ## Install own implementation of ktpbase
@@ -37,14 +37,14 @@ The code in this repository expects a data storage and retrieval interface to be
 To run a task use:
 
 ```shell
-python -m stf task <task_name>
+python -m openstf task <task_name>
 ```
 
 ## License
-This project is licensed under the Mozilla Public License, version 2.0 - see LICENSE for details. 
+This project is licensed under the Mozilla Public License, version 2.0 - see LICENSE for details.
 
 ## Licenses third-party libraries
-This project includes third-party libraries, which are licensed under their own respective Open-Source licenses. SPDX-License-Identifier headers are used to show which license is applicable. The concerning license files can be found in the LINCESES directory. 
+This project includes third-party libraries, which are licensed under their own respective Open-Source licenses. SPDX-License-Identifier headers are used to show which license is applicable. The concerning license files can be found in the LINCESES directory.
 
 ## Contributing
 

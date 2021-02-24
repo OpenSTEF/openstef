@@ -8,7 +8,10 @@ from test.utils import TestData
 from unittest.mock import MagicMock, Mock
 
 # import project modules
-from stf.tasks.utils.predictionjobloop import PredictionJobException, PredictionJobLoop
+from openstf.tasks.utils.predictionjobloop import (
+    PredictionJobException,
+    PredictionJobLoop,
+)
 
 from test.utils import BaseTestCase
 

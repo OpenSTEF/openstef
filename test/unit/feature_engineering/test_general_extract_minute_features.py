@@ -5,9 +5,9 @@ import unittest
 
 from test.utils.data import TestData
 
-from stf.feature_engineering.general import extract_minute_features
-from stf.model.general import MLModelType
-from stf.model.serializer.creator import ModelSerializerCreator
+from openstf.feature_engineering.general import extract_minute_features
+from openstf.model.general import MLModelType
+from openstf.model.serializer.creator import ModelSerializerCreator
 
 from test.utils import BaseTestCase
 

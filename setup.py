@@ -27,10 +27,10 @@ def read_long_description_from_readme():
 
 
 setup(
-    name="stf",
+    name="openstf",
     version="1.5.0",
-    packages=["stf"],
-    description="Short term forcasting",
+    packages=["openstf"],
+    description="Open short term forcasting",
     long_description=read_long_description_from_readme(),
     long_description_content_type="text/markdown",
     url="https://github.com/alliander-opensource/short-term-forecasting",
@@ -40,7 +40,7 @@ setup(
     keywords=["energy", "forecasting", "machinelearning"],
     package_data={
         # Include anythin in the data directory
-        "stf": ["stf/data/*"]
+        "openstf": ["openstf/data/*"]
     },
     python_requires=">=3.7.0",
     install_requires=read_requirements_from_file(),

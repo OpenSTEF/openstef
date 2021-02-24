@@ -6,7 +6,7 @@ import unittest
 from datetime import datetime, timedelta
 from pathlib import Path
 
-from stf.model.serializer.serializer import AbstractModelSerializer
+from openstf.model.serializer.serializer import AbstractModelSerializer
 
 
 class TestAbstractModelSerializer(unittest.TestCase):

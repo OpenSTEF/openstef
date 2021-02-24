@@ -10,7 +10,7 @@ from unittest.mock import MagicMock, patch
 import pandas as pd
 import pytz
 
-from stf.model.ato_report import make_report_pj
+from openstf.model.ato_report import make_report_pj
 
 load = pd.DataFrame(
     data={"load": 5}, index=[datetime.utcnow().replace(tzinfo=pytz.utc)]
@@ -28,9 +28,9 @@ def get_database_mock():
     return db
 
 
-@patch("stf.model.ato_report.DataBase", get_database_mock)
-@patch("stf.model.ato_report.Path", MagicMock())
-@patch("stf.model.ato_report.ConfigManager", MagicMock())
+@patch("openstf.model.ato_report.DataBase", get_database_mock)
+@patch("openstf.model.ato_report.Path", MagicMock())
+@patch("openstf.model.ato_report.ConfigManager", MagicMock())
 class TestPredict(BaseTestCase):
     def test_make_report_pj(self):
         pj = TestData.get_prediction_job(pid=60)

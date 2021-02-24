@@ -8,13 +8,13 @@ from test.utils import BaseTestCase, TestData
 from unittest import mock
 from unittest.mock import MagicMock, patch
 
-import stf.model.predict as predict
+import openstf.model.predict as predict
 
 NOW = datetime.now(timezone.utc)
 PJ = TestData.get_prediction_job(pid=60)
 
 
-@mock.patch("stf.model.predict.DataBase", MagicMock())
+@mock.patch("openstf.model.predict.DataBase", MagicMock())
 class TestPredict(BaseTestCase):
     def test_generate_inputdata_datetime_range(self):
         t_behind_days = 14
@@ -31,7 +31,7 @@ class TestPredict(BaseTestCase):
         self.assertEqual(datetime_start, datetime_start_expected)
         self.assertEqual(datetime_end, datetime_end_expected)
 
-    @patch("stf.model.predict.datetime")
+    @patch("openstf.model.predict.datetime")
     def test_forecast_datetime_range(self, datetime_mock):
         datetime_mock.now.return_value = NOW
         # get current date and time UTC
@@ -58,7 +58,7 @@ class TestPredict(BaseTestCase):
         )
         self.assertTrue(isinstance(input_data, MagicMock))
 
-    @patch("stf.model.predict.validation_robot")
+    @patch("openstf.model.predict.validation_robot")
     def test_pre_process_input_data(self, validation_robot_mock):
         suspicious_moments = True
 
@@ -80,7 +80,7 @@ class TestPredict(BaseTestCase):
         ]:
             self.assertEqual(mock_func.call_count, 1)
 
-    @patch("stf.model.predict.feature_engineering")
+    @patch("openstf.model.predict.feature_engineering")
     def test_perform_feature_engineering(self, fe_mock):
         predict.perform_feature_engineering(input_data=None, feature_names=None)
 

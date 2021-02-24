@@ -5,7 +5,7 @@
 import unittest
 from test.utils import BaseTestCase, TestData
 
-from stf.model import split_energy
+from openstf.model import split_energy
 
 # Get test data
 input_data = TestData.load("find_components_input.csv")

@@ -15,11 +15,11 @@ jobs:
     # Checkout
     - name: Checkout code
       uses: actions/checkout@v1
-    # Run Apidoc and subsequently build documentation (implicit in action). 
+    # Run Apidoc and subsequently build documentation (implicit in action).
     - name: Build documentation
       uses: ammaraskar/sphinx-action@master
       with:
-        pre-build-command: "cp requirements.txt docs/requirements.txt |sphinx-apidoc -o docs stf"
+        pre-build-command: "cp requirements.txt docs/requirements.txt |sphinx-apidoc -o docs openstf"
         docs-folder: "docs/"
     # Upload artifact so it is available from the action-window
     - name: Upload artifact

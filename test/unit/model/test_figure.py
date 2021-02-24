@@ -4,12 +4,12 @@
 
 import pandas as pd
 
-from stf.model.figure import plot_data_series, plot_feature_importance
+from openstf.model.figure import plot_data_series, plot_feature_importance
 
 from test.utils import BaseTestCase, TestData
 
 
-class TestFigure(BaseTestCase):
+class Teopenstfigure(BaseTestCase):
     def setUp(self):
         super().setUp()
         self.data = TestData.load("input_data.pickle")

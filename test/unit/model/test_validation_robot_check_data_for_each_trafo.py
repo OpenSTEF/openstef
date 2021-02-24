@@ -15,7 +15,7 @@ from datetime import datetime, timedelta
 
 import pandas as pd
 
-from stf.model.validation_robot import check_data_for_each_trafo
+from openstf.model.validation_robot import check_data_for_each_trafo
 
 from test.utils import BaseTestCase
 

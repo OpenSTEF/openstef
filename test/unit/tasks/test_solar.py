@@ -5,7 +5,7 @@
 import unittest
 from unittest.mock import MagicMock
 
-from stf.tasks.create_solar_forecast import make_solar_predicion_pj
+from openstf.tasks.create_solar_forecast import make_solar_predicion_pj
 
 from test.utils import BaseTestCase, TestData
 

@@ -9,10 +9,10 @@ import pandas as pd
 from datetime import timedelta
 
 
-from stf.model.prediction.xgboost.quantile import (
+from openstf.model.prediction.xgboost.quantile import (
     QuantileXGBPredictionModel as PredictionModel,
 )
-from stf.model.general import ForecastType, MLModelType
+from openstf.model.general import ForecastType, MLModelType
 
 
 class TestQuantileXGBPredictionModel(BaseTestCase):
