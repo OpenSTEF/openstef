@@ -4,9 +4,9 @@ SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@allian
 SPDX-License-Identifier: MPL-2.0
 -->
 
-![Main build](https://github.com/alliander-opensource/short-term-forecasting/actions/workflows/python-build.yaml/badge.svg?branch=main)
-![Develop build](https://github.com/alliander-opensource/short-term-forecasting/actions/workflows/python-build.yaml/badge.svg?branch=develop)
-![REUSE compliance](https://github.com/alliander-opensource/short-term-forecasting/actions/workflows/reuse-compliance.yaml/badge.svg?branch=main)
+[![Main Build](https://github.com/alliander-opensource/short-term-forecasting/actions/workflows/python-build.yaml/badge.svg?branch=main)](https://github.com/alliander-opensource/short-term-forecasting/actions/workflows/python-build.yaml)
+[![Develop Build](https://github.com/alliander-opensource/short-term-forecasting/actions/workflows/python-build.yaml/badge.svg?branch=develop)](https://github.com/alliander-opensource/short-term-forecasting/actions/workflows/python-build.yaml)
+[![REUSE Compliance Check](https://github.com/alliander-opensource/short-term-forecasting/actions/workflows/reuse-compliance.yaml/badge.svg?branch=main)](https://github.com/alliander-opensource/short-term-forecasting/actions/workflows/reuse-compliance.yaml)
 
 # Short Term Forcasting
 
