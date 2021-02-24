@@ -1,0 +1,7 @@
+openstf
+=======
+
+.. toctree::
+   :maxdepth: 4
+
+   openstf

@@ -1,0 +1,1076 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>openstf.model package &mdash; Short Term Forecasting  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Short Term Forecasting
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">openstf.model package</a><ul>
+<li><a class="reference internal" href="#subpackages">Subpackages</a></li>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-openstf.model.ato_report">openstf.model.ato_report module</a></li>
+<li><a class="reference internal" href="#module-openstf.model.figure">openstf.model.figure module</a></li>
+<li><a class="reference internal" href="#module-openstf.model.general">openstf.model.general module</a></li>
+<li><a class="reference internal" href="#module-openstf.model.hyper_parameters">openstf.model.hyper_parameters module</a></li>
+<li><a class="reference internal" href="#module-openstf.model.metrics">openstf.model.metrics module</a></li>
+<li><a class="reference internal" href="#module-openstf.model.performance">openstf.model.performance module</a></li>
+<li><a class="reference internal" href="#module-openstf.model.predict">openstf.model.predict module</a></li>
+<li><a class="reference internal" href="#module-openstf.model.split_energy">openstf.model.split_energy module</a></li>
+<li><a class="reference internal" href="#module-openstf.model.train">openstf.model.train module</a></li>
+<li><a class="reference internal" href="#module-openstf.model.validation_robot">openstf.model.validation_robot module</a></li>
+<li><a class="reference internal" href="#module-openstf.model">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Short Term Forecasting</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>openstf.model package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/openstf.model.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="openstf-model-package">
+<h1>openstf.model package<a class="headerlink" href="#openstf-model-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="openstf.model.capacity.html">openstf.model.capacity package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="openstf.model.capacity.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstf.model.capacity.html#module-openstf.model.capacity.model">openstf.model.capacity.model module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstf.model.capacity.html#module-openstf.model.capacity.predict">openstf.model.capacity.predict module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstf.model.capacity.html#module-openstf.model.capacity.train">openstf.model.capacity.train module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstf.model.capacity.html#module-openstf.model.capacity.utils">openstf.model.capacity.utils module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstf.model.capacity.html#module-openstf.model.capacity">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="openstf.model.prediction.html">openstf.model.prediction package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="openstf.model.prediction.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="openstf.model.prediction.lightgbm.html">openstf.model.prediction.lightgbm package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstf.model.prediction.lightgbm.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstf.model.prediction.lightgbm.html#module-openstf.model.prediction.lightgbm.lightgbm">openstf.model.prediction.lightgbm.lightgbm module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstf.model.prediction.lightgbm.html#module-openstf.model.prediction.lightgbm">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="openstf.model.prediction.xgboost.html">openstf.model.prediction.xgboost package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstf.model.prediction.xgboost.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="openstf.model.prediction.xgboost.model.html">openstf.model.prediction.xgboost.model package</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="openstf.model.prediction.xgboost.model.html#submodules">Submodules</a></li>
+<li class="toctree-l6"><a class="reference internal" href="openstf.model.prediction.xgboost.model.html#module-openstf.model.prediction.xgboost.model.quantile">openstf.model.prediction.xgboost.model.quantile module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="openstf.model.prediction.xgboost.model.html#module-openstf.model.prediction.xgboost.model">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="openstf.model.prediction.xgboost.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstf.model.prediction.xgboost.html#module-openstf.model.prediction.xgboost.quantile">openstf.model.prediction.xgboost.quantile module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstf.model.prediction.xgboost.html#module-openstf.model.prediction.xgboost.xgboost">openstf.model.prediction.xgboost.xgboost module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstf.model.prediction.xgboost.html#module-openstf.model.prediction.xgboost">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="openstf.model.prediction.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstf.model.prediction.html#module-openstf.model.prediction.creator">openstf.model.prediction.creator module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstf.model.prediction.html#module-openstf.model.prediction.prediction">openstf.model.prediction.prediction module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstf.model.prediction.html#module-openstf.model.prediction">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="openstf.model.serializer.html">openstf.model.serializer package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="openstf.model.serializer.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="openstf.model.serializer.lightgbm.html">openstf.model.serializer.lightgbm package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstf.model.serializer.lightgbm.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstf.model.serializer.lightgbm.html#module-openstf.model.serializer.lightgbm.lightgbm">openstf.model.serializer.lightgbm.lightgbm module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstf.model.serializer.lightgbm.html#module-openstf.model.serializer.lightgbm">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="openstf.model.serializer.xgboost.html">openstf.model.serializer.xgboost package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstf.model.serializer.xgboost.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstf.model.serializer.xgboost.html#module-openstf.model.serializer.xgboost.quantile">openstf.model.serializer.xgboost.quantile module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstf.model.serializer.xgboost.html#module-openstf.model.serializer.xgboost.xgboost">openstf.model.serializer.xgboost.xgboost module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstf.model.serializer.xgboost.html#module-openstf.model.serializer.xgboost">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="openstf.model.serializer.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstf.model.serializer.html#module-openstf.model.serializer.creator">openstf.model.serializer.creator module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstf.model.serializer.html#module-openstf.model.serializer.serializer">openstf.model.serializer.serializer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstf.model.serializer.html#module-openstf.model.serializer">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="openstf.model.trainer.html">openstf.model.trainer package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="openstf.model.trainer.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="openstf.model.trainer.lightgbm.html">openstf.model.trainer.lightgbm package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstf.model.trainer.lightgbm.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstf.model.trainer.lightgbm.html#module-openstf.model.trainer.lightgbm.lightgbm">openstf.model.trainer.lightgbm.lightgbm module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstf.model.trainer.lightgbm.html#module-openstf.model.trainer.lightgbm">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="openstf.model.trainer.xgboost.html">openstf.model.trainer.xgboost package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstf.model.trainer.xgboost.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstf.model.trainer.xgboost.html#module-openstf.model.trainer.xgboost.quantile">openstf.model.trainer.xgboost.quantile module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstf.model.trainer.xgboost.html#module-openstf.model.trainer.xgboost.xgboost">openstf.model.trainer.xgboost.xgboost module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstf.model.trainer.xgboost.html#module-openstf.model.trainer.xgboost">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="openstf.model.trainer.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstf.model.trainer.html#module-openstf.model.trainer.creator">openstf.model.trainer.creator module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstf.model.trainer.html#module-openstf.model.trainer.trainer">openstf.model.trainer.trainer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstf.model.trainer.html#module-openstf.model.trainer">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-openstf.model.ato_report">
+<span id="openstf-model-ato-report-module"></span><h2>openstf.model.ato_report module<a class="headerlink" href="#module-openstf.model.ato_report" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="openstf.model.ato_report.make_report_pj">
+<code class="sig-prename descclassname">openstf.model.ato_report.</code><code class="sig-name descname">make_report_pj</code><span class="sig-paren">(</span><em class="sig-param">pj</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.ato_report.make_report_pj" title="Permalink to this definition">¶</a></dt>
+<dd><p>Makes a csv report of realized load and forecasted load for a prediction job.
+The csv is saved in the icarus visuals folder.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>pj</strong> (<em>dict</em>) – Prediction job</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-openstf.model.figure">
+<span id="openstf-model-figure-module"></span><h2>openstf.model.figure module<a class="headerlink" href="#module-openstf.model.figure" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="openstf.model.figure.convert_to_base64_data_uri">
+<code class="sig-prename descclassname">openstf.model.figure.</code><code class="sig-name descname">convert_to_base64_data_uri</code><span class="sig-paren">(</span><em class="sig-param">path_in</em>, <em class="sig-param">path_out</em>, <em class="sig-param">content_type</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.figure.convert_to_base64_data_uri" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read file, convert it to a data_uri, then writes the data_uri to file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path_in</strong> (<em>str</em>) – Path of the file that will be converted</p></li>
+<li><p><strong>path_out</strong> (<em>str</em>) – Path of the file containing the data uri</p></li>
+<li><p><strong>content_type</strong> (<em>str</em>) – Content type of the data uri according to
+(<a class="reference external" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type">https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type</a>).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="openstf.model.figure.plot_data_series">
+<code class="sig-prename descclassname">openstf.model.figure.</code><code class="sig-name descname">plot_data_series</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">predict_data=None</em>, <em class="sig-param">horizon=47</em>, <em class="sig-param">names=None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.figure.plot_data_series" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots passed data and optionally prediction data for specified horizon.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>list of mixed</em>) – There are two options to use this function. Either
+pass a list of pandas.DataFrame where each dataframe contains a load
+column and a horizon column. Or pass a list of pandas.Series with
+unique indexing.</p></li>
+<li><p><strong>predict_data</strong> (<em>list of mixsed</em><em>, </em><em>optional</em>) – Similar to data, but
+for prediction data instead. When passing a list of pandas.DataFrame
+the column forecast should exist. Can be set to None.</p></li>
+<li><p><strong>horizon</strong> (<em>int</em><em>, </em><em>optional</em>) – This function will select only data matching
+this horizon. Defaults to 47.</p></li>
+<li><p><strong>names</strong> (<em>list of string</em><em>, </em><em>optional</em>) – The names that will be used in the
+legend of the plot. If None is passed, this will be build
+automatically based on the number of series passed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A line plot of each passed data series.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>plotly.graph_objects.Figure</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="openstf.model.figure.plot_feature_importance">
+<code class="sig-prename descclassname">openstf.model.figure.</code><code class="sig-name descname">plot_feature_importance</code><span class="sig-paren">(</span><em class="sig-param">feature_importance</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.figure.plot_feature_importance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Created a treemap plot based on feature importance and weights.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>feature_importance</strong> (<em>pandas.DataFrame</em>) – A DataFrame describing the
+feature importances and weights of the trained model.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A treemap of the features.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>plotly.graph_objects.Figure</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-openstf.model.general">
+<span id="openstf-model-general-module"></span><h2>openstf.model.general module<a class="headerlink" href="#module-openstf.model.general" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="openstf.model.general.ForecastType">
+<em class="property">class </em><code class="sig-prename descclassname">openstf.model.general.</code><code class="sig-name descname">ForecastType</code><a class="headerlink" href="#openstf.model.general.ForecastType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
+<p>An enumeration.</p>
+<dl class="attribute">
+<dt id="openstf.model.general.ForecastType.BASECASE">
+<code class="sig-name descname">BASECASE</code><em class="property"> = 'basecase'</em><a class="headerlink" href="#openstf.model.general.ForecastType.BASECASE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="openstf.model.general.ForecastType.DEMAND">
+<code class="sig-name descname">DEMAND</code><em class="property"> = 'demand'</em><a class="headerlink" href="#openstf.model.general.ForecastType.DEMAND" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="openstf.model.general.ForecastType.SOLAR">
+<code class="sig-name descname">SOLAR</code><em class="property"> = 'solar'</em><a class="headerlink" href="#openstf.model.general.ForecastType.SOLAR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="openstf.model.general.ForecastType.WIND">
+<code class="sig-name descname">WIND</code><em class="property"> = 'wind'</em><a class="headerlink" href="#openstf.model.general.ForecastType.WIND" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="openstf.model.general.MLModelType">
+<em class="property">class </em><code class="sig-prename descclassname">openstf.model.general.</code><code class="sig-name descname">MLModelType</code><a class="headerlink" href="#openstf.model.general.MLModelType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
+<p>An enumeration.</p>
+<dl class="attribute">
+<dt id="openstf.model.general.MLModelType.LGB">
+<code class="sig-name descname">LGB</code><em class="property"> = 'lgb'</em><a class="headerlink" href="#openstf.model.general.MLModelType.LGB" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="openstf.model.general.MLModelType.XGB">
+<code class="sig-name descname">XGB</code><em class="property"> = 'xgb'</em><a class="headerlink" href="#openstf.model.general.MLModelType.XGB" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="openstf.model.general.MLModelType.XGB_QUANTILE">
+<code class="sig-name descname">XGB_QUANTILE</code><em class="property"> = 'xgb_quantile'</em><a class="headerlink" href="#openstf.model.general.MLModelType.XGB_QUANTILE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="openstf.model.general.combine_forecasts">
+<code class="sig-prename descclassname">openstf.model.general.</code><code class="sig-name descname">combine_forecasts</code><span class="sig-paren">(</span><em class="sig-param">forecasts</em>, <em class="sig-param">combination_coefs</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.general.combine_forecasts" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>This function combines several independent forecasts into one, using</dt><dd><p>predetermined coefficients.</p>
+</dd>
+<dt>Input:</dt><dd><ul class="simple">
+<li><p>forecasts: pd.DataFrame(index = datetime, algorithm1, …, algorithmn)</p></li>
+<li><p>combinationcoefs: pd.DataFrame(param1, …, paramn, algorithm1, …, algorithmn)</p></li>
+</ul>
+</dd>
+<dt>Output:</dt><dd><ul class="simple">
+<li><p>pd.DataFrame(datetime, forecast)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="openstf.model.general.fides">
+<code class="sig-prename descclassname">openstf.model.general.</code><code class="sig-name descname">fides</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">all_forecasts=False</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.general.fides" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fides makes a forecast based on persistence and a direct fit with insolation.
+Input:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>data = pd.DataFrame(index = datetime, columns =[‘output’,’insolation’])</p></li>
+</ul>
+</div></blockquote>
+<dl class="simple">
+<dt>Optional:</dt><dd><ul class="simple">
+<li><p>allForecasts = Bool. Should all forecasts be returned or only the combination</p></li>
+</ul>
+</dd>
+</dl>
+<p>Example:
+import numpy as np
+index = pd.date_range(start = “2017-01-01 09:00:00”, freq = ‘15T’, periods = 300)
+data = pd.DataFrame(index = index,</p>
+<blockquote>
+<div><p>data = dict(load=np.sin(index.hour/24*np.pi)*np.random.uniform(0.7,1.7, 300)))</p>
+</div></blockquote>
+<p>data[‘insolation’] = data.load * np.random.uniform(0.8, 1.2, len(index)) + 0.1
+data.loc[int(len(index)/3*2):,”load”] = np.NaN</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="openstf.model.general.pre_process_data">
+<code class="sig-prename descclassname">openstf.model.general.</code><code class="sig-name descname">pre_process_data</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">featureset=None</em>, <em class="sig-param">horizons=None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.general.pre_process_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that automates the pre processing of the data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>pd.DataFrame</em>) – Data with (unvalidated) input data and without features.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Cleaned data with features.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="openstf.model.general.sample_validation_data_periods">
+<code class="sig-prename descclassname">openstf.model.general.</code><code class="sig-name descname">sample_validation_data_periods</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">validation_fraction=0.15</em>, <em class="sig-param">period_length=192</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.general.sample_validation_data_periods" title="Permalink to this definition">¶</a></dt>
+<dd><p>Splits data in train and validation dataset.</p>
+<p>Tries to sample random periods of given length to form a validation set of
+the desired size. Will raise an error if the number of attempts exceeds the
+maximum given to this function (default: 10).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>pandas.DataFrame</em>) – Clean data with features</p></li>
+<li><p><strong>validation_fraction</strong> (<em>float</em>) – Number between 0 and 1 that indicates the
+desired fraction of validation data. Using a value larger than ~0.4 might
+lead to this function failing.</p></li>
+<li><p><strong>period_length</strong> (<em>int</em>) – Desired size of the sampled periods. The actual
+values can be slightly different if this is required to create the
+right fraction of validation data. Each period will have a duration
+of at least half period_length and at most one and a half
+period_length.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Train data.
+validation_data (pandas.DataFrame): Validation data.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>train_data (pandas.DataFrame)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="openstf.model.general.split_data_train_validation_test">
+<code class="sig-prename descclassname">openstf.model.general.</code><code class="sig-name descname">split_data_train_validation_test</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">test_fraction=0.0</em>, <em class="sig-param">validation_fraction=0.15</em>, <em class="sig-param">back_test=False</em>, <em class="sig-param">period_sampling=True</em>, <em class="sig-param">period_timedelta=datetime.timedelta(days=2)</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.general.split_data_train_validation_test" title="Permalink to this definition">¶</a></dt>
+<dd><p>Split input data into train, test and validation set.</p>
+<p>Function for splitting cleaned data with features in a train, test and
+validation dataset. In an operational setting the folowing sequence is
+returned:</p>
+<p>Test &gt;&gt; Validation &gt;&gt; Train</p>
+<p>For a back test (indicated with argument “back_test”) the folowing sequence
+is returned:</p>
+<p>Validation &gt;&gt; Train &gt;&gt; Test</p>
+<p>The ratios of the different types can be set with test_fraction and
+validation fraction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>pandas.DataFrame</em>) – Clean data with features</p></li>
+<li><p><strong>test_fraction</strong> (<em>float</em>) – Number between 0 and 1 that indicates the desired
+fraction of test data.</p></li>
+<li><p><strong>validation_fraction</strong> (<em>float</em>) – Number between 0 and 1 that indicates the
+desired fraction of validation data.</p></li>
+<li><p><strong>back_test</strong> (<em>bool</em>) – Indicates if data is intended for a back test.</p></li>
+<li><p><strong>period_sampling</strong> (<em>bool</em>) – Indicates if validation data must be sampled as
+periods.</p></li>
+<li><p><strong>period_timedelta</strong> (<em>datetime.timedelta</em>) – Duration of the periods that will
+be sampled as validation data. Only used for period_sampling=True.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>[0] (pandas.DataFrame): Train data
+[1] (pandas.DataFrame): Validation data
+[2] (pandas.DataFrame): Test data</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Tuple with train data, validation data and test data</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-openstf.model.hyper_parameters">
+<span id="openstf-model-hyper-parameters-module"></span><h2>openstf.model.hyper_parameters module<a class="headerlink" href="#module-openstf.model.hyper_parameters" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="openstf.model.hyper_parameters.format_teams_message">
+<code class="sig-prename descclassname">openstf.model.hyper_parameters.</code><code class="sig-name descname">format_teams_message</code><span class="sig-paren">(</span><em class="sig-param">pj</em>, <em class="sig-param">hyper_params</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.hyper_parameters.format_teams_message" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="openstf.model.hyper_parameters.optimize_hyperparameters">
+<code class="sig-prename descclassname">openstf.model.hyper_parameters.</code><code class="sig-name descname">optimize_hyperparameters</code><span class="sig-paren">(</span><em class="sig-param">pid</em>, <em class="sig-param">n_trials=150</em>, <em class="sig-param">datetime_end=datetime.datetime(2021</em>, <em class="sig-param">2</em>, <em class="sig-param">24</em>, <em class="sig-param">13</em>, <em class="sig-param">23</em>, <em class="sig-param">26</em>, <em class="sig-param">143610)</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.hyper_parameters.optimize_hyperparameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optimize the hyper parameters for a given prediction job.</p>
+<blockquote>
+<div><p>This function optimizes the model specific hyperparameters,
+featureset and training period. After optimization the hyperparameters
+are stored in the database and finally a teams messsage with the results
+is posted.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pid</strong> (<em>int</em>) – Prediction job ID</p></li>
+<li><p><strong>n_trials</strong> (<em>int</em>) – Maximum number of trials/iteration first stage of
+hyper parameter optimization</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>Dictionary with optimized hyperparameters, keys of the dictionarry</dt><dd><p>depend on the model type.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(dict)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="openstf.model.hyper_parameters.optimize_hyperparameters_pj">
+<code class="sig-prename descclassname">openstf.model.hyper_parameters.</code><code class="sig-name descname">optimize_hyperparameters_pj</code><span class="sig-paren">(</span><em class="sig-param">pj</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.hyper_parameters.optimize_hyperparameters_pj" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optimized hyperparameters for a specific prediction job.
+First the age of the last stored hyperparameters is determined. If these are older</p>
+<blockquote>
+<div><p>than MAX_AGE_HYPER_PARAMS_DAYS, the hyper parameters will be optimized.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>pj</strong> – (dict) Prediction job</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-openstf.model.metrics">
+<span id="openstf-model-metrics-module"></span><h2>openstf.model.metrics module<a class="headerlink" href="#module-openstf.model.metrics" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="openstf.model.metrics.bias">
+<code class="sig-prename descclassname">openstf.model.metrics.</code><code class="sig-name descname">bias</code><span class="sig-paren">(</span><em class="sig-param">realised</em>, <em class="sig-param">forecast</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.metrics.bias" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that calculates the absolute bias in %
+based on the true and prediciton</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="openstf.model.metrics.frac_in_stdev">
+<code class="sig-prename descclassname">openstf.model.metrics.</code><code class="sig-name descname">frac_in_stdev</code><span class="sig-paren">(</span><em class="sig-param">realised</em>, <em class="sig-param">forecast</em>, <em class="sig-param">stdev</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.metrics.frac_in_stdev" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that calculates the amount of measurements that are within one stdev of
+our predictions</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="openstf.model.metrics.franks_skill_score">
+<code class="sig-prename descclassname">openstf.model.metrics.</code><code class="sig-name descname">franks_skill_score</code><span class="sig-paren">(</span><em class="sig-param">realised</em>, <em class="sig-param">forecast</em>, <em class="sig-param">basecase</em>, <em class="sig-param">range_=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.metrics.franks_skill_score" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="openstf.model.metrics.franks_skill_score_peaks">
+<code class="sig-prename descclassname">openstf.model.metrics.</code><code class="sig-name descname">franks_skill_score_peaks</code><span class="sig-paren">(</span><em class="sig-param">realised</em>, <em class="sig-param">forecast</em>, <em class="sig-param">basecase</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.metrics.franks_skill_score_peaks" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="openstf.model.metrics.mae">
+<code class="sig-prename descclassname">openstf.model.metrics.</code><code class="sig-name descname">mae</code><span class="sig-paren">(</span><em class="sig-param">realised</em>, <em class="sig-param">forecast</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.metrics.mae" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that calculates the mean absolute error
+based on the true and prediction</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="openstf.model.metrics.nsme">
+<code class="sig-prename descclassname">openstf.model.metrics.</code><code class="sig-name descname">nsme</code><span class="sig-paren">(</span><em class="sig-param">realised</em>, <em class="sig-param">forecast</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.metrics.nsme" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that calculates the Nash-sutcliffe model efficiency
+based on the true and prediciton</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="openstf.model.metrics.r_mae">
+<code class="sig-prename descclassname">openstf.model.metrics.</code><code class="sig-name descname">r_mae</code><span class="sig-paren">(</span><em class="sig-param">realised</em>, <em class="sig-param">forecast</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.metrics.r_mae" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that calculates the relative mean absolute error
+based on the true and prediction.
+The range is based on the load range of the previous two weeks</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="openstf.model.metrics.r_mae_highest">
+<code class="sig-prename descclassname">openstf.model.metrics.</code><code class="sig-name descname">r_mae_highest</code><span class="sig-paren">(</span><em class="sig-param">realised</em>, <em class="sig-param">forecast</em>, <em class="sig-param">percentile=0.95</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.metrics.r_mae_highest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that calculates the relative mean absolute error
+based on the true and prediction for the 5 percent highest realised values.
+The range is based on the load range of the previous two weeks</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="openstf.model.metrics.r_mae_lowest">
+<code class="sig-prename descclassname">openstf.model.metrics.</code><code class="sig-name descname">r_mae_lowest</code><span class="sig-paren">(</span><em class="sig-param">realised</em>, <em class="sig-param">forecast</em>, <em class="sig-param">quantile=0.05</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.metrics.r_mae_lowest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that calculates the relative mean absolute error
+based on the true and prediction for the 5 percent lowest realised values.
+The range is based on the load range of the previous two weeks</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="openstf.model.metrics.r_mne_highest">
+<code class="sig-prename descclassname">openstf.model.metrics.</code><code class="sig-name descname">r_mne_highest</code><span class="sig-paren">(</span><em class="sig-param">realised</em>, <em class="sig-param">forecast</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.metrics.r_mne_highest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that calculates the relative mean negative error
+based on the true and prediction for the 5 percent highest realised values.
+The range is based on the load range of the previous two weeks, this measure
+quantifies how much we underestimate peaks</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="openstf.model.metrics.r_mpe_highest">
+<code class="sig-prename descclassname">openstf.model.metrics.</code><code class="sig-name descname">r_mpe_highest</code><span class="sig-paren">(</span><em class="sig-param">realised</em>, <em class="sig-param">forecast</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.metrics.r_mpe_highest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that calculates the relative mean positive error
+based on the true and prediction for the 5 percent highest realised values.
+The range is based on the load range of the previous two weeks, this measure
+quantifies how much we overestimate peaks</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="openstf.model.metrics.rmse">
+<code class="sig-prename descclassname">openstf.model.metrics.</code><code class="sig-name descname">rmse</code><span class="sig-paren">(</span><em class="sig-param">realised</em>, <em class="sig-param">forecast</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.metrics.rmse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that calculates the Root Mean Square Error
+based on the true and prediciton</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="openstf.model.metrics.skill_score">
+<code class="sig-prename descclassname">openstf.model.metrics.</code><code class="sig-name descname">skill_score</code><span class="sig-paren">(</span><em class="sig-param">realised</em>, <em class="sig-param">forecast</em>, <em class="sig-param">mean</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.metrics.skill_score" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that calculates the skill score.</p>
+<p>Thise indicates model performance relative to a reference, in this case the mean
+of the realised values. The range is based on the load range of the previous
+two weeks</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="openstf.model.metrics.skill_score_positive_peaks">
+<code class="sig-prename descclassname">openstf.model.metrics.</code><code class="sig-name descname">skill_score_positive_peaks</code><span class="sig-paren">(</span><em class="sig-param">realised</em>, <em class="sig-param">forecast</em>, <em class="sig-param">mean</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.metrics.skill_score_positive_peaks" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="openstf.model.metrics.xgb_quantile_eval">
+<code class="sig-prename descclassname">openstf.model.metrics.</code><code class="sig-name descname">xgb_quantile_eval</code><span class="sig-paren">(</span><em class="sig-param">preds</em>, <em class="sig-param">dmatrix</em>, <em class="sig-param">quantile=0.2</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.metrics.xgb_quantile_eval" title="Permalink to this definition">¶</a></dt>
+<dd><p>Customized evaluational metric that equals
+to quantile regression loss (also known as
+pinball loss).
+Quantile regression is regression that
+estimates a specified quantile of target’s
+distribution conditional on given features.
+&#64;type preds: numpy.ndarray
+&#64;type dmatrix: xgboost.DMatrix
+&#64;type quantile: float
+&#64;rtype: float</p>
+<p># See also:
+<a class="reference external" href="https://gist.github.com/Nikolay-Lysenko/06769d701c1d9c9acb9a66f2f9d7a6c7">https://gist.github.com/Nikolay-Lysenko/06769d701c1d9c9acb9a66f2f9d7a6c7</a></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="openstf.model.metrics.xgb_quantile_obj">
+<code class="sig-prename descclassname">openstf.model.metrics.</code><code class="sig-name descname">xgb_quantile_obj</code><span class="sig-paren">(</span><em class="sig-param">preds</em>, <em class="sig-param">dmatrix</em>, <em class="sig-param">quantile=0.2</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.metrics.xgb_quantile_obj" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes first-order derivative of quantile
+regression loss and a non-degenerate
+substitute for second-order derivative.
+Substitute is returned instead of zeros,
+because XGBoost requires non-zero
+second-order derivatives. See this page:
+<a class="reference external" href="https://github.com/dmlc/xgboost/issues/1825">https://github.com/dmlc/xgboost/issues/1825</a>
+to see why it is possible to use this trick.
+However, be sure that hyperparameter named
+<cite>max_delta_step</cite> is small enough to satisfy:
+<a href="#id1"><span class="problematic" id="id2">``</span></a><a href="#id3"><span class="problematic" id="id4">`</span></a>0.5 * max_delta_step &lt;=</p>
+<blockquote>
+<div><p>min(quantile, 1 - quantile)```.</p>
+</div></blockquote>
+<p>&#64;type preds: numpy.ndarray
+&#64;type dmatrix: xgboost.DMatrix
+&#64;type quantile: float
+&#64;rtype: tuple(numpy.ndarray)</p>
+<p># See also:
+<a class="reference external" href="https://gist.github.com/Nikolay-Lysenko/06769d701c1d9c9acb9a66f2f9d7a6c7">https://gist.github.com/Nikolay-Lysenko/06769d701c1d9c9acb9a66f2f9d7a6c7</a></p>
+<p>Reasoning for the hessian:
+<a class="reference external" href="https://gist.github.com/Nikolay-Lysenko/06769d701c1d9c9acb9a66f2f9d7a6c7#gistcomment-2322558">https://gist.github.com/Nikolay-Lysenko/06769d701c1d9c9acb9a66f2f9d7a6c7#gistcomment-2322558</a></p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-openstf.model.performance">
+<span id="openstf-model-performance-module"></span><h2>openstf.model.performance module<a class="headerlink" href="#module-openstf.model.performance" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="openstf.model.performance.calc_kpi_for_specific_pid">
+<code class="sig-prename descclassname">openstf.model.performance.</code><code class="sig-name descname">calc_kpi_for_specific_pid</code><span class="sig-paren">(</span><em class="sig-param">pid</em>, <em class="sig-param">start_time=None</em>, <em class="sig-param">end_time=None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.performance.calc_kpi_for_specific_pid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that checks the model performance based on a pid. This function
+- loads and combines forecast and realised data
+- calculated several key performance indicators (KPIs)
+These metric include:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>RMSE,</p></li>
+<li><p>bias,</p></li>
+<li><p>NSME (model efficiency, between -inf and 1)</p></li>
+<li><p>Mean absolute Error</p></li>
+</ul>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pid</strong> (<em>int</em>) – Prediction ID for a given prediction job</p></li>
+<li><p><strong>start_time</strong> (<em>datetime</em>) – Start time from when to retrieve the historic load prediction.</p></li>
+<li><p><strong>end_time</strong> (<em>datetime</em>) – Start time till when to retrieve the historic load prediction.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dictionary that includes a dictonary for each t_ahead.
+Dict includes enddate en window (in days) for clarification</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<p>To get the rMAE for the 24 hours ahead prediction: kpis[‘24h’][‘rMAE’]</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="openstf.model.performance.set_incomplete_kpi_to_nan">
+<code class="sig-prename descclassname">openstf.model.performance.</code><code class="sig-name descname">set_incomplete_kpi_to_nan</code><span class="sig-paren">(</span><em class="sig-param">kpis</em>, <em class="sig-param">t_ahead_h</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.performance.set_incomplete_kpi_to_nan" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks the given kpis for completeness and sets to nan if this not true</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>kpis</strong> – the kpis</p></li>
+<li><p><strong>t_ahead_h</strong> – t_ahead_h</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-openstf.model.predict">
+<span id="openstf-model-predict-module"></span><h2>openstf.model.predict module<a class="headerlink" href="#module-openstf.model.predict" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="openstf.model.predict.generate_forecast_datetime_range">
+<code class="sig-prename descclassname">openstf.model.predict.</code><code class="sig-name descname">generate_forecast_datetime_range</code><span class="sig-paren">(</span><em class="sig-param">resolution_minutes</em>, <em class="sig-param">horizon_minutes</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.predict.generate_forecast_datetime_range" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="openstf.model.predict.generate_input_data_id">
+<code class="sig-prename descclassname">openstf.model.predict.</code><code class="sig-name descname">generate_input_data_id</code><span class="sig-paren">(</span><em class="sig-param">pj</em>, <em class="sig-param">datetime_start</em>, <em class="sig-param">datetime_end</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.predict.generate_input_data_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="openstf.model.predict.generate_inputdata_datetime_range">
+<code class="sig-prename descclassname">openstf.model.predict.</code><code class="sig-name descname">generate_inputdata_datetime_range</code><span class="sig-paren">(</span><em class="sig-param">t_behind_days=14</em>, <em class="sig-param">t_ahead_days=3</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.predict.generate_inputdata_datetime_range" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="openstf.model.predict.get_model_input">
+<code class="sig-prename descclassname">openstf.model.predict.</code><code class="sig-name descname">get_model_input</code><span class="sig-paren">(</span><em class="sig-param">pj</em>, <em class="sig-param">datetime_start</em>, <em class="sig-param">datetime_end</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.predict.get_model_input" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="openstf.model.predict.is_complete_enough">
+<code class="sig-prename descclassname">openstf.model.predict.</code><code class="sig-name descname">is_complete_enough</code><span class="sig-paren">(</span><em class="sig-param">completeness</em>, <em class="sig-param">completeness_threshold</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.predict.is_complete_enough" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="openstf.model.predict.make_basecase_prediction">
+<code class="sig-prename descclassname">openstf.model.predict.</code><code class="sig-name descname">make_basecase_prediction</code><span class="sig-paren">(</span><em class="sig-param">pj</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.predict.make_basecase_prediction" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="openstf.model.predict.make_components_prediction">
+<code class="sig-prename descclassname">openstf.model.predict.</code><code class="sig-name descname">make_components_prediction</code><span class="sig-paren">(</span><em class="sig-param">pj</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.predict.make_components_prediction" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="openstf.model.predict.make_prediction">
+<code class="sig-prename descclassname">openstf.model.predict.</code><code class="sig-name descname">make_prediction</code><span class="sig-paren">(</span><em class="sig-param">pj</em>, <em class="sig-param">forecast_type=&lt;ForecastType.DEMAND: 'demand'&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.predict.make_prediction" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="openstf.model.predict.perform_feature_engineering">
+<code class="sig-prename descclassname">openstf.model.predict.</code><code class="sig-name descname">perform_feature_engineering</code><span class="sig-paren">(</span><em class="sig-param">input_data</em>, <em class="sig-param">feature_names</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.predict.perform_feature_engineering" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="openstf.model.predict.pre_process_input_data">
+<code class="sig-prename descclassname">openstf.model.predict.</code><code class="sig-name descname">pre_process_input_data</code><span class="sig-paren">(</span><em class="sig-param">input_data</em>, <em class="sig-param">flatliner_threshold</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.predict.pre_process_input_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-openstf.model.split_energy">
+<span id="openstf-model-split-energy-module"></span><h2>openstf.model.split_energy module<a class="headerlink" href="#module-openstf.model.split_energy" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="openstf.model.split_energy.find_components">
+<code class="sig-prename descclassname">openstf.model.split_energy.</code><code class="sig-name descname">find_components</code><span class="sig-paren">(</span><em class="sig-param">df</em>, <em class="sig-param">zero_bound=True</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.split_energy.find_components" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that does the actual energy splitting</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> – Pandas data frame with input data. The dataframe should contain these
+columns in exactly this order: [load, wind_ref, pv_ref, mulitple tdcv colums]</p></li>
+<li><p><strong>zerobound</strong> – Tells us wheter coefficients can be negative, true if this cannot be
+the case.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>[0] components: pandas dataframe containing the wind and solar components
+[0] pandas.DataFrame:
+[1] coefs: dict containing the coefficients that result from the fitting</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="openstf.model.split_energy.split_energy">
+<code class="sig-prename descclassname">openstf.model.split_energy.</code><code class="sig-name descname">split_energy</code><span class="sig-paren">(</span><em class="sig-param">pid</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.split_energy.split_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that caries out the energy splitting for a specific prediction job with id pid</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>pid</strong> (<em>int</em>) – Prediction job id</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Energy splitting coefficients.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-openstf.model.train">
+<span id="openstf-model-train-module"></span><h2>openstf.model.train module<a class="headerlink" href="#module-openstf.model.train" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="openstf.model.train.is_data_sufficient">
+<code class="sig-prename descclassname">openstf.model.train.</code><code class="sig-name descname">is_data_sufficient</code><span class="sig-paren">(</span><em class="sig-param">data</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.train.is_data_sufficient" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Check if enough data is left after validation and cleaning to continue</dt><dd><p>with model training.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> – pd.DataFrame() with cleaned input data.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if amount of data is sufficient, False otherwise.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(bool)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="openstf.model.train.train_model_for_specific_pj">
+<code class="sig-prename descclassname">openstf.model.train.</code><code class="sig-name descname">train_model_for_specific_pj</code><span class="sig-paren">(</span><em class="sig-param">pj</em>, <em class="sig-param">context</em>, <em class="sig-param">retrain_young_models=False</em>, <em class="sig-param">compare_to_old=True</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.train.train_model_for_specific_pj" title="Permalink to this definition">¶</a></dt>
+<dd><p>Main function that controls the training process of one prediction job.</p>
+<p>Here, on a high level, the input data is collected, features are applied and the
+model is trained and stored. Additionally models for energy components are also
+trained if requested. Model is saved if better than the old model unless specified
+otherwise.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pj</strong> (<em>dict</em>) – Prediction job</p></li>
+<li><p><strong>context</strong> (<em>openstf.task.utils.TaskContext</em>) – Task context for logging</p></li>
+<li><p><strong>retrain_young_models</strong> (<em>bool</em>) – Retrain models younger then 7 days if True</p></li>
+<li><p><strong>compare_to_old</strong> (<em>bool</em>) – Compare new trained model to old trained model if True</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Trained model (FIXME can be various datatypes at present)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="openstf.model.train.train_specific_model">
+<code class="sig-prename descclassname">openstf.model.train.</code><code class="sig-name descname">train_specific_model</code><span class="sig-paren">(</span><em class="sig-param">context</em>, <em class="sig-param">pid</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.train.train_specific_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Train model for given prediction id.</p>
+<p>Tracy-compatible function to train a specific model based on the prediction id (pid).
+Should not be used outside of Tracy, preferred alternative:</p>
+<blockquote>
+<div><p>train_model_for_specific_pj</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>pid</strong> (<em>int</em>) – Prediction id of the corresponding prediction job.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Trained model (FIXME can be various datatypes at present)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-openstf.model.validation_robot">
+<span id="openstf-model-validation-robot-module"></span><h2>openstf.model.validation_robot module<a class="headerlink" href="#module-openstf.model.validation_robot" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="openstf.model.validation_robot.check_data_for_each_trafo">
+<code class="sig-prename descclassname">openstf.model.validation_robot.</code><code class="sig-name descname">check_data_for_each_trafo</code><span class="sig-paren">(</span><em class="sig-param">df</em>, <em class="sig-param">col</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.validation_robot.check_data_for_each_trafo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that detects if each column contains zero-values at all, only zero-values and NaN values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> – pd.dataFrame(index=DatetimeIndex, columns = [load1, …, loadN]).
+Load_corrections should be indicated by ‘<a href="#id5"><span class="problematic" id="id6">LC_</span></a>’</p></li>
+<li><p><strong>col</strong> – column of pd.dataFrame</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>False if column contains above specified or True if not</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="openstf.model.validation_robot.nonzero_flatliner">
+<code class="sig-prename descclassname">openstf.model.validation_robot.</code><code class="sig-name descname">nonzero_flatliner</code><span class="sig-paren">(</span><em class="sig-param">df</em>, <em class="sig-param">threshold</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.validation_robot.nonzero_flatliner" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that detects a stationflatliner and returns a list of datetimes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> – pd.dataFrame(index=DatetimeIndex, columns = [load1, …, loadN]).
+Load_corrections should be indicated by ‘<a href="#id7"><span class="problematic" id="id8">LC_</span></a>’</p></li>
+<li><p><strong>threshold</strong> – after how many timesteps should the function detect a flatliner.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns:
+# TODO: function returns None or a DataFrame</p>
+<blockquote>
+<div><p>list: flatline moments</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="function">
+<dt id="openstf.model.validation_robot.replace_invalid_data">
+<code class="sig-prename descclassname">openstf.model.validation_robot.</code><code class="sig-name descname">replace_invalid_data</code><span class="sig-paren">(</span><em class="sig-param">df</em>, <em class="sig-param">suspicious_moments</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.validation_robot.replace_invalid_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that detects invalid data using the nonzero_flatliner function and converts the output to NaN values.</p>
+<p>Input:
+- df: pd.dataFrame(index=DatetimeIndex, columns = [load1, …, loadN]). Load_corrections should be indicated by ‘<a href="#id9"><span class="problematic" id="id10">LC_</span></a>’
+- suspicious_moments (pd.dataframe): output of function nonzero_flatliner in new variable</p>
+<p>return:
+- pd.DataFrame without invalid data (converted to NaN values)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="openstf.model.validation_robot.zero_flatliner">
+<code class="sig-prename descclassname">openstf.model.validation_robot.</code><code class="sig-name descname">zero_flatliner</code><span class="sig-paren">(</span><em class="sig-param">df</em>, <em class="sig-param">threshold</em>, <em class="sig-param">window=datetime.timedelta(seconds=1800)</em>, <em class="sig-param">load_threshold=0.3</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.validation_robot.zero_flatliner" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that detects a zero value where the load is not compensated by the other trafo’s of the station.</p>
+<p>Input:
+- df: pd.dataFrame(index=DatetimeIndex, columns = [load1, …, loadN]). Load_corrections should be indicated by ‘<a href="#id11"><span class="problematic" id="id12">LC_</span></a>’
+- threshold (float): after how many hours should the function detect a flatliner.
+- window (timedelta object): for how many hours before the zero-value should the mean load be calculated.
+- load_threshold (fraction): how big may the difference be between the total station load
+before and during the zero-value(s).</p>
+<p>return:
+- pd.DataFrame of timestamps, or None if none</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-openstf.model">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-openstf.model" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2017-2021 Alliander N.V..
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

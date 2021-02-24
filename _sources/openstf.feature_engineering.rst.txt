@@ -1,0 +1,54 @@
+openstf.feature\_engineering package
+====================================
+
+Submodules
+----------
+
+openstf.feature\_engineering.apply\_features module
+---------------------------------------------------
+
+.. automodule:: openstf.feature_engineering.apply_features
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+openstf.feature\_engineering.capacity\_prognoses\_features module
+-----------------------------------------------------------------
+
+.. automodule:: openstf.feature_engineering.capacity_prognoses_features
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+openstf.feature\_engineering.feature\_free\_days module
+-------------------------------------------------------
+
+.. automodule:: openstf.feature_engineering.feature_free_days
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+openstf.feature\_engineering.general module
+-------------------------------------------
+
+.. automodule:: openstf.feature_engineering.general
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+openstf.feature\_engineering.weather module
+-------------------------------------------
+
+.. automodule:: openstf.feature_engineering.weather
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: openstf.feature_engineering
+   :members:
+   :undoc-members:
+   :show-inheritance:

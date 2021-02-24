@@ -1,0 +1,23 @@
+openstf package
+===============
+
+Subpackages
+-----------
+
+.. toctree::
+
+   openstf.data_validation
+   openstf.feature_engineering
+   openstf.model
+   openstf.monitoring
+   openstf.postproces
+   openstf.preprocess
+   openstf.tasks
+
+Module contents
+---------------
+
+.. automodule:: openstf
+   :members:
+   :undoc-members:
+   :show-inheritance:
