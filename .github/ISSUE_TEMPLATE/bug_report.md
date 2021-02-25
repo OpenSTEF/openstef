@@ -3,6 +3,7 @@ SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@allian
 
 SPDX-License-Identifier: MPL-2.0
 -->
+
 ---
 name: Bug report
 about: Create a report to help us improve
