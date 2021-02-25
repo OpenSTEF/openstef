@@ -12,9 +12,3 @@ A clear and concise description of what the problem is. Ex. I'm always frustrate
 
 **Describe the solution you'd like**
 A clear and concise description of what you want to happen. Both in terms of result, and if possible; how to get there.
-
-<!---
-SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com>
-
-SPDX-License-Identifier: MPL-2.0
--->
