@@ -1,9 +1,3 @@
-<!---
-SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com>
-
-SPDX-License-Identifier: MPL-2.0
--->
-
 ---
 name: Bug report
 about: Create a report to help us improve
@@ -31,3 +25,9 @@ If applicable, add screenshots to help explain your problem.
 
 **Additional context**
 Add any other context about the problem here.
+
+<!---
+SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com>
+
+SPDX-License-Identifier: MPL-2.0
+-->
