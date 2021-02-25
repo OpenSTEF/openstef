@@ -18,9 +18,3 @@ A clear and concise description of any alternative solutions or features you've 
 
 **Additional context**
 Add any other context or screenshots about the feature request here.
-
-<!---
-SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com>
-
-SPDX-License-Identifier: MPL-2.0
--->
