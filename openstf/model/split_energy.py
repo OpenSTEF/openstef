@@ -82,16 +82,15 @@ def find_components(df, zero_bound=True):
     """Function that does the actual energy splitting
 
     Args:
-        df: Pandas data frame with input data. The dataframe should contain these
-            columns in exactly this order: [load, wind_ref, pv_ref, mulitple tdcv colums]
-        zerobound: Tells us wheter coefficients can be negative, true if this cannot be
-            the case.
+        df (pandas.DataFrame): Input data. The dataframe should contain these columns
+            in exactly this order: [load, wind_ref, pv_ref, mulitple tdcv colums]
+        zero_bound (bool): If zero_bound is True coefficients can't be negative.
 
     Returns:
         tuple:
-            [0] components: pandas dataframe containing the wind and solar components
-            [0] pandas.DataFrame:
-            [1] coefs: dict containing the coefficients that result from the fitting"""
+            [0] pandas.DataFrame: Containing the wind and solar components
+            [1] dict: The coefficients that result from the fitting
+    """
 
     # Define function to fit
     def weighted_sum(x, *args):
@@ -119,10 +118,11 @@ def find_components(df, zero_bound=True):
         bounds = ("-inf", "inf")
 
     # Carry out fitting
+    # See https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.curve_fit.html # noqa
     coefs, cov = scipy.optimize.curve_fit(
         weighted_sum,
-        df.iloc[:, 1:].values.T,
-        load.values,
+        xdata=df.iloc[:, 1:].values.T,
+        ydata=load.values,
         p0=p0,
         bounds=bounds,
         method="trf",
