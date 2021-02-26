@@ -80,7 +80,7 @@ def post_teams(msg, url=None):
     card.send()
 
 
-def post_teams_alert(msg, url=None):
+def post_teams_alert(msg, coefsdf=None, url=None):
     """Same as post_teams, but posts to alert channel.
 
     Args:
@@ -95,12 +95,38 @@ def post_teams_alert(msg, url=None):
 
     """
     config = ConfigManager.get_instance()
+    # Add manual coefficients-query to message
+    if coefsdf is not None:
+        query = build_sql_query_string(coefsdf, "energy_split_coefs")
+        msg = f"{msg}. If you would like to update the coefficients manually, use this query:\n {query}"
 
     if url is None:
         if hasattr(config, "teams") is True:
             url = config.teams.alert_url
 
     return post_teams(msg, url=url)
+
+
+def build_sql_query_string(df, table):
+    """Build sql insert query string for Teams message output from df.
+
+    Args:
+        df (pd.DataFrame): df of table values to insert in sql
+        table (string): table to insert df into
+
+    Returns:
+        string: sql query string of insert statement
+    """
+    sql_texts = [
+        "INSERT INTO " + table + " (" + str(", ".join(df.columns)) + ") VALUES \n"
+    ]
+    for index, row in df.iterrows():
+        if index != df.index[0]:
+            sql_texts.append(",\n")
+        sql_texts.append(str(tuple(row.values)))
+
+    query = "".join(sql_texts)
+    return query
 
 
 def send_report_teams_better(pj, feature_importance):

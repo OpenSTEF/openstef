@@ -12,6 +12,8 @@ import scipy.optimize
 
 import openstf.monitoring.teams as monitoring
 
+COEF_MAX_PCT_DIFF = 0.3
+
 
 def split_energy(pid):
     """Function that caries out the energy splitting for a specific prediction job with id pid
@@ -42,23 +44,65 @@ def split_energy(pid):
     error = components[["load", "Inschatting"]].diff(axis=1).iloc[:, 1]
     mae = error.abs().mean()
     coefdict.update({"MAE": mae})
+    coefsdf = convert_coefdict_to_coefsdf(pj, input_split_function, coefdict)
 
-    # Get average coefs of previous runs
+    # Get average coefs of previous runs and check if new coefs are valid
     mean_coefs = db.get_energy_split_coefs(pj, mean=True)
-    # Loop over keys and check if the difference with the average value is not more than 100%
-    # In case the difference is more tha 100% of the average set KPI coefs as expected to False
+    if are_new_coefs_valid(coefdict, mean_coefs) is False:
+        # If coefs not valid, do not update the coefs in the db and send teams
+        # message that something strange is happening
+        monitoring.post_teams_alert(
+            "New splitting coefficients for pid {} deviate strongly from previously stored coefficients.".format(
+                pj["id"],
+            ),
+            coefsdf=coefsdf,
+        )
+        # Use the last known coefficients for further processing
+        last_coefdict = db.get_energy_split_coefs(pj)
+        last_coefsdf = convert_coefdict_to_coefsdf(
+            pj, input_split_function, last_coefdict
+        )
+        return last_coefsdf
+
+    # Save Results
+    db.write_energy_splitting_coefficients(coefsdf, if_exists="append")
+    logger.info("Succesfully wrote energy split coefficients to database", pid=pj["id"])
+    return coefsdf
+
+
+def are_new_coefs_valid(new_coefs, mean_coefs):
+    """Check if new coefficients are valid.
+
+    Args:
+        new_coefs (dict): new coefficients for standard load profiles
+        mean_coefs (dict): average of previous coefficients for standard load profiles
+
+    Returns:
+        boolean: bool whether new coefs are valid
+    """
+    # Loop over keys and check if the absolute difference with the average value is not
+    # more than COEF_MAX_PCT_DIFF x absolute average value.
     # If no previous coefs are stored an mean_coefs is empty and this loop wil not run
     for key in mean_coefs.keys():
-        diff = mean_coefs[key] - coefdict[key]
-        if diff > mean_coefs[key]:
-            # Send teams message something strange is happening
-            monitoring.post_teams_alert(
-                "New splitting coefficients for pid {} deviate strongly from previously stored coefficients".format(
-                    pj["id"]
-                )
-            )
+        diff = np.abs(mean_coefs[key] - new_coefs[key])
+        if diff > COEF_MAX_PCT_DIFF * np.abs(mean_coefs[key]):
+            return False
+    return True
 
-    # Prepare dataframe to store in SQL database
+
+def convert_coefdict_to_coefsdf(pj, input_split_function, coefdict):
+    """Convert dictionary of coefficients to dataframe with additional data for db storage.
+
+    Args:
+        pj (PredictionJob): prediction job
+        input_split_function (pd.DataFrame): df of columns of standard load profiles,
+            i.e. wind, solar, household
+        coefdict (dict): dict of coefficient per standard load profile
+
+    Returns:
+        pd.DataFrame: df of coefficients to insert in sql
+    """
+    #
     sql_column_labels = ["pid", "date_start", "date_end", "created"]
     sql_colum_values = [
         pj["id"],
@@ -72,9 +116,6 @@ def split_energy(pid):
     for i, column in enumerate(sql_column_labels):
         coefsdf[column] = sql_colum_values[i]
 
-    # Save Results
-    db.write_energy_splitting_coefficients(coefsdf, if_exists="append")
-    logger.info("Succesfully wrote energy split coefficients to database", pid=pj["id"])
     return coefsdf
 
 
