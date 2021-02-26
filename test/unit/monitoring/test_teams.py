@@ -34,6 +34,15 @@ class TestTeams(BaseTestCase):
         card_mock = teamsmock.connectorcard.return_value
         self.assertTrue(card_mock.send.called)
 
+    def test_build_sql_query_string(self, teamsmock):
+        query_df = pd.DataFrame(data=[["a", 1], ["b", 2]], columns=["key", "value"])
+        table = "table"
+
+        query_expected = "INSERT INTO table (key, value) VALUES \n('a', 1),\n('b', 2)"
+
+        query_result = teams.build_sql_query_string(query_df, table)
+        self.assertEqual(query_result, query_expected)
+
     def test_post_teams_better(self, teamsmock):
 
         test_feature_weights = pd.DataFrame(data={"gain": [1, 2]})
