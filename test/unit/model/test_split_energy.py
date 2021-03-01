@@ -20,35 +20,49 @@ class TestSplitEnergy(BaseTestCase):
         testcomponents, coefdict = split_energy.find_components(input_data)
         self.assertDataframeEqual(components, testcomponents, rtol=1e-3)
 
-    threshold = split_energy.COEF_MAX_PCT_DIFF
+    threshold = split_energy.COEF_MAX_FRACTION_DIFF
 
     def test_are_coefs_valid_true(self):
         new_coefs = {"a": 1, "b": 1, "c": -1}
-        mean_coefs = {"a": 1, "b": 1 + self.threshold, "c": -1}
+        last_coefs = {"a": 1, "b": 1 + self.threshold, "c": -1}
 
-        result = split_energy.are_new_coefs_valid(new_coefs, mean_coefs)
-        self.assertTrue(result)
+        result = split_energy.are_new_coefs_valid(new_coefs, last_coefs)
+        self.assertIsNone(result)
 
     def test_are_coefs_valid_flipped_sign(self):
         new_coefs = {"a": 1, "b": 1}
-        mean_coefs = {"a": 1, "b": -1}
+        last_coefs = {"a": 1, "b": -1}
 
-        result = split_energy.are_new_coefs_valid(new_coefs, mean_coefs)
-        self.assertFalse(result)
+        result = split_energy.are_new_coefs_valid(new_coefs, last_coefs)
+        self.assertEqual(result, "b")
 
     def test_are_coefs_valid_above_threshold(self):
         new_coefs = {"a": 1, "b": 1}
-        mean_coefs = {"a": 1, "b": 1 + 1.5 * self.threshold}
+        last_coefs = {"a": 1, "b": 1 + 1.5 * self.threshold}
 
-        result = split_energy.are_new_coefs_valid(new_coefs, mean_coefs)
-        self.assertFalse(result)
+        result = split_energy.are_new_coefs_valid(new_coefs, last_coefs)
+        self.assertEqual(result, "b")
 
     def test_are_coefs_valid_below_threshold(self):
         new_coefs = {"a": 1, "b": 1}
-        mean_coefs = {"a": 1, "b": 1 - self.threshold}
+        last_coefs = {"a": 1, "b": 1 - self.threshold}
 
-        result = split_energy.are_new_coefs_valid(new_coefs, mean_coefs)
-        self.assertFalse(result)
+        result = split_energy.are_new_coefs_valid(new_coefs, last_coefs)
+        self.assertEqual(result, "b")
+
+    def test_are_coefs_valid_multiple_failing_keys(self):
+        new_coefs = {"a": 1, "b": 1, "c": 1}
+        last_coefs = {"a": 1, "b": 1 - self.threshold, "c": -1}
+
+        result = split_energy.are_new_coefs_valid(new_coefs, last_coefs)
+        self.assertEqual(result, "b")
+
+    def test_are_coefs_valid_no_matching_key(self):
+        new_coefs = {"a": 1, "b": 1}
+        last_coefs = {"a": 1, "c": 1}
+
+        result = split_energy.are_new_coefs_valid(new_coefs, last_coefs)
+        self.assertIsNone(result)
 
 
 # Run all tests
