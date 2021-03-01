@@ -81,20 +81,25 @@ def determine_invalid_coefs(new_coefs, last_coefs):
     Returns:
         pd.DataFrame: df of invalid coefficients
     """
-    # Check if the absolute difference between last coefficients and new coefficients
-    # is more than COEF_MAX_FRACTION_DIFF x absolute value of last coefficient
-    # If coefficient name is not present in new coefficients list, fail. If coefficient name
-    # is not present in last coefficients list, add it.
-    merged_df = pd.merge(
+    merged_coefs = pd.merge(
         last_coefs, new_coefs, on="coef_name", how="left", suffixes=["_last", "_new"]
     )
-    merged_df["difference"] = np.abs(
-        merged_df.coef_value_last - merged_df.coef_value_new
-    ).fillna(np.inf)
-    merged_df["invalid_coef"] = merged_df.difference > np.abs(
-        COEF_MAX_FRACTION_DIFF * merged_df.coef_value_last
+    # calculate difference between new and last coefficients, if no new
+    # coefficient, set difference to inf
+    # If coefficient name is not present in new coefficients list, fail. If coefficient name
+    # is not present in last coefficients list, add it.
+    merged_coefs["difference"] = (
+        (merged_coefs.coef_value_last - merged_coefs.coef_value_new)
+        .abs()
+        .fillna(np.inf)
     )
-    return merged_df[merged_df.invalid_coef]
+    # Check if the absolute difference between last coefficients and new coefficients
+    # is more than COEF_MAX_FRACTION_DIFF x absolute value of last coefficient
+    invalid_coefs = merged_coefs[
+        merged_coefs.difference
+        > (COEF_MAX_FRACTION_DIFF * merged_coefs.coef_value_last).abs()
+    ]
+    return invalid_coefs
 
 
 def convert_coefdict_to_coefsdf(pj, input_split_function, coefdict):
