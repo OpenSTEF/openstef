@@ -3,9 +3,9 @@
 # SPDX-License-Identifier: MPL-2.0
 
 import unittest
-from numpy import split
+import pandas as pd
+import numpy as np
 
-from numpy.core.fromnumeric import mean
 from test.utils import BaseTestCase, TestData
 
 from openstf.model import split_energy
@@ -23,46 +23,119 @@ class TestSplitEnergy(BaseTestCase):
     threshold = split_energy.COEF_MAX_FRACTION_DIFF
 
     def test_are_coefs_valid_true(self):
-        new_coefs = {"a": 1, "b": 1, "c": -1}
-        last_coefs = {"a": 1, "b": 1 + self.threshold, "c": -1}
+        new_coefs = pd.DataFrame(
+            {"coef_name": ["a", "b", "c"], "coef_value": [1, 1, -1]}
+        )
+        last_coefs = pd.DataFrame(
+            {"coef_name": ["a", "b", "c"], "coef_value": [1, 1 + self.threshold, -1]}
+        )
 
-        result = split_energy.are_new_coefs_valid(new_coefs, last_coefs)
-        self.assertIsNone(result)
+        expected_result = pd.DataFrame(
+            columns=[
+                "coef_name",
+                "coef_value_last",
+                "coef_value_new",
+                "difference",
+                "invalid_coef",
+            ],
+        )
+        result = split_energy.determine_invalid_coefs(new_coefs, last_coefs)
+        self.assertDataframeEqual(
+            result, expected_result, check_dtype=False, check_index_type=False
+        )
 
     def test_are_coefs_valid_flipped_sign(self):
-        new_coefs = {"a": 1, "b": 1}
-        last_coefs = {"a": 1, "b": -1}
+        new_coefs = pd.DataFrame({"coef_name": ["a", "b"], "coef_value": [1, 1]})
+        last_coefs = pd.DataFrame({"coef_name": ["a", "b"], "coef_value": [1, -1]})
 
-        result = split_energy.are_new_coefs_valid(new_coefs, last_coefs)
-        self.assertEqual(result, "b")
+        expected_result = pd.DataFrame(
+            {
+                "coef_name": ["b"],
+                "coef_value_last": [-1],
+                "coef_value_new": [1],
+                "difference": [2],
+                "invalid_coef": [True],
+            },
+            index=[1],
+        )
+        result = split_energy.determine_invalid_coefs(new_coefs, last_coefs)
+        self.assertDataframeEqual(result, expected_result, check_index_type=False)
 
     def test_are_coefs_valid_above_threshold(self):
-        new_coefs = {"a": 1, "b": 1}
-        last_coefs = {"a": 1, "b": 1 + 1.5 * self.threshold}
+        new_coefs = pd.DataFrame({"coef_name": ["a", "b"], "coef_value": [1, 1]})
+        last_coefs = pd.DataFrame(
+            {"coef_name": ["a", "b"], "coef_value": [1, 1 + 1.5 * self.threshold]}
+        )
 
-        result = split_energy.are_new_coefs_valid(new_coefs, last_coefs)
-        self.assertEqual(result, "b")
+        expected_result = pd.DataFrame(
+            {
+                "coef_name": ["b"],
+                "coef_value_last": [1 + 1.5 * self.threshold],
+                "coef_value_new": [1],
+                "difference": [1.5 * self.threshold],
+                "invalid_coef": [True],
+            },
+            index=[1],
+        )
+        result = split_energy.determine_invalid_coefs(new_coefs, last_coefs)
+        self.assertDataframeEqual(result, expected_result, check_index_type=False)
 
     def test_are_coefs_valid_below_threshold(self):
-        new_coefs = {"a": 1, "b": 1}
-        last_coefs = {"a": 1, "b": 1 - self.threshold}
+        new_coefs = pd.DataFrame({"coef_name": ["a", "b"], "coef_value": [1, 1]})
+        last_coefs = pd.DataFrame(
+            {"coef_name": ["a", "b"], "coef_value": [1, 1 - self.threshold]}
+        )
 
-        result = split_energy.are_new_coefs_valid(new_coefs, last_coefs)
-        self.assertEqual(result, "b")
+        expected_result = pd.DataFrame(
+            {
+                "coef_name": ["b"],
+                "coef_value_last": [1 - self.threshold],
+                "coef_value_new": [1],
+                "difference": [self.threshold],
+                "invalid_coef": [True],
+            },
+            index=[1],
+        )
+        result = split_energy.determine_invalid_coefs(new_coefs, last_coefs)
+        self.assertDataframeEqual(result, expected_result, check_index_type=False)
 
     def test_are_coefs_valid_multiple_failing_keys(self):
-        new_coefs = {"a": 1, "b": 1, "c": 1}
-        last_coefs = {"a": 1, "b": 1 - self.threshold, "c": -1}
+        new_coefs = pd.DataFrame(
+            {"coef_name": ["a", "b", "c"], "coef_value": [1, 1, 1]}
+        )
+        last_coefs = pd.DataFrame(
+            {"coef_name": ["a", "b", "c"], "coef_value": [1, 1 - self.threshold, -1]}
+        )
 
-        result = split_energy.are_new_coefs_valid(new_coefs, last_coefs)
-        self.assertEqual(result, "b")
+        expected_result = pd.DataFrame(
+            {
+                "coef_name": ["b", "c"],
+                "coef_value_last": [1 - self.threshold, -1],
+                "coef_value_new": [1, 1],
+                "difference": [self.threshold, 2],
+                "invalid_coef": [True],
+            },
+            index=[1, 2],
+        )
+        result = split_energy.determine_invalid_coefs(new_coefs, last_coefs)
+        self.assertDataframeEqual(result, expected_result, check_index_type=False)
 
     def test_are_coefs_valid_no_matching_key(self):
-        new_coefs = {"a": 1, "b": 1}
-        last_coefs = {"a": 1, "c": 1}
+        new_coefs = pd.DataFrame({"coef_name": ["a", "b"], "coef_value": [1, 1]})
+        last_coefs = pd.DataFrame({"coef_name": ["a", "c"], "coef_value": [1, 1]})
 
-        result = split_energy.are_new_coefs_valid(new_coefs, last_coefs)
-        self.assertIsNone(result)
+        expected_result = pd.DataFrame(
+            {
+                "coef_name": ["c"],
+                "coef_value_last": [1],
+                "coef_value_new": [np.nan],
+                "difference": [np.inf],
+                "invalid_coef": [True],
+            },
+            index=[1],
+        )
+        result = split_energy.determine_invalid_coefs(new_coefs, last_coefs)
+        self.assertDataframeEqual(result, expected_result, check_index_type=False)
 
 
 # Run all tests

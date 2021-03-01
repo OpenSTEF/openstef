@@ -49,13 +49,17 @@ def split_energy(pid):
     # Get the coefs of previous runs and check if new coefs are valid
     last_coefsdict = db.get_energy_split_coefs(pj, mean=True)
     last_coefsdf = convert_coefdict_to_coefsdf(pj, input_split_function, last_coefsdict)
-    false_key = are_new_coefs_valid(coefdict, last_coefsdict)
-    if false_key is not None:
+    invalid_coefs = determine_invalid_coefs(coefsdf, last_coefsdf)
+    if not invalid_coefs.empty:
         # If coefs not valid, do not update the coefs in the db and send teams
         # message that something strange is happening
+        df_to_str = [
+            f"\ncoefficient: {row.coef_name}, new coefficient: {row.coef_value_new}, last coefficient: {row.coef_value_last}"
+            for row in invalid_coefs.iterrows()
+        ]
         monitoring.post_teams_alert(
-            f"New splitting coefficient {false_key} for pid {pj['id']} deviate strongly from previously stored coefficients."
-            + f"New coefficient: {coefdict[false_key]}, last coefficient: {last_coefsdict[false_key]}.",
+            f"New splitting coefficient(s) {list(invalid_coefs.coef_name)} for pid {pj['id']} deviate strongly from previously stored coefficients."
+            + df_to_str,
             coefsdf=coefsdf,
         )
         # Use the last known coefficients for further processing
@@ -69,28 +73,32 @@ def split_energy(pid):
         return coefsdf
 
 
-def are_new_coefs_valid(new_coefs, last_coefs):
-    """Check if new coefficients are valid.
+def determine_invalid_coefs(new_coefs, last_coefs):
+    """Determine which new coefficients are valid and return them.
 
     Args:
-        new_coefs (dict): new coefficients for standard load profiles (i.e.
-            wind, solar, household)
-        mean_coefs (dict): average of previous coefficients for standard load
+        new_coefs (pd.DataFrame): df of new coefficients for standard load
+            profiles (i.e. wind, solar, household)
+        last_coefs (pd.DataFrame): df of last coefficients for standard load
             profiles (i.e. wind, solar, household)
 
     Returns:
-        boolean: bool whether new coefs are valid
+        pd.DataFrame: df of invalid coefficients
     """
-    # Loop over keys and check if the absolute difference with the average value is not
-    # more than COEF_MAX_PCT_DIFF x absolute average value.
-    # If no previous coefs are stored an mean_coefs is empty and this loop wil not run
-    for key in last_coefs.keys():
-        if key not in new_coefs:
-            continue
-        diff = np.abs(last_coefs[key] - new_coefs[key])
-        if diff > COEF_MAX_FRACTION_DIFF * np.abs(last_coefs[key]):
-            return key
-    return None
+    # Check if the absolute difference between last coefficients and new coefficients
+    # is more than COEF_MAX_FRACTION_DIFF x absolute value of last coefficient
+    # If coefficient name is not present in new coefficients list, fail. If coefficient name
+    # is not present in last coefficients list, add it.
+    merged_df = pd.merge(
+        last_coefs, new_coefs, on="coef_name", how="left", suffixes=["_last", "_new"]
+    )
+    merged_df["difference"] = np.abs(
+        merged_df.coef_value_last - merged_df.coef_value_new
+    ).fillna(np.inf)
+    merged_df["invalid_coef"] = merged_df.difference > np.abs(
+        COEF_MAX_FRACTION_DIFF * merged_df.coef_value_last
+    )
+    return merged_df[merged_df.invalid_coef]
 
 
 def convert_coefdict_to_coefsdf(pj, input_split_function, coefdict):
