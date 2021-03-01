@@ -53,13 +53,9 @@ def split_energy(pid):
     if not invalid_coefs.empty:
         # If coefs not valid, do not update the coefs in the db and send teams
         # message that something strange is happening
-        df_to_str = [
-            f"\ncoefficient: {row.coef_name}, new coefficient: {row.coef_value_new}, last coefficient: {row.coef_value_last}"
-            for row in invalid_coefs.iterrows()
-        ]
         monitoring.post_teams_alert(
-            f"New splitting coefficient(s) {list(invalid_coefs.coef_name)} for pid {pj['id']} deviate strongly from previously stored coefficients."
-            + df_to_str,
+            f"New splitting coefficient(s) {list(invalid_coefs.coef_name)} for pid {pj['id']} deviate strongly from previously stored coefficients.",
+            invalid_coefs=invalid_coefs,
             coefsdf=coefsdf,
         )
         # Use the last known coefficients for further processing

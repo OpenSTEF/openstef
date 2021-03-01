@@ -80,25 +80,32 @@ def post_teams(msg, url=None):
     card.send()
 
 
-def post_teams_alert(msg, coefsdf=None, url=None):
+def post_teams_alert(msg, invalid_coefs=None, coefsdf=None, url=None):
     """Same as post_teams, but posts to alert channel.
 
     Args:
-    msg (mixed): For simple messages a string can be passed. For more
+        msg (mixed): For simple messages a string can be passed. For more
             complex messages pass a dict. The following keys are supported:
             text, links, sections. Each section is a dict and can contain the
             following keys: text, title, images, facts, markdown. Also see:
             https://docs.microsoft.com/en-us/outlook/actionable-messages/send-via-connectors
-
+        invalid_coefs (pd.DatFrame, optional): df of information of invalid coefficients. Defaults to None.
+        coefsdf (pd.DataFrame, optional): df of new coefficients. Defaults to None.
     Note:
         This function is namespace-specific.
-
     """
+    test = 1
     config = ConfigManager.get_instance()
     # Add manual coefficients-query to message
-    if coefsdf is not None:
+    if invalid_coefs is not None and coefsdf is not None:
+        invalid_coefs_str = "".join(
+            [
+                f"\ncoefficient name: {row.coef_name}, new value: {row.coef_value_new}, last value: {row.coef_value_last}"
+                for index, row in invalid_coefs.iterrows()
+            ]
+        )
         query = build_sql_query_string(coefsdf, "energy_split_coefs")
-        msg = f"{msg}. If you would like to update the coefficients manually, use this query:\n {query}"
+        msg = f"{msg}. {invalid_coefs_str}\nIf you would like to update the coefficients manually, use this query:\n {query}"
 
     if url is None:
         if hasattr(config, "teams") is True:
