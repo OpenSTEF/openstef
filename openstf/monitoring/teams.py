@@ -94,9 +94,8 @@ def post_teams_alert(msg, invalid_coefs=None, coefsdf=None, url=None):
     Note:
         This function is namespace-specific.
     """
-    test = 1
     config = ConfigManager.get_instance()
-    # Add manual coefficients-query to message
+    # Add invalid coefficients and manual coefficients-query to message
     if invalid_coefs is not None and coefsdf is not None:
         invalid_coefs_str = "".join(
             [
