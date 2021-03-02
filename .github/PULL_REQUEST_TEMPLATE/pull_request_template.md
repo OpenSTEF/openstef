@@ -1,4 +1,4 @@
-**Fixes issue**: `#1 name and number of the issue`
+**Fixes issue**: `# name and number of the issue`
 
 ### Changes proposed in this PR include:
 
