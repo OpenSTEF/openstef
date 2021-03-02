@@ -47,14 +47,14 @@ def split_energy(pid):
     coefsdf = convert_coefdict_to_coefsdf(pj, input_split_function, coefdict)
 
     # Get the coefs of previous runs and check if new coefs are valid
-    last_coefsdict = db.get_energy_split_coefs(pj, mean=True)
+    last_coefsdict = db.get_energy_split_coefs(pj)
     last_coefsdf = convert_coefdict_to_coefsdf(pj, input_split_function, last_coefsdict)
     invalid_coefs = determine_invalid_coefs(coefsdf, last_coefsdf)
     if not invalid_coefs.empty:
         # If coefs not valid, do not update the coefs in the db and send teams
         # message that something strange is happening
         monitoring.post_teams_alert(
-            f"New splitting coefficient(s) {list(invalid_coefs.coef_name)} for pid {pj['id']} deviate strongly from previously stored coefficients.",
+            f"New splitting coefficient(s) for pid **{pj['id']}** deviate strongly from previously stored coefficients.",
             invalid_coefs=invalid_coefs,
             coefsdf=coefsdf,
         )
