@@ -89,7 +89,8 @@ def post_teams_alert(msg, invalid_coefs=None, coefsdf=None, url=None):
             text, links, sections. Each section is a dict and can contain the
             following keys: text, title, images, facts, markdown. Also see:
             https://docs.microsoft.com/en-us/outlook/actionable-messages/send-via-connectors
-        invalid_coefs (pd.DatFrame, optional): df of information of invalid coefficients. Defaults to None.
+        invalid_coefs (pd.DatFrame, optional): df of information of invalid
+            coefficients. Defaults to None.
         coefsdf (pd.DataFrame, optional): df of new coefficients. Defaults to None.
     Note:
         This function is namespace-specific.
@@ -97,15 +98,40 @@ def post_teams_alert(msg, invalid_coefs=None, coefsdf=None, url=None):
     config = ConfigManager.get_instance()
     # Add invalid coefficients and manual coefficients-query to message
     if invalid_coefs is not None and coefsdf is not None:
-        invalid_coefs_str = "".join(
+        # add invalid coefficient information to message in dict-format
+        invalid_coefs_text = "".join(
             [
-                f"\ncoefficient name: {row.coef_name}, new value: {row.coef_value_new}, last value: {row.coef_value_last}"
+                f"\n* **{row.coef_name}**: {round(row.coef_value_new, 2)}, "
+                f"(previous: {round(row.coef_value_last, 2)})"
                 for index, row in invalid_coefs.iterrows()
             ]
         )
         query = build_sql_query_string(coefsdf, "energy_split_coefs")
-        msg = f"{msg}. {invalid_coefs_str}\nIf you would like to update the coefficients manually, use this query:\n {query}"
-
+        query_text = "If you would like to update the coefficients manually in the "
+        f"database, use this query:"
+        msg = {
+            "fallback": msg,
+            "title": "Invalid energy splitting coefficients",
+            "sections": [
+                {
+                    "text": msg,
+                    "markdown": True,
+                },
+                {
+                    "text": invalid_coefs_text,
+                    "markdown": True,
+                },
+                {
+                    "title": "Manual query",
+                    "text": query_text,
+                    "markdown": True,
+                },
+                {
+                    "text": query,
+                    "markdown": True,
+                },
+            ],
+        }
     if url is None:
         if hasattr(config, "teams") is True:
             url = config.teams.alert_url
@@ -123,14 +149,23 @@ def build_sql_query_string(df, table):
     Returns:
         string: sql query string of insert statement
     """
+    # round all values to two decimals
+    df = df.round(2)
+    # convert datetime to string format
+    datetime_columns = df.columns[
+        df.columns.isin(["date_start", "date_end", "created"])
+    ]
+    for col in datetime_columns:
+        df[col] = df[col].astype("str")
+
     sql_texts = [
-        "INSERT INTO " + table + " (" + str(", ".join(df.columns)) + ") VALUES \n"
+        "```INSERT INTO " + table + " (" + str(", ".join(df.columns)) + ") VALUES  \n"
     ]
     for index, row in df.iterrows():
         if index != df.index[0]:
-            sql_texts.append(",\n")
+            sql_texts.append(",  \n")  # 2 spaces and \n create a new line
         sql_texts.append(str(tuple(row.values)))
-
+    sql_texts.append("```")
     query = "".join(sql_texts)
     return query
 
