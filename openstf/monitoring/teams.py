@@ -89,7 +89,8 @@ def post_teams_alert(msg, invalid_coefs=None, coefsdf=None, url=None):
             text, links, sections. Each section is a dict and can contain the
             following keys: text, title, images, facts, markdown. Also see:
             https://docs.microsoft.com/en-us/outlook/actionable-messages/send-via-connectors
-        invalid_coefs (pd.DatFrame, optional): df of information of invalid coefficients. Defaults to None.
+        invalid_coefs (pd.DatFrame, optional): df of information of invalid
+            coefficients. Defaults to None.
         coefsdf (pd.DataFrame, optional): df of new coefficients. Defaults to None.
     Note:
         This function is namespace-specific.
@@ -100,12 +101,14 @@ def post_teams_alert(msg, invalid_coefs=None, coefsdf=None, url=None):
         # add invalid coefficient information to message in dict-format
         invalid_coefs_text = "".join(
             [
-                f"\n* **{row.coef_name}**: {round(row.coef_value_new, 2)}, (previous: {round(row.coef_value_last, 2)})"
+                f"\n* **{row.coef_name}**: {round(row.coef_value_new, 2)}, "
+                f"(previous: {round(row.coef_value_last, 2)})"
                 for index, row in invalid_coefs.iterrows()
             ]
         )
         query = build_sql_query_string(coefsdf, "energy_split_coefs")
-        query_text = "If you would like to update the coefficients manually in the database, use this query:"
+        query_text = "If you would like to update the coefficients manually in the "
+        f"database, use this query:"
         msg = {
             "fallback": msg,
             "title": "Invalid energy splitting coefficients",

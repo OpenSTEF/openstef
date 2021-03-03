@@ -16,7 +16,8 @@ COEF_MAX_FRACTION_DIFF = 0.3
 
 
 def split_energy(pid):
-    """Function that caries out the energy splitting for a specific prediction job with id pid
+    """Function that caries out the energy splitting for a specific prediction job with
+    id pid.
 
     Args:
         pid (int): Prediction job id
@@ -54,7 +55,8 @@ def split_energy(pid):
         # If coefs not valid, do not update the coefs in the db and send teams
         # message that something strange is happening
         monitoring.post_teams_alert(
-            f"New splitting coefficient(s) for pid **{pj['id']}** deviate strongly from previously stored coefficients.",
+            f"New splitting coefficient(s) for pid **{pj['id']}** deviate strongly "
+            f"from previously stored coefficients.",
             invalid_coefs=invalid_coefs,
             coefsdf=coefsdf,
         )
@@ -86,8 +88,8 @@ def determine_invalid_coefs(new_coefs, last_coefs):
     )
     # calculate difference between new and last coefficients, if no new
     # coefficient, set difference to inf
-    # If coefficient name is not present in new coefficients list, fail. If coefficient name
-    # is not present in last coefficients list, add it.
+    # If coefficient name is not present in new coefficients list, fail. If coefficient
+    # name is not present in last coefficients list, add it.
     merged_coefs["difference"] = (
         (merged_coefs.coef_value_last - merged_coefs.coef_value_new)
         .abs()
@@ -103,7 +105,8 @@ def determine_invalid_coefs(new_coefs, last_coefs):
 
 
 def convert_coefdict_to_coefsdf(pj, input_split_function, coefdict):
-    """Convert dictionary of coefficients to dataframe with additional data for db storage.
+    """Convert dictionary of coefficients to dataframe with additional data for db
+    storage.
 
     Args:
         pj (PredictionJob): prediction job
