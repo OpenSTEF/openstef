@@ -16,14 +16,13 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v1
     # Run Apidoc and subsequently build documentation (implicit in action).
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip setuptools wheel
-        pip install sphinx_rtd_theme
     - name: Build documentation
       uses: ammaraskar/sphinx-action@master
       with:
-        pre-build-command: "cp requirements.txt docs/requirements.txt |sphinx-apidoc -o docs openstf"
+        pre-build-command: |
+          cp requirements.txt docs/requirements.txt
+          echo "sphinx_rtd_theme" >> docs/requirements.txt
+          sphinx-apidoc -o docs openstf
         docs-folder: "docs/"
     # Upload artifact so it is available from the action-window
     - name: Upload artifact

@@ -21,13 +21,12 @@ jobs:
     # Checkout
     - name: Checkout code
       uses: actions/checkout@v1
-    # Install
-    - name: Install dependencies
-      run: |
-        pip install sphinx_rtd_theme
     # Build documentation
     - name: Build documentation
       uses: ammaraskar/sphinx-action@master
       with:
-        pre-build-command: "cp requirements.txt docs/requirements.txt | sphinx-apidoc -o docs openstf"
+        pre-build-command: |
+          cp requirements.txt docs/requirements.txt
+          echo "sphinx_rtd_theme" >> docs/requirements.txt
+          sphinx-apidoc -o docs openstf
         docs-folder: "docs/"
