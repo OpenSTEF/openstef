@@ -3,8 +3,16 @@
 # SPDX-License-Identifier: MPL-2.0
 name: Docs Check
 
+# Check docs when directly editing develop or main
+# and on pull request
 on:
-- pull_request
+  push:
+    branches:
+      - develop
+      - main
+  pull_request:
+    branches:
+      - "**"
 
 jobs:
   docs:
@@ -17,5 +25,8 @@ jobs:
     - name: Build documentation
       uses: ammaraskar/sphinx-action@master
       with:
-        pre-build-command: "cp requirements.txt docs/requirements.txt | sphinx-apidoc -o docs openstf"
+        pre-build-command: |
+          cp requirements.txt docs/requirements.txt
+          echo "sphinx_rtd_theme" >> docs/requirements.txt
+          sphinx-apidoc -o docs openstf
         docs-folder: "docs/"

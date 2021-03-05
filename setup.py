@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 
 from pathlib import Path
-from setuptools import setup
+from setuptools import setup, find_packages
 
 pkg_dir = Path(__file__).parent.absolute()
 
@@ -28,8 +28,8 @@ def read_long_description_from_readme():
 
 setup(
     name="openstf",
-    version="1.5.0",
-    packages=["openstf"],
+    version="1.5.1",
+    packages=find_packages(include=["openstf", "openstf.*"]),
     description="Open short term forcasting",
     long_description=read_long_description_from_readme(),
     long_description_content_type="text/markdown",
@@ -38,13 +38,15 @@ setup(
     author_email="korte.termijn.prognoses@alliander.com",
     license="MPL-2.0",
     keywords=["energy", "forecasting", "machinelearning"],
+    # See https://setuptools.readthedocs.io/en/latest/userguide/datafiles.html
+    # for more information
     package_data={
-        # Include anythin in the data directory
-        "openstf": ["openstf/data/*"]
+        # Include anything in the data directory
+        "openstf": ["data/*", "*.license"]
     },
     python_requires=">=3.7.0",
     install_requires=read_requirements_from_file(),
-    setup_requires=["wheel~=0.36.2", "Cython~=0.29.21"],
+    setup_requires=["wheel", "Cython"],
     tests_require=["pytest", "pytest-cov", "flake8"],
     classifiers=[
         r"Development Status :: 5 - Production/Stable",

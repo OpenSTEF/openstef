@@ -1,14 +1,8 @@
-<!--
-SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com>
-
-SPDX-License-Identifier: MPL-2.0
--->
-
 ---
 name: Feature request
 about: Suggest an idea for this project
 title: "[Feature] "
-labels: ''
+labels: 'feature'
 assignees: ''
 
 ---

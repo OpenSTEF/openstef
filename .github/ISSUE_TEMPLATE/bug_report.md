@@ -1,13 +1,8 @@
-<!--
-SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com>
-
-SPDX-License-Identifier: MPL-2.0
--->
 ---
 name: Bug report
 about: Create a report to help us improve
 title: "[BUG] *descriptive_name*"
-labels: ''
+labels: 'bug'
 assignees: ''
 
 ---
