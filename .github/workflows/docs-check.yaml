@@ -3,8 +3,16 @@
 # SPDX-License-Identifier: MPL-2.0
 name: Docs Check
 
+# Check docs when directly editing develop or main
+# and on pull request
 on:
-- pull_request
+  push:
+    branches:
+      - develop
+      - main
+  pull_request:
+    branches:
+      - "**"
 
 jobs:
   docs:
