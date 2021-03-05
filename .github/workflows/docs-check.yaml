@@ -13,6 +13,10 @@ jobs:
     # Checkout
     - name: Checkout code
       uses: actions/checkout@v1
+    # Install
+    - name: Install dependencies
+      run: |
+        pip install sphinx_rtd_theme
     # Build documentation
     - name: Build documentation
       uses: ammaraskar/sphinx-action@master
