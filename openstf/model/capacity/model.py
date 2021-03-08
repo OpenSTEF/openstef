@@ -42,7 +42,9 @@ class CapacityPredictionModel:
 
     def predict(self, x):
         # find best iteration (on validation set)
-        best_iter = int(np.argmin(self.model.evals_result()["validation_1"]["mlogloss"]))
+        best_iter = int(
+            np.argmin(self.model.evals_result()["validation_1"]["mlogloss"])
+        )
 
         # predict classes
         y_pred = self.model.predict(x, ntree_limit=best_iter)
