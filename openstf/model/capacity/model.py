@@ -83,11 +83,15 @@ class CapacityPredictionModel:
             os.makedirs(directory, exist_ok=True)
 
         # save model
-        pickle.dump(self.model, open(directory / "model.pkl", "wb"))
+        with open(directory / "model.pkl", "wb") as fh:
+            pickle.dump(self.model, fh)
+            fh.close()
 
         # save classes
-        pickle.dump(self.classes, open(directory / "classes.pkl", "wb"))
-
+        with open(directory / "classes.pkl", "wb") as fh:
+            pickle.dump(self.classes, fh)
+            fh.close()
+            
     def load(self, directory):
         # load model
         model_file = Path(directory) / "model.pkl"
