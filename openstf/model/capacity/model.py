@@ -85,13 +85,11 @@ class CapacityPredictionModel:
         # save model
         with open(directory / "model.pkl", "wb") as fh:
             pickle.dump(self.model, fh)
-            fh.close()
 
         # save classes
         with open(directory / "classes.pkl", "wb") as fh:
             pickle.dump(self.classes, fh)
-            fh.close()
-            
+
     def load(self, directory):
         # load model
         model_file = Path(directory) / "model.pkl"
