@@ -31,12 +31,15 @@ def post_teams(msg, url=None):
     config = ConfigManager.get_instance()
     logger = logging.get_logger(__name__)
 
-    # if Teams url is not configured just return
-    if url is None and (
-        hasattr(config, "teams") is False or config.teams.monitoring_url is None
-    ):
-        logger.warning("Can't post Teams message, no url given")
-        return
+    # If no url is passed fall back to default
+    if url is None:
+        # if Teams url is not configured just return
+        if hasattr(config, "teams") is False or config.teams.monitoring_url is None:
+            logger.warning("Can't post Teams message, no url given")
+            return
+        else:
+            logger.info("No url given, using default from config")
+            url = config.teams.monitoring_url
 
     card = pymsteams.connectorcard(url)
 
