@@ -66,18 +66,21 @@ def plot_data_series(data, predict_data=None, horizon=47, names=None):
         plotly.graph_objects.Figure: A line plot of each passed data series.
 
     """
+    series_names = {
+        1: ("series",),
+        2: ("train", "validation"),
+        3: ("train", "validation", "test")
+    }
+
+    num_series = len(data)
+
+    if names is None and num_series > 3:
+        raise ValueError(
+            "Cannot pass names=None when passing data with more than 3 series."
+        )
+
     if names is None:
-        if len(data) == 1:
-            names = ("series",)
-        elif len(data) == 2:
-            names = ("train", "validation")
-        elif len(data) == 3:
-            names = ("train", "validation", "test")
-        else:
-            ValueError(
-                "Cannot pass names=None when passing data with more \
-            than 3 series."
-            )
+        names = series_names[num_series]
 
     if predict_data is None:
         # Check if horizon columns exists in the data
