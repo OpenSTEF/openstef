@@ -75,7 +75,7 @@ def is_data_sufficient(data):
 def train_model_pipeline(pj, context, retrain_young_models=False, compare_to_old=True):
     """Main function that controls the training process of one prediction job.
 
-    Here, on a high level, the input data is collected, features are applied and the
+    On a high level: first, the input data is collected, features are applied and the
     model is trained and stored. Additionally models for energy components are also
     trained if requested. Model is saved if better than the old model unless specified
     otherwise.
@@ -88,7 +88,7 @@ def train_model_pipeline(pj, context, retrain_young_models=False, compare_to_old
         compare_to_old (bool): Compare new trained model to old trained model if True
 
     Returns:
-        Trained model (FIXME can be various datatypes at present)
+        None
     """
 
     # TODO Maybe this whole function can be replaced with a scikit learn pipeline?
@@ -99,7 +99,7 @@ def train_model_pipeline(pj, context, retrain_young_models=False, compare_to_old
 
     context.perf_meter.checkpoint("model-creation")
 
-    split_input_data = preprocessing_for_specific_pj(pj, context)
+    split_input_data = preprocess_for_specific_pj(pj, context)
 
     context.perf_meter.checkpoint("preprocessing")
 
@@ -107,7 +107,7 @@ def train_model_pipeline(pj, context, retrain_young_models=False, compare_to_old
 
     context.perf_meter.checkpoint("training")
 
-    split_predicted_data = predicting_after_training_for_specific_pj(
+    split_predicted_data = predict_after_training_for_specific_pj(
         pj,
         model_trainer,
         split_input_data,
@@ -128,15 +128,16 @@ def train_model_pipeline(pj, context, retrain_young_models=False, compare_to_old
 
 
 def create_model_for_specific_pj(pj, context, retrain_young_models=False):
-    """Create model trainer for one pj.
+    """Create model trainer and set hyperparams.
 
     Args:
-        context (openstf.task.utils.TaskContext): Task context for logging
         pj (dict): Prediction job
-        retrain_young_models (bool, optional): [description]. Defaults to False.
+        context (openstf.task.utils.TaskContext): Task context for logging
+        retrain_young_models (bool): Retrain models younger then MAX_AGE_YOUNG_MODEL
+            days if True. Defaults to False.
 
     Returns:
-        [type]: [description]
+        MLModelType: type of model trainer
     """
     # Make model trainer creator
     mc = ModelTrainerCreator(pj)
@@ -160,7 +161,19 @@ def create_model_for_specific_pj(pj, context, retrain_young_models=False):
     return model_trainer
 
 
-def preprocessing_for_specific_pj(pj, context):
+def preprocess_for_specific_pj(pj, context):
+    """Pre-process model data. Clean data and apply features
+
+    Args:
+        pj (dict): Prediction job
+        context (openstf.task.utils.TaskContext): Task context for logging
+
+    Raises:
+        ValueError: when data quality is insufficient
+
+    Returns:
+        dict: dict of cleaned data with features, split in train, validation and test
+    """
     # Specify training period
     # use hyperparam training_period_days if available
     hyperparams = {"training_period_days": TRAINING_PERIOD_DAYS, "featureset_name": "D"}
@@ -199,11 +212,29 @@ def preprocessing_for_specific_pj(pj, context):
 
 
 def train_for_specific_pj(model_trainer, split_input_data):
+    """Train model.
+
+    Args:
+        model_trainer (MLModelType): model trainer
+        split_input_data (dict): dict of cleaned data with features, split in train,
+            validation and test
+    """
     # Train model
     model_trainer.train(split_input_data.train_data, split_input_data.validation_data)
 
 
-def predicting_after_training_for_specific_pj(pj, model_trainer, split_input_data):
+def predict_after_training_for_specific_pj(pj, model_trainer, split_input_data):
+    """Predict data with new trained model for model evaluation.
+
+    Args:
+        pj (dict): Prediction job
+        model_trainer (MLModelType): model trainer
+        split_input_data (dict): dict of cleaned data with features, split in train,
+            validation and test
+
+    Returns:
+        dict: dict of predicted data, split in train, validation and test
+    """
     # Build predictor and create predictions
     predictor = PredictionModelCreator.create_prediction_model(
         pj,
@@ -233,6 +264,21 @@ def predicting_after_training_for_specific_pj(pj, model_trainer, split_input_dat
 def create_evaluation_figures_for_specific_pj(
     model_trainer, split_input_data, split_predicted_data
 ):
+    """Create figures of feature importance and data series of input and predicted data.
+
+    Args:
+        model_trainer (MLModelType): model trainer
+        split_input_data (dict): dict of cleaned data with features, split in train,
+            validation and test
+        split_predicted_data (dict): dict of predicted data, split in train, validation
+            and test
+
+    Returns:
+        tuple: tuple containing:
+            plotly.graph_objects.Figure: A treemap of the features.
+            plotly.graph_objects.Figure: A line plot of of split input and predicted
+                data series.
+    """
 
     # Create figures
     figure_features = plot_feature_importance(model_trainer.feature_importance)
@@ -255,6 +301,23 @@ def evaluate_new_model_for_specific_pj(
     split_predicted_data,
     compare_to_old=True,
 ):
+    """Evaluate quality of new model with old model, save model, figures and send Teams
+    message.
+
+    Model is saved if better than the old model unless specified
+    otherwise.
+
+    Args:
+        pj (dict): Prediction job
+        context (openstf.task.utils.TaskContext): Task context for logging
+        model_trainer (MLModelType): model trainer
+        split_input_data (dict): dict of cleaned data with features, split in train,
+            validation and test
+        split_predicted_data (dict): dict of predicted data, split in train, validation
+            and test
+        compare_to_old (bool, optional): Compare new trained model to old trained model
+            if True. Defaults to True.
+    """
     figure_features, figure_series = create_evaluation_figures_for_specific_pj(
         model_trainer, split_input_data, split_predicted_data
     )
