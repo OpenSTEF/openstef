@@ -8,7 +8,6 @@ from pathlib import Path
 
 from ktpbase.database import DataBase
 from ktpbase.log import logging
-from ktpbase.config.config import ConfigManager
 
 from openstf.feature_engineering.general import calc_completeness
 from openstf.model.figure import (
@@ -73,9 +72,7 @@ def is_data_sufficient(data):
     return is_sufficient
 
 
-def train_model_for_specific_pj(
-    pj, context, retrain_young_models=False, compare_to_old=True
-):
+def train_model_pipeline(pj, context, retrain_young_models=False, compare_to_old=True):
     """Main function that controls the training process of one prediction job.
 
     Here, on a high level, the input data is collected, features are applied and the
@@ -94,35 +91,53 @@ def train_model_for_specific_pj(
         Trained model (FIXME can be various datatypes at present)
     """
 
-    model_trainer = create_model_for_specific_pj(context, pj, retrain_young_models)
+    # TODO Maybe this whole function can be replaced with a scikit learn pipeline?
+    model_trainer = create_model_for_specific_pj(pj, context, retrain_young_models)
 
     if model_trainer is None:
         return
 
     context.perf_meter.checkpoint("model-creation")
 
-    data_realised = preprocessing_for_specific_pj(model_trainer, context, pj)
+    split_input_data = preprocessing_for_specific_pj(pj, context)
 
     context.perf_meter.checkpoint("preprocessing")
 
-    train_for_specific_pj(model_trainer, data_realised)
+    train_for_specific_pj(model_trainer, split_input_data)
 
     context.perf_meter.checkpoint("training")
 
-    data_predict = predicting_for_specific_pj(model_trainer, context, pj, data_realised)
+    split_predicted_data = predicting_after_training_for_specific_pj(
+        pj,
+        model_trainer,
+        split_input_data,
+    )
 
     context.perf_meter.checkpoint("predicting")
 
-    evaluate_for_specific_pj(
-        model_trainer, context, pj, data_realised, data_predict, compare_to_old
+    evaluate_new_model_for_specific_pj(
+        pj,
+        context,
+        model_trainer,
+        split_input_data,
+        split_predicted_data,
+        compare_to_old,
     )
 
     context.perf_meter.checkpoint("evaluation")
 
 
-def create_model_for_specific_pj(context, pj, retrain_young_models=False):
+def create_model_for_specific_pj(pj, context, retrain_young_models=False):
+    """Create model trainer for one pj.
 
-    # TODO Maybe this whole function can be replaced with a scikit learn pipeline?
+    Args:
+        context (openstf.task.utils.TaskContext): Task context for logging
+        pj (dict): Prediction job
+        retrain_young_models (bool, optional): [description]. Defaults to False.
+
+    Returns:
+        [type]: [description]
+    """
     # Make model trainer creator
     mc = ModelTrainerCreator(pj)
 
@@ -145,13 +160,16 @@ def create_model_for_specific_pj(context, pj, retrain_young_models=False):
     return model_trainer
 
 
-def preprocessing_for_specific_pj(model_trainer, context, pj):
+def preprocessing_for_specific_pj(pj, context):
     # Specify training period
     # use hyperparam training_period_days if available
-    lookback = float(
-        model_trainer.hyper_parameters.get("training_period_days", TRAINING_PERIOD_DAYS)
+    hyperparams = {"training_period_days": TRAINING_PERIOD_DAYS, "featureset_name": "D"}
+    hyperparams.update(context.database.get_hyper_params())
+
+    featureset = context.database.get_featureset(hyperparams["featureset_name"])
+    datetime_start = datetime.utcnow() - timedelta(
+        days=hyperparams["training_period_days"]
     )
-    datetime_start = datetime.utcnow() - timedelta(days=lookback)
     datetime_end = datetime.utcnow()
 
     # Get data from database
@@ -161,8 +179,6 @@ def preprocessing_for_specific_pj(model_trainer, context, pj):
         datetime_start=datetime_start,
         datetime_end=datetime_end,
     )
-    featureset_name = model_trainer.hyper_parameters["featureset_name"]
-    featureset = context.database.get_featureset(featureset_name)
 
     # Pre-process data
     clean_data_with_features = pre_process_data(data, featureset)
@@ -182,12 +198,12 @@ def preprocessing_for_specific_pj(model_trainer, context, pj):
     }
 
 
-def train_for_specific_pj(model_trainer, data_realised):
+def train_for_specific_pj(model_trainer, split_input_data):
     # Train model
-    model_trainer.train(data_realised.train_data, data_realised.validation_data)
+    model_trainer.train(split_input_data.train_data, split_input_data.validation_data)
 
 
-def predicting_for_specific_pj(model_trainer, pj, data_realised):
+def predicting_after_training_for_specific_pj(pj, model_trainer, split_input_data):
     # Build predictor and create predictions
     predictor = PredictionModelCreator.create_prediction_model(
         pj,
@@ -196,15 +212,15 @@ def predicting_for_specific_pj(model_trainer, pj, data_realised):
         model_trainer.confidence_interval,
     )
     train_predict = predictor.make_forecast(
-        data_realised.train_data.iloc[:, 1:].drop("Horizon", axis=1, errors="ignore")
+        split_input_data.train_data.iloc[:, 1:].drop("Horizon", axis=1, errors="ignore")
     )
     validation_predict = predictor.make_forecast(
-        data_realised.validation_data.iloc[:, 1:].drop(
+        split_input_data.validation_data.iloc[:, 1:].drop(
             "Horizon", axis=1, errors="ignore"
         )
     )
     test_predict = predictor.make_forecast(
-        data_realised.test_data.iloc[:, 1:].drop("Horizon", axis=1, errors="ignore")
+        split_input_data.test_data.iloc[:, 1:].drop("Horizon", axis=1, errors="ignore")
     )
 
     return {
@@ -214,32 +230,37 @@ def predicting_for_specific_pj(model_trainer, pj, data_realised):
     }
 
 
-def create_figures_for_specific_pj(model_trainer, data_realised, data_predict):
+def create_evaluation_figures_for_specific_pj(
+    model_trainer, split_input_data, split_predicted_data
+):
 
     # Create figures
     figure_features = plot_feature_importance(model_trainer.feature_importance)
     figure_series = {
         f"Predictor{horizon}": plot_data_series(
-            list(data_realised.values()),
-            list(data_predict.values()),
+            list(split_input_data.values()),
+            list(split_predicted_data.values()),
             horizon,
         )
-        for horizon in data_realised.train_data.Horizon.unique()
+        for horizon in split_input_data.train_data.Horizon.unique()
     }
     return figure_features, figure_series
 
 
-def evaluate_for_specific_pj(
-    model_trainer, context, pj, data_realised, data_predict, compare_to_old=True
+def evaluate_new_model_for_specific_pj(
+    pj,
+    context,
+    model_trainer,
+    split_input_data,
+    split_predicted_data,
+    compare_to_old=True,
 ):
-    figure_features, figure_series = create_figures_for_specific_pj(
-        model_trainer, data_realised, data_predict
+    figure_features, figure_series = create_evaluation_figures_for_specific_pj(
+        model_trainer, split_input_data, split_predicted_data
     )
 
     # Combine validation + train data
-    combined = data_realised.train_data.append(data_realised.validation_data)
-
-    config = ConfigManager.get_instance()
+    combined = split_input_data.train_data.append(split_input_data.validation_data)
 
     # Evaluate model and store if better than old model
     # TODO Use predicted data series created above instead of predicting again
@@ -249,7 +270,7 @@ def evaluate_for_specific_pj(
         model_trainer.store_model()
 
         # Save figures to disk
-        save_loc = Path(config.paths.trained_models) / str(pj["id"])
+        save_loc = Path(context.config.paths.trained_models) / str(pj["id"])
         os.makedirs(save_loc, exist_ok=True)
         figure_features.write_html(str(save_loc / "weight_plot.html"))
         for key, fig in figure_series.items():
@@ -260,7 +281,9 @@ def evaluate_for_specific_pj(
         context.logger.warning("Old model is better then new model", prediction_job=pj)
 
         # Save figures to disk
-        save_loc = Path(config.paths.trained_models) / str(pj["id"]) / "worse_model"
+        save_loc = (
+            Path(context.config.paths.trained_models) / str(pj["id"]) / "worse_model"
+        )
         os.makedirs(save_loc, exist_ok=True)
         figure_features.write_html(str(save_loc / "weight_plot.html"))
         for key, fig in figure_series.items():
@@ -305,6 +328,4 @@ def train_specific_model(context, pid):
     pj = db.get_prediction_job(pid)
 
     # Train model for pj
-    train_model_for_specific_pj(
-        pj, context, compare_to_old=False, retrain_young_models=True
-    )
+    train_model_pipeline(pj, context, compare_to_old=False, retrain_young_models=True)
