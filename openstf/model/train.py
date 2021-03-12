@@ -86,16 +86,45 @@ def train_model_for_specific_pj(
     Args:
         pj (dict): Prediction job
         context (openstf.task.utils.TaskContext): Task context for logging
-        retrain_young_models (bool): Retrain models younger then 7 days if True
+        retrain_young_models (bool): Retrain models younger then MAX_AGE_YOUNG_MODEL
+            days if True
         compare_to_old (bool): Compare new trained model to old trained model if True
 
     Returns:
         Trained model (FIXME can be various datatypes at present)
     """
+
+    model_trainer = create_model_for_specific_pj(context, pj, retrain_young_models)
+
+    if model_trainer is None:
+        return
+
+    context.perf_meter.checkpoint("model-creation")
+
+    data_realised = preprocessing_for_specific_pj(model_trainer, context, pj)
+
+    context.perf_meter.checkpoint("preprocessing")
+
+    train_for_specific_pj(model_trainer, data_realised)
+
+    context.perf_meter.checkpoint("training")
+
+    data_predict = predicting_for_specific_pj(model_trainer, context, pj, data_realised)
+
+    context.perf_meter.checkpoint("predicting")
+
+    evaluate_for_specific_pj(
+        model_trainer, context, pj, data_realised, data_predict, compare_to_old
+    )
+
+    context.perf_meter.checkpoint("evaluation")
+
+
+def create_model_for_specific_pj(context, pj, retrain_young_models=False):
+
     # TODO Maybe this whole function can be replaced with a scikit learn pipeline?
     # Make model trainer creator
     mc = ModelTrainerCreator(pj)
-    config = ConfigManager.get_instance()
 
     # Make model trainer
     model_trainer = mc.create_model_trainer()
@@ -113,8 +142,10 @@ def train_model_for_specific_pj(
     # Set optimized hyper parameters if available
     model_trainer.hyper_parameters.update(context.database.get_hyper_params(pj))
 
-    context.perf_meter.checkpoint("model-creation")
+    return model_trainer
 
+
+def preprocessing_for_specific_pj(model_trainer, context, pj):
     # Specify training period
     # use hyperparam training_period_days if available
     lookback = float(
@@ -144,14 +175,19 @@ def train_model_for_specific_pj(
     train_data, validation_data, test_data = split_data_train_validation_test(
         clean_data_with_features
     )
+    return {
+        "train_data": train_data,
+        "validation_data": validation_data,
+        "test_data": test_data,
+    }
 
-    context.perf_meter.checkpoint("preprocessing")
 
+def train_for_specific_pj(model_trainer, data_realised):
     # Train model
-    model_trainer.train(train_data, validation_data)
+    model_trainer.train(data_realised.train_data, data_realised.validation_data)
 
-    context.perf_meter.checkpoint("training")
 
+def predicting_for_specific_pj(model_trainer, pj, data_realised):
     # Build predictor and create predictions
     predictor = PredictionModelCreator.create_prediction_model(
         pj,
@@ -160,30 +196,50 @@ def train_model_for_specific_pj(
         model_trainer.confidence_interval,
     )
     train_predict = predictor.make_forecast(
-        train_data.iloc[:, 1:].drop("Horizon", axis=1, errors="ignore")
+        data_realised.train_data.iloc[:, 1:].drop("Horizon", axis=1, errors="ignore")
     )
     validation_predict = predictor.make_forecast(
-        validation_data.iloc[:, 1:].drop("Horizon", axis=1, errors="ignore")
+        data_realised.validation_data.iloc[:, 1:].drop(
+            "Horizon", axis=1, errors="ignore"
+        )
     )
     test_predict = predictor.make_forecast(
-        test_data.iloc[:, 1:].drop("Horizon", axis=1, errors="ignore")
+        data_realised.test_data.iloc[:, 1:].drop("Horizon", axis=1, errors="ignore")
     )
 
-    context.perf_meter.checkpoint("predicting")
+    return {
+        "train_predict": train_predict,
+        "validation_predict": validation_predict,
+        "test_predict": test_predict,
+    }
+
+
+def create_figures_for_specific_pj(model_trainer, data_realised, data_predict):
 
     # Create figures
     figure_features = plot_feature_importance(model_trainer.feature_importance)
     figure_series = {
         f"Predictor{horizon}": plot_data_series(
-            [train_data, validation_data, test_data],
-            [train_predict, validation_predict, test_predict],
+            list(data_realised.values()),
+            list(data_predict.values()),
             horizon,
         )
-        for horizon in train_data.Horizon.unique()
+        for horizon in data_realised.train_data.Horizon.unique()
     }
+    return figure_features, figure_series
+
+
+def evaluate_for_specific_pj(
+    model_trainer, context, pj, data_realised, data_predict, compare_to_old=True
+):
+    figure_features, figure_series = create_figures_for_specific_pj(
+        model_trainer, data_realised, data_predict
+    )
 
     # Combine validation + train data
-    combined = train_data.append(validation_data)
+    combined = data_realised.train_data.append(data_realised.validation_data)
+
+    config = ConfigManager.get_instance()
 
     # Evaluate model and store if better than old model
     # TODO Use predicted data series created above instead of predicting again
@@ -228,13 +284,11 @@ def train_model_for_specific_pj(
 
         send_report_teams_worse(pj)
 
-    context.perf_meter.checkpoint("evaluation")
-
 
 def train_specific_model(context, pid):
     """Train model for given prediction id.
 
-    Tracy-compatible function to train a specific model based on the prediction id (pid).
+    Tracy-compatible function to train a specific model based on the prediction id (pid)
     Should not be used outside of Tracy, preferred alternative:
         train_model_for_specific_pj
 

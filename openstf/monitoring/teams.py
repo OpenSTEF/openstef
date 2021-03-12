@@ -108,7 +108,7 @@ def post_teams_alert(msg, invalid_coefs=None, coefsdf=None, url=None):
         )
         query = build_sql_query_string(coefsdf, "energy_split_coefs")
         query_text = "If you would like to update the coefficients manually in the "
-        f"database, use this query:"
+        "database, use this query:"
         msg = {
             "fallback": msg,
             "title": "Invalid energy splitting coefficients",
