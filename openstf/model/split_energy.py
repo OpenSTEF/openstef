@@ -54,7 +54,7 @@ def split_energy(pid):
     if not invalid_coefs.empty:
         # If coefs not valid, do not update the coefs in the db and send teams
         # message that something strange is happening
-        monitoring.post_teams_alert(
+        monitoring.post_teams(
             f"New splitting coefficient(s) for pid **{pj['id']}** deviate strongly "
             f"from previously stored coefficients.",
             invalid_coefs=invalid_coefs,
