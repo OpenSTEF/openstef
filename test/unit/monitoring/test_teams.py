@@ -54,9 +54,7 @@ class TestTeams(BaseTestCase):
         query_df = pd.DataFrame(data=[["a", 1], ["b", 2]], columns=["key", "value"])
         table = "table"
 
-        query_expected = (
-            "```INSERT INTO table (key, value) VALUES  \n('a', 1),  \n('b', 2)```"
-        )
+        query_expected = "```  \nINSERT INTO table (key, value) VALUES  \n('a', 1),  \n('b', 2)  \n```"
 
         query_result = teams.build_sql_query_string(query_df, table)
         self.assertEqual(query_result, query_expected)
