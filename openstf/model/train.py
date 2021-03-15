@@ -243,15 +243,19 @@ def predict_after_training_for_specific_pj(pj, model_trainer, split_input_data):
         model_trainer.confidence_interval,
     )
     train_predict = predictor.make_forecast(
-        split_input_data.train_data.iloc[:, 1:].drop("Horizon", axis=1, errors="ignore")
+        split_input_data["train_data"]
+        .iloc[:, 1:]
+        .drop("Horizon", axis=1, errors="ignore")
     )
     validation_predict = predictor.make_forecast(
-        split_input_data.validation_data.iloc[:, 1:].drop(
-            "Horizon", axis=1, errors="ignore"
-        )
+        split_input_data["validation_data"]
+        .iloc[:, 1:]
+        .drop("Horizon", axis=1, errors="ignore")
     )
     test_predict = predictor.make_forecast(
-        split_input_data.test_data.iloc[:, 1:].drop("Horizon", axis=1, errors="ignore")
+        split_input_data["test_data"]
+        .iloc[:, 1:]
+        .drop("Horizon", axis=1, errors="ignore")
     )
 
     return {
@@ -276,8 +280,8 @@ def create_evaluation_figures_for_specific_pj(
     Returns:
         tuple: tuple containing:
             plotly.graph_objects.Figure: A treemap of the features.
-            plotly.graph_objects.Figure: A line plot of of split input and predicted
-                data series.
+            dict: dict of line plots of of split input and predicted
+                data series per prediction horizon.
     """
 
     # Create figures
@@ -288,7 +292,7 @@ def create_evaluation_figures_for_specific_pj(
             list(split_predicted_data.values()),
             horizon,
         )
-        for horizon in split_input_data.train_data.Horizon.unique()
+        for horizon in split_input_data["train_data"].Horizon.unique()
     }
     return figure_features, figure_series
 
@@ -323,7 +327,9 @@ def evaluate_new_model_for_specific_pj(
     )
 
     # Combine validation + train data
-    combined = split_input_data.train_data.append(split_input_data.validation_data)
+    combined = split_input_data["train_data"].append(
+        split_input_data["validation_data"]
+    )
 
     # Evaluate model and store if better than old model
     # TODO Use predicted data series created above instead of predicting again
