@@ -49,9 +49,9 @@ params = {
     "objective": "reg:linear",
 }
 
-pj_mock = MagicMock()
 context_mock = MagicMock()
 model_trainer_mock = MagicMock()
+model_trainer_creator_mock = MagicMock()
 
 split_input_data = {
     "train_data": pd.DataFrame({"Horizon": [24]}),
@@ -65,16 +65,8 @@ split_predicted_data = {
 }
 
 
-# def model_trainer_mock():
-#     model_trainer = MagicMock()
-#     model_trainer.old_model_age = MagicMock(return_value=6)
-#     return model_trainer
-
-
-def model_trainer_creator_mock(pj):
-    model_trainer_creator = MagicMock()
-    model_trainer_creator.create_model_trainer = model_trainer_mock()
-    return model_trainer_creator
+def better_than_old_model_mock(_):
+    return False
 
 
 class TestTrain(BaseTestCase):
@@ -103,26 +95,43 @@ class TestTrain(BaseTestCase):
         self.model_trainer_ref.hyper_parameters.update(params)
         self.model_trainer_ref.train(self.training_data_ref, self.validation_data_ref)
 
-    # def test_create_model_for_specific_pj_retrain_young_models_true(
-    #     self,
-    # ):
-    #     context = MagicMock()
+    @patch(
+        "openstf.model.train.ModelTrainerCreator",
+        MagicMock(return_value=model_trainer_creator_mock),
+    )
+    def test_create_model_for_specific_pj_retrain_young_models_true(
+        self,
+    ):
+        def create_model_trainer_mock():
+            model_trainer = MagicMock()
+            model_trainer.old_model_age = MAX_AGE_YOUNG_MODEL + 1
+            return model_trainer
 
-    #     result = create_model_for_specific_pj(pj, context, retrain_young_models=True)
-    #     self.assertEqual(model_trainer_mock.call_count, 1)
-    #     self.assertEqual(result, model_trainer_mock)
+        model_trainer_creator_mock.create_model_trainer = create_model_trainer_mock
 
-    # # @patch(
-    # #     "openstf.model.train.model_trainer.old_model_age",
-    # #     MagicMock(return_value=MAX_AGE_YOUNG_MODEL + 1),
-    # # )
-    # def test_create_model_for_specific_pj_retrain_young_models_false(self):
-    #     context = MagicMock()
-    #     result = create_model_for_specific_pj(pj, context, retrain_young_models=False)
-    #     # context logger gecalled
-    #     self.assertEqual(context.logger.info.call_count, 1)
-    #     self.assertEqual(model_trainer_mock.old_model_age.call_count, 1)
-    #     self.assertIsNone(result)
+        result = create_model_for_specific_pj(
+            pj, context_mock, retrain_young_models=True
+        )
+        result_expected = model_trainer_creator_mock.create_model_trainer()
+        self.assertEqual(result, result_expected)
+
+    @patch(
+        "openstf.model.train.ModelTrainerCreator",
+        MagicMock(return_value=model_trainer_creator_mock),
+    )
+    def test_create_model_for_specific_pj_retrain_young_models_false(self):
+        def create_model_trainer_mock():
+            model_trainer = MagicMock()
+            model_trainer.old_model_age = MAX_AGE_YOUNG_MODEL - 1
+            return model_trainer
+
+        model_trainer_creator_mock.create_model_trainer = create_model_trainer_mock
+
+        result = create_model_for_specific_pj(
+            pj, context_mock, retrain_young_models=False
+        )
+        # context logger gecalled
+        self.assertIsNone(result)
 
     @patch("openstf.model.train.pre_process_data")
     @patch("openstf.model.train.is_data_sufficient")
@@ -135,7 +144,7 @@ class TestTrain(BaseTestCase):
         is_data_sufficient_mock,
         pre_process_data_mock,
     ):
-        result = preprocess_for_specific_pj(pj_mock, context_mock)
+        result = preprocess_for_specific_pj(pj, context_mock)
         result_expected = {
             "train_data": None,
             "validation_data": None,
@@ -153,7 +162,7 @@ class TestTrain(BaseTestCase):
         prediction_model_creator_mock,
     ):
         result = predict_after_training_for_specific_pj(
-            pj_mock, model_trainer_mock, split_input_data
+            pj, model_trainer_mock, split_input_data
         )
         # return dict with three keys
         result_expected = split_predicted_data
@@ -175,25 +184,21 @@ class TestTrain(BaseTestCase):
 
         self.assertEqual(result, expected_result)
 
-    # @patch(
-    #     "openstf.model.train.model_trainer.better_than_old_model",
-    #     MagicMock(return_value=True),
-    # )
-
-    @patch("openstf.model.train.send_report_teams_better")
+    @patch("openstf.model.train.send_report_teams_worse")
     @patch("openstf.model.train.os.makedirs")
     @patch(
         "openstf.model.train.create_evaluation_figures_for_specific_pj",
-        MagicMock(return_value=(go.Figure(), go.Figure())),
+        MagicMock(return_value=(MagicMock(), MagicMock())),
     )
     def test_evaluate_new_model_for_specific_pj_compare_to_old_true(
         self,
         makedirs_mock,
-        send_report_teams_better_mock,
+        send_report_teams_worse_mock,
     ):
+        model_trainer_mock.better_than_old_model = better_than_old_model_mock
 
         evaluate_new_model_for_specific_pj(
-            pj_mock,
+            pj,
             context_mock,
             model_trainer_mock,
             split_input_data,
@@ -202,26 +207,22 @@ class TestTrain(BaseTestCase):
         )
 
         self.assertEqual(makedirs_mock.call_count, 1)
-        self.assertEqual(send_report_teams_better_mock.call_count, 1)
+        self.assertEqual(send_report_teams_worse_mock.call_count, 1)
 
-    # @patch(
-    #     "openstf.model.train.model_trainer.better_than_old_model",
-    #     MagicMock(return_value=False),
-    # )
-    @patch("openstf.model.train.send_report_teams_worse")
+    @patch("openstf.model.train.send_report_teams_better")
+    @patch("openstf.model.train.os.makedirs")
     @patch(
         "openstf.model.train.create_evaluation_figures_for_specific_pj",
-        MagicMock(return_value=(go.Figure(), go.Figure())),
+        MagicMock(return_value=(MagicMock(), MagicMock())),
     )
-    @patch("openstf.model.train.os.makedirs")
     def test_evaluate_new_model_for_specific_pj_compare_to_old_false(
         self,
         makedirs_mock,
-        send_report_teams_worse_mock,
+        send_report_teams_better_mock,
     ):
-
+        model_trainer_mock.better_than_old_model = better_than_old_model_mock
         evaluate_new_model_for_specific_pj(
-            pj_mock,
+            pj,
             context_mock,
             model_trainer_mock,
             split_input_data,
@@ -230,7 +231,7 @@ class TestTrain(BaseTestCase):
         )
 
         self.assertEqual(makedirs_mock.call_count, 1)
-        self.assertEqual(send_report_teams_worse_mock.call_count, 1)
+        self.assertEqual(send_report_teams_better_mock.call_count, 1)
 
     def test_model_trainer_creator(self):
         serializer_creator = ModelSerializerCreator()
