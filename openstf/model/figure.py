@@ -69,7 +69,7 @@ def plot_data_series(data, predict_data=None, horizon=47, names=None):
     series_names = {
         1: ("series",),
         2: ("train", "validation"),
-        3: ("train", "validation", "test")
+        3: ("train", "validation", "test"),
     }
 
     num_series = len(data)
