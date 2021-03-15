@@ -34,7 +34,7 @@ class TestTeams(BaseTestCase):
         card_mock = teamsmock.connectorcard.return_value
         self.assertTrue(card_mock.send.called)
 
-    def test_post_teams_alert_invalid_keys(self, teamsmock):
+    def test_post_teams_invalid_keys(self, teamsmock):
 
         msg = "test"
         invalid_coefs = pd.DataFrame(
@@ -46,7 +46,7 @@ class TestTeams(BaseTestCase):
         )
         coefsdf = pd.DataFrame()
 
-        teams.post_teams_alert(msg, invalid_coefs=invalid_coefs, coefsdf=coefsdf)
+        teams.post_teams(msg, invalid_coefs=invalid_coefs, coefsdf=coefsdf)
         card_mock = teamsmock.connectorcard.return_value
         self.assertTrue(card_mock.send.called)
 
