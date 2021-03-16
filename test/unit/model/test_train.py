@@ -49,10 +49,18 @@ params = {
     "objective": "reg:linear",
 }
 
-context_mock = MagicMock()
-model_trainer_mock = MagicMock()
-model_trainer_creator_mock = MagicMock()
 
+# mock functions
+def better_than_old_model_mock(_):
+    return False
+
+
+context_mock = MagicMock()
+model_trainer_creator_mock = MagicMock()
+model_trainer_mock = MagicMock()
+model_trainer_mock.better_than_old_model = better_than_old_model_mock
+
+# mock data
 split_input_data = {
     "train_data": pd.DataFrame({"Horizon": [24]}),
     "validation_data": pd.DataFrame(),
@@ -63,10 +71,6 @@ split_predicted_data = {
     "validation_predict": None,
     "test_predict": None,
 }
-
-
-def better_than_old_model_mock(_):
-    return False
 
 
 class TestTrain(BaseTestCase):
@@ -88,8 +92,6 @@ class TestTrain(BaseTestCase):
             "colsample_bytree": 0.85,
             "silent": 1,
             "objective": "reg:squarederror",
-            "training_period_days": 7,
-            "featureset_name": "D",
         }
         self.model_trainer_ref = XGBModelTrainer(pj)
         self.model_trainer_ref.hyper_parameters.update(params)
@@ -112,8 +114,7 @@ class TestTrain(BaseTestCase):
         result = create_model_for_specific_pj(
             pj, context_mock, retrain_young_models=True
         )
-        result_expected = model_trainer_creator_mock.create_model_trainer()
-        self.assertEqual(result, result_expected)
+        self.assertIsInstance(result, MagicMock)
 
     @patch(
         "openstf.model.train.ModelTrainerCreator",
@@ -131,6 +132,7 @@ class TestTrain(BaseTestCase):
             pj, context_mock, retrain_young_models=False
         )
         # context logger gecalled
+        self.assertEqual(context_mock.logger.info.call_count, 1)
         self.assertIsNone(result)
 
     @patch("openstf.model.train.pre_process_data")
@@ -164,7 +166,6 @@ class TestTrain(BaseTestCase):
         result = predict_after_training_for_specific_pj(
             pj, model_trainer_mock, split_input_data
         )
-        # return dict with three keys
         result_expected = split_predicted_data
 
         self.assertEqual(result.keys(), result_expected.keys())
@@ -195,8 +196,6 @@ class TestTrain(BaseTestCase):
         makedirs_mock,
         send_report_teams_worse_mock,
     ):
-        model_trainer_mock.better_than_old_model = better_than_old_model_mock
-
         evaluate_new_model_for_specific_pj(
             pj,
             context_mock,
