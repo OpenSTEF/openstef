@@ -73,7 +73,7 @@ def post_teams(msg, invalid_coefs=None, coefsdf=None, url=None):
     # if Teams url is not configured just return
     if url is None:
         if hasattr(config, "teams") is True:
-            url = config.teams.alert_url
+            url = config.teams.monitoring_url
         else:
             logger.warning("Can't post Teams message, no url given")
             return
