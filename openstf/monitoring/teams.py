@@ -71,11 +71,12 @@ def post_teams(msg, invalid_coefs=None, coefsdf=None, url=None):
         }
 
     # if Teams url is not configured just return
-    if url is None and (
-        hasattr(config, "teams") is False or config.teams.monitoring_url is None
-    ):
-        logger.warning("Can't post Teams message, no url given")
-        return
+    if url is None:
+        if hasattr(config, "teams") is True:
+            url = config.teams.alert_url
+        else:
+            logger.warning("Can't post Teams message, no url given")
+            return
 
     card = pymsteams.connectorcard(url)
 
