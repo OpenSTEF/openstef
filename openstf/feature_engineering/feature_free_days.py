@@ -79,7 +79,9 @@ def create_holiday_functions(
         )
 
         # Check for bridge day
-        holiday_functions, bridge_days = check_for_bridge_day(date, holiday_name,country, years, holiday_functions, bridge_days)
+        holiday_functions, bridge_days = check_for_bridge_day(
+            date, holiday_name, country, years, holiday_functions, bridge_days
+        )
 
     # Add feature function that includes all bridgedays
     holiday_functions.update(
@@ -117,8 +119,10 @@ def create_holiday_functions(
 
 
 # Check for bridgedays
-def check_for_bridge_day(date, holiday_name, country, years, holiday_functions, bridge_days):
-    """ Checks for bridgedays associated to a specific holiday with date (date).
+def check_for_bridge_day(
+    date, holiday_name, country, years, holiday_functions, bridge_days
+):
+    """Checks for bridgedays associated to a specific holiday with date (date).
     Any found bridgedays are appende dto the bridgedays list.
     Also a specific feature function for the bridgeday is added to the
      general holidayfuncitons dictionary.
@@ -145,29 +149,26 @@ def check_for_bridge_day(date, holiday_name, country, years, holiday_functions, 
     # Looking forward: If day after tomorow is a national holiday or
     # a saturday check if tomorow is not a national holiday
 
-
-
     is_saturday_in_two_days = (date + timedelta(days=2)).weekday() == 5
     is_holiday_in_two_days = (date + timedelta(days=2)) in country_holidays
-
-
 
     is_holiday_tommorow = (date + timedelta(days=1)) in country_holidays
     is_weekend_tommorrow = (date + timedelta(days=1)).weekday() in [5, 6]
 
-    if (is_holiday_in_two_days or is_saturday_in_two_days) \
-            and (not is_holiday_tommorow and not is_weekend_tommorrow):
+    if (is_holiday_in_two_days or is_saturday_in_two_days) and (
+        not is_holiday_tommorow and not is_weekend_tommorrow
+    ):
 
-                    # Create feature function for each holiday
-            holiday_functions.update(
-                {
-                    "is_bridgeday"
-                    + holiday_name.replace(" ", "_").lower(): make_holiday_func(
-                        (date + timedelta(days=1))
-                    )
-                }
-            )
-            bridge_days.append((date + timedelta(days=1)))
+        # Create feature function for each holiday
+        holiday_functions.update(
+            {
+                "is_bridgeday"
+                + holiday_name.replace(" ", "_").lower(): make_holiday_func(
+                    (date + timedelta(days=1))
+                )
+            }
+        )
+        bridge_days.append((date + timedelta(days=1)))
 
     # Looking backward: If day before yesterday is a national holiday
     # or a sunday check if yesterday is a national holiday
@@ -176,18 +177,19 @@ def check_for_bridge_day(date, holiday_name, country, years, holiday_functions, 
     is_holiday_yesterday = (date - timedelta(days=1)) in country_holidays
     is_weekend_yesterday = (date - timedelta(days=1)).weekday() in [5, 6]
 
-    if (is_saturday_two_days_ago or is_holiday_two_days_ago) \
-        and (not is_holiday_yesterday and not is_weekend_yesterday):
+    if (is_saturday_two_days_ago or is_holiday_two_days_ago) and (
+        not is_holiday_yesterday and not is_weekend_yesterday
+    ):
 
-            # Create featurefunction for the bridge function
-            holiday_functions.update(
-                {
-                    "is_bridgeday"
-                    + holiday_name.replace(" ", "_").lower(): make_holiday_func(
-                        (date - timedelta(days=1))
-                    )
-                }
-            )
-            bridge_days.append((date - timedelta(days=1)))
+        # Create featurefunction for the bridge function
+        holiday_functions.update(
+            {
+                "is_bridgeday"
+                + holiday_name.replace(" ", "_").lower(): make_holiday_func(
+                    (date - timedelta(days=1))
+                )
+            }
+        )
+        bridge_days.append((date - timedelta(days=1)))
 
     return holiday_functions, bridge_days
