@@ -7,33 +7,18 @@ from openstf.feature_engineering.feature_free_days import create_holiday_functio
 
 from test.utils import BaseTestCase
 
-expected_keys = [
-    "IsFeestdag",
-    "IsVoorjaarsvakantieZuid",
-    "IsBouwvakMidden",
-    "IsHerfstvakantieZuid",
-    "IsKoningsdag",
-    "IsZomervakantieMidden",
-    "IsHerfstvakantieMidden",
-    "IsBevrijdingsdag",
-    "IsPinksteren",
-    "IsBevrijdingsdag(brugdagen)",
-    "IsHerfstvakantieNoord",
-    "IsPasen",
-    "IsPaasdag",
-    "IsKerstvakantie",
-    "IsBouwvakNoord",
-    "IsVoorjaarsvakantieNoord",
-    "IsBouwvakZuid",
-    "IsHemelvaart(brugdagen)",
-    "IsMeivakantie",
-    "IsZomervakantieNoord",
-    "IsNieuwjaarsdag",
-    "IsVoorjaarsvakantieMidden",
-    "IsZomervakantieZuid",
-    "IsKerst",
-    "IsHemelvaart",
-]
+expected_keys = ['is_national_holiday', 'is_nieuwjaarsdag', 'is_goede_vrijdag',
+                 'is_eerste_paasdag', 'is_tweede_paasdag', 'is_koningsdag',
+                 'is_bevrijdingsdag', 'is_bridgedaybevrijdingsdag', 'is_hemelvaart',
+                 'is_bridgedayhemelvaart', 'is_eerste_pinksterdag',
+                 'is_tweede_pinksterdag', 'is_eerste_kerstdag', 'is_tweede_kerstdag',
+                 'is_bridgedaykoningsdag', 'is_bridgeday', 'is_schoolholiday',
+                 'is_voorjaarsvakantiezuid', 'is_bouwvakmidden', 'is_bouwvakzuid',
+                 'is_meivakantie', 'is_zomervakantienoord', 'is_herfstvakantienoord',
+                 'is_kerstvakantie', 'is_voorjaarsvakantienoord',
+                 'is_voorjaarsvakantiemidden', 'is_herfstvakantiemidden',
+                 'is_bouwvaknoord', 'is_herfstvakantiezuid', 'is_zomervakantiezuid',
+                 'is_zomervakantiemidden']
 
 
 class GeneralTest(BaseTestCase):
