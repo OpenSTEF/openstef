@@ -34,49 +34,15 @@ def post_teams(msg, invalid_coefs=None, coefsdf=None, url=None):
     config = ConfigManager.get_instance()
     logger = logging.get_logger(__name__)
 
-    # Add invalid coefficients and manual coefficients-query to message
-    if invalid_coefs is not None and coefsdf is not None:
-        # add invalid coefficient information to message in dict-format
-        invalid_coefs_text = "".join(
-            [
-                f"\n* **{row.coef_name}**: {round(row.coef_value_new, 2)}, "
-                f"(previous: {round(row.coef_value_last, 2)})"
-                for index, row in invalid_coefs.iterrows()
-            ]
-        )
-        query = build_sql_query_string(coefsdf, "energy_split_coefs")
-        query_text = (
-            "If you would like to update the coefficients manually in the "
-            + "database, use this query:"
-        )
-        msg = {
-            "fallback": msg,
-            "title": "Invalid energy splitting coefficients",
-            "text": msg,
-            "sections": [
-                {
-                    "text": invalid_coefs_text,
-                    "markdown": True,
-                },
-                {
-                    "title": "Manual query",
-                    "text": query_text,
-                    "markdown": True,
-                },
-                {
-                    "text": query,
-                    "markdown": True,
-                },
-            ],
-        }
-
-    # if Teams url is not configured just return
+    # If no url is passed fall back to default
     if url is None:
-        if hasattr(config, "teams") is True:
-            url = config.teams.monitoring_url
-        else:
+        # if Teams url is not configured just return
+        if hasattr(config, "teams") is False or config.teams.monitoring_url is None:
             logger.warning("Can't post Teams message, no url given")
             return
+        else:
+            logger.info("No url given, using default from config")
+            url = config.teams.monitoring_url
 
     card = pymsteams.connectorcard(url)
 

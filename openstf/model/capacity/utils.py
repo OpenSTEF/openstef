@@ -31,7 +31,7 @@ def balance_classes(x, y):
         if len(class_inds) > 0:
             inds += list(np.random.choice(class_inds, size=n, replace=replace))
 
-    mask = x.index.isin(inds)
+    mask = np.isin(y.index.values, inds)
     return x[mask], y[mask]
 
 
