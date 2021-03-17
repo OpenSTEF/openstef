@@ -78,49 +78,8 @@ def create_holiday_functions(
             {"is_" + holiday_name.replace(" ", "_").lower(): make_holiday_func(date)}
         )
 
-        # Check for bridgedays
-        # Looking forward: If day after tomorow is a national holiday or
-        # a saturday check if tomorow is not a national holiday
-        if (date + timedelta(days=2)) in country_holidays or (
-            date + timedelta(days=2)
-        ).weekday() == 5:
-
-            # If tomorow is not a national holiday or a weekend day make it a bridgeday
-            if not (date + timedelta(days=1)) in country_holidays and not (
-                date + timedelta(days=1)
-            ).weekday() in [5, 6]:
-
-                # Create feature function for each holiday
-                holiday_functions.update(
-                    {
-                        "is_bridgeday"
-                        + holiday_name.replace(" ", "_").lower(): make_holiday_func(
-                            (date + timedelta(days=1))
-                        )
-                    }
-                )
-                bridge_days.append((date + timedelta(days=1)))
-        # Looking backward: If day before yesterday is a national holiday
-        # or a sunday check if yesterday is a national holiday
-        if (date - timedelta(days=2)) in country_holidays or (
-            date - timedelta(days=2)
-        ).weekday() == 6:
-
-            # If yesterday is a not a national holiday or a weekend day ymake it a bridgeday
-            if not (date - timedelta(days=1)) in country_holidays and not (
-                date - timedelta(days=1)
-            ).weekday() in [5, 6]:
-
-                # Create featurefunction for the bridge function
-                holiday_functions.update(
-                    {
-                        "is_bridgeday"
-                        + holiday_name.replace(" ", "_").lower(): make_holiday_func(
-                            (date - timedelta(days=1))
-                        )
-                    }
-                )
-                bridge_days.append((date - timedelta(days=1)))
+        # Check for bridge day
+        holidayfunctions, bridgedays = check_for_bridge_day(date, holidayfunctions, bridgedays)
 
     # Add feature function that includes all bridgedays
     holiday_functions.update(
@@ -155,3 +114,68 @@ def create_holiday_functions(
         )
 
     return holiday_functions
+
+# Check for bridgedays
+def check_for_bridge_day(date, holidayfunctions, bridgedays):
+    """ Checks for bridgedays associated to a specific holiday with date (date).
+    Any found bridgedays are appende dto the bridgedays list.
+    Also a specific feature function for the bridgeday is added to the
+     general holidayfuncitons dictionary.
+
+    Args:
+        date: datetime.datetime, date of holiday to check for associated bridgedays
+        holidayfunctions: dictionary to which the featurefunction has to be appended to in case of a bridgeday
+        bridgedays: list of bridgedays to which any found bridgedays have to be appended
+
+    Returns:
+        holidayfunctions
+        bridgedays
+
+    """
+    country_holidays = holidays.CountryHoliday(country, years=years)
+    # Looking forward: If day after tomorow is a national holiday or
+    # a saturday check if tomorow is not a national holiday
+    if (date + timedelta(days=2)) in country_holidays or (
+        date + timedelta(days=2)
+    ).weekday() == 5:
+
+        # If tomorow is not a national holiday or a weekend day make it a bridgeday
+        if not (date + timedelta(days=1)) in country_holidays and not (
+            date + timedelta(days=1)
+        ).weekday() in [5, 6]:
+
+            # Create feature function for each holiday
+            holiday_functions.update(
+                {
+                    "is_bridgeday"
+                    + holiday_name.replace(" ", "_").lower(): make_holiday_func(
+                        (date + timedelta(days=1))
+                    )
+                }
+            )
+            bridge_days.append((date + timedelta(days=1)))
+
+
+    # Looking backward: If day before yesterday is a national holiday
+    # or a sunday check if yesterday is a national holiday
+    if (date - timedelta(days=2)) in country_holidays or (
+        date - timedelta(days=2)
+    ).weekday() == 6:
+
+        # If yesterday is a not a national holiday or a weekend day ymake it a bridgeday
+        if not (date - timedelta(days=1)) in country_holidays and not (
+            date - timedelta(days=1)
+        ).weekday() in [5, 6]:
+
+            # Create featurefunction for the bridge function
+            holiday_functions.update(
+                {
+                    "is_bridgeday"
+                    + holiday_name.replace(" ", "_").lower(): make_holiday_func(
+                        (date - timedelta(days=1))
+                    )
+                }
+            )
+            bridge_days.append((date - timedelta(days=1)))
+
+    return holidayfunctions, bridgedays
