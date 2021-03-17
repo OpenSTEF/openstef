@@ -344,7 +344,7 @@ def create_evaluation_figures(model_trainer, split_input_data, split_predicted_d
     figure_series = {
         f"Predictor{horizon}": plot_data_series(
             data=input_data_list,
-            predicted_data=predicted_data_list,
+            predict_data=predicted_data_list,
             horizon=horizon,
         )
         for horizon in horizons
