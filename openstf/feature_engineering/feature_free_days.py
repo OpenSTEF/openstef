@@ -143,16 +143,21 @@ def check_for_bridge_day(date, holiday_name, country, years, holiday_functions, 
 
     # Looking forward: If day after tomorow is a national holiday or
     # a saturday check if tomorow is not a national holiday
-    if (date + timedelta(days=2)) in country_holidays or (
-        date + timedelta(days=2)
-    ).weekday() == 5:
 
-        # If tomorow is not a national holiday or a weekend day make it a bridgeday
-        if not (date + timedelta(days=1)) in country_holidays and not (
-            date + timedelta(days=1)
-        ).weekday() in [5, 6]:
 
-            # Create feature function for each holiday
+
+    is_saturday_in_two_days = (date + timedelta(days=2)).weekday() == 5
+    is_holiday_in_two_days = (date + timedelta(days=2)) in country_holidays
+
+
+
+    is_holiday_tommorow = (date + timedelta(days=1)) in country_holidays
+    is_weekend_tommorrow = (date + timedelta(days=1)).weekday() in [5, 6]
+
+    if (is_holiday_in_two_days or is_saturday_in_two_days) \
+            and (not is_holiday_tommorow and not is_weekend_tommorrow):
+
+                    # Create feature function for each holiday
             holiday_functions.update(
                 {
                     "is_bridgeday"
@@ -166,14 +171,13 @@ def check_for_bridge_day(date, holiday_name, country, years, holiday_functions, 
 
     # Looking backward: If day before yesterday is a national holiday
     # or a sunday check if yesterday is a national holiday
-    if (date - timedelta(days=2)) in country_holidays or (
-        date - timedelta(days=2)
-    ).weekday() == 6:
+    is_saturday_two_days_ago = (date - timedelta(days=2)).weekday() == 6
+    is_holiday_two_days_ago = (date - timedelta(days=2)) in country_holidays
+    is_holiday_yesterday = (date - timedelta(days=1)) in country_holidays
+    is_weekend_yesterday = (date - timedelta(days=1)).weekday() in [5, 6]
 
-        # If yesterday is a not a national holiday or a weekend day ymake it a bridgeday
-        if not (date - timedelta(days=1)) in country_holidays and not (
-            date - timedelta(days=1)
-        ).weekday() in [5, 6]:
+    if (is_saturday_two_days_ago or is_holiday_two_days_ago) \
+        and (not is_holiday_yesterday and not is_weekend_yesterday):
 
             # Create featurefunction for the bridge function
             holiday_functions.update(
