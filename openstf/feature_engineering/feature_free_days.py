@@ -115,6 +115,7 @@ def create_holiday_functions(
 
     return holiday_functions
 
+
 # Check for bridgedays
 def check_for_bridge_day(date, holiday_name, country, years, holiday_functions, bridge_days):
     """ Checks for bridgedays associated to a specific holiday with date (date).
@@ -167,7 +168,6 @@ def check_for_bridge_day(date, holiday_name, country, years, holiday_functions, 
                 }
             )
             bridge_days.append((date + timedelta(days=1)))
-
 
     # Looking backward: If day before yesterday is a national holiday
     # or a sunday check if yesterday is a national holiday
