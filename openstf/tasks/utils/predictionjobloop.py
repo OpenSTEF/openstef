@@ -77,7 +77,7 @@ class PredictionJobLoop:
 
         return prediction_jobs
 
-    def _add_missing_info_prediciton_jobs(self, prediction_jobs_input):
+    def _add_missing_info_prediction_jobs(self, prediction_jobs_input):
         prediction_jobs = []
 
         for pj in prediction_jobs_input:
