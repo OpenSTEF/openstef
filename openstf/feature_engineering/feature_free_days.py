@@ -130,8 +130,3 @@ def create_holiday_functions(country="NL", years=None, path_to_school_holidays_c
         )
 
     return holiday_functions
-
-
-if __name__ == "__main__":
-    holiday_functions = create_holiday_functions(country="NL")
-    print(holiday_functions)

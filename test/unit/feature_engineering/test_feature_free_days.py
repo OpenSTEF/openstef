@@ -25,8 +25,6 @@ class GeneralTest(BaseTestCase):
     def test_create_holiday_functions(self):
         holiday_functions = create_holiday_functions(country="NL")
 
-        print(holiday_functions.keys())
-
         # Assert for every holiday a function is available and no extra functions are generated
         self.assertEqual(
             all([key in holiday_functions.keys() for key in expected_keys]), True
