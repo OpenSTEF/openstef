@@ -6,7 +6,7 @@ import unittest
 from test.utils import TestData
 from unittest.mock import MagicMock, patch
 
-from stf.model.hyper_parameters import optimize_hyperparameters
+from openstf.model.hyper_parameters import optimize_hyperparameters
 
 from test.utils import BaseTestCase
 
@@ -24,12 +24,12 @@ XGB_HYPER_PARAMS = {
 }
 
 
-@patch("stf.model.hyper_parameters.post_teams")
-@patch("stf.model.hyper_parameters.ModelTrainerCreator")
-@patch("stf.model.hyper_parameters.is_data_sufficient")
-@patch("stf.model.hyper_parameters.pre_process_data")
-@patch("stf.model.hyper_parameters.DataBase")
-@patch("stf.model.hyper_parameters.optuna")
+@patch("openstf.model.hyper_parameters.post_teams")
+@patch("openstf.model.hyper_parameters.ModelTrainerCreator")
+@patch("openstf.model.hyper_parameters.is_data_sufficient")
+@patch("openstf.model.hyper_parameters.pre_process_data")
+@patch("openstf.model.hyper_parameters.DataBase")
+@patch("openstf.model.hyper_parameters.optuna")
 class TestHyperParameters(BaseTestCase):
     def setUp(self):
         super().setUp()
@@ -43,7 +43,7 @@ class TestHyperParameters(BaseTestCase):
         pre_process_data_mock,
         is_data_sufficient_mock,
         modeltrainercreator_mock,
-        post_teams_mock
+        post_teams_mock,
     ):
         self.add_mock_return_values(
             optuna_mock, dataBase_mock, pre_process_data_mock, is_data_sufficient_mock
@@ -80,7 +80,7 @@ class TestHyperParameters(BaseTestCase):
         pre_process_data_mock,
         is_data_sufficient_mock,
         modeltrainercreator_mock,
-        post_teams_mock
+        post_teams_mock,
     ):
         self.add_mock_return_values(
             optuna_mock, dataBase_mock, pre_process_data_mock, is_data_sufficient_mock

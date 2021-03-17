@@ -8,7 +8,7 @@ from datetime import datetime
 from unittest.mock import patch
 
 # import project modules
-from stf.model.capacity.predict import predict_capacity_prognosis
+from openstf.model.capacity.predict import predict_capacity_prognosis
 
 from test.utils import BaseTestCase, TestData
 
@@ -17,22 +17,26 @@ FUCNTION_ARGS = [
     {"id": 1, "name": "job1", "description": "description for job 1"},
     datetime.utcnow().date(),
     datetime.utcnow().date(),
-    list(range(13))
+    list(range(13)),
 ]
 LOAD_DATA = TestData.load("capacity_load.csv")
 TDCV_DATA = TestData.load("capacity_tdcv_load_profiles.csv")
 
 
-@patch("stf.model.capacity.predict.visualize_predictions")
-@patch("stf.model.capacity.predict.prepare_prediction_data")
-@patch("stf.model.capacity.predict.CapacityPredictionModel")
-@patch("stf.model.capacity.predict.apply_capacity_features")
-@patch("stf.model.capacity.predict.DataBase")
-@patch("stf.model.capacity.predict.plotly")
+@patch("openstf.model.capacity.predict.visualize_predictions")
+@patch("openstf.model.capacity.predict.prepare_prediction_data")
+@patch("openstf.model.capacity.predict.CapacityPredictionModel")
+@patch("openstf.model.capacity.predict.apply_capacity_features")
+@patch("openstf.model.capacity.predict.DataBase")
+@patch("openstf.model.capacity.predict.plotly")
 class TestCapacityPredict(BaseTestCase):
-
     def test_no_exception(
-        self, plotly_mock, db_mock, apply_features_mock, model_mock, prepare_data_mock,
+        self,
+        plotly_mock,
+        db_mock,
+        apply_features_mock,
+        model_mock,
+        prepare_data_mock,
         visualize_predictions_mock,
     ):
         self.add_mock_return_values(

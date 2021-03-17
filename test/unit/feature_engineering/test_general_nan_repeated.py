@@ -8,13 +8,12 @@ import unittest
 import numpy as np
 import pandas as pd
 
-from stf.feature_engineering.general import nan_repeated
+from openstf.feature_engineering.general import nan_repeated
 
 from test.utils import BaseTestCase
 
 
 class GeneralTest(BaseTestCase):
-
     def test_nan_repeated(self):
         start_nan = 8
         end_nan = 11

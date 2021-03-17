@@ -10,13 +10,12 @@ from test.utils.data import TestData
 import numpy as np
 import pandas as pd
 
-from stf.model.prediction.prediction import AbstractPredictionModel
+from openstf.model.prediction.prediction import AbstractPredictionModel
 
 PJ = TestData.get_prediction_job(pid=307)
 
 
 class TestAbstractPredictionModel(BaseTestCase):
-
     def test_make_fallback_forecast(self):
         # Load input data
         forecast = TestData.load("fallback_forecast.csv")

@@ -1,16 +1,18 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501
 #
 # SPDX-License-Identifier: MPL-2.0
-name: REUSE Check Compliance
+name: REUSE Compliance Check
 
-on: [push, pull_request]
+on:
+  - push
+  - pull_request
 
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
     # Checkout
-    - name:
+    - name: checkout
       uses: actions/checkout@v2
     # Reuse
     - name: REUSE Compliance Check

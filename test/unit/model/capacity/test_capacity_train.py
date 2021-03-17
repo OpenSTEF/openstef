@@ -8,7 +8,7 @@ from datetime import datetime
 from unittest.mock import patch
 
 # import project modules
-from stf.model.capacity.train import train_capacity_prognosis
+from openstf.model.capacity.train import train_capacity_prognosis
 
 from test.utils import BaseTestCase, TestData
 
@@ -17,16 +17,16 @@ FUCNTION_ARGS = [
     {"id": 1, "name": "job1", "description": "description for job 1"},
     datetime.utcnow().date(),
     datetime.utcnow().date(),
-    list(range(13))
+    list(range(13)),
 ]
 LOAD_DATA = TestData.load("capacity_load.csv")
 TDCV_DATA = TestData.load("capacity_tdcv_load_profiles.csv")
 
 
-@patch("stf.model.capacity.train.prepare_training_data")
-@patch("stf.model.capacity.train.CapacityPredictionModel")
-@patch("stf.model.capacity.train.apply_capacity_features")
-@patch("stf.model.capacity.train.DataBase")
+@patch("openstf.model.capacity.train.prepare_training_data")
+@patch("openstf.model.capacity.train.CapacityPredictionModel")
+@patch("openstf.model.capacity.train.apply_capacity_features")
+@patch("openstf.model.capacity.train.DataBase")
 class TestCapacityTrain(BaseTestCase):
     def test_no_exception(
         self,
@@ -64,7 +64,6 @@ class TestCapacityTrain(BaseTestCase):
         apply_features_mock,
         model_mock,
         prepare_data_mock,
-
     ):
         # set database return values
         db_mock.return_value.get_load_pid.return_value = LOAD_DATA

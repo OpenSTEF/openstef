@@ -4,7 +4,7 @@
 
 import unittest
 
-from stf.tasks.utils.utils import interpret_string_as_functions
+from openstf.tasks.utils.utils import interpret_string_as_functions
 
 from test.utils import BaseTestCase
 

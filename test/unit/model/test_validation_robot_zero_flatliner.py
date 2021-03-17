@@ -14,7 +14,7 @@ from datetime import datetime, timedelta
 
 import pandas as pd
 
-from stf.model.validation_robot import zero_flatliner
+from openstf.model.validation_robot import zero_flatliner
 
 from test.utils import BaseTestCase
 
@@ -110,7 +110,8 @@ class ZeroFlatlinerTest(BaseTestCase):
             }
         )
         self.assertDataframeEqual(
-            expected, result, check_index_type=False, check_dtype=False)
+            expected, result, check_index_type=False, check_dtype=False
+        )
 
     def test_some_NAN(self):
         """Data: a trafo contains a few NaN values and non compensated zero-value
@@ -130,7 +131,8 @@ class ZeroFlatlinerTest(BaseTestCase):
             }
         )
         self.assertDataframeEqual(
-            expected, result, check_index_type=False, check_dtype=False)
+            expected, result, check_index_type=False, check_dtype=False
+        )
 
     def test_compensated_flatliner(self):
         """Data: zero-values at one trafo is compensated

@@ -8,8 +8,9 @@ from test.utils import TestData
 from unittest.mock import MagicMock, Mock
 
 # import project modules
-from stf.tasks.utils.predictionjobloop import (
-    PredictionJobException, PredictionJobLoop
+from openstf.tasks.utils.predictionjobloop import (
+    PredictionJobException,
+    PredictionJobLoop,
 )
 
 from test.utils import BaseTestCase
@@ -30,8 +31,14 @@ class TestPredictionJob(BaseTestCase):
         function_mock = Mock()
 
         # Create loop that succeeds
-        PredictionJobLoop(context_mock, False, True, on_exception_callback,
-                          on_successful_callback, on_end_callback).map(function_mock)
+        PredictionJobLoop(
+            context_mock,
+            False,
+            True,
+            on_exception_callback,
+            on_successful_callback,
+            on_end_callback,
+        ).map(function_mock)
 
         self.assertEqual(function_mock.call_count, NUM_PREDICTION_JOBS)
         self.assertEqual(on_exception_callback.call_count, 0)
@@ -49,8 +56,14 @@ class TestPredictionJob(BaseTestCase):
 
         # Create loop that fails
         with self.assertRaises(PredictionJobException):
-            PredictionJobLoop(context_mock, False, True, on_exception_callback,
-                              on_successful_callback, on_end_callback).map(function_mock)
+            PredictionJobLoop(
+                context_mock,
+                False,
+                True,
+                on_exception_callback,
+                on_successful_callback,
+                on_end_callback,
+            ).map(function_mock)
 
         self.assertEqual(function_mock.call_count, NUM_PREDICTION_JOBS)
         self.assertEqual(on_exception_callback.call_count, NUM_PREDICTION_JOBS)
@@ -68,8 +81,14 @@ class TestPredictionJob(BaseTestCase):
 
         # Create loop that fails and stops
         with self.assertRaises(PredictionJobException):
-            PredictionJobLoop(context_mock, True, True, on_exception_callback,
-                              on_successful_callback, on_end_callback).map(function_mock)
+            PredictionJobLoop(
+                context_mock,
+                True,
+                True,
+                on_exception_callback,
+                on_successful_callback,
+                on_end_callback,
+            ).map(function_mock)
 
         self.assertEqual(function_mock.call_count, 1)
         self.assertEqual(on_exception_callback.call_count, 1)

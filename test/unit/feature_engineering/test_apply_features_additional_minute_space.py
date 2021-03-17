@@ -7,13 +7,12 @@ import unittest
 import numpy as np
 import pandas as pd
 
-from stf.feature_engineering import apply_features
+from openstf.feature_engineering import apply_features
 
 from test.utils import BaseTestCase, TestData
 
 
 class TestApplyFeaturesAditionalMinuteSpace(BaseTestCase):
-
     def setUp(self):
         super().setUp()
         self.data = TestData.load("input_data_train.pickle")
