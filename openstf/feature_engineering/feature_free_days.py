@@ -79,7 +79,7 @@ def create_holiday_functions(
         )
 
         # Check for bridge day
-        holidayfunctions, bridgedays = check_for_bridge_day(date, holidayfunctions, bridgedays)
+        holiday_functions, bridge_days = check_for_bridge_day(date, holiday_name,country, years, holiday_functions, bridge_days)
 
     # Add feature function that includes all bridgedays
     holiday_functions.update(
@@ -116,7 +116,7 @@ def create_holiday_functions(
     return holiday_functions
 
 # Check for bridgedays
-def check_for_bridge_day(date, holidayfunctions, bridgedays):
+def check_for_bridge_day(date, holiday_name, country, years, holiday_functions, bridge_days):
     """ Checks for bridgedays associated to a specific holiday with date (date).
     Any found bridgedays are appende dto the bridgedays list.
     Also a specific feature function for the bridgeday is added to the
@@ -124,15 +124,23 @@ def check_for_bridge_day(date, holidayfunctions, bridgedays):
 
     Args:
         date: datetime.datetime, date of holiday to check for associated bridgedays
-        holidayfunctions: dictionary to which the featurefunction has to be appended to in case of a bridgeday
-        bridgedays: list of bridgedays to which any found bridgedays have to be appended
+        holiday_name: name of the holiday
+        country: country for which to detect the bridgedays
+        years: list of years for which to detect bridgedays
+        holiday_functions: dictionary to which the featurefunction has to be appended to in case of a bridgeday
+        bridge_days: list of bridgedays to which any found bridgedays have to be appended
 
     Returns:
-        holidayfunctions
-        bridgedays
+        holiday_functions
+        bridge_days
 
     """
     country_holidays = holidays.CountryHoliday(country, years=years)
+
+    # Define function explicitely to mitigate 'late binding' problem
+    def make_holiday_func(date):
+        return lambda x: np.isin(x.index.date, np.array([date]))
+
     # Looking forward: If day after tomorow is a national holiday or
     # a saturday check if tomorow is not a national holiday
     if (date + timedelta(days=2)) in country_holidays or (
@@ -178,4 +186,4 @@ def check_for_bridge_day(date, holidayfunctions, bridgedays):
             )
             bridge_days.append((date - timedelta(days=1)))
 
-    return holidayfunctions, bridgedays
+    return holiday_functions, bridge_days
