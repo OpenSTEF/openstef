@@ -22,7 +22,7 @@ Example:
         $ python model_train.py
 
 """
-from openstf.model.train import train_model_pipeline
+from openstf.model.train import train_model_for_specific_pj
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
 
@@ -32,7 +32,7 @@ def main():
         model_type = ["xgb", "xgb_quantile", "lgb"]
 
         PredictionJobLoop(context, model_type=model_type).map(
-            train_model_pipeline, context
+            train_model_for_specific_pj, context
         )
 
 

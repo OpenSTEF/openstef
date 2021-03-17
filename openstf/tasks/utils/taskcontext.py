@@ -37,7 +37,7 @@ class TaskContext:
             post_teams_on_exception (bool, optional): If set to True the context
                 manager will automatically post a message to teams when an
                 exception is encountered. Defaults to True.
-            on_exception (callable, optional): Callback, will be called
+            oon_exception (callable, optional): Callback, will be called
                 when an exception is raised. Callable gets exc_type, exc_info,
                 stack_info as arguments.
             on_successful (callable, optional): Callback, will be called
