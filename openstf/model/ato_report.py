@@ -40,7 +40,7 @@ def make_report_pj(pj):
 
     # Merge forecast and load into one dataframe
     forecast = forecast[["forecast_24.0h"]]
-    forecast = forecast.rename(columns={"forecast_24.0h": "day_ahead_forecast"})
+    forecast = forecast.rename(columns={"forecast_24.0h": "day_ahead_forecast [MW]"})
     forecast = forecast.dropna()
     load = load.merge(forecast, how="outer", left_index=True, right_index=True)
 
@@ -48,7 +48,7 @@ def make_report_pj(pj):
     load.index = load.index.tz_convert("CET")
     load.index.name = "datetime"
     # Rename to make extra clear this is realised
-    load = load.rename(columns={"load": "realised_load"})
+    load = load.rename(columns={"load": "realised_load [MW]"})
 
     output_dir.mkdir(parents=True, exist_ok=True)
 
