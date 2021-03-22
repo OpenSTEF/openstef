@@ -15,8 +15,8 @@ from test.utils import BaseTestCase
 pj = TestData.get_prediction_job(pid=307)
 data_table = TestData.load("input_data_train.pickle").head(8641)
 
-class TestMoreTrain(BaseTestCase):
 
+class TestMoreTrain(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
         (
@@ -37,8 +37,12 @@ class TestMoreTrain(BaseTestCase):
         }
         model_trainer_ref = XGBModelTrainer(pj)
         model_trainer_ref.hyper_parameters.update(params)
-        model_trainer_ref.train(self.training_data_ref, self.validation_data_ref,
-                                early_stopping_rounds=1, num_boost_round=3)
+        model_trainer_ref.train(
+            self.training_data_ref,
+            self.validation_data_ref,
+            early_stopping_rounds=1,
+            num_boost_round=3,
+        )
         self.model_trainer_ref = model_trainer_ref
 
     def test_better_than_old_model_no_old_model(self):
@@ -57,9 +61,7 @@ class TestMoreTrain(BaseTestCase):
         model_trainer = XGBModelTrainer(pj)
 
         model_trainer.old_model = MagicMock()
-        model_trainer.old_model.predict.return_value = (
-            self.testing_data_ref["load"] * 2
-        )
+        model_trainer.old_model.predict.return_value = self.testing_data_ref["load"] * 2
         # New model not available
         model_trainer.trained_model = None
 
@@ -76,10 +78,14 @@ class TestMoreTrain(BaseTestCase):
 
         # Old model makes better prediction than new model
         model_trainer.old_model = MagicMock()
-        model_trainer.old_model.predict.return_value = self.testing_data_ref["load"] * 1.2
+        model_trainer.old_model.predict.return_value = (
+            self.testing_data_ref["load"] * 1.2
+        )
 
         model_trainer.trained_model = MagicMock()
-        model_trainer.trained_model.predict.return_value = self.testing_data_ref["load"] * 2
+        model_trainer.trained_model.predict.return_value = (
+            self.testing_data_ref["load"] * 2
+        )
 
         # add feature names
         features = dict(testfeat1=1.0, testfeat2=2.0)
@@ -95,14 +101,22 @@ class TestMoreTrain(BaseTestCase):
 
         # Old model makes better prediction than new model
         model_trainer.old_model = MagicMock()
-        model_trainer.old_model.predict.return_value = self.testing_data_ref["load"] * 1.2
+        model_trainer.old_model.predict.return_value = (
+            self.testing_data_ref["load"] * 1.2
+        )
 
         model_trainer.trained_model = MagicMock()
-        model_trainer.trained_model.predict.return_value = self.testing_data_ref["load"] * 2
+        model_trainer.trained_model.predict.return_value = (
+            self.testing_data_ref["load"] * 2
+        )
 
         # add feature names
-        model_trainer.old_model.get_score.return_value = dict(testfeat1=1.0, testfeat2=2.0)
-        model_trainer.trained_model.get_score.return_value = dict(othertestfeat1=1.0, testfeat2=2.0)
+        model_trainer.old_model.get_score.return_value = dict(
+            testfeat1=1.0, testfeat2=2.0
+        )
+        model_trainer.trained_model.get_score.return_value = dict(
+            othertestfeat1=1.0, testfeat2=2.0
+        )
 
         result = model_trainer.better_than_old_model(self.testing_data_ref)
 
