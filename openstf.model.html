@@ -545,7 +545,7 @@ be sampled as validation data. Only used for period_sampling=True.</p></li>
 
 <dl class="function">
 <dt id="openstf.model.hyper_parameters.optimize_hyperparameters">
-<code class="sig-prename descclassname">openstf.model.hyper_parameters.</code><code class="sig-name descname">optimize_hyperparameters</code><span class="sig-paren">(</span><em class="sig-param">pid</em>, <em class="sig-param">n_trials=150</em>, <em class="sig-param">datetime_end=datetime.datetime(2021</em>, <em class="sig-param">3</em>, <em class="sig-param">9</em>, <em class="sig-param">14</em>, <em class="sig-param">32</em>, <em class="sig-param">19</em>, <em class="sig-param">951517)</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.hyper_parameters.optimize_hyperparameters" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstf.model.hyper_parameters.</code><code class="sig-name descname">optimize_hyperparameters</code><span class="sig-paren">(</span><em class="sig-param">pid</em>, <em class="sig-param">n_trials=150</em>, <em class="sig-param">datetime_end=datetime.datetime(2021</em>, <em class="sig-param">3</em>, <em class="sig-param">22</em>, <em class="sig-param">14</em>, <em class="sig-param">41</em>, <em class="sig-param">39</em>, <em class="sig-param">207788)</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.hyper_parameters.optimize_hyperparameters" title="Permalink to this definition">¶</a></dt>
 <dd><p>Optimize the hyper parameters for a given prediction job.</p>
 <blockquote>
 <div><p>This function optimizes the model specific hyperparameters,
@@ -937,6 +937,60 @@ id pid.</p>
 <div class="section" id="module-openstf.model.train">
 <span id="openstf-model-train-module"></span><h2>openstf.model.train module<a class="headerlink" href="#module-openstf.model.train" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
+<dt id="openstf.model.train.create_evaluation_figures">
+<code class="sig-prename descclassname">openstf.model.train.</code><code class="sig-name descname">create_evaluation_figures</code><span class="sig-paren">(</span><em class="sig-param">model_trainer</em>, <em class="sig-param">split_input_data</em>, <em class="sig-param">split_predicted_data</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.train.create_evaluation_figures" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create figures of feature importance and data series of input and predicted data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_trainer</strong> (<a class="reference internal" href="#openstf.model.general.MLModelType" title="openstf.model.general.MLModelType"><em>MLModelType</em></a>) – model trainer</p></li>
+<li><p><strong>split_input_data</strong> (<em>dict</em>) – dict of cleaned data with features, split in train,
+validation and test</p></li>
+<li><p><strong>split_predicted_data</strong> (<em>dict</em>) – dict of predicted data, split in train, validation
+and test</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl>
+<dt>tuple containing:</dt><dd><p>plotly.graph_objects.Figure: A treemap of the features.
+dict: dict of line plots of of split input and predicted</p>
+<blockquote>
+<div><p>data series per prediction horizon.</p>
+</div></blockquote>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="openstf.model.train.create_model_trainer">
+<code class="sig-prename descclassname">openstf.model.train.</code><code class="sig-name descname">create_model_trainer</code><span class="sig-paren">(</span><em class="sig-param">pj</em>, <em class="sig-param">context</em>, <em class="sig-param">retrain_young_models=False</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.train.create_model_trainer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create model trainer and set hyperparams.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pj</strong> (<em>dict</em>) – Prediction job</p></li>
+<li><p><strong>context</strong> (<em>openstf.task.utils.TaskContext</em>) – Task context for logging</p></li>
+<li><p><strong>retrain_young_models</strong> (<em>bool</em>) – Retrain models younger then 7 days if True.
+Defaults to False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>Implementation of the AbstractModelTrainer class tailored to</dt><dd><p>a specific algorithm.</p>
+</dd>
+</dl>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
 <dt id="openstf.model.train.is_data_sufficient">
 <code class="sig-prename descclassname">openstf.model.train.</code><code class="sig-name descname">is_data_sufficient</code><span class="sig-paren">(</span><em class="sig-param">data</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.train.is_data_sufficient" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
@@ -957,10 +1011,114 @@ id pid.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="openstf.model.train.train_model_for_specific_pj">
-<code class="sig-prename descclassname">openstf.model.train.</code><code class="sig-name descname">train_model_for_specific_pj</code><span class="sig-paren">(</span><em class="sig-param">pj</em>, <em class="sig-param">context</em>, <em class="sig-param">retrain_young_models=False</em>, <em class="sig-param">compare_to_old=True</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.train.train_model_for_specific_pj" title="Permalink to this definition">¶</a></dt>
+<dt id="openstf.model.train.is_new_model_better">
+<code class="sig-prename descclassname">openstf.model.train.</code><code class="sig-name descname">is_new_model_better</code><span class="sig-paren">(</span><em class="sig-param">pj</em>, <em class="sig-param">context</em>, <em class="sig-param">model_trainer</em>, <em class="sig-param">split_input_data</em>, <em class="sig-param">compare_to_old=True</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.train.is_new_model_better" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate quality of new model with old model and store it if it is better.</p>
+<p>Model is saved if better than the old model unless specified
+otherwise.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pj</strong> (<em>dict</em>) – Prediction job</p></li>
+<li><p><strong>context</strong> (<em>openstf.task.utils.TaskContext</em>) – Task context for logging</p></li>
+<li><p><strong>model_trainer</strong> (<a class="reference internal" href="#openstf.model.general.MLModelType" title="openstf.model.general.MLModelType"><em>MLModelType</em></a>) – model trainer</p></li>
+<li><p><strong>split_input_data</strong> (<em>dict</em>) – dict of cleaned data with features, split in train,
+validation and test</p></li>
+<li><p><strong>compare_to_old</strong> (<em>bool</em><em>, </em><em>optional</em>) – Compare new trained model to old trained model
+if True. Defaults to True.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="openstf.model.train.predict_after_model_training">
+<code class="sig-prename descclassname">openstf.model.train.</code><code class="sig-name descname">predict_after_model_training</code><span class="sig-paren">(</span><em class="sig-param">pj</em>, <em class="sig-param">model_trainer</em>, <em class="sig-param">split_input_data</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.train.predict_after_model_training" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predict data with new trained model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pj</strong> (<em>dict</em>) – Prediction job</p></li>
+<li><p><strong>(</strong><strong>)</strong> (<em>model_trainer</em>) – Implementation of the AbstractModelTrainer class tailored to
+a specific algorithm.</p></li>
+<li><p><strong>split_input_data</strong> (<em>dict</em>) – dict of cleaned data with features, split in train,
+validation and test</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>dict of predicted data, split in train, validation and test</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="openstf.model.train.preprocess_for_model_training">
+<code class="sig-prename descclassname">openstf.model.train.</code><code class="sig-name descname">preprocess_for_model_training</code><span class="sig-paren">(</span><em class="sig-param">pj</em>, <em class="sig-param">context</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.train.preprocess_for_model_training" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pre-process model data. Clean data and apply features</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pj</strong> (<em>dict</em>) – Prediction job</p></li>
+<li><p><strong>context</strong> (<em>openstf.task.utils.TaskContext</em>) – Task context for logging</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – when data quality is insufficient</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>dict of cleaned data with features, split in train, validation and test</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="openstf.model.train.send_report_teams">
+<code class="sig-prename descclassname">openstf.model.train.</code><code class="sig-name descname">send_report_teams</code><span class="sig-paren">(</span><em class="sig-param">pj</em>, <em class="sig-param">model_trainer</em>, <em class="sig-param">new_model_is_better</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.train.send_report_teams" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send Teams message about result of new model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pj</strong> (<em>dict</em>) – Prediction job</p></li>
+<li><p><strong>model_trainer</strong> (<a class="reference internal" href="#openstf.model.general.MLModelType" title="openstf.model.general.MLModelType"><em>MLModelType</em></a>) – model trainer</p></li>
+<li><p><strong>new_model_is_better</strong> (<em>boolean</em>) – True if new model is better than old model</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="openstf.model.train.split_model_data">
+<code class="sig-prename descclassname">openstf.model.train.</code><code class="sig-name descname">split_model_data</code><a class="headerlink" href="#openstf.model.train.split_model_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">openstf.model.train.model_data</span></code></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="openstf.model.train.train_model">
+<code class="sig-prename descclassname">openstf.model.train.</code><code class="sig-name descname">train_model</code><span class="sig-paren">(</span><em class="sig-param">model_trainer</em>, <em class="sig-param">split_input_data</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.train.train_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Train model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>(</strong><strong>)</strong> (<em>model_trainer</em>) – Implementation of the AbstractModelTrainer class tailored to
+a specific algorithm.</p></li>
+<li><p><strong>split_input_data</strong> (<em>dict</em>) – dict of cleaned data with features, split in train,
+validation and test</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="openstf.model.train.train_model_pipeline">
+<code class="sig-prename descclassname">openstf.model.train.</code><code class="sig-name descname">train_model_pipeline</code><span class="sig-paren">(</span><em class="sig-param">pj</em>, <em class="sig-param">context</em>, <em class="sig-param">retrain_young_models=False</em>, <em class="sig-param">compare_to_old=True</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.train.train_model_pipeline" title="Permalink to this definition">¶</a></dt>
 <dd><p>Main function that controls the training process of one prediction job.</p>
-<p>Here, on a high level, the input data is collected, features are applied and the
+<p>On a high level: first, the input data is collected, features are applied and the
 model is trained and stored. Additionally models for energy components are also
 trained if requested. Model is saved if better than the old model unless specified
 otherwise.</p>
@@ -969,12 +1127,11 @@ otherwise.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pj</strong> (<em>dict</em>) – Prediction job</p></li>
 <li><p><strong>context</strong> (<em>openstf.task.utils.TaskContext</em>) – Task context for logging</p></li>
-<li><p><strong>retrain_young_models</strong> (<em>bool</em>) – Retrain models younger then 7 days if True</p></li>
-<li><p><strong>compare_to_old</strong> (<em>bool</em>) – Compare new trained model to old trained model if True</p></li>
+<li><p><strong>retrain_young_models</strong> (<em>bool</em>) – Retrain models younger then 7 days if True.
+Defaults to False.</p></li>
+<li><p><strong>compare_to_old</strong> (<em>bool</em>) – Only save new model when its better than the old model.
+Defaults to True.</p></li>
 </ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Trained model (FIXME can be various datatypes at present)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -983,10 +1140,10 @@ otherwise.</p>
 <dt id="openstf.model.train.train_specific_model">
 <code class="sig-prename descclassname">openstf.model.train.</code><code class="sig-name descname">train_specific_model</code><span class="sig-paren">(</span><em class="sig-param">context</em>, <em class="sig-param">pid</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.train.train_specific_model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Train model for given prediction id.</p>
-<p>Tracy-compatible function to train a specific model based on the prediction id (pid).
+<p>Tracy-compatible function to train a specific model based on the prediction id (pid)
 Should not be used outside of Tracy, preferred alternative:</p>
 <blockquote>
-<div><p>train_model_for_specific_pj</p>
+<div><p>train_model_pipeline</p>
 </div></blockquote>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -994,6 +1151,26 @@ Should not be used outside of Tracy, preferred alternative:</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Trained model (FIXME can be various datatypes at present)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="openstf.model.train.write_results_new_model">
+<code class="sig-prename descclassname">openstf.model.train.</code><code class="sig-name descname">write_results_new_model</code><span class="sig-paren">(</span><em class="sig-param">pj</em>, <em class="sig-param">model_trainer</em>, <em class="sig-param">new_model_is_better</em>, <em class="sig-param">split_input_data</em>, <em class="sig-param">split_predicted_data</em>, <em class="sig-param">path_to_save</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.train.write_results_new_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save results of new model to disk.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pj</strong> (<em>dict</em>) – Prediction job</p></li>
+<li><p><strong>model_trainer</strong> (<a class="reference internal" href="#openstf.model.general.MLModelType" title="openstf.model.general.MLModelType"><em>MLModelType</em></a>) – model trainer</p></li>
+<li><p><strong>new_model_is_better</strong> (<em>boolean</em>) – True if new model is better than old model</p></li>
+<li><p><strong>split_input_data</strong> (<em>dict</em>) – dict of cleaned data with features, split in train,
+validation and test</p></li>
+<li><p><strong>split_predicted_data</strong> (<em>dict</em>) – dict of predicted data, split in train, validation
+and test</p></li>
+<li><p><strong>path_to_save</strong> (<em>pathlib.Path</em>) – path to save figures of results of new model</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>

@@ -254,7 +254,7 @@ True.</p></li>
 
 <dl class="function">
 <dt id="openstf.monitoring.teams.post_teams">
-<code class="sig-prename descclassname">openstf.monitoring.teams.</code><code class="sig-name descname">post_teams</code><span class="sig-paren">(</span><em class="sig-param">msg</em>, <em class="sig-param">url=None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.monitoring.teams.post_teams" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstf.monitoring.teams.</code><code class="sig-name descname">post_teams</code><span class="sig-paren">(</span><em class="sig-param">msg</em>, <em class="sig-param">invalid_coefs=None</em>, <em class="sig-param">coefsdf=None</em>, <em class="sig-param">url=None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.monitoring.teams.post_teams" title="Permalink to this definition">¶</a></dt>
 <dd><p>Post a message to Teams - KTP</p>
 <p>Note that currently no authentication occurs.
 Security is given by keeping the URL secret.
@@ -268,6 +268,9 @@ complex messages pass a dict. The following keys are supported:
 text, links, sections. Each section can contain the following keys:
 text, title, images, facts, markdown. Also see:
 <a class="reference external" href="https://docs.microsoft.com/en-us/outlook/actionable-messages/send-via-connectors">https://docs.microsoft.com/en-us/outlook/actionable-messages/send-via-connectors</a></p></li>
+<li><p><strong>invalid_coefs</strong> (<em>pd.DatFrame</em><em>, </em><em>optional</em>) – df of information of invalid
+coefficients. Defaults to None.</p></li>
+<li><p><strong>coefsdf</strong> (<em>pd.DataFrame</em><em>, </em><em>optional</em>) – df of new coefficients. Defaults to None.</p></li>
 <li><p><strong>url</strong> (<em>string</em><em>, </em><em>optional</em>) – webhook url, monitoring by default</p></li>
 </ul>
 </dd>
@@ -280,20 +283,15 @@ text, title, images, facts, markdown. Also see:
 
 <dl class="function">
 <dt id="openstf.monitoring.teams.post_teams_alert">
-<code class="sig-prename descclassname">openstf.monitoring.teams.</code><code class="sig-name descname">post_teams_alert</code><span class="sig-paren">(</span><em class="sig-param">msg</em>, <em class="sig-param">invalid_coefs=None</em>, <em class="sig-param">coefsdf=None</em>, <em class="sig-param">url=None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.monitoring.teams.post_teams_alert" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstf.monitoring.teams.</code><code class="sig-name descname">post_teams_alert</code><span class="sig-paren">(</span><em class="sig-param">msg</em>, <em class="sig-param">url=None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.monitoring.teams.post_teams_alert" title="Permalink to this definition">¶</a></dt>
 <dd><p>Same as post_teams, but posts to alert channel.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>msg</strong> (<em>mixed</em>) – For simple messages a string can be passed. For more
+<dd class="field-odd"><p><strong>msg</strong> (<em>mixed</em>) – For simple messages a string can be passed. For more
 complex messages pass a dict. The following keys are supported:
 text, links, sections. Each section is a dict and can contain the
 following keys: text, title, images, facts, markdown. Also see:
-<a class="reference external" href="https://docs.microsoft.com/en-us/outlook/actionable-messages/send-via-connectors">https://docs.microsoft.com/en-us/outlook/actionable-messages/send-via-connectors</a></p></li>
-<li><p><strong>invalid_coefs</strong> (<em>pd.DatFrame</em><em>, </em><em>optional</em>) – df of information of invalid
-coefficients. Defaults to None.</p></li>
-<li><p><strong>coefsdf</strong> (<em>pd.DataFrame</em><em>, </em><em>optional</em>) – df of new coefficients. Defaults to None.</p></li>
-</ul>
+<a class="reference external" href="https://docs.microsoft.com/en-us/outlook/actionable-messages/send-via-connectors">https://docs.microsoft.com/en-us/outlook/actionable-messages/send-via-connectors</a></p>
 </dd>
 </dl>
 <div class="admonition note">

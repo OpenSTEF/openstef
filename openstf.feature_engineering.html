@@ -418,8 +418,35 @@ Example: {‘column’: [‘mean’], [‘sum’]}</p></li>
 <div class="section" id="module-openstf.feature_engineering.feature_free_days">
 <span id="openstf-feature-engineering-feature-free-days-module"></span><h2>openstf.feature_engineering.feature_free_days module<a class="headerlink" href="#module-openstf.feature_engineering.feature_free_days" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
+<dt id="openstf.feature_engineering.feature_free_days.check_for_bridge_day">
+<code class="sig-prename descclassname">openstf.feature_engineering.feature_free_days.</code><code class="sig-name descname">check_for_bridge_day</code><span class="sig-paren">(</span><em class="sig-param">date</em>, <em class="sig-param">holiday_name</em>, <em class="sig-param">country</em>, <em class="sig-param">years</em>, <em class="sig-param">holiday_functions</em>, <em class="sig-param">bridge_days</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.feature_engineering.feature_free_days.check_for_bridge_day" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks for bridgedays associated to a specific holiday with date (date).
+Any found bridgedays are appende dto the bridgedays list.
+Also a specific feature function for the bridgeday is added to the</p>
+<blockquote>
+<div><p>general holidayfuncitons dictionary.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>date</strong> – datetime.datetime, date of holiday to check for associated bridgedays</p></li>
+<li><p><strong>holiday_name</strong> – name of the holiday</p></li>
+<li><p><strong>country</strong> – country for which to detect the bridgedays</p></li>
+<li><p><strong>years</strong> – list of years for which to detect bridgedays</p></li>
+<li><p><strong>holiday_functions</strong> – dictionary to which the featurefunction has to be appended to in case of a bridgeday</p></li>
+<li><p><strong>bridge_days</strong> – list of bridgedays to which any found bridgedays have to be appended</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>holiday_functions
+bridge_days</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
 <dt id="openstf.feature_engineering.feature_free_days.create_holiday_functions">
-<code class="sig-prename descclassname">openstf.feature_engineering.feature_free_days.</code><code class="sig-name descname">create_holiday_functions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#openstf.feature_engineering.feature_free_days.create_holiday_functions" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstf.feature_engineering.feature_free_days.</code><code class="sig-name descname">create_holiday_functions</code><span class="sig-paren">(</span><em class="sig-param">country='NL'</em>, <em class="sig-param">years=None</em>, <em class="sig-param">path_to_school_holidays_csv=PosixPath('/github/workspace/openstf/data/dutch_holidays_2020-2022.csv')</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.feature_engineering.feature_free_days.create_holiday_functions" title="Permalink to this definition">¶</a></dt>
 <dd><p>This function provides functions for creating holiday feature.
 This improves forecast accuracy. Examples of features that are added are:</p>
 <blockquote>
@@ -611,7 +638,7 @@ data = pd.DataFrame(index = index,</p>
 
 <dl class="function">
 <dt id="openstf.feature_engineering.general.get_preprocessed_data">
-<code class="sig-prename descclassname">openstf.feature_engineering.general.</code><code class="sig-name descname">get_preprocessed_data</code><span class="sig-paren">(</span><em class="sig-param">pj</em>, <em class="sig-param">db</em>, <em class="sig-param">datetime_start=datetime.datetime(2020</em>, <em class="sig-param">12</em>, <em class="sig-param">9</em>, <em class="sig-param">14</em>, <em class="sig-param">32</em>, <em class="sig-param">18</em>, <em class="sig-param">437831)</em>, <em class="sig-param">datetime_end=datetime.datetime(2021</em>, <em class="sig-param">3</em>, <em class="sig-param">9</em>, <em class="sig-param">14</em>, <em class="sig-param">32</em>, <em class="sig-param">18</em>, <em class="sig-param">437842)</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.feature_engineering.general.get_preprocessed_data" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstf.feature_engineering.general.</code><code class="sig-name descname">get_preprocessed_data</code><span class="sig-paren">(</span><em class="sig-param">pj</em>, <em class="sig-param">db</em>, <em class="sig-param">datetime_start=datetime.datetime(2020</em>, <em class="sig-param">12</em>, <em class="sig-param">22</em>, <em class="sig-param">14</em>, <em class="sig-param">41</em>, <em class="sig-param">37</em>, <em class="sig-param">763439)</em>, <em class="sig-param">datetime_end=datetime.datetime(2021</em>, <em class="sig-param">3</em>, <em class="sig-param">22</em>, <em class="sig-param">14</em>, <em class="sig-param">41</em>, <em class="sig-param">37</em>, <em class="sig-param">763447)</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.feature_engineering.general.get_preprocessed_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieves input data frame and pre-process it (calculate features, correct constant load, drop NAs etc.)
 Input:</p>
 <blockquote>
