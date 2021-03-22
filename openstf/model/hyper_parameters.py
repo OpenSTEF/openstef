@@ -15,7 +15,7 @@ from openstf.model.trainer.creator import ModelTrainerCreator
 from openstf.monitoring.teams import post_teams
 
 # Available trainings period durations for optimization
-TRAINING_DURATIONS_DAYS = [30, 60, 90, 120]
+TRAINING_DURATIONS_DAYS = [90, 120, 150]
 MAX_AGE_HYPER_PARAMS_DAYS = 31
 SHOW_OPTUNA_PROGRESS_BAR = False
 
