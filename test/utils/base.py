@@ -7,6 +7,14 @@ from unittest.mock import patch
 
 import numpy as np
 import pandas as pd
+import ktpbase
+from collections import defaultdict
+
+class dotdict(dict):
+    """dot.notation access to dictionary attributes"""
+    __getattr__ = dict.get
+    __setattr__ = dict.__setitem__
+    __delattr__ = dict.__delitem__
 
 
 class BaseTestCase(unittest.TestCase):
@@ -14,11 +22,14 @@ class BaseTestCase(unittest.TestCase):
         super().setUp()
         self.patchers = []
         self.patchers.append(patch("ktpbase.log.logging.get_logger", create=True))
-        self.patchers.append(
-            patch("ktpbase.config.config.ConfigManager.get_instance", create=True)
-        )
+        self.patchers.append(patch("ktpbase.config.config.ConfigManager.get_instance", create=True))
         for patcher in self.patchers:
             patcher.start()
+
+        # add trained model path
+        conf = ktpbase.config.config.ConfigManager.get_instance()
+
+        conf.paths = dotdict(dict(trained_models='test/data/'))
 
     def tearDown(self) -> None:
         super().tearDown()
