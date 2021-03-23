@@ -193,7 +193,7 @@ def preprocess_for_model_training(pj, context):
     # Specify training period
     # use hyperparam training_period_days if available
     hyperparams = {"training_period_days": TRAINING_PERIOD_DAYS, "featureset_name": "D"}
-    hyperparams.update(context.database.get_hyper_params())
+    hyperparams.update(context.database.get_hyper_params(pj))
 
     featureset = context.database.get_featureset(hyperparams["featureset_name"])
     datetime_start = datetime.utcnow() - timedelta(
