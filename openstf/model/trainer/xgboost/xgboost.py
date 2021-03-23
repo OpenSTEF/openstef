@@ -94,8 +94,12 @@ class XGBModelTrainer(AbstractModelTrainer):
         return feature_importance
 
     def train(
-        self, train_data, validation_data, callbacks=None, early_stopping_rounds=10,
-            num_boost_round=500,
+        self,
+        train_data,
+        validation_data,
+        callbacks=None,
+        early_stopping_rounds=10,
+        num_boost_round=500,
     ):
         """Method that trains XGBoost model based on train and validation data.
 
@@ -205,9 +209,7 @@ class XGBModelTrainer(AbstractModelTrainer):
                 ntree_limit=self.trained_model.best_ntree_limit,
             )
         except Exception as e:
-            self.logger.error(
-                "Could not get prediction from new model:", str(e)
-            )
+            self.logger.error("Could not get prediction from new model:", str(e))
             return False
 
         # Calculate scores
@@ -249,7 +251,9 @@ class XGBModelTrainer(AbstractModelTrainer):
             sub_val = validation_data[validation_data.Horizon == horizon]
             # Check if returned object is not None and try to make a prediction with the new model
             if self.trained_model is None:
-                self.logger.info("New model is not yet trained, could not compute corrections!")
+                self.logger.info(
+                    "New model is not yet trained, could not compute corrections!"
+                )
             else:
                 try:
                     predicted = self.trained_model.predict(
@@ -259,7 +263,9 @@ class XGBModelTrainer(AbstractModelTrainer):
                         ntree_limit=self.trained_model.best_ntree_limit,
                     )
                 except Exception as e:
-                    self.logger.error("Could not get prediction from new model:", str(e))
+                    self.logger.error(
+                        "Could not get prediction from new model:", str(e)
+                    )
 
             # Calculate confidence interval for this horizon
             confidence_interval_horizon = self._calculate_confidence_interval(
