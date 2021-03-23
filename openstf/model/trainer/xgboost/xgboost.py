@@ -109,6 +109,8 @@ class XGBModelTrainer(AbstractModelTrainer):
             validation_data (pandas.DataFrame): The validation data.
             callbacks (list of callable): List of callback functions that can be
                 called at the end of each training iteration
+            early_stopping_rounds (int): early stop training of new estimators
+                after this many rounds of no improvement
             num_boost_round (int): can be large since we use early stopping.
 
         Returns:
@@ -196,7 +198,6 @@ class XGBModelTrainer(AbstractModelTrainer):
                     )
                 )
             except Exception as e:
-                prediction_old_model = np.nan
                 self.logger.error("Could not compare to old model:", str(e))
                 return True
 
