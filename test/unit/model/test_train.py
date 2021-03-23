@@ -77,7 +77,9 @@ class TestTrain(BaseTestCase):
         }
         self.model_trainer_ref = XGBModelTrainer(pj)
         self.model_trainer_ref.hyper_parameters.update(params)
-        self.model_trainer_ref.train(self.training_data_ref, self.validation_data_ref, num_boost_round=2)
+        self.model_trainer_ref.train(
+            self.training_data_ref, self.validation_data_ref, num_boost_round=2
+        )
 
     @patch(
         "openstf.model.train.ModelTrainerCreator",
