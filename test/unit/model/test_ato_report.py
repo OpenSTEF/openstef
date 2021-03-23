@@ -36,7 +36,7 @@ class TestPredict(BaseTestCase):
         pj = TestData.get_prediction_job(pid=60)
         result = make_report_pj(pj)
         self.assertEqual(
-            result.columns.to_list(), ["realised_load", "day_ahead_forecast"]
+            result.columns.to_list(), ["realised_load [MW]", "day_ahead_forecast [MW]"]
         )
 
 
