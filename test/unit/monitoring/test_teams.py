@@ -34,7 +34,7 @@ class TestTeams(BaseTestCase):
         card_mock = teamsmock.connectorcard.return_value
         self.assertTrue(card_mock.send.called)
 
-    def test_post_teams_alert_invalid_keys(self, teamsmock):
+    def test_post_teams_invalid_keys(self, teamsmock):
 
         msg = "test"
         invalid_coefs = pd.DataFrame(
@@ -46,7 +46,7 @@ class TestTeams(BaseTestCase):
         )
         coefsdf = pd.DataFrame()
 
-        teams.post_teams_alert(msg, invalid_coefs=invalid_coefs, coefsdf=coefsdf)
+        teams.post_teams(msg, invalid_coefs=invalid_coefs, coefsdf=coefsdf)
         card_mock = teamsmock.connectorcard.return_value
         self.assertTrue(card_mock.send.called)
 
@@ -54,9 +54,7 @@ class TestTeams(BaseTestCase):
         query_df = pd.DataFrame(data=[["a", 1], ["b", 2]], columns=["key", "value"])
         table = "table"
 
-        query_expected = (
-            "```INSERT INTO table (key, value) VALUES  \n('a', 1),  \n('b', 2)```"
-        )
+        query_expected = "```  \nINSERT INTO table (key, value) VALUES  \n('a', 1),  \n('b', 2)  \n```"
 
         query_result = teams.build_sql_query_string(query_df, table)
         self.assertEqual(query_result, query_expected)

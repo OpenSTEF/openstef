@@ -4,9 +4,20 @@ SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@allian
 SPDX-License-Identifier: MPL-2.0
 -->
 
-[![Main Build](https://github.com/alliander-opensource/short-term-forecasting/actions/workflows/python-build.yaml/badge.svg?branch=main)](https://github.com/alliander-opensource/short-term-forecasting/actions/workflows/python-build.yaml)
-[![Develop Build](https://github.com/alliander-opensource/short-term-forecasting/actions/workflows/python-build.yaml/badge.svg?branch=develop)](https://github.com/alliander-opensource/short-term-forecasting/actions/workflows/python-build.yaml)
-[![REUSE Compliance Check](https://github.com/alliander-opensource/short-term-forecasting/actions/workflows/reuse-compliance.yaml/badge.svg?branch=main)](https://github.com/alliander-opensource/short-term-forecasting/actions/workflows/reuse-compliance.yaml)
+<!-- Github Actions badges -->
+[![Python Build](https://github.com/alliander-opensource/short-term-forecasting/actions/workflows/python-build.yaml/badge.svg)](https://github.com/alliander-opensource/short-term-forecasting/actions/workflows/python-build.yaml)
+[![REUSE Compliance Check](https://github.com/alliander-opensource/short-term-forecasting/actions/workflows/reuse-compliance.yaml/badge.svg)](https://github.com/alliander-opensource/short-term-forecasting/actions/workflows/reuse-compliance.yaml)
+<!-- SonarCloud badges -->
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=alliander-opensource_short-term-forecasting&metric=alert_status)](https://sonarcloud.io/dashboard?id=alliander-opensource_short-term-forecasting)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=alliander-opensource_short-term-forecasting&metric=bugs)](https://sonarcloud.io/dashboard?id=alliander-opensource_short-term-forecasting)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=alliander-opensource_short-term-forecasting&metric=code_smells)](https://sonarcloud.io/dashboard?id=alliander-opensource_short-term-forecasting)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=alliander-opensource_short-term-forecasting&metric=coverage)](https://sonarcloud.io/dashboard?id=alliander-opensource_short-term-forecasting)
+[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=alliander-opensource_short-term-forecasting&metric=duplicated_lines_density)](https://sonarcloud.io/dashboard?id=alliander-opensource_short-term-forecasting)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=alliander-opensource_short-term-forecasting&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=alliander-opensource_short-term-forecasting)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=alliander-opensource_short-term-forecasting&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=alliander-opensource_short-term-forecasting)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=alliander-opensource_short-term-forecasting&metric=security_rating)](https://sonarcloud.io/dashboard?id=alliander-opensource_short-term-forecasting)
+[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=alliander-opensource_short-term-forecasting&metric=sqale_index)](https://sonarcloud.io/dashboard?id=alliander-opensource_short-term-forecasting)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=alliander-opensource_short-term-forecasting&metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=alliander-opensource_short-term-forecasting)
 
 # Short Term Forcasting
 
