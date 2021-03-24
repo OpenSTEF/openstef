@@ -288,7 +288,7 @@ optuna study.</p>
 
 <dl class="method">
 <dt id="openstf.model.trainer.xgboost.xgboost.XGBModelTrainer.train">
-<code class="sig-name descname">train</code><span class="sig-paren">(</span><em class="sig-param">train_data</em>, <em class="sig-param">validation_data</em>, <em class="sig-param">callbacks=None</em>, <em class="sig-param">early_stopping_rounds=10</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.trainer.xgboost.xgboost.XGBModelTrainer.train" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">train</code><span class="sig-paren">(</span><em class="sig-param">train_data</em>, <em class="sig-param">validation_data</em>, <em class="sig-param">callbacks=None</em>, <em class="sig-param">early_stopping_rounds=10</em>, <em class="sig-param">num_boost_round=500</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.trainer.xgboost.xgboost.XGBModelTrainer.train" title="Permalink to this definition">¶</a></dt>
 <dd><p>Method that trains XGBoost model based on train and validation data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -298,6 +298,9 @@ first column is the label.</p></li>
 <li><p><strong>validation_data</strong> (<em>pandas.DataFrame</em>) – The validation data.</p></li>
 <li><p><strong>callbacks</strong> (<em>list of callable</em>) – List of callback functions that can be
 called at the end of each training iteration</p></li>
+<li><p><strong>early_stopping_rounds</strong> (<em>int</em>) – early stop training of new estimators
+after this many rounds of no improvement</p></li>
+<li><p><strong>num_boost_round</strong> (<em>int</em>) – can be large since we use early stopping.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
