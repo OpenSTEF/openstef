@@ -94,7 +94,12 @@ class XGBModelTrainer(AbstractModelTrainer):
         return feature_importance
 
     def train(
-        self, train_data, validation_data, callbacks=None, early_stopping_rounds=10
+        self,
+        train_data,
+        validation_data,
+        callbacks=None,
+        early_stopping_rounds=10,
+        num_boost_round=500,
     ):
         """Method that trains XGBoost model based on train and validation data.
 
@@ -104,6 +109,9 @@ class XGBModelTrainer(AbstractModelTrainer):
             validation_data (pandas.DataFrame): The validation data.
             callbacks (list of callable): List of callback functions that can be
                 called at the end of each training iteration
+            early_stopping_rounds (int): early stop training of new estimators
+                after this many rounds of no improvement
+            num_boost_round (int): can be large since we use early stopping.
 
         Returns:
             xgboost.Booster: this object is also stored in the self.trained_model
@@ -137,7 +145,7 @@ class XGBModelTrainer(AbstractModelTrainer):
             dtrain=dtrain,
             params=params,
             evals=watchlist,
-            num_boost_round=500,  # Can be large because we are early stopping anyway
+            num_boost_round=num_boost_round,  # Can be large because we are early stopping anyway
             feval=custom_eval,
             verbose_eval=False,
             early_stopping_rounds=early_stopping_rounds,
@@ -164,8 +172,23 @@ class XGBModelTrainer(AbstractModelTrainer):
         """
         # Check if the old model is not None and try to make a prediction with the old model
         if self.old_model is None:
-            self.logger.warning("No old model available")
+            self.logger.warning("No old model available, using new model")
             return True
+
+        # Check if trained model is not None
+        elif self.trained_model is None:
+            self.logger.warning(
+                "New model is not yet trained, could not compare performance!"
+            )
+            return False
+
+        # Check if old model has same feature names. If not, use new model
+        # TODO instead of model.predict, 'predictionmodel'.make_forecast would be better
+        # However, this would require significant restructuring on model design.
+        elif self.old_model.get_score().keys() != self.trained_model.get_score().keys():
+            self.logger.warning("Old model had different features. Using new model")
+            return True
+
         else:
             try:
                 # Ask old model for prediction
@@ -175,36 +198,27 @@ class XGBModelTrainer(AbstractModelTrainer):
                     )
                 )
             except Exception as e:
-                prediction_old_model = np.nan
-                self.logger.error("Could not compare to old model:", str(e)[:20])
+                self.logger.error("Could not compare to old model:", str(e))
                 return True
 
-        # Check if returned object is not None and try to make a prediction with the new model
-        if self.trained_model is None:
-            self.logger.warning(
-                "New model is not yet trained, could not compare performance!"
+        try:
+            # Ask new model for prediction
+            prediction_new_model = self.trained_model.predict(
+                xgb.DMatrix(
+                    test_data.iloc[:, 1:].drop("Horizon", axis=1, errors="ignore")
+                ),
+                ntree_limit=self.trained_model.best_ntree_limit,
             )
+        except Exception as e:
+            self.logger.error("Could not get prediction from new model:", str(e))
             return False
-        else:
-            try:
-                prediction_new_model = self.trained_model.predict(
-                    xgb.DMatrix(
-                        test_data.iloc[:, 1:].drop("Horizon", axis=1, errors="ignore")
-                    ),
-                    ntree_limit=self.trained_model.best_ntree_limit,
-                )
-            except Exception as e:
-                self.logger.error(
-                    "Could not get prediction from new model:", str(e)[:20]
-                )
-                return False
 
         # Calculate scores
         old_mae = metrics.mae(prediction_old_model, test_data.iloc[:, 0])
         new_mae = metrics.mae(prediction_new_model, test_data.iloc[:, 0])
 
         # Compare and return True if new model is better, False otherwise
-        if new_mae < old_mae * penalty_factor or prediction_old_model is np.nan:
+        if (new_mae < (old_mae * penalty_factor)) or (prediction_old_model is np.nan):
             return True
 
         return False
@@ -238,7 +252,9 @@ class XGBModelTrainer(AbstractModelTrainer):
             sub_val = validation_data[validation_data.Horizon == horizon]
             # Check if returned object is not None and try to make a prediction with the new model
             if self.trained_model is None:
-                print("New model is not yet trained, could not compute corrections!")
+                self.logger.info(
+                    "New model is not yet trained, could not compute corrections!"
+                )
             else:
                 try:
                     predicted = self.trained_model.predict(
@@ -248,7 +264,9 @@ class XGBModelTrainer(AbstractModelTrainer):
                         ntree_limit=self.trained_model.best_ntree_limit,
                     )
                 except Exception as e:
-                    print("Could not get prediction from new model:", str(e)[:20])
+                    self.logger.error(
+                        "Could not get prediction from new model:", str(e)
+                    )
 
             # Calculate confidence interval for this horizon
             confidence_interval_horizon = self._calculate_confidence_interval(
