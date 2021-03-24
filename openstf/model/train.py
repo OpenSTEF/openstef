@@ -197,7 +197,7 @@ def preprocess_for_model_training(pj, context):
 
     featureset = context.database.get_featureset(hyperparams["featureset_name"])
     datetime_start = datetime.utcnow() - timedelta(
-        days=hyperparams["training_period_days"]
+        days=int(hyperparams["training_period_days"])
     )
     datetime_end = datetime.utcnow()
 
@@ -237,7 +237,7 @@ def train_model(model_trainer, split_input_data):
             validation and test
     """
     # Train model
-    model_trainer.train(split_input_data.train_data, split_input_data.validation_data)
+    model_trainer.train(split_input_data.train, split_input_data.validation)
 
 
 def predict_after_model_training(pj, model_trainer, split_input_data):
