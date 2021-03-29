@@ -168,8 +168,9 @@ class AbstractPredictionModel(ABC):
         if len(load.dropna()) == 0:
             raise Exception("No historic load data available")
 
-        # Find most extreme historic day
-        rel_date = load.load.idxmax().date()
+        # Find most extreme historic day (do not count today as it is incomplete)
+        rel_date = load[load.index.tz_localize(
+            None).date != datetime.utcnow().date()].idxmax().load.date()
         dayprof = load[str(rel_date)].copy()
         dayprof["time"] = dayprof.index.time
 
