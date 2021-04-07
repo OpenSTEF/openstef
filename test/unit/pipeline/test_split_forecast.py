@@ -8,7 +8,7 @@ import numpy as np
 
 from test.utils import BaseTestCase, TestData
 
-from openstf.model import split_energy
+from openstf.pipeline import split_forecast
 
 # Get test data
 input_data = TestData.load("find_components_input.csv")
@@ -17,10 +17,10 @@ components = TestData.load("find_components_components.csv")
 
 class TestSplitEnergy(BaseTestCase):
     def test_find_components(self):
-        testcomponents, coefdict = split_energy.find_components(input_data)
+        testcomponents, coefdict = split_forecast.find_components(input_data)
         self.assertDataframeEqual(components, testcomponents, rtol=1e-3)
 
-    threshold = split_energy.COEF_MAX_FRACTION_DIFF
+    threshold = split_forecast.COEF_MAX_FRACTION_DIFF
 
     def test_determine_invalid_coefs_valid(self):
         new_coefs = pd.DataFrame(
@@ -38,7 +38,7 @@ class TestSplitEnergy(BaseTestCase):
                 "difference",
             ],
         )
-        result = split_energy.determine_invalid_coefs(new_coefs, last_coefs)
+        result = split_forecast.determine_invalid_coefs(new_coefs, last_coefs)
         self.assertDataframeEqual(
             result, expected_result, check_dtype=False, check_index_type=False
         )
@@ -56,7 +56,7 @@ class TestSplitEnergy(BaseTestCase):
             },
             index=[1],
         )
-        result = split_energy.determine_invalid_coefs(new_coefs, last_coefs)
+        result = split_forecast.determine_invalid_coefs(new_coefs, last_coefs)
         self.assertDataframeEqual(result, expected_result, check_index_type=False)
 
     def test_determine_invalid_coefs_above_threshold(self):
@@ -74,7 +74,7 @@ class TestSplitEnergy(BaseTestCase):
             },
             index=[1],
         )
-        result = split_energy.determine_invalid_coefs(new_coefs, last_coefs)
+        result = split_forecast.determine_invalid_coefs(new_coefs, last_coefs)
         self.assertDataframeEqual(result, expected_result, check_index_type=False)
 
     def test_determine_invalid_coefs_below_threshold(self):
@@ -92,7 +92,7 @@ class TestSplitEnergy(BaseTestCase):
             },
             index=[1],
         )
-        result = split_energy.determine_invalid_coefs(new_coefs, last_coefs)
+        result = split_forecast.determine_invalid_coefs(new_coefs, last_coefs)
         self.assertDataframeEqual(result, expected_result, check_index_type=False)
 
     def test_determine_invalid_coefs_multiple_failing_keys(self):
@@ -112,7 +112,7 @@ class TestSplitEnergy(BaseTestCase):
             },
             index=[1, 2],
         )
-        result = split_energy.determine_invalid_coefs(new_coefs, last_coefs)
+        result = split_forecast.determine_invalid_coefs(new_coefs, last_coefs)
         self.assertDataframeEqual(result, expected_result, check_index_type=False)
 
     def test_determine_invalid_coefs_no_matching_key(self):
@@ -128,7 +128,7 @@ class TestSplitEnergy(BaseTestCase):
             },
             index=[1],
         )
-        result = split_energy.determine_invalid_coefs(new_coefs, last_coefs)
+        result = split_forecast.determine_invalid_coefs(new_coefs, last_coefs)
         self.assertDataframeEqual(result, expected_result, check_index_type=False)
 
 

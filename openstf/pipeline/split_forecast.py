@@ -15,7 +15,7 @@ import openstf.monitoring.teams as monitoring
 COEF_MAX_FRACTION_DIFF = 0.3
 
 
-def split_energy(pid):
+def split_forecast(pid):
     """Function that caries out the energy splitting for a specific prediction job with
     id pid.
 

@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-"""split_forecast_into_components.py
+"""split_forecast.py
 
 This module contains the CRON job that is periodically executed to make
 prognoses of solar features. These features are usefull for splitting the load
@@ -20,13 +20,13 @@ Example:
     the CRON job can be found in the /k8s/CronJobs folder.
     Alternatively this code can be run directly by running::
 
-        $ python split_forecast_into_components.py
+        $ python split_forecast.py
 
 Attributes:
 
 
 """
-from openstf.model.split_energy import split_energy
+from openstf.pipeline.split_forecast import split_forecast
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
 
@@ -38,7 +38,7 @@ def main():
         PredictionJobLoop(
             context,
             model_type=model_type,
-        ).map(lambda pj: split_energy(pj["id"]))
+        ).map(lambda pj: split_forecast(pj["id"]))
 
 
 if __name__ == "__main__":
