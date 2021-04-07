@@ -4,9 +4,136 @@
 
 # -*- coding: utf-8 -*-
 from datetime import timedelta
+from pathlib import Path
 
+import cufflinks
 import numpy as np
 import pandas as pd
+import plotly
+
+from openstf.monitoring.teams import post_teams
+
+cufflinks.go_offline()
+colors = {"Flatliner": "rgba(255, 0, 0, 0.3)", "Zero_value": "rgba(0, 255, 0, 0.3)"}
+
+
+def validation_robot_pj(pj, context, datetime_start, datetime_end):
+    """Run validation robot for specific prediction job.
+
+    Args:
+        pj: (dict) prediction job
+        datetime_start: (datetime.datetime) start date
+        datetime_end: (datetime.datetime) end date
+
+    Returns:
+        None
+
+    """
+    # Get load data
+    load_data = context.database.get_load_pid(
+        pj["id"], datetime_start, datetime_end, aggregated=False
+    )
+    if len(load_data) == 0:
+        context.logger.warning("No load data found, skipping")
+        return
+
+    # Detect flatliners and zero-values
+    load_errors = pd.DataFrame()
+
+    flatliner_moments = nonzero_flatliner(load_data, threshold=4)
+    zero_value_moments = zero_flatliner(load_data, threshold=4)
+
+    # Combine single errors to singel result dataframe
+    # Act if flatliner occurs
+    if flatliner_moments is not None:
+        num_flatliners = len(flatliner_moments)
+        context.logger.warning(
+            "Flatliner detected",
+            prediction_name=pj["name"],
+            num_flatliners=num_flatliners,
+        )
+
+        flatliner_moments["type"] = "Flatliner"
+        load_errors = load_errors.append(flatliner_moments)
+    # Same for zero-values
+    if zero_value_moments is not None:
+        num_zero_values = len(zero_value_moments)
+        context.logger.warning(
+            "Zero-value detected",
+            prediction_name=pj["name"],
+            num_zero_values=num_zero_values,
+        )
+        zero_value_moments["type"] = "Zero_value"
+        load_errors = load_errors.append(zero_value_moments)
+
+    num_load_errors = len(load_errors)
+
+    # If some error was found, proceed to make a nice image and send
+    # a message to Teams
+    if num_load_errors > 0:
+        context.logger.warning(
+            "Total load errors detected", num_load_errors=num_load_errors
+        )
+        # Make nice image
+        plot_url = _create_load_error_plot(pj, load_data, load_errors, context.config)
+        context.logger.info("Created a load error plot", url=plot_url)
+        # Send teams error message
+        _send_teams_error_message(pj, num_load_errors, plot_url)
+
+
+def _create_load_error_plot(pj, load_data, load_errors, config):
+    start = load_errors["from_time"]
+    end = load_errors["to_time"]
+    check_type = load_errors["type"]
+    vspanlist = [
+        {
+            "x0": from_time,
+            "x1": to_time,
+            "color": colors[check_type],
+            "fill": True,
+            "opacity": 0.4,
+        }
+        for from_time, to_time, check_type in zip(start, end, check_type)
+    ]
+    fig = load_data.iplot(vspan=vspanlist, asFigure=True)
+
+    # Define image save location
+    # NOTE should this also be moved to the config?
+    image_name = "stations_detection.html"
+
+    base_path = config.paths.trained_models
+    base_url = config.dashboard.trained_models_url
+
+    filename = Path(f'{base_path}/{pj["id"]}/{image_name}')
+
+    web_link = f'{base_url}/{pj["id"]}/{image_name}'
+
+    plotly.offline.plot(
+        fig,
+        show_link=False,
+        filename=str(filename),
+        auto_open=False,
+    )
+
+    return web_link
+
+
+def _send_teams_error_message(pj, num_load_errors, buttonurl):
+    # Prepare  message
+    msg = {
+        "fallback": "Load data error(s) detected {0}: {1} timeperiods".format(
+            pj["name"], num_load_errors
+        ),
+        "title": "Load data error(s) detected {0} {1}".format(pj["name"], pj["id"]),
+        "links": dict(buttontext="Robot Result", buttonurl=buttonurl),
+        "text": (
+            "Found {0} moments where there is a load error at pid {1}!".format(
+                num_load_errors, pj["id"]
+            )
+        ),
+        "color": "#764FA5",
+    }
+    post_teams(msg)
 
 
 def nonzero_flatliner(df, threshold):
@@ -64,7 +191,8 @@ def nonzero_flatliner(df, threshold):
 
 
 def check_data_for_each_trafo(df, col):
-    """Function that detects if each column contains zero-values at all, only zero-values and NaN values.
+    """Function that detects if each column contains zero-values at all, only
+        zero-values and NaN values.
 
     Args:
         df: pd.dataFrame(index=DatetimeIndex, columns = [load1, ..., loadN]).
@@ -72,16 +200,13 @@ def check_data_for_each_trafo(df, col):
         col: column of pd.dataFrame
 
     Returns:
-        bool: False if column contains above specified or True if not"""
+        bool: False if column contains above specified or True if not
+    """
     if df is not None:
         # Check for each column the data on the following: (Skipping if true)
         # Check if there a zero-values at all
         if (df[col] != 0).all(axis=0):
-            print(
-                "No zero values found - at all at trafo {a}, skipping column".format(
-                    a=col
-                )
-            )
+            print(f"No zero values found - at all at trafo {col}, skipping column")
             return False
         # Check if all values are zero in column
         elif (df[col] == 0).all(axis=0):

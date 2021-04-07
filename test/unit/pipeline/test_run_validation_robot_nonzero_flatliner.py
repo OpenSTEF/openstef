@@ -12,7 +12,7 @@ from datetime import datetime, timedelta
 
 import pandas as pd
 
-from openstf.model.validation_robot import nonzero_flatliner
+from openstf.pipeline.run_validation_robot import nonzero_flatliner
 
 from test.utils import BaseTestCase
 

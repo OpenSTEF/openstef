@@ -58,8 +58,9 @@ class TestPredict(BaseTestCase):
         )
         self.assertTrue(isinstance(input_data, MagicMock))
 
-    @patch("openstf.model.predict.validation_robot")
-    def test_pre_process_input_data(self, validation_robot_mock):
+    @patch("openstf.model.predict.nonzero_flatliner")
+    @patch("openstf.model.predict.replace_invalid_data")
+    def test_pre_process_input_data(self, replace_invalid_data_mock, nonzero_flatliner_mock):
         suspicious_moments = True
 
         null_row = MagicMock()
@@ -68,16 +69,13 @@ class TestPredict(BaseTestCase):
         processed_input_data = MagicMock()
         processed_input_data.iterrows.return_value = processed_input_data_rows
 
-        validation_robot_mock.nonzero_flatliner.return_value = suspicious_moments
-        validation_robot_mock.replace_invalid_data.return_value = processed_input_data
+        nonzero_flatliner_mock.return_value = suspicious_moments
+        replace_invalid_data_mock.return_value = processed_input_data
 
         predict.pre_process_input_data(input_data=None, flatliner_threshold=None)
 
         # simply check if all mocks are called
-        for mock_func in [
-            validation_robot_mock.nonzero_flatliner,
-            validation_robot_mock.replace_invalid_data,
-        ]:
+        for mock_func in [nonzero_flatliner_mock, replace_invalid_data_mock]:
             self.assertEqual(mock_func.call_count, 1)
 
     @patch("openstf.model.predict.feature_engineering")
