@@ -249,7 +249,9 @@ class LGBModelTrainer(AbstractModelTrainer):
                         num_iteration=self.trained_model.best_iteration,
                     )
                 except Exception as e:
-                    self.logger.error("Could not get prediction from new model!", exc_info=e)
+                    self.logger.error(
+                        "Could not get prediction from new model!", exc_info=e
+                    )
 
             # Calculate confidence interval for this horizon
             confidence_interval_horizon = self._calculate_confidence_interval(
