@@ -290,3 +290,29 @@ def send_report_teams_worse(pj):
     }
 
     post_teams(msg)
+
+
+def format_message(title, params, fallback=None, color=None):
+    if color is None:
+        color = "#046b00"  # green
+    if fallback is None:
+        fallback = title
+
+    # format allparams using limited precision for floats
+    # make keys bold (**key**)
+    values = []
+    for k, v in params.items():
+        if type(v) is float:
+            values.append(f"**{k}**: {v:0.3f}")
+            continue
+        values.append(f"**{k}**: {v}")
+    # join all {params}: {value}  pairs with a new line
+    text = "".join([f"* {v}   \n" for v in values])
+
+    msg = {
+        "fallback": title,
+        "title": title,
+        "text": text,
+        "color": color,
+    }
+    return msg

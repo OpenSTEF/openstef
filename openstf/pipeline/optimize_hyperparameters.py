@@ -12,7 +12,7 @@ from openstf.metrics import metrics
 from openstf.model.general import pre_process_data
 from openstf.model.train import is_data_sufficient
 from openstf.model.trainer.creator import ModelTrainerCreator
-from openstf.monitoring.teams import post_teams
+from openstf.monitoring import teams
 
 # Available trainings period durations for optimization
 TRAINING_DURATIONS_DAYS = [90, 120, 150]
@@ -28,16 +28,33 @@ def optimize_hyperparameters_pj(pj):
     Args:
         pj: (dict) Prediction job
     """
-
     db = DataBase()
 
-    # Get data of last stored hyper parameters
-    last = db.get_hyper_params_last_optimized(pj)
+    # initialize logging
+    logger = logging.get_logger(__name__)
 
-    # Check if hyper parameters are older than limit
-    limit = datetime.utcnow() - timedelta(days=MAX_AGE_HYPER_PARAMS_DAYS)
-    if last < limit:
-        optimize_hyperparameters(pj["id"])
+    if last_optimimization_too_long_ago(pj) is not True:
+        logger.info("Hyperparameters not old enough to optimize again")
+        return
+
+    hyperparameters = optimize_hyperparameters(pj["id"])
+    db.write_hyper_params(pj, hyperparameters)
+
+    # Sent message to Teams
+    title = f'Optimized hyperparameters for model {pj["name"]} {pj["description"]}'
+    teams.post_teams(
+        teams.format_message(title=title, params=hyperparameters)
+    )
+
+
+def last_optimimization_too_long_ago(pj):
+    db = DataBase()
+    # Get data of last stored hyper parameters
+    previous_optimization_datetime = db.get_hyper_params_last_optimized(pj)
+
+    days_ago = (datetime.utcnow() - previous_optimization_datetime).days
+
+    return days_ago > MAX_AGE_HYPER_PARAMS_DAYS
 
 
 def optimize_hyperparameters(pid, n_trials=150, datetime_end=datetime.utcnow()):
@@ -144,40 +161,6 @@ def optimize_hyperparameters(pid, n_trials=150, datetime_end=datetime.utcnow()):
     logger.info("Optimized parameters", optimized_parameters=optimized_parameters)
     logger.info("Final optimized error", optimized_error=optimized_error)
 
-    # Write best hyperparameters to database
-    db.write_hyper_params(pj, optimized_parameters)
-    # Compose message for teams (this is still cgb specific)
-    msg = format_teams_message(pj, optimized_parameters)
-    # Sent message to Teams
-    post_teams(msg)
-
     return optimized_parameters
 
 
-# NOTE perhaps formatting a message with paramters
-# does not belong to the responsibility of this module
-def format_teams_message(pj, hyper_params):
-    color = "#046b00"  # green
-
-    # format all hyper parameters using limited precision for floats
-    # make keys bold (**key**)
-    values = []
-    for k, v in hyper_params.items():
-        if type(v) is float:
-            values.append(f"**{k}**: {v:0.3f}")
-            continue
-        values.append(f"**{k}**: {v}")
-    # join all {hyper_parameter_name}: {value}  pairs with a new line
-    text = "".join([f"* {v}   \n" for v in values])
-
-    msg = {
-        "fallback": "Optimized hyperparameters for model {0} {1}".format(
-            pj["name"], pj["description"]
-        ),
-        "title": "Optimized hyperparameters for {0} {1}".format(
-            pj["name"], pj["description"]
-        ),
-        "text": text,
-        "color": color,
-    }
-    return msg

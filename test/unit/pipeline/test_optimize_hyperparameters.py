@@ -6,7 +6,7 @@ import unittest
 from test.utils import TestData
 from unittest.mock import MagicMock, patch
 
-from openstf.model.hyper_parameters import optimize_hyperparameters
+from openstf.pipeline.optimize_hyperparameters import optimize_hyperparameters
 
 from test.utils import BaseTestCase
 
@@ -24,12 +24,12 @@ XGB_HYPER_PARAMS = {
 }
 
 
-@patch("openstf.model.hyper_parameters.post_teams")
-@patch("openstf.model.hyper_parameters.ModelTrainerCreator")
-@patch("openstf.model.hyper_parameters.is_data_sufficient")
-@patch("openstf.model.hyper_parameters.pre_process_data")
-@patch("openstf.model.hyper_parameters.DataBase")
-@patch("openstf.model.hyper_parameters.optuna")
+@patch("openstf.pipeline.optimize_hyperparameters.teams.post_teams")
+@patch("openstf.pipeline.optimize_hyperparameters.ModelTrainerCreator")
+@patch("openstf.pipeline.optimize_hyperparameters.is_data_sufficient")
+@patch("openstf.pipeline.optimize_hyperparameters.pre_process_data")
+@patch("openstf.pipeline.optimize_hyperparameters.DataBase")
+@patch("openstf.pipeline.optimize_hyperparameters.optuna")
 class TestHyperParameters(BaseTestCase):
     def setUp(self):
         super().setUp()
@@ -60,7 +60,6 @@ class TestHyperParameters(BaseTestCase):
         self.assertEqual(pre_process_data_mock.call_count, 1)
         self.assertEqual(optuna_mock.create_study.call_count, 2)
         self.assertEqual(study_mock.optimize.call_count, 2)
-        self.assertEqual(post_teams_mock.call_count, 1)
 
         # test if the following return arguments are used as input argument
         # for the given functions/methods
