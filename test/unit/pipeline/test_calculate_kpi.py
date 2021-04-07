@@ -9,7 +9,7 @@ import unittest
 import numpy as np
 import pandas as pd
 
-from openstf.model.performance import calc_kpi_for_specific_pid
+from openstf.pipeline.calculate_kpi import calc_kpi_for_specific_pid
 
 # Get test data
 predicted_load = TestData.load("calculate_kpi_predicted_load.csv")
@@ -54,7 +54,7 @@ def get_database_mock_predicted_nan():
 class TestPerformanceCalcKpiForSpecificPid(BaseTestCase):
 
     # Test whether correct kpis are calculated for specific test data
-    @patch("openstf.model.performance.DataBase", get_database_mock)
+    @patch("openstf.pipeline.calculate_kpi.DataBase", get_database_mock)
     def test_calc_kpi_for_specific_pid(self):
         kpis = calc_kpi_for_specific_pid({"id": 295})
         # use this to store new kpis
@@ -69,7 +69,7 @@ class TestPerformanceCalcKpiForSpecificPid(BaseTestCase):
         )
 
     # Test whether none is returned in case of poor completeness for realisex data
-    @patch("openstf.model.performance.DataBase", get_database_mock_realised_nan)
+    @patch("openstf.pipeline.calculate_kpi.DataBase", get_database_mock_realised_nan)
     def test_calc_kpi_for_specific_pid_poor_completeness_realized(self):
         kpis = calc_kpi_for_specific_pid({"id": 295})
         t_ahead_keys = kpis.keys()
@@ -77,7 +77,7 @@ class TestPerformanceCalcKpiForSpecificPid(BaseTestCase):
 
     # Test whether none is returned in case of poor completeness for realisex data
 
-    @patch("openstf.model.performance.DataBase", get_database_mock_predicted_nan)
+    @patch("openstf.pipeline.calculate_kpi.DataBase", get_database_mock_predicted_nan)
     def test_calc_kpi_for_specific_pid_poor_completeness_predicted(self):
         kpis = calc_kpi_for_specific_pid({"id": 295})
 

@@ -23,7 +23,7 @@ Attributes:
 from datetime import datetime, timedelta
 
 # Import project modules
-from openstf.model.performance import calc_kpi_for_specific_pid
+from openstf.pipeline.calculate_kpi import calc_kpi_for_specific_pid
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
 
