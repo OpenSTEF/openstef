@@ -10,7 +10,7 @@ from ktpbase.database import DataBase
 from ktpbase.log import logging
 
 from openstf.feature_engineering.general import calc_completeness
-from openstf.model import metrics
+from openstf.metrics import metrics
 
 
 def calc_kpi_for_specific_pid(pid, start_time=None, end_time=None):

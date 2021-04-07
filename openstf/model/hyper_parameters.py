@@ -8,7 +8,7 @@ import optuna
 from ktpbase.database import DataBase
 from ktpbase.log import logging
 
-from openstf.model import metrics
+from openstf.metrics import metrics
 from openstf.model.general import pre_process_data
 from openstf.model.train import is_data_sufficient
 from openstf.model.trainer.creator import ModelTrainerCreator

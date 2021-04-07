@@ -11,7 +11,7 @@ from ktpbase.database import DataBase
 from ktpbase.log import logging
 
 from openstf.feature_engineering.general import calc_completeness
-from openstf.model.figure import (
+from openstf.metrics.figure import (
     convert_to_base64_data_uri,
     plot_data_series,
     plot_feature_importance,
