@@ -198,7 +198,7 @@ class XGBModelTrainer(AbstractModelTrainer):
                     )
                 )
             except Exception as e:
-                self.logger.error("Could not compare to old model:", str(e))
+                self.logger.error("Could not compare to old model!", exc_info=e)
                 return True
 
         try:
@@ -210,7 +210,7 @@ class XGBModelTrainer(AbstractModelTrainer):
                 ntree_limit=self.trained_model.best_ntree_limit,
             )
         except Exception as e:
-            self.logger.error("Could not get prediction from new model:", str(e))
+            self.logger.error("Could not get prediction from new model!", exc_info=e)
             return False
 
         # Calculate scores
@@ -265,7 +265,7 @@ class XGBModelTrainer(AbstractModelTrainer):
                     )
                 except Exception as e:
                     self.logger.error(
-                        "Could not get prediction from new model:", str(e)
+                        "Could not get prediction from new model!", exc_info=e
                     )
 
             # Calculate confidence interval for this horizon
