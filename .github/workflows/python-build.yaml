@@ -52,7 +52,7 @@ jobs:
     - name: Test with pytest
       run: |
         pip install pytest pytest-cov
-        pytest test
+        pytest --cov=openstf test/
     # Build
     - name: Build Python package
       run: |
