@@ -111,12 +111,12 @@ class TestMoreTrain(BaseTestCase):
         )
 
         # add feature names
-        model_trainer.old_model.feature_names.return_value = [
-            'testfeat1', 'testfeat2']
+        model_trainer.old_model.feature_names.return_value = ["testfeat1", "testfeat2"]
 
         model_trainer.trained_model.feature_names.return_value = [
-            'othertestfeat1', 'testfeat2']
-
+            "othertestfeat1",
+            "testfeat2",
+        ]
 
         result = model_trainer.better_than_old_model(self.testing_data_ref)
 
