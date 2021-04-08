@@ -53,6 +53,11 @@ jobs:
       run: |
         pip install pytest pytest-cov
         pytest --cov-report=xml --cov=openstf test/
+    - name: SonarCloud Scan
+      uses: sonarsource/sonarcloud-github-action@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     # Build
     - name: Build Python package
       run: |
