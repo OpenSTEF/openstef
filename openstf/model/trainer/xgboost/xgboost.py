@@ -185,7 +185,7 @@ class XGBModelTrainer(AbstractModelTrainer):
         # Check if old model has same feature names. If not, use new model
         # TODO instead of model.predict, 'predictionmodel'.make_forecast would be better
         # However, this would require significant restructuring on model design.
-        elif self.old_model.get_score().keys() != self.trained_model.get_score().keys():
+        elif self.trained_model.feature_names != self.old_model.feature_names:
             self.logger.warning("Old model had different features. Using new model")
             return True
 
