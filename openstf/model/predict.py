@@ -9,6 +9,7 @@ from ktpbase.database import DataBase
 from ktpbase.log import logging
 
 from openstf import feature_engineering
+# FIXME this is a circular depedency
 from openstf.pipeline.run_validation_robot import nonzero_flatliner, replace_invalid_data
 from openstf.postproces import postprocess
 from openstf.model.general import ForecastType
