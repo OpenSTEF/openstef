@@ -88,7 +88,7 @@ class TestMoreTrain(BaseTestCase):
         )
 
         # add feature names
-        features = ['testfeat1', 'testfeat2']
+        features = ["testfeat1", "testfeat2"]
         model_trainer.old_model.feature_names = features
         model_trainer.trained_model.feature_names = features
 
