@@ -10,7 +10,7 @@ from ktpbase.log import logging
 
 from openstf.metrics import metrics
 from openstf.model.general import pre_process_data
-from openstf.model.train import is_data_sufficient
+from openstf.validation import validation
 from openstf.model.trainer.creator import ModelTrainerCreator
 from openstf.monitoring import teams
 
@@ -108,7 +108,7 @@ def optimize_hyperparameters(pid, n_trials=150, datetime_end=datetime.utcnow()):
     model_trainer = mc.create_model_trainer()
 
     # Check if we have enough data left to continue
-    if is_data_sufficient(clean_data_with_features) is False:
+    if validation.is_data_sufficient(clean_data_with_features) is False:
         raise ValueError("Input data quality insufficient, aborting!")
 
     # Setup optuna study

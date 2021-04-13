@@ -8,9 +8,7 @@ from pathlib import Path
 from collections import namedtuple
 
 from ktpbase.database import DataBase
-from ktpbase.log import logging
 
-from openstf.feature_engineering.general import calc_completeness
 from openstf.metrics.figure import (
     convert_to_base64_data_uri,
     plot_data_series,
@@ -27,52 +25,10 @@ from openstf.monitoring.teams import send_report_teams_better, send_report_teams
 
 # TODO make this config more central
 # Set thresholds
-COMPLETENESS_THRESHOLD = 0.5
-MINIMAL_TABLE_LENGTH = 100
 MAX_AGE_YOUNG_MODEL = 7
 TRAINING_PERIOD_DAYS = 90  # Note, if hyperparam is available, this value is overwritten
 
 split_model_data = namedtuple("model_data", ["train", "validation", "test"])
-
-
-def is_data_sufficient(data):
-    """Check if enough data is left after validation and cleaning to continue
-        with model training.
-
-    Args:
-        data: pd.DataFrame() with cleaned input data.
-
-    Returns:
-        (bool): True if amount of data is sufficient, False otherwise.
-
-    """
-    logger = logging.get_logger(__name__)
-    # Set output variable
-    is_sufficient = True
-
-    # Calculate completeness
-    completeness = calc_completeness(data, time_delayed=True, homogenise=False)
-    table_length = data.shape[0]
-
-    # Check if completeness is up to the standards
-    if completeness < COMPLETENESS_THRESHOLD:
-        logger.warning(
-            "Input data is not sufficient, completeness too low",
-            completeness=completeness,
-            completeness_threshold=COMPLETENESS_THRESHOLD,
-        )
-        is_sufficient = False
-
-    # Check if absolute amount of rows is sufficient
-    if table_length < MINIMAL_TABLE_LENGTH:
-        logger.warning(
-            "Input data is not sufficient, table length too short",
-            table_length=table_length,
-            table_length_threshold=MINIMAL_TABLE_LENGTH,
-        )
-        is_sufficient = False
-
-    return is_sufficient
 
 
 def train_model_pipeline(pj, context, retrain_young_models=False, compare_to_old=True):

@@ -10,7 +10,7 @@ from ktpbase.log import logging
 
 from openstf import feature_engineering
 # FIXME this is a circular depedency
-from openstf.pipeline.run_validation_robot import nonzero_flatliner, replace_invalid_data
+from openstf.validation import validation
 from openstf.postproces import postprocess
 from openstf.model.general import ForecastType
 from openstf.model.prediction.creator import PredictionModelCreator
@@ -23,7 +23,7 @@ FEATURES_H_AHEAD = 0.25
 _input_data_cache = {}
 
 
-def make_prediction(pj, forecast_type=ForecastType.DEMAND):
+def create_forecast_pipeline(pj, forecast_type=ForecastType.DEMAND):
     logger = logging.get_logger(__name__)
     logger.info(
         "Start making prediction",
@@ -251,12 +251,12 @@ def _clear_input_data_cache():
 def pre_process_input_data(input_data, flatliner_threshold):
     logger = logging.get_logger(__name__)
     # Check for repeated load observations due to invalid measurements
-    suspicious_moments = nonzero_flatliner(
+    suspicious_moments = validation.nonzero_flatliner(
         input_data, threshold=flatliner_threshold
     )
     if suspicious_moments is not None:
         # Covert repeated load observations to NaN values
-        input_data = replace_invalid_data(
+        input_data = validation.replace_invalid_data(
             input_data, suspicious_moments
         )
         # Calculate number of NaN values
