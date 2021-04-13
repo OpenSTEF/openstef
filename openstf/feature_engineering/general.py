@@ -12,6 +12,8 @@ import pandas as pd
 import scipy
 
 from openstf.feature_engineering import apply_features
+from openstf.validation import validation
+from openstf.preprocessing import preprocessing
 
 
 def extract_minute_features(feature_names):
@@ -37,103 +39,6 @@ def extract_minute_features(feature_names):
             minutes_list.append(int(m[1]))
 
     return minutes_list
-
-
-def calc_completeness(df, weights=None, time_delayed=False, homogenise=True):
-    """Calculate the (weighted) completeness of a dataframe.
-
-    NOTE: NA values count as incomplete
-
-    Args:
-        df (pd.DataFrame): Dataframe with a datetimeIndex index
-        weights: Array-compatible with size equal to columns of df.
-            used to weight the completeness of each column
-        time_delayed (bool): Should there be a correction for T-x columns
-        homogenise (bool): Should the index be resampled to median time delta -
-            only available for DatetimeIndex
-
-    Returns:
-        float: Completeness
-    """
-
-    if weights is None:
-        weights = np.array([1] * len(df.columns))
-    weights = np.array(weights)
-
-    if homogenise and isinstance(df.index, pd.DatetimeIndex) and len(df) > 0:
-
-        median_timediff = int(
-            df.reset_index().iloc[:, 0].diff().median().total_seconds() / 60.0
-        )
-        df = df.resample("{:d}T".format(median_timediff)).mean()
-
-    if time_delayed is False:
-        # Calculate completeness
-        # Completeness per column
-        completeness_per_column = df.count() / len(df)
-
-    # if timeDelayed is True, we correct that time-delayed columns
-    # also in the best case will have NA values. E.g. T-2d is not available
-    # for times ahead of more than 2 days
-    elif time_delayed:
-        # assume 15 minute forecast resolution
-        # timecols: {delay:number of points expected to be missing}
-        # number of points expected to be missing = numberOfPointsUpToTwoDaysAhead - numberOfPointsAvailable
-        timecols = {
-            x: len(df) - eval(x[2:].replace("min", "/60").replace("d", "*24.0")) / 0.25
-            for x in df.columns
-            if x[:2] == "T-"
-        }
-
-        non_na_count = df.count()
-        for col, value in timecols.items():
-            non_na_count[col] += value
-
-        # Correct for APX being only expected to be available up to 24h
-        if "APX" in non_na_count.index:
-            non_na_count["APX"] += max([len(df) - 96, 0])
-
-        completeness_per_column = non_na_count / len(df)
-
-    # scale to weights and normalize
-    completeness = (completeness_per_column * weights).sum() / weights.sum()
-
-    return completeness
-
-
-def nan_repeated(df, max_length, column_name):
-    """
-    This function replaces repeating values (sequentially repeating values),
-    which repeat longer than a set max_length (in data points) with NaNs.
-
-    Args:
-        df (pandas.DataFrame): Data from which you would like to set repeating values to nan
-        max_length (int): If a value repeats more often, sequentially, than this value, all those points are set to NaN
-        column_name (string): the pandas dataframe column name of the column you want to process
-
-    Rrturns:
-        pandas.DataFrame: data, similar to df, with the desired values set to NaN.
-    """
-    data = df.copy(deep=True)
-    indices = []
-    old_value = -1000000000000
-    value = 0
-    for index, r in data.iterrows():
-        value = r[column_name]
-        if value == old_value:
-            indices.append(index)
-        elif (value != old_value) & (len(indices) > max_length):
-            indices = indices[max_length:]
-            data.at[indices, column_name] = np.nan
-            indices = []
-            indices.append(index)
-        elif (value != old_value) & (len(indices) <= max_length):
-            indices = []
-            indices.append(index)
-        old_value = value
-    if len(indices) > max_length:
-        data.at[indices, column_name] = np.nan
-    return data
 
 
 def get_preprocessed_data(
@@ -173,7 +78,7 @@ def get_preprocessed_data(
 
     # Drop 'false' measurements. e.g. where load appears to be constant.
     threshold = 6 * 4  # number of repeated values
-    table = nan_repeated(table, threshold, table.columns[0])
+    table = preprocessing.replace_repeated_values_with_nan(table, threshold, table.columns[0])
     const_load_values = len(table) - len(table.iloc[:, 0].dropna())
     print("Changed {} values of constant load to NA.".format(const_load_values))
 
@@ -183,7 +88,7 @@ def get_preprocessed_data(
     # Drop first rows where not enough data was present to make T-14d for example
     # For now, use fixed limit of first two weeks
 
-    completeness = calc_completeness(table, time_delayed=True)
+    completeness = validation.calc_completeness(table, time_delayed=True)
 
     return table, completeness
 

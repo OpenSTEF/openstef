@@ -27,7 +27,7 @@ import pandas as pd
 from ktpbase.database import DataBase
 from ktpbase.log import logging
 
-from openstf.feature_engineering.general import calc_completeness
+from openstf.validation import validation
 from openstf.metrics import metrics
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
@@ -143,13 +143,13 @@ def calc_kpi_for_specific_pid(pid, start_time=None, end_time=None):
         )
 
     # Calculate completeness en raise exception if completeness does not meet requirements
-    completeness_realised = calc_completeness(realised)
+    completeness_realised = validation.calc_completeness(realised)
 
     # Interpolate missing data if needed
     realised = realised.resample("15T").interpolate(limit=3)
 
     # Calculate completeness for realised load
-    completeness_predicted_load = calc_completeness(predicted_load)
+    completeness_predicted_load = validation.calc_completeness(predicted_load)
 
     # Combine the forecast and the realised to make sure indices are matched nicely
     combined = pd.merge(realised, predicted_load, left_index=True, right_index=True)
@@ -186,7 +186,7 @@ def calc_kpi_for_specific_pid(pid, start_time=None, end_time=None):
         t_ahead_h = hor_cols[0].split("_")[1]
         fc = combined[hor_cols[0]]  # load predictions
         st = combined[hor_cols[1]]  # standard deviations of load predictions
-        completeness_predicted_load = calc_completeness(fc.to_frame(name=t_ahead_h))
+        completeness_predicted_load = validation.calc_completeness(fc.to_frame(name=t_ahead_h))
         kpis.update(
             {
                 t_ahead_h: {

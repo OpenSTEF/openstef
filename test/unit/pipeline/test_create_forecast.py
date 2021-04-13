@@ -58,8 +58,8 @@ class TestCreateForecast(BaseTestCase):
         )
         self.assertTrue(isinstance(input_data, MagicMock))
 
-    @patch("openstf.pipeline.create_forecast.nonzero_flatliner")
-    @patch("openstf.pipeline.create_forecast.replace_invalid_data")
+    @patch("openstf.pipeline.create_forecast.validation.find_nonzero_flatliner")
+    @patch("openstf.pipeline.create_forecast.preprocessing.replace_invalid_data")
     def test_pre_process_input_data(self, replace_invalid_data_mock, nonzero_flatliner_mock):
         suspicious_moments = True
 

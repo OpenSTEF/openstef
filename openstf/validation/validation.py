@@ -8,9 +8,7 @@ import numpy as np
 import pandas as pd
 from ktpbase.log import logging
 
-from openstf.feature_engineering import general
-from openstf.feature_engineering.general import calc_completeness
-
+from openstf.preprocessing.preprocessing import replace_repeated_values_with_nan
 
 # TODO make this config more central
 # Set thresholds
@@ -22,7 +20,7 @@ def validate(data):
     logger = logging.get_logger(__name__)
     # Drop 'false' measurements. e.g. where load appears to be constant.
     threshold = 6 * 4  # number of repeated values
-    data = general.nan_repeated(data, max_length=threshold, column_name=data.columns[0])
+    data = replace_repeated_values_with_nan(data, max_length=threshold, column_name=data.columns[0])
     num_const_load_values = len(data) - len(data.iloc[:, 0].dropna())
     logger.debug(
         f"Changed {num_const_load_values} values of constant load to NA.",
@@ -83,6 +81,68 @@ def is_data_sufficient(data):
         is_sufficient = False
 
     return is_sufficient
+
+
+def calc_completeness(df, weights=None, time_delayed=False, homogenise=True):
+    """Calculate the (weighted) completeness of a dataframe.
+
+    NOTE: NA values count as incomplete
+
+    Args:
+        df (pd.DataFrame): Dataframe with a datetimeIndex index
+        weights: Array-compatible with size equal to columns of df.
+            used to weight the completeness of each column
+        time_delayed (bool): Should there be a correction for T-x columns
+        homogenise (bool): Should the index be resampled to median time delta -
+            only available for DatetimeIndex
+
+    Returns:
+        float: Completeness
+    """
+
+    if weights is None:
+        weights = np.array([1] * len(df.columns))
+    weights = np.array(weights)
+
+    if homogenise and isinstance(df.index, pd.DatetimeIndex) and len(df) > 0:
+
+        median_timediff = int(
+            df.reset_index().iloc[:, 0].diff().median().total_seconds() / 60.0
+        )
+        df = df.resample("{:d}T".format(median_timediff)).mean()
+
+    if time_delayed is False:
+        # Calculate completeness
+        # Completeness per column
+        completeness_per_column = df.count() / len(df)
+
+    # if timeDelayed is True, we correct that time-delayed columns
+    # also in the best case will have NA values. E.g. T-2d is not available
+    # for times ahead of more than 2 days
+    elif time_delayed:
+        # assume 15 minute forecast resolution
+        # timecols: {delay:number of points expected to be missing}
+        # number of points expected to be missing = numberOfPointsUpToTwoDaysAhead - numberOfPointsAvailable
+        timecols = {
+            x: len(df) - eval(x[2:].replace("min", "/60").replace("d", "*24.0")) / 0.25
+            for x in df.columns
+            if x[:2] == "T-"
+        }
+
+        non_na_count = df.count()
+        for col, value in timecols.items():
+            non_na_count[col] += value
+
+        # Correct for APX being only expected to be available up to 24h
+        if "APX" in non_na_count.index:
+            non_na_count["APX"] += max([len(df) - 96, 0])
+
+        completeness_per_column = non_na_count / len(df)
+
+    # scale to weights and normalize
+    completeness = (completeness_per_column * weights).sum() / weights.sum()
+
+    return completeness
 
 
 def find_nonzero_flatliner(df, threshold):

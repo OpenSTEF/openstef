@@ -2,12 +2,13 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+from openstf import validation
 import pandas as pd
 import scipy
 import xgboost as xgb
 from ktpbase.log import logging
 
-import openstf.feature_engineering.general as feature_engineering
+from openstf.validation import validation
 from openstf.model.prediction.prediction import AbstractPredictionModel
 
 
@@ -42,7 +43,7 @@ class XGBPredictionModel(AbstractPredictionModel):
         weights = pd.DataFrame(index=[0], data=scores)
         weights = weights.loc[:, list(forcast_input_data.columns)]
 
-        completeness = feature_engineering.calc_completeness(
+        completeness = validation.calc_completeness(
             forcast_input_data, weights.values[0]
         )
 

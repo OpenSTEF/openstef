@@ -19,6 +19,7 @@ from openstf.model.general import (
     pre_process_data,
     split_data_train_validation_test,
 )
+from openstf.validation import validation
 from openstf.model.prediction.creator import PredictionModelCreator
 from openstf.model.trainer.creator import ModelTrainerCreator
 from openstf.monitoring.teams import send_report_teams_better, send_report_teams_worse
@@ -169,7 +170,7 @@ def preprocess_for_model_training(pj, context):
     clean_data_with_features = pre_process_data(data, featureset)
 
     # Check if we have enough data left to continue
-    if is_data_sufficient(clean_data_with_features) is False:
+    if validation.is_data_sufficient(clean_data_with_features) is False:
         raise ValueError("Input data quality insufficient, aborting!")
 
     # Split data in train, test and validation sets

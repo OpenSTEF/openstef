@@ -85,7 +85,7 @@ class TestTrain(BaseTestCase):
         )
 
     @patch(
-        "openstf.pipeline.train_modelModelTrainerCreator",
+        "openstf.pipeline.train_model.ModelTrainerCreator",
         MagicMock(return_value=model_trainer_creator_mock),
     )
     def test_create_model_trainer_retrain_young_models_true(
@@ -102,7 +102,7 @@ class TestTrain(BaseTestCase):
         self.assertIsInstance(result, MagicMock)
 
     @patch(
-        "openstf.pipeline.train_modelModelTrainerCreator",
+        "openstf.pipeline.train_model.ModelTrainerCreator",
         MagicMock(return_value=model_trainer_creator_mock),
     )
     def test_create_model_trainer_retrain_young_models_false(self):
@@ -120,10 +120,10 @@ class TestTrain(BaseTestCase):
         self.assertEqual(context_mock.logger.info.call_count, 1)
         self.assertIsNone(result)
 
-    @patch("openstf.pipeline.train_modelpre_process_data")
-    @patch("openstf.pipeline.train_modelis_data_sufficient")
+    @patch("openstf.pipeline.train_model.pre_process_data")
+    @patch("openstf.pipeline.train_model.validation.is_data_sufficient")
     @patch(
-        "openstf.pipeline.train_modelsplit_data_train_validation_test",
+        "openstf.pipeline.train_model.split_data_train_validation_test",
         MagicMock(return_value=[None, None, None]),
     )
     def test_preprocess_for_model_training(
@@ -139,7 +139,7 @@ class TestTrain(BaseTestCase):
 
         self.assertEqual(result, result_expected)
 
-    @patch("openstf.pipeline.train_modelPredictionModelCreator")
+    @patch("openstf.pipeline.train_model.PredictionModelCreator")
     def test_predict_after_model_training(
         self,
         prediction_model_creator_mock,
@@ -174,10 +174,10 @@ class TestTrain(BaseTestCase):
         self.assertTrue(result)
 
     @patch(
-        "openstf.pipeline.train_modelplot_feature_importance",
+        "openstf.pipeline.train_model.plot_feature_importance",
         MagicMock(return_value=go.Figure()),
     )
-    @patch("openstf.pipeline.train_modelplot_data_series", MagicMock(return_value=go.Figure()))
+    @patch("openstf.pipeline.train_model.plot_data_series", MagicMock(return_value=go.Figure()))
     def test_create_evaluation_figures(self):
         model_trainer = MagicMock()
 
@@ -190,7 +190,7 @@ class TestTrain(BaseTestCase):
 
     @patch("openstf.pipeline.train_modelos.makedirs")
     @patch(
-        "openstf.pipeline.train_modelcreate_evaluation_figures",
+        "openstf.pipeline.train_model.create_evaluation_figures",
         MagicMock(return_value=(MagicMock(), MagicMock())),
     )
     def test_write_results_new_model_better_model(self, makedirs_mock):
@@ -204,9 +204,9 @@ class TestTrain(BaseTestCase):
         )
         self.assertEqual(makedirs_mock.call_count, 1)
 
-    @patch("openstf.pipeline.train_modelos.makedirs")
+    @patch("openstf.pipeline.train_model.os.makedirs")
     @patch(
-        "openstf.pipeline.train_modelcreate_evaluation_figures",
+        "openstf.pipeline.train_model.create_evaluation_figures",
         MagicMock(return_value=(MagicMock(), MagicMock())),
     )
     def test_write_results_new_model_worse_model(self, makedirs_mock):
@@ -220,13 +220,13 @@ class TestTrain(BaseTestCase):
         )
         self.assertEqual(makedirs_mock.call_count, 1)
 
-    @patch("openstf.pipeline.train_modelsend_report_teams_better")
+    @patch("openstf.pipeline.train_model.send_report_teams_better")
     def test_send_teams_message(self, send_report_teams_better_mock):
 
         train_model.send_report_teams(pj, model_trainer_mock, True)
         self.assertEqual(send_report_teams_better_mock.call_count, 1)
 
-    @patch("openstf.pipeline.train_modelsend_report_teams_worse")
+    @patch("openstf.pipeline.train_model.send_report_teams_worse")
     def test_send_teams_message_worse_model(self, send_report_teams_worse_mock):
 
         train_model.send_report_teams(pj, model_trainer_mock, False)

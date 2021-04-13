@@ -26,7 +26,7 @@ XGB_HYPER_PARAMS = {
 
 @patch("openstf.pipeline.optimize_hyperparameters.teams.post_teams")
 @patch("openstf.pipeline.optimize_hyperparameters.ModelTrainerCreator")
-@patch("openstf.pipeline.optimize_hyperparameters.is_data_sufficient")
+@patch("openstf.pipeline.optimize_hyperparameters.validation.is_data_sufficient")
 @patch("openstf.pipeline.optimize_hyperparameters.pre_process_data")
 @patch("openstf.pipeline.optimize_hyperparameters.DataBase")
 @patch("openstf.pipeline.optimize_hyperparameters.optuna")

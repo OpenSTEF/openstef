@@ -7,7 +7,7 @@ import unittest
 import numpy as np
 import pandas as pd
 
-from openstf.feature_engineering.general import calc_completeness
+from openstf.validation.validation import calc_completeness
 from test.utils import BaseTestCase
 
 

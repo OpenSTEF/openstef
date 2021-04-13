@@ -11,7 +11,8 @@ from ktpbase.log import logging
 from openstf import feature_engineering
 # FIXME this is a circular depedency
 from openstf.validation import validation
-from openstf.postproces import postprocess
+from openstf.preprocessing import preprocessing
+from openstf.postprocessing import postprocessing
 from openstf.model.general import ForecastType
 from openstf.model.prediction.creator import PredictionModelCreator
 
@@ -71,7 +72,7 @@ def create_forecast_pipeline(pj, forecast_type=ForecastType.DEMAND):
 
     # post process forecast ###########################################################
     # Add wind and solar components
-    forecast["forecast"] = postprocess.post_process_wind_solar(
+    forecast["forecast"] = postprocessing.post_process_wind_solar(
         forecast["forecast"], forecast_type
     )
 
@@ -125,7 +126,7 @@ def make_components_prediction(pj):
 
     # Make component forecasts
     try:
-        forecasts = postprocess.split_forecast_in_components(
+        forecasts = postprocessing.split_forecast_in_components(
             forecast, weather_data, split_coefs
         )
     except Exception as e:
@@ -251,12 +252,12 @@ def _clear_input_data_cache():
 def pre_process_input_data(input_data, flatliner_threshold):
     logger = logging.get_logger(__name__)
     # Check for repeated load observations due to invalid measurements
-    suspicious_moments = validation.nonzero_flatliner(
+    suspicious_moments = validation.find_nonzero_flatliner(
         input_data, threshold=flatliner_threshold
     )
     if suspicious_moments is not None:
         # Covert repeated load observations to NaN values
-        input_data = validation.replace_invalid_data(
+        input_data = preprocessing.replace_invalid_data(
             input_data, suspicious_moments
         )
         # Calculate number of NaN values

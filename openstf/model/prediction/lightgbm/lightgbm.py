@@ -7,7 +7,7 @@ import scipy
 import lightgbm as lgb
 from ktpbase.log import logging
 
-import openstf.feature_engineering.general as feature_engineering
+from openstf.validation import validation
 from openstf.model.prediction.prediction import AbstractPredictionModel
 
 
@@ -42,7 +42,7 @@ class LGBPredictionModel(AbstractPredictionModel):
         weights = pd.DataFrame(index=[0], data=scores)
         weights = weights.loc[:, list(forcast_input_data.columns)]
 
-        completeness = feature_engineering.calc_completeness(
+        completeness = validation.calc_completeness(
             forcast_input_data, weights.values[0]
         )
 
