@@ -8,7 +8,7 @@ import numpy as np
 
 from test.utils import BaseTestCase, TestData
 
-from openstf.pipeline import split_forecast
+from openstf.tasks import split_forecast
 
 # Get test data
 input_data = TestData.load("find_components_input.csv")
