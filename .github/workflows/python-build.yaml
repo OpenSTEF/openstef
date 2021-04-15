@@ -59,7 +59,7 @@ jobs:
     - name: fix code coverage paths
       working-directory: ./coverage
       run: |
-        sed -i 's/\/home\/runner\/work\/short-term-forecasting\/short-term-forecasting\//\/github\/workspace\/g' /github/workspace/coverage.xml
+        sed -i 's/\/home\/runner\/work\/short-term-forecasting\/short-term-forecasting\//\/github\/workspace\/g' /home/runner/work/short-term-forecasting/short-term-forecasting/coverage.xml
     # Sonar cloud scan
     - name: SonarCloud Scan
       uses: sonarsource/sonarcloud-github-action@master
