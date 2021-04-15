@@ -54,7 +54,7 @@ jobs:
     - name: Test with pytest
       run: |
         pip install pytest pytest-cov
-        pytest --cov-report=xml --cov=openstf test/     
+        pytest --cov-report=xml --cov=openstf test/ --junitxml=pytest-report.xml    
     - name: SonarCloud Scan
       uses: sonarsource/sonarcloud-github-action@master
       env:
