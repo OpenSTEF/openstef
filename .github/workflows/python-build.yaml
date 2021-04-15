@@ -57,9 +57,8 @@ jobs:
         pytest --cov-report=xml --cov=openstf/ test/ --junitxml=pytest-report.xml
     # Fix relative paths in coverage file
     - name: fix code coverage paths
-      working-directory: ./coverage
       run: |
-        sed -i 's/\/home\/runner\/work\/short-term-forecasting\/short-term-forecasting\//\/github\/workspace\/g' /home/runner/work/coverage.xml
+        sed -i 's/\/home\/runner\/work\/short-term-forecasting\/short-term-forecasting\//\/github\/workspace\/g' coverage.xml
     # Sonar cloud scan
     - name: SonarCloud Scan
       uses: sonarsource/sonarcloud-github-action@master
