@@ -54,7 +54,7 @@ jobs:
     - name: Test with pytest
       run: |
         pip install pytest pytest-cov
-        pytest --cov-report=xml --cov=openstf/ test/ --junitxml=pytest-report.xml
+        pytest --cov-report=xml --cov=openstf/ test/unit/ --junitxml=pytest-report.xml
     # Fix relative paths in coverage file
     - name: fix code coverage paths
       run: |
