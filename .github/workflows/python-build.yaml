@@ -54,16 +54,18 @@ jobs:
     - name: Test with pytest
       run: |
         pip install pytest pytest-cov
-        pytest --cov-report=xml --cov=openstf test/ --junitxml=pytest-report.xml    
+        pytest --cov-report=xml --cov=openstf test/ --junitxml=pytest-report.xml
+    # Fix relative paths in coverage file
+    - name: fix code coverage paths
+      working-directory: ./coverage
+      run: |
+        sed -i 's@'$GITHUB_WORKSPACE'@/github/workspace/@g' coverage.xml
+    # Sonar cloud scan
     - name: SonarCloud Scan
       uses: sonarsource/sonarcloud-github-action@master
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-    - name: pytest-coverage-commentator
-      uses: coroo/pytest-coverage-commentator@v1.0.2
-      with:
-        pytest-coverage: coverage.xml   
     # Build
     - name: Build Python package
       run: |
