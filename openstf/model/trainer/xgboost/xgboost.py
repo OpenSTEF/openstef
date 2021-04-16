@@ -10,7 +10,7 @@ import pytz
 import xgboost as xgb
 from ktpbase.log import logging
 
-from openstf.model import metrics
+from openstf.metrics import metrics
 from openstf.model.general import (
     pre_process_data,
     remove_features_not_in_set,
@@ -299,7 +299,7 @@ class XGBModelTrainer(AbstractModelTrainer):
             trial: optuna trial object that is passed on during hyper parameter
                 optimalisation.
             error_function (callable): Function to calculate the error metric to be
-                optimized, preferably one from openstf.model.metrics.
+                optimized, preferably one from openstf.metrics.metrics.
             unprocessed_data (pandas.DataFrame): Data and features that have not yet
                 been pre-processed.
             training_durations_days (list of int): Candidate training durations.
@@ -382,7 +382,7 @@ class XGBModelTrainer(AbstractModelTrainer):
             trial: optuna trial object that is passed on during hyper parameter
                 optimalisation.
             error_function (callable): Function to calculate the error metric to be
-                optimized, preferably one from openstf.model.metrics.
+                optimized, preferably one from openstf.metrics.metrics.
             clean_data_with_all_features (pandas.DataFrame): Data and features ready for
                 model training
             featuresets (dict): All feature sets: with keys the featureset_name and

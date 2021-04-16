@@ -10,7 +10,7 @@ import pandas as pd
 from ktpbase.log import logging
 
 from openstf import PROJECT_ROOT
-from openstf.data_validation import data_validation
+from openstf.validation import validation
 from openstf.feature_engineering.apply_features import apply_multiple_horizon_features
 from openstf.feature_engineering.general import (
     apply_fit_insol,
@@ -281,7 +281,7 @@ def pre_process_data(data, featureset=None, horizons=None):
         horizons = [0.25, 47]
 
     # Validate input data
-    validated_data = data_validation.validate(data)
+    validated_data = validation.validate(data)
 
     # Apply features
     # TODO it would be nicer to only generate the required features
@@ -296,7 +296,7 @@ def pre_process_data(data, featureset=None, horizons=None):
         )
 
     # Clean up data
-    clean_data_with_features = data_validation.clean(validated_data_data_with_features)
+    clean_data_with_features = validation.clean(validated_data_data_with_features)
 
     return clean_data_with_features
 

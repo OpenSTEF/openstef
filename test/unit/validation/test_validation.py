@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-from openstf.data_validation.data_validation import validate, clean
+from openstf.validation import validation
 
 from test.utils import BaseTestCase, TestData
 
@@ -15,13 +15,13 @@ class TestDataValidation(BaseTestCase):
 
     def test_clean(self):
 
-        cleaned_data = clean(self.data_train)
+        cleaned_data = validation.clean(self.data_train)
 
         self.assertEqual(len(cleaned_data), 11526)
 
     def test_validate(self):
 
         self.data_predict["load"][0:50] = 10.0
-        validated_data = validate(self.data_predict)
+        validated_data = validation.validate(self.data_predict)
 
         self.assertEqual(len(validated_data[validated_data["load"].isna()]), 26)

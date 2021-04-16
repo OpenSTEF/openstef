@@ -27,7 +27,7 @@ Attributes:
 
 
 """
-from openstf.model import predict
+from openstf.pipeline.create_forecast import create_forecast_pipeline
 from openstf.model.general import ForecastType
 from openstf.tasks.utils.utils import check_status_change, update_status_change
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
@@ -55,7 +55,7 @@ def main():
             on_end_callback=callback,
             # Debug specific pid
             # prediction_jobs=[{'id':282}],
-        ).map(predict.make_prediction, forecast_type=ForecastType.DEMAND)
+        ).map(create_forecast_pipeline, forecast_type=ForecastType.DEMAND)
 
 
 if __name__ == "__main__":

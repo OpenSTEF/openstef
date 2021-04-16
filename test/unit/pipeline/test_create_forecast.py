@@ -8,14 +8,14 @@ from test.utils import BaseTestCase, TestData
 from unittest import mock
 from unittest.mock import MagicMock, patch
 
-import openstf.model.predict as predict
+from openstf.pipeline import create_forecast
 
 NOW = datetime.now(timezone.utc)
 PJ = TestData.get_prediction_job(pid=60)
 
 
-@mock.patch("openstf.model.predict.DataBase", MagicMock())
-class TestPredict(BaseTestCase):
+@mock.patch("openstf.pipeline.create_forecast.DataBase", MagicMock())
+class TestCreateForecast(BaseTestCase):
     def test_generate_inputdata_datetime_range(self):
         t_behind_days = 14
         t_ahead_days = 3
@@ -25,13 +25,13 @@ class TestPredict(BaseTestCase):
         datetime_start_expected = date_today_utc - timedelta(days=t_behind_days)
         datetime_end_expected = date_today_utc + timedelta(days=t_ahead_days)
 
-        datetime_start, datetime_end = predict.generate_inputdata_datetime_range(
+        datetime_start, datetime_end = create_forecast.generate_inputdata_datetime_range(
             t_behind_days=t_behind_days, t_ahead_days=t_ahead_days
         )
         self.assertEqual(datetime_start, datetime_start_expected)
         self.assertEqual(datetime_end, datetime_end_expected)
 
-    @patch("openstf.model.predict.datetime")
+    @patch("openstf.pipeline.create_forecast.datetime")
     def test_forecast_datetime_range(self, datetime_mock):
         datetime_mock.now.return_value = NOW
         # get current date and time UTC
@@ -42,7 +42,7 @@ class TestPredict(BaseTestCase):
         )
         forecast_end_expected = datetime_utc + timedelta(minutes=PJ["horizon_minutes"])
 
-        forecast_start, forecast_end = predict.generate_forecast_datetime_range(
+        forecast_start, forecast_end = create_forecast.generate_forecast_datetime_range(
             resolution_minutes=PJ["resolution_minutes"],
             horizon_minutes=PJ["horizon_minutes"],
         )
@@ -52,14 +52,15 @@ class TestPredict(BaseTestCase):
     def test_get_model_input_demand(
         self,
     ):
-        predict._clear_input_data_cache()
-        input_data = predict.get_model_input(
+        create_forecast._clear_input_data_cache()
+        input_data = create_forecast.get_model_input(
             pj=PJ, datetime_start=NOW, datetime_end=NOW
         )
         self.assertTrue(isinstance(input_data, MagicMock))
 
-    @patch("openstf.model.predict.validation_robot")
-    def test_pre_process_input_data(self, validation_robot_mock):
+    @patch("openstf.pipeline.create_forecast.validation.find_nonzero_flatliner")
+    @patch("openstf.pipeline.create_forecast.preprocessing.replace_invalid_data")
+    def test_pre_process_input_data(self, replace_invalid_data_mock, nonzero_flatliner_mock):
         suspicious_moments = True
 
         null_row = MagicMock()
@@ -68,21 +69,18 @@ class TestPredict(BaseTestCase):
         processed_input_data = MagicMock()
         processed_input_data.iterrows.return_value = processed_input_data_rows
 
-        validation_robot_mock.nonzero_flatliner.return_value = suspicious_moments
-        validation_robot_mock.replace_invalid_data.return_value = processed_input_data
+        nonzero_flatliner_mock.return_value = suspicious_moments
+        replace_invalid_data_mock.return_value = processed_input_data
 
-        predict.pre_process_input_data(input_data=None, flatliner_threshold=None)
+        create_forecast.pre_process_input_data(input_data=None, flatliner_threshold=None)
 
         # simply check if all mocks are called
-        for mock_func in [
-            validation_robot_mock.nonzero_flatliner,
-            validation_robot_mock.replace_invalid_data,
-        ]:
+        for mock_func in [nonzero_flatliner_mock, replace_invalid_data_mock]:
             self.assertEqual(mock_func.call_count, 1)
 
-    @patch("openstf.model.predict.feature_engineering")
+    @patch("openstf.pipeline.create_forecast.feature_engineering")
     def test_perform_feature_engineering(self, fe_mock):
-        predict.perform_feature_engineering(input_data=None, feature_names=None)
+        create_forecast.perform_feature_engineering(input_data=None, feature_names=None)
 
         for mock_func in [
             fe_mock.general.extract_minute_features,

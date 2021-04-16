@@ -15,7 +15,7 @@ from datetime import datetime, timedelta
 
 import pandas as pd
 
-from openstf.model.validation_robot import check_data_for_each_trafo
+from openstf.validation.validation import check_data_for_each_trafo
 
 from test.utils import BaseTestCase
 
@@ -49,7 +49,8 @@ df_zero_file = df_zero_file.set_index("date5")
 df_all_zerovalues = df_all_zerovalues.set_index("date6")
 
 
-class ZeroFlatlinerTest(BaseTestCase):
+class TestValidationCheckDataForEachTrafo(BaseTestCase):
+
     def test_no_zero_values(self):
         """Data: no zero-values in any of the trafo's
 
@@ -109,6 +110,5 @@ class ZeroFlatlinerTest(BaseTestCase):
 
 
 # Run all tests
-
 if __name__ == "__main__":
     unittest.main()

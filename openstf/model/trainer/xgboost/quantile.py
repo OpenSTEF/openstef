@@ -7,7 +7,7 @@ from functools import partial
 import xgboost as xgb
 from ktpbase.log import logging
 
-from openstf.model import metrics
+from openstf.metrics import metrics
 from openstf.model.prediction.xgboost.model.quantile import XGBQuantileModel
 from openstf.model.trainer.xgboost.xgboost import XGBModelTrainer
 

@@ -138,6 +138,7 @@ def post_process_wind_solar(forecast: pd.Series, forecast_type):
     if forecast_type not in [ForecastType.WIND, ForecastType.SOLAR]:
         return forecast
 
+    # NOTE this part is really generic, we should probably make it a generic function
     forecast_data_sum = forecast.sum()
     # Determine sign of sum
     if forecast_data_sum > 0:

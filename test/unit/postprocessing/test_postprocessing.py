@@ -4,35 +4,33 @@
 
 import unittest
 from test.utils.base import BaseTestCase
-from unittest.mock import patch
 
 import pandas as pd
 
 from openstf.model.general import ForecastType
-from openstf.postproces import postprocess
+from openstf.postprocessing import postprocessing
 
 
-@patch("openstf.model.predict.DataBase")
 class TestPostProcess(BaseTestCase):
-    def test_post_process_wind_solar(self, db_mock):
+    def test_post_process_wind_solar(self):
         forecast_positive_sum = pd.DataFrame({"forecast": [10, 15, 33, -1, -2]})
         forecast_negative_sum = pd.DataFrame({"forecast": [-10, -15, -33, 1, 2]})
 
         forecast_negative_removed = pd.DataFrame()
         forecast_positive_removed = pd.DataFrame()
 
-        forecast_negative_removed["forecast"] = postprocess.post_process_wind_solar(
+        forecast_negative_removed["forecast"] = postprocessing.post_process_wind_solar(
             forecast_positive_sum["forecast"], ForecastType.WIND
         )
 
-        forecast_positive_removed["forecast"] = postprocess.post_process_wind_solar(
+        forecast_positive_removed["forecast"] = postprocessing.post_process_wind_solar(
             forecast_negative_sum["forecast"], ForecastType.SOLAR
         )
 
         self.assertTrue((forecast_negative_removed["forecast"] >= 0).all())
         self.assertTrue((forecast_positive_removed["forecast"] <= 0).all())
 
-    def test_normalize_and_convert_weather_data_for_splitting(self, db_mock):
+    def test_normalize_and_convert_weather_data_for_splitting(self):
         # Create testing input
         weather_data_test = pd.DataFrame(
             {"windspeed_100m": [10, 15, 33, 1, 2], "radiation": [10, 16, 33, -1, -2]}
@@ -60,7 +58,7 @@ class TestPostProcess(BaseTestCase):
 
         # Carry out test
         weather_data_norm_test = (
-            postprocess.normalize_and_convert_weather_data_for_splitting(
+            postprocessing.normalize_and_convert_weather_data_for_splitting(
                 weather_data_test
             )
         )
@@ -78,7 +76,7 @@ class TestPostProcess(BaseTestCase):
             weather_data_norm_test, weather_data_norm_ref, check_exact=False, rtol=1e-3
         )
 
-    def test_split_forecast_in_components(self, db_mock):
+    def test_split_forecast_in_components(self):
         # Define test input
         weather_data_test = pd.DataFrame(
             {"windspeed_100m": [10, 15, 33, 1, 2], "radiation": [10, 16, 33, -1, -2]}
@@ -92,7 +90,7 @@ class TestPostProcess(BaseTestCase):
         forecast["description"] = "test_desription"
         forecast["type"] = "component"
 
-        forecasts = postprocess.split_forecast_in_components(
+        forecasts = postprocessing.split_forecast_in_components(
             forecast, weather_data_test, split_coefs_test
         )
 

@@ -2,6 +2,30 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+"""split_forecast.py
+
+This module contains the CRON job that is periodically executed to make
+prognoses of solar features. These features are usefull for splitting the load
+in solar and wind contributions.
+This is achieved by carrying out the folowing steps:
+  1. Get the wind and solar reference data for the specific location of the
+     customer
+  2. Get the TDCV (Typical Domestic Consumption Values) data
+  3. Fit a linear combination of above time series to the historic load data to
+     determine the contributions of each energy source.
+  4. Write the resulting coeficients to the SQL database.
+
+Example:
+    This module is meant to be called directly from a CRON job. A description of
+    the CRON job can be found in the /k8s/CronJobs folder.
+    Alternatively this code can be run directly by running::
+
+        $ python split_forecast.py
+
+Attributes:
+
+
+"""
 from datetime import datetime
 
 import numpy as np
@@ -10,12 +34,25 @@ from ktpbase.database import DataBase
 from ktpbase.log import logging
 import scipy.optimize
 
+from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
+from openstf.tasks.utils.taskcontext import TaskContext
 import openstf.monitoring.teams as monitoring
+
 
 COEF_MAX_FRACTION_DIFF = 0.3
 
 
-def split_energy(pid):
+def main():
+    with TaskContext(__file__) as context:
+        model_type = ["xgb", "lgb"]
+
+        PredictionJobLoop(
+            context,
+            model_type=model_type,
+        ).map(lambda pj: split_forecast(pj["id"]))
+
+
+def split_forecast(pid):
     """Function that caries out the energy splitting for a specific prediction job with
     id pid.
 
@@ -205,3 +242,7 @@ def find_components(df, zero_bound=True):
 
     # Return result
     return components, coefdict
+
+
+if __name__ == "__main__":
+    main()

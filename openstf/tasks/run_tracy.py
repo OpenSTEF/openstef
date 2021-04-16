@@ -40,7 +40,7 @@ Attributes:
 
 from functools import partial
 
-from openstf.model.hyper_parameters import optimize_hyperparameters
+from openstf.pipeline.optimize_hyperparameters import optimize_hyperparameters
 from openstf.model.train import train_specific_model
 
 # Import project modules

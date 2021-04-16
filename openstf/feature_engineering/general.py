@@ -11,8 +11,6 @@ import numpy as np
 import pandas as pd
 import scipy
 
-
-
 def extract_minute_features(feature_names):
     """Creates a list of features that were used during training of the input model
     Args:

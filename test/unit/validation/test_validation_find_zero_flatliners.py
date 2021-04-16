@@ -3,18 +3,13 @@
 # SPDX-License-Identifier: MPL-2.0
 
 # -*- coding: utf-8 -*-
-"""
-Created on Wed Dec  4 10:35:34 2019
-
-@author: AL20603
-"""
 
 import unittest
 from datetime import datetime, timedelta
 
 import pandas as pd
 
-from openstf.model.validation_robot import zero_flatliner
+from openstf.validation.validation import find_zero_flatliner
 
 from test.utils import BaseTestCase
 
@@ -57,7 +52,7 @@ df_zero_file = df_zero_file.set_index("date5")
 df_all_zerovalues = df_all_zerovalues.set_index("date6")
 
 
-class ZeroFlatlinerTest(BaseTestCase):
+class TestValidationFindZeroFlatliners(BaseTestCase):
     def test_no_zero_values(self):
         """Data: no zero-values in any of the trafo's
 
@@ -66,7 +61,7 @@ class ZeroFlatlinerTest(BaseTestCase):
         df = df_no_flatliner
         threshold = 0.25
         expected = None
-        result = zero_flatliner(df, threshold)
+        result = find_zero_flatliner(df, threshold)
 
         self.assertEqual(expected, result)
 
@@ -77,7 +72,7 @@ class ZeroFlatlinerTest(BaseTestCase):
         """
         df = df_all_zerovalues
         threshold = 0.25
-        result = zero_flatliner(df, threshold)
+        result = find_zero_flatliner(df, threshold)
         expected = None
         self.assertEqual(result, expected)
 
@@ -88,18 +83,18 @@ class ZeroFlatlinerTest(BaseTestCase):
         """
         df = df_nan_value
         threshold = 0.25
-        result = zero_flatliner(df, threshold)
+        result = find_zero_flatliner(df, threshold)
         expected = None
         self.assertEqual(result, expected)
 
-    def test_zero_flatliner(self):
+    def test_find_zero_flatliner(self):
         """Data: zero-values at one trafo which is not compensated
 
         Expected: list containing all trafo values and timestamps of the zero_value flatliners + trafo name
         """
         df = df_flatliner
         threshold = 0.25
-        result = zero_flatliner(df, threshold)
+        result = find_zero_flatliner(df, threshold)
         expected = pd.DataFrame(
             {
                 "duration_h": [
@@ -120,7 +115,7 @@ class ZeroFlatlinerTest(BaseTestCase):
         """
         df = df_some_nan
         threshold = 0.25
-        result = zero_flatliner(df, threshold)
+        result = find_zero_flatliner(df, threshold)
         expected = pd.DataFrame(
             {
                 "duration_h": [
@@ -141,7 +136,7 @@ class ZeroFlatlinerTest(BaseTestCase):
         """
         df = df_compensated_flatliner
         threshold = 0.25
-        result = zero_flatliner(df, threshold)
+        result = find_zero_flatliner(df, threshold)
         expected = None
         self.assertEqual(result, expected)
 
@@ -153,7 +148,7 @@ class ZeroFlatlinerTest(BaseTestCase):
         df = df_zero_file
         threshold = 0.25
         expected = None
-        result = zero_flatliner(df, threshold)
+        result = find_zero_flatliner(df, threshold)
         self.assertEqual(result, expected)
 
         # Run all tests

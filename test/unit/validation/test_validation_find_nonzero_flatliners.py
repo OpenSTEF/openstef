@@ -1,18 +1,12 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-
-# -*- coding: utf-8 -*-
-
-# -*- coding: utf-8 -*-
-
-
 import unittest
 from datetime import datetime, timedelta
 
 import pandas as pd
 
-from openstf.model.validation_robot import nonzero_flatliner
+from openstf.validation.validation import find_nonzero_flatliner
 
 from test.utils import BaseTestCase
 
@@ -68,20 +62,21 @@ df_zero_flatliner = df_zero_flatliner.set_index("date6")
 
 
 # eerste column invoegen (die weer verwijderd wordt)
-# @mock.patch("openstf.model.nonzero_flatliner_detection.query_load_data", return_value = df_no_flatliner)
-class NonZeroFlatlinerTest(BaseTestCase):
+# @mock.patch("openstf.model.find_nonzero_flatliner_detection.query_load_data", return_value = df_no_flatliner)
+class TestValidationFindNonzeroFlatliners(BaseTestCase):
     def test_no_flatliner(self):
         df = df_no_flatliner
         threshold = 0.25
         expected = None
-        result = nonzero_flatliner(df, threshold)
+        result = find_nonzero_flatliner(df, threshold)
 
         self.assertEqual(result, expected)
 
     def test_station_flatliner(self):
         """Data: all trafo's containing non zero-value flatliners
 
-        Expected: list containing all trafo values and timestamps of the stationsflatliners + the generates diff_columns to detect the flatliners.
+        Expected: list containing all trafo values and timestamps of the
+        stationsflatliners + the generates diff_columns to detect the flatliners.
         """
         df = df_flatliner
         threshold = 0.25
@@ -97,7 +92,7 @@ class NonZeroFlatlinerTest(BaseTestCase):
         )
         expected = []
         expected.append(df_flatliner_output)
-        result = nonzero_flatliner(df, threshold)
+        result = find_nonzero_flatliner(df, threshold)
         expected_output = expected[0]
         self.assertDataframeEqual(
             expected_output, result, check_index_type=False, check_dtype=False
@@ -122,7 +117,7 @@ class NonZeroFlatlinerTest(BaseTestCase):
         )
         expected = []
         expected.append(df_zerovalues_flatliner_output)
-        result = nonzero_flatliner(df, threshold)
+        result = find_nonzero_flatliner(df, threshold)
         expected_output = expected[0]
         self.assertDataframeEqual(
             expected_output, result, check_index_type=False, check_dtype=False
@@ -136,7 +131,7 @@ class NonZeroFlatlinerTest(BaseTestCase):
         df = df_trafo_flatliner
         threshold = 0.25
         expected = None
-        result = nonzero_flatliner(df, threshold)
+        result = find_nonzero_flatliner(df, threshold)
         self.assertEqual(result, expected)
 
     def test_no_data(self):
@@ -147,7 +142,7 @@ class NonZeroFlatlinerTest(BaseTestCase):
         df = df_zero_file
         threshold = 0.25
         expected = None
-        result = nonzero_flatliner(df, threshold)
+        result = find_nonzero_flatliner(df, threshold)
         self.assertEqual(result, expected)
 
     def test_zero_flatliner(self):
@@ -158,7 +153,7 @@ class NonZeroFlatlinerTest(BaseTestCase):
         df = df_zero_flatliner
         threshold = 0.25
         expected = None
-        result = nonzero_flatliner(df, threshold)
+        result = find_nonzero_flatliner(df, threshold)
         self.assertEqual(result, expected)
 
     # Run all tests

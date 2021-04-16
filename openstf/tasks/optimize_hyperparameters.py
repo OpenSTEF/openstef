@@ -16,7 +16,7 @@ Example:
         $ python optimize_hyper_params.py
 
 """
-from openstf.model.hyper_parameters import optimize_hyperparameters_pj
+from openstf.pipeline.optimize_hyperparameters import optimize_hyperparameters_pj
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
 
