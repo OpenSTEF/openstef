@@ -123,7 +123,7 @@ class TaskContext:
             msg["sections"].append(
                 {
                     "facts": [
-                        ("Unsuccessful pids", string_pids_unsuccessful),
+                        ("Unsuccessful pid(s)", string_pids_unsuccessful),
                     ]
                 }
             )
