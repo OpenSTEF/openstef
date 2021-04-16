@@ -5,13 +5,12 @@
 # -*- coding: utf-8 -*-
 """ This module contains all general feature engineering functions"""
 import re
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 import numpy as np
 import pandas as pd
 import scipy
 
-from openstf.feature_engineering import apply_features
 
 
 def extract_minute_features(feature_names):
@@ -136,56 +135,6 @@ def nan_repeated(df, max_length, column_name):
     return data
 
 
-def get_preprocessed_data(
-    pj,
-    db,
-    datetime_start=datetime.utcnow() - timedelta(days=90),
-    datetime_end=datetime.utcnow(),
-):
-    """Retrieves input data frame and pre-process it (calculate features, correct constant load, drop NAs etc.)
-    Input:
-        pj, the current prediction job
-    Output:
-        table: pd.DataFrame
-        completeness: percentage of data kept after pre-processing"""
-    location = [pj["lat"], pj["lon"]]
-
-    if "+" in pj["description"]:
-        name_var = pj["description"]
-    else:
-        name_var = pj["sid"]
-
-    table = db.get_model_input(
-        pid=pj["id"],
-        location=location,
-        datetime_start=datetime_start,
-        datetime_end=datetime_end,
-    )
-
-    if "load" not in table.columns:
-        raise SystemError("No Load returned for {}".format(pj["description"]))
-
-    # !!!!!
-    # Work-around for cityzen data
-    if name_var.split("_")[0] == "cable":
-        print("NOTE! Rescaling input data!")
-        table.iloc[:, 0] *= 1000.0
-
-    # Drop 'false' measurements. e.g. where load appears to be constant.
-    threshold = 6 * 4  # number of repeated values
-    table = nan_repeated(table, threshold, table.columns[0])
-    const_load_values = len(table) - len(table.iloc[:, 0].dropna())
-    print("Changed {} values of constant load to NA.".format(const_load_values))
-
-    # Apply model features to get the full table
-    horizons = [0.25, 47]
-    table = apply_features.apply_multiple_horizon_features(table, h_aheads=horizons)
-    # Drop first rows where not enough data was present to make T-14d for example
-    # For now, use fixed limit of first two weeks
-
-    completeness = calc_completeness(table, time_delayed=True)
-
-    return table, completeness
 
 
 def calc_norm(data, how="max", add_to_df=True):
