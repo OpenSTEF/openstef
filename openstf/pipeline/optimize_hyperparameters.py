@@ -20,7 +20,7 @@ MAX_AGE_HYPER_PARAMS_DAYS = 31
 SHOW_OPTUNA_PROGRESS_BAR = False
 
 
-def optimize_hyperparameters_pj(pj):
+def optimize_hyperparameters_pipeline(pj):
     """Optimized hyperparameters for a specific prediction job.
     First the age of the last stored hyperparameters is determined. If these are older
      than MAX_AGE_HYPER_PARAMS_DAYS, the hyper parameters will be optimized.

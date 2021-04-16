@@ -16,7 +16,7 @@ Example:
         $ python optimize_hyper_params.py
 
 """
-from openstf.pipeline.optimize_hyperparameters import optimize_hyperparameters_pj
+from openstf.pipeline.optimize_hyperparameters import optimize_hyperparameters_pipeline
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
 
@@ -26,7 +26,7 @@ def main():
         model_type = ["xgb", "xgb_quantile", "lgb"]
 
         PredictionJobLoop(context, model_type=model_type).map(
-            optimize_hyperparameters_pj
+            optimize_hyperparameters_pipeline
         )
 
 

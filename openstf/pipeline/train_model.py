@@ -7,8 +7,6 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from collections import namedtuple
 
-from ktpbase.database import DataBase
-
 from openstf.metrics.figure import (
     convert_to_base64_data_uri,
     plot_data_series,
@@ -92,7 +90,11 @@ def train_model_pipeline(pj, context, retrain_young_models=False, compare_to_old
         path_to_save,
     )
 
-    send_report_teams(pj, model_trainer, new_model_is_better)
+    if new_model_is_better:
+        send_report_teams_better(pj, model_trainer.feature_importance)
+    else:
+        send_report_teams_worse(pj)
+
 
     context.perf_meter.checkpoint("writing results")
 
@@ -358,40 +360,3 @@ def write_results_new_model(
                 save_loc / "f{key}.datauri",
                 content_type="image/jpg",
             )
-
-
-def send_report_teams(pj, model_trainer, new_model_is_better):
-    """Send Teams message about result of new model.
-
-    Args:
-        pj (dict): Prediction job
-        model_trainer (MLModelType): model trainer
-        new_model_is_better (boolean): True if new model is better than old model
-    """
-    if new_model_is_better:
-        send_report_teams_better(pj, model_trainer.feature_importance)
-    else:
-        send_report_teams_worse(pj)
-
-
-def train_specific_model(context, pid):
-    """Train model for given prediction id.
-
-    Tracy-compatible function to train a specific model based on the prediction id (pid)
-    Should not be used outside of Tracy, preferred alternative:
-        train_model_pipeline
-
-    Args:
-        pid (int): Prediction id of the corresponding prediction job.
-
-    Returns:
-        Trained model (FIXME can be various datatypes at present)
-    """
-    # Get DataBase instance:
-    db = DataBase()
-
-    # Get prediction job based on the given prediction ID (pid)
-    pj = db.get_prediction_job(pid)
-
-    # Train model for pj
-    train_model_pipeline(pj, context, compare_to_old=False, retrain_young_models=True)
