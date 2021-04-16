@@ -12,7 +12,7 @@ from datetime import timedelta
 from openstf.model.prediction.xgboost.quantile import (
     QuantileXGBPredictionModel as PredictionModel,
 )
-from openstf.model.general import ForecastType, MLModelType
+from openstf.enums import ForecastType, MLModelType
 
 
 class TestQuantileXGBPredictionModel(BaseTestCase):

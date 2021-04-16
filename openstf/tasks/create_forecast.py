@@ -28,7 +28,7 @@ Attributes:
 
 """
 from openstf.pipeline.create_forecast import create_forecast_pipeline
-from openstf.model.general import ForecastType
+from openstf.enums import ForecastType
 from openstf.tasks.utils.utils import check_status_change, update_status_change
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext

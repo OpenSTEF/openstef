@@ -6,7 +6,7 @@ import unittest
 from test.utils.data import TestData
 
 from openstf.feature_engineering.general import extract_minute_features
-from openstf.model.general import MLModelType
+from openstf.enums import MLModelType
 from openstf.model.serializer.creator import ModelSerializerCreator
 
 from test.utils import BaseTestCase

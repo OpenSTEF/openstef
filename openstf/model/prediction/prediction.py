@@ -8,7 +8,7 @@ from datetime import datetime, timedelta, timezone
 import numpy as np
 import pandas as pd
 
-from openstf.model.general import ForecastType, MLModelType
+from openstf.enums import ForecastType, MLModelType
 from openstf.model.serializer.creator import ModelSerializerCreator
 
 FLATLINER_THRESHOLD = 6

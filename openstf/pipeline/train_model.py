@@ -14,12 +14,10 @@ from openstf.metrics.figure import (
     plot_data_series,
     plot_feature_importance,
 )
-from openstf.model.general import (
-    ForecastType,
-    pre_process_data,
-)
+from openstf.enums import ForecastType
 from openstf.model_selection.model_selection import split_data_train_validation_test
 from openstf.validation import validation
+from openstf.model.general import pre_process_data
 from openstf.model.prediction.creator import PredictionModelCreator
 from openstf.model.trainer.creator import ModelTrainerCreator
 from openstf.monitoring.teams import send_report_teams_better, send_report_teams_worse

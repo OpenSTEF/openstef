@@ -2,8 +2,6 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-from enum import Enum
-
 import numpy as np
 import pandas as pd
 
@@ -15,21 +13,6 @@ from openstf.feature_engineering.general import (
     apply_persistence,
     remove_features_not_in_set,
 )
-
-
-# TODO replace this with ModelType (MLModelType == Machine Learning model type)
-class MLModelType(Enum):
-    XGB = "xgb"
-    XGB_QUANTILE = "xgb_quantile"
-    LGB = "lgb"
-
-
-class ForecastType(Enum):
-    DEMAND = "demand"
-    WIND = "wind"
-    SOLAR = "solar"
-    BASECASE = "basecase"
-
 
 # TODO move to config
 PV_COEFS_FILEPATH = PROJECT_ROOT / "openstf" / "data" / "pv_single_coefs.csv"

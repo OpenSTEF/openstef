@@ -13,7 +13,7 @@ from openstf import feature_engineering
 from openstf.validation import validation
 from openstf.preprocessing import preprocessing
 from openstf.postprocessing import postprocessing
-from openstf.model.general import ForecastType
+from openstf.enums import ForecastType
 from openstf.model.prediction.creator import PredictionModelCreator
 
 # configuration constants
