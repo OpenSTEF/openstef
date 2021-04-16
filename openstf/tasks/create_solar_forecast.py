@@ -65,6 +65,7 @@ def make_solar_predicion_pj(pj, context):
     power["description"] = pj["description"]
     context.database.write_forecast(power)
 
+
 def combine_forecasts(forecasts, combination_coefs):
     """This function combines several independent forecasts into one, using
         predetermined coefficients.
@@ -211,6 +212,7 @@ def fides(data, all_forecasts=False):
         )
 
     return forecast
+
 
 def main():
     with TaskContext(__file__) as context:
