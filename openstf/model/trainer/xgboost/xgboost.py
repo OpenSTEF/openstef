@@ -14,8 +14,8 @@ from openstf.metrics import metrics
 from openstf.model.general import (
     pre_process_data,
     remove_features_not_in_set,
-    split_data_train_validation_test,
 )
+from openstf.model_selection.model_selection import split_data_train_validation_test
 from openstf.model.trainer.trainer import AbstractModelTrainer
 
 # Available trainings period durations for optimization

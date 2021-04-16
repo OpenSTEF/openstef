@@ -11,7 +11,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from openstf.model.general import MLModelType, split_data_train_validation_test
+from openstf.model.general import MLModelType
+from openstf.model_selection.model_selection import split_data_train_validation_test
 from openstf.model.serializer.creator import ModelSerializerCreator
 from openstf.model.serializer.lightgbm.lightgbm import LGBModelSerializer
 from openstf.validation import validation

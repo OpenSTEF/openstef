@@ -17,8 +17,8 @@ from openstf.metrics.figure import (
 from openstf.model.general import (
     ForecastType,
     pre_process_data,
-    split_data_train_validation_test,
 )
+from openstf.model_selection.model_selection import split_data_train_validation_test
 from openstf.validation import validation
 from openstf.model.prediction.creator import PredictionModelCreator
 from openstf.model.trainer.creator import ModelTrainerCreator
