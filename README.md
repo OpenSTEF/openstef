@@ -21,7 +21,7 @@ SPDX-License-Identifier: MPL-2.0
 
 # Short Term Forcasting
 
-Short term forcasting is a Python package which is used to make short term forecasts for the energy sector. This repository contains all components for the machine learning pipeline required to make a forecast. In order to use the package you need to provide your own data storage and retrieval interface. The repository builds a package available at: https://pypi.org/project/openstf/
+Short term forcasting builds the `openstf` Python package which is used to make short term forecasts for the energy sector. This repository contains all components for the machine learning pipeline required to make a forecast. In order to use the package you need to provide your own data storage and retrieval interface. `openstf` is available at: https://pypi.org/project/openstf/
 
 # Installation
 
