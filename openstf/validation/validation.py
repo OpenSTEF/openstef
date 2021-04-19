@@ -304,20 +304,20 @@ def check_data_for_each_trafo(df, col):
     Returns:
         bool: False if column contains above specified or True if not
     """
-    if df is not None:
-        # Check for each column the data on the following: (Skipping if true)
-        # Check if there a zero-values at all
-        if (df[col] != 0).all(axis=0):
-            print(f"No zero values found - at all at trafo {col}, skipping column")
-            return False
-        # Check if all values are zero in column
-        elif (df[col] == 0).all(axis=0):
-            print("Load at trafo {a} is zero, skipping column".format(a=col))
-            return False
-        # Check if all values are NaN in the column
-        elif np.all(pd.isna(col)):
-            print("Load at trafo {a} is missing, skipping column".format(a=col))
-            return False
-        return True
-    else:
+    if df is None:
         return False
+
+    # Check for each column the data on the following: (Skipping if true)
+    # Check if there a zero-values at all
+    if (df[col] != 0).all(axis=0):
+        print(f"No zero values found - at all at trafo {col}, skipping column")
+        return False
+    # Check if all values are zero in column
+    elif (df[col] == 0).all(axis=0):
+        print("Load at trafo {a} is zero, skipping column".format(a=col))
+        return False
+    # Check if all values are NaN in the column
+    elif np.all(pd.isna(col)):
+        print("Load at trafo {a} is missing, skipping column".format(a=col))
+        return False
+    return True

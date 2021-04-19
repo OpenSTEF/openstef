@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-from openstf.model.general import MLModelType
+from openstf.enums import MLModelType
 from openstf.model.serializer.xgboost.quantile import XGBQuantileModelSerializer
 from openstf.model.serializer.xgboost.xgboost import XGBModelSerializer
 from openstf.model.serializer.lightgbm.lightgbm import LGBModelSerializer

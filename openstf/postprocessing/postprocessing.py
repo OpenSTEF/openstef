@@ -6,8 +6,8 @@ import numpy as np
 import pandas as pd
 from ktpbase.log import logging
 
-from openstf.feature_engineering import apply_features_old
-from openstf.model.general import ForecastType
+from openstf.feature_engineering import apply_features
+from openstf.enums import ForecastType
 
 
 def normalize_and_convert_weather_data_for_splitting(weather_data):

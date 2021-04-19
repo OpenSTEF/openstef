@@ -7,7 +7,7 @@ from test.utils.base import BaseTestCase
 
 import pandas as pd
 
-from openstf.model.general import ForecastType
+from openstf.enums import ForecastType
 from openstf.postprocessing import postprocessing
 
 

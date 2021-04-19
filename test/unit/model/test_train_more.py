@@ -5,9 +5,9 @@
 import copy
 from test.utils.data import TestData
 import unittest
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock
 
-from openstf.model.general import split_data_train_validation_test
+from openstf.model_selection.model_selection import split_data_train_validation_test
 from openstf.model.trainer.xgboost.xgboost import XGBModelTrainer
 
 from test.utils import BaseTestCase

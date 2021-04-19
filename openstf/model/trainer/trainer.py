@@ -7,7 +7,7 @@ from abc import ABC, abstractmethod
 import numpy as np
 import pandas as pd
 
-from openstf.model.general import MLModelType
+from openstf.enums import MLModelType
 from openstf.model.serializer.creator import ModelSerializerCreator
 
 

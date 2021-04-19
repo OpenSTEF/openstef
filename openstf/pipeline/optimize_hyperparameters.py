@@ -9,7 +9,7 @@ from ktpbase.database import DataBase
 from ktpbase.log import logging
 
 from openstf.metrics import metrics
-from openstf.model.general import pre_process_data
+from openstf.preprocessing import preprocessing
 from openstf.validation import validation
 from openstf.model.trainer.creator import ModelTrainerCreator
 from openstf.monitoring import teams
@@ -20,7 +20,7 @@ MAX_AGE_HYPER_PARAMS_DAYS = 31
 SHOW_OPTUNA_PROGRESS_BAR = False
 
 
-def optimize_hyperparameters_pj(pj):
+def optimize_hyperparameters_pipeline(pj):
     """Optimized hyperparameters for a specific prediction job.
     First the age of the last stored hyperparameters is determined. If these are older
      than MAX_AGE_HYPER_PARAMS_DAYS, the hyper parameters will be optimized.
@@ -100,7 +100,7 @@ def optimize_hyperparameters(pid, n_trials=150, datetime_end=datetime.utcnow()):
     )
     featuresets = db.get_featuresets()
     # Pre-process data
-    clean_data_with_features = pre_process_data(data)
+    clean_data_with_features = preprocessing.pre_process_data(data)
 
     # Initialize model trainer creator factory object
     mc = ModelTrainerCreator(pj)

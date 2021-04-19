@@ -1,4 +1,44 @@
+
 import numpy as np
+
+from openstf.validation import validation
+from openstf.feature_engineering.apply_features import apply_multiple_horizon_features
+from openstf.feature_engineering.general import remove_features_not_in_set
+
+
+def pre_process_data(data, featureset=None, horizons=None):
+    """Function that automates the pre processing of the data.
+
+    Args:
+        data (pd.DataFrame): Data with (unvalidated) input data and without features.
+
+    Returns:
+
+        pd.DataFrame: Cleaned data with features.
+
+    """
+    if horizons is None:
+        horizons = [0.25, 47]
+
+    # Validate input data
+    validated_data = validation.validate(data)
+
+    # Apply features
+    # TODO it would be nicer to only generate the required features
+    validated_data_data_with_features = apply_multiple_horizon_features(
+        validated_data, h_aheads=horizons
+    )
+
+    # remove features not in requested set if required
+    if featureset is not None:
+        validated_data_data_with_features = remove_features_not_in_set(
+            validated_data_data_with_features, featureset
+        )
+
+    # Clean up data
+    clean_data_with_features = validation.clean(validated_data_data_with_features)
+
+    return clean_data_with_features
 
 
 def replace_repeated_values_with_nan(df, max_length, column_name):
