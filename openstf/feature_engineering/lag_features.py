@@ -6,8 +6,7 @@ import scipy.signal
 
 
 def generate_lag_feature_functions(
-    data, feature_set_names=None, horizon=24, for_prediction=False
-):
+        data, feature_set_names=None, horizon=24):
     """Creates functions to generate lag features in a dataset.
 
     Args:
@@ -15,7 +14,7 @@ def generate_lag_feature_functions(
         feature_set_names (list of strings): minute lagtimes that where used during training
             of the model. If empty a new set will be automatically generated.
         horizon (int): Forecast horizon limit in hours.
-        for_prediction (bool): indicates if we are making the features for a prediction
+
 
     Returns:
         dict: dictionary with lag functions
@@ -24,28 +23,19 @@ def generate_lag_feature_functions(
         lag_functions = generate_lag_functions(data,minute_list,h_ahead)
     """
 
-    # Generate lag_times if no features are provided,
-    # mostly used when training without a specific feature set
+    # Generate lag_times if no features are provided
     if feature_set_names is None:
         lag_times_minutes, lag_time_days_list = generate_trivial_lag_features(horizon)
-        lag_times_minutes.append(generate_non_trivial_lag_times(data))
 
-    # In case of making a prediction we only want to make the requested lag times
-    elif contains_lag_features(feature_set_names) and for_prediction:
-        lag_times_minutes, lag_time_days_list = extract_lag_features(feature_set_names)
-
-    # In case of training with a specific feature set us the requested features and
-    # add non-trivial features
+    # Or extract lag features if provided
     else:
         lag_times_minutes, lag_time_days_list = extract_lag_features(feature_set_names)
-        lag_times_minutes.append(generate_non_trivial_lag_times(data))
 
     # Empty dict to store all generated lag functions
     lag_functions = {}
 
     # Add intraday-lag functions (lags in minutes)
     for minutes in lag_times_minutes:
-
         def func(x, shift=minutes):
             return x.shift(freq="T", periods=1 * shift)
 
@@ -54,7 +44,6 @@ def generate_lag_feature_functions(
 
     # Add day lag functions:
     for day in lag_time_days_list:
-
         def func(x, shift=day):
             return x.shift(freq="1d", periods=1 * shift)
 
@@ -87,17 +76,6 @@ def generate_trivial_lag_features(horizon):
     )
 
     return trivial_lag_times_minutes, lag_time_days_list
-
-
-def contains_lag_features(feature_set_names):
-    # Preselect all lag features
-    lag_features = [s for s in feature_set_names if "T-" in s]
-
-    # If we found something return the list otherwise return nothing
-    if len(lag_features) > 0:
-        return True
-    else:
-        return False
 
 
 def extract_lag_features(lag_features):
@@ -151,7 +129,7 @@ def generate_non_trivial_lag_times(data, height_treshold=0.1):
         mean = x.mean()
         var = np.var(x)
         xp = x - mean
-        corr = np.correlate(xp, xp, "full")[len(x) - 1 :] / var / len(x)
+        corr = np.correlate(xp, xp, "full")[len(x) - 1:] / var / len(x)
 
         return corr[: len(lags)]
 

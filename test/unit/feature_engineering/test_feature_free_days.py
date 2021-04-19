@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 import unittest
 
-from openstf.feature_engineering.feature_free_days import create_holiday_functions
+from openstf.feature_engineering.holiday_features import create_holiday_functions
 
 from test.utils import BaseTestCase
 

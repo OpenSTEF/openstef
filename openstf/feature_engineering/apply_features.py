@@ -16,7 +16,7 @@ This improves forecast accuracy. Examples of features that are added are:
 
 import numpy as np
 
-from openstf.feature_engineering.feature_free_days import create_holiday_functions
+from openstf.feature_engineering.holiday_features import create_holiday_feature_functions
 from openstf.feature_engineering.weather_features import (
     humidity_calculations,
     calculate_windspeed_at_hubheight,
@@ -25,7 +25,7 @@ from openstf.feature_engineering.weather_features import (
 from openstf.feature_engineering.lag_features import generate_lag_feature_functions
 
 
-def apply_features(data, feature_set_list=None, horizon=24, for_prediction=False):
+def apply_features(data, feature_set_list=None, horizon=24):
     """This script applies the feature functions defined in
         feature_functions.py and returns the complete dataframe. Features requiring
         more recent label-data are omitted.
@@ -56,45 +56,36 @@ def apply_features(data, feature_set_list=None, horizon=24, for_prediction=False
 
     """
 
-    lag_functions = generate_lag_feature_functions(
-        data, feature_set_list, horizon, for_prediction=for_prediction
+    lag_feature_functions = generate_lag_feature_functions(
+        data, feature_set_list, horizon
     )
 
-    # TODO it seems not all feature use the same convention
-    # better to choose one and stick to it
-    timedriven_functions = {
+    timedriven_feature_functions = {
         "IsWeekendDay": lambda x: (x.index.weekday // 5) == 1,
         "IsWeekDay": lambda x: x.index.weekday < 5,
-        "IsMonday": lambda x: x.index.weekday == 0,
-        "IsTuesday": lambda x: x.index.weekday == 1,
-        "IsWednesday": lambda x: x.index.weekday == 2,
-        "IsThursday": lambda x: x.index.weekday == 3,
-        "IsFriday": lambda x: x.index.weekday == 4,
-        "IsSaturday": lambda x: x.index.weekday == 5,
         "IsSunday": lambda x: x.index.weekday == 6,
         "Month": lambda x: x.index.month,
         "Quarter": lambda x: x.index.quarter,
     }
 
-    # Add check for specific hour
-    for thour in np.linspace(0, 23, 24):
+    # Get holiday feature functions
+    holiday_feature_functions = create_holiday_feature_functions()
 
-        def func(x, checkhour=thour):
-            return x.index.hour == checkhour
+    # Only select features that occur in feature_set_list
+    if feature_set_list is not None:
+        timedriven_feature_functions = {key:timedriven_feature_functions[key] for key in
+                                feature_set_list if key in timedriven_feature_functions}
+        holiday_feature_functions = {key: holiday_feature_functions[key] for key in
+                                feature_set_list if key in holiday_feature_functions}
 
-        char = "0" if thour < 10 else ""
-        new = {"Is" + char + str(int(thour)) + "Hour": func}
-        timedriven_functions.update(new)
-
+    # Add the features to the dataframe using previously define feature functions
     df = data.copy()
-    # holiday_function are imported at the beginning of the file and includes all dutch
-    # school/work holidays
-    holiday_functions = create_holiday_functions()
-
-    for function_group in [lag_functions, timedriven_functions, holiday_functions]:
+    for function_group in [lag_feature_functions, timedriven_feature_functions, holiday_feature_functions]:
         for name, featfunc in function_group.items():
             df[name] = df.iloc[:, [0]].apply(featfunc)
 
+
+    # Add weather features
     if "windspeed" in list(df):
         df["windspeed_100mExtrapolated"] = calculate_windspeed_at_hubheight(
             df.windspeed

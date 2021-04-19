@@ -13,7 +13,7 @@ from openstf import PROJECT_ROOT
 HOLIDAY_CSV_PATH = PROJECT_ROOT / "openstf" / "data" / "dutch_holidays_2020-2022.csv"
 
 
-def create_holiday_functions(
+def create_holiday_feature_functions(
     country="NL", years=None, path_to_school_holidays_csv=HOLIDAY_CSV_PATH
 ):
     """
