@@ -17,12 +17,15 @@ This improves forecast accuracy. Examples of features that are added are:
 import numpy as np
 
 from openstf.feature_engineering.feature_free_days import create_holiday_functions
-from openstf.feature_engineering.weather_features import humidity_calculations, \
-    calculate_windspeed_at_hubheight, calculate_windturbine_power_output
+from openstf.feature_engineering.weather_features import (
+    humidity_calculations,
+    calculate_windspeed_at_hubheight,
+    calculate_windturbine_power_output,
+)
 from openstf.feature_engineering.lag_features import generate_lag_feature_functions
 
 
-def apply_features(data, feature_set_list = None, horizon=24):
+def apply_features(data, feature_set_list=None, horizon=24, for_prediction=False):
     """This script applies the feature functions defined in
         feature_functions.py and returns the complete dataframe. Features requiring
         more recent label-data are omitted.
@@ -53,7 +56,9 @@ def apply_features(data, feature_set_list = None, horizon=24):
 
     """
 
-    lag_functions = generate_lag_feature_functions(data, feature_set_list, horizon)
+    lag_functions = generate_lag_feature_functions(
+        data, feature_set_list, horizon, for_prediction=for_prediction
+    )
 
     # TODO it seems not all feature use the same convention
     # better to choose one and stick to it
@@ -73,6 +78,7 @@ def apply_features(data, feature_set_list = None, horizon=24):
 
     # Add check for specific hour
     for thour in np.linspace(0, 23, 24):
+
         def func(x, checkhour=thour):
             return x.index.hour == checkhour
 

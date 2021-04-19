@@ -72,9 +72,9 @@ def calc_air_density(temperature, pressure, rh):
 
     # Calculate air density
     air_density = (
-            D
-            * (273.15 / temperature_k)
-            * ((pressure - 0.3783 * vapour_pressure) / 760 / TORR)
+        D
+        * (273.15 / temperature_k)
+        * ((pressure - 0.3783 * vapour_pressure) / 760 / TORR)
     )
 
     return air_density
@@ -146,6 +146,7 @@ def humidity_calculations(temperature, rh, pressure):
         "air_density": air_density,
     }
 
+
 def calculate_windspeed_at_hubheight(windspeed, fromheight=10, hub_height=100):
     """
     function that extrapolates a wind from a certain height to 100m
@@ -180,6 +181,7 @@ def calculate_windspeed_at_hubheight(windspeed, fromheight=10, hub_height=100):
         windspeed = abs(windspeed)
 
     return windspeed * (hub_height / fromheight) ** alpha
+
 
 def calculate_windturbine_power_output(windspeed, n_turbines=1, turbine_data=None):
     """This function calculates the generated wind power based on the wind speed.

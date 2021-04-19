@@ -5,10 +5,10 @@ import pandas as pd
 
 from openstf.feature_engineering.apply_features import apply_features
 
-LATENCY_CONFIG = {"APX": 24} # A specific latency is part of a specific feature.
+LATENCY_CONFIG = {"APX": 24}  # A specific latency is part of a specific feature.
+
 
 class AbstractFeatureApplicator(ABC):
-
     def __init__(self, feature_set_list, horizons):
         self.feature_set_list = feature_set_list
         self.horizons = horizons
@@ -17,8 +17,8 @@ class AbstractFeatureApplicator(ABC):
     def add_features(self, df):
         pass
 
-class TrainFeatureApplicator(AbstractFeatureApplicator):
 
+class TrainFeatureApplicator(AbstractFeatureApplicator):
     def add_features(self, df):
         if self.horizons is None:
             self.hozizons = [0.25, 24]
@@ -40,15 +40,10 @@ class TrainFeatureApplicator(AbstractFeatureApplicator):
 
 
 class PredictFeatureApplicator(AbstractFeatureApplicator):
-
     def add_features(self, df):
-
         return apply_features(df, h_ahead=0.25)
 
 
 class BackTestFeatureApplicator(AbstractFeatureApplicator):
-
     def add_features(self, df):
-
         return apply_features(df)
-

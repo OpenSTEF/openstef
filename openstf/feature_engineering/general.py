@@ -11,6 +11,7 @@ import numpy as np
 import pandas as pd
 import scipy
 
+
 def extract_lag_features(feature_set_names):
     """Creates a list of lag minutes that were used during training of the input model
     Args:
@@ -95,7 +96,6 @@ def calc_completeness(df, weights=None, time_delayed=False, homogenise=True):
     completeness = (completeness_per_column * weights).sum() / weights.sum()
 
     return completeness
-
 
 
 def calc_norm(data, how="max", add_to_df=True):

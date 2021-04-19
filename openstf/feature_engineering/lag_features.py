@@ -5,7 +5,9 @@ import pandas as pd
 import scipy.signal
 
 
-def generate_lag_feature_functions(data, feature_set_names=None, horizon=24):
+def generate_lag_feature_functions(
+    data, feature_set_names=None, horizon=24, for_prediction=False
+):
     """Creates functions to generate lag features in a dataset.
 
     Args:
@@ -13,6 +15,7 @@ def generate_lag_feature_functions(data, feature_set_names=None, horizon=24):
         feature_set_names (list of strings): minute lagtimes that where used during training
             of the model. If empty a new set will be automatically generated.
         horizon (int): Forecast horizon limit in hours.
+        for_prediction (bool): indicates if we are making the features for a prediction
 
     Returns:
         dict: dictionary with lag functions
@@ -21,17 +24,28 @@ def generate_lag_feature_functions(data, feature_set_names=None, horizon=24):
         lag_functions = generate_lag_functions(data,minute_list,h_ahead)
     """
 
-    # Generate lag_times
-    if feature_set_names is None or not contains_lag_features(feature_set_names):
-        lag_times_minutes, lag_time_days_list = generate_lag_features(data, horizon)
-    else:  # Or use those that are provided
+    # Generate lag_times if no features are provided,
+    # mostly used when training without a specific feature set
+    if feature_set_names is None:
+        lag_times_minutes, lag_time_days_list = generate_trivial_lag_features(horizon)
+        lag_times_minutes.append(generate_non_trivial_lag_times(data))
+
+    # In case of making a prediction we only want to make the requested lag times
+    elif contains_lag_features(feature_set_names) and for_prediction:
         lag_times_minutes, lag_time_days_list = extract_lag_features(feature_set_names)
+
+    # In case of training with a specific feature set us the requested features and
+    # add non-trivial features
+    else:
+        lag_times_minutes, lag_time_days_list = extract_lag_features(feature_set_names)
+        lag_times_minutes.append(generate_non_trivial_lag_times(data))
 
     # Empty dict to store all generated lag functions
     lag_functions = {}
 
     # Add intraday-lag functions (lags in minutes)
     for minutes in lag_times_minutes:
+
         def func(x, shift=minutes):
             return x.shift(freq="T", periods=1 * shift)
 
@@ -40,6 +54,7 @@ def generate_lag_feature_functions(data, feature_set_names=None, horizon=24):
 
     # Add day lag functions:
     for day in lag_time_days_list:
+
         def func(x, shift=day):
             return x.shift(freq="1d", periods=1 * shift)
 
@@ -48,8 +63,8 @@ def generate_lag_feature_functions(data, feature_set_names=None, horizon=24):
     return lag_functions
 
 
-def generate_lag_features(data, horizon):
-    """ Function that generates relevant lag times for lag feature function creation.
+def generate_trivial_lag_features(horizon):
+    """Function that generates relevant lag times for lag feature function creation.
     This function is mostly used during training of models and not during predicting
     Args:
         data: (pd.DataFrame): input data for an xgboost prediction or model training.
@@ -64,21 +79,15 @@ def generate_lag_features(data, horizon):
     lag_time_days_list = list(np.linspace(mindays, 14, 15 - mindays))
 
     # Make list of trivial lag times
-    trivial_lag_minutes_list = np.linspace(
-        60, 24 * 60, 24
-    ).tolist() + [15, 30, 45]
-
-    # Do autocorrelation analysis to find any non-trivial lag times
-    non_trivial_minute_list = generate_non_trivial_lag_times(data)
-
-    # Combine trivial and non-tivial lag times
-    minutes_list = trivial_lag_minutes_list + non_trivial_minute_list
+    trivial_lag_minutes_list = np.linspace(60, 24 * 60, 24).tolist() + [15, 30, 45]
 
     # Discard lag times that are not available for the specified horizon
-    lag_times_minutes = set(
-        [i for i in minutes_list if i >= horizon * 60])
+    trivial_lag_times_minutes = set(
+        [i for i in trivial_lag_minutes_list if i >= horizon * 60]
+    )
 
-    return lag_times_minutes, lag_time_days_list
+    return trivial_lag_times_minutes, lag_time_days_list
+
 
 def contains_lag_features(feature_set_names):
     # Preselect all lag features
@@ -109,15 +118,15 @@ def extract_lag_features(lag_features):
 
     for lag_feature in lag_features:
 
-        # Select the number of days or the number of minutes
-        m = re.search(r"T-(\d+)min", lag_feature)
-        d = re.search(r"T-(\d+)d", lag_feature)
+        # Select the number of days or the number of minutes by matching with a regular expression
+        number_of_minutes = re.search(r"T-(\d+)min", lag_feature)
+        number_of_days = re.search(r"T-(\d+)d", lag_feature)
 
         # Append to the appropriate list
-        if m is not None:
-            minutes_list.append(int(m[1]))
-        elif d is not None:
-            days_list.append(int(d[1]))
+        if number_of_minutes is not None:
+            minutes_list.append(int(number_of_minutes[1]))
+        elif number_of_days is not None:
+            days_list.append(int(number_of_days[1]))
 
     return minutes_list, days_list
 
@@ -142,13 +151,13 @@ def generate_non_trivial_lag_times(data, height_treshold=0.1):
         mean = x.mean()
         var = np.var(x)
         xp = x - mean
-        corr = np.correlate(xp, xp, "full")[len(x) - 1:] / var / len(x)
+        corr = np.correlate(xp, xp, "full")[len(x) - 1 :] / var / len(x)
 
         return corr[: len(lags)]
 
     try:
         # Get rid of nans as the autocorrelation handles these values badly
-        data = data[data.columns[0]].dropna() # First column contains the load
+        data = data[data.columns[0]].dropna()  # First column contains the load
         # Get autocorrelation curve
         y = autocorr(data, range(10000))
         # Determine the peaks (positive and negative) larger than a specified threshold
