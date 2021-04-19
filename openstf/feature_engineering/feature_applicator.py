@@ -15,7 +15,7 @@ LATENCY_CONFIG = {"APX": 24}  # A specific latency is part of a specific feature
 class AbstractFeatureApplicator(ABC):
     def __init__(self, horizons, feature_set_list = None):
 
-        if horizons is not list:
+        if horizons is not list and not None:
             raise ValueError("Horizons must be added as a list")
 
         self.feature_set_list = feature_set_list

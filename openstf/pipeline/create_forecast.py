@@ -13,6 +13,7 @@ from openstf import feature_engineering
 from openstf.validation import validation
 from openstf.preprocessing import preprocessing
 from openstf.postprocessing import postprocessing
+from openstf.feature_engineering.feature_applicator import OperationalPredictFeatureApplicator
 from openstf.enums import ForecastType
 from openstf.model.prediction.creator import PredictionModelCreator
 
@@ -53,9 +54,8 @@ def create_forecast_pipeline(pj, forecast_type=ForecastType.DEMAND):
     preprocessed_input_data = pre_process_input_data(input_data, FLATLINER_THRESHOLD)
 
     # feature engineering #############################################################
-    input_data_with_features = perform_feature_engineering(
-        preprocessed_input_data, prediction_model.feature_names
-    )
+    input_data_with_features = OperationalPredictFeatureApplicator(
+        feature_set_list=feature_names).add_features(input_data)
     # make forecast ###################################################################
     # Create correct format for to-be-forecasted times
     forecast_input_data = input_data_with_features.loc[
@@ -269,24 +269,6 @@ def pre_process_input_data(input_data, flatliner_threshold):
         )
 
     return input_data
-
-
-# feature engineering
-def perform_feature_engineering(input_data, feature_names):
-    minute_list = feature_engineering.general.extract_minute_features(
-        feature_names=feature_names
-    )
-
-    input_data_with_features = feature_engineering.apply_features.apply_features(
-        data=input_data, minute_list=minute_list, h_ahead=FEATURES_H_AHEAD
-    )
-    # Add missing features
-    input_data_with_features = feature_engineering.general.add_missing_feature_columns(
-        input_data=input_data_with_features, featurelist=feature_names
-    )
-
-    return input_data_with_features
-
 
 # other
 def is_complete_enough(completeness, completeness_threshold):
