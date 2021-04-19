@@ -56,10 +56,12 @@ def apply_features(data, feature_set_list=None, horizon=24):
 
     """
 
+    # Get lag feature functions
     lag_feature_functions = generate_lag_feature_functions(
         data, feature_set_list, horizon
     )
 
+    # Get timedrivenfeature functions
     timedriven_feature_functions = {
         "IsWeekendDay": lambda x: (x.index.weekday // 5) == 1,
         "IsWeekDay": lambda x: x.index.weekday < 5,
@@ -71,14 +73,15 @@ def apply_features(data, feature_set_list=None, horizon=24):
     # Get holiday feature functions
     holiday_feature_functions = create_holiday_feature_functions()
 
-    # Only select features that occur in feature_set_list
+    # Only select features that occur in feature_set_list,
+    # if feature_set_list is none nothing is removed
     if feature_set_list is not None:
         timedriven_feature_functions = {key:timedriven_feature_functions[key] for key in
                                 feature_set_list if key in timedriven_feature_functions}
         holiday_feature_functions = {key: holiday_feature_functions[key] for key in
                                 feature_set_list if key in holiday_feature_functions}
 
-    # Add the features to the dataframe using previously define feature functions
+    # Add the features to the dataframe using previously defined feature functions
     df = data.copy()
     for function_group in [lag_feature_functions, timedriven_feature_functions, holiday_feature_functions]:
         for name, featfunc in function_group.items():
@@ -86,25 +89,33 @@ def apply_features(data, feature_set_list=None, horizon=24):
 
 
     # Add weather features
-    if "windspeed" in list(df):
+    if "windspeed" in list(df) and ('windspeed_100mExtrapolated' in feature_set_list or "windspeed_100mExtrapolated" in feature_set_list):
         df["windspeed_100mExtrapolated"] = calculate_windspeed_at_hubheight(
-            df.windspeed
+            df["windspeed"]
         )
         df["windPowerFit_extrapolated"] = calculate_windturbine_power_output(
             df["windspeed_100mExtrapolated"]
         )
 
-    if "windspeed_100m" in list(df):
+    if "windspeed_100m" in list(df) and "windspeed_100m" in feature_set_list:
         df["windpowerFit_harm_arome"] = calculate_windturbine_power_output(
             df["windspeed_100m"].astype(float)
         )
 
-    # Try to add humidity  calculations, ignore if required columns are missing
-    try:
-        humidity_df = humidity_calculations(df.temp, df.humidity, df.pressure)
-        df = df.join(humidity_df)
-    except AttributeError:
-        pass  # This happens when a required column for humidity_calculations
-        # is not present
+    humidity_features = [
+                "saturation_pressure",
+                "vapour_pressure",
+                "dewpoint",
+                "air_density",
+            ]
+
+    if any(x in humidity_features for x in feature_set_list):
+        # Try to add humidity  calculations, ignore if required columns are missing
+        try:
+            humidity_df = humidity_calculations(df.temp, df.humidity, df.pressure)
+            df = df.join(humidity_df)
+        except AttributeError:
+            pass  # This happens when a required column for humidity_calculations
+            # is not present
 
     return df

@@ -22,7 +22,6 @@ import pandas as pd
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
 from openstf import PROJECT_ROOT
-from openstf.feature_engineering.general import apply_fit_insol, apply_persistence
 
 # TODO move to config
 PV_COEFS_FILEPATH = PROJECT_ROOT / "openstf" / "data" / "pv_single_coefs.csv"
@@ -238,6 +237,167 @@ def main():
             make_solar_predicion_pj, context
         )
 
+def calc_norm(data, how="max", add_to_df=True):
+    """This script calculates the norm of a given dataset.
+    Input:
+        - data: pd.DataFrame(index = datetime, columns = [load])
+        - how: str can be any function from numpy, recognized by np.'how'
+        Optional:
+        - add_to_df: Bool, add the norm to the data
+
+    Output:
+        - pd.DataFrame(index = datetime, columns = [load])
+    NB: range of datetime of input is equal to range of datetime of output
+
+    Example
+    import pandas as pd
+    import numpy as np
+    index = pd.date_range(start = "2017-01-01 09:00:00", freq = '15T', periods = 200)
+    data = pd.DataFrame(index = index,
+                        data = dict(load=np.sin(index.hour/24*np.pi)*np.random.uniform(0.7,1.7, 200)))"""
+
+    colname = list(data)[0]
+    if how == "max":
+        df = data.groupby(data.index.time).apply(lambda x: x.max(skipna=True))
+    if how == "mean":
+        df = data.groupby(data.index.time).apply(lambda x: x.mean(skipna=True))
+
+    # rename
+    df.rename(columns={colname: "Norm"}, inplace=True)
+
+    # Merge to dataframe if add_to_df == True
+    if add_to_df:
+        df = data.merge(df, left_on=data.index.time, right_index=True)[
+            [colname, "Norm"]
+        ].sort_index()
+
+    return df
+
+
+def apply_persistence(data, how="mean", smooth_entries=4, add_to_df=True, colname=None):
+    """This script calculates the persistence forecast
+    Input:
+        - data: pd.DataFrame(index = datetime, columns = [load]), datetime is expected to have historic values, as well as NA values
+        Optional:
+        - how: str, how to determine the norm (abs or mean)
+        - smoothEntries: int, number of historic entries over which the persistence is smoothed
+        - add_to_df: Bool, add the forecast to the data
+        - option of specifying colname if load is not first column
+
+    Output:
+        - pd.DataFrame(index = datetime, columns = [(load,) persistence])
+    NB: range of datetime of input is equal to range of datetime of output
+
+    Example
+    import pandas as pd
+    import numpy as np
+    index = pd.date_range(start = "2017-01-01 09:00:00", freq = '15T', periods = 300)
+    data = pd.DataFrame(index = index,
+                        data = dict(load=np.sin(index.hour/24*np.pi)*np.random.uniform(0.7,1.7, 300)))
+    data.loc[200:,"load"] = np.nan"""
+
+    data = data.sort_index()
+
+    if colname is None:
+        colname = list(data)[0]
+
+    df = calc_norm(data, how=how, add_to_df=True)
+
+    # this selects the last non NA values
+    last_entries = df.loc[df[colname].notnull()][-smooth_entries:]
+
+    norm_mean = last_entries.Norm.mean()
+    if norm_mean == 0:
+        norm_mean = 1
+
+    factor = last_entries[colname].mean() / norm_mean
+    df["persistence"] = df.Norm * factor
+
+    if add_to_df:
+        df = df[[colname, "persistence"]]
+    else:
+        df = df[["persistence"]]
+
+    return df
+
+
+def apply_fit_insol(data, add_to_df=True, hours_delta=None, polynomial=False):
+    """This model fits insolation to PV yield and uses this fit to forecast PV yield.
+    It uses a 2nd order polynomial
+
+    Input:
+        - data: pd.DataFrame(index = datetime, columns = [load, insolation])
+        Optional:
+        - hoursDelta: period of forecast in hours [int] (e.g. every 6 hours for KNMI)
+        - addToDF: Bool, add the norm to the data
+
+    Output:
+        - pd.DataFrame(index = datetime, columns = [(load), forecaopenstfitInsol])
+    NB: range of datetime of input is equal to range of datetime of output
+
+    Example
+    import pandas as pd
+    import numpy as np
+    index = pd.date_range(start = "2017-01-01 09:00:00", freq = '15T', periods = 300)
+    data = pd.DataFrame(index = index,
+                        data = dict(load=np.sin(index.hour/24*np.pi)*np.random.uniform(0.7,1.7, len(index))))
+    data['insolation'] = data.load * np.random.uniform(0.8, 1.2, len(index)) + 0.1
+    data.loc[int(len(index)/3*2):,"load"] = np.NaN"""
+
+    colname = list(data)[0]
+
+    # Define subset, only keep non-NaN values and the most recent forecasts
+    # This ensures a good training set
+    if hours_delta is None:
+        subset = data.loc[(data[colname].notnull()) & (data[colname] > 0)]
+    else:
+        subset = data.loc[
+            (data[colname].notnull())
+            & (data[colname] > 0)
+            & (data["tAhead"] < timedelta(hours=hours_delta))
+            & (data["tAhead"] >= timedelta(hours=0))
+        ]
+
+    def linear_fun(coefs, values):
+        return coefs[0] * values + coefs[1]
+
+    def second_order_poly(coefs, values):
+        return coefs[0] * values ** 2 + coefs[1] * values + coefs[2]
+
+    # Define function to be minimized and subsequently minimize this function
+    if polynomial:
+        # Define starting guess
+        x0 = [1, 1, 0]  # ax**2 + bx + c.
+        fun = (
+            lambda x: (second_order_poly(x, subset.insolation) - subset[colname])
+            .abs()
+            .mean()
+        )
+        # , bounds = bnds, constraints = cons)
+        res = scipy.optimize.minimize(fun, x0)
+        # Apply fit
+        df = second_order_poly(res.x, data[["insolation"]]).rename(
+            columns=dict(insolation="forecaopenstfitInsol")
+        )
+
+    else:
+        x0 = [1, 0]
+        fun = (
+            lambda x: (linear_fun(x, subset.insolation) - subset[colname]).abs().mean()
+        )
+        res = scipy.optimize.minimize(fun, x0)
+        df = linear_fun(res.x, data[["insolation"]]).rename(
+            columns=dict(insolation="forecaopenstfitInsol")
+        )
+
+    # Merge to dataframe if addToDF == True
+    if add_to_df:
+        if hours_delta is None:
+            df = data.merge(df, left_index=True, right_index=True)
+        else:
+            df = pd.concat([data, df], axis=1)
+
+    return df
 
 if __name__ == "__main__":
     main()
