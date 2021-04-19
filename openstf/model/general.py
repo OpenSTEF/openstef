@@ -11,7 +11,7 @@ from ktpbase.log import logging
 
 from openstf import PROJECT_ROOT
 from openstf.validation import validation
-from openstf.feature_engineering.apply_features import apply_multiple_horizon_features
+from openstf.feature_engineering.apply_features_old import apply_multiple_horizon_features
 from openstf.feature_engineering.general import (
     apply_fit_insol,
     apply_persistence,

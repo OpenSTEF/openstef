@@ -8,7 +8,6 @@
 import numpy as np
 import pandas as pd
 
-
 # Set some (nameless) constants for the Antoine equation:
 A = 6.116
 M = 7.6
@@ -73,9 +72,9 @@ def calc_air_density(temperature, pressure, rh):
 
     # Calculate air density
     air_density = (
-        D
-        * (273.15 / temperature_k)
-        * ((pressure - 0.3783 * vapour_pressure) / 760 / TORR)
+            D
+            * (273.15 / temperature_k)
+            * ((pressure - 0.3783 * vapour_pressure) / 760 / TORR)
     )
 
     return air_density
@@ -146,3 +145,80 @@ def humidity_calculations(temperature, rh, pressure):
         "dewpoint": td,
         "air_density": air_density,
     }
+
+def calculate_windspeed_at_hubheight(windspeed, fromheight=10, hub_height=100):
+    """
+    function that extrapolates a wind from a certain height to 100m
+    According to the wind power law (https://en.wikipedia.org/wiki/Wind_profile_power_law)
+
+    input:
+        - windspeed: float OR pandas series of windspeed at height = height
+        - fromheight: height (m) of the windspeed data. Default is 10m
+        - hubheight: height (m) of the turbine
+    returns:
+        - the windspeed at hubheight."""
+    alpha = 0.143
+
+    if not isinstance(windspeed, (np.ndarray, float, int, pd.core.series.Series)):
+        raise TypeError(
+            "The windspeed is not of the expected type!\n\
+                        Got {}, expected np.ndarray, pd series or numeric".format(
+                type(windspeed)
+            )
+        )
+
+    try:
+        if any(windspeed < 0):
+            raise ValueError(
+                "The windspeed cannot be negative, as it is the lenght of a vector"
+            )
+    except TypeError:
+        if windspeed < 0:
+            raise ValueError(
+                "The windspeed cannot be negative, as it is the lenght of a vector"
+            )
+        windspeed = abs(windspeed)
+
+    return windspeed * (hub_height / fromheight) ** alpha
+
+def calculate_windturbine_power_output(windspeed, n_turbines=1, turbine_data=None):
+    """This function calculates the generated wind power based on the wind speed.
+    These values are related through the power curve, which is described by turbine_data.
+    If no turbine_data is given, default values are used and results are normalized to 1MWp.
+    If n_turbines=0, the result is normalized to a rated power of 1.
+
+    Input:
+        - windspeed: pd.DataFrame(index = datetime, columns = ["windspeedHub"])
+        - nTurbines: int
+        - turbineData: dict(slope_center, rated_power, steepness)
+
+    Ouput:
+        pd.DataFrame(index = datetime, columns = ["forecast"])"""
+
+    if turbine_data is None:
+        turbine_data = {
+            "name": "Lagerwey L100",  # not used here
+            "cut_in": 3,  # not used here
+            "cut_off": 25,  # not used here
+            "kind": "onshore",  # not used here
+            "manufacturer": "Lagerwey",  # not used here
+            "peak_capacity": 1,  # not used here
+            "rated_power": 1,
+            "slope_center": 8.07,
+            "steepness": 0.664,
+        }
+    else:
+        required_properties = ["rated_power", "steepness", "slope_center"]
+        for prop in required_properties:
+            if prop not in turbine_data.keys():
+                raise KeyError(f"Required property '{prop}' not set in turbine data")
+
+    generated_power = turbine_data["rated_power"] / (
+        1
+        + np.exp(
+            -turbine_data["steepness"] * (windspeed - turbine_data["slope_center"])
+        )
+    )
+    generated_power *= n_turbines
+
+    return generated_power

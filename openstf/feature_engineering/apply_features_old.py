@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 
 # -*- coding: utf-8 -*-
-"""apply_features.py.
+"""apply_features_old.py.
 
 This module provides functions for applying features to the input data.
 This improves forecast accuracy. Examples of features that are added are:
@@ -15,16 +15,115 @@ This improves forecast accuracy. Examples of features that are added are:
 """
 
 import numpy as np
+import pandas as pd
+import scipy.signal
 
 from openstf.feature_engineering.feature_free_days import create_holiday_functions
-from openstf.feature_engineering.weather_features import humidity_calculations, \
-    calculate_windspeed_at_hubheight, calculate_windturbine_power_output
-from openstf.feature_engineering.lag_features import generate_lag_feature_functions
+from openstf.feature_engineering.weather_features import humidity_calculations
 
 
-def apply_features(data, feature_set_list = None, horizon=24):
+def generate_lag_functions(data, minute_list=None, h_ahead=24):
+    """Creates functions to generate lag features in a dataset.
+
+    Args:
+        data (pd.DataFrame): input data for an xgboost prediction or model training.
+        minute_list (list of ints): minute lagtimes that where used during training
+            of the model. If empty a new et will be automatically generated.
+        h_ahead (int): Forecast horizon limit in hours.
+
+    Returns:
+        dict: dictionary with lag functions
+
+    Example:
+        lag_functions = generate_lag_functions(data,minute_list,h_ahead)
+    """
+
+    if minute_list is None:
+        minute_list = []
+
+    ##########
+    # Define feature function groups
+    lag_functions = {}
+    # Add intraday-lags
+    if h_ahead < 24:
+        minminutes = int(np.round(np.ceil(h_ahead) * 60 / 15) * 15)
+        minutespace = np.linspace(
+            minminutes, 23 * 60, int(23 - minminutes / 60 + 1)
+        ).tolist()
+
+        # if no aditional lag time feature are defined investigate if we should add some
+        if minute_list == []:
+            minute_list = additional_minute_space(data)
+
+        # add intra-hour values if hAhead > 1
+        if h_ahead < 1:
+            minutespace = set([15, 30, 45] + minutespace + minute_list)
+        for minutes in minutespace:
+
+            def func(x, shift=minutes):
+                return x.shift(freq="T", periods=1 * shift)
+
+            new = {"T-" + str(int(minutes)) + "min": func}
+            lag_functions.update(new)
+
+
+
+    # Define time lags in days:
+    mindays = int(np.ceil(h_ahead / 24))
+    for day in np.linspace(mindays, 14, 15 - mindays):
+
+        def func(x, shift=day):
+            return x.shift(freq="1d", periods=1 * shift)
+
+        new = {"T-" + str(int(day)) + "d": func}
+        lag_functions.update(new)
+    return lag_functions
+
+
+def additional_minute_space(data, height_treshold=0.1):
+    """This script calculates an autocorrelation curve of the load trace. This curve is
+        subsequently used to add additional lag times as features.
+
+    Args:
+        data (pandas.DataFrame): a pandas dataframe with input data in the form pd.DataFrame(index = datetime,
+                             columns = [label, predictor_1,..., predictor_n])
+        height_treshold (float): minimal autocorrelation value to be recognized as a peak.
+
+    Returns:
+        list of ints with aditional minute lags
+
+
+    """
+
+    def autocorr(x, lags):
+        """Function to make a autocorrelation curve"""
+        mean = x.mean()
+        var = np.var(x)
+        xp = x - mean
+        corr = np.correlate(xp, xp, "full")[len(x) - 1 :] / var / len(x)
+
+        return corr[: len(lags)]
+
+    try:
+        # Get rid of nans as the autocorrelation handles these values badly
+        data = data[data.columns[0]].dropna()
+        # Get autocorrelation curve
+        y = autocorr(data, range(10000))
+        # Determine the peaks (positive and negative) larger than a specified threshold
+        peaks = scipy.signal.find_peaks(np.abs(y), height=height_treshold)
+        peaks = peaks[0]
+        # Convert peaks to lag times in minutes
+        peaks = peaks[peaks < (60 * 4)]
+        additional_minute_space = peaks * 15
+    except Exception:
+        return []
+    # Return list of additional minute lags to be procceses by apply features
+    return list(additional_minute_space)
+
+
+def apply_features(data, minute_list=None, h_ahead=24):
     """This script applies the feature functions defined in
-        feature_functions.py and returns the complete dataframe. Features requiring
+        lag_features.py and returns the complete dataframe. Features requiring
         more recent label-data are omitted.
     Args:
         data (pandas.DataFrame): a pandas dataframe with input data in the form:
@@ -32,7 +131,7 @@ def apply_features(data, feature_set_list = None, horizon=24):
                                         index=datetime,
                                         columns=[label, predictor_1,..., predictor_n]
                                     )
-        feature_set_list (list of ints): minute lagtimes that where used during training of
+        minute_list (list of ints): minute lagtimes that where used during training of
                                     the model. If empty a new et will be automatically
                                     generated.
         h_ahead (int): Forecast horizon limit in hours.
@@ -52,8 +151,10 @@ def apply_features(data, feature_set_list = None, horizon=24):
                             np.random.uniform(0.7,1.7, 200)))
 
     """
+    if minute_list is None:
+        minute_list = []
 
-    lag_functions = generate_lag_feature_functions(data, feature_set_list, horizon)
+    lag_functions = generate_lag_functions(data, minute_list, h_ahead)
 
     # TODO it seems not all feature use the same convention
     # better to choose one and stick to it
@@ -73,6 +174,7 @@ def apply_features(data, feature_set_list = None, horizon=24):
 
     # Add check for specific hour
     for thour in np.linspace(0, 23, 24):
+
         def func(x, checkhour=thour):
             return x.index.hour == checkhour
 
@@ -111,3 +213,5 @@ def apply_features(data, feature_set_list = None, horizon=24):
         # is not present
 
     return df
+
+

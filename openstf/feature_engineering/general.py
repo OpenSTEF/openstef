@@ -11,29 +11,28 @@ import numpy as np
 import pandas as pd
 import scipy
 
-def extract_minute_features(feature_names):
-    """Creates a list of features that were used during training of the input model
+def extract_lag_features(feature_set_names):
+    """Creates a list of lag minutes that were used during training of the input model
     Args:
-        feature_names (list[str]): Feature names
+        feature_set_names (list[str]): Feature names
 
     Returns:
         minute_list (list[int]): list of minute lags that were used as features during training
     """
 
     minutes_list = []
-    for feature in feature_names:
-        # TODO Should this module really know how the feature names are written?
-        # Perhaps better if this function uses a list with all possible minute features
-        # or a tempalte. In any case the knowlegde should come from the module which
-        # creates the features.
-        m = re.search(r"T-(\d+)min", feature)
+    days_list = []
+    lag_features = [s for s in feature_set_names if "T-" in s]
 
-        if m is None:
-            continue
-        else:
+    for lag_feature in lag_features:
+        m = re.search(r"T-(\d+)min", lag_feature)
+        d = re.search(r"T-(\d+)d", lag_feature)
+        if m is not None:
             minutes_list.append(int(m[1]))
+        elif d is not None:
+            days_list.append(int(d[1]))
 
-    return minutes_list
+    return minutes_list, days_list
 
 
 def calc_completeness(df, weights=None, time_delayed=False, homogenise=True):
@@ -96,42 +95,6 @@ def calc_completeness(df, weights=None, time_delayed=False, homogenise=True):
     completeness = (completeness_per_column * weights).sum() / weights.sum()
 
     return completeness
-
-
-def nan_repeated(df, max_length, column_name):
-    """
-    This function replaces repeating values (sequentially repeating values),
-    which repeat longer than a set max_length (in data points) with NaNs.
-
-    Args:
-        df (pandas.DataFrame): Data from which you would like to set repeating values to nan
-        max_length (int): If a value repeats more often, sequentially, than this value, all those points are set to NaN
-        column_name (string): the pandas dataframe column name of the column you want to process
-
-    Rrturns:
-        pandas.DataFrame: data, similar to df, with the desired values set to NaN.
-    """
-    data = df.copy(deep=True)
-    indices = []
-    old_value = -1000000000000
-    value = 0
-    for index, r in data.iterrows():
-        value = r[column_name]
-        if value == old_value:
-            indices.append(index)
-        elif (value != old_value) & (len(indices) > max_length):
-            indices = indices[max_length:]
-            data.at[indices, column_name] = np.nan
-            indices = []
-            indices.append(index)
-        elif (value != old_value) & (len(indices) <= max_length):
-            indices = []
-            indices.append(index)
-        old_value = value
-    if len(indices) > max_length:
-        data.at[indices, column_name] = np.nan
-    return data
-
 
 
 

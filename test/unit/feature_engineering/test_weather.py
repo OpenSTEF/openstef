@@ -6,7 +6,7 @@ import unittest
 
 import pandas as pd
 
-from openstf.feature_engineering import weather
+from openstf.feature_engineering import weather_features
 
 from test.utils import BaseTestCase
 
@@ -22,7 +22,7 @@ class HumidityCalculationsTest(BaseTestCase):
             "dewpoint": 27.606507491812938,
             "air_density": 1.0184141379792693,
         }
-        result = weather.humidity_calculations(temp, rh, pressure)
+        result = weather_features.humidity_calculations(temp, rh, pressure)
         self.assertDictEqual(result, expected)
 
     def test_good_input_high_RH(self):
@@ -35,7 +35,7 @@ class HumidityCalculationsTest(BaseTestCase):
             "dewpoint": 27.606507491812938,
             "air_density": 1.0184141379792693,
         }
-        result = weather.humidity_calculations(temp, rh, pressure)
+        result = weather_features.humidity_calculations(temp, rh, pressure)
         self.assertDictEqual(result, expected)
 
     def test_str_input(self):
@@ -43,7 +43,7 @@ class HumidityCalculationsTest(BaseTestCase):
         rh = 50
         pressure = 101300
         with self.assertRaises(TypeError):
-            weather.humidity_calculations(temp, rh, pressure)
+            weather_features.humidity_calculations(temp, rh, pressure)
 
     def test_pd_input(self):
         dict_for_df = {
@@ -140,7 +140,7 @@ class HumidityCalculationsTest(BaseTestCase):
             },
         }
         df = pd.DataFrame.from_dict(dict_for_df)
-        humidity_df = weather.humidity_calculations(df.temp, df.humidity, df.pressure)
+        humidity_df = weather_features.humidity_calculations(df.temp, df.humidity, df.pressure)
         result_df = df[
             ["saturation_pressure", "vapour_pressure", "dewpoint", "air_density"]
         ]
