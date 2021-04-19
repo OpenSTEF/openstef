@@ -5,8 +5,7 @@ import pandas as pd
 import scipy.signal
 
 
-def generate_lag_feature_functions(
-        data, feature_set_names=None, horizon=24):
+def generate_lag_feature_functions(data, feature_set_names=None, horizon=24):
     """Creates functions to generate lag features in a dataset.
 
     Args:
@@ -36,6 +35,7 @@ def generate_lag_feature_functions(
 
     # Add intraday-lag functions (lags in minutes)
     for minutes in lag_times_minutes:
+
         def func(x, shift=minutes):
             return x.shift(freq="T", periods=1 * shift)
 
@@ -44,6 +44,7 @@ def generate_lag_feature_functions(
 
     # Add day lag functions:
     for day in lag_time_days_list:
+
         def func(x, shift=day):
             return x.shift(freq="1d", periods=1 * shift)
 
@@ -129,7 +130,7 @@ def generate_non_trivial_lag_times(data, height_treshold=0.1):
         mean = x.mean()
         var = np.var(x)
         xp = x - mean
-        corr = np.correlate(xp, xp, "full")[len(x) - 1:] / var / len(x)
+        corr = np.correlate(xp, xp, "full")[len(x) - 1 :] / var / len(x)
 
         return corr[: len(lags)]
 

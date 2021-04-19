@@ -15,7 +15,7 @@ from openstf.metrics.figure import (
 from openstf.enums import ForecastType
 from openstf.model_selection.model_selection import split_data_train_validation_test
 from openstf.validation import validation
-from openstf.preprocessing import preprocessing
+from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
 from openstf.model.prediction.creator import PredictionModelCreator
 from openstf.model.trainer.creator import ModelTrainerCreator
 from openstf.monitoring.teams import send_report_teams_better, send_report_teams_worse
@@ -166,8 +166,14 @@ def preprocess_for_model_training(pj, context):
         datetime_end=datetime_end,
     )
 
-    # Pre-process data
-    clean_data_with_features = preprocessing.pre_process_data(data, featureset)
+    # Validate input data
+    validated_data = validation.validate(data)
+
+    # add features
+    validated_data_data_with_features = TrainFeatureApplicator(horizons=[0.25, 24.0], feature_set_list=featureset).add_features(validated_data)
+
+    # Clean up data
+    clean_data_with_features = validation.clean(validated_data_data_with_features)
 
     # Check if we have enough data left to continue
     if validation.is_data_sufficient(clean_data_with_features) is False:

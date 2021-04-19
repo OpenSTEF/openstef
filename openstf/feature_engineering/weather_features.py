@@ -80,6 +80,50 @@ def calc_air_density(temperature, pressure, rh):
     return air_density
 
 
+def add_humidity_features(data, feature_set_list=None):
+    """Adds humidity features to the input dataframe.
+    These features are calculated using functions defines in this module.
+    A list of requested features is used to determine whether to add the humidity features or not.
+
+    Args:
+        data: (pd.DataFrame) input dataframe to which features have to be added
+        feature_set_list: (list) list of requested features.
+
+    Returns:
+        pd.DataFrame, Same as input dataframe with extra columns for the humidty features.
+
+    """
+
+    # If feature_set_list is none add humidity feature anyway
+    if feature_set_list is None:
+        add_humidity_features = True
+
+    # Otherwise check if they are among the reuqested features
+    else:
+        add_humidity_features = any(
+            x
+            in [
+                "saturation_pressure",
+                "vapour_pressure",
+                "dewpoint",
+                "air_density",
+            ]
+            for x in feature_set_list
+        )
+
+    # Check if any of the humidity features are requested and add them
+    if add_humidity_features:
+        # Try to add humidity  calculations, ignore if required columns are missing
+        try:
+            humidity_df = humidity_calculations(data.temp, data.humidity, data.pressure)
+            data = data.join(humidity_df)
+        except AttributeError:
+            pass  # This happens when a required column for humidity_calculations
+            # is not present
+
+    return data
+
+
 def humidity_calculations(temperature, rh, pressure):
     """Function that calculates the
     - Saturation pressure
@@ -224,3 +268,46 @@ def calculate_windturbine_power_output(windspeed, n_turbines=1, turbine_data=Non
     generated_power *= n_turbines
 
     return generated_power
+
+
+def add_additional_wind_features(data, feature_set_list=None):
+    """Adds additional wind features to the input data. These are calculated using the above functions
+
+    Args:
+        data: (pd.DataFrame) Dataframe to which the wind features have to be added
+        feature_set_list: (list) List of requested features
+
+    Returns:
+        pd.DataFrame same as input dataframe with extra columns for the added wind features
+
+    """
+    if feature_set_list is None:
+        add_additional_wind_features = True
+    else:
+        add_additional_wind_features = any(
+            x
+            in [
+                "windspeed_100mExtrapolated",
+                "windPowerFit_extrapolated",
+                "windpowerFit_harm_arome",
+            ]
+            for x in feature_set_list
+        )
+
+    # Add add_additional_wind_features
+    if "windspeed" in data.columns and add_additional_wind_features:
+        data["windspeed_100mExtrapolated"] = calculate_windspeed_at_hubheight(
+            data["windspeed"]
+        )
+
+        data["windPowerFit_extrapolated"] = calculate_windturbine_power_output(
+            data["windspeed_100mExtrapolated"]
+        )
+
+    # Do extra check
+    if "windspeed_100m" in data.columns and add_additional_wind_features:
+        data["windpowerFit_harm_arome"] = calculate_windturbine_power_output(
+            data["windspeed_100m"].astype(float)
+        )
+
+    return data

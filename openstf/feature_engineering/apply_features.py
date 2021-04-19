@@ -16,11 +16,12 @@ This improves forecast accuracy. Examples of features that are added are:
 
 import numpy as np
 
-from openstf.feature_engineering.holiday_features import create_holiday_feature_functions
+from openstf.feature_engineering.holiday_features import (
+    create_holiday_feature_functions,
+)
 from openstf.feature_engineering.weather_features import (
-    humidity_calculations,
-    calculate_windspeed_at_hubheight,
-    calculate_windturbine_power_output,
+    add_humidity_features,
+    add_additional_wind_features,
 )
 from openstf.feature_engineering.lag_features import generate_lag_feature_functions
 
@@ -38,7 +39,7 @@ def apply_features(data, feature_set_list=None, horizon=24):
         feature_set_list (list of ints): minute lagtimes that where used during training of
                                     the model. If empty a new et will be automatically
                                     generated.
-        h_ahead (int): Forecast horizon limit in hours.
+        horizon (int): Forecast horizon limit in hours.
 
     Returns:
         pd.DataFrame(index = datetime, columns = [label, predictor_1,..., predictor_n,
@@ -76,46 +77,31 @@ def apply_features(data, feature_set_list=None, horizon=24):
     # Only select features that occur in feature_set_list,
     # if feature_set_list is none nothing is removed
     if feature_set_list is not None:
-        timedriven_feature_functions = {key:timedriven_feature_functions[key] for key in
-                                feature_set_list if key in timedriven_feature_functions}
-        holiday_feature_functions = {key: holiday_feature_functions[key] for key in
-                                feature_set_list if key in holiday_feature_functions}
+        timedriven_feature_functions = {
+            key: timedriven_feature_functions[key]
+            for key in feature_set_list
+            if key in timedriven_feature_functions
+        }
+        holiday_feature_functions = {
+            key: holiday_feature_functions[key]
+            for key in feature_set_list
+            if key in holiday_feature_functions
+        }
 
     # Add the features to the dataframe using previously defined feature functions
-    df = data.copy()
-    for function_group in [lag_feature_functions, timedriven_feature_functions, holiday_feature_functions]:
+    for function_group in [
+        lag_feature_functions,
+        timedriven_feature_functions,
+        holiday_feature_functions,
+    ]:
         for name, featfunc in function_group.items():
-            df[name] = df.iloc[:, [0]].apply(featfunc)
+            data[name] = data.iloc[:, [0]].apply(featfunc)
 
+    # Add additional winf features
+    data = add_additional_wind_features(data, feature_set_list)
 
-    # Add weather features
-    if "windspeed" in list(df) and ('windspeed_100mExtrapolated' in feature_set_list or "windspeed_100mExtrapolated" in feature_set_list):
-        df["windspeed_100mExtrapolated"] = calculate_windspeed_at_hubheight(
-            df["windspeed"]
-        )
-        df["windPowerFit_extrapolated"] = calculate_windturbine_power_output(
-            df["windspeed_100mExtrapolated"]
-        )
+    # Add humidity features
+    data = add_humidity_features(data, feature_set_list)
 
-    if "windspeed_100m" in list(df) and "windspeed_100m" in feature_set_list:
-        df["windpowerFit_harm_arome"] = calculate_windturbine_power_output(
-            df["windspeed_100m"].astype(float)
-        )
-
-    humidity_features = [
-                "saturation_pressure",
-                "vapour_pressure",
-                "dewpoint",
-                "air_density",
-            ]
-
-    if any(x in humidity_features for x in feature_set_list):
-        # Try to add humidity  calculations, ignore if required columns are missing
-        try:
-            humidity_df = humidity_calculations(df.temp, df.humidity, df.pressure)
-            df = df.join(humidity_df)
-        except AttributeError:
-            pass  # This happens when a required column for humidity_calculations
-            # is not present
-
-    return df
+    # Return dataframe including all requested features
+    return data
