@@ -14,8 +14,6 @@ This improves forecast accuracy. Examples of features that are added are:
 
 """
 
-import numpy as np
-
 from openstf.feature_engineering.holiday_features import (
     create_holiday_feature_functions,
 )
@@ -26,7 +24,7 @@ from openstf.feature_engineering.weather_features import (
 from openstf.feature_engineering.lag_features import generate_lag_feature_functions
 
 
-def apply_features(data, feature_set_list=None, horizon=24):
+def apply_features(data, feature_set_list=None, horizon=24.0):
     """This script applies the feature functions defined in
         feature_functions.py and returns the complete dataframe. Features requiring
         more recent label-data are omitted.
@@ -39,7 +37,7 @@ def apply_features(data, feature_set_list=None, horizon=24):
         feature_set_list (list of ints): minute lagtimes that where used during training of
                                     the model. If empty a new et will be automatically
                                     generated.
-        horizon (int): Forecast horizon limit in hours.
+        horizon (float): Forecast horizon limit in hours.
 
     Returns:
         pd.DataFrame(index = datetime, columns = [label, predictor_1,..., predictor_n,
@@ -59,7 +57,7 @@ def apply_features(data, feature_set_list=None, horizon=24):
 
     # Get lag feature functions
     lag_feature_functions = generate_lag_feature_functions(
-        data, feature_set_list, horizon
+        feature_set_list, horizon
     )
 
     # Get timedrivenfeature functions

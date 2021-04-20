@@ -141,7 +141,7 @@ def apply_classes(df, y_col, classes):
     # TODO make this more general
 
     # Only use strings
-    df = df.loc[df[y_col].apply(lambda x: isinstance(x, (str)) or np.isnan(x))]
+    df = df.loc[df[y_col].apply(lambda x: isinstance(x, str) or np.isnan(x))]
 
     return df
 
