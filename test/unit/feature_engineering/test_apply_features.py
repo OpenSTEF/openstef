@@ -13,7 +13,6 @@ from openstf.feature_engineering.lag_features import generate_non_trivial_lag_ti
 from test.utils import BaseTestCase, TestData
 
 
-
 class TestApplyFeaturesModule(BaseTestCase):
     def test_generate_lag_functions(self):
         """Test generate lag functions.

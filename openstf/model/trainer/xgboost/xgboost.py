@@ -332,8 +332,9 @@ class XGBModelTrainer(AbstractModelTrainer):
         # Select feature set
         featureset = featuresets[featureset_name]
 
-        validated_data_data_with_features = remove_extra_feature_columns(shortened_data, featurelist=featureset)
-
+        validated_data_data_with_features = remove_extra_feature_columns(
+            shortened_data, featurelist=featureset
+        )
 
         # Clean up data
         total_data = validation.clean(validated_data_data_with_features)
@@ -446,7 +447,6 @@ class XGBModelTrainer(AbstractModelTrainer):
         # Update hyper parameters (used by self.train())
         self.hyper_parameters.update(parameter_space)
         self.hyper_parameters["featureset_name"] = featureset_name
-
 
         # Split data in train, test and validation sets, note we are using the
         # backtest option here because we assume hyperparameters do not change

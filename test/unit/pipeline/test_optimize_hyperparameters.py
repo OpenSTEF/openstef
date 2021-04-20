@@ -46,7 +46,10 @@ class TestHyperParameters(BaseTestCase):
         post_teams_mock,
     ):
         self.add_mock_return_values(
-            optuna_mock, dataBase_mock, train_feature_applicator_mock, is_data_sufficient_mock
+            optuna_mock,
+            dataBase_mock,
+            train_feature_applicator_mock,
+            is_data_sufficient_mock,
         )
         # run function under test
         optimize_hyperparameters(PJ["id"])
@@ -75,7 +78,10 @@ class TestHyperParameters(BaseTestCase):
         post_teams_mock,
     ):
         self.add_mock_return_values(
-            optuna_mock, dataBase_mock, train_feature_applicator_mock, is_data_sufficient_mock
+            optuna_mock,
+            dataBase_mock,
+            train_feature_applicator_mock,
+            is_data_sufficient_mock,
         )
         # Set condition which should case an Exception
         is_data_sufficient_mock.return_value = False
@@ -86,7 +92,10 @@ class TestHyperParameters(BaseTestCase):
 
     @staticmethod
     def add_mock_return_values(
-        optuna_mock, dataBase_mock, train_feature_applicator_mock, is_data_sufficient_mock
+        optuna_mock,
+        dataBase_mock,
+        train_feature_applicator_mock,
+        is_data_sufficient_mock,
     ):
         # pre_process_data_mock.return_value = data_table
         dataBase_mock.return_value.get_prediction_job.return_value = PJ

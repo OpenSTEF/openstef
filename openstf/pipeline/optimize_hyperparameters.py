@@ -99,9 +99,10 @@ def optimize_hyperparameters(pid, n_trials=150, datetime_end=datetime.utcnow()):
     )
     featuresets = db.get_featuresets()
 
-
     # Pre-process data
-    clean_data_with_features = TrainFeatureApplicator(horizons=[0.25,24]).add_features(data)
+    clean_data_with_features = TrainFeatureApplicator(horizons=[0.25, 24]).add_features(
+        data
+    )
 
     # Initialize model trainer creator factory object
     mc = ModelTrainerCreator(pj)

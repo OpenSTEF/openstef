@@ -85,5 +85,6 @@ class TestCreateForecast(BaseTestCase):
         for mock_func in [nonzero_flatliner_mock, replace_invalid_data_mock]:
             self.assertEqual(mock_func.call_count, 1)
 
+
 if __name__ == "__main__":
     unittest.main()
