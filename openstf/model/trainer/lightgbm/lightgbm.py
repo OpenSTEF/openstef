@@ -11,7 +11,6 @@ import lightgbm as lgb
 from ktpbase.log import logging
 
 from openstf.metrics import metrics
-from openstf.feature_engineering.general import remove_features_not_in_set
 from openstf.preprocessing import preprocessing
 from openstf.model_selection.model_selection import split_data_train_validation_test
 from openstf.model.trainer.trainer import AbstractModelTrainer

@@ -78,17 +78,5 @@ class TestCreateForecast(BaseTestCase):
         for mock_func in [nonzero_flatliner_mock, replace_invalid_data_mock]:
             self.assertEqual(mock_func.call_count, 1)
 
-    @patch("openstf.pipeline.create_forecast.feature_engineering")
-    def test_perform_feature_engineering(self, fe_mock):
-        create_forecast.perform_feature_engineering(input_data=None, feature_names=None)
-
-        for mock_func in [
-            fe_mock.general.extract_minute_features,
-            fe_mock.apply_features.apply_features,
-            fe_mock.general.add_missing_feature_columns,
-        ]:
-            self.assertEqual(mock_func.call_count, 1)
-
-
 if __name__ == "__main__":
     unittest.main()

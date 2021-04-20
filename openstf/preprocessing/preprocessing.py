@@ -1,9 +1,6 @@
 
 import numpy as np
 
-from openstf.validation import validation
-from openstf.feature_engineering.apply_features import apply_multiple_horizon_features
-from openstf.feature_engineering.general import remove_features_not_in_set
 
 def replace_repeated_values_with_nan(df, max_length, column_name):
     """Replace repeated values with NaN.

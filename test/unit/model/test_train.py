@@ -121,7 +121,7 @@ class TestTrain(BaseTestCase):
         self.assertEqual(context_mock.logger.info.call_count, 1)
         self.assertIsNone(result)
 
-    @patch("openstf.pipeline.train_model.pre_process_data")
+
     @patch("openstf.pipeline.train_model.validation.is_data_sufficient")
     @patch(
         "openstf.pipeline.train_model.split_data_train_validation_test",
@@ -130,7 +130,6 @@ class TestTrain(BaseTestCase):
     def test_preprocess_for_model_training(
         self,
         is_data_sufficient_mock,
-        pre_process_data_mock,
     ):
         result = train_model.preprocess_for_model_training(pj, context_mock)
         result_expected = split_predicted_data

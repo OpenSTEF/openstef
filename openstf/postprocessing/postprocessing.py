@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 from ktpbase.log import logging
 
-from openstf.feature_engineering import apply_features
+from openstf.feature_engineering import apply_features, weather_features
 from openstf.enums import ForecastType
 
 
@@ -36,7 +36,7 @@ def normalize_and_convert_weather_data_for_splitting(weather_data):
         / np.percentile(weather_data["radiation"].dropna(), 99.0)
         * -1
     )
-    wind_ref = apply_features_old.calculate_windspeed_at_hubheight(
+    wind_ref = weather_features.calculate_windspeed_at_hubheight(
         weather_data["windspeed_100m"], fromheight=100
     )
     wind_ref = wind_ref / np.abs(np.amax(wind_ref)) * -1

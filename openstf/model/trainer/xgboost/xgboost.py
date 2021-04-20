@@ -12,7 +12,7 @@ from ktpbase.log import logging
 
 from openstf.metrics import metrics
 from openstf.preprocessing import preprocessing
-from openstf.feature_engineering.general import remove_features_not_in_set
+from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
 from openstf.model_selection.model_selection import split_data_train_validation_test
 from openstf.model.trainer.trainer import AbstractModelTrainer
 
@@ -328,16 +328,19 @@ class XGBModelTrainer(AbstractModelTrainer):
 
 
 
-        # Pre-process data
-        clean_shortened_data_with_all_features = preprocessing.pre_process_data(shortened_data)
+        # Validate input data
+        validated_data = validation.validate(shortened_data)
 
-        # Apply optimized featureset
-        featureset_name = optimized_parameters["featureset_name"]
-
+        # Select feature set
         featureset = featuresets[featureset_name]
-        total_data = remove_features_not_in_set(
-            clean_shortened_data_with_all_features, featureset=featureset
-        )
+
+        # add features
+        validated_data_data_with_features = TrainFeatureApplicator(
+            horizons=[0.25, 24.0], feature_set_list=featureset).add_features(
+            validated_data)
+
+        # Clean up data
+        total_data = validation.clean(validated_data_data_with_features)
 
         # Split data in train, test and validation sets, note we are using the
         # backtest option here because we assume hyperparameters do not change
@@ -448,11 +451,6 @@ class XGBModelTrainer(AbstractModelTrainer):
         self.hyper_parameters.update(parameter_space)
         self.hyper_parameters["featureset_name"] = featureset_name
 
-        # remove features
-        featureset = featuresets[featureset_name]
-        clean_data_with_features = remove_features_not_in_set(
-            clean_data_with_all_features, featureset
-        )
 
         # Split data in train, test and validation sets, note we are using the
         # backtest option here because we assume hyperparameters do not change
