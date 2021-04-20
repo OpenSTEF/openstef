@@ -19,6 +19,7 @@ from openstf.model.serializer.xgboost.xgboost import XGBModelSerializer
 from openstf.pipeline import train_model
 from openstf.model.trainer.creator import ModelTrainerCreator
 from openstf.model.trainer.xgboost.xgboost import XGBModelTrainer
+from openstf.validation import validation
 
 from test.utils import BaseTestCase
 
@@ -121,24 +122,6 @@ class TestTrain(BaseTestCase):
         self.assertEqual(context_mock.logger.info.call_count, 1)
         self.assertIsNone(result)
 
-
-    @patch("openstf.pipeline.train_model.validation.is_data_sufficient")
-    @patch(
-        "openstf.pipeline.train_model.split_data_train_validation_test",
-        MagicMock(return_value=[None, None, None]),
-    )
-    def test_preprocess_for_model_training(
-        self,
-        is_data_sufficient_mock,
-    ):
-        result = train_model.preprocess_for_model_training(pj, context_mock)
-        result_expected = split_predicted_data
-
-        self.assertEqual(pre_process_data_mock.call_count, 1)
-        self.assertEqual(is_data_sufficient_mock.call_count, 1)
-
-        self.assertEqual(result, result_expected)
-
     @patch("openstf.pipeline.train_model.PredictionModelCreator")
     def test_predict_after_model_training(
         self,
@@ -188,7 +171,7 @@ class TestTrain(BaseTestCase):
 
         self.assertEqual(result, expected_result)
 
-    @patch("openstf.pipeline.train_modelos.makedirs")
+    @patch("openstf.pipeline.train_model.os.makedirs")
     @patch(
         "openstf.pipeline.train_model.create_evaluation_figures",
         MagicMock(return_value=(MagicMock(), MagicMock())),
@@ -219,18 +202,6 @@ class TestTrain(BaseTestCase):
             "path_to_save",
         )
         self.assertEqual(makedirs_mock.call_count, 1)
-
-    @patch("openstf.pipeline.train_model.send_report_teams_better")
-    def test_send_teams_message(self, send_report_teams_better_mock):
-
-        train_model.send_report_teams(pj, model_trainer_mock, True)
-        self.assertEqual(send_report_teams_better_mock.call_count, 1)
-
-    @patch("openstf.pipeline.train_model.send_report_teams_worse")
-    def test_send_teams_message_worse_model(self, send_report_teams_worse_mock):
-
-        train_model.send_report_teams(pj, model_trainer_mock, False)
-        self.assertEqual(send_report_teams_worse_mock.call_count, 1)
 
     def test_model_trainer_creator(self):
         serializer_creator = ModelSerializerCreator()
@@ -266,21 +237,21 @@ class TestTrain(BaseTestCase):
 
     def test_train_checks(self, data=data):
         # Happy flow
-        sufficient = train_model.is_data_sufficient(data)
+        sufficient = validation.is_data_sufficient(data)
         self.assertTrue(sufficient)
 
         # Make 20% of data np.nan to simulate incompleteness that is still acceptable
         data.iloc[0 : int(np.round(0.2 * len(data))), :] = np.nan
-        sufficient = train_model.is_data_sufficient(data)
+        sufficient = validation.is_data_sufficient(data)
         self.assertTrue(sufficient)
 
         # Only pas first 50 rows
-        sufficient = train_model.is_data_sufficient(data.iloc[0:50, :])
+        sufficient = validation.is_data_sufficient(data.iloc[0:50, :])
         self.assertFalse(sufficient)
 
         # Make 60% of data np.nan to simulate incompleteness that is not acceptable
         data.iloc[0 : int(np.round(0.6 * len(data))), :] = np.nan
-        sufficient = train_model.is_data_sufficient(data)
+        sufficient = validation.is_data_sufficient(data)
         self.assertFalse(sufficient)
 
     def test_xgboost_model_trainer_train_and_confidence_interval(self):

@@ -13,6 +13,7 @@ from openstf.preprocessing import preprocessing
 from openstf.validation import validation
 from openstf.model.trainer.creator import ModelTrainerCreator
 from openstf.monitoring import teams
+from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
 
 # Available trainings period durations for optimization
 TRAINING_DURATIONS_DAYS = [90, 120, 150]
@@ -99,8 +100,10 @@ def optimize_hyperparameters(pid, n_trials=150, datetime_end=datetime.utcnow()):
         datetime_end=datetime_end,
     )
     featuresets = db.get_featuresets()
+
+
     # Pre-process data
-    clean_data_with_features = preprocessing.pre_process_data(data)
+    clean_data_with_features = TrainFeatureApplicator(horizons=[0.25,24]).add_features(data)
 
     # Initialize model trainer creator factory object
     mc = ModelTrainerCreator(pj)

@@ -12,7 +12,7 @@ from ktpbase.log import logging
 
 from openstf.metrics import metrics
 from openstf.preprocessing import preprocessing
-from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
+from openstf.feature_engineering.general import remove_extra_feature_columns
 from openstf.model_selection.model_selection import split_data_train_validation_test
 from openstf.model.trainer.trainer import AbstractModelTrainer
 
@@ -334,10 +334,8 @@ class XGBModelTrainer(AbstractModelTrainer):
         # Select feature set
         featureset = featuresets[featureset_name]
 
-        # add features
-        validated_data_data_with_features = TrainFeatureApplicator(
-            horizons=[0.25, 24.0], feature_set_list=featureset).add_features(
-            validated_data)
+        validated_data_data_with_features = remove_extra_feature_columns(shortened_data, featurelist=featureset)
+
 
         # Clean up data
         total_data = validation.clean(validated_data_data_with_features)
