@@ -140,7 +140,9 @@ class HumidityCalculationsTest(BaseTestCase):
             },
         }
         df = pd.DataFrame.from_dict(dict_for_df)
-        humidity_df = weather_features.humidity_calculations(df.temp, df.humidity, df.pressure)
+        humidity_df = weather_features.humidity_calculations(
+            df.temp, df.humidity, df.pressure
+        )
         result_df = df[
             ["saturation_pressure", "vapour_pressure", "dewpoint", "air_density"]
         ]

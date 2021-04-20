@@ -95,7 +95,6 @@ def train_model_pipeline(pj, context, retrain_young_models=False, compare_to_old
     else:
         send_report_teams_worse(pj)
 
-
     context.perf_meter.checkpoint("writing results")
 
 
@@ -170,7 +169,9 @@ def preprocess_for_model_training(pj, context):
     validated_data = validation.validate(data)
 
     # add features
-    validated_data_data_with_features = TrainFeatureApplicator(horizons=[0.25, 24.0], feature_set_list=featureset).add_features(validated_data)
+    validated_data_data_with_features = TrainFeatureApplicator(
+        horizons=[0.25, 24.0], feature_set_list=featureset
+    ).add_features(validated_data)
 
     # Clean up data
     clean_data_with_features = validation.clean(validated_data_data_with_features)

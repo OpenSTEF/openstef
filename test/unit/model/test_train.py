@@ -99,7 +99,9 @@ class TestTrain(BaseTestCase):
 
         model_trainer_creator_mock.create_model_trainer = create_model_trainer_mock
 
-        result = train_model.create_model_trainer(pj, context_mock, retrain_young_models=True)
+        result = train_model.create_model_trainer(
+            pj, context_mock, retrain_young_models=True
+        )
         self.assertIsInstance(result, MagicMock)
 
     @patch(
@@ -178,7 +180,10 @@ class TestTrain(BaseTestCase):
         "openstf.pipeline.train_model.plot_feature_importance",
         MagicMock(return_value=go.Figure()),
     )
-    @patch("openstf.pipeline.train_model.plot_data_series", MagicMock(return_value=go.Figure()))
+    @patch(
+        "openstf.pipeline.train_model.plot_data_series",
+        MagicMock(return_value=go.Figure()),
+    )
     def test_create_evaluation_figures(self):
         model_trainer = MagicMock()
 

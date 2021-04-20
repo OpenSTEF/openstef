@@ -135,6 +135,7 @@ def split_data_train_validation_test(
     # Return datasets
     return train_data, validation_data, test_data
 
+
 def sample_validation_data_periods(data, validation_fraction=0.15, period_length=192):
     """Splits data in train and validation dataset.
 

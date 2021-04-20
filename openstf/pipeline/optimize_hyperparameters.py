@@ -42,9 +42,7 @@ def optimize_hyperparameters_pipeline(pj):
 
     # Sent message to Teams
     title = f'Optimized hyperparameters for model {pj["name"]} {pj["description"]}'
-    teams.post_teams(
-        teams.format_message(title=title, params=hyperparameters)
-    )
+    teams.post_teams(teams.format_message(title=title, params=hyperparameters))
 
 
 def last_optimimization_too_long_ago(pj):
@@ -162,5 +160,3 @@ def optimize_hyperparameters(pid, n_trials=150, datetime_end=datetime.utcnow()):
     logger.info("Final optimized error", optimized_error=optimized_error)
 
     return optimized_parameters
-
-

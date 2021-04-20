@@ -52,12 +52,13 @@ class TrainFeatureApplicator(AbstractFeatureApplicator):
 
 
 class OperationalPredictFeatureApplicator(AbstractFeatureApplicator):
-
     def add_features(self, df):
         if self.horizons is None:
             self.horizons = [0.25]
 
-        df = apply_features(df, feature_set_list=self.feature_set_list, horizon=self.horizons[0])
+        df = apply_features(
+            df, feature_set_list=self.feature_set_list, horizon=self.horizons[0]
+        )
         df = add_missing_feature_columns(df, self.feature_set_list)
         df = remove_extra_feature_columns(df, self.feature_set_list)
 
@@ -65,7 +66,6 @@ class OperationalPredictFeatureApplicator(AbstractFeatureApplicator):
 
 
 class BackTestPredictFeatureApplicator(AbstractFeatureApplicator):
-
     def add_features(self, df):
         if self.horizons is None:
             self.horizons = [24.0]

@@ -326,10 +326,10 @@ class XGBModelTrainer(AbstractModelTrainer):
         ).replace(tzinfo=pytz.UTC)
         shortened_data = unprocessed_data.loc[unprocessed_data.index > datetime_start]
 
-
-
         # Pre-process data
-        clean_shortened_data_with_all_features = preprocessing.pre_process_data(shortened_data)
+        clean_shortened_data_with_all_features = preprocessing.pre_process_data(
+            shortened_data
+        )
 
         # Apply optimized featureset
         featureset_name = optimized_parameters["featureset_name"]

@@ -50,7 +50,6 @@ df_all_zerovalues = df_all_zerovalues.set_index("date6")
 
 
 class TestValidationCheckDataForEachTrafo(BaseTestCase):
-
     def test_no_zero_values(self):
         """Data: no zero-values in any of the trafo's
 

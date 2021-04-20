@@ -20,7 +20,9 @@ def validate(data):
     logger = logging.get_logger(__name__)
     # Drop 'false' measurements. e.g. where load appears to be constant.
     threshold = 6 * 4  # number of repeated values
-    data = replace_repeated_values_with_nan(data, max_length=threshold, column_name=data.columns[0])
+    data = replace_repeated_values_with_nan(
+        data, max_length=threshold, column_name=data.columns[0]
+    )
     num_const_load_values = len(data) - len(data.iloc[:, 0].dropna())
     logger.debug(
         f"Changed {num_const_load_values} values of constant load to NA.",
@@ -199,7 +201,9 @@ def find_nonzero_flatliner(df, threshold):
     return interval_df
 
 
-def find_zero_flatliner(df, threshold, window=timedelta(minutes=30), load_threshold=0.3):
+def find_zero_flatliner(
+    df, threshold, window=timedelta(minutes=30), load_threshold=0.3
+):
     """Function that detects a zero value where the load is not compensated by the other trafo's of the station.
 
     Input:

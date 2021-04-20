@@ -44,7 +44,6 @@ df_zero_file = df_zero_file.set_index("date5")
 
 
 class TestPreprocessing(BaseTestCase):
-
     def test_replace_repeated_values_with_nan(self):
         start_nan = 8
         end_nan = 11
@@ -56,16 +55,22 @@ class TestPreprocessing(BaseTestCase):
         )
 
         # No change, since there are 4 seq. numbers.
-        df_no_repeated = preprocessing.replace_repeated_values_with_nan(df, 5, "Column2")
+        df_no_repeated = preprocessing.replace_repeated_values_with_nan(
+            df, 5, "Column2"
+        )
         print(df_no_repeated.isna().values.any())
         self.assertFalse(df_no_repeated.isna().values.any())
 
         # No change, since there are 4 seq. numbers.
-        df_no_repeated = preprocessing.replace_repeated_values_with_nan(df, 4, "Column2")
+        df_no_repeated = preprocessing.replace_repeated_values_with_nan(
+            df, 4, "Column2"
+        )
         self.assertFalse(df_no_repeated.isna().values.any())
 
         # Change, since there are 4 seq. numbers and we don't allow for more than 3
-        df_no_repeated = preprocessing.replace_repeated_values_with_nan(df, 3, "Column2")
+        df_no_repeated = preprocessing.replace_repeated_values_with_nan(
+            df, 3, "Column2"
+        )
         self.assertEqual(df_no_repeated["Column1"].isna().values.sum(), 0)
         self.assertEqual(df_no_repeated["Column2"].isna().values.sum(), 1)
         self.assertEqual(df_no_repeated["Column3"].isna().values.sum(), 0)
@@ -73,7 +78,9 @@ class TestPreprocessing(BaseTestCase):
         self.assertTrue(math.isnan(df_no_repeated.at[end_nan, "Column2"]))
 
         # Change, since there are 4 seq. numbers and we don't allow for more than 2
-        df_no_repeated = preprocessing.replace_repeated_values_with_nan(df, 2, "Column2")
+        df_no_repeated = preprocessing.replace_repeated_values_with_nan(
+            df, 2, "Column2"
+        )
         self.assertEqual(df_no_repeated["Column1"].isna().values.sum(), 0)
         self.assertEqual(df_no_repeated["Column2"].isna().values.sum(), 2)
         self.assertEqual(df_no_repeated["Column3"].isna().values.sum(), 0)
