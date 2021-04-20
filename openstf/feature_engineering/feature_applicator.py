@@ -16,7 +16,7 @@ LATENCY_CONFIG = {"APX": 24}  # A specific latency is part of a specific feature
 
 
 class AbstractFeatureApplicator(ABC):
-    def __init__(self, horizons, feature_set_list = None):
+    def __init__(self, horizons, feature_set_list=None):
 
         if type(horizons) is not list and not None:
             raise ValueError("Horizons must be added as a list")
@@ -51,12 +51,13 @@ class TrainFeatureApplicator(AbstractFeatureApplicator):
 
 
 class OperationalPredictFeatureApplicator(AbstractFeatureApplicator):
-
     def add_features(self, df):
         if self.horizons is None:
             self.horizons = [0.25]
 
-        df = apply_features(df, feature_set_list=self.feature_set_list, horizon=self.horizons[0])
+        df = apply_features(
+            df, feature_set_list=self.feature_set_list, horizon=self.horizons[0]
+        )
         df = add_missing_feature_columns(df, self.feature_set_list)
         df = remove_extra_feature_columns(df, self.feature_set_list)
 
@@ -64,7 +65,6 @@ class OperationalPredictFeatureApplicator(AbstractFeatureApplicator):
 
 
 class BackTestPredictFeatureApplicator(AbstractFeatureApplicator):
-
     def add_features(self, df):
         if self.horizons is None:
             self.horizons = [24.0]

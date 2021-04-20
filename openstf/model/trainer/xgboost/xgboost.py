@@ -326,8 +326,6 @@ class XGBModelTrainer(AbstractModelTrainer):
         ).replace(tzinfo=pytz.UTC)
         shortened_data = unprocessed_data.loc[unprocessed_data.index > datetime_start]
 
-
-
         # Validate input data
         validated_data = validation.validate(shortened_data)
 

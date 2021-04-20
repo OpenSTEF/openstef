@@ -13,6 +13,7 @@ from openstf.feature_engineering.lag_features import generate_non_trivial_lag_ti
 from test.utils import BaseTestCase, TestData
 
 
+
 class TestApplyFeaturesModule(BaseTestCase):
     def test_generate_lag_functions(self):
         """Test generate lag functions.
@@ -45,9 +46,7 @@ class TestApplyFeaturesModule(BaseTestCase):
         )
 
     def test_additional_minute_space_empty_data(self):
-        additional_minute_lags_list = generate_non_trivial_lag_times(
-            pd.DataFrame()
-        )
+        additional_minute_lags_list = generate_non_trivial_lag_times(pd.DataFrame())
         self.assertEqual(len(additional_minute_lags_list), 0)
 
     def test_additional_minute_space_no_peaks_in_correlation(self):
@@ -80,8 +79,10 @@ class TestApplyFeaturesModule(BaseTestCase):
         )
 
     def test_train_feature_applicator(self):
+
         input_data_with_features = TrainFeatureApplicator(horizons=[0.25]).add_features(
-            TestData.load("input_data.pickle"))
+            TestData.load("input_data.pickle")
+        )
 
         self.assertDataframeEqual(
             input_data_with_features,
@@ -104,8 +105,8 @@ class TestApplyFeaturesModule(BaseTestCase):
         horizons = [0.25, 47]
 
         input_data_with_features = TrainFeatureApplicator(
-            horizons=horizons).add_features(
-            input_data)
+            horizons=horizons
+        ).add_features(input_data)
 
         horizon = input_data_with_features.Horizon
 

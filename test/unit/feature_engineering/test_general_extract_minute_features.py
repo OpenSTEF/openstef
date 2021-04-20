@@ -21,7 +21,7 @@ class TestGeneralExtractMinuteFeatures(BaseTestCase):
         self.model, model_file = serializer.load(307, model_folder)
 
     def test_extract_minute_features(self):
-        testlist_minutes, testlist_days  = extract_lag_features(self.model.feature_names)
+        testlist_minutes, testlist_days = extract_lag_features(self.model.feature_names)
         self.assertEqual(
             testlist_minutes,
             [
@@ -52,7 +52,7 @@ class TestGeneralExtractMinuteFeatures(BaseTestCase):
                 240,
                 1140,
                 120,
-                1020
+                1020,
             ],
         )
         self.assertEqual(testlist_days, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14])

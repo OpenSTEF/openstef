@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-from openstf import validation
 import pandas as pd
 import scipy
 import xgboost as xgb

@@ -25,7 +25,10 @@ class TestCreateForecast(BaseTestCase):
         datetime_start_expected = date_today_utc - timedelta(days=t_behind_days)
         datetime_end_expected = date_today_utc + timedelta(days=t_ahead_days)
 
-        datetime_start, datetime_end = create_forecast.generate_inputdata_datetime_range(
+        (
+            datetime_start,
+            datetime_end,
+        ) = create_forecast.generate_inputdata_datetime_range(
             t_behind_days=t_behind_days, t_ahead_days=t_ahead_days
         )
         self.assertEqual(datetime_start, datetime_start_expected)
@@ -60,7 +63,9 @@ class TestCreateForecast(BaseTestCase):
 
     @patch("openstf.pipeline.create_forecast.validation.find_nonzero_flatliner")
     @patch("openstf.pipeline.create_forecast.preprocessing.replace_invalid_data")
-    def test_pre_process_input_data(self, replace_invalid_data_mock, nonzero_flatliner_mock):
+    def test_pre_process_input_data(
+        self, replace_invalid_data_mock, nonzero_flatliner_mock
+    ):
         suspicious_moments = True
 
         null_row = MagicMock()
@@ -72,7 +77,9 @@ class TestCreateForecast(BaseTestCase):
         nonzero_flatliner_mock.return_value = suspicious_moments
         replace_invalid_data_mock.return_value = processed_input_data
 
-        create_forecast.pre_process_input_data(input_data=None, flatliner_threshold=None)
+        create_forecast.pre_process_input_data(
+            input_data=None, flatliner_threshold=None
+        )
 
         # simply check if all mocks are called
         for mock_func in [nonzero_flatliner_mock, replace_invalid_data_mock]:

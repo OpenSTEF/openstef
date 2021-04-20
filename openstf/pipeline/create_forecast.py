@@ -9,11 +9,14 @@ from ktpbase.database import DataBase
 from ktpbase.log import logging
 
 from openstf import feature_engineering
+
 # FIXME this is a circular depedency
 from openstf.validation import validation
 from openstf.preprocessing import preprocessing
 from openstf.postprocessing import postprocessing
-from openstf.feature_engineering.feature_applicator import OperationalPredictFeatureApplicator
+from openstf.feature_engineering.feature_applicator import (
+    OperationalPredictFeatureApplicator,
+)
 from openstf.enums import ForecastType
 from openstf.model.prediction.creator import PredictionModelCreator
 
@@ -55,7 +58,8 @@ def create_forecast_pipeline(pj, forecast_type=ForecastType.DEMAND):
 
     # feature engineering #############################################################
     input_data_with_features = OperationalPredictFeatureApplicator(
-        feature_set_list=feature_names).add_features(input_data)
+        feature_set_list=prediction_model.feature_names
+    ).add_features(preprocessed_input_data)
     # make forecast ###################################################################
     # Create correct format for to-be-forecasted times
     forecast_input_data = input_data_with_features.loc[
@@ -257,9 +261,7 @@ def pre_process_input_data(input_data, flatliner_threshold):
     )
     if suspicious_moments is not None:
         # Covert repeated load observations to NaN values
-        input_data = preprocessing.replace_invalid_data(
-            input_data, suspicious_moments
-        )
+        input_data = preprocessing.replace_invalid_data(input_data, suspicious_moments)
         # Calculate number of NaN values
         # TODO should this not be part of the replace_invalid_data function?
         num_nan = sum([True for i, row in input_data.iterrows() if all(row.isnull())])
@@ -269,6 +271,7 @@ def pre_process_input_data(input_data, flatliner_threshold):
         )
 
     return input_data
+
 
 # other
 def is_complete_enough(completeness, completeness_threshold):

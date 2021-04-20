@@ -14,7 +14,7 @@ Example:
 Attributes:
 
 """
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import numpy as np
 import pandas as pd
@@ -238,6 +238,7 @@ def main():
             make_solar_predicion_pj, context
         )
 
+
 def calc_norm(data, how="max", add_to_df=True):
     """This script calculates the norm of a given dataset.
     Input:
@@ -399,6 +400,7 @@ def apply_fit_insol(data, add_to_df=True, hours_delta=None, polynomial=False):
             df = pd.concat([data, df], axis=1)
 
     return df
+
 
 if __name__ == "__main__":
     main()

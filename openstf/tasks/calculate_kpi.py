@@ -186,7 +186,9 @@ def calc_kpi_for_specific_pid(pid, start_time=None, end_time=None):
         t_ahead_h = hor_cols[0].split("_")[1]
         fc = combined[hor_cols[0]]  # load predictions
         st = combined[hor_cols[1]]  # standard deviations of load predictions
-        completeness_predicted_load = validation.calc_completeness(fc.to_frame(name=t_ahead_h))
+        completeness_predicted_load = validation.calc_completeness(
+            fc.to_frame(name=t_ahead_h)
+        )
         kpis.update(
             {
                 t_ahead_h: {
@@ -275,7 +277,6 @@ def set_incomplete_kpi_to_nan(kpis, t_ahead_h):
     for kpi in kpi_metrics:
         if kpi != "completeness":
             kpis[t_ahead_h].update({kpi: np.nan})
-
 
 
 if __name__ == "__main__":
