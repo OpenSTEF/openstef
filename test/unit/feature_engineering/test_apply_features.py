@@ -9,7 +9,9 @@ import numpy as np
 import pandas as pd
 
 from openstf.feature_engineering.lag_features import generate_non_trivial_lag_times
-
+from openstf.feature_engineering import apply_features, weather_features
+from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
+from openstf.feature_engineering.lag_features import generate_lag_feature_functions
 
 class TestApplyFeaturesModule(BaseTestCase):
     def test_generate_lag_functions(self):
@@ -23,7 +25,7 @@ class TestApplyFeaturesModule(BaseTestCase):
             AssertionError: When the lag function names are different then the expected
                 function names
         """
-        lag_functions = apply_features.generate_lag_functions(
+        lag_functions = generate_lag_feature_functions(
             TestData.load("input_data_train.pickle")
         )
 
@@ -33,7 +35,7 @@ class TestApplyFeaturesModule(BaseTestCase):
         self.assertEqual(lag_functions_keys, expected_lag_functions_keys)
 
     def test_additional_minute_space(self):
-        additional_minute_lags_list = apply_features.additional_minute_space(
+        additional_minute_lags_list = generate_non_trivial_lag_times(
             data=TestData.load("input_data_train.pickle"), height_treshold=0.1
         )
         expected_additional_minute_lags_list = [1410, 2880]
@@ -42,7 +44,7 @@ class TestApplyFeaturesModule(BaseTestCase):
         )
 
     def test_additional_minute_space_empty_data(self):
-        additional_minute_lags_list = apply_features.additional_minute_space(
+        additional_minute_lags_list = generate_non_trivial_lag_times(
             pd.DataFrame()
         )
         self.assertEqual(len(additional_minute_lags_list), 0)
@@ -52,7 +54,7 @@ class TestApplyFeaturesModule(BaseTestCase):
             {"random_column_name": np.linspace(0, 1000, 1000, endpoint=False)}
         )
 
-        additional_minute_lags_list = apply_features.additional_minute_space(input_data)
+        additional_minute_lags_list = generate_non_trivial_lag_times(input_data)
         self.assertEqual(len(additional_minute_lags_list), 0)
 
     def test_apply_features(self):
@@ -67,18 +69,18 @@ class TestApplyFeaturesModule(BaseTestCase):
         input_data_with_features = apply_features.apply_features(
             # data=self.test_data.INPUT_DATA, h_ahead=24
             data=TestData.load("input_data.pickle"),
-            h_ahead=24,
+            horizon=24,
         )
+
         self.assertDataframeEqual(
             input_data_with_features,
             TestData.load("input_data_with_features.csv"),
             check_like=True,  # ignore the order of index & columns
         )
 
-    def test_apply_multiple_horizon_features(self):
-        input_data_with_features = apply_features.apply_multiple_horizon_features(
-            data=TestData.load("input_data.pickle"), h_aheads=[0.25]
-        )
+    def test_train_feature_applicator(self):
+
+        input_data_with_features = TrainFeatureApplicator(horizons = [0.25]).add_features(TestData.load("input_data.pickle"))
 
         self.assertDataframeEqual(
             input_data_with_features,
@@ -86,7 +88,7 @@ class TestApplyFeaturesModule(BaseTestCase):
             check_like=True,  # ignore the order of index & columns
         )
 
-    def test_apply_multiple_horizon_features_with_latency(self):
+    def test_train_feature_applicator_with_latency(self):
         input_data = pd.DataFrame(
             index=pd.to_datetime(
                 [
@@ -98,10 +100,11 @@ class TestApplyFeaturesModule(BaseTestCase):
             ),
             data={"load": [10, 15, 20, 15], "APX": [1, 2, 3, 4]},
         )
-        h_aheads = [0.25, 47]
-        input_data_with_features = apply_features.apply_multiple_horizon_features(
-            input_data, h_aheads=h_aheads, latency={"APX": 24}
-        )
+        horizons = [0.25, 47]
+
+        input_data_with_features = TrainFeatureApplicator(horizons=horizons).add_features(
+            input_data)
+
         horizon = input_data_with_features.Horizon
 
         self.assertTrue(
@@ -129,7 +132,7 @@ class TestApplyFeaturesModule(BaseTestCase):
             },
         )
         input_data_with_features = apply_features.apply_features(
-            data=input_data, minute_list=[], h_ahead=24
+            data=input_data, horizon=24
         )
 
         self.assertDataframeEqual(
@@ -143,7 +146,7 @@ class TestApplyFeaturesModule(BaseTestCase):
         from_height = 10
         hub_height = 100
         expected_wind_speed_at_hub_height = 27.799052624267063
-        wind_speed_at_hub_height = apply_features.calculate_windspeed_at_hubheight(
+        wind_speed_at_hub_height = weather_features.calculate_windspeed_at_hubheight(
             windspeed, from_height, hub_height
         )
         self.assertAlmostEqual(
@@ -152,33 +155,33 @@ class TestApplyFeaturesModule(BaseTestCase):
 
     def test_calculate_windspeed_at_hubheight_wrong_wind_speed_datatype(self):
         with self.assertRaises(TypeError):
-            apply_features.calculate_windspeed_at_hubheight("20.25", 10, 100)
+            weather_features.calculate_windspeed_at_hubheight("20.25", 10, 100)
 
     def test_calculate_windspeed_at_hubheight_no_wind(self):
-        wind_speed_at_hub_height = apply_features.calculate_windspeed_at_hubheight(
+        wind_speed_at_hub_height = weather_features.calculate_windspeed_at_hubheight(
             0, 10, 100
         )
         self.assertEqual(wind_speed_at_hub_height, 0)
 
     def test_calculate_windspeed_at_hubheight_nan_input(self):
-        wind_speed_nan = apply_features.calculate_windspeed_at_hubheight(float("nan"))
+        wind_speed_nan = weather_features.calculate_windspeed_at_hubheight(float("nan"))
         self.assertIsNAN(wind_speed_nan)
 
     def test_calculate_windspeed_at_hubheight_negative_input(self):
         negative_windspeed = -5
         with self.assertRaises(ValueError):
-            apply_features.calculate_windspeed_at_hubheight(negative_windspeed)
+            weather_features.calculate_windspeed_at_hubheight(negative_windspeed)
 
         negative_windspeeds = pd.Series([-1, 2, 3, 4])
         with self.assertRaises(ValueError):
-            apply_features.calculate_windspeed_at_hubheight(negative_windspeeds)
+            weather_features.calculate_windspeed_at_hubheight(negative_windspeeds)
 
     def test_calculate_windspeed_at_hubheight_list_input(self):
         windspeeds_list = [1, 2, 3, 4]
         expected_extrapolated_windspeeds = [1.3899526, 2.7799052, 4.16985, 5.559810]
 
         windspeeds = pd.Series(windspeeds_list)
-        extrapolated_windspeeds = apply_features.calculate_windspeed_at_hubheight(
+        extrapolated_windspeeds = weather_features.calculate_windspeed_at_hubheight(
             windspeeds
         )
         self.assertSeriesEqual(
@@ -186,7 +189,7 @@ class TestApplyFeaturesModule(BaseTestCase):
         )
 
         windspeeds = np.array(windspeeds_list)
-        extrapolated_windspeeds = apply_features.calculate_windspeed_at_hubheight(
+        extrapolated_windspeeds = weather_features.calculate_windspeed_at_hubheight(
             windspeeds
         )
         self.assertArrayEqual(
@@ -195,30 +198,30 @@ class TestApplyFeaturesModule(BaseTestCase):
         )
 
     def test_calculate_windturbine_power_output_no_wind(self):
-        power = apply_features.calculate_windturbine_power_output(0)
+        power = weather_features.calculate_windturbine_power_output(0)
         self.assertAlmostEqual(power, 0, places=2)
 
     def test_apply_power_curve_nan_wind(self):
-        power = apply_features.calculate_windturbine_power_output(float("nan"))
+        power = weather_features.calculate_windturbine_power_output(float("nan"))
         self.assertIsNAN(power)
 
     def test_calculate_windturbine_power_output_realistic_values(self):
 
-        power_v5 = apply_features.calculate_windturbine_power_output(5)
+        power_v5 = weather_features.calculate_windturbine_power_output(5)
         self.assertAlmostEqual(power_v5, 0.11522159872442202)
 
-        windspeed_v8 = apply_features.calculate_windturbine_power_output(8)
+        windspeed_v8 = weather_features.calculate_windturbine_power_output(8)
         self.assertAlmostEqual(windspeed_v8, 0.48838209152618717)
 
         # The generated  power should level off to the rated power for high wind speeds
-        power_v100 = apply_features.calculate_windturbine_power_output(100)
+        power_v100 = weather_features.calculate_windturbine_power_output(100)
         self.assertAlmostEqual(power_v100, 1)
 
     def test_calculate_windturbine_power_output(self):
         windspeed = 20
         n_turbines = 1
         turbine_data = {"slope_center": 1, "rated_power": 1, "steepness": 0.1}
-        power_output = apply_features.calculate_windturbine_power_output(
+        power_output = weather_features.calculate_windturbine_power_output(
             windspeed, n_turbines, turbine_data
         )
         expected_power_output = 0.8698915256370021

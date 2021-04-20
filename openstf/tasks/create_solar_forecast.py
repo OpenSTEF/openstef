@@ -18,6 +18,7 @@ from datetime import datetime
 
 import numpy as np
 import pandas as pd
+from scipy import optimize
 
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
@@ -374,7 +375,7 @@ def apply_fit_insol(data, add_to_df=True, hours_delta=None, polynomial=False):
             .mean()
         )
         # , bounds = bnds, constraints = cons)
-        res = scipy.optimize.minimize(fun, x0)
+        res = optimize.minimize(fun, x0)
         # Apply fit
         df = second_order_poly(res.x, data[["insolation"]]).rename(
             columns=dict(insolation="forecaopenstfitInsol")
@@ -385,7 +386,7 @@ def apply_fit_insol(data, add_to_df=True, hours_delta=None, polynomial=False):
         fun = (
             lambda x: (linear_fun(x, subset.insolation) - subset[colname]).abs().mean()
         )
-        res = scipy.optimize.minimize(fun, x0)
+        res = optimize.minimize(fun, x0)
         df = linear_fun(res.x, data[["insolation"]]).rename(
             columns=dict(insolation="forecaopenstfitInsol")
         )
