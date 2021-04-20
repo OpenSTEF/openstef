@@ -59,7 +59,7 @@ split_predicted_data = train_model.split_model_data(
 
 
 # WARNING: comment for production
-@pytest.mark.skip()
+# @pytest.mark.skip()
 class TestTrain(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()

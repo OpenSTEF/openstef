@@ -11,7 +11,6 @@ import xgboost as xgb
 from ktpbase.log import logging
 
 from openstf.metrics import metrics
-from openstf.preprocessing import preprocessing
 from openstf.feature_engineering.general import remove_extra_feature_columns
 from openstf.model_selection.model_selection import split_data_train_validation_test
 from openstf.model.trainer.trainer import AbstractModelTrainer
