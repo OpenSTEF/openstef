@@ -77,7 +77,7 @@ def generate_trivial_lag_features(horizon):
 
     # Discard lag times that are not available for the specified horizon
     trivial_lag_times_minutes = set(
-        [i for i in trivial_lag_minutes_list if i >= horizon * 60]
+        [i for i in trivial_lag_minutes_list if i > horizon * 60]
     )
 
     return trivial_lag_times_minutes, lag_time_days_list

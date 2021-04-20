@@ -3,15 +3,15 @@
 # SPDX-License-Identifier: MPL-2.0
 
 import unittest
-from test.utils import BaseTestCase, TestData
 
 import numpy as np
 import pandas as pd
-
-from openstf.feature_engineering.lag_features import generate_non_trivial_lag_times
 from openstf.feature_engineering import apply_features, weather_features
 from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
 from openstf.feature_engineering.lag_features import generate_lag_feature_functions
+from openstf.feature_engineering.lag_features import generate_non_trivial_lag_times
+from test.utils import BaseTestCase, TestData
+
 
 class TestApplyFeaturesModule(BaseTestCase):
     def test_generate_lag_functions(self):
@@ -26,10 +26,11 @@ class TestApplyFeaturesModule(BaseTestCase):
                 function names
         """
         lag_functions = generate_lag_feature_functions(
-            TestData.load("input_data_train.pickle")
+            TestData.load("input_data_train.pickle"), horizon=24
         )
 
         lag_functions_keys = sorted(lag_functions.keys())
+
         expected_lag_functions_keys = sorted(TestData.LAG_FUNCTIONS_KEYS)
 
         self.assertEqual(lag_functions_keys, expected_lag_functions_keys)
@@ -79,8 +80,8 @@ class TestApplyFeaturesModule(BaseTestCase):
         )
 
     def test_train_feature_applicator(self):
-
-        input_data_with_features = TrainFeatureApplicator(horizons = [0.25]).add_features(TestData.load("input_data.pickle"))
+        input_data_with_features = TrainFeatureApplicator(horizons=[0.25]).add_features(
+            TestData.load("input_data.pickle"))
 
         self.assertDataframeEqual(
             input_data_with_features,
@@ -102,7 +103,8 @@ class TestApplyFeaturesModule(BaseTestCase):
         )
         horizons = [0.25, 47]
 
-        input_data_with_features = TrainFeatureApplicator(horizons=horizons).add_features(
+        input_data_with_features = TrainFeatureApplicator(
+            horizons=horizons).add_features(
             input_data)
 
         horizon = input_data_with_features.Horizon
@@ -206,7 +208,6 @@ class TestApplyFeaturesModule(BaseTestCase):
         self.assertIsNAN(power)
 
     def test_calculate_windturbine_power_output_realistic_values(self):
-
         power_v5 = weather_features.calculate_windturbine_power_output(5)
         self.assertAlmostEqual(power_v5, 0.11522159872442202)
 
