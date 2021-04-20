@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+#
+# SPDX-License-Identifier: MPL-2.0
+
 from abc import ABC, abstractmethod
 
 import numpy as np
@@ -13,7 +17,7 @@ LATENCY_CONFIG = {"APX": 24}  # A specific latency is part of a specific feature
 
 
 class AbstractFeatureApplicator(ABC):
-    def __init__(self, horizons, feature_set_list = None):
+    def __init__(self, horizons, feature_set_list=None):
 
         if type(horizons) is not list and not None:
             raise ValueError("Horizons must be added as a list")

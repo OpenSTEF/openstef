@@ -1,7 +1,10 @@
+# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+#
+# SPDX-License-Identifier: MPL-2.0
+
 import re
 
 import numpy as np
-import pandas as pd
 import scipy.signal
 
 
