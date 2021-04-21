@@ -70,8 +70,8 @@ def create_holiday_feature_functions(
     # Loop over list of holidays names
     for date, holiday_name in sorted(country_holidays.items()):
         # Define function explicitely to mitigate 'late binding' problem
-        def make_holiday_func(date):
-            return lambda x: np.isin(x.index.date, np.array([date]))
+        def make_holiday_func(requested_date):
+            return lambda x: np.isin(x.index.date, np.array([requested_date]))
 
         # Create lag function for each holiday
         holiday_functions.update(
@@ -143,8 +143,8 @@ def check_for_bridge_day(
     country_holidays = holidays.CountryHoliday(country, years=years)
 
     # Define function explicitely to mitigate 'late binding' problem
-    def make_holiday_func(date):
-        return lambda x: np.isin(x.index.date, np.array([date]))
+    def make_holiday_func(requested_date):
+        return lambda x: np.isin(x.index.date, np.array([requested_date]))
 
     # Looking forward: If day after tomorow is a national holiday or
     # a saturday check if tomorow is not a national holiday

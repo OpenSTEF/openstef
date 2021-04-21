@@ -11,6 +11,7 @@ import xgboost as xgb
 from ktpbase.log import logging
 
 from openstf.metrics import metrics
+from openstf.validation import validation
 from openstf.feature_engineering.general import remove_extra_feature_columns
 from openstf.model_selection.model_selection import split_data_train_validation_test
 from openstf.model.trainer.trainer import AbstractModelTrainer
@@ -311,9 +312,16 @@ class XGBModelTrainer(AbstractModelTrainer):
 
         """
 
+
         # Make selection of training-duration
         training_period = trial.suggest_categorical(
             "training_period_days", training_durations_days
+        )
+        featureset_names = list(featuresets.keys())
+        featureset_name = trial.suggest_categorical("featureset_name", featureset_names)
+        self.logger.debug(
+            "Current iteration of model trainer",
+            featureset_name=featureset_name,
         )
 
         # Update hyper parameters
@@ -332,7 +340,7 @@ class XGBModelTrainer(AbstractModelTrainer):
         featureset = featuresets[featureset_name]
 
         validated_data_data_with_features = remove_extra_feature_columns(
-            shortened_data, featurelist=featureset
+            validated_data, featurelist=featureset
         )
 
         # Clean up data

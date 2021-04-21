@@ -8,14 +8,13 @@ import numpy as np
 import scipy.signal
 
 
-def generate_lag_feature_functions(data, feature_set_names=None, horizon=24):
+def generate_lag_feature_functions(feature_set_names=None, horizon=24.0):
     """Creates functions to generate lag features in a dataset.
 
     Args:
-        data (pd.DataFrame): input data for an xgboost prediction or model training.
         feature_set_names (list of strings): minute lagtimes that where used during training
             of the model. If empty a new set will be automatically generated.
-        horizon (int): Forecast horizon limit in hours.
+        horizon (float): Forecast horizon limit in hours.
 
 
     Returns:
@@ -60,7 +59,6 @@ def generate_trivial_lag_features(horizon):
     """Function that generates relevant lag times for lag feature function creation.
     This function is mostly used during training of models and not during predicting
     Args:
-        data: (pd.DataFrame): input data for an xgboost prediction or model training.
         horizon: Forecast horizon limit in hours.
 
     Returns:

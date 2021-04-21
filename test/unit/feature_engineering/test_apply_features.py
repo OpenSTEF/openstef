@@ -25,9 +25,7 @@ class TestApplyFeaturesModule(BaseTestCase):
             AssertionError: When the lag function names are different then the expected
                 function names
         """
-        lag_functions = generate_lag_feature_functions(
-            TestData.load("input_data_train.pickle"), horizon=24
-        )
+        lag_functions = generate_lag_feature_functions(horizon=24.0)
 
         lag_functions_keys = sorted(lag_functions.keys())
 

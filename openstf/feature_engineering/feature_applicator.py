@@ -32,7 +32,7 @@ class AbstractFeatureApplicator(ABC):
 class TrainFeatureApplicator(AbstractFeatureApplicator):
     def add_features(self, df):
         if self.horizons is None:
-            self.hozizons = [0.25, 24]
+            self.horizons = [0.25, 24]
 
         result = pd.DataFrame()
         cols = []

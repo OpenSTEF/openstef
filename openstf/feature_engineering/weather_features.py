@@ -23,7 +23,7 @@ def calc_saturation_pressure(temperature):
     See https://www.vaisala.com/sites/default/files/documents/Humidity_Conversion_Formulas_B210973EN-F.pdf
 
     Args:
-        Temperature (np.array): Temperature in C
+        temperature (np.array): Temperature in C
     Returns:
         The saturation pressure of water at the respective temperature"""
 
@@ -39,7 +39,7 @@ def calc_vapour_pressure(rh, psat):
         psat (np.ndarray or float): Saturation pressure: see calc_saturation_pressure
     Returns:
         The water vapour pressure"""
-    return (rh) * psat
+    return rh * psat
 
 
 def calc_dewpoint(vapour_pressure):
@@ -57,10 +57,11 @@ def calc_air_density(temperature, pressure, rh):
     """Calculates the dewpoint
 
     Args:
-        Temperature (np.ndarray or float): The temperature in C
-        Pressure (np.ndarray or float): the atmospheric pressure in Pa
+        temperature (np.ndarray or float): The temperature in C
+        pressure (np.ndarray or float): the atmospheric pressure in Pa
+        rh (np.ndarray or float): Relative humidity
     Returns:
-        Air density (np.ndarray or float): The air density (kg/m^3)"""
+        air density (np.ndarray or float): The air density (kg/m^3)"""
 
     # Calculate saturation pressure
     psat = calc_saturation_pressure(temperature)
@@ -96,11 +97,11 @@ def add_humidity_features(data, feature_set_list=None):
 
     # If feature_set_list is none add humidity feature anyway
     if feature_set_list is None:
-        add_humidity_features = True
+        humidity_features = True
 
     # Otherwise check if they are among the reuqested features
     else:
-        add_humidity_features = any(
+        humidity_features = any(
             x
             in [
                 "saturation_pressure",
@@ -112,7 +113,7 @@ def add_humidity_features(data, feature_set_list=None):
         )
 
     # Check if any of the humidity features are requested and add them
-    if add_humidity_features:
+    if humidity_features:
         # Try to add humidity  calculations, ignore if required columns are missing
         try:
             humidity_df = humidity_calculations(data.temp, data.humidity, data.pressure)
@@ -140,7 +141,7 @@ def humidity_calculations(temperature, rh, pressure):
 
     # First: a sanity check on the relative humidity and the air pressure
     # We only check on the type of temperature, because they need to be the same anyway
-    is_series = isinstance(temperature, (np.ndarray, pd.core.series.Series))
+    is_series = isinstance(temperature, (np.ndarray, pd.Series))
     is_scalar = isinstance(temperature, (float, int))
 
     if is_scalar is False and is_series is False:
@@ -204,7 +205,7 @@ def calculate_windspeed_at_hubheight(windspeed, fromheight=10, hub_height=100):
         - the windspeed at hubheight."""
     alpha = 0.143
 
-    if not isinstance(windspeed, (np.ndarray, float, int, pd.core.series.Series)):
+    if not isinstance(windspeed, (np.ndarray, float, int, pd.Series)):
         raise TypeError(
             "The windspeed is not of the expected type!\n\
                         Got {}, expected np.ndarray, pd series or numeric".format(
@@ -282,9 +283,9 @@ def add_additional_wind_features(data, feature_set_list=None):
 
     """
     if feature_set_list is None:
-        add_additional_wind_features = True
+        additional_wind_features = True
     else:
-        add_additional_wind_features = any(
+        additional_wind_features = any(
             x
             in [
                 "windspeed_100mExtrapolated",
@@ -295,7 +296,7 @@ def add_additional_wind_features(data, feature_set_list=None):
         )
 
     # Add add_additional_wind_features
-    if "windspeed" in data.columns and add_additional_wind_features:
+    if "windspeed" in data.columns and additional_wind_features:
         data["windspeed_100mExtrapolated"] = calculate_windspeed_at_hubheight(
             data["windspeed"]
         )
@@ -305,7 +306,7 @@ def add_additional_wind_features(data, feature_set_list=None):
         )
 
     # Do extra check
-    if "windspeed_100m" in data.columns and add_additional_wind_features:
+    if "windspeed_100m" in data.columns and additional_wind_features:
         data["windpowerFit_harm_arome"] = calculate_windturbine_power_output(
             data["windspeed_100m"].astype(float)
         )
