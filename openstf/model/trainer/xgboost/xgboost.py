@@ -312,7 +312,6 @@ class XGBModelTrainer(AbstractModelTrainer):
 
         """
 
-
         # Make selection of training-duration
         training_period = trial.suggest_categorical(
             "training_period_days", training_durations_days

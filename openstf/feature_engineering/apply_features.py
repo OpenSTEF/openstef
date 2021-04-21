@@ -56,9 +56,7 @@ def apply_features(data, feature_set_list=None, horizon=24.0):
     """
 
     # Get lag feature functions
-    lag_feature_functions = generate_lag_feature_functions(
-        feature_set_list, horizon
-    )
+    lag_feature_functions = generate_lag_feature_functions(feature_set_list, horizon)
 
     # Get timedrivenfeature functions
     timedriven_feature_functions = {
