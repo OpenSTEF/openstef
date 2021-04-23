@@ -5,7 +5,7 @@
 # -*- coding: utf-8 -*-
 """apply_features.py.
 
-This module provides functions for applying features to the input data.
+This module provides functionality for applying features to the input data.
 This improves forecast accuracy. Examples of features that are added are:
     The load 1 day and 7 days ago at the same time
     If a day is a weekday or a holiday
@@ -13,6 +13,7 @@ This improves forecast accuracy. Examples of features that are added are:
     The normalised wind power according to the turbine-specific power curve
 
 """
+import pandas as pd
 
 from openstf.feature_engineering.holiday_features import (
     create_holiday_feature_functions,
@@ -24,7 +25,8 @@ from openstf.feature_engineering.weather_features import (
 from openstf.feature_engineering.lag_features import generate_lag_feature_functions
 
 
-def apply_features(data, feature_set_list=None, horizon=24.0):
+def apply_features(data: pd.DataFrame, feature_set_list: list = None,
+                   horizon: float = 24.0) -> pd.DataFrame:
     """This script applies the feature functions defined in
         feature_functions.py and returns the complete dataframe. Features requiring
         more recent label-data are omitted.
@@ -34,9 +36,7 @@ def apply_features(data, feature_set_list=None, horizon=24.0):
                                         index=datetime,
                                         columns=[label, predictor_1,..., predictor_n]
                                     )
-        feature_set_list (list of ints): minute lagtimes that where used during training of
-                                    the model. If empty a new et will be automatically
-                                    generated.
+        feature_set_list (list of strs): list of reuqested features
         horizon (float): Forecast horizon limit in hours.
 
     Returns:

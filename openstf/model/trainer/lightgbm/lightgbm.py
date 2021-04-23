@@ -14,6 +14,7 @@ from openstf.metrics import metrics
 from openstf.preprocessing import preprocessing
 from openstf.model_selection.model_selection import split_data_train_validation_test
 from openstf.model.trainer.trainer import AbstractModelTrainer
+from openstf.feature_engineering.general import remove_extra_feature_columns
 
 # Available trainings period durations for optimization
 # After preprocessing, the data consists of 75 days (of the original 90 days).
@@ -317,7 +318,7 @@ class LGBModelTrainer(AbstractModelTrainer):
         featureset_name = optimized_parameters["featureset_name"]
 
         featureset = featuresets[featureset_name]
-        total_data = remove_features_not_in_set(
+        total_data = remove_extra_feature_columns(
             clean_shortened_data_with_all_features, featureset=featureset
         )
 
@@ -431,7 +432,7 @@ class LGBModelTrainer(AbstractModelTrainer):
 
         # remove features
         featureset = featuresets[featureset_name]
-        clean_data_with_features = remove_features_not_in_set(
+        clean_data_with_features = remove_extra_feature_columns(
             clean_data_with_all_features, featureset
         )
 

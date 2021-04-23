@@ -2,8 +2,6 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-import pickle
-
 import lightgbm as lgb
 
 from openstf.model.serializer.serializer import AbstractModelSerializer

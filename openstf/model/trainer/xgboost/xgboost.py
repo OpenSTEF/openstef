@@ -458,7 +458,7 @@ class XGBModelTrainer(AbstractModelTrainer):
         # backtest option here because we assume hyperparameters do not change
         # much over time
         train_data, validation_data, test_data = split_data_train_validation_test(
-            clean_data_with_features,
+            clean_data_with_all_features,
             test_fraction=0.1,
             validation_fraction=0.1,
             back_test=True,
