@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 
 from datetime import timedelta, datetime
+from typing import Tuple
 
 import numpy as np
 import pandas as pd
@@ -10,12 +11,12 @@ import holidays
 
 from openstf import PROJECT_ROOT
 
-HOLIDAY_CSV_PATH = PROJECT_ROOT / "openstf" / "data" / "dutch_holidays_2020-2022.csv"
+HOLIDAY_CSV_PATH: str = PROJECT_ROOT / "openstf" / "data" / "dutch_holidays_2020-2022.csv"
 
 
 def create_holiday_feature_functions(
-    country="NL", years=None, path_to_school_holidays_csv=HOLIDAY_CSV_PATH
-):
+    country: str="NL", years: list = None, path_to_school_holidays_csv: str = HOLIDAY_CSV_PATH
+) -> dict:
     """
     This function provides functions for creating holiday feature.
     This improves forecast accuracy. Examples of features that are added are:
@@ -120,8 +121,9 @@ def create_holiday_feature_functions(
 
 # Check for bridgedays
 def check_for_bridge_day(
-    date, holiday_name, country, years, holiday_functions, bridge_days
-):
+    date: datetime, holiday_name: str, country: str, years: list,
+        holiday_functions: dict, bridge_days: list
+) -> Tuple[dict, list]:
     """Checks for bridgedays associated to a specific holiday with date (date).
     Any found bridgedays are appende dto the bridgedays list.
     Also a specific feature function for the bridgeday is added to the
@@ -136,8 +138,8 @@ def check_for_bridge_day(
         bridge_days: list of bridgedays to which any found bridgedays have to be appended
 
     Returns:
-        holiday_functions
-        bridge_days
+        holiday_functions: dict with holiday feature functions
+        bridge_days: list of bridgedays
 
     """
     country_holidays = holidays.CountryHoliday(country, years=years)
