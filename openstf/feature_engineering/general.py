@@ -7,7 +7,9 @@ import numpy as np
 import pandas as pd
 
 
-def add_missing_feature_columns(input_data: pd.DataFrame, featurelist: list) -> pd.DataFrame:
+def add_missing_feature_columns(
+    input_data: pd.DataFrame, featurelist: list
+) -> pd.DataFrame:
     """Adds feature column for features in the featurelist.
     Add feature columns for features in the feature list if these columns don't
     exist in the input data. If a column is added, its value is set to NaN.
@@ -29,7 +31,9 @@ def add_missing_feature_columns(input_data: pd.DataFrame, featurelist: list) -> 
     return input_data
 
 
-def remove_extra_feature_columns(input_data: pd.DataFrame, featurelist: list) -> pd.DataFrame:
+def remove_extra_feature_columns(
+    input_data: pd.DataFrame, featurelist: list
+) -> pd.DataFrame:
     """Removes any features that are provided in the input data but not in the feature list.
     This should not be nescesarry but serves as an extra failsave for making predicitons
 
