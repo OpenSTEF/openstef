@@ -165,7 +165,7 @@ def calc_kpi_for_specific_pid(pid, start_time=None, end_time=None):
 
     # Raise exception in case of constant load
     if combined.load.nunique() == 1:
-        raise Exception("The load is constant!")
+        raise ValueError("The load is constant!")
 
     # Define output dictonary
     kpis = dict()
