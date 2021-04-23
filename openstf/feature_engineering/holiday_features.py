@@ -11,11 +11,15 @@ import holidays
 
 from openstf import PROJECT_ROOT
 
-HOLIDAY_CSV_PATH: str = PROJECT_ROOT / "openstf" / "data" / "dutch_holidays_2020-2022.csv"
+HOLIDAY_CSV_PATH: str = (
+    PROJECT_ROOT / "openstf" / "data" / "dutch_holidays_2020-2022.csv"
+)
 
 
 def create_holiday_feature_functions(
-    country: str = "NL", years: list = None, path_to_school_holidays_csv: str = HOLIDAY_CSV_PATH
+    country: str = "NL",
+    years: list = None,
+    path_to_school_holidays_csv: str = HOLIDAY_CSV_PATH,
 ) -> dict:
     """
     This function provides functions for creating holiday feature.
@@ -121,8 +125,12 @@ def create_holiday_feature_functions(
 
 # Check for bridgedays
 def check_for_bridge_day(
-    date: datetime, holiday_name: str, country: str, years: list,
-        holiday_functions: dict, bridge_days: list
+    date: datetime,
+    holiday_name: str,
+    country: str,
+    years: list,
+    holiday_functions: dict,
+    bridge_days: list,
 ) -> Tuple[dict, list]:
     """Checks for bridgedays associated to a specific holiday with date (date).
     Any found bridgedays are appende dto the bridgedays list.

@@ -45,7 +45,7 @@ params = {
 
 
 # WARNING: comment for production
-@pytest.mark.skip()
+# @pytest.mark.skip()
 class TestTrain(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
