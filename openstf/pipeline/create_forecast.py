@@ -8,8 +8,6 @@ import pandas as pd
 from ktpbase.database import DataBase
 from ktpbase.log import logging
 
-from openstf import feature_engineering
-
 # FIXME this is a circular depedency
 from openstf.validation import validation
 from openstf.preprocessing import preprocessing

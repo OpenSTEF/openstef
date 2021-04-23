@@ -15,7 +15,7 @@ HOLIDAY_CSV_PATH: str = PROJECT_ROOT / "openstf" / "data" / "dutch_holidays_2020
 
 
 def create_holiday_feature_functions(
-    country: str="NL", years: list = None, path_to_school_holidays_csv: str = HOLIDAY_CSV_PATH
+    country: str = "NL", years: list = None, path_to_school_holidays_csv: str = HOLIDAY_CSV_PATH
 ) -> dict:
     """
     This function provides functions for creating holiday feature.

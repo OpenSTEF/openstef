@@ -9,7 +9,7 @@ from ktpbase.database import DataBase
 from ktpbase.log import logging
 
 from openstf.metrics import metrics
-from openstf.preprocessing import preprocessing
+
 from openstf.validation import validation
 from openstf.model.trainer.creator import ModelTrainerCreator
 from openstf.monitoring import teams
