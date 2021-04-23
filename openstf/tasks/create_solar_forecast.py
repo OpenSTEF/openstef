@@ -138,7 +138,7 @@ def combine_forecasts(forecasts, combination_coefs):
             subset = subset.loc[subset[param] == value]
             # Define function which find closest match of a value from an array of values.
             #  Use this later to find best coefficient from the given subsetting dividers
-            closest_match = min(coefs[param], key=lambda x: abs(x - value))
+            closest_match = min(coefs[param], key=lambda x, val=value: abs(x - val))
             coefs = coefs.loc[coefs[param] == closest_match]
             # Find closest matching value for combinationCoefParams corresponding to
             # available subsetValues

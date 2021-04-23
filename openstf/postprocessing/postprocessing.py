@@ -101,9 +101,9 @@ def split_forecast_in_components(forecast, weather_data, split_coefs):
 
     # Check that sign of production components is negative and not positive, change if sign is wrong
     if components["forecast_wind_on_shore"].sum() > 0:
-        raise Exception("Sign of estimated wind_on_shore component is positive!")
+        raise ValueError("Sign of estimated wind_on_shore component is positive!")
     if components["forecast_solar"].sum() > 0:
-        raise Exception("Sign of estimated solar component is positive!")
+        raise ValueError("Sign of estimated solar component is positive!")
 
     # Post process predictions to ensure realistic values
     components["forecast_solar"] = post_process_wind_solar(
