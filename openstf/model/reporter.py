@@ -6,7 +6,8 @@ from sklearn.base import RegressorMixin
 
 from openstf.metrics import figure
 
-class Reporter():
+
+class Reporter:
 
     def __init__(self, pj: dict = None, train_data: pd.DataFrame = None,
                  validation_data: pd.DataFrame = None,
@@ -35,7 +36,7 @@ class Reporter():
     def make_and_save_dashboard_figures(self, model: RegressorMixin, save_path: Path) -> None:
         self._make_data_series_figures(model)
         self._make_feature_importance_plot(model)
-        self._save_dashboard_figures_path(save_path)
+        self._save_dashboard_figures(save_path)
 
 
 

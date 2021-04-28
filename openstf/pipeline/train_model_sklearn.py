@@ -1,4 +1,5 @@
 import joblib
+from pathlib import Path
 
 from ktpbase.database import DataBase
 
@@ -7,6 +8,8 @@ from openstf.model.model_creator import ModelCreator
 from openstf.model.reporter import Reporter
 from openstf.model_selection.model_selection import split_data_train_validation_test
 from openstf.validation.validation import validate, clean, is_data_sufficient
+from openstf.model.confidence_interval_applicator import ConfidenceIntervalApplicator
+
 
 TRAIN_HORIZONS: list[float] = [0.25, 24.0]
 MAXIMUM_MODEL_AGE: float = 7
@@ -14,7 +17,8 @@ MAXIMUM_MODEL_AGE: float = 7
 EARLY_STOPPING_ROUNDS: int = 10
 PENALTY_FACTOR_OLD_MODEL: float = 1.2
 
-
+SAVE_PATH = Path('.')
+OLD_MODEL_PATH = '.'
 
 def train_model_pipeline(pj: dict, check_old_model_age: bool = True,
                          compare_to_old: bool = True) -> None:
@@ -22,7 +26,7 @@ def train_model_pipeline(pj: dict, check_old_model_age: bool = True,
     db = DataBase()
 
     # Get old model path and age
-    old_model_path, old_model_age = # TODO some function here that retrieves age
+    # TODO some function here that retrieves age of the old model
     old_model_age = 5
 
     # Check old model age and continue yes/no
@@ -66,7 +70,7 @@ def train_model_pipeline(pj: dict, check_old_model_age: bool = True,
 
     # Check if new model is better than old model
     if compare_to_old:
-        old_model = joblib.load(old_model_path)
+        old_model = joblib.load(OLD_MODEL_PATH)
         combined = train_data.append(validation_data)
 
         # Score method always returns R^2
@@ -79,22 +83,14 @@ def train_model_pipeline(pj: dict, check_old_model_age: bool = True,
         else:
             print("New model is better than old model, continuing with training procces")
 
-
-    # Generate save path for new model
-
     # Report
     reporter = Reporter(pj, train_data, validation_data, test_data)
-    reporter.make_and_save_dashboard_figures(model)
+    reporter.make_and_save_dashboard_figures(model, SAVE_PATH)
 
     # Do confidence interval determination
     confidence_interval_applicator = ConfidenceIntervalApplicator(pj, validation_data)
 
-    confidence_interval_applicator.determine_confidence_interval(model)
+    confidence_interval_applicator.add_confidence_interval(model)
 
-
-    # Save
-    save_path = generate_save_path(old_model_path)
-
-    joblib.dump(model)
-
+    joblib.dump(model, SAVE_PATH)
 
