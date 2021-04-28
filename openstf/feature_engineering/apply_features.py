@@ -25,8 +25,9 @@ from openstf.feature_engineering.weather_features import (
 from openstf.feature_engineering.lag_features import generate_lag_feature_functions
 
 
-def apply_features(data: pd.DataFrame, feature_set_list: list = None,
-                   horizon: float = 24.0) -> pd.DataFrame:
+def apply_features(
+    data: pd.DataFrame, feature_set_list: list = None, horizon: float = 24.0
+) -> pd.DataFrame:
     """This script applies the feature functions defined in
         feature_functions.py and returns the complete dataframe. Features requiring
         more recent label-data are omitted.

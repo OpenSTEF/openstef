@@ -319,7 +319,7 @@ class LGBModelTrainer(AbstractModelTrainer):
 
         featureset = featuresets[featureset_name]
         total_data = remove_extra_feature_columns(
-            clean_shortened_data_with_all_features, featureset=featureset
+            clean_shortened_data_with_all_features, featureset
         )
 
         # Split data in train, test and validation sets, note we are using the

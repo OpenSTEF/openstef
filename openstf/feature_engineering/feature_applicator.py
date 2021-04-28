@@ -31,7 +31,7 @@ class AbstractFeatureApplicator(ABC):
 
     @abstractmethod
     def add_features(self, df: pd.DataFrame) -> pd.DataFrame:
-        """ Adds features to an input DataFrame
+        """Adds features to an input DataFrame
 
         Args:
             df: pd.DataFrame with input data to which the features have to be added
@@ -41,7 +41,7 @@ class AbstractFeatureApplicator(ABC):
 
 class TrainFeatureApplicator(AbstractFeatureApplicator):
     def add_features(self, df: pd.DataFrame) -> pd.DataFrame:
-        """ Adds features to an input DataFrame.
+        """Adds features to an input DataFrame.
         This method is implemented specifically for a model train pipeline.
         For larger horzions data is invalidated as when they are not available.
         For example:
@@ -106,7 +106,7 @@ class OperationalPredictFeatureApplicator(AbstractFeatureApplicator):
 
 class BackTestPredictFeatureApplicator(AbstractFeatureApplicator):
     def add_features(self, df: pd.DataFrame) -> pd.DataFrame:
-        """ Adds features to an input DataFrame.
+        """Adds features to an input DataFrame.
         This method is implemented specifically for a backtest prediction for a specific horizon.
         All featurs that are not available for the specific horzion are invalidated.
 
