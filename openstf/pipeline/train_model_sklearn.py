@@ -34,7 +34,7 @@ def train_model_pipeline(pj: dict, check_old_model_age: bool = True,
         return
 
     # Get input data
-    input_data = db.get_input_data(pj)
+    input_data = db.get_model_input(pj)
 
     # Get hyper parameters
     hyper_params = db.get_hyper_params(pj)
@@ -90,7 +90,7 @@ def train_model_pipeline(pj: dict, check_old_model_age: bool = True,
     # Do confidence interval determination
     confidence_interval_applicator = ConfidenceIntervalApplicator(pj, validation_data)
 
-    confidence_interval_applicator.add_confidence_interval(model)
+    model = confidence_interval_applicator.add_confidence_interval(model)
 
     joblib.dump(model, SAVE_PATH)
 
