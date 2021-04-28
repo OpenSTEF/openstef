@@ -60,13 +60,15 @@ def apply_features(
     feature_functions = generate_lag_feature_functions(feature_set_list, horizon)
 
     # Get timedrivenfeature functions
-    feature_functions.update({
-        "IsWeekendDay": lambda x: (x.index.weekday // 5) == 1,
-        "IsWeekDay": lambda x: x.index.weekday < 5,
-        "IsSunday": lambda x: x.index.weekday == 6,
-        "Month": lambda x: x.index.month,
-        "Quarter": lambda x: x.index.quarter,
-    })
+    feature_functions.update(
+        {
+            "IsWeekendDay": lambda x: (x.index.weekday // 5) == 1,
+            "IsWeekDay": lambda x: x.index.weekday < 5,
+            "IsSunday": lambda x: x.index.weekday == 6,
+            "Month": lambda x: x.index.month,
+            "Quarter": lambda x: x.index.quarter,
+        }
+    )
 
     # Get holiday feature functions
     feature_functions.update(generate_holiday_feature_functions())

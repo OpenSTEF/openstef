@@ -32,7 +32,7 @@ def calc_saturation_pressure(temperature: float or np.ndarray) -> float or np.nd
 
 
 def calc_vapour_pressure(
-        rh: float or np.ndarray, psat: float or np.ndarray
+    rh: float or np.ndarray, psat: float or np.ndarray
 ) -> float or np.ndarray:
     """Calculates the vapour pressure
 
@@ -56,9 +56,9 @@ def calc_dewpoint(vapour_pressure: float or np.ndarray) -> float or np.ndarray:
 
 
 def calc_air_density(
-        temperature: float or np.ndarray,
-        pressure: float or np.ndarray,
-        rh: float or np.ndarray,
+    temperature: float or np.ndarray,
+    pressure: float or np.ndarray,
+    rh: float or np.ndarray,
 ) -> float or np.ndarray:
     """Calculates the dewpoint
 
@@ -79,16 +79,17 @@ def calc_air_density(
 
     # Calculate air density
     air_density = (
-            D
-            * (273.15 / temperature_k)
-            * ((pressure - 0.3783 * vapour_pressure) / 760 / TORR)
+        D
+        * (273.15 / temperature_k)
+        * ((pressure - 0.3783 * vapour_pressure) / 760 / TORR)
     )
 
     return air_density
 
 
-def add_humidity_features(data: pd.DataFrame, feature_set_list: list = None
-                          ) -> pd.DataFrame:
+def add_humidity_features(
+    data: pd.DataFrame, feature_set_list: list = None
+) -> pd.DataFrame:
     """Adds humidity features to the input dataframe.
     These features are calculated using functions defines in this module.
     A list of requested features is used to determine whether to add the humidity features or not.
@@ -133,9 +134,9 @@ def add_humidity_features(data: pd.DataFrame, feature_set_list: list = None
 
 
 def humidity_calculations(
-        temperature: float or np.ndarray,
-        rh: float or np.ndarray,
-        pressure: float or np.ndarray,
+    temperature: float or np.ndarray,
+    rh: float or np.ndarray,
+    pressure: float or np.ndarray,
 ) -> dict or np.ndarray:
     """Function that calculates the
     - Saturation pressure
@@ -204,8 +205,7 @@ def humidity_calculations(
 
 
 def calculate_windspeed_at_hubheight(
-        windspeed: float or pd.Series, fromheight: float = 10.0,
-        hub_height: float = 100.0
+    windspeed: float or pd.Series, fromheight: float = 10.0, hub_height: float = 100.0
 ) -> pd.Series:
     """
     function that extrapolates a wind from a certain height to 100m
@@ -243,7 +243,7 @@ def calculate_windspeed_at_hubheight(
 
 
 def calculate_windturbine_power_output(
-        windspeed: pd.Series, n_turbines: int = 1, turbine_data: dict = None
+    windspeed: pd.Series, n_turbines: int = 1, turbine_data: dict = None
 ) -> pd.Series:
     """This function calculates the generated wind power based on the wind speed.
     These values are related through the power curve, which is described by turbine_data.
@@ -277,10 +277,10 @@ def calculate_windturbine_power_output(
                 raise KeyError(f"Required property '{prop}' not set in turbine data")
 
     generated_power = turbine_data["rated_power"] / (
-            1
-            + np.exp(
-        -turbine_data["steepness"] * (windspeed - turbine_data["slope_center"])
-    )
+        1
+        + np.exp(
+            -turbine_data["steepness"] * (windspeed - turbine_data["slope_center"])
+        )
     )
     generated_power *= n_turbines
 
@@ -288,7 +288,7 @@ def calculate_windturbine_power_output(
 
 
 def add_additional_wind_features(
-        data: pd.DataFrame, feature_set_list: list = None
+    data: pd.DataFrame, feature_set_list: list = None
 ) -> pd.DataFrame:
     """Adds additional wind features to the input data. These are calculated using the above functions
 

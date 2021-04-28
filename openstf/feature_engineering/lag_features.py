@@ -37,6 +37,7 @@ def generate_lag_feature_functions(feature_set_list=None, horizon=24.0):
 
     # Add intraday-lag functions (lags in minutes)
     for minutes in lag_times_minutes:
+
         def func(x, shift=minutes):
             return x.shift(freq="T", periods=1 * shift)
 
@@ -45,6 +46,7 @@ def generate_lag_feature_functions(feature_set_list=None, horizon=24.0):
 
     # Add day lag functions:
     for day in lag_time_days_list:
+
         def func(x, shift=day):
             return x.shift(freq="1d", periods=1 * shift)
 
@@ -129,7 +131,7 @@ def generate_non_trivial_lag_times(data, height_treshold=0.1):
         mean = x.mean()
         var = np.var(x)
         xp = x - mean
-        corr = np.correlate(xp, xp, "full")[len(x) - 1:] / var / len(x)
+        corr = np.correlate(xp, xp, "full")[len(x) - 1 :] / var / len(x)
 
         return corr[: len(lags)]
 
