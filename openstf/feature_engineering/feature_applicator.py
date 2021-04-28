@@ -25,7 +25,6 @@ class AbstractFeatureApplicator(ABC):
         """
         if type(horizons) is not list and not None:
             raise ValueError("Horizons must be added as a list")
-
         self.feature_set_list = feature_set_list
         self.horizons = horizons
 
@@ -60,7 +59,7 @@ class TrainFeatureApplicator(AbstractFeatureApplicator):
         if self.horizons is None:
             self.horizons = [0.25, 24]
 
-        # Pre define output vairables
+        # Pre define output variables
         result = pd.DataFrame()
         cols = []
 

@@ -16,13 +16,13 @@ HOLIDAY_CSV_PATH: str = (
 )
 
 
-def create_holiday_feature_functions(
+def generate_holiday_feature_functions(
     country: str = "NL",
     years: list = None,
     path_to_school_holidays_csv: str = HOLIDAY_CSV_PATH,
 ) -> dict:
     """
-    This function provides functions for creating holiday feature.
+    Generates functions for creating holiday feature.
     This improves forecast accuracy. Examples of features that are added are:
         2020-01-01 is 'Nieuwjaarsdag'
         2022-12-24 - 2023-01-08 is the 'Kerstvakantie'

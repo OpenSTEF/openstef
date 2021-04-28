@@ -8,11 +8,11 @@ import numpy as np
 import scipy.signal
 
 
-def generate_lag_feature_functions(feature_set_names=None, horizon=24.0):
+def generate_lag_feature_functions(feature_set_list=None, horizon=24.0):
     """Creates functions to generate lag features in a dataset.
 
     Args:
-        feature_set_names (list of strings): minute lagtimes that where used during training
+        feature_set_list (list of strings): minute lagtimes that where used during training
             of the model. If empty a new set will be automatically generated.
         horizon (float): Forecast horizon limit in hours.
 
@@ -25,19 +25,18 @@ def generate_lag_feature_functions(feature_set_names=None, horizon=24.0):
     """
 
     # Generate lag_times if no features are provided
-    if feature_set_names is None:
+    if feature_set_list is None:
         lag_times_minutes, lag_time_days_list = generate_trivial_lag_features(horizon)
 
     # Or extract lag features if provided
     else:
-        lag_times_minutes, lag_time_days_list = extract_lag_features(feature_set_names)
+        lag_times_minutes, lag_time_days_list = extract_lag_features(feature_set_list)
 
     # Empty dict to store all generated lag functions
     lag_functions = {}
 
     # Add intraday-lag functions (lags in minutes)
     for minutes in lag_times_minutes:
-
         def func(x, shift=minutes):
             return x.shift(freq="T", periods=1 * shift)
 
@@ -46,7 +45,6 @@ def generate_lag_feature_functions(feature_set_names=None, horizon=24.0):
 
     # Add day lag functions:
     for day in lag_time_days_list:
-
         def func(x, shift=day):
             return x.shift(freq="1d", periods=1 * shift)
 
@@ -55,8 +53,39 @@ def generate_lag_feature_functions(feature_set_names=None, horizon=24.0):
     return lag_functions
 
 
+def extract_lag_features(feature_set_list):
+    """Creates a list of lag minutes and a list of lag days that were used during
+    the training of the input model
+
+    Args:
+        feature_set_list (list[str]): All requested lag features
+
+    Returns:
+        minutes_list (list[int]): list of minute lags that were used as features during training
+        days_list (list[int]): list of minute lags that were used as features during training
+    """
+
+    # Prepare empty lists to append on
+    minutes_list = []
+    days_list = []
+
+    for lag_feature in feature_set_list:
+
+        # Select the number of days or the number of minutes by matching with a regular expression
+        number_of_minutes = re.search(r"T-(\d+)min", lag_feature)
+        number_of_days = re.search(r"T-(\d+)d", lag_feature)
+
+        # Append to the appropriate list
+        if number_of_minutes is not None:
+            minutes_list.append(int(number_of_minutes[1]))
+        elif number_of_days is not None:
+            days_list.append(int(number_of_days[1]))
+
+    return minutes_list, days_list
+
+
 def generate_trivial_lag_features(horizon):
-    """Function that generates relevant lag times for lag feature function creation.
+    """Generates relevant lag times for lag feature function creation.
     This function is mostly used during training of models and not during predicting
     Args:
         horizon: Forecast horizon limit in hours.
@@ -80,39 +109,8 @@ def generate_trivial_lag_features(horizon):
     return trivial_lag_times_minutes, lag_time_days_list
 
 
-def extract_lag_features(lag_features):
-    """Creates a list of lag minutes and a list of lag days that were used during
-    the training of the input model
-
-    Args:
-        lag_features (list[str]): All requested lag features
-
-    Returns:
-        minutes_list (list[int]): list of minute lags that were used as features during training
-        days_list (list[int]): list of minute lags that were used as features during training
-    """
-
-    # Prepare empty lists to append on
-    minutes_list = []
-    days_list = []
-
-    for lag_feature in lag_features:
-
-        # Select the number of days or the number of minutes by matching with a regular expression
-        number_of_minutes = re.search(r"T-(\d+)min", lag_feature)
-        number_of_days = re.search(r"T-(\d+)d", lag_feature)
-
-        # Append to the appropriate list
-        if number_of_minutes is not None:
-            minutes_list.append(int(number_of_minutes[1]))
-        elif number_of_days is not None:
-            days_list.append(int(number_of_days[1]))
-
-    return minutes_list, days_list
-
-
 def generate_non_trivial_lag_times(data, height_treshold=0.1):
-    """This script calculates an autocorrelation curve of the load trace. This curve is
+    """Calculates an autocorrelation curve of the load trace. This curve is
         subsequently used to add additional lag times as features.
 
     Args:
@@ -131,7 +129,7 @@ def generate_non_trivial_lag_times(data, height_treshold=0.1):
         mean = x.mean()
         var = np.var(x)
         xp = x - mean
-        corr = np.correlate(xp, xp, "full")[len(x) - 1 :] / var / len(x)
+        corr = np.correlate(xp, xp, "full")[len(x) - 1:] / var / len(x)
 
         return corr[: len(lags)]
 

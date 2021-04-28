@@ -16,7 +16,7 @@ This improves forecast accuracy. Examples of features that are added are:
 import pandas as pd
 
 from openstf.feature_engineering.holiday_features import (
-    create_holiday_feature_functions,
+    generate_holiday_feature_functions,
 )
 from openstf.feature_engineering.weather_features import (
     add_humidity_features,
@@ -57,44 +57,29 @@ def apply_features(
     """
 
     # Get lag feature functions
-    lag_feature_functions = generate_lag_feature_functions(feature_set_list, horizon)
+    feature_functions = generate_lag_feature_functions(feature_set_list, horizon)
 
     # Get timedrivenfeature functions
-    timedriven_feature_functions = {
+    feature_functions.update({
         "IsWeekendDay": lambda x: (x.index.weekday // 5) == 1,
         "IsWeekDay": lambda x: x.index.weekday < 5,
         "IsSunday": lambda x: x.index.weekday == 6,
         "Month": lambda x: x.index.month,
         "Quarter": lambda x: x.index.quarter,
-    }
+    })
 
     # Get holiday feature functions
-    holiday_feature_functions = create_holiday_feature_functions()
-
-    # Only select features that occur in feature_set_list,
-    # if feature_set_list is none nothing is removed
-    if feature_set_list is not None:
-        timedriven_feature_functions = {
-            key: timedriven_feature_functions[key]
-            for key in feature_set_list
-            if key in timedriven_feature_functions
-        }
-        holiday_feature_functions = {
-            key: holiday_feature_functions[key]
-            for key in feature_set_list
-            if key in holiday_feature_functions
-        }
+    feature_functions.update(generate_holiday_feature_functions())
 
     # Add the features to the dataframe using previously defined feature functions
-    for function_group in [
-        lag_feature_functions,
-        timedriven_feature_functions,
-        holiday_feature_functions,
-    ]:
-        for name, featfunc in function_group.items():
-            data[name] = data.iloc[:, [0]].apply(featfunc)
+    for key, featfunc in feature_functions.items():
+        # Don't generate feature is not in feature_set_list
+        if feature_set_list is not None:
+            if key not in feature_set_list:
+                continue
+        data[key] = data.iloc[:, [0]].apply(featfunc)
 
-    # Add additional winf features
+    # Add additional wind features
     data = add_additional_wind_features(data, feature_set_list)
 
     # Add humidity features
