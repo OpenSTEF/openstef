@@ -17,7 +17,7 @@ LATENCY_CONFIG = {"APX": 24}  # A specific latency is part of a specific feature
 
 class AbstractFeatureApplicator(ABC):
     def __init__(self, horizons: list, feature_set_list: list = None) -> None:
-        """
+        """Initialize abstract feature applicator.
 
         Args:
             horizons: (list) list of horizons
@@ -41,18 +41,20 @@ class AbstractFeatureApplicator(ABC):
 class TrainFeatureApplicator(AbstractFeatureApplicator):
     def add_features(self, df: pd.DataFrame) -> pd.DataFrame:
         """Adds features to an input DataFrame.
-        This method is implemented specifically for a model train pipeline.
-        For larger horzions data is invalidated as when they are not available.
+
+        This method is implemented specifically for a model train pipeline. For larger
+        horzions data is invalidated as when they are not available.
+
         For example:
-            For horzion 24 hours the feature T-720min is not added as the load 720 minutes ago is not available 24 hours in advance.
-            In case of a horizon 0.25 hours this feature is added as in this case the feature is available.
+            For horzion 24 hours the feature T-720min is not added as the load
+            720 minutes ago is not available 24 hours in advance. In case of a horizon
+            0.25 hours this feature is added as in this case the feature is available.
 
         Args:
-            df: pd.DataFrame with input data to which the features have to be added
+            df (pd.DataFrame):  Input data to which the features will be added.
 
         Returns:
             pd.DataFrame: Input DataFrame with an extra column for every added feature.
-
         """
 
         # Set default horizons if none are provided
@@ -71,7 +73,8 @@ class TrainFeatureApplicator(AbstractFeatureApplicator):
                 cols = res.columns
             result = result.append(res, sort=False)  # appending unsorts columns
 
-        # Invalidate features that are not available for a specific horizon due to data latency
+        # Invalidate features that are not available for a specific horizon due to data
+        # latency
         for feature, time in LATENCY_CONFIG.items():
             result.loc[result["Horizon"] > time, feature] = np.nan
 
@@ -81,6 +84,7 @@ class TrainFeatureApplicator(AbstractFeatureApplicator):
 class OperationalPredictFeatureApplicator(AbstractFeatureApplicator):
     def add_features(self, df: pd.DataFrame) -> pd.DataFrame:
         """Adds features to an input DataFrame.
+
         This method is implemented specifically for an operational prediction pipeline
          and will add every available feature.
 
@@ -106,6 +110,7 @@ class OperationalPredictFeatureApplicator(AbstractFeatureApplicator):
 class BackTestPredictFeatureApplicator(AbstractFeatureApplicator):
     def add_features(self, df: pd.DataFrame) -> pd.DataFrame:
         """Adds features to an input DataFrame.
+
         This method is implemented specifically for a backtest prediction for a specific horizon.
         All featurs that are not available for the specific horzion are invalidated.
 

@@ -16,9 +16,8 @@ def generate_lag_feature_functions(feature_set_list=None, horizon=24.0):
             of the model. If empty a new set will be automatically generated.
         horizon (float): Forecast horizon limit in hours.
 
-
     Returns:
-        dict: dictionary with lag functions
+        dict: Lag functions.
 
     Example:
         lag_functions = generate_lag_functions(data,minute_list,h_ahead)
@@ -57,7 +56,7 @@ def generate_lag_feature_functions(feature_set_list=None, horizon=24.0):
 
 def extract_lag_features(feature_set_list):
     """Creates a list of lag minutes and a list of lag days that were used during
-    the training of the input model
+    the training of the input model.
 
     Args:
         feature_set_list (list[str]): All requested lag features
@@ -88,7 +87,9 @@ def extract_lag_features(feature_set_list):
 
 def generate_trivial_lag_features(horizon):
     """Generates relevant lag times for lag feature function creation.
+
     This function is mostly used during training of models and not during predicting
+
     Args:
         horizon: Forecast horizon limit in hours.
 
@@ -121,9 +122,7 @@ def generate_non_trivial_lag_times(data, height_treshold=0.1):
         height_treshold (float): minimal autocorrelation value to be recognized as a peak.
 
     Returns:
-        list of ints with aditional non-trivial minute lags
-
-
+        list: Aditional non-trivial minute lags
     """
 
     def autocorr(x, lags):
