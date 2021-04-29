@@ -16,16 +16,16 @@ LATENCY_CONFIG = {"APX": 24}  # A specific latency is part of a specific feature
 
 
 class AbstractFeatureApplicator(ABC):
-    def __init__(self, horizons: list, feature_set_list: list = None) -> None:
+    def __init__(self, horizons: list, features: list = None) -> None:
         """Initialize abstract feature applicator.
 
         Args:
             horizons: (list) list of horizons
-            feature_set_list: (list) List of requested features
+            features: (list) List of requested features
         """
         if type(horizons) is not list and not None:
             raise ValueError("Horizons must be added as a list")
-        self.feature_set_list = feature_set_list
+        self.features = features
         self.horizons = horizons
 
     @abstractmethod
@@ -63,22 +63,19 @@ class TrainFeatureApplicator(AbstractFeatureApplicator):
 
         # Pre define output variables
         result = pd.DataFrame()
-        cols = []
 
         # Loop over horizons and add corresponding features
         for horizon in self.horizons:
             res = apply_features(df.copy(), horizon=horizon)
             res["Horizon"] = horizon
-            if len(res.columns) > len(cols):
-                cols = res.columns
-            result = result.append(res, sort=False)  # appending unsorts columns
+            result = result.append(res, sort=False)
 
         # Invalidate features that are not available for a specific horizon due to data
         # latency
         for feature, time in LATENCY_CONFIG.items():
             result.loc[result["Horizon"] > time, feature] = np.nan
 
-        return result[cols].sort_index()
+        return result.sort_index()
 
 
 class OperationalPredictFeatureApplicator(AbstractFeatureApplicator):
@@ -99,10 +96,10 @@ class OperationalPredictFeatureApplicator(AbstractFeatureApplicator):
             self.horizons = [0.25]
 
         df = apply_features(
-            df, feature_set_list=self.feature_set_list, horizon=self.horizons[0]
+            df, features=self.features, horizon=self.horizons[0]
         )
-        df = add_missing_feature_columns(df, self.feature_set_list)
-        df = remove_extra_feature_columns(df, self.feature_set_list)
+        df = add_missing_feature_columns(df, self.features)
+        df = remove_extra_feature_columns(df, self.features)
 
         return df
 
@@ -127,6 +124,6 @@ class BackTestPredictFeatureApplicator(AbstractFeatureApplicator):
             raise ValueError("Prediction can only be done one horizon at a time!")
 
         df = apply_features(df, horizon=self.horizons[0])
-        df = add_missing_feature_columns(df, self.feature_set_list)
-        df = remove_extra_feature_columns(df, self.feature_set_list)
+        df = add_missing_feature_columns(df, self.features)
+        df = remove_extra_feature_columns(df, self.features)
         return df

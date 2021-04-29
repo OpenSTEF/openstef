@@ -89,7 +89,7 @@ def calc_air_density(
 
 
 def add_humidity_features(
-    data: pd.DataFrame, feature_set_list: list = None
+    data: pd.DataFrame, features: list = None
 ) -> pd.DataFrame:
     """Adds humidity features to the input dataframe.
 
@@ -98,14 +98,14 @@ def add_humidity_features(
 
     Args:
         data: (pd.DataFrame) input dataframe to which features have to be added
-        feature_set_list: (list) list of requested features.
+        features: (list) list of requested features.
 
     Returns:
         pd.DataFrame, Same as input dataframe with extra columns for the humidty features.
     """
 
-    # If feature_set_list is none add humidity feature anyway
-    if feature_set_list is None:
+    # If features is none add humidity feature anyway
+    if features is None:
         humidity_features = True
 
     # Otherwise check if they are among the reuqested features
@@ -118,7 +118,7 @@ def add_humidity_features(
                 "dewpoint",
                 "air_density",
             ]
-            for x in feature_set_list
+            for x in features
         )
 
     # Check if any of the humidity features are requested and add them
@@ -294,19 +294,19 @@ def calculate_windturbine_power_output(
 
 
 def add_additional_wind_features(
-    data: pd.DataFrame, feature_set_list: list = None
+    data: pd.DataFrame, features: list = None
 ) -> pd.DataFrame:
     """Adds additional wind features to the input data. These are calculated using the above functions
 
     Args:
         data: (pd.DataFrame) Dataframe to which the wind features have to be added
-        feature_set_list: (list) List of requested features
+        features: (list) List of requested features
 
     Returns:
         pd.DataFrame same as input dataframe with extra columns for the added wind features
 
     """
-    if feature_set_list is None:
+    if features is None:
         additional_wind_features = True
     else:
         additional_wind_features = any(
@@ -316,7 +316,7 @@ def add_additional_wind_features(
                 "windPowerFit_extrapolated",
                 "windpowerFit_harm_arome",
             ]
-            for x in feature_set_list
+            for x in features
         )
 
     # Add add_additional_wind_features

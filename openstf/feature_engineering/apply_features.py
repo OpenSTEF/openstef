@@ -26,7 +26,7 @@ from openstf.feature_engineering.lag_features import generate_lag_feature_functi
 
 
 def apply_features(
-    data: pd.DataFrame, feature_set_list: list = None, horizon: float = 24.0
+    data: pd.DataFrame, features: list = None, horizon: float = 24.0
 ) -> pd.DataFrame:
     """This script applies the feature functions defined in
         feature_functions.py and returns the complete dataframe. Features requiring
@@ -38,7 +38,7 @@ def apply_features(
                                         index=datetime,
                                         columns=[label, predictor_1,..., predictor_n]
                                     )
-        feature_set_list (list of strs): list of reuqested features
+        features (list of strs): list of reuqested features
         horizon (float): Forecast horizon limit in hours.
 
     Returns:
@@ -58,7 +58,7 @@ def apply_features(
     """
 
     # Get lag feature functions
-    feature_functions = generate_lag_feature_functions(feature_set_list, horizon)
+    feature_functions = generate_lag_feature_functions(features, horizon)
 
     # Get timedrivenfeature functions
     feature_functions.update(
@@ -76,17 +76,17 @@ def apply_features(
 
     # Add the features to the dataframe using previously defined feature functions
     for key, featfunc in feature_functions.items():
-        # Don't generate feature is not in feature_set_list
-        if feature_set_list is not None:
-            if key not in feature_set_list:
+        # Don't generate feature is not in features
+        if features is not None:
+            if key not in features:
                 continue
         data[key] = data.iloc[:, [0]].apply(featfunc)
 
     # Add additional wind features
-    data = add_additional_wind_features(data, feature_set_list)
+    data = add_additional_wind_features(data, features)
 
     # Add humidity features
-    data = add_humidity_features(data, feature_set_list)
+    data = add_humidity_features(data, features)
 
     # Return dataframe including all requested features
     return data
