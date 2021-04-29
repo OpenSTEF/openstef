@@ -88,9 +88,7 @@ def calc_air_density(
     return air_density
 
 
-def add_humidity_features(
-    data: pd.DataFrame, features: list = None
-) -> pd.DataFrame:
+def add_humidity_features(data: pd.DataFrame, features: list = None) -> pd.DataFrame:
     """Adds humidity features to the input dataframe.
 
     These features are calculated using functions defines in this module. A list of
