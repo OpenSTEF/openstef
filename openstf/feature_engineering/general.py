@@ -31,8 +31,7 @@ def add_missing_feature_columns(
 
     for feature in missing_features:
         logger.warning(
-            f"Adding NaN column for missing feature: {feature}",
-            missing_feature=feature
+            f"Adding NaN column for missing feature: {feature}", missing_feature=feature
         )
         input_data[feature] = np.nan
 
@@ -54,12 +53,12 @@ def remove_extra_feature_columns(
     """
     extra_features = [f for f in list(input_data) if f not in featurelist]
 
-    num_not_requested_features =  len(extra_features)
+    num_not_requested_features = len(extra_features)
 
     if num_not_requested_features != 0:
         logger.warning(
             f"Removing {num_not_requested_features} unrequested features!",
-            num_not_requested_features=num_not_requested_features
+            num_not_requested_features=num_not_requested_features,
         )
 
     return input_data.drop(extra_features, axis=1)
