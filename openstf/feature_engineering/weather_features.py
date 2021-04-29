@@ -19,7 +19,7 @@ D: float = 1.168
 
 
 def calc_saturation_pressure(temperature: float or np.ndarray) -> float or np.ndarray:
-    """Function that calculates the water vapour pressure from the temperature
+    """Calculates the water vapour pressure from the temperature
     See https://www.vaisala.com/sites/default/files/documents/Humidity_Conversion_Formulas_B210973EN-F.pdf
 
     Args:
@@ -45,7 +45,7 @@ def calc_vapour_pressure(
 
 
 def calc_dewpoint(vapour_pressure: float or np.ndarray) -> float or np.ndarray:
-    """Calculates the dewpoint
+    """Calculates the dewpoint, see https://en.wikipedia.org/wiki/Dew_point for mroe info
 
     Args:
         vapour_pressure (np.ndarray or float): The vapour pressure for which the dewpoint should be calculated
@@ -60,12 +60,13 @@ def calc_air_density(
     pressure: float or np.ndarray,
     rh: float or np.ndarray,
 ) -> float or np.ndarray:
-    """Calculates the dewpoint
+    """Calculates the dewpoint.
 
     Args:
         temperature (np.ndarray or float): The temperature in C
         pressure (np.ndarray or float): the atmospheric pressure in Pa
         rh (np.ndarray or float): Relative humidity
+
     Returns:
         air density (np.ndarray or float): The air density (kg/m^3)"""
 
@@ -87,24 +88,22 @@ def calc_air_density(
     return air_density
 
 
-def add_humidity_features(
-    data: pd.DataFrame, feature_set_list: list = None
-) -> pd.DataFrame:
+def add_humidity_features(data: pd.DataFrame, features: list = None) -> pd.DataFrame:
     """Adds humidity features to the input dataframe.
-    These features are calculated using functions defines in this module.
-    A list of requested features is used to determine whether to add the humidity features or not.
+
+    These features are calculated using functions defines in this module. A list of
+    requested features is used to determine whether to add the humidity features or not.
 
     Args:
         data: (pd.DataFrame) input dataframe to which features have to be added
-        feature_set_list: (list) list of requested features.
+        features: (list) list of requested features.
 
     Returns:
         pd.DataFrame, Same as input dataframe with extra columns for the humidty features.
-
     """
 
-    # If feature_set_list is none add humidity feature anyway
-    if feature_set_list is None:
+    # If features is none add humidity feature anyway
+    if features is None:
         humidity_features = True
 
     # Otherwise check if they are among the reuqested features
@@ -117,7 +116,7 @@ def add_humidity_features(
                 "dewpoint",
                 "air_density",
             ]
-            for x in feature_set_list
+            for x in features
         )
 
     # Check if any of the humidity features are requested and add them
@@ -143,10 +142,12 @@ def humidity_calculations(
     - Vapour pressure
     - Dewpoint
     - Air density
+
     Args:
         temperature (np.array): Temperature in C
         rh (np.array): Relative humidity in %
         pressure (np.array): The air pressure in hPa
+
     Returns:
         if the input is an np.ndarray: a pandas dataframe with the calculated moisture indices
         if the input is numeric: a dict with the calculated moisture indices"""
@@ -211,12 +212,14 @@ def calculate_windspeed_at_hubheight(
     function that extrapolates a wind from a certain height to 100m
     According to the wind power law (https://en.wikipedia.org/wiki/Wind_profile_power_law)
 
-    input:
-        - windspeed: float OR pandas series of windspeed at height = height
-        - fromheight: height (m) of the windspeed data. Default is 10m
-        - hubheight: height (m) of the turbine
-    returns:
-        - the windspeed at hubheight."""
+    Args:
+        windspeed: float OR pandas series of windspeed at height = height
+        fromheight: height (m) of the windspeed data. Default is 10m
+        hubheight: height (m) of the turbine
+
+    Returns:
+        windspeed at hubheight.
+    """
     alpha = 0.143
 
     if not isinstance(windspeed, (np.ndarray, float, int, pd.Series)):
@@ -246,14 +249,15 @@ def calculate_windturbine_power_output(
     windspeed: pd.Series, n_turbines: int = 1, turbine_data: dict = None
 ) -> pd.Series:
     """This function calculates the generated wind power based on the wind speed.
+
     These values are related through the power curve, which is described by turbine_data.
     If no turbine_data is given, default values are used and results are normalized to 1MWp.
     If n_turbines=0, the result is normalized to a rated power of 1.
 
     Input:
-        - windspeed: pd.DataFrame(index = datetime, columns = ["windspeedHub"])
-        - nTurbines: int
-        - turbineData: dict(slope_center, rated_power, steepness)
+        windspeed: pd.DataFrame(index = datetime, columns = ["windspeedHub"])
+        nTurbines (int): The number of turbines
+        turbineData (dict): slope_center, rated_power, steepness
 
     Ouput:
         pd.DataFrame(index = datetime, columns = ["forecast"])"""
@@ -288,19 +292,19 @@ def calculate_windturbine_power_output(
 
 
 def add_additional_wind_features(
-    data: pd.DataFrame, feature_set_list: list = None
+    data: pd.DataFrame, features: list = None
 ) -> pd.DataFrame:
     """Adds additional wind features to the input data. These are calculated using the above functions
 
     Args:
         data: (pd.DataFrame) Dataframe to which the wind features have to be added
-        feature_set_list: (list) List of requested features
+        features: (list) List of requested features
 
     Returns:
         pd.DataFrame same as input dataframe with extra columns for the added wind features
 
     """
-    if feature_set_list is None:
+    if features is None:
         additional_wind_features = True
     else:
         additional_wind_features = any(
@@ -310,7 +314,7 @@ def add_additional_wind_features(
                 "windPowerFit_extrapolated",
                 "windpowerFit_harm_arome",
             ]
-            for x in feature_set_list
+            for x in features
         )
 
     # Add add_additional_wind_features

@@ -166,7 +166,7 @@ class AbstractPredictionModel(ABC):
         """
         # Check if load is completely empty
         if len(load.dropna()) == 0:
-            raise Exception("No historic load data available")
+            raise ValueError("No historic load data available")
 
         # Find most extreme historic day (do not count today as it is incomplete)
         rel_date = (

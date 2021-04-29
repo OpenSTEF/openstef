@@ -118,14 +118,13 @@ def create_model_trainer(pj, context, retrain_young_models=False):
     model_trainer = mc.create_model_trainer()
 
     # if model is too young AND retrain_young_models it not set, skip training
-    if model_trainer.old_model_age < MAX_AGE_YOUNG_MODEL:
-        if not retrain_young_models:
-            context.logger.info(
-                "Skip training of model",
-                model_age_days=model_trainer.old_model_age,
-                retrain_young_models=retrain_young_models,
-            )
-            return
+    if (model_trainer.old_model_age < MAX_AGE_YOUNG_MODEL) and not retrain_young_models:
+        context.logger.info(
+            "Skip training of model",
+            model_age_days=model_trainer.old_model_age,
+            retrain_young_models=retrain_young_models,
+        )
+        return
 
     # Set optimized hyper parameters if available
     model_trainer.hyper_parameters.update(context.database.get_hyper_params(pj))

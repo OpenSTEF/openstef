@@ -16,13 +16,13 @@ HOLIDAY_CSV_PATH: str = (
 )
 
 
-def create_holiday_feature_functions(
+def generate_holiday_feature_functions(
     country: str = "NL",
     years: list = None,
     path_to_school_holidays_csv: str = HOLIDAY_CSV_PATH,
 ) -> dict:
     """
-    This function provides functions for creating holiday feature.
+    Generates functions for creating holiday feature.
     This improves forecast accuracy. Examples of features that are added are:
         2020-01-01 is 'Nieuwjaarsdag'
         2022-12-24 - 2023-01-08 is the 'Kerstvakantie'
@@ -133,9 +133,9 @@ def check_for_bridge_day(
     bridge_days: list,
 ) -> Tuple[dict, list]:
     """Checks for bridgedays associated to a specific holiday with date (date).
-    Any found bridgedays are appende dto the bridgedays list.
-    Also a specific feature function for the bridgeday is added to the
-     general holidayfuncitons dictionary.
+
+    Any found bridgedays are appende dto the bridgedays list. Also a specific feature
+    function for the bridgeday is added to the general holidayfuncitons dictionary.
 
     Args:
         date: datetime.datetime, date of holiday to check for associated bridgedays
@@ -148,7 +148,6 @@ def check_for_bridge_day(
     Returns:
         holiday_functions: dict with holiday feature functions
         bridge_days: list of bridgedays
-
     """
     country_holidays = holidays.CountryHoliday(country, years=years)
 

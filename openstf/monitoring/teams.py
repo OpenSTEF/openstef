@@ -310,7 +310,7 @@ def format_message(title, params, fallback=None, color=None):
     text = "".join([f"* {v}   \n" for v in values])
 
     msg = {
-        "fallback": title,
+        "fallback": fallback,
         "title": title,
         "text": text,
         "color": color,

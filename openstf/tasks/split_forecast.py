@@ -188,7 +188,7 @@ def find_components(df, zero_bound=True):
     # Define function to fit
     def weighted_sum(x, *args):
         if len(x) != len(args):
-            raise Exception("Length of args should match len of x")
+            raise ValueError("Length of args should match len of x")
         weights = np.array([v for v in args])
         return np.dot(x.T, weights)
 

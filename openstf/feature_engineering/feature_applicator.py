@@ -16,17 +16,16 @@ LATENCY_CONFIG = {"APX": 24}  # A specific latency is part of a specific feature
 
 
 class AbstractFeatureApplicator(ABC):
-    def __init__(self, horizons: list, feature_set_list: list = None) -> None:
-        """
+    def __init__(self, horizons: list, features: list = None) -> None:
+        """Initialize abstract feature applicator.
 
         Args:
             horizons: (list) list of horizons
-            feature_set_list: (list) List of requested features
+            features: (list) List of requested features
         """
         if type(horizons) is not list and not None:
             raise ValueError("Horizons must be added as a list")
-
-        self.feature_set_list = feature_set_list
+        self.features = features
         self.horizons = horizons
 
     @abstractmethod
@@ -42,46 +41,47 @@ class AbstractFeatureApplicator(ABC):
 class TrainFeatureApplicator(AbstractFeatureApplicator):
     def add_features(self, df: pd.DataFrame) -> pd.DataFrame:
         """Adds features to an input DataFrame.
-        This method is implemented specifically for a model train pipeline.
-        For larger horzions data is invalidated as when they are not available.
+
+        This method is implemented specifically for a model train pipeline. For larger
+        horzions data is invalidated as when they are not available.
+
         For example:
-            For horzion 24 hours the feature T-720min is not added as the load 720 minutes ago is not available 24 hours in advance.
-            In case of a horizon 0.25 hours this feature is added as in this case the feature is available.
+            For horzion 24 hours the feature T-720min is not added as the load
+            720 minutes ago is not available 24 hours in advance. In case of a horizon
+            0.25 hours this feature is added as in this case the feature is available.
 
         Args:
-            df: pd.DataFrame with input data to which the features have to be added
+            df (pd.DataFrame):  Input data to which the features will be added.
 
         Returns:
             pd.DataFrame: Input DataFrame with an extra column for every added feature.
-
         """
 
         # Set default horizons if none are provided
         if self.horizons is None:
             self.horizons = [0.25, 24]
 
-        # Pre define output vairables
+        # Pre define output variables
         result = pd.DataFrame()
-        cols = []
 
         # Loop over horizons and add corresponding features
         for horizon in self.horizons:
-            res = apply_features(df.copy(), horizon=horizon)
+            res = apply_features(df, horizon=horizon)
             res["Horizon"] = horizon
-            if len(res.columns) > len(cols):
-                cols = res.columns
-            result = result.append(res, sort=False)  # appending unsorts columns
+            result = result.append(res)
 
-        # Invalidate features that are not available for a specific horizon due to data latency
+        # Invalidate features that are not available for a specific horizon due to data
+        # latency
         for feature, time in LATENCY_CONFIG.items():
             result.loc[result["Horizon"] > time, feature] = np.nan
 
-        return result[cols].sort_index()
+        return result
 
 
 class OperationalPredictFeatureApplicator(AbstractFeatureApplicator):
     def add_features(self, df: pd.DataFrame) -> pd.DataFrame:
         """Adds features to an input DataFrame.
+
         This method is implemented specifically for an operational prediction pipeline
          and will add every available feature.
 
@@ -95,11 +95,9 @@ class OperationalPredictFeatureApplicator(AbstractFeatureApplicator):
         if self.horizons is None:
             self.horizons = [0.25]
 
-        df = apply_features(
-            df, feature_set_list=self.feature_set_list, horizon=self.horizons[0]
-        )
-        df = add_missing_feature_columns(df, self.feature_set_list)
-        df = remove_extra_feature_columns(df, self.feature_set_list)
+        df = apply_features(df, features=self.features, horizon=self.horizons[0])
+        df = add_missing_feature_columns(df, self.features)
+        df = remove_extra_feature_columns(df, self.features)
 
         return df
 
@@ -107,6 +105,7 @@ class OperationalPredictFeatureApplicator(AbstractFeatureApplicator):
 class BackTestPredictFeatureApplicator(AbstractFeatureApplicator):
     def add_features(self, df: pd.DataFrame) -> pd.DataFrame:
         """Adds features to an input DataFrame.
+
         This method is implemented specifically for a backtest prediction for a specific horizon.
         All featurs that are not available for the specific horzion are invalidated.
 
@@ -123,6 +122,6 @@ class BackTestPredictFeatureApplicator(AbstractFeatureApplicator):
             raise ValueError("Prediction can only be done one horizon at a time!")
 
         df = apply_features(df, horizon=self.horizons[0])
-        df = add_missing_feature_columns(df, self.feature_set_list)
-        df = remove_extra_feature_columns(df, self.feature_set_list)
+        df = add_missing_feature_columns(df, self.features)
+        df = remove_extra_feature_columns(df, self.features)
         return df

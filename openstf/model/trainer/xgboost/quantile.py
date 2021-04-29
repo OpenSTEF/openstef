@@ -26,7 +26,12 @@ class XGBQuantileModelTrainer(XGBModelTrainer):
         self.logger = logging.get_logger(self.__class__.__name__)
 
     def train(
-        self, train_data, validation_data, callbacks=None, early_stopping_rounds=10
+        self,
+        train_data,
+        validation_data,
+        callbacks=None,
+        early_stopping_rounds=10,
+        num_boost_round=500,
     ):
         """
 
@@ -71,7 +76,8 @@ class XGBQuantileModelTrainer(XGBModelTrainer):
                 params=params,
                 dtrain=dtrain,
                 evals=watchlist,
-                num_boost_round=500,  # Can be large because we are early stopping anyway
+                # Can be large because we are early stopping anyway
+                num_boost_round=num_boost_round,
                 obj=xgb_quantile_obj_this_quantile,
                 feval=xgb_quantile_eval_this_quantile,
                 verbose_eval=False,

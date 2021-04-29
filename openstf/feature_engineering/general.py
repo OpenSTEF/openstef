@@ -11,6 +11,7 @@ def add_missing_feature_columns(
     input_data: pd.DataFrame, featurelist: list
 ) -> pd.DataFrame:
     """Adds feature column for features in the featurelist.
+
     Add feature columns for features in the feature list if these columns don't
     exist in the input data. If a column is added, its value is set to NaN.
     This is especially usefull to make sure the required columns are in place when making a prediction.

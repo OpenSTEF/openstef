@@ -7,14 +7,14 @@ import pandas as pd
 
 
 def apply_resample(df, to_resample, timedelta):
-    """
-    This functions return a new resampled dataframe with timedelta resolution
+    """This functions return a new resampled dataframe with timedelta resolution.
 
     Args:
         df (pandas.DataFrame): pandas TimeSeries DataFrame
         to_resample (dict): Dictionary that indicates what columns to resample and how.
             Example: {'column': ['mean'], ['sum']}
         timedelta (str): Resolution to resample to ('H', 'D', 'M', etc)
+
     Return:
         pandas.DataFrame: Resampled dataframe.
     """
