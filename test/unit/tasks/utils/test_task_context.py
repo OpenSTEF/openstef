@@ -62,10 +62,7 @@ class TestTaskContext(BaseTestCase):
             on_successful,
             on_end,
         ):
-            try:
-                raise Exception("Forced exception")
-            except Exception:
-                pass
+            raise Exception("Forced exception")
 
         on_exception.assert_called_once()
         on_successful.assert_not_called()
