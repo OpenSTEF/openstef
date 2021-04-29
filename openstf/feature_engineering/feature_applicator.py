@@ -95,9 +95,7 @@ class OperationalPredictFeatureApplicator(AbstractFeatureApplicator):
         if self.horizons is None:
             self.horizons = [0.25]
 
-        df = apply_features(
-            df, features=self.features, horizon=self.horizons[0]
-        )
+        df = apply_features(df, features=self.features, horizon=self.horizons[0])
         df = add_missing_feature_columns(df, self.features)
         df = remove_extra_feature_columns(df, self.features)
 
