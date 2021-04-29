@@ -66,16 +66,16 @@ class TrainFeatureApplicator(AbstractFeatureApplicator):
 
         # Loop over horizons and add corresponding features
         for horizon in self.horizons:
-            res = apply_features(df.copy(), horizon=horizon)
+            res = apply_features(df, horizon=horizon)
             res["Horizon"] = horizon
-            result = result.append(res, sort=False)
+            result = result.append(res)
 
         # Invalidate features that are not available for a specific horizon due to data
         # latency
         for feature, time in LATENCY_CONFIG.items():
             result.loc[result["Horizon"] > time, feature] = np.nan
 
-        return result.sort_index()
+        return result
 
 
 class OperationalPredictFeatureApplicator(AbstractFeatureApplicator):
