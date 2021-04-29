@@ -51,7 +51,7 @@ class PerformanceMeter:
         Returns:
             self
         """
-        runtime = perf_counter() - self.checkpoint_timers.pop()
+        runtime = round(perf_counter() - self.checkpoint_timers.pop(), ndigits=3)
         self.logger.info(
             f"{name_checkpoint.capitalize()} completed",
             **self.levels,
