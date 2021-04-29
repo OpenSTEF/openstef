@@ -43,7 +43,7 @@ COEF_MAX_FRACTION_DIFF = 0.3
 
 
 def main():
-    with TaskContext(__file__) as context:
+    with TaskContext("split_forecast") as context:
         model_type = ["xgb", "lgb"]
 
         PredictionJobLoop(

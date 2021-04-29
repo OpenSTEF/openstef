@@ -24,7 +24,7 @@ from openstf.tasks.utils.taskcontext import TaskContext
 
 
 def main():
-    with TaskContext(__file__) as context:
+    with TaskContext("create_basecase_forecast") as context:
         model_type = ["xgb", "lgb"]
 
         PredictionJobLoop(context, model_type=model_type).map(make_basecase_prediction)

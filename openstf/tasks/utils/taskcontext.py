@@ -11,13 +11,12 @@ from ktpbase.log import logging
 from openstf.monitoring.teams import post_teams
 from openstf.monitoring.performance_meter import PerformanceMeter
 from openstf.tasks.utils.predictionjobloop import PredictionJobException
-from openstf.tasks.utils import utils
 
 
 class TaskContext:
     def __init__(
         self,
-        task_file,
+        name,
         suppress_exceptions=False,
         post_teams_on_exception=True,
         on_exception=None,
@@ -27,11 +26,11 @@ class TaskContext:
         """A context manager that can be used to run tasks with.
 
         Should be used as:
-        with TaskContext("__file__") as context:
+        with TaskContext("my_task_name") as context:
             pass
 
         Args:
-            task_file (string): Path of the task module provided by __file__
+            name (string): Name of the task
             suppress_exceptions (bool, optional): If set to False the context
                 manager will pass any raised exception on. Defaults to False.
             post_teams_on_exception (bool, optional): If set to True the context
@@ -45,7 +44,7 @@ class TaskContext:
             on_end (callable, optional): Callback, will be called if the task is
                 completed. Callable gets a bool indicating success as argument.
         """
-        self.name = utils.get_module_name(task_file)
+        self.name = name
         self.suppress_exceptions = suppress_exceptions
         self.post_teams_on_exception = post_teams_on_exception
         self.on_exception = on_exception

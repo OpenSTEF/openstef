@@ -22,7 +22,7 @@ from openstf.tasks.utils.taskcontext import TaskContext
 
 
 def main():
-    with TaskContext(__file__) as context:
+    with TaskContext("optimize_hyperparameters") as context:
         model_type = ["xgb", "xgb_quantile", "lgb"]
 
         PredictionJobLoop(context, model_type=model_type).map(

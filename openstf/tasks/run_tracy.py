@@ -163,7 +163,7 @@ def train_specific_model(context, pid):
 
 
 def main():
-    with TaskContext(__file__) as context:
+    with TaskContext("run_tracy") as context:
         get_and_evaluate_todos(context)
 
 

@@ -35,7 +35,7 @@ from openstf.tasks.utils.taskcontext import TaskContext
 
 
 def main():
-    with TaskContext(__file__) as context:
+    with TaskContext("create_forecast") as context:
         model_type = ["xgb", "xgb_quantile", "lgb"]
 
         # status file callback after every iteration
