@@ -23,10 +23,10 @@ class AbstractFeatureApplicator(ABC):
             horizons: (list) list of horizons
             features: (list) List of requested features
         """
-        if type(horizons) is not list and not None:
+        if type(horizons) is not list:
             raise ValueError("Horizons must be added as a list")
-        self.features = features
         self.horizons = horizons
+        self.features = features
 
     @abstractmethod
     def add_features(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -92,8 +92,9 @@ class OperationalPredictFeatureApplicator(AbstractFeatureApplicator):
             pd.DataFrame: Input DataFrame with an extra column for every added feature.
 
         """
-        if self.horizons is None:
-            self.horizons = [0.25]
+        num_horizons = len(self.horizons)
+        if num_horizons != 1:
+            raise ValueError("Expected one horizon, got {num_horizons}")
 
         df = apply_features(df, features=self.features, horizon=self.horizons[0])
         df = add_missing_feature_columns(df, self.features)
@@ -115,11 +116,9 @@ class BackTestPredictFeatureApplicator(AbstractFeatureApplicator):
         Returns:
             pd.DataFrame: Input DataFrame with an extra column for every added feature.
         """
-        if self.horizons is None:
-            self.horizons = [24.0]
-
-        if len(self.horizons) > 1:
-            raise ValueError("Prediction can only be done one horizon at a time!")
+        num_horizons = len(self.horizons)
+        if num_horizons != 1:
+            raise ValueError("Expected one horizon, got {num_horizons}")
 
         df = apply_features(df, horizon=self.horizons[0])
         df = add_missing_feature_columns(df, self.features)
