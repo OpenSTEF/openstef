@@ -6,6 +6,10 @@
 import numpy as np
 import pandas as pd
 
+from ktpbase.log import logging
+
+logger = logging.get_logger(__name__)
+
 
 def add_missing_feature_columns(
     input_data: pd.DataFrame, featurelist: list
@@ -26,7 +30,10 @@ def add_missing_feature_columns(
     missing_features = [f for f in featurelist if f not in list(input_data)]
 
     for feature in missing_features:
-        print(f"Warning: adding NaN column for missing feature: {feature}")
+        logger.warning(
+            f"Adding NaN column for missing feature: {feature}",
+            missing_feature=feature
+        )
         input_data[feature] = np.nan
 
     return input_data
@@ -47,7 +54,12 @@ def remove_extra_feature_columns(
     """
     extra_features = [f for f in list(input_data) if f not in featurelist]
 
-    if len(extra_features) > 0:
-        print(f"Warning: Removing {len(extra_features)} unrequested features!")
+    num_not_requested_features =  len(extra_features)
+
+    if num_not_requested_features != 0:
+        logger.warning(
+            f"Removing {num_not_requested_features} unrequested features!",
+            num_not_requested_features=num_not_requested_features
+        )
 
     return input_data.drop(extra_features, axis=1)
