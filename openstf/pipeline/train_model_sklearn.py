@@ -1,15 +1,13 @@
-import joblib
 from pathlib import Path
 
+import joblib
 from ktpbase.database import DataBase
-
 from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
+from openstf.model.confidence_interval_applicator import ConfidenceIntervalApplicator
 from openstf.model.model_creator import ModelCreator
 from openstf.model.reporter import Reporter
 from openstf.model_selection.model_selection import split_data_train_validation_test
 from openstf.validation.validation import validate, clean, is_data_sufficient
-from openstf.model.confidence_interval_applicator import ConfidenceIntervalApplicator
-
 
 TRAIN_HORIZONS: list[float] = [0.25, 24.0]
 MAXIMUM_MODEL_AGE: float = 7
@@ -19,6 +17,7 @@ PENALTY_FACTOR_OLD_MODEL: float = 1.2
 
 SAVE_PATH = Path('.')
 OLD_MODEL_PATH = '.'
+
 
 def train_model_pipeline(pj: dict, check_old_model_age: bool = True,
                          compare_to_old: bool = True) -> None:
@@ -34,7 +33,7 @@ def train_model_pipeline(pj: dict, check_old_model_age: bool = True,
         return
 
     # Get input data
-    input_data = db.get_model_input(pj)
+    input_data = db.get_model_input(pj['id'])
 
     # Get hyper parameters
     hyper_params = db.get_hyper_params(pj)
@@ -64,9 +63,10 @@ def train_model_pipeline(pj: dict, check_old_model_age: bool = True,
     eval_set = [(train_data.iloc[:, 1:], train_data.iloc[:, 0]),
                 (validation_data.iloc[:, 1:], validation_data.iloc[:, 0])]
 
-    model.set_params(hyper_params).fit(train_data.iloc[:, 1:], train_data.iloc[:, 0],
-                                       eval_set=eval_set,
-                                       early_stopping_rounds=EARLY_STOPPING_ROUNDS)
+    model.set_params(hyper_params)
+    model.fit(train_data.iloc[:, 1:], train_data.iloc[:, 0],
+              eval_set=eval_set,
+              early_stopping_rounds=EARLY_STOPPING_ROUNDS)
 
     # Check if new model is better than old model
     if compare_to_old:
@@ -81,7 +81,8 @@ def train_model_pipeline(pj: dict, check_old_model_age: bool = True,
         if score_old_model > score_new_model * PENALTY_FACTOR_OLD_MODEL:
             raise (RuntimeError(f"Old model is better than new model for {pj['name']}"))
         else:
-            print("New model is better than old model, continuing with training procces")
+            print(
+                "New model is better than old model, continuing with training procces")
 
     # Report
     reporter = Reporter(pj, train_data, validation_data, test_data)
@@ -94,3 +95,8 @@ def train_model_pipeline(pj: dict, check_old_model_age: bool = True,
 
     joblib.dump(model, SAVE_PATH)
 
+
+if __name__ == "__main__":
+    pj = DataBase().get_prediction_job(307)
+
+    train_model_pipeline(pj, False, False)

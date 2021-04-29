@@ -1,6 +1,7 @@
 from xgboost import XGBRegressor
 from lightgbm import LGBMRegressor
 
+from openstf.enums import MLModelType
 
 class ModelCreator():
     """Factory object for creating model trainer objects"""
