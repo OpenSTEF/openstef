@@ -55,7 +55,7 @@ def create_forecast_pipeline(pj, forecast_type=ForecastType.DEMAND):
 
     # feature engineering #############################################################
     input_data_with_features = OperationalPredictFeatureApplicator(
-        feature_set_list=prediction_model.feature_names
+        features=prediction_model.feature_names
     ).add_features(preprocessed_input_data)
     # make forecast ###################################################################
     # Create correct format for to-be-forecasted times
