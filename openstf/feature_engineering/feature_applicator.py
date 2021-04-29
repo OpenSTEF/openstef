@@ -75,7 +75,7 @@ class TrainFeatureApplicator(AbstractFeatureApplicator):
         for feature, time in LATENCY_CONFIG.items():
             result.loc[result["Horizon"] > time, feature] = np.nan
 
-        return result
+        return result.sort_index()
 
 
 class OperationalPredictFeatureApplicator(AbstractFeatureApplicator):
