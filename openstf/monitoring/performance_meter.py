@@ -75,7 +75,7 @@ class PerformanceMeter:
             self
         """
 
-        runtime = perf_counter() - self.level_timers.pop()
+        runtime = round(perf_counter() - self.level_timers.pop(), ndigits=3)
         self.checkpoint_timers.pop()
 
         level_label, level_name = self.levels.popitem()
