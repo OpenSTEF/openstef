@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-from ktpbase.log import logging
+import structlog
 
 from openstf.model.prediction.xgboost.model.quantile import XGBQuantileModel
 from openstf.model.serializer.xgboost.xgboost import XGBModelSerializer
@@ -11,7 +11,7 @@ from openstf.model.serializer.xgboost.xgboost import XGBModelSerializer
 class XGBQuantileModelSerializer(XGBModelSerializer):
     def __init__(self):
         super().__init__()
-        self.logger = logging.get_logger(self.__class__.__name__)
+        self.logger = structlog.get_logger(self.__class__.__name__)
         self.MODEL_FILENAME = "model_quantile.bin"
 
     def load(self, pid, pid_model_folder=None):

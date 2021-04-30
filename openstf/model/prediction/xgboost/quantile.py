@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import scipy
 import xgboost as xgb
-from ktpbase.log import logging
+import structlog
 
 from openstf.model.prediction.xgboost.xgboost import XGBPredictionModel
 
@@ -16,7 +16,7 @@ class QuantileXGBPredictionModel(XGBPredictionModel):
         self, pj, forecast_type, trained_model=None, trained_confidence_df=None
     ):
         super().__init__(pj, forecast_type, trained_model, trained_confidence_df)
-        self.logger = logging.get_logger(self.__class__.__name__)
+        self.logger = structlog.get_logger(self.__class__.__name__)
 
     @property
     def feature_names(self):

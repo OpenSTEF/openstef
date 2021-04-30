@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 
 import optuna
 from ktpbase.database import DataBase
-from ktpbase.log import logging
+import structlog
 
 from openstf.metrics import metrics
 
@@ -32,7 +32,7 @@ def optimize_hyperparameters_pipeline(pj):
     db = DataBase()
 
     # initialize logging
-    logger = logging.get_logger(__name__)
+    logger = structlog.get_logger(__name__)
 
     if last_optimimization_too_long_ago(pj) is not True:
         logger.info("Hyperparameters not old enough to optimize again")
@@ -76,7 +76,7 @@ def optimize_hyperparameters(pid, n_trials=150, datetime_end=datetime.utcnow()):
 
     db = DataBase()
     # initialize logging
-    logger = logging.get_logger(__name__)
+    logger = structlog.get_logger(__name__)
 
     max_training_period_days = max(TRAINING_DURATIONS_DAYS)
     # We do not want to train components during hyperparameter optimalisation

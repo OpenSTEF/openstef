@@ -6,7 +6,7 @@ import traceback
 
 from ktpbase.config.config import ConfigManager
 from ktpbase.database import DataBase
-from ktpbase.log import logging
+import structlog
 
 from openstf.monitoring.teams import post_teams
 from openstf.monitoring.performance_meter import PerformanceMeter
@@ -58,7 +58,7 @@ class TaskContext:
             loglevel=self.config.loglevel,
             runtime_env=self.config.env,
         )
-        self.logger = logging.get_logger(__name__).bind(task=self.name)
+        self.logger = structlog.get_logger(__name__).bind(task=self.name)
 
         self.database = DataBase()
 

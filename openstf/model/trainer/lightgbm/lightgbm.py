@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 import pytz
 import lightgbm as lgb
-from ktpbase.log import logging
+import structlog
 
 from openstf.metrics import metrics
 from openstf.preprocessing import preprocessing
@@ -28,7 +28,7 @@ from openstf.feature_engineering.general import remove_extra_feature_columns
 class LGBModelTrainer(AbstractModelTrainer):
     def __init__(self, pj):
         super().__init__(pj)
-        self.logger = logging.get_logger(self.__class__.__name__)
+        self.logger = structlog.get_logger(self.__class__.__name__)
         # See LGBoost Parameters
         # https://lightgbm.readthedocs.io/en/latest/Python-Intro.html#setting-parameters
         # look at the parameters for Tree booster
