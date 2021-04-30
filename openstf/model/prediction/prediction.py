@@ -56,7 +56,7 @@ class AbstractPredictionModel(ABC):
             )
 
         self.logger.warning(
-            "Using failback forecast (*high forecast*)", forecast_type="fallback"
+            "Using failback forecast (*high forecast*)", forecast_type="fallback", pid=self.pj["id"]
         )
         forecast = self.predict_fallback(
             forecast_index=forecast_input_data.index, load=load_data
