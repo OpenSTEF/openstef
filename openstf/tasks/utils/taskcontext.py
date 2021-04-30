@@ -6,6 +6,7 @@ import traceback
 
 from ktpbase.config.config import ConfigManager
 from ktpbase.database import DataBase
+from ktpbase.log import logging
 import structlog
 
 from openstf.monitoring.teams import post_teams
