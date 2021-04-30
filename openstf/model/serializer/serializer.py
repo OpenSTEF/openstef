@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 from pathlib import Path
 
-from ktpbase.log import logging
+import structlog
 from ktpbase.config.config import ConfigManager
 
 
@@ -20,7 +20,7 @@ class AbstractModelSerializer(ABC):
     PANDAS_CSV_FORMAT = {"decimal": ".", "sep": ","}
 
     def __init__(self):
-        self.logger = logging.get_logger(self.__class__.__name__)
+        self.logger = structlog.get_logger(self.__class__.__name__)
         self.trained_models_folder = Path(
             ConfigManager.get_instance().paths.trained_models
         )
@@ -35,7 +35,7 @@ class AbstractModelSerializer(ABC):
 
     def __setstate__(self, newstate):
         # obtain a new logger
-        newstate["logger"] = logging.get_logger(self.__class__.__name__)
+        newstate["logger"] = structlog.get_logger(self.__class__.__name__)
         # re-instate our __dict__ state from the pickled state
         self.__dict__.update(newstate)
 

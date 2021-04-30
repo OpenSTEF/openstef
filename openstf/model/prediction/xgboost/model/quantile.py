@@ -3,13 +3,13 @@
 # SPDX-License-Identifier: MPL-2.0
 
 import dill
-from ktpbase.log import logging
+import structlog
 
 
 class XGBQuantileModel:
     def __init__(self, quantile_models=None, model_file=None):
 
-        self.logger = logging.get_logger(self.__class__.__name__)
+        self.logger = structlog.get_logger(self.__class__.__name__)
 
         if quantile_models is not None and model_file is None:
             self.quantile_models = quantile_models

@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 import pytz
 import xgboost as xgb
-from ktpbase.log import logging
+import structlog
 
 from openstf.metrics import metrics
 from openstf.validation import validation
@@ -28,7 +28,7 @@ from openstf.model.trainer.trainer import AbstractModelTrainer
 class XGBModelTrainer(AbstractModelTrainer):
     def __init__(self, pj):
         super().__init__(pj)
-        self.logger = logging.get_logger(self.__class__.__name__)
+        self.logger = structlog.get_logger(self.__class__.__name__)
         # See XGBoost Parameters
         # https://xgboost.readthedocs.io/en/latest/parameter.html
         # look at the parameters for Tree booster

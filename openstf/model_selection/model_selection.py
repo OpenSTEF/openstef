@@ -5,7 +5,7 @@
 from datetime import timedelta
 
 import numpy as np
-from ktpbase.log import logging
+import structlog
 
 
 def split_data_train_validation_test(
@@ -51,7 +51,7 @@ def split_data_train_validation_test(
             [2] (pandas.DataFrame): Test data
     """
     MIN_TRAIN_FRACTION = 0.5
-    logger = logging.get_logger(__name__)
+    logger = structlog.get_logger(__name__)
 
     # Check input
     train_fraction = 1 - (test_fraction + validation_fraction)

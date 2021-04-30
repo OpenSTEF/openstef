@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pymsteams
 from ktpbase.config.config import ConfigManager
-from ktpbase.log import logging
+import structlog
 
 
 def post_teams(msg, invalid_coefs=None, coefsdf=None, url=None):
@@ -32,7 +32,7 @@ def post_teams(msg, invalid_coefs=None, coefsdf=None, url=None):
 
     """
     config = ConfigManager.get_instance()
-    logger = logging.get_logger(__name__)
+    logger = structlog.get_logger(__name__)
 
     # If no url is passed fall back to default
     if url is None:
