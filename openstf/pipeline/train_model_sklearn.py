@@ -1,9 +1,10 @@
+from datetime import datetime, timedelta
 from pathlib import Path
 
 import joblib
 from ktpbase.database import DataBase
 from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
-from openstf.model.confidence_interval_applicator import ConfidenceIntervalApplicator
+from openstf.model.confidence_interval_generator import ConfidenceIntervalGenerator
 from openstf.model.model_creator import ModelCreator
 from openstf.model.reporter import Reporter
 from openstf.model_selection.model_selection import split_data_train_validation_test
@@ -32,29 +33,36 @@ def train_model_pipeline(pj: dict, check_old_model_age: bool = True,
     if (old_model_age > MAXIMUM_MODEL_AGE) and check_old_model_age:
         return
 
-    # Get input data
-    input_data = db.get_model_input(pj['id'])
-
     # Get hyper parameters
     hyper_params = db.get_hyper_params(pj)
+
+    # Get input data
+    input_data = db.get_model_input(
+        pid=pj["id"],
+        location=[pj["lat"], pj["lon"]],
+        datetime_start=datetime.utcnow() - timedelta(
+            days=90
+        ),
+        datetime_end=datetime.utcnow(),
+    )
 
     # Validate and clean data
     validated_data = clean(validate(input_data))
 
     # Check if sufficient data is left after cleaning
-    if not is_data_sufficient:
+    if not is_data_sufficient(validated_data):
         raise (RuntimeError(
             f"Not enough data left after validation for {pj['name']}, check input data!"))
 
     # Add features
     data_with_features = TrainFeatureApplicator(TRAIN_HORIZONS,
-                                                feature_set_list=db.get_featureset(
+                                                features=db.get_featureset(
                                                     hyper_params["featureset_name"])
                                                 ).add_features(validated_data)
 
     # Split data
     train_data, validation_data, test_data = split_data_train_validation_test(
-        data_with_features)
+        data_with_features.sort_index(axis=1))
 
     # Create relevant model
     model = ModelCreator(pj).create_model()
@@ -63,7 +71,7 @@ def train_model_pipeline(pj: dict, check_old_model_age: bool = True,
     eval_set = [(train_data.iloc[:, 1:], train_data.iloc[:, 0]),
                 (validation_data.iloc[:, 1:], validation_data.iloc[:, 0])]
 
-    model.set_params(hyper_params)
+    model.set_params(params=hyper_params)
     model.fit(train_data.iloc[:, 1:], train_data.iloc[:, 0],
               eval_set=eval_set,
               early_stopping_rounds=EARLY_STOPPING_ROUNDS)
@@ -84,17 +92,16 @@ def train_model_pipeline(pj: dict, check_old_model_age: bool = True,
             print(
                 "New model is better than old model, continuing with training procces")
 
-    # Report
-    reporter = Reporter(pj, train_data, validation_data, test_data)
-    reporter.make_and_save_dashboard_figures(model, SAVE_PATH)
+    # Report about the training procces
+    Reporter(pj, train_data, validation_data, test_data)\
+        .make_and_save_dashboard_figures(model, SAVE_PATH)
 
     # Do confidence interval determination
-    confidence_interval_applicator = ConfidenceIntervalApplicator(pj, validation_data)
+    model = ConfidenceIntervalGenerator(pj, validation_data)\
+        .generate_confidence_interval_data(model)
 
-    model = confidence_interval_applicator.add_confidence_interval(model)
-
-    joblib.dump(model, SAVE_PATH)
-
+    # Persist model
+    joblib.dump(model, SAVE_PATH / "model.sav")
 
 if __name__ == "__main__":
     pj = DataBase().get_prediction_job(307)

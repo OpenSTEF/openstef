@@ -23,4 +23,4 @@ class ModelCreator():
 
         model_type = MLModelType(self.pj["model"])
 
-        return self.MODEL_TRAINER_CONSTRUCTORS[model_type]
+        return self.MODEL_TRAINER_CONSTRUCTORS[model_type]()

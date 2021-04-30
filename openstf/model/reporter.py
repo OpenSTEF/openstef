@@ -38,14 +38,15 @@ class Reporter:
         self._make_feature_importance_plot(model)
         self._save_dashboard_figures(save_path)
 
-
-
-
     def _make_data_series_figures(self, model: RegressorMixin) -> None:
 
         # Make model predictions
         for data_set in self.input_data_list:
-            self.predicted_data_list.append(model.predict(data_set))
+            model_forecast = model.predict(data_set.iloc[:, 1:])
+            forecast = pd.DataFrame(
+            index=data_set.index, data={"forecast": model_forecast}
+            )
+            self.predicted_data_list.append(forecast)
 
         # Make cufflinks plots for the data series
         self.figure_series = {
@@ -58,8 +59,44 @@ class Reporter:
         }
 
     def _make_feature_importance_plot(self, model: RegressorMixin) -> None:
+
+        feature_importance = self._extract_feature_importance(model)
+
         # Make feature importance plot
-        self.feature_importance_plot = figure.plot_feature_importance(model.feature_importance)
+        self.feature_importance_plot = figure.plot_feature_importance(feature_importance)
+
+    def _extract_feature_importance(self, model):
+        """Return feature importances and weights of trained model.
+
+        Returns:
+            pandas.DataFrame: A DataFrame describing the feature importances and
+            weights of the trained model.
+
+        """
+        if model is None:
+            return None
+        model.importance_type = "gain"
+        feature_gain = pd.DataFrame(
+            model.feature_importances_,
+            index=model._Booster.feature_names,
+            columns=["gain"],
+        )
+        feature_gain /= feature_gain.sum()
+
+        model.importance_type = "weight"
+        feature_weight = pd.DataFrame(
+            model.feature_importances_,
+            index=model._Booster.feature_names,
+            columns=["weight"],
+        )
+        feature_weight /= feature_weight.sum()
+
+        feature_importance = pd.merge(
+            feature_gain, feature_weight, left_index=True, right_index=True
+        )
+        feature_importance.sort_values(by="gain", ascending=False, inplace=True)
+
+        return feature_importance
 
     def _save_dashboard_figures(self, save_path):
         os.makedirs(save_path, exist_ok=True)
