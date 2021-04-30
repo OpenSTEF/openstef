@@ -27,15 +27,15 @@ Attributes:
 
 
 """
-from openstf.model import predict
-from openstf.model.general import ForecastType
+from openstf.pipeline.create_forecast import create_forecast_pipeline
+from openstf.enums import ForecastType
 from openstf.tasks.utils.utils import check_status_change, update_status_change
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
 
 
 def main():
-    with TaskContext(__file__) as context:
+    with TaskContext("create_forecast") as context:
         model_type = ["xgb", "xgb_quantile", "lgb"]
 
         # status file callback after every iteration
@@ -55,7 +55,7 @@ def main():
             on_end_callback=callback,
             # Debug specific pid
             # prediction_jobs=[{'id':282}],
-        ).map(predict.make_prediction, forecast_type=ForecastType.DEMAND)
+        ).map(create_forecast_pipeline, forecast_type=ForecastType.DEMAND)
 
 
 if __name__ == "__main__":

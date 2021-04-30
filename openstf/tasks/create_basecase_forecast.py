@@ -18,18 +18,16 @@ Example:
 
         $ python create_basecase_forecast.py
 """
-import openstf.model.predict as predict
+from openstf.pipeline.create_forecast import make_basecase_prediction
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
 
 
 def main():
-    with TaskContext(__file__) as context:
+    with TaskContext("create_basecase_forecast") as context:
         model_type = ["xgb", "lgb"]
 
-        PredictionJobLoop(context, model_type=model_type).map(
-            predict.make_basecase_prediction
-        )
+        PredictionJobLoop(context, model_type=model_type).map(make_basecase_prediction)
 
 
 if __name__ == "__main__":

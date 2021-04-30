@@ -3,7 +3,9 @@
 # SPDX-License-Identifier: MPL-2.0
 import unittest
 
-from openstf.feature_engineering.feature_free_days import create_holiday_functions
+from openstf.feature_engineering.holiday_features import (
+    generate_holiday_feature_functions,
+)
 
 from test.utils import BaseTestCase
 
@@ -44,7 +46,7 @@ expected_keys = [
 
 class GeneralTest(BaseTestCase):
     def test_create_holiday_functions(self):
-        holiday_functions = create_holiday_functions(country="NL")
+        holiday_functions = generate_holiday_feature_functions(country="NL")
 
         # Assert for every holiday a function is available and no extra functions are generated
         self.assertEqual(

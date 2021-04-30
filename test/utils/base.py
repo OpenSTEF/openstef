@@ -8,7 +8,6 @@ from unittest.mock import patch
 import numpy as np
 import pandas as pd
 import ktpbase
-from collections import defaultdict
 
 
 class dotdict(dict):

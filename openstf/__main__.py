@@ -41,7 +41,7 @@ def main():
 
     validate_task_name(task_name)
 
-    # import task
+    # get task
     task = importlib.import_module(f"openstf.tasks.{task_name}")
     # run task
     task.main()

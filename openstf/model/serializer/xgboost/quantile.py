@@ -14,22 +14,23 @@ class XGBQuantileModelSerializer(XGBModelSerializer):
         self.logger = logging.get_logger(self.__class__.__name__)
         self.MODEL_FILENAME = "model_quantile.bin"
 
-    # NOTE from general.py
-    def load(self, pid):
+    def load(self, pid, pid_model_folder=None):
         """Load the most recent model
 
         Args:
-            pid ([type]): [description]
-            forecast_type ([type]): [description]
+            pid ([type]): Prediction job id.
+            pid_model_folder(str): Path to save model at specific location
 
         Raises:
             FileNotFoundError: If no recent model file was found
 
         Returns:
-            [type]: [description]
+            tuple:
+                [0]: Model
+                [1]: Path to model file
         """
-
-        pid_model_folder = self.build_pid_model_folder_path(pid=pid)
+        if pid_model_folder is None:
+            pid_model_folder = self.build_pid_model_folder_path(pid=pid)
 
         try:
             model_file, model_folder = self.find_most_recent_model_file(

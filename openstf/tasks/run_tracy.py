@@ -40,10 +40,10 @@ Attributes:
 
 from functools import partial
 
-from openstf.model.hyper_parameters import optimize_hyperparameters
-from openstf.model.train import train_specific_model
+from ktpbase.database import DataBase
 
-# Import project modules
+from openstf.pipeline.optimize_hyperparameters import optimize_hyperparameters
+from openstf.pipeline.train_model import train_model_pipeline
 from openstf.monitoring.teams import post_teams
 from openstf.tasks.utils.utils import (
     convert_string_args_to_dict_args,
@@ -139,8 +139,31 @@ def get_and_evaluate_todos(context):
     context.logger.info("Finished all Tracy jobs - Tracy out!")
 
 
+def train_specific_model(context, pid):
+    """Train model for given prediction id.
+
+    Tracy-compatible function to train a specific model based on the prediction id (pid)
+    Should not be used outside of Tracy, preferred alternative:
+        train_model_pipeline
+
+    Args:
+        pid (int): Prediction id of the corresponding prediction job.
+
+    Returns:
+        Trained model (FIXME can be various datatypes at present)
+    """
+    # Get DataBase instance:
+    db = DataBase()
+
+    # Get prediction job based on the given prediction ID (pid)
+    pj = db.get_prediction_job(pid)
+
+    # Train model for pj
+    train_model_pipeline(pj, context, compare_to_old=False, retrain_young_models=True)
+
+
 def main():
-    with TaskContext(__file__) as context:
+    with TaskContext("run_tracy") as context:
         get_and_evaluate_todos(context)
 
 

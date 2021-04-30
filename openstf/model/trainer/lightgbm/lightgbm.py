@@ -10,13 +10,11 @@ import pytz
 import lightgbm as lgb
 from ktpbase.log import logging
 
-from openstf.model import metrics
-from openstf.model.general import (
-    pre_process_data,
-    remove_features_not_in_set,
-    split_data_train_validation_test,
-)
+from openstf.metrics import metrics
+from openstf.preprocessing import preprocessing
+from openstf.model_selection.model_selection import split_data_train_validation_test
 from openstf.model.trainer.trainer import AbstractModelTrainer
+from openstf.feature_engineering.general import remove_extra_feature_columns
 
 # Available trainings period durations for optimization
 # After preprocessing, the data consists of 75 days (of the original 90 days).
@@ -284,7 +282,7 @@ class LGBModelTrainer(AbstractModelTrainer):
             trial: optuna trial object that is passed on during hyper parameter
                 optimalisation.
             error_function (callable): Function to calculate the error metric to be
-                optimized, preferably one from openstf.model.metrics.
+                optimized, preferably one from openstf.metrics.metrics.
             unprocessed_data (pandas.DataFrame): Data and features that have not yet
                 been pre-processed.
             training_durations_days (list of int): Candidate training durations.
@@ -312,14 +310,16 @@ class LGBModelTrainer(AbstractModelTrainer):
         shortened_data = unprocessed_data.loc[unprocessed_data.index > datetime_start]
 
         # Pre-process data
-        clean_shortened_data_with_all_features = pre_process_data(shortened_data)
+        clean_shortened_data_with_all_features = preprocessing.pre_process_data(
+            shortened_data
+        )
 
         # Apply optimized featureset
         featureset_name = optimized_parameters["featureset_name"]
 
         featureset = featuresets[featureset_name]
-        total_data = remove_features_not_in_set(
-            clean_shortened_data_with_all_features, featureset=featureset
+        total_data = remove_extra_feature_columns(
+            clean_shortened_data_with_all_features, featureset
         )
 
         # Split data in train, test and validation sets, note we are using the
@@ -365,7 +365,7 @@ class LGBModelTrainer(AbstractModelTrainer):
             trial: optuna trial object that is passed on during hyper parameter
                 optimalisation.
             error_function (callable): Function to calculate the error metric to be
-                optimized, preferably one from openstf.model.metrics.
+                optimized, preferably one from openstf.metrics.metrics.
             clean_data_with_all_features (pandas.DataFrame): Data and features ready for
                 model training
             featuresets (dict): All feature sets: with keys the featureset_name and
@@ -432,7 +432,7 @@ class LGBModelTrainer(AbstractModelTrainer):
 
         # remove features
         featureset = featuresets[featureset_name]
-        clean_data_with_features = remove_features_not_in_set(
+        clean_data_with_features = remove_extra_feature_columns(
             clean_data_with_all_features, featureset
         )
 
