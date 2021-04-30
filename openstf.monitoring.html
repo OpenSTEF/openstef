@@ -89,7 +89,6 @@
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
 <li><a class="reference internal" href="#module-openstf.monitoring.performance_meter">openstf.monitoring.performance_meter module</a></li>
 <li><a class="reference internal" href="#module-openstf.monitoring.teams">openstf.monitoring.teams module</a></li>
-<li><a class="reference internal" href="#module-openstf.monitoring.utils">openstf.monitoring.utils module</a></li>
 <li><a class="reference internal" href="#module-openstf.monitoring">Module contents</a></li>
 </ul>
 </li>
@@ -253,6 +252,11 @@ True.</p></li>
 </dd></dl>
 
 <dl class="function">
+<dt id="openstf.monitoring.teams.format_message">
+<code class="sig-prename descclassname">openstf.monitoring.teams.</code><code class="sig-name descname">format_message</code><span class="sig-paren">(</span><em class="sig-param">title</em>, <em class="sig-param">params</em>, <em class="sig-param">fallback=None</em>, <em class="sig-param">color=None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.monitoring.teams.format_message" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
 <dt id="openstf.monitoring.teams.post_teams">
 <code class="sig-prename descclassname">openstf.monitoring.teams.</code><code class="sig-name descname">post_teams</code><span class="sig-paren">(</span><em class="sig-param">msg</em>, <em class="sig-param">invalid_coefs=None</em>, <em class="sig-param">coefsdf=None</em>, <em class="sig-param">url=None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.monitoring.teams.post_teams" title="Permalink to this definition">¶</a></dt>
 <dd><p>Post a message to Teams - KTP</p>
@@ -368,50 +372,6 @@ table in the SQL database.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>None</p>
-</dd>
-</dl>
-</dd></dl>
-
-</div>
-<div class="section" id="module-openstf.monitoring.utils">
-<span id="openstf-monitoring-utils-module"></span><h2>openstf.monitoring.utils module<a class="headerlink" href="#module-openstf.monitoring.utils" title="Permalink to this headline">¶</a></h2>
-<dl class="function">
-<dt id="openstf.monitoring.utils.check_datetimes_unique">
-<code class="sig-prename descclassname">openstf.monitoring.utils.</code><code class="sig-name descname">check_datetimes_unique</code><span class="sig-paren">(</span><em class="sig-param">pred</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.monitoring.utils.check_datetimes_unique" title="Permalink to this definition">¶</a></dt>
-<dd><p>Check if the values of pred only have unique datetimes
-Input:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>pred: pd.DataFrame(columns=[‘datetimeFC’, <a href="#id1"><span class="problematic" id="id2">*</span></a>])</p></li>
-</ul>
-</div></blockquote>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p>True / False</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="openstf.monitoring.utils.check_max_ahead">
-<code class="sig-prename descclassname">openstf.monitoring.utils.</code><code class="sig-name descname">check_max_ahead</code><span class="sig-paren">(</span><em class="sig-param">pred</em>, <em class="sig-param">max_ahead</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.monitoring.utils.check_max_ahead" title="Permalink to this definition">¶</a></dt>
-<dd><p>Check if the values of pred extend max_ahead hours into the future
-Input:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>pred: pd.DataFrame(columns=[‘datetimeFC’, <a href="#id3"><span class="problematic" id="id4">*</span></a>])</p></li>
-<li><p>max_ahead: float, time ahead in hours</p></li>
-</ul>
-</div></blockquote>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p>True / False</p></li>
-</ul>
-</p>
 </dd>
 </dl>
 </dd></dl>

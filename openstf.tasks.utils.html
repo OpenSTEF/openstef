@@ -169,7 +169,7 @@
 <span id="openstf-tasks-utils-predictionjobloop-module"></span><h2>openstf.tasks.utils.predictionjobloop module<a class="headerlink" href="#module-openstf.tasks.utils.predictionjobloop" title="Permalink to this headline">¶</a></h2>
 <dl class="exception">
 <dt id="openstf.tasks.utils.predictionjobloop.PredictionJobException">
-<em class="property">exception </em><code class="sig-prename descclassname">openstf.tasks.utils.predictionjobloop.</code><code class="sig-name descname">PredictionJobException</code><span class="sig-paren">(</span><em class="sig-param">metrics={}</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.tasks.utils.predictionjobloop.PredictionJobException" title="Permalink to this definition">¶</a></dt>
+<em class="property">exception </em><code class="sig-prename descclassname">openstf.tasks.utils.predictionjobloop.</code><code class="sig-name descname">PredictionJobException</code><span class="sig-paren">(</span><em class="sig-param">metrics=None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.tasks.utils.predictionjobloop.PredictionJobException" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
 </dd></dl>
 
@@ -208,7 +208,7 @@ logged.</p></li>
 <span id="openstf-tasks-utils-taskcontext-module"></span><h2>openstf.tasks.utils.taskcontext module<a class="headerlink" href="#module-openstf.tasks.utils.taskcontext" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="openstf.tasks.utils.taskcontext.TaskContext">
-<em class="property">class </em><code class="sig-prename descclassname">openstf.tasks.utils.taskcontext.</code><code class="sig-name descname">TaskContext</code><span class="sig-paren">(</span><em class="sig-param">task_file</em>, <em class="sig-param">suppress_exceptions=False</em>, <em class="sig-param">post_teams_on_exception=True</em>, <em class="sig-param">on_exception=None</em>, <em class="sig-param">on_successful=None</em>, <em class="sig-param">on_end=None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.tasks.utils.taskcontext.TaskContext" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">openstf.tasks.utils.taskcontext.</code><code class="sig-name descname">TaskContext</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">suppress_exceptions=False</em>, <em class="sig-param">post_teams_on_exception=True</em>, <em class="sig-param">on_exception=None</em>, <em class="sig-param">on_successful=None</em>, <em class="sig-param">on_end=None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.tasks.utils.taskcontext.TaskContext" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 </dd></dl>
 
@@ -236,11 +236,6 @@ Coverts inputs to floats if possible. Assumes args are seperated by ‘,’ or �
 <p>‘5, seconds’ -&gt; dict(args=[5, ‘seconds’])
 ‘3, val=blub -&gt; dict(args=[3], kwargs=dict(val=’blub’)</p>
 </dd></dl>
-
-<dl class="function">
-<dt id="openstf.tasks.utils.utils.get_module_name">
-<code class="sig-prename descclassname">openstf.tasks.utils.utils.</code><code class="sig-name descname">get_module_name</code><span class="sig-paren">(</span><em class="sig-param">module_path</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.tasks.utils.utils.get_module_name" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 <dl class="function">
 <dt id="openstf.tasks.utils.utils.interpret_string_as_functions">

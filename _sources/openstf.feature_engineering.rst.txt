@@ -20,10 +20,10 @@ openstf.feature\_engineering.capacity\_prognoses\_features module
    :undoc-members:
    :show-inheritance:
 
-openstf.feature\_engineering.feature\_free\_days module
+openstf.feature\_engineering.feature\_applicator module
 -------------------------------------------------------
 
-.. automodule:: openstf.feature_engineering.feature_free_days
+.. automodule:: openstf.feature_engineering.feature_applicator
    :members:
    :undoc-members:
    :show-inheritance:
@@ -36,10 +36,26 @@ openstf.feature\_engineering.general module
    :undoc-members:
    :show-inheritance:
 
-openstf.feature\_engineering.weather module
--------------------------------------------
+openstf.feature\_engineering.holiday\_features module
+-----------------------------------------------------
 
-.. automodule:: openstf.feature_engineering.weather
+.. automodule:: openstf.feature_engineering.holiday_features
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+openstf.feature\_engineering.lag\_features module
+-------------------------------------------------
+
+.. automodule:: openstf.feature_engineering.lag_features
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+openstf.feature\_engineering.weather\_features module
+-----------------------------------------------------
+
+.. automodule:: openstf.feature_engineering.weather_features
    :members:
    :undoc-members:
    :show-inheritance:

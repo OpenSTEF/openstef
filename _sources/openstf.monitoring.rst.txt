@@ -20,14 +20,6 @@ openstf.monitoring.teams module
    :undoc-members:
    :show-inheritance:
 
-openstf.monitoring.utils module
--------------------------------
-
-.. automodule:: openstf.monitoring.utils
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 
 Module contents
 ---------------

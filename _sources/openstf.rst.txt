@@ -6,13 +6,28 @@ Subpackages
 
 .. toctree::
 
-   openstf.data_validation
    openstf.feature_engineering
+   openstf.metrics
    openstf.model
+   openstf.model_selection
    openstf.monitoring
-   openstf.postproces
-   openstf.preprocess
+   openstf.pipeline
+   openstf.postprocessing
+   openstf.preprocessing
    openstf.tasks
+   openstf.validation
+
+Submodules
+----------
+
+openstf.enums module
+--------------------
+
+.. automodule:: openstf.enums
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 
 Module contents
 ---------------

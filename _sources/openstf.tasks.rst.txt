@@ -83,18 +83,10 @@ openstf.tasks.run\_tracy module
    :undoc-members:
    :show-inheritance:
 
-openstf.tasks.run\_validation\_robot module
--------------------------------------------
+openstf.tasks.split\_forecast module
+------------------------------------
 
-.. automodule:: openstf.tasks.run_validation_robot
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-openstf.tasks.split\_forecast\_into\_components module
-------------------------------------------------------
-
-.. automodule:: openstf.tasks.split_forecast_into_components
+.. automodule:: openstf.tasks.split_forecast
    :members:
    :undoc-members:
    :show-inheritance:

@@ -1,0 +1,30 @@
+openstf.metrics package
+=======================
+
+Submodules
+----------
+
+openstf.metrics.figure module
+-----------------------------
+
+.. automodule:: openstf.metrics.figure
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+openstf.metrics.metrics module
+------------------------------
+
+.. automodule:: openstf.metrics.metrics
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: openstf.metrics
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -172,23 +172,24 @@
 <dd><p>Bases: <a class="reference internal" href="#openstf.model.serializer.xgboost.xgboost.XGBModelSerializer" title="openstf.model.serializer.xgboost.xgboost.XGBModelSerializer"><code class="xref py py-class docutils literal notranslate"><span class="pre">openstf.model.serializer.xgboost.xgboost.XGBModelSerializer</span></code></a></p>
 <dl class="method">
 <dt id="openstf.model.serializer.xgboost.quantile.XGBQuantileModelSerializer.load">
-<code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param">pid</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.serializer.xgboost.quantile.XGBQuantileModelSerializer.load" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param">pid</em>, <em class="sig-param">pid_model_folder=None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.serializer.xgboost.quantile.XGBQuantileModelSerializer.load" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load the most recent model</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>pid</strong> (<em>[</em><em>type</em><em>]</em>) – [description]</p></li>
-<li><p><strong>forecast_type</strong> (<em>[</em><em>type</em><em>]</em>) – [description]</p></li>
+<li><p><strong>pid</strong> (<em>[</em><em>type</em><em>]</em>) – Prediction job id.</p></li>
+<li><p><strong>pid_model_folder</strong> (<em>str</em>) – Path to save model at specific location</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises</dt>
 <dd class="field-even"><p><strong>FileNotFoundError</strong> – If no recent model file was found</p>
 </dd>
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>[description]</p>
+<dd class="field-odd"><p>[0]: Model
+[1]: Path to model file</p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p>[type]</p>
+<dd class="field-even"><p>tuple</p>
 </dd>
 </dl>
 </dd></dl>

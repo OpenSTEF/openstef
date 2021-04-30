@@ -88,7 +88,7 @@
 <li><a class="reference internal" href="#">openstf.model.trainer package</a><ul>
 <li><a class="reference internal" href="#subpackages">Subpackages</a></li>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#module-openstf.model.trainer.creator">openstf.model.trainer.creator module</a></li>
+<li><a class="reference internal" href="#openstf-model-trainer-creator-module">openstf.model.trainer.creator module</a></li>
 <li><a class="reference internal" href="#module-openstf.model.trainer.trainer">openstf.model.trainer.trainer module</a></li>
 <li><a class="reference internal" href="#module-openstf.model.trainer">Module contents</a></li>
 </ul>
@@ -168,14 +168,14 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="openstf.model.trainer.lightgbm.html">openstf.model.trainer.lightgbm package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="openstf.model.trainer.lightgbm.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="openstf.model.trainer.lightgbm.html#module-openstf.model.trainer.lightgbm.lightgbm">openstf.model.trainer.lightgbm.lightgbm module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstf.model.trainer.lightgbm.html#openstf-model-trainer-lightgbm-lightgbm-module">openstf.model.trainer.lightgbm.lightgbm module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstf.model.trainer.lightgbm.html#module-openstf.model.trainer.lightgbm">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="openstf.model.trainer.xgboost.html">openstf.model.trainer.xgboost package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="openstf.model.trainer.xgboost.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="openstf.model.trainer.xgboost.html#module-openstf.model.trainer.xgboost.quantile">openstf.model.trainer.xgboost.quantile module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="openstf.model.trainer.xgboost.html#module-openstf.model.trainer.xgboost.xgboost">openstf.model.trainer.xgboost.xgboost module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstf.model.trainer.xgboost.html#openstf-model-trainer-xgboost-quantile-module">openstf.model.trainer.xgboost.quantile module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstf.model.trainer.xgboost.html#openstf-model-trainer-xgboost-xgboost-module">openstf.model.trainer.xgboost.xgboost module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstf.model.trainer.xgboost.html#module-openstf.model.trainer.xgboost">Module contents</a></li>
 </ul>
 </li>
@@ -185,30 +185,8 @@
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="module-openstf.model.trainer.creator">
-<span id="openstf-model-trainer-creator-module"></span><h2>openstf.model.trainer.creator module<a class="headerlink" href="#module-openstf.model.trainer.creator" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
-<dt id="openstf.model.trainer.creator.ModelTrainerCreator">
-<em class="property">class </em><code class="sig-prename descclassname">openstf.model.trainer.creator.</code><code class="sig-name descname">ModelTrainerCreator</code><span class="sig-paren">(</span><em class="sig-param">pj</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.trainer.creator.ModelTrainerCreator" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Factory object for creating model trainer objects</p>
-<dl class="attribute">
-<dt id="openstf.model.trainer.creator.ModelTrainerCreator.MODEL_TRAINER_CONSTRUCTORS">
-<code class="sig-name descname">MODEL_TRAINER_CONSTRUCTORS</code><em class="property"> = {&lt;MLModelType.XGB: 'xgb'&gt;: &lt;class 'openstf.model.trainer.xgboost.xgboost.XGBModelTrainer'&gt;, &lt;MLModelType.XGB_QUANTILE: 'xgb_quantile'&gt;: &lt;class 'openstf.model.trainer.xgboost.quantile.XGBQuantileModelTrainer'&gt;, &lt;MLModelType.LGB: 'lgb'&gt;: &lt;class 'openstf.model.trainer.lightgbm.lightgbm.LGBModelTrainer'&gt;}</em><a class="headerlink" href="#openstf.model.trainer.creator.ModelTrainerCreator.MODEL_TRAINER_CONSTRUCTORS" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="openstf.model.trainer.creator.ModelTrainerCreator.create_model_trainer">
-<code class="sig-name descname">create_model_trainer</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.trainer.creator.ModelTrainerCreator.create_model_trainer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Method returns model trainer objects that can be used to train models</p>
-<dl class="simple">
-<dt>Returns: Implementation of the AbstractModelTrainer class tailored to</dt><dd><p>a specific algorithm.</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
+<div class="section" id="openstf-model-trainer-creator-module">
+<h2>openstf.model.trainer.creator module<a class="headerlink" href="#openstf-model-trainer-creator-module" title="Permalink to this headline">¶</a></h2>
 </div>
 <div class="section" id="module-openstf.model.trainer.trainer">
 <span id="openstf-model-trainer-trainer-module"></span><h2>openstf.model.trainer.trainer module<a class="headerlink" href="#module-openstf.model.trainer.trainer" title="Permalink to this headline">¶</a></h2>
