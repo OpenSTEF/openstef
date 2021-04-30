@@ -224,8 +224,8 @@ class PredictionJobLoop:
 
 
 class PredictionJobException(Exception):
-    def __init__(self, metrics={}):
-        super(PredictionJobException, self).__init__(
-            "One or more prediction jobs raised an exception."
-        )
+    def __init__(self, metrics=None):
+        super().__init__("One or more prediction jobs raised an exception.")
+        if metrics is None:
+            metrics = {}
         self.metrics = metrics

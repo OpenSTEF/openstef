@@ -8,7 +8,7 @@ from datetime import datetime, timedelta, timezone
 import numpy as np
 import pandas as pd
 
-from openstf.model.general import ForecastType, MLModelType
+from openstf.enums import ForecastType, MLModelType
 from openstf.model.serializer.creator import ModelSerializerCreator
 
 FLATLINER_THRESHOLD = 6
@@ -166,7 +166,7 @@ class AbstractPredictionModel(ABC):
         """
         # Check if load is completely empty
         if len(load.dropna()) == 0:
-            raise Exception("No historic load data available")
+            raise ValueError("No historic load data available")
 
         # Find most extreme historic day (do not count today as it is incomplete)
         rel_date = (

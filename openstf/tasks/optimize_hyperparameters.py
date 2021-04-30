@@ -16,17 +16,17 @@ Example:
         $ python optimize_hyper_params.py
 
 """
-from openstf.model.hyper_parameters import optimize_hyperparameters_pj
+from openstf.pipeline.optimize_hyperparameters import optimize_hyperparameters_pipeline
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
 
 
 def main():
-    with TaskContext(__file__) as context:
+    with TaskContext("optimize_hyperparameters") as context:
         model_type = ["xgb", "xgb_quantile", "lgb"]
 
         PredictionJobLoop(context, model_type=model_type).map(
-            optimize_hyperparameters_pj
+            optimize_hyperparameters_pipeline
         )
 
 

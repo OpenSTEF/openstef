@@ -18,6 +18,8 @@ jobs:
     # Checkout
     - name: Checkout code
       uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
     # Setup
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
@@ -52,7 +54,18 @@ jobs:
     - name: Test with pytest
       run: |
         pip install pytest pytest-cov
-        pytest test
+        pytest --cov-report=xml --cov=openstf/ test/unit/ --junitxml=pytest-report.xml
+    # Fix relative paths in coverage file
+    # Known bug: https://community.sonarsource.com/t/sonar-on-github-actions-with-python-coverage-source-issue/36057
+    - name: fix code coverage paths
+      run: |
+        sed -i 's/\/home\/runner\/work\/short-term-forecasting\/short-term-forecasting\//\/github\/workspace\//g' coverage.xml
+    # Sonar cloud scan
+    - name: SonarCloud Scan
+      uses: sonarsource/sonarcloud-github-action@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     # Build
     - name: Build Python package
       run: |

@@ -5,8 +5,8 @@ import unittest
 
 from test.utils.data import TestData
 
-from openstf.feature_engineering.general import extract_minute_features
-from openstf.model.general import MLModelType
+from openstf.feature_engineering.lag_features import extract_lag_features
+from openstf.enums import MLModelType
 from openstf.model.serializer.creator import ModelSerializerCreator
 
 from test.utils import BaseTestCase
@@ -21,9 +21,9 @@ class TestGeneralExtractMinuteFeatures(BaseTestCase):
         self.model, model_file = serializer.load(307, model_folder)
 
     def test_extract_minute_features(self):
-        testlist = extract_minute_features(self.model.feature_names)
+        testlist_minutes, testlist_days = extract_lag_features(self.model.feature_names)
         self.assertEqual(
-            testlist,
+            testlist_minutes,
             [
                 900,
                 780,
@@ -55,6 +55,7 @@ class TestGeneralExtractMinuteFeatures(BaseTestCase):
                 1020,
             ],
         )
+        self.assertEqual(testlist_days, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14])
 
 
 if __name__ == "__main__":

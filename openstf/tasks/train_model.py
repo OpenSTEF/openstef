@@ -22,13 +22,13 @@ Example:
         $ python model_train.py
 
 """
-from openstf.model.train import train_model_pipeline
+from openstf.pipeline.train_model import train_model_pipeline
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
 
 
 def main():
-    with TaskContext(__file__) as context:
+    with TaskContext("train_model") as context:
         model_type = ["xgb", "xgb_quantile", "lgb"]
 
         PredictionJobLoop(context, model_type=model_type).map(

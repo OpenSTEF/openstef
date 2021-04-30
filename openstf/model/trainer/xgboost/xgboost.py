@@ -10,12 +10,10 @@ import pytz
 import xgboost as xgb
 from ktpbase.log import logging
 
-from openstf.model import metrics
-from openstf.model.general import (
-    pre_process_data,
-    remove_features_not_in_set,
-    split_data_train_validation_test,
-)
+from openstf.metrics import metrics
+from openstf.validation import validation
+from openstf.feature_engineering.general import remove_extra_feature_columns
+from openstf.model_selection.model_selection import split_data_train_validation_test
 from openstf.model.trainer.trainer import AbstractModelTrainer
 
 # Available trainings period durations for optimization
@@ -299,7 +297,7 @@ class XGBModelTrainer(AbstractModelTrainer):
             trial: optuna trial object that is passed on during hyper parameter
                 optimalisation.
             error_function (callable): Function to calculate the error metric to be
-                optimized, preferably one from openstf.model.metrics.
+                optimized, preferably one from openstf.metrics.metrics.
             unprocessed_data (pandas.DataFrame): Data and features that have not yet
                 been pre-processed.
             training_durations_days (list of int): Candidate training durations.
@@ -318,6 +316,12 @@ class XGBModelTrainer(AbstractModelTrainer):
         training_period = trial.suggest_categorical(
             "training_period_days", training_durations_days
         )
+        featureset_names = list(featuresets.keys())
+        featureset_name = trial.suggest_categorical("featureset_name", featureset_names)
+        self.logger.debug(
+            "Current iteration of model trainer",
+            featureset_name=featureset_name,
+        )
 
         # Update hyper parameters
         self.hyper_parameters.update(optimized_parameters)
@@ -328,16 +332,18 @@ class XGBModelTrainer(AbstractModelTrainer):
         ).replace(tzinfo=pytz.UTC)
         shortened_data = unprocessed_data.loc[unprocessed_data.index > datetime_start]
 
-        # Pre-process data
-        clean_shortened_data_with_all_features = pre_process_data(shortened_data)
+        # Validate input data
+        validated_data = validation.validate(shortened_data)
 
-        # Apply optimized featureset
-        featureset_name = optimized_parameters["featureset_name"]
-
+        # Select feature set
         featureset = featuresets[featureset_name]
-        total_data = remove_features_not_in_set(
-            clean_shortened_data_with_all_features, featureset=featureset
+
+        validated_data_data_with_features = remove_extra_feature_columns(
+            validated_data, featurelist=featureset
         )
+
+        # Clean up data
+        total_data = validation.clean(validated_data_data_with_features)
 
         # Split data in train, test and validation sets, note we are using the
         # backtest option here because we assume hyperparameters do not change
@@ -382,7 +388,7 @@ class XGBModelTrainer(AbstractModelTrainer):
             trial: optuna trial object that is passed on during hyper parameter
                 optimalisation.
             error_function (callable): Function to calculate the error metric to be
-                optimized, preferably one from openstf.model.metrics.
+                optimized, preferably one from openstf.metrics.metrics.
             clean_data_with_all_features (pandas.DataFrame): Data and features ready for
                 model training
             featuresets (dict): All feature sets: with keys the featureset_name and
@@ -448,17 +454,11 @@ class XGBModelTrainer(AbstractModelTrainer):
         self.hyper_parameters.update(parameter_space)
         self.hyper_parameters["featureset_name"] = featureset_name
 
-        # remove features
-        featureset = featuresets[featureset_name]
-        clean_data_with_features = remove_features_not_in_set(
-            clean_data_with_all_features, featureset
-        )
-
         # Split data in train, test and validation sets, note we are using the
         # backtest option here because we assume hyperparameters do not change
         # much over time
         train_data, validation_data, test_data = split_data_train_validation_test(
-            clean_data_with_features,
+            clean_data_with_all_features,
             test_fraction=0.1,
             validation_fraction=0.1,
             back_test=True,

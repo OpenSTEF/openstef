@@ -14,7 +14,7 @@ import xgboost as xgb
 
 class CapacityPredictionModel:
     def __init__(self, classes=None, hyper_params=None):
-        """ set default hyper-parameters"""
+        """set default hyper-parameters"""
         if hyper_params is None:
             self.hyper_params = {
                 "objective": "multi:softprob",
@@ -32,7 +32,7 @@ class CapacityPredictionModel:
         self.model = xgb.XGBClassifier(kwargs=self.hyper_params)
 
     def train(self, train_x, train_y, val_x, val_y):
-        """ train model """
+        """train model"""
         self.model.fit(
             train_x,
             train_y,

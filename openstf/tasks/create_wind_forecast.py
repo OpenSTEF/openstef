@@ -16,7 +16,7 @@ Attributes:
 
 """
 
-from openstf.feature_engineering import apply_features
+from openstf.feature_engineering import weather_features
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
 
@@ -41,7 +41,7 @@ def make_wind_forcast_pj(pj, context):
     )
 
     context.logger.info("Calculate windturbine power", n_turbines=pj["n_turbines"])
-    power = apply_features.calculate_windturbine_power_output(
+    power = weather_features.calculate_windturbine_power_output(
         windspeed, pj["n_turbines"], turbine_data
     ).rename(columns=dict(windspeed_100m="forecast"))
 
@@ -55,7 +55,7 @@ def make_wind_forcast_pj(pj, context):
 
 
 def main():
-    with TaskContext(__file__) as context:
+    with TaskContext("create_wind_forecast") as context:
         context.logger.info("Querying wind prediction jobs from database")
         prediction_jobs = context.database.get_prediction_jobs_wind()
         prediction_jobs = [x for x in prediction_jobs if x["model"] == "latest"]

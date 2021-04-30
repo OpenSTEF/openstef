@@ -29,7 +29,7 @@ Attributes:
 
 
 """
-import openstf.model.predict as predict
+from openstf.pipeline.create_forecast import make_components_prediction
 from openstf.tasks.utils.utils import check_status_change, update_status_change
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
@@ -43,11 +43,11 @@ def create_components_forecast_pj(pj, context):
         return
 
     # Make forecast for the demand, wind and pv components
-    predict.make_components_prediction(pj)
+    make_components_prediction(pj)
 
 
 def main():
-    with TaskContext(__file__) as context:
+    with TaskContext("create_components_forecast") as context:
 
         # status file callback after every iteration
         # TODO change implementation to a database one
