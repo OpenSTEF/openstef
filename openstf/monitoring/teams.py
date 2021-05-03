@@ -69,7 +69,7 @@ def post_teams(msg, invalid_coefs=None, coefsdf=None, url=None):
                 },
             ],
         }
-    
+
     # If no url is passed fall back to default
     if url is None:
         # if Teams url is not configured just return
