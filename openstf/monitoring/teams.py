@@ -29,7 +29,6 @@ def post_teams(msg, invalid_coefs=None, coefsdf=None, url=None):
 
     Note:
         This function is namespace-specific.
-
     """
     config = ConfigManager.get_instance()
     logger = structlog.get_logger(__name__)
