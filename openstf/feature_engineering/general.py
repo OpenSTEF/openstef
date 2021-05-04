@@ -5,10 +5,9 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 import pandas as pd
+import structlog
 
-from ktpbase.log import logging
-
-logger = logging.get_logger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 def add_missing_feature_columns(

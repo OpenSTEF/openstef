@@ -6,7 +6,7 @@ from datetime import datetime, timedelta, timezone
 
 import pandas as pd
 from ktpbase.database import DataBase
-from ktpbase.log import logging
+import structlog
 
 from openstf.validation import validation
 from openstf.preprocessing import preprocessing
@@ -26,7 +26,7 @@ _input_data_cache = {}
 
 
 def create_forecast_pipeline(pj, forecast_type=ForecastType.DEMAND):
-    logger = logging.get_logger(__name__)
+    logger = structlog.get_logger(__name__)
     logger.info(
         "Start making prediction",
         prediction_id=pj["id"],
@@ -84,7 +84,7 @@ def create_forecast_pipeline(pj, forecast_type=ForecastType.DEMAND):
 
 
 def make_components_prediction(pj):
-    logger = logging.get_logger(__name__)
+    logger = structlog.get_logger(__name__)
     logger.info("Make components prediction", prediction_id=pj["id"])
     # select time period for the coming two days
     datetime_start, datetime_end = generate_inputdata_datetime_range(
@@ -146,7 +146,7 @@ def make_components_prediction(pj):
 
 
 def make_basecase_prediction(pj):
-    logger = logging.get_logger(__name__)
+    logger = structlog.get_logger(__name__)
     fill_limit = 4
     # preparation ######################################################################
     datetime_start, datetime_end = generate_inputdata_datetime_range(
@@ -251,7 +251,7 @@ def _clear_input_data_cache():
 
 # pre processing
 def pre_process_input_data(input_data, flatliner_threshold):
-    logger = logging.get_logger(__name__)
+    logger = structlog.get_logger(__name__)
     # Check for repeated load observations due to invalid measurements
     suspicious_moments = validation.find_nonzero_flatliner(
         input_data, threshold=flatliner_threshold
@@ -272,7 +272,7 @@ def pre_process_input_data(input_data, flatliner_threshold):
 
 # other
 def is_complete_enough(completeness, completeness_threshold):
-    logger = logging.get_logger(__name__)
+    logger = structlog.get_logger(__name__)
 
     if completeness < completeness_threshold:
         logger.warning(

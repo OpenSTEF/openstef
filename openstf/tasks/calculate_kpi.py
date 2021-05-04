@@ -25,7 +25,7 @@ from datetime import datetime, timedelta
 import numpy as np
 import pandas as pd
 from ktpbase.database import DataBase
-from ktpbase.log import logging
+import structlog
 
 from openstf.validation import validation
 from openstf.metrics import metrics
@@ -110,7 +110,7 @@ def calc_kpi_for_specific_pid(pid, start_time=None, end_time=None):
 
     # Make database connection
     db = DataBase()
-    log = logging.get_logger(__name__)
+    log = structlog.get_logger(__name__)
 
     pj = db.get_prediction_job(pid)
 

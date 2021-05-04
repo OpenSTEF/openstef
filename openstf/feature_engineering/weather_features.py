@@ -265,12 +265,12 @@ def calculate_windturbine_power_output(
 
     if turbine_data is None:
         turbine_data = {
-            "name": "Lagerwey L100",    # not used here
-            "cut_in": 3,                # not used here
-            "cut_off": 25,              # not used here
-            "kind": "onshore",          # not used here
-            "manufacturer": "Lagerwey", # not used here
-            "peak_capacity": 1,         # not used here
+            "name": "Lagerwey L100",  # not used here
+            "cut_in": 3,  # not used here
+            "cut_off": 25,  # not used here
+            "kind": "onshore",  # not used here
+            "manufacturer": "Lagerwey",  # not used here
+            "peak_capacity": 1,  # not used here
             "rated_power": 1,
             "slope_center": 8.07,
             "steepness": 0.664,

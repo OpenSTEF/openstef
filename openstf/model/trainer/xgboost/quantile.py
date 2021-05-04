@@ -5,7 +5,7 @@
 from functools import partial
 
 import xgboost as xgb
-from ktpbase.log import logging
+import structlog
 
 from openstf.metrics import metrics
 from openstf.model.prediction.xgboost.model.quantile import XGBQuantileModel
@@ -23,7 +23,7 @@ from openstf.model.trainer.xgboost.xgboost import XGBModelTrainer
 class XGBQuantileModelTrainer(XGBModelTrainer):
     def __init__(self, pj):
         super().__init__(pj)
-        self.logger = logging.get_logger(self.__class__.__name__)
+        self.logger = structlog.get_logger(self.__class__.__name__)
 
     def train(
         self,
