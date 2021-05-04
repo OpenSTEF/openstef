@@ -89,8 +89,8 @@
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
 <li><a class="reference internal" href="#module-openstf.feature_engineering.apply_features">openstf.feature_engineering.apply_features module</a></li>
 <li><a class="reference internal" href="#module-openstf.feature_engineering.capacity_prognoses_features">openstf.feature_engineering.capacity_prognoses_features module</a></li>
-<li><a class="reference internal" href="#module-openstf.feature_engineering.feature_applicator">openstf.feature_engineering.feature_applicator module</a></li>
-<li><a class="reference internal" href="#module-openstf.feature_engineering.general">openstf.feature_engineering.general module</a></li>
+<li><a class="reference internal" href="#openstf-feature-engineering-feature-applicator-module">openstf.feature_engineering.feature_applicator module</a></li>
+<li><a class="reference internal" href="#openstf-feature-engineering-general-module">openstf.feature_engineering.general module</a></li>
 <li><a class="reference internal" href="#module-openstf.feature_engineering.holiday_features">openstf.feature_engineering.holiday_features module</a></li>
 <li><a class="reference internal" href="#module-openstf.feature_engineering.lag_features">openstf.feature_engineering.lag_features module</a></li>
 <li><a class="reference internal" href="#module-openstf.feature_engineering.weather_features">openstf.feature_engineering.weather_features module</a></li>
@@ -285,148 +285,11 @@ Example: {‘column’: [‘mean’], [‘sum’]}</p></li>
 <dd></dd></dl>
 
 </div>
-<div class="section" id="module-openstf.feature_engineering.feature_applicator">
-<span id="openstf-feature-engineering-feature-applicator-module"></span><h2>openstf.feature_engineering.feature_applicator module<a class="headerlink" href="#module-openstf.feature_engineering.feature_applicator" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
-<dt id="openstf.feature_engineering.feature_applicator.AbstractFeatureApplicator">
-<em class="property">class </em><code class="sig-prename descclassname">openstf.feature_engineering.feature_applicator.</code><code class="sig-name descname">AbstractFeatureApplicator</code><span class="sig-paren">(</span><em class="sig-param">horizons: list</em>, <em class="sig-param">features: list = None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.feature_engineering.feature_applicator.AbstractFeatureApplicator" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
-<dl class="method">
-<dt id="openstf.feature_engineering.feature_applicator.AbstractFeatureApplicator.add_features">
-<em class="property">abstract </em><code class="sig-name descname">add_features</code><span class="sig-paren">(</span><em class="sig-param">df: pandas.core.frame.DataFrame</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstf.feature_engineering.feature_applicator.AbstractFeatureApplicator.add_features" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds features to an input DataFrame</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>df</strong> – pd.DataFrame with input data to which the features have to be added</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="openstf.feature_engineering.feature_applicator.BackTestPredictFeatureApplicator">
-<em class="property">class </em><code class="sig-prename descclassname">openstf.feature_engineering.feature_applicator.</code><code class="sig-name descname">BackTestPredictFeatureApplicator</code><span class="sig-paren">(</span><em class="sig-param">horizons: list</em>, <em class="sig-param">features: list = None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.feature_engineering.feature_applicator.BackTestPredictFeatureApplicator" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#openstf.feature_engineering.feature_applicator.AbstractFeatureApplicator" title="openstf.feature_engineering.feature_applicator.AbstractFeatureApplicator"><code class="xref py py-class docutils literal notranslate"><span class="pre">openstf.feature_engineering.feature_applicator.AbstractFeatureApplicator</span></code></a></p>
-<dl class="method">
-<dt id="openstf.feature_engineering.feature_applicator.BackTestPredictFeatureApplicator.add_features">
-<code class="sig-name descname">add_features</code><span class="sig-paren">(</span><em class="sig-param">df: pandas.core.frame.DataFrame</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstf.feature_engineering.feature_applicator.BackTestPredictFeatureApplicator.add_features" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds features to an input DataFrame.</p>
-<p>This method is implemented specifically for a backtest prediction for a specific horizon.
-All featurs that are not available for the specific horzion are invalidated.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>df</strong> – pd.DataFrame with input data to which the features have to be added</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Input DataFrame with an extra column for every added feature.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>pd.DataFrame</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="openstf.feature_engineering.feature_applicator.OperationalPredictFeatureApplicator">
-<em class="property">class </em><code class="sig-prename descclassname">openstf.feature_engineering.feature_applicator.</code><code class="sig-name descname">OperationalPredictFeatureApplicator</code><span class="sig-paren">(</span><em class="sig-param">horizons: list</em>, <em class="sig-param">features: list = None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.feature_engineering.feature_applicator.OperationalPredictFeatureApplicator" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#openstf.feature_engineering.feature_applicator.AbstractFeatureApplicator" title="openstf.feature_engineering.feature_applicator.AbstractFeatureApplicator"><code class="xref py py-class docutils literal notranslate"><span class="pre">openstf.feature_engineering.feature_applicator.AbstractFeatureApplicator</span></code></a></p>
-<dl class="method">
-<dt id="openstf.feature_engineering.feature_applicator.OperationalPredictFeatureApplicator.add_features">
-<code class="sig-name descname">add_features</code><span class="sig-paren">(</span><em class="sig-param">df: pandas.core.frame.DataFrame</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstf.feature_engineering.feature_applicator.OperationalPredictFeatureApplicator.add_features" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds features to an input DataFrame.</p>
-<dl class="simple">
-<dt>This method is implemented specifically for an operational prediction pipeline</dt><dd><p>and will add every available feature.</p>
-</dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>df</strong> – pd.DataFrame with input data to which the features have to be added</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Input DataFrame with an extra column for every added feature.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>pd.DataFrame</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="openstf.feature_engineering.feature_applicator.TrainFeatureApplicator">
-<em class="property">class </em><code class="sig-prename descclassname">openstf.feature_engineering.feature_applicator.</code><code class="sig-name descname">TrainFeatureApplicator</code><span class="sig-paren">(</span><em class="sig-param">horizons: list</em>, <em class="sig-param">features: list = None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.feature_engineering.feature_applicator.TrainFeatureApplicator" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#openstf.feature_engineering.feature_applicator.AbstractFeatureApplicator" title="openstf.feature_engineering.feature_applicator.AbstractFeatureApplicator"><code class="xref py py-class docutils literal notranslate"><span class="pre">openstf.feature_engineering.feature_applicator.AbstractFeatureApplicator</span></code></a></p>
-<dl class="method">
-<dt id="openstf.feature_engineering.feature_applicator.TrainFeatureApplicator.add_features">
-<code class="sig-name descname">add_features</code><span class="sig-paren">(</span><em class="sig-param">df: pandas.core.frame.DataFrame</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstf.feature_engineering.feature_applicator.TrainFeatureApplicator.add_features" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds features to an input DataFrame.</p>
-<p>This method is implemented specifically for a model train pipeline. For larger
-horzions data is invalidated as when they are not available.</p>
-<dl class="simple">
-<dt>For example:</dt><dd><p>For horzion 24 hours the feature T-720min is not added as the load
-720 minutes ago is not available 24 hours in advance. In case of a horizon
-0.25 hours this feature is added as in this case the feature is available.</p>
-</dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>df</strong> (<em>pd.DataFrame</em>) – Input data to which the features will be added.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Input DataFrame with an extra column for every added feature.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>pd.DataFrame</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
+<div class="section" id="openstf-feature-engineering-feature-applicator-module">
+<h2>openstf.feature_engineering.feature_applicator module<a class="headerlink" href="#openstf-feature-engineering-feature-applicator-module" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="module-openstf.feature_engineering.general">
-<span id="openstf-feature-engineering-general-module"></span><h2>openstf.feature_engineering.general module<a class="headerlink" href="#module-openstf.feature_engineering.general" title="Permalink to this headline">¶</a></h2>
-<dl class="function">
-<dt id="openstf.feature_engineering.general.add_missing_feature_columns">
-<code class="sig-prename descclassname">openstf.feature_engineering.general.</code><code class="sig-name descname">add_missing_feature_columns</code><span class="sig-paren">(</span><em class="sig-param">input_data: pandas.core.frame.DataFrame</em>, <em class="sig-param">featurelist: list</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstf.feature_engineering.general.add_missing_feature_columns" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds feature column for features in the featurelist.</p>
-<p>Add feature columns for features in the feature list if these columns don’t
-exist in the input data. If a column is added, its value is set to NaN.
-This is especially usefull to make sure the required columns are in place when making a prediction.</p>
-<dl class="simple">
-<dt>NOTE: this function is intended as a final check to prevent errors during predicion.</dt><dd><p>In an ideal world this function is not nescarry.</p>
-</dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>input_data</strong> (<em>pd.DataFrame</em>) – DataFrame with input data and featurs.</p></li>
-<li><p><strong>featurelist</strong> (<em>list</em>) – List of requiered features</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="openstf.feature_engineering.general.remove_extra_feature_columns">
-<code class="sig-prename descclassname">openstf.feature_engineering.general.</code><code class="sig-name descname">remove_extra_feature_columns</code><span class="sig-paren">(</span><em class="sig-param">input_data: pandas.core.frame.DataFrame</em>, <em class="sig-param">featurelist: list</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstf.feature_engineering.general.remove_extra_feature_columns" title="Permalink to this definition">¶</a></dt>
-<dd><p>Removes any features that are provided in the input data but not in the feature list.
-This should not be nescesarry but serves as an extra failsave for making predicitons</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>input_data</strong> – (pd.Dataframe) DataFrame with features</p></li>
-<li><p><strong>featurelist</strong> – (list) list of reuqested features</p></li>
-</ul>
-</dd>
-</dl>
-<p>Returns: pd.DataFrame with model input data and fetaures</p>
-</dd></dl>
-
+<div class="section" id="openstf-feature-engineering-general-module">
+<h2>openstf.feature_engineering.general module<a class="headerlink" href="#openstf-feature-engineering-general-module" title="Permalink to this headline">¶</a></h2>
 </div>
 <div class="section" id="module-openstf.feature_engineering.holiday_features">
 <span id="openstf-feature-engineering-holiday-features-module"></span><h2>openstf.feature_engineering.holiday_features module<a class="headerlink" href="#module-openstf.feature_engineering.holiday_features" title="Permalink to this headline">¶</a></h2>
