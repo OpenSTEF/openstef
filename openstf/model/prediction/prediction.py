@@ -191,7 +191,9 @@ class AbstractPredictionModel(ABC):
         forecast["time"] = forecast.index.time
         forecast = (
             forecast.reset_index()
-            .merge(highest_daily_loadprofile, left_on="time", right_on="time", how="outer")
+            .merge(
+                highest_daily_loadprofile, left_on="time", right_on="time", how="outer"
+            )
             .set_index("index")
         )
         forecast = forecast[["load"]].rename(columns=dict(load="forecast"))
