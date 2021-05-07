@@ -1,4 +1,3 @@
-from datetime import datetime, timedelta
 from pathlib import Path
 
 import joblib
@@ -20,11 +19,8 @@ SAVE_PATH = Path('.')
 OLD_MODEL_PATH = '.'
 
 
-def train_model_pipeline(pj: dict, check_old_model_age: bool = True,
+def train_model_pipeline(pj: dict, input_data, check_old_model_age: bool = True,
                          compare_to_old: bool = True) -> None:
-    # Initialize database
-    db = DataBase()
-
     # Get old model path and age
     # TODO some function here that retrieves age of the old model
     old_model_age = 5
@@ -34,17 +30,7 @@ def train_model_pipeline(pj: dict, check_old_model_age: bool = True,
         return
 
     # Get hyper parameters
-    hyper_params = db.get_hyper_params(pj)
-
-    # Get input data
-    input_data = db.get_model_input(
-        pid=pj["id"],
-        location=[pj["lat"], pj["lon"]],
-        datetime_start=datetime.utcnow() - timedelta(
-            days=90
-        ),
-        datetime_end=datetime.utcnow(),
-    )
+    hyper_params = pj['hyper_params']
 
     # Validate and clean data
     validated_data = clean(validate(input_data))
@@ -56,8 +42,7 @@ def train_model_pipeline(pj: dict, check_old_model_age: bool = True,
 
     # Add features
     data_with_features = TrainFeatureApplicator(TRAIN_HORIZONS,
-                                                features=db.get_featureset(
-                                                    hyper_params["featureset_name"])
+                                                features=pj['features_set']
                                                 ).add_features(validated_data)
 
     # Split data
