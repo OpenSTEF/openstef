@@ -56,8 +56,8 @@ class TestPredict(BaseTestCase):
         # )
         # self.assertTrue(isinstance(input_data, MagicMock))
 
-    @patch("openstf.pipeline.create_forecast.validation.find_nonzero_flatliner")
-    @patch("openstf.pipeline.create_forecast.preprocessing.replace_invalid_data")
+    @patch("openstf.validation.validation.find_nonzero_flatliner")
+    @patch("openstf.preprocessing.preprocessing.replace_invalid_data")
     def test_pre_process_input_data(
             self, replace_invalid_data_mock, nonzero_flatliner_mock
     ):
