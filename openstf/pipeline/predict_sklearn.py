@@ -1,18 +1,19 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import joblib
 import pandas as pd
-
+import structlog
 
 from ktpbase.database import DataBase
-from openstf.pipeline.create_forecast import generate_forecast_datetime_range, generate_inputdata_datetime_range
-from openstf.validation.validation import validate, clean, is_data_sufficient
+from openstf.validation.validation import validate, is_data_sufficient, find_nonzero_flatliner
 from openstf.feature_engineering.feature_applicator import OperationalPredictFeatureApplicator
 from openstf.model.confidence_interval_applicator import ConfidenceIntervalApplicator
+from openstf.preprocessing import preprocessing
+
 MODEL_LOCATION = Path('.')
 
-def predict_pipeline(pj):
+def predict_pipeline(pj, input_data):
 
     # Get input data
     forecast_start, forecast_end = generate_forecast_datetime_range(
@@ -23,20 +24,8 @@ def predict_pipeline(pj):
         t_behind_days=14, t_ahead_days=3
     )
 
-    input_data = DataBase().get_model_input(
-        pid=pj["id"],
-        location=(pj["lat"], pj["lon"]),
-        # TODO it makes more sense to do the string converion in the
-        # DataBase class and use pure Python datatypes in the rest of the code
-        datetime_start=str(datetime_start),
-        datetime_end=str(datetime_end),
-    )
-
     # Get model
     model = joblib.load(MODEL_LOCATION / "model.sav")
-
-    # Get hyper parameters
-    hyper_params = DataBase().get_hyper_params(pj)
 
     # Validate and clean data
     validated_data = validate(input_data)
@@ -93,6 +82,49 @@ def add_prediction_job_properties_to_forecast(
 
     return forecast
 
+def generate_inputdata_datetime_range(t_behind_days=14, t_ahead_days=3):
+    # get current date UTC
+    date_today_utc = datetime.now(timezone.utc).date()
+    # Date range for input data
+    datetime_start = date_today_utc - timedelta(days=t_behind_days)
+    datetime_end = date_today_utc + timedelta(days=t_ahead_days)
+
+    return datetime_start, datetime_end
+
+def generate_forecast_datetime_range(resolution_minutes, horizon_minutes):
+    # get current date and time UTC
+    datetime_utc = datetime.now(timezone.utc)
+    # Datetime range for time interval to be predicted
+    forecast_start = datetime_utc - timedelta(minutes=resolution_minutes)
+    forecast_end = datetime_utc + timedelta(minutes=horizon_minutes)
+
+    return forecast_start, forecast_end
+
+def _clear_input_data_cache():
+    """Clear the input data cache dictionairy.
+    This is mainly useful for testing.
+    """
+    global _input_data_cache
+    _input_data_cache = {}
+
+def pre_process_input_data(input_data, flatliner_threshold):
+    logger = structlog.get_logger(__name__)
+    # Check for repeated load observations due to invalid measurements
+    suspicious_moments = find_nonzero_flatliner(
+        input_data, threshold=flatliner_threshold
+    )
+    if suspicious_moments is not None:
+        # Covert repeated load observations to NaN values
+        input_data = preprocessing.replace_invalid_data(input_data, suspicious_moments)
+        # Calculate number of NaN values
+        # TODO should this not be part of the replace_invalid_data function?
+        num_nan = sum([True for i, row in input_data.iterrows() if all(row.isnull())])
+        logger.warning(
+            "Found suspicious data points, converted to NaN value",
+            num_nan_values=num_nan,
+        )
+
+    return input_data
 
 if __name__ == "__main__":
     pj = DataBase().get_prediction_job(307)
