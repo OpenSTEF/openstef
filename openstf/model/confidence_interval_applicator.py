@@ -1,7 +1,7 @@
 import numpy as np
 
-class ConfidenceIntervalApplicator:
 
+class ConfidenceIntervalApplicator:
     def __init__(self, model):
         self.confidence_interval = model.confidence_interval
 
@@ -28,7 +28,6 @@ class ConfidenceIntervalApplicator:
                 "forecast", "stdev"
         """
 
-
         standard_deviation = self.confidence_interval
 
         if standard_deviation is None:
@@ -47,8 +46,7 @@ class ConfidenceIntervalApplicator:
             # Try to infer for forecast df, else use a max of 48 hours
             far = min(
                 48.0,
-                (
-                            forecast.index.max() - forecast.index.min()).total_seconds() / 3600.0,
+                (forecast.index.max() - forecast.index.min()).total_seconds() / 3600.0,
             )
             stdev.rename(columns={"Near": near, "Far": far}, inplace=True)
         else:
@@ -60,8 +58,8 @@ class ConfidenceIntervalApplicator:
         if "tAhead" not in forecast_copy.columns:
             # Assume first datapoint is 'now'
             forecast_copy["tAhead"] = (
-                                              forecast_copy.index - forecast_copy.index.min()
-                                      ).total_seconds() / 3600.0
+                forecast_copy.index - forecast_copy.index.min()
+            ).total_seconds() / 3600.0
         # add helper column hour
         forecast_copy["hour"] = forecast_copy.index.hour
 
@@ -85,6 +83,5 @@ class ConfidenceIntervalApplicator:
             lambda x: calc_exp_dec(x.tAhead, stdev.loc[x.hour], near, far), axis=1
         )
         # -------- End moved from feature_engineering.add_stdev --------------------- #
-
 
         return forecast_copy.drop(columns=["hour"])

@@ -6,11 +6,18 @@ import pandas as pd
 
 
 from ktpbase.database import DataBase
-from openstf.pipeline.create_forecast import generate_forecast_datetime_range, generate_inputdata_datetime_range
+from openstf.pipeline.create_forecast import (
+    generate_forecast_datetime_range,
+    generate_inputdata_datetime_range,
+)
 from openstf.validation.validation import validate, clean, is_data_sufficient
-from openstf.feature_engineering.feature_applicator import OperationalPredictFeatureApplicator
+from openstf.feature_engineering.feature_applicator import (
+    OperationalPredictFeatureApplicator,
+)
 from openstf.model.confidence_interval_applicator import ConfidenceIntervalApplicator
-MODEL_LOCATION = Path('.')
+
+MODEL_LOCATION = Path(".")
+
 
 def predict_pipeline(pj):
 
@@ -42,11 +49,13 @@ def predict_pipeline(pj):
     validated_data = validate(input_data)
 
     # Add features
-    data_with_features = OperationalPredictFeatureApplicator(horizons=[0.25], features=model._Booster.feature_names).add_features(validated_data)
+    data_with_features = OperationalPredictFeatureApplicator(
+        horizons=[0.25], features=model._Booster.feature_names
+    ).add_features(validated_data)
 
     # Check if sufficient data is left after cleaning
     if not is_data_sufficient(data_with_features):
-        print('Use fallback model')
+        print("Use fallback model")
 
     # Predict
     forecast_input_data = data_with_features[forecast_start:forecast_end]
@@ -61,10 +70,14 @@ def predict_pipeline(pj):
     forecast = ConfidenceIntervalApplicator(model).add_confidence_interval(forecast)
 
     # Prepare for output
-    forecast = add_prediction_job_properties_to_forecast(pj, forecast,)
+    forecast = add_prediction_job_properties_to_forecast(
+        pj,
+        forecast,
+    )
 
     # write forefast to db
     print(forecast)
+
 
 def add_prediction_job_properties_to_forecast(
     pj, forecast, forecast_type=None, forecast_quality=None
@@ -89,7 +102,7 @@ def add_prediction_job_properties_to_forecast(
     forecast["customer"] = pj["name"]
     forecast["description"] = pj["description"]
     forecast["type"] = forecast_type
-    forecast["algtype"] = pj['model']
+    forecast["algtype"] = pj["model"]
 
     return forecast
 

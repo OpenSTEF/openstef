@@ -3,7 +3,8 @@ from lightgbm import LGBMRegressor
 
 from openstf.enums import MLModelType
 
-class ModelCreator():
+
+class ModelCreator:
     """Factory object for creating model trainer objects"""
 
     # Set object mapping
@@ -19,6 +20,7 @@ class ModelCreator():
 
         self.pj = pj
         # TODO see if this can be configured more generally for example in a system yaml
+
     def create_model(self):
 
         model_type = MLModelType(self.pj["model"])

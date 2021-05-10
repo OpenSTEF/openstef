@@ -9,12 +9,15 @@ from openstf.metrics import figure
 
 
 class Reporter:
+    def __init__(
+        self,
+        pj: dict = None,
+        train_data: pd.DataFrame = None,
+        validation_data: pd.DataFrame = None,
+        test_data: pd.DataFrame = None,
+    ) -> None:
 
-    def __init__(self, pj: dict = None, train_data: pd.DataFrame = None,
-                 validation_data: pd.DataFrame = None,
-                 test_data: pd.DataFrame = None) -> None:
-
-        """ Initializes reporter object
+        """Initializes reporter object
 
         Args:
             pj:
@@ -30,8 +33,9 @@ class Reporter:
             validation_data,
             test_data,
         ]
-        self.save_path = Path(ConfigManager.get_instance().paths.webroot) / self.pj[
-            'id']  # Path were visuals are saved
+        self.save_path = (
+            Path(ConfigManager.get_instance().paths.webroot) / self.pj["id"]
+        )  # Path were visuals are saved
 
     def make_and_save_dashboard_figures(self, model: RegressorMixin) -> None:
 
@@ -65,7 +69,8 @@ class Reporter:
 
         # Make feature importance plot
         self.feature_importance_plot = figure.plot_feature_importance(
-            feature_importance)
+            feature_importance
+        )
 
     def _extract_feature_importance(self, model):
         """Return feature importances and weights of trained model.
