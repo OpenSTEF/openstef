@@ -17,9 +17,6 @@ MAXIMUM_MODEL_AGE: int = 7
 EARLY_STOPPING_ROUNDS: int = 10
 PENALTY_FACTOR_OLD_MODEL: float = 1.2
 
-SAVE_PATH = Path(".")
-OLD_MODEL_PATH = "."
-
 
 def train_model_pipeline(
     pj: dict, check_old_model_age: bool = True, compare_to_old: bool = True
@@ -110,7 +107,7 @@ def train_model_pipeline(
     # Report about the training procces
     Reporter(
         pj, train_data, validation_data, test_data
-    ).make_and_save_dashboard_figures(model, SAVE_PATH)
+    ).make_and_save_dashboard_figures(model)
 
     # Do confidence interval determination
     model = ConfidenceIntervalGenerator(

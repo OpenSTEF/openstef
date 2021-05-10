@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 
 import pandas as pd
+from ktpbase.config.config import ConfigManager
 from sklearn.base import RegressorMixin
 
 from openstf.metrics import figure
@@ -21,22 +22,22 @@ class Reporter:
             validation_data:
             test_data:
         """
-
-
-
         self.pj = pj
         self.horizons = train_data.Horizon.unique()
         self.predicted_data_list = []
         self.input_data_list = [
-        train_data,
-        validation_data,
-        test_data,
-    ]
+            train_data,
+            validation_data,
+            test_data,
+        ]
+        self.save_path = Path(ConfigManager.get_instance().paths.webroot) / self.pj[
+            'id']  # Path were visuals are saved
 
-    def make_and_save_dashboard_figures(self, model: RegressorMixin, save_path: Path) -> None:
+    def make_and_save_dashboard_figures(self, model: RegressorMixin) -> None:
+
         self._make_data_series_figures(model)
         self._make_feature_importance_plot(model)
-        self._save_dashboard_figures(save_path)
+        self._save_dashboard_figures(self.save_path)
 
     def _make_data_series_figures(self, model: RegressorMixin) -> None:
 
@@ -44,7 +45,7 @@ class Reporter:
         for data_set in self.input_data_list:
             model_forecast = model.predict(data_set.iloc[:, 1:])
             forecast = pd.DataFrame(
-            index=data_set.index, data={"forecast": model_forecast}
+                index=data_set.index, data={"forecast": model_forecast}
             )
             self.predicted_data_list.append(forecast)
 
@@ -63,7 +64,8 @@ class Reporter:
         feature_importance = self._extract_feature_importance(model)
 
         # Make feature importance plot
-        self.feature_importance_plot = figure.plot_feature_importance(feature_importance)
+        self.feature_importance_plot = figure.plot_feature_importance(
+            feature_importance)
 
     def _extract_feature_importance(self, model):
         """Return feature importances and weights of trained model.
