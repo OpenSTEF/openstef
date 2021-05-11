@@ -2,20 +2,18 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 from pathlib import Path
+from datetime import datetime, timedelta, timezone
 
-import joblib
 import pandas as pd
 
 
 from ktpbase.database import DataBase
-from openstf.pipeline.create_forecast import (
-    generate_forecast_datetime_range,
-    generate_inputdata_datetime_range,
-)
-from openstf.validation.validation import validate, clean, is_data_sufficient
+
+from openstf.validation.validation import validate, is_data_sufficient
 from openstf.feature_engineering.feature_applicator import (
     OperationalPredictFeatureApplicator,
 )
+from openstf.model.serializer import PersistentStorageSerializer
 from openstf.model.confidence_interval_applicator import ConfidenceIntervalApplicator
 
 MODEL_LOCATION = Path(".")
@@ -42,10 +40,8 @@ def predict_pipeline(pj):
     )
 
     # Get model
-    model = joblib.load(MODEL_LOCATION / "model.sav")
+    model = PersistentStorageSerializer(pj).load_model()
 
-    # Get hyper parameters
-    hyper_params = DataBase().get_hyper_params(pj)
 
     # Validate and clean data
     validated_data = validate(input_data)
@@ -107,6 +103,25 @@ def add_prediction_job_properties_to_forecast(
     forecast["algtype"] = pj["model"]
 
     return forecast
+
+def generate_inputdata_datetime_range(t_behind_days=14, t_ahead_days=3):
+    # get current date UTC
+    date_today_utc = datetime.now(timezone.utc).date()
+    # Date range for input data
+    datetime_start = date_today_utc - timedelta(days=t_behind_days)
+    datetime_end = date_today_utc + timedelta(days=t_ahead_days)
+
+    return datetime_start, datetime_end
+
+
+def generate_forecast_datetime_range(resolution_minutes, horizon_minutes):
+    # get current date and time UTC
+    datetime_utc = datetime.now(timezone.utc)
+    # Datetime range for time interval to be predicted
+    forecast_start = datetime_utc - timedelta(minutes=resolution_minutes)
+    forecast_end = datetime_utc + timedelta(minutes=horizon_minutes)
+
+    return forecast_start, forecast_end
 
 
 if __name__ == "__main__":
