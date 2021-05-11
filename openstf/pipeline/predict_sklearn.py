@@ -42,7 +42,6 @@ def predict_pipeline(pj):
     # Get model
     model = PersistentStorageSerializer(pj).load_model()
 
-
     # Validate and clean data
     validated_data = validate(input_data)
 
@@ -103,6 +102,7 @@ def add_prediction_job_properties_to_forecast(
     forecast["algtype"] = pj["model"]
 
     return forecast
+
 
 def generate_inputdata_datetime_range(t_behind_days=14, t_ahead_days=3):
     # get current date UTC
