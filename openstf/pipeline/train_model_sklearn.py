@@ -8,7 +8,7 @@ from ktpbase.database import DataBase
 from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
 from openstf.model.confidence_interval_generator import ConfidenceIntervalGenerator
 from openstf.model.model_creator import ModelCreator
-from openstf.model.reporter import Reporter
+from openstf.metrics.reporter import Reporter
 from openstf.model.serializer import PersistentStorageSerializer
 from openstf.model_selection.model_selection import split_data_train_validation_test
 from openstf.validation.validation import validate, clean, is_data_sufficient
