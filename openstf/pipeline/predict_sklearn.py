@@ -10,7 +10,7 @@ from openstf.feature_engineering.feature_applicator import OperationalPredictFea
 from openstf.model.confidence_interval_applicator import ConfidenceIntervalApplicator
 from openstf.preprocessing import preprocessing
 
-MODEL_LOCATION = Path('.')
+MODEL_LOCATION = Path(".")
 
 def predict_pipeline(pj, input_data):
     """Computes the forecasts and confidence intervals given a prediction job and input data.

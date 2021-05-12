@@ -1,7 +1,7 @@
 from pathlib import Path
+import pandas as pd
 
 import joblib
-from ktpbase.database import DataBase
 from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
 from openstf.model.confidence_interval_generator import ConfidenceIntervalGenerator
 from openstf.model.model_creator import ModelCreator
@@ -15,11 +15,11 @@ MAXIMUM_MODEL_AGE: float = 7
 EARLY_STOPPING_ROUNDS: int = 10
 PENALTY_FACTOR_OLD_MODEL: float = 1.2
 
-SAVE_PATH = Path('.')
-OLD_MODEL_PATH = '.'
+SAVE_PATH = Path(".")
+OLD_MODEL_PATH = "."
 
 
-def train_model_pipeline(pj: dict, input_data, check_old_model_age: bool = True,
+def train_model_pipeline(pj: dict, input_data: pd.DataFrame, check_old_model_age: bool = True,
                          compare_to_old: bool = True) -> None:
     # Get old model path and age
     # TODO some function here that retrieves age of the old model
@@ -42,8 +42,8 @@ def train_model_pipeline(pj: dict, input_data, check_old_model_age: bool = True,
 
     # Add features
     data_with_features = TrainFeatureApplicator(TRAIN_HORIZONS,
-                                                features=pj['features_set']
-                                                ).add_features(validated_data)
+        features=pj['features_set']
+    ).add_features(validated_data)
 
     # Split data
     train_data, validation_data, test_data = split_data_train_validation_test(

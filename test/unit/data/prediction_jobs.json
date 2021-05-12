@@ -36,7 +36,7 @@
             0.9,
             0.95
         ],
-        "hyperparams" : {
+        "hyper_params" : {
             "subsample" : 0.9650102355823993,
             "min_child_weight": 3,
             "max_depth": 6,
