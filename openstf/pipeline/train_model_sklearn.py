@@ -30,10 +30,17 @@ def train_model_pipeline(
     check_old_model_age: bool = True,
     compare_to_old: bool = True,
 ) -> None:
-    # Get old model path and age
-    # TODO some function here that retrieves age of the old model
-    old_model_age = 5
 
+    # Get old model and age
+    old_model_age = float("inf")  # Default in case old model could not be loaded
+    try:
+        old_model = PersistentStorageSerializer(pj).load_model()
+        old_model_age = old_model.age
+    except FileNotFoundError:
+        print("No old model found retraining anyway")
+        compare_to_old = (
+            False  # If we do not have an old model we cannot use is to compare
+        )
     # Check old model age and continue yes/no
     if (old_model_age < MAXIMUM_MODEL_AGE) and check_old_model_age:
         print("Model is newer than 7 days!")
