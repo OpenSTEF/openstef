@@ -5,7 +5,6 @@ import joblib
 import pandas as pd
 import structlog
 
-from ktpbase.database import DataBase
 from openstf.validation.validation import validate, is_data_sufficient, find_nonzero_flatliner
 from openstf.feature_engineering.feature_applicator import OperationalPredictFeatureApplicator
 from openstf.model.confidence_interval_applicator import ConfidenceIntervalApplicator
@@ -14,7 +13,15 @@ from openstf.preprocessing import preprocessing
 MODEL_LOCATION = Path('.')
 
 def predict_pipeline(pj, input_data):
+    """Computes the forecasts and confidence intervals given a prediction job and input data.
 
+    Args:
+        pj: (dict) prediction job
+        input_data (pandas.DataFrame): data frame containing the input data necessary for the prediction.
+
+    Returns:
+        forecast (pandas.DataFrame)
+    """
     # Get input data
     forecast_start, forecast_end = generate_forecast_datetime_range(
         resolution_minutes=pj["resolution_minutes"],
@@ -52,8 +59,7 @@ def predict_pipeline(pj, input_data):
     # Prepare for output
     forecast = add_prediction_job_properties_to_forecast(pj, forecast,)
 
-    # write forefast to db
-    print(forecast)
+    return forecast
 
 def add_prediction_job_properties_to_forecast(
     pj, forecast, forecast_type=None, forecast_quality=None
@@ -99,13 +105,6 @@ def generate_forecast_datetime_range(resolution_minutes, horizon_minutes):
     forecast_end = datetime_utc + timedelta(minutes=horizon_minutes)
 
     return forecast_start, forecast_end
-
-def _clear_input_data_cache():
-    """Clear the input data cache dictionairy.
-    This is mainly useful for testing.
-    """
-    global _input_data_cache
-    _input_data_cache = {}
 
 def pre_process_input_data(input_data, flatliner_threshold):
     logger = structlog.get_logger(__name__)
