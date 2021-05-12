@@ -9,9 +9,9 @@ import pandas as pd
 
 from openstf.model.confidence_interval_applicator import ConfidenceIntervalApplicator
 
+
 class MockModel:
     confidence_interval = pd.DataFrame()
-
 
 
 class TestXGBPredictionModel(BaseTestCase):
@@ -19,9 +19,9 @@ class TestXGBPredictionModel(BaseTestCase):
         stdev_forecast = pd.DataFrame({"forecast": [5, 6, 7], "stdev": [0.5, 0.6, 0.7]})
         pj = {"quantiles": [0.01, 0.10, 0.25, 0.50, 0.75, 0.90, 0.99]}
 
-        pp_forecast = ConfidenceIntervalApplicator(MockModel())._add_quantiles_to_forecast(
-            stdev_forecast, pj["quantiles"]
-        )
+        pp_forecast = ConfidenceIntervalApplicator(
+            MockModel()
+        )._add_quantiles_to_forecast(stdev_forecast, pj["quantiles"])
 
         expected_new_columns = [
             f"quantile_P{int(q * 100):02d}" for q in pj["quantiles"]

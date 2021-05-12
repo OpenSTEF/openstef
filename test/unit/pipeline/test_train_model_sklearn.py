@@ -6,7 +6,10 @@ from test.utils import BaseTestCase
 
 import pandas as pd
 
-from openstf.pipeline.train_model_sklearn import train_model_pipeline, split_data_train_validation_test
+from openstf.pipeline.train_model_sklearn import (
+    train_model_pipeline,
+    split_data_train_validation_test,
+)
 
 
 # define constants
@@ -24,7 +27,6 @@ XGB_HYPER_PARAMS = {
 
 
 class TestTrainModel(BaseTestCase):
-
     def setUp(self) -> None:
         super().setUp()
         self.pj = TestData.get_prediction_job(pid=307)
@@ -32,8 +34,8 @@ class TestTrainModel(BaseTestCase):
         datetime_end = datetime.utcnow()
         self.data_table = TestData.load("input_data_train.pickle").head(8641)
         self.data = pd.DataFrame(
-            index=pd.date_range(datetime_start, datetime_end, freq="15T"))
-
+            index=pd.date_range(datetime_start, datetime_end, freq="15T")
+        )
 
     def test_split_data_train_validation_test(self):
         train_data, validation_data, test_data = split_data_train_validation_test(
@@ -50,7 +52,7 @@ class TestTrainModel(BaseTestCase):
         self.assertEqual(len(train_data), 7345)
         self.assertEqual(len(validation_data), 1296)
         self.assertEqual(len(test_data), 1)
-        
+
     def test_something(self):
         self.assertEqual(True, False)
 

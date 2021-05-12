@@ -5,7 +5,10 @@ import pandas as pd
 from test.utils.base import BaseTestCase
 from test.utils.data import TestData
 
-from openstf.pipeline.train_model_sklearn import train_model_pipeline, split_data_train_validation_test
+from openstf.pipeline.train_model_sklearn import (
+    train_model_pipeline,
+    split_data_train_validation_test,
+)
 
 
 class TestTrain(BaseTestCase):
@@ -16,8 +19,8 @@ class TestTrain(BaseTestCase):
         datetime_end = datetime.utcnow()
         self.data_table = TestData.load("input_data_train.pickle").head(8641)
         self.data = pd.DataFrame(
-            index=pd.date_range(datetime_start, datetime_end, freq="15T"))
-
+            index=pd.date_range(datetime_start, datetime_end, freq="15T")
+        )
 
     def test_split_data_train_validation_test(self):
         train_data, validation_data, test_data = split_data_train_validation_test(

@@ -10,8 +10,9 @@ class ConfidenceIntervalApplicator:
         self.confidence_interval = model.confidence_interval
 
     def add_confidence_interval(self, forecast, quantiles):
-        temp_forecast =  self._add_standard_deviation_to_forecast(forecast)
+        temp_forecast = self._add_standard_deviation_to_forecast(forecast)
         return self._add_quantiles_to_forecast(temp_forecast, quantiles)
+
     def _add_standard_deviation_to_forecast(self, forecast):
         """Add a standard deviation to a live forecast.
 
@@ -109,8 +110,7 @@ class ConfidenceIntervalApplicator:
         for quantile in quantiles:
             quantile_key = f"quantile_P{quantile * 100:02.0f}"
             forecast[quantile_key] = (
-                    forecast["forecast"]
-                    + stats.norm.ppf(quantile) * forecast["stdev"]
+                forecast["forecast"] + stats.norm.ppf(quantile) * forecast["stdev"]
             )
 
         return forecast
