@@ -5,7 +5,7 @@ import joblib
 import pandas as pd
 import structlog
 
-from openstf.validation.validation import validate, is_data_sufficient, find_nonzero_flatliner
+from openstf.validation import validation
 from openstf.feature_engineering.feature_applicator import OperationalPredictFeatureApplicator
 from openstf.model.confidence_interval_applicator import ConfidenceIntervalApplicator
 from openstf.preprocessing import preprocessing
@@ -35,13 +35,13 @@ def predict_pipeline(pj, input_data):
     model = joblib.load(MODEL_LOCATION / "model.sav")
 
     # Validate and clean data
-    validated_data = validate(input_data)
+    validated_data = validation.validate(input_data)
 
     # Add features
     data_with_features = OperationalPredictFeatureApplicator(horizons=[0.25], features=model._Booster.feature_names).add_features(validated_data)
 
     # Check if sufficient data is left after cleaning
-    if not is_data_sufficient(data_with_features):
+    if not validation.is_data_sufficient(data_with_features):
         print('Use fallback model')
 
     # Predict
@@ -109,7 +109,7 @@ def generate_forecast_datetime_range(resolution_minutes, horizon_minutes):
 def pre_process_input_data(input_data, flatliner_threshold):
     logger = structlog.get_logger(__name__)
     # Check for repeated load observations due to invalid measurements
-    suspicious_moments = find_nonzero_flatliner(
+    suspicious_moments = validation.find_nonzero_flatliner(
         input_data, threshold=flatliner_threshold
     )
     if suspicious_moments is not None:
@@ -124,7 +124,3 @@ def pre_process_input_data(input_data, flatliner_threshold):
         )
 
     return input_data
-
-if __name__ == "__main__":
-    pj = DataBase().get_prediction_job(307)
-    predict_pipeline(pj)
