@@ -83,7 +83,7 @@ class PersistentStorageSerializer(AbstractSerializer):
             self.logger.error(
                 "Could not load most recent model!", pid=self.pj["id"], exception=e
             )
-            raise FileNotFoundError
+            raise FileNotFoundError("Could not load model from the model file!")
 
         # exctract model age
         model_age_in_days = float("inf")  # In case no model is loaded,
@@ -133,7 +133,7 @@ class PersistentStorageSerializer(AbstractSerializer):
         model_folders = []
 
         # Loop over all subfolder of pid_model_folder and store the ones starting with
-        # a 2 (date starts with 2000s)
+        # a 2 (date starts with 2000s), this is nesscerary for legacy reasons.
         for folder in pid_model_folder.iterdir():
             if folder.name.startswith("2") is True and folder.is_dir() is True:
                 model_folders.append(folder)
