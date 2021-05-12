@@ -9,6 +9,7 @@ from openstf.pipeline import predict_sklearn
 NOW = datetime.now(timezone.utc)
 PJ = TestData.get_prediction_job(pid=60)
 
+
 @mock.patch("openstf.pipeline.predict_sklearn.DataBase", MagicMock())
 class TestPredict(BaseTestCase):
     def test_generate_inputdata_datetime_range(self):
@@ -59,7 +60,7 @@ class TestPredict(BaseTestCase):
     @patch("openstf.validation.validation.find_nonzero_flatliner")
     @patch("openstf.preprocessing.preprocessing.replace_invalid_data")
     def test_pre_process_input_data(
-            self, replace_invalid_data_mock, nonzero_flatliner_mock
+        self, replace_invalid_data_mock, nonzero_flatliner_mock
     ):
         suspicious_moments = True
 
@@ -80,5 +81,6 @@ class TestPredict(BaseTestCase):
         for mock_func in [nonzero_flatliner_mock, replace_invalid_data_mock]:
             self.assertEqual(mock_func.call_count, 1)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

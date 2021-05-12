@@ -23,8 +23,13 @@ PENALTY_FACTOR_OLD_MODEL: float = 1.2
 SAVE_PATH = Path(".")
 OLD_MODEL_PATH = "."
 
-def train_model_pipeline(pj: dict, input_data: pd.DataFrame, check_old_model_age: bool = True,
-                         compare_to_old: bool = True) -> None:
+
+def train_model_pipeline(
+    pj: dict,
+    input_data: pd.DataFrame,
+    check_old_model_age: bool = True,
+    compare_to_old: bool = True,
+) -> None:
     # Get old model path and age
     # TODO some function here that retrieves age of the old model
     old_model_age = 5
@@ -35,7 +40,7 @@ def train_model_pipeline(pj: dict, input_data: pd.DataFrame, check_old_model_age
         return
 
     # Get hyper parameters
-    hyper_params = pj['hyper_params']
+    hyper_params = pj["hyper_params"]
 
     # Validate and clean data
     validated_data = clean(validate(input_data))
@@ -49,8 +54,8 @@ def train_model_pipeline(pj: dict, input_data: pd.DataFrame, check_old_model_age
         )
 
     # Add features
-    data_with_features = TrainFeatureApplicator(TRAIN_HORIZONS,
-        features=pj['features_set']
+    data_with_features = TrainFeatureApplicator(
+        TRAIN_HORIZONS, features=pj["features_set"]
     ).add_features(validated_data)
 
     # Split data

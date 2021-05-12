@@ -8,11 +8,14 @@ import pandas as pd
 import structlog
 
 from openstf.validation import validation
-from openstf.feature_engineering.feature_applicator import OperationalPredictFeatureApplicator
+from openstf.feature_engineering.feature_applicator import (
+    OperationalPredictFeatureApplicator,
+)
 from openstf.model.confidence_interval_applicator import ConfidenceIntervalApplicator
 from openstf.preprocessing import preprocessing
 
 MODEL_LOCATION = Path(".")
+
 
 def predict_pipeline(pj, input_data):
     """Computes the forecasts and confidence intervals given a prediction job and input data.
@@ -47,7 +50,7 @@ def predict_pipeline(pj, input_data):
 
     # Check if sufficient data is left after cleaning
     if not validation.is_data_sufficient(data_with_features):
-        print('Use fallback model')
+        print("Use fallback model")
 
     # Predict
     forecast_input_data = data_with_features[forecast_start:forecast_end]
@@ -97,6 +100,7 @@ def add_prediction_job_properties_to_forecast(
 
     return forecast
 
+
 def generate_inputdata_datetime_range(t_behind_days=14, t_ahead_days=3):
     # get current date UTC
     date_today_utc = datetime.now(timezone.utc).date()
@@ -106,6 +110,7 @@ def generate_inputdata_datetime_range(t_behind_days=14, t_ahead_days=3):
 
     return datetime_start, datetime_end
 
+
 def generate_forecast_datetime_range(resolution_minutes, horizon_minutes):
     # get current date and time UTC
     datetime_utc = datetime.now(timezone.utc)
@@ -114,6 +119,7 @@ def generate_forecast_datetime_range(resolution_minutes, horizon_minutes):
     forecast_end = datetime_utc + timedelta(minutes=horizon_minutes)
 
     return forecast_start, forecast_end
+
 
 def pre_process_input_data(input_data, flatliner_threshold):
     logger = structlog.get_logger(__name__)

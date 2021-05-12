@@ -19,10 +19,11 @@ XGB_HYPER_PARAMS = {
     "training_period_days": 90,
 }
 
+
 class TestTrainModel(BaseTestCase):
     def test_something(self):
         self.assertEqual(True, False)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
