@@ -1,17 +1,20 @@
+# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+#
+# SPDX-License-Identifier: MPL-2.0
 import numpy as np
 import pandas as pd
 from sklearn.base import RegressorMixin
 
 
 class ConfidenceIntervalGenerator:
-
-    def __init__(self,pj: dict, validation_data: pd.DataFrame) -> None:
+    def __init__(self, pj: dict, validation_data: pd.DataFrame) -> None:
 
         self.pj = pj
         self.validation_data = validation_data
 
-    def generate_confidence_interval_data(self, model: RegressorMixin) -> RegressorMixin:
-
+    def generate_confidence_interval_data(
+        self, model: RegressorMixin
+    ) -> RegressorMixin:
 
         # Define some variables
         predicted = None
@@ -23,13 +26,9 @@ class ConfidenceIntervalGenerator:
             sub_val = self.validation_data[self.validation_data.Horizon == horizon]
 
             try:
-                predicted = model.predict(
-                    sub_val.iloc[:, 1:]
-                )
+                predicted = model.predict(sub_val.iloc[:, 1:])
             except Exception as e:
-                print(
-                    "Could not get prediction from new model!"
-                )
+                print("Could not get prediction from new model!")
 
             # Calculate confidence interval for this horizon
             confidence_interval_horizon = self._calculate_confidence_interval(
@@ -70,5 +69,3 @@ class ConfidenceIntervalGenerator:
         result = result.astype("float")
 
         return result
-
-
