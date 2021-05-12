@@ -1,9 +1,13 @@
+# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+#
+# SPDX-License-Identifier: MPL-2.0
 from xgboost import XGBRegressor
 from lightgbm import LGBMRegressor
 
 from openstf.enums import MLModelType
 
-class ModelCreator():
+
+class ModelCreator:
     """Factory object for creating model trainer objects"""
 
     # Set object mapping
@@ -19,6 +23,7 @@ class ModelCreator():
 
         self.pj = pj
         # TODO see if this can be configured more generally for example in a system yaml
+
     def create_model(self):
 
         model_type = MLModelType(self.pj["model"])

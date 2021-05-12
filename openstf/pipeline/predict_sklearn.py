@@ -1,7 +1,9 @@
-from datetime import datetime, timedelta, timezone
+# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+#
+# SPDX-License-Identifier: MPL-2.0
 from pathlib import Path
+from datetime import datetime, timedelta, timezone
 
-import joblib
 import pandas as pd
 import structlog
 
@@ -14,6 +16,7 @@ MODEL_LOCATION = Path(".")
 
 def predict_pipeline(pj, input_data):
     """Computes the forecasts and confidence intervals given a prediction job and input data.
+
 
     Args:
         pj: (dict) prediction job
@@ -38,7 +41,9 @@ def predict_pipeline(pj, input_data):
     validated_data = validation.validate(input_data)
 
     # Add features
-    data_with_features = OperationalPredictFeatureApplicator(horizons=[0.25], features=model._Booster.feature_names).add_features(validated_data)
+    data_with_features = OperationalPredictFeatureApplicator(
+        horizons=[0.25], features=model._Booster.feature_names
+    ).add_features(validated_data)
 
     # Check if sufficient data is left after cleaning
     if not validation.is_data_sufficient(data_with_features):
@@ -57,9 +62,13 @@ def predict_pipeline(pj, input_data):
     forecast = ConfidenceIntervalApplicator(model).add_confidence_interval(forecast)
 
     # Prepare for output
-    forecast = add_prediction_job_properties_to_forecast(pj, forecast,)
+    forecast = add_prediction_job_properties_to_forecast(
+        pj,
+        forecast,
+    )
 
     return forecast
+
 
 def add_prediction_job_properties_to_forecast(
     pj, forecast, forecast_type=None, forecast_quality=None
@@ -84,7 +93,7 @@ def add_prediction_job_properties_to_forecast(
     forecast["customer"] = pj["name"]
     forecast["description"] = pj["description"]
     forecast["type"] = forecast_type
-    forecast["algtype"] = pj['model']
+    forecast["algtype"] = pj["model"]
 
     return forecast
 
