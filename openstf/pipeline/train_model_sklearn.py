@@ -116,8 +116,3 @@ def train_model_pipeline(
     # Persist model
     PersistentStorageSerializer(pj).save_model(model)
 
-
-if __name__ == "__main__":
-    pj = DataBase().get_prediction_job(307)
-
-    train_model_pipeline(pj)
