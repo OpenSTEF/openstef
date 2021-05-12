@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+#
+# SPDX-License-Identifier: MPL-2.0
 from datetime import datetime, timedelta
 import unittest
 from unittest.mock import MagicMock, patch
