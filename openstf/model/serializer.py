@@ -86,7 +86,7 @@ class PersistentStorageSerializer(AbstractSerializer):
             raise FileNotFoundError
 
         # exctract model age
-        model_age_in_days = float('inf')  # In case no model is loaded,
+        model_age_in_days = float("inf")  # In case no model is loaded,
         # we still need to provide an age
         if loaded_model is not None:
             model_age_in_days = self._determine_model_age_from_path(
@@ -100,8 +100,8 @@ class PersistentStorageSerializer(AbstractSerializer):
 
     def _build_pid_model_folder_path(self) -> Path:
         """Build the trained models path for the given pid.
-            The trainded models are stored a folder structure using the following
-            template: <trained_models_folder>/<pid>[_<component-name>]/<YYYYMMDDHHMMSS>/
+        The trainded models are stored a folder structure using the following
+        template: <trained_models_folder>/<pid>[_<component-name>]/<YYYYMMDDHHMMSS>/
 
         """
 
@@ -190,9 +190,9 @@ class PersistentStorageSerializer(AbstractSerializer):
             self.logger.warning(
                 "Could not parse model folder name to determine model age. Returning infinite age!",
                 exception=e,
-                folder_name=datetime_string
+                folder_name=datetime_string,
             )
-            return float('inf') # Return fallback age
+            return float("inf")  # Return fallback age
 
         # Get time difference between now and training in days
         model_age_days = (datetime.utcnow() - model_datetime).days
