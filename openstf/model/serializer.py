@@ -7,12 +7,10 @@ from pathlib import Path
 
 import joblib
 import structlog
+from ktpbase.config.config import ConfigManager
 from sklearn.base import RegressorMixin
 
-from ktpbase.config.config import ConfigManager
-
-
-MODEL_FILENAME = "model.sav"
+MODEL_FILENAME = "model.joblib"
 FOLDER_DATETIME_FORMAT = "%Y%m%d%H%M%S"
 
 
@@ -42,7 +40,6 @@ class AbstractSerializer(ABC):
 
 
 class PersistentStorageSerializer(AbstractSerializer):
-
     trained_models_folder = Path(ConfigManager.get_instance().paths.trained_models)
 
     def save_model(self, model: RegressorMixin) -> None:
@@ -59,10 +56,7 @@ class PersistentStorageSerializer(AbstractSerializer):
         save_path.mkdir(parents=True, exist_ok=True)
 
         # Save model
-        try:
-            joblib.dump(model, save_path / MODEL_FILENAME)
-        except Exception as e:
-            self.logger.error("Could not save model!", pid=self.pj["id"], exception=e)
+        joblib.dump(model, save_path / MODEL_FILENAME)
 
     def load_model(self) -> RegressorMixin:
         """Loads model from persistent storage that has been trained earlier
@@ -92,31 +86,30 @@ class PersistentStorageSerializer(AbstractSerializer):
             raise FileNotFoundError
 
         # exctract model age
-        model_age_in_days = self._determine_model_age_from_path(
-            location_most_recent_model
-        )
+        model_age_in_days = float('inf')  # In case no model is loaded,
+        # we still need to provide an age
+        if loaded_model is not None:
+            model_age_in_days = self._determine_model_age_from_path(
+                location_most_recent_model
+            )
 
         # Add model age to model object
         loaded_model.age = model_age_in_days
 
         return loaded_model
 
-    def _build_pid_model_folder_path(self, custom_folder: Path = None) -> Path:
+    def _build_pid_model_folder_path(self) -> Path:
         """Build the trained models path for the given pid.
             The trainded models are stored a folder structure using the following
             template: <trained_models_folder>/<pid>[_<component-name>]/<YYYYMMDDHHMMSS>/
-        Args:
-            custom_folder (pathlike): Path to custom trainded models folder
+
         """
 
         # Folder name is equal to pid
         model_folder_name = f"{self.pj['id']}"
 
         # Use custom folder if specified otherwise use the one from the config manager
-        if custom_folder is not None:
-            trained_models_folder = custom_folder
-        else:
-            trained_models_folder = self.trained_models_folder
+        trained_models_folder = self.trained_models_folder
 
         # Combine into complete folder path
         model_folder = trained_models_folder / model_folder_name
@@ -177,26 +170,29 @@ class PersistentStorageSerializer(AbstractSerializer):
 
         return save_folder
 
-    @staticmethod
-    def _determine_model_age_from_path(model_location: Path) -> float:
+    def _determine_model_age_from_path(self, model_location: Path) -> float:
         """Determines how many days ago a model is trained base on the folder name.
 
         Args:
-            model_location: pathlib.Path: Path to the most recent model file
+            model_location: pathlib.Path: Path to the model folder
 
         Returns: Number of days since training of the model
 
         """
 
-        # If we cannot determine the age return infinite days
-        if model_location is None:
-            return float("inf")
-
-        # trained_models/<pid>/<YYYYMMDDHHMMSS>/
+        # Location is of this format: TRAINED_MODELS_FOLDER/<pid>/<YYYYMMDDHHMMSS>/
         datetime_string = model_location.name
 
         # Convert string to datetime object
-        model_datetime = datetime.strptime(datetime_string, FOLDER_DATETIME_FORMAT)
+        try:
+            model_datetime = datetime.strptime(datetime_string, FOLDER_DATETIME_FORMAT)
+        except Exception as e:
+            self.logger.warning(
+                "Could not parse model folder name to determine model age. Returning infinite age!",
+                exception=e,
+                folder_name=datetime_string
+            )
+            return float('inf') # Return fallback age
 
         # Get time difference between now and training in days
         model_age_days = (datetime.utcnow() - model_datetime).days
