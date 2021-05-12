@@ -115,4 +115,3 @@ def train_model_pipeline(
 
     # Persist model
     PersistentStorageSerializer(pj).save_model(model)
-
