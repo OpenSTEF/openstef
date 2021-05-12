@@ -2,15 +2,16 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 import numpy as np
+from scipy import stats
 
 
 class ConfidenceIntervalApplicator:
     def __init__(self, model):
         self.confidence_interval = model.confidence_interval
 
-    def add_confidence_interval(self, forecast):
-        return self._add_standard_deviation_to_forecast(forecast)
-
+    def add_confidence_interval(self, forecast, quantiles):
+        temp_forecast =  self._add_standard_deviation_to_forecast(forecast)
+        return self._add_quantiles_to_forecast(temp_forecast, quantiles)
     def _add_standard_deviation_to_forecast(self, forecast):
         """Add a standard deviation to a live forecast.
 
@@ -88,3 +89,28 @@ class ConfidenceIntervalApplicator:
         # -------- End moved from feature_engineering.add_stdev --------------------- #
 
         return forecast_copy.drop(columns=["hour"])
+
+    @staticmethod
+    def _add_quantiles_to_forecast(forecast, quantiles):
+        """Add quantiles to forecast.
+        Use the standard deviation to calculate the quantiles.
+        Args:
+            forecast (pd.DataFrame): Forecast (should contain a 'forecast' + 'stdev' column)
+            quantiles (list): List with desired quantiles
+        Returns:
+            (pd.DataFrame): Forecast DataFrame with quantile (e.g. 'quantile_PXX')
+                columns added.
+        """
+
+        # Check if stdev and forecast are in the dataframe
+        if not all(elem in forecast.columns for elem in ["forecast", "stdev"]):
+            raise ValueError("Forecast should contain a 'forecast' and 'stdev' column")
+
+        for quantile in quantiles:
+            quantile_key = f"quantile_P{quantile * 100:02.0f}"
+            forecast[quantile_key] = (
+                    forecast["forecast"]
+                    + stats.norm.ppf(quantile) * forecast["stdev"]
+            )
+
+        return forecast

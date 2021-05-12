@@ -6,7 +6,8 @@ import unittest
 from datetime import datetime, timedelta
 from pathlib import Path
 
-from openstf.model.serializer.serializer import AbstractModelSerializer
+from openstf.model.serializer import PersistentStorageSerializer, \
+    MODEL_FILENAME, FOLDER_DATETIME_FORMAT
 
 
 class TestAbstractModelSerializer(unittest.TestCase):
@@ -17,13 +18,11 @@ class TestAbstractModelSerializer(unittest.TestCase):
 
         model_location = (
             Path(
-                f"{model_datetime.strftime(AbstractModelSerializer.FOLDER_DATETIME_FORMAT)}"
+                f"{model_datetime.strftime(FOLDER_DATETIME_FORMAT)}"
             )
-            / AbstractModelSerializer.MODEL_FILENAME
+
         )
 
-        model_age = AbstractModelSerializer.determine_model_age_from_path(
-            model_location
-        )
+        model_age = PersistentStorageSerializer({'id':454})._determine_model_age_from_path(model_location)
 
         self.assertEqual(model_age, expected_model_age)

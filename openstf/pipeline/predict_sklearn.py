@@ -62,7 +62,8 @@ def predict_pipeline(pj, input_data):
     )
 
     # Add confidence
-    forecast = ConfidenceIntervalApplicator(model).add_confidence_interval(forecast)
+    forecast = ConfidenceIntervalApplicator(model).add_confidence_interval(forecast,
+                                                                            pj['quantiles'])
 
     # Prepare for output
     forecast = add_prediction_job_properties_to_forecast(
