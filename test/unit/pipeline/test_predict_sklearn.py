@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+#
+# SPDX-License-Identifier: MPL-2.0
 import unittest
 from datetime import datetime, timedelta, timezone
 from test.utils import BaseTestCase, TestData
@@ -10,7 +13,6 @@ NOW = datetime.now(timezone.utc)
 PJ = TestData.get_prediction_job(pid=60)
 
 
-@mock.patch("openstf.pipeline.predict_sklearn.DataBase", MagicMock())
 class TestPredict(BaseTestCase):
     def test_generate_inputdata_datetime_range(self):
         t_behind_days = 14

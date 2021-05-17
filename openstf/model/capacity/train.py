@@ -11,7 +11,7 @@ from openstf.feature_engineering.capacity_prognoses_features import (
 )
 from openstf.model.capacity.model import CapacityPredictionModel
 from openstf.model.capacity.utils import prepare_training_data
-from openstf.model.serializer.xgboost.xgboost import XGBModelSerializer
+from openstf.model.serializer import PersistentStorageSerializer
 
 
 def train_capacity_prognosis(pj, datetime_start, datetime_end, y_hor=[0, 6, 13]):
@@ -70,6 +70,6 @@ def train_capacity_prognosis(pj, datetime_start, datetime_end, y_hor=[0, 6, 13])
 
     # save model
     logger.info("Saving model")
-    serializer = XGBModelSerializer()
+    serializer = PersistentStorageSerializer(pj)
     directory = serializer.trained_models_folder / f'{pj["id"]}' / "capacity"
     model.save(directory=directory)

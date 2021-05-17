@@ -13,6 +13,7 @@ from openstf.feature_engineering.feature_applicator import (
 )
 from openstf.model.confidence_interval_applicator import ConfidenceIntervalApplicator
 from openstf.preprocessing import preprocessing
+from openstf.model.serializer import PersistentStorageSerializer
 
 MODEL_LOCATION = Path(".")
 
@@ -38,7 +39,7 @@ def predict_pipeline(pj, input_data):
     )
 
     # Get model
-    model = joblib.load(MODEL_LOCATION / "model.sav")
+    model = PersistentStorageSerializer(pj).load_model()
 
     # Validate and clean data
     validated_data = validation.validate(input_data)
@@ -62,7 +63,9 @@ def predict_pipeline(pj, input_data):
     )
 
     # Add confidence
-    forecast = ConfidenceIntervalApplicator(model).add_confidence_interval(forecast)
+    forecast = ConfidenceIntervalApplicator(model).add_confidence_interval(
+        forecast, pj["quantiles"]
+    )
 
     # Prepare for output
     forecast = add_prediction_job_properties_to_forecast(
