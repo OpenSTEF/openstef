@@ -27,6 +27,6 @@ jobs:
       with:
         pre-build-command: |
           cp requirements.txt docs/requirements.txt
-          echo -e "/nsphinx_rtd_theme" >> docs/requirements.txt
+          echo -e "\nsphinx_rtd_theme" >> docs/requirements.txt
           sphinx-apidoc -o docs openstf
         docs-folder: "docs/"
