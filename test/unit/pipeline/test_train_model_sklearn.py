@@ -56,9 +56,5 @@ class TestTrainModel(BaseTestCase):
         self.assertEqual(len(validation_data), 1296)
         self.assertEqual(len(test_data), 1)
 
-    def test_something(self):
-        self.assertEqual(True, False)
-
-
 if __name__ == "__main__":
     unittest.main()
