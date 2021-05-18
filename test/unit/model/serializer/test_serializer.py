@@ -5,6 +5,7 @@
 import unittest
 from datetime import datetime, timedelta
 from pathlib import Path
+from test.utils import BaseTestCase
 
 from openstf.model.serializer import (
     PersistentStorageSerializer,
@@ -13,7 +14,7 @@ from openstf.model.serializer import (
 )
 
 
-class TestAbstractModelSerializer(unittest.TestCase):
+class TestAbstractModelSerializer(BaseTestCase):
     def test_determine_model_age_from_path(self):
         expected_model_age = 7
 
