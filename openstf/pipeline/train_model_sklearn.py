@@ -2,14 +2,16 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 from pathlib import Path
+from typing import Tuple
 import pandas as pd
+from sklearn.base import RegressorMixin
 
-from ktpbase.config.config import ConfigManager
+# from ktpbase.config.config import ConfigManager
 
 from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
 from openstf.model.confidence_interval_generator import ConfidenceIntervalGenerator
 from openstf.model.model_creator import ModelCreator
-from openstf.metrics.reporter import Reporter
+from openstf.metrics.reporter import Reporter, Report
 from openstf.model.serializer import PersistentStorageSerializer
 from openstf.model_selection.model_selection import split_data_train_validation_test
 from openstf.validation import validation
@@ -29,10 +31,10 @@ def train_model_pipeline(
     input_data: pd.DataFrame,
     check_old_model_age: bool = True,
     compare_to_old: bool = True,
-) -> None:
+) -> Tuple[RegressorMixin, Report]:
 
     # Path were visuals are saved
-    figures_save_path = Path(ConfigManager.get_instance().paths.webroot) / pj["id"]
+    # figures_save_path = Path(ConfigManager.get_instance().paths.webroot) / pj["id"]
 
     # Get old model and age
     try:
@@ -106,9 +108,9 @@ def train_model_pipeline(
     ).generate_confidence_interval_data(model)
 
     # Report about the training procces
-    Reporter(
-        pj, train_data, validation_data, test_data
-    ).make_and_save_dashboard_figures(model, save_path=figures_save_path)
+    report = Reporter(pj, train_data, validation_data, test_data).generate_report(model)
+
+    return model, report
 
     # Persist model
-    PersistentStorageSerializer(pj).save_model(model)
+    # PersistentStorageSerializer(pj).save_model(model)
