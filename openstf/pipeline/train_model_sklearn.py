@@ -26,30 +26,59 @@ SAVE_PATH = Path(".")
 OLD_MODEL_PATH = Path(".")
 
 
+# TODO this should be integrated in the create_forecast task
+# def todo_integrate_this_into_task():
+#     check_old_model_age = True
+#     prediction_jobs = {}
+
+#     for pj in prediction_jobs:
+#         input_data = db.get_model_input(pj)
+
+#         # Get old model and age
+#         try:
+#             old_model = PersistentStorageSerializer(pj).load_model()
+#             old_model_age = old_model.age
+#         except FileNotFoundError:
+#             old_model = None
+#             old_model_age = float("inf")
+#             print("No old model found retraining anyway")
+
+#         # Check old model age and continue yes/no
+#         if (old_model_age < MAXIMUM_MODEL_AGE) and check_old_model_age:
+#             print("Current model is younger than {MAXIMUM_MODEL_AGE} days, skip training")
+#             continue
+
+#         # train model
+#         try:
+#             model, report = train_model_pipeline(pj, input_data, old_model)
+#         except RuntimeError as e:
+#             continue
+
+#         # save model
+#         PersistentStorageSerializer(pj).save_model(model)
+#         # save figures
+#         report.save_figures(
+#             save_path=Path(ConfigManager.get_instance().paths.webroot) / pj["id"]
+#        )
+
 def train_model_pipeline(
     pj: dict,
     input_data: pd.DataFrame,
-    check_old_model_age: bool = True,
-    compare_to_old: bool = True,
+    old_model: RegressorMixin = None
 ) -> Tuple[RegressorMixin, Report]:
+    """Run the train model pipelin
 
-    # Path were visuals are saved
-    # figures_save_path = Path(ConfigManager.get_instance().paths.webroot) / pj["id"]
+    Args:
+        pj (dict): Prediction job
+        input_data (pd.DataFrame): Input data
+        old_model (RegressorMixin, optional): Old model to compare to. Defaults to None.
 
-    # Get old model and age
-    try:
-        old_model = PersistentStorageSerializer(pj).load_model()
-        old_model_age = old_model.age
-    except FileNotFoundError:
-        print("No old model found retraining anyway")
-        # Default in case old model could not be loaded
-        old_model_age = float("inf")
-        # If we do not have an old model we cannot use is to compare
-        compare_to_old = False
-    # Check old model age and continue yes/no
-    if (old_model_age < MAXIMUM_MODEL_AGE) and check_old_model_age:
-        print("Model is newer than 7 days!")
-        return
+    Raises:
+        RuntimeError: When old model is better than new model
+
+    Returns:
+        Tuple[RegressorMixin, Report]: Trained model and report (with figures)
+    """
 
     # Validate and clean data
     validated_data = validation.clean(validation.validate(input_data))
@@ -89,16 +118,19 @@ def train_model_pipeline(
     )
 
     # Check if new model is better than old model
-    if compare_to_old:
+    # NOTE it would be better to move this code out of the pipeline
+    # training a model should probably not be responsible for this
+    if old_model is not None:
         combined = train_data.append(validation_data)
+        x_data, y_data = combined.iloc[:, 1:], combined.iloc[:, 0]
 
         # Score method always returns R^2
-        score_new_model = model.score(combined.iloc[:, 1:], combined.iloc[:, 0])
-        score_old_model = old_model.score(combined.iloc[:, 1:], combined.iloc[:, 0])
+        score_new_model = model.score(x_data, y_data)
+        score_old_model = old_model.score(x_data, y_data)
 
         # Check if R^2 is better for old model
         if score_old_model > score_new_model * PENALTY_FACTOR_OLD_MODEL:
-            raise (RuntimeError(f"Old model is better than new model for {pj['name']}"))
+            raise RuntimeError(f"Old model is better than new model for {pj['name']}")
 
         print("New model is better than old model, continuing with training procces")
 
@@ -111,6 +143,3 @@ def train_model_pipeline(
     report = Reporter(pj, train_data, validation_data, test_data).generate_report(model)
 
     return model, report
-
-    # Persist model
-    # PersistentStorageSerializer(pj).save_model(model)
