@@ -1,0 +1,63 @@
+# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+#
+# SPDX-License-Identifier: MPL-2.0
+from pathlib import Path
+from datetime import datetime, timedelta, timezone
+
+import pandas as pd
+import structlog
+
+def generate_fallback(forecast_input: pd.DataFrame,
+                      load: pd.DataFrame,
+                      kind: str ='extreme_day'):
+    """Make a fall back forecast,
+        Set the value of the forecast 'quality' column to 'substituted'
+
+        Currently only kind=extreme day is implemented which return historic profile of most extreme day.
+
+        Args:
+            forecast_input (pandas.DataFrame: dataframe desired for the forecast
+            load (pandas.DataFrame): load
+        Returns:
+            pandas.DataFrame: Fallback forecast DataFrame with columns:
+                'forecast', 'quality'
+    """
+    # Check if load is completely empty
+    if len(load.dropna()) == 0:
+        raise ValueError("No historic load data available")
+
+    if kind != 'extreme_day':
+        raise NotImplementedError(f'Kind should be "extreme_day", received:{kind}')
+
+    # Find most extreme historic day (do not count today as it is incomplete)
+    day_with_highest_load_date = (
+        load[load.index.tz_localize(None).date != datetime.utcnow().date()]
+        .idxmax()
+        .load.date()
+    )
+    # generate datetime range of the day with the highest load
+    from_datetime = pd.Timestamp(day_with_highest_load_date, tz=load.index.tz)
+    till_datetime = from_datetime + pd.Timedelta("1 days")
+
+    # slice load dataframe, all rows for the day with the highest load
+    highest_daily_loadprofile = load.loc[
+        (load.index >= from_datetime) & (load.index < till_datetime)
+    ]
+
+    highest_daily_loadprofile.loc[:,"time"] = highest_daily_loadprofile.index.time
+
+    forecast = pd.DataFrame(index=forecast_input)
+    forecast["time"] = forecast.index.time
+    forecast = (
+        forecast.reset_index()
+        .merge(
+            highest_daily_loadprofile, left_on="time", right_on="time", how="outer"
+        )
+        .set_index("index")
+    )
+    forecast = forecast[["load"]].rename(columns=dict(load="forecast"))
+
+    # Add a column quality.
+    forecast["quality"] = "substituted"
+
+    return forecast
