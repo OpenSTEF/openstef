@@ -1,9 +1,10 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-from datetime import datetime, timedelta
+from pathlib import Path
+import pandas as pd
 
-from ktpbase.database import DataBase
+import joblib
 
 from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
 from openstf.model.confidence_interval_generator import ConfidenceIntervalGenerator
@@ -19,12 +20,16 @@ MAXIMUM_MODEL_AGE: int = 7
 EARLY_STOPPING_ROUNDS: int = 10
 PENALTY_FACTOR_OLD_MODEL: float = 1.2
 
+SAVE_PATH = Path(".")
+OLD_MODEL_PATH = "."
+
 
 def train_model_pipeline(
-    pj: dict, check_old_model_age: bool = True, compare_to_old: bool = True
+    pj: dict,
+    input_data: pd.DataFrame,
+    check_old_model_age: bool = True,
+    compare_to_old: bool = True,
 ) -> None:
-    # Initialize database
-    db = DataBase()
 
     # Get old model and age
     old_model_age = float("inf")  # Default in case old model could not be loaded
@@ -42,15 +47,7 @@ def train_model_pipeline(
         return
 
     # Get hyper parameters
-    hyper_params = db.get_hyper_params(pj)
-
-    # Get input data
-    input_data = db.get_model_input(
-        pid=pj["id"],
-        location=[pj["lat"], pj["lon"]],
-        datetime_start=datetime.utcnow() - timedelta(days=90),
-        datetime_end=datetime.utcnow(),
-    )
+    hyper_params = pj["hyper_params"]
 
     # Validate and clean data
     validated_data = clean(validate(input_data))
@@ -65,7 +62,7 @@ def train_model_pipeline(
 
     # Add features
     data_with_features = TrainFeatureApplicator(
-        TRAIN_HORIZONS, features=db.get_featureset(hyper_params["featureset_name"])
+        TRAIN_HORIZONS, features=pj["features_set"]
     ).add_features(validated_data)
 
     # Split data
@@ -118,9 +115,3 @@ def train_model_pipeline(
 
     # Persist model
     PersistentStorageSerializer(pj).save_model(model)
-
-
-if __name__ == "__main__":
-    pj = DataBase().get_prediction_job(307)
-
-    train_model_pipeline(pj)

@@ -28,7 +28,7 @@ class ConfidenceIntervalGenerator:
             try:
                 predicted = model.predict(sub_val.iloc[:, 1:])
             except Exception as e:
-                print("Could not get prediction from new model!")
+                print("Could not get prediction from new model!", e)
 
             # Calculate confidence interval for this horizon
             confidence_interval_horizon = self._calculate_confidence_interval(

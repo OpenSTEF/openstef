@@ -5,22 +5,30 @@ from pathlib import Path
 from datetime import datetime, timedelta, timezone
 
 import pandas as pd
+import structlog
 
-
-from ktpbase.database import DataBase
-
-from openstf.validation.validation import validate, is_data_sufficient
+from openstf.validation import validation
 from openstf.feature_engineering.feature_applicator import (
     OperationalPredictFeatureApplicator,
 )
-from openstf.model.serializer import PersistentStorageSerializer
 from openstf.model.confidence_interval_applicator import ConfidenceIntervalApplicator
+from openstf.preprocessing import preprocessing
+from openstf.model.serializer import PersistentStorageSerializer
 
 MODEL_LOCATION = Path(".")
 
 
-def predict_pipeline(pj):
+def predict_pipeline(pj, input_data):
+    """Computes the forecasts and confidence intervals given a prediction job and input data.
 
+
+    Args:
+        pj: (dict) prediction job
+        input_data (pandas.DataFrame): data frame containing the input data necessary for the prediction.
+
+    Returns:
+        forecast (pandas.DataFrame)
+    """
     # Get input data
     forecast_start, forecast_end = generate_forecast_datetime_range(
         resolution_minutes=pj["resolution_minutes"],
@@ -30,20 +38,11 @@ def predict_pipeline(pj):
         t_behind_days=14, t_ahead_days=3
     )
 
-    input_data = DataBase().get_model_input(
-        pid=pj["id"],
-        location=(pj["lat"], pj["lon"]),
-        # TODO it makes more sense to do the string converion in the
-        # DataBase class and use pure Python datatypes in the rest of the code
-        datetime_start=str(datetime_start),
-        datetime_end=str(datetime_end),
-    )
-
     # Get model
     model = PersistentStorageSerializer(pj).load_model()
 
     # Validate and clean data
-    validated_data = validate(input_data)
+    validated_data = validation.validate(input_data)
 
     # Add features
     data_with_features = OperationalPredictFeatureApplicator(
@@ -51,7 +50,7 @@ def predict_pipeline(pj):
     ).add_features(validated_data)
 
     # Check if sufficient data is left after cleaning
-    if not is_data_sufficient(data_with_features):
+    if not validation.is_data_sufficient(data_with_features):
         print("Use fallback model")
 
     # Predict
@@ -64,7 +63,9 @@ def predict_pipeline(pj):
     )
 
     # Add confidence
-    forecast = ConfidenceIntervalApplicator(model).add_confidence_interval(forecast)
+    forecast = ConfidenceIntervalApplicator(model).add_confidence_interval(
+        forecast, pj["quantiles"]
+    )
 
     # Prepare for output
     forecast = add_prediction_job_properties_to_forecast(
@@ -72,8 +73,7 @@ def predict_pipeline(pj):
         forecast,
     )
 
-    # write forefast to db
-    print(forecast)
+    return forecast
 
 
 def add_prediction_job_properties_to_forecast(
@@ -124,6 +124,21 @@ def generate_forecast_datetime_range(resolution_minutes, horizon_minutes):
     return forecast_start, forecast_end
 
 
-if __name__ == "__main__":
-    pj = DataBase().get_prediction_job(307)
-    predict_pipeline(pj)
+def pre_process_input_data(input_data, flatliner_threshold):
+    logger = structlog.get_logger(__name__)
+    # Check for repeated load observations due to invalid measurements
+    suspicious_moments = validation.find_nonzero_flatliner(
+        input_data, threshold=flatliner_threshold
+    )
+    if suspicious_moments is not None:
+        # Covert repeated load observations to NaN values
+        input_data = preprocessing.replace_invalid_data(input_data, suspicious_moments)
+        # Calculate number of NaN values
+        # TODO should this not be part of the replace_invalid_data function?
+        num_nan = sum([True for i, row in input_data.iterrows() if all(row.isnull())])
+        logger.warning(
+            "Found suspicious data points, converted to NaN value",
+            num_nan_values=num_nan,
+        )
+
+    return input_data

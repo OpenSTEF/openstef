@@ -18,6 +18,9 @@ class AbstractSerializer(ABC):
     def __init__(self, prediction_job: dict) -> None:
         self.pj = prediction_job
         self.logger = structlog.get_logger(self.__class__.__name__)
+        self.trained_models_folder = Path(
+            ConfigManager.get_instance().paths.trained_models
+        )
 
     @abstractmethod
     def save_model(self, model: RegressorMixin) -> None:
@@ -27,7 +30,6 @@ class AbstractSerializer(ABC):
             model: Trained sklearn compatible model object
         """
         self.logger.error("This is an abstract method!")
-        pass
 
     @abstractmethod
     def load_model(self) -> RegressorMixin:
@@ -40,8 +42,6 @@ class AbstractSerializer(ABC):
 
 
 class PersistentStorageSerializer(AbstractSerializer):
-    trained_models_folder = Path(ConfigManager.get_instance().paths.trained_models)
-
     def save_model(self, model: RegressorMixin) -> None:
         """Serializes trained sklearn compantible model to persistent storage
 
