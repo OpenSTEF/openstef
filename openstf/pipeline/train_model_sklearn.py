@@ -4,15 +4,13 @@
 from pathlib import Path
 import pandas as pd
 
-import joblib
-
 from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
 from openstf.model.confidence_interval_generator import ConfidenceIntervalGenerator
 from openstf.model.model_creator import ModelCreator
 from openstf.metrics.reporter import Reporter
 from openstf.model.serializer import PersistentStorageSerializer
 from openstf.model_selection.model_selection import split_data_train_validation_test
-from openstf.validation.validation import validate, clean, is_data_sufficient
+from openstf.validation import validation
 
 TRAIN_HORIZONS: list[float] = [0.25, 24.0]
 MAXIMUM_MODEL_AGE: int = 7
@@ -21,7 +19,7 @@ EARLY_STOPPING_ROUNDS: int = 10
 PENALTY_FACTOR_OLD_MODEL: float = 1.2
 
 SAVE_PATH = Path(".")
-OLD_MODEL_PATH = "."
+OLD_MODEL_PATH = Path(".")
 
 
 def train_model_pipeline(
@@ -32,33 +30,29 @@ def train_model_pipeline(
 ) -> None:
 
     # Get old model and age
-    old_model_age = float("inf")  # Default in case old model could not be loaded
     try:
         old_model = PersistentStorageSerializer(pj).load_model()
         old_model_age = old_model.age
     except FileNotFoundError:
         print("No old model found retraining anyway")
-        compare_to_old = (
-            False  # If we do not have an old model we cannot use is to compare
-        )
+        # Default in case old model could not be loaded
+        old_model_age = float("inf")
+        # If we do not have an old model we cannot use is to compare
+        compare_to_old = False
     # Check old model age and continue yes/no
     if (old_model_age < MAXIMUM_MODEL_AGE) and check_old_model_age:
         print("Model is newer than 7 days!")
         return
 
-    # Get hyper parameters
-    hyper_params = pj["hyper_params"]
-
     # Validate and clean data
-    validated_data = clean(validate(input_data))
+    validated_data = validation.clean(validation.validate(input_data))
 
     # Check if sufficient data is left after cleaning
-    if not is_data_sufficient(validated_data):
-        raise (
-            RuntimeError(
-                f"Not enough data left after validation for {pj['name']}, check input data!"
+    if not validation.is_data_sufficient(validated_data):
+        raise RuntimeError(
+                f"Input data is insufficient for {pj['name']} "
+                f"after validation and cleaning"
             )
-        )
 
     # Add features
     data_with_features = TrainFeatureApplicator(
@@ -79,7 +73,7 @@ def train_model_pipeline(
         (validation_data.iloc[:, 1:], validation_data.iloc[:, 0]),
     ]
 
-    model.set_params(params=hyper_params)
+    model.set_params(params=pj["hyper_params"])
     model.fit(
         train_data.iloc[:, 1:],
         train_data.iloc[:, 0],
@@ -98,20 +92,18 @@ def train_model_pipeline(
         # Check if R^2 is better for old model
         if score_old_model > score_new_model * PENALTY_FACTOR_OLD_MODEL:
             raise (RuntimeError(f"Old model is better than new model for {pj['name']}"))
-        else:
-            print(
-                "New model is better than old model, continuing with training procces"
-            )
 
-    # Report about the training procces
-    Reporter(
-        pj, train_data, validation_data, test_data
-    ).make_and_save_dashboard_figures(model)
+        print("New model is better than old model, continuing with training procces")
 
     # Do confidence interval determination
     model = ConfidenceIntervalGenerator(
         pj, validation_data
     ).generate_confidence_interval_data(model)
+
+    # Report about the training procces
+    Reporter(
+        pj, train_data, validation_data, test_data
+    ).make_and_save_dashboard_figures(model)
 
     # Persist model
     PersistentStorageSerializer(pj).save_model(model)
