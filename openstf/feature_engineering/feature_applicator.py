@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 from abc import ABC, abstractmethod
+from typing import List
 
 import numpy as np
 import pandas as pd
@@ -16,7 +17,7 @@ LATENCY_CONFIG = {"APX": 24}  # A specific latency is part of a specific feature
 
 
 class AbstractFeatureApplicator(ABC):
-    def __init__(self, horizons: list, features: list = None) -> None:
+    def __init__(self, horizons: List[float], features: List[str] = None) -> None:
         """Initialize abstract feature applicator.
 
         Args:
@@ -25,6 +26,7 @@ class AbstractFeatureApplicator(ABC):
         """
         if type(horizons) is not list and not None:
             raise ValueError("Horizons must be added as a list")
+
         self.features = features
         self.horizons = horizons
 
@@ -39,7 +41,7 @@ class AbstractFeatureApplicator(ABC):
 
 
 class TrainFeatureApplicator(AbstractFeatureApplicator):
-    def add_features(self, df: pd.DataFrame) -> pd.DataFrame:
+    def add_features(self, df: pd.DataFrame, latency_config=LATENCY_CONFIG) -> pd.DataFrame:
         """Adds features to an input DataFrame.
 
         This method is implemented specifically for a model train pipeline. For larger
@@ -52,6 +54,9 @@ class TrainFeatureApplicator(AbstractFeatureApplicator):
 
         Args:
             df (pd.DataFrame):  Input data to which the features will be added.
+            latency_config (dict): Optional. Invalidate certain features that are not
+                available for a specific horizon due to data latency. Default to
+                {"APX": 24}
 
         Returns:
             pd.DataFrame: Input DataFrame with an extra column for every added feature.
@@ -72,7 +77,7 @@ class TrainFeatureApplicator(AbstractFeatureApplicator):
 
         # Invalidate features that are not available for a specific horizon due to data
         # latency
-        for feature, time in LATENCY_CONFIG.items():
+        for feature, time in latency_config.items():
             result.loc[result["Horizon"] > time, feature] = np.nan
 
         return result.sort_index()

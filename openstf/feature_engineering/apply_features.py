@@ -13,6 +13,8 @@ This improves forecast accuracy. Examples of features that are added are:
     The normalised wind power according to the turbine-specific power curve
 
 """
+from typing import List
+
 import pandas as pd
 
 from openstf.feature_engineering.holiday_features import (
@@ -26,7 +28,7 @@ from openstf.feature_engineering.lag_features import generate_lag_feature_functi
 
 
 def apply_features(
-    data: pd.DataFrame, features: list = None, horizon: float = 24.0
+    data: pd.DataFrame, features: List[str] = None, horizon: float = 24.0
 ) -> pd.DataFrame:
     """This script applies the feature functions defined in
         feature_functions.py and returns the complete dataframe. Features requiring
@@ -38,7 +40,7 @@ def apply_features(
                                         index=datetime,
                                         columns=[label, predictor_1,..., predictor_n]
                                     )
-        features (list of strs): list of reuqested features
+        features (List[str]): list of reuqested features
         horizon (float): Forecast horizon limit in hours.
 
     Returns:

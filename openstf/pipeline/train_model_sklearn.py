@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 from pathlib import Path
-from typing import Tuple
+from typing import Tuple, List
 import pandas as pd
 from sklearn.base import RegressorMixin
 
@@ -12,11 +12,11 @@ from openstf.feature_engineering.feature_applicator import TrainFeatureApplicato
 from openstf.model.confidence_interval_generator import ConfidenceIntervalGenerator
 from openstf.model.model_creator import ModelCreator
 from openstf.metrics.reporter import Reporter, Report
-from openstf.model.serializer import PersistentStorageSerializer
+# from openstf.model.serializer import PersistentStorageSerializer
 from openstf.model_selection.model_selection import split_data_train_validation_test
 from openstf.validation import validation
 
-TRAIN_HORIZONS: list[float] = [0.25, 24.0]
+TRAIN_HORIZONS: List[float] = [0.25, 24.0]
 MAXIMUM_MODEL_AGE: int = 7
 
 EARLY_STOPPING_ROUNDS: int = 10
@@ -66,7 +66,17 @@ def train_model_pipeline(
     input_data: pd.DataFrame,
     old_model: RegressorMixin = None
 ) -> Tuple[RegressorMixin, Report]:
-    """Run the train model pipelin
+    """Run the train model pipeline.
+
+        TODO once we have a data model for a prediction job this explantion is not
+        required anymore.
+
+        For training a model the following keys in the prediction job dictionairy are
+        expected:
+            "name"          Arbitray name only used for logging
+            "model"         Model type, any of "xgb", "lgb",
+            "features_set"  List of feature names
+            "hyper_params"  Hyper parameters dictionairy specific to for the model_type
 
     Args:
         pj (dict): Prediction job
@@ -74,7 +84,7 @@ def train_model_pipeline(
         old_model (RegressorMixin, optional): Old model to compare to. Defaults to None.
 
     Raises:
-        RuntimeError: When input data is insufficient
+        ValueError: When input data is insufficient
         RuntimeError: When old model is better than new model
 
     Returns:
@@ -86,7 +96,7 @@ def train_model_pipeline(
 
     # Check if sufficient data is left after cleaning
     if not validation.is_data_sufficient(validated_data):
-        raise RuntimeError(
+        raise ValueError(
                 f"Input data is insufficient for {pj['name']} "
                 f"after validation and cleaning"
             )
@@ -104,18 +114,17 @@ def train_model_pipeline(
     # Create relevant model
     model = ModelCreator.create_model(model_type=pj["model"])
 
+    # split x and y data
+    train_x, train_y = train_data.iloc[:, 1:], train_data.iloc[:, 0]
+    validation_x, validation_y = validation_data.iloc[:, 1:], validation_data.iloc[:, 0]
+
     # Configure evals for early stopping
-    eval_set = [
-        (train_data.iloc[:, 1:], train_data.iloc[:, 0]),
-        (validation_data.iloc[:, 1:], validation_data.iloc[:, 0]),
-    ]
+    eval_set = [(train_x, train_y), (validation_x, validation_y)]
 
     model.set_params(params=pj["hyper_params"])
     model.fit(
-        train_data.iloc[:, 1:],
-        train_data.iloc[:, 0],
-        eval_set=eval_set,
-        early_stopping_rounds=EARLY_STOPPING_ROUNDS,
+        train_x, train_y, eval_set=eval_set,
+        early_stopping_rounds=EARLY_STOPPING_ROUNDS
     )
 
     # Check if new model is better than old model
