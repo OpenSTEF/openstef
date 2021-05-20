@@ -74,6 +74,7 @@ def train_model_pipeline(
         old_model (RegressorMixin, optional): Old model to compare to. Defaults to None.
 
     Raises:
+        RuntimeError: When input data is insufficient
         RuntimeError: When old model is better than new model
 
     Returns:
@@ -101,7 +102,7 @@ def train_model_pipeline(
     )
 
     # Create relevant model
-    model = ModelCreator(pj).create_model()
+    model = ModelCreator.create_model(model_type=pj["model"])
 
     # Configure evals for early stopping
     eval_set = [
