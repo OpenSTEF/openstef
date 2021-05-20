@@ -57,12 +57,12 @@ def predict_pipeline(pj, input_data):
 
     # Check if sufficient data is left after cleaning
     if not validation.is_data_sufficient(data_with_features):
-        fallback_kind='extreme_day' # this can later be expanded
+        fallback_strategy='extreme_day' # this can later be expanded
         logger.warning(
             "Using fallback forecast",
             forecast_type="fallback",
             pid=pj["id"],
-            fallback_kind=fallback_kind
+            fallback_strategy=fallback_strategy
         )
         model_forecast = generate_fallback(forecast_input_data,
                                            input_data.iloc[:,[0]])

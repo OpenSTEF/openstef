@@ -9,15 +9,17 @@ import structlog
 
 def generate_fallback(forecast_input: pd.DataFrame,
                       load: pd.DataFrame,
-                      kind: str ='extreme_day'):
+                      fallback_strategy: str ='extreme_day'):
     """Make a fall back forecast,
         Set the value of the forecast 'quality' column to 'substituted'
 
-        Currently only kind=extreme day is implemented which return historic profile of most extreme day.
+        Currently only fallback_strategy=extreme day is implemented which return historic profile of most extreme day.
 
         Args:
-            forecast_input (pandas.DataFrame: dataframe desired for the forecast
+            forecast_input (pandas.DataFrame): dataframe desired for the forecast
             load (pandas.DataFrame): load
+            fallback_strategy (str): strategy to determine fallback. options:
+                - extreme_day: use daily profile of most extreme day
         Returns:
             pandas.DataFrame: Fallback forecast DataFrame with columns:
                 'forecast', 'quality'
@@ -26,8 +28,8 @@ def generate_fallback(forecast_input: pd.DataFrame,
     if len(load.dropna()) == 0:
         raise ValueError("No historic load data available")
 
-    if kind != 'extreme_day':
-        raise NotImplementedError(f'Kind should be "extreme_day", received:{kind}')
+    if fallback_strategy != 'extreme_day':
+        raise NotImplementedError(f'fallback_strategy should be "extreme_day", received:{fallback_strategy}')
 
     # Find most extreme historic day (do not count today as it is incomplete)
     day_with_highest_load_date = (
