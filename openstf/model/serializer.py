@@ -30,7 +30,6 @@ class AbstractSerializer(ABC):
             model: Trained sklearn compatible model object
         """
         self.logger.error("This is an abstract method!")
-        pass
 
     @abstractmethod
     def load_model(self) -> RegressorMixin:
