@@ -4,6 +4,8 @@
 from pathlib import Path
 import pandas as pd
 
+from ktpbase.config.config import ConfigManager
+
 from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
 from openstf.model.confidence_interval_generator import ConfidenceIntervalGenerator
 from openstf.model.model_creator import ModelCreator
@@ -28,6 +30,9 @@ def train_model_pipeline(
     check_old_model_age: bool = True,
     compare_to_old: bool = True,
 ) -> None:
+
+    # Path were visuals are saved
+    figures_save_path = Path(ConfigManager.get_instance().paths.webroot) / pj["id"]
 
     # Get old model and age
     try:
@@ -103,7 +108,7 @@ def train_model_pipeline(
     # Report about the training procces
     Reporter(
         pj, train_data, validation_data, test_data
-    ).make_and_save_dashboard_figures(model)
+    ).make_and_save_dashboard_figures(model, save_path=figures_save_path)
 
     # Persist model
     PersistentStorageSerializer(pj).save_model(model)

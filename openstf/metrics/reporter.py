@@ -3,9 +3,9 @@
 # SPDX-License-Identifier: MPL-2.0
 import os
 from pathlib import Path
+from typing import Union
 
 import pandas as pd
-from ktpbase.config.config import ConfigManager
 from sklearn.base import RegressorMixin
 
 from openstf.metrics import figure
@@ -36,15 +36,12 @@ class Reporter:
             validation_data,
             test_data,
         ]
-        self.save_path = (
-            Path(ConfigManager.get_instance().paths.webroot) / self.pj["id"]
-        )  # Path were visuals are saved
 
-    def make_and_save_dashboard_figures(self, model: RegressorMixin) -> None:
+    def make_and_save_dashboard_figures(self, model: RegressorMixin, save_path: Union[Path, str]) -> None:
 
         self._make_data_series_figures(model)
         self._make_feature_importance_plot(model)
-        self._save_dashboard_figures(self.save_path)
+        self._save_dashboard_figures(save_path)
 
     def _make_data_series_figures(self, model: RegressorMixin) -> None:
 
