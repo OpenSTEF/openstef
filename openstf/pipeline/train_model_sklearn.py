@@ -3,8 +3,10 @@
 # SPDX-License-Identifier: MPL-2.0
 from pathlib import Path
 from typing import Tuple, List
+
 import pandas as pd
 from sklearn.base import RegressorMixin
+import structlog
 
 # from ktpbase.config.config import ConfigManager
 
@@ -71,8 +73,6 @@ def train_model_pipeline(
 ) -> Tuple[RegressorMixin, Report]:
     """Run the train model pipeline.
 
-
-
         TODO once we have a data model for a prediction job this explantion is not
         required anymore.
 
@@ -97,7 +97,7 @@ def train_model_pipeline(
     Returns:
         Tuple[RegressorMixin, Report]: Trained model and report (with figures)
     """
-
+    logger = structlog.get_logger(__file__)
     # Validate and clean data
     validated_data = validation.clean(validation.validate(input_data))
 
@@ -149,7 +149,7 @@ def train_model_pipeline(
         if score_old_model > score_new_model * PENALTY_FACTOR_OLD_MODEL:
             raise RuntimeError(f"Old model is better than new model for {pj['name']}")
 
-        print("New model is better than old model, continuing with training procces")
+        logger.info("New model is better than old model, continuing with training procces")
 
     # Do confidence interval determination
     model = ConfidenceIntervalGenerator(

@@ -57,7 +57,7 @@ class Reporter:
         data_series_figures = self._make_data_series_figures(model)
         feature_importance_figure = self._make_feature_importance_figure(model)
 
-        report = TrainReport(
+        report = Report(
             data_series_figures=data_series_figures,
             feature_importance_figure=feature_importance_figure
         )
