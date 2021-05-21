@@ -81,13 +81,12 @@ def train_model_pipeline(
             "name"          Arbitray name only used for logging
             "model"         Model type, any of "xgb", "lgb",
             "hyper_params"  Hyper parameters dictionairy specific to the model_type
-            "features"      List of features to train model on or None to use all features
+            "feature_names"      List of features to train model on or None to use all features
 
     Args:
         pj (dict): Prediction job
         input_data (pd.DataFrame): Input data
         old_model (RegressorMixin, optional): Old model to compare to. Defaults to None.
-        features (List[str]): The features to train the model on. Defaults to None.
         horizons (List[float]): Horizons to train on in hours.
 
     Raises:
@@ -110,7 +109,7 @@ def train_model_pipeline(
 
     # Add features
     data_with_features = TrainFeatureApplicator(
-        horizons=horizons, features=pj["features"]
+        horizons=horizons, feature_names=pj["feature_names"]
     ).add_features(validated_data)
 
     # Split data

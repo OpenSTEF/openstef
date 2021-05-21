@@ -18,18 +18,18 @@ LATENCY_CONFIG = {"APX": 24}  # A specific latency is part of a specific feature
 
 class AbstractFeatureApplicator(ABC):
     def __init__(
-        self, horizons: List[float], features: Optional[List[str]] = None
+        self, horizons: List[float], feature_names: Optional[List[str]] = None
     ) -> None:
         """Initialize abstract feature applicator.
 
         Args:
             horizons (list): list of horizons
-            features (List[str]):  List of requested features
+            feature_names (List[str]):  List of requested features
         """
         if type(horizons) is not list and not None:
             raise ValueError("Horizons must be added as a list")
 
-        self.features = features
+        self.feature_names = feature_names
         self.horizons = horizons
 
     @abstractmethod
@@ -73,7 +73,7 @@ class TrainFeatureApplicator(AbstractFeatureApplicator):
 
         # Loop over horizons and add corresponding features
         for horizon in self.horizons:
-            res = apply_features(df, features=self.features, horizon=horizon)
+            res = apply_features(df, feature_names=self.feature_names, horizon=horizon)
             res["Horizon"] = horizon
             result = result.append(res)
 
@@ -102,10 +102,10 @@ class OperationalPredictFeatureApplicator(AbstractFeatureApplicator):
         if self.horizons is None:
             self.horizons = [0.25]
 
-        df = apply_features(df, features=self.features, horizon=self.horizons[0])
-        df = add_missing_feature_columns(df, self.features)
+        df = apply_features(df, feature_names=self.feature_names, horizon=self.horizons[0])
+        df = add_missing_feature_columns(df, self.feature_names)
         # NOTE this is required since apply_features could add additional features
-        df = remove_extra_feature_columns(df, self.features)
+        df = remove_extra_feature_columns(df, self.feature_names)
 
         return df
 
@@ -130,7 +130,7 @@ class BackTestPredictFeatureApplicator(AbstractFeatureApplicator):
             raise ValueError("Prediction can only be done one horizon at a time!")
 
         df = apply_features(df, horizon=self.horizons[0])
-        df = add_missing_feature_columns(df, self.features)
+        df = add_missing_feature_columns(df, self.feature_names)
         # NOTE this is required since apply_features could add additional features
-        df = remove_extra_feature_columns(df, self.features)
+        df = remove_extra_feature_columns(df, self.feature_names)
         return df

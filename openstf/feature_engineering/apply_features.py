@@ -28,7 +28,7 @@ from openstf.feature_engineering.lag_features import generate_lag_feature_functi
 
 
 def apply_features(
-    data: pd.DataFrame, features: List[str] = None, horizon: float = 24.0
+    data: pd.DataFrame, feature_names: List[str] = None, horizon: float = 24.0
 ) -> pd.DataFrame:
     """This script applies the feature functions defined in
         feature_functions.py and returns the complete dataframe. Features requiring
@@ -44,7 +44,7 @@ def apply_features(
                                         index=datetime,
                                         columns=[label, predictor_1,..., predictor_n]
                                     )
-        features (List[str]): list of reuqested features
+        feature_names (List[str]): list of reuqested features
         horizon (float): Forecast horizon limit in hours.
 
     Returns:
@@ -64,7 +64,7 @@ def apply_features(
     """
 
     # Get lag feature functions
-    feature_functions = generate_lag_feature_functions(features, horizon)
+    feature_functions = generate_lag_feature_functions(feature_names, horizon)
 
     # Get timedrivenfeature functions
     feature_functions.update(
@@ -83,16 +83,16 @@ def apply_features(
     # Add the features to the dataframe using previously defined feature functions
     for key, featfunc in feature_functions.items():
         # Don't generate feature is not in features
-        if features is not None:
-            if key not in features:
+        if feature_names is not None:
+            if key not in feature_names:
                 continue
         data[key] = data.iloc[:, [0]].apply(featfunc)
 
     # Add additional wind features
-    data = add_additional_wind_features(data, features)
+    data = add_additional_wind_features(data, feature_names)
 
     # Add humidity features
-    data = add_humidity_features(data, features)
+    data = add_humidity_features(data, feature_names)
 
     # Return dataframe including all requested features
     return data
