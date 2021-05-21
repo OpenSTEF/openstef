@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 
 import re
-from typing import Tuple
+from typing import List, Tuple
 
 import numpy as np
 import pandas as pd
@@ -11,7 +11,7 @@ import scipy.signal
 
 
 def generate_lag_feature_functions(
-    features: list = None, horizon: float = 24.0
+    features: List[str] = None, horizon: float = 24.0
 ) -> dict:
     """Creates functions to generate lag features in a dataset.
 

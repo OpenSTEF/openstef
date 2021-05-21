@@ -5,6 +5,7 @@
 """ This module contains all wheather related functions used for feature engineering.
 
 """
+from typing import List
 import numpy as np
 import pandas as pd
 
@@ -292,7 +293,7 @@ def calculate_windturbine_power_output(
 
 
 def add_additional_wind_features(
-    data: pd.DataFrame, features: list = None
+    data: pd.DataFrame, features: List[str] = None
 ) -> pd.DataFrame:
     """Adds additional wind features to the input data. These are calculated using the above functions
 

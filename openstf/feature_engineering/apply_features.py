@@ -34,6 +34,10 @@ def apply_features(
         feature_functions.py and returns the complete dataframe. Features requiring
         more recent label-data are omitted.
 
+        NOTE: For the time deriven features only the onces in the features list
+        will be added. But for the weather features all will be added at present.
+        These unrequested additional features have to be filtered out later.
+
     Args:
         data (pandas.DataFrame): a pandas dataframe with input data in the form:
                                     pd.DataFrame(

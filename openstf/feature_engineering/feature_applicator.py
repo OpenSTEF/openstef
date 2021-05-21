@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 from abc import ABC, abstractmethod
-from typing import List
+from typing import List, Optional
 
 import numpy as np
 import pandas as pd
@@ -17,12 +17,14 @@ LATENCY_CONFIG = {"APX": 24}  # A specific latency is part of a specific feature
 
 
 class AbstractFeatureApplicator(ABC):
-    def __init__(self, horizons: List[float], features: List[str] = None) -> None:
+    def __init__(
+        self, horizons: List[float], features: Optional[List[str]] = None
+    ) -> None:
         """Initialize abstract feature applicator.
 
         Args:
-            horizons: (list) list of horizons
-            features: (list) List of requested features
+            horizons (list): list of horizons
+            features (List[str]):  List of requested features
         """
         if type(horizons) is not list and not None:
             raise ValueError("Horizons must be added as a list")
@@ -71,7 +73,7 @@ class TrainFeatureApplicator(AbstractFeatureApplicator):
 
         # Loop over horizons and add corresponding features
         for horizon in self.horizons:
-            res = apply_features(df, horizon=horizon)
+            res = apply_features(df, features=self.features, horizon=horizon)
             res["Horizon"] = horizon
             result = result.append(res)
 
@@ -102,6 +104,7 @@ class OperationalPredictFeatureApplicator(AbstractFeatureApplicator):
 
         df = apply_features(df, features=self.features, horizon=self.horizons[0])
         df = add_missing_feature_columns(df, self.features)
+        # NOTE this is required since apply_features could add additional features
         df = remove_extra_feature_columns(df, self.features)
 
         return df
@@ -128,5 +131,6 @@ class BackTestPredictFeatureApplicator(AbstractFeatureApplicator):
 
         df = apply_features(df, horizon=self.horizons[0])
         df = add_missing_feature_columns(df, self.features)
+        # NOTE this is required since apply_features could add additional features
         df = remove_extra_feature_columns(df, self.features)
         return df

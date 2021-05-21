@@ -48,9 +48,11 @@ OLD_MODEL_PATH = Path(".")
 #             print("Current model is younger than {MAXIMUM_MODEL_AGE} days, skip training")
 #             continue
 
+#         # get features
+
 #         # train model
 #         try:
-#             model, report = train_model_pipeline(pj, input_data, old_model)
+#             model, report = train_model_pipeline(pj, input_data, old_model, features)
 #         except RuntimeError as e:
 #             continue
 
@@ -59,15 +61,17 @@ OLD_MODEL_PATH = Path(".")
 #         # save figures
 #         report.save_figures(
 #             save_path=Path(ConfigManager.get_instance().paths.webroot) / pj["id"]
-#        )
+#         )
 
 def train_model_pipeline(
     pj: dict,
     input_data: pd.DataFrame,
     old_model: RegressorMixin = None,
-    train_horizons: List[float] = DEFAULT_TRAIN_HORIZONS
+    horizons: List[float] = DEFAULT_TRAIN_HORIZONS
 ) -> Tuple[RegressorMixin, Report]:
     """Run the train model pipeline.
+
+
 
         TODO once we have a data model for a prediction job this explantion is not
         required anymore.
@@ -76,14 +80,15 @@ def train_model_pipeline(
         expected:
             "name"          Arbitray name only used for logging
             "model"         Model type, any of "xgb", "lgb",
-            ("features_set"  List of feature names) ??
-            "hyper_params"  Hyper parameters dictionairy specific to for the model_type
+            "hyper_params"  Hyper parameters dictionairy specific to the model_type
+            "features"      List of features to train model on or None to use all features
 
     Args:
         pj (dict): Prediction job
         input_data (pd.DataFrame): Input data
         old_model (RegressorMixin, optional): Old model to compare to. Defaults to None.
-        train_horizons (List[float]): Horizons to train on in hours.
+        features (List[str]): The features to train the model on. Defaults to None.
+        horizons (List[float]): Horizons to train on in hours.
 
     Raises:
         ValueError: When input data is insufficient
@@ -105,8 +110,7 @@ def train_model_pipeline(
 
     # Add features
     data_with_features = TrainFeatureApplicator(
-        train_horizons,
-        # features=pj["features_set"]
+        horizons=horizons, features=pj["features"]
     ).add_features(validated_data)
 
     # Split data

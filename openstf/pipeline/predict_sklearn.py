@@ -46,7 +46,7 @@ def predict_pipeline(pj, input_data):
 
     # Add features
     data_with_features = OperationalPredictFeatureApplicator(
-        horizons=[0.25], features=model._Booster.feature_names
+        horizons=[0.25], features=model._Booster.feature_names # TODO use saved feature_names
     ).add_features(validated_data)
 
     # Check if sufficient data is left after cleaning
