@@ -9,7 +9,7 @@ import structlog
 
 def generate_fallback(forecast_input: pd.DataFrame,
                       load: pd.DataFrame,
-                      fallback_strategy: str ='extreme_day'):
+                      fallback_strategy: str ='extreme_day') -> pd.DataFrame:
     """Make a fall back forecast,
         Set the value of the forecast 'quality' column to 'substituted'
 
@@ -17,7 +17,7 @@ def generate_fallback(forecast_input: pd.DataFrame,
 
         Args:
             forecast_input (pandas.DataFrame): dataframe desired for the forecast
-            load (pandas.DataFrame): load
+            load (pandas.DataFrame): index=datetime, columns=['load']
             fallback_strategy (str): strategy to determine fallback. options:
                 - extreme_day: use daily profile of most extreme day
         Returns:

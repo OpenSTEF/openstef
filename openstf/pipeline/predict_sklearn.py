@@ -65,7 +65,7 @@ def predict_pipeline(pj, input_data):
             fallback_strategy=fallback_strategy
         )
         model_forecast = generate_fallback(forecast_input_data,
-                                           input_data.iloc[:,[0]])
+                                           input_data[['load']])
 
     else:
         # Predict
