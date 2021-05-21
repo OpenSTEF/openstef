@@ -16,10 +16,10 @@ from openstf.metrics.reporter import Reporter, Report
 from openstf.model_selection.model_selection import split_data_train_validation_test
 from openstf.validation import validation
 
-TRAIN_HORIZONS: List[float] = [0.25, 24.0]
+DEFAULT_TRAIN_HORIZONS: List[float] = [0.25, 24.0]
 MAXIMUM_MODEL_AGE: int = 7
 
-EARLY_STOPPING_ROUNDS: int = 10
+DEFAULT_EARLY_STOPPING_ROUNDS: int = 10
 PENALTY_FACTOR_OLD_MODEL: float = 1.2
 
 SAVE_PATH = Path(".")
@@ -64,7 +64,8 @@ OLD_MODEL_PATH = Path(".")
 def train_model_pipeline(
     pj: dict,
     input_data: pd.DataFrame,
-    old_model: RegressorMixin = None
+    old_model: RegressorMixin = None,
+    train_horizons: List[float] = DEFAULT_TRAIN_HORIZONS
 ) -> Tuple[RegressorMixin, Report]:
     """Run the train model pipeline.
 
@@ -75,13 +76,14 @@ def train_model_pipeline(
         expected:
             "name"          Arbitray name only used for logging
             "model"         Model type, any of "xgb", "lgb",
-            "features_set"  List of feature names
+            ("features_set"  List of feature names) ??
             "hyper_params"  Hyper parameters dictionairy specific to for the model_type
 
     Args:
         pj (dict): Prediction job
         input_data (pd.DataFrame): Input data
         old_model (RegressorMixin, optional): Old model to compare to. Defaults to None.
+        train_horizons (List[float]): Horizons to train on in hours.
 
     Raises:
         ValueError: When input data is insufficient
@@ -103,7 +105,8 @@ def train_model_pipeline(
 
     # Add features
     data_with_features = TrainFeatureApplicator(
-        TRAIN_HORIZONS, features=pj["features_set"]
+        train_horizons,
+        # features=pj["features_set"]
     ).add_features(validated_data)
 
     # Split data
@@ -124,7 +127,7 @@ def train_model_pipeline(
     model.set_params(params=pj["hyper_params"])
     model.fit(
         train_x, train_y, eval_set=eval_set,
-        early_stopping_rounds=EARLY_STOPPING_ROUNDS
+        early_stopping_rounds=DEFAULT_EARLY_STOPPING_ROUNDS
     )
 
     # Check if new model is better than old model
