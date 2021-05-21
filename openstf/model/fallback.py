@@ -7,29 +7,34 @@ from datetime import datetime, timedelta, timezone
 import pandas as pd
 import structlog
 
-def generate_fallback(forecast_input: pd.DataFrame,
-                      load: pd.DataFrame,
-                      fallback_strategy: str ='extreme_day') -> pd.DataFrame:
+
+def generate_fallback(
+    forecast_input: pd.DataFrame,
+    load: pd.DataFrame,
+    fallback_strategy: str = "extreme_day",
+) -> pd.DataFrame:
     """Make a fall back forecast,
-        Set the value of the forecast 'quality' column to 'substituted'
+    Set the value of the forecast 'quality' column to 'substituted'
 
-        Currently only fallback_strategy=extreme day is implemented which return historic profile of most extreme day.
+    Currently only fallback_strategy=extreme day is implemented which return historic profile of most extreme day.
 
-        Args:
-            forecast_input (pandas.DataFrame): dataframe desired for the forecast
-            load (pandas.DataFrame): index=datetime, columns=['load']
-            fallback_strategy (str): strategy to determine fallback. options:
-                - extreme_day: use daily profile of most extreme day
-        Returns:
-            pandas.DataFrame: Fallback forecast DataFrame with columns:
-                'forecast', 'quality'
+    Args:
+        forecast_input (pandas.DataFrame): dataframe desired for the forecast
+        load (pandas.DataFrame): index=datetime, columns=['load']
+        fallback_strategy (str): strategy to determine fallback. options:
+            - extreme_day: use daily profile of most extreme day
+    Returns:
+        pandas.DataFrame: Fallback forecast DataFrame with columns:
+            'forecast', 'quality'
     """
     # Check if load is completely empty
     if len(load.dropna()) == 0:
         raise ValueError("No historic load data available")
 
-    if fallback_strategy != 'extreme_day':
-        raise NotImplementedError(f'fallback_strategy should be "extreme_day", received:{fallback_strategy}')
+    if fallback_strategy != "extreme_day":
+        raise NotImplementedError(
+            f'fallback_strategy should be "extreme_day", received:{fallback_strategy}'
+        )
 
     # Find most extreme historic day (do not count today as it is incomplete)
     day_with_highest_load_date = (
@@ -46,15 +51,13 @@ def generate_fallback(forecast_input: pd.DataFrame,
         (load.index >= from_datetime) & (load.index < till_datetime)
     ]
 
-    highest_daily_loadprofile.loc[:,"time"] = highest_daily_loadprofile.index.time
+    highest_daily_loadprofile.loc[:, "time"] = highest_daily_loadprofile.index.time
 
     forecast = pd.DataFrame(index=forecast_input)
     forecast["time"] = forecast.index.time
     forecast = (
         forecast.reset_index()
-        .merge(
-            highest_daily_loadprofile, left_on="time", right_on="time", how="outer"
-        )
+        .merge(highest_daily_loadprofile, left_on="time", right_on="time", how="outer")
         .set_index("index")
     )
     forecast = forecast[["load"]].rename(columns=dict(load="forecast"))
