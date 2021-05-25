@@ -20,10 +20,12 @@ class TestAbstractModelSerializer(BaseTestCase):
 
         model_datetime = datetime.utcnow() - timedelta(days=expected_model_age)
 
-        model_location = Path(f"{model_datetime.strftime(FOLDER_DATETIME_FORMAT)}")
+        model_path = (
+            Path(f"{model_datetime.strftime(FOLDER_DATETIME_FORMAT)}") / MODEL_FILENAME
+        )
 
         model_age = PersistentStorageSerializer(
-            {"id": 454}
-        )._determine_model_age_from_path(model_location)
+            trained_models_folder=""
+        )._determine_model_age_from_path(model_path)
 
         self.assertEqual(model_age, expected_model_age)

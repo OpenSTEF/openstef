@@ -1,14 +1,33 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+from dataclasses import dataclass
 import os
 from pathlib import Path
+from typing import Union, Dict
 
+from plotly.graph_objects import Figure
 import pandas as pd
-from ktpbase.config.config import ConfigManager
 from sklearn.base import RegressorMixin
 
 from openstf.metrics import figure
+
+
+@dataclass
+class Report:
+    feature_importance_figure: Figure
+    data_series_figures: Dict[str, Figure]
+
+    def save_figures(self, save_path):
+        os.makedirs(save_path, exist_ok=True)
+
+        self.feature_importance_figure.write_html(
+            str(save_path / "weight_plot.html")
+        )
+
+        for key, fig in self.data_series_figures.items():
+            fig.write_html(str(save_path / f"{key}.html"), auto_open=False)
+
 
 
 class Reporter:
@@ -20,7 +39,7 @@ class Reporter:
         test_data: pd.DataFrame = None,
     ) -> None:
 
-        """Initializes reporter object
+        """Initializes reporter
 
         Args:
             pj:
@@ -31,20 +50,21 @@ class Reporter:
         self.pj = pj
         self.horizons = train_data.Horizon.unique()
         self.predicted_data_list = []
-        self.input_data_list = [
-            train_data,
-            validation_data,
-            test_data,
-        ]
-        self.save_path = (
-            Path(ConfigManager.get_instance().paths.webroot) / self.pj["id"]
-        )  # Path were visuals are saved
+        self.input_data_list = [train_data, validation_data, test_data]
 
-    def make_and_save_dashboard_figures(self, model: RegressorMixin) -> None:
+    def generate_report(self, model: RegressorMixin, save_path: Union[Path, str]) -> None:
 
-        self._make_data_series_figures(model)
-        self._make_feature_importance_plot(model)
-        self._save_dashboard_figures(self.save_path)
+        data_series_figures = self._make_data_series_figures(model)
+        feature_importance_figure = self._make_feature_importance_figure(model)
+
+        report = Report(
+            data_series_figures=data_series_figures,
+            feature_importance_figure=feature_importance_figure
+        )
+
+        return report
+
+        # self._save_dashboard_figures(save_path)
 
     def _make_data_series_figures(self, model: RegressorMixin) -> None:
 
@@ -57,23 +77,18 @@ class Reporter:
             self.predicted_data_list.append(forecast)
 
         # Make cufflinks plots for the data series
-        self.figure_series = {
+        return {
             f"Predictor{horizon}": figure.plot_data_series(
                 data=self.input_data_list,
                 predict_data=self.predicted_data_list,
                 horizon=horizon,
-            )
-            for horizon in self.horizons
+            ) for horizon in self.horizons
         }
 
-    def _make_feature_importance_plot(self, model: RegressorMixin) -> None:
-
+    def _make_feature_importance_figure(self, model: RegressorMixin) -> None:
         feature_importance = self._extract_feature_importance(model)
 
-        # Make feature importance plot
-        self.feature_importance_plot = figure.plot_feature_importance(
-            feature_importance
-        )
+        return figure.plot_feature_importance(feature_importance)
 
     def _extract_feature_importance(self, model):
         """Return feature importances and weights of trained model.
@@ -108,9 +123,9 @@ class Reporter:
 
         return feature_importance
 
-    def _save_dashboard_figures(self, save_path):
-        os.makedirs(save_path, exist_ok=True)
+    # def _save_dashboard_figures(self, save_path):
+    #     os.makedirs(save_path, exist_ok=True)
 
-        self.feature_importance_plot.write_html(str(save_path / "weight_plot.html"))
-        for key, fig in self.figure_series.items():
-            fig.write_html(str(save_path / f"{key}.html"), auto_open=False)
+    #     self.feature_importance_plot.write_html(str(save_path / "weight_plot.html"))
+    #     for key, fig in self.figure_series.items():
+    #         fig.write_html(str(save_path / f"{key}.html"), auto_open=False)

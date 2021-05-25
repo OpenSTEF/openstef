@@ -16,16 +16,10 @@ class ModelCreator:
         MLModelType.LGB: LGBMRegressor,
     }
 
-    def __init__(self, pj):
+    @staticmethod
+    def create_model(model_type):
         # check if model type is valid
-        if pj["model"] not in [k.value for k in self.MODEL_TRAINER_CONSTRUCTORS]:
-            raise KeyError(f'Unknown model type: {pj["model"]}')
+        if model_type not in [k.value for k in ModelCreator.MODEL_TRAINER_CONSTRUCTORS]:
+            raise KeyError(f'Unknown model type: {model_type}')
 
-        self.pj = pj
-        # TODO see if this can be configured more generally for example in a system yaml
-
-    def create_model(self):
-
-        model_type = MLModelType(self.pj["model"])
-
-        return self.MODEL_TRAINER_CONSTRUCTORS[model_type]()
+        return ModelCreator.MODEL_TRAINER_CONSTRUCTORS[MLModelType(model_type)]()

@@ -3,24 +3,24 @@
 # SPDX-License-Identifier: MPL-2.0
 from abc import ABC, abstractmethod
 from datetime import datetime
+import pytz
 from pathlib import Path
+from typing import List, Optional, Union
 
 import joblib
 import structlog
-from ktpbase.config.config import ConfigManager
 from sklearn.base import RegressorMixin
 
 MODEL_FILENAME = "model.joblib"
+MODEL_FILENAME = "model.bin"
 FOLDER_DATETIME_FORMAT = "%Y%m%d%H%M%S"
+MODEL_ID_SEP = "-"
 
 
 class AbstractSerializer(ABC):
-    def __init__(self, prediction_job: dict) -> None:
-        self.pj = prediction_job
+    def __init__(self, trained_models_folder: Union[Path, str]) -> None:
         self.logger = structlog.get_logger(self.__class__.__name__)
-        self.trained_models_folder = Path(
-            ConfigManager.get_instance().paths.trained_models
-        )
+        self.trained_models_folder = Path(trained_models_folder)
 
     @abstractmethod
     def save_model(self, model: RegressorMixin) -> None:
@@ -42,43 +42,93 @@ class AbstractSerializer(ABC):
 
 
 class PersistentStorageSerializer(AbstractSerializer):
-    def save_model(self, model: RegressorMixin) -> None:
-        """Serializes trained sklearn compantible model to persistent storage
+    def save_model(
+        self,
+        model: RegressorMixin,
+        pid: Optional[Union[int, str]] = None,
+        model_id: Optional[str] = None
+    ) -> str:
+        """Save sklearn compatible model to persistent storage.
+
+            Either a pid or a model_id should be given. If a pid is given the model_id
+            will be generated.
 
         Args:
-            model: Trained sklearn compatible model object
+            model: Trained sklearn compatible model object.
+            pid: Prediction job id. Defaults to None.
+            model_id: Model id. Defaults to None.
+
+        Returns:
+            str: Model id of the saved model.
         """
 
-        # Compose save path
-        save_path = self._build_save_folder_path()
+        if pid is None and model_id is None:
+            raise ValueError("Need to supply either a pid or a model_id")
+
+        if pid is not None and model_id is not None:
+            raise ValueError("Cannot supply both a pid and a model_id")
+
+        if pid is not None:
+            model_id = self.generate_model_id(pid)
+
+        model_folder = self.convert_model_id_into_model_folder(model_id)
 
         # Create save path if nescesarry
-        save_path.mkdir(parents=True, exist_ok=True)
+        model_folder.mkdir(parents=True, exist_ok=True)
+
+        model_path = model_folder / MODEL_FILENAME
 
         # Save model
-        joblib.dump(model, save_path / MODEL_FILENAME)
+        self.save_model_to_path(model_path, model)
 
-    def load_model(self) -> RegressorMixin:
-        """Loads model from persistent storage that has been trained earlier
+        return model_id
+
+    def load_model(
+        self,
+        pid: Optional[Union[int, str]] = None,
+        model_id: Optional[str] = None
+    ) -> RegressorMixin:
+        """Load sklearn compatible model from persistent storage.
+
+            Either a pid or a model_id should be given. If a pid is given the most
+            recent model for that pid will be loaded.
+
+        Args:
+            pid (Optional[Union[int, str]], optional): Prediction job id. Defaults to None.
+            model_id (Optional[str], optional): Model id. Defaults to None.
 
         Raises:
-            FileNotFoundError: When no model file is found in the give directory.
+            ValueError: When both or none of pid and model_id are given.
+            FileNotFoundError: When the model does not exist
 
-        Returns: Trained sklearn compatible model object
-
+        Returns:
+            RegressorMixin: Loaded model
         """
+        if pid is None and model_id is None:
+            raise ValueError("Need to supply either a pid or a model_id")
 
-        # Get the folder specific to this prediction job
-        pid_model_folder = self._build_pid_model_folder_path()
+        if pid is not None and model_id is not None:
+            raise ValueError("Cannot supply both a pid and a model_id")
 
-        # Get the most recent model folder
-        location_most_recent_model = self._find_most_recent_model_folder(
-            pid_model_folder
-        )
+        if pid is not None:
+            model_path = self.find_most_recent_model_path(pid)
+        elif model_id is not None:
+            model_path = self.convert_model_id_into_model_path(model_id)
 
+        if model_path is None or model_path.is_file() is False:
+            msg = f"No model file found at save location: '{model_path}'"
+            self.logger.error(msg)
+            raise FileNotFoundError(msg)
+
+        return self.load_model_from_path(model_path)
+
+    def save_model_to_path(self, model_path, model):
+        joblib.dump(model, model_path)
+
+    def load_model_from_path(self, model_path):
         # Load most recent model from disk
         try:
-            loaded_model = joblib.load(location_most_recent_model / MODEL_FILENAME)
+            loaded_model = joblib.load(model_path)
         except Exception as e:
             self.logger.error(
                 "Could not load most recent model!", pid=self.pj["id"], exception=e
@@ -89,88 +139,14 @@ class PersistentStorageSerializer(AbstractSerializer):
         model_age_in_days = float("inf")  # In case no model is loaded,
         # we still need to provide an age
         if loaded_model is not None:
-            model_age_in_days = self._determine_model_age_from_path(
-                location_most_recent_model
-            )
+            model_age_in_days = self._determine_model_age_from_path(model_path)
 
         # Add model age to model object
         loaded_model.age = model_age_in_days
 
         return loaded_model
 
-    def _build_pid_model_folder_path(self) -> Path:
-        """Build the trained models path for the given pid.
-        The trainded models are stored a folder structure using the following
-        template: <trained_models_folder>/<pid>[_<component-name>]/<YYYYMMDDHHMMSS>/
-
-        """
-
-        # Folder name is equal to pid
-        model_folder_name = f"{self.pj['id']}"
-
-        # Use custom folder if specified otherwise use the one from the config manager
-        trained_models_folder = self.trained_models_folder
-
-        # Combine into complete folder path
-        model_folder = trained_models_folder / model_folder_name
-
-        return model_folder
-
-    def _find_most_recent_model_folder(self, pid_model_folder: Path) -> Path:
-        """Find the model recent model folder.
-            Iterate over the directories in the 'pid' model folder (the top level model
-            folder for a specific pid) and find the
-        Args:
-            pid_model_folder (pathlib.Path): [description]
-        Raises:
-            FileNotFoundError: When no model file is found in any of the subdirectories
-                of `pid_model_folder` which start with a 2.
-        Returns:
-            pathlib.Path: Path to the most recent model file
-        """
-
-        # Declare empty list to append folder names
-        model_folders = []
-
-        # Loop over all subfolder of pid_model_folder and store the ones starting with
-        # a 2 (date starts with 2000s), this is nesscerary for legacy reasons.
-        for folder in pid_model_folder.iterdir():
-            if folder.name.startswith("2") is True and folder.is_dir() is True:
-                model_folders.append(folder)
-
-        # sort folders by date such that the most recent date is the first element
-        for folder in sorted(model_folders, reverse=True):
-            model_file = folder / MODEL_FILENAME
-            if model_file.is_file() is True:
-                model_folder = folder
-                break
-        # we did not find a valid model file
-        else:
-            msg = f"No model file found at save location: '{pid_model_folder}'"
-            self.logger.error(msg)
-            raise FileNotFoundError(msg)
-
-        return model_folder
-
-    def _build_save_folder_path(self) -> Path:
-        """Builds a save path where to save a model.
-
-        Returns: pathlib.Path() with location where to save a model
-
-        """
-
-        # Get specific folder for this precion job
-        pid_model_folder = self._build_pid_model_folder_path()
-
-        # Get the datetime string
-        datetime_str = datetime.utcnow().strftime(FOLDER_DATETIME_FORMAT)
-
-        # Combine into a complete model save path
-        save_folder = pid_model_folder / datetime_str
-
-        return save_folder
-
-    def _determine_model_age_from_path(self, model_location: Path) -> float:
+    def _determine_model_age_from_path(self, model_path: Path) -> float:
         """Determines how many days ago a model is trained base on the folder name.
 
         Args:
@@ -181,7 +157,7 @@ class PersistentStorageSerializer(AbstractSerializer):
         """
 
         # Location is of this format: TRAINED_MODELS_FOLDER/<pid>/<YYYYMMDDHHMMSS>/
-        datetime_string = model_location.name
+        datetime_string = model_path.parent.name
 
         # Convert string to datetime object
         try:
@@ -198,3 +174,94 @@ class PersistentStorageSerializer(AbstractSerializer):
         model_age_days = (datetime.utcnow() - model_datetime).days
 
         return model_age_days
+
+    def find_model_folders(
+        self, pid: Union[int, str], ascending: Optional[bool] = False
+    ) -> List[Path]:
+        pid_model_folder = Path(self.trained_models_folder) / f"{pid}"
+
+        # Declare empty list to append folder names
+        model_folders = []
+
+        if pid_model_folder.is_dir() is False:
+            return model_folders
+
+        for folder in pid_model_folder.iterdir():
+            # Skip files, we are looking for folders
+            if folder.is_dir() is False:
+                continue
+            # model folders should start with a 2 (date starts with 2000s)
+            if folder.name.startswith("2") is False:
+                continue
+            # the model folder is only valid when there is a valid model file
+            if (folder / MODEL_FILENAME).is_file() is False:
+                continue
+            model_folders.append(folder)
+
+        model_folders = sorted(model_folders, reverse=not ascending)
+
+        return model_folders
+
+    def find_model_paths(
+        self,
+        pid: Union[int, str],
+        limit: Optional[int] = 1,
+        ascending: Optional[bool] = True
+    ) -> List[Path]:
+        model_paths = [f / MODEL_FILENAME for f in self.find_model_folders(pid, ascending)]
+
+        model_paths = model_paths[:limit]
+
+        return model_paths
+
+    def find_most_recent_model_folder(self, pid: Union[int, str]) -> Path:
+        """Find the model recent model folder.
+
+            Iterate over the directories in the 'pid' model folder (the top level model
+            folder for a specific pid) and find the
+            <trained_models_folder>/<pid>/<datetime>
+
+        Args:
+            pid (Union[int, str]): Prediction job id.
+
+        Returns:
+            Union[pathlib.Path, None]: Path to the most recent model file or None if not
+                found.
+        """
+
+        model_folders = self.find_model_folders(pid, ascending=False)
+
+        if len(model_folders) == 0:
+            return None
+
+        # return the first model folder (ascending order)
+        return model_folders[0]
+
+    def find_most_recent_model_path(self, pid: Union[int, str]):
+        model_folder = self.find_most_recent_model_folder(pid)
+        if model_folder is None:
+            return None
+        return self.find_most_recent_model_folder(pid) / MODEL_FILENAME
+
+    def convert_model_id_into_model_folder(self, model_id: str):
+        """Convert a trained model id into a model folder.
+
+            The model_id should use the following format:
+                "<prediction_job_id>/<datetime>"
+
+        Args:
+            trained_model_id ([type]): [description]
+        """
+        base_path = self.trained_models_folder
+
+        prediction_job_id, model_datetime = model_id.split(MODEL_ID_SEP)
+
+        return Path(base_path) / prediction_job_id / model_datetime
+
+    def convert_model_id_into_model_path(self, model_id):
+        return self.convert_model_id_into_model_folder(model_id) / MODEL_FILENAME
+
+    def generate_model_id(self, pid: Union[int, str]):
+        now = datetime.now(pytz.utc).strftime(FOLDER_DATETIME_FORMAT)
+        model_id = f"{pid}{MODEL_ID_SEP}{now}"
+        return model_id

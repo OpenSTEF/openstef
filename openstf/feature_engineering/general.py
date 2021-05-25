@@ -3,12 +3,15 @@
 # SPDX-License-Identifier: MPL-2.0
 
 # -*- coding: utf-8 -*-
+from typing import List
 import numpy as np
 import pandas as pd
 
+import structlog
+
 
 def add_missing_feature_columns(
-    input_data: pd.DataFrame, featurelist: list
+    input_data: pd.DataFrame, features: List[str]
 ) -> pd.DataFrame:
     """Adds feature column for features in the featurelist.
 
@@ -21,21 +24,28 @@ def add_missing_feature_columns(
 
     Args:
         input_data (pd.DataFrame): DataFrame with input data and featurs.
-        featurelist (list): List of requiered features
+        features (list): List of requiered features
     """
-    missing_features = [f for f in featurelist if f not in list(input_data)]
+
+    logger = structlog.get_logger(__file__)
+
+    if features is None:
+        features = []
+
+    missing_features = [f for f in features if f not in list(input_data)]
 
     for feature in missing_features:
-        print(f"Warning: adding NaN column for missing feature: {feature}")
+        logger.warning(f"Adding NaN column for missing feature: {feature}")
         input_data[feature] = np.nan
 
     return input_data
 
 
 def remove_extra_feature_columns(
-    input_data: pd.DataFrame, featurelist: list
+    input_data: pd.DataFrame, features: List[str]
 ) -> pd.DataFrame:
     """Removes any features that are provided in the input data but not in the feature list.
+
     This should not be nescesarry but serves as an extra failsave for making predicitons
 
     Args:
@@ -45,9 +55,14 @@ def remove_extra_feature_columns(
     Returns: pd.DataFrame with model input data and fetaures
 
     """
-    extra_features = [f for f in list(input_data) if f not in featurelist]
+    logger = structlog.get_logger(__file__)
+
+    if features is None:
+        features = []
+
+    extra_features = [f for f in list(input_data) if f not in features]
 
     if len(extra_features) > 0:
-        print(f"Warning: Removing {len(extra_features)} unrequested features!")
+        logger.warning(f"Removing {len(extra_features)} unrequested features!")
 
     return input_data.drop(extra_features, axis=1)

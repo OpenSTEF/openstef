@@ -13,6 +13,8 @@ This improves forecast accuracy. Examples of features that are added are:
     The normalised wind power according to the turbine-specific power curve
 
 """
+from typing import List
+
 import pandas as pd
 
 from openstf.feature_engineering.holiday_features import (
@@ -26,11 +28,15 @@ from openstf.feature_engineering.lag_features import generate_lag_feature_functi
 
 
 def apply_features(
-    data: pd.DataFrame, features: list = None, horizon: float = 24.0
+    data: pd.DataFrame, feature_names: List[str] = None, horizon: float = 24.0
 ) -> pd.DataFrame:
     """This script applies the feature functions defined in
         feature_functions.py and returns the complete dataframe. Features requiring
         more recent label-data are omitted.
+
+        NOTE: For the time deriven features only the onces in the features list
+        will be added. But for the weather features all will be added at present.
+        These unrequested additional features have to be filtered out later.
 
     Args:
         data (pandas.DataFrame): a pandas dataframe with input data in the form:
@@ -38,7 +44,7 @@ def apply_features(
                                         index=datetime,
                                         columns=[label, predictor_1,..., predictor_n]
                                     )
-        features (list of strs): list of reuqested features
+        feature_names (List[str]): list of reuqested features
         horizon (float): Forecast horizon limit in hours.
 
     Returns:
@@ -58,7 +64,7 @@ def apply_features(
     """
 
     # Get lag feature functions
-    feature_functions = generate_lag_feature_functions(features, horizon)
+    feature_functions = generate_lag_feature_functions(feature_names, horizon)
 
     # Get timedrivenfeature functions
     feature_functions.update(
@@ -77,16 +83,16 @@ def apply_features(
     # Add the features to the dataframe using previously defined feature functions
     for key, featfunc in feature_functions.items():
         # Don't generate feature is not in features
-        if features is not None:
-            if key not in features:
+        if feature_names is not None:
+            if key not in feature_names:
                 continue
         data[key] = data.iloc[:, [0]].apply(featfunc)
 
     # Add additional wind features
-    data = add_additional_wind_features(data, features)
+    data = add_additional_wind_features(data, feature_names)
 
     # Add humidity features
-    data = add_humidity_features(data, features)
+    data = add_humidity_features(data, feature_names)
 
     # Return dataframe including all requested features
     return data
