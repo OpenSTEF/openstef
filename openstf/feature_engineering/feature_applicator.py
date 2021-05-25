@@ -43,7 +43,9 @@ class AbstractFeatureApplicator(ABC):
 
 
 class TrainFeatureApplicator(AbstractFeatureApplicator):
-    def add_features(self, df: pd.DataFrame, latency_config=LATENCY_CONFIG) -> pd.DataFrame:
+    def add_features(
+        self, df: pd.DataFrame, latency_config=LATENCY_CONFIG
+    ) -> pd.DataFrame:
         """Adds features to an input DataFrame.
 
         This method is implemented specifically for a model train pipeline. For larger
@@ -102,7 +104,9 @@ class OperationalPredictFeatureApplicator(AbstractFeatureApplicator):
         if self.horizons is None:
             self.horizons = [0.25]
 
-        df = apply_features(df, feature_names=self.feature_names, horizon=self.horizons[0])
+        df = apply_features(
+            df, feature_names=self.feature_names, horizon=self.horizons[0]
+        )
         df = add_missing_feature_columns(df, self.feature_names)
         # NOTE this is required since apply_features could add additional features
         df = remove_extra_feature_columns(df, self.feature_names)

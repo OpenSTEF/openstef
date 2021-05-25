@@ -14,6 +14,7 @@ from openstf.feature_engineering.feature_applicator import TrainFeatureApplicato
 from openstf.model.confidence_interval_generator import ConfidenceIntervalGenerator
 from openstf.model.model_creator import ModelCreator
 from openstf.metrics.reporter import Reporter, Report
+
 # from openstf.model.serializer import PersistentStorageSerializer
 from openstf.model_selection.model_selection import split_data_train_validation_test
 from openstf.validation import validation
@@ -65,11 +66,12 @@ OLD_MODEL_PATH = Path(".")
 #             save_path=Path(ConfigManager.get_instance().paths.webroot) / pj["id"]
 #         )
 
+
 def train_model_pipeline(
     pj: dict,
     input_data: pd.DataFrame,
     old_model: RegressorMixin = None,
-    horizons: List[float] = DEFAULT_TRAIN_HORIZONS
+    horizons: List[float] = DEFAULT_TRAIN_HORIZONS,
 ) -> Tuple[RegressorMixin, Report]:
     """Run the train model pipeline.
 
@@ -103,9 +105,9 @@ def train_model_pipeline(
     # Check if sufficient data is left after cleaning
     if not validation.is_data_sufficient(validated_data):
         raise ValueError(
-                f"Input data is insufficient for {pj['name']} "
-                f"after validation and cleaning"
-            )
+            f"Input data is insufficient for {pj['name']} "
+            f"after validation and cleaning"
+        )
 
     # Add features
     data_with_features = TrainFeatureApplicator(
@@ -129,8 +131,10 @@ def train_model_pipeline(
 
     model.set_params(params=pj["hyper_params"])
     model.fit(
-        train_x, train_y, eval_set=eval_set,
-        early_stopping_rounds=DEFAULT_EARLY_STOPPING_ROUNDS
+        train_x,
+        train_y,
+        eval_set=eval_set,
+        early_stopping_rounds=DEFAULT_EARLY_STOPPING_ROUNDS,
     )
 
     # Check if new model is better than old model
@@ -148,7 +152,9 @@ def train_model_pipeline(
         if score_old_model > score_new_model * PENALTY_FACTOR_OLD_MODEL:
             raise RuntimeError(f"Old model is better than new model for {pj['name']}")
 
-        logger.info("New model is better than old model, continuing with training procces")
+        logger.info(
+            "New model is better than old model, continuing with training procces"
+        )
 
     # Do confidence interval determination
     model = ConfidenceIntervalGenerator(

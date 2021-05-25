@@ -50,7 +50,8 @@ def predict_pipeline(pj, input_data):
     # Add features
     data_with_features = OperationalPredictFeatureApplicator(
         # TODO use saved feature_names (should be saved while training the model)
-        horizons=[0.25], features=model._Booster.feature_names
+        horizons=[0.25],
+        features=model._Booster.feature_names,
     ).add_features(validated_data)
 
     # Prep forecast input
