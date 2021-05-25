@@ -38,7 +38,7 @@ OLD_MODEL_PATH = Path(".")
 
 #         # Get old model and age
 #         try:
-#             old_model = PersistentStorageSerializer(pj).load_model()
+#             old_model = PersistentStorageSerializer().load_model(pid=pj["id"])
 #             old_model_age = old_model.age
 #         except FileNotFoundError:
 #             old_model = None
@@ -59,7 +59,7 @@ OLD_MODEL_PATH = Path(".")
 #             continue
 
 #         # save model
-#         PersistentStorageSerializer(pj).save_model(model)
+#         PersistentStorageSerializer().save_model(model, pid=pj["id"])
 #         # save figures
 #         report.save_figures(
 #             save_path=Path(ConfigManager.get_instance().paths.webroot) / pj["id"]

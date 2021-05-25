@@ -41,8 +41,8 @@ def predict_pipeline(pj, input_data):
         t_behind_days=14, t_ahead_days=3
     )
 
-    # Get model
-    model = PersistentStorageSerializer(pj).load_model()
+    # Load most recent model for the given pid
+    model = PersistentStorageSerializer().load_model(pid=pj["id"])
 
     # Validate and clean data
     validated_data = validation.validate(input_data)
