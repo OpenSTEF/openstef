@@ -20,7 +20,6 @@ MODEL_ID_SEP = "-"
 class AbstractSerializer(ABC):
     def __init__(self, trained_models_folder: Union[Path, str]) -> None:
         self.logger = structlog.get_logger(self.__class__.__name__)
-        # ConfigManager.get_instance().paths.trained_models
         self.trained_models_folder = Path(trained_models_folder)
 
     @abstractmethod
