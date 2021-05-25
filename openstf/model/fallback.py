@@ -7,35 +7,40 @@ from datetime import datetime, timedelta, timezone
 import pandas as pd
 import structlog
 
-def generate_fallback(forecast_input: pd.DataFrame,
-                      load: pd.DataFrame,
-                      fallback_strategy: str ='extreme_day') -> pd.DataFrame:
+
+def generate_fallback(
+    forecast_input: pd.DataFrame,
+    load: pd.DataFrame,
+    fallback_strategy: str = "extreme_day",
+) -> pd.DataFrame:
     """Make a fall back forecast,
-        Set the value of the forecast 'quality' column to 'substituted'
+    Set the value of the forecast 'quality' column to 'substituted'
 
-        Currently only fallback_strategy=extreme day is implemented which return historic profile of most extreme day.
+    Currently only fallback_strategy=extreme day is implemented which return historic profile of most extreme day.
 
-        Args:
-            forecast_input (pandas.DataFrame): dataframe desired for the forecast
-            load (pandas.DataFrame): index=datetime, columns=['load']
-            fallback_strategy (str): strategy to determine fallback. options:
-                - extreme_day: use daily profile of most extreme day
-        Returns:
-            pandas.DataFrame: Fallback forecast DataFrame with columns:
-                'forecast', 'quality'
+    Args:
+        forecast_input (pandas.DataFrame): dataframe desired for the forecast
+        load (pandas.DataFrame): index=datetime, columns=['load']
+        fallback_strategy (str): strategy to determine fallback. options:
+            - extreme_day: use daily profile of most extreme day
+    Returns:
+        pandas.DataFrame: Fallback forecast DataFrame with columns:
+            'forecast', 'quality'
 
-        Raises:
-            ValueError if len(load) == 0
-            NotImplementedError if fallback_strategy != 'extreme_day'
+    Raises:
+        ValueError if len(load) == 0
+        NotImplementedError if fallback_strategy != 'extreme_day'
     """
     # Check if load is completely empty
     if len(load.dropna()) == 0:
         raise ValueError("No historic load data available")
 
-    if fallback_strategy != 'extreme_day':
-        raise NotImplementedError(f'fallback_strategy should be "extreme_day", received:{fallback_strategy}')
+    if fallback_strategy != "extreme_day":
+        raise NotImplementedError(
+            f'fallback_strategy should be "extreme_day", received:{fallback_strategy}'
+        )
 
-    if fallback_strategy == 'extreme_day':
+    if fallback_strategy == "extreme_day":
         # Execute this fallback strategy
         # Find most extreme historic day and merge it by time-of-day to the requested moments
 
