@@ -21,13 +21,10 @@ class Report:
     def save_figures(self, save_path):
         os.makedirs(save_path, exist_ok=True)
 
-        self.feature_importance_figure.write_html(
-            str(save_path / "weight_plot.html")
-        )
+        self.feature_importance_figure.write_html(str(save_path / "weight_plot.html"))
 
         for key, fig in self.data_series_figures.items():
             fig.write_html(str(save_path / f"{key}.html"), auto_open=False)
-
 
 
 class Reporter:
@@ -52,14 +49,16 @@ class Reporter:
         self.predicted_data_list = []
         self.input_data_list = [train_data, validation_data, test_data]
 
-    def generate_report(self, model: RegressorMixin, save_path: Union[Path, str]) -> None:
+    def generate_report(
+        self, model: RegressorMixin, save_path: Union[Path, str]
+    ) -> None:
 
         data_series_figures = self._make_data_series_figures(model)
         feature_importance_figure = self._make_feature_importance_figure(model)
 
         report = Report(
             data_series_figures=data_series_figures,
-            feature_importance_figure=feature_importance_figure
+            feature_importance_figure=feature_importance_figure,
         )
 
         return report
@@ -82,7 +81,8 @@ class Reporter:
                 data=self.input_data_list,
                 predict_data=self.predicted_data_list,
                 horizon=horizon,
-            ) for horizon in self.horizons
+            )
+            for horizon in self.horizons
         }
 
     def _make_feature_importance_figure(self, model: RegressorMixin) -> None:

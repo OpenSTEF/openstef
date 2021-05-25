@@ -46,7 +46,7 @@ class PersistentStorageSerializer(AbstractSerializer):
         self,
         model: RegressorMixin,
         pid: Optional[Union[int, str]] = None,
-        model_id: Optional[str] = None
+        model_id: Optional[str] = None,
     ) -> str:
         """Save sklearn compatible model to persistent storage.
 
@@ -84,9 +84,7 @@ class PersistentStorageSerializer(AbstractSerializer):
         return model_id
 
     def load_model(
-        self,
-        pid: Optional[Union[int, str]] = None,
-        model_id: Optional[str] = None
+        self, pid: Optional[Union[int, str]] = None, model_id: Optional[str] = None
     ) -> RegressorMixin:
         """Load sklearn compatible model from persistent storage.
 
@@ -206,9 +204,11 @@ class PersistentStorageSerializer(AbstractSerializer):
         self,
         pid: Union[int, str],
         limit: Optional[int] = 1,
-        ascending: Optional[bool] = True
+        ascending: Optional[bool] = True,
     ) -> List[Path]:
-        model_paths = [f / MODEL_FILENAME for f in self.find_model_folders(pid, ascending)]
+        model_paths = [
+            f / MODEL_FILENAME for f in self.find_model_folders(pid, ascending)
+        ]
 
         model_paths = model_paths[:limit]
 

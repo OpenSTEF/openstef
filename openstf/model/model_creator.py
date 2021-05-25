@@ -20,6 +20,6 @@ class ModelCreator:
     def create_model(model_type):
         # check if model type is valid
         if model_type not in [k.value for k in ModelCreator.MODEL_TRAINER_CONSTRUCTORS]:
-            raise KeyError(f'Unknown model type: {model_type}')
+            raise KeyError(f"Unknown model type: {model_type}")
 
         return ModelCreator.MODEL_TRAINER_CONSTRUCTORS[MLModelType(model_type)]()
