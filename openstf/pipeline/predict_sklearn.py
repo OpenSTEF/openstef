@@ -14,8 +14,11 @@ from openstf.feature_engineering.feature_applicator import (
 from openstf.model.confidence_interval_applicator import ConfidenceIntervalApplicator
 from openstf.preprocessing import preprocessing
 from openstf.model.serializer import PersistentStorageSerializer
+from openstf.model.fallback import generate_fallback
 
 MODEL_LOCATION = Path(".")
+
+logger = structlog.get_logger(__name__)
 
 
 def predict_pipeline(pj, input_data):
@@ -49,14 +52,23 @@ def predict_pipeline(pj, input_data):
         horizons=[0.25], features=model._Booster.feature_names # TODO use saved feature_names
     ).add_features(validated_data)
 
-    # Check if sufficient data is left after cleaning
-    if not validation.is_data_sufficient(data_with_features):
-        print("Use fallback model")
-
-    # Predict
+    # Prep forecast input
     forecast_input_data = data_with_features[forecast_start:forecast_end]
 
-    model_forecast = model.predict(forecast_input_data.sort_index(axis=1))
+    # Check if sufficient data is left after cleaning
+    if not validation.is_data_sufficient(data_with_features):
+        fallback_strategy = "extreme_day"  # this can later be expanded
+        logger.warning(
+            "Using fallback forecast",
+            forecast_type="fallback",
+            pid=pj["id"],
+            fallback_strategy=fallback_strategy,
+        )
+        model_forecast = generate_fallback(forecast_input_data, input_data[["load"]])
+
+    else:
+        # Predict
+        model_forecast = model.predict(forecast_input_data.sort_index(axis=1))
 
     forecast = pd.DataFrame(
         index=forecast_input_data.index, data={"forecast": model_forecast}
