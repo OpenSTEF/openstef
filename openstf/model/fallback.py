@@ -23,6 +23,10 @@ def generate_fallback(forecast_input: pd.DataFrame,
         Returns:
             pandas.DataFrame: Fallback forecast DataFrame with columns:
                 'forecast', 'quality'
+
+        Raises:
+            ValueError if len(load) == 0
+            NotImplementedError if fallback_strategy != 'extreme_day'
     """
     # Check if load is completely empty
     if len(load.dropna()) == 0:
