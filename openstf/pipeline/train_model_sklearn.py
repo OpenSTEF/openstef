@@ -85,6 +85,7 @@ def train_model_pipeline(
         train_data.iloc[:, 0],
         eval_set=eval_set,
         early_stopping_rounds=EARLY_STOPPING_ROUNDS,
+        verbose=0
     )
 
     # Check if new model is better than old model
