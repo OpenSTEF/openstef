@@ -86,6 +86,9 @@ class TestPredict(BaseTestCase):
         for mock_func in [nonzero_flatliner_mock, replace_invalid_data_mock]:
             self.assertEqual(mock_func.call_count, 1)
 
+    @patch(
+        "openstf.pipeline.predict_sklearn.MODEL_LOCATION", Path("./test/trained_models")
+    )
     @patch("openstf.validation.validation.is_data_sufficient")
     def test_incomplete_input(self, is_data_sufficient_mock):
         """Test if a fallback forecast is used when input is incomplete"""
@@ -94,7 +97,7 @@ class TestPredict(BaseTestCase):
         pj = TestData.get_prediction_job(pid=307)
 
         forecast = predict_sklearn.predict_pipeline(pj=pj, input_data=input_data)
-        assert "substituted" in forecast.quality
+        assert "substituted" in forecast.quality.values
 
     @patch(
         "openstf.pipeline.predict_sklearn.MODEL_LOCATION", Path("./test/trained_models")

@@ -58,7 +58,7 @@ class ConfidenceIntervalApplicator:
             near = stdev.columns.min()
             far = stdev.columns.max()
 
-        forecast_copy = forecast.copy(deep=True)
+        forecast_copy = forecast.copy()
         # add time ahead column if not already present
         if "tAhead" not in forecast_copy.columns:
             # Assume first datapoint is 'now'

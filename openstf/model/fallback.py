@@ -61,7 +61,7 @@ def generate_fallback(
 
         # Match moments by time-of-day
         highest_daily_loadprofile.loc[:, "time"] = highest_daily_loadprofile.index.time
-        forecast = pd.DataFrame(index=forecast_input)
+        forecast = pd.DataFrame(index=forecast_input.index)
         forecast["time"] = forecast.index.time
         forecast = (
             forecast.reset_index()

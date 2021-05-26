@@ -59,15 +59,14 @@ def predict_pipeline(pj, input_data):
             pid=pj["id"],
             fallback_strategy=fallback_strategy,
         )
-        model_forecast = generate_fallback(forecast_input_data, input_data[["load"]])
+        forecast = generate_fallback(forecast_input_data, input_data[["load"]])
 
     else:
         # Predict
         model_forecast = model.predict(forecast_input_data.sort_index(axis=1))
-
-    forecast = pd.DataFrame(
-        index=forecast_input_data.index, data={"forecast": model_forecast}
-    )
+        forecast = pd.DataFrame(
+            index=forecast_input_data.index, data={"forecast": model_forecast}
+        )
 
     # Add confidence
     forecast = ConfidenceIntervalApplicator(model).add_confidence_interval(
