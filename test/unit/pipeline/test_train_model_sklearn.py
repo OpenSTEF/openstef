@@ -41,7 +41,9 @@ class TestTrainModel(BaseTestCase):
         )
 
         self.train_input = TestData.load("reference_sets/307-train-data.csv")
-        self.pj['feature_names'] = self.train_input.columns[1:] # first column is not a feature
+        self.pj["feature_names"] = self.train_input.columns[
+            1:
+        ]  # first column is not a feature
 
     def test_split_data_train_validation_test(self):
         train_data, validation_data, test_data = split_data_train_validation_test(
@@ -70,8 +72,8 @@ class TestTrainModel(BaseTestCase):
             model, report = train_model_pipeline(
                 pj=self.pj,
                 input_data=self.train_input,
-                #check_old_model_age=False,
-                #compare_to_old=False,
+                # check_old_model_age=False,
+                # compare_to_old=False,
             )
         # Check if a new model was stored based on logging
         assert captured.records[-1].getMessage() == "Fitted a new model, not yet stored"

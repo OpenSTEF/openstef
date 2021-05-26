@@ -125,12 +125,10 @@ class PersistentStorageSerializer(AbstractSerializer):
     def load_model_from_path(self, model_path):
         # Load most recent model from disk
         try:
-            self.logger.debug(f'Trying to load model from: {model_path}')
+            self.logger.debug(f"Trying to load model from: {model_path}")
             loaded_model = joblib.load(model_path)
         except Exception as e:
-            self.logger.error(
-                "Could not load most recent model!", exception=str(e)
-            )
+            self.logger.error("Could not load most recent model!", exception=str(e))
             raise FileNotFoundError("Could not load model from the model file!")
 
         # exctract model age

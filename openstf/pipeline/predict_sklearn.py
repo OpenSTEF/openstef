@@ -33,7 +33,9 @@ def predict_pipeline(pj, input_data):
         forecast (pandas.DataFrame)
     """
     # Load most recent model for the given pid
-    model = PersistentStorageSerializer(trained_models_folder=MODEL_LOCATION).load_model(pid=pj["id"])
+    model = PersistentStorageSerializer(
+        trained_models_folder=MODEL_LOCATION
+    ).load_model(pid=pj["id"])
 
     # Validate and clean data
     validated_data = validation.validate(input_data)
@@ -117,6 +119,7 @@ def generate_inputdata_datetime_range(t_behind_days=14, t_ahead_days=3):
     datetime_end = date_today_utc + timedelta(days=t_ahead_days)
 
     return datetime_start, datetime_end
+
 
 ## Obsolete?
 def generate_forecast_datetime_range(resolution_minutes, horizon_minutes):
