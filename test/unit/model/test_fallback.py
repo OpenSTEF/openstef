@@ -20,7 +20,7 @@ class TestFallback(BaseTestCase):
         forc_section = TestData.load("fallback_index.csv")
 
         fallback_forecast = generate_fallback(
-            forecast_input=forc_section.index,
+            forecast_input=forc_section,
             load=load,
             fallback_strategy="extreme_day",
         )
@@ -45,7 +45,7 @@ class TestFallback(BaseTestCase):
         self.assertRaises(
             NotImplementedError,
             generate_fallback,
-            forecast_input=forc_section.index,
+            forecast_input=forc_section,
             load=load,
             fallback_strategy="SomeWeirdNotImplementedStrategy",
         )
