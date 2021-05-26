@@ -136,9 +136,9 @@ def train_model_pipeline(
         train_y,
         eval_set=eval_set,
         early_stopping_rounds=EARLY_STOPPING_ROUNDS,
-        verbose=0
+        verbose=0,
     )
-    logging.debug('Fitted a new model, not yet stored')
+    logging.debug("Fitted a new model, not yet stored")
 
     # Check if new model is better than old model
     # NOTE it would be better to move this code out of the pipeline
@@ -167,7 +167,7 @@ def train_model_pipeline(
     model = ConfidenceIntervalGenerator(
         pj, validation_data
     ).generate_confidence_interval_data(model)
-    
+
     # Report about the training procces
     report = Reporter(pj, train_data, validation_data, test_data).generate_report(model)
 

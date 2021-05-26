@@ -40,7 +40,7 @@ class TestTrainModel(BaseTestCase):
             index=pd.date_range(datetime_start, datetime_end, freq="15T")
         )
 
-        self.train_input = TestData.load('reference_sets/307-train-data.csv')
+        self.train_input = TestData.load("reference_sets/307-train-data.csv")
 
     def test_split_data_train_validation_test(self):
         train_data, validation_data, test_data = split_data_train_validation_test(
@@ -69,32 +69,40 @@ class TestTrainModel(BaseTestCase):
 
         # Run the pipeline a first time, this should train a model in test/trained_models
         with self.assertLogs() as captured:
-            train_model_pipeline(pj=self.pj,
-                             input_data=self.train_input,
-                             check_old_model_age=False,
-                             compare_to_old=False)
+            train_model_pipeline(
+                pj=self.pj,
+                input_data=self.train_input,
+                check_old_model_age=False,
+                compare_to_old=False,
+            )
         # Check if a new model was stored based on logging
-        assert captured.records[-1].getMessage() == 'New model stored'
+        assert captured.records[-1].getMessage() == "New model stored"
 
         # Run the pipeline again, this time, no new model should be trained since the older model is quite new
         with self.assertLogs() as captured:
-            train_model_pipeline(pj=self.pj,
-                                 input_data=self.train_input,
-                                 check_old_model_age=True,
-                                 compare_to_old=False)
-        assert captured.records[-1].getMessage() == 'Model is newer than 7 days!'
+            train_model_pipeline(
+                pj=self.pj,
+                input_data=self.train_input,
+                check_old_model_age=True,
+                compare_to_old=False,
+            )
+        assert captured.records[-1].getMessage() == "Model is newer than 7 days!"
 
         # And again, but now also compare to the performance of the old model.
         # The performance should be identical
         # (therefore the new model should be considered better, since some margin is allowed)
         with self.assertLogs() as captured:
-            train_model_pipeline(pj=self.pj,
-                                 input_data=self.train_input,
-                                 check_old_model_age=False,
-                                 compare_to_old=True)
-        assert captured.records[-2].getMessage() == "New model is better than old model, continuing with training procces"
-        assert captured.records[
-                   -1].getMessage() == 'New model stored'
+            train_model_pipeline(
+                pj=self.pj,
+                input_data=self.train_input,
+                check_old_model_age=False,
+                compare_to_old=True,
+            )
+        assert (
+            captured.records[-2].getMessage()
+            == "New model is better than old model, continuing with training procces"
+        )
+        assert captured.records[-1].getMessage() == "New model stored"
 
 
 if __name__ == "__main__":
