@@ -37,7 +37,7 @@ class Reporter:
             test_data,
         ]
         self.save_path = (
-            Path(ConfigManager.get_instance().paths.webroot) / self.pj["id"]
+            Path(ConfigManager.get_instance().paths.webroot) / str(self.pj["id"])
         )  # Path were visuals are saved
 
     def make_and_save_dashboard_figures(self, model: RegressorMixin) -> None:

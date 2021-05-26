@@ -74,13 +74,13 @@ def apply_features(
     # Get holiday feature functions
     feature_functions.update(generate_holiday_feature_functions())
 
-    # Add the features to the dataframe using previously defined feature functions
-    for key, featfunc in feature_functions.items():
-        # Don't generate feature is not in features
-        if features is not None:
+    # Don't generate feature is not in features
+    if features is not None:
+        # Add the features to the dataframe using previously defined feature functions
+        for key, featfunc in feature_functions.items():
             if key not in features:
                 continue
-        data[key] = data.iloc[:, [0]].apply(featfunc)
+            data[key] = data.iloc[:, [0]].apply(featfunc)
 
     # Add additional wind features
     data = add_additional_wind_features(data, features)

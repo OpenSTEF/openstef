@@ -56,6 +56,16 @@ class TestTrainModel(BaseTestCase):
         self.assertEqual(len(validation_data), 1296)
         self.assertEqual(len(test_data), 1)
 
+    def test_train_pipeline_happy(self):
+        """Test if the happy flow of the train pipeline works"""
+        train_input = self.data_table
+        train_model_pipeline(pj=self.pj,
+                             input_data=self.data_table,
+                             check_old_model_age=False,
+                             compare_to_old=False)
+
+
+
 
 if __name__ == "__main__":
     unittest.main()
