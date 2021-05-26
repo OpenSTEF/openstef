@@ -317,7 +317,7 @@ def add_additional_wind_features(
                 "windPowerFit_extrapolated",
                 "windpowerFit_harm_arome",
             ]
-            for x in features
+            for x in feature_names
         )
 
     # Add add_additional_wind_features
