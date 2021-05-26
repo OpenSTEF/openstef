@@ -86,15 +86,10 @@ class TestPredict(BaseTestCase):
         for mock_func in [nonzero_flatliner_mock, replace_invalid_data_mock]:
             self.assertEqual(mock_func.call_count, 1)
 
-    # TODO include the test below to see if the pipeline uses the fallback forecast correctly
-    # This test requires a functioning 'happy_flow_pipeline' test which is not yet developed
-    @unittest.skip(
-        "No functioning happy_flow_pipeline test available. Add this one later"
-    )
     @patch("openstf.validation.validation.is_data_sufficient")
     def test_incomplete_input(self, is_data_sufficient_mock):
         """Test if a fallback forecast is used when input is incomplete"""
-        input_data = TestData.load("input_data.pickle")
+        input_data = forecast_input
         is_data_sufficient_mock.return_value = False
         pj = TestData.get_prediction_job(pid=307)
 
