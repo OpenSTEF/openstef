@@ -86,7 +86,7 @@ def apply_features(
         if feature_names is not None:
             if key not in feature_names:
                 continue
-            data[key] = data.iloc[:, [0]].apply(featfunc)
+        data[key] = data.iloc[:, [0]].apply(featfunc)
 
     # Add additional wind features
     data = add_additional_wind_features(data, feature_names)
