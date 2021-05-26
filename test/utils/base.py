@@ -31,7 +31,6 @@ class BaseTestCase(unittest.TestCase):
 
         # add trained model path
         conf = ktpbase.config.config.ConfigManager.get_instance()
-
         conf.paths = dotdict(dict(trained_models="test/trained_models/",
                                   webroot="test/reports/"))
 

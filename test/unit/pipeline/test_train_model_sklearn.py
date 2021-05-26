@@ -40,6 +40,8 @@ class TestTrainModel(BaseTestCase):
             index=pd.date_range(datetime_start, datetime_end, freq="15T")
         )
 
+        self.train_input = TestData.load('reference_sets/307-train-data.csv')
+
     def test_split_data_train_validation_test(self):
         train_data, validation_data, test_data = split_data_train_validation_test(
             self.data, period_sampling=False
@@ -57,13 +59,17 @@ class TestTrainModel(BaseTestCase):
         self.assertEqual(len(test_data), 1)
 
     def test_train_pipeline_happy(self):
-        """Test if the happy flow of the train pipeline works"""
-        train_input = self.data_table
+        """Test if the happy flow of the train pipeline works
+        The input data should not contain features (e.g. T-7d),
+        but it can include predictors (e.g. weather data)"""
+
         train_model_pipeline(pj=self.pj,
-                             input_data=self.data_table,
+                             input_data=self.train_input,
                              check_old_model_age=False,
                              compare_to_old=False)
 
+    @patch()
+    def test_compare_to_old(self):
 
 
 
