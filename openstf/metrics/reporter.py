@@ -50,7 +50,7 @@ class Reporter:
         self.input_data_list = [train_data, validation_data, test_data]
 
     def generate_report(
-        self, model: RegressorMixin, save_path: Union[Path, str]
+        self, model: RegressorMixin,
     ) -> None:
 
         data_series_figures = self._make_data_series_figures(model)

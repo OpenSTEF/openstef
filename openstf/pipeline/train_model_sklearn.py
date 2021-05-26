@@ -99,6 +99,7 @@ def train_model_pipeline(
     Returns:
         Tuple[RegressorMixin, Report]: Trained model and report (with figures)
     """
+
     logger = structlog.get_logger(__file__)
     # Validate and clean data
     validated_data = validation.clean(validation.validate(input_data))
@@ -135,10 +136,10 @@ def train_model_pipeline(
         train_x,
         train_y,
         eval_set=eval_set,
-        early_stopping_rounds=EARLY_STOPPING_ROUNDS,
+        early_stopping_rounds=DEFAULT_EARLY_STOPPING_ROUNDS,
         verbose=0,
     )
-    logging.debug("Fitted a new model, not yet stored")
+    logging.info("Fitted a new model, not yet stored")
 
     # Check if new model is better than old model
     # NOTE it would be better to move this code out of the pipeline
