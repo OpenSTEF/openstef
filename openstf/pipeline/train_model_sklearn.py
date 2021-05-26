@@ -5,6 +5,7 @@ from pathlib import Path
 import pandas as pd
 
 import joblib
+import logging
 
 from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
 from openstf.model.confidence_interval_generator import ConfidenceIntervalGenerator
@@ -37,13 +38,13 @@ def train_model_pipeline(
         old_model = PersistentStorageSerializer(pj).load_model()
         old_model_age = old_model.age
     except FileNotFoundError:
-        print("No old model found retraining anyway")
+        logging.info("No old model found retraining anyway")
         compare_to_old = (
             False  # If we do not have an old model we cannot use is to compare
         )
     # Check old model age and continue yes/no
     if (old_model_age < MAXIMUM_MODEL_AGE) and check_old_model_age:
-        print("Model is newer than 7 days!")
+        logging.info("Model is newer than 7 days!")
         return
 
     # Get hyper parameters
@@ -87,6 +88,7 @@ def train_model_pipeline(
         early_stopping_rounds=EARLY_STOPPING_ROUNDS,
         verbose=0
     )
+    logging.debug('Fitted a new model, not yet stored')
 
     # Check if new model is better than old model
     if compare_to_old:
@@ -100,7 +102,7 @@ def train_model_pipeline(
         if score_old_model > score_new_model * PENALTY_FACTOR_OLD_MODEL:
             raise (RuntimeError(f"Old model is better than new model for {pj['name']}"))
         else:
-            print(
+            logging.info(
                 "New model is better than old model, continuing with training procces"
             )
 
@@ -116,3 +118,4 @@ def train_model_pipeline(
 
     # Persist model
     PersistentStorageSerializer(pj).save_model(model)
+    logging.info('New model stored')
