@@ -5,6 +5,7 @@
 """ This module contains all wheather related functions used for feature engineering.
 
 """
+from typing import List
 import numpy as np
 import pandas as pd
 
@@ -88,22 +89,24 @@ def calc_air_density(
     return air_density
 
 
-def add_humidity_features(data: pd.DataFrame, features: list = None) -> pd.DataFrame:
+def add_humidity_features(
+    data: pd.DataFrame, feature_names: List[str] = None
+) -> pd.DataFrame:
     """Adds humidity features to the input dataframe.
 
     These features are calculated using functions defines in this module. A list of
     requested features is used to determine whether to add the humidity features or not.
 
     Args:
-        data: (pd.DataFrame) input dataframe to which features have to be added
-        features: (list) list of requested features.
+        data (pd.DataFrame): Input dataframe to which features have to be added
+        feature_names (List[str]): list of requested features.
 
     Returns:
         pd.DataFrame, Same as input dataframe with extra columns for the humidty features.
     """
 
     # If features is none add humidity feature anyway
-    if features is None:
+    if feature_names is None:
         humidity_features = True
 
     # Otherwise check if they are among the reuqested features
@@ -116,7 +119,7 @@ def add_humidity_features(data: pd.DataFrame, features: list = None) -> pd.DataF
                 "dewpoint",
                 "air_density",
             ]
-            for x in features
+            for x in feature_names
         )
 
     # Check if any of the humidity features are requested and add them
@@ -292,19 +295,19 @@ def calculate_windturbine_power_output(
 
 
 def add_additional_wind_features(
-    data: pd.DataFrame, features: list = None
+    data: pd.DataFrame, feature_names: List[str] = None
 ) -> pd.DataFrame:
     """Adds additional wind features to the input data. These are calculated using the above functions
 
     Args:
-        data: (pd.DataFrame) Dataframe to which the wind features have to be added
-        features: (list) List of requested features
+        data (pd.DataFrame): Dataframe to which the wind features have to be added
+        feature_names (List[str]): List of requested features
 
     Returns:
         pd.DataFrame same as input dataframe with extra columns for the added wind features
 
     """
-    if features is None:
+    if feature_names is None:
         additional_wind_features = True
     else:
         additional_wind_features = any(
@@ -314,7 +317,7 @@ def add_additional_wind_features(
                 "windPowerFit_extrapolated",
                 "windpowerFit_harm_arome",
             ]
-            for x in features
+            for x in feature_names
         )
 
     # Add add_additional_wind_features

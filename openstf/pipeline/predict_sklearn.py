@@ -37,19 +37,21 @@ def predict_pipeline(pj, input_data):
         resolution_minutes=pj["resolution_minutes"],
         horizon_minutes=pj["horizon_minutes"],
     )
-    datetime_start, datetime_end = generate_inputdata_datetime_range(
-        t_behind_days=14, t_ahead_days=3
-    )
+    # datetime_start, datetime_end = generate_inputdata_datetime_range(
+    #     t_behind_days=14, t_ahead_days=3
+    # )
 
-    # Get model
-    model = PersistentStorageSerializer(pj).load_model()
+    # Load most recent model for the given pid
+    model = PersistentStorageSerializer().load_model(pid=pj["id"])
 
     # Validate and clean data
     validated_data = validation.validate(input_data)
 
     # Add features
     data_with_features = OperationalPredictFeatureApplicator(
-        horizons=[0.25], features=model._Booster.feature_names
+        # TODO use saved feature_names (should be saved while training the model)
+        horizons=[0.25],
+        features=model._Booster.feature_names,
     ).add_features(validated_data)
 
     # Prep forecast input

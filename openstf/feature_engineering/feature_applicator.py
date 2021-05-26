@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 from abc import ABC, abstractmethod
+from typing import List, Optional
 
 import numpy as np
 import pandas as pd
@@ -16,16 +17,19 @@ LATENCY_CONFIG = {"APX": 24}  # A specific latency is part of a specific feature
 
 
 class AbstractFeatureApplicator(ABC):
-    def __init__(self, horizons: list, features: list = None) -> None:
+    def __init__(
+        self, horizons: List[float], feature_names: Optional[List[str]] = None
+    ) -> None:
         """Initialize abstract feature applicator.
 
         Args:
-            horizons: (list) list of horizons
-            features: (list) List of requested features
+            horizons (list): list of horizons
+            feature_names (List[str]):  List of requested features
         """
         if type(horizons) is not list and not None:
             raise ValueError("Horizons must be added as a list")
-        self.features = features
+
+        self.feature_names = feature_names
         self.horizons = horizons
 
     @abstractmethod
@@ -39,7 +43,9 @@ class AbstractFeatureApplicator(ABC):
 
 
 class TrainFeatureApplicator(AbstractFeatureApplicator):
-    def add_features(self, df: pd.DataFrame) -> pd.DataFrame:
+    def add_features(
+        self, df: pd.DataFrame, latency_config=LATENCY_CONFIG
+    ) -> pd.DataFrame:
         """Adds features to an input DataFrame.
 
         This method is implemented specifically for a model train pipeline. For larger
@@ -52,6 +58,9 @@ class TrainFeatureApplicator(AbstractFeatureApplicator):
 
         Args:
             df (pd.DataFrame):  Input data to which the features will be added.
+            latency_config (dict): Optional. Invalidate certain features that are not
+                available for a specific horizon due to data latency. Default to
+                {"APX": 24}
 
         Returns:
             pd.DataFrame: Input DataFrame with an extra column for every added feature.
@@ -66,13 +75,13 @@ class TrainFeatureApplicator(AbstractFeatureApplicator):
 
         # Loop over horizons and add corresponding features
         for horizon in self.horizons:
-            res = apply_features(df, horizon=horizon)
+            res = apply_features(df, feature_names=self.feature_names, horizon=horizon)
             res["Horizon"] = horizon
             result = result.append(res)
 
         # Invalidate features that are not available for a specific horizon due to data
         # latency
-        for feature, time in LATENCY_CONFIG.items():
+        for feature, time in latency_config.items():
             result.loc[result["Horizon"] > time, feature] = np.nan
 
         return result.sort_index()
@@ -95,9 +104,12 @@ class OperationalPredictFeatureApplicator(AbstractFeatureApplicator):
         if self.horizons is None:
             self.horizons = [0.25]
 
-        df = apply_features(df, features=self.features, horizon=self.horizons[0])
-        df = add_missing_feature_columns(df, self.features)
-        df = remove_extra_feature_columns(df, self.features)
+        df = apply_features(
+            df, feature_names=self.feature_names, horizon=self.horizons[0]
+        )
+        df = add_missing_feature_columns(df, self.feature_names)
+        # NOTE this is required since apply_features could add additional features
+        df = remove_extra_feature_columns(df, self.feature_names)
 
         return df
 
@@ -122,6 +134,7 @@ class BackTestPredictFeatureApplicator(AbstractFeatureApplicator):
             raise ValueError("Prediction can only be done one horizon at a time!")
 
         df = apply_features(df, horizon=self.horizons[0])
-        df = add_missing_feature_columns(df, self.features)
-        df = remove_extra_feature_columns(df, self.features)
+        df = add_missing_feature_columns(df, self.feature_names)
+        # NOTE this is required since apply_features could add additional features
+        df = remove_extra_feature_columns(df, self.feature_names)
         return df

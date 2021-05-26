@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 
 import re
-from typing import Tuple
+from typing import List, Tuple
 
 import numpy as np
 import pandas as pd
@@ -11,12 +11,12 @@ import scipy.signal
 
 
 def generate_lag_feature_functions(
-    features: list = None, horizon: float = 24.0
+    feature_names: List[str] = None, horizon: float = 24.0
 ) -> dict:
     """Creates functions to generate lag features in a dataset.
 
     Args:
-        features (list of strings): minute lagtimes that where used during training
+        feature_names (list of strings): minute lagtimes that where used during training
             of the model. If empty a new set will be automatically generated.
         horizon (float): Forecast horizon limit in hours.
 
@@ -28,12 +28,12 @@ def generate_lag_feature_functions(
     """
 
     # Generate lag_times if no features are provided
-    if features is None:
+    if feature_names is None:
         lag_times_minutes, lag_time_days_list = generate_trivial_lag_features(horizon)
 
     # Or extract lag features if provided
     else:
-        lag_times_minutes, lag_time_days_list = extract_lag_features(features)
+        lag_times_minutes, lag_time_days_list = extract_lag_features(feature_names)
 
     # Empty dict to store all generated lag functions
     lag_functions = {}
@@ -58,12 +58,12 @@ def generate_lag_feature_functions(
     return lag_functions
 
 
-def extract_lag_features(features: list) -> Tuple[list, list]:
+def extract_lag_features(feature_names: List[str]) -> Tuple[list, list]:
     """Creates a list of lag minutes and a list of lag days that were used during
     the training of the input model.
 
     Args:
-        features (list[str]): All requested lag features
+        feature_names (list[str]): All requested lag features
 
     Returns:
         minutes_list (list[int]): list of minute lags that were used as features during training
@@ -74,7 +74,7 @@ def extract_lag_features(features: list) -> Tuple[list, list]:
     minutes_list = []
     days_list = []
 
-    for lag_feature in features:
+    for lag_feature in feature_names:
 
         # Select the number of days or the number of minutes by matching with a regular expression
         number_of_minutes = re.search(r"T-(\d+)min", lag_feature)

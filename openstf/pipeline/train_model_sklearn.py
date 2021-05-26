@@ -2,7 +2,11 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 from pathlib import Path
+from typing import Tuple, List
+
 import pandas as pd
+from sklearn.base import RegressorMixin
+import structlog
 
 import joblib
 import logging
@@ -10,60 +14,105 @@ import logging
 from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
 from openstf.model.confidence_interval_generator import ConfidenceIntervalGenerator
 from openstf.model.model_creator import ModelCreator
-from openstf.metrics.reporter import Reporter
-from openstf.model.serializer import PersistentStorageSerializer
-from openstf.model_selection.model_selection import split_data_train_validation_test
-from openstf.validation.validation import validate, clean, is_data_sufficient
+from openstf.metrics.reporter import Reporter, Report
 
-TRAIN_HORIZONS: list[float] = [0.25, 24.0]
+# from openstf.model.serializer import PersistentStorageSerializer
+from openstf.model_selection.model_selection import split_data_train_validation_test
+from openstf.validation import validation
+
+DEFAULT_TRAIN_HORIZONS: List[float] = [0.25, 24.0]
 MAXIMUM_MODEL_AGE: int = 7
 
-EARLY_STOPPING_ROUNDS: int = 10
+DEFAULT_EARLY_STOPPING_ROUNDS: int = 10
 PENALTY_FACTOR_OLD_MODEL: float = 1.2
 
 SAVE_PATH = Path(".")
-OLD_MODEL_PATH = "."
+OLD_MODEL_PATH = Path(".")
+
+
+# TODO this should be integrated in the create_forecast task
+# def todo_integrate_this_into_task():
+#     check_old_model_age = True
+#     prediction_jobs = {}
+
+#     for pj in prediction_jobs:
+#         input_data = db.get_model_input(pj)
+
+#         # Get old model and age
+#         try:
+#             old_model = PersistentStorageSerializer().load_model(pid=pj["id"])
+#             old_model_age = old_model.age
+#         except FileNotFoundError:
+#             old_model = None
+#             old_model_age = float("inf")
+#             print("No old model found retraining anyway")
+
+#         # Check old model age and continue yes/no
+#         if (old_model_age < MAXIMUM_MODEL_AGE) and check_old_model_age:
+#             print("Current model is younger than {MAXIMUM_MODEL_AGE} days, skip training")
+#             continue
+
+#         # get features
+
+#         # train model
+#         try:
+#             model, report = train_model_pipeline(pj, input_data, old_model, features)
+#         except RuntimeError as e:
+#             continue
+
+#         # save model
+#         PersistentStorageSerializer().save_model(model, pid=pj["id"])
+#         # save figures
+#         report.save_figures(
+#             save_path=Path(ConfigManager.get_instance().paths.webroot) / pj["id"]
+#         )
 
 
 def train_model_pipeline(
     pj: dict,
     input_data: pd.DataFrame,
-    check_old_model_age: bool = True,
-    compare_to_old: bool = True,
-) -> None:
+    old_model: RegressorMixin = None,
+    horizons: List[float] = DEFAULT_TRAIN_HORIZONS,
+) -> Tuple[RegressorMixin, Report]:
+    """Run the train model pipeline.
 
-    # Get old model and age
-    old_model_age = float("inf")  # Default in case old model could not be loaded
-    try:
-        old_model = PersistentStorageSerializer(pj).load_model()
-        old_model_age = old_model.age
-    except FileNotFoundError:
-        logging.info("No old model found retraining anyway")
-        compare_to_old = (
-            False  # If we do not have an old model we cannot use is to compare
-        )
-    # Check old model age and continue yes/no
-    if (old_model_age < MAXIMUM_MODEL_AGE) and check_old_model_age:
-        logging.info("Model is newer than 7 days!")
-        return
+        TODO once we have a data model for a prediction job this explantion is not
+        required anymore.
 
-    # Get hyper parameters
-    hyper_params = pj["hyper_params"]
+        For training a model the following keys in the prediction job dictionairy are
+        expected:
+            "name"          Arbitray name only used for logging
+            "model"         Model type, any of "xgb", "lgb",
+            "hyper_params"  Hyper parameters dictionairy specific to the model_type
+            "feature_names"      List of features to train model on or None to use all features
 
+    Args:
+        pj (dict): Prediction job
+        input_data (pd.DataFrame): Input data
+        old_model (RegressorMixin, optional): Old model to compare to. Defaults to None.
+        horizons (List[float]): Horizons to train on in hours.
+
+    Raises:
+        ValueError: When input data is insufficient
+        RuntimeError: When old model is better than new model
+
+    Returns:
+        Tuple[RegressorMixin, Report]: Trained model and report (with figures)
+    """
+    logger = structlog.get_logger(__file__)
     # Validate and clean data
-    validated_data = clean(validate(input_data))
+    validated_data = validation.clean(validation.validate(input_data))
 
     # Check if sufficient data is left after cleaning
-    if not is_data_sufficient(validated_data):
-        raise (
-            RuntimeError(
-                f"Not enough data left after validation for {pj['name']}, check input data!"
-            )
+    if not validation.is_data_sufficient(validated_data):
+        raise ValueError(
+            f"Input data is insufficient for {pj['name']} "
+            f"after validation and cleaning"
         )
 
     # Add features
     data_with_features = TrainFeatureApplicator(
-        TRAIN_HORIZONS, features=pj["features_set"]
+        horizons=horizons, feature_names=pj["feature_names"]
     ).add_features(validated_data)
 
     # Split data
@@ -72,18 +121,19 @@ def train_model_pipeline(
     )
 
     # Create relevant model
-    model = ModelCreator(pj).create_model()
+    model = ModelCreator.create_model(model_type=pj["model"])
+
+    # split x and y data
+    train_x, train_y = train_data.iloc[:, 1:], train_data.iloc[:, 0]
+    validation_x, validation_y = validation_data.iloc[:, 1:], validation_data.iloc[:, 0]
 
     # Configure evals for early stopping
-    eval_set = [
-        (train_data.iloc[:, 1:], train_data.iloc[:, 0]),
-        (validation_data.iloc[:, 1:], validation_data.iloc[:, 0]),
-    ]
+    eval_set = [(train_x, train_y), (validation_x, validation_y)]
 
-    model.set_params(params=hyper_params)
+    model.set_params(params=pj["hyper_params"])
     model.fit(
-        train_data.iloc[:, 1:],
-        train_data.iloc[:, 0],
+        train_x,
+        train_y,
         eval_set=eval_set,
         early_stopping_rounds=EARLY_STOPPING_ROUNDS,
         verbose=0
@@ -91,12 +141,15 @@ def train_model_pipeline(
     logging.debug('Fitted a new model, not yet stored')
 
     # Check if new model is better than old model
-    if compare_to_old:
+    # NOTE it would be better to move this code out of the pipeline
+    # training a model should probably not be responsible for this
+    if old_model is not None:
         combined = train_data.append(validation_data)
+        x_data, y_data = combined.iloc[:, 1:], combined.iloc[:, 0]
 
         # Score method always returns R^2
-        score_new_model = model.score(combined.iloc[:, 1:], combined.iloc[:, 0])
-        score_old_model = old_model.score(combined.iloc[:, 1:], combined.iloc[:, 0])
+        score_new_model = model.score(x_data, y_data)
+        score_old_model = old_model.score(x_data, y_data)
 
         # Check if R^2 is better for old model
         if score_old_model > score_new_model * PENALTY_FACTOR_OLD_MODEL:
@@ -106,16 +159,16 @@ def train_model_pipeline(
                 "New model is better than old model, continuing with training procces"
             )
 
-    # Report about the training procces
-    Reporter(
-        pj, train_data, validation_data, test_data
-    ).make_and_save_dashboard_figures(model)
+        logger.info(
+            "New model is better than old model, continuing with training procces"
+        )
 
     # Do confidence interval determination
     model = ConfidenceIntervalGenerator(
         pj, validation_data
     ).generate_confidence_interval_data(model)
+    
+    # Report about the training procces
+    report = Reporter(pj, train_data, validation_data, test_data).generate_report(model)
 
-    # Persist model
-    PersistentStorageSerializer(pj).save_model(model)
-    logging.info('New model stored')
+    return model, report
