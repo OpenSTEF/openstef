@@ -3,14 +3,17 @@
 # SPDX-License-Identifier: MPL-2.0
 import unittest
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
+
 from test.utils import BaseTestCase, TestData
-from unittest import mock
 from unittest.mock import MagicMock, patch
 
 from openstf.pipeline import predict_sklearn
 
 NOW = datetime.now(timezone.utc)
 PJ = TestData.get_prediction_job(pid=60)
+
+forecast_input = TestData.load("reference_sets/307-test-data.csv")
 
 
 class TestPredict(BaseTestCase):
@@ -98,6 +101,19 @@ class TestPredict(BaseTestCase):
         forecast = predict_sklearn.predict_pipeline(pj=pj, input_data=input_data)
         assert "substituted" in forecast.quality
 
+
+    @patch("openstf.pipeline.predict_sklearn.MODEL_LOCATION", Path("./test/trained_models"))
+    def test_happy_flow_pipeline(self):
+        """Test the happy flow of the predict pipeline, using a previously trained model"""
+        self.pj = TestData.get_prediction_job(pid=307)
+        self.forecast_input = forecast_input
+        self.pj['feature_names'] = self.forecast_input.columns[1:]
+
+        forecast = predict_sklearn.predict_pipeline(pj=self.pj, input_data=self.forecast_input)
+        assert len(forecast) == 2878
+        assert len(forecast.columns) == 15
+        assert forecast.forecast.min() > -5
+        assert forecast.forecast.max() < 85
 
 if __name__ == "__main__":
     unittest.main()
