@@ -158,5 +158,4 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
-/test/trained_models/307/202105*
 /test/reports/
