@@ -63,9 +63,9 @@ class TestTrainModel(BaseTestCase):
     def test_train_model_pipeline_happy_flow(self):
         """Test happy flow of the train model pipeline
 
-            NOTE this does not explain WHY this is the case?
-            The input data should not contain features (e.g. T-7d),
-            but it can/should include predictors (e.g. weather data)
+        NOTE this does not explain WHY this is the case?
+        The input data should not contain features (e.g. T-7d),
+        but it can/should include predictors (e.g. weather data)
 
         """
         model, report = train_model_pipeline(pj=self.pj, input_data=self.train_input)
