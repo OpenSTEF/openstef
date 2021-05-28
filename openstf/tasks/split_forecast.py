@@ -31,7 +31,7 @@ from datetime import datetime
 import numpy as np
 import pandas as pd
 from ktpbase.database import DataBase
-from ktpbase.log import logging
+import structlog
 import scipy.optimize
 
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
@@ -43,7 +43,7 @@ COEF_MAX_FRACTION_DIFF = 0.3
 
 
 def main():
-    with TaskContext(__file__) as context:
+    with TaskContext("split_forecast") as context:
         model_type = ["xgb", "lgb"]
 
         PredictionJobLoop(
@@ -64,7 +64,7 @@ def split_forecast(pid):
     """
     # Make database connection
     db = DataBase()
-    logger = logging.get_logger(__name__)
+    logger = structlog.get_logger(__name__)
 
     # Get Prediction job
     pj = db.get_prediction_job(pid)

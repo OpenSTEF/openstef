@@ -6,7 +6,7 @@ from pathlib import Path
 import pandas as pd
 import plotly
 from ktpbase.database import DataBase
-from ktpbase.log import logging
+import structlog
 from ktpbase.config.config import ConfigManager
 
 from openstf.feature_engineering.capacity_prognoses_features import (
@@ -30,7 +30,7 @@ def predict_capacity_prognosis(pj, datetime_start, datetime_end, y_hor=None):
     db = DataBase()
 
     # initialize logging
-    logger = logging.get_logger(__name__)
+    logger = structlog.get_logger(__name__)
 
     # get input data
     logger.info("Get input data")

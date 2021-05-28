@@ -12,7 +12,7 @@ from openstf.tasks.utils.taskcontext import TaskContext
 
 
 def main():
-    with TaskContext(__file__) as context:
+    with TaskContext("train_capacity_model") as context:
         # training horizons
         y_hor = [0, 6, 13]
 

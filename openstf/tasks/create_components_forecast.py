@@ -47,7 +47,7 @@ def create_components_forecast_pj(pj, context):
 
 
 def main():
-    with TaskContext(__file__) as context:
+    with TaskContext("create_components_forecast") as context:
 
         # status file callback after every iteration
         # TODO change implementation to a database one

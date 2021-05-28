@@ -4,7 +4,7 @@
 
 import numpy as np
 import pandas as pd
-from ktpbase.log import logging
+import structlog
 
 from openstf.feature_engineering import weather_features
 from openstf.enums import ForecastType
@@ -133,7 +133,7 @@ def post_process_wind_solar(forecast: pd.Series, forecast_type):
         forecast (pd.DataFrame): post-processed forecast.
 
     """
-    logger = logging.get_logger(__name__)
+    logger = structlog.get_logger(__name__)
 
     if forecast_type not in [ForecastType.WIND, ForecastType.SOLAR]:
         return forecast

@@ -6,7 +6,7 @@ from datetime import timedelta
 
 import numpy as np
 import pandas as pd
-from ktpbase.log import logging
+import structlog
 
 from openstf.preprocessing.preprocessing import replace_repeated_values_with_nan
 
@@ -17,7 +17,7 @@ MINIMAL_TABLE_LENGTH = 100
 
 
 def validate(data):
-    logger = logging.get_logger(__name__)
+    logger = structlog.get_logger(__name__)
     # Drop 'false' measurements. e.g. where load appears to be constant.
     threshold = 6 * 4  # number of repeated values
     data = replace_repeated_values_with_nan(
@@ -32,7 +32,7 @@ def validate(data):
 
 
 def clean(data):
-    logger = logging.get_logger(__name__)
+    logger = structlog.get_logger(__name__)
     data = data[data.index.min() + timedelta(weeks=2) :]
     len_original = len(data)
     # TODO Look into this
@@ -56,7 +56,7 @@ def is_data_sufficient(data):
         (bool): True if amount of data is sufficient, False otherwise.
 
     """
-    logger = logging.get_logger(__name__)
+    logger = structlog.get_logger(__name__)
     # Set output variable
     is_sufficient = True
 

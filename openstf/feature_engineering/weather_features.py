@@ -211,9 +211,10 @@ def humidity_calculations(
 def calculate_windspeed_at_hubheight(
     windspeed: float or pd.Series, fromheight: float = 10.0, hub_height: float = 100.0
 ) -> pd.Series:
-    """
-    function that extrapolates a wind from a certain height to 100m
-    According to the wind power law (https://en.wikipedia.org/wiki/Wind_profile_power_law)
+    """Calculate windspeed at hubheight.
+
+    Calculates the windspeed at hubheigh by extrapolation from a given height to a given
+    hub height using the wind power law https://en.wikipedia.org/wiki/Wind_profile_power_law
 
     Args:
         windspeed: float OR pandas series of windspeed at height = height
@@ -221,7 +222,7 @@ def calculate_windspeed_at_hubheight(
         hubheight: height (m) of the turbine
 
     Returns:
-        windspeed at hubheight.
+        float: windspeed at hubheight.
     """
     alpha = 0.143
 
@@ -251,18 +252,18 @@ def calculate_windspeed_at_hubheight(
 def calculate_windturbine_power_output(
     windspeed: pd.Series, n_turbines: int = 1, turbine_data: dict = None
 ) -> pd.Series:
-    """This function calculates the generated wind power based on the wind speed.
+    """Calculate wind turbine power output.
 
     These values are related through the power curve, which is described by turbine_data.
     If no turbine_data is given, default values are used and results are normalized to 1MWp.
     If n_turbines=0, the result is normalized to a rated power of 1.
 
-    Input:
+    Args:
         windspeed: pd.DataFrame(index = datetime, columns = ["windspeedHub"])
         nTurbines (int): The number of turbines
         turbineData (dict): slope_center, rated_power, steepness
 
-    Ouput:
+    Returns:
         pd.DataFrame(index = datetime, columns = ["forecast"])"""
 
     if turbine_data is None:
@@ -297,7 +298,7 @@ def calculate_windturbine_power_output(
 def add_additional_wind_features(
     data: pd.DataFrame, feature_names: List[str] = None
 ) -> pd.DataFrame:
-    """Adds additional wind features to the input data. These are calculated using the above functions
+    """Adds additional wind features to the input data.
 
     Args:
         data (pd.DataFrame): Dataframe to which the wind features have to be added

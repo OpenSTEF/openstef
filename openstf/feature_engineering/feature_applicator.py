@@ -101,8 +101,9 @@ class OperationalPredictFeatureApplicator(AbstractFeatureApplicator):
             pd.DataFrame: Input DataFrame with an extra column for every added feature.
 
         """
-        if self.horizons is None:
-            self.horizons = [0.25]
+        num_horizons = len(self.horizons)
+        if num_horizons != 1:
+            raise ValueError("Expected one horizon, got {num_horizons}")
 
         df = apply_features(
             df, feature_names=self.feature_names, horizon=self.horizons[0]
@@ -127,11 +128,9 @@ class BackTestPredictFeatureApplicator(AbstractFeatureApplicator):
         Returns:
             pd.DataFrame: Input DataFrame with an extra column for every added feature.
         """
-        if self.horizons is None:
-            self.horizons = [24.0]
-
-        if len(self.horizons) > 1:
-            raise ValueError("Prediction can only be done one horizon at a time!")
+        num_horizons = len(self.horizons)
+        if num_horizons != 1:
+            raise ValueError("Expected one horizon, got {num_horizons}")
 
         df = apply_features(df, horizon=self.horizons[0])
         df = add_missing_feature_columns(df, self.feature_names)

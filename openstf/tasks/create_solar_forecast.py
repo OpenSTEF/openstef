@@ -215,7 +215,7 @@ def fides(data, all_forecasts=False):
 
 
 def main():
-    with TaskContext(__file__) as context:
+    with TaskContext("create_solar_forecast") as context:
         context.logger.info("Querying wind prediction jobs from database")
         prediction_jobs = context.database.get_prediction_jobs_solar()
         num_prediction_jobs = len(prediction_jobs)
