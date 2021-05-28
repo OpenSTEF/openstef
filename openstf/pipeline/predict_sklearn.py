@@ -32,17 +32,10 @@ def predict_pipeline(pj, input_data):
     Returns:
         forecast (pandas.DataFrame)
     """
-    # Get input data
-    forecast_start, forecast_end = generate_forecast_datetime_range(
-        resolution_minutes=pj["resolution_minutes"],
-        horizon_minutes=pj["horizon_minutes"],
-    )
-    # datetime_start, datetime_end = generate_inputdata_datetime_range(
-    #     t_behind_days=14, t_ahead_days=3
-    # )
-
     # Load most recent model for the given pid
-    model = PersistentStorageSerializer().load_model(pid=pj["id"])
+    model = PersistentStorageSerializer(
+        trained_models_folder=MODEL_LOCATION
+    ).load_model(pid=pj["id"])
 
     # Validate and clean data
     validated_data = validation.validate(input_data)
@@ -51,11 +44,11 @@ def predict_pipeline(pj, input_data):
     data_with_features = OperationalPredictFeatureApplicator(
         # TODO use saved feature_names (should be saved while training the model)
         horizons=[0.25],
-        features=model._Booster.feature_names,
+        feature_names=model._Booster.feature_names,
     ).add_features(validated_data)
 
     # Prep forecast input
-    forecast_input_data = data_with_features[forecast_start:forecast_end]
+    forecast_input_data = data_with_features
 
     # Check if sufficient data is left after cleaning
     if not validation.is_data_sufficient(data_with_features):
@@ -66,15 +59,14 @@ def predict_pipeline(pj, input_data):
             pid=pj["id"],
             fallback_strategy=fallback_strategy,
         )
-        model_forecast = generate_fallback(forecast_input_data, input_data[["load"]])
+        forecast = generate_fallback(forecast_input_data, input_data[["load"]])
 
     else:
         # Predict
         model_forecast = model.predict(forecast_input_data.sort_index(axis=1))
-
-    forecast = pd.DataFrame(
-        index=forecast_input_data.index, data={"forecast": model_forecast}
-    )
+        forecast = pd.DataFrame(
+            index=forecast_input_data.index, data={"forecast": model_forecast}
+        )
 
     # Add confidence
     forecast = ConfidenceIntervalApplicator(model).add_confidence_interval(
@@ -128,6 +120,7 @@ def generate_inputdata_datetime_range(t_behind_days=14, t_ahead_days=3):
     return datetime_start, datetime_end
 
 
+## Obsolete?
 def generate_forecast_datetime_range(resolution_minutes, horizon_minutes):
     # get current date and time UTC
     datetime_utc = datetime.now(timezone.utc)

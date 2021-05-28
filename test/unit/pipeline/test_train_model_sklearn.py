@@ -8,11 +8,13 @@ from test.utils import TestData
 from test.utils import BaseTestCase
 
 import pandas as pd
+import sklearn
 
 from openstf.pipeline.train_model_sklearn import (
     train_model_pipeline,
     split_data_train_validation_test,
 )
+from openstf.metrics.reporter import Report
 
 
 # define constants
@@ -40,6 +42,8 @@ class TestTrainModel(BaseTestCase):
             index=pd.date_range(datetime_start, datetime_end, freq="15T")
         )
 
+        self.train_input = TestData.load("reference_sets/307-train-data.csv")
+
     def test_split_data_train_validation_test(self):
         train_data, validation_data, test_data = split_data_train_validation_test(
             self.data, period_sampling=False
@@ -55,6 +59,25 @@ class TestTrainModel(BaseTestCase):
         self.assertEqual(len(train_data), 7345)
         self.assertEqual(len(validation_data), 1296)
         self.assertEqual(len(test_data), 1)
+
+    def test_train_model_pipeline_happy_flow(self):
+        """Test happy flow of the train model pipeline
+
+        NOTE this does not explain WHY this is the case?
+        The input data should not contain features (e.g. T-7d),
+        but it can/should include predictors (e.g. weather data)
+
+        """
+        model, report = train_model_pipeline(pj=self.pj, input_data=self.train_input)
+
+        # check if the model was fitted (raises NotFittedError when not fitted)
+        self.assertIsNone(sklearn.utils.validation.check_is_fitted(model))
+
+        # check if model is sklearn compatible
+        self.assertTrue(isinstance(model, sklearn.base.BaseEstimator))
+
+        # check if report is a Report
+        self.assertTrue(isinstance(report, Report))
 
 
 if __name__ == "__main__":

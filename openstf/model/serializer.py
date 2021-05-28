@@ -12,7 +12,6 @@ import structlog
 from sklearn.base import RegressorMixin
 
 MODEL_FILENAME = "model.joblib"
-MODEL_FILENAME = "model.bin"
 FOLDER_DATETIME_FORMAT = "%Y%m%d%H%M%S"
 MODEL_ID_SEP = "-"
 
@@ -126,11 +125,10 @@ class PersistentStorageSerializer(AbstractSerializer):
     def load_model_from_path(self, model_path):
         # Load most recent model from disk
         try:
+            self.logger.debug(f"Trying to load model from: {model_path}")
             loaded_model = joblib.load(model_path)
         except Exception as e:
-            self.logger.error(
-                "Could not load most recent model!", pid=self.pj["id"], exception=e
-            )
+            self.logger.error("Could not load most recent model!", exception=str(e))
             raise FileNotFoundError("Could not load model from the model file!")
 
         # exctract model age

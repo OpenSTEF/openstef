@@ -8,7 +8,8 @@ import pandas as pd
 from sklearn.base import RegressorMixin
 import structlog
 
-# from ktpbase.config.config import ConfigManager
+import joblib
+import logging
 
 from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
 from openstf.model.confidence_interval_generator import ConfidenceIntervalGenerator
@@ -98,6 +99,7 @@ def train_model_pipeline(
     Returns:
         Tuple[RegressorMixin, Report]: Trained model and report (with figures)
     """
+
     logger = structlog.get_logger(__file__)
     # Validate and clean data
     validated_data = validation.clean(validation.validate(input_data))
@@ -135,7 +137,9 @@ def train_model_pipeline(
         train_y,
         eval_set=eval_set,
         early_stopping_rounds=DEFAULT_EARLY_STOPPING_ROUNDS,
+        verbose=0,
     )
+    logging.info("Fitted a new model, not yet stored")
 
     # Check if new model is better than old model
     # NOTE it would be better to move this code out of the pipeline
@@ -150,7 +154,11 @@ def train_model_pipeline(
 
         # Check if R^2 is better for old model
         if score_old_model > score_new_model * PENALTY_FACTOR_OLD_MODEL:
-            raise RuntimeError(f"Old model is better than new model for {pj['name']}")
+            raise (RuntimeError(f"Old model is better than new model for {pj['name']}"))
+        else:
+            logging.info(
+                "New model is better than old model, continuing with training procces"
+            )
 
         logger.info(
             "New model is better than old model, continuing with training procces"

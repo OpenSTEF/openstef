@@ -3,14 +3,17 @@
 # SPDX-License-Identifier: MPL-2.0
 import unittest
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
+
 from test.utils import BaseTestCase, TestData
-from unittest import mock
 from unittest.mock import MagicMock, patch
 
 from openstf.pipeline import predict_sklearn
 
 NOW = datetime.now(timezone.utc)
 PJ = TestData.get_prediction_job(pid=60)
+
+forecast_input = TestData.load("reference_sets/307-test-data.csv")
 
 
 class TestPredict(BaseTestCase):
@@ -83,20 +86,35 @@ class TestPredict(BaseTestCase):
         for mock_func in [nonzero_flatliner_mock, replace_invalid_data_mock]:
             self.assertEqual(mock_func.call_count, 1)
 
-    # TODO include the test below to see if the pipeline uses the fallback forecast correctly
-    # This test requires a functioning 'happy_flow_pipeline' test which is not yet developed
-    @unittest.skip(
-        "No functioning happy_flow_pipeline test available. Add this one later"
+    @patch(
+        "openstf.pipeline.predict_sklearn.MODEL_LOCATION", Path("./test/trained_models")
     )
     @patch("openstf.validation.validation.is_data_sufficient")
-    def test_incomplete_input(self, is_data_sufficient_mock):
+    def test_predict_pipeline_incomplete_inputdata(self, is_data_sufficient_mock):
         """Test if a fallback forecast is used when input is incomplete"""
-        input_data = TestData.load("input_data.pickle")
+        input_data = forecast_input
         is_data_sufficient_mock.return_value = False
         pj = TestData.get_prediction_job(pid=307)
 
         forecast = predict_sklearn.predict_pipeline(pj=pj, input_data=input_data)
-        assert "substituted" in forecast.quality
+        assert "substituted" in forecast.quality.values
+
+    @patch(
+        "openstf.pipeline.predict_sklearn.MODEL_LOCATION", Path("./test/trained_models")
+    )
+    def test_predict_pipeline_happy_flow(self):
+        """Test the happy flow of the predict pipeline, using a previously trained model"""
+        self.pj = TestData.get_prediction_job(pid=307)
+        self.forecast_input = forecast_input
+        self.pj["feature_names"] = self.forecast_input.columns[1:]
+
+        forecast = predict_sklearn.predict_pipeline(
+            pj=self.pj, input_data=self.forecast_input
+        )
+        self.assertEqual(len(forecast), 2878)
+        self.assertEqual(len(forecast.columns), 15)
+        self.assertGreater(forecast.forecast.min(), -5)
+        self.assertLess(forecast.forecast.max(), 85)
 
 
 if __name__ == "__main__":
