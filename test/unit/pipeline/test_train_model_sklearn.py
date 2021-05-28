@@ -8,11 +8,13 @@ from test.utils import TestData
 from test.utils import BaseTestCase
 
 import pandas as pd
+import sklearn
 
 from openstf.pipeline.train_model_sklearn import (
     train_model_pipeline,
     split_data_train_validation_test,
 )
+from openstf.metrics.reporter import Report
 
 
 # define constants
@@ -41,9 +43,6 @@ class TestTrainModel(BaseTestCase):
         )
 
         self.train_input = TestData.load("reference_sets/307-train-data.csv")
-        self.pj["feature_names"] = self.train_input.columns[
-            1:
-        ]  # first column is not a feature
 
     def test_split_data_train_validation_test(self):
         train_data, validation_data, test_data = split_data_train_validation_test(
@@ -61,24 +60,24 @@ class TestTrainModel(BaseTestCase):
         self.assertEqual(len(validation_data), 1296)
         self.assertEqual(len(test_data), 1)
 
-    def test_train_pipeline_happy(self):
-        """Test if happy flow of the train pipeline
+    def test_train_model_pipeline_happy_flow(self):
+        """Test happy flow of the train model pipeline
 
-        The input data should not contain features (e.g. T-7d),
-        but it can/should include predictors (e.g. weather data)"""
+            NOTE this does not explain WHY this is the case?
+            The input data should not contain features (e.g. T-7d),
+            but it can/should include predictors (e.g. weather data)
 
-        # Run the this should return a model and report
-        with self.assertLogs() as captured:
-            model, report = train_model_pipeline(
-                pj=self.pj,
-                input_data=self.train_input,
-                # check_old_model_age=False,
-                # compare_to_old=False,
-            )
-        # Check if a new model was stored based on logging
-        assert captured.records[-1].getMessage() == "Fitted a new model, not yet stored"
-        assert str(type(model)) == "<class 'xgboost.sklearn.XGBRegressor'>"
-        assert str(report.__class__) == "<class 'openstf.metrics.reporter.Report'>"
+        """
+        model, report = train_model_pipeline(pj=self.pj, input_data=self.train_input)
+
+        # check if the model was fitted (raises NotFittedError when not fitted)
+        self.assertIsNone(sklearn.utils.validation.check_is_fitted(model))
+
+        # check if model is sklearn compatible
+        self.assertTrue(isinstance(model, sklearn.base.BaseEstimator))
+
+        # check if report is a Report
+        self.assertTrue(isinstance(report, Report))
 
 
 if __name__ == "__main__":

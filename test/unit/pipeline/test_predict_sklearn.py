@@ -90,7 +90,7 @@ class TestPredict(BaseTestCase):
         "openstf.pipeline.predict_sklearn.MODEL_LOCATION", Path("./test/trained_models")
     )
     @patch("openstf.validation.validation.is_data_sufficient")
-    def test_incomplete_input(self, is_data_sufficient_mock):
+    def test_predict_pipeline_incomplete_inputdata(self, is_data_sufficient_mock):
         """Test if a fallback forecast is used when input is incomplete"""
         input_data = forecast_input
         is_data_sufficient_mock.return_value = False
@@ -102,7 +102,7 @@ class TestPredict(BaseTestCase):
     @patch(
         "openstf.pipeline.predict_sklearn.MODEL_LOCATION", Path("./test/trained_models")
     )
-    def test_happy_flow_pipeline(self):
+    def test_predict_pipeline_happy_flow(self):
         """Test the happy flow of the predict pipeline, using a previously trained model"""
         self.pj = TestData.get_prediction_job(pid=307)
         self.forecast_input = forecast_input
@@ -111,10 +111,10 @@ class TestPredict(BaseTestCase):
         forecast = predict_sklearn.predict_pipeline(
             pj=self.pj, input_data=self.forecast_input
         )
-        assert len(forecast) == 2878
-        assert len(forecast.columns) == 15
-        assert forecast.forecast.min() > -5
-        assert forecast.forecast.max() < 85
+        self.assertEqual(len(forecast), 2878)
+        self.assertEqual(len(forecast.columns), 15)
+        self.assertGreater(forecast.forecast.min(), -5)
+        self.assertLess(forecast.forecast.max(), 85)
 
 
 if __name__ == "__main__":

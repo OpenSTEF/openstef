@@ -47,7 +47,7 @@
             "eta": 0.010025843216782565,
             "training_period_days": 90
         },
-        "features" : [
+        "feature_names" : [
             "clearSky_dlf",
             "clearSky_ulf",
             "clouds",
