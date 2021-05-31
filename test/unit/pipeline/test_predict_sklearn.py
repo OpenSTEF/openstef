@@ -1,6 +1,9 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+from numpy import mod
+from scipy.stats.stats import mode
+from openstf.model.serializer import PersistentStorageSerializer
 import unittest
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -86,17 +89,18 @@ class TestPredict(BaseTestCase):
         for mock_func in [nonzero_flatliner_mock, replace_invalid_data_mock]:
             self.assertEqual(mock_func.call_count, 1)
 
-    @patch(
-        "openstf.pipeline.predict_sklearn.MODEL_LOCATION", Path("./test/trained_models")
-    )
     @patch("openstf.validation.validation.is_data_sufficient")
     def test_predict_pipeline_incomplete_inputdata(self, is_data_sufficient_mock):
         """Test if a fallback forecast is used when input is incomplete"""
         input_data = forecast_input
         is_data_sufficient_mock.return_value = False
         pj = TestData.get_prediction_job(pid=307)
-
-        forecast = predict_sklearn.predict_pipeline(pj=pj, input_data=input_data)
+        model = PersistentStorageSerializer(
+            trained_models_folder=Path("./test/trained_models")
+        ).load_model(pid=307)
+        forecast = predict_sklearn.predict_pipeline(
+            pj=pj, input_data=input_data, model=model
+        )
         assert "substituted" in forecast.quality.values
 
     @patch(
@@ -107,9 +111,11 @@ class TestPredict(BaseTestCase):
         self.pj = TestData.get_prediction_job(pid=307)
         self.forecast_input = forecast_input
         self.pj["feature_names"] = self.forecast_input.columns[1:]
-
+        model = PersistentStorageSerializer(
+            trained_models_folder=Path("./test/trained_models")
+        ).load_model(pid=307)
         forecast = predict_sklearn.predict_pipeline(
-            pj=self.pj, input_data=self.forecast_input
+            pj=self.pj, input_data=self.forecast_input, model=model
         )
         self.assertEqual(len(forecast), 2878)
         self.assertEqual(len(forecast.columns), 15)
