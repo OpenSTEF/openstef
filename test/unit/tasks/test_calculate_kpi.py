@@ -50,6 +50,14 @@ def get_database_mock_predicted_nan():
     db.get_prediction_job = MagicMock(return_value={"id": 295})
     return db
 
+def get_database_mock_realised_constant():
+    db = MagicMock()
+    realised_load_constant = realised_load.copy()
+    realised_load_constant.iloc[1:,:] = realised_load_constant.iloc[0,:]
+    db.get_load_pid = MagicMock(return_value=realised_load_constant)
+    db.get_predicted_load_tahead = MagicMock(return_value=predicted_load)
+    db.get_prediction_job = MagicMock(return_value={"id": 295})
+    return db
 
 class TestPerformanceCalcKpiForSpecificPid(BaseTestCase):
 
@@ -68,21 +76,27 @@ class TestPerformanceCalcKpiForSpecificPid(BaseTestCase):
             check_like=True,
         )
 
-    # Test whether none is returned in case of poor completeness for realisex data
+    # Test whether none is returned in case of poor completeness for realised data
     @patch("openstf.tasks.calculate_kpi.DataBase", get_database_mock_realised_nan)
     def test_calc_kpi_for_specific_pid_poor_completeness_realized(self):
         kpis = calc_kpi_for_specific_pid({"id": 295})
         t_ahead_keys = kpis.keys()
         self.assertIs(kpis[list(t_ahead_keys)[0]]["rMAE"], np.NaN)
 
-    # Test whether none is returned in case of poor completeness for realisex data
-
+    # Test whether none is returned in case of poor completeness for predicted data
     @patch("openstf.tasks.calculate_kpi.DataBase", get_database_mock_predicted_nan)
     def test_calc_kpi_for_specific_pid_poor_completeness_predicted(self):
         kpis = calc_kpi_for_specific_pid({"id": 295})
 
         t_ahead_keys = kpis.keys()
         self.assertIs(kpis[list(t_ahead_keys)[0]]["rMAE"], np.NaN)
+
+    @patch("openstf.tasks.calculate_kpi.DataBase", get_database_mock_realised_constant)
+    def test_calc_kpi_for_specific_pid_constant_load(self):
+        """If load is constant, a warning should be raised, but kpi's should still be calculated"""
+
+        kpis = calc_kpi_for_specific_pid({"id": 295})
+
 
 
 # Run all tests
