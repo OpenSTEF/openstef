@@ -2,14 +2,14 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-from test.utils import BaseTestCase, TestData
-from unittest.mock import MagicMock, patch
 import unittest
+from unittest.mock import MagicMock, patch
 
 import numpy as np
 import pandas as pd
 
 from openstf.tasks.calculate_kpi import calc_kpi_for_specific_pid
+from test.utils import BaseTestCase, TestData
 
 # Get test data
 predicted_load = TestData.load("calculate_kpi_predicted_load.csv")
@@ -23,6 +23,7 @@ realised_load_nan.loc[realised_load_nan.sample(frac=0.5).index, :] = np.NaN
 # Prepare dataframe with nans to test low completeness
 predicted_load_nan = predicted_load.copy()
 predicted_load_nan.loc[predicted_load_nan.sample(frac=0.5).index, :] = np.NaN
+
 
 # Prepare Database mocks
 
@@ -50,14 +51,16 @@ def get_database_mock_predicted_nan():
     db.get_prediction_job = MagicMock(return_value={"id": 295})
     return db
 
+
 def get_database_mock_realised_constant():
     db = MagicMock()
     realised_load_constant = realised_load.copy()
-    realised_load_constant.iloc[1:,:] = realised_load_constant.iloc[0,:]
+    realised_load_constant.iloc[1:, :] = realised_load_constant.iloc[0, :]
     db.get_load_pid = MagicMock(return_value=realised_load_constant)
     db.get_predicted_load_tahead = MagicMock(return_value=predicted_load)
     db.get_prediction_job = MagicMock(return_value={"id": 295})
     return db
+
 
 class TestPerformanceCalcKpiForSpecificPid(BaseTestCase):
 
@@ -96,7 +99,7 @@ class TestPerformanceCalcKpiForSpecificPid(BaseTestCase):
         """If load is constant, a warning should be raised, but kpi's should still be calculated"""
 
         kpis = calc_kpi_for_specific_pid({"id": 295})
-        self.assertIsNAN(kpis['4.0h']['MAE']) # arbitrary time horizon tested
+        self.assertIsNAN(kpis['4.0h']['MAE'])  # arbitrary time horizon tested
         self.assertAlmostEqual(kpis['4.0h']['MAE'], 2.9145, places=3)
 
 
