@@ -13,30 +13,31 @@ from openstf.feature_engineering.feature_applicator import (
 )
 from openstf.model.confidence_interval_applicator import ConfidenceIntervalApplicator
 from openstf.preprocessing import preprocessing
-from openstf.model.serializer import PersistentStorageSerializer
+# from openstf.model.serializer import PersistentStorageSerializer
 from openstf.model.fallback import generate_fallback
 
 MODEL_LOCATION = Path(".")
 
 logger = structlog.get_logger(__name__)
 
+# TODO add loading of model to task
+# # Load most recent model for the given pid
+# model = PersistentStorageSerializer(
+#     trained_models_folder=MODEL_LOCATION
+# ).load_model(pid=pj["id"])
 
-def predict_pipeline(pj, input_data):
+def predict_pipeline(pj, input_data, model):
     """Computes the forecasts and confidence intervals given a prediction job and input data.
 
 
     Args:
-        pj: (dict) prediction job
-        input_data (pandas.DataFrame): data frame containing the input data necessary for the prediction.
+        pj (dict): Prediction job.
+        input_data (pandas.DataFrame): Iput data for the prediction.
+        model (RegressorMixin): Model to use for this prediction.
 
     Returns:
         forecast (pandas.DataFrame)
     """
-    # Load most recent model for the given pid
-    model = PersistentStorageSerializer(
-        trained_models_folder=MODEL_LOCATION
-    ).load_model(pid=pj["id"])
-
     # Validate and clean data
     validated_data = validation.validate(input_data)
 
