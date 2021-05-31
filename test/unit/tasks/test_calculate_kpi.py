@@ -99,8 +99,8 @@ class TestPerformanceCalcKpiForSpecificPid(BaseTestCase):
         """If load is constant, a warning should be raised, but kpi's should still be calculated"""
 
         kpis = calc_kpi_for_specific_pid({"id": 295})
-        self.assertIsNAN(kpis['4.0h']['MAE'])  # arbitrary time horizon tested
-        self.assertAlmostEqual(kpis['4.0h']['MAE'], 2.9145, places=3)
+        self.assertIsNAN(kpis["4.0h"]["MAE"])  # arbitrary time horizon tested
+        self.assertAlmostEqual(kpis["4.0h"]["MAE"], 2.9145, places=3)
 
 
 # Run all tests

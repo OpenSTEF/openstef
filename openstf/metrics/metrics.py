@@ -48,7 +48,11 @@ def r_mae(realised, forecast):
     The range is based on the load range of the previous two weeks"""
 
     # Determine load range on entire dataset
-    range_ = realised.max() - realised.min() if (realised.max() - realised.min()) != 0 else np.nan
+    range_ = (
+        realised.max() - realised.min()
+        if (realised.max() - realised.min()) != 0
+        else np.nan
+    )
 
     return mae(realised, forecast) / range_
 
@@ -72,7 +76,11 @@ def r_mae_highest(realised, forecast, percentile=0.95):
         )
 
     # Determine load range on entire dataset
-    range_ = realised.max() - realised.min() if (realised.max() - realised.min()) != 0 else np.nan
+    range_ = (
+        realised.max() - realised.min()
+        if (realised.max() - realised.min()) != 0
+        else np.nan
+    )
 
     # Get highest percentile of values
     highest_values = realised > np.percentile(realised, percentile)
@@ -93,7 +101,11 @@ def r_mne_highest(realised, forecast):
     combined = pd.concat([realised, forecast], axis=1)
 
     # Determine load range on entire dataset
-    range_ = combined["load"].max() - combined["load"].min() if (combined["load"].max() - combined["load"].min()) != 0 else np.nan
+    range_ = (
+        combined["load"].max() - combined["load"].min()
+        if (combined["load"].max() - combined["load"].min()) != 0
+        else np.nan
+    )
 
     # Select 5 percent highest realised load values
     combined["highest"] = combined["load"][
@@ -126,7 +138,11 @@ def r_mpe_highest(realised, forecast):
     combined = pd.concat([realised, forecast], axis=1)
 
     # Determine load range on entire dataset
-    range_ = combined["load"].max() - combined["load"].min() if (combined["load"].max() - combined["load"].min()) != 0 else np.nan
+    range_ = (
+        combined["load"].max() - combined["load"].min()
+        if (combined["load"].max() - combined["load"].min()) != 0
+        else np.nan
+    )
 
     # Select 5 percent highest realised load values
     combined["highest"] = combined["load"][
@@ -154,7 +170,11 @@ def r_mae_lowest(realised, forecast, quantile=0.05):
     The range is based on the load range of the previous two weeks"""
 
     # Determine load range on entire dataset
-    range_ = realised.max() - realised.min() if (realised.max() - realised.min()) != 0 else np.nan
+    range_ = (
+        realised.max() - realised.min()
+        if (realised.max() - realised.min()) != 0
+        else np.nan
+    )
 
     # Get lowest percentile of values
     lowest_values = realised < np.quantile(realised, quantile)
@@ -205,7 +225,11 @@ def franks_skill_score(realised, forecast, basecase, range_=1.0):
     # Combine series in one DataFrame
     combined = pd.concat([realised, forecast], axis=1)
     if range_ == 1.0:
-        range_ = combined["load"].max() - combined["load"].min() if (combined["load"].max() - combined["load"].min()) != 0 else np.nan
+        range_ = (
+            combined["load"].max() - combined["load"].min()
+            if (combined["load"].max() - combined["load"].min()) != 0
+            else np.nan
+        )
 
     franks_skill_score = (mae(realised, basecase) - mae(realised, forecast)) / range_
 
@@ -219,7 +243,11 @@ def franks_skill_score_peaks(realised, forecast, basecase):
     # Combine series in one DataFrame
     combined = pd.concat([realised, forecast, basecase], axis=1)
 
-    range_ = combined["load"].max() - combined["load"].min() if (combined["load"].max() - combined["load"].min()) != 0 else np.nan
+    range_ = (
+        combined["load"].max() - combined["load"].min()
+        if (combined["load"].max() - combined["load"].min()) != 0
+        else np.nan
+    )
     # Select 5 percent highest realised load values
     combined["highest"] = combined["load"][
         combined["load"] > combined["load"].quantile(0.95)
