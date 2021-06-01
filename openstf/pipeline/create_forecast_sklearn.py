@@ -1,11 +1,11 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-from pathlib import Path
 from datetime import datetime, timedelta, timezone
 
 import pandas as pd
 import structlog
+from ktpbase.config.config import ConfigManager
 
 from openstf.validation import validation
 from openstf.feature_engineering.feature_applicator import (
@@ -16,9 +16,7 @@ from openstf.preprocessing import preprocessing
 from openstf.model.serializer import PersistentStorageSerializer
 from openstf.model.fallback import generate_fallback
 
-MODEL_LOCATION = Path(".")
 
-logger = structlog.get_logger(__name__)
 
 # TODO add loading of model to task
 # # Load most recent model for the given pid
@@ -27,16 +25,16 @@ logger = structlog.get_logger(__name__)
 # ).load_model(pid=pj["id"])
 
 def create_forecast_pipeline(pj, input_data, trained_models_folder=None):
-
+    logger = structlog.get_logger(__name__)
     config = ConfigManager.get_instance()
 
     # Use default if not given. ConfigManager ??
     if trained_models_folder is None:
-        trained_models_folder = MODEL_LOCATION
+        trained_models_folder = config.paths.trained_models_folder
 
     # Load most recent model for the given pid
     model = PersistentStorageSerializer(
-        trained_models_folder=MODEL_LOCATION
+        trained_models_folder=trained_models_folder
     ).load_model(pid=pj["id"])
 
     forecast = create_forecast_pipeline_core(pj, input_data, model)
@@ -54,6 +52,8 @@ def create_forecast_pipeline_core(pj, input_data, model):
     Returns:
         forecast (pandas.DataFrame)
     """
+    logger = structlog.get_logger(__name__)
+
     # Validate and clean data
     validated_data = validation.validate(input_data)
 

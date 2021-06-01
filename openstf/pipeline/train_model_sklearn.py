@@ -1,15 +1,14 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+import logging
 from pathlib import Path
 from typing import Optional, Tuple, List, Union
 
 import pandas as pd
 from sklearn.base import RegressorMixin
 import structlog
-
-import joblib
-import logging
+from ktpbase.config.config import ConfigManager
 
 from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
 from openstf.model.confidence_interval_generator import ConfidenceIntervalGenerator

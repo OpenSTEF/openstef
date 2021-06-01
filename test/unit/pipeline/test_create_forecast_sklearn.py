@@ -1,8 +1,6 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-from numpy import mod
-from scipy.stats.stats import mode
 from openstf.model.serializer import PersistentStorageSerializer
 import unittest
 from datetime import datetime, timedelta, timezone
