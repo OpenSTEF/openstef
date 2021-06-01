@@ -101,9 +101,6 @@ class TestCreateForecastPipeline(BaseTestCase):
         )
         assert "substituted" in forecast.quality.values
 
-    @patch(
-        "openstf.pipeline.create_forecast_sklearn.MODEL_LOCATION", Path("./test/trained_models")
-    )
     def test_create_forecast_pipeline_happy_flow(self):
         """Test the happy flow of the predict pipeline, using a previously trained model"""
         self.pj = TestData.get_prediction_job(pid=307)
