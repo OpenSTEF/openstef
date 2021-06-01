@@ -13,7 +13,7 @@ from openstf.feature_engineering.feature_applicator import (
 )
 from openstf.model.confidence_interval_applicator import ConfidenceIntervalApplicator
 from openstf.preprocessing import preprocessing
-# from openstf.model.serializer import PersistentStorageSerializer
+from openstf.model.serializer import PersistentStorageSerializer
 from openstf.model.fallback import generate_fallback
 
 MODEL_LOCATION = Path(".")
@@ -26,9 +26,25 @@ logger = structlog.get_logger(__name__)
 #     trained_models_folder=MODEL_LOCATION
 # ).load_model(pid=pj["id"])
 
-def predict_pipeline(pj, input_data, model):
-    """Computes the forecasts and confidence intervals given a prediction job and input data.
+def create_forecast_pipeline(pj, input_data, trained_models_folder=None):
 
+    config = ConfigManager.get_instance()
+
+    # Use default if not given. ConfigManager ??
+    if trained_models_folder is None:
+        trained_models_folder = MODEL_LOCATION
+
+    # Load most recent model for the given pid
+    model = PersistentStorageSerializer(
+        trained_models_folder=MODEL_LOCATION
+    ).load_model(pid=pj["id"])
+
+    forecast = create_forecast_pipeline_core(pj, input_data, model)
+
+    # TODO write forecast to db ???
+
+def create_forecast_pipeline_core(pj, input_data, model):
+    """Computes the forecasts and confidence intervals given a prediction job and input data.
 
     Args:
         pj (dict): Prediction job.
