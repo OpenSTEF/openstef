@@ -47,7 +47,10 @@ class TestCreateForecastPipeline(BaseTestCase):
         )
         forecast_end_expected = datetime_utc + timedelta(minutes=PJ["horizon_minutes"])
 
-        forecast_start, forecast_end = create_forecast_sklearn.generate_forecast_datetime_range(
+        (
+            forecast_start,
+            forecast_end,
+        ) = create_forecast_sklearn.generate_forecast_datetime_range(
             resolution_minutes=PJ["resolution_minutes"],
             horizon_minutes=PJ["horizon_minutes"],
         )
@@ -88,7 +91,9 @@ class TestCreateForecastPipeline(BaseTestCase):
             self.assertEqual(mock_func.call_count, 1)
 
     @patch("openstf.validation.validation.is_data_sufficient")
-    def test_create_forecast_pipeline_incomplete_inputdata(self, is_data_sufficient_mock):
+    def test_create_forecast_pipeline_incomplete_inputdata(
+        self, is_data_sufficient_mock
+    ):
         """Test if a fallback forecast is used when input is incomplete"""
         input_data = forecast_input
         is_data_sufficient_mock.return_value = False

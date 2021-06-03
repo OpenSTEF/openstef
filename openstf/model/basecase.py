@@ -28,13 +28,17 @@ class BaseCaseModel(BaseEstimator, RegressorMixin):
 
         # - Make forecast
         # Make basecase forecast: Use load of last week
-        basecase_forecast = forecast_input_data[['T-7d']].dropna().rename(columns={'T-7d':'forecast'})
-
-
+        basecase_forecast = (
+            forecast_input_data[["T-7d"]].dropna().rename(columns={"T-7d": "forecast"})
+        )
 
         # Maybe there is still missing data, for example if the cdb has been down for a
         # while in this case, use the load of 2 weeks before
-        basecase_forecast = basecase_forecast.append(forecast_input_data[['T-14d']].dropna().rename(columns={'T-14d':'forecast'}))
+        basecase_forecast = basecase_forecast.append(
+            forecast_input_data[["T-14d"]]
+            .dropna()
+            .rename(columns={"T-14d": "forecast"})
+        )
         basecase_forecast = basecase_forecast[
             np.invert(basecase_forecast.index.duplicated())
         ]
@@ -51,8 +55,3 @@ class BaseCaseModel(BaseEstimator, RegressorMixin):
         basecase_forecast["forecast_other"] = basecase_forecast["forecast"]
 
         return basecase_forecast.sort_index()
-
-
-
-
-

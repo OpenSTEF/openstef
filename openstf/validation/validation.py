@@ -8,7 +8,10 @@ import numpy as np
 import pandas as pd
 import structlog
 
-from openstf.preprocessing.preprocessing import replace_repeated_values_with_nan, replace_invalid_data
+from openstf.preprocessing.preprocessing import (
+    replace_repeated_values_with_nan,
+    replace_invalid_data,
+)
 
 # TODO make this config more central
 # Set thresholds
@@ -16,6 +19,7 @@ COMPLETENESS_THRESHOLD = 0.5
 MINIMAL_TABLE_LENGTH = 100
 
 FLATLINER_TRESHOLD = 24
+
 
 def validate(data):
     logger = structlog.get_logger(__name__)
@@ -31,9 +35,7 @@ def validate(data):
     )
 
     # Check for repeated load observations due to invalid measurements
-    suspicious_moments = find_nonzero_flatliner(
-        data, threshold=FLATLINER_TRESHOLD
-    )
+    suspicious_moments = find_nonzero_flatliner(data, threshold=FLATLINER_TRESHOLD)
     if suspicious_moments is not None:
         # Covert repeated load observations to NaN values
         data = replace_invalid_data(data, suspicious_moments)

@@ -6,7 +6,6 @@ from scipy import stats
 
 
 class ConfidenceIntervalApplicatorBaseCase:
-
     def __init__(self, model):
         self.confidence_interval = model.confidence_interval
 
@@ -19,6 +18,7 @@ class ConfidenceIntervalApplicatorBaseCase:
         del basecase_forecast["hour"]
 
         return basecase_forecast
+
 
 class ConfidenceIntervalApplicator:
     def __init__(self, model):

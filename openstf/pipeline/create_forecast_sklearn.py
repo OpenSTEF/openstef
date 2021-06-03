@@ -5,6 +5,7 @@ from datetime import datetime, timedelta, timezone
 
 import pandas as pd
 import structlog
+
 # from ktpbase.config.config import ConfigManager
 
 from openstf.validation import validation
@@ -14,9 +15,10 @@ from openstf.feature_engineering.feature_applicator import (
 from openstf.model.confidence_interval_applicator import ConfidenceIntervalApplicator
 from openstf.preprocessing import preprocessing
 from openstf.model.serializer import PersistentStorageSerializer
-from openstf.postprocessing.postprocessing import add_prediction_job_properties_to_forecast
+from openstf.postprocessing.postprocessing import (
+    add_prediction_job_properties_to_forecast,
+)
 from openstf.model.fallback import generate_fallback
-
 
 
 # TODO add loading of model to task
@@ -41,6 +43,7 @@ from openstf.model.fallback import generate_fallback
 #     forecast = create_forecast_pipeline_core(pj, input_data, model)
 
 #     # TODO write forecast to db ???
+
 
 def create_forecast_pipeline_core(pj, input_data, model):
     """Computes the forecasts and confidence intervals given a prediction job and input data.
@@ -68,7 +71,9 @@ def create_forecast_pipeline_core(pj, input_data, model):
     ).add_features(validated_data)
 
     # Prep forecast input by selecting only the forecast datetime interval (this is much smaller than the input range)
-    forecast_start, forecast_end = generate_forecast_datetime_range(pj['resolution_minutes'], pj['horizon_minutes'])
+    forecast_start, forecast_end = generate_forecast_datetime_range(
+        pj["resolution_minutes"], pj["horizon_minutes"]
+    )
     forecast_input_data = data_with_features[forecast_start:forecast_end]
 
     # Check if sufficient data is left after cleaning
@@ -110,4 +115,3 @@ def generate_forecast_datetime_range(resolution_minutes, horizon_minutes):
     forecast_end = datetime_utc + timedelta(minutes=horizon_minutes)
 
     return forecast_start, forecast_end
-

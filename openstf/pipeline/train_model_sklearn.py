@@ -8,6 +8,7 @@ from typing import Optional, Tuple, List, Union
 import pandas as pd
 from sklearn.base import RegressorMixin
 import structlog
+
 # from ktpbase.config.config import ConfigManager
 
 from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
