@@ -1,22 +1,21 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+import logging
 from pathlib import Path
-from typing import Tuple, List
+from typing import Optional, Tuple, List, Union
 
 import pandas as pd
 from sklearn.base import RegressorMixin
 import structlog
-
-import joblib
-import logging
+# from ktpbase.config.config import ConfigManager
 
 from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
 from openstf.model.confidence_interval_generator import ConfidenceIntervalGenerator
 from openstf.model.model_creator import ModelCreator
 from openstf.metrics.reporter import Reporter, Report
 
-# from openstf.model.serializer import PersistentStorageSerializer
+from openstf.model.serializer import PersistentStorageSerializer
 from openstf.model_selection.model_selection import split_data_train_validation_test
 from openstf.validation import validation
 
@@ -27,48 +26,55 @@ DEFAULT_EARLY_STOPPING_ROUNDS: int = 10
 PENALTY_FACTOR_OLD_MODEL: float = 1.2
 
 SAVE_PATH = Path(".")
-OLD_MODEL_PATH = Path(".")
 
 
-# TODO this should be integrated in the create_forecast task
-# def todo_integrate_this_into_task():
-#     check_old_model_age = True
-#     prediction_jobs = {}
+# def train_model_pipeline(
+#     pj: dict,
+#     input_data: pd.DataFrame,
+#     check_old_model_age: bool,
+#     trained_models_folder: Optional[Union[str, Path]],
+#     save_figures_folder: Optional[Union[str, Path]]
+# ):
+#     config = ConfigManager.get_instance()
 
-#     for pj in prediction_jobs:
-#         input_data = db.get_model_input(pj)
+#     if trained_models_folder is None:
+#         trained_models_folder = Path(config.paths.trained_models_folder)
 
-#         # Get old model and age
-#         try:
-#             old_model = PersistentStorageSerializer().load_model(pid=pj["id"])
-#             old_model_age = old_model.age
-#         except FileNotFoundError:
-#             old_model = None
-#             old_model_age = float("inf")
-#             print("No old model found retraining anyway")
+#     if save_figures_folder is None:
+#         save_figures_folder = Path(config.paths.webroot) / pj["id"]
 
-#         # Check old model age and continue yes/no
-#         if (old_model_age < MAXIMUM_MODEL_AGE) and check_old_model_age:
-#             print("Current model is younger than {MAXIMUM_MODEL_AGE} days, skip training")
-#             continue
+#     logger = structlog.get_logger(__name__)
+#     serializer = PersistentStorageSerializer(trained_models_folder)
 
-#         # get features
+#     # Get old model and age
+#     try:
+#         old_model = serializer.load_model(pid=pj["id"])
+#         old_model_age = old_model.age
+#     except FileNotFoundError:
+#         old_model = None
+#         old_model_age = float("inf")
+#         logger.warning("No old model found, train new model")
 
-#         # train model
-#         try:
-#             model, report = train_model_pipeline(pj, input_data, old_model, features)
-#         except RuntimeError as e:
-#             continue
-
-#         # save model
-#         PersistentStorageSerializer().save_model(model, pid=pj["id"])
-#         # save figures
-#         report.save_figures(
-#             save_path=Path(ConfigManager.get_instance().paths.webroot) / pj["id"]
+#     # Check old model age and continue yes/no
+#     if (old_model_age < MAXIMUM_MODEL_AGE) and check_old_model_age:
+#         logger.warning(
+#             "Old model is younger than {MAXIMUM_MODEL_AGE} days, skip training"
 #         )
+#         return
+
+#     # train model
+#     try:
+#         model, report = train_model_pipeline_core(pj, input_data, old_model)
+#     except RuntimeError as e:
+#         return
+
+#     # save model
+#     serializer.save_model(model, pid=pj["id"])
+#     # save figures
+#     report.save_figures(save_path=save_figures_folder)
 
 
-def train_model_pipeline(
+def train_model_pipeline_core(
     pj: dict,
     input_data: pd.DataFrame,
     old_model: RegressorMixin = None,
@@ -100,7 +106,7 @@ def train_model_pipeline(
         Tuple[RegressorMixin, Report]: Trained model and report (with figures)
     """
 
-    logger = structlog.get_logger(__file__)
+    logger = structlog.get_logger(__name__)
     # Validate and clean data
     validated_data = validation.clean(validation.validate(input_data))
 

@@ -1,11 +1,11 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-from pathlib import Path
 from datetime import datetime, timedelta, timezone
 
 import pandas as pd
 import structlog
+# from ktpbase.config.config import ConfigManager
 
 from openstf.validation import validation
 from openstf.feature_engineering.feature_applicator import (
@@ -16,26 +16,43 @@ from openstf.preprocessing import preprocessing
 from openstf.model.serializer import PersistentStorageSerializer
 from openstf.model.fallback import generate_fallback
 
-MODEL_LOCATION = Path(".")
-
-logger = structlog.get_logger(__name__)
 
 
-def predict_pipeline(pj, input_data):
+# TODO add loading of model to task
+# # Load most recent model for the given pid
+# model = PersistentStorageSerializer(
+#     trained_models_folder=MODEL_LOCATION
+# ).load_model(pid=pj["id"])
+
+# def create_forecast_pipeline(pj, input_data, trained_models_folder=None):
+#     logger = structlog.get_logger(__name__)
+#     config = ConfigManager.get_instance()
+
+#     # Use default if not given. ConfigManager ??
+#     if trained_models_folder is None:
+#         trained_models_folder = config.paths.trained_models_folder
+
+#     # Load most recent model for the given pid
+#     model = PersistentStorageSerializer(
+#         trained_models_folder=trained_models_folder
+#     ).load_model(pid=pj["id"])
+
+#     forecast = create_forecast_pipeline_core(pj, input_data, model)
+
+#     # TODO write forecast to db ???
+
+def create_forecast_pipeline_core(pj, input_data, model):
     """Computes the forecasts and confidence intervals given a prediction job and input data.
 
-
     Args:
-        pj: (dict) prediction job
-        input_data (pandas.DataFrame): data frame containing the input data necessary for the prediction.
+        pj (dict): Prediction job.
+        input_data (pandas.DataFrame): Iput data for the prediction.
+        model (RegressorMixin): Model to use for this prediction.
 
     Returns:
         forecast (pandas.DataFrame)
     """
-    # Load most recent model for the given pid
-    model = PersistentStorageSerializer(
-        trained_models_folder=MODEL_LOCATION
-    ).load_model(pid=pj["id"])
+    logger = structlog.get_logger(__name__)
 
     # Validate and clean data
     validated_data = validation.validate(input_data)

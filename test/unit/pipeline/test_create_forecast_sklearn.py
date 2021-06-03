@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+from openstf.model.serializer import PersistentStorageSerializer
 import unittest
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -8,7 +9,7 @@ from pathlib import Path
 from test.utils import BaseTestCase, TestData
 from unittest.mock import MagicMock, patch
 
-from openstf.pipeline import predict_sklearn
+from openstf.pipeline import create_forecast_sklearn
 
 NOW = datetime.now(timezone.utc)
 PJ = TestData.get_prediction_job(pid=60)
@@ -16,7 +17,7 @@ PJ = TestData.get_prediction_job(pid=60)
 forecast_input = TestData.load("reference_sets/307-test-data.csv")
 
 
-class TestPredict(BaseTestCase):
+class TestCreateForecastPipeline(BaseTestCase):
     def test_generate_inputdata_datetime_range(self):
         t_behind_days = 14
         t_ahead_days = 3
@@ -29,13 +30,13 @@ class TestPredict(BaseTestCase):
         (
             datetime_start,
             datetime_end,
-        ) = predict_sklearn.generate_inputdata_datetime_range(
+        ) = create_forecast_sklearn.generate_inputdata_datetime_range(
             t_behind_days=t_behind_days, t_ahead_days=t_ahead_days
         )
         self.assertEqual(datetime_start, datetime_start_expected)
         self.assertEqual(datetime_end, datetime_end_expected)
 
-    @patch("openstf.pipeline.predict_sklearn.datetime")
+    @patch("openstf.pipeline.create_forecast_sklearn.datetime")
     def test_forecast_datetime_range(self, datetime_mock):
         datetime_mock.now.return_value = NOW
         # get current date and time UTC
@@ -46,7 +47,7 @@ class TestPredict(BaseTestCase):
         )
         forecast_end_expected = datetime_utc + timedelta(minutes=PJ["horizon_minutes"])
 
-        forecast_start, forecast_end = predict_sklearn.generate_forecast_datetime_range(
+        forecast_start, forecast_end = create_forecast_sklearn.generate_forecast_datetime_range(
             resolution_minutes=PJ["resolution_minutes"],
             horizon_minutes=PJ["horizon_minutes"],
         )
@@ -56,7 +57,7 @@ class TestPredict(BaseTestCase):
         # def test_get_model_input_demand(
         #         self,
         # ):
-        #     predict_sklearn._clear_input_data_cache()
+        #     create_forecast_sklearn._clear_input_data_cache()
         # input_data = create_forecast.get_model_input(
         #     pj=PJ, datetime_start=NOW, datetime_end=NOW
         # )
@@ -78,7 +79,7 @@ class TestPredict(BaseTestCase):
         nonzero_flatliner_mock.return_value = suspicious_moments
         replace_invalid_data_mock.return_value = processed_input_data
 
-        predict_sklearn.pre_process_input_data(
+        create_forecast_sklearn.pre_process_input_data(
             input_data=None, flatliner_threshold=None
         )
 
@@ -86,30 +87,30 @@ class TestPredict(BaseTestCase):
         for mock_func in [nonzero_flatliner_mock, replace_invalid_data_mock]:
             self.assertEqual(mock_func.call_count, 1)
 
-    @patch(
-        "openstf.pipeline.predict_sklearn.MODEL_LOCATION", Path("./test/trained_models")
-    )
     @patch("openstf.validation.validation.is_data_sufficient")
-    def test_predict_pipeline_incomplete_inputdata(self, is_data_sufficient_mock):
+    def test_create_forecast_pipeline_incomplete_inputdata(self, is_data_sufficient_mock):
         """Test if a fallback forecast is used when input is incomplete"""
         input_data = forecast_input
         is_data_sufficient_mock.return_value = False
         pj = TestData.get_prediction_job(pid=307)
-
-        forecast = predict_sklearn.predict_pipeline(pj=pj, input_data=input_data)
+        model = PersistentStorageSerializer(
+            trained_models_folder=Path("./test/trained_models")
+        ).load_model(pid=307)
+        forecast = create_forecast_sklearn.create_forecast_pipeline_core(
+            pj=pj, input_data=input_data, model=model
+        )
         assert "substituted" in forecast.quality.values
 
-    @patch(
-        "openstf.pipeline.predict_sklearn.MODEL_LOCATION", Path("./test/trained_models")
-    )
-    def test_predict_pipeline_happy_flow(self):
+    def test_create_forecast_pipeline_happy_flow(self):
         """Test the happy flow of the predict pipeline, using a previously trained model"""
         self.pj = TestData.get_prediction_job(pid=307)
         self.forecast_input = forecast_input
         self.pj["feature_names"] = self.forecast_input.columns[1:]
-
-        forecast = predict_sklearn.predict_pipeline(
-            pj=self.pj, input_data=self.forecast_input
+        model = PersistentStorageSerializer(
+            trained_models_folder=Path("./test/trained_models")
+        ).load_model(pid=307)
+        forecast = create_forecast_sklearn.create_forecast_pipeline_core(
+            pj=self.pj, input_data=self.forecast_input, model=model
         )
         self.assertEqual(len(forecast), 2878)
         self.assertEqual(len(forecast.columns), 15)

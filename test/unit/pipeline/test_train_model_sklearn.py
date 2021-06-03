@@ -11,7 +11,7 @@ import pandas as pd
 import sklearn
 
 from openstf.pipeline.train_model_sklearn import (
-    train_model_pipeline,
+    train_model_pipeline_core,
     split_data_train_validation_test,
 )
 from openstf.metrics.reporter import Report
@@ -31,7 +31,7 @@ XGB_HYPER_PARAMS = {
 }
 
 
-class TestTrainModel(BaseTestCase):
+class TestTrainModelPipeline(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
         self.pj = TestData.get_prediction_job(pid=307)
@@ -68,7 +68,7 @@ class TestTrainModel(BaseTestCase):
         but it can/should include predictors (e.g. weather data)
 
         """
-        model, report = train_model_pipeline(pj=self.pj, input_data=self.train_input)
+        model, report = train_model_pipeline_core(pj=self.pj, input_data=self.train_input)
 
         # check if the model was fitted (raises NotFittedError when not fitted)
         self.assertIsNone(sklearn.utils.validation.check_is_fitted(model))
