@@ -5,6 +5,21 @@ import numpy as np
 from scipy import stats
 
 
+class ConfidenceIntervalApplicatorBaseCase:
+
+    def __init__(self, model):
+        self.confidence_interval = model.confidence_interval
+
+    def add_confidence_interval(self, basecase_forecast):
+
+        basecase_forecast["hour"] = basecase_forecast.index.hour
+        basecase_forecast = basecase_forecast.merge(
+            self.confidence_interval, left_on="hour", right_index=True
+        )
+        del basecase_forecast["hour"]
+
+        return basecase_forecast
+
 class ConfidenceIntervalApplicator:
     def __init__(self, model):
         self.confidence_interval = model.confidence_interval
