@@ -54,6 +54,8 @@ def create_forecast_pipeline_core(pj, input_data, model):
     """
     logger = structlog.get_logger(__name__)
 
+    fallback_strategy = "extreme_day"  # this can later be expanded
+
     # Validate and clean data
     validated_data = validation.validate(input_data)
 
@@ -69,7 +71,6 @@ def create_forecast_pipeline_core(pj, input_data, model):
 
     # Check if sufficient data is left after cleaning
     if not validation.is_data_sufficient(data_with_features):
-        fallback_strategy = "extreme_day"  # this can later be expanded
         logger.warning(
             "Using fallback forecast",
             forecast_type="fallback",
