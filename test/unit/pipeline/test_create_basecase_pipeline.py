@@ -38,9 +38,7 @@ class TestBaseCaseForecast(BaseTestCase):
         print(len(base_case_forecast))
 
         # Test length of the output
-        self.assertEqual(
-            len(base_case_forecast), 1153
-        )
+        self.assertEqual(len(base_case_forecast), 1153)
 
         # Test available columns
         self.assertEqual(
