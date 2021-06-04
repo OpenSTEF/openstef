@@ -35,8 +35,6 @@ class TestBaseCaseForecast(BaseTestCase):
 
         base_case_forecast = basecase_pipeline(PJ, forecast_input)
 
-        print(len(base_case_forecast))
-
         # Test length of the output
         self.assertEqual(len(base_case_forecast), 1153)
 
