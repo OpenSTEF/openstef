@@ -21,7 +21,7 @@ MINIMAL_TABLE_LENGTH = 100
 FLATLINER_TRESHOLD = 24
 
 
-def validate(data):
+def validate(data: pd.DataFrame) -> pd.DataFrame:
     logger = structlog.get_logger(__name__)
     # Drop 'false' measurements. e.g. where load appears to be constant.
     threshold = 6 * 4  # number of repeated values

@@ -57,15 +57,6 @@ class TestCreateForecastPipeline(BaseTestCase):
         self.assertEqual(forecast_start, forecast_start_expected)
         self.assertEqual(forecast_end, forecast_end_expected)
 
-        # def test_get_model_input_demand(
-        #         self,
-        # ):
-        #     create_forecast_sklearn._clear_input_data_cache()
-        # input_data = create_forecast.get_model_input(
-        #     pj=PJ, datetime_start=NOW, datetime_end=NOW
-        # )
-        # self.assertTrue(isinstance(input_data, MagicMock))
-
     @patch("openstf.validation.validation.find_nonzero_flatliner")
     @patch("openstf.preprocessing.preprocessing.replace_invalid_data")
     def test_pre_process_input_data(

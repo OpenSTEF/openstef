@@ -107,7 +107,9 @@ def create_forecast_pipeline_core(pj, input_data, model):
     return forecast
 
 
-def generate_forecast_datetime_range(resolution_minutes, horizon_minutes):
+def generate_forecast_datetime_range(
+    resolution_minutes: int, horizon_minutes: int
+) -> tuple[datetime, datetime]:
     # get current date and time UTC
     datetime_utc = datetime.now(timezone.utc)
     # Datetime range for time interval to be predicted

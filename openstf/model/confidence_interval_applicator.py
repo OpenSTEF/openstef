@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 import numpy as np
+import pandas as pd
 from scipy import stats
 
 
@@ -9,7 +10,7 @@ class ConfidenceIntervalApplicatorBaseCase:
     def __init__(self, model):
         self.confidence_interval = model.confidence_interval
 
-    def add_confidence_interval(self, basecase_forecast):
+    def add_confidence_interval(self, basecase_forecast: pd.DataFrame) -> pd.DataFrame:
 
         basecase_forecast["hour"] = basecase_forecast.index.hour
         basecase_forecast = basecase_forecast.merge(
@@ -24,11 +25,15 @@ class ConfidenceIntervalApplicator:
     def __init__(self, model):
         self.confidence_interval = model.confidence_interval
 
-    def add_confidence_interval(self, forecast, quantiles):
+    def add_confidence_interval(
+        self, forecast: pd.DataFrame, quantiles: list
+    ) -> pd.DataFrame:
         temp_forecast = self._add_standard_deviation_to_forecast(forecast)
         return self._add_quantiles_to_forecast(temp_forecast, quantiles)
 
-    def _add_standard_deviation_to_forecast(self, forecast):
+    def _add_standard_deviation_to_forecast(
+        self, forecast: pd.DataFrame
+    ) -> pd.DataFrame:
         """Add a standard deviation to a live forecast.
 
         The stdev for intermediate forecast horizons is interpolated.
@@ -107,7 +112,9 @@ class ConfidenceIntervalApplicator:
         return forecast_copy.drop(columns=["hour"])
 
     @staticmethod
-    def _add_quantiles_to_forecast(forecast, quantiles):
+    def _add_quantiles_to_forecast(
+        forecast: pd.DataFrame, quantiles: list
+    ) -> pd.DataFrame:
         """Add quantiles to forecast.
         Use the standard deviation to calculate the quantiles.
         Args:

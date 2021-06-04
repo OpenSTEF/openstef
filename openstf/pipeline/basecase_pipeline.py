@@ -3,8 +3,11 @@
 # SPDX-License-Identifier: MPL-2.0
 from pathlib import Path
 
+import pandas as pd
+import pytz
+from datetime import timedelta
 import structlog
-
+from openstf.enums import ForecastType
 from openstf.feature_engineering.feature_applicator import (
     OperationalPredictFeatureApplicator,
 )
@@ -25,7 +28,7 @@ BASECASE_RESOLUTION = 15
 logger = structlog.get_logger(__name__)
 
 
-def basecase_pipeline(pj, input_data):
+def basecase_pipeline(pj: dict, input_data: pd.DataFrame) -> pd.DataFrame:
     """Computes the forecasts and confidence intervals given a prediction job and input data.
 
 
@@ -42,17 +45,30 @@ def basecase_pipeline(pj, input_data):
     # Validate and clean data
     validated_data = validation.validate(input_data)
 
+    # Prep forecast input by selecting only the forecast datetime interval
+    forecast_start, forecast_end = generate_forecast_datetime_range(
+        BASECASE_RESOLUTION, BASECASE_HORIZON
+    )
+
+    # Dont forecast the horizon of the regular models
+    forecast_start = forecast_start + timedelta(minutes=pj["horizon_minutes"])
+
+    # Make sure forecast interval is available in the input interval
+    validated_data = validated_data.reindex(
+        pd.date_range(
+            validated_data.index.min().to_pydatetime(),
+            forecast_end.replace(tzinfo=pytz.utc),
+            freq=f'{pj["resolution_minutes"]}T',
+        )
+    )
+
     # Add features
     data_with_features = OperationalPredictFeatureApplicator(
-        # TODO use saved feature_names (should be saved while training the model)
         horizons=[0.25],
         feature_names=["T-7d", "T-14d"],
     ).add_features(validated_data)
 
-    # Prep forecast input by selecting only the forecast datetime interval (this is much smaller than the input range)
-    forecast_start, forecast_end = generate_forecast_datetime_range(
-        BASECASE_RESOLUTION, BASECASE_HORIZON
-    )  # 14 days ahead with a resolution of 15 minutes
+    # Select the basecase forecast interval
     forecast_input_data = data_with_features[forecast_start:forecast_end]
 
     # Initialize model
@@ -61,23 +77,23 @@ def basecase_pipeline(pj, input_data):
     # Make basecase forecast
     basecase_forecast = BaseCaseModel().predict(forecast_input_data)
 
-    # Apply confidence interval, estimate the stdev by using the
-    # stdev of the hour for historic_load
+    # Estimate the stdev by using the stdev of the hour for historic_load
     model.confidence_interval = (
         data_with_features.groupby(data_with_features.index.hour)
         .std()
         .rename(columns=dict(load="stdev"))
     )
 
+    # Apply confidence interval
     basecase_forecast = ConfidenceIntervalApplicatorBaseCase(
         model
     ).add_confidence_interval(basecase_forecast)
 
-    # Do final postprocessing
-    add_prediction_job_properties_to_forecast(
+    # Do postprocessing
+    basecase_forecast = add_prediction_job_properties_to_forecast(
         pj=pj,
         forecast=basecase_forecast,
-        algorithm_type="basecase_lastweek",
+        forecast_type=ForecastType.BASECASE,
         forecast_quality="not_renewed",
     )
 

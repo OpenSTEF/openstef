@@ -1,17 +1,22 @@
 from datetime import datetime, timedelta, timezone
-
+import pytz
 import numpy as np
+import pandas as pd
 
 
 from sklearn.base import BaseEstimator, RegressorMixin
 
+MINIMAL_RESOLUTION: int = 15
+
 
 class BaseCaseModel(BaseEstimator, RegressorMixin):
-    def predict(self, forecsst_input_data):
+    def predict(self, forecsst_input_data: pd.DataFrame) -> pd.DataFrame:
         return self.make_basecase_forecast(forecsst_input_data)
 
     @staticmethod
-    def make_basecase_forecast(forecast_input_data, overwrite_delay_hours=48):
+    def make_basecase_forecast(
+        forecast_input_data: pd.DataFrame, overwrite_delay_hours: int = 48
+    ) -> pd.DataFrame:
         """Make a 'basecase' forecast
             Result is writen to database for all forecasts further in time than
             overwrite_delay_hours. Idea is that if all else fails, this forecasts is
@@ -25,6 +30,20 @@ class BaseCaseModel(BaseEstimator, RegressorMixin):
         Returns:
             pd.DataFrame: Basecase forecast (which was written to the database)
         """
+
+        # Validate input to make sure we are not overwriting regular forecasts
+        requested_start = forecast_input_data.index.min().round(
+            f"{MINIMAL_RESOLUTION}T"
+        )
+        allowed_start = pd.Series(
+            datetime.utcnow().replace(tzinfo=pytz.utc)
+        ).min().round(f"{MINIMAL_RESOLUTION}T").to_pydatetime() + timedelta(
+            hours=overwrite_delay_hours, minutes=-1 * MINIMAL_RESOLUTION
+        )
+        if requested_start < allowed_start:
+            raise ValueError(
+                f"Basecase forecast requested for horizon of regular forecast! Please check input! Requested start {requested_start}, allowed start {allowed_start}"
+            )
 
         # - Make forecast
         # Make basecase forecast: Use load of last week
@@ -42,12 +61,6 @@ class BaseCaseModel(BaseEstimator, RegressorMixin):
         basecase_forecast = basecase_forecast[
             np.invert(basecase_forecast.index.duplicated())
         ]
-
-        # Don't update first 48 hours
-        forecast_start = datetime.now(timezone.utc) + timedelta(
-            hours=overwrite_delay_hours
-        )
-        basecase_forecast = basecase_forecast[forecast_start:]
 
         # Also make a basecase forecast for the forecast_other component. This will make a
         # simple basecase components forecast available and ensures that the sum of

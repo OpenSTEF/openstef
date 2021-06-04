@@ -5,6 +5,7 @@
 import numpy as np
 import pandas as pd
 import structlog
+from enum import Enum
 
 from openstf.feature_engineering import weather_features
 from openstf.enums import ForecastType
@@ -157,8 +158,11 @@ def post_process_wind_solar(forecast: pd.Series, forecast_type):
 
 
 def add_prediction_job_properties_to_forecast(
-    pj, forecast, forecast_type=None, forecast_quality=None
-):
+    pj: dict,
+    forecast: pd.DataFrame,
+    forecast_type: Enum = None,
+    forecast_quality: str = None,
+) -> pd.DataFrame:
     # self.logger.info("Postproces in preparation of storing")
     if forecast_type is None:
         forecast_type = pj["typ"]
