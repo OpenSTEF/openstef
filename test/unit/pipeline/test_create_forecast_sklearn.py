@@ -57,30 +57,6 @@ class TestCreateForecastPipeline(BaseTestCase):
         self.assertEqual(forecast_start, forecast_start_expected)
         self.assertEqual(forecast_end, forecast_end_expected)
 
-    @patch("openstf.validation.validation.find_nonzero_flatliner")
-    @patch("openstf.preprocessing.preprocessing.replace_invalid_data")
-    def test_pre_process_input_data(
-        self, replace_invalid_data_mock, nonzero_flatliner_mock
-    ):
-        suspicious_moments = True
-
-        null_row = MagicMock()
-        null_row.isnull.return_value = [True]
-        processed_input_data_rows = [(0, null_row), (1, null_row)]
-        processed_input_data = MagicMock()
-        processed_input_data.iterrows.return_value = processed_input_data_rows
-
-        nonzero_flatliner_mock.return_value = suspicious_moments
-        replace_invalid_data_mock.return_value = processed_input_data
-
-        create_forecast_sklearn.pre_process_input_data(
-            input_data=None, flatliner_threshold=None
-        )
-
-        # simply check if all mocks are called
-        for mock_func in [nonzero_flatliner_mock, replace_invalid_data_mock]:
-            self.assertEqual(mock_func.call_count, 1)
-
     @patch("openstf.validation.validation.is_data_sufficient")
     def test_create_forecast_pipeline_incomplete_inputdata(
         self, is_data_sufficient_mock
