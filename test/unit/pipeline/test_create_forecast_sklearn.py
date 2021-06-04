@@ -86,15 +86,14 @@ class TestCreateForecastPipeline(BaseTestCase):
         # available relative to the current time.
         utc_now = (
             pd.Series(datetime.utcnow().replace(tzinfo=pytz.utc))
-                .min()
-                .floor("15T")
-                .to_pydatetime()
+            .min()
+            .floor("15T")
+            .to_pydatetime()
         )
         most_recent_date = self.forecast_input.index.max().ceil("15T").to_pydatetime()
         delta = utc_now - most_recent_date + timedelta(3)
 
         self.forecast_input.index = self.forecast_input.index.shift(delta, freq=1)
-
 
         self.pj["feature_names"] = self.forecast_input.columns[1:]
 
@@ -108,8 +107,13 @@ class TestCreateForecastPipeline(BaseTestCase):
         self.assertEqual(len(forecast.columns), 15)
         self.assertGreater(forecast.forecast.min(), -5)
         self.assertLess(forecast.forecast.max(), 85)
-        self.assertLess(forecast.index.max().to_pydatetime().replace(tzinfo=pytz.utc), (datetime.utcnow() + timedelta(hours=50)).replace(tzinfo=pytz.utc))
-        self.assertGreaterEqual(forecast.index.min().to_pydatetime().replace(tzinfo=pytz.utc), utc_now)
+        self.assertLess(
+            forecast.index.max().to_pydatetime().replace(tzinfo=pytz.utc),
+            (datetime.utcnow() + timedelta(hours=50)).replace(tzinfo=pytz.utc),
+        )
+        self.assertGreaterEqual(
+            forecast.index.min().to_pydatetime().replace(tzinfo=pytz.utc), utc_now
+        )
 
 
 if __name__ == "__main__":
