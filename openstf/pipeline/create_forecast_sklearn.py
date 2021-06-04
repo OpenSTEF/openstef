@@ -117,3 +117,12 @@ def generate_forecast_datetime_range(
     forecast_end = datetime_utc + timedelta(minutes=horizon_minutes)
 
     return forecast_start, forecast_end
+
+def generate_inputdata_datetime_range(t_behind_days: int =14, t_ahead_days: int=3) -> tuple[datetime, datetime]:
+    # get current date UTC
+    date_today_utc = datetime.now(timezone.utc).date()
+    # Date range for input data
+    datetime_start = date_today_utc - timedelta(days=t_behind_days)
+    datetime_end = date_today_utc + timedelta(days=t_ahead_days)
+
+    return datetime_start, datetime_end

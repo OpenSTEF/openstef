@@ -32,13 +32,13 @@ class BaseCaseModel(BaseEstimator, RegressorMixin):
         """
 
         # Validate input to make sure we are not overwriting regular forecasts
-        requested_start = forecast_input_data.index.min().round(
+        requested_start = forecast_input_data.index.min().ceil(
             f"{MINIMAL_RESOLUTION}T"
         )
         allowed_start = pd.Series(
             datetime.utcnow().replace(tzinfo=pytz.utc)
         ).min().round(f"{MINIMAL_RESOLUTION}T").to_pydatetime() + timedelta(
-            hours=overwrite_delay_hours, minutes=-1 * MINIMAL_RESOLUTION
+            hours=overwrite_delay_hours
         )
         if requested_start < allowed_start:
             raise ValueError(

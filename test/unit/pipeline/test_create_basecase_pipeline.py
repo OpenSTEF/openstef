@@ -24,12 +24,20 @@ class TestBaseCaseForecast(BaseTestCase):
             .round("15T")
             .to_pydatetime()
         )
-        most_recent_date = forecast_input.index.max().round("15T").to_pydatetime()
+        most_recent_date = forecast_input.index.max().ceil("15T").to_pydatetime()
         delta = utc_now - most_recent_date + timedelta(3)
 
         forecast_input.index = forecast_input.index.shift(delta, freq=1)
         base_case_forecast = basecase_pipeline(PJ, forecast_input)
 
         # Test output datetime range
+        self.assertEqual((utc_now + timedelta(days=14)).replace(tzinfo=pytz.utc), base_case_forecast.index.max().to_pydatetime())
+        self.assertEqual((utc_now + timedelta(days=2)).replace(tzinfo=pytz.utc),
+                         base_case_forecast.index.min().to_pydatetime())
 
         # Test available columns
+        self.assertEqual(['forecast', 'forecast_other', 'T-7d', 'T-14d', 'quality', 'pid',
+       'customer', 'description', 'type', 'algtype'],base_case_forecast.columns.to_list())
+
+
+

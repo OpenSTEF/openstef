@@ -19,7 +19,7 @@ MODEL_ID_SEP = "-"
 class AbstractSerializer(ABC):
     def __init__(self, trained_models_folder: Union[Path, str]) -> None:
         self.logger = structlog.get_logger(self.__class__.__name__)
-        self.trained_models_folder = Path(trained_models_folder)
+        self.trained_models_folder = trained_models_folder
 
     @abstractmethod
     def save_model(self, model: RegressorMixin) -> None:
