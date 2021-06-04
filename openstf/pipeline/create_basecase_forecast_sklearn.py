@@ -25,9 +25,6 @@ MODEL_LOCATION = Path(".")
 BASECASE_HORIZON = 60 * 24 * 14  # 14 days ahead
 BASECASE_RESOLUTION = 15
 
-logger = structlog.get_logger(__name__)
-
-
 def basecase_pipeline(pj: dict, input_data: pd.DataFrame) -> pd.DataFrame:
     """Computes the base case forecast and confidence intervals for a given prediction job and input data.
 
