@@ -11,7 +11,14 @@ class ConfidenceIntervalApplicatorBaseCase:
         self.confidence_interval = model.confidence_interval
 
     def add_confidence_interval(self, basecase_forecast: pd.DataFrame) -> pd.DataFrame:
+        """Adds confidence interval to basebase forecast
 
+        Args:
+            basecase_forecast: pd.DataFrame with the basecase load forecast
+
+        Returns:
+
+        """
         basecase_forecast["hour"] = basecase_forecast.index.hour
         basecase_forecast = basecase_forecast.merge(
             self.confidence_interval, left_on="hour", right_index=True

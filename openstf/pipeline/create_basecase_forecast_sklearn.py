@@ -29,7 +29,7 @@ logger = structlog.get_logger(__name__)
 
 
 def basecase_pipeline(pj: dict, input_data: pd.DataFrame) -> pd.DataFrame:
-    """Computes the forecasts and confidence intervals given a prediction job and input data.
+    """Computes the base case forecast and confidence intervals for a given prediction job and input data.
 
 
     Args:
@@ -37,11 +37,12 @@ def basecase_pipeline(pj: dict, input_data: pd.DataFrame) -> pd.DataFrame:
         input_data (pandas.DataFrame): data frame containing the input data necessary for the prediction.
 
     Returns:
-        forecast (pandas.DataFrame)
+        basecase_forecast (pandas.DataFrame)
     """
 
     logger = structlog.get_logger(__name__)
 
+    logger.info("Preprocessing data for basecase forecast")
     # Validate and clean data
     validated_data = validation.validate(input_data)
 
@@ -73,7 +74,7 @@ def basecase_pipeline(pj: dict, input_data: pd.DataFrame) -> pd.DataFrame:
 
     # Initialize model
     model = BaseCaseModel()
-
+    logger.info("Making basecase forecast")
     # Make basecase forecast
     basecase_forecast = BaseCaseModel().predict(forecast_input_data)
 
@@ -83,13 +84,13 @@ def basecase_pipeline(pj: dict, input_data: pd.DataFrame) -> pd.DataFrame:
         .std()
         .rename(columns=dict(load="stdev"))
     )
-
+    logger.info("Postprocessing basecase forecast")
     # Apply confidence interval
     basecase_forecast = ConfidenceIntervalApplicatorBaseCase(
         model
     ).add_confidence_interval(basecase_forecast)
 
-    # Do postprocessing
+    # Do further postprocessing
     basecase_forecast = add_prediction_job_properties_to_forecast(
         pj=pj,
         forecast=basecase_forecast,
