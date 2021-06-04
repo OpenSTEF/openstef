@@ -27,7 +27,6 @@ class TestBaseCaseForecast(BaseTestCase):
         most_recent_date = forecast_input.index.max().round("15T").to_pydatetime()
         delta = utc_now - most_recent_date + timedelta(3)
 
-
         forecast_input.index = forecast_input.index.shift(delta, freq=1)
 
         with pytest.raises(ValueError):
@@ -45,7 +44,9 @@ class TestBaseCaseForecast(BaseTestCase):
             .to_pydatetime()
         )
         most_recent_date = forecast_input.index.max().round("15T").to_pydatetime()
-        delta = utc_now - most_recent_date + timedelta(35) # This will make it pass the first input vallidation
+        delta = (
+            utc_now - most_recent_date + timedelta(35)
+        )  # This will make it pass the first input vallidation
 
         forecast_input.index = forecast_input.index.shift(delta, freq=1)
         with pytest.raises(ValueError):
