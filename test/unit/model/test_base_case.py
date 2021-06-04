@@ -30,5 +30,3 @@ class TestBaseCaseForecast(BaseTestCase):
 
         with pytest.raises(ValueError):
             BaseCaseModel().predict(forecast_input)
-
-

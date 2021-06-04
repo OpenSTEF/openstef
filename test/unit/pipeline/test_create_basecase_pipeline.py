@@ -31,13 +31,28 @@ class TestBaseCaseForecast(BaseTestCase):
         base_case_forecast = basecase_pipeline(PJ, forecast_input)
 
         # Test output datetime range
-        self.assertEqual((utc_now + timedelta(days=14)).replace(tzinfo=pytz.utc), base_case_forecast.index.max().to_pydatetime())
-        self.assertEqual((utc_now + timedelta(days=2)).replace(tzinfo=pytz.utc),
-                         base_case_forecast.index.min().to_pydatetime())
+        self.assertEqual(
+            (utc_now + timedelta(days=14)).replace(tzinfo=pytz.utc),
+            base_case_forecast.index.max().to_pydatetime(),
+        )
+        self.assertEqual(
+            (utc_now + timedelta(days=2)).replace(tzinfo=pytz.utc),
+            base_case_forecast.index.min().to_pydatetime(),
+        )
 
         # Test available columns
-        self.assertEqual(['forecast', 'forecast_other', 'T-7d', 'T-14d', 'quality', 'pid',
-       'customer', 'description', 'type', 'algtype'],base_case_forecast.columns.to_list())
-
-
-
+        self.assertEqual(
+            [
+                "forecast",
+                "forecast_other",
+                "T-7d",
+                "T-14d",
+                "quality",
+                "pid",
+                "customer",
+                "description",
+                "type",
+                "algtype",
+            ],
+            base_case_forecast.columns.to_list(),
+        )

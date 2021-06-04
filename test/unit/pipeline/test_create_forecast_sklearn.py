@@ -113,8 +113,9 @@ class TestCreateForecastPipeline(BaseTestCase):
         self.assertEqual(len(forecast.columns), 15)
         self.assertGreater(forecast.forecast.min(), -5)
         self.assertLess(forecast.forecast.max(), 85)
-        self.assertLess(forecast.index.max(), datetime.utcnow()+timedelta(hours=50))
+        self.assertLess(forecast.index.max(), datetime.utcnow() + timedelta(hours=50))
         self.assertGreater(forecast.index.min(), datetime.utcnow())
+
 
 if __name__ == "__main__":
     unittest.main()
