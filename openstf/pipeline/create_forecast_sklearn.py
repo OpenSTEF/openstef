@@ -118,7 +118,10 @@ def generate_forecast_datetime_range(
 
     return forecast_start, forecast_end
 
-def generate_inputdata_datetime_range(t_behind_days: int =14, t_ahead_days: int=3) -> tuple[datetime, datetime]:
+
+def generate_inputdata_datetime_range(
+    t_behind_days: int = 14, t_ahead_days: int = 3
+) -> tuple[datetime, datetime]:
     # get current date UTC
     date_today_utc = datetime.now(timezone.utc).date()
     # Date range for input data
