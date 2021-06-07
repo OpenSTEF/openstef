@@ -43,7 +43,9 @@ class XGBPredictionModel(AbstractPredictionModel):
         weights = weights.loc[:, list(forcast_input_data.columns)]
 
         completeness = validation.calc_completeness(
-            forcast_input_data, weights.values[0], time_delayed=True,
+            forcast_input_data,
+            weights.values[0],
+            time_delayed=True,
         )
 
         self.logger.info(f"Completeness: {completeness:.2f}")

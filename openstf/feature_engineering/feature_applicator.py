@@ -71,12 +71,12 @@ class TrainFeatureApplicator(AbstractFeatureApplicator):
             result = result.append(res)
 
         # Add time-derived features to latency
-        for feature in [x for x in result.columns if x[:2] == 'T-']:
-            if 'min' in feature:
-                lag = int(feature[2:-3])/60.
-            if 'd' in feature:
-                lag = int(feature[2:-1])*60.
-            LATENCY_CONFIG.update({feature:lag})
+        for feature in [x for x in result.columns if x[:2] == "T-"]:
+            if "min" in feature:
+                lag = int(feature[2:-3]) / 60.0
+            if "d" in feature:
+                lag = int(feature[2:-1]) * 60.0
+            LATENCY_CONFIG.update({feature: lag})
 
         # Invalidate features that are not available for a specific horizon due to data
         # latency
