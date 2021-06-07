@@ -97,7 +97,9 @@ class TestApplyFeaturesModule(BaseTestCase):
                     "2020-04-27 11:00:00",
                 ]
             ),
-            data={"load": [10, 15, 20, 15], "APX": [1, 2, 3, 4]},
+            data={"load": [10, 15, 20, 15],
+                  "APX": [1, 2, 3, 4],
+                  "T-30min": [5, 6, 7, 8]}
         )
         horizons = [0.25, 47]
 
@@ -108,10 +110,10 @@ class TestApplyFeaturesModule(BaseTestCase):
         horizon = input_data_with_features.Horizon
 
         self.assertTrue(
-            input_data_with_features.loc[horizon == 47, "APX"].isnull().all()
+            input_data_with_features.loc[horizon == 47, ["APX", "T-30min"]].all().isnull().all()
         )
         self.assertFalse(
-            input_data_with_features.loc[horizon == 0.25, "APX"].isnull().all()
+            input_data_with_features.loc[horizon == 0.25, ["APX", "T-30min"]].all().isnull().all()
         )
 
     def test_apply_holiday_features(self):
