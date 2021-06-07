@@ -13,11 +13,12 @@ from openstf.feature_engineering.feature_applicator import (
 )
 from openstf.model.basecase import BaseCaseModel
 from openstf.model.confidence_interval_applicator import (
-    ConfidenceIntervalApplicatorBaseCase,
+    ConfidenceIntervalApplicator
 )
 from openstf.pipeline.create_forecast_sklearn import generate_forecast_datetime_range
 from openstf.postprocessing.postprocessing import (
     add_prediction_job_properties_to_forecast,
+    add_components_base_case_forecast,
 )
 from openstf.validation import validation
 
@@ -76,17 +77,16 @@ def basecase_pipeline(pj: dict, input_data: pd.DataFrame) -> pd.DataFrame:
     # Make basecase forecast
     basecase_forecast = BaseCaseModel().predict(forecast_input_data)
 
-    # Estimate the stdev by using the stdev of the hour for historic_load
-    model.confidence_interval = (
-        data_with_features.groupby(data_with_features.index.hour)
-        .std()
-        .rename(columns=dict(load="stdev"))
-    )
+    # Estimate the stdev by using the stdev of the hour for historic (T-14d) load
+    model.confidence_interval = generate_basecase_confidence_interval(data_with_features)
     logger.info("Postprocessing basecase forecast")
     # Apply confidence interval
-    basecase_forecast = ConfidenceIntervalApplicatorBaseCase(
+    basecase_forecast = ConfidenceIntervalApplicator(
         model
-    ).add_confidence_interval(basecase_forecast)
+    ).add_confidence_interval(basecase_forecast, pj['quantiles'])
+
+    # Add basecase for the component forecasts
+    basecase_forecast = add_components_base_case_forecast(basecase_forecast)
 
     # Do further postprocessing
     basecase_forecast = add_prediction_job_properties_to_forecast(
@@ -97,3 +97,14 @@ def basecase_pipeline(pj: dict, input_data: pd.DataFrame) -> pd.DataFrame:
     )
 
     return basecase_forecast
+
+def generate_basecase_confidence_interval(data_with_features):
+    confidence_interval = (
+        data_with_features[["T-14d"]]
+            .groupby(data_with_features.index.hour)
+            .std()
+            .rename(columns={"T-14d": "stdev"})
+    )
+    confidence_interval['hour'] = confidence_interval.index
+    confidence_interval['horizon'] = 48
+    return confidence_interval
