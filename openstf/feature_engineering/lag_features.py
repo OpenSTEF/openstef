@@ -64,7 +64,7 @@ def generate_lag_feature_functions(
     return lag_functions
 
 
-def extract_lag_features(features: list, horizon: float) -> Tuple[list, list]:
+def extract_lag_features(features: list) -> Tuple[list, list]:
     """Creates a list of lag minutes and a list of lag days that were used during
     the training of the input model.
 
