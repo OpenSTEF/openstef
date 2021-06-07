@@ -57,7 +57,9 @@ class TestSplitEnergy(BaseTestCase):
             index=[1],
         )
         result = split_forecast.determine_invalid_coefs(new_coefs, last_coefs)
-        self.assertDataframeEqual(result, expected_result, check_index_type=False, rtol=1e-1)
+        self.assertDataframeEqual(
+            result, expected_result, check_index_type=False, rtol=1e-1
+        )
 
     def test_determine_invalid_coefs_above_threshold(self):
         new_coefs = pd.DataFrame({"coef_name": ["a", "b"], "coef_value": [1, 1]})
