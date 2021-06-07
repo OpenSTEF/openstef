@@ -8,7 +8,8 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 
-MINIMAL_RESOLUTION: int = 15 # Minimal time resolution in minutes
+MINIMAL_RESOLUTION: int = 15  # Minimal time resolution in minutes
+
 
 class ConfidenceIntervalApplicator:
     def __init__(self, model):
@@ -72,9 +73,12 @@ class ConfidenceIntervalApplicator:
         if "tAhead" not in forecast_copy.columns:
             # Determine now, rounded on 15 minutes,
             # Rounding helps to prevent fractional t_aheads
-            now = pd.Series(
-                    datetime.utcnow().replace(tzinfo=pytz.utc)
-                ).min().round(f"{MINIMAL_RESOLUTION}T").to_pydatetime()
+            now = (
+                pd.Series(datetime.utcnow().replace(tzinfo=pytz.utc))
+                .min()
+                .round(f"{MINIMAL_RESOLUTION}T")
+                .to_pydatetime()
+            )
 
             # Determin t_aheads by subtracting with now
             forecast_copy["tAhead"] = (
@@ -98,11 +102,12 @@ class ConfidenceIntervalApplicator:
             b = sn - A * (1 - np.exp(-near / tau))
             return A * (1 - np.exp(-t / tau)) + b
 
-
-        if len(stdev.columns) == 1: # If only one horizon is available use that one
-            forecast_copy["stdev"] = forecast_copy.apply(lambda x: stdev.loc[x.hour], axis=1)
+        if len(stdev.columns) == 1:  # If only one horizon is available use that one
+            forecast_copy["stdev"] = forecast_copy.apply(
+                lambda x: stdev.loc[x.hour], axis=1
+            )
         # -------- End moved from feature_engineering.add_stdev --------------------- #
-        else: # If more are available do something fancy with interpolation
+        else:  # If more are available do something fancy with interpolation
             # Add stdev to forecast_copy dataframe
             forecast_copy["stdev"] = forecast_copy.apply(
                 lambda x: calc_exp_dec(x.tAhead, stdev.loc[x.hour], near, far), axis=1
