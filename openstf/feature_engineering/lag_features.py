@@ -36,10 +36,10 @@ def generate_lag_feature_functions(
             extracted_lag_times_minutes,
             extracted_lag_time_days_list,
         ) = extract_lag_features(features)
-        lag_times_minutes = lag_times_minutes.intersection(extracted_lag_times_minutes)
-        lag_time_days_list = lag_time_days_list.intersection(
-            extracted_lag_time_days_list
-        )
+        lag_times_minutes = list(set(lag_times_minutes).intersection(set(extracted_lag_times_minutes)))
+        lag_time_days_list = list(set(lag_time_days_list).intersection(
+            set(extracted_lag_time_days_list)
+        ))
 
     # Empty dict to store all generated lag functions
     lag_functions = {}
