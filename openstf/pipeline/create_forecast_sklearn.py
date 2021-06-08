@@ -27,7 +27,18 @@ from openstf.model.fallback import generate_fallback
 def create_forecast_pipeline(
     pj: dict, input_data: pd.DataFrame, trained_models_folder: Union[str, Path]
 ) -> pd.DataFrame:
+    """Midle level pipeline that takes care of all persistent storage dependencies
 
+    Args:
+        pj (dict): Prediction job
+        input_data (pd.DataFrame): Raw training input data
+        trained_models_folder (Path): Path where trained models are stored
+
+
+    Returns:
+        pd.DataFrame with the forecast
+
+    """
     # Load most recent model for the given pid
     model = PersistentStorageSerializer(
         trained_models_folder=trained_models_folder
@@ -40,6 +51,7 @@ def create_forecast_pipeline_core(
     pj: dict, input_data: pd.DataFrame, model: RegressorMixin
 ) -> pd.DataFrame:
     """Computes the forecasts and confidence intervals given a prediction job and input data.
+     This pipeline has no database or persisitent storage dependencies.
 
     Args:
         pj (dict): Prediction job.

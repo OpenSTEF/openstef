@@ -39,7 +39,13 @@ T_AHEAD_DAYS: int = 3
 
 
 def create_forecast_task(pj: dict, context: TaskContext) -> None:
+    """ Top level task that creates a forecast.
+    On this task level all database and context manager dependencies are resolved.
 
+    Args:
+        pj (dict): Prediction job
+        context (TaskContext): Contect object that holds a config manager and a database connection
+    """
     # Extract trained models folder
     trained_models_folder = context.config.paths.trained_models_folder
 
@@ -80,7 +86,7 @@ def main():
             model_type=model_type,
             on_end_callback=callback,
             # Debug specific pid
-        ).map(create_forecast_pipeline, context)
+        ).map(create_forecast_task, context)
 
 
 if __name__ == "__main__":
