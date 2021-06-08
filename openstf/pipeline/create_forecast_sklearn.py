@@ -9,8 +9,6 @@ import pandas as pd
 import structlog
 from sklearn.base import RegressorMixin
 
-# from ktpbase.config.config import ConfigManager
-
 from openstf.validation import validation
 from openstf.feature_engineering.feature_applicator import (
     OperationalPredictFeatureApplicator,

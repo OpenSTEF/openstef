@@ -10,7 +10,7 @@ from pathlib import Path
 import pandas as pd
 
 from test.utils import BaseTestCase, TestData
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 from openstf.pipeline import create_forecast_sklearn
 
@@ -21,23 +21,6 @@ forecast_input = TestData.load("reference_sets/307-test-data.csv")
 
 
 class TestCreateForecastPipeline(BaseTestCase):
-    def test_generate_inputdata_datetime_range(self):
-        t_behind_days = 14
-        t_ahead_days = 3
-        # get current date UTC
-        date_today_utc = datetime.now(timezone.utc).date()
-        # Time range for input data
-        datetime_start_expected = date_today_utc - timedelta(days=t_behind_days)
-        datetime_end_expected = date_today_utc + timedelta(days=t_ahead_days)
-
-        (
-            datetime_start,
-            datetime_end,
-        ) = create_forecast_sklearn.generate_inputdata_datetime_range(
-            t_behind_days=t_behind_days, t_ahead_days=t_ahead_days
-        )
-        self.assertEqual(datetime_start, datetime_start_expected)
-        self.assertEqual(datetime_end, datetime_end_expected)
 
     @patch("openstf.pipeline.create_forecast_sklearn.datetime")
     def test_forecast_datetime_range(self, datetime_mock):
