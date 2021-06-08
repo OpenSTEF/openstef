@@ -18,16 +18,50 @@ Example:
 
         $ python create_basecase_forecast.py
 """
-from openstf.pipeline.create_forecast import make_basecase_prediction
+from datetime import datetime, timedelta
+
+from openstf.pipeline.create_basecase_forecast_sklearn import basecase_pipeline
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
+
+T_BEHIND_DAYS: int = 15
+T_AHEAD_DAYS: int = 3
+
+
+def create_basecase_forecast(pj: dict, context: TaskContext) -> None:
+    """Top level task that creates a basecase forecast.
+    On this task level all database and context manager dependencies are resolved.
+
+    Args:
+        pj (dict): Prediction job
+        context (TaskContext): Contect object that holds a config manager and a database connection
+    """
+    # Define datetime range for input data
+    datetime_start = datetime.utcnow() - timedelta(days=T_BEHIND_DAYS)
+    datetime_end = datetime.utcnow() + timedelta(days=T_AHEAD_DAYS)
+
+    # Retrieve input data
+    input_data = context.database.get_model_input(
+        pid=pj["id"],
+        location=[pj["lat"], pj["lon"]],
+        datetime_start=datetime_start,
+        datetime_end=datetime_end,
+    )
+
+    # Make basecase forecast using the corresponding pipeline
+    basecase_forecast = basecase_pipeline(pj, input_data)
+
+    # Write basecase forecast to the database
+    context.database.write_forecast_to_db(basecase_forecast, t_ahead_series=True)
 
 
 def main():
     with TaskContext("create_basecase_forecast") as context:
         model_type = ["xgb", "lgb"]
 
-        PredictionJobLoop(context, model_type=model_type).map(make_basecase_prediction)
+        PredictionJobLoop(context, model_type=model_type).map(
+            create_basecase_forecast, context
+        )
 
 
 if __name__ == "__main__":

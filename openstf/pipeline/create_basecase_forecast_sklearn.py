@@ -28,7 +28,6 @@ BASECASE_RESOLUTION = 15
 def basecase_pipeline(pj: dict, input_data: pd.DataFrame) -> pd.DataFrame:
     """Computes the base case forecast and confidence intervals for a given prediction job and input data.
 
-
     Args:
         pj: (dict) prediction job
         input_data (pandas.DataFrame): data frame containing the input data necessary for the prediction.
