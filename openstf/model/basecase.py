@@ -13,16 +13,21 @@ MINIMAL_RESOLUTION: int = 15  # Used for validating the forecast input
 
 
 class BaseCaseModel(BaseEstimator, RegressorMixin):
-    def predict(self, forecsst_input_data: pd.DataFrame) -> pd.DataFrame:
-        """Predict using the basecase method
+    def predict(self, forecast_input_data: pd.DataFrame) -> pd.DataFrame:
+        """Predict using the basecase method. The basecase forecast is determined by the T-7d and T-14d load.
+        This means fitting the model is not required.
+        However a fit method is still included to be fully comatible with sklearn.
 
         Args:
-            forecsst_input_data (pd.DataFrame): Forecast input dataframe
+            forecast_input_data (pd.DataFrame): Forecast input dataframe
 
         Returns: pd.DataFrame: Basecase forecast
 
         """
-        return self.make_basecase_forecast(forecsst_input_data)
+        return self.make_basecase_forecast(forecast_input_data)
+
+    def fit(self):
+        return self
 
     @staticmethod
     def make_basecase_forecast(
@@ -37,9 +42,8 @@ class BaseCaseModel(BaseEstimator, RegressorMixin):
                 forecasted
 
         Raises:
-            ValueError: In case T-7d or T-14d is not present a ValueError is raised.
-            Also in the case the start of the forecast is before the horizon of the regular forecast,
-             a value error is raised
+            ValueError: if columns T-7d or T-14d is not present
+            ValueError: If the start of the forecast is before the horizon of the regular forecast
         Returns:
             pd.DataFrame: Basecase forecast
 
@@ -81,11 +85,5 @@ class BaseCaseModel(BaseEstimator, RegressorMixin):
         basecase_forecast = basecase_forecast[
             np.invert(basecase_forecast.index.duplicated())
         ]
-
-        # Also make a basecase forecast for the forecast_other component. This will make a
-        # simple basecase components forecast available and ensures that the sum of
-        # the components (other, wind and solar) is equal to the normal basecase forecast
-        # This is important for sending GLMD messages correctly to TenneT!
-        basecase_forecast["forecast_other"] = basecase_forecast["forecast"]
 
         return basecase_forecast.sort_index()

@@ -157,6 +157,24 @@ def post_process_wind_solar(forecast: pd.Series, forecast_type):
     return forecast
 
 
+def add_components_base_case_forecast(basecase_forecast: pd.DataFrame) -> pd.DataFrame:
+    """Makes a basecase forecast for the forecast_other component. This will make a
+        simple basecase components forecast available and ensures that the sum of
+        the components (other, wind and solar) is equal to the normal basecase forecast
+        This is important for sending GLMD messages correctly to TenneT!
+
+    Args:
+        basecase_forecast: pd.DataFrame with basecase forecast
+
+    Returns:
+        basecase_forecast: pd.DataFrame with extra "forecast_other component"
+
+    """
+    #
+    basecase_forecast["forecast_other"] = basecase_forecast["forecast"]
+    return basecase_forecast
+
+
 def add_prediction_job_properties_to_forecast(
     pj: dict,
     forecast: pd.DataFrame,

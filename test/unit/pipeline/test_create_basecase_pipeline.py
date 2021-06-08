@@ -42,9 +42,16 @@ class TestBaseCaseForecast(BaseTestCase):
         self.assertEqual(
             [
                 "forecast",
+                "tAhead",
+                "stdev",
+                "quantile_P05",
+                "quantile_P10",
+                "quantile_P30",
+                "quantile_P50",
+                "quantile_P70",
+                "quantile_P90",
+                "quantile_P95",
                 "forecast_other",
-                "T-7d",
-                "T-14d",
                 "quality",
                 "pid",
                 "customer",
@@ -54,3 +61,6 @@ class TestBaseCaseForecast(BaseTestCase):
             ],
             base_case_forecast.columns.to_list(),
         )
+
+        # Test forecast quality label
+        self.assertEqual(base_case_forecast["quality"][0], "not_renewed")
