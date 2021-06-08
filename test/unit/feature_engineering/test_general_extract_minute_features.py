@@ -20,14 +20,15 @@ class TestGeneralExtractMinuteFeatures(BaseTestCase):
         model_folder = TestData.TRAINED_MODELS_FOLDER / "307"
         self.model, model_file = serializer.load(307, model_folder)
 
-    def test_extract_minute_features(self):
-        testlist_minutes, testlist_days = extract_lag_features(self.model.feature_names)
+    def test_extract_minute_features_short_horizon(self):
+        testlist_minutes, testlist_days = extract_lag_features(
+            self.model.feature_names, horizon=0.25
+        )
         self.assertEqual(
             testlist_minutes,
             [
                 900,
                 780,
-                15,
                 1425,
                 660,
                 540,
@@ -56,6 +57,13 @@ class TestGeneralExtractMinuteFeatures(BaseTestCase):
             ],
         )
         self.assertEqual(testlist_days, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14])
+
+    def test_extract_minute_features_long_horizon(self):
+        testlist_minutes, testlist_days = extract_lag_features(
+            self.model.feature_names, horizon=47
+        )
+        self.assertEqual(testlist_minutes, [2865])
+        self.assertEqual(testlist_days, [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14])
 
 
 if __name__ == "__main__":
