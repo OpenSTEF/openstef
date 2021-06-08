@@ -5,17 +5,18 @@
 from datetime import timedelta
 
 import numpy as np
+import pandas as pd
 import structlog
 
 
 def split_data_train_validation_test(
-    data,
-    test_fraction=0.0,
-    validation_fraction=0.15,
-    back_test=False,
-    period_sampling=True,
-    period_timedelta=timedelta(days=2),
-):
+    data: pd.DataFrame,
+    test_fraction: float = 0.0,
+    validation_fraction: float = 0.15,
+    back_test: bool = False,
+    period_sampling: bool = True,
+    period_timedelta: timedelta = timedelta(days=2),
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Split input data into train, test and validation set.
 
     Function for splitting cleaned data with features in a train, test and
@@ -136,7 +137,9 @@ def split_data_train_validation_test(
     return train_data, validation_data, test_data
 
 
-def sample_validation_data_periods(data, validation_fraction=0.15, period_length=192):
+def sample_validation_data_periods(
+    data: pd.DataFrame, validation_fraction: float = 0.15, period_length: int = 192
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Splits data in train and validation dataset.
 
     Tries to sample random periods of given length to form a validation set of
@@ -200,7 +203,9 @@ def sample_validation_data_periods(data, validation_fraction=0.15, period_length
     return train_data, validation_data
 
 
-def _sample_indices(number_indices, period_lengths, buffer_length):
+def _sample_indices(
+    number_indices: int, period_lengths: int, buffer_length: int
+) -> np.array:
     """Samples periods of given length with the given buffer.
 
     Args:
