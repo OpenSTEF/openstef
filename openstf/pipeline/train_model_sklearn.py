@@ -89,7 +89,7 @@ def train_model_pipeline_core(
     input_data: pd.DataFrame,
     old_model: RegressorMixin = None,
     horizons: List[float] = None,
-) -> Tuple[RegressorMixin, Report]:
+) -> tuple[RegressorMixin, Report]:
     """Run the train model core pipeline. This pipeline has no database or persisitent storage dependencies.
 
         TODO once we have a data model for a prediction job this explantion is not
