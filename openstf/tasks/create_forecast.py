@@ -39,7 +39,7 @@ T_AHEAD_DAYS: int = 3
 
 
 def create_forecast_task(pj: dict, context: TaskContext) -> None:
-    """ Top level task that creates a forecast.
+    """Top level task that creates a forecast.
     On this task level all database and context manager dependencies are resolved.
 
     Args:
