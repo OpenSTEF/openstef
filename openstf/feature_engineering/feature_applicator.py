@@ -66,22 +66,14 @@ class TrainFeatureApplicator(AbstractFeatureApplicator):
 
         # Loop over horizons and add corresponding features
         for horizon in self.horizons:
-            res = apply_features(df, horizon=horizon)
+            res = apply_features(df.copy(deep=True), horizon=horizon) # Deep copy of df is important, because we want a fresh start every iteration!
             res["Horizon"] = horizon
             result = result.append(res)
-
-        # Add time-derived features to latency
-        for feature in [x for x in result.columns if x[:2] == "T-"]:
-            if "min" in feature:
-                lag = int(feature[2:-3]) / 60.0
-            if "d" in feature:
-                lag = int(feature[2:-1]) * 60.0
-            LATENCY_CONFIG.update({feature: lag})
 
         # Invalidate features that are not available for a specific horizon due to data
         # latency
         for feature, time in LATENCY_CONFIG.items():
-            result.loc[result["Horizon"] < time, feature] = np.nan
+            result.loc[result["Horizon"] > time, feature] = np.nan
 
         return result.sort_index()
 

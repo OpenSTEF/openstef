@@ -27,21 +27,12 @@ def generate_lag_feature_functions(
         lag_functions = generate_lag_functions(data,minute_list,h_ahead)
     """
 
-    # Generate available lag_times if no features are provided
-    lag_times_minutes, lag_time_days_list = generate_trivial_lag_features(horizon)
-
     # used extracted lag features if provided.
     if features is not None:
-        (
-            extracted_lag_times_minutes,
-            extracted_lag_time_days_list,
-        ) = extract_lag_features(features)
-        lag_times_minutes = list(
-            set(lag_times_minutes).intersection(set(extracted_lag_times_minutes))
-        )
-        lag_time_days_list = list(
-            set(lag_time_days_list).intersection(set(extracted_lag_time_days_list))
-        )
+        lag_times_minutes, lag_time_days_list = extract_lag_features(features, horizon)
+    else:
+        # Generate available lag_times if no features are provided
+        lag_times_minutes, lag_time_days_list = generate_trivial_lag_features(horizon)
 
     # Empty dict to store all generated lag functions
     lag_functions = {}
@@ -66,12 +57,13 @@ def generate_lag_feature_functions(
     return lag_functions
 
 
-def extract_lag_features(features: list) -> Tuple[list, list]:
+def extract_lag_features(features: list, horizon: float = 24) -> Tuple[list, list]:
     """Creates a list of lag minutes and a list of lag days that were used during
     the training of the input model.
 
     Args:
         features (list[str]): All requested lag features
+        horizon (float): Forecast horizon limit in hours.
 
     Returns:
         minutes_list (list[int]): list of minute lags that were used as features during training
@@ -94,10 +86,18 @@ def extract_lag_features(features: list) -> Tuple[list, list]:
         elif number_of_days is not None:
             days_list.append(int(number_of_days[1]))
 
+    # Discard lag times that are not available for the specified horizon
+    minutes_list = list(set(
+        [i for i in minutes_list if i > horizon * 60]
+    ))
+    days_list = list(set(
+        [i for i in days_list if i > horizon / 24]
+    ))
+
     return minutes_list, days_list
 
 
-def generate_trivial_lag_features(horizon: float) -> Tuple[set, list]:
+def generate_trivial_lag_features(horizon: float) -> Tuple[list, list]:
     """Generates relevant lag times for lag feature function creation.
 
     This function is mostly used during training of models and not during predicting
@@ -117,9 +117,9 @@ def generate_trivial_lag_features(horizon: float) -> Tuple[set, list]:
     trivial_lag_minutes_list = np.linspace(60, 24 * 60, 24).tolist() + [15, 30, 45]
 
     # Discard lag times that are not available for the specified horizon
-    trivial_lag_times_minutes = set(
+    trivial_lag_times_minutes = list(set(
         [i for i in trivial_lag_minutes_list if i > horizon * 60]
-    )
+    ))
 
     return trivial_lag_times_minutes, lag_time_days_list
 
