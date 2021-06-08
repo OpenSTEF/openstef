@@ -43,9 +43,7 @@ class AbstractFeatureApplicator(ABC):
 
 
 class TrainFeatureApplicator(AbstractFeatureApplicator):
-    def add_features(
-        self, df: pd.DataFrame, latency_config=None
-    ) -> pd.DataFrame:
+    def add_features(self, df: pd.DataFrame, latency_config=None) -> pd.DataFrame:
         """Adds features to an input DataFrame.
 
         This method is implemented specifically for a model train pipeline. For larger
