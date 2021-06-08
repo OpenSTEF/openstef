@@ -135,13 +135,17 @@ class TestApplyFeaturesModule(BaseTestCase):
                 1:,
             ]
             .isna()
-            .all().all()
+            .all()
+            .all()
         )
         self.assertFalse(
-            input_data_with_features.loc[horizon == 0.25, ["APX", "T-30min"]].iloc[
+            input_data_with_features.loc[horizon == 0.25, ["APX", "T-30min"]]
+            .iloc[
                 1:,
-            ].isna().any().any()
-
+            ]
+            .isna()
+            .any()
+            .any()
         )
 
     def test_apply_holiday_features(self):
