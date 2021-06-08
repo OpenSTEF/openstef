@@ -44,7 +44,7 @@ class AbstractFeatureApplicator(ABC):
 
 class TrainFeatureApplicator(AbstractFeatureApplicator):
     def add_features(
-        self, df: pd.DataFrame, latency_config=LATENCY_CONFIG
+        self, df: pd.DataFrame, latency_config=None
     ) -> pd.DataFrame:
         """Adds features to an input DataFrame.
 
@@ -65,6 +65,9 @@ class TrainFeatureApplicator(AbstractFeatureApplicator):
         Returns:
             pd.DataFrame: Input DataFrame with an extra column for every added feature.
         """
+
+        if latency_config is None:
+            latency_config = LATENCY_CONFIG
 
         # Set default horizons if none are provided
         if self.horizons is None:
