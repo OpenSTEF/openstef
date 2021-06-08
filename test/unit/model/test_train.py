@@ -10,7 +10,6 @@ import unittest
 from plotly import graph_objects as go
 import numpy as np
 import pandas as pd
-import pytest
 
 from openstf.enums import MLModelType
 from openstf.model_selection.model_selection import split_data_train_validation_test
