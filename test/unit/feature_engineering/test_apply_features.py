@@ -129,20 +129,19 @@ class TestApplyFeaturesModule(BaseTestCase):
         horizon = input_data_with_features.Horizon
 
         # Skip first row, since T-30min not available for first row
-        self.assertFalse(
+        self.assertTrue(
             input_data_with_features.loc[horizon == 47, ["APX", "T-30min"]]
             .iloc[
                 1:,
             ]
-            .all()
-            .isnull()
-            .all()
-        )
-        self.assertTrue(
-            input_data_with_features.loc[horizon == 0.25, ["APX", "T-30min"]]
             .isna()
-            .all()
-            .all()
+            .all().all()
+        )
+        self.assertFalse(
+            input_data_with_features.loc[horizon == 0.25, ["APX", "T-30min"]].iloc[
+                1:,
+            ].isna().any().any()
+
         )
 
     def test_apply_holiday_features(self):
