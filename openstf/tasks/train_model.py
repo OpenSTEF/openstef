@@ -22,9 +22,42 @@ Example:
         $ python model_train.py
 
 """
+from pathlib import Path
+from datetime import datetime, timedelta
+
 from openstf.pipeline.train_model_sklearn import train_model_pipeline
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
+
+TRAINING_PERIOD_DAYS = 120
+
+def train_model_task(pj, context):
+
+    pj["hyper_params"] = {"training_period_days": TRAINING_PERIOD_DAYS, "featureset_name": "D"}
+    pj["hyper_params"].update(context.database.get_hyper_params(pj))
+    pj['feature_names'] = context.database.get_featureset(pj["hyper_params"]["featureset_name"])
+
+    datetime_start = datetime.utcnow() - timedelta(
+        days=int(pj["hyper_params"]["training_period_days"])
+    )
+    datetime_end = datetime.utcnow()
+
+    # Get data from database
+    input_data = context.database.get_model_input(
+        pid=pj["id"],
+        location=[pj["lat"], pj["lon"]],
+        datetime_start=datetime_start,
+        datetime_end=datetime_end,
+    )
+
+    trained_models_folder = Path("C:\\repos\\icarus - demand - live\\trained_models")
+    save_figures_folder = Path("C:\\Data\\icarus\\visuals\\trained_models") / str(pj["id"])
+    # trained_models_folder = Path(context.config.paths.trained_models_folder)
+    # save_figures_folder = Path(context.config.paths.webroot) / pj["id"]
+
+    train_model_pipeline(pj, input_data, check_old_model_age=True,
+                         trained_models_folder=trained_models_folder,
+                         save_figures_folder=save_figures_folder)
 
 
 def main():
@@ -32,7 +65,7 @@ def main():
         model_type = ["xgb", "xgb_quantile", "lgb"]
 
         PredictionJobLoop(context, model_type=model_type).map(
-            train_model_pipeline, context
+            train_model_task, context
         )
 
 

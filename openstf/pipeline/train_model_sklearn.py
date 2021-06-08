@@ -29,57 +29,50 @@ PENALTY_FACTOR_OLD_MODEL: float = 1.2
 SAVE_PATH = Path(".")
 
 
-# def train_model_pipeline(
-#     pj: dict,
-#     input_data: pd.DataFrame,
-#     check_old_model_age: bool,
-#     trained_models_folder: Optional[Union[str, Path]],
-#     save_figures_folder: Optional[Union[str, Path]]
-# ):
-#     config = ConfigManager.get_instance()
+def train_model_pipeline(
+    pj: dict,
+    input_data: pd.DataFrame,
+    check_old_model_age: bool,
+    trained_models_folder: Union[str, Path],
+    save_figures_folder: Union[str, Path]
+):
 
-#     if trained_models_folder is None:
-#         trained_models_folder = Path(config.paths.trained_models_folder)
+    logger = structlog.get_logger(__name__)
+    serializer = PersistentStorageSerializer(trained_models_folder)
 
-#     if save_figures_folder is None:
-#         save_figures_folder = Path(config.paths.webroot) / pj["id"]
+    # Get old model and age
+    try:
+        old_model = serializer.load_model(pid=pj["id"])
+        old_model_age = old_model.age
+    except FileNotFoundError:
+        old_model = None
+        old_model_age = float("inf")
+        logger.warning("No old model found, train new model")
 
-#     logger = structlog.get_logger(__name__)
-#     serializer = PersistentStorageSerializer(trained_models_folder)
+    # Check old model age and continue yes/no
+    if (old_model_age < MAXIMUM_MODEL_AGE) and check_old_model_age:
+        logger.warning(
+            "Old model is younger than {MAXIMUM_MODEL_AGE} days, skip training"
+        )
+        return
 
-#     # Get old model and age
-#     try:
-#         old_model = serializer.load_model(pid=pj["id"])
-#         old_model_age = old_model.age
-#     except FileNotFoundError:
-#         old_model = None
-#         old_model_age = float("inf")
-#         logger.warning("No old model found, train new model")
+    # train model
+    try:
+        model, report = train_model_pipeline_core(pj, input_data, old_model)
+    except RuntimeError as e:
+        return
 
-#     # Check old model age and continue yes/no
-#     if (old_model_age < MAXIMUM_MODEL_AGE) and check_old_model_age:
-#         logger.warning(
-#             "Old model is younger than {MAXIMUM_MODEL_AGE} days, skip training"
-#         )
-#         return
-
-#     # train model
-#     try:
-#         model, report = train_model_pipeline_core(pj, input_data, old_model)
-#     except RuntimeError as e:
-#         return
-
-#     # save model
-#     serializer.save_model(model, pid=pj["id"])
-#     # save figures
-#     report.save_figures(save_path=save_figures_folder)
+    # save model
+    serializer.save_model(model, pid=pj["id"])
+    # save figures
+    report.save_figures(save_path=save_figures_folder)
 
 
 def train_model_pipeline_core(
     pj: dict,
     input_data: pd.DataFrame,
     old_model: RegressorMixin = None,
-    horizons: List[float] = DEFAULT_TRAIN_HORIZONS,
+    horizons: List[float] = None,
 ) -> Tuple[RegressorMixin, Report]:
     """Run the train model pipeline.
 
@@ -106,6 +99,9 @@ def train_model_pipeline_core(
     Returns:
         Tuple[RegressorMixin, Report]: Trained model and report (with figures)
     """
+
+    if horizons is None:
+        horizons = DEFAULT_TRAIN_HORIZONS
 
     logger = structlog.get_logger(__name__)
     # Validate and clean data
