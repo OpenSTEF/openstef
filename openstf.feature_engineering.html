@@ -507,12 +507,15 @@ The official following official ducth holidays are included untill 2023:</p>
 <span id="openstf-feature-engineering-lag-features-module"></span><h2>openstf.feature_engineering.lag_features module<a class="headerlink" href="#module-openstf.feature_engineering.lag_features" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="openstf.feature_engineering.lag_features.extract_lag_features">
-<code class="sig-prename descclassname">openstf.feature_engineering.lag_features.</code><code class="sig-name descname">extract_lag_features</code><span class="sig-paren">(</span><em class="sig-param">features: list</em><span class="sig-paren">)</span> &#x2192; Tuple[list, list]<a class="headerlink" href="#openstf.feature_engineering.lag_features.extract_lag_features" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstf.feature_engineering.lag_features.</code><code class="sig-name descname">extract_lag_features</code><span class="sig-paren">(</span><em class="sig-param">features: list</em>, <em class="sig-param">horizon: float = 24</em><span class="sig-paren">)</span> &#x2192; Tuple[list, list]<a class="headerlink" href="#openstf.feature_engineering.lag_features.extract_lag_features" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a list of lag minutes and a list of lag days that were used during
 the training of the input model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>features</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – All requested lag features</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>features</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – All requested lag features</p></li>
+<li><p><strong>horizon</strong> (<em>float</em>) – Forecast horizon limit in hours.</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>list of minute lags that were used as features during training
@@ -573,7 +576,7 @@ columns = [label, predictor_1,…, predictor_n])</p></li>
 
 <dl class="function">
 <dt id="openstf.feature_engineering.lag_features.generate_trivial_lag_features">
-<code class="sig-prename descclassname">openstf.feature_engineering.lag_features.</code><code class="sig-name descname">generate_trivial_lag_features</code><span class="sig-paren">(</span><em class="sig-param">horizon: float</em><span class="sig-paren">)</span> &#x2192; Tuple[set, list]<a class="headerlink" href="#openstf.feature_engineering.lag_features.generate_trivial_lag_features" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstf.feature_engineering.lag_features.</code><code class="sig-name descname">generate_trivial_lag_features</code><span class="sig-paren">(</span><em class="sig-param">horizon: float</em><span class="sig-paren">)</span> &#x2192; Tuple[list, list]<a class="headerlink" href="#openstf.feature_engineering.lag_features.generate_trivial_lag_features" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generates relevant lag times for lag feature function creation.</p>
 <p>This function is mostly used during training of models and not during predicting</p>
 <dl class="field-list simple">
