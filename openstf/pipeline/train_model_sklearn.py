@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 import logging
 from pathlib import Path
-from typing import Optional, Tuple, List, Union
+from typing import List, Union
 
 import pandas as pd
 from sklearn.base import RegressorMixin

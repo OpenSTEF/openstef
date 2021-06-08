@@ -28,8 +28,8 @@ def generate_lag_feature_functions(
     """
 
     # used extracted lag features if provided.
-    if features is not None:
-        lag_times_minutes, lag_time_days_list = extract_lag_features(features, horizon)
+    if feature_names is not None:
+        lag_times_minutes, lag_time_days_list = extract_lag_features(feature_names, horizon)
     else:
         # Generate available lag_times if no features are provided
         lag_times_minutes, lag_time_days_list = generate_trivial_lag_features(horizon)
@@ -57,12 +57,12 @@ def generate_lag_feature_functions(
     return lag_functions
 
 
-def extract_lag_features(features: list, horizon: float = 24) -> Tuple[list, list]:
+def extract_lag_features(feature_names: list, horizon: float = 24) -> Tuple[list, list]:
     """Creates a list of lag minutes and a list of lag days that were used during
     the training of the input model.
 
     Args:
-        features (list[str]): All requested lag features
+        feature_names (list[str]): All requested lag features
         horizon (float): Forecast horizon limit in hours.
 
     Returns:
