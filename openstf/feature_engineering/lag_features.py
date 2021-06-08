@@ -29,7 +29,9 @@ def generate_lag_feature_functions(
 
     # used extracted lag features if provided.
     if feature_names is not None:
-        lag_times_minutes, lag_time_days_list = extract_lag_features(feature_names, horizon)
+        lag_times_minutes, lag_time_days_list = extract_lag_features(
+            feature_names, horizon
+        )
     else:
         # Generate available lag_times if no features are provided
         lag_times_minutes, lag_time_days_list = generate_trivial_lag_features(horizon)

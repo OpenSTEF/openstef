@@ -37,6 +37,7 @@ from openstf.tasks.utils.taskcontext import TaskContext
 T_BEHIND_DAYS: int = 14
 T_AHEAD_DAYS: int = 3
 
+
 def create_forecast_task(pj: dict, context: TaskContext) -> None:
 
     # Extract trained models folder
@@ -59,6 +60,7 @@ def create_forecast_task(pj: dict, context: TaskContext) -> None:
 
     # Write forecast to the database
     context.database.write_forecast_to_db(forecast, t_ahead_series=True)
+
 
 def main():
     with TaskContext("create_forecast") as context:

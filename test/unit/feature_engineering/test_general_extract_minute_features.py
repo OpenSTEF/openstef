@@ -158,7 +158,9 @@ class TestGeneralExtractMinuteFeatures(BaseTestCase):
 
     def test_extract_minute_features_short_horizon(self):
 
-        testlist_minutes, testlist_days = extract_lag_features(self.feature_names, horizon=0.25)
+        testlist_minutes, testlist_days = extract_lag_features(
+            self.feature_names, horizon=0.25
+        )
 
         self.assertEqual(
             testlist_minutes,
@@ -195,7 +197,9 @@ class TestGeneralExtractMinuteFeatures(BaseTestCase):
         self.assertEqual(testlist_days, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14])
 
     def test_extract_minute_features_long_horizon(self):
-        testlist_minutes, testlist_days = extract_lag_features(self.feature_names, horizon=47)
+        testlist_minutes, testlist_days = extract_lag_features(
+            self.feature_names, horizon=47
+        )
         self.assertEqual(testlist_minutes, [2865])
         self.assertEqual(testlist_days, [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14])
 

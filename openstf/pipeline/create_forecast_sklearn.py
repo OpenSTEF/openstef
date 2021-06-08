@@ -24,7 +24,9 @@ from openstf.postprocessing.postprocessing import (
 from openstf.model.fallback import generate_fallback
 
 
-def create_forecast_pipeline(pj: dict, input_data: pd.DataFrame, trained_models_folder: Union[str, Path]) -> pd.DataFrame:
+def create_forecast_pipeline(
+    pj: dict, input_data: pd.DataFrame, trained_models_folder: Union[str, Path]
+) -> pd.DataFrame:
 
     # Load most recent model for the given pid
     model = PersistentStorageSerializer(
@@ -34,7 +36,9 @@ def create_forecast_pipeline(pj: dict, input_data: pd.DataFrame, trained_models_
     return create_forecast_pipeline_core(pj, input_data, model)
 
 
-def create_forecast_pipeline_core(pj: dict, input_data: pd.DataFrame, model: RegressorMixin) -> pd.DataFrame:
+def create_forecast_pipeline_core(
+    pj: dict, input_data: pd.DataFrame, model: RegressorMixin
+) -> pd.DataFrame:
     """Computes the forecasts and confidence intervals given a prediction job and input data.
 
     Args:
