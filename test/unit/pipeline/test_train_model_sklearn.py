@@ -68,7 +68,9 @@ class TestTrainModelPipeline(BaseTestCase):
         but it can/should include predictors (e.g. weather data)
 
         """
-        model, report = train_model_pipeline_core(pj=self.pj, input_data=self.train_input)
+        model, report = train_model_pipeline_core(
+            pj=self.pj, input_data=self.train_input
+        )
 
         # check if the model was fitted (raises NotFittedError when not fitted)
         self.assertIsNone(sklearn.utils.validation.check_is_fitted(model))

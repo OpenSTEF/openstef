@@ -9,7 +9,6 @@ from test.utils.base import BaseTestCase
 from test.utils.data import TestData
 
 from openstf.pipeline.train_model_sklearn import (
-    train_model_pipeline,
     split_data_train_validation_test,
 )
 

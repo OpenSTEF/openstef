@@ -5,6 +5,7 @@ from datetime import datetime, timedelta, timezone
 
 import pandas as pd
 import structlog
+
 # from ktpbase.config.config import ConfigManager
 
 from openstf.validation import validation
@@ -14,8 +15,10 @@ from openstf.feature_engineering.feature_applicator import (
 from openstf.model.confidence_interval_applicator import ConfidenceIntervalApplicator
 from openstf.preprocessing import preprocessing
 from openstf.model.serializer import PersistentStorageSerializer
+from openstf.postprocessing.postprocessing import (
+    add_prediction_job_properties_to_forecast,
+)
 from openstf.model.fallback import generate_fallback
-
 
 
 # TODO add loading of model to task
@@ -40,6 +43,7 @@ from openstf.model.fallback import generate_fallback
 #     forecast = create_forecast_pipeline_core(pj, input_data, model)
 
 #     # TODO write forecast to db ???
+
 
 def create_forecast_pipeline_core(pj, input_data, model):
     """Computes the forecasts and confidence intervals given a prediction job and input data.
@@ -66,8 +70,11 @@ def create_forecast_pipeline_core(pj, input_data, model):
         feature_names=model._Booster.feature_names,
     ).add_features(validated_data)
 
-    # Prep forecast input
-    forecast_input_data = data_with_features
+    # Prep forecast input by selecting only the forecast datetime interval (this is much smaller than the input range)
+    forecast_start, forecast_end = generate_forecast_datetime_range(
+        pj["resolution_minutes"], pj["horizon_minutes"]
+    )
+    forecast_input_data = data_with_features[forecast_start:forecast_end]
 
     # Check if sufficient data is left after cleaning
     if not validation.is_data_sufficient(data_with_features):
@@ -77,7 +84,7 @@ def create_forecast_pipeline_core(pj, input_data, model):
             pid=pj["id"],
             fallback_strategy=fallback_strategy,
         )
-        forecast = generate_fallback(forecast_input_data, input_data[["load"]])
+        forecast = generate_fallback(data_with_features, input_data[["load"]])
 
     else:
         # Predict
@@ -100,46 +107,9 @@ def create_forecast_pipeline_core(pj, input_data, model):
     return forecast
 
 
-def add_prediction_job_properties_to_forecast(
-    pj, forecast, forecast_type=None, forecast_quality=None
-):
-    # self.logger.info("Postproces in preparation of storing")
-    if forecast_type is None:
-        forecast_type = pj["typ"]
-    else:
-        # get the value from the enum
-        forecast_type = forecast_type.value
-
-    # NOTE this field is only used when making the babasecase forecast and fallback
-    if forecast_quality is not None:
-        forecast["quality"] = forecast_quality
-
-    # TODO rename prediction job typ to type
-    # TODO algtype = model_file_path, perhaps we can find a more logical name
-    # TODO perhaps better to make a forecast its own class!
-    # TODO double check and sync this with make_basecase_forecast (other fields are added)
-    # !!!!! TODO fix the requirement for customer
-    forecast["pid"] = pj["id"]
-    forecast["customer"] = pj["name"]
-    forecast["description"] = pj["description"]
-    forecast["type"] = forecast_type
-    forecast["algtype"] = pj["model"]
-
-    return forecast
-
-
-def generate_inputdata_datetime_range(t_behind_days=14, t_ahead_days=3):
-    # get current date UTC
-    date_today_utc = datetime.now(timezone.utc).date()
-    # Date range for input data
-    datetime_start = date_today_utc - timedelta(days=t_behind_days)
-    datetime_end = date_today_utc + timedelta(days=t_ahead_days)
-
-    return datetime_start, datetime_end
-
-
-## Obsolete?
-def generate_forecast_datetime_range(resolution_minutes, horizon_minutes):
+def generate_forecast_datetime_range(
+    resolution_minutes: int, horizon_minutes: int
+) -> tuple[datetime, datetime]:
     # get current date and time UTC
     datetime_utc = datetime.now(timezone.utc)
     # Datetime range for time interval to be predicted
@@ -149,21 +119,13 @@ def generate_forecast_datetime_range(resolution_minutes, horizon_minutes):
     return forecast_start, forecast_end
 
 
-def pre_process_input_data(input_data, flatliner_threshold):
-    logger = structlog.get_logger(__name__)
-    # Check for repeated load observations due to invalid measurements
-    suspicious_moments = validation.find_nonzero_flatliner(
-        input_data, threshold=flatliner_threshold
-    )
-    if suspicious_moments is not None:
-        # Covert repeated load observations to NaN values
-        input_data = preprocessing.replace_invalid_data(input_data, suspicious_moments)
-        # Calculate number of NaN values
-        # TODO should this not be part of the replace_invalid_data function?
-        num_nan = sum([True for i, row in input_data.iterrows() if all(row.isnull())])
-        logger.warning(
-            "Found suspicious data points, converted to NaN value",
-            num_nan_values=num_nan,
-        )
+def generate_inputdata_datetime_range(
+    t_behind_days: int = 14, t_ahead_days: int = 3
+) -> tuple[datetime, datetime]:
+    # get current date UTC
+    date_today_utc = datetime.now(timezone.utc).date()
+    # Date range for input data
+    datetime_start = date_today_utc - timedelta(days=t_behind_days)
+    datetime_end = date_today_utc + timedelta(days=t_ahead_days)
 
-    return input_data
+    return datetime_start, datetime_end

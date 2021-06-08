@@ -1,19 +1,29 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+from datetime import datetime
+import pytz
+
 import numpy as np
+import pandas as pd
 from scipy import stats
+
+MINIMAL_RESOLUTION: int = 15  # Minimal time resolution in minutes
 
 
 class ConfidenceIntervalApplicator:
     def __init__(self, model):
         self.confidence_interval = model.confidence_interval
 
-    def add_confidence_interval(self, forecast, quantiles):
+    def add_confidence_interval(
+        self, forecast: pd.DataFrame, quantiles: list
+    ) -> pd.DataFrame:
         temp_forecast = self._add_standard_deviation_to_forecast(forecast)
         return self._add_quantiles_to_forecast(temp_forecast, quantiles)
 
-    def _add_standard_deviation_to_forecast(self, forecast):
+    def _add_standard_deviation_to_forecast(
+        self, forecast: pd.DataFrame
+    ) -> pd.DataFrame:
         """Add a standard deviation to a live forecast.
 
         The stdev for intermediate forecast horizons is interpolated.
@@ -61,9 +71,18 @@ class ConfidenceIntervalApplicator:
         forecast_copy = forecast.copy()
         # add time ahead column if not already present
         if "tAhead" not in forecast_copy.columns:
-            # Assume first datapoint is 'now'
+            # Determine now, rounded on 15 minutes,
+            # Rounding helps to prevent fractional t_aheads
+            now = (
+                pd.Series(datetime.utcnow().replace(tzinfo=pytz.utc))
+                .min()
+                .round(f"{MINIMAL_RESOLUTION}T")
+                .to_pydatetime()
+            )
+
+            # Determin t_aheads by subtracting with now
             forecast_copy["tAhead"] = (
-                forecast_copy.index - forecast_copy.index.min()
+                forecast_copy.index - now
             ).total_seconds() / 3600.0
         # add helper column hour
         forecast_copy["hour"] = forecast_copy.index.hour
@@ -83,16 +102,22 @@ class ConfidenceIntervalApplicator:
             b = sn - A * (1 - np.exp(-near / tau))
             return A * (1 - np.exp(-t / tau)) + b
 
-        # Add stdev to forecast_copy dataframe
-        forecast_copy["stdev"] = forecast_copy.apply(
-            lambda x: calc_exp_dec(x.tAhead, stdev.loc[x.hour], near, far), axis=1
-        )
+        if len(stdev.columns) == 1:  # If only one horizon is available use that one
+            forecast_copy["stdev"] = forecast_copy.apply(
+                lambda x: stdev.loc[x.hour], axis=1
+            )
         # -------- End moved from feature_engineering.add_stdev --------------------- #
-
+        else:  # If more are available do something fancy with interpolation
+            # Add stdev to forecast_copy dataframe
+            forecast_copy["stdev"] = forecast_copy.apply(
+                lambda x: calc_exp_dec(x.tAhead, stdev.loc[x.hour], near, far), axis=1
+            )
         return forecast_copy.drop(columns=["hour"])
 
     @staticmethod
-    def _add_quantiles_to_forecast(forecast, quantiles):
+    def _add_quantiles_to_forecast(
+        forecast: pd.DataFrame, quantiles: list
+    ) -> pd.DataFrame:
         """Add quantiles to forecast.
         Use the standard deviation to calculate the quantiles.
         Args:

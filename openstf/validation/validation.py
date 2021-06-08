@@ -8,15 +8,20 @@ import numpy as np
 import pandas as pd
 import structlog
 
-from openstf.preprocessing.preprocessing import replace_repeated_values_with_nan
+from openstf.preprocessing.preprocessing import (
+    replace_repeated_values_with_nan,
+    replace_invalid_data,
+)
 
 # TODO make this config more central
 # Set thresholds
 COMPLETENESS_THRESHOLD = 0.5
 MINIMAL_TABLE_LENGTH = 100
 
+FLATLINER_TRESHOLD = 24
 
-def validate(data):
+
+def validate(data: pd.DataFrame) -> pd.DataFrame:
     logger = structlog.get_logger(__name__)
     # Drop 'false' measurements. e.g. where load appears to be constant.
     threshold = 6 * 4  # number of repeated values
@@ -28,6 +33,19 @@ def validate(data):
         f"Changed {num_const_load_values} values of constant load to NA.",
         num_const_load_values=num_const_load_values,
     )
+
+    # Check for repeated load observations due to invalid measurements
+    suspicious_moments = find_nonzero_flatliner(data, threshold=FLATLINER_TRESHOLD)
+    if suspicious_moments is not None:
+        # Covert repeated load observations to NaN values
+        data = replace_invalid_data(data, suspicious_moments)
+        # Calculate number of NaN values
+        # TODO should this not be part of the replace_invalid_data function?
+        num_nan = sum([True for i, row in data.iterrows() if all(row.isnull())])
+        logger.warning(
+            "Found suspicious data points, converted to NaN value",
+            num_nan_values=num_nan,
+        )
     return data
 
 
