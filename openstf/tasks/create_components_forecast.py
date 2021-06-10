@@ -32,13 +32,16 @@ Attributes:
 import structlog
 from datetime import datetime, timedelta
 
-from openstf.pipeline.create_component_forecast import create_components_forecast_pipeline
+from openstf.pipeline.create_component_forecast import (
+    create_components_forecast_pipeline,
+)
 from openstf.tasks.utils.utils import check_status_change, update_status_change
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
 
 T_BEHIND_DAYS = 0
 T_AHEAD_DAYS = 3
+
 
 def create_components_forecast_task(pj, context):
     logger = structlog.get_logger(__name__)
@@ -53,8 +56,7 @@ def create_components_forecast_task(pj, context):
     datetime_end = datetime.utcnow() + timedelta(days=T_AHEAD_DAYS)
 
     logger.info(
-        "Get predicted load", datetime_start=datetime_start,
-        datetime_end=datetime_end
+        "Get predicted load", datetime_start=datetime_start, datetime_end=datetime_end
     )
     # Get most recent load forecast
     input_data = context.database.get_predicted_load(
@@ -85,7 +87,9 @@ def create_components_forecast_task(pj, context):
         return
 
     # Make forecast for the demand, wind and pv components
-    forecasts = create_components_forecast_pipeline(pj, input_data, weather_data, split_coefs)
+    forecasts = create_components_forecast_pipeline(
+        pj, input_data, weather_data, split_coefs
+    )
 
     # save forecast to database #######################################################
     context.database.write_forecast(forecasts)

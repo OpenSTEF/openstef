@@ -22,7 +22,9 @@ def create_components_forecast_pipeline(pj, input_data, weather_data, split_coef
         )
         forecasts = pd.DataFrame()
 
-    forecasts = forecasts.drop(["stdev"], axis=1) # for component forecasts we do not have a stdev
+    forecasts = forecasts.drop(
+        ["stdev"], axis=1
+    )  # for component forecasts we do not have a stdev
 
     # Prepare for output
     forecasts = postprocessing.add_prediction_job_properties_to_forecast(
