@@ -9,7 +9,9 @@ import pandas as pd
 
 from datetime import datetime, timezone, timedelta
 
-from openstf.pipeline.create_component_forecast import create_components_forecast_pipeline
+from openstf.pipeline.create_component_forecast import (
+    create_components_forecast_pipeline,
+)
 
 NOW = datetime.now(timezone.utc)
 
@@ -20,9 +22,9 @@ class TestComponentForecast(BaseTestCase):
         PJ = TestData.get_prediction_job(pid=307)
         data = TestData.load("reference_sets/307-test-data.csv")
         weather = data[["radiation", "windspeed_100m"]]
-        forecast_input = TestData.load('forecastdf_test_add_corrections.csv')
-        forecast_input['stdev'] = 0
-        coefs = {'wind_ref':0.5, 'pv_ref':0.5}
+        forecast_input = TestData.load("forecastdf_test_add_corrections.csv")
+        forecast_input["stdev"] = 0
+        coefs = {"wind_ref": 0.5, "pv_ref": 0.5}
 
         # Shift example data to match current time interval as code expects data
         # available relative to the current time.
@@ -40,20 +42,33 @@ class TestComponentForecast(BaseTestCase):
         delta = utc_now - most_recent_date + timedelta(3)
         weather.index = weather.index.shift(delta, freq=1)
 
-        component_forecast = create_components_forecast_pipeline(PJ, forecast_input, weather, coefs)
+        component_forecast = create_components_forecast_pipeline(
+            PJ, forecast_input, weather, coefs
+        )
 
         self.assertEqual(len(component_forecast), 193)
-        self.assertEqual(component_forecast.columns.to_list(), ['forecast_wind_on_shore', 'forecast_solar', 'forecast_other', 'pid',
-       'customer', 'description', 'type', 'algtype'])
+        self.assertEqual(
+            component_forecast.columns.to_list(),
+            [
+                "forecast_wind_on_shore",
+                "forecast_solar",
+                "forecast_other",
+                "pid",
+                "customer",
+                "description",
+                "type",
+                "algtype",
+            ],
+        )
 
     def test_component_forecast_pipeline_not_all_weather_data_available(self):
         # Test happy flow
         PJ = TestData.get_prediction_job(pid=307)
         data = TestData.load("reference_sets/307-test-data.csv")
         weather = data[["radiation"]]
-        forecast_input = TestData.load('forecastdf_test_add_corrections.csv')
-        forecast_input['stdev'] = 0
-        coefs = {'wind_ref':0.5, 'pv_ref':0.5}
+        forecast_input = TestData.load("forecastdf_test_add_corrections.csv")
+        forecast_input["stdev"] = 0
+        coefs = {"wind_ref": 0.5, "pv_ref": 0.5}
 
         # Shift example data to match current time interval as code expects data
         # available relative to the current time.
@@ -70,13 +85,12 @@ class TestComponentForecast(BaseTestCase):
         most_recent_date = weather.index.max().ceil("15T").to_pydatetime()
         delta = utc_now - most_recent_date + timedelta(3)
         weather.index = weather.index.shift(delta, freq=1)
-        component_forecast = create_components_forecast_pipeline(PJ, forecast_input, weather, coefs)
+        component_forecast = create_components_forecast_pipeline(
+            PJ, forecast_input, weather, coefs
+        )
 
-        self.assertEqual(component_forecast.columns.to_list(),['pid', 'customer', 'description', 'type', 'algtype'])
-        self.assertEqual(len(component_forecast),0)
-
-
-
-
-
-
+        self.assertEqual(
+            component_forecast.columns.to_list(),
+            ["pid", "customer", "description", "type", "algtype"],
+        )
+        self.assertEqual(len(component_forecast), 0)
