@@ -35,7 +35,8 @@ class TestCreateComponentForecastTask(TestCase):
         context.database.get_energy_split_coefs.return_value = [1, 0]
         pipeline_mock.return_value = FORECAST_MOCK
         create_components_forecast_task(self.pj, context)
-        self.assertEqual(pipeline_mock.call_count, 0)
+        # When no data is available the pipeline should not be called
+        self.assertFalse(pipeline_mock.called)
 
     @patch(
         "openstf.tasks.create_components_forecast.create_components_forecast_pipeline"
@@ -47,17 +48,19 @@ class TestCreateComponentForecastTask(TestCase):
         context.database.get_energy_split_coefs.return_value = []
         pipeline_mock.return_value = FORECAST_MOCK
         create_components_forecast_task(self.pj, context)
-        self.assertEqual(pipeline_mock.call_count, 0)
+        # When no coeficients are available the pipeline should not be called
+        self.assertFalse(pipeline_mock.called)
 
     @patch(
         "openstf.tasks.create_components_forecast.create_components_forecast_pipeline"
     )
     def test_create_basecase_forecast_task_no_train_components(self, pipeline_mock):
-        # Test pipeline is not called when no coeficients are available
+        # Test pipeline is not called when the component foecasts are disabled in the prediciton job
         context = MagicMock()
         context.database.get_predicted_load.return_value = [1, 0]
         context.database.get_energy_split_coefs.return_value = [1.0]
         pipeline_mock.return_value = FORECAST_MOCK
         self.pj["train_components"] = 0
         create_components_forecast_task(self.pj, context)
-        self.assertEqual(pipeline_mock.call_count, 0)
+        # When the component foecasts are disabled in the prediciton job the pipeline should not be called
+        self.assertFalse(pipeline_mock.called)

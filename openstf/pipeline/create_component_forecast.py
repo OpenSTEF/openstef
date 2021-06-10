@@ -6,6 +6,18 @@ import openstf.postprocessing.postprocessing as postprocessing
 
 
 def create_components_forecast_pipeline(pj, input_data, weather_data, split_coefs):
+    """ Pipeline for creating a component forecast
+
+    Args:
+        pj (dict): Prediction job
+        input_data (pd.DataFrame): Input data fore the components forecast, this usually is a regular forecast
+        weather_data (pd.DataFrame): Weather data with 'radiation' and 'windspeed_100m' columns
+        split_coefs (dict): coefieicnts for the splitting that are determined earlier
+
+    Returns:
+        pd.DataFrame with component forecasts
+
+    """
     logger = structlog.get_logger(__name__)
     logger.info("Make components prediction", prediction_id=pj["id"])
 

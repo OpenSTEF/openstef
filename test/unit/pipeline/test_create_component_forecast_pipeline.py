@@ -88,7 +88,7 @@ class TestComponentForecast(BaseTestCase):
         component_forecast = create_components_forecast_pipeline(
             PJ, forecast_input, weather, coefs
         )
-
+        # Check if the output matches expectations
         self.assertEqual(
             component_forecast.columns.to_list(),
             ["pid", "customer", "description", "type", "algtype"],

@@ -44,6 +44,13 @@ T_AHEAD_DAYS = 3
 
 
 def create_components_forecast_task(pj, context):
+    """Top level task that creates a components forecast.
+    On this task level all database and context manager dependencies are resolved.
+
+    Args:
+        pj (dict): Prediction job
+        context (TaskContext): Contect object that holds a config manager and a database connection
+    """
     logger = structlog.get_logger(__name__)
     if pj["train_components"] == 0:
         context.logger.info(
