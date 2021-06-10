@@ -68,7 +68,7 @@ def train_model_task(pj: dict, context: TaskContext) -> None:
 
     # Get the paths for storing model and reports from the config manager
     trained_models_folder = Path(context.config.paths.trained_models_folder)
-    save_figures_folder = Path(context.config.paths.webroot) / pj["id"]
+    save_figures_folder = Path(context.config.paths.webroot) / str(pj["id"])
 
     # Excecute the model training pipeline
     train_model_pipeline(
