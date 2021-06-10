@@ -6,7 +6,7 @@ import openstf.postprocessing.postprocessing as postprocessing
 
 
 def create_components_forecast_pipeline(pj, input_data, weather_data, split_coefs):
-    """ Pipeline for creating a component forecast
+    """Pipeline for creating a component forecast
 
     Args:
         pj (dict): Prediction job
