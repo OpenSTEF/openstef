@@ -29,21 +29,67 @@ Attributes:
 
 
 """
-from openstf.pipeline.create_forecast import make_components_prediction
+import structlog
+from datetime import datetime, timedelta
+
+from openstf.pipeline.create_component_forecast import create_components_forecast_pipeline
 from openstf.tasks.utils.utils import check_status_change, update_status_change
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
 
+T_BEHIND_DAYS = 0
+T_AHEAD_DAYS = 3
 
-def create_components_forecast_pj(pj, context):
+def create_components_forecast_task(pj, context):
+    logger = structlog.get_logger(__name__)
     if pj["train_components"] == 0:
         context.logger.info(
             "Skip prediction job", train_components=pj["train_components"]
         )
         return
 
+    # Define datetime range for input data
+    datetime_start = datetime.utcnow() - timedelta(days=T_BEHIND_DAYS)
+    datetime_end = datetime.utcnow() + timedelta(days=T_AHEAD_DAYS)
+
+    logger.info(
+        "Get predicted load", datetime_start=datetime_start,
+        datetime_end=datetime_end
+    )
+    # Get most recent load forecast
+    input_data = context.database.get_predicted_load(
+        pj, start_time=datetime_start, end_time=datetime_end
+    )
+    # Check if forecast is not empty
+    if len(input_data) == 0:
+        logger.warning(f'No forecast found. Skipping pid {pj["id"]}')
+        return
+
+    logger.info("retrieving weather data")
+    # TODO make ktpbase function to retrieve inputdata for component forecast in one call,
+    #  this will make this function much shorter
+    # Get required weather data
+    weather_data = context.database.get_weather_data(
+        [pj["lat"], pj["lon"]],
+        ["radiation", "windspeed_100m"],
+        datetime_start=datetime_start,
+        datetime_end=datetime_end,
+        source="optimum",
+    )
+
+    # Get splitting coeficients
+    split_coefs = context.database.get_energy_split_coefs(pj)
+
+    if len(split_coefs) == 0:
+        logger.warning(f'No Coefs found. Skipping pid {pj["id"]}')
+        return
+
     # Make forecast for the demand, wind and pv components
-    make_components_prediction(pj)
+    forecasts = create_components_forecast_pipeline(pj, input_data, weather_data, split_coefs)
+
+    # save forecast to database #######################################################
+    context.database.write_forecast(forecasts)
+    logger.debug("Written forecast to database")
 
 
 def main():
@@ -66,7 +112,7 @@ def main():
             context,
             model_type=model_type,
             on_end_callback=callback,
-        ).map(create_components_forecast_pj, context)
+        ).map(create_components_forecast_task, context)
 
 
 if __name__ == "__main__":
