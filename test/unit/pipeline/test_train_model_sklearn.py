@@ -32,9 +32,6 @@ XGB_HYPER_PARAMS = {
 }
 
 
-
-
-
 class TestTrainModelPipeline(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
@@ -84,12 +81,11 @@ class TestTrainModelPipeline(BaseTestCase):
 
         # check if report is a Report
         self.assertTrue(isinstance(report, Report))
-    @patch('openstf.pipeline.train_model_sklearn.train_model_pipeline_core')
-    @patch('openstf.pipeline.train_model_sklearn.PersistentStorageSerializer')
-    def test_train_model_pipeline_happy_flow(self, serializer_mock, pipeline_mock):
-        """Test happy flow of the train model pipeline
 
-        """
+    @patch("openstf.pipeline.train_model_sklearn.train_model_pipeline_core")
+    @patch("openstf.pipeline.train_model_sklearn.PersistentStorageSerializer")
+    def test_train_model_pipeline_happy_flow(self, serializer_mock, pipeline_mock):
+        """Test happy flow of the train model pipeline"""
 
         old_model_mock = MagicMock()
         old_model_mock.age = 8
@@ -99,22 +95,21 @@ class TestTrainModelPipeline(BaseTestCase):
         serializer_mock.return_value = serializer_mock_instance
 
         report_mock = MagicMock()
-        pipeline_mock.return_value = ('a',report_mock)
+        pipeline_mock.return_value = ("a", report_mock)
 
         train_model_pipeline(
-            pj=self.pj, input_data=self.train_input,
+            pj=self.pj,
+            input_data=self.train_input,
             check_old_model_age=True,
-            trained_models_folder='TEST',
-            save_figures_folder='OTHER_TEST',
+            trained_models_folder="TEST",
+            save_figures_folder="OTHER_TEST",
         )
-        self.assertEqual(report_mock.method_calls[0].kwargs['save_path'], 'OTHER_TEST')
+        self.assertEqual(report_mock.method_calls[0].kwargs["save_path"], "OTHER_TEST")
 
-    @patch('openstf.pipeline.train_model_sklearn.train_model_pipeline_core')
-    @patch('openstf.pipeline.train_model_sklearn.PersistentStorageSerializer')
+    @patch("openstf.pipeline.train_model_sklearn.train_model_pipeline_core")
+    @patch("openstf.pipeline.train_model_sklearn.PersistentStorageSerializer")
     def test_train_model_pipeline_young_model(self, serializer_mock, pipeline_mock):
-        """Test pipeline core is not called when model is young
-
-        """
+        """Test pipeline core is not called when model is young"""
         old_model_mock = MagicMock()
         old_model_mock.age = 3
 
@@ -123,13 +118,14 @@ class TestTrainModelPipeline(BaseTestCase):
         serializer_mock.return_value = serializer_mock_instance
 
         report_mock = MagicMock()
-        pipeline_mock.return_value = ('a',report_mock)
+        pipeline_mock.return_value = ("a", report_mock)
 
         train_model_pipeline(
-            pj=self.pj, input_data=self.train_input,
+            pj=self.pj,
+            input_data=self.train_input,
             check_old_model_age=True,
-            trained_models_folder='TEST',
-            save_figures_folder='OTHER_TEST',
+            trained_models_folder="TEST",
+            save_figures_folder="OTHER_TEST",
         )
         self.assertFalse(pipeline_mock.called)
 
