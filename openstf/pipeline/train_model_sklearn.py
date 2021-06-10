@@ -72,6 +72,9 @@ def train_model_pipeline(
     try:
         model, report = train_model_pipeline_core(pj, input_data, old_model)
     except RuntimeError as e:
+        logger.error(
+            f"Exception occured during training: {e}"
+        )
         return
 
     # Save model
