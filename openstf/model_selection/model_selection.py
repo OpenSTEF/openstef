@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-
+from typing import List
 from datetime import timedelta
 
 import numpy as np
@@ -204,7 +204,7 @@ def sample_validation_data_periods(
 
 
 def _sample_indices(
-    number_indices: int, period_lengths: int, buffer_length: int
+    number_indices: int, period_lengths: List[int], buffer_length: int
 ) -> np.array:
     """Samples periods of given length with the given buffer.
 
