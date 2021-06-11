@@ -33,6 +33,24 @@ class TestApplyFeaturesModule(BaseTestCase):
 
         self.assertEqual(lag_functions_keys, expected_lag_functions_keys)
 
+    def test_generate_lag_features_with_features(self):
+        """Does the function work properly if specific features are given"""
+        specific_features = ["T-30min", "T-7d"]
+        lag_functions = generate_lag_feature_functions(
+            horizon=0.25, feature_names=specific_features
+        )
+        self.assertEqual(len(lag_functions), 2)
+
+    def test_generate_lag_features_with_unavailable_horizon(self):
+        """Does the function work properly if specific features are given"""
+        specific_features = ["T-30min", "T-7d"]  # feature = T-30min, horizon=24
+        lag_functions = generate_lag_feature_functions(
+            horizon=24, feature_names=specific_features
+        )
+        self.assertEqual(
+            list(lag_functions.keys()), ["T-7d"]
+        )  # Only T-7d should be returned
+
     def test_additional_minute_space(self):
         additional_minute_lags_list = generate_non_trivial_lag_times(
             data=TestData.load("input_data_train.pickle"), height_treshold=0.1
@@ -92,12 +110,15 @@ class TestApplyFeaturesModule(BaseTestCase):
             index=pd.to_datetime(
                 [
                     "2020-02-01 10:00:00",
-                    "2020-02-01 10:10:00",
-                    "2022-12-26 10:00:00",
-                    "2020-04-27 11:00:00",
+                    "2020-02-01 10:30:00",
+                    "2020-02-01 11:00:00",
+                    "2020-02-01 11:30:00",
                 ]
             ),
-            data={"load": [10, 15, 20, 15], "APX": [1, 2, 3, 4]},
+            data={
+                "load": [10, 15, 20, 15],
+                "APX": [1, 2, 3, 4],
+            },
         )
         horizons = [0.25, 47]
 
@@ -107,11 +128,24 @@ class TestApplyFeaturesModule(BaseTestCase):
 
         horizon = input_data_with_features.Horizon
 
+        # Skip first row, since T-30min not available for first row
         self.assertTrue(
-            input_data_with_features.loc[horizon == 47, "APX"].isnull().all()
+            input_data_with_features.loc[horizon == 47, ["APX", "T-30min"]]
+            .iloc[
+                1:,
+            ]
+            .isna()
+            .all()
+            .all()
         )
         self.assertFalse(
-            input_data_with_features.loc[horizon == 0.25, "APX"].isnull().all()
+            input_data_with_features.loc[horizon == 0.25, ["APX", "T-30min"]]
+            .iloc[
+                1:,
+            ]
+            .isna()
+            .any()
+            .any()
         )
 
     def test_apply_holiday_features(self):

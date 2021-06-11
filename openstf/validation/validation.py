@@ -49,7 +49,7 @@ def validate(data: pd.DataFrame) -> pd.DataFrame:
     return data
 
 
-def clean(data):
+def clean(data: pd.DataFrame) -> pd.DataFrame:
     logger = structlog.get_logger(__name__)
     data = data[data.index.min() + timedelta(weeks=2) :]
     len_original = len(data)
@@ -63,7 +63,7 @@ def clean(data):
     return data
 
 
-def is_data_sufficient(data):
+def is_data_sufficient(data: pd.DataFrame) -> bool:
     """Check if enough data is left after validation and cleaning to continue
         with model training.
 
@@ -103,7 +103,12 @@ def is_data_sufficient(data):
     return is_sufficient
 
 
-def calc_completeness(df, weights=None, time_delayed=False, homogenise=True):
+def calc_completeness(
+    df: pd.DataFrame,
+    weights: np.array = None,
+    time_delayed: bool = False,
+    homogenise: bool = True,
+) -> float:
     """Calculate the (weighted) completeness of a dataframe.
 
     NOTE: NA values count as incomplete
@@ -165,7 +170,7 @@ def calc_completeness(df, weights=None, time_delayed=False, homogenise=True):
     return completeness
 
 
-def find_nonzero_flatliner(df, threshold):
+def find_nonzero_flatliner(df: pd.DataFrame, threshold: int) -> pd.DataFrame:
     """Function that detects a stationflatliner and returns a list of datetimes.
 
     Args:
@@ -220,8 +225,11 @@ def find_nonzero_flatliner(df, threshold):
 
 
 def find_zero_flatliner(
-    df, threshold, window=timedelta(minutes=30), load_threshold=0.3
-):
+    df: pd.DataFrame,
+    threshold: float,
+    window: timedelta = timedelta(minutes=30),
+    load_threshold: float = 0.3,
+) -> pd.DataFrame or None:
     """Function that detects a zero value where the load is not compensated by the other trafo's of the station.
 
     Input:
@@ -314,7 +322,7 @@ def find_zero_flatliner(
     return result_df
 
 
-def check_data_for_each_trafo(df, col):
+def check_data_for_each_trafo(df: pd.DataFrame, col: pd.Series) -> bool:
     """Function that detects if each column contains zero-values at all, only
         zero-values and NaN values.
 

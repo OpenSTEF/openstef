@@ -43,9 +43,7 @@ class AbstractFeatureApplicator(ABC):
 
 
 class TrainFeatureApplicator(AbstractFeatureApplicator):
-    def add_features(
-        self, df: pd.DataFrame, latency_config=LATENCY_CONFIG
-    ) -> pd.DataFrame:
+    def add_features(self, df: pd.DataFrame, latency_config=None) -> pd.DataFrame:
         """Adds features to an input DataFrame.
 
         This method is implemented specifically for a model train pipeline. For larger
@@ -66,6 +64,9 @@ class TrainFeatureApplicator(AbstractFeatureApplicator):
             pd.DataFrame: Input DataFrame with an extra column for every added feature.
         """
 
+        if latency_config is None:
+            latency_config = LATENCY_CONFIG
+
         # Set default horizons if none are provided
         if self.horizons is None:
             self.horizons = [0.25, 24]
@@ -75,7 +76,9 @@ class TrainFeatureApplicator(AbstractFeatureApplicator):
 
         # Loop over horizons and add corresponding features
         for horizon in self.horizons:
-            res = apply_features(df, feature_names=self.feature_names, horizon=horizon)
+            res = apply_features(
+                df.copy(deep=True), horizon=horizon
+            )  # Deep copy of df is important, because we want a fresh start every iteration!
             res["Horizon"] = horizon
             result = result.append(res)
 

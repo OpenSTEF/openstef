@@ -3,16 +3,19 @@
 # SPDX-License-Identifier: MPL-2.0
 import unittest
 
+from test.utils.data import TestData
+
 from openstf.feature_engineering.lag_features import extract_lag_features
+from openstf.enums import MLModelType
+from openstf.model.serializer import PersistentStorageSerializer
+
 from test.utils import BaseTestCase
 
 
 class TestGeneralExtractMinuteFeatures(BaseTestCase):
     def setUp(self):
         super().setUp()
-
-    def test_extract_minute_features(self):
-        feature_names = [
+        self.feature_names = [
             "APX",
             "clouds",
             "radiation",
@@ -153,13 +156,17 @@ class TestGeneralExtractMinuteFeatures(BaseTestCase):
             "dair_density_week",
         ]
 
-        testlist_minutes, testlist_days = extract_lag_features(feature_names)
+    def test_extract_minute_features_short_horizon(self):
+
+        testlist_minutes, testlist_days = extract_lag_features(
+            self.feature_names, horizon=0.25
+        )
+
         self.assertEqual(
             testlist_minutes,
             [
                 900,
                 780,
-                15,
                 1425,
                 660,
                 540,
@@ -188,6 +195,13 @@ class TestGeneralExtractMinuteFeatures(BaseTestCase):
             ],
         )
         self.assertEqual(testlist_days, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14])
+
+    def test_extract_minute_features_long_horizon(self):
+        testlist_minutes, testlist_days = extract_lag_features(
+            self.feature_names, horizon=47
+        )
+        self.assertEqual(testlist_minutes, [2865])
+        self.assertEqual(testlist_days, [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14])
 
 
 if __name__ == "__main__":

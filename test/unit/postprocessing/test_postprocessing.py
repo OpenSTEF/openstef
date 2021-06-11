@@ -89,6 +89,7 @@ class TestPostProcess(BaseTestCase):
         forecast["customer"] = "test_customer"
         forecast["description"] = "test_desription"
         forecast["type"] = "component"
+        forecast["stdev"] = 0
 
         forecasts = postprocessing.split_forecast_in_components(
             forecast, weather_data_test, split_coefs_test

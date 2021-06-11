@@ -13,7 +13,7 @@ from openstf.feature_engineering.feature_applicator import (
 )
 from openstf.model.basecase import BaseCaseModel
 from openstf.model.confidence_interval_applicator import ConfidenceIntervalApplicator
-from openstf.pipeline.create_forecast_sklearn import generate_forecast_datetime_range
+from openstf.pipeline.utils import generate_forecast_datetime_range
 from openstf.postprocessing.postprocessing import (
     add_prediction_job_properties_to_forecast,
     add_components_base_case_forecast,
@@ -25,9 +25,10 @@ BASECASE_HORIZON = 60 * 24 * 14  # 14 days ahead
 BASECASE_RESOLUTION = 15
 
 
-def basecase_pipeline(pj: dict, input_data: pd.DataFrame) -> pd.DataFrame:
+def create_basecase_forecast_pipeline(
+    pj: dict, input_data: pd.DataFrame
+) -> pd.DataFrame:
     """Computes the base case forecast and confidence intervals for a given prediction job and input data.
-
 
     Args:
         pj: (dict) prediction job
@@ -52,18 +53,22 @@ def basecase_pipeline(pj: dict, input_data: pd.DataFrame) -> pd.DataFrame:
     forecast_start = forecast_start + timedelta(minutes=pj["horizon_minutes"])
 
     # Make sure forecast interval is available in the input interval
-    validated_data = validated_data.reindex(
-        pd.date_range(
-            validated_data.index.min().to_pydatetime(),
-            forecast_end.replace(tzinfo=pytz.utc),
-            freq=f'{pj["resolution_minutes"]}T',
-        )
+    new_date_range = pd.date_range(
+        validated_data.index.min().to_pydatetime(),  # Start of the new range is start of the input interval
+        forecast_end.replace(
+            tzinfo=pytz.utc
+        ),  # End of the new range is end of the forecast interval
+        freq=f'{pj["resolution_minutes"]}T',  # Resample to the desired time resolution
     )
+    validated_data = validated_data.reindex(new_date_range)  # Reindex to new date range
 
     # Add features
     data_with_features = OperationalPredictFeatureApplicator(
         horizons=[0.25],
-        feature_names=["T-7d", "T-14d"],
+        feature_names=[
+            "T-7d",
+            "T-14d",
+        ],  # Generate features for load 7 days ago and load 14 days ago these are the same as the basecase forecast.
     ).add_features(validated_data)
 
     # Select the basecase forecast interval
@@ -101,10 +106,10 @@ def basecase_pipeline(pj: dict, input_data: pd.DataFrame) -> pd.DataFrame:
 
 def generate_basecase_confidence_interval(data_with_features):
     confidence_interval = (
-        data_with_features[["T-14d"]]
-        .groupby(data_with_features.index.hour)
+        data_with_features[["T-14d"]]  # Select only the T-14d column as a DataFrame
+        .groupby(data_with_features.index.hour)  # Get the std for every hour
         .std()
-        .rename(columns={"T-14d": "stdev"})
+        .rename(columns={"T-14d": "stdev"})  # Rename the column to stdev
     )
     confidence_interval["hour"] = confidence_interval.index
     confidence_interval["horizon"] = 48

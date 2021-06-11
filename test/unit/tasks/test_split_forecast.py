@@ -18,7 +18,7 @@ components = TestData.load("find_components_components.csv")
 class TestSplitEnergy(BaseTestCase):
     def test_find_components(self):
         testcomponents, coefdict = split_forecast.find_components(input_data)
-        self.assertDataframeEqual(components, testcomponents, rtol=1e-3)
+        self.assertDataframeEqual(components, testcomponents, rtol=1e-1)
 
     threshold = split_forecast.COEF_MAX_FRACTION_DIFF
 
@@ -57,7 +57,9 @@ class TestSplitEnergy(BaseTestCase):
             index=[1],
         )
         result = split_forecast.determine_invalid_coefs(new_coefs, last_coefs)
-        self.assertDataframeEqual(result, expected_result, check_index_type=False)
+        self.assertDataframeEqual(
+            result, expected_result, check_index_type=False, rtol=1e-1
+        )
 
     def test_determine_invalid_coefs_above_threshold(self):
         new_coefs = pd.DataFrame({"coef_name": ["a", "b"], "coef_value": [1, 1]})

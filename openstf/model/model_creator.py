@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+from sklearn.base import RegressorMixin
 from xgboost import XGBRegressor
 from lightgbm import LGBMRegressor
 
@@ -17,7 +18,7 @@ class ModelCreator:
     }
 
     @staticmethod
-    def create_model(model_type):
+    def create_model(model_type: MLModelType) -> RegressorMixin:
         # check if model type is valid
         if model_type not in [k.value for k in ModelCreator.MODEL_TRAINER_CONSTRUCTORS]:
             raise KeyError(f"Unknown model type: {model_type}")

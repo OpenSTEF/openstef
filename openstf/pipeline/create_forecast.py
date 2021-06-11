@@ -1,52 +1,60 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+from typing import Union
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 
 import pandas as pd
 import structlog
-
-# from ktpbase.config.config import ConfigManager
+from sklearn.base import RegressorMixin
 
 from openstf.validation import validation
 from openstf.feature_engineering.feature_applicator import (
     OperationalPredictFeatureApplicator,
 )
 from openstf.model.confidence_interval_applicator import ConfidenceIntervalApplicator
-from openstf.preprocessing import preprocessing
+
 from openstf.model.serializer import PersistentStorageSerializer
 from openstf.postprocessing.postprocessing import (
     add_prediction_job_properties_to_forecast,
 )
 from openstf.model.fallback import generate_fallback
+from openstf.pipeline.utils import generate_forecast_datetime_range
 
 
-# TODO add loading of model to task
-# # Load most recent model for the given pid
-# model = PersistentStorageSerializer(
-#     trained_models_folder=MODEL_LOCATION
-# ).load_model(pid=pj["id"])
+def create_forecast_pipeline(
+    pj: dict, input_data: pd.DataFrame, trained_models_folder: Union[str, Path]
+) -> pd.DataFrame:
+    """Create forecast pipeline
 
-# def create_forecast_pipeline(pj, input_data, trained_models_folder=None):
-#     logger = structlog.get_logger(__name__)
-#     config = ConfigManager.get_instance()
+     This is the top-level pipeline which included loading the most recent model for the given prediction job.
 
-#     # Use default if not given. ConfigManager ??
-#     if trained_models_folder is None:
-#         trained_models_folder = config.paths.trained_models_folder
-
-#     # Load most recent model for the given pid
-#     model = PersistentStorageSerializer(
-#         trained_models_folder=trained_models_folder
-#     ).load_model(pid=pj["id"])
-
-#     forecast = create_forecast_pipeline_core(pj, input_data, model)
-
-#     # TODO write forecast to db ???
+    Args:
+        pj (dict): Prediction job
+        input_data (pd.DataFrame): Training input data (without features)
+        trained_models_folder (Path): Path where trained models are stored
 
 
-def create_forecast_pipeline_core(pj, input_data, model):
-    """Computes the forecasts and confidence intervals given a prediction job and input data.
+    Returns:
+        pd.DataFrame with the forecast
+
+    """
+    # Load most recent model for the given pid
+    model = PersistentStorageSerializer(
+        trained_models_folder=trained_models_folder
+    ).load_model(pid=pj["id"])
+
+    return create_forecast_pipeline_core(pj, input_data, model)
+
+
+def create_forecast_pipeline_core(
+    pj: dict, input_data: pd.DataFrame, model: RegressorMixin
+) -> pd.DataFrame:
+    """Create forecast pipeline (core)
+
+    Computes the forecasts and confidence intervals given a prediction job and input data.
+    This pipeline has no database or persisitent storage dependencies.
 
     Args:
         pj (dict): Prediction job.
@@ -105,27 +113,3 @@ def create_forecast_pipeline_core(pj, input_data, model):
     )
 
     return forecast
-
-
-def generate_forecast_datetime_range(
-    resolution_minutes: int, horizon_minutes: int
-) -> tuple[datetime, datetime]:
-    # get current date and time UTC
-    datetime_utc = datetime.now(timezone.utc)
-    # Datetime range for time interval to be predicted
-    forecast_start = datetime_utc - timedelta(minutes=resolution_minutes)
-    forecast_end = datetime_utc + timedelta(minutes=horizon_minutes)
-
-    return forecast_start, forecast_end
-
-
-def generate_inputdata_datetime_range(
-    t_behind_days: int = 14, t_ahead_days: int = 3
-) -> tuple[datetime, datetime]:
-    # get current date UTC
-    date_today_utc = datetime.now(timezone.utc).date()
-    # Date range for input data
-    datetime_start = date_today_utc - timedelta(days=t_behind_days)
-    datetime_end = date_today_utc + timedelta(days=t_ahead_days)
-
-    return datetime_start, datetime_end

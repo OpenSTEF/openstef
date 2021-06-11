@@ -3,19 +3,16 @@
 # SPDX-License-Identifier: MPL-2.0
 import logging
 from pathlib import Path
-from typing import Optional, Tuple, List, Union
+from typing import List, Union
 
 import pandas as pd
 from sklearn.base import RegressorMixin
 import structlog
 
-# from ktpbase.config.config import ConfigManager
-
 from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
 from openstf.model.confidence_interval_generator import ConfidenceIntervalGenerator
 from openstf.model.model_creator import ModelCreator
 from openstf.metrics.reporter import Reporter, Report
-
 from openstf.model.serializer import PersistentStorageSerializer
 from openstf.model_selection.model_selection import split_data_train_validation_test
 from openstf.validation import validation
@@ -26,72 +23,82 @@ MAXIMUM_MODEL_AGE: int = 7
 DEFAULT_EARLY_STOPPING_ROUNDS: int = 10
 PENALTY_FACTOR_OLD_MODEL: float = 1.2
 
-SAVE_PATH = Path(".")
 
+def train_model_pipeline(
+    pj: dict,
+    input_data: pd.DataFrame,
+    check_old_model_age: bool,
+    trained_models_folder: Union[str, Path],
+    save_figures_folder: Union[str, Path],
+) -> None:
+    """Midle level pipeline that takes care of all persistent storage dependencies
 
-# def train_model_pipeline(
-#     pj: dict,
-#     input_data: pd.DataFrame,
-#     check_old_model_age: bool,
-#     trained_models_folder: Optional[Union[str, Path]],
-#     save_figures_folder: Optional[Union[str, Path]]
-# ):
-#     config = ConfigManager.get_instance()
+    Args:
+        pj (dict): Prediction job
+        input_data (pd.DataFrame): Raw training input data
+        check_old_model_age (bool): Check if training should be skipped because the model is too young
+        trained_models_folder (Path): Path where trained models are stored
+        save_figures_folder (Path): path were reports (mostly figures) about the training procces are stored
 
-#     if trained_models_folder is None:
-#         trained_models_folder = Path(config.paths.trained_models_folder)
+    Returns:
+        None
 
-#     if save_figures_folder is None:
-#         save_figures_folder = Path(config.paths.webroot) / pj["id"]
+    """
+    # Intitialize logger and serializer
+    logger = structlog.get_logger(__name__)
+    serializer = PersistentStorageSerializer(trained_models_folder)
 
-#     logger = structlog.get_logger(__name__)
-#     serializer = PersistentStorageSerializer(trained_models_folder)
+    # Get old model and age
+    try:
+        old_model = serializer.load_model(pid=pj["id"])
+        old_model_age = (
+            old_model.age
+        )  # Age attribute is openstf specific and is added by the serializer
+    except FileNotFoundError:
+        old_model = None
+        old_model_age = float("inf")
+        logger.warning("No old model found, training new model")
 
-#     # Get old model and age
-#     try:
-#         old_model = serializer.load_model(pid=pj["id"])
-#         old_model_age = old_model.age
-#     except FileNotFoundError:
-#         old_model = None
-#         old_model_age = float("inf")
-#         logger.warning("No old model found, train new model")
+    # Check old model age and continue yes/no
+    if (old_model_age < MAXIMUM_MODEL_AGE) and check_old_model_age:
+        logger.warning(
+            f"Old model is younger than {MAXIMUM_MODEL_AGE} days, skip training"
+        )
+        return
 
-#     # Check old model age and continue yes/no
-#     if (old_model_age < MAXIMUM_MODEL_AGE) and check_old_model_age:
-#         logger.warning(
-#             "Old model is younger than {MAXIMUM_MODEL_AGE} days, skip training"
-#         )
-#         return
+    # Train model with core pipeline
+    try:
+        model, report = train_model_pipeline_core(pj, input_data, old_model)
+    except RuntimeError as e:
+        logger.error(f"Old model is better than new model for {pj['name']}", exc_info=e)
+        return
 
-#     # train model
-#     try:
-#         model, report = train_model_pipeline_core(pj, input_data, old_model)
-#     except RuntimeError as e:
-#         return
+    # Save model
+    serializer.save_model(model, pid=pj["id"])
 
-#     # save model
-#     serializer.save_model(model, pid=pj["id"])
-#     # save figures
-#     report.save_figures(save_path=save_figures_folder)
+    # Save reports/figures
+    report.save_figures(save_path=save_figures_folder)
 
 
 def train_model_pipeline_core(
     pj: dict,
     input_data: pd.DataFrame,
     old_model: RegressorMixin = None,
-    horizons: List[float] = DEFAULT_TRAIN_HORIZONS,
-) -> Tuple[RegressorMixin, Report]:
-    """Run the train model pipeline.
+    horizons: List[float] = None,
+) -> tuple[RegressorMixin, Report]:
+    """Train model core pipeline.
+    Trains a new model given a predction job, input data and compares it to an old model.
+    This pipeline has no database or persisitent storage dependencies.
 
-        TODO once we have a data model for a prediction job this explantion is not
-        required anymore.
+    TODO once we have a data model for a prediction job this explantion is not
+    required anymore.
 
-        For training a model the following keys in the prediction job dictionairy are
-        expected:
-            "name"          Arbitray name only used for logging
-            "model"         Model type, any of "xgb", "lgb",
-            "hyper_params"  Hyper parameters dictionairy specific to the model_type
-            "feature_names"      List of features to train model on or None to use all features
+    For training a model the following keys in the prediction job dictionairy are
+    expected:
+        "name"          Arbitray name only used for logging
+        "model"         Model type, any of "xgb", "lgb",
+        "hyper_params"  Hyper parameters dictionairy specific to the model_type
+        "feature_names"      List of features to train model on or None to use all features
 
     Args:
         pj (dict): Prediction job
@@ -104,8 +111,11 @@ def train_model_pipeline_core(
         RuntimeError: When old model is better than new model
 
     Returns:
-        Tuple[RegressorMixin, Report]: Trained model and report (with figures)
+        tuple[RegressorMixin, Report]: Trained model and report (with figures)
     """
+
+    if horizons is None:
+        horizons = DEFAULT_TRAIN_HORIZONS
 
     logger = structlog.get_logger(__name__)
     # Validate and clean data
@@ -149,8 +159,6 @@ def train_model_pipeline_core(
     logging.info("Fitted a new model, not yet stored")
 
     # Check if new model is better than old model
-    # NOTE it would be better to move this code out of the pipeline
-    # training a model should probably not be responsible for this
     if old_model is not None:
         combined = train_data.append(validation_data)
         x_data, y_data = combined.iloc[:, 1:], combined.iloc[:, 0]

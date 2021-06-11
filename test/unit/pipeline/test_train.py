@@ -8,7 +8,7 @@ import pandas as pd
 from test.utils.base import BaseTestCase
 from test.utils.data import TestData
 
-from openstf.pipeline.train_model_sklearn import (
+from openstf.pipeline.train_model import (
     split_data_train_validation_test,
 )
 

@@ -10,9 +10,10 @@ from pathlib import Path
 import pandas as pd
 
 from test.utils import BaseTestCase, TestData
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
-from openstf.pipeline import create_forecast_sklearn
+from openstf.pipeline import utils
+from openstf.pipeline import create_forecast
 
 NOW = datetime.now(timezone.utc)
 PJ = TestData.get_prediction_job(pid=60)
@@ -21,25 +22,7 @@ forecast_input = TestData.load("reference_sets/307-test-data.csv")
 
 
 class TestCreateForecastPipeline(BaseTestCase):
-    def test_generate_inputdata_datetime_range(self):
-        t_behind_days = 14
-        t_ahead_days = 3
-        # get current date UTC
-        date_today_utc = datetime.now(timezone.utc).date()
-        # Time range for input data
-        datetime_start_expected = date_today_utc - timedelta(days=t_behind_days)
-        datetime_end_expected = date_today_utc + timedelta(days=t_ahead_days)
-
-        (
-            datetime_start,
-            datetime_end,
-        ) = create_forecast_sklearn.generate_inputdata_datetime_range(
-            t_behind_days=t_behind_days, t_ahead_days=t_ahead_days
-        )
-        self.assertEqual(datetime_start, datetime_start_expected)
-        self.assertEqual(datetime_end, datetime_end_expected)
-
-    @patch("openstf.pipeline.create_forecast_sklearn.datetime")
+    @patch("openstf.pipeline.utils.datetime")
     def test_forecast_datetime_range(self, datetime_mock):
         datetime_mock.now.return_value = NOW
         # get current date and time UTC
@@ -50,10 +33,7 @@ class TestCreateForecastPipeline(BaseTestCase):
         )
         forecast_end_expected = datetime_utc + timedelta(minutes=PJ["horizon_minutes"])
 
-        (
-            forecast_start,
-            forecast_end,
-        ) = create_forecast_sklearn.generate_forecast_datetime_range(
+        (forecast_start, forecast_end,) = utils.generate_forecast_datetime_range(
             resolution_minutes=PJ["resolution_minutes"],
             horizon_minutes=PJ["horizon_minutes"],
         )
@@ -71,7 +51,7 @@ class TestCreateForecastPipeline(BaseTestCase):
         model = PersistentStorageSerializer(
             trained_models_folder=Path("./test/trained_models")
         ).load_model(pid=307)
-        forecast = create_forecast_sklearn.create_forecast_pipeline_core(
+        forecast = create_forecast.create_forecast_pipeline_core(
             pj=pj, input_data=input_data, model=model
         )
         assert "substituted" in forecast.quality.values
@@ -100,7 +80,7 @@ class TestCreateForecastPipeline(BaseTestCase):
         model = PersistentStorageSerializer(
             trained_models_folder=Path("./test/trained_models")
         ).load_model(pid=307)
-        forecast = create_forecast_sklearn.create_forecast_pipeline_core(
+        forecast = create_forecast.create_forecast_pipeline_core(
             pj=self.pj, input_data=self.forecast_input, model=model
         )
         self.assertEqual(len(forecast), 193)

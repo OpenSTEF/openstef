@@ -27,11 +27,45 @@ Attributes:
 
 
 """
-from openstf.pipeline.create_forecast_sklearn import create_forecast_pipeline
-from openstf.enums import ForecastType
+from datetime import datetime, timedelta
+
+from openstf.pipeline.create_forecast import create_forecast_pipeline
 from openstf.tasks.utils.utils import check_status_change, update_status_change
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
+
+T_BEHIND_DAYS: int = 14
+T_AHEAD_DAYS: int = 3
+
+
+def create_forecast_task(pj: dict, context: TaskContext) -> None:
+    """Top level task that creates a forecast.
+    On this task level all database and context manager dependencies are resolved.
+
+    Args:
+        pj (dict): Prediction job
+        context (TaskContext): Contect object that holds a config manager and a database connection
+    """
+    # Extract trained models folder
+    trained_models_folder = context.config.paths.trained_models_folder
+
+    # Define datetime range for input data
+    datetime_start = datetime.utcnow() - timedelta(days=T_BEHIND_DAYS)
+    datetime_end = datetime.utcnow() + timedelta(days=T_AHEAD_DAYS)
+
+    # Retrieve input data
+    input_data = context.database.get_model_input(
+        pid=pj["id"],
+        location=[pj["lat"], pj["lon"]],
+        datetime_start=datetime_start,
+        datetime_end=datetime_end,
+    )
+
+    # Make forecast with the forecast pipeline
+    forecast = create_forecast_pipeline(pj, input_data, trained_models_folder)
+
+    # Write forecast to the database
+    context.database.write_forecast(forecast, t_ahead_series=True)
 
 
 def main():
@@ -43,10 +77,8 @@ def main():
         def callback(pj, successful):
             status_id = "Pred {}, {}".format(pj["name"], pj["description"])
             status_code = 0 if successful else 2
-
             if check_status_change(status_id, status_code):
                 context.logger.warning("Status changed", status_code=status_code)
-
                 update_status_change(status_id, status_code)
 
         PredictionJobLoop(
@@ -54,8 +86,7 @@ def main():
             model_type=model_type,
             on_end_callback=callback,
             # Debug specific pid
-            # prediction_jobs=[{'id':282}],
-        ).map(create_forecast_pipeline, forecast_type=ForecastType.DEMAND)
+        ).map(create_forecast_task, context)
 
 
 if __name__ == "__main__":

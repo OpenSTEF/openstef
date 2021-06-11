@@ -10,8 +10,9 @@ from test.utils import BaseTestCase
 import pandas as pd
 import sklearn
 
-from openstf.pipeline.train_model_sklearn import (
+from openstf.pipeline.train_model import (
     train_model_pipeline_core,
+    train_model_pipeline,
     split_data_train_validation_test,
 )
 from openstf.metrics.reporter import Report
@@ -60,7 +61,7 @@ class TestTrainModelPipeline(BaseTestCase):
         self.assertEqual(len(validation_data), 1296)
         self.assertEqual(len(test_data), 1)
 
-    def test_train_model_pipeline_happy_flow(self):
+    def test_train_model_pipeline_core_happy_flow(self):
         """Test happy flow of the train model pipeline
 
         NOTE this does not explain WHY this is the case?
@@ -80,6 +81,53 @@ class TestTrainModelPipeline(BaseTestCase):
 
         # check if report is a Report
         self.assertTrue(isinstance(report, Report))
+
+    @patch("openstf.pipeline.train_model.train_model_pipeline_core")
+    @patch("openstf.pipeline.train_model.PersistentStorageSerializer")
+    def test_train_model_pipeline_happy_flow(self, serializer_mock, pipeline_mock):
+        """Test happy flow of the train model pipeline"""
+
+        old_model_mock = MagicMock()
+        old_model_mock.age = 8
+
+        serializer_mock_instance = MagicMock()
+        serializer_mock_instance.load_model.return_value = old_model_mock
+        serializer_mock.return_value = serializer_mock_instance
+
+        report_mock = MagicMock()
+        pipeline_mock.return_value = ("a", report_mock)
+
+        train_model_pipeline(
+            pj=self.pj,
+            input_data=self.train_input,
+            check_old_model_age=True,
+            trained_models_folder="TEST",
+            save_figures_folder="OTHER_TEST",
+        )
+        self.assertEqual(report_mock.method_calls[0].kwargs["save_path"], "OTHER_TEST")
+
+    @patch("openstf.pipeline.train_model.train_model_pipeline_core")
+    @patch("openstf.pipeline.train_model.PersistentStorageSerializer")
+    def test_train_model_pipeline_young_model(self, serializer_mock, pipeline_mock):
+        """Test pipeline core is not called when model is young"""
+        old_model_mock = MagicMock()
+        old_model_mock.age = 3
+
+        serializer_mock_instance = MagicMock()
+        serializer_mock_instance.load_model.return_value = old_model_mock
+        serializer_mock.return_value = serializer_mock_instance
+
+        report_mock = MagicMock()
+        pipeline_mock.return_value = ("a", report_mock)
+
+        train_model_pipeline(
+            pj=self.pj,
+            input_data=self.train_input,
+            check_old_model_age=True,
+            trained_models_folder="TEST",
+            save_figures_folder="OTHER_TEST",
+        )
+        self.assertFalse(pipeline_mock.called)
 
 
 if __name__ == "__main__":

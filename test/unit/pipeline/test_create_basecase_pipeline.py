@@ -9,7 +9,7 @@ import pandas as pd
 
 from datetime import datetime, timezone, timedelta
 
-from openstf.pipeline.create_basecase_forecast_sklearn import basecase_pipeline
+from openstf.pipeline.create_basecase_forecast import create_basecase_forecast_pipeline
 
 NOW = datetime.now(timezone.utc)
 
@@ -33,7 +33,7 @@ class TestBaseCaseForecast(BaseTestCase):
 
         forecast_input.index = forecast_input.index.shift(delta, freq=1)
 
-        base_case_forecast = basecase_pipeline(PJ, forecast_input)
+        base_case_forecast = create_basecase_forecast_pipeline(PJ, forecast_input)
 
         # Test length of the output
         self.assertEqual(len(base_case_forecast), 1153)

@@ -34,8 +34,6 @@ class ConfidenceIntervalApplicator:
 
         Args:
             forecast (pd.DataFrame): Forecast DataFram with columns: "forecast"
-            standard_deviation (pd.DataFrame): Standard deviation. DataFrame with columns:
-                "hour", "horizon", "stdev"
             (optional) interpolate (str): Interpolation method, options: "exponential" or "linear"
 
         Returns:
