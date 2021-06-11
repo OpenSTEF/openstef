@@ -165,7 +165,7 @@ def calc_kpi_for_specific_pid(pid, start_time=None, end_time=None):
 
     # Raise exception in case of constant load
     if combined.load.nunique() == 1:
-        structlog.get_logger().warning(
+        structlog.get_logger(__name__).warning(
             "The load is constant! KPIs will still be calculated, but relative metrics will be nan"
         )
 

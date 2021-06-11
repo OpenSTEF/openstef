@@ -12,7 +12,8 @@ import pandas as pd
 from test.utils import BaseTestCase, TestData
 from unittest.mock import patch
 
-from openstf.pipeline import create_forecast_sklearn
+from openstf.pipeline import utils
+from openstf.pipeline import create_forecast
 
 NOW = datetime.now(timezone.utc)
 PJ = TestData.get_prediction_job(pid=60)
@@ -21,7 +22,7 @@ forecast_input = TestData.load("reference_sets/307-test-data.csv")
 
 
 class TestCreateForecastPipeline(BaseTestCase):
-    @patch("openstf.pipeline.create_forecast_sklearn.datetime")
+    @patch("openstf.pipeline.utils.datetime")
     def test_forecast_datetime_range(self, datetime_mock):
         datetime_mock.now.return_value = NOW
         # get current date and time UTC
@@ -32,10 +33,7 @@ class TestCreateForecastPipeline(BaseTestCase):
         )
         forecast_end_expected = datetime_utc + timedelta(minutes=PJ["horizon_minutes"])
 
-        (
-            forecast_start,
-            forecast_end,
-        ) = create_forecast_sklearn.generate_forecast_datetime_range(
+        (forecast_start, forecast_end,) = utils.generate_forecast_datetime_range(
             resolution_minutes=PJ["resolution_minutes"],
             horizon_minutes=PJ["horizon_minutes"],
         )
@@ -53,7 +51,7 @@ class TestCreateForecastPipeline(BaseTestCase):
         model = PersistentStorageSerializer(
             trained_models_folder=Path("./test/trained_models")
         ).load_model(pid=307)
-        forecast = create_forecast_sklearn.create_forecast_pipeline_core(
+        forecast = create_forecast.create_forecast_pipeline_core(
             pj=pj, input_data=input_data, model=model
         )
         assert "substituted" in forecast.quality.values
@@ -82,7 +80,7 @@ class TestCreateForecastPipeline(BaseTestCase):
         model = PersistentStorageSerializer(
             trained_models_folder=Path("./test/trained_models")
         ).load_model(pid=307)
-        forecast = create_forecast_sklearn.create_forecast_pipeline_core(
+        forecast = create_forecast.create_forecast_pipeline_core(
             pj=self.pj, input_data=self.forecast_input, model=model
         )
         self.assertEqual(len(forecast), 193)

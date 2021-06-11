@@ -29,7 +29,7 @@ Attributes:
 """
 from datetime import datetime, timedelta
 
-from openstf.pipeline.create_forecast_sklearn import create_forecast_pipeline
+from openstf.pipeline.create_forecast import create_forecast_pipeline
 from openstf.tasks.utils.utils import check_status_change, update_status_change
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
@@ -65,7 +65,7 @@ def create_forecast_task(pj: dict, context: TaskContext) -> None:
     forecast = create_forecast_pipeline(pj, input_data, trained_models_folder)
 
     # Write forecast to the database
-    context.database.write_forecast_to_db(forecast, t_ahead_series=True)
+    context.database.write_forecast(forecast, t_ahead_series=True)
 
 
 def main():

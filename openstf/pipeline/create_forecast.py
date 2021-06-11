@@ -20,16 +20,19 @@ from openstf.postprocessing.postprocessing import (
     add_prediction_job_properties_to_forecast,
 )
 from openstf.model.fallback import generate_fallback
+from openstf.pipeline.utils import generate_forecast_datetime_range
 
 
 def create_forecast_pipeline(
     pj: dict, input_data: pd.DataFrame, trained_models_folder: Union[str, Path]
 ) -> pd.DataFrame:
-    """Midle level pipeline that takes care of all persistent storage dependencies
+    """Create forecast pipeline
+
+     This is the top-level pipeline which included loading the most recent model for the given prediction job.
 
     Args:
         pj (dict): Prediction job
-        input_data (pd.DataFrame): Raw training input data
+        input_data (pd.DataFrame): Training input data (without features)
         trained_models_folder (Path): Path where trained models are stored
 
 
@@ -48,8 +51,10 @@ def create_forecast_pipeline(
 def create_forecast_pipeline_core(
     pj: dict, input_data: pd.DataFrame, model: RegressorMixin
 ) -> pd.DataFrame:
-    """Computes the forecasts and confidence intervals given a prediction job and input data.
-     This pipeline has no database or persisitent storage dependencies.
+    """Create forecast pipeline (core)
+
+    Computes the forecasts and confidence intervals given a prediction job and input data.
+    This pipeline has no database or persisitent storage dependencies.
 
     Args:
         pj (dict): Prediction job.
@@ -108,15 +113,3 @@ def create_forecast_pipeline_core(
     )
 
     return forecast
-
-
-def generate_forecast_datetime_range(
-    resolution_minutes: int, horizon_minutes: int
-) -> tuple[datetime, datetime]:
-    # get current date and time UTC
-    datetime_utc = datetime.now(timezone.utc)
-    # Datetime range for time interval to be predicted
-    forecast_start = datetime_utc - timedelta(minutes=resolution_minutes)
-    forecast_end = datetime_utc + timedelta(minutes=horizon_minutes)
-
-    return forecast_start, forecast_end

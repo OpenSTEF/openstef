@@ -65,11 +65,12 @@ def create_components_forecast_task(pj, context):
     logger.info(
         "Get predicted load", datetime_start=datetime_start, datetime_end=datetime_end
     )
-    # Get most recent load forecast
+    # Get most recent load forecast as input_data,
+    # we use a regular forecast as input point for creating component forecasts
     input_data = context.database.get_predicted_load(
         pj, start_time=datetime_start, end_time=datetime_end
     )
-    # Check if forecast is not empty
+    # Check if input_data is not empty
     if len(input_data) == 0:
         logger.warning(f'No forecast found. Skipping pid {pj["id"]}')
         return
@@ -80,10 +81,12 @@ def create_components_forecast_task(pj, context):
     # Get required weather data
     weather_data = context.database.get_weather_data(
         [pj["lat"], pj["lon"]],
-        ["radiation", "windspeed_100m"],
+        [
+            "radiation",
+            "windspeed_100m",
+        ],  # These variables are used when determing the splitting coeficients, and should therefore be reused when making the component forcasts.
         datetime_start=datetime_start,
         datetime_end=datetime_end,
-        source="optimum",
     )
 
     # Get splitting coeficients

@@ -23,8 +23,6 @@ MAXIMUM_MODEL_AGE: int = 7
 DEFAULT_EARLY_STOPPING_ROUNDS: int = 10
 PENALTY_FACTOR_OLD_MODEL: float = 1.2
 
-SAVE_PATH = Path(".")
-
 
 def train_model_pipeline(
     pj: dict,
@@ -72,9 +70,7 @@ def train_model_pipeline(
     try:
         model, report = train_model_pipeline_core(pj, input_data, old_model)
     except RuntimeError as e:
-        logger.error(
-            f"Exception occured during training: {e}"
-        )
+        logger.error(f"Old model is better than new model for {pj['name']}", exc_info=e)
         return
 
     # Save model
@@ -90,17 +86,19 @@ def train_model_pipeline_core(
     old_model: RegressorMixin = None,
     horizons: List[float] = None,
 ) -> tuple[RegressorMixin, Report]:
-    """Run the train model core pipeline. This pipeline has no database or persisitent storage dependencies.
+    """Train model core pipeline.
+    Trains a new model given a predction job, input data and compares it to an old model.
+    This pipeline has no database or persisitent storage dependencies.
 
-        TODO once we have a data model for a prediction job this explantion is not
-        required anymore.
+    TODO once we have a data model for a prediction job this explantion is not
+    required anymore.
 
-        For training a model the following keys in the prediction job dictionairy are
-        expected:
-            "name"          Arbitray name only used for logging
-            "model"         Model type, any of "xgb", "lgb",
-            "hyper_params"  Hyper parameters dictionairy specific to the model_type
-            "feature_names"      List of features to train model on or None to use all features
+    For training a model the following keys in the prediction job dictionairy are
+    expected:
+        "name"          Arbitray name only used for logging
+        "model"         Model type, any of "xgb", "lgb",
+        "hyper_params"  Hyper parameters dictionairy specific to the model_type
+        "feature_names"      List of features to train model on or None to use all features
 
     Args:
         pj (dict): Prediction job
@@ -113,7 +111,7 @@ def train_model_pipeline_core(
         RuntimeError: When old model is better than new model
 
     Returns:
-        Tuple[RegressorMixin, Report]: Trained model and report (with figures)
+        tuple[RegressorMixin, Report]: Trained model and report (with figures)
     """
 
     if horizons is None:

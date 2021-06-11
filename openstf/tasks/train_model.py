@@ -25,7 +25,7 @@ Example:
 from pathlib import Path
 from datetime import datetime, timedelta
 
-from openstf.pipeline.train_model_sklearn import train_model_pipeline
+from openstf.pipeline.train_model import train_model_pipeline
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
 

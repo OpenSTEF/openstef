@@ -20,7 +20,7 @@ Example:
 """
 from datetime import datetime, timedelta
 
-from openstf.pipeline.create_basecase_forecast_sklearn import basecase_pipeline
+from openstf.pipeline.create_basecase_forecast import create_basecase_forecast_pipeline
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
 
@@ -28,7 +28,7 @@ T_BEHIND_DAYS: int = 15
 T_AHEAD_DAYS: int = 3
 
 
-def create_basecase_forecast(pj: dict, context: TaskContext) -> None:
+def create_basecase_forecast_task(pj: dict, context: TaskContext) -> None:
     """Top level task that creates a basecase forecast.
     On this task level all database and context manager dependencies are resolved.
 
@@ -49,10 +49,10 @@ def create_basecase_forecast(pj: dict, context: TaskContext) -> None:
     )
 
     # Make basecase forecast using the corresponding pipeline
-    basecase_forecast = basecase_pipeline(pj, input_data)
+    basecase_forecast = create_basecase_forecast_pipeline(pj, input_data)
 
     # Write basecase forecast to the database
-    context.database.write_forecast_to_db(basecase_forecast, t_ahead_series=True)
+    context.database.write_forecast(basecase_forecast, t_ahead_series=True)
 
 
 def main():
@@ -60,7 +60,7 @@ def main():
         model_type = ["xgb", "lgb"]
 
         PredictionJobLoop(context, model_type=model_type).map(
-            create_basecase_forecast, context
+            create_basecase_forecast_task, context
         )
 
 

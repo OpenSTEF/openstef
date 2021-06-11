@@ -114,7 +114,7 @@ def split_forecast_in_components(forecast, weather_data, split_coefs):
         components["forecast_wind_on_shore"], ForecastType.WIND
     )
 
-    return components.drop("forecast", axis=1).dropna()
+    return components.drop("forecast", axis=1).drop("stdev", axis=1).dropna()
 
 
 def post_process_wind_solar(forecast: pd.Series, forecast_type):

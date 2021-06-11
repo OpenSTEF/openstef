@@ -13,16 +13,22 @@ def create_components_forecast_pipeline(pj, input_data, weather_data, split_coef
 
     Args:
         pj (dict): Prediction job
-        input_data (pd.DataFrame): Input data fore the components forecast, this usually is a regular forecast
+        input_data (pd.DataFrame): Input forecast for the components forecast.
         weather_data (pd.DataFrame): Weather data with 'radiation' and 'windspeed_100m' columns
         split_coefs (dict): coefieicnts for the splitting that are determined earlier
 
     Returns:
-        pd.DataFrame with component forecasts
-
+        pd.DataFrame with component forecasts. The dataframe contains these columns: "forecast_wind_on_shore",
+                "forecast_solar",
+                "forecast_other",
+                "pid",
+                "customer",
+                "description",
+                "type",
+                "algtype"
     """
     logger = structlog.get_logger(__name__)
-    logger.info("Make components prediction", prediction_id=pj["id"])
+    logger.info("Make components prediction", pid=pj["id"])
 
     # Make component forecasts
     try:
@@ -36,11 +42,6 @@ def create_components_forecast_pipeline(pj, input_data, weather_data, split_coef
             exc_info=e,
         )
         forecasts = pd.DataFrame()
-    else:
-
-        forecasts = forecasts.drop(
-            ["stdev"], axis=1
-        )  # for component forecasts we do not have a stdev
 
     # Prepare for output
     forecasts = postprocessing.add_prediction_job_properties_to_forecast(

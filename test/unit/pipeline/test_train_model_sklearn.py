@@ -10,7 +10,7 @@ from test.utils import BaseTestCase
 import pandas as pd
 import sklearn
 
-from openstf.pipeline.train_model_sklearn import (
+from openstf.pipeline.train_model import (
     train_model_pipeline_core,
     train_model_pipeline,
     split_data_train_validation_test,
@@ -82,8 +82,8 @@ class TestTrainModelPipeline(BaseTestCase):
         # check if report is a Report
         self.assertTrue(isinstance(report, Report))
 
-    @patch("openstf.pipeline.train_model_sklearn.train_model_pipeline_core")
-    @patch("openstf.pipeline.train_model_sklearn.PersistentStorageSerializer")
+    @patch("openstf.pipeline.train_model.train_model_pipeline_core")
+    @patch("openstf.pipeline.train_model.PersistentStorageSerializer")
     def test_train_model_pipeline_happy_flow(self, serializer_mock, pipeline_mock):
         """Test happy flow of the train model pipeline"""
 
@@ -106,8 +106,8 @@ class TestTrainModelPipeline(BaseTestCase):
         )
         self.assertEqual(report_mock.method_calls[0].kwargs["save_path"], "OTHER_TEST")
 
-    @patch("openstf.pipeline.train_model_sklearn.train_model_pipeline_core")
-    @patch("openstf.pipeline.train_model_sklearn.PersistentStorageSerializer")
+    @patch("openstf.pipeline.train_model.train_model_pipeline_core")
+    @patch("openstf.pipeline.train_model.PersistentStorageSerializer")
     def test_train_model_pipeline_young_model(self, serializer_mock, pipeline_mock):
         """Test pipeline core is not called when model is young"""
         old_model_mock = MagicMock()
