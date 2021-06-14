@@ -6,21 +6,31 @@ from xgboost import XGBRegressor
 from lightgbm import LGBMRegressor
 
 from openstf.enums import MLModelType
+from openstf.model.xgb_quantile import XgbQuantile
 
 
 class ModelCreator:
+
     """Factory object for creating model trainer objects"""
 
     # Set object mapping
     MODEL_TRAINER_CONSTRUCTORS = {
         MLModelType.XGB: XGBRegressor,
         MLModelType.LGB: LGBMRegressor,
+        MLModelType.XGB_QUANTILE: XgbQuantile,
     }
 
     @staticmethod
-    def create_model(model_type: MLModelType) -> RegressorMixin:
+    def create_model(pj: dict) -> RegressorMixin:
         # check if model type is valid
-        if model_type not in [k.value for k in ModelCreator.MODEL_TRAINER_CONSTRUCTORS]:
-            raise KeyError(f"Unknown model type: {model_type}")
+        if pj["model"] not in [
+            k.value for k in ModelCreator.MODEL_TRAINER_CONSTRUCTORS
+        ]:
+            raise KeyError(f"Unknown model type: {pj['model']}")
 
-        return ModelCreator.MODEL_TRAINER_CONSTRUCTORS[MLModelType(model_type)]()
+        if pj["model"] == MLModelType.XGB_QUANTILE:
+            return ModelCreator.MODEL_TRAINER_CONSTRUCTORS[MLModelType(pj["model"])](
+                tuple(pj["quantiles"])
+            )
+        else:
+            return ModelCreator.MODEL_TRAINER_CONSTRUCTORS[MLModelType(pj["model"])]()

@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: MPL-2.0
 from typing import Tuple
 from functools import partial
-from joblib import Parallel
 
 from sklearn.base import RegressorMixin, BaseEstimator
 from sklearn.utils.estimator_checks import check_estimator
@@ -16,7 +15,7 @@ import openstf.metrics.metrics as metrics
 DEFAULT_QUANTILES: Tuple[float, ...] = (0.9, 0.5, 0.1)
 
 
-class XGBQuantile(BaseEstimator, RegressorMixin):
+class XgbQuantile(BaseEstimator, RegressorMixin):
     def __init__(self, quantiles: Tuple[float, ...] = DEFAULT_QUANTILES):
 
         # Check if quantile 0.5 is pressent this is required
@@ -69,6 +68,7 @@ class XGBQuantile(BaseEstimator, RegressorMixin):
             # Train model for this specific quantile
             quantile_models[quantile] = specific_quantile_model.fit(x, y)
 
+        # Update state of the estimator
         self.estimators_ = quantile_models
         self.is_fitted_ = True
 
@@ -84,6 +84,9 @@ class XGBQuantile(BaseEstimator, RegressorMixin):
 
         Returns:
             np.array with prediction
+
+        Raises:
+            ValueError in case no model is trained for the requested quantile
 
         """
 
@@ -102,4 +105,4 @@ class XGBQuantile(BaseEstimator, RegressorMixin):
 
 
 if __name__ == "__main__":
-    check_estimator(XGBQuantile())
+    check_estimator(XgbQuantile())
