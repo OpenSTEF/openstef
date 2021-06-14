@@ -139,7 +139,7 @@ def train_model_pipeline_core(
     )
 
     # Create relevant model
-    model = ModelCreator().create_model(pj)
+    model = ModelCreator.create_model(pj)
 
     # split x and y data
     train_x, train_y = train_data.iloc[:, 1:], train_data.iloc[:, 0]
