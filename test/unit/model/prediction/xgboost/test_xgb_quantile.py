@@ -40,11 +40,6 @@ class TestXgbQuantile(TestCase):
     def test_value_error_raised(self):
         # Check if Value Error is raised when 0.5 is not in the requested quantiles list
         with pytest.raises(ValueError):
-            XgbQuantile(tuple(0.2, 0.3, 0.6, 0.7))
-
-    def test_value_error_raised(self):
-        # Check if Value Error is raised when 0.5 is not in the requested quantiles list
-        with pytest.raises(ValueError):
             XgbQuantile((0.2, 0.3, 0.6, 0.7))
 
     def test_value_error_raised_no_model_trained_for_quantile(self):

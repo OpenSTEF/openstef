@@ -152,9 +152,9 @@ class ConfidenceIntervalApplicator:
         self, forecast: pd.DataFrame, quantiles: list
     ) -> pd.DataFrame:
         """Add quantiles to forecast.
-        Use the standard deviation to calculate the quantiles.
+        Use trained quantile regression model to calculate the quantiles.
         Args:
-            forecast (pd.DataFrame): Forecast (should contain a 'forecast' + 'stdev' column)
+            forecast (pd.DataFrame): Forecast
             quantiles (list): List with desired quantiles
         Returns:
             (pd.DataFrame): Forecast DataFrame with quantile (e.g. 'quantile_PXX')
