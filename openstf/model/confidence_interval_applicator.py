@@ -7,19 +7,29 @@ import pytz
 import numpy as np
 import pandas as pd
 from scipy import stats
+from sklearn.base import RegressorMixin
+
+from openstf.enums import MLModelType
 
 MINIMAL_RESOLUTION: int = 15  # Minimal time resolution in minutes
 
 
 class ConfidenceIntervalApplicator:
-    def __init__(self, model):
-        self.confidence_interval = model.confidence_interval
+    def __init__(self, model: RegressorMixin, forecast_input_data: pd.DataFrame):
+        self.model = model
+        self.forecast_input_data = forecast_input_data
 
-    def add_confidence_interval(
-        self, forecast: pd.DataFrame, quantiles: list
-    ) -> pd.DataFrame:
+    def add_confidence_interval(self, forecast: pd.DataFrame, pj: dict) -> pd.DataFrame:
         temp_forecast = self._add_standard_deviation_to_forecast(forecast)
-        return self._add_quantiles_to_forecast(temp_forecast, quantiles)
+
+        if pj["model"] == MLModelType.XGB_QUANTILE:
+            return self._add_quantiles_to_forecast_quantile_regression(
+                temp_forecast, pj["quantiles"]
+            )
+        else:
+            return self._add_quantiles_to_forecast_default(
+                temp_forecast, pj["quantiles"]
+            )
 
     def _add_standard_deviation_to_forecast(
         self, forecast: pd.DataFrame
@@ -41,7 +51,7 @@ class ConfidenceIntervalApplicator:
                 "forecast", "stdev"
         """
 
-        standard_deviation = self.confidence_interval
+        standard_deviation = self.model.confidence_interval
 
         if standard_deviation is None:
             return forecast
@@ -113,7 +123,7 @@ class ConfidenceIntervalApplicator:
         return forecast_copy.drop(columns=["hour"])
 
     @staticmethod
-    def _add_quantiles_to_forecast(
+    def _add_quantiles_to_forecast_default(
         forecast: pd.DataFrame, quantiles: list
     ) -> pd.DataFrame:
         """Add quantiles to forecast.
@@ -134,6 +144,27 @@ class ConfidenceIntervalApplicator:
             quantile_key = f"quantile_P{quantile * 100:02.0f}"
             forecast[quantile_key] = (
                 forecast["forecast"] + stats.norm.ppf(quantile) * forecast["stdev"]
+            )
+
+        return forecast
+
+    def _add_quantiles_to_forecast_quantile_regression(
+        self, forecast: pd.DataFrame, quantiles: list
+    ) -> pd.DataFrame:
+        """Add quantiles to forecast.
+        Use the standard deviation to calculate the quantiles.
+        Args:
+            forecast (pd.DataFrame): Forecast (should contain a 'forecast' + 'stdev' column)
+            quantiles (list): List with desired quantiles
+        Returns:
+            (pd.DataFrame): Forecast DataFrame with quantile (e.g. 'quantile_PXX')
+                columns added.
+        """
+
+        for quantile in quantiles:
+            quantile_key = f"quantile_P{quantile * 100:02.0f}"
+            forecast[quantile_key] = self.model.predict(
+                self.forecast_input_data.sort_index(axis=1), quantile=quantile
             )
 
         return forecast
