@@ -88,6 +88,9 @@ class XgbQuantile(BaseEstimator, RegressorMixin):
             ValueError in case no model is trained for the requested quantile
 
         """
+        # Check if model is trained for this quantile
+        if quantile not in self.quantiles:
+            raise ValueError("No model trained for requested quantile!")
 
         # Check/validate input
         check_array(x)
@@ -95,9 +98,5 @@ class XgbQuantile(BaseEstimator, RegressorMixin):
 
         # Convert input data to np.array (most of the time this is allready the case)
         x = np.array(x)
-
-        # Check if model is trained for this quantile
-        if quantile not in self.quantiles:
-            raise ValueError("No model trained for requested quantile!")
 
         return self.estimators_[quantile].predict(x)
