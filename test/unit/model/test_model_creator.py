@@ -5,7 +5,6 @@
 from unittest import TestCase
 import pytest
 from xgboost import XGBRegressor
-from lightgbm import LGBMRegressor
 
 from openstf.model.xgb_quantile import XgbQuantile
 
@@ -35,4 +34,4 @@ class TestModelCreator(TestCase):
         # Test if keyerror is raised when model type is unknown
         self.pj["model"] = "Unknown"
         with pytest.raises(KeyError):
-            model = ModelCreator.create_model(self.pj)
+            ModelCreator.create_model(self.pj)
