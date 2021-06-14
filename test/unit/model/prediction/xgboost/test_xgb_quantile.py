@@ -3,11 +3,24 @@
 # SPDX-License-Identifier: MPL-2.0
 
 from unittest import TestCase
+from unittest.mock import patch
 import pytest
 
 from sklearn.utils.estimator_checks import check_estimator
 
 from openstf.model.xgb_quantile import XgbQuantile
+
+import pandas as pd
+
+from openstf.model.confidence_interval_applicator import ConfidenceIntervalApplicator
+
+
+class MockModel:
+    confidence_interval = pd.DataFrame()
+
+    def predict(self, input, quantile):
+        stdev_forecast = pd.DataFrame({"forecast": [5, 6, 7], "stdev": [0.5, 0.6, 0.7]})
+        return stdev_forecast["stdev"].rename(quantile)
 
 
 class TestXgbQuantile(TestCase):
@@ -39,3 +52,20 @@ class TestXgbQuantile(TestCase):
         with pytest.raises(ValueError):
             model = XgbQuantile((0.2, 0.3, 0.5, 0.6, 0.7))
             model.predict("test_data", quantile=0.8)
+
+    def test_add_quantiles_to_forecast(self):
+        stdev_forecast = pd.DataFrame({"forecast": [5, 6, 7], "stdev": [0.5, 0.6, 0.7]})
+
+        pj = {"quantiles": [0.01, 0.10, 0.25, 0.50, 0.75, 0.90, 0.99]}
+        pp_forecast = ConfidenceIntervalApplicator(
+            MockModel(), stdev_forecast
+        )._add_quantiles_to_forecast_quantile_regression(
+            stdev_forecast, pj["quantiles"]
+        )
+
+        expected_new_columns = [
+            f"quantile_P{int(q * 100):02d}" for q in pj["quantiles"]
+        ]
+
+        for expected_column in expected_new_columns:
+            self.assertTrue(expected_column in pp_forecast.columns)
