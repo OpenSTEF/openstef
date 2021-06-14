@@ -86,9 +86,9 @@ def create_basecase_forecast_pipeline(
     )
     logger.info("Postprocessing basecase forecast")
     # Apply confidence interval
-    basecase_forecast = ConfidenceIntervalApplicator(model).add_confidence_interval(
-        basecase_forecast, pj["quantiles"]
-    )
+    basecase_forecast = ConfidenceIntervalApplicator(
+        model, forecast_input_data
+    ).add_confidence_interval(basecase_forecast, pj)
 
     # Add basecase for the component forecasts
     basecase_forecast = add_components_base_case_forecast(basecase_forecast)
