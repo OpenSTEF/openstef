@@ -28,7 +28,7 @@ class ModelCreator:
         ]:
             raise KeyError(f"Unknown model type: {pj['model']}")
 
-        if pj["model"] == MLModelType.XGB_QUANTILE:
+        if MLModelType(pj["model"]) == MLModelType.XGB_QUANTILE:
             return ModelCreator.MODEL_TRAINER_CONSTRUCTORS[MLModelType(pj["model"])](
                 tuple(pj["quantiles"])
             )

@@ -5,7 +5,6 @@ from typing import Tuple
 from functools import partial
 
 from sklearn.base import RegressorMixin, BaseEstimator
-from sklearn.utils.estimator_checks import check_estimator
 from sklearn.utils.validation import check_X_y, check_array, check_is_fitted
 from xgboost import XGBRegressor
 import numpy as np
@@ -101,8 +100,4 @@ class XgbQuantile(BaseEstimator, RegressorMixin):
         if quantile not in self.quantiles:
             raise ValueError("No model trained for requested quantile!")
 
-        return self.estimators_[quantile].predict(x).astype(np.float64)
-
-
-if __name__ == "__main__":
-    check_estimator(XgbQuantile())
+        return self.estimators_[quantile].predict(x)
