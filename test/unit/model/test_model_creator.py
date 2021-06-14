@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 
 from unittest import TestCase
+import pytest
 from xgboost import XGBRegressor
 from lightgbm import LGBMRegressor
 
@@ -28,3 +29,9 @@ class TestModelCreator(TestCase):
 
         self.assertIsInstance(model, XgbQuantile)
         self.assertEqual(model.quantiles, tuple(self.pj["quantiles"]))
+
+    def test_unknown_model(self):
+
+        self.pj["model"] = "Unknown"
+        with pytest.raises(KeyError):
+            model = ModelCreator.create_model(self.pj)
