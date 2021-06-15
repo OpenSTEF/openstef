@@ -7,15 +7,23 @@ from openstf.feature_engineering.feature_applicator import TrainFeatureApplicato
 from openstf.model.model_creator import ModelCreator
 
 
+from sklearn.model_selection import train_test_split
+
 # https://optuna.readthedocs.io/en/stable/faq.html#objective-func-additional-args
 class XGBRegressorObjective:
 
-    def __init__(self, model, input_data):
-        self.model = model
+    def __init__(self, model_type, input_data):
+        self.model_type = model_type
         self.input_data = input_data
 
     def __call__(self, trial):
-        input_data = self.input_data
+        # Perform data preprocessing
+        data = self.input_data
+
+        train_x, valid_x, train_y, valid_y = train_test_split(data, target, test_size=0.25)
+
+
+        model = ModelCreator.create_model(model_type=self.model_type)
 
         params = {
             "eta": trial.suggest_float("eta", 0.01, 0.2),
@@ -29,10 +37,19 @@ class XGBRegressorObjective:
         pruning_callback = optuna.integration.XGBoostPruningCallback(
             trial, "validation-auc"
         )
-        model = xgb.train(
-            params, dtrain, evals=[(dvalid, "validation")], callbacks=[pruning_callback]
+
+        model.set_params(params)
+        model.fit(
+            train_x,
+            train_y,
+            eval_set=eval_set,
+            early_stopping_rounds=DEFAULT_EARLY_STOPPING_ROUNDS,
+            verbose=False,
         )
-        prediction = model.predict(dvalid)
+        # model = xgb.train(
+        #     params, dtrain, evals=[(dvalid, "validation")], callbacks=[pruning_callback]
+        # )
+        # prediction = model.predict(dvalid)
 
         mean_absolute_error
 

@@ -154,7 +154,7 @@ def train_model_pipeline_core(
         train_y,
         eval_set=eval_set,
         early_stopping_rounds=DEFAULT_EARLY_STOPPING_ROUNDS,
-        verbose=0,
+        verbose=False,
     )
     logging.info("Fitted a new model, not yet stored")
 
