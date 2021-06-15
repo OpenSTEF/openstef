@@ -4,7 +4,6 @@
 from test.utils import BaseTestCase, TestData
 import pytz
 
-import pytest
 import pandas as pd
 
 from datetime import datetime, timezone, timedelta

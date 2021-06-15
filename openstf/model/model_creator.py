@@ -6,7 +6,7 @@ from xgboost import XGBRegressor
 from lightgbm import LGBMRegressor
 
 from openstf.enums import MLModelType
-from openstf.model.xgb_quantile import XgbQuantile
+from openstf.model.xgb_quantile import XGBQuantileRegressor
 
 
 class ModelCreator:
@@ -17,7 +17,7 @@ class ModelCreator:
     MODEL_TRAINER_CONSTRUCTORS = {
         MLModelType.XGB: XGBRegressor,
         MLModelType.LGB: LGBMRegressor,
-        MLModelType.XGB_QUANTILE: XgbQuantile,
+        MLModelType.XGB_QUANTILE: XGBQuantileRegressor,
     }
 
     @staticmethod
@@ -28,9 +28,6 @@ class ModelCreator:
         ]:
             raise KeyError(f"Unknown model type: {pj['model']}")
 
-        if MLModelType(pj["model"]) == MLModelType.XGB_QUANTILE:
-            return ModelCreator.MODEL_TRAINER_CONSTRUCTORS[MLModelType(pj["model"])](
-                tuple(pj["quantiles"])
-            )
-        else:
-            return ModelCreator.MODEL_TRAINER_CONSTRUCTORS[MLModelType(pj["model"])]()
+        return ModelCreator.MODEL_TRAINER_CONSTRUCTORS[MLModelType(pj["model"])](
+            quantiles=tuple(pj["quantiles"])
+        )

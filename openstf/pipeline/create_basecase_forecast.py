@@ -81,9 +81,7 @@ def create_basecase_forecast_pipeline(
     basecase_forecast = BaseCaseModel().predict(forecast_input_data)
 
     # Estimate the stdev by using the stdev of the hour for historic (T-14d) load
-    model.confidence_interval = generate_basecase_confidence_interval(
-        data_with_features
-    )
+    model.standard_deviation = generate_basecase_confidence_interval(data_with_features)
     logger.info("Postprocessing basecase forecast")
     # Apply confidence interval
     basecase_forecast = ConfidenceIntervalApplicator(

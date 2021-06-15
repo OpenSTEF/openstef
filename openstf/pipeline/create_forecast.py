@@ -96,7 +96,7 @@ def create_forecast_pipeline_core(
 
     else:
         # Predict
-        model_forecast = model.predict(forecast_input_data.sort_index(axis=1))
+        model_forecast = model.predict(forecast_input_data)
         forecast = pd.DataFrame(
             index=forecast_input_data.index, data={"forecast": model_forecast}
         )

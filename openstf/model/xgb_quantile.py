@@ -14,23 +14,32 @@ import openstf.metrics.metrics as metrics
 DEFAULT_QUANTILES: Tuple[float, ...] = (0.9, 0.5, 0.1)
 
 
-class XgbQuantile(BaseEstimator, RegressorMixin):
+class XGBQuantileRegressor(BaseEstimator, RegressorMixin):
     def __init__(self, quantiles: Tuple[float, ...] = DEFAULT_QUANTILES):
+        """Initialize XGBQunatileRegressor
 
+            Model that provides quantile regression with XGBoost.
+            For each desired quantile an XGBoost model is trained,
+            these can later be used to predict quantiles.
+
+        Args:
+            quantiles (tuple): Tuple with desired quantiles, quantile 0.5 is required.
+                For example: (0.1, 0.5, 0.9)
+        """
         # Check if quantile 0.5 is pressent this is required
         if 0.5 not in quantiles:
             raise ValueError(
                 "Cannot train quantile model as 0.5 is not in requested quantiles!"
             )
-        else:
-            self.quantiles = quantiles
+
+        self.quantiles = quantiles
 
     def fit(self, x: np.array, y: np.array) -> RegressorMixin:
         """Fits xgb quantile model
 
         Args:
-            x np.array: Feature matrix
-            y np.array: Labels
+            x (np.array): Feature matrix
+            y (np.array): Labels
 
         Returns:
             Fitted XGBQuantile model
@@ -77,12 +86,12 @@ class XgbQuantile(BaseEstimator, RegressorMixin):
         """Makes a prediction for a desired quantile
 
         Args:
-            x np.array: Feature matrix
-            quantile float: Quantile for which a prediciton is desired,
+            x (np.array): Feature matrix
+            quantile (float): Quantile for which a prediciton is desired,
             note that only quantile are available for which a model is trained
 
         Returns:
-            np.array with prediction
+            (np.array): prediction
 
         Raises:
             ValueError in case no model is trained for the requested quantile

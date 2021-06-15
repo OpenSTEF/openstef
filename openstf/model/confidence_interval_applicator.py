@@ -20,16 +20,37 @@ class ConfidenceIntervalApplicator:
         self.forecast_input_data = forecast_input_data
 
     def add_confidence_interval(self, forecast: pd.DataFrame, pj: dict) -> pd.DataFrame:
+        """Add a confidence interval to a forecast.
+
+        Adds a confidence interval to a forecast in two ways:
+            1. "stdev" column, this is a column with a standard deviation that is determined during training (ConfidenceGenerator)
+            2. Quantile columns, these columns give a more precise defenition of the confidence interval.
+                Quantile columns are determined with one of two methods, depending on the model type:
+                a. Default, using the "stdev" column and the assumption the error is normally distributed.
+                b. Quantile regression,
+                    this method is only available for quantile models and
+                    uses specifically trained models to estimate the quantiles of the confidence interval.
+
+                Depending on the model type (quantile or non quantile),
+                 a confidence interval is added to the forecast based on quantile regression
+                 or the default method.
+
+        Args:
+            forecast (pd.DataFrame): Forecast DataFram with columns: "forecast"
+            pj (dict): Prediction job
+
+        Returns:
+            pd.DataFrame: Forecast DataFram with columns: "forecast", "stdev" and quantile columns
+
+        """
         temp_forecast = self._add_standard_deviation_to_forecast(forecast)
 
         if pj["model"] == MLModelType.XGB_QUANTILE:
             return self._add_quantiles_to_forecast_quantile_regression(
                 temp_forecast, pj["quantiles"]
             )
-        else:
-            return self._add_quantiles_to_forecast_default(
-                temp_forecast, pj["quantiles"]
-            )
+
+        return self._add_quantiles_to_forecast_default(temp_forecast, pj["quantiles"])
 
     def _add_standard_deviation_to_forecast(
         self, forecast: pd.DataFrame
@@ -47,11 +68,11 @@ class ConfidenceIntervalApplicator:
             (optional) interpolate (str): Interpolation method, options: "exponential" or "linear"
 
         Returns:
-            pd.DataFrame: Forecast with added standard deviation. DataFrame with columns:
+            (pd.DataFrame): Forecast with added standard deviation. DataFrame with columns:
                 "forecast", "stdev"
         """
 
-        standard_deviation = self.model.confidence_interval
+        standard_deviation = self.model.standard_deviation
 
         if standard_deviation is None:
             return forecast
@@ -127,10 +148,14 @@ class ConfidenceIntervalApplicator:
         forecast: pd.DataFrame, quantiles: list
     ) -> pd.DataFrame:
         """Add quantiles to forecast.
-        Use the standard deviation to calculate the quantiles.
+
+            Use the standard deviation to calculate the quantiles.
+
         Args:
             forecast (pd.DataFrame): Forecast (should contain a 'forecast' + 'stdev' column)
-            quantiles (list): List with desired quantiles
+            quantiles (list): List with desired quantiles,
+                for example: [0.01, 0.1, 0.9, 0.99]
+
         Returns:
             (pd.DataFrame): Forecast DataFrame with quantile (e.g. 'quantile_PXX')
                 columns added.
@@ -152,10 +177,13 @@ class ConfidenceIntervalApplicator:
         self, forecast: pd.DataFrame, quantiles: list
     ) -> pd.DataFrame:
         """Add quantiles to forecast.
-        Use trained quantile regression model to calculate the quantiles.
+
+            Use trained quantile regression model to calculate the quantiles.
+
         Args:
             forecast (pd.DataFrame): Forecast
             quantiles (list): List with desired quantiles
+
         Returns:
             (pd.DataFrame): Forecast DataFrame with quantile (e.g. 'quantile_PXX')
                 columns added.
@@ -164,7 +192,7 @@ class ConfidenceIntervalApplicator:
         for quantile in quantiles:
             quantile_key = f"quantile_P{quantile * 100:02.0f}"
             forecast[quantile_key] = self.model.predict(
-                self.forecast_input_data.sort_index(axis=1), quantile=quantile
+                self.forecast_input_data, quantile=quantile
             )
 
         return forecast
