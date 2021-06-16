@@ -7,19 +7,64 @@ import pytz
 import numpy as np
 import pandas as pd
 from scipy import stats
+from sklearn.base import RegressorMixin
+
+from openstf.enums import MLModelType
 
 MINIMAL_RESOLUTION: int = 15  # Minimal time resolution in minutes
 
 
 class ConfidenceIntervalApplicator:
-    def __init__(self, model):
-        self.confidence_interval = model.confidence_interval
+    def __init__(self, model: RegressorMixin, forecast_input_data: pd.DataFrame):
+        self.model = model
+        self.forecast_input_data = forecast_input_data
 
     def add_confidence_interval(
-        self, forecast: pd.DataFrame, quantiles: list
+        self,
+        forecast: pd.DataFrame,
+        pj: dict,
+        default_confindence_interval: bool = False,
     ) -> pd.DataFrame:
+        """Add a confidence interval to a forecast.
+
+        Adds a confidence interval to a forecast in two ways:
+            1. "stdev" column, this is a column with a standard deviation that is
+                determined during training (ConfidenceGenerator)
+            2. Quantile columns, these columns give a more precise defenition of the
+                confidence interval. Quantile columns are determined with one of two
+                methods, depending on the model type group:
+
+                a. Default, using the "stdev" column and the assumption the error is
+                    normally distributed.
+                b. Quantile regression, this method is only available for quantile
+                    models and uses specifically trained models to estimate the
+                    quantiles of the confidence interval.
+
+                Depending on the model type (quantile or non quantile),
+                 a confidence interval is added to the forecast based on quantile
+                 regression or the default method.
+
+        Args:
+            forecast (pd.DataFrame): Forecast DataFram with columns: "forecast"
+            pj (dict): Prediction job
+            default_confindence_interval (bool):
+                switch to always make a default confidence interval
+                and skip quantile regression forecasting,
+                mostly used for a basecase forecast
+
+        Returns:
+            pd.DataFrame: Forecast DataFram with columns: "forecast", "stdev" and
+                quantile columns
+
+        """
         temp_forecast = self._add_standard_deviation_to_forecast(forecast)
-        return self._add_quantiles_to_forecast(temp_forecast, quantiles)
+
+        if pj["model_type_group"] == "quantile" and not default_confindence_interval:
+            return self._add_quantiles_to_forecast_quantile_regression(
+                temp_forecast, pj["quantiles"]
+            )
+
+        return self._add_quantiles_to_forecast_default(temp_forecast, pj["quantiles"])
 
     def _add_standard_deviation_to_forecast(
         self, forecast: pd.DataFrame
@@ -34,14 +79,13 @@ class ConfidenceIntervalApplicator:
 
         Args:
             forecast (pd.DataFrame): Forecast DataFram with columns: "forecast"
-            (optional) interpolate (str): Interpolation method, options: "exponential" or "linear"
 
         Returns:
-            pd.DataFrame: Forecast with added standard deviation. DataFrame with columns:
+            (pd.DataFrame): Forecast with added standard deviation. DataFrame with columns:
                 "forecast", "stdev"
         """
 
-        standard_deviation = self.confidence_interval
+        standard_deviation = self.model.standard_deviation
 
         if standard_deviation is None:
             return forecast
@@ -85,7 +129,8 @@ class ConfidenceIntervalApplicator:
         # add helper column hour
         forecast_copy["hour"] = forecast_copy.index.hour
 
-        # Define functions which can be used to approximate the error for in-between time horizons
+        # Define functions which can be used to approximate the error for in-between
+        # time horizons
         # Let's fit and exponential decay of accuracy
         def calc_exp_dec(t, stdev_row, near, far):
             # We use the formula sigma(t) = (1 - A * exp(-t/tau)) + b
@@ -113,14 +158,18 @@ class ConfidenceIntervalApplicator:
         return forecast_copy.drop(columns=["hour"])
 
     @staticmethod
-    def _add_quantiles_to_forecast(
-        forecast: pd.DataFrame, quantiles: list
+    def _add_quantiles_to_forecast_default(
+        forecast: pd.DataFrame, quantiles: list[float]
     ) -> pd.DataFrame:
         """Add quantiles to forecast.
-        Use the standard deviation to calculate the quantiles.
+
+            Use the standard deviation to calculate the quantiles.
+
         Args:
             forecast (pd.DataFrame): Forecast (should contain a 'forecast' + 'stdev' column)
-            quantiles (list): List with desired quantiles
+            quantiles (list): List with desired quantiles,
+                for example: [0.01, 0.1, 0.9, 0.99]
+
         Returns:
             (pd.DataFrame): Forecast DataFrame with quantile (e.g. 'quantile_PXX')
                 columns added.
@@ -134,6 +183,30 @@ class ConfidenceIntervalApplicator:
             quantile_key = f"quantile_P{quantile * 100:02.0f}"
             forecast[quantile_key] = (
                 forecast["forecast"] + stats.norm.ppf(quantile) * forecast["stdev"]
+            )
+
+        return forecast
+
+    def _add_quantiles_to_forecast_quantile_regression(
+        self, forecast: pd.DataFrame, quantiles: list[float]
+    ) -> pd.DataFrame:
+        """Add quantiles to forecast.
+
+            Use trained quantile regression model to calculate the quantiles.
+
+        Args:
+            forecast (pd.DataFrame): Forecast
+            quantiles (list): List with desired quantiles
+
+        Returns:
+            (pd.DataFrame): Forecast DataFrame with quantile (e.g. 'quantile_PXX')
+                columns added.
+        """
+
+        for quantile in quantiles:
+            quantile_key = f"quantile_P{quantile * 100:02.0f}"
+            forecast[quantile_key] = self.model.predict(
+                self.forecast_input_data, quantile=quantile
             )
 
         return forecast

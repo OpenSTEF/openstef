@@ -6,19 +6,17 @@ import pandas as pd
 from sklearn.base import RegressorMixin
 
 
-class ConfidenceIntervalGenerator:
+class StandardDeviationGenerator:
     def __init__(self, pj: dict, validation_data: pd.DataFrame) -> None:
 
         self.pj = pj
         self.validation_data = validation_data
 
-    def generate_confidence_interval_data(
-        self, model: RegressorMixin
-    ) -> RegressorMixin:
+    def generate_standard_deviation_data(self, model: RegressorMixin) -> RegressorMixin:
 
         # Define some variables
         predicted = None
-        self.confidence_interval = pd.DataFrame()
+        self.standard_deviation = pd.DataFrame()
 
         # Loop over Horizons and ask prediction for each specific horizon
         for horizon in self.validation_data.Horizon.unique():
@@ -31,22 +29,22 @@ class ConfidenceIntervalGenerator:
                 print("Could not get prediction from new model!", e)
 
             # Calculate confidence interval for this horizon
-            confidence_interval_horizon = self._calculate_confidence_interval(
+            confidence_interval_horizon = self._calculate_standard_deviation(
                 sub_val.iloc[:, 0], predicted
             )
             confidence_interval_horizon[
                 "horizon"
             ] = horizon  # Label with respective horizon
-            self.confidence_interval = self.confidence_interval.append(
+            self.standard_deviation = self.standard_deviation.append(
                 confidence_interval_horizon
             )
 
-            model.confidence_interval = self.confidence_interval
+            model.standard_deviation = self.standard_deviation
 
         return model
 
     @staticmethod
-    def _calculate_confidence_interval(realised, predicted):
+    def _calculate_standard_deviation(realised, predicted):
         """Protected static method to calculate the corrections for a model
 
         Args:
