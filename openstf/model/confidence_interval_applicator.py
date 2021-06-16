@@ -23,29 +23,34 @@ class ConfidenceIntervalApplicator:
         """Add a confidence interval to a forecast.
 
         Adds a confidence interval to a forecast in two ways:
-            1. "stdev" column, this is a column with a standard deviation that is determined during training (ConfidenceGenerator)
-            2. Quantile columns, these columns give a more precise defenition of the confidence interval.
-                Quantile columns are determined with one of two methods, depending on the model type:
-                a. Default, using the "stdev" column and the assumption the error is normally distributed.
-                b. Quantile regression,
-                    this method is only available for quantile models and
-                    uses specifically trained models to estimate the quantiles of the confidence interval.
+            1. "stdev" column, this is a column with a standard deviation that is
+                determined during training (ConfidenceGenerator)
+            2. Quantile columns, these columns give a more precise defenition of the
+                confidence interval. Quantile columns are determined with one of two
+                methods, depending on the model type group:
+
+                a. Default, using the "stdev" column and the assumption the error is
+                    normally distributed.
+                b. Quantile regression, this method is only available for quantile
+                    models and uses specifically trained models to estimate the
+                    quantiles of the confidence interval.
 
                 Depending on the model type (quantile or non quantile),
-                 a confidence interval is added to the forecast based on quantile regression
-                 or the default method.
+                 a confidence interval is added to the forecast based on quantile
+                 regression or the default method.
 
         Args:
             forecast (pd.DataFrame): Forecast DataFram with columns: "forecast"
             pj (dict): Prediction job
 
         Returns:
-            pd.DataFrame: Forecast DataFram with columns: "forecast", "stdev" and quantile columns
+            pd.DataFrame: Forecast DataFram with columns: "forecast", "stdev" and
+                quantile columns
 
         """
         temp_forecast = self._add_standard_deviation_to_forecast(forecast)
 
-        if pj["model"] == MLModelType.XGB_QUANTILE:
+        if pj["model_type_group"] == "quantile":
             return self._add_quantiles_to_forecast_quantile_regression(
                 temp_forecast, pj["quantiles"]
             )
@@ -65,7 +70,6 @@ class ConfidenceIntervalApplicator:
 
         Args:
             forecast (pd.DataFrame): Forecast DataFram with columns: "forecast"
-            (optional) interpolate (str): Interpolation method, options: "exponential" or "linear"
 
         Returns:
             (pd.DataFrame): Forecast with added standard deviation. DataFrame with columns:
@@ -116,7 +120,8 @@ class ConfidenceIntervalApplicator:
         # add helper column hour
         forecast_copy["hour"] = forecast_copy.index.hour
 
-        # Define functions which can be used to approximate the error for in-between time horizons
+        # Define functions which can be used to approximate the error for in-between
+        # time horizons
         # Let's fit and exponential decay of accuracy
         def calc_exp_dec(t, stdev_row, near, far):
             # We use the formula sigma(t) = (1 - A * exp(-t/tau)) + b
@@ -145,7 +150,7 @@ class ConfidenceIntervalApplicator:
 
     @staticmethod
     def _add_quantiles_to_forecast_default(
-        forecast: pd.DataFrame, quantiles: list
+        forecast: pd.DataFrame, quantiles: list[float]
     ) -> pd.DataFrame:
         """Add quantiles to forecast.
 
@@ -174,7 +179,7 @@ class ConfidenceIntervalApplicator:
         return forecast
 
     def _add_quantiles_to_forecast_quantile_regression(
-        self, forecast: pd.DataFrame, quantiles: list
+        self, forecast: pd.DataFrame, quantiles: list[float]
     ) -> pd.DataFrame:
         """Add quantiles to forecast.
 
