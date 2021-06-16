@@ -148,7 +148,7 @@ def train_model_pipeline_core(
     # Configure evals for early stopping
     eval_set = [(train_x, train_y), (validation_x, validation_y)]
 
-    model.set_params(params=pj["hyper_params"])
+    model.set_params(**pj["hyper_params"])
     model.fit(
         train_x,
         train_y,
