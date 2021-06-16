@@ -19,7 +19,12 @@ class ConfidenceIntervalApplicator:
         self.model = model
         self.forecast_input_data = forecast_input_data
 
-    def add_confidence_interval(self, forecast: pd.DataFrame, pj: dict) -> pd.DataFrame:
+    def add_confidence_interval(
+        self,
+        forecast: pd.DataFrame,
+        pj: dict,
+        default_confindence_interval: bool = False,
+    ) -> pd.DataFrame:
         """Add a confidence interval to a forecast.
 
         Adds a confidence interval to a forecast in two ways:
@@ -42,6 +47,10 @@ class ConfidenceIntervalApplicator:
         Args:
             forecast (pd.DataFrame): Forecast DataFram with columns: "forecast"
             pj (dict): Prediction job
+            default_confindence_interval (bool):
+                switch to always make a default confidence interval
+                and skip quantile regression forecasting,
+                mostly used for a basecase forecast
 
         Returns:
             pd.DataFrame: Forecast DataFram with columns: "forecast", "stdev" and
@@ -50,7 +59,7 @@ class ConfidenceIntervalApplicator:
         """
         temp_forecast = self._add_standard_deviation_to_forecast(forecast)
 
-        if pj["model_type_group"] == "quantile":
+        if pj["model_type_group"] == "quantile" and not default_confindence_interval:
             return self._add_quantiles_to_forecast_quantile_regression(
                 temp_forecast, pj["quantiles"]
             )
