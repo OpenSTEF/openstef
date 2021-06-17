@@ -16,9 +16,7 @@ Example:
         $ python optimize_hyperparameters.py
 
 """
-from datetime import datetime
-
-from ktpbase.database import DataBase
+from datetime import datetime, timedelta
 
 from openstf.pipeline.optimize_hyperparameters import optimize_hyperparameters_pipeline
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
@@ -30,13 +28,38 @@ MAX_AGE_HYPER_PARAMS_DAYS = 31
 
 def optimize_hyperparameters_task(pj: dict, context: TaskContext) -> None:
 
-    db = DataBase.get_instance()
+    db = context.database
 
-    if _last_optimimization_too_long_ago(pj) is not True:
-        context.logger.info("Hyperparameters not old enough to optimize again")
+    # Determine if we need to optimize hyperparams
+    datetime_last_optimized = db.get_hyper_params_last_optimized(pj)
+    last_optimized_days = (datetime.utcnow() - datetime_last_optimized).days
+
+    if last_optimized_days < MAX_AGE_HYPER_PARAMS_DAYS:
+        context.logger.warning(
+            "Skip hyperparameter optimization",
+            pid=pj["id"],
+            last_optimized_days=last_optimized_days,
+            max_age=MAX_AGE_HYPER_PARAMS_DAYS
+        )
         return
 
-    hyperparameters = optimize_hyperparameters_pipeline(pj)
+    # Get input data
+    current_hyperparams = db.get_hyper_params(pj)
+    # FIXME this conversion should be done in the database
+    training_period_days = int(current_hyperparams["training_period_days"])
+
+    datetime_start = datetime.utcnow() - timedelta(days=training_period_days)
+    datetime_end = datetime.utcnow()
+
+    input_data = db.get_model_input(
+        pid=pj["id"],
+        location=[pj["lat"], pj["lon"]],
+        datetime_start=datetime_start,
+        datetime_end=datetime_end,
+    )
+
+    # Optimize hyperparams
+    hyperparameters = optimize_hyperparameters_pipeline(pj, input_data)
 
     db.write_hyper_params(pj, hyperparameters)
 
@@ -45,16 +68,6 @@ def optimize_hyperparameters_task(pj: dict, context: TaskContext) -> None:
 
     teams.post_teams(teams.format_message(title=title, params=hyperparameters))
 
-def _last_optimimization_too_long_ago(pj):
-    db = DataBase.get_instance()
-    # Get data of last stored hyper parameters
-    previous_optimization_datetime = db.get_hyper_params_last_optimized(pj)
-
-    days_ago = (datetime.utcnow() - previous_optimization_datetime).days
-
-    return days_ago > MAX_AGE_HYPER_PARAMS_DAYS
-
-
 def main():
     with TaskContext("optimize_hyperparameters") as context:
         model_type = ["xgb", "xgb_quantile", "lgb"]
@@ -62,7 +75,6 @@ def main():
         PredictionJobLoop(context, model_type=model_type).map(
             optimize_hyperparameters_task, context
         )
-
 
 if __name__ == "__main__":
     main()
