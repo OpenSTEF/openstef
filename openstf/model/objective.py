@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+#
+# SPDX-License-Identifier: MPL-2.0
 import optuna
 
 from openstf.enums import MLModelType
@@ -41,7 +44,6 @@ class XGBRegressorObjective:
         self.validation_fraction = validation_fraction
         self.eval_metric = eval_metric
         self.verbose = verbose
-        # self.test_size = test_size
 
     def __call__(self, trial):
         """Optuna objective function.
