@@ -43,10 +43,11 @@ from openstf.monitoring import teams
 from openstf.tasks.utils.taskcontext import TaskContext
 from openstf.tasks.train_model import train_model_task
 from openstf.tasks.optimize_hyperparameters import optimize_hyperparameters_task
+from openstf.enums import TracyJobResult
 
 
 def run_tracy(context):
-    # Get the to do list.
+    # Get all Tracy jobs
     tracy_jobs = context.database.ktp_api.get_all_tracy_jobs(inprogress=0)
     num_jobs = len(tracy_jobs)
 
@@ -60,8 +61,9 @@ def run_tracy(context):
 
     for i, job in enumerate(tracy_jobs):
 
-        context.logger = context.logger.bind(job=job)
-        context.logger.info("Process job", job_counter=i, total_jobs=num_jobs)
+        # get a new logger with bound job
+        logger = context.logger.bind(job=job)
+        logger.info("Process job", job_counter=i, total_jobs=num_jobs)
 
         # Set all retrieved items of the todolist to inprogress
         job["inprogress"] = 1
@@ -70,42 +72,49 @@ def run_tracy(context):
         pid = int(job["args"])
         pj = context.database.get_prediction_job(pid)
 
-        # Try to execute Tracy job
-        try:
-            # If train model job (TODO remove old name when jobs are done)
-            if job["function"] in ["train_model", "train_specific_model"]:
-                context.logger.info("Start train model task")
-                train_model_task(pj, context)
-                context.logger.info("Succesfully trained a model")
+        result, exc = run_tracy_job(job, pj, context)
 
-            # If optimize hyperparameters job (TODO remove old name when jobs are done)
-            elif job["function"] in ["optimize_hyperparameters", "optimize_hyperparameters_for_specific_pid"]:
-                context.logger.info("Start optimize hyperparameters task")
-                optimize_hyperparameters_task(pj, context)
-                context.logger.info("Succesfully optimized hyperparameters")
-            # Else unknown job
-            else:
-                context.logger.error(f"Unkown Tracy job {job['function']}")
-                continue
-
-        # Execution of Tracy job failed
-        except Exception as e:
+        # job processing was succefull
+        if result is TracyJobResult.SUCCESS:
+            logger.info("Succesfully processed Tracy job")
+            # Delete job when succesfull
+            context.database.ktp_api.delete_tracy_job(job)
+            logger.info("Delete Tracy job")
+        # job was unknown
+        elif result is TracyJobResult.UNKNOWN:
+            logger.error(f"Unkown Tracy job {job['function']}")
+         # job processing failed / raised an exception
+        elif result is TracyJobResult.FAILED:
             job["inprogress"] = 2
             context.database.ktp_api.update_tracy_job(job)
-
             msg = "Exception occured while processing Tracy job"
-            context.logger.error(msg, exc_info=e)
+            logger.error(msg, exc_info=exc)
             teams.post_teams(teams.format_message(title=msg, params=job))
 
-        msg = f"Succesfully processed Tracy job: {job}"
-        context.logger.info(msg)
-
-        # Delete job
-        context.database.ktp_api.delete_tracy_job(job)
-        context.logger.info("Delete Tracy job")
-
-    context.logger = context.logger.unbind("job")
     context.logger.info("Finished processing all Tracy jobs - Tracy out!")
+
+
+def run_tracy_job(job, pj, context):
+    # Try to process Tracy job
+    try:
+        # If train model job (TODO remove old name when jobs are done)
+        if job["function"] in ["train_model", "train_specific_model"]:
+            train_model_task(pj, context)
+
+        # If optimize hyperparameters job (TODO remove old name when jobs are done)
+        elif job["function"] in ["optimize_hyperparameters", "optimize_hyperparameters_for_specific_pid"]:
+            optimize_hyperparameters_task(pj, context)
+
+        # Else unknown job
+        else:
+            return TracyJobResult.UNKNOWN, None
+
+        # job processing was succesfull
+        return TracyJobResult.SUCCESS, None
+
+    # Processing of Tracy job failed
+    except Exception as e:
+        return TracyJobResult.FAILED, e
 
 
 def main():
