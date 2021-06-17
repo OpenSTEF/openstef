@@ -6,6 +6,11 @@ import structlog
 from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
 from openstf.validation import validation
 
+# This is required to disable the default optuna logger and pass the logs to our own
+# structlog logger
+optuna.logging.enable_propagation()         # Propagate logs to the root logger.
+optuna.logging.disable_default_handler()    # Stop showing logs in sys.stderr.
+
 logger = structlog.get_logger(__name__)
 
 # See https://optuna.readthedocs.io/en/stable/reference/generated/optuna.study.Study.html#optuna.study.Study.optimize
