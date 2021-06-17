@@ -79,7 +79,9 @@ def optimize_hyperparameters_pipeline(
     return optimized_hyperparams
 
 
-def _log_study_progress(study, trial) -> None:
+def _log_study_progress(
+    study: optuna.study.Study, trial: optuna.trial.FrozenTrial
+) -> None:
     # Collect study and trial data
     trial_index = study.trials.index(trial)
     best_trial_index = study.trials.index(study.best_trial)
