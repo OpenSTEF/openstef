@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+#
+# SPDX-License-Identifier: MPL-2.0
 import unittest
 from unittest.mock import MagicMock, patch
 
@@ -28,7 +31,6 @@ class TestXGBRegressorObjective(BaseTestCase):
             model_creator_mock.create_model.call_args[0][0],
             MLModelType.XGB
         )
-
 
 
 if __name__ == "__main__":
