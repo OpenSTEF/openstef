@@ -28,10 +28,8 @@ MAX_AGE_HYPER_PARAMS_DAYS = 31
 
 def optimize_hyperparameters_task(pj: dict, context: TaskContext) -> None:
 
-    db = context.database
-
     # Determine if we need to optimize hyperparams
-    datetime_last_optimized = db.get_hyper_params_last_optimized(pj)
+    datetime_last_optimized = context.database.get_hyper_params_last_optimized(pj)
     last_optimized_days = (datetime.utcnow() - datetime_last_optimized).days
 
     if last_optimized_days < MAX_AGE_HYPER_PARAMS_DAYS:
@@ -44,14 +42,14 @@ def optimize_hyperparameters_task(pj: dict, context: TaskContext) -> None:
         return
 
     # Get input data
-    current_hyperparams = db.get_hyper_params(pj)
+    current_hyperparams = context.database.get_hyper_params(pj)
     # FIXME this conversion should be done in the database
     training_period_days = int(current_hyperparams["training_period_days"])
 
     datetime_start = datetime.utcnow() - timedelta(days=training_period_days)
     datetime_end = datetime.utcnow()
 
-    input_data = db.get_model_input(
+    input_data = context.database.get_model_input(
         pid=pj["id"],
         location=[pj["lat"], pj["lon"]],
         datetime_start=datetime_start,
@@ -61,12 +59,13 @@ def optimize_hyperparameters_task(pj: dict, context: TaskContext) -> None:
     # Optimize hyperparams
     hyperparameters = optimize_hyperparameters_pipeline(pj, input_data)
 
-    db.write_hyper_params(pj, hyperparameters)
+    context.database.write_hyper_params(pj, hyperparameters)
 
     # Sent message to Teams
     title = f'Optimized hyperparameters for prediction job {pj["name"]} {pj["description"]}'
 
     teams.post_teams(teams.format_message(title=title, params=hyperparameters))
+
 
 def main():
     with TaskContext("optimize_hyperparameters") as context:
