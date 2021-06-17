@@ -43,7 +43,7 @@ def optimize_hyperparameters_task(pj: dict, context: TaskContext) -> None:
 
     # Get input data
     current_hyperparams = context.database.get_hyper_params(pj)
-    # FIXME this conversion should be done in the database
+    # TODO this conversion should be done in the database
     training_period_days = int(current_hyperparams["training_period_days"])
 
     datetime_start = datetime.utcnow() - timedelta(days=training_period_days)
@@ -74,6 +74,7 @@ def main():
         PredictionJobLoop(context, model_type=model_type).map(
             optimize_hyperparameters_task, context
         )
+
 
 if __name__ == "__main__":
     main()

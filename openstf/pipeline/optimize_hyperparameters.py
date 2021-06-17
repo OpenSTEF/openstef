@@ -53,15 +53,15 @@ def optimize_hyperparameters_pipeline(
         input_data
     )
 
-    # Create relevant model
-    Objective = ObjectiveCreator.create_objective(model_type=pj["model"])
+    # Create objective (NOTE: this is a callable class)
+    objective = ObjectiveCreator.create_objective(model_type=pj["model"])
 
     study = optuna.create_study(
         pruner=optuna.pruners.MedianPruner(n_warmup_steps=5), direction="minimize"
     )
 
     study.optimize(
-        Objective(input_data_with_features),
+        objective(input_data_with_features),
         n_trials=n_trials,
         timeout=timeout,
         callbacks=[_log_study_progress],
