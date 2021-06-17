@@ -19,16 +19,22 @@ logger = structlog.get_logger(__name__)
 # See https://optuna.readthedocs.io/en/stable/reference/generated/optuna.study.Study.html#optuna.study.Study.optimize
 N_TRIALS: int = 8  # The number of trials.
 TIMEOUT: int = 200  # Stop study after the given number of second(s).
+TRAIN_HORIZONS: list[float] = [0.25, 24.0]
 
 
 def optimize_hyperparameters_pipeline(
-    pj: dict, input_data: pd.DataFrame, n_trials: int = N_TRIALS, timeout: int = TIMEOUT
+    pj: dict,
+    input_data: pd.DataFrame,
+    horizons: list[float] = TRAIN_HORIZONS,
+    n_trials: int = N_TRIALS,
+    timeout: int = TIMEOUT
 ) -> dict:
     """Optimize hyperparameters pipeline.
 
     Args:
         pj (dict): Prediction job
         input_data (pd.DataFrame): Raw training input data
+        horizons (list[float]): Horizons for feature engineering.
         n_trials (int, optional): The number of trials. Defaults to N_TRIALS.
         timeout (int, optional): Stop study after the given number of second(s).
             Defaults to TIMEOUT.
@@ -49,7 +55,7 @@ def optimize_hyperparameters_pipeline(
             f"after validation and cleaning"
         )
 
-    input_data_with_features = TrainFeatureApplicator(horizons=[0.25, 24]).add_features(
+    input_data_with_features = TrainFeatureApplicator(horizons=horizons).add_features(
         input_data
     )
 
