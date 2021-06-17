@@ -106,7 +106,7 @@ class XGBRegressorObjective(RegressorObjective):
         super().__init__(*args, **kwargs)
         self.model_type = MLModelType.XGB
 
-    def get_params(self, trial):
+    def get_params(self, trial: optuna.trial.FrozenTrial) -> dict:
         params = {
             "eta": trial.suggest_float("eta", 0.01, 0.2),
             "subsample": trial.suggest_float("subsample", 0.5, 1.0),
