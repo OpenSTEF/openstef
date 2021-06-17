@@ -14,16 +14,18 @@ VALIDATION_FRACTION: float = 0.1
 # See https://xgboost.readthedocs.io/en/latest/parameter.html for all possibilities
 EVAL_METRIC: str = "mae"
 
+
 # https://optuna.readthedocs.io/en/stable/faq.html#objective-func-additional-args
 class RegressorObjective:
-    """XGBRegressor optuna objective function.
+    """Regressor optuna objective function.
 
-        Use this class for optimization using an optuna study. The constructor is used to
-        set the "input_data" and optionally add some configuration. Next the instance
-        will be called by he optuna study during optimization.
+        Use any of the derived classses for optimization using an optuna study.
+        The constructor is used to set the "input_data" and optionally add some
+        configuration. Next the instance will be called by he optuna study during
+        optimization.
 
         Example:
-            # initialize the objective function
+            # initialize a (derived class) objective function
             objective = XGBRegressorObjective(input_data, test_fraction)
             # use the objective function
             study.optimize(objective)
@@ -45,7 +47,7 @@ class RegressorObjective:
         # Should be set on a derived classes
         self.model_type = None
 
-    def __call__(self, trial):
+    def __call__(self, trial: optuna.trial.FrozenTrial) -> float:
         """Optuna objective function.
 
         Args: trial
