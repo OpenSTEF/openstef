@@ -1,15 +1,14 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-from test.utils import BaseTestCase, TestData
 import pytz
 import pytest
+from datetime import datetime, timezone, timedelta
+import unittest
 
-import numpy as np
 import pandas as pd
 
-from datetime import datetime, timezone, timedelta
-
+from test.utils import BaseTestCase, TestData
 from openstf.model.basecase import BaseCaseModel
 
 NOW = datetime.now(timezone.utc)
@@ -54,3 +53,6 @@ class TestBaseCaseForecast(BaseTestCase):
         forecast_input.index = forecast_input.index.shift(delta, freq=1)
         with pytest.raises(ValueError):
             BaseCaseModel().predict(forecast_input)
+
+if __name__ == "__main__":
+    unittest.main()
