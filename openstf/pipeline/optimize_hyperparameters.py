@@ -1,8 +1,11 @@
-from openstf.model.objective_creator import ObjectiveCreator
+# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+#
+# SPDX-License-Identifier: MPL-2.0
 import pandas as pd
 import optuna
 import structlog
 
+from openstf.model.objective_creator import ObjectiveCreator
 from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
 from openstf.validation import validation
 
