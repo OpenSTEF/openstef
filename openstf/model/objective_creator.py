@@ -5,7 +5,7 @@
 from typing import Union
 
 from openstf.enums import MLModelType
-from openstf.model.objective import XGBRegressorObjective
+from openstf.model.objective import RegressorObjective, XGBRegressorObjective
 
 
 class ObjectiveCreator:
@@ -13,7 +13,7 @@ class ObjectiveCreator:
         MLModelType.XGB: XGBRegressorObjective
     }
     @staticmethod
-    def create_objective(model_type: Union[MLModelType, str]):
+    def create_objective(model_type: Union[MLModelType, str]) -> RegressorObjective:
         model_type = MLModelType(model_type)
 
         return ObjectiveCreator.OBJECTIVES[model_type]

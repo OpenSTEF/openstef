@@ -15,7 +15,7 @@ VALIDATION_FRACTION: float = 0.1
 EVAL_METRIC: str = "mae"
 
 # https://optuna.readthedocs.io/en/stable/faq.html#objective-func-additional-args
-class XGBRegressorObjective:
+class RegressorObjective:
     """XGBRegressor optuna objective function.
 
         Use this class for optimization using an optuna study. The constructor is used to
@@ -28,8 +28,6 @@ class XGBRegressorObjective:
             # use the objective function
             study.optimize(objective)
     """
-
-    MODEL_TYPE = MLModelType.XGB
 
     def __init__(
         self,
@@ -44,6 +42,8 @@ class XGBRegressorObjective:
         self.validation_fraction = validation_fraction
         self.eval_metric = eval_metric
         self.verbose = verbose
+        # Should be set on a derived classes
+        self.model_type = None
 
     def __call__(self, trial):
         """Optuna objective function.
@@ -68,16 +68,9 @@ class XGBRegressorObjective:
         # Configure evals for early stopping
         eval_set = [(train_x, train_y), (valid_x, valid_y)]
 
-        model = ModelCreator.create_model(self.MODEL_TYPE)
+        model = ModelCreator.create_model(self.model_type)
 
-        params = {
-            "eta": trial.suggest_float("eta", 0.01, 0.2),
-            "subsample": trial.suggest_float("subsample", 0.5, 1.0),
-            "min_child_weight": trial.suggest_int("min_child_weight", 1, 6),
-            "max_depth": trial.suggest_int("max_depth", 3, 10),
-            "gamma": trial.suggest_float("gamma", 0.0, 1.0),
-            "colsample_bytree": trial.suggest_float("colsample_bytree", 0.5, 1.0),
-        }
+        params = self.get_params(trial)
 
         model.set_params(**params)
 
@@ -103,3 +96,22 @@ class XGBRegressorObjective:
         forecast_y = model.predict(test_x)
 
         return mae(test_y, forecast_y)
+
+
+class XGBRegressorObjective(RegressorObjective):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.model_type = MLModelType.XGB
+
+    def get_params(self, trial):
+        params = {
+            "eta": trial.suggest_float("eta", 0.01, 0.2),
+            "subsample": trial.suggest_float("subsample", 0.5, 1.0),
+            "min_child_weight": trial.suggest_int("min_child_weight", 1, 6),
+            "max_depth": trial.suggest_int("max_depth", 3, 10),
+            "gamma": trial.suggest_float("gamma", 0.0, 1.0),
+            "colsample_bytree": trial.suggest_float("colsample_bytree", 0.5, 1.0),
+        }
+        return params
+
