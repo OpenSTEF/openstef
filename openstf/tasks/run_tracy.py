@@ -39,7 +39,7 @@ Attributes:
 # ENGINE = InnoDB;
 
 
-from openstf.monitoring.teams import post_teams
+from openstf.monitoring import teams
 from openstf.tasks.utils.taskcontext import TaskContext
 from openstf.tasks.train_model import train_model_task
 from openstf.tasks.optimize_hyperparameters import optimize_hyperparameters_task
@@ -50,34 +50,39 @@ def run_tracy(context):
     tracy_jobs = context.database.ktp_api.get_all_tracy_jobs(inprogress=0)
     num_jobs = len(tracy_jobs)
 
+    context.logger.info("Start running {num_jobs} Tracy jobs", num_jobs)
+
     if num_jobs == 0:
-        context.logger.warning("No Tracy jobs to process, exit", num_jobs=num_jobs)
+        context.logger.warning("Number of tracy jobs is {num_jobs}, exit task")
         return
 
     context.logger.info("Start processing Tracy jobs", num_jobs=num_jobs)
 
     for i, job in enumerate(tracy_jobs):
+
+        context.logger = context.logger.bind(job=job)
+        context.logger.info("Process job", job_counter=i, total_jobs=num_jobs)
+
         # Set all retrieved items of the todolist to inprogress
         job["inprogress"] = 1
         context.database.ktp_api.update_tracy_job(job)
 
-        context.logger = context.logger.bind(job=job)
-        context.logger.info("Process job", job_counter=i, total_jobs=num_jobs)
+        pid = int(job["args"])
+        pj = context.database.get_prediction_job(pid)
 
         # Try to execute Tracy job
         try:
             # If train model job (TODO remove old name when jobs are done)
             if job["function"] in ["train_model", "train_specific_model"]:
-                context.logger.info()
-                pid = int(job["args"])
-                pj = context.database.get_prediction_job(pid)
+                context.logger.info("Start train model task")
                 train_model_task(pj, context)
+                context.logger.info("Succesfully trained a model")
 
             # If optimize hyperparameters job (TODO remove old name when jobs are done)
             elif job["function"] in ["optimize_hyperparameters", "optimize_hyperparameters_for_specific_pid"]:
-                pid = int(job["args"])
-                pj = context.database.get_prediction_job(pid)
+                context.logger.info("Start optimize hyperparameters task")
                 optimize_hyperparameters_task(pj, context)
+                context.logger.info("Succesfully optimized hyperparameters")
             # Else unknown job
             else:
                 context.logger.error(f"Unkown Tracy job {job['function']}")
@@ -88,13 +93,12 @@ def run_tracy(context):
             job["inprogress"] = 2
             context.database.ktp_api.update_tracy_job(job)
 
-            msg = f"Exception occured while processing Tracy job: {job}"
+            msg = "Exception occured while processing Tracy job"
             context.logger.error(msg, exc_info=e)
-            post_teams(msg)
+            teams.post_teams(teams.format_message(title=msg, params=job))
 
         msg = f"Succesfully processed Tracy job: {job}"
         context.logger.info(msg)
-        post_teams(msg)
 
         # Delete job
         context.database.ktp_api.delete_tracy_job(job)
