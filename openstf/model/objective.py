@@ -1,11 +1,9 @@
-EARLY_STOPPING_ROUNDS: int = 10
-
 import optuna
-from sklearn.metrics import mean_absolute_error
 
 from openstf.enums import MLModelType
 from openstf.model.model_creator import ModelCreator
 from openstf.model_selection.model_selection import split_data_train_validation_test
+from openstf.metrics.metrics import mae
 
 EARLY_STOPPING_ROUNDS: int = 10
 TEST_FRACTION: float = 0.1
@@ -15,6 +13,20 @@ EVAL_METRIC: str = "mae"
 
 # https://optuna.readthedocs.io/en/stable/faq.html#objective-func-additional-args
 class XGBRegressorObjective:
+    """XGBRegressor optuna objective function.
+
+        Use this class for optimization using an optuna study. The constructor is used to
+        set the "input_data" and optionally add some configuration. Next the instance
+        will be called by he optuna study during optimization.
+
+        Example:
+            # initialize the objective function
+            objective = XGBRegressorObjective(input_data, test_fraction)
+            # use the objective function
+            study.optimize(objective)
+    """
+
+    MODEL_TYPE = MLModelType.XGB
 
     def __init__(
         self,
@@ -22,7 +34,7 @@ class XGBRegressorObjective:
         test_fraction=TEST_FRACTION,
         validation_fraction=VALIDATION_FRACTION,
         eval_metric=EVAL_METRIC,
-        verbose=True
+        verbose=False
     ):
         self.input_data = input_data
         self.test_fraction = test_fraction
@@ -46,7 +58,7 @@ class XGBRegressorObjective:
             validation_fraction=self.validation_fraction,
             back_test=True,
         )
-
+        # Split in x, y data (x are the features, y is the load)
         train_x, train_y = train_data.iloc[:, 1:], train_data.iloc[:, 0]
         valid_x, valid_y = validation_data.iloc[:, 1:], validation_data.iloc[:, 0]
         test_x, test_y = test_data.iloc[:, 1:], test_data.iloc[:, 0]
@@ -54,7 +66,7 @@ class XGBRegressorObjective:
         # Configure evals for early stopping
         eval_set = [(train_x, train_y), (valid_x, valid_y)]
 
-        model = ModelCreator.create_model(MLModelType.XGB)
+        model = ModelCreator.create_model(self.MODEL_TYPE)
 
         params = {
             "eta": trial.suggest_float("eta", 0.01, 0.2),
@@ -64,11 +76,12 @@ class XGBRegressorObjective:
             "gamma": trial.suggest_float("gamma", 0.0, 1.0),
             "colsample_bytree": trial.suggest_float("colsample_bytree", 0.5, 1.0),
         }
-        breakpoint()
+
         model.set_params(**params)
 
         eval_metric = self.eval_metric
 
+        # See https://optuna.readthedocs.io/en/stable/reference/generated/optuna.integration.XGBoostPruningCallback.html
         pruning_callback = optuna.integration.XGBoostPruningCallback(
             # Use validation_0 to prune on the train set
             # Use validation_1 to prune on the validation set
@@ -87,4 +100,4 @@ class XGBRegressorObjective:
 
         forecast_y = model.predict(test_x)
 
-        return mean_absolute_error(test_y, forecast_y)
+        return mae(test_y, forecast_y)
