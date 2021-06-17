@@ -167,7 +167,6 @@
  | <a href="#N"><strong>N</strong></a>
  | <a href="#O"><strong>O</strong></a>
  | <a href="#P"><strong>P</strong></a>
- | <a href="#Q"><strong>Q</strong></a>
  | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
  | <a href="#T"><strong>T</strong></a>
@@ -182,13 +181,11 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="openstf.feature_engineering.html#openstf.feature_engineering.feature_applicator.AbstractFeatureApplicator">AbstractFeatureApplicator (class in openstf.feature_engineering.feature_applicator)</a>
 </li>
-      <li><a href="openstf.model.serializer.html#openstf.model.serializer.serializer.AbstractModelSerializer">AbstractModelSerializer (class in openstf.model.serializer.serializer)</a>
-</li>
-      <li><a href="openstf.model.trainer.html#openstf.model.trainer.trainer.AbstractModelTrainer">AbstractModelTrainer (class in openstf.model.trainer.trainer)</a>
-</li>
-      <li><a href="openstf.model.prediction.html#openstf.model.prediction.prediction.AbstractPredictionModel">AbstractPredictionModel (class in openstf.model.prediction.prediction)</a>
+      <li><a href="openstf.model.html#openstf.model.serializer.AbstractSerializer">AbstractSerializer (class in openstf.model.serializer)</a>
 </li>
       <li><a href="openstf.feature_engineering.html#openstf.feature_engineering.weather_features.add_additional_wind_features">add_additional_wind_features() (in module openstf.feature_engineering.weather_features)</a>
+</li>
+      <li><a href="openstf.postprocessing.html#openstf.postprocessing.postprocessing.add_components_base_case_forecast">add_components_base_case_forecast() (in module openstf.postprocessing.postprocessing)</a>
 </li>
       <li><a href="openstf.feature_engineering.html#openstf.feature_engineering.feature_applicator.AbstractFeatureApplicator.add_features">add_features() (openstf.feature_engineering.feature_applicator.AbstractFeatureApplicator method)</a>
 
@@ -206,7 +203,7 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="openstf.model.prediction.html#openstf.model.prediction.prediction.AbstractPredictionModel.add_prediction_job_properties_to_forecast">add_prediction_job_properties_to_forecast() (openstf.model.prediction.prediction.AbstractPredictionModel static method)</a>
+      <li><a href="openstf.postprocessing.html#openstf.postprocessing.postprocessing.add_prediction_job_properties_to_forecast">add_prediction_job_properties_to_forecast() (in module openstf.postprocessing.postprocessing)</a>
 </li>
       <li><a href="openstf.feature_engineering.html#openstf.feature_engineering.capacity_prognoses_features.apply_calender_features">apply_calender_features() (in module openstf.feature_engineering.capacity_prognoses_features)</a>
 </li>
@@ -240,23 +237,11 @@
 </li>
       <li><a href="openstf.html#openstf.enums.ForecastType.BASECASE">BASECASE (openstf.enums.ForecastType attribute)</a>
 </li>
-      <li><a href="openstf.model.serializer.html#openstf.model.serializer.serializer.AbstractModelSerializer.BEST_ITERATION_FILENAME">BEST_ITERATION_FILENAME (openstf.model.serializer.serializer.AbstractModelSerializer attribute)</a>
-</li>
-      <li><a href="openstf.model.trainer.lightgbm.html#openstf.model.trainer.lightgbm.lightgbm.LGBModelTrainer.better_than_old_model">better_than_old_model() (openstf.model.trainer.lightgbm.lightgbm.LGBModelTrainer method)</a>
-
-      <ul>
-        <li><a href="openstf.model.trainer.html#openstf.model.trainer.trainer.AbstractModelTrainer.better_than_old_model">(openstf.model.trainer.trainer.AbstractModelTrainer method)</a>
-</li>
-        <li><a href="openstf.model.trainer.xgboost.html#openstf.model.trainer.xgboost.xgboost.XGBModelTrainer.better_than_old_model">(openstf.model.trainer.xgboost.xgboost.XGBModelTrainer method)</a>
-</li>
-      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="openstf.model.html#openstf.model.basecase.BaseCaseModel">BaseCaseModel (class in openstf.model.basecase)</a>
+</li>
       <li><a href="openstf.metrics.html#openstf.metrics.metrics.bias">bias() (in module openstf.metrics.metrics)</a>
-</li>
-      <li><a href="openstf.model.serializer.html#openstf.model.serializer.serializer.AbstractModelSerializer.build_pid_model_folder_path">build_pid_model_folder_path() (openstf.model.serializer.serializer.AbstractModelSerializer method)</a>
-</li>
-      <li><a href="openstf.model.serializer.html#openstf.model.serializer.serializer.AbstractModelSerializer.build_save_folder_path">build_save_folder_path() (openstf.model.serializer.serializer.AbstractModelSerializer method)</a>
 </li>
       <li><a href="openstf.monitoring.html#openstf.monitoring.teams.build_sql_query_string">build_sql_query_string() (in module openstf.monitoring.teams)</a>
 </li>
@@ -280,20 +265,6 @@
 </li>
       <li><a href="openstf.feature_engineering.html#openstf.feature_engineering.weather_features.calc_vapour_pressure">calc_vapour_pressure() (in module openstf.feature_engineering.weather_features)</a>
 </li>
-      <li><a href="openstf.model.prediction.lightgbm.html#openstf.model.prediction.lightgbm.lightgbm.LGBPredictionModel.calculate_completeness">calculate_completeness() (openstf.model.prediction.lightgbm.lightgbm.LGBPredictionModel method)</a>
-
-      <ul>
-        <li><a href="openstf.model.prediction.html#openstf.model.prediction.prediction.AbstractPredictionModel.calculate_completeness">(openstf.model.prediction.prediction.AbstractPredictionModel method)</a>
-</li>
-        <li><a href="openstf.model.prediction.xgboost.html#openstf.model.prediction.xgboost.xgboost.XGBPredictionModel.calculate_completeness">(openstf.model.prediction.xgboost.xgboost.XGBPredictionModel method)</a>
-</li>
-      </ul></li>
-      <li><a href="openstf.model.trainer.lightgbm.html#openstf.model.trainer.lightgbm.lightgbm.LGBModelTrainer.calculate_confidence_interval">calculate_confidence_interval() (openstf.model.trainer.lightgbm.lightgbm.LGBModelTrainer method)</a>
-
-      <ul>
-        <li><a href="openstf.model.trainer.xgboost.html#openstf.model.trainer.xgboost.xgboost.XGBModelTrainer.calculate_confidence_interval">(openstf.model.trainer.xgboost.xgboost.XGBModelTrainer method)</a>
-</li>
-      </ul></li>
       <li><a href="openstf.feature_engineering.html#openstf.feature_engineering.weather_features.calculate_windspeed_at_hubheight">calculate_windspeed_at_hubheight() (in module openstf.feature_engineering.weather_features)</a>
 </li>
       <li><a href="openstf.feature_engineering.html#openstf.feature_engineering.weather_features.calculate_windturbine_power_output">calculate_windturbine_power_output() (in module openstf.feature_engineering.weather_features)</a>
@@ -304,10 +275,10 @@
 </li>
       <li><a href="openstf.feature_engineering.html#openstf.feature_engineering.holiday_features.check_for_bridge_day">check_for_bridge_day() (in module openstf.feature_engineering.holiday_features)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="openstf.tasks.html#openstf.tasks.calculate_kpi.check_kpi_pj">check_kpi_pj() (in module openstf.tasks.calculate_kpi)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="openstf.tasks.utils.html#openstf.tasks.utils.utils.check_status_change">check_status_change() (in module openstf.tasks.utils.utils)</a>
 </li>
       <li><a href="openstf.monitoring.html#openstf.monitoring.performance_meter.PerformanceMeter.checkpoint">checkpoint() (openstf.monitoring.performance_meter.PerformanceMeter method)</a>
@@ -322,27 +293,19 @@
 </li>
       <li><a href="openstf.tasks.html#openstf.tasks.split_forecast.convert_coefdict_to_coefsdf">convert_coefdict_to_coefsdf() (in module openstf.tasks.split_forecast)</a>
 </li>
+      <li><a href="openstf.model.html#openstf.model.serializer.PersistentStorageSerializer.convert_model_id_into_model_folder">convert_model_id_into_model_folder() (openstf.model.serializer.PersistentStorageSerializer method)</a>
+</li>
+      <li><a href="openstf.model.html#openstf.model.serializer.PersistentStorageSerializer.convert_model_id_into_model_path">convert_model_id_into_model_path() (openstf.model.serializer.PersistentStorageSerializer method)</a>
+</li>
       <li><a href="openstf.tasks.utils.html#openstf.tasks.utils.utils.convert_string_args_to_dict_args">convert_string_args_to_dict_args() (in module openstf.tasks.utils.utils)</a>
 </li>
       <li><a href="openstf.metrics.html#openstf.metrics.figure.convert_to_base64_data_uri">convert_to_base64_data_uri() (in module openstf.metrics.figure)</a>
 </li>
-      <li><a href="openstf.model.serializer.html#openstf.model.serializer.serializer.AbstractModelSerializer.CORRECTIONS_FILENAME">CORRECTIONS_FILENAME (openstf.model.serializer.serializer.AbstractModelSerializer attribute)</a>
+      <li><a href="openstf.pipeline.html#openstf.pipeline.create_component_forecast.create_components_forecast_pipeline">create_components_forecast_pipeline() (in module openstf.pipeline.create_component_forecast)</a>
 </li>
-      <li><a href="openstf.tasks.html#openstf.tasks.create_components_forecast.create_components_forecast_pj">create_components_forecast_pj() (in module openstf.tasks.create_components_forecast)</a>
+      <li><a href="openstf.tasks.html#openstf.tasks.create_components_forecast.create_components_forecast_task">create_components_forecast_task() (in module openstf.tasks.create_components_forecast)</a>
 </li>
-      <li><a href="openstf.pipeline.html#openstf.pipeline.train_model.create_evaluation_figures">create_evaluation_figures() (in module openstf.pipeline.train_model)</a>
-</li>
-      <li><a href="openstf.pipeline.html#openstf.pipeline.create_forecast.create_forecast_pipeline">create_forecast_pipeline() (in module openstf.pipeline.create_forecast)</a>
-</li>
-      <li><a href="openstf.model.serializer.html#openstf.model.serializer.creator.ModelSerializerCreator.create_model_serializer">create_model_serializer() (openstf.model.serializer.creator.ModelSerializerCreator class method)</a>
-</li>
-      <li><a href="openstf.pipeline.html#openstf.pipeline.train_model.create_model_trainer">create_model_trainer() (in module openstf.pipeline.train_model)</a>
-
-      <ul>
-        <li><a href="openstf.model.trainer.html#openstf.model.trainer.creator.ModelTrainerCreator.create_model_trainer">(openstf.model.trainer.creator.ModelTrainerCreator method)</a>
-</li>
-      </ul></li>
-      <li><a href="openstf.model.prediction.html#openstf.model.prediction.creator.PredictionModelCreator.create_prediction_model">create_prediction_model() (openstf.model.prediction.creator.PredictionModelCreator class method)</a>
+      <li><a href="openstf.model.html#openstf.model.model_creator.ModelCreator.create_model">create_model() (openstf.model.model_creator.ModelCreator static method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -350,13 +313,13 @@
 <h2 id="D">D</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="openstf.html#openstf.enums.ForecastType.DEMAND">DEMAND (openstf.enums.ForecastType attribute)</a>
+      <li><a href="openstf.metrics.html#openstf.metrics.reporter.Report.data_series_figures">data_series_figures (openstf.metrics.reporter.Report attribute)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="openstf.tasks.html#openstf.tasks.split_forecast.determine_invalid_coefs">determine_invalid_coefs() (in module openstf.tasks.split_forecast)</a>
+      <li><a href="openstf.html#openstf.enums.ForecastType.DEMAND">DEMAND (openstf.enums.ForecastType attribute)</a>
 </li>
-      <li><a href="openstf.model.serializer.html#openstf.model.serializer.serializer.AbstractModelSerializer.determine_model_age_from_path">determine_model_age_from_path() (openstf.model.serializer.serializer.AbstractModelSerializer class method)</a>
+      <li><a href="openstf.tasks.html#openstf.tasks.split_forecast.determine_invalid_coefs">determine_invalid_coefs() (in module openstf.tasks.split_forecast)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -376,42 +339,32 @@
 <h2 id="F">F</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="openstf.model.trainer.lightgbm.html#openstf.model.trainer.lightgbm.lightgbm.LGBModelTrainer.feature_importance">feature_importance() (openstf.model.trainer.lightgbm.lightgbm.LGBModelTrainer property)</a>
-
-      <ul>
-        <li><a href="openstf.model.trainer.html#openstf.model.trainer.trainer.AbstractModelTrainer.feature_importance">(openstf.model.trainer.trainer.AbstractModelTrainer property)</a>
-</li>
-        <li><a href="openstf.model.trainer.xgboost.html#openstf.model.trainer.xgboost.xgboost.XGBModelTrainer.feature_importance">(openstf.model.trainer.xgboost.xgboost.XGBModelTrainer property)</a>
-</li>
-      </ul></li>
-      <li><a href="openstf.model.prediction.lightgbm.html#openstf.model.prediction.lightgbm.lightgbm.LGBPredictionModel.feature_names">feature_names() (openstf.model.prediction.lightgbm.lightgbm.LGBPredictionModel property)</a>
-
-      <ul>
-        <li><a href="openstf.model.prediction.html#openstf.model.prediction.prediction.AbstractPredictionModel.feature_names">(openstf.model.prediction.prediction.AbstractPredictionModel property)</a>
-</li>
-        <li><a href="openstf.model.prediction.xgboost.html#openstf.model.prediction.xgboost.quantile.QuantileXGBPredictionModel.feature_names">(openstf.model.prediction.xgboost.quantile.QuantileXGBPredictionModel property)</a>
-</li>
-        <li><a href="openstf.model.prediction.xgboost.html#openstf.model.prediction.xgboost.xgboost.XGBPredictionModel.feature_names">(openstf.model.prediction.xgboost.xgboost.XGBPredictionModel property)</a>
-</li>
-      </ul></li>
-      <li><a href="openstf.model.serializer.html#openstf.model.serializer.serializer.AbstractModelSerializer.FEATURE_NAMES_FILENAME">FEATURE_NAMES_FILENAME (openstf.model.serializer.serializer.AbstractModelSerializer attribute)</a>
-</li>
-      <li><a href="openstf.model.serializer.html#openstf.model.serializer.serializer.AbstractModelSerializer.FEATURE_TYPES_FILENAME">FEATURE_TYPES_FILENAME (openstf.model.serializer.serializer.AbstractModelSerializer attribute)</a>
+      <li><a href="openstf.metrics.html#openstf.metrics.reporter.Report.feature_importance_figure">feature_importance_figure (openstf.metrics.reporter.Report attribute)</a>
 </li>
       <li><a href="openstf.tasks.html#openstf.tasks.create_solar_forecast.fides">fides() (in module openstf.tasks.create_solar_forecast)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="openstf.tasks.html#openstf.tasks.split_forecast.find_components">find_components() (in module openstf.tasks.split_forecast)</a>
 </li>
-      <li><a href="openstf.model.serializer.html#openstf.model.serializer.serializer.AbstractModelSerializer.find_most_recent_model_file">find_most_recent_model_file() (openstf.model.serializer.serializer.AbstractModelSerializer method)</a>
+      <li><a href="openstf.model.html#openstf.model.serializer.PersistentStorageSerializer.find_model_folders">find_model_folders() (openstf.model.serializer.PersistentStorageSerializer method)</a>
+</li>
+      <li><a href="openstf.model.html#openstf.model.serializer.PersistentStorageSerializer.find_model_paths">find_model_paths() (openstf.model.serializer.PersistentStorageSerializer method)</a>
+</li>
+      <li><a href="openstf.model.html#openstf.model.serializer.PersistentStorageSerializer.find_most_recent_model_folder">find_most_recent_model_folder() (openstf.model.serializer.PersistentStorageSerializer method)</a>
+</li>
+      <li><a href="openstf.model.html#openstf.model.serializer.PersistentStorageSerializer.find_most_recent_model_path">find_most_recent_model_path() (openstf.model.serializer.PersistentStorageSerializer method)</a>
 </li>
       <li><a href="openstf.validation.html#openstf.validation.validation.find_nonzero_flatliner">find_nonzero_flatliner() (in module openstf.validation.validation)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="openstf.validation.html#openstf.validation.validation.find_zero_flatliner">find_zero_flatliner() (in module openstf.validation.validation)</a>
 </li>
-      <li><a href="openstf.model.serializer.html#openstf.model.serializer.serializer.AbstractModelSerializer.FOLDER_DATETIME_FORMAT">FOLDER_DATETIME_FORMAT (openstf.model.serializer.serializer.AbstractModelSerializer attribute)</a>
+      <li><a href="openstf.model.html#openstf.model.basecase.BaseCaseModel.fit">fit() (openstf.model.basecase.BaseCaseModel method)</a>
+
+      <ul>
+        <li><a href="openstf.model.html#openstf.model.xgb_quantile.XGBQuantileRegressor.fit">(openstf.model.xgb_quantile.XGBQuantileRegressor method)</a>
 </li>
+      </ul></li>
       <li><a href="openstf.html#openstf.enums.ForecastType">ForecastType (class in openstf.enums)</a>
 </li>
       <li><a href="openstf.monitoring.html#openstf.monitoring.teams.format_message">format_message() (in module openstf.monitoring.teams)</a>
@@ -428,27 +381,23 @@
 <h2 id="G">G</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="openstf.pipeline.html#openstf.pipeline.create_forecast.generate_forecast_datetime_range">generate_forecast_datetime_range() (in module openstf.pipeline.create_forecast)</a>
+      <li><a href="openstf.model.html#openstf.model.fallback.generate_fallback">generate_fallback() (in module openstf.model.fallback)</a>
 </li>
       <li><a href="openstf.feature_engineering.html#openstf.feature_engineering.holiday_features.generate_holiday_feature_functions">generate_holiday_feature_functions() (in module openstf.feature_engineering.holiday_features)</a>
 </li>
-      <li><a href="openstf.pipeline.html#openstf.pipeline.create_forecast.generate_input_data_id">generate_input_data_id() (in module openstf.pipeline.create_forecast)</a>
-</li>
-      <li><a href="openstf.pipeline.html#openstf.pipeline.create_forecast.generate_inputdata_datetime_range">generate_inputdata_datetime_range() (in module openstf.pipeline.create_forecast)</a>
-</li>
       <li><a href="openstf.feature_engineering.html#openstf.feature_engineering.lag_features.generate_lag_feature_functions">generate_lag_feature_functions() (in module openstf.feature_engineering.lag_features)</a>
+</li>
+      <li><a href="openstf.model.html#openstf.model.serializer.PersistentStorageSerializer.generate_model_id">generate_model_id() (openstf.model.serializer.PersistentStorageSerializer method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="openstf.feature_engineering.html#openstf.feature_engineering.lag_features.generate_non_trivial_lag_times">generate_non_trivial_lag_times() (in module openstf.feature_engineering.lag_features)</a>
 </li>
+      <li><a href="openstf.metrics.html#openstf.metrics.reporter.Reporter.generate_report">generate_report() (openstf.metrics.reporter.Reporter method)</a>
+</li>
+      <li><a href="openstf.model.html#openstf.model.standard_deviation_generator.StandardDeviationGenerator.generate_standard_deviation_data">generate_standard_deviation_data() (openstf.model.standard_deviation_generator.StandardDeviationGenerator method)</a>
+</li>
       <li><a href="openstf.feature_engineering.html#openstf.feature_engineering.lag_features.generate_trivial_lag_features">generate_trivial_lag_features() (in module openstf.feature_engineering.lag_features)</a>
-</li>
-      <li><a href="openstf.tasks.html#openstf.tasks.run_tracy.get_and_evaluate_todos">get_and_evaluate_todos() (in module openstf.tasks.run_tracy)</a>
-</li>
-      <li><a href="openstf.pipeline.html#openstf.pipeline.create_forecast.get_model_input">get_model_input() (in module openstf.pipeline.create_forecast)</a>
-</li>
-      <li><a href="openstf.model.prediction.xgboost.model.html#openstf.model.prediction.xgboost.model.quantile.XGBQuantileModel.get_score">get_score() (openstf.model.prediction.xgboost.model.quantile.XGBQuantileModel method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -458,14 +407,6 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="openstf.feature_engineering.html#openstf.feature_engineering.weather_features.humidity_calculations">humidity_calculations() (in module openstf.feature_engineering.weather_features)</a>
 </li>
-      <li><a href="openstf.model.trainer.lightgbm.html#openstf.model.trainer.lightgbm.lightgbm.LGBModelTrainer.hyper_params_objective">hyper_params_objective() (openstf.model.trainer.lightgbm.lightgbm.LGBModelTrainer method)</a>
-
-      <ul>
-        <li><a href="openstf.model.trainer.html#openstf.model.trainer.trainer.AbstractModelTrainer.hyper_params_objective">(openstf.model.trainer.trainer.AbstractModelTrainer method)</a>
-</li>
-        <li><a href="openstf.model.trainer.xgboost.html#openstf.model.trainer.xgboost.xgboost.XGBModelTrainer.hyper_params_objective">(openstf.model.trainer.xgboost.xgboost.XGBModelTrainer method)</a>
-</li>
-      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -474,13 +415,9 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="openstf.tasks.utils.html#openstf.tasks.utils.utils.interpret_string_as_functions">interpret_string_as_functions() (in module openstf.tasks.utils.utils)</a>
 </li>
-      <li><a href="openstf.pipeline.html#openstf.pipeline.create_forecast.is_complete_enough">is_complete_enough() (in module openstf.pipeline.create_forecast)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="openstf.validation.html#openstf.validation.validation.is_data_sufficient">is_data_sufficient() (in module openstf.validation.validation)</a>
-</li>
-      <li><a href="openstf.pipeline.html#openstf.pipeline.train_model.is_new_model_better">is_new_model_better() (in module openstf.pipeline.train_model)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -488,30 +425,20 @@
 <h2 id="L">L</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="openstf.pipeline.html#openstf.pipeline.optimize_hyperparameters.last_optimimization_too_long_ago">last_optimimization_too_long_ago() (in module openstf.pipeline.optimize_hyperparameters)</a>
-</li>
       <li><a href="openstf.html#openstf.enums.MLModelType.LGB">LGB (openstf.enums.MLModelType attribute)</a>
 </li>
-      <li><a href="openstf.model.serializer.lightgbm.html#openstf.model.serializer.lightgbm.lightgbm.LGBModelSerializer">LGBModelSerializer (class in openstf.model.serializer.lightgbm.lightgbm)</a>
-</li>
-      <li><a href="openstf.model.trainer.lightgbm.html#openstf.model.trainer.lightgbm.lightgbm.LGBModelTrainer">LGBModelTrainer (class in openstf.model.trainer.lightgbm.lightgbm)</a>
-</li>
-      <li><a href="openstf.model.prediction.lightgbm.html#openstf.model.prediction.lightgbm.lightgbm.LGBPredictionModel">LGBPredictionModel (class in openstf.model.prediction.lightgbm.lightgbm)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="openstf.model.capacity.html#openstf.model.capacity.model.CapacityPredictionModel.load">load() (openstf.model.capacity.model.CapacityPredictionModel method)</a>
+</li>
+      <li><a href="openstf.model.html#openstf.model.serializer.AbstractSerializer.load_model">load_model() (openstf.model.serializer.AbstractSerializer method)</a>
 
       <ul>
-        <li><a href="openstf.model.serializer.lightgbm.html#openstf.model.serializer.lightgbm.lightgbm.LGBModelSerializer.load">(openstf.model.serializer.lightgbm.lightgbm.LGBModelSerializer method)</a>
-</li>
-        <li><a href="openstf.model.serializer.html#openstf.model.serializer.serializer.AbstractModelSerializer.load">(openstf.model.serializer.serializer.AbstractModelSerializer method)</a>
-</li>
-        <li><a href="openstf.model.serializer.xgboost.html#openstf.model.serializer.xgboost.quantile.XGBQuantileModelSerializer.load">(openstf.model.serializer.xgboost.quantile.XGBQuantileModelSerializer method)</a>
-</li>
-        <li><a href="openstf.model.serializer.xgboost.html#openstf.model.serializer.xgboost.xgboost.XGBModelSerializer.load">(openstf.model.serializer.xgboost.xgboost.XGBModelSerializer method)</a>
+        <li><a href="openstf.model.html#openstf.model.serializer.PersistentStorageSerializer.load_model">(openstf.model.serializer.PersistentStorageSerializer method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="openstf.model.html#openstf.model.serializer.PersistentStorageSerializer.load_model_from_path">load_model_from_path() (openstf.model.serializer.PersistentStorageSerializer method)</a>
+</li>
       <li><a href="openstf.tasks.utils.html#openstf.tasks.utils.utils.load_status_file">load_status_file() (in module openstf.tasks.utils.utils)</a>
 </li>
   </ul></td>
@@ -525,49 +452,23 @@
       <li><a href="openstf.tasks.html#openstf.tasks.calculate_kpi.main">main() (in module openstf.tasks.calculate_kpi)</a>
 
       <ul>
-        <li><a href="openstf.tasks.html#openstf.tasks.create_basecase_forecast.main">(in module openstf.tasks.create_basecase_forecast)</a>
-</li>
         <li><a href="openstf.tasks.html#openstf.tasks.create_capacity_forecast.main">(in module openstf.tasks.create_capacity_forecast)</a>
 </li>
         <li><a href="openstf.tasks.html#openstf.tasks.create_components_forecast.main">(in module openstf.tasks.create_components_forecast)</a>
-</li>
-        <li><a href="openstf.tasks.html#openstf.tasks.create_forecast.main">(in module openstf.tasks.create_forecast)</a>
 </li>
         <li><a href="openstf.tasks.html#openstf.tasks.create_solar_forecast.main">(in module openstf.tasks.create_solar_forecast)</a>
 </li>
         <li><a href="openstf.tasks.html#openstf.tasks.create_wind_forecast.main">(in module openstf.tasks.create_wind_forecast)</a>
 </li>
-        <li><a href="openstf.tasks.html#openstf.tasks.optimize_hyperparameters.main">(in module openstf.tasks.optimize_hyperparameters)</a>
-</li>
-        <li><a href="openstf.tasks.html#openstf.tasks.run_tracy.main">(in module openstf.tasks.run_tracy)</a>
-</li>
         <li><a href="openstf.tasks.html#openstf.tasks.split_forecast.main">(in module openstf.tasks.split_forecast)</a>
 </li>
         <li><a href="openstf.tasks.html#openstf.tasks.train_capacity_model.main">(in module openstf.tasks.train_capacity_model)</a>
 </li>
-        <li><a href="openstf.tasks.html#openstf.tasks.train_model.main">(in module openstf.tasks.train_model)</a>
-</li>
       </ul></li>
-      <li><a href="openstf.model.prediction.html#openstf.model.prediction.prediction.AbstractPredictionModel.make_basecase_forecast">make_basecase_forecast() (openstf.model.prediction.prediction.AbstractPredictionModel static method)</a>
-</li>
-      <li><a href="openstf.pipeline.html#openstf.pipeline.create_forecast.make_basecase_prediction">make_basecase_prediction() (in module openstf.pipeline.create_forecast)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="openstf.pipeline.html#openstf.pipeline.create_forecast.make_components_prediction">make_components_prediction() (in module openstf.pipeline.create_forecast)</a>
+      <li><a href="openstf.model.html#openstf.model.basecase.BaseCaseModel.make_basecase_forecast">make_basecase_forecast() (openstf.model.basecase.BaseCaseModel static method)</a>
 </li>
-      <li><a href="openstf.model.prediction.html#openstf.model.prediction.prediction.AbstractPredictionModel.make_fallback_forecast">make_fallback_forecast() (openstf.model.prediction.prediction.AbstractPredictionModel method)</a>
-</li>
-      <li><a href="openstf.model.prediction.lightgbm.html#openstf.model.prediction.lightgbm.lightgbm.LGBPredictionModel.make_forecast">make_forecast() (openstf.model.prediction.lightgbm.lightgbm.LGBPredictionModel method)</a>
-
-      <ul>
-        <li><a href="openstf.model.prediction.html#openstf.model.prediction.prediction.AbstractPredictionModel.make_forecast">(openstf.model.prediction.prediction.AbstractPredictionModel method)</a>
-</li>
-        <li><a href="openstf.model.prediction.xgboost.html#openstf.model.prediction.xgboost.quantile.QuantileXGBPredictionModel.make_forecast">(openstf.model.prediction.xgboost.quantile.QuantileXGBPredictionModel method)</a>
-</li>
-        <li><a href="openstf.model.prediction.xgboost.html#openstf.model.prediction.xgboost.xgboost.XGBPredictionModel.make_forecast">(openstf.model.prediction.xgboost.xgboost.XGBPredictionModel method)</a>
-</li>
-      </ul></li>
       <li><a href="openstf.tasks.html#openstf.tasks.create_solar_forecast.make_solar_predicion_pj">make_solar_predicion_pj() (in module openstf.tasks.create_solar_forecast)</a>
 </li>
       <li><a href="openstf.tasks.html#openstf.tasks.create_wind_forecast.make_wind_forcast_pj">make_wind_forcast_pj() (in module openstf.tasks.create_wind_forecast)</a>
@@ -576,15 +477,9 @@
 </li>
       <li><a href="openstf.html#openstf.enums.MLModelType">MLModelType (class in openstf.enums)</a>
 </li>
-      <li><a href="openstf.model.serializer.html#openstf.model.serializer.serializer.AbstractModelSerializer.MODEL_FILENAME">MODEL_FILENAME (openstf.model.serializer.serializer.AbstractModelSerializer attribute)</a>
+      <li><a href="openstf.model.html#openstf.model.model_creator.ModelCreator.MODEL_TRAINER_CONSTRUCTORS">MODEL_TRAINER_CONSTRUCTORS (openstf.model.model_creator.ModelCreator attribute)</a>
 </li>
-      <li><a href="openstf.model.serializer.html#openstf.model.serializer.creator.ModelSerializerCreator.MODEL_SERIALIZER_CONTRUCTORS">MODEL_SERIALIZER_CONTRUCTORS (openstf.model.serializer.creator.ModelSerializerCreator attribute)</a>
-</li>
-      <li><a href="openstf.model.trainer.html#openstf.model.trainer.creator.ModelTrainerCreator.MODEL_TRAINER_CONSTRUCTORS">MODEL_TRAINER_CONSTRUCTORS (openstf.model.trainer.creator.ModelTrainerCreator attribute)</a>
-</li>
-      <li><a href="openstf.model.serializer.html#openstf.model.serializer.creator.ModelSerializerCreator">ModelSerializerCreator (class in openstf.model.serializer.creator)</a>
-</li>
-      <li><a href="openstf.model.trainer.html#openstf.model.trainer.creator.ModelTrainerCreator">ModelTrainerCreator (class in openstf.model.trainer.creator)</a>
+      <li><a href="openstf.model.html#openstf.model.model_creator.ModelCreator">ModelCreator (class in openstf.model.model_creator)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -630,7 +525,11 @@
 </li>
       <li><a href="openstf.metrics.html#module-openstf.metrics.metrics">openstf.metrics.metrics (module)</a>
 </li>
+      <li><a href="openstf.metrics.html#module-openstf.metrics.reporter">openstf.metrics.reporter (module)</a>
+</li>
       <li><a href="openstf.model.html#module-openstf.model">openstf.model (module)</a>
+</li>
+      <li><a href="openstf.model.html#module-openstf.model.basecase">openstf.model.basecase (module)</a>
 </li>
       <li><a href="openstf.model.capacity.html#module-openstf.model.capacity">openstf.model.capacity (module)</a>
 </li>
@@ -642,63 +541,19 @@
 </li>
       <li><a href="openstf.model.capacity.html#module-openstf.model.capacity.utils">openstf.model.capacity.utils (module)</a>
 </li>
-      <li><a href="openstf.model.prediction.html#module-openstf.model.prediction">openstf.model.prediction (module)</a>
+      <li><a href="openstf.model.html#module-openstf.model.fallback">openstf.model.fallback (module)</a>
 </li>
-      <li><a href="openstf.model.prediction.html#module-openstf.model.prediction.creator">openstf.model.prediction.creator (module)</a>
+      <li><a href="openstf.model.html#module-openstf.model.model_creator">openstf.model.model_creator (module)</a>
 </li>
-      <li><a href="openstf.model.prediction.lightgbm.html#module-openstf.model.prediction.lightgbm">openstf.model.prediction.lightgbm (module)</a>
+      <li><a href="openstf.model.html#module-openstf.model.serializer">openstf.model.serializer (module)</a>
 </li>
-      <li><a href="openstf.model.prediction.lightgbm.html#module-openstf.model.prediction.lightgbm.lightgbm">openstf.model.prediction.lightgbm.lightgbm (module)</a>
-</li>
-      <li><a href="openstf.model.prediction.html#module-openstf.model.prediction.prediction">openstf.model.prediction.prediction (module)</a>
-</li>
-      <li><a href="openstf.model.prediction.xgboost.html#module-openstf.model.prediction.xgboost">openstf.model.prediction.xgboost (module)</a>
-</li>
-      <li><a href="openstf.model.prediction.xgboost.model.html#module-openstf.model.prediction.xgboost.model">openstf.model.prediction.xgboost.model (module)</a>
-</li>
-      <li><a href="openstf.model.prediction.xgboost.model.html#module-openstf.model.prediction.xgboost.model.quantile">openstf.model.prediction.xgboost.model.quantile (module)</a>
-</li>
-      <li><a href="openstf.model.prediction.xgboost.html#module-openstf.model.prediction.xgboost.quantile">openstf.model.prediction.xgboost.quantile (module)</a>
-</li>
-      <li><a href="openstf.model.prediction.xgboost.html#module-openstf.model.prediction.xgboost.xgboost">openstf.model.prediction.xgboost.xgboost (module)</a>
-</li>
-      <li><a href="openstf.model.serializer.html#module-openstf.model.serializer">openstf.model.serializer (module)</a>
-</li>
-      <li><a href="openstf.model.serializer.html#module-openstf.model.serializer.creator">openstf.model.serializer.creator (module)</a>
-</li>
-      <li><a href="openstf.model.serializer.lightgbm.html#module-openstf.model.serializer.lightgbm">openstf.model.serializer.lightgbm (module)</a>
-</li>
-      <li><a href="openstf.model.serializer.lightgbm.html#module-openstf.model.serializer.lightgbm.lightgbm">openstf.model.serializer.lightgbm.lightgbm (module)</a>
-</li>
-      <li><a href="openstf.model.serializer.html#module-openstf.model.serializer.serializer">openstf.model.serializer.serializer (module)</a>
-</li>
-      <li><a href="openstf.model.serializer.xgboost.html#module-openstf.model.serializer.xgboost">openstf.model.serializer.xgboost (module)</a>
-</li>
-      <li><a href="openstf.model.serializer.xgboost.html#module-openstf.model.serializer.xgboost.quantile">openstf.model.serializer.xgboost.quantile (module)</a>
-</li>
-      <li><a href="openstf.model.serializer.xgboost.html#module-openstf.model.serializer.xgboost.xgboost">openstf.model.serializer.xgboost.xgboost (module)</a>
-</li>
-      <li><a href="openstf.model.trainer.html#module-openstf.model.trainer">openstf.model.trainer (module)</a>
-</li>
-      <li><a href="openstf.model.trainer.html#module-openstf.model.trainer.creator">openstf.model.trainer.creator (module)</a>
-</li>
-      <li><a href="openstf.model.trainer.lightgbm.html#module-openstf.model.trainer.lightgbm">openstf.model.trainer.lightgbm (module)</a>
+      <li><a href="openstf.model.html#module-openstf.model.standard_deviation_generator">openstf.model.standard_deviation_generator (module)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="openstf.model.trainer.lightgbm.html#module-openstf.model.trainer.lightgbm.lightgbm">openstf.model.trainer.lightgbm.lightgbm (module)</a>
-</li>
-      <li><a href="openstf.model.trainer.html#module-openstf.model.trainer.trainer">openstf.model.trainer.trainer (module)</a>
-</li>
-      <li><a href="openstf.model.trainer.xgboost.html#module-openstf.model.trainer.xgboost">openstf.model.trainer.xgboost (module)</a>
-</li>
-      <li><a href="openstf.model.trainer.xgboost.html#module-openstf.model.trainer.xgboost.quantile">openstf.model.trainer.xgboost.quantile (module)</a>
-</li>
-      <li><a href="openstf.model.trainer.xgboost.html#module-openstf.model.trainer.xgboost.xgboost">openstf.model.trainer.xgboost.xgboost (module)</a>
+      <li><a href="openstf.model.html#module-openstf.model.xgb_quantile">openstf.model.xgb_quantile (module)</a>
 </li>
       <li><a href="openstf.model_selection.html#module-openstf.model_selection">openstf.model_selection (module)</a>
-</li>
-      <li><a href="openstf.model_selection.html#module-openstf.model_selection.model_selection">openstf.model_selection.model_selection (module)</a>
 </li>
       <li><a href="openstf.monitoring.html#module-openstf.monitoring">openstf.monitoring (module)</a>
 </li>
@@ -708,11 +563,7 @@
 </li>
       <li><a href="openstf.pipeline.html#module-openstf.pipeline">openstf.pipeline (module)</a>
 </li>
-      <li><a href="openstf.pipeline.html#module-openstf.pipeline.create_forecast">openstf.pipeline.create_forecast (module)</a>
-</li>
-      <li><a href="openstf.pipeline.html#module-openstf.pipeline.optimize_hyperparameters">openstf.pipeline.optimize_hyperparameters (module)</a>
-</li>
-      <li><a href="openstf.pipeline.html#module-openstf.pipeline.train_model">openstf.pipeline.train_model (module)</a>
+      <li><a href="openstf.pipeline.html#module-openstf.pipeline.create_component_forecast">openstf.pipeline.create_component_forecast (module)</a>
 </li>
       <li><a href="openstf.postprocessing.html#module-openstf.postprocessing">openstf.postprocessing (module)</a>
 </li>
@@ -726,27 +577,17 @@
 </li>
       <li><a href="openstf.tasks.html#module-openstf.tasks.calculate_kpi">openstf.tasks.calculate_kpi (module)</a>
 </li>
-      <li><a href="openstf.tasks.html#module-openstf.tasks.create_basecase_forecast">openstf.tasks.create_basecase_forecast (module)</a>
-</li>
       <li><a href="openstf.tasks.html#module-openstf.tasks.create_capacity_forecast">openstf.tasks.create_capacity_forecast (module)</a>
 </li>
       <li><a href="openstf.tasks.html#module-openstf.tasks.create_components_forecast">openstf.tasks.create_components_forecast (module)</a>
-</li>
-      <li><a href="openstf.tasks.html#module-openstf.tasks.create_forecast">openstf.tasks.create_forecast (module)</a>
 </li>
       <li><a href="openstf.tasks.html#module-openstf.tasks.create_solar_forecast">openstf.tasks.create_solar_forecast (module)</a>
 </li>
       <li><a href="openstf.tasks.html#module-openstf.tasks.create_wind_forecast">openstf.tasks.create_wind_forecast (module)</a>
 </li>
-      <li><a href="openstf.tasks.html#module-openstf.tasks.optimize_hyperparameters">openstf.tasks.optimize_hyperparameters (module)</a>
-</li>
-      <li><a href="openstf.tasks.html#module-openstf.tasks.run_tracy">openstf.tasks.run_tracy (module)</a>
-</li>
       <li><a href="openstf.tasks.html#module-openstf.tasks.split_forecast">openstf.tasks.split_forecast (module)</a>
 </li>
       <li><a href="openstf.tasks.html#module-openstf.tasks.train_capacity_model">openstf.tasks.train_capacity_model (module)</a>
-</li>
-      <li><a href="openstf.tasks.html#module-openstf.tasks.train_model">openstf.tasks.train_model (module)</a>
 </li>
       <li><a href="openstf.tasks.utils.html#module-openstf.tasks.utils">openstf.tasks.utils (module)</a>
 </li>
@@ -762,19 +603,15 @@
 </li>
       <li><a href="openstf.feature_engineering.html#openstf.feature_engineering.feature_applicator.OperationalPredictFeatureApplicator">OperationalPredictFeatureApplicator (class in openstf.feature_engineering.feature_applicator)</a>
 </li>
-      <li><a href="openstf.pipeline.html#openstf.pipeline.optimize_hyperparameters.optimize_hyperparameters">optimize_hyperparameters() (in module openstf.pipeline.optimize_hyperparameters)</a>
-</li>
-      <li><a href="openstf.pipeline.html#openstf.pipeline.optimize_hyperparameters.optimize_hyperparameters_pipeline">optimize_hyperparameters_pipeline() (in module openstf.pipeline.optimize_hyperparameters)</a>
-</li>
   </ul></td>
 </tr></table>
 
 <h2 id="P">P</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="openstf.model.serializer.html#openstf.model.serializer.serializer.AbstractModelSerializer.PANDAS_CSV_FORMAT">PANDAS_CSV_FORMAT (openstf.model.serializer.serializer.AbstractModelSerializer attribute)</a>
-</li>
       <li><a href="openstf.monitoring.html#openstf.monitoring.performance_meter.PerformanceMeter">PerformanceMeter (class in openstf.monitoring.performance_meter)</a>
+</li>
+      <li><a href="openstf.model.html#openstf.model.serializer.PersistentStorageSerializer">PersistentStorageSerializer (class in openstf.model.serializer)</a>
 </li>
       <li><a href="openstf.metrics.html#openstf.metrics.figure.plot_data_series">plot_data_series() (in module openstf.metrics.figure)</a>
 </li>
@@ -786,47 +623,25 @@
 </li>
       <li><a href="openstf.monitoring.html#openstf.monitoring.teams.post_teams_alert">post_teams_alert() (in module openstf.monitoring.teams)</a>
 </li>
-      <li><a href="openstf.pipeline.html#openstf.pipeline.create_forecast.pre_process_input_data">pre_process_input_data() (in module openstf.pipeline.create_forecast)</a>
-</li>
-      <li><a href="openstf.model.capacity.html#openstf.model.capacity.model.CapacityPredictionModel.predict">predict() (openstf.model.capacity.model.CapacityPredictionModel method)</a>
-
-      <ul>
-        <li><a href="openstf.model.prediction.xgboost.model.html#openstf.model.prediction.xgboost.model.quantile.XGBQuantileModel.predict">(openstf.model.prediction.xgboost.model.quantile.XGBQuantileModel method)</a>
-</li>
-      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="openstf.pipeline.html#openstf.pipeline.train_model.predict_after_model_training">predict_after_model_training() (in module openstf.pipeline.train_model)</a>
-</li>
-      <li><a href="openstf.model.capacity.html#openstf.model.capacity.predict.predict_capacity_prognosis">predict_capacity_prognosis() (in module openstf.model.capacity.predict)</a>
-</li>
-      <li><a href="openstf.model.prediction.html#openstf.model.prediction.prediction.AbstractPredictionModel.predict_fallback">predict_fallback() (openstf.model.prediction.prediction.AbstractPredictionModel static method)</a>
+      <li><a href="openstf.model.html#openstf.model.basecase.BaseCaseModel.predict">predict() (openstf.model.basecase.BaseCaseModel method)</a>
 
       <ul>
-        <li><a href="openstf.model.prediction.xgboost.html#openstf.model.prediction.xgboost.quantile.QuantileXGBPredictionModel.predict_fallback">(openstf.model.prediction.xgboost.quantile.QuantileXGBPredictionModel method)</a>
+        <li><a href="openstf.model.capacity.html#openstf.model.capacity.model.CapacityPredictionModel.predict">(openstf.model.capacity.model.CapacityPredictionModel method)</a>
+</li>
+        <li><a href="openstf.model.html#openstf.model.xgb_quantile.XGBQuantileRegressor.predict">(openstf.model.xgb_quantile.XGBQuantileRegressor method)</a>
 </li>
       </ul></li>
+      <li><a href="openstf.model.capacity.html#openstf.model.capacity.predict.predict_capacity_prognosis">predict_capacity_prognosis() (in module openstf.model.capacity.predict)</a>
+</li>
       <li><a href="openstf.tasks.utils.html#openstf.tasks.utils.predictionjobloop.PredictionJobException">PredictionJobException</a>
 </li>
       <li><a href="openstf.tasks.utils.html#openstf.tasks.utils.predictionjobloop.PredictionJobLoop">PredictionJobLoop (class in openstf.tasks.utils.predictionjobloop)</a>
 </li>
-      <li><a href="openstf.model.prediction.html#openstf.model.prediction.creator.PredictionModelCreator">PredictionModelCreator (class in openstf.model.prediction.creator)</a>
-</li>
       <li><a href="openstf.model.capacity.html#openstf.model.capacity.utils.prepare_prediction_data">prepare_prediction_data() (in module openstf.model.capacity.utils)</a>
 </li>
       <li><a href="openstf.model.capacity.html#openstf.model.capacity.utils.prepare_training_data">prepare_training_data() (in module openstf.model.capacity.utils)</a>
-</li>
-      <li><a href="openstf.pipeline.html#openstf.pipeline.train_model.preprocess_for_model_training">preprocess_for_model_training() (in module openstf.pipeline.train_model)</a>
-</li>
-      <li><a href="openstf.model.prediction.html#openstf.model.prediction.creator.PredictionModelCreator.PROGNOSIS_MODEL_CONSTRUCTORS">PROGNOSIS_MODEL_CONSTRUCTORS (openstf.model.prediction.creator.PredictionModelCreator attribute)</a>
-</li>
-  </ul></td>
-</tr></table>
-
-<h2 id="Q">Q</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="openstf.model.prediction.xgboost.html#openstf.model.prediction.xgboost.quantile.QuantileXGBPredictionModel">QuantileXGBPredictionModel (class in openstf.model.prediction.xgboost.quantile)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -842,15 +657,19 @@
 </li>
       <li><a href="openstf.metrics.html#openstf.metrics.metrics.r_mne_highest">r_mne_highest() (in module openstf.metrics.metrics)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="openstf.metrics.html#openstf.metrics.metrics.r_mpe_highest">r_mpe_highest() (in module openstf.metrics.metrics)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="openstf.feature_engineering.html#openstf.feature_engineering.general.remove_extra_feature_columns">remove_extra_feature_columns() (in module openstf.feature_engineering.general)</a>
 </li>
       <li><a href="openstf.preprocessing.html#openstf.preprocessing.preprocessing.replace_invalid_data">replace_invalid_data() (in module openstf.preprocessing.preprocessing)</a>
 </li>
       <li><a href="openstf.preprocessing.html#openstf.preprocessing.preprocessing.replace_repeated_values_with_nan">replace_repeated_values_with_nan() (in module openstf.preprocessing.preprocessing)</a>
+</li>
+      <li><a href="openstf.metrics.html#openstf.metrics.reporter.Report">Report (class in openstf.metrics.reporter)</a>
+</li>
+      <li><a href="openstf.metrics.html#openstf.metrics.reporter.Reporter">Reporter (class in openstf.metrics.reporter)</a>
 </li>
       <li><a href="openstf.metrics.html#openstf.metrics.metrics.rmse">rmse() (in module openstf.metrics.metrics)</a>
 </li>
@@ -860,52 +679,40 @@
 <h2 id="S">S</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="openstf.model_selection.html#openstf.model_selection.model_selection.sample_validation_data_periods">sample_validation_data_periods() (in module openstf.model_selection.model_selection)</a>
-</li>
       <li><a href="openstf.model.capacity.html#openstf.model.capacity.model.CapacityPredictionModel.save">save() (openstf.model.capacity.model.CapacityPredictionModel method)</a>
+</li>
+      <li><a href="openstf.metrics.html#openstf.metrics.reporter.Report.save_figures">save_figures() (openstf.metrics.reporter.Report method)</a>
+</li>
+      <li><a href="openstf.model.html#openstf.model.serializer.AbstractSerializer.save_model">save_model() (openstf.model.serializer.AbstractSerializer method)</a>
 
       <ul>
-        <li><a href="openstf.model.serializer.lightgbm.html#openstf.model.serializer.lightgbm.lightgbm.LGBModelSerializer.save">(openstf.model.serializer.lightgbm.lightgbm.LGBModelSerializer method)</a>
-</li>
-        <li><a href="openstf.model.serializer.html#openstf.model.serializer.serializer.AbstractModelSerializer.save">(openstf.model.serializer.serializer.AbstractModelSerializer method)</a>
-</li>
-        <li><a href="openstf.model.serializer.xgboost.html#openstf.model.serializer.xgboost.xgboost.XGBModelSerializer.save">(openstf.model.serializer.xgboost.xgboost.XGBModelSerializer method)</a>
+        <li><a href="openstf.model.html#openstf.model.serializer.PersistentStorageSerializer.save_model">(openstf.model.serializer.PersistentStorageSerializer method)</a>
 </li>
       </ul></li>
-      <li><a href="openstf.model.prediction.xgboost.model.html#openstf.model.prediction.xgboost.model.quantile.XGBQuantileModel.save_model">save_model() (openstf.model.prediction.xgboost.model.quantile.XGBQuantileModel method)</a>
+      <li><a href="openstf.model.html#openstf.model.serializer.PersistentStorageSerializer.save_model_to_path">save_model_to_path() (openstf.model.serializer.PersistentStorageSerializer method)</a>
 </li>
       <li><a href="openstf.monitoring.html#openstf.monitoring.teams.send_report_teams_better">send_report_teams_better() (in module openstf.monitoring.teams)</a>
 </li>
       <li><a href="openstf.monitoring.html#openstf.monitoring.teams.send_report_teams_worse">send_report_teams_worse() (in module openstf.monitoring.teams)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="openstf.tasks.html#openstf.tasks.calculate_kpi.set_incomplete_kpi_to_nan">set_incomplete_kpi_to_nan() (in module openstf.tasks.calculate_kpi)</a>
 </li>
       <li><a href="openstf.metrics.html#openstf.metrics.metrics.skill_score">skill_score() (in module openstf.metrics.metrics)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="openstf.metrics.html#openstf.metrics.metrics.skill_score_positive_peaks">skill_score_positive_peaks() (in module openstf.metrics.metrics)</a>
 </li>
       <li><a href="openstf.html#openstf.enums.ForecastType.SOLAR">SOLAR (openstf.enums.ForecastType attribute)</a>
-</li>
-      <li><a href="openstf.model_selection.html#openstf.model_selection.model_selection.split_data_train_validation_test">split_data_train_validation_test() (in module openstf.model_selection.model_selection)</a>
 </li>
       <li><a href="openstf.tasks.html#openstf.tasks.split_forecast.split_forecast">split_forecast() (in module openstf.tasks.split_forecast)</a>
 </li>
       <li><a href="openstf.postprocessing.html#openstf.postprocessing.postprocessing.split_forecast_in_components">split_forecast_in_components() (in module openstf.postprocessing.postprocessing)</a>
 </li>
-      <li><a href="openstf.pipeline.html#openstf.pipeline.train_model.split_model_data">split_model_data (in module openstf.pipeline.train_model)</a>
+      <li><a href="openstf.model.html#openstf.model.standard_deviation_generator.StandardDeviationGenerator">StandardDeviationGenerator (class in openstf.model.standard_deviation_generator)</a>
 </li>
       <li><a href="openstf.monitoring.html#openstf.monitoring.performance_meter.PerformanceMeter.start_level">start_level() (openstf.monitoring.performance_meter.PerformanceMeter method)</a>
 </li>
-      <li><a href="openstf.model.trainer.lightgbm.html#openstf.model.trainer.lightgbm.lightgbm.LGBModelTrainer.store_model">store_model() (openstf.model.trainer.lightgbm.lightgbm.LGBModelTrainer method)</a>
-
-      <ul>
-        <li><a href="openstf.model.trainer.html#openstf.model.trainer.trainer.AbstractModelTrainer.store_model">(openstf.model.trainer.trainer.AbstractModelTrainer method)</a>
-</li>
-        <li><a href="openstf.model.trainer.xgboost.html#openstf.model.trainer.xgboost.xgboost.XGBModelTrainer.store_model">(openstf.model.trainer.xgboost.xgboost.XGBModelTrainer method)</a>
-</li>
-      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -915,35 +722,13 @@
       <li><a href="openstf.tasks.utils.html#openstf.tasks.utils.taskcontext.TaskContext">TaskContext (class in openstf.tasks.utils.taskcontext)</a>
 </li>
       <li><a href="openstf.model.capacity.html#openstf.model.capacity.model.CapacityPredictionModel.train">train() (openstf.model.capacity.model.CapacityPredictionModel method)</a>
-
-      <ul>
-        <li><a href="openstf.model.trainer.lightgbm.html#openstf.model.trainer.lightgbm.lightgbm.LGBModelTrainer.train">(openstf.model.trainer.lightgbm.lightgbm.LGBModelTrainer method)</a>
 </li>
-        <li><a href="openstf.model.trainer.html#openstf.model.trainer.trainer.AbstractModelTrainer.train">(openstf.model.trainer.trainer.AbstractModelTrainer method)</a>
-</li>
-        <li><a href="openstf.model.trainer.xgboost.html#openstf.model.trainer.xgboost.quantile.XGBQuantileModelTrainer.train">(openstf.model.trainer.xgboost.quantile.XGBQuantileModelTrainer method)</a>
-</li>
-        <li><a href="openstf.model.trainer.xgboost.html#openstf.model.trainer.xgboost.xgboost.XGBModelTrainer.train">(openstf.model.trainer.xgboost.xgboost.XGBModelTrainer method)</a>
-</li>
-      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="openstf.model.capacity.html#openstf.model.capacity.train.train_capacity_prognosis">train_capacity_prognosis() (in module openstf.model.capacity.train)</a>
 </li>
-      <li><a href="openstf.pipeline.html#openstf.pipeline.train_model.train_model">train_model() (in module openstf.pipeline.train_model)</a>
-</li>
-      <li><a href="openstf.pipeline.html#openstf.pipeline.train_model.train_model_pipeline">train_model_pipeline() (in module openstf.pipeline.train_model)</a>
-</li>
-      <li><a href="openstf.tasks.html#openstf.tasks.run_tracy.train_specific_model">train_specific_model() (in module openstf.tasks.run_tracy)</a>
-</li>
       <li><a href="openstf.feature_engineering.html#openstf.feature_engineering.feature_applicator.TrainFeatureApplicator">TrainFeatureApplicator (class in openstf.feature_engineering.feature_applicator)</a>
 </li>
-      <li><a href="openstf.model.trainer.lightgbm.html#openstf.model.trainer.lightgbm.lightgbm.LGBModelTrainer.training_period_objective">training_period_objective() (openstf.model.trainer.lightgbm.lightgbm.LGBModelTrainer method)</a>
-
-      <ul>
-        <li><a href="openstf.model.trainer.xgboost.html#openstf.model.trainer.xgboost.xgboost.XGBModelTrainer.training_period_objective">(openstf.model.trainer.xgboost.xgboost.XGBModelTrainer method)</a>
-</li>
-      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -974,8 +759,6 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="openstf.pipeline.html#openstf.pipeline.train_model.write_results_new_model">write_results_new_model() (in module openstf.pipeline.train_model)</a>
-</li>
       <li><a href="openstf.tasks.utils.html#openstf.tasks.utils.utils.write_status_file">write_status_file() (in module openstf.tasks.utils.utils)</a>
 </li>
   </ul></td>
@@ -988,23 +771,13 @@
 </li>
       <li><a href="openstf.html#openstf.enums.MLModelType.XGB_QUANTILE">XGB_QUANTILE (openstf.enums.MLModelType attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="openstf.metrics.html#openstf.metrics.metrics.xgb_quantile_eval">xgb_quantile_eval() (in module openstf.metrics.metrics)</a>
 </li>
       <li><a href="openstf.metrics.html#openstf.metrics.metrics.xgb_quantile_obj">xgb_quantile_obj() (in module openstf.metrics.metrics)</a>
 </li>
-      <li><a href="openstf.model.serializer.xgboost.html#openstf.model.serializer.xgboost.xgboost.XGBModelSerializer">XGBModelSerializer (class in openstf.model.serializer.xgboost.xgboost)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="openstf.model.trainer.xgboost.html#openstf.model.trainer.xgboost.xgboost.XGBModelTrainer">XGBModelTrainer (class in openstf.model.trainer.xgboost.xgboost)</a>
-</li>
-      <li><a href="openstf.model.prediction.xgboost.html#openstf.model.prediction.xgboost.xgboost.XGBPredictionModel">XGBPredictionModel (class in openstf.model.prediction.xgboost.xgboost)</a>
-</li>
-      <li><a href="openstf.model.prediction.xgboost.model.html#openstf.model.prediction.xgboost.model.quantile.XGBQuantileModel">XGBQuantileModel (class in openstf.model.prediction.xgboost.model.quantile)</a>
-</li>
-      <li><a href="openstf.model.serializer.xgboost.html#openstf.model.serializer.xgboost.quantile.XGBQuantileModelSerializer">XGBQuantileModelSerializer (class in openstf.model.serializer.xgboost.quantile)</a>
-</li>
-      <li><a href="openstf.model.trainer.xgboost.html#openstf.model.trainer.xgboost.quantile.XGBQuantileModelTrainer">XGBQuantileModelTrainer (class in openstf.model.trainer.xgboost.quantile)</a>
+      <li><a href="openstf.model.html#openstf.model.xgb_quantile.XGBQuantileRegressor">XGBQuantileRegressor (class in openstf.model.xgb_quantile)</a>
 </li>
   </ul></td>
 </tr></table>

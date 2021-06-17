@@ -87,9 +87,11 @@
               <div class="local-toc"><ul>
 <li><a class="reference internal" href="#">openstf.pipeline package</a><ul>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#module-openstf.pipeline.create_forecast">openstf.pipeline.create_forecast module</a></li>
-<li><a class="reference internal" href="#module-openstf.pipeline.optimize_hyperparameters">openstf.pipeline.optimize_hyperparameters module</a></li>
-<li><a class="reference internal" href="#module-openstf.pipeline.train_model">openstf.pipeline.train_model module</a></li>
+<li><a class="reference internal" href="#openstf-pipeline-create-basecase-forecast-module">openstf.pipeline.create_basecase_forecast module</a></li>
+<li><a class="reference internal" href="#module-openstf.pipeline.create_component_forecast">openstf.pipeline.create_component_forecast module</a></li>
+<li><a class="reference internal" href="#openstf-pipeline-create-forecast-module">openstf.pipeline.create_forecast module</a></li>
+<li><a class="reference internal" href="#openstf-pipeline-train-model-module">openstf.pipeline.train_model module</a></li>
+<li><a class="reference internal" href="#openstf-pipeline-utils-module">openstf.pipeline.utils module</a></li>
 <li><a class="reference internal" href="#module-openstf.pipeline">Module contents</a></li>
 </ul>
 </li>
@@ -165,295 +167,52 @@
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="module-openstf.pipeline.create_forecast">
-<span id="openstf-pipeline-create-forecast-module"></span><h2>openstf.pipeline.create_forecast module<a class="headerlink" href="#module-openstf.pipeline.create_forecast" title="Permalink to this headline">¶</a></h2>
-<dl class="function">
-<dt id="openstf.pipeline.create_forecast.create_forecast_pipeline">
-<code class="sig-prename descclassname">openstf.pipeline.create_forecast.</code><code class="sig-name descname">create_forecast_pipeline</code><span class="sig-paren">(</span><em class="sig-param">pj</em>, <em class="sig-param">forecast_type=&lt;ForecastType.DEMAND: 'demand'&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.pipeline.create_forecast.create_forecast_pipeline" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="openstf.pipeline.create_forecast.generate_forecast_datetime_range">
-<code class="sig-prename descclassname">openstf.pipeline.create_forecast.</code><code class="sig-name descname">generate_forecast_datetime_range</code><span class="sig-paren">(</span><em class="sig-param">resolution_minutes</em>, <em class="sig-param">horizon_minutes</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.pipeline.create_forecast.generate_forecast_datetime_range" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="openstf.pipeline.create_forecast.generate_input_data_id">
-<code class="sig-prename descclassname">openstf.pipeline.create_forecast.</code><code class="sig-name descname">generate_input_data_id</code><span class="sig-paren">(</span><em class="sig-param">pj</em>, <em class="sig-param">datetime_start</em>, <em class="sig-param">datetime_end</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.pipeline.create_forecast.generate_input_data_id" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="openstf.pipeline.create_forecast.generate_inputdata_datetime_range">
-<code class="sig-prename descclassname">openstf.pipeline.create_forecast.</code><code class="sig-name descname">generate_inputdata_datetime_range</code><span class="sig-paren">(</span><em class="sig-param">t_behind_days=14</em>, <em class="sig-param">t_ahead_days=3</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.pipeline.create_forecast.generate_inputdata_datetime_range" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="openstf.pipeline.create_forecast.get_model_input">
-<code class="sig-prename descclassname">openstf.pipeline.create_forecast.</code><code class="sig-name descname">get_model_input</code><span class="sig-paren">(</span><em class="sig-param">pj</em>, <em class="sig-param">datetime_start</em>, <em class="sig-param">datetime_end</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.pipeline.create_forecast.get_model_input" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="openstf.pipeline.create_forecast.is_complete_enough">
-<code class="sig-prename descclassname">openstf.pipeline.create_forecast.</code><code class="sig-name descname">is_complete_enough</code><span class="sig-paren">(</span><em class="sig-param">completeness</em>, <em class="sig-param">completeness_threshold</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.pipeline.create_forecast.is_complete_enough" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="openstf.pipeline.create_forecast.make_basecase_prediction">
-<code class="sig-prename descclassname">openstf.pipeline.create_forecast.</code><code class="sig-name descname">make_basecase_prediction</code><span class="sig-paren">(</span><em class="sig-param">pj</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.pipeline.create_forecast.make_basecase_prediction" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="openstf.pipeline.create_forecast.make_components_prediction">
-<code class="sig-prename descclassname">openstf.pipeline.create_forecast.</code><code class="sig-name descname">make_components_prediction</code><span class="sig-paren">(</span><em class="sig-param">pj</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.pipeline.create_forecast.make_components_prediction" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="openstf.pipeline.create_forecast.pre_process_input_data">
-<code class="sig-prename descclassname">openstf.pipeline.create_forecast.</code><code class="sig-name descname">pre_process_input_data</code><span class="sig-paren">(</span><em class="sig-param">input_data</em>, <em class="sig-param">flatliner_threshold</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.pipeline.create_forecast.pre_process_input_data" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
+<div class="section" id="openstf-pipeline-create-basecase-forecast-module">
+<h2>openstf.pipeline.create_basecase_forecast module<a class="headerlink" href="#openstf-pipeline-create-basecase-forecast-module" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="module-openstf.pipeline.optimize_hyperparameters">
-<span id="openstf-pipeline-optimize-hyperparameters-module"></span><h2>openstf.pipeline.optimize_hyperparameters module<a class="headerlink" href="#module-openstf.pipeline.optimize_hyperparameters" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-openstf.pipeline.create_component_forecast">
+<span id="openstf-pipeline-create-component-forecast-module"></span><h2>openstf.pipeline.create_component_forecast module<a class="headerlink" href="#module-openstf.pipeline.create_component_forecast" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
-<dt id="openstf.pipeline.optimize_hyperparameters.last_optimimization_too_long_ago">
-<code class="sig-prename descclassname">openstf.pipeline.optimize_hyperparameters.</code><code class="sig-name descname">last_optimimization_too_long_ago</code><span class="sig-paren">(</span><em class="sig-param">pj</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.pipeline.optimize_hyperparameters.last_optimimization_too_long_ago" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="openstf.pipeline.optimize_hyperparameters.optimize_hyperparameters">
-<code class="sig-prename descclassname">openstf.pipeline.optimize_hyperparameters.</code><code class="sig-name descname">optimize_hyperparameters</code><span class="sig-paren">(</span><em class="sig-param">pid</em>, <em class="sig-param">n_trials=150</em>, <em class="sig-param">datetime_end=datetime.datetime(2021</em>, <em class="sig-param">6</em>, <em class="sig-param">8</em>, <em class="sig-param">12</em>, <em class="sig-param">5</em>, <em class="sig-param">37</em>, <em class="sig-param">445751)</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.pipeline.optimize_hyperparameters.optimize_hyperparameters" title="Permalink to this definition">¶</a></dt>
-<dd><p>Optimize the hyper parameters for a given prediction job.</p>
-<blockquote>
-<div><p>This function optimizes the model specific hyperparameters,
-featureset and training period. After optimization the hyperparameters
-are stored in the database and finally a teams messsage with the results
-is posted.</p>
-</div></blockquote>
+<dt id="openstf.pipeline.create_component_forecast.create_components_forecast_pipeline">
+<code class="sig-prename descclassname">openstf.pipeline.create_component_forecast.</code><code class="sig-name descname">create_components_forecast_pipeline</code><span class="sig-paren">(</span><em class="sig-param">pj</em>, <em class="sig-param">input_data</em>, <em class="sig-param">weather_data</em>, <em class="sig-param">split_coefs</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.pipeline.create_component_forecast.create_components_forecast_pipeline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pipeline for creating a component forecast</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>pid</strong> (<em>int</em>) – Prediction job ID</p></li>
-<li><p><strong>n_trials</strong> (<em>int</em>) – Maximum number of trials/iteration first stage of
-hyper parameter optimization</p></li>
+<li><p><strong>pj</strong> (<em>dict</em>) – Prediction job</p></li>
+<li><p><strong>input_data</strong> (<em>pd.DataFrame</em>) – Input forecast for the components forecast.</p></li>
+<li><p><strong>weather_data</strong> (<em>pd.DataFrame</em>) – Weather data with ‘radiation’ and ‘windspeed_100m’ columns</p></li>
+<li><p><strong>split_coefs</strong> (<em>dict</em>) – coefieicnts for the splitting that are determined earlier</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><dl class="simple">
-<dt>Dictionary with optimized hyperparameters, keys of the dictionarry</dt><dd><p>depend on the model type.</p>
+<dt>“forecast_wind_on_shore”,</dt><dd><p>”forecast_solar”,
+“forecast_other”,
+“pid”,
+“customer”,
+“description”,
+“type”,
+“algtype”</p>
 </dd>
 </dl>
 </p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>(dict)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="openstf.pipeline.optimize_hyperparameters.optimize_hyperparameters_pipeline">
-<code class="sig-prename descclassname">openstf.pipeline.optimize_hyperparameters.</code><code class="sig-name descname">optimize_hyperparameters_pipeline</code><span class="sig-paren">(</span><em class="sig-param">pj</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.pipeline.optimize_hyperparameters.optimize_hyperparameters_pipeline" title="Permalink to this definition">¶</a></dt>
-<dd><p>Optimized hyperparameters for a specific prediction job.
-First the age of the last stored hyperparameters is determined. If these are older</p>
-<blockquote>
-<div><p>than MAX_AGE_HYPER_PARAMS_DAYS, the hyper parameters will be optimized.</p>
-</div></blockquote>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>pj</strong> – (dict) Prediction job</p>
+<dd class="field-odd"><p>pd.DataFrame with component forecasts. The dataframe contains these columns</p>
 </dd>
 </dl>
 </dd></dl>
 
 </div>
-<div class="section" id="module-openstf.pipeline.train_model">
-<span id="openstf-pipeline-train-model-module"></span><h2>openstf.pipeline.train_model module<a class="headerlink" href="#module-openstf.pipeline.train_model" title="Permalink to this headline">¶</a></h2>
-<dl class="function">
-<dt id="openstf.pipeline.train_model.create_evaluation_figures">
-<code class="sig-prename descclassname">openstf.pipeline.train_model.</code><code class="sig-name descname">create_evaluation_figures</code><span class="sig-paren">(</span><em class="sig-param">model_trainer</em>, <em class="sig-param">split_input_data</em>, <em class="sig-param">split_predicted_data</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.pipeline.train_model.create_evaluation_figures" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create figures of feature importance and data series of input and predicted data.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>model_trainer</strong> (<a class="reference internal" href="openstf.html#openstf.enums.MLModelType" title="openstf.enums.MLModelType"><em>MLModelType</em></a>) – model trainer</p></li>
-<li><p><strong>split_input_data</strong> (<em>dict</em>) – dict of cleaned data with features, split in train,
-validation and test</p></li>
-<li><p><strong>split_predicted_data</strong> (<em>dict</em>) – dict of predicted data, split in train, validation
-and test</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><dl>
-<dt>tuple containing:</dt><dd><p>plotly.graph_objects.Figure: A treemap of the features.
-dict: dict of line plots of of split input and predicted</p>
-<blockquote>
-<div><p>data series per prediction horizon.</p>
-</div></blockquote>
-</dd>
-</dl>
-</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>tuple</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="openstf.pipeline.train_model.create_model_trainer">
-<code class="sig-prename descclassname">openstf.pipeline.train_model.</code><code class="sig-name descname">create_model_trainer</code><span class="sig-paren">(</span><em class="sig-param">pj</em>, <em class="sig-param">context</em>, <em class="sig-param">retrain_young_models=False</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.pipeline.train_model.create_model_trainer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create model trainer and set hyperparams.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>pj</strong> (<em>dict</em>) – Prediction job</p></li>
-<li><p><strong>context</strong> (<em>openstf.task.utils.TaskContext</em>) – Task context for logging</p></li>
-<li><p><strong>retrain_young_models</strong> (<em>bool</em>) – Retrain models younger then 7 days if True.
-Defaults to False.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><dl class="simple">
-<dt>Implementation of the AbstractModelTrainer class tailored to</dt><dd><p>a specific algorithm.</p>
-</dd>
-</dl>
-</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="openstf.pipeline.train_model.is_new_model_better">
-<code class="sig-prename descclassname">openstf.pipeline.train_model.</code><code class="sig-name descname">is_new_model_better</code><span class="sig-paren">(</span><em class="sig-param">pj</em>, <em class="sig-param">context</em>, <em class="sig-param">model_trainer</em>, <em class="sig-param">split_input_data</em>, <em class="sig-param">compare_to_old=True</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.pipeline.train_model.is_new_model_better" title="Permalink to this definition">¶</a></dt>
-<dd><p>Evaluate quality of new model with old model and store it if it is better.</p>
-<p>Model is saved if better than the old model unless specified
-otherwise.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>pj</strong> (<em>dict</em>) – Prediction job</p></li>
-<li><p><strong>context</strong> (<em>openstf.task.utils.TaskContext</em>) – Task context for logging</p></li>
-<li><p><strong>model_trainer</strong> (<a class="reference internal" href="openstf.html#openstf.enums.MLModelType" title="openstf.enums.MLModelType"><em>MLModelType</em></a>) – model trainer</p></li>
-<li><p><strong>split_input_data</strong> (<em>dict</em>) – dict of cleaned data with features, split in train,
-validation and test</p></li>
-<li><p><strong>compare_to_old</strong> (<em>bool</em><em>, </em><em>optional</em>) – Compare new trained model to old trained model
-if True. Defaults to True.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="openstf.pipeline.train_model.predict_after_model_training">
-<code class="sig-prename descclassname">openstf.pipeline.train_model.</code><code class="sig-name descname">predict_after_model_training</code><span class="sig-paren">(</span><em class="sig-param">pj</em>, <em class="sig-param">model_trainer</em>, <em class="sig-param">split_input_data</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.pipeline.train_model.predict_after_model_training" title="Permalink to this definition">¶</a></dt>
-<dd><p>Predict data with new trained model.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>pj</strong> (<em>dict</em>) – Prediction job</p></li>
-<li><p><strong>(</strong><strong>)</strong> (<em>model_trainer</em>) – Implementation of the AbstractModelTrainer class tailored to
-a specific algorithm.</p></li>
-<li><p><strong>split_input_data</strong> (<em>dict</em>) – dict of cleaned data with features, split in train,
-validation and test</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>dict of predicted data, split in train, validation and test</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>dict</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="openstf.pipeline.train_model.preprocess_for_model_training">
-<code class="sig-prename descclassname">openstf.pipeline.train_model.</code><code class="sig-name descname">preprocess_for_model_training</code><span class="sig-paren">(</span><em class="sig-param">pj</em>, <em class="sig-param">context</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.pipeline.train_model.preprocess_for_model_training" title="Permalink to this definition">¶</a></dt>
-<dd><p>Pre-process model data. Clean data and apply features</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>pj</strong> (<em>dict</em>) – Prediction job</p></li>
-<li><p><strong>context</strong> (<em>openstf.task.utils.TaskContext</em>) – Task context for logging</p></li>
-</ul>
-</dd>
-<dt class="field-even">Raises</dt>
-<dd class="field-even"><p><strong>ValueError</strong> – when data quality is insufficient</p>
-</dd>
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>dict of cleaned data with features, split in train, validation and test</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>dict</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="openstf.pipeline.train_model.split_model_data">
-<code class="sig-prename descclassname">openstf.pipeline.train_model.</code><code class="sig-name descname">split_model_data</code><a class="headerlink" href="#openstf.pipeline.train_model.split_model_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">openstf.pipeline.train_model.model_data</span></code></p>
-</dd></dl>
-
-<dl class="function">
-<dt id="openstf.pipeline.train_model.train_model">
-<code class="sig-prename descclassname">openstf.pipeline.train_model.</code><code class="sig-name descname">train_model</code><span class="sig-paren">(</span><em class="sig-param">model_trainer</em>, <em class="sig-param">split_input_data</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.pipeline.train_model.train_model" title="Permalink to this definition">¶</a></dt>
-<dd><p>Train model.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>(</strong><strong>)</strong> (<em>model_trainer</em>) – Implementation of the AbstractModelTrainer class tailored to
-a specific algorithm.</p></li>
-<li><p><strong>split_input_data</strong> (<em>dict</em>) – dict of cleaned data with features, split in train,
-validation and test</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="openstf.pipeline.train_model.train_model_pipeline">
-<code class="sig-prename descclassname">openstf.pipeline.train_model.</code><code class="sig-name descname">train_model_pipeline</code><span class="sig-paren">(</span><em class="sig-param">pj</em>, <em class="sig-param">context</em>, <em class="sig-param">retrain_young_models=False</em>, <em class="sig-param">compare_to_old=True</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.pipeline.train_model.train_model_pipeline" title="Permalink to this definition">¶</a></dt>
-<dd><p>Main function that controls the training process of one prediction job.</p>
-<p>On a high level: first, the input data is collected, features are applied and the
-model is trained and stored. Additionally models for energy components are also
-trained if requested. Model is saved if better than the old model unless specified
-otherwise.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>pj</strong> (<em>dict</em>) – Prediction job</p></li>
-<li><p><strong>context</strong> (<em>openstf.task.utils.TaskContext</em>) – Task context for logging</p></li>
-<li><p><strong>retrain_young_models</strong> (<em>bool</em>) – Retrain models younger then 7 days if True.
-Defaults to False.</p></li>
-<li><p><strong>compare_to_old</strong> (<em>bool</em>) – Only save new model when its better than the old model.
-Defaults to True.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="openstf.pipeline.train_model.write_results_new_model">
-<code class="sig-prename descclassname">openstf.pipeline.train_model.</code><code class="sig-name descname">write_results_new_model</code><span class="sig-paren">(</span><em class="sig-param">pj</em>, <em class="sig-param">model_trainer</em>, <em class="sig-param">new_model_is_better</em>, <em class="sig-param">split_input_data</em>, <em class="sig-param">split_predicted_data</em>, <em class="sig-param">path_to_save</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.pipeline.train_model.write_results_new_model" title="Permalink to this definition">¶</a></dt>
-<dd><p>Save results of new model to disk.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>pj</strong> (<em>dict</em>) – Prediction job</p></li>
-<li><p><strong>model_trainer</strong> (<a class="reference internal" href="openstf.html#openstf.enums.MLModelType" title="openstf.enums.MLModelType"><em>MLModelType</em></a>) – model trainer</p></li>
-<li><p><strong>new_model_is_better</strong> (<em>boolean</em>) – True if new model is better than old model</p></li>
-<li><p><strong>split_input_data</strong> (<em>dict</em>) – dict of cleaned data with features, split in train,
-validation and test</p></li>
-<li><p><strong>split_predicted_data</strong> (<em>dict</em>) – dict of predicted data, split in train, validation
-and test</p></li>
-<li><p><strong>path_to_save</strong> (<em>pathlib.Path</em>) – path to save figures of results of new model</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
+<div class="section" id="openstf-pipeline-create-forecast-module">
+<h2>openstf.pipeline.create_forecast module<a class="headerlink" href="#openstf-pipeline-create-forecast-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="openstf-pipeline-train-model-module">
+<h2>openstf.pipeline.train_model module<a class="headerlink" href="#openstf-pipeline-train-model-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="openstf-pipeline-utils-module">
+<h2>openstf.pipeline.utils module<a class="headerlink" href="#openstf-pipeline-utils-module" title="Permalink to this headline">¶</a></h2>
 </div>
 <div class="section" id="module-openstf.pipeline">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-openstf.pipeline" title="Permalink to this headline">¶</a></h2>
