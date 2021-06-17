@@ -27,7 +27,7 @@ def optimize_hyperparameters_pipeline(
     input_data: pd.DataFrame,
     horizons: list[float] = TRAIN_HORIZONS,
     n_trials: int = N_TRIALS,
-    timeout: int = TIMEOUT
+    timeout: int = TIMEOUT,
 ) -> dict:
     """Optimize hyperparameters pipeline.
 
