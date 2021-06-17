@@ -3,12 +3,10 @@
 # SPDX-License-Identifier: MPL-2.0
 
 import unittest
-from datetime import datetime, timedelta, timezone
-import numpy as np
-from test.utils import BaseTestCase, TestData
-from unittest import mock
-from unittest.mock import MagicMock, patch
 
+import numpy as np
+
+from test.utils import BaseTestCase, TestData
 from openstf.model.fallback import generate_fallback
 
 

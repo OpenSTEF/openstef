@@ -10,7 +10,7 @@ from sklearn.base import RegressorMixin
 import structlog
 
 from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
-from openstf.model.confidence_interval_generator import ConfidenceIntervalGenerator
+from openstf.model.standard_deviation_generator import StandardDeviationGenerator
 from openstf.model.model_creator import ModelCreator
 from openstf.metrics.reporter import Reporter, Report
 from openstf.model.serializer import PersistentStorageSerializer
@@ -139,7 +139,7 @@ def train_model_pipeline_core(
     )
 
     # Create relevant model
-    model = ModelCreator.create_model(model_type=pj["model"])
+    model = ModelCreator.create_model(pj)
 
     # split x and y data
     train_x, train_y = train_data.iloc[:, 1:], train_data.iloc[:, 0]
@@ -148,13 +148,13 @@ def train_model_pipeline_core(
     # Configure evals for early stopping
     eval_set = [(train_x, train_y), (validation_x, validation_y)]
 
-    model.set_params(params=pj["hyper_params"])
+    model.set_params(**pj["hyper_params"])
     model.fit(
         train_x,
         train_y,
         eval_set=eval_set,
         early_stopping_rounds=DEFAULT_EARLY_STOPPING_ROUNDS,
-        verbose=0,
+        verbose=False,
     )
     logging.info("Fitted a new model, not yet stored")
 
@@ -180,9 +180,9 @@ def train_model_pipeline_core(
         )
 
     # Do confidence interval determination
-    model = ConfidenceIntervalGenerator(
+    model = StandardDeviationGenerator(
         pj, validation_data
-    ).generate_confidence_interval_data(model)
+    ).generate_standard_deviation_data(model)
 
     # Report about the training procces
     report = Reporter(pj, train_data, validation_data, test_data).generate_report(model)
