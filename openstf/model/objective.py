@@ -19,16 +19,16 @@ EVAL_METRIC: str = "mae"
 class RegressorObjective:
     """Regressor optuna objective function.
 
-        Use any of the derived classses for optimization using an optuna study.
-        The constructor is used to set the "input_data" and optionally add some
-        configuration. Next the instance will be called by he optuna study during
-        optimization.
+    Use any of the derived classses for optimization using an optuna study.
+    The constructor is used to set the "input_data" and optionally add some
+    configuration. Next the instance will be called by he optuna study during
+    optimization.
 
-        Example:
-            # initialize a (derived class) objective function
-            objective = XGBRegressorObjective(input_data, test_fraction)
-            # use the objective function
-            study.optimize(objective)
+    Example:
+        # initialize a (derived class) objective function
+        objective = XGBRegressorObjective(input_data, test_fraction)
+        # use the objective function
+        study.optimize(objective)
     """
 
     def __init__(
@@ -37,7 +37,7 @@ class RegressorObjective:
         test_fraction=TEST_FRACTION,
         validation_fraction=VALIDATION_FRACTION,
         eval_metric=EVAL_METRIC,
-        verbose=False
+        verbose=False,
     ):
         self.input_data = input_data
         self.test_fraction = test_fraction
@@ -82,7 +82,8 @@ class RegressorObjective:
         pruning_callback = optuna.integration.XGBoostPruningCallback(
             # Use validation_0 to prune on the train set
             # Use validation_1 to prune on the validation set
-            trial, observation_key=f"validation_1-{eval_metric}"
+            trial,
+            observation_key=f"validation_1-{eval_metric}",
         )
         # validation_0 and validation_1 are available
         model.fit(
@@ -92,7 +93,7 @@ class RegressorObjective:
             early_stopping_rounds=EARLY_STOPPING_ROUNDS,
             verbose=self.verbose,
             eval_metric=eval_metric,
-            callbacks=[pruning_callback]
+            callbacks=[pruning_callback],
         )
 
         forecast_y = model.predict(test_x)
@@ -101,7 +102,6 @@ class RegressorObjective:
 
 
 class XGBRegressorObjective(RegressorObjective):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.model_type = MLModelType.XGB
@@ -116,4 +116,3 @@ class XGBRegressorObjective(RegressorObjective):
             "colsample_bytree": trial.suggest_float("colsample_bytree", 0.5, 1.0),
         }
         return params
-

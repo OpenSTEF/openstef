@@ -8,21 +8,18 @@ from openstf.validation import validation
 
 # This is required to disable the default optuna logger and pass the logs to our own
 # structlog logger
-optuna.logging.enable_propagation()         # Propagate logs to the root logger.
-optuna.logging.disable_default_handler()    # Stop showing logs in sys.stderr.
+optuna.logging.enable_propagation()  # Propagate logs to the root logger.
+optuna.logging.disable_default_handler()  # Stop showing logs in sys.stderr.
 
 logger = structlog.get_logger(__name__)
 
 # See https://optuna.readthedocs.io/en/stable/reference/generated/optuna.study.Study.html#optuna.study.Study.optimize
-N_TRIALS: int = 8   # The number of trials.
+N_TRIALS: int = 8  # The number of trials.
 TIMEOUT: int = 200  # Stop study after the given number of second(s).
 
 
 def optimize_hyperparameters_pipeline(
-    pj: dict,
-    input_data: pd.DataFrame,
-    n_trials: int = N_TRIALS,
-    timeout: int = TIMEOUT
+    pj: dict, input_data: pd.DataFrame, n_trials: int = N_TRIALS, timeout: int = TIMEOUT
 ) -> dict:
     """Optimize hyperparameters pipeline.
 
@@ -65,7 +62,7 @@ def optimize_hyperparameters_pipeline(
         n_trials=n_trials,
         timeout=timeout,
         callbacks=[_log_study_progress],
-        show_progress_bar=False
+        show_progress_bar=False,
     )
 
     optimized_hyperparams = study.best_params

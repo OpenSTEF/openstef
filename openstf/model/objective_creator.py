@@ -9,9 +9,8 @@ from openstf.model.objective import RegressorObjective, XGBRegressorObjective
 
 
 class ObjectiveCreator:
-    OBJECTIVES = {
-        MLModelType.XGB: XGBRegressorObjective
-    }
+    OBJECTIVES = {MLModelType.XGB: XGBRegressorObjective}
+
     @staticmethod
     def create_objective(model_type: Union[MLModelType, str]) -> RegressorObjective:
         model_type = MLModelType(model_type)

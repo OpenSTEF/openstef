@@ -11,7 +11,6 @@ from openstf.model.objective import XGBRegressorObjective
 
 
 class TestObjectiveCreator(BaseTestCase):
-
     def test_create_objective(self):
         Objective = ObjectiveCreator.create_objective(MLModelType.XGB)
         self.assertEqual(Objective, XGBRegressorObjective)

@@ -8,14 +8,12 @@ from test.utils import BaseTestCase, TestData
 from openstf.pipeline.optimize_hyperparameters import optimize_hyperparameters_pipeline
 
 
-
 @patch("openstf.pipeline.optimize_hyperparameters.structlog")
 @patch("openstf.pipeline.optimize_hyperparameters.validation")
 @patch("openstf.pipeline.optimize_hyperparameters.TrainFeatureApplicator")
 @patch("openstf.pipeline.optimize_hyperparameters.ObjectiveCreator")
 @patch("openstf.pipeline.optimize_hyperparameters.optuna")
 class TestOptimizeHyperParametersPipeline(BaseTestCase):
-
     def test_optimize_hyperparameters_pipeline(self, *args):
         pj = TestData.get_prediction_job(pid=307)
         input_data = TestData.load("input_data_train.pickle")

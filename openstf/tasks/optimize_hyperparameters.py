@@ -37,7 +37,7 @@ def optimize_hyperparameters_task(pj: dict, context: TaskContext) -> None:
             "Skip hyperparameter optimization",
             pid=pj["id"],
             last_optimized_days=last_optimized_days,
-            max_age=MAX_AGE_HYPER_PARAMS_DAYS
+            max_age=MAX_AGE_HYPER_PARAMS_DAYS,
         )
         return
 
@@ -62,7 +62,9 @@ def optimize_hyperparameters_task(pj: dict, context: TaskContext) -> None:
     context.database.write_hyper_params(pj, hyperparameters)
 
     # Sent message to Teams
-    title = f'Optimized hyperparameters for prediction job {pj["name"]} {pj["description"]}'
+    title = (
+        f'Optimized hyperparameters for prediction job {pj["name"]} {pj["description"]}'
+    )
 
     teams.post_teams(teams.format_message(title=title, params=hyperparameters))
 

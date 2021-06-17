@@ -14,7 +14,6 @@ from openstf.model.objective import XGBRegressorObjective
 @patch("openstf.model.objective.mae")
 @patch("openstf.model.objective.ModelCreator")
 class TestXGBRegressorObjective(BaseTestCase):
-
     def test_call(self, model_creator_mock, mea_mock, split_data_mock):
         split_data_mock.return_value = MagicMock(), MagicMock(), MagicMock()
         input_data = None
@@ -28,8 +27,7 @@ class TestXGBRegressorObjective(BaseTestCase):
 
         # create model should be called the the right model type
         self.assertEqual(
-            model_creator_mock.create_model.call_args[0][0],
-            MLModelType.XGB
+            model_creator_mock.create_model.call_args[0][0], MLModelType.XGB
         )
 
 
