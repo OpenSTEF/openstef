@@ -1,8 +1,6 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-from typing import Union
-
 from sklearn.base import RegressorMixin
 from xgboost import XGBRegressor
 from lightgbm import LGBMRegressor
@@ -22,7 +20,7 @@ class ModelCreator:
     }
 
     @staticmethod
-    def create_model(model_type: Union[MLModelType, str]) -> RegressorMixin:
+    def create_model(pj: dict) -> RegressorMixin:
         """Create a machine learning model based on model type.
 
         Args:
@@ -35,6 +33,12 @@ class ModelCreator:
             RegressorMixin: model
         """
         # This will raise a ValueError when an invalid model_type str is used
-        model_type = MLModelType(model_type)
+        model_type = MLModelType(pj["model"])
 
-        return ModelCreator.MODEL_CONSTRUCTORS[model_type]()
+        kwargs = {}
+
+        # If the prediction job contains quantiles pass them to the constructor
+        if "quantiles" in pj:
+            kwargs["quantiles"] = tuple(pj["quantiles"])
+
+        return ModelCreator.MODEL_CONSTRUCTORS[model_type](**kwargs)
