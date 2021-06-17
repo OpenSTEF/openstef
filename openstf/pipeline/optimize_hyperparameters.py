@@ -17,12 +17,13 @@ logger = structlog.get_logger(__name__)
 N_TRIALS: int = 8   # The number of trials.
 TIMEOUT: int = 200  # Stop study after the given number of second(s).
 
+
 def optimize_hyperparameters_pipeline(
     pj: dict,
     input_data: pd.DataFrame,
     n_trials: int = N_TRIALS,
     timeout: int = TIMEOUT
-):
+) -> dict:
     """Optimize hyperparameters pipeline.
 
     Args:
@@ -77,7 +78,8 @@ def optimize_hyperparameters_pipeline(
 
     return optimized_hyperparams
 
-def _log_study_progress(study, trial):
+
+def _log_study_progress(study, trial) -> None:
     # Collect study and trial data
     trial_index = study.trials.index(trial)
     best_trial_index = study.trials.index(study.best_trial)
