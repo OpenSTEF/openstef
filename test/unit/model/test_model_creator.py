@@ -31,7 +31,8 @@ class TestModelCreator(TestCase):
         self.assertEqual(model.quantiles, tuple(self.pj["quantiles"]))
 
     def test_create_model_unknown_model(self):
-        # Test if keyerror is raised when model type is unknown
+        # Test if ValueError is raised when model type is unknown
         self.pj["model"] = "Unknown"
-        with self.assertRaises(KeyError):
+
+        with self.assertRaises(ValueError):
             ModelCreator.create_model(self.pj)
