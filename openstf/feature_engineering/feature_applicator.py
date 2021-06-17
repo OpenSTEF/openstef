@@ -115,7 +115,7 @@ class OperationalPredictFeatureApplicator(AbstractFeatureApplicator):
         # NOTE this is required since apply_features could add additional features
         df = remove_extra_feature_columns(df, self.feature_names)
 
-        return df
+        return df.sort_index(axis=1)
 
 
 class BackTestPredictFeatureApplicator(AbstractFeatureApplicator):

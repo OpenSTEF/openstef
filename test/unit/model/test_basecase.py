@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 import pytz
-import pytest
 from datetime import datetime, timezone, timedelta
 import unittest
 
@@ -31,7 +30,7 @@ class TestBaseCaseForecast(BaseTestCase):
 
         forecast_input.index = forecast_input.index.shift(delta, freq=1)
 
-        with pytest.raises(ValueError):
+        with self.assertRaises(ValueError):
             BaseCaseModel().predict(forecast_input)
 
     def test_basecase_raises_value_error_missing_features(self):
@@ -51,8 +50,9 @@ class TestBaseCaseForecast(BaseTestCase):
         )  # This will make it pass the first input vallidation
 
         forecast_input.index = forecast_input.index.shift(delta, freq=1)
-        with pytest.raises(ValueError):
+        with self.assertRaises(ValueError):
             BaseCaseModel().predict(forecast_input)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -19,6 +19,7 @@ class TestBaseCaseForecast(BaseTestCase):
         # Test happy flow
         PJ = TestData.get_prediction_job(pid=307)
         forecast_input = TestData.load("reference_sets/307-test-data.csv")
+        PJ["model_type_group"] = "default"
 
         # Shift example data to match current time interval as code expects data
         # available relative to the current time.

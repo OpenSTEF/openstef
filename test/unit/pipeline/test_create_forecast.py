@@ -48,9 +48,12 @@ class TestCreateForecastPipeline(BaseTestCase):
         input_data = forecast_input
         is_data_sufficient_mock.return_value = False
         pj = TestData.get_prediction_job(pid=307)
+        pj["model_type_group"] = "default"
         model = PersistentStorageSerializer(
             trained_models_folder=Path("./test/trained_models")
         ).load_model(pid=307)
+        if not hasattr(model, "standard_deviation"):  # Renamed the attribute
+            model.standard_deviation = model.confidence_interval
         forecast = create_forecast.create_forecast_pipeline_core(
             pj=pj, input_data=input_data, model=model
         )
@@ -60,6 +63,7 @@ class TestCreateForecastPipeline(BaseTestCase):
         """Test the happy flow of the predict pipeline, using a previously trained model"""
         # Test happy flow
         self.pj = TestData.get_prediction_job(pid=307)
+        self.pj["model_type_group"] = "default"
         self.forecast_input = TestData.load("reference_sets/307-test-data.csv")
 
         # Shift example data to match current time interval as code expects data
@@ -80,6 +84,9 @@ class TestCreateForecastPipeline(BaseTestCase):
         model = PersistentStorageSerializer(
             trained_models_folder=Path("./test/trained_models")
         ).load_model(pid=307)
+
+        if not hasattr(model, "standard_deviation"):  # Renamed the attribute
+            model.standard_deviation = model.confidence_interval
         forecast = create_forecast.create_forecast_pipeline_core(
             pj=self.pj, input_data=self.forecast_input, model=model
         )

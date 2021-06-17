@@ -8,6 +8,7 @@ from xgboost import XGBRegressor
 from lightgbm import LGBMRegressor
 
 from openstf.enums import MLModelType
+from openstf.model.xgb_quantile import XGBQuantileRegressor
 
 
 class ModelCreator:
@@ -17,6 +18,7 @@ class ModelCreator:
     MODEL_CONSTRUCTORS = {
         MLModelType.XGB: XGBRegressor,
         MLModelType.LGB: LGBMRegressor,
+        MLModelType.XGB_QUANTILE: XGBQuantileRegressor,
     }
 
     @staticmethod
