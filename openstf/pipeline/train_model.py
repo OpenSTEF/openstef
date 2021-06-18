@@ -165,13 +165,18 @@ def train_model_pipeline_core(
 
         # Score method always returns R^2
         score_new_model = model.score(x_data, y_data)
+
+        # Try to compare new model to old model.
+        # If this does not success, for example since the feature names of the
+        # old model differ from the new model, the new model is considered better
         try:
             score_old_model = old_model.score(x_data, y_data)
 
             # Check if R^2 is better for old model
             if score_old_model > score_new_model * PENALTY_FACTOR_OLD_MODEL:
                 raise (
-                    RuntimeError(f"Old model is better than new model for {pj['name']}")
+                    RuntimeError(f"Old model is better than new model for {pj['name']}."
+                                 f"NOT updating model")
                 )
 
             logger.info(
