@@ -46,7 +46,7 @@ class TestTrainModelPipeline(BaseTestCase):
         self.train_input = TestData.load("reference_sets/307-train-data.csv")
 
 
-    #@unittest.skip('If you want to store a newly trained model, use test below')
+    @unittest.skip('If you want to store a newly trained model, use test below')
     def test_train_model_pipeline_update_stored_model(self):
         """Test happy flow of the train model pipeline"""
 
