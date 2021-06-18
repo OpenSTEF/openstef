@@ -55,7 +55,7 @@ class TestCreateForeCastTask(TestCase):
         # assert if results forecast has been made
         written_forecast = dbmock().write_forecast.call_args.args[0]
         self.assertEqual(len(written_forecast), 101)
-        self.assertListEqual(written_forecast.columns, ['forecast', 'tAhead', 'stdev', 'quantile_P05', 'quantile_P10',
+        self.assertListEqual(list(written_forecast.columns), ['forecast', 'tAhead', 'stdev', 'quantile_P05', 'quantile_P10',
        'quantile_P30', 'quantile_P50', 'quantile_P70', 'quantile_P90',
        'quantile_P95', 'pid', 'customer', 'description', 'type', 'algtype'])
         # Assert MEA
