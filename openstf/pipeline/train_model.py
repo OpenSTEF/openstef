@@ -175,8 +175,10 @@ def train_model_pipeline_core(
             # Check if R^2 is better for old model
             if score_old_model > score_new_model * PENALTY_FACTOR_OLD_MODEL:
                 raise (
-                    RuntimeError(f"Old model is better than new model for {pj['name']}."
-                                 f"NOT updating model")
+                    RuntimeError(
+                        f"Old model is better than new model for {pj['name']}."
+                        f"NOT updating model"
+                    )
                 )
 
             logger.info(
