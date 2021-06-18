@@ -18,7 +18,7 @@ from openstf.metrics import figure
 class Report:
     feature_importance_figure: Figure
     data_series_figures: Dict[str, Figure]
-    logger = structlog.get_logger('Report')
+    logger = structlog.get_logger("Report")
 
     def save_figures(self, save_path):
         save_path = Path(save_path)
@@ -28,7 +28,7 @@ class Report:
 
         for key, fig in self.data_series_figures.items():
             fig.write_html(str(save_path / f"{key}.html"), auto_open=False)
-        self.logger.info(f'Saved figures to {save_path}')
+        self.logger.info(f"Saved figures to {save_path}")
 
 
 class Reporter:

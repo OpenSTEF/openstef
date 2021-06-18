@@ -26,7 +26,6 @@ class TestCreateForeCastTask(TestCase):
         create_forecast_task(self.pj, context)
         self.assertEqual(context.mock_calls[1].args[0], FORECAST_MOCK)
 
-
     @patch(
         "openstf.tasks.utils.taskcontext.DataBase",
     )
@@ -35,14 +34,26 @@ class TestCreateForeCastTask(TestCase):
     @patch("openstf.tasks.utils.taskcontext.post_teams")
     @patch("openstf.tasks.create_forecast.datetime")
     @patch("openstf.pipeline.utils.datetime")
-    def test_create_forecast_task_with_context(self, utils_datetime_mock, datetime_mock, post_teamsmock, configmock_utils, configmock_taskcontext, dbmock):
-        dbmock().get_prediction_jobs.return_value = [TestData.get_prediction_job(pid=307),
-                                                     TestData.get_prediction_job(pid=307)]
+    def test_create_forecast_task_with_context(
+        self,
+        utils_datetime_mock,
+        datetime_mock,
+        post_teamsmock,
+        configmock_utils,
+        configmock_taskcontext,
+        dbmock,
+    ):
+        dbmock().get_prediction_jobs.return_value = [
+            TestData.get_prediction_job(pid=307),
+            TestData.get_prediction_job(pid=307),
+        ]
         testdata = TestData.load("reference_sets/307-test-data.csv")
         dbmock().get_model_input.return_value = testdata
 
-        configmock_taskcontext.get_instance.return_value.paths.trained_models_folder = 'test/trained_models/'
-        configmock_taskcontext.get_instance.return_value.paths.webroot = 'test_webroot'
+        configmock_taskcontext.get_instance.return_value.paths.trained_models_folder = (
+            "test/trained_models/"
+        )
+        configmock_taskcontext.get_instance.return_value.paths.webroot = "test_webroot"
 
         configmock_utils().get_instance.return_value = configmock_taskcontext
 
@@ -55,9 +66,26 @@ class TestCreateForeCastTask(TestCase):
         # assert if results forecast has been made
         written_forecast = dbmock().write_forecast.call_args.args[0]
         self.assertEqual(len(written_forecast), 101)
-        self.assertListEqual(list(written_forecast.columns), ['forecast', 'tAhead', 'stdev', 'quantile_P05', 'quantile_P10',
-       'quantile_P30', 'quantile_P50', 'quantile_P70', 'quantile_P90',
-       'quantile_P95', 'pid', 'customer', 'description', 'type', 'algtype'])
+        self.assertListEqual(
+            list(written_forecast.columns),
+            [
+                "forecast",
+                "tAhead",
+                "stdev",
+                "quantile_P05",
+                "quantile_P10",
+                "quantile_P30",
+                "quantile_P50",
+                "quantile_P70",
+                "quantile_P90",
+                "quantile_P95",
+                "pid",
+                "customer",
+                "description",
+                "type",
+                "algtype",
+            ],
+        )
         # Assert MEA
         mae = (written_forecast.forecast - testdata.iloc[-101:, 0]).abs().mean()
         self.assertLess(mae, 38)

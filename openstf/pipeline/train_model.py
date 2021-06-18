@@ -170,13 +170,15 @@ def train_model_pipeline_core(
 
             # Check if R^2 is better for old model
             if score_old_model > score_new_model * PENALTY_FACTOR_OLD_MODEL:
-                raise (RuntimeError(f"Old model is better than new model for {pj['name']}"))
+                raise (
+                    RuntimeError(f"Old model is better than new model for {pj['name']}")
+                )
 
             logger.info(
                 "New model is better than old model, continuing with training procces"
             )
         except ValueError as e:
-            logging.info(f'Could not compare to old model', exc_info=e)
+            logging.info(f"Could not compare to old model", exc_info=e)
 
     # Do confidence interval determination
     model = StandardDeviationGenerator(

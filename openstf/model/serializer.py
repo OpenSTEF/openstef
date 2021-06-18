@@ -79,7 +79,7 @@ class PersistentStorageSerializer(AbstractSerializer):
 
         # Save model
         self.save_model_to_path(model_path, model)
-        self.logger.info(f'Saved model to {model_path}')
+        self.logger.info(f"Saved model to {model_path}")
 
         return model_id
 
