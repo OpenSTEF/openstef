@@ -72,13 +72,14 @@ class PersistentStorageSerializer(AbstractSerializer):
 
         model_folder = self.convert_model_id_into_model_folder(model_id)
 
-        # Create save path if nescesarry
+        # Create save path if necessary
         model_folder.mkdir(parents=True, exist_ok=True)
 
         model_path = model_folder / MODEL_FILENAME
 
         # Save model
         self.save_model_to_path(model_path, model)
+        self.logger.info(f'Saved model to {model_path}')
 
         return model_id
 
