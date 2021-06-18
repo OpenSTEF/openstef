@@ -20,7 +20,7 @@ class TestXGBRegressorObjective(BaseTestCase):
 
         objective = XGBRegressorObjective(input_data)
         trial_mock = MagicMock()
-        error = objective(trial_mock)
+        objective(trial_mock)
 
         # the first arg to split_data should be input_data
         self.assertEqual(split_data_mock.call_args[0][0], input_data)

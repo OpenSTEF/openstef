@@ -52,6 +52,8 @@ def train_model_task(pj: dict, context: TaskContext) -> None:
         pj["hyper_params"]["featureset_name"]
     )
 
+    context.checkpoint("Added metadata to PredictionJob")
+
     # Define start and end of the training input data
     datetime_start = datetime.utcnow() - timedelta(
         days=int(pj["hyper_params"]["training_period_days"])
@@ -66,6 +68,8 @@ def train_model_task(pj: dict, context: TaskContext) -> None:
         datetime_end=datetime_end,
     )
 
+    context.checkpoint("Retrieved timeseries input")
+
     # Get the paths for storing model and reports from the config manager
     trained_models_folder = Path(context.config.paths.trained_models_folder)
     save_figures_folder = Path(context.config.paths.webroot) / str(pj["id"])
@@ -78,6 +82,8 @@ def train_model_task(pj: dict, context: TaskContext) -> None:
         trained_models_folder=trained_models_folder,
         save_figures_folder=save_figures_folder,
     )
+
+    context.checkpoint("Model trained")
 
 
 def main():

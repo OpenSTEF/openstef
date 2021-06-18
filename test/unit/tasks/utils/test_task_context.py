@@ -19,7 +19,6 @@ PREDICTION_JOBS = TestData.get_prediction_jobs()
 NUM_PREDICTION_JOBS = len(PREDICTION_JOBS)
 
 
-@patch("openstf.tasks.utils.taskcontext.logging", MagicMock())
 @patch("openstf.tasks.utils.taskcontext.ConfigManager", MagicMock())
 @patch("openstf.tasks.utils.taskcontext.DataBase")
 class TestTaskContext(BaseTestCase):
