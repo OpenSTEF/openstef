@@ -135,15 +135,18 @@ def train_model_pipeline_core(
 
     # Split data
     train_data, validation_data, test_data = split_data_train_validation_test(
-        data_with_features.sort_index(axis=1)
+        data_with_features.sort_index(axis=0)
     )
 
     # Create relevant model
     model = ModelCreator.create_model(pj)
 
     # split x and y data
-    train_x, train_y = train_data.iloc[:, 1:], train_data.iloc[:, 0]
-    validation_x, validation_y = validation_data.iloc[:, 1:], validation_data.iloc[:, 0]
+    train_x, train_y = train_data.iloc[:, 1:-1], train_data.iloc[:, 0]
+    validation_x, validation_y = (
+        validation_data.iloc[:, 1:-1],
+        validation_data.iloc[:, 0],
+    )
 
     # Configure evals for early stopping
     eval_set = [(train_x, train_y), (validation_x, validation_y)]
@@ -161,7 +164,7 @@ def train_model_pipeline_core(
     # Check if new model is better than old model
     if old_model:
         combined = train_data.append(validation_data)
-        x_data, y_data = combined.iloc[:, 1:], combined.iloc[:, 0]
+        x_data, y_data = combined.iloc[:, 1:-1], combined.iloc[:, 0]
 
         # Score method always returns R^2
         score_new_model = model.score(x_data, y_data)

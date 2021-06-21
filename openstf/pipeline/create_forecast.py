@@ -72,13 +72,18 @@ def create_forecast_pipeline_core(
     validated_data = validation.validate(input_data)
 
     # Add features
-    data_with_features = OperationalPredictFeatureApplicator(
-        # TODO use saved feature_names (should be saved while training the model)
-        horizons=[0.25],
-        feature_names=model._Booster.feature_names,
-    ).add_features(validated_data)
+    data_with_features = (
+        OperationalPredictFeatureApplicator(
+            # TODO use saved feature_names (should be saved while training the model)
+            horizons=[0.25],
+            feature_names=model._Booster.feature_names,
+        )
+        .add_features(validated_data)
+        .drop(columns="load")
+    )
 
     # Prep forecast input by selecting only the forecast datetime interval (this is much smaller than the input range)
+    # Also drop the load column
     forecast_start, forecast_end = generate_forecast_datetime_range(
         pj["resolution_minutes"], pj["horizon_minutes"]
     )

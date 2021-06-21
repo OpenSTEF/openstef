@@ -67,6 +67,10 @@ def remove_extra_feature_columns(
 
     extra_features = [f for f in list(input_data) if f not in features]
 
+    # Do not see "load" as an extra feature as it is no feature
+    if "load" in extra_features:
+        extra_features.remove("load")
+
     num_not_requested_features = len(extra_features)
 
     if num_not_requested_features != 0:
@@ -76,3 +80,37 @@ def remove_extra_feature_columns(
         )
 
     return input_data.drop(extra_features, axis=1)
+
+
+def enforce_feature_order(df):
+    """Enforces correct order of features.
+
+    Alphabetically orders the feature columns. The load column remains the first column
+        and the Horizons column remains the last column. Everything in between is alphabetically sorted.
+
+    Args:
+        df (pd.DataFrame): Dataframe with features.
+
+    Returns:
+        pd.DataFrame with features with all columns in the correct order
+    """
+
+    # Extract first column name
+    first_col_name = df.columns.to_list()[0]  # Most of the time this is load
+
+    # Sort columns
+    columns = list(np.sort(df.columns.to_list()))
+
+    # Remove first column and add to the start
+    columns.remove(first_col_name)
+    col_order = [first_col_name] + columns
+
+    # If "Horzion" column is available add to the end
+    if (
+        "Horizon" in columns
+    ):  # "Horizon" is pressent in the training procces but not in the forecasting process
+        col_order.remove("Horizon")
+        col_order = col_order + ["Horizon"]
+
+    # Return dataframe with columns in the correct order
+    return df.loc[:, col_order]

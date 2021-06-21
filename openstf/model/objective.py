@@ -63,9 +63,9 @@ class RegressorObjective:
             back_test=True,
         )
         # Split in x, y data (x are the features, y is the load)
-        train_x, train_y = train_data.iloc[:, 1:], train_data.iloc[:, 0]
-        valid_x, valid_y = validation_data.iloc[:, 1:], validation_data.iloc[:, 0]
-        test_x, test_y = test_data.iloc[:, 1:], test_data.iloc[:, 0]
+        train_x, train_y = train_data.iloc[:, 1:-1], train_data.iloc[:, 0]
+        valid_x, valid_y = validation_data.iloc[:, 1:-1], validation_data.iloc[:, 0]
+        test_x, test_y = test_data.iloc[:, 1:-1], test_data.iloc[:, 0]
 
         # Configure evals for early stopping
         eval_set = [(train_x, train_y), (valid_x, valid_y)]

@@ -24,7 +24,7 @@ class StandardDeviationGenerator:
             sub_val = self.validation_data[self.validation_data.Horizon == horizon]
 
             try:
-                predicted = model.predict(sub_val.iloc[:, 1:])
+                predicted = model.predict(sub_val.iloc[:, 1:-1])
             except Exception as e:
                 print("Could not get prediction from new model!", e)
 

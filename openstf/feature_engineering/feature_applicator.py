@@ -11,6 +11,7 @@ from openstf.feature_engineering.apply_features import apply_features
 from openstf.feature_engineering.general import (
     add_missing_feature_columns,
     remove_extra_feature_columns,
+    enforce_feature_order,
 )
 
 LATENCY_CONFIG = {"APX": 24}  # A specific latency is part of a specific feature.
@@ -87,7 +88,8 @@ class TrainFeatureApplicator(AbstractFeatureApplicator):
         for feature, time in latency_config.items():
             result.loc[result["Horizon"] > time, feature] = np.nan
 
-        return result.sort_index()
+        # Sort all features except for the (first) load and (last) Horizon columns
+        return enforce_feature_order(result)
 
 
 class OperationalPredictFeatureApplicator(AbstractFeatureApplicator):
@@ -115,7 +117,7 @@ class OperationalPredictFeatureApplicator(AbstractFeatureApplicator):
         # NOTE this is required since apply_features could add additional features
         df = remove_extra_feature_columns(df, self.feature_names)
 
-        return df.sort_index(axis=1)
+        return enforce_feature_order(df)
 
 
 class BackTestPredictFeatureApplicator(AbstractFeatureApplicator):
@@ -135,8 +137,10 @@ class BackTestPredictFeatureApplicator(AbstractFeatureApplicator):
         if num_horizons != 1:
             raise ValueError("Expected one horizon, got {num_horizons}")
 
-        df = apply_features(df, horizon=self.horizons[0])
+        df = apply_features(
+            df, feature_names=self.feature_names, horizon=self.horizons[0]
+        )
         df = add_missing_feature_columns(df, self.feature_names)
         # NOTE this is required since apply_features could add additional features
         df = remove_extra_feature_columns(df, self.feature_names)
-        return df
+        return enforce_feature_order(df)

@@ -74,7 +74,7 @@ class Reporter:
 
         # Make model predictions
         for data_set in self.input_data_list:
-            model_forecast = model.predict(data_set.iloc[:, 1:])
+            model_forecast = model.predict(data_set.iloc[:, 1:-1])
             forecast = pd.DataFrame(
                 index=data_set.index, data={"forecast": model_forecast}
             )
