@@ -71,7 +71,6 @@ def run_tracy(context):
         pj = context.database.get_prediction_job(pid)
 
         result, exc = run_tracy_job(job, pj, context)
-
         # job processing was succefull
         if result is TracyJobResult.SUCCESS:
             logger.info("Succesfully processed Tracy job")
