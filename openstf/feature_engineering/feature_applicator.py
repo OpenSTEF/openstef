@@ -118,29 +118,3 @@ class OperationalPredictFeatureApplicator(AbstractFeatureApplicator):
         df = remove_extra_feature_columns(df, self.feature_names)
 
         return enforce_feature_order(df)
-
-
-class BackTestPredictFeatureApplicator(AbstractFeatureApplicator):
-    def add_features(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Adds features to an input DataFrame.
-
-        This method is implemented specifically for a backtest prediction for a specific horizon.
-        All featurs that are not available for the specific horzion are invalidated.
-
-        Args:
-            df: pd.DataFrame with input data to which the features have to be added
-
-        Returns:
-            pd.DataFrame: Input DataFrame with an extra column for every added feature.
-        """
-        num_horizons = len(self.horizons)
-        if num_horizons != 1:
-            raise ValueError("Expected one horizon, got {num_horizons}")
-
-        df = apply_features(
-            df, feature_names=self.feature_names, horizon=self.horizons[0]
-        )
-        df = add_missing_feature_columns(df, self.feature_names)
-        # NOTE this is required since apply_features could add additional features
-        df = remove_extra_feature_columns(df, self.feature_names)
-        return enforce_feature_order(df)
