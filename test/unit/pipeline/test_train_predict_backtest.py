@@ -13,8 +13,7 @@ import pandas as pd
 
 
 from openstf.model.serializer import PersistentStorageSerializer
-from openstf.pipeline.train_predict_backtest import (
-    train_model_and_forecast_back_test)
+from openstf.pipeline.train_predict_backtest import train_model_and_forecast_back_test
 
 # define constants
 PJ = TestData.get_prediction_job(pid=307)
@@ -29,9 +28,7 @@ XGB_HYPER_PARAMS = {
 }
 
 
-
 class TestTrainBackTestPipeline(BaseTestCase):
-
     def setUp(self) -> None:
         super().setUp()
         self.pj = TestData.get_prediction_job(pid=307)
@@ -58,12 +55,9 @@ class TestTrainBackTestPipeline(BaseTestCase):
 
         """
 
-
-
         forecast = train_model_and_forecast_back_test(
-            pj=self.pj, input_data=self.train_input, trained_models_folder="TEST",
-            save_figures_folder="OTHER_TEST")
-
-
-
-
+            pj=self.pj,
+            input_data=self.train_input,
+            trained_models_folder="TEST",
+            save_figures_folder="OTHER_TEST",
+        )
