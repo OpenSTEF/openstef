@@ -35,6 +35,21 @@ class TestRunTracyTask(TestCase):
             len(jobs)
         )
 
+    def test_run_tracy_no_jobs(self, *args):
+        context = build_context_mock()
+        context.database.ktp_api.get_all_tracy_jobs.return_value = []
+
+        run_tracy(context)
+
+        # nothing should be done
+        # no info messages should have been logged only one warning
+        self.assertEqual(
+            context.logger.warning.call_count, 1
+        )
+        self.assertEqual(
+            context.logger.info.call_count, 0
+        )
+
     def test_run_tracy_unknown_job(self, *args):
         context = build_context_mock()
         jobs = context.database.ktp_api.get_all_tracy_jobs.return_value
