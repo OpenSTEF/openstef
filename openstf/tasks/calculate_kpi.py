@@ -67,7 +67,8 @@ def check_kpi_pj(pj, context, start_time, end_time):
             rMAE=kpis["47.0h"]["rMAE"],
             retraining_threshold=THRESHOLD_RETRAINING,
         )
-        function_name = "train_specific_model"
+        function_name = "train_model"
+
         context.logger.info("Adding tracy job", function=function_name)
         context.database.ktp_api.add_tracy_job(pj["id"], function=function_name)
 
@@ -78,7 +79,7 @@ def check_kpi_pj(pj, context, start_time, end_time):
             rMAE=kpis["47.0h"]["rMAE"],
             optimizing_threshold=THRESHOLD_OPTIMIZING,
         )
-        function_name = "optimize_hyperparameters_for_specific_pid"
+        function_name = "optimize_hyperparameters"
         context.logger.info("Adding tracy job", function=function_name)
         context.database.ktp_api.add_tracy_job(pj["id"], function=function_name)
 
