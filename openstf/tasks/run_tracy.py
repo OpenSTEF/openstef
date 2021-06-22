@@ -51,8 +51,6 @@ def run_tracy(context):
     tracy_jobs = context.database.ktp_api.get_all_tracy_jobs(inprogress=0)
     num_jobs = len(tracy_jobs)
 
-    context.logger.info("Start running {num_jobs} Tracy jobs", num_jobs)
-
     if num_jobs == 0:
         context.logger.warning("Number of tracy jobs is {num_jobs}, exit task")
         return
@@ -80,10 +78,12 @@ def run_tracy(context):
             # Delete job when succesfull
             context.database.ktp_api.delete_tracy_job(job)
             logger.info("Delete Tracy job")
+
         # job was unknown
         elif result is TracyJobResult.UNKNOWN:
             logger.error(f"Unkown Tracy job {job['function']}")
-         # job processing failed / raised an exception
+
+        # job processing failed / raised an exception
         elif result is TracyJobResult.FAILED:
             job["inprogress"] = 2
             context.database.ktp_api.update_tracy_job(job)
