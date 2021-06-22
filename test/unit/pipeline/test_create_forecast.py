@@ -24,7 +24,7 @@ forecast_input = TestData.load("reference_sets/307-test-data.csv")
 class TestCreateForecastPipeline(BaseTestCase):
     @patch("openstf.pipeline.utils.datetime")
     def test_forecast_datetime_range(self, datetime_mock):
-        datetime_mock.now.return_value = NOW
+        datetime_mock.utcnow.return_value = NOW
         # get current date and time UTC
         datetime_utc = NOW
         # Time range for time interval to be predicted

@@ -9,6 +9,7 @@ from typing import Union, Dict
 from plotly.graph_objects import Figure
 import pandas as pd
 from sklearn.base import RegressorMixin
+import structlog
 
 from openstf.metrics import figure
 
@@ -17,14 +18,17 @@ from openstf.metrics import figure
 class Report:
     feature_importance_figure: Figure
     data_series_figures: Dict[str, Figure]
+    logger = structlog.get_logger("Report")
 
     def save_figures(self, save_path):
+        save_path = Path(save_path)
         os.makedirs(save_path, exist_ok=True)
 
         self.feature_importance_figure.write_html(str(save_path / "weight_plot.html"))
 
         for key, fig in self.data_series_figures.items():
             fig.write_html(str(save_path / f"{key}.html"), auto_open=False)
+        self.logger.info(f"Saved figures to {save_path}")
 
 
 class Reporter:

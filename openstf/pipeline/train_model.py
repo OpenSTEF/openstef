@@ -159,25 +159,33 @@ def train_model_pipeline_core(
     logging.info("Fitted a new model, not yet stored")
 
     # Check if new model is better than old model
-    if old_model is not None:
+    if old_model:
         combined = train_data.append(validation_data)
         x_data, y_data = combined.iloc[:, 1:], combined.iloc[:, 0]
 
         # Score method always returns R^2
         score_new_model = model.score(x_data, y_data)
-        score_old_model = old_model.score(x_data, y_data)
 
-        # Check if R^2 is better for old model
-        if score_old_model > score_new_model * PENALTY_FACTOR_OLD_MODEL:
-            raise (RuntimeError(f"Old model is better than new model for {pj['name']}"))
-        else:
-            logging.info(
+        # Try to compare new model to old model.
+        # If this does not success, for example since the feature names of the
+        # old model differ from the new model, the new model is considered better
+        try:
+            score_old_model = old_model.score(x_data, y_data)
+
+            # Check if R^2 is better for old model
+            if score_old_model > score_new_model * PENALTY_FACTOR_OLD_MODEL:
+                raise (
+                    RuntimeError(
+                        f"Old model is better than new model for {pj['name']}."
+                        f"NOT updating model"
+                    )
+                )
+
+            logger.info(
                 "New model is better than old model, continuing with training procces"
             )
-
-        logger.info(
-            "New model is better than old model, continuing with training procces"
-        )
+        except ValueError as e:
+            logging.info(f"Could not compare to old model", exc_info=e)
 
     # Do confidence interval determination
     model = StandardDeviationGenerator(
