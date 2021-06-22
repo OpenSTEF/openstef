@@ -15,13 +15,7 @@ class TestTrainBackTestPipeline(BaseTestCase):
         self.train_input = TestData.load("reference_sets/307-train-data.csv").head(2000)
 
     def test_train_model_pipeline_core_happy_flow(self):
-        """Test happy flow of the train model pipeline
-
-        NOTE this does not explain WHY this is the case?
-        The input data should not contain features (e.g. T-7d),
-        but it can/should include predictors (e.g. weather data)
-
-        """
+        """Test happy flow of the train model pipeline"""
 
         forecast = train_model_and_forecast_back_test(
             pj=self.pj,
@@ -35,3 +29,14 @@ class TestTrainBackTestPipeline(BaseTestCase):
         self.assertTrue("realised" in forecast.columns.to_list())
         self.assertTrue("Horizon" in forecast.columns.to_list())
         self.assertEqual(list(forecast.Horizon.unique()), [24.0, 0.25])
+
+    def test_train_model_pipeline_core_exception_incomplete_data(self):
+        """Test if Valueerror is raised when too little data is passed into the pieline."""
+        with self.assertRaises(ValueError):
+            train_model_and_forecast_back_test(
+                pj=self.pj,
+                input_data=self.train_input.head(100),
+                trained_models_folder="TEST",
+                save_figures_folder="OTHER_TEST",
+                training_horizons=[0.25, 24.0],
+            )
