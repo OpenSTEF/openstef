@@ -101,7 +101,10 @@ def run_tracy_job(job, pj, context):
             train_model_task(pj, context)
 
         # If optimize hyperparameters job (TODO remove old name when jobs are done)
-        elif job["function"] in ["optimize_hyperparameters", "optimize_hyperparameters_for_specific_pid"]:
+        elif job["function"] in [
+            "optimize_hyperparameters",
+            "optimize_hyperparameters_for_specific_pid",
+        ]:
             optimize_hyperparameters_task(pj, context)
 
         # Else unknown job

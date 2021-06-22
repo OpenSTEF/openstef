@@ -86,4 +86,3 @@ def update_status_change(name, new_code):
 
     # Write status
     write_status_file(status)
-
