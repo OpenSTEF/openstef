@@ -31,8 +31,7 @@ class TestRunTracyTask(TestCase):
 
         # if all jobs are successfull they should all have been deleted
         self.assertEqual(
-            context.database.ktp_api.delete_tracy_job.call_count,
-            len(jobs)
+            context.database.ktp_api.delete_tracy_job.call_count, len(jobs)
         )
 
     def test_run_tracy_no_jobs(self, *args):
@@ -43,12 +42,8 @@ class TestRunTracyTask(TestCase):
 
         # nothing should be done
         # no info messages should have been logged only one warning
-        self.assertEqual(
-            context.logger.warning.call_count, 1
-        )
-        self.assertEqual(
-            context.logger.info.call_count, 0
-        )
+        self.assertEqual(context.logger.warning.call_count, 1)
+        self.assertEqual(context.logger.info.call_count, 0)
 
     def test_run_tracy_unknown_job(self, *args):
         context = build_context_mock()
@@ -58,8 +53,7 @@ class TestRunTracyTask(TestCase):
         run_tracy(context)
         # If one job did fail it should not have been deleted
         self.assertEqual(
-            context.database.ktp_api.delete_tracy_job.call_count,
-            len(jobs) - 1
+            context.database.ktp_api.delete_tracy_job.call_count, len(jobs) - 1
         )
 
     def test_run_tracy_failed_job(self, *args):
@@ -78,10 +72,3 @@ class TestRunTracyTask(TestCase):
         # All hyperparameter optimization task should have failed
         # (teams is used when a job fails)
         self.assertEqual(teams_mock.post_teams.call_count, num_hyperparams_task)
-
-
-
-
-
-
-

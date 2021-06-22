@@ -11,8 +11,8 @@ from openstf.validation import validation
 
 # This is required to disable the default optuna logger and pass the logs to our own
 # structlog logger
-optuna.logging.enable_propagation()         # Propagate logs to the root logger.
-optuna.logging.disable_default_handler()    # Stop showing logs in sys.stderr.
+optuna.logging.enable_propagation()  # Propagate logs to the root logger.
+optuna.logging.disable_default_handler()  # Stop showing logs in sys.stderr.
 
 logger = structlog.get_logger(__name__)
 
