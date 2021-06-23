@@ -156,7 +156,8 @@ def calc_completeness(
 
         non_na_count = df.count()
         for col, value in timecols.items():
-            non_na_count[col] += value
+            if value >= 0:
+                non_na_count[col] += value
 
         # Correct for APX being only expected to be available up to 24h
         if "APX" in non_na_count.index:
