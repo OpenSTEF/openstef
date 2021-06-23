@@ -109,6 +109,22 @@ class CalcCompletenessTest(BaseTestCase):
         self.assertAlmostEqual(empty_compl_homogenise, 0.0)
         self.assertAlmostEqual(empty_compl_nohomogenise, 0.0)
 
+    def test_calc_completeness_no_negatives(self):
+        """Test added after bug.
+        If time delayed is True, T-7d gave a negative weight,
+        falsely resulting in a very low completeness"""
+        df = pd.DataFrame(
+            index=[0, 1, 3],
+            data={
+                "T-15min": [1, np.nan, np.nan],
+                "T-7d": [2, 3, 4],
+                "T-24d": [4, 5, 6],
+                "col1": [1, np.nan, 2],
+            },
+        )
+        completeness = calc_completeness(df, time_delayed=True)
+        self.assertEqual(completeness, 11 / 12.0)
+
 
 if __name__ == "__main__":
     unittest.main()
