@@ -87,7 +87,7 @@
               <div class="local-toc"><ul>
 <li><a class="reference internal" href="#">openstf.model_selection package</a><ul>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#openstf-model-selection-model-selection-module">openstf.model_selection.model_selection module</a></li>
+<li><a class="reference internal" href="#module-openstf.model_selection.model_selection">openstf.model_selection.model_selection module</a></li>
 <li><a class="reference internal" href="#module-openstf.model_selection">Module contents</a></li>
 </ul>
 </li>
@@ -163,8 +163,78 @@
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="openstf-model-selection-model-selection-module">
-<h2>openstf.model_selection.model_selection module<a class="headerlink" href="#openstf-model-selection-model-selection-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-openstf.model_selection.model_selection">
+<span id="openstf-model-selection-model-selection-module"></span><h2>openstf.model_selection.model_selection module<a class="headerlink" href="#module-openstf.model_selection.model_selection" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="openstf.model_selection.model_selection.sample_validation_data_periods">
+<code class="sig-prename descclassname">openstf.model_selection.model_selection.</code><code class="sig-name descname">sample_validation_data_periods</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">validation_fraction=0.15</em>, <em class="sig-param">period_length=192</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model_selection.model_selection.sample_validation_data_periods" title="Permalink to this definition">¶</a></dt>
+<dd><p>Splits data in train and validation dataset.</p>
+<p>Tries to sample random periods of given length to form a validation set of
+the desired size. Will raise an error if the number of attempts exceeds the
+maximum given to this function (default: 10).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>pandas.DataFrame</em>) – Clean data with features</p></li>
+<li><p><strong>validation_fraction</strong> (<em>float</em>) – Number between 0 and 1 that indicates the
+desired fraction of validation data. Using a value larger than ~0.4 might
+lead to this function failing.</p></li>
+<li><p><strong>period_length</strong> (<em>int</em>) – Desired size of the sampled periods. The actual
+values can be slightly different if this is required to create the
+right fraction of validation data. Each period will have a duration
+of at least half period_length and at most one and a half
+period_length.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Train data.
+validation_data (pandas.DataFrame): Validation data.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>train_data (pandas.DataFrame)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="openstf.model_selection.model_selection.split_data_train_validation_test">
+<code class="sig-prename descclassname">openstf.model_selection.model_selection.</code><code class="sig-name descname">split_data_train_validation_test</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">test_fraction=0.0</em>, <em class="sig-param">validation_fraction=0.15</em>, <em class="sig-param">back_test=False</em>, <em class="sig-param">period_sampling=True</em>, <em class="sig-param">period_timedelta=datetime.timedelta(days=2)</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model_selection.model_selection.split_data_train_validation_test" title="Permalink to this definition">¶</a></dt>
+<dd><p>Split input data into train, test and validation set.</p>
+<p>Function for splitting cleaned data with features in a train, test and
+validation dataset. In an operational setting the folowing sequence is
+returned:</p>
+<p>Test &gt;&gt; Validation &gt;&gt; Train</p>
+<p>For a back test (indicated with argument “back_test”) the folowing sequence
+is returned:</p>
+<p>Validation &gt;&gt; Train &gt;&gt; Test</p>
+<p>The ratios of the different types can be set with test_fraction and
+validation fraction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>pandas.DataFrame</em>) – Clean data with features</p></li>
+<li><p><strong>test_fraction</strong> (<em>float</em>) – Number between 0 and 1 that indicates the desired
+fraction of test data.</p></li>
+<li><p><strong>validation_fraction</strong> (<em>float</em>) – Number between 0 and 1 that indicates the
+desired fraction of validation data.</p></li>
+<li><p><strong>back_test</strong> (<em>bool</em>) – Indicates if data is intended for a back test.</p></li>
+<li><p><strong>period_sampling</strong> (<em>bool</em>) – Indicates if validation data must be sampled as
+periods.</p></li>
+<li><p><strong>period_timedelta</strong> (<em>datetime.timedelta</em>) – Duration of the periods that will
+be sampled as validation data. Only used for period_sampling=True.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>[0] (pandas.DataFrame): Train data
+[1] (pandas.DataFrame): Validation data
+[2] (pandas.DataFrame): Test data</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Tuple with train data, validation data and test data</p>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
 <div class="section" id="module-openstf.model_selection">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-openstf.model_selection" title="Permalink to this headline">¶</a></h2>

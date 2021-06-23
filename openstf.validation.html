@@ -167,7 +167,7 @@
 <span id="openstf-validation-validation-module"></span><h2>openstf.validation.validation module<a class="headerlink" href="#module-openstf.validation.validation" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="openstf.validation.validation.calc_completeness">
-<code class="sig-prename descclassname">openstf.validation.validation.</code><code class="sig-name descname">calc_completeness</code><span class="sig-paren">(</span><em class="sig-param">df: pandas.core.frame.DataFrame</em>, <em class="sig-param">weights: numpy.array = None</em>, <em class="sig-param">time_delayed: bool = False</em>, <em class="sig-param">homogenise: bool = True</em><span class="sig-paren">)</span> &#x2192; float<a class="headerlink" href="#openstf.validation.validation.calc_completeness" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstf.validation.validation.</code><code class="sig-name descname">calc_completeness</code><span class="sig-paren">(</span><em class="sig-param">df</em>, <em class="sig-param">weights=None</em>, <em class="sig-param">time_delayed=False</em>, <em class="sig-param">homogenise=True</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.validation.validation.calc_completeness" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the (weighted) completeness of a dataframe.</p>
 <p>NOTE: NA values count as incomplete</p>
 <dl class="field-list simple">
@@ -192,7 +192,7 @@ only available for DatetimeIndex</p></li>
 
 <dl class="function">
 <dt id="openstf.validation.validation.check_data_for_each_trafo">
-<code class="sig-prename descclassname">openstf.validation.validation.</code><code class="sig-name descname">check_data_for_each_trafo</code><span class="sig-paren">(</span><em class="sig-param">df: pandas.core.frame.DataFrame</em>, <em class="sig-param">col: pandas.core.series.Series</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#openstf.validation.validation.check_data_for_each_trafo" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstf.validation.validation.</code><code class="sig-name descname">check_data_for_each_trafo</code><span class="sig-paren">(</span><em class="sig-param">df</em>, <em class="sig-param">col</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.validation.validation.check_data_for_each_trafo" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
 <dt>Function that detects if each column contains zero-values at all, only</dt><dd><p>zero-values and NaN values.</p>
 </dd>
@@ -216,12 +216,12 @@ Load_corrections should be indicated by ‘<a href="#id1"><span class="problemat
 
 <dl class="function">
 <dt id="openstf.validation.validation.clean">
-<code class="sig-prename descclassname">openstf.validation.validation.</code><code class="sig-name descname">clean</code><span class="sig-paren">(</span><em class="sig-param">data: pandas.core.frame.DataFrame</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstf.validation.validation.clean" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstf.validation.validation.</code><code class="sig-name descname">clean</code><span class="sig-paren">(</span><em class="sig-param">data</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.validation.validation.clean" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="openstf.validation.validation.find_nonzero_flatliner">
-<code class="sig-prename descclassname">openstf.validation.validation.</code><code class="sig-name descname">find_nonzero_flatliner</code><span class="sig-paren">(</span><em class="sig-param">df: pandas.core.frame.DataFrame</em>, <em class="sig-param">threshold: int</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstf.validation.validation.find_nonzero_flatliner" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstf.validation.validation.</code><code class="sig-name descname">find_nonzero_flatliner</code><span class="sig-paren">(</span><em class="sig-param">df</em>, <em class="sig-param">threshold</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.validation.validation.find_nonzero_flatliner" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function that detects a stationflatliner and returns a list of datetimes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -241,7 +241,7 @@ Load_corrections should be indicated by ‘<a href="#id3"><span class="problemat
 
 <dl class="function">
 <dt id="openstf.validation.validation.find_zero_flatliner">
-<code class="sig-prename descclassname">openstf.validation.validation.</code><code class="sig-name descname">find_zero_flatliner</code><span class="sig-paren">(</span><em class="sig-param">df: pandas.core.frame.DataFrame</em>, <em class="sig-param">threshold: float</em>, <em class="sig-param">window: datetime.timedelta = datetime.timedelta(seconds=1800)</em>, <em class="sig-param">load_threshold: float = 0.3</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstf.validation.validation.find_zero_flatliner" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstf.validation.validation.</code><code class="sig-name descname">find_zero_flatliner</code><span class="sig-paren">(</span><em class="sig-param">df</em>, <em class="sig-param">threshold</em>, <em class="sig-param">window=datetime.timedelta(seconds=1800)</em>, <em class="sig-param">load_threshold=0.3</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.validation.validation.find_zero_flatliner" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function that detects a zero value where the load is not compensated by the other trafo’s of the station.</p>
 <p>Input:
 - df: pd.dataFrame(index=DatetimeIndex, columns = [load1, …, loadN]). Load_corrections should be indicated by ‘<a href="#id5"><span class="problematic" id="id6">LC_</span></a>’
@@ -255,7 +255,7 @@ before and during the zero-value(s).</p>
 
 <dl class="function">
 <dt id="openstf.validation.validation.is_data_sufficient">
-<code class="sig-prename descclassname">openstf.validation.validation.</code><code class="sig-name descname">is_data_sufficient</code><span class="sig-paren">(</span><em class="sig-param">data: pandas.core.frame.DataFrame</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#openstf.validation.validation.is_data_sufficient" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstf.validation.validation.</code><code class="sig-name descname">is_data_sufficient</code><span class="sig-paren">(</span><em class="sig-param">data</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.validation.validation.is_data_sufficient" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
 <dt>Check if enough data is left after validation and cleaning to continue</dt><dd><p>with model training.</p>
 </dd>
@@ -275,7 +275,7 @@ before and during the zero-value(s).</p>
 
 <dl class="function">
 <dt id="openstf.validation.validation.validate">
-<code class="sig-prename descclassname">openstf.validation.validation.</code><code class="sig-name descname">validate</code><span class="sig-paren">(</span><em class="sig-param">data: pandas.core.frame.DataFrame</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstf.validation.validation.validate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstf.validation.validation.</code><code class="sig-name descname">validate</code><span class="sig-paren">(</span><em class="sig-param">data</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.validation.validation.validate" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>

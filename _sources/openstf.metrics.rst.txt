@@ -20,14 +20,6 @@ openstf.metrics.metrics module
    :undoc-members:
    :show-inheritance:
 
-openstf.metrics.reporter module
--------------------------------
-
-.. automodule:: openstf.metrics.reporter
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 
 Module contents
 ---------------

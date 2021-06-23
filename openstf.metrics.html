@@ -89,7 +89,6 @@
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
 <li><a class="reference internal" href="#module-openstf.metrics.figure">openstf.metrics.figure module</a></li>
 <li><a class="reference internal" href="#module-openstf.metrics.metrics">openstf.metrics.metrics module</a></li>
-<li><a class="reference internal" href="#module-openstf.metrics.reporter">openstf.metrics.reporter module</a></li>
 <li><a class="reference internal" href="#module-openstf.metrics">Module contents</a></li>
 </ul>
 </li>
@@ -380,41 +379,6 @@ However, be sure that hyperparameter named
 <a class="reference external" href="https://gist.github.com/Nikolay-Lysenko/06769d701c1d9c9acb9a66f2f9d7a6c7">https://gist.github.com/Nikolay-Lysenko/06769d701c1d9c9acb9a66f2f9d7a6c7</a></p>
 <p>Reasoning for the hessian:
 <a class="reference external" href="https://gist.github.com/Nikolay-Lysenko/06769d701c1d9c9acb9a66f2f9d7a6c7#gistcomment-2322558">https://gist.github.com/Nikolay-Lysenko/06769d701c1d9c9acb9a66f2f9d7a6c7#gistcomment-2322558</a></p>
-</dd></dl>
-
-</div>
-<div class="section" id="module-openstf.metrics.reporter">
-<span id="openstf-metrics-reporter-module"></span><h2>openstf.metrics.reporter module<a class="headerlink" href="#module-openstf.metrics.reporter" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
-<dt id="openstf.metrics.reporter.Report">
-<em class="property">class </em><code class="sig-prename descclassname">openstf.metrics.reporter.</code><code class="sig-name descname">Report</code><span class="sig-paren">(</span><em class="sig-param">feature_importance_figure: plotly.graph_objs._figure.Figure, data_series_figures: Dict[str, plotly.graph_objs._figure.Figure]</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.metrics.reporter.Report" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<dl class="attribute">
-<dt id="openstf.metrics.reporter.Report.data_series_figures">
-<code class="sig-name descname">data_series_figures</code><em class="property">: Dict[str, Figure]</em><em class="property"> = None</em><a class="headerlink" href="#openstf.metrics.reporter.Report.data_series_figures" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="openstf.metrics.reporter.Report.feature_importance_figure">
-<code class="sig-name descname">feature_importance_figure</code><em class="property">: Figure</em><em class="property"> = None</em><a class="headerlink" href="#openstf.metrics.reporter.Report.feature_importance_figure" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="openstf.metrics.reporter.Report.save_figures">
-<code class="sig-name descname">save_figures</code><span class="sig-paren">(</span><em class="sig-param">save_path</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.metrics.reporter.Report.save_figures" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="openstf.metrics.reporter.Reporter">
-<em class="property">class </em><code class="sig-prename descclassname">openstf.metrics.reporter.</code><code class="sig-name descname">Reporter</code><span class="sig-paren">(</span><em class="sig-param">pj: dict = None</em>, <em class="sig-param">train_data: pandas.core.frame.DataFrame = None</em>, <em class="sig-param">validation_data: pandas.core.frame.DataFrame = None</em>, <em class="sig-param">test_data: pandas.core.frame.DataFrame = None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.metrics.reporter.Reporter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<dl class="method">
-<dt id="openstf.metrics.reporter.Reporter.generate_report">
-<code class="sig-name descname">generate_report</code><span class="sig-paren">(</span><em class="sig-param">model: sklearn.base.RegressorMixin</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#openstf.metrics.reporter.Reporter.generate_report" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 </dd></dl>
 
 </div>

@@ -4,22 +4,6 @@ openstf.pipeline package
 Submodules
 ----------
 
-openstf.pipeline.create\_basecase\_forecast module
---------------------------------------------------
-
-.. automodule:: openstf.pipeline.create_basecase_forecast
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-openstf.pipeline.create\_component\_forecast module
----------------------------------------------------
-
-.. automodule:: openstf.pipeline.create_component_forecast
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 openstf.pipeline.create\_forecast module
 ----------------------------------------
 
@@ -28,18 +12,18 @@ openstf.pipeline.create\_forecast module
    :undoc-members:
    :show-inheritance:
 
-openstf.pipeline.train\_model module
-------------------------------------
+openstf.pipeline.optimize\_hyperparameters module
+-------------------------------------------------
 
-.. automodule:: openstf.pipeline.train_model
+.. automodule:: openstf.pipeline.optimize_hyperparameters
    :members:
    :undoc-members:
    :show-inheritance:
 
-openstf.pipeline.utils module
------------------------------
+openstf.pipeline.train\_model module
+------------------------------------
 
-.. automodule:: openstf.pipeline.utils
+.. automodule:: openstf.pipeline.train_model
    :members:
    :undoc-members:
    :show-inheritance:
