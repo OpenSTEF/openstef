@@ -123,7 +123,7 @@ class CalcCompletenessTest(BaseTestCase):
             },
         )
         completeness = calc_completeness(df, time_delayed=True)
-        self.assertEqual(completeness, 11/12.)
+        self.assertEqual(completeness, 11 / 12.0)
 
 
 if __name__ == "__main__":
