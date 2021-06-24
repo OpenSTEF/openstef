@@ -98,7 +98,7 @@ def run_tracy_job(job, pj, context):
     try:
         # If train model job (TODO remove old name when jobs are done)
         if job["function"] in ["train_model", "train_specific_model"]:
-            train_model_task(pj, context)
+            train_model_task(pj, context, check_old_model_age=False)
 
         # If optimize hyperparameters job (TODO remove old name when jobs are done)
         elif job["function"] in [

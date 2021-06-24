@@ -30,15 +30,19 @@ from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
 
 TRAINING_PERIOD_DAYS: int = 120
+DEFAULT_CHECK_MODEL_AGE: bool = True
 
 
-def train_model_task(pj: dict, context: TaskContext) -> None:
+def train_model_task(
+    pj: dict, context: TaskContext, check_old_model_age: bool = DEFAULT_CHECK_MODEL_AGE
+) -> None:
     """Top level task that trains a new model and makes sure the beast available model is stored.
     On this task level all database and context manager dependencies are resolved.
 
     Args:
         pj (dict): Prediction job
         context (TaskContext): Contect object that holds a config manager and a database connection
+        check_old_model_age (bool): check if model is too young to be retrained
     """
 
     # TODO Update get_prediction job in ktpbase such that hyperparams are already included in the prediciton jobs
@@ -52,7 +56,7 @@ def train_model_task(pj: dict, context: TaskContext) -> None:
         pj["hyper_params"]["featureset_name"]
     )
 
-    context.checkpoint("Added metadata to PredictionJob")
+    context.perf_meter.checkpoint("Added metadata to PredictionJob")
 
     # Define start and end of the training input data
     datetime_start = datetime.utcnow() - timedelta(
@@ -68,7 +72,7 @@ def train_model_task(pj: dict, context: TaskContext) -> None:
         datetime_end=datetime_end,
     )
 
-    context.checkpoint("Retrieved timeseries input")
+    context.perf_meter.checkpoint("Retrieved timeseries input")
 
     # Get the paths for storing model and reports from the config manager
     trained_models_folder = Path(context.config.paths.trained_models_folder)
@@ -78,12 +82,12 @@ def train_model_task(pj: dict, context: TaskContext) -> None:
     train_model_pipeline(
         pj,
         input_data,
-        check_old_model_age=True,
+        check_old_model_age=check_old_model_age,
         trained_models_folder=trained_models_folder,
         save_figures_folder=save_figures_folder,
     )
 
-    context.checkpoint("Model trained")
+    context.perf_meter.checkpoint("Model trained")
 
 
 def main():
