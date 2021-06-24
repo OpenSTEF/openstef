@@ -226,35 +226,6 @@ If no status if found it is assumed that the old code is 0
 </dd></dl>
 
 <dl class="function">
-<dt id="openstf.tasks.utils.utils.convert_string_args_to_dict_args">
-<code class="sig-prename descclassname">openstf.tasks.utils.utils.</code><code class="sig-name descname">convert_string_args_to_dict_args</code><span class="sig-paren">(</span><em class="sig-param">argsstring</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.tasks.utils.utils.convert_string_args_to_dict_args" title="Permalink to this definition">¶</a></dt>
-<dd><p>Helper function that converts a string of arguments to a dict of arguments.
-Coverts inputs to floats if possible. Assumes args are seperated by ‘,’ or ‘, ‘.</p>
-<p>input: str</p>
-<p>output: dict(args=[arg1, …, argN], kwargs=dict(kwarg1=val1, …, kwargN=valN)</p>
-<p class="rubric">Example</p>
-<p>‘5, seconds’ -&gt; dict(args=[5, ‘seconds’])
-‘3, val=blub -&gt; dict(args=[3], kwargs=dict(val=’blub’)</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="openstf.tasks.utils.utils.interpret_string_as_functions">
-<code class="sig-prename descclassname">openstf.tasks.utils.utils.</code><code class="sig-name descname">interpret_string_as_functions</code><span class="sig-paren">(</span><em class="sig-param">function</em>, <em class="sig-param">args</em>, <em class="sig-param">kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.tasks.utils.utils.interpret_string_as_functions" title="Permalink to this definition">¶</a></dt>
-<dd><p>Interpret a given function with args and kwargs to build a string suitable for eval
-input:</p>
-<blockquote>
-<div><p>function = str
-args = list(arg1, …, argN)
-kwargs = dict(kwarg1=val1, …, kwargN=valN)</p>
-</div></blockquote>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>function(arg1, …, argN, kwarg1=val1, …, kwargN=valN)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
 <dt id="openstf.tasks.utils.utils.load_status_file">
 <code class="sig-prename descclassname">openstf.tasks.utils.utils.</code><code class="sig-name descname">load_status_file</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#openstf.tasks.utils.utils.load_status_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>This function loads the json status file

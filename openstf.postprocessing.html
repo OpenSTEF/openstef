@@ -166,6 +166,33 @@
 <div class="section" id="module-openstf.postprocessing.postprocessing">
 <span id="openstf-postprocessing-postprocessing-module"></span><h2>openstf.postprocessing.postprocessing module<a class="headerlink" href="#module-openstf.postprocessing.postprocessing" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
+<dt id="openstf.postprocessing.postprocessing.add_components_base_case_forecast">
+<code class="sig-prename descclassname">openstf.postprocessing.postprocessing.</code><code class="sig-name descname">add_components_base_case_forecast</code><span class="sig-paren">(</span><em class="sig-param">basecase_forecast: pandas.core.frame.DataFrame</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstf.postprocessing.postprocessing.add_components_base_case_forecast" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Makes a basecase forecast for the forecast_other component. This will make a</dt><dd><p>simple basecase components forecast available and ensures that the sum of
+the components (other, wind and solar) is equal to the normal basecase forecast
+This is important for sending GLMD messages correctly to TenneT!</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>basecase_forecast</strong> – pd.DataFrame with basecase forecast</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>pd.DataFrame with extra “forecast_other component”</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>basecase_forecast</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="openstf.postprocessing.postprocessing.add_prediction_job_properties_to_forecast">
+<code class="sig-prename descclassname">openstf.postprocessing.postprocessing.</code><code class="sig-name descname">add_prediction_job_properties_to_forecast</code><span class="sig-paren">(</span><em class="sig-param">pj: dict</em>, <em class="sig-param">forecast: pandas.core.frame.DataFrame</em>, <em class="sig-param">forecast_type: enum.Enum = None</em>, <em class="sig-param">forecast_quality: str = None</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstf.postprocessing.postprocessing.add_prediction_job_properties_to_forecast" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
 <dt id="openstf.postprocessing.postprocessing.normalize_and_convert_weather_data_for_splitting">
 <code class="sig-prename descclassname">openstf.postprocessing.postprocessing.</code><code class="sig-name descname">normalize_and_convert_weather_data_for_splitting</code><span class="sig-paren">(</span><em class="sig-param">weather_data</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.postprocessing.postprocessing.normalize_and_convert_weather_data_for_splitting" title="Permalink to this definition">¶</a></dt>
 <dd><p>Normalize and converts weather data for use in energy splitting.</p>
