@@ -166,8 +166,10 @@ def train_model_pipeline_core(
     return model, report
 
 
-def train_pipeline_common(pj: dict, input_data: pd.DataFrame, horizons: List[float]) -> Tuple[RegressorMixin, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    """ Common pipeline shared with operational training and backtest training
+def train_pipeline_common(
+    pj: dict, input_data: pd.DataFrame, horizons: List[float]
+) -> Tuple[RegressorMixin, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """Common pipeline shared with operational training and backtest training
 
     Args:
         pj (dict): Prediction job

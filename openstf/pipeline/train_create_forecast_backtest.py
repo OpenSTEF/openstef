@@ -40,8 +40,9 @@ def train_model_and_forecast_back_test(
         training_horizons = DEFAULT_TRAIN_HORIZONS
 
     # Call common training pipeline
-    model, test_data, validation_data, test_data = \
-        train_pipeline_common(pj, input_data, training_horizons)
+    model, test_data, validation_data, test_data = train_pipeline_common(
+        pj, input_data, training_horizons
+    )
 
     # Predict
     model_forecast = model.predict(test_data.iloc[:, 1:-1])
