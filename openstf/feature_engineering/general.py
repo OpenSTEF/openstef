@@ -8,10 +8,6 @@ import numpy as np
 import pandas as pd
 import structlog
 
-logger = structlog.get_logger(__name__)
-
-import structlog
-
 
 def add_missing_feature_columns(
     input_data: pd.DataFrame, features: List[str]
@@ -20,17 +16,18 @@ def add_missing_feature_columns(
 
     Add feature columns for features in the feature list if these columns don't
     exist in the input data. If a column is added, its value is set to NaN.
-    This is especially usefull to make sure the required columns are in place when making a prediction.
+    This is especially usefull to make sure the required columns are in place when
+    making a prediction.
 
     NOTE: this function is intended as a final check to prevent errors during predicion.
         In an ideal world this function is not nescarry.
 
     Args:
         input_data (pd.DataFrame): DataFrame with input data and featurs.
-        features (list): List of requiered features
+        features (list): List of requiered features.
     """
 
-    logger = structlog.get_logger(__file__)
+    logger = structlog.get_logger(__name__)
 
     if features is None:
         features = []
@@ -49,7 +46,7 @@ def add_missing_feature_columns(
 def remove_extra_feature_columns(
     input_data: pd.DataFrame, features: List[str]
 ) -> pd.DataFrame:
-    """Removes any features that are provided in the input data but not in the feature list.
+    """Removes features that are provided in the input data but not in the feature list.
 
     This should not be nescesarry but serves as an extra failsave for making predicitons
 
@@ -57,10 +54,10 @@ def remove_extra_feature_columns(
         input_data: (pd.Dataframe) DataFrame with features
         featurelist: (list) list of reuqested features
 
-    Returns: pd.DataFrame with model input data and fetaures
-
+    Returns:
+        pd.DataFrame: Nodel input data with features.
     """
-    logger = structlog.get_logger(__file__)
+    logger = structlog.get_logger(__name__)
 
     if features is None:
         features = []
@@ -82,35 +79,34 @@ def remove_extra_feature_columns(
     return input_data.drop(extra_features, axis=1)
 
 
-def enforce_feature_order(df):
+def enforce_feature_order(input_data: pd.DataFrame):
     """Enforces correct order of features.
 
     Alphabetically orders the feature columns. The load column remains the first column
-        and the Horizons column remains the last column. Everything in between is alphabetically sorted.
+    and the Horizons column remains the last column. Everything in between is sorted
+    alphabetically.
 
     Args:
-        df (pd.DataFrame): Dataframe with features.
+        input_data (pd.DataFrame): Input data with features.
 
     Returns:
-        pd.DataFrame with features with all columns in the correct order
+        pd.DataFrame: Properly sorted input data
     """
 
     # Extract first column name
-    first_col_name = df.columns.to_list()[0]  # Most of the time this is load
+    first_col_name = input_data.columns.to_list()[0]  # Most of the time this is load
 
     # Sort columns
-    columns = list(np.sort(df.columns.to_list()))
+    columns = list(np.sort(input_data.columns.to_list()))
 
     # Remove first column and add to the start
     columns.remove(first_col_name)
     col_order = [first_col_name] + columns
 
     # If "Horzion" column is available add to the end
-    if (
-        "Horizon" in columns
-    ):  # "Horizon" is pressent in the training procces but not in the forecasting process
+    if "Horizon" in columns:  # "Horizon" is pressent in the training procces but not in the forecasting process
         col_order.remove("Horizon")
         col_order = col_order + ["Horizon"]
 
     # Return dataframe with columns in the correct order
-    return df.loc[:, col_order]
+    return input_data.loc[:, col_order]
