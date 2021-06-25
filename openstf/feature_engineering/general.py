@@ -104,7 +104,9 @@ def enforce_feature_order(input_data: pd.DataFrame):
     col_order = [first_col_name] + columns
 
     # If "Horzion" column is available add to the end
-    if "Horizon" in columns:  # "Horizon" is pressent in the training procces but not in the forecasting process
+    if (
+        "Horizon" in columns
+    ):  # "Horizon" is pressent in the training procces but not in the forecasting process
         col_order.remove("Horizon")
         col_order = col_order + ["Horizon"]
 
