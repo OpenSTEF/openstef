@@ -18,13 +18,13 @@ class StandardDeviationGenerator:
         predicted = None
         self.standard_deviation = pd.DataFrame()
 
-        # Loop over Horizons and ask prediction for each specific horizon
-        for horizon in self.validation_data.Horizon.unique():
+        # Loop over horizons and ask prediction for each specific horizon
+        for horizon in self.validation_data.horizon.unique():
             # Make subset for this specific horizon
-            sub_val = self.validation_data[self.validation_data.Horizon == horizon]
+            sub_val = self.validation_data[self.validation_data.horizon == horizon]
 
             try:
-                predicted = model.predict(sub_val.iloc[:, 1:])
+                predicted = model.predict(sub_val.iloc[:, 1:-1])
             except Exception as e:
                 print("Could not get prediction from new model!", e)
 

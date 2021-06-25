@@ -49,7 +49,7 @@ class Reporter:
             test_data:
         """
         self.pj = pj
-        self.horizons = train_data.Horizon.unique()
+        self.horizons = train_data.horizon.unique()
         self.predicted_data_list = []
         self.input_data_list = [train_data, validation_data, test_data]
 
@@ -74,7 +74,9 @@ class Reporter:
 
         # Make model predictions
         for data_set in self.input_data_list:
-            model_forecast = model.predict(data_set.iloc[:, 1:])
+            # First ("load") and last ("horizon") are removed here
+            # as they are not expected by the model as prediction input
+            model_forecast = model.predict(data_set.iloc[:, 1:-1])
             forecast = pd.DataFrame(
                 index=data_set.index, data={"forecast": model_forecast}
             )

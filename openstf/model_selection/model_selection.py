@@ -13,7 +13,7 @@ def split_data_train_validation_test(
     data: pd.DataFrame,
     test_fraction: float = 0.0,
     validation_fraction: float = 0.15,
-    back_test: bool = False,
+    backtest: bool = False,
     period_sampling: bool = True,
     period_timedelta: timedelta = timedelta(days=2),
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
@@ -39,7 +39,7 @@ def split_data_train_validation_test(
             fraction of test data.
         validation_fraction (float): Number between 0 and 1 that indicates the
             desired fraction of validation data.
-        back_test (bool): Indicates if data is intended for a back test.
+        backtest (bool): Indicates if data is intended for a back test.
         period_sampling (bool): Indicates if validation data must be sampled as
             periods.
         period_timedelta (datetime.timedelta): Duration of the periods that will
@@ -81,7 +81,7 @@ def split_data_train_validation_test(
     # Default sampling, take a single validation set.
     if not period_sampling:
         # Define start and end datetimes of test, train, val sets based on input
-        if back_test:
+        if backtest:
             start_date_val = start_date
             start_date_train = (
                 start_date_val + np.round(number_indices * validation_fraction) * delta
@@ -109,7 +109,7 @@ def split_data_train_validation_test(
 
     # Sample periods in the training part as the validation set.
     else:
-        if back_test:
+        if backtest:
             start_date_combined = start_date
             start_date_test = (
                 start_date_combined

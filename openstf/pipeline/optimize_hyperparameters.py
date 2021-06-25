@@ -34,7 +34,7 @@ def optimize_hyperparameters_pipeline(
     Args:
         pj (dict): Prediction job
         input_data (pd.DataFrame): Raw training input data
-        horizons (list[float]): Horizons for feature engineering.
+        horizons (list[float]): horizons for feature engineering.
         n_trials (int, optional): The number of trials. Defaults to N_TRIALS.
         timeout (int, optional): Stop study after the given number of second(s).
             Defaults to TIMEOUT.

@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 import logging
 from pathlib import Path
-from typing import List, Union
+from typing import List, Union, Tuple
 
 import pandas as pd
 from sklearn.base import RegressorMixin
@@ -85,7 +85,7 @@ def train_model_pipeline_core(
     input_data: pd.DataFrame,
     old_model: RegressorMixin = None,
     horizons: List[float] = None,
-) -> tuple[RegressorMixin, Report]:
+) -> Tuple[RegressorMixin, Report]:
     """Train model core pipeline.
     Trains a new model given a predction job, input data and compares it to an old model.
     This pipeline has no database or persisitent storage dependencies.
@@ -104,7 +104,7 @@ def train_model_pipeline_core(
         pj (dict): Prediction job
         input_data (pd.DataFrame): Input data
         old_model (RegressorMixin, optional): Old model to compare to. Defaults to None.
-        horizons (List[float]): Horizons to train on in hours.
+        horizons (List[float]): horizons to train on in hours.
 
     Raises:
         ValueError: When input data is insufficient
@@ -118,50 +118,18 @@ def train_model_pipeline_core(
         horizons = DEFAULT_TRAIN_HORIZONS
 
     logger = structlog.get_logger(__name__)
-    # Validate and clean data
-    validated_data = validation.clean(validation.validate(input_data))
 
-    # Check if sufficient data is left after cleaning
-    if not validation.is_data_sufficient(validated_data):
-        raise ValueError(
-            f"Input data is insufficient for {pj['name']} "
-            f"after validation and cleaning"
-        )
-
-    # Add features
-    data_with_features = TrainFeatureApplicator(
-        horizons=horizons, feature_names=pj["feature_names"]
-    ).add_features(validated_data)
-
-    # Split data
-    train_data, validation_data, test_data = split_data_train_validation_test(
-        data_with_features.sort_index(axis=1)
+    # Call common pipeline
+    model, train_data, validation_data, test_data = train_pipeline_common(
+        pj, input_data, horizons
     )
 
-    # Create relevant model
-    model = ModelCreator.create_model(pj)
-
-    # split x and y data
-    train_x, train_y = train_data.iloc[:, 1:], train_data.iloc[:, 0]
-    validation_x, validation_y = validation_data.iloc[:, 1:], validation_data.iloc[:, 0]
-
-    # Configure evals for early stopping
-    eval_set = [(train_x, train_y), (validation_x, validation_y)]
-
-    model.set_params(**pj["hyper_params"])
-    model.fit(
-        train_x,
-        train_y,
-        eval_set=eval_set,
-        early_stopping_rounds=DEFAULT_EARLY_STOPPING_ROUNDS,
-        verbose=False,
-    )
     logging.info("Fitted a new model, not yet stored")
 
     # Check if new model is better than old model
     if old_model:
         combined = train_data.append(validation_data)
-        x_data, y_data = combined.iloc[:, 1:], combined.iloc[:, 0]
+        x_data, y_data = combined.iloc[:, 1:-1], combined.iloc[:, 0]
 
         # Score method always returns R^2
         score_new_model = model.score(x_data, y_data)
@@ -196,3 +164,77 @@ def train_model_pipeline_core(
     report = Reporter(pj, train_data, validation_data, test_data).generate_report(model)
 
     return model, report
+
+
+def train_pipeline_common(
+    pj: dict, input_data: pd.DataFrame, horizons: List[float]
+) -> Tuple[RegressorMixin, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """Common pipeline shared with operational training and backtest training
+
+    Args:
+        pj (dict): Prediction job
+        input_data (pd.DataFrame): Input data
+        horizons (List[float]): horizons to train on in hours.
+
+    Returns:
+        tuple[RegressorMixin, pd.DataFrame, pd.DataFrame, pd.DataFrame]: Trained model,
+         train_data, validation_data and test_data
+
+
+    """
+
+    # Validate and clean data
+    validated_data = validation.clean(validation.validate(input_data))
+
+    # Check if sufficient data is left after cleaning
+    if not validation.is_data_sufficient(validated_data):
+        raise ValueError(
+            f"Input data is insufficient for {pj['name']} "
+            f"after validation and cleaning"
+        )
+
+    # Add features
+    data_with_features = TrainFeatureApplicator(
+        horizons=horizons, feature_names=pj["feature_names"]
+    ).add_features(validated_data)
+
+    # Split data
+    train_data, validation_data, test_data = split_data_train_validation_test(
+        data_with_features.sort_index(axis=0), test_fraction=0.15, backtest=True
+    )
+
+    # Create relevant model
+    model = ModelCreator.create_model(pj)
+
+    # Test if first column is "load" and last column is "horizon"
+    if train_data.columns[0] != "load" or train_data.columns[-1] != "horizon":
+        raise RuntimeError(
+            "Column order in train input data not as expected, "
+            "could not train a model!"
+        )
+
+    # split x and y data
+    train_x, train_y = train_data.iloc[:, 1:-1], train_data.iloc[:, 0]
+    validation_x, validation_y = (
+        validation_data.iloc[:, 1:-1],
+        validation_data.iloc[:, 0],
+    )
+
+    # Configure evals for early stopping
+    eval_set = [(train_x, train_y), (validation_x, validation_y)]
+
+    model.set_params(**pj["hyper_params"])
+    model.fit(
+        train_x,
+        train_y,
+        eval_set=eval_set,
+        early_stopping_rounds=DEFAULT_EARLY_STOPPING_ROUNDS,
+        verbose=False,
+    )
+    logging.info("Fitted a new model, not yet stored")
+
+    # Do confidence interval determination
+    model = StandardDeviationGenerator(
+        pj, validation_data
+    ).generate_standard_deviation_data(model)
+    return model, train_data, validation_data, test_data

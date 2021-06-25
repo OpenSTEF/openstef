@@ -10,7 +10,8 @@ import pandas as pd
 from openstf.feature_engineering.apply_features import apply_features
 from openstf.feature_engineering.general import (
     add_missing_feature_columns,
-    remove_extra_feature_columns,
+    remove_non_requested_feature_columns,
+    enforce_feature_order,
 )
 
 LATENCY_CONFIG = {"APX": 24}  # A specific latency is part of a specific feature.
@@ -27,7 +28,7 @@ class AbstractFeatureApplicator(ABC):
             feature_names (List[str]):  List of requested features
         """
         if type(horizons) is not list and not None:
-            raise ValueError("Horizons must be added as a list")
+            raise ValueError("horizons must be added as a list")
 
         self.feature_names = feature_names
         self.horizons = horizons
@@ -79,15 +80,16 @@ class TrainFeatureApplicator(AbstractFeatureApplicator):
             res = apply_features(
                 df.copy(deep=True), horizon=horizon
             )  # Deep copy of df is important, because we want a fresh start every iteration!
-            res["Horizon"] = horizon
+            res["horizon"] = horizon
             result = result.append(res)
 
         # Invalidate features that are not available for a specific horizon due to data
         # latency
         for feature, time in latency_config.items():
-            result.loc[result["Horizon"] > time, feature] = np.nan
+            result.loc[result["horizon"] > time, feature] = np.nan
 
-        return result.sort_index()
+        # Sort all features except for the (first) load and (last) horizon columns
+        return enforce_feature_order(result)
 
 
 class OperationalPredictFeatureApplicator(AbstractFeatureApplicator):
@@ -113,30 +115,6 @@ class OperationalPredictFeatureApplicator(AbstractFeatureApplicator):
         )
         df = add_missing_feature_columns(df, self.feature_names)
         # NOTE this is required since apply_features could add additional features
-        df = remove_extra_feature_columns(df, self.feature_names)
+        df = remove_non_requested_feature_columns(df, self.feature_names)
 
-        return df.sort_index(axis=1)
-
-
-class BackTestPredictFeatureApplicator(AbstractFeatureApplicator):
-    def add_features(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Adds features to an input DataFrame.
-
-        This method is implemented specifically for a backtest prediction for a specific horizon.
-        All featurs that are not available for the specific horzion are invalidated.
-
-        Args:
-            df: pd.DataFrame with input data to which the features have to be added
-
-        Returns:
-            pd.DataFrame: Input DataFrame with an extra column for every added feature.
-        """
-        num_horizons = len(self.horizons)
-        if num_horizons != 1:
-            raise ValueError("Expected one horizon, got {num_horizons}")
-
-        df = apply_features(df, horizon=self.horizons[0])
-        df = add_missing_feature_columns(df, self.feature_names)
-        # NOTE this is required since apply_features could add additional features
-        df = remove_extra_feature_columns(df, self.feature_names)
-        return df
+        return enforce_feature_order(df)
