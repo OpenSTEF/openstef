@@ -308,31 +308,6 @@ Example: {‘column’: [‘mean’], [‘sum’]}</p></li>
 </dd></dl>
 
 <dl class="class">
-<dt id="openstf.feature_engineering.feature_applicator.BackTestPredictFeatureApplicator">
-<em class="property">class </em><code class="sig-prename descclassname">openstf.feature_engineering.feature_applicator.</code><code class="sig-name descname">BackTestPredictFeatureApplicator</code><span class="sig-paren">(</span><em class="sig-param">horizons: List[float], feature_names: Optional[List[str]] = None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.feature_engineering.feature_applicator.BackTestPredictFeatureApplicator" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#openstf.feature_engineering.feature_applicator.AbstractFeatureApplicator" title="openstf.feature_engineering.feature_applicator.AbstractFeatureApplicator"><code class="xref py py-class docutils literal notranslate"><span class="pre">openstf.feature_engineering.feature_applicator.AbstractFeatureApplicator</span></code></a></p>
-<dl class="method">
-<dt id="openstf.feature_engineering.feature_applicator.BackTestPredictFeatureApplicator.add_features">
-<code class="sig-name descname">add_features</code><span class="sig-paren">(</span><em class="sig-param">df: pandas.core.frame.DataFrame</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstf.feature_engineering.feature_applicator.BackTestPredictFeatureApplicator.add_features" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds features to an input DataFrame.</p>
-<p>This method is implemented specifically for a backtest prediction for a specific horizon.
-All featurs that are not available for the specific horzion are invalidated.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>df</strong> – pd.DataFrame with input data to which the features have to be added</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Input DataFrame with an extra column for every added feature.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>pd.DataFrame</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
 <dt id="openstf.feature_engineering.feature_applicator.OperationalPredictFeatureApplicator">
 <em class="property">class </em><code class="sig-prename descclassname">openstf.feature_engineering.feature_applicator.</code><code class="sig-name descname">OperationalPredictFeatureApplicator</code><span class="sig-paren">(</span><em class="sig-param">horizons: List[float], feature_names: Optional[List[str]] = None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.feature_engineering.feature_applicator.OperationalPredictFeatureApplicator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#openstf.feature_engineering.feature_applicator.AbstractFeatureApplicator" title="openstf.feature_engineering.feature_applicator.AbstractFeatureApplicator"><code class="xref py py-class docutils literal notranslate"><span class="pre">openstf.feature_engineering.feature_applicator.AbstractFeatureApplicator</span></code></a></p>
@@ -404,7 +379,8 @@ available for a specific horizon due to data latency. Default to
 <dd><p>Adds feature column for features in the featurelist.</p>
 <p>Add feature columns for features in the feature list if these columns don’t
 exist in the input data. If a column is added, its value is set to NaN.
-This is especially usefull to make sure the required columns are in place when making a prediction.</p>
+This is especially usefull to make sure the required columns are in place when
+making a prediction.</p>
 <dl class="simple">
 <dt>NOTE: this function is intended as a final check to prevent errors during predicion.</dt><dd><p>In an ideal world this function is not nescarry.</p>
 </dd>
@@ -413,26 +389,57 @@ This is especially usefull to make sure the required columns are in place when m
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>input_data</strong> (<em>pd.DataFrame</em>) – DataFrame with input data and featurs.</p></li>
-<li><p><strong>features</strong> (<em>list</em>) – List of requiered features</p></li>
+<li><p><strong>features</strong> (<em>list</em>) – List of requiered features.</p></li>
 </ul>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="function">
-<dt id="openstf.feature_engineering.general.remove_extra_feature_columns">
-<code class="sig-prename descclassname">openstf.feature_engineering.general.</code><code class="sig-name descname">remove_extra_feature_columns</code><span class="sig-paren">(</span><em class="sig-param">input_data: pandas.core.frame.DataFrame, features: List[str]</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstf.feature_engineering.general.remove_extra_feature_columns" title="Permalink to this definition">¶</a></dt>
-<dd><p>Removes any features that are provided in the input data but not in the feature list.</p>
+<dt id="openstf.feature_engineering.general.enforce_feature_order">
+<code class="sig-prename descclassname">openstf.feature_engineering.general.</code><code class="sig-name descname">enforce_feature_order</code><span class="sig-paren">(</span><em class="sig-param">input_data: pandas.core.frame.DataFrame</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.feature_engineering.general.enforce_feature_order" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enforces correct order of features.</p>
+<dl>
+<dt>Alphabetically orders the feature columns. The load column remains the first column</dt><dd><p>and the horizons column remains the last column.
+Everything in between is alphabetically sorted:
+The order eventually looks like this:
+[“load”] – [alphabetically sorted features] – [‘horizon’]</p>
+<p>This funciton assumes the first column contains the to be predicted variable
+Furthermore the “horizon” is moved to the last position if it is pressent.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>input_data</strong> (<em>pd.DataFrame</em>) – Input data with features.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Properly sorted input data</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="openstf.feature_engineering.general.remove_non_requested_feature_columns">
+<code class="sig-prename descclassname">openstf.feature_engineering.general.</code><code class="sig-name descname">remove_non_requested_feature_columns</code><span class="sig-paren">(</span><em class="sig-param">input_data: pandas.core.frame.DataFrame, requested_features: List[str]</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstf.feature_engineering.general.remove_non_requested_feature_columns" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes features that are provided in the input data but not in the feature list.</p>
 <p>This should not be nescesarry but serves as an extra failsave for making predicitons</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>input_data</strong> – (pd.Dataframe) DataFrame with features</p></li>
-<li><p><strong>featurelist</strong> – (list) list of reuqested features</p></li>
+<li><p><strong>requested_features</strong> – (list) list of reuqested features</p></li>
 </ul>
 </dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Nodel input data with features.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
 </dl>
-<p>Returns: pd.DataFrame with model input data and fetaures</p>
 </dd></dl>
 
 </div>

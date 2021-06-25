@@ -36,6 +36,14 @@ openstf.pipeline.optimize\_hyperparameters module
    :undoc-members:
    :show-inheritance:
 
+openstf.pipeline.train\_create\_forecast\_backtest module
+---------------------------------------------------------
+
+.. automodule:: openstf.pipeline.train_create_forecast_backtest
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 openstf.pipeline.train\_model module
 ------------------------------------
 
