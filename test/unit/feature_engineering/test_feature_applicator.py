@@ -18,14 +18,14 @@ class TestFeatureApplicator(TestCase):
             input_data[["load"]]
         )
         self.assertEqual(data_with_features.columns.to_list()[0], "load")
-        self.assertEqual(data_with_features.columns.to_list()[-1], "Horizon")
+        self.assertEqual(data_with_features.columns.to_list()[-1], "horizon")
 
     def test_operational_feature_applicator_correct_order(self):
         # Test for expected column order of the output
-        # Also check "Horizons" is not in the output
+        # Also check "horizons" is not in the output
         input_data = TestData.load("input_data.pickle")
         data_with_features = OperationalPredictFeatureApplicator(
             horizons=[0.25]
         ).add_features(input_data[["load"]])
         self.assertEqual(data_with_features.columns.to_list()[0], "load")
-        self.assertTrue("Horizon" not in data_with_features.columns.to_list())
+        self.assertTrue("horizon" not in data_with_features.columns.to_list())

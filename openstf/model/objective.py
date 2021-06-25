@@ -60,8 +60,16 @@ class RegressorObjective:
             self.input_data,
             test_fraction=self.test_fraction,
             validation_fraction=self.validation_fraction,
-            back_test=True,
+            backtest=True,
         )
+
+        # Test if first column is "load" and last column is "horizon"
+        if train_data.columns[0] != "load" or train_data.columns[-1] != "horizon":
+            raise RuntimeError(
+                "Column order in train input data not as expected, "
+                "could not train a model!"
+            )
+
         # Split in x, y data (x are the features, y is the load)
         train_x, train_y = train_data.iloc[:, 1:-1], train_data.iloc[:, 0]
         valid_x, valid_y = validation_data.iloc[:, 1:-1], validation_data.iloc[:, 0]

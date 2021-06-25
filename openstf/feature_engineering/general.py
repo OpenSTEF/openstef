@@ -43,8 +43,8 @@ def add_missing_feature_columns(
     return input_data
 
 
-def remove_extra_feature_columns(
-    input_data: pd.DataFrame, features: List[str]
+def remove_non_requested_feature_columns(
+    input_data: pd.DataFrame, requested_features: List[str]
 ) -> pd.DataFrame:
     """Removes features that are provided in the input data but not in the feature list.
 
@@ -52,23 +52,25 @@ def remove_extra_feature_columns(
 
     Args:
         input_data: (pd.Dataframe) DataFrame with features
-        featurelist: (list) list of reuqested features
+        requested_features: (list) list of reuqested features
 
     Returns:
         pd.DataFrame: Nodel input data with features.
     """
     logger = structlog.get_logger(__name__)
 
-    if features is None:
-        features = []
+    if requested_features is None:
+        requested_features = []
 
-    extra_features = [f for f in list(input_data) if f not in features]
+    not_requested_features = [
+        f for f in list(input_data) if f not in requested_features
+    ]
 
-    # Do not see "load" as an extra feature as it is no feature
-    if "load" in extra_features:
-        extra_features.remove("load")
+    # Do not see "load" or "horizon" as an extra feature as it is no feature
+    if "load" in not_requested_features:
+        not_requested_features.remove("load")
 
-    num_not_requested_features = len(extra_features)
+    num_not_requested_features = len(not_requested_features)
 
     if num_not_requested_features != 0:
         logger.warning(
@@ -76,15 +78,20 @@ def remove_extra_feature_columns(
             num_not_requested_features=num_not_requested_features,
         )
 
-    return input_data.drop(extra_features, axis=1)
+    return input_data.drop(not_requested_features, axis=1)
 
 
 def enforce_feature_order(input_data: pd.DataFrame):
     """Enforces correct order of features.
 
     Alphabetically orders the feature columns. The load column remains the first column
-    and the Horizons column remains the last column. Everything in between is sorted
-    alphabetically.
+        and the horizons column remains the last column.
+        Everything in between is alphabetically sorted:
+        The order eventually looks like this:
+        ["load"] -- [alphabetically sorted features] -- ['horizon']
+
+        This funciton assumes the first column contains the to be predicted variable
+        Furthermore the "horizon" is moved to the last position if it is pressent.
 
     Args:
         input_data (pd.DataFrame): Input data with features.
@@ -94,21 +101,23 @@ def enforce_feature_order(input_data: pd.DataFrame):
     """
 
     # Extract first column name
-    first_col_name = input_data.columns.to_list()[0]  # Most of the time this is load
+    first_column_name = input_data.columns.to_list()[
+        0
+    ]  # Most of the time this is "load"
 
     # Sort columns
     columns = list(np.sort(input_data.columns.to_list()))
 
     # Remove first column and add to the start
-    columns.remove(first_col_name)
-    col_order = [first_col_name] + columns
+    columns.remove(first_column_name)
+    column_order = [first_column_name] + columns
 
     # If "Horzion" column is available add to the end
-    if (
-        "Horizon" in columns
-    ):  # "Horizon" is pressent in the training procces but not in the forecasting process
-        col_order.remove("Horizon")
-        col_order = col_order + ["Horizon"]
+    if "horizon" in columns:
+        # "horizon" is pressent in the training procces
+        # but not in the forecasting process
+        column_order.remove("horizon")
+        column_order = column_order + ["horizon"]
 
     # Return dataframe with columns in the correct order
-    return input_data.loc[:, col_order]
+    return input_data.loc[:, column_order]

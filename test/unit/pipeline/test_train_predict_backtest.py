@@ -1,11 +1,13 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-
+from unittest.mock import patch
 from test.utils import TestData
 from test.utils import BaseTestCase
 
-from openstf.pipeline.train_predict_backtest import train_model_and_forecast_back_test
+from openstf.pipeline.train_create_forecast_backtest import (
+    train_model_and_forecast_back_test,
+)
 
 
 class TestTrainBackTestPipeline(BaseTestCase):
@@ -17,26 +19,13 @@ class TestTrainBackTestPipeline(BaseTestCase):
     def test_train_model_pipeline_core_happy_flow(self):
         """Test happy flow of the train model pipeline"""
 
-        forecast = train_model_and_forecast_back_test(
+        forecast, model = train_model_and_forecast_back_test(
             pj=self.pj,
             input_data=self.train_input,
-            trained_models_folder="TEST",
-            save_figures_folder="OTHER_TEST",
             training_horizons=[0.25, 24.0],
         )
 
-        self.assertTrue("forecast" in forecast.columns.to_list())
-        self.assertTrue("realised" in forecast.columns.to_list())
-        self.assertTrue("Horizon" in forecast.columns.to_list())
-        self.assertEqual(list(forecast.Horizon.unique()), [24.0, 0.25])
-
-    def test_train_model_pipeline_core_exception_incomplete_data(self):
-        """Test if Valueerror is raised when too little data is passed into the pieline."""
-        with self.assertRaises(ValueError):
-            train_model_and_forecast_back_test(
-                pj=self.pj,
-                input_data=self.train_input.head(100),
-                trained_models_folder="TEST",
-                save_figures_folder="OTHER_TEST",
-                training_horizons=[0.25, 24.0],
-            )
+        self.assertTrue("forecast" in forecast.columns)
+        self.assertTrue("realised" in forecast.columns)
+        self.assertTrue("horizon" in forecast.columns)
+        self.assertEqual(list(forecast.horizon.unique()), [24.0, 0.25])

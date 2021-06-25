@@ -15,7 +15,11 @@ from openstf.model.objective import XGBRegressorObjective
 @patch("openstf.model.objective.ModelCreator")
 class TestXGBRegressorObjective(BaseTestCase):
     def test_call(self, model_creator_mock, mea_mock, split_data_mock):
-        split_data_mock.return_value = MagicMock(), MagicMock(), MagicMock()
+
+        train_data_mock = MagicMock()
+        train_data_mock.columns = ["load","a","b", "horizon"]
+
+        split_data_mock.return_value = train_data_mock, train_data_mock, train_data_mock
         input_data = None
 
         objective = XGBRegressorObjective(input_data)

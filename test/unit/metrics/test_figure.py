@@ -12,11 +12,15 @@ from test.utils import BaseTestCase, TestData
 class Teopenstfigure(BaseTestCase):
     def setUp(self):
         super().setUp()
-        self.data = TestData.load("input_data.pickle")
-        self.train_data = TestData.load("input_data_train.pickle")
+        self.data = TestData.load("input_data.pickle").rename(
+            columns={"Horizon": "horizon"}
+        )
+        self.train_data = TestData.load("input_data_train.pickle").rename(
+            columns={"Horizon": "horizon"}
+        )
 
     def test_plot_data_series(self):
-        self.data["Horizon"] = 47.00
+        self.data["horizon"] = 47.00
         fig = plot_data_series(
             [self.train_data, self.data],
             [
@@ -27,7 +31,7 @@ class Teopenstfigure(BaseTestCase):
         self.assertTrue(hasattr(fig, "write_html"))
 
     def test_plot_data_series_predict_data_none(self):
-        self.data["Horizon"] = 47.00
+        self.data["horizon"] = 47.00
         fig = plot_data_series([self.train_data, self.data])
         self.assertTrue(hasattr(fig, "write_html"))
 

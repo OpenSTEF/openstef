@@ -13,12 +13,12 @@ class TestGeneral(TestCase):
     def test_enforce_feature_order_with_horizon_columns(self):
 
         df = pd.DataFrame(
-            np.arange(12).reshape(3, 4), columns=["load", "Horizon", "A", "E"]
+            np.arange(12).reshape(3, 4), columns=["load", "horizon", "A", "E"]
         )
 
         result = enforce_feature_order(df)
 
-        self.assertEqual(result.columns.to_list(), ["load", "A", "E", "Horizon"])
+        self.assertEqual(result.columns.to_list(), ["load", "A", "E", "horizon"])
 
     def test_enforce_feature_order(self):
 

@@ -126,7 +126,7 @@ class TestApplyFeaturesModule(BaseTestCase):
             horizons=horizons
         ).add_features(input_data)
 
-        horizon = input_data_with_features.Horizon
+        horizon = input_data_with_features.horizon
 
         # Skip first row, since T-30min not available for first row
         self.assertTrue(
