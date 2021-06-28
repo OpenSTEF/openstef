@@ -512,11 +512,11 @@ will be generated.</p>
 <span id="openstf-model-xgb-quantile-module"></span><h2>openstf.model.xgb_quantile module<a class="headerlink" href="#module-openstf.model.xgb_quantile" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="openstf.model.xgb_quantile.XGBQuantileRegressor">
-<em class="property">class </em><code class="sig-prename descclassname">openstf.model.xgb_quantile.</code><code class="sig-name descname">XGBQuantileRegressor</code><span class="sig-paren">(</span><em class="sig-param">quantiles: Tuple[float</em>, <em class="sig-param">...] = (0.9</em>, <em class="sig-param">0.5</em>, <em class="sig-param">0.1)</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.xgb_quantile.XGBQuantileRegressor" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">openstf.model.xgb_quantile.</code><code class="sig-name descname">XGBQuantileRegressor</code><span class="sig-paren">(</span><em class="sig-param">quantiles: Tuple[float</em>, <em class="sig-param">...] = (0.9</em>, <em class="sig-param">0.5</em>, <em class="sig-param">0.1)</em>, <em class="sig-param">gamma: float = 0.37879654</em>, <em class="sig-param">colsample_bytree: float = 0.78203051</em>, <em class="sig-param">subsample: float = 0.9</em>, <em class="sig-param">min_child_weight: int = 4</em>, <em class="sig-param">max_depth: int = 4</em>, <em class="sig-param">silent: int = 1</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.xgb_quantile.XGBQuantileRegressor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.base.BaseEstimator</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.base.RegressorMixin</span></code></p>
 <dl class="method">
 <dt id="openstf.model.xgb_quantile.XGBQuantileRegressor.fit">
-<code class="sig-name descname">fit</code><span class="sig-paren">(</span><em class="sig-param">x: numpy.array</em>, <em class="sig-param">y: numpy.array</em><span class="sig-paren">)</span> &#x2192; sklearn.base.RegressorMixin<a class="headerlink" href="#openstf.model.xgb_quantile.XGBQuantileRegressor.fit" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">fit</code><span class="sig-paren">(</span><em class="sig-param">x: numpy.array</em>, <em class="sig-param">y: numpy.array</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span> &#x2192; sklearn.base.RegressorMixin<a class="headerlink" href="#openstf.model.xgb_quantile.XGBQuantileRegressor.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fits xgb quantile model</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -551,6 +551,23 @@ will be generated.</p>
 </dd>
 <dt class="field-even">Raises</dt>
 <dd class="field-even"><p><strong>ValueError in case no model is trained for the requested quantile</strong> – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="openstf.model.xgb_quantile.XGBQuantileRegressor.set_params">
+<code class="sig-name descname">set_params</code><span class="sig-paren">(</span><em class="sig-param">**params</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.xgb_quantile.XGBQuantileRegressor.set_params" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Sets hyperparameters, based on the XGBoost version.</dt><dd><p><a class="reference external" href="https://github.com/dmlc/xgboost/blob/master/python-package/xgboost/sklearn.py">https://github.com/dmlc/xgboost/blob/master/python-package/xgboost/sklearn.py</a></p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>**params</strong> – hyperparameters</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>self</p>
 </dd>
 </dl>
 </dd></dl>
