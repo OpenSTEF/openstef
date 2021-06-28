@@ -15,7 +15,16 @@ DEFAULT_QUANTILES: Tuple[float, ...] = (0.9, 0.5, 0.1)
 
 
 class XGBQuantileRegressor(BaseEstimator, RegressorMixin):
-    def __init__(self, quantiles: Tuple[float, ...] = DEFAULT_QUANTILES):
+    def __init__(
+        self,
+        quantiles: Tuple[float, ...] = DEFAULT_QUANTILES,
+        gamma: float = 0.37879654,
+        colsample_bytree: float = 0.78203051,
+        subsample: float = 0.9,
+        min_child_weight: int = 4,
+        max_depth: int = 4,
+        silent: int = 1,
+    ):
         """Initialize XGBQunatileRegressor
 
             Model that provides quantile regression with XGBoost.
@@ -34,7 +43,15 @@ class XGBQuantileRegressor(BaseEstimator, RegressorMixin):
 
         self.quantiles = quantiles
 
-    def fit(self, x: np.array, y: np.array) -> RegressorMixin:
+        # Set attributes for hyper parameters
+        self.subsample = subsample
+        self.min_child_weight = min_child_weight
+        self.max_depth = max_depth
+        self.silent = silent
+        self.gamma = gamma
+        self.colsample_bytree = colsample_bytree
+
+    def fit(self, x: np.array, y: np.array, **kwargs) -> RegressorMixin:
         """Fits xgb quantile model
 
         Args:
@@ -47,11 +64,7 @@ class XGBQuantileRegressor(BaseEstimator, RegressorMixin):
         """
 
         # Check/validate input
-        check_X_y(x, y)
-
-        # Convert input data to np.array (most of the time this is allready the case)
-        x = np.array(x)
-        y = np.array(y)
+        check_X_y(x, y, force_all_finite="allow-nan")
 
         # Get fitting parameters
         params_quantile = self.get_params().copy()
@@ -74,11 +87,15 @@ class XGBQuantileRegressor(BaseEstimator, RegressorMixin):
             specific_quantile_model.set_params(params=params_quantile)
 
             # Train model for this specific quantile
-            quantile_models[quantile] = specific_quantile_model.fit(x, y)
+            quantile_models[quantile] = specific_quantile_model.fit(x, y, **kwargs)
 
         # Update state of the estimator
         self.estimators_ = quantile_models
         self.is_fitted_ = True
+
+        # Set weigths and features from the 0.5 model
+        self.feature_importances_ = quantile_models[0.5].feature_importances_
+        self._Booster = quantile_models[0.5]._Booster
 
         return self
 
@@ -102,10 +119,30 @@ class XGBQuantileRegressor(BaseEstimator, RegressorMixin):
             raise ValueError("No model trained for requested quantile!")
 
         # Check/validate input
-        check_array(x)
+        check_array(x, force_all_finite="allow-nan")
         check_is_fitted(self)
 
         # Convert input data to np.array (most of the time this is allready the case)
-        x = np.array(x)
 
         return self.estimators_[quantile].predict(x)
+
+    def set_params(self, **params):
+        """Sets hyperparameters, based on the XGBoost version.
+            https://github.com/dmlc/xgboost/blob/master/python-package/xgboost/sklearn.py
+
+        Args:
+            **params: hyperparameters
+
+        Returns:
+            self
+
+        """
+
+        # Set the parameters if they excist
+        for key, value in params.items():
+            if hasattr(self, key):
+                setattr(self, key, value)
+            else:
+                continue
+
+        return self

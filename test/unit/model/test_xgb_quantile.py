@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-
+import unittest
 from unittest import TestCase
 
 from sklearn.utils.estimator_checks import check_estimator
@@ -25,6 +25,7 @@ class TestXgbQuantile(TestCase):
     def setUp(self) -> None:
         self.quantiles = [0.9, 0.5, 0.6, 0.1]
 
+    @unittest.skip  # Use this during development, this test requires not allowing nan vallues which we explicitly do allow.
     def test_sklearn_compliant(self):
         # Use sklearn build in check, this will raise an exception if some check fails
         # During these tests the fit and predict methods are elaborately tested
@@ -45,3 +46,20 @@ class TestXgbQuantile(TestCase):
         with self.assertRaises(ValueError):
             model = XGBQuantileRegressor((0.2, 0.3, 0.5, 0.6, 0.7))
             model.predict("test_data", quantile=0.8)
+
+    def test_set_params(self):
+
+        model = XGBQuantileRegressor((0.2, 0.3, 0.5, 0.6, 0.7))
+
+        hyperparams = {
+            "featureset_name": "G",
+            "subsample": "0.9",
+            "min_child_weight": "4",
+            "max_depth": "4",
+            "gamma": "0.37879654",
+            "colsample_bytree": "0.78203051",
+            "silent": "1",
+            "objective": "reg:squarederror",
+            "training_period_days": "90",
+        }
+        model.set_params(**hyperparams)
