@@ -69,10 +69,10 @@ class XGBQuantileRegressor(BaseEstimator, RegressorMixin):
         check_X_y(x, y, force_all_finite="allow-nan")
 
         # Convert x and y to dmatrix input
-        dtrain = xgb.DMatrix(x, label=y)
+        dtrain = xgb.DMatrix(x.copy(deep=True), label=y.copy(deep=True))
         dval = xgb.DMatrix(
-            kwargs["eval_set"][1][0],
-            label=kwargs["eval_set"][1][1],
+            kwargs["eval_set"][1][0].copy(deep=True),
+            label=kwargs["eval_set"][1][1].copy(deep=True),
         )
 
         # Define data set to be monitored during training, the last(validation)
@@ -141,7 +141,7 @@ class XGBQuantileRegressor(BaseEstimator, RegressorMixin):
         check_is_fitted(self)
 
         # Convert array to dmatrix
-        dmatrix_input = xgb.DMatrix(x)
+        dmatrix_input = xgb.DMatrix(x.copy(deep=True))
 
         return self.estimators_[quantile].predict(
             dmatrix_input, ntree_limit=self.estimators_[quantile].best_ntree_limit
