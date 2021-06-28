@@ -167,7 +167,11 @@ def train_model_pipeline_core(
 
 
 def train_pipeline_common(
-    pj: dict, input_data: pd.DataFrame, horizons: List[float]
+    pj: dict,
+    input_data: pd.DataFrame,
+    horizons: List[float],
+    test_fraction: float = 0.0,
+    backtest: bool = False,
 ) -> Tuple[RegressorMixin, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Common pipeline shared with operational training and backtest training
 
@@ -200,7 +204,9 @@ def train_pipeline_common(
 
     # Split data
     train_data, validation_data, test_data = split_data_train_validation_test(
-        data_with_features.sort_index(axis=0), test_fraction=0.15, backtest=True
+        data_with_features.sort_index(axis=0),
+        test_fraction=test_fraction,
+        backtest=backtest,
     )
 
     # Create relevant model
