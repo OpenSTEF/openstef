@@ -9,8 +9,7 @@ from sklearn.utils.estimator_checks import check_estimator
 from openstf.model.xgb_quantile import XGBQuantileRegressor
 
 import pandas as pd
-
-from openstf.model.confidence_interval_applicator import ConfidenceIntervalApplicator
+import numpy as np
 
 
 class MockModel:
@@ -19,6 +18,24 @@ class MockModel:
     def predict(self, input, quantile):
         stdev_forecast = pd.DataFrame({"forecast": [5, 6, 7], "stdev": [0.5, 0.6, 0.7]})
         return stdev_forecast["stdev"].rename(quantile)
+
+
+class MockScore:
+    def get(self, a, b):
+
+        book = {"a": 12, "b": 23, "c": 36}
+
+        return book[a] + b
+
+
+class MockBooster:
+    feature_names = ["a", "b", "c"]
+
+    def get_score(self, importance_type):
+        if importance_type == "gain":
+            return MockScore()
+        else:
+            return MockScore()
 
 
 class TestXgbQuantile(TestCase):
@@ -48,6 +65,7 @@ class TestXgbQuantile(TestCase):
             model.predict("test_data", quantile=0.8)
 
     def test_set_params(self):
+        # Check hyperparameters are set correctly and do not cause errors
 
         model = XGBQuantileRegressor((0.2, 0.3, 0.5, 0.6, 0.7))
 
@@ -63,3 +81,17 @@ class TestXgbQuantile(TestCase):
             "training_period_days": "90",
         }
         model.set_params(**hyperparams)
+
+        # Check if vallues are properly set
+        self.assertEqual(model.max_depth, hyperparams["max_depth"])
+        self.assertFalse(hasattr(model, "training_period_days"))
+
+    def test_get_feature_names_from_booster(self):
+        # Check if feature importance is extracted corretly
+        model = XGBQuantileRegressor((0.2, 0.3, 0.5, 0.6, 0.7))
+        self.assertTrue(
+            (
+                model.get_feature_importances_from_booster(MockBooster())
+                == np.array([0.16901408, 0.32394367, 0.5070422], dtype=np.float32)
+            ).all()
+        )
