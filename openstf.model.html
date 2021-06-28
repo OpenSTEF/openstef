@@ -532,6 +532,27 @@ will be generated.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="openstf.model.xgb_quantile.XGBQuantileRegressor.get_feature_importances_from_booster">
+<em class="property">classmethod </em><code class="sig-name descname">get_feature_importances_from_booster</code><span class="sig-paren">(</span><em class="sig-param">booster: xgboost.core.Booster</em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="headerlink" href="#openstf.model.xgb_quantile.XGBQuantileRegressor.get_feature_importances_from_booster" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Gets feauture importances from a XGB booster.</dt><dd><p>This is based on the <a href="#id1"><span class="problematic" id="id2">feature_importance_</span></a> property defined in:
+<a class="reference external" href="https://github.com/dmlc/xgboost/blob/master/python-package/xgboost/sklearn.py">https://github.com/dmlc/xgboost/blob/master/python-package/xgboost/sklearn.py</a></p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>booster</strong> (<em>Booster</em>) – Booster object,</p></li>
+<li><p><strong>of the times the median model</strong> (<em>most</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(np.ndarray) with normalized feature importances</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="openstf.model.xgb_quantile.XGBQuantileRegressor.predict">
 <code class="sig-name descname">predict</code><span class="sig-paren">(</span><em class="sig-param">x: numpy.array</em>, <em class="sig-param">quantile: float = 0.5</em><span class="sig-paren">)</span> &#x2192; numpy.array<a class="headerlink" href="#openstf.model.xgb_quantile.XGBQuantileRegressor.predict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Makes a prediction for a desired quantile</p>
