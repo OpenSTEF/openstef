@@ -48,6 +48,9 @@ def train_model_and_forecast_back_test(
     model_forecast = model.predict(test_data.iloc[:, 1:-1])
     forecast = pd.DataFrame(index=test_data.index, data={"forecast": model_forecast})
 
+    # Define tAhead to something meaningfull in the context of a backtest
+    forecast["tAhead"] = test_data.iloc[:, -1]
+
     # Add confidence
     forecast = ConfidenceIntervalApplicator(
         model, test_data.iloc[:, 1:-1]
