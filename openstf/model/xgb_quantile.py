@@ -25,7 +25,7 @@ class XGBQuantileRegressor(BaseEstimator, RegressorMixin):
         colsample_bytree: float = 0.78203051,
         subsample: float = 0.9,
         min_child_weight: int = 4,
-        max_depth: int = 4
+        max_depth: int = 4,
     ):
         """Initialize XGBQuantileRegressor
 
