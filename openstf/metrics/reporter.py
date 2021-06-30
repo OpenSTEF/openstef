@@ -4,7 +4,7 @@
 from dataclasses import dataclass
 import os
 from pathlib import Path
-from typing import Union, Dict
+from typing import Dict
 
 from plotly.graph_objects import Figure
 import pandas as pd
@@ -56,7 +56,7 @@ class Reporter:
     def generate_report(
         self,
         model: RegressorMixin,
-    ) -> None:
+    ) -> Report:
 
         data_series_figures = self._make_data_series_figures(model)
         feature_importance_figure = self._make_feature_importance_figure(model)
