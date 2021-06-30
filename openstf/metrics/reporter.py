@@ -70,7 +70,7 @@ class Reporter:
 
         # self._save_dashboard_figures(save_path)
 
-    def _make_data_series_figures(self, model: RegressorMixin) -> None:
+    def _make_data_series_figures(self, model: RegressorMixin) -> dict:
 
         # Make model predictions
         for data_set in self.input_data_list:
