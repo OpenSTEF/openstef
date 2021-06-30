@@ -9,6 +9,7 @@ from sklearn.utils.validation import check_X_y, check_array, check_is_fitted
 import xgboost as xgb
 from xgboost import Booster
 import numpy as np
+import pandas as pd
 
 
 import openstf.metrics.metrics as metrics
@@ -25,7 +26,6 @@ class XGBQuantileRegressor(BaseEstimator, RegressorMixin):
         subsample: float = 0.9,
         min_child_weight: int = 4,
         max_depth: int = 4,
-        silent: int = 1,
     ):
         """Initialize XGBQuantileRegressor
 
@@ -49,7 +49,6 @@ class XGBQuantileRegressor(BaseEstimator, RegressorMixin):
         self.subsample = subsample
         self.min_child_weight = min_child_weight
         self.max_depth = max_depth
-        self.silent = silent
         self.gamma = gamma
         self.colsample_bytree = colsample_bytree
 
