@@ -62,9 +62,6 @@ def apply_features(
                             np.random.uniform(0.7,1.7, 200)))
 
     """
-    if feature_names is None:
-        feature_names = []
-
     # Get lag feature functions
     feature_functions = generate_lag_feature_functions(feature_names, horizon)
 
@@ -85,7 +82,7 @@ def apply_features(
     # Add the features to the dataframe using previously defined feature functions
     for key, featfunc in feature_functions.items():
         # Don't generate feature is not in features
-        if key not in feature_names:
+        if feature_names is not None and key not in feature_names:
             continue
         data[key] = data.iloc[:, [0]].apply(featfunc)
 
