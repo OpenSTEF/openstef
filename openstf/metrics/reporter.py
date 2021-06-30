@@ -127,4 +127,3 @@ class Reporter:
         feature_importance.sort_values(by="gain", ascending=False, inplace=True)
 
         return feature_importance
-
