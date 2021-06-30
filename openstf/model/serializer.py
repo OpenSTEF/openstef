@@ -213,7 +213,7 @@ class PersistentStorageSerializer(AbstractSerializer):
 
         return model_paths
 
-    def find_most_recent_model_folder(self, pid: Union[int, str]) -> Path:
+    def find_most_recent_model_folder(self, pid: Union[int, str]) -> Union[Path, None]:
         """Find the model recent model folder.
 
             Iterate over the directories in the 'pid' model folder (the top level model

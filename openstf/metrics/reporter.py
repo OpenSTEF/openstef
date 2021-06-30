@@ -4,7 +4,7 @@
 from dataclasses import dataclass
 import os
 from pathlib import Path
-from typing import Union, Dict
+from typing import Dict
 
 from plotly.graph_objects import Figure
 import pandas as pd
@@ -56,7 +56,7 @@ class Reporter:
     def generate_report(
         self,
         model: RegressorMixin,
-    ) -> None:
+    ) -> Report:
 
         data_series_figures = self._make_data_series_figures(model)
         feature_importance_figure = self._make_feature_importance_figure(model)
@@ -68,9 +68,7 @@ class Reporter:
 
         return report
 
-        # self._save_dashboard_figures(save_path)
-
-    def _make_data_series_figures(self, model: RegressorMixin) -> None:
+    def _make_data_series_figures(self, model: RegressorMixin) -> dict:
 
         # Make model predictions
         for data_set in self.input_data_list:
@@ -129,10 +127,3 @@ class Reporter:
         feature_importance.sort_values(by="gain", ascending=False, inplace=True)
 
         return feature_importance
-
-    # def _save_dashboard_figures(self, save_path):
-    #     os.makedirs(save_path, exist_ok=True)
-
-    #     self.feature_importance_plot.write_html(str(save_path / "weight_plot.html"))
-    #     for key, fig in self.figure_series.items():
-    #         fig.write_html(str(save_path / f"{key}.html"), auto_open=False)
