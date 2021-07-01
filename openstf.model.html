@@ -392,7 +392,7 @@ Set the value of the forecast ‘quality’ column to ‘substituted’</p>
 
 <dl class="method">
 <dt id="openstf.model.serializer.PersistentStorageSerializer.find_most_recent_model_folder">
-<code class="sig-name descname">find_most_recent_model_folder</code><span class="sig-paren">(</span><em class="sig-param">pid: Union[int, str]</em><span class="sig-paren">)</span> &#x2192; pathlib.Path<a class="headerlink" href="#openstf.model.serializer.PersistentStorageSerializer.find_most_recent_model_folder" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">find_most_recent_model_folder</code><span class="sig-paren">(</span><em class="sig-param">pid: Union[int, str]</em><span class="sig-paren">)</span> &#x2192; Optional[pathlib.Path]<a class="headerlink" href="#openstf.model.serializer.PersistentStorageSerializer.find_most_recent_model_folder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find the model recent model folder.</p>
 <blockquote>
 <div><p>Iterate over the directories in the ‘pid’ model folder (the top level model
@@ -512,7 +512,7 @@ will be generated.</p>
 <span id="openstf-model-xgb-quantile-module"></span><h2>openstf.model.xgb_quantile module<a class="headerlink" href="#module-openstf.model.xgb_quantile" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="openstf.model.xgb_quantile.XGBQuantileRegressor">
-<em class="property">class </em><code class="sig-prename descclassname">openstf.model.xgb_quantile.</code><code class="sig-name descname">XGBQuantileRegressor</code><span class="sig-paren">(</span><em class="sig-param">quantiles: Tuple[float</em>, <em class="sig-param">...] = (0.9</em>, <em class="sig-param">0.5</em>, <em class="sig-param">0.1)</em>, <em class="sig-param">gamma: float = 0.37879654</em>, <em class="sig-param">colsample_bytree: float = 0.78203051</em>, <em class="sig-param">subsample: float = 0.9</em>, <em class="sig-param">min_child_weight: int = 4</em>, <em class="sig-param">max_depth: int = 4</em>, <em class="sig-param">silent: int = 1</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.xgb_quantile.XGBQuantileRegressor" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">openstf.model.xgb_quantile.</code><code class="sig-name descname">XGBQuantileRegressor</code><span class="sig-paren">(</span><em class="sig-param">quantiles: Tuple[float</em>, <em class="sig-param">...] = (0.9</em>, <em class="sig-param">0.5</em>, <em class="sig-param">0.1)</em>, <em class="sig-param">gamma: float = 0.37879654</em>, <em class="sig-param">colsample_bytree: float = 0.78203051</em>, <em class="sig-param">subsample: float = 0.9</em>, <em class="sig-param">min_child_weight: int = 4</em>, <em class="sig-param">max_depth: int = 4</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.xgb_quantile.XGBQuantileRegressor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.base.BaseEstimator</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.base.RegressorMixin</span></code></p>
 <dl class="method">
 <dt id="openstf.model.xgb_quantile.XGBQuantileRegressor.fit">
