@@ -1,42 +1,30 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-
+from openstf.model.serializer import PersistentStorageSerializer
 import unittest
+import pytz
 from datetime import datetime, timedelta, timezone
-from test.utils import BaseTestCase, TestData
-from unittest import mock
-from unittest.mock import MagicMock, patch
+from pathlib import Path
 
+import pandas as pd
+
+from test.utils import BaseTestCase, TestData
+from unittest.mock import patch
+
+from openstf.pipeline import utils
 from openstf.pipeline import create_forecast
 
 NOW = datetime.now(timezone.utc)
 PJ = TestData.get_prediction_job(pid=60)
 
+forecast_input = TestData.load("reference_sets/307-test-data.csv")
 
-@mock.patch("openstf.pipeline.create_forecast.DataBase", MagicMock())
-class TestCreateForecast(BaseTestCase):
-    def test_generate_inputdata_datetime_range(self):
-        t_behind_days = 14
-        t_ahead_days = 3
-        # get current date UTC
-        date_today_utc = datetime.now(timezone.utc).date()
-        # Time range for input data
-        datetime_start_expected = date_today_utc - timedelta(days=t_behind_days)
-        datetime_end_expected = date_today_utc + timedelta(days=t_ahead_days)
 
-        (
-            datetime_start,
-            datetime_end,
-        ) = create_forecast.generate_inputdata_datetime_range(
-            t_behind_days=t_behind_days, t_ahead_days=t_ahead_days
-        )
-        self.assertEqual(datetime_start, datetime_start_expected)
-        self.assertEqual(datetime_end, datetime_end_expected)
-
-    @patch("openstf.pipeline.create_forecast.datetime")
+class TestCreateForecastPipeline(BaseTestCase):
+    @patch("openstf.pipeline.utils.datetime")
     def test_forecast_datetime_range(self, datetime_mock):
-        datetime_mock.now.return_value = NOW
+        datetime_mock.utcnow.return_value = NOW
         # get current date and time UTC
         datetime_utc = NOW
         # Time range for time interval to be predicted
@@ -45,45 +33,74 @@ class TestCreateForecast(BaseTestCase):
         )
         forecast_end_expected = datetime_utc + timedelta(minutes=PJ["horizon_minutes"])
 
-        forecast_start, forecast_end = create_forecast.generate_forecast_datetime_range(
+        (forecast_start, forecast_end,) = utils.generate_forecast_datetime_range(
             resolution_minutes=PJ["resolution_minutes"],
             horizon_minutes=PJ["horizon_minutes"],
         )
         self.assertEqual(forecast_start, forecast_start_expected)
         self.assertEqual(forecast_end, forecast_end_expected)
 
-    def test_get_model_input_demand(
-        self,
+    @patch("openstf.validation.validation.is_data_sufficient")
+    def test_create_forecast_pipeline_incomplete_inputdata(
+        self, is_data_sufficient_mock
     ):
-        create_forecast._clear_input_data_cache()
-        input_data = create_forecast.get_model_input(
-            pj=PJ, datetime_start=NOW, datetime_end=NOW
+        """Test if a fallback forecast is used when input is incomplete"""
+        input_data = forecast_input
+        is_data_sufficient_mock.return_value = False
+        pj = TestData.get_prediction_job(pid=307)
+        pj["model_type_group"] = "default"
+        model = PersistentStorageSerializer(
+            trained_models_folder=Path("./test/trained_models")
+        ).load_model(pid=307)
+        if not hasattr(model, "standard_deviation"):  # Renamed the attribute
+            model.standard_deviation = model.confidence_interval
+        forecast = create_forecast.create_forecast_pipeline_core(
+            pj=pj, input_data=input_data, model=model
         )
-        self.assertTrue(isinstance(input_data, MagicMock))
+        assert "substituted" in forecast.quality.values
 
-    @patch("openstf.pipeline.create_forecast.validation.find_nonzero_flatliner")
-    @patch("openstf.pipeline.create_forecast.preprocessing.replace_invalid_data")
-    def test_pre_process_input_data(
-        self, replace_invalid_data_mock, nonzero_flatliner_mock
-    ):
-        suspicious_moments = True
+    def test_create_forecast_pipeline_happy_flow(self):
+        """Test the happy flow of the predict pipeline, using a previously trained model"""
+        # Test happy flow
+        self.pj = TestData.get_prediction_job(pid=307)
+        self.pj["model_type_group"] = "default"
+        self.forecast_input = TestData.load("reference_sets/307-test-data.csv")
 
-        null_row = MagicMock()
-        null_row.isnull.return_value = [True]
-        processed_input_data_rows = [(0, null_row), (1, null_row)]
-        processed_input_data = MagicMock()
-        processed_input_data.iterrows.return_value = processed_input_data_rows
-
-        nonzero_flatliner_mock.return_value = suspicious_moments
-        replace_invalid_data_mock.return_value = processed_input_data
-
-        create_forecast.pre_process_input_data(
-            input_data=None, flatliner_threshold=None
+        # Shift example data to match current time interval as code expects data
+        # available relative to the current time.
+        utc_now = (
+            pd.Series(datetime.utcnow().replace(tzinfo=pytz.utc))
+            .min()
+            .floor("15T")
+            .to_pydatetime()
         )
+        most_recent_date = self.forecast_input.index.max().ceil("15T").to_pydatetime()
+        delta = utc_now - most_recent_date + timedelta(3)
 
-        # simply check if all mocks are called
-        for mock_func in [nonzero_flatliner_mock, replace_invalid_data_mock]:
-            self.assertEqual(mock_func.call_count, 1)
+        self.forecast_input.index = self.forecast_input.index.shift(delta, freq=1)
+
+        self.pj["feature_names"] = self.forecast_input.columns[1:]
+
+        model = PersistentStorageSerializer(
+            trained_models_folder=Path("./test/trained_models")
+        ).load_model(pid=307)
+
+        if not hasattr(model, "standard_deviation"):  # Renamed the attribute
+            model.standard_deviation = model.confidence_interval
+        forecast = create_forecast.create_forecast_pipeline_core(
+            pj=self.pj, input_data=self.forecast_input, model=model
+        )
+        self.assertEqual(len(forecast), 193)
+        self.assertEqual(len(forecast.columns), 15)
+        self.assertGreater(forecast.forecast.min(), -5)
+        self.assertLess(forecast.forecast.max(), 85)
+        self.assertLess(
+            forecast.index.max().to_pydatetime().replace(tzinfo=pytz.utc),
+            (datetime.utcnow() + timedelta(hours=50)).replace(tzinfo=pytz.utc),
+        )
+        self.assertGreaterEqual(
+            forecast.index.min().to_pydatetime().replace(tzinfo=pytz.utc), utc_now
+        )
 
 
 if __name__ == "__main__":

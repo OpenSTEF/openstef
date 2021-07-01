@@ -5,6 +5,7 @@
 import numpy as np
 import pandas as pd
 import structlog
+from enum import Enum
 
 from openstf.feature_engineering import weather_features
 from openstf.enums import ForecastType
@@ -113,7 +114,7 @@ def split_forecast_in_components(forecast, weather_data, split_coefs):
         components["forecast_wind_on_shore"], ForecastType.WIND
     )
 
-    return components.drop("forecast", axis=1).dropna()
+    return components.drop("forecast", axis=1).drop("stdev", axis=1).dropna()
 
 
 def post_process_wind_solar(forecast: pd.Series, forecast_type):
@@ -153,4 +154,53 @@ def post_process_wind_solar(forecast: pd.Series, forecast_type):
         )
 
     # write changed back to forecast
+    return forecast
+
+
+def add_components_base_case_forecast(basecase_forecast: pd.DataFrame) -> pd.DataFrame:
+    """Makes a basecase forecast for the forecast_other component. This will make a
+        simple basecase components forecast available and ensures that the sum of
+        the components (other, wind and solar) is equal to the normal basecase forecast
+        This is important for sending GLMD messages correctly to TenneT!
+
+    Args:
+        basecase_forecast: pd.DataFrame with basecase forecast
+
+    Returns:
+        basecase_forecast: pd.DataFrame with extra "forecast_other component"
+
+    """
+    #
+    basecase_forecast["forecast_other"] = basecase_forecast["forecast"]
+    return basecase_forecast
+
+
+def add_prediction_job_properties_to_forecast(
+    pj: dict,
+    forecast: pd.DataFrame,
+    forecast_type: Enum = None,
+    forecast_quality: str = None,
+) -> pd.DataFrame:
+    # self.logger.info("Postproces in preparation of storing")
+    if forecast_type is None:
+        forecast_type = pj["typ"]
+    else:
+        # get the value from the enum
+        forecast_type = forecast_type.value
+
+    # NOTE this field is only used when making the babasecase forecast and fallback
+    if forecast_quality is not None:
+        forecast["quality"] = forecast_quality
+
+    # TODO rename prediction job typ to type
+    # TODO algtype = model_file_path, perhaps we can find a more logical name
+    # TODO perhaps better to make a forecast its own class!
+    # TODO double check and sync this with make_basecase_forecast (other fields are added)
+    # !!!!! TODO fix the requirement for customer
+    forecast["pid"] = pj["id"]
+    forecast["customer"] = pj["name"]
+    forecast["description"] = pj["description"]
+    forecast["type"] = forecast_type
+    forecast["algtype"] = pj["model"]
+
     return forecast

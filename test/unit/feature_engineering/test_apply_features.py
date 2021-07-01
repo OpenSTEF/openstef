@@ -37,7 +37,7 @@ class TestApplyFeaturesModule(BaseTestCase):
         """Does the function work properly if specific features are given"""
         specific_features = ["T-30min", "T-7d"]
         lag_functions = generate_lag_feature_functions(
-            horizon=0.25, features=specific_features
+            horizon=0.25, feature_names=specific_features
         )
         self.assertEqual(len(lag_functions), 2)
 
@@ -45,7 +45,7 @@ class TestApplyFeaturesModule(BaseTestCase):
         """Does the function work properly if specific features are given"""
         specific_features = ["T-30min", "T-7d"]  # feature = T-30min, horizon=24
         lag_functions = generate_lag_feature_functions(
-            horizon=24, features=specific_features
+            horizon=24, feature_names=specific_features
         )
         self.assertEqual(
             list(lag_functions.keys()), ["T-7d"]
@@ -126,7 +126,7 @@ class TestApplyFeaturesModule(BaseTestCase):
             horizons=horizons
         ).add_features(input_data)
 
-        horizon = input_data_with_features.Horizon
+        horizon = input_data_with_features.horizon
 
         # Skip first row, since T-30min not available for first row
         self.assertTrue(

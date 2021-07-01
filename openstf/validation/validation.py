@@ -8,15 +8,20 @@ import numpy as np
 import pandas as pd
 import structlog
 
-from openstf.preprocessing.preprocessing import replace_repeated_values_with_nan
+from openstf.preprocessing.preprocessing import (
+    replace_repeated_values_with_nan,
+    replace_invalid_data,
+)
 
 # TODO make this config more central
 # Set thresholds
 COMPLETENESS_THRESHOLD = 0.5
 MINIMAL_TABLE_LENGTH = 100
 
+FLATLINER_TRESHOLD = 24
 
-def validate(data):
+
+def validate(data: pd.DataFrame) -> pd.DataFrame:
     logger = structlog.get_logger(__name__)
     # Drop 'false' measurements. e.g. where load appears to be constant.
     threshold = 6 * 4  # number of repeated values
@@ -28,10 +33,23 @@ def validate(data):
         f"Changed {num_const_load_values} values of constant load to NA.",
         num_const_load_values=num_const_load_values,
     )
+
+    # Check for repeated load observations due to invalid measurements
+    suspicious_moments = find_nonzero_flatliner(data, threshold=FLATLINER_TRESHOLD)
+    if suspicious_moments is not None:
+        # Covert repeated load observations to NaN values
+        data = replace_invalid_data(data, suspicious_moments)
+        # Calculate number of NaN values
+        # TODO should this not be part of the replace_invalid_data function?
+        num_nan = sum([True for i, row in data.iterrows() if all(row.isnull())])
+        logger.warning(
+            "Found suspicious data points, converted to NaN value",
+            num_nan_values=num_nan,
+        )
     return data
 
 
-def clean(data):
+def clean(data: pd.DataFrame) -> pd.DataFrame:
     logger = structlog.get_logger(__name__)
     data = data[data.index.min() + timedelta(weeks=2) :]
     len_original = len(data)
@@ -45,7 +63,7 @@ def clean(data):
     return data
 
 
-def is_data_sufficient(data):
+def is_data_sufficient(data: pd.DataFrame) -> bool:
     """Check if enough data is left after validation and cleaning to continue
         with model training.
 
@@ -85,7 +103,12 @@ def is_data_sufficient(data):
     return is_sufficient
 
 
-def calc_completeness(df, weights=None, time_delayed=False, homogenise=True):
+def calc_completeness(
+    df: pd.DataFrame,
+    weights: np.array = None,
+    time_delayed: bool = False,
+    homogenise: bool = True,
+) -> float:
     """Calculate the (weighted) completeness of a dataframe.
 
     NOTE: NA values count as incomplete
@@ -148,7 +171,7 @@ def calc_completeness(df, weights=None, time_delayed=False, homogenise=True):
     return completeness
 
 
-def find_nonzero_flatliner(df, threshold):
+def find_nonzero_flatliner(df: pd.DataFrame, threshold: int) -> pd.DataFrame:
     """Function that detects a stationflatliner and returns a list of datetimes.
 
     Args:
@@ -203,8 +226,11 @@ def find_nonzero_flatliner(df, threshold):
 
 
 def find_zero_flatliner(
-    df, threshold, window=timedelta(minutes=30), load_threshold=0.3
-):
+    df: pd.DataFrame,
+    threshold: float,
+    window: timedelta = timedelta(minutes=30),
+    load_threshold: float = 0.3,
+) -> pd.DataFrame or None:
     """Function that detects a zero value where the load is not compensated by the other trafo's of the station.
 
     Input:
@@ -297,7 +323,7 @@ def find_zero_flatliner(
     return result_df
 
 
-def check_data_for_each_trafo(df, col):
+def check_data_for_each_trafo(df: pd.DataFrame, col: pd.Series) -> bool:
     """Function that detects if each column contains zero-values at all, only
         zero-values and NaN values.
 

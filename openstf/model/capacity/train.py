@@ -2,8 +2,10 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+from pathlib import Path
 import pandas as pd
 from ktpbase.database import DataBase
+from ktpbase.config.config import ConfigManager
 import structlog
 
 from openstf.feature_engineering.capacity_prognoses_features import (
@@ -11,7 +13,6 @@ from openstf.feature_engineering.capacity_prognoses_features import (
 )
 from openstf.model.capacity.model import CapacityPredictionModel
 from openstf.model.capacity.utils import prepare_training_data
-from openstf.model.serializer.xgboost.xgboost import XGBModelSerializer
 
 
 def train_capacity_prognosis(pj, datetime_start, datetime_end, y_hor=[0, 6, 13]):
@@ -70,6 +71,8 @@ def train_capacity_prognosis(pj, datetime_start, datetime_end, y_hor=[0, 6, 13])
 
     # save model
     logger.info("Saving model")
-    serializer = XGBModelSerializer()
-    directory = serializer.trained_models_folder / f'{pj["id"]}' / "capacity"
+
+    # FIXME use serialiazer for loading and saving
+    trained_models_folder = ConfigManager.get_instance().paths.trained_models
+    directory = Path(trained_models_folder) / f'{pj["id"]}' / "capacity"
     model.save(directory=directory)

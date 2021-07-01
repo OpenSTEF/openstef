@@ -84,11 +84,11 @@ def plot_data_series(data, predict_data=None, horizon=47, names=None):
 
     if predict_data is None:
         # Check if horizon columns exists in the data
-        if "Horizon" in data[0]:
+        if "horizon" in data[0]:
             # Filter data on given horizon
             filtered = []
             for series in data:
-                mask = series["Horizon"] == horizon
+                mask = series["horizon"] == horizon
                 filtered.append(series[mask]["load"])
         else:
             filtered = data
@@ -96,13 +96,13 @@ def plot_data_series(data, predict_data=None, horizon=47, names=None):
         return _plot_data(names, filtered)
 
     # Check if horizon columns exists in the data
-    if "Horizon" in data[0]:
+    if "horizon" in data[0]:
         # Filter data on given horizon
         actuals = []
         predictions = []
 
         for series, predict_series in zip(data, predict_data):
-            mask = series["Horizon"] == horizon
+            mask = series["horizon"] == horizon
             actuals.append(series[mask]["load"])
             predictions.append(predict_series[mask]["forecast"])
     else:

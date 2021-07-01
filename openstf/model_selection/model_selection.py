@@ -1,21 +1,22 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-
+from typing import List
 from datetime import timedelta
 
 import numpy as np
+import pandas as pd
 import structlog
 
 
 def split_data_train_validation_test(
-    data,
-    test_fraction=0.0,
-    validation_fraction=0.15,
-    back_test=False,
-    period_sampling=True,
-    period_timedelta=timedelta(days=2),
-):
+    data: pd.DataFrame,
+    test_fraction: float = 0.0,
+    validation_fraction: float = 0.15,
+    backtest: bool = False,
+    period_sampling: bool = True,
+    period_timedelta: timedelta = timedelta(days=2),
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Split input data into train, test and validation set.
 
     Function for splitting cleaned data with features in a train, test and
@@ -38,7 +39,7 @@ def split_data_train_validation_test(
             fraction of test data.
         validation_fraction (float): Number between 0 and 1 that indicates the
             desired fraction of validation data.
-        back_test (bool): Indicates if data is intended for a back test.
+        backtest (bool): Indicates if data is intended for a back test.
         period_sampling (bool): Indicates if validation data must be sampled as
             periods.
         period_timedelta (datetime.timedelta): Duration of the periods that will
@@ -80,7 +81,7 @@ def split_data_train_validation_test(
     # Default sampling, take a single validation set.
     if not period_sampling:
         # Define start and end datetimes of test, train, val sets based on input
-        if back_test:
+        if backtest:
             start_date_val = start_date
             start_date_train = (
                 start_date_val + np.round(number_indices * validation_fraction) * delta
@@ -108,7 +109,7 @@ def split_data_train_validation_test(
 
     # Sample periods in the training part as the validation set.
     else:
-        if back_test:
+        if backtest:
             start_date_combined = start_date
             start_date_test = (
                 start_date_combined
@@ -136,7 +137,9 @@ def split_data_train_validation_test(
     return train_data, validation_data, test_data
 
 
-def sample_validation_data_periods(data, validation_fraction=0.15, period_length=192):
+def sample_validation_data_periods(
+    data: pd.DataFrame, validation_fraction: float = 0.15, period_length: int = 192
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Splits data in train and validation dataset.
 
     Tries to sample random periods of given length to form a validation set of
@@ -200,7 +203,9 @@ def sample_validation_data_periods(data, validation_fraction=0.15, period_length
     return train_data, validation_data
 
 
-def _sample_indices(number_indices, period_lengths, buffer_length):
+def _sample_indices(
+    number_indices: int, period_lengths: List[int], buffer_length: int
+) -> np.array:
     """Samples periods of given length with the given buffer.
 
     Args:

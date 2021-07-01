@@ -3,11 +3,10 @@
 # SPDX-License-Identifier: MPL-2.0
 
 import traceback
+import structlog
 
 from ktpbase.config.config import ConfigManager
 from ktpbase.database import DataBase
-from ktpbase.log import logging
-import structlog
 
 from openstf.monitoring.teams import post_teams
 from openstf.monitoring.performance_meter import PerformanceMeter
@@ -55,10 +54,6 @@ class TaskContext:
     def __enter__(self):
         self.config = ConfigManager.get_instance()
 
-        logging.configure_logging(
-            loglevel=self.config.loglevel,
-            runtime_env=self.config.env,
-        )
         self.logger = structlog.get_logger(__name__).bind(task=self.name)
 
         self.database = DataBase()

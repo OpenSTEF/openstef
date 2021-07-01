@@ -27,7 +27,7 @@ Example:
 Attributes:
 """
 
-# sql om de todolist tabel te maken:
+# sql to create the Tracy jobs table (todolist)
 
 # CREATE TABLE IF NOT EXISTS `tst_icarus`.`todolist` (
 # `id` INT NOT NULL AUTO_INCREMENT ,
@@ -38,133 +38,90 @@ Attributes:
 # PRIMARY KEY (`id`), UNIQUE `id` (`id`))
 # ENGINE = InnoDB;
 
-from functools import partial
 
-from ktpbase.database import DataBase
-
-from openstf.pipeline.optimize_hyperparameters import optimize_hyperparameters
-from openstf.pipeline.train_model import train_model_pipeline
-from openstf.monitoring.teams import post_teams
-from openstf.tasks.utils.utils import (
-    convert_string_args_to_dict_args,
-    interpret_string_as_functions,
-)
+from openstf.monitoring import teams
 from openstf.tasks.utils.taskcontext import TaskContext
+from openstf.tasks.train_model import train_model_task
+from openstf.tasks.optimize_hyperparameters import optimize_hyperparameters_task
+from openstf.enums import TracyJobResult
 
 
-def get_and_evaluate_todos(context):
-    # Get the to do list.
-    todo_dict = context.database.ktp_api.get_all_tracy_jobs(inprogress=0)
-    num_jobs = len(todo_dict)
+def run_tracy(context):
+    # Get all Tracy jobs
+    tracy_jobs = context.database.ktp_api.get_all_tracy_jobs(inprogress=0)
+    num_jobs = len(tracy_jobs)
 
     if num_jobs == 0:
-        context.logger.warning("No TODO jobs to perform, exit", num_jobs=num_jobs)
+        context.logger.warning("Number of tracy jobs is {num_jobs}, exit task")
         return
 
-    context.logger.info("Start performing TODO jobs", num_jobs=num_jobs)
+    context.logger.info("Start processing Tracy jobs", num_jobs=num_jobs)
 
-    for i, job in enumerate(todo_dict):
+    for i, job in enumerate(tracy_jobs):
+
+        # get a new logger with bound job
+        logger = context.logger.bind(job=job)
+        logger.info("Process job", job_counter=i, total_jobs=num_jobs)
+
         # Set all retrieved items of the todolist to inprogress
         job["inprogress"] = 1
         context.database.ktp_api.update_tracy_job(job)
 
-        context.logger = context.logger.bind(job_id=job["id"])
-        context.logger.info("Process job", job_counter=i, total_jobs=num_jobs)
+        pid = int(job["args"])
+        pj = context.database.get_prediction_job(pid)
 
-        # First try to parse the input directly
-        try:
-            interpreted_func = job["function"] + "(" + job["args"] + ")"
-        except Exception as e:
-            context.logger.error(
-                "An exception occured while interpreting function", exc_info=e, job=job
-            )
-            context.logger.info("Try alternative parsing of function and arguments")
-
-            function_arguments = convert_string_args_to_dict_args(job["args"])
-            interpreted_func = interpret_string_as_functions(
-                job["function"],
-                function_arguments["args"],
-                function_arguments["kwargs"],
-            )
-
-        context.logger.info("Interpreted the job", interpreted_func=interpreted_func)
-
-        # Make eval safe by exluding all global functions, except the functions from func
-        # Do this by setting al usually available global functions to None,
-        # And adding func explicitely
-
-        available_functions = {
-            "train_specific_model": partial(train_specific_model, context),
-            "optimize_hyperparameters_for_specific_pid": optimize_hyperparameters,
-        }
-
-        forbid_globals = {key: None for key in globals().keys()}
-        forbid_globals.update(available_functions)
-
-        # Try to evaluate the function
-        try:
-            # TODO eval is considered bad practice in (almost) every case
-            res = eval(interpreted_func, forbid_globals)
-            context.logger.debug(
-                "Evaluated interpreted function",
-                return_value=res,
-                interpreted_func=interpreted_func,
-            )
-
-            teams_message = (
-                f"Tracy executed a job. Job: `{interpreted_func}`   \n"
-                f"Result: {str(res)}"
-            )
-            # TODO is this not redundant? for example optimize_hyperparameters
-            # already sends a teams message with the results?
-            post_teams(teams_message)
-
-            # Remove job from mysql todolist
+        result, exc = run_tracy_job(job, pj, context)
+        # job processing was succefull
+        if result is TracyJobResult.SUCCESS:
+            logger.info("Succesfully processed Tracy job")
+            # Delete job when succesfull
             context.database.ktp_api.delete_tracy_job(job)
-            context.logger.info("Job removed from mysql table")
-        except Exception as e:
+            logger.info("Delete Tracy job")
+
+        # job was unknown
+        elif result is TracyJobResult.UNKNOWN:
+            logger.error(f"Unkown Tracy job {job['function']}")
+
+        # job processing failed / raised an exception
+        elif result is TracyJobResult.FAILED:
             job["inprogress"] = 2
             context.database.ktp_api.update_tracy_job(job)
-            context.logger.error(
-                "An exception occured during evaluation of the interpreted function",
-                exc_info=e,
-            )
-            teams_message = (
-                f"Tracy could not execute job (`{interpreted_func}`), "
-                f"set inprogress to 2"
-            )
-            post_teams(teams_message)
+            msg = "Exception occured while processing Tracy job"
+            logger.error(msg, exc_info=exc)
+            teams.post_teams(teams.format_message(title=msg, params=job))
 
-    context.logger = context.logger.unbind("job_id")
-    context.logger.info("Finished all Tracy jobs - Tracy out!")
+    context.logger.info("Finished processing all Tracy jobs - Tracy out!")
 
 
-def train_specific_model(context, pid):
-    """Train model for given prediction id.
+def run_tracy_job(job, pj, context):
+    # Try to process Tracy job
+    try:
+        # If train model job (TODO remove old name when jobs are done)
+        if job["function"] in ["train_model", "train_specific_model"]:
+            train_model_task(pj, context, check_old_model_age=False)
 
-    Tracy-compatible function to train a specific model based on the prediction id (pid)
-    Should not be used outside of Tracy, preferred alternative:
-        train_model_pipeline
+        # If optimize hyperparameters job (TODO remove old name when jobs are done)
+        elif job["function"] in [
+            "optimize_hyperparameters",
+            "optimize_hyperparameters_for_specific_pid",
+        ]:
+            optimize_hyperparameters_task(pj, context)
 
-    Args:
-        pid (int): Prediction id of the corresponding prediction job.
+        # Else unknown job
+        else:
+            return TracyJobResult.UNKNOWN, None
 
-    Returns:
-        Trained model (FIXME can be various datatypes at present)
-    """
-    # Get DataBase instance:
-    db = DataBase()
+        # job processing was succesfull
+        return TracyJobResult.SUCCESS, None
 
-    # Get prediction job based on the given prediction ID (pid)
-    pj = db.get_prediction_job(pid)
-
-    # Train model for pj
-    train_model_pipeline(pj, context, compare_to_old=False, retrain_young_models=True)
+    # Processing of Tracy job failed
+    except Exception as e:
+        return TracyJobResult.FAILED, e
 
 
 def main():
     with TaskContext("run_tracy") as context:
-        get_and_evaluate_todos(context)
+        run_tracy(context)
 
 
 if __name__ == "__main__":
