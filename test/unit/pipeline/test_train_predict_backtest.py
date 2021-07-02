@@ -19,7 +19,13 @@ class TestTrainBackTestPipeline(BaseTestCase):
     def test_train_model_pipeline_core_happy_flow(self):
         """Test happy flow of the train model pipeline"""
 
-        forecast, model = train_model_and_forecast_back_test(
+        (
+            forecast,
+            model,
+            train_data,
+            validation_data,
+            test_data,
+        ) = train_model_and_forecast_back_test(
             pj=self.pj,
             input_data=self.train_input,
             training_horizons=[0.25, 24.0],
