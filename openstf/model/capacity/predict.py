@@ -5,9 +5,9 @@
 from pathlib import Path
 import pandas as pd
 import plotly
-from ktpbase.database import DataBase
+from openstf_dbc.database import DataBase
 import structlog
-from ktpbase.config.config import ConfigManager
+from openstf_dbc.config.config import ConfigManager
 
 from openstf.feature_engineering.capacity_prognoses_features import (
     apply_capacity_features,

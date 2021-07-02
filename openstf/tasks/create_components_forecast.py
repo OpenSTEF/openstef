@@ -76,7 +76,7 @@ def create_components_forecast_task(pj, context):
         return
 
     logger.info("retrieving weather data")
-    # TODO make ktpbase function to retrieve inputdata for component forecast in one call,
+    # TODO make openstf_dbc function to retrieve inputdata for component forecast in one call,
     #  this will make this function much shorter
     # Get required weather data
     weather_data = context.database.get_weather_data(

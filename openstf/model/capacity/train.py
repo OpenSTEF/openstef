@@ -4,8 +4,8 @@
 
 from pathlib import Path
 import pandas as pd
-from ktpbase.database import DataBase
-from ktpbase.config.config import ConfigManager
+from openstf_dbc.database import DataBase
+from openstf_dbc.config.config import ConfigManager
 import structlog
 
 from openstf.feature_engineering.capacity_prognoses_features import (

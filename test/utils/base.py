@@ -7,7 +7,7 @@ from unittest.mock import patch
 
 import numpy as np
 import pandas as pd
-import ktpbase
+import openstf_dbc
 
 
 class dotdict(dict):
@@ -23,13 +23,13 @@ class BaseTestCase(unittest.TestCase):
         super().setUp()
         self.patchers = []
         self.patchers.append(
-            patch("ktpbase.config.config.ConfigManager.get_instance", create=True)
+            patch("openstf_dbc.config.config.ConfigManager.get_instance", create=True)
         )
         for patcher in self.patchers:
             patcher.start()
 
         # add trained model path
-        conf = ktpbase.config.config.ConfigManager.get_instance()
+        conf = openstf_dbc.config.config.ConfigManager.get_instance()
         conf.paths = dotdict(
             dict(trained_models="test/trained_models/", webroot="test/reports/")
         )
