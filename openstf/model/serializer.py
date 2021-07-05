@@ -140,6 +140,7 @@ class PersistentStorageSerializer(AbstractSerializer):
 
         # Add model age to model object
         loaded_model.age = model_age_in_days
+        loaded_model.path = model_path
 
         return loaded_model
 

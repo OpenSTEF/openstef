@@ -95,6 +95,7 @@ def create_basecase_forecast_pipeline(
     basecase_forecast = add_prediction_job_properties_to_forecast(
         pj=pj,
         forecast=basecase_forecast,
+        algorithm_type="basecase_lastweek",
         forecast_type=ForecastType.BASECASE,
         forecast_quality="not_renewed",
     )
