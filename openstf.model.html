@@ -89,11 +89,11 @@
 <li><a class="reference internal" href="#subpackages">Subpackages</a></li>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
 <li><a class="reference internal" href="#module-openstf.model.basecase">openstf.model.basecase module</a></li>
-<li><a class="reference internal" href="#openstf-model-confidence-interval-applicator-module">openstf.model.confidence_interval_applicator module</a></li>
+<li><a class="reference internal" href="#module-openstf.model.confidence_interval_applicator">openstf.model.confidence_interval_applicator module</a></li>
 <li><a class="reference internal" href="#module-openstf.model.fallback">openstf.model.fallback module</a></li>
 <li><a class="reference internal" href="#module-openstf.model.model_creator">openstf.model.model_creator module</a></li>
-<li><a class="reference internal" href="#openstf-model-objective-module">openstf.model.objective module</a></li>
-<li><a class="reference internal" href="#openstf-model-objective-creator-module">openstf.model.objective_creator module</a></li>
+<li><a class="reference internal" href="#module-openstf.model.objective">openstf.model.objective module</a></li>
+<li><a class="reference internal" href="#module-openstf.model.objective_creator">openstf.model.objective_creator module</a></li>
 <li><a class="reference internal" href="#module-openstf.model.serializer">openstf.model.serializer module</a></li>
 <li><a class="reference internal" href="#module-openstf.model.standard_deviation_generator">openstf.model.standard_deviation_generator module</a></li>
 <li><a class="reference internal" href="#module-openstf.model.xgb_quantile">openstf.model.xgb_quantile module</a></li>
@@ -247,8 +247,75 @@ However a fit method is still included to be fully comatible with sklearn.</p>
 </dd></dl>
 
 </div>
-<div class="section" id="openstf-model-confidence-interval-applicator-module">
-<h2>openstf.model.confidence_interval_applicator module<a class="headerlink" href="#openstf-model-confidence-interval-applicator-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-openstf.model.confidence_interval_applicator">
+<span id="openstf-model-confidence-interval-applicator-module"></span><h2>openstf.model.confidence_interval_applicator module<a class="headerlink" href="#module-openstf.model.confidence_interval_applicator" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="openstf.model.confidence_interval_applicator.ConfidenceIntervalApplicator">
+<em class="property">class </em><code class="sig-prename descclassname">openstf.model.confidence_interval_applicator.</code><code class="sig-name descname">ConfidenceIntervalApplicator</code><span class="sig-paren">(</span><em class="sig-param">model: sklearn.base.RegressorMixin</em>, <em class="sig-param">forecast_input_data: pandas.core.frame.DataFrame</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.confidence_interval_applicator.ConfidenceIntervalApplicator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="openstf.model.confidence_interval_applicator.ConfidenceIntervalApplicator.add_confidence_interval">
+<code class="sig-name descname">add_confidence_interval</code><span class="sig-paren">(</span><em class="sig-param">forecast: pandas.core.frame.DataFrame</em>, <em class="sig-param">pj: dict</em>, <em class="sig-param">default_confindence_interval: bool = False</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstf.model.confidence_interval_applicator.ConfidenceIntervalApplicator.add_confidence_interval" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a confidence interval to a forecast.</p>
+<dl>
+<dt>Adds a confidence interval to a forecast in two ways:</dt><dd><ol class="arabic">
+<li><dl class="simple">
+<dt>“stdev” column, this is a column with a standard deviation that is</dt><dd><p>determined during training (ConfidenceGenerator)</p>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt>Quantile columns, these columns give a more precise defenition of the</dt><dd><p>confidence interval. Quantile columns are determined with one of two
+methods, depending on the model type group:</p>
+<ol class="loweralpha simple">
+<li><dl class="simple">
+<dt>Default, using the “stdev” column and the assumption the error is</dt><dd><p>normally distributed.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Quantile regression, this method is only available for quantile</dt><dd><p>models and uses specifically trained models to estimate the
+quantiles of the confidence interval.</p>
+</dd>
+</dl>
+</li>
+</ol>
+<dl class="simple">
+<dt>Depending on the model type (quantile or non quantile),</dt><dd><p>a confidence interval is added to the forecast based on quantile
+regression or the default method.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</li>
+</ol>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>forecast</strong> (<em>pd.DataFrame</em>) – Forecast DataFram with columns: “forecast”</p></li>
+<li><p><strong>pj</strong> (<em>dict</em>) – Prediction job</p></li>
+<li><p><strong>default_confindence_interval</strong> (<em>bool</em>) – switch to always make a default confidence interval
+and skip quantile regression forecasting,
+mostly used for a basecase forecast</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>Forecast DataFram with columns: “forecast”, “stdev” and</dt><dd><p>quantile columns</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 <div class="section" id="module-openstf.model.fallback">
 <span id="openstf-model-fallback-module"></span><h2>openstf.model.fallback module<a class="headerlink" href="#module-openstf.model.fallback" title="Permalink to this headline">¶</a></h2>
@@ -322,11 +389,54 @@ Set the value of the forecast ‘quality’ column to ‘substituted’</p>
 </dd></dl>
 
 </div>
-<div class="section" id="openstf-model-objective-module">
-<h2>openstf.model.objective module<a class="headerlink" href="#openstf-model-objective-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-openstf.model.objective">
+<span id="openstf-model-objective-module"></span><h2>openstf.model.objective module<a class="headerlink" href="#module-openstf.model.objective" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="openstf.model.objective.RegressorObjective">
+<em class="property">class </em><code class="sig-prename descclassname">openstf.model.objective.</code><code class="sig-name descname">RegressorObjective</code><span class="sig-paren">(</span><em class="sig-param">input_data</em>, <em class="sig-param">test_fraction=0.1</em>, <em class="sig-param">validation_fraction=0.1</em>, <em class="sig-param">eval_metric='mae'</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.objective.RegressorObjective" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Regressor optuna objective function.</p>
+<p>Use any of the derived classses for optimization using an optuna study.
+The constructor is used to set the “input_data” and optionally add some
+configuration. Next the instance will be called by he optuna study during
+optimization.</p>
+<p class="rubric">Example</p>
+<p># initialize a (derived class) objective function
+objective = XGBRegressorObjective(input_data, test_fraction)
+# use the objective function
+study.optimize(objective)</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="openstf.model.objective.XGBRegressorObjective">
+<em class="property">class </em><code class="sig-prename descclassname">openstf.model.objective.</code><code class="sig-name descname">XGBRegressorObjective</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.objective.XGBRegressorObjective" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#openstf.model.objective.RegressorObjective" title="openstf.model.objective.RegressorObjective"><code class="xref py py-class docutils literal notranslate"><span class="pre">openstf.model.objective.RegressorObjective</span></code></a></p>
+<dl class="method">
+<dt id="openstf.model.objective.XGBRegressorObjective.get_params">
+<code class="sig-name descname">get_params</code><span class="sig-paren">(</span><em class="sig-param">trial: optuna.trial._frozen.FrozenTrial</em><span class="sig-paren">)</span> &#x2192; dict<a class="headerlink" href="#openstf.model.objective.XGBRegressorObjective.get_params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </div>
-<div class="section" id="openstf-model-objective-creator-module">
-<h2>openstf.model.objective_creator module<a class="headerlink" href="#openstf-model-objective-creator-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-openstf.model.objective_creator">
+<span id="openstf-model-objective-creator-module"></span><h2>openstf.model.objective_creator module<a class="headerlink" href="#module-openstf.model.objective_creator" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="openstf.model.objective_creator.ObjectiveCreator">
+<em class="property">class </em><code class="sig-prename descclassname">openstf.model.objective_creator.</code><code class="sig-name descname">ObjectiveCreator</code><a class="headerlink" href="#openstf.model.objective_creator.ObjectiveCreator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="attribute">
+<dt id="openstf.model.objective_creator.ObjectiveCreator.OBJECTIVES">
+<code class="sig-name descname">OBJECTIVES</code><em class="property"> = {&lt;MLModelType.XGB: 'xgb'&gt;: &lt;class 'openstf.model.objective.XGBRegressorObjective'&gt;}</em><a class="headerlink" href="#openstf.model.objective_creator.ObjectiveCreator.OBJECTIVES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="openstf.model.objective_creator.ObjectiveCreator.create_objective">
+<em class="property">static </em><code class="sig-name descname">create_objective</code><span class="sig-paren">(</span><em class="sig-param">model_type: Union[openstf.enums.MLModelType, str]</em><span class="sig-paren">)</span> &#x2192; openstf.model.objective.RegressorObjective<a class="headerlink" href="#openstf.model.objective_creator.ObjectiveCreator.create_objective" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </div>
 <div class="section" id="module-openstf.model.serializer">
 <span id="openstf-model-serializer-module"></span><h2>openstf.model.serializer module<a class="headerlink" href="#module-openstf.model.serializer" title="Permalink to this headline">¶</a></h2>
