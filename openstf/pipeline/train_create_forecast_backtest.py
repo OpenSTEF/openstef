@@ -58,8 +58,7 @@ def train_model_and_forecast_back_test(
 
     # Prepare for output
     forecast = add_prediction_job_properties_to_forecast(
-        pj,
-        forecast,
+        pj, forecast, algorithm_type="backtest"
     )
 
     # Add column with realised load and horizon information
