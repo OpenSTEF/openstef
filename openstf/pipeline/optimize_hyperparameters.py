@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 import pandas as pd
 import optuna
+from typing import List
 import structlog
 
 from openstf.model.objective_creator import ObjectiveCreator
@@ -19,13 +20,13 @@ logger = structlog.get_logger(__name__)
 # See https://optuna.readthedocs.io/en/stable/reference/generated/optuna.study.Study.html#optuna.study.Study.optimize
 N_TRIALS: int = 8  # The number of trials.
 TIMEOUT: int = 200  # Stop study after the given number of second(s).
-TRAIN_HORIZONS: list[float] = [0.25, 24.0]
+TRAIN_HORIZONS: List[float] = [0.25, 24.0]
 
 
 def optimize_hyperparameters_pipeline(
     pj: dict,
     input_data: pd.DataFrame,
-    horizons: list[float] = TRAIN_HORIZONS,
+    horizons: List[float] = TRAIN_HORIZONS,
     n_trials: int = N_TRIALS,
     timeout: int = TIMEOUT,
 ) -> dict:
@@ -34,7 +35,7 @@ def optimize_hyperparameters_pipeline(
     Args:
         pj (dict): Prediction job
         input_data (pd.DataFrame): Raw training input data
-        horizons (list[float]): horizons for feature engineering.
+        horizons (List[float]): horizons for feature engineering.
         n_trials (int, optional): The number of trials. Defaults to N_TRIALS.
         timeout (int, optional): Stop study after the given number of second(s).
             Defaults to TIMEOUT.

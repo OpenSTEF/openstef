@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-from typing import List
+from typing import List, Tuple
 from datetime import timedelta
 
 import numpy as np
@@ -16,7 +16,7 @@ def split_data_train_validation_test(
     backtest: bool = False,
     period_sampling: bool = True,
     period_timedelta: timedelta = timedelta(days=2),
-) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Split input data into train, test and validation set.
 
     Function for splitting cleaned data with features in a train, test and
@@ -139,7 +139,7 @@ def split_data_train_validation_test(
 
 def sample_validation_data_periods(
     data: pd.DataFrame, validation_fraction: float = 0.15, period_length: int = 192
-) -> tuple[pd.DataFrame, pd.DataFrame]:
+) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """Splits data in train and validation dataset.
 
     Tries to sample random periods of given length to form a validation set of
