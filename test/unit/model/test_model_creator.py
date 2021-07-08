@@ -12,7 +12,6 @@ from openstf.model.model_creator import ModelCreator
 
 
 class TestModelCreator(TestCase):
-
     def test_create_model_happy_flow(self):
         # Test happy flow
         model_type = "xgb"
