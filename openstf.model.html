@@ -368,11 +368,14 @@ Set the value of the forecast ‘quality’ column to ‘substituted’</p>
 
 <dl class="method">
 <dt id="openstf.model.model_creator.ModelCreator.create_model">
-<em class="property">static </em><code class="sig-name descname">create_model</code><span class="sig-paren">(</span><em class="sig-param">pj: dict</em><span class="sig-paren">)</span> &#x2192; sklearn.base.RegressorMixin<a class="headerlink" href="#openstf.model.model_creator.ModelCreator.create_model" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">create_model</code><span class="sig-paren">(</span><em class="sig-param">model_type</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span> &#x2192; sklearn.base.RegressorMixin<a class="headerlink" href="#openstf.model.model_creator.ModelCreator.create_model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a machine learning model based on model type.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>model_type</strong> (<em>Union</em><em>[</em><a class="reference internal" href="openstf.html#openstf.enums.MLModelType" title="openstf.enums.MLModelType"><em>MLModelType</em></a><em>, </em><em>str</em><em>]</em>) – Model type</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_type</strong> (<em>Union</em><em>[</em><a class="reference internal" href="openstf.html#openstf.enums.MLModelType" title="openstf.enums.MLModelType"><em>MLModelType</em></a><em>, </em><em>str</em><em>]</em>) – Model type</p></li>
+<li><p><strong>kwargs</strong> (<em>dict</em>) – Optional keyword argument to pass to the model</p></li>
+</ul>
 </dd>
 <dt class="field-even">Raises</dt>
 <dd class="field-even"><p><strong>ValueError</strong> – When using an invalid model_type string</p>
