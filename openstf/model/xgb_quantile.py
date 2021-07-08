@@ -10,7 +10,6 @@ import xgboost as xgb
 from xgboost import Booster
 import numpy as np
 
-
 import openstf.metrics.metrics as metrics
 
 DEFAULT_QUANTILES: Tuple[float, ...] = (0.9, 0.5, 0.1)

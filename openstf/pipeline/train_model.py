@@ -153,7 +153,7 @@ def train_model_pipeline_core(
                 "New model is better than old model, continuing with training procces"
             )
         except ValueError as e:
-            logging.info(f"Could not compare to old model", exc_info=e)
+            logging.info("Could not compare to old model", exc_info=e)
 
     # Do confidence interval determination
     model = StandardDeviationGenerator(
@@ -204,7 +204,7 @@ def train_pipeline_common(
 
     # Split data
     train_data, validation_data, test_data = split_data_train_validation_test(
-        data_with_features.sort_index(axis=0),
+        data_with_features,
         test_fraction=test_fraction,
         backtest=backtest,
     )
