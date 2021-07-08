@@ -40,25 +40,25 @@ valid_model_kwargs = {
         "validate_parameters"
     ],
     MLModelType.LGB: [
-        "boosting_type"
-        "objective"
-        "num_leaves"
-        "max_depth"
-        "learning_rate"
-        "n_estimators"
-        "subsample_for_bin"
-        "min_split_gain"
-        "min_child_weight"
-        "min_child_samples"
-        "subsample"
-        "subsample_freq"
-        "colsample_bytree"
-        "reg_alpha"
-        "reg_lambda"
-        "random_state"
-        "n_jobs"
-        "silent"
-        "importance_type"
+        "boosting_type",
+        "objective",
+        "num_leaves",
+        "max_depth",
+        "learning_rate",
+        "n_estimators",
+        "subsample_for_bin",
+        "min_split_gain",
+        "min_child_weight",
+        "min_child_samples",
+        "subsample",
+        "subsample_freq",
+        "colsample_bytree",
+        "reg_alpha",
+        "reg_lambda",
+        "random_state",
+        "n_jobs",
+        "silent",
+        "importance_type",
     ],
     MLModelType.XGB_QUANTILE: [
         "quantiles",
