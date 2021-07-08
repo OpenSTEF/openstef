@@ -45,8 +45,7 @@ def create_components_forecast_pipeline(pj, input_data, weather_data, split_coef
 
     # Prepare for output
     forecasts = postprocessing.add_prediction_job_properties_to_forecast(
-        pj,
-        forecasts,
+        pj, forecasts, algorithm_type="component"
     )
 
     return forecasts

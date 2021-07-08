@@ -66,12 +66,12 @@ def extract_lag_features(
     the training of the input model.
 
     Args:
-        feature_names (list[str]): All requested lag features
+        feature_names (List[str]): All requested lag features
         horizon (float): Forecast horizon limit in hours.
 
     Returns:
-        minutes_list (list[int]): list of minute lags that were used as features during training
-        days_list (list[int]): list of minute lags that were used as features during training
+        minutes_list (List[int]): list of minute lags that were used as features during training
+        days_list (List[int]): list of minute lags that were used as features during training
     """
 
     # Prepare empty lists to append on
@@ -106,8 +106,8 @@ def generate_trivial_lag_features(horizon: float) -> Tuple[list, list]:
         horizon: Forecast horizon limit in hours.
 
     Returns:
-        minutes_list (list[int]): list of minute lags that were used as features during training
-        days_list (list[int]): list of minute lags that were used as features during training
+        minutes_list (List[int]): list of minute lags that were used as features during training
+        days_list (List[int]): list of minute lags that were used as features during training
 
     """
     mindays = int(np.ceil(horizon / 24))

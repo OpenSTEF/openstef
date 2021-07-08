@@ -178,10 +178,14 @@ def add_components_base_case_forecast(basecase_forecast: pd.DataFrame) -> pd.Dat
 def add_prediction_job_properties_to_forecast(
     pj: dict,
     forecast: pd.DataFrame,
+    algorithm_type: str,
     forecast_type: Enum = None,
     forecast_quality: str = None,
 ) -> pd.DataFrame:
-    # self.logger.info("Postproces in preparation of storing")
+
+    logger = structlog.get_logger(__name__)
+
+    logger.info("Postproces in preparation of storing")
     if forecast_type is None:
         forecast_type = pj["typ"]
     else:
@@ -201,6 +205,6 @@ def add_prediction_job_properties_to_forecast(
     forecast["customer"] = pj["name"]
     forecast["description"] = pj["description"]
     forecast["type"] = forecast_type
-    forecast["algtype"] = pj["model"]
+    forecast["algtype"] = algorithm_type
 
     return forecast
