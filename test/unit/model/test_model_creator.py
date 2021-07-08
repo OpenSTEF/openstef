@@ -12,27 +12,27 @@ from openstf.model.model_creator import ModelCreator
 
 
 class TestModelCreator(TestCase):
-    def setUp(self) -> None:
-        self.pj = {"model": "xgb", "quantiles": [0.5, 0.2, 0.5]}
 
     def test_create_model_happy_flow(self):
         # Test happy flow
-        model = ModelCreator.create_model(self.pj)
+        model_type = "xgb"
+        model = ModelCreator.create_model(model_type)
 
         self.assertIsInstance(model, XGBRegressor)
 
     def test_create_model_quantile_model(self):
         # Test if quantile model is properly returned
-        self.pj["model"] = "xgb_quantile"
+        model_type = "xgb_quantile"
+        quantiles = tuple([0.5, 0.2, 0.5])
         # Create relevant model
-        model = ModelCreator.create_model(self.pj)
+        model = ModelCreator.create_model(model_type, quantiles=quantiles)
 
         self.assertIsInstance(model, XGBQuantileRegressor)
-        self.assertEqual(model.quantiles, tuple(self.pj["quantiles"]))
+        self.assertEqual(model.quantiles, quantiles)
 
     def test_create_model_unknown_model(self):
         # Test if ValueError is raised when model type is unknown
-        self.pj["model"] = "Unknown"
+        model_type = "Unknown"
 
         with self.assertRaises(ValueError):
-            ModelCreator.create_model(self.pj)
+            ModelCreator.create_model(model_type)

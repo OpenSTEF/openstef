@@ -20,11 +20,12 @@ class ModelCreator:
     }
 
     @staticmethod
-    def create_model(pj: dict) -> RegressorMixin:
+    def create_model(model_type, **kwargs) -> RegressorMixin:
         """Create a machine learning model based on model type.
 
         Args:
             model_type (Union[MLModelType, str]): Model type
+            kwargs (dict): Optional keyword argument to pass to the model
 
         Raises:
             ValueError: When using an invalid model_type string
@@ -33,12 +34,11 @@ class ModelCreator:
             RegressorMixin: model
         """
         # This will raise a ValueError when an invalid model_type str is used
-        model_type = MLModelType(pj["model"])
+        model_type = MLModelType(model_type)
 
-        kwargs = {}
+        model_kwargs = {}
+        # only pass relevant argument to model constructor to prevent warnings
+        if "quantiles" in kwargs and model_type is MLModelType.XGB_QUANTILE:
+            model_kwargs["quantiles"] = tuple(kwargs["quantiles"])
 
-        # If the prediction job contains quantiles pass them to the constructor
-        if "quantiles" in pj:
-            kwargs["quantiles"] = tuple(pj["quantiles"])
-
-        return ModelCreator.MODEL_CONSTRUCTORS[model_type](**kwargs)
+        return ModelCreator.MODEL_CONSTRUCTORS[model_type](**model_kwargs)

@@ -9,7 +9,6 @@ from sklearn.utils.validation import check_X_y, check_array, check_is_fitted
 import xgboost as xgb
 from xgboost import Booster
 import numpy as np
-import pandas as pd
 
 
 import openstf.metrics.metrics as metrics
@@ -43,7 +42,7 @@ class XGBQuantileRegressor(BaseEstimator, RegressorMixin):
                 "Cannot train quantile model as 0.5 is not in requested quantiles!"
             )
 
-        self.quantiles = quantiles
+        self.quantiles = tuple(quantiles)
 
         # Set attributes for hyper parameters
         self.subsample = subsample
