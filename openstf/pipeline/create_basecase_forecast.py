@@ -4,7 +4,6 @@
 from pathlib import Path
 
 import pandas as pd
-import pytz
 from datetime import timedelta
 import structlog
 from openstf.enums import ForecastType
@@ -53,13 +52,15 @@ def create_basecase_forecast_pipeline(
     forecast_start = forecast_start + timedelta(minutes=pj["horizon_minutes"])
 
     # Make sure forecast interval is available in the input interval
-    new_date_range = pd.date_range(
-        validated_data.index.min().to_pydatetime(),  # Start of the new range is start of the input interval
-        forecast_end.replace(
-            tzinfo=pytz.utc
-        ),  # End of the new range is end of the forecast interval
-        freq=f'{pj["resolution_minutes"]}T',  # Resample to the desired time resolution
-    )
+
+    # Start of the new range is start of the input interval
+    new_start = validated_data.index.min().to_pydatetime()
+    # End of the new range is end of the forecast interval
+    new_end = forecast_end.replace(tzinfo=new_start.tzinfo)
+    # Resample to the desired time resolution
+    freq = f'{pj["resolution_minutes"]}T'
+
+    new_date_range = pd.date_range(new_start, new_end, freq=freq)
     validated_data = validated_data.reindex(new_date_range)  # Reindex to new date range
 
     # Add features
