@@ -37,7 +37,7 @@ class ModelCreator:
         model_type = MLModelType(model_type)
 
         model_kwargs = {}
-        # only pass relevant argument to model constructor to prevent warnings
+        # only pass relevant arguments to model constructor to prevent warnings
         if "quantiles" in kwargs and model_type is MLModelType.XGB_QUANTILE:
             model_kwargs["quantiles"] = tuple(kwargs["quantiles"])
 

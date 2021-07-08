@@ -42,7 +42,7 @@ class XGBQuantileRegressor(BaseEstimator, RegressorMixin):
                 "Cannot train quantile model as 0.5 is not in requested quantiles!"
             )
 
-        self.quantiles = tuple(quantiles)
+        self.quantiles = quantiles
 
         # Set attributes for hyper parameters
         self.subsample = subsample
