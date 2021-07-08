@@ -37,7 +37,7 @@ valid_model_kwargs = {
         "interaction_constraints",
         "importance_type",
         "gpu_id",
-        "validate_parameters"
+        "validate_parameters",
     ],
     MLModelType.LGB: [
         "boosting_type"
@@ -67,7 +67,7 @@ valid_model_kwargs = {
         "subsample",
         "min_child_weight",
         "max_depth",
-    ]
+    ],
 }
 
 
