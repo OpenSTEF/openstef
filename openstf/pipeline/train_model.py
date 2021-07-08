@@ -210,7 +210,7 @@ def train_pipeline_common(
     )
 
     # Create relevant model
-    model = ModelCreator.create_model(pj)
+    model = ModelCreator.create_model(pj["model"], quantiles=pj["quantiles"])
 
     # Test if first column is "load" and last column is "horizon"
     if train_data.columns[0] != "load" or train_data.columns[-1] != "horizon":
