@@ -4,7 +4,7 @@
 from pathlib import Path
 
 import pymsteams
-from ktpbase.config.config import ConfigManager
+from openstf_dbc.config.config import ConfigManager
 import structlog
 
 

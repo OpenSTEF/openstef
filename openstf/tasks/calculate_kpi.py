@@ -24,7 +24,7 @@ from datetime import datetime, timedelta
 
 import numpy as np
 import pandas as pd
-from ktpbase.database import DataBase
+from openstf_dbc.database import DataBase
 import structlog
 
 from openstf.validation import validation

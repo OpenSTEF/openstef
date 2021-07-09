@@ -30,7 +30,7 @@ from datetime import datetime
 
 import numpy as np
 import pandas as pd
-from ktpbase.database import DataBase
+from openstf_dbc.database import DataBase
 import structlog
 import scipy.optimize
 

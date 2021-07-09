@@ -45,7 +45,7 @@ def train_model_task(
         check_old_model_age (bool): check if model is too young to be retrained
     """
 
-    # TODO Update get_prediction job in ktpbase such that hyperparams are already included in the prediciton jobs
+    # TODO Update get_prediction job in openstf_dbc such that hyperparams are already included in the prediciton jobs
     # Include hyperparameter information in the prediction job
     pj["hyper_params"] = {
         "training_period_days": TRAINING_PERIOD_DAYS,

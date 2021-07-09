@@ -31,10 +31,6 @@ Short term forcasting builds the `openstf` Python package which is used to make 
 pip install openstf
 ```
 
-## Install own implementation of ktpbase
-
-The code in this repository expects a data storage and retrieval interface to be available through the `ktpbase` package. For more information about the implemented interface see TODO.
-
 # Usage
 
 To run a task use:
