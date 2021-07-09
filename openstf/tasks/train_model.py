@@ -90,10 +90,12 @@ def train_model_task(
     context.perf_meter.checkpoint("Model trained")
 
 
-def main():
-    with TaskContext("train_model") as context:
+def main(model_type=None):
+
+    if model_type is None:
         model_type = ["xgb", "xgb_quantile", "lgb"]
 
+    with TaskContext("train_model") as context:
         PredictionJobLoop(context, model_type=model_type).map(train_model_task, context)
 
 
