@@ -3,13 +3,12 @@
 # SPDX-License-Identifier: MPL-2.0
 from datetime import datetime
 import pytz
+from typing import List
 
 import numpy as np
 import pandas as pd
 from scipy import stats
 from sklearn.base import RegressorMixin
-
-from openstf.enums import MLModelType
 
 MINIMAL_RESOLUTION: int = 15  # Minimal time resolution in minutes
 
@@ -159,7 +158,7 @@ class ConfidenceIntervalApplicator:
 
     @staticmethod
     def _add_quantiles_to_forecast_default(
-        forecast: pd.DataFrame, quantiles: list[float]
+        forecast: pd.DataFrame, quantiles: List[float]
     ) -> pd.DataFrame:
         """Add quantiles to forecast.
 
@@ -167,7 +166,7 @@ class ConfidenceIntervalApplicator:
 
         Args:
             forecast (pd.DataFrame): Forecast (should contain a 'forecast' + 'stdev' column)
-            quantiles (list): List with desired quantiles,
+            quantiles (List[float]): List with desired quantiles,
                 for example: [0.01, 0.1, 0.9, 0.99]
 
         Returns:
@@ -188,7 +187,7 @@ class ConfidenceIntervalApplicator:
         return forecast
 
     def _add_quantiles_to_forecast_quantile_regression(
-        self, forecast: pd.DataFrame, quantiles: list[float]
+        self, forecast: pd.DataFrame, quantiles: List[float]
     ) -> pd.DataFrame:
         """Add quantiles to forecast.
 
@@ -196,7 +195,7 @@ class ConfidenceIntervalApplicator:
 
         Args:
             forecast (pd.DataFrame): Forecast
-            quantiles (list): List with desired quantiles
+            quantiles (List[float]): List with desired quantiles
 
         Returns:
             (pd.DataFrame): Forecast DataFrame with quantile (e.g. 'quantile_PXX')

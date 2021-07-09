@@ -111,7 +111,7 @@ def train_model_pipeline_core(
         RuntimeError: When old model is better than new model
 
     Returns:
-        tuple[RegressorMixin, Report]: Trained model and report (with figures)
+        Tuple[RegressorMixin, Report]: Trained model and report (with figures)
     """
 
     if horizons is None:
@@ -181,7 +181,7 @@ def train_pipeline_common(
         horizons (List[float]): horizons to train on in hours.
 
     Returns:
-        tuple[RegressorMixin, pd.DataFrame, pd.DataFrame, pd.DataFrame]: Trained model,
+        Tuple[RegressorMixin, pd.DataFrame, pd.DataFrame, pd.DataFrame]: Trained model,
          train_data, validation_data and test_data
 
 
@@ -210,7 +210,7 @@ def train_pipeline_common(
     )
 
     # Create relevant model
-    model = ModelCreator.create_model(pj)
+    model = ModelCreator.create_model(pj["model"], quantiles=pj["quantiles"])
 
     # Test if first column is "load" and last column is "horizon"
     if train_data.columns[0] != "load" or train_data.columns[-1] != "horizon":
