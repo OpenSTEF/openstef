@@ -33,6 +33,9 @@ def train_model_pipeline(
 ) -> None:
     """Midle level pipeline that takes care of all persistent storage dependencies
 
+    Expected prediction jobs keys: "id", "name", "model", "hyper_params",
+        "feature_names"
+
     Args:
         pj (dict): Prediction job
         input_data (pd.DataFrame): Raw training input data

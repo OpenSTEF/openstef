@@ -27,6 +27,15 @@ MAX_AGE_HYPER_PARAMS_DAYS = 31
 
 
 def optimize_hyperparameters_task(pj: dict, context: TaskContext) -> None:
+    """Optimize hyperparameters task.
+
+    Expected prediction job keys: "id", "model", "lat", "lon", "name", "description"
+    Only used for logging: "name", "description"
+
+    Args:
+        pj (dict): Prediction job
+        context (TaskContext): Task context
+    """
 
     # Determine if we need to optimize hyperparams
     datetime_last_optimized = context.database.get_hyper_params_last_optimized(pj)
@@ -41,7 +50,7 @@ def optimize_hyperparameters_task(pj: dict, context: TaskContext) -> None:
         )
         return
 
-    # Get input data
+    # Get input data (usese "id" and "model")
     current_hyperparams = context.database.get_hyper_params(pj)
     # TODO this conversion should be done in the database
     training_period_days = int(current_hyperparams["training_period_days"])

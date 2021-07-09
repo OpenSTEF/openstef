@@ -43,6 +43,9 @@ def create_forecast_task(pj: dict, context: TaskContext) -> None:
 
     On this task level all database and context manager dependencies are resolved.
 
+    Expected prediction job keys: "id", "lat", "lon", "resolution_minutes",
+        "horizon_minutes", "type", "name", "model_type_group", "quantiles"
+
     Args:
         pj (dict): Prediction job
         context (TaskContext): Contect object that holds a config manager and a database connection
