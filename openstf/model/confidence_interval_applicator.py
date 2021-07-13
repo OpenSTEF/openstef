@@ -121,7 +121,9 @@ class ConfidenceIntervalApplicator:
                 .to_pydatetime()
             )
             # Determin t_aheads by subtracting with now
-            forecast_copy["tAhead"] = (forecast_copy.index - now).total_seconds() / 3600.0
+            forecast_copy["tAhead"] = (
+                forecast_copy.index - now
+            ).total_seconds() / 3600.0
 
         # add helper column hour
         forecast_copy["hour"] = forecast_copy.index.hour
