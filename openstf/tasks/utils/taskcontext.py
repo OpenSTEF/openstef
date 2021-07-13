@@ -5,8 +5,8 @@
 import traceback
 import structlog
 
-from ktpbase.config.config import ConfigManager
-from ktpbase.database import DataBase
+from openstf_dbc.config.config import ConfigManager
+from openstf_dbc.database import DataBase
 
 from openstf.monitoring.teams import post_teams
 from openstf.monitoring.performance_meter import PerformanceMeter

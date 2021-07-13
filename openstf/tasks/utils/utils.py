@@ -5,7 +5,7 @@ import json
 import os
 from pathlib import Path
 
-from ktpbase.config.config import ConfigManager
+from openstf_dbc.config.config import ConfigManager
 
 
 def load_status_file():

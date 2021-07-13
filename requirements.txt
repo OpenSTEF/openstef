@@ -10,6 +10,7 @@ holidays~=0.10.5.2
 lightgbm~=3.1.1
 numpy~=1.20.0
 optuna~=2.5.0
+openstf-dbc~=1.0.3
 pandas~=1.2.1
 plotly~=4.14.3
 pymsteams~=0.1.14   # TODO remove teams dependency
