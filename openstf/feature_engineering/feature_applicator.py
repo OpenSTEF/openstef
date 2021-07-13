@@ -85,7 +85,7 @@ class TrainFeatureApplicator(AbstractFeatureApplicator):
 
         # IMPORTANT: sort index to prevent errors when slicing on the (datetime) index
         # if we don't sort, the duplicated indexes (one per horizon) have large gaps
-        # and slicing with given an exception.
+        # and slicing will give an exception.
         result = result.sort_index(axis=0)
 
         # Invalidate features that are not available for a specific horizon due to data
