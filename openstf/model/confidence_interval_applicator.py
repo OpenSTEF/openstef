@@ -115,7 +115,7 @@ class ConfidenceIntervalApplicator:
             # Determine now, rounded on 15 minutes,
             # Rounding helps to prevent fractional t_aheads
             now = (
-                pd.Series(datetime.utcnow().replace(tzinfo=pytz.utc))
+                pd.Series(datetime.utcnow().replace(tzinfo=forecast_copy.index.tzinfo))
                 .min()
                 .round(f"{MINIMAL_RESOLUTION}T")
                 .to_pydatetime()
@@ -123,7 +123,6 @@ class ConfidenceIntervalApplicator:
             # Determin t_aheads by subtracting with now
             forecast_copy["tAhead"] = (forecast_copy.index - now).total_seconds() / 3600.0
 
-        breakpoint()
         # add helper column hour
         forecast_copy["hour"] = forecast_copy.index.hour
 
