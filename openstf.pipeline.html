@@ -235,9 +235,9 @@
 <dt id="openstf.pipeline.create_forecast.create_forecast_pipeline">
 <code class="sig-prename descclassname">openstf.pipeline.create_forecast.</code><code class="sig-name descname">create_forecast_pipeline</code><span class="sig-paren">(</span><em class="sig-param">pj: dict, input_data: pandas.core.frame.DataFrame, trained_models_folder: Union[str, pathlib.Path]</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstf.pipeline.create_forecast.create_forecast_pipeline" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create forecast pipeline</p>
-<blockquote>
-<div><p>This is the top-level pipeline which included loading the most recent model for the given prediction job.</p>
-</div></blockquote>
+<p>This is the top-level pipeline which included loading the most recent model for
+the given prediction job.</p>
+<p>Expected prediction job keys: “id”,</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -258,6 +258,10 @@
 <dd><p>Create forecast pipeline (core)</p>
 <p>Computes the forecasts and confidence intervals given a prediction job and input data.
 This pipeline has no database or persisitent storage dependencies.</p>
+<dl class="simple">
+<dt>Expected prediction job keys: “resolution_minutes”, “horizon_minutes”, “id”, “type”,</dt><dd><p>“name”, “model_type_group”, “quantiles”</p>
+</dd>
+</dl>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -279,6 +283,7 @@ This pipeline has no database or persisitent storage dependencies.</p>
 <dt id="openstf.pipeline.optimize_hyperparameters.optimize_hyperparameters_pipeline">
 <code class="sig-prename descclassname">openstf.pipeline.optimize_hyperparameters.</code><code class="sig-name descname">optimize_hyperparameters_pipeline</code><span class="sig-paren">(</span><em class="sig-param">pj: dict, input_data: pandas.core.frame.DataFrame, horizons: List[float] = [0.25, 24.0], n_trials: int = 8, timeout: int = 200</em><span class="sig-paren">)</span> &#x2192; dict<a class="headerlink" href="#openstf.pipeline.optimize_hyperparameters.optimize_hyperparameters_pipeline" title="Permalink to this definition">¶</a></dt>
 <dd><p>Optimize hyperparameters pipeline.</p>
+<p>Expected prediction job key’s: “name”, “model”</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -334,6 +339,10 @@ These horizons are also used to make predictions (one for every horizon)</p></li
 <dt id="openstf.pipeline.train_model.train_model_pipeline">
 <code class="sig-prename descclassname">openstf.pipeline.train_model.</code><code class="sig-name descname">train_model_pipeline</code><span class="sig-paren">(</span><em class="sig-param">pj: dict, input_data: pandas.core.frame.DataFrame, check_old_model_age: bool, trained_models_folder: Union[str, pathlib.Path], save_figures_folder: Union[str, pathlib.Path]</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#openstf.pipeline.train_model.train_model_pipeline" title="Permalink to this definition">¶</a></dt>
 <dd><p>Midle level pipeline that takes care of all persistent storage dependencies</p>
+<dl class="simple">
+<dt>Expected prediction jobs keys: “id”, “name”, “model”, “hyper_params”,</dt><dd><p>“feature_names”</p>
+</dd>
+</dl>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
