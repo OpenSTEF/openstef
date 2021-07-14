@@ -25,7 +25,11 @@ Example:
 from pathlib import Path
 from datetime import datetime, timedelta
 
-from openstf.pipeline.train_model import train_model_pipeline, MAXIMUM_MODEL_AGE, get_model_age
+from openstf.pipeline.train_model import (
+    train_model_pipeline,
+    MAXIMUM_MODEL_AGE,
+    get_model_age,
+)
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
 
@@ -67,11 +71,14 @@ def train_model_task(
 
     # If required, let's check the old model age before retrieving all the input data
     if check_old_model_age:
-        old_model_age = get_model_age(trained_models_folder, pj.get('id'))
-        context.logger.debug(f'Old model age: {old_model_age}')
+        old_model_age = get_model_age(trained_models_folder, pj.get("id"))
+        context.logger.debug(f"Old model age: {old_model_age}")
         if old_model_age < MAXIMUM_MODEL_AGE:
             # Old model is new enough. Skip this pj
-            context.logger.info(f'Old model was new enough, skipping ({old_model_age}<{MAXIMUM_MODEL_AGE})', pid=pj.get('id'))
+            context.logger.info(
+                f"Old model was new enough, skipping ({old_model_age}<{MAXIMUM_MODEL_AGE})",
+                pid=pj.get("id"),
+            )
             return
 
     context.perf_meter.checkpoint("Added metadata to PredictionJob")
@@ -102,6 +109,7 @@ def train_model_task(
     )
 
     context.perf_meter.checkpoint("Model trained")
+
 
 def main(model_type=None):
     if model_type is None:
