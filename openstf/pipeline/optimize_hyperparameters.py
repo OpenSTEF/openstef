@@ -32,6 +32,8 @@ def optimize_hyperparameters_pipeline(
 ) -> dict:
     """Optimize hyperparameters pipeline.
 
+    Expected prediction job key's: "name", "model"
+
     Args:
         pj (dict): Prediction job
         input_data (pd.DataFrame): Raw training input data

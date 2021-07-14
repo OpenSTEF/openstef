@@ -28,7 +28,10 @@ def create_forecast_pipeline(
 ) -> pd.DataFrame:
     """Create forecast pipeline
 
-     This is the top-level pipeline which included loading the most recent model for the given prediction job.
+    This is the top-level pipeline which included loading the most recent model for
+    the given prediction job.
+
+    Expected prediction job keys: "id",
 
     Args:
         pj (dict): Prediction job
@@ -55,6 +58,9 @@ def create_forecast_pipeline_core(
 
     Computes the forecasts and confidence intervals given a prediction job and input data.
     This pipeline has no database or persisitent storage dependencies.
+
+    Expected prediction job keys: "resolution_minutes", "horizon_minutes", "id", "type",
+        "name", "model_type_group", "quantiles"
 
     Args:
         pj (dict): Prediction job.
