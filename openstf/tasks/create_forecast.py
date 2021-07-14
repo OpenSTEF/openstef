@@ -43,6 +43,9 @@ def create_forecast_task(pj: dict, context: TaskContext) -> None:
 
     On this task level all database and context manager dependencies are resolved.
 
+    Expected prediction job keys: "id", "lat", "lon", "resolution_minutes",
+        "horizon_minutes", "type", "name", "model_type_group", "quantiles"
+
     Args:
         pj (dict): Prediction job
         context (TaskContext): Contect object that holds a config manager and a database connection
@@ -69,10 +72,12 @@ def create_forecast_task(pj: dict, context: TaskContext) -> None:
     context.database.write_forecast(forecast, t_ahead_series=True)
 
 
-def main():
-    with TaskContext("create_forecast") as context:
+def main(model_type=None):
+
+    if model_type is None:
         model_type = ["xgb", "xgb_quantile", "lgb"]
 
+    with TaskContext("create_forecast") as context:
         # status file callback after every iteration
         # TODO change implementation to a database one
         def callback(pj, successful):

@@ -62,7 +62,8 @@ class TrainFeatureApplicator(AbstractFeatureApplicator):
                 {"APX": 24}
 
         Returns:
-            pd.DataFrame: Input DataFrame with an extra column for every added feature.
+            pd.DataFrame: Input DataFrame with an extra column for every added feature
+                and sorted on the datetime index.
         """
 
         if latency_config is None:
@@ -77,11 +78,15 @@ class TrainFeatureApplicator(AbstractFeatureApplicator):
 
         # Loop over horizons and add corresponding features
         for horizon in self.horizons:
-            res = apply_features(
-                df.copy(deep=True), horizon=horizon
-            )  # Deep copy of df is important, because we want a fresh start every iteration!
+            # Deep copy of df is important, because we want a fresh start every iteration!
+            res = apply_features(df.copy(deep=True), horizon=horizon)
             res["horizon"] = horizon
             result = result.append(res)
+
+        # IMPORTANT: sort index to prevent errors when slicing on the (datetime) index
+        # if we don't sort, the duplicated indexes (one per horizon) have large gaps
+        # and slicing will give an exception.
+        result = result.sort_index(axis=0)
 
         # Invalidate features that are not available for a specific horizon due to data
         # latency
