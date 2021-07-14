@@ -113,8 +113,13 @@ class PersistentStorageSerializer(AbstractSerializer):
         elif model_id is not None:
             model_path = self.convert_model_id_into_model_path(model_id)
 
-        if model_path is None or model_path.is_file() is False:
-            msg = f"No model file found at save location: '{model_path}'"
+        if model_path is None:
+            msg = f"No (most recent) model found"
+            self.logger.error(msg)
+            raise FileNotFoundError(msg)
+
+        if model_path.is_file() is False:
+            msg = f"model_path is not a file ({model_path})"
             self.logger.error(msg)
             raise FileNotFoundError(msg)
 

@@ -244,3 +244,17 @@ def train_pipeline_common(
         pj, validation_data
     ).generate_standard_deviation_data(model)
     return model, train_data, validation_data, test_data
+
+def get_model_age(trained_models_folder, pid):
+    serializer = PersistentStorageSerializer(trained_models_folder)
+
+    # Get old model and age
+    try:
+        old_model = serializer.load_model(pid=pid)
+        old_model_age = (
+            old_model.age
+        )
+    except FileNotFoundError:
+        old_model = None
+        old_model_age = float("inf")
+    return old_model_age
