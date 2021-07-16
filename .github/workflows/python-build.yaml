@@ -15,6 +15,14 @@ jobs:
         python-version: [3.9]
 
     steps:
+    # Wait on other action to finish before starting
+    - name: Wait for black-action to finish
+      uses: lewagon/wait-on-check-action@v0.2
+      with:
+        ref: ${{ github.ref }}
+        check-name: 'Black Format Code'
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+        wait-interval: 10
     # Checkout
     - name: Checkout code
       uses: actions/checkout@v2
