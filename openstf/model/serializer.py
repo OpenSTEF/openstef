@@ -159,11 +159,10 @@ class PersistentStorageSerializer(AbstractSerializer):
         If no previous model is found, float(Inf) is returned
 
         Returns:
-            object: """
+            object:"""
         model_path = self.find_most_recent_model_path(pid)
         model_age_days = self._determine_model_age_from_path(model_path)
         return model_age_days
-
 
     def _determine_model_age_from_path(self, model_path: Path) -> float:
         """Determines how many days ago a model is trained base on the folder name.
