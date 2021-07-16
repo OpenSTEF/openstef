@@ -164,7 +164,10 @@ class PersistentStorageSerializer(AbstractSerializer):
         Returns:
             float: model age in days"""
         model_path = self.find_most_recent_model_path(pid)
-        model_age_days = self._determine_model_age_from_path(model_path)
+        if model_path is not None:
+            model_age_days = self._determine_model_age_from_path(model_path)
+        else:
+            model_age_days = float("Inf")
         return model_age_days
 
     def _determine_model_age_from_path(self, model_path: Path) -> float:
