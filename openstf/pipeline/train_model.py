@@ -249,14 +249,15 @@ def train_pipeline_common(
     return model, train_data, validation_data, test_data
 
 
-def get_model_age(trained_models_folder, pid):
-    serializer = PersistentStorageSerializer(trained_models_folder)
+def get_model_age(trained_models_folder: str, pid: int) -> float:
+    """returns age of most recently trained model in days.
+    If no previous model can be found, this returns float(inf).
 
-    # Get old model and age
-    try:
-        old_model = serializer.load_model(pid=pid)
-        old_model_age = old_model.age
-    except FileNotFoundError:
-        old_model = None
-        old_model_age = float("inf")
-    return old_model_age
+    Args:
+        trained_models_folder: str
+        pid: int
+
+    Returns:
+        float: age of most recent model in days"""
+    serializer = PersistentStorageSerializer(trained_models_folder)
+    return serializer.determine_model_age_from_pid(pid)

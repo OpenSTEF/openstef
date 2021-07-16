@@ -18,6 +18,11 @@ MODEL_ID_SEP = "-"
 
 class AbstractSerializer(ABC):
     def __init__(self, trained_models_folder: Union[Path, str]) -> None:
+        """
+
+        Returns:
+            object:
+        """
         self.logger = structlog.get_logger(self.__class__.__name__)
         self.trained_models_folder = trained_models_folder
 
@@ -148,6 +153,17 @@ class PersistentStorageSerializer(AbstractSerializer):
         loaded_model.path = model_path
 
         return loaded_model
+
+    def determine_model_age_from_pid(self, pid) -> float:
+        """Determine model age in days of most recent model for a given pid.
+        If no previous model is found, float(Inf) is returned
+
+        Returns:
+            object: """
+        model_path = self.find_most_recent_model_path(pid)
+        model_age_days = self._determine_model_age_from_path(model_path)
+        return model_age_days
+
 
     def _determine_model_age_from_path(self, model_path: Path) -> float:
         """Determines how many days ago a model is trained base on the folder name.
