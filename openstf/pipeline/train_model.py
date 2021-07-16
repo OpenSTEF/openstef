@@ -247,3 +247,17 @@ def train_pipeline_common(
         pj, validation_data
     ).generate_standard_deviation_data(model)
     return model, train_data, validation_data, test_data
+
+
+def get_model_age(trained_models_folder: str, pid: int) -> float:
+    """returns age of most recently trained model in days.
+    If no previous model can be found, this returns float(inf).
+
+    Args:
+        trained_models_folder: str
+        pid: int
+
+    Returns:
+        float: age of most recent model in days"""
+    serializer = PersistentStorageSerializer(trained_models_folder)
+    return serializer.determine_model_age_from_pid(pid)

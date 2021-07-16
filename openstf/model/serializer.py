@@ -18,6 +18,11 @@ MODEL_ID_SEP = "-"
 
 class AbstractSerializer(ABC):
     def __init__(self, trained_models_folder: Union[Path, str]) -> None:
+        """
+
+        Returns:
+            object:
+        """
         self.logger = structlog.get_logger(self.__class__.__name__)
         self.trained_models_folder = trained_models_folder
 
@@ -113,8 +118,13 @@ class PersistentStorageSerializer(AbstractSerializer):
         elif model_id is not None:
             model_path = self.convert_model_id_into_model_path(model_id)
 
-        if model_path is None or model_path.is_file() is False:
-            msg = f"No model file found at save location: '{model_path}'"
+        if model_path is None:
+            msg = f"No (most recent) model found"
+            self.logger.error(msg)
+            raise FileNotFoundError(msg)
+
+        if model_path.is_file() is False:
+            msg = f"model_path is not a file ({model_path})"
             self.logger.error(msg)
             raise FileNotFoundError(msg)
 
@@ -143,6 +153,22 @@ class PersistentStorageSerializer(AbstractSerializer):
         loaded_model.path = model_path
 
         return loaded_model
+
+    def determine_model_age_from_pid(self, pid: int) -> float:
+        """Determine model age in days of most recent model for a given pid.
+        If no previous model is found, float(Inf) is returned
+
+        Args:
+            pid: int
+
+        Returns:
+            float: model age in days"""
+        model_path = self.find_most_recent_model_path(pid)
+        if model_path is not None:
+            model_age_days = self._determine_model_age_from_path(model_path)
+        else:
+            model_age_days = float("Inf")
+        return model_age_days
 
     def _determine_model_age_from_path(self, model_path: Path) -> float:
         """Determines how many days ago a model is trained base on the folder name.

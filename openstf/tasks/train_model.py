@@ -25,7 +25,11 @@ Example:
 from pathlib import Path
 from datetime import datetime, timedelta
 
-from openstf.pipeline.train_model import train_model_pipeline
+from openstf.pipeline.train_model import (
+    train_model_pipeline,
+    MAXIMUM_MODEL_AGE,
+    get_model_age,
+)
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
 
@@ -61,6 +65,22 @@ def train_model_task(
         pj["hyper_params"]["featureset_name"]
     )
 
+    # Get the paths for storing model and reports from the config manager
+    trained_models_folder = Path(context.config.paths.trained_models_folder)
+    save_figures_folder = Path(context.config.paths.webroot) / str(pj["id"])
+
+    # If required, let's check the old model age before retrieving all the input data
+    if check_old_model_age:
+        old_model_age = get_model_age(trained_models_folder, pj.get("id"))
+        context.logger.debug(f"Old model age: {old_model_age}")
+        if old_model_age < MAXIMUM_MODEL_AGE:
+            # Old model is new enough. Skip this pj
+            context.logger.info(
+                f"Old model was new enough, skipping ({old_model_age}<{MAXIMUM_MODEL_AGE})",
+                pid=pj.get("id"),
+            )
+            return
+
     context.perf_meter.checkpoint("Added metadata to PredictionJob")
 
     # Define start and end of the training input data
@@ -79,15 +99,11 @@ def train_model_task(
 
     context.perf_meter.checkpoint("Retrieved timeseries input")
 
-    # Get the paths for storing model and reports from the config manager
-    trained_models_folder = Path(context.config.paths.trained_models_folder)
-    save_figures_folder = Path(context.config.paths.webroot) / str(pj["id"])
-
     # Excecute the model training pipeline
     train_model_pipeline(
         pj,
         input_data,
-        check_old_model_age=check_old_model_age,
+        check_old_model_age=False,  # Old model age is already checked
         trained_models_folder=trained_models_folder,
         save_figures_folder=save_figures_folder,
     )
@@ -96,7 +112,6 @@ def train_model_task(
 
 
 def main(model_type=None):
-
     if model_type is None:
         model_type = ["xgb", "xgb_quantile", "lgb"]
 
