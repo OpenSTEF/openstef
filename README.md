@@ -5,8 +5,8 @@ SPDX-License-Identifier: MPL-2.0
 -->
 
 <!-- Github Actions badges -->
-[![Python Build](https://github.com/alliander-opensource/short-term-forecasting/actions/workflows/python-build.yaml/badge.svg)](https://github.com/alliander-opensource/short-term-forecasting/actions/workflows/python-build.yaml)
-[![REUSE Compliance Check](https://github.com/alliander-opensource/short-term-forecasting/actions/workflows/reuse-compliance.yaml/badge.svg)](https://github.com/alliander-opensource/short-term-forecasting/actions/workflows/reuse-compliance.yaml)
+[![Python Build](https://github.com/alliander-opensource/openstf/actions/workflows/python-build.yaml/badge.svg)](https://github.com/alliander-opensource/openstf/actions/workflows/python-build.yaml)
+[![REUSE Compliance Check](https://github.com/alliander-opensource/openstf/actions/workflows/reuse-compliance.yaml/badge.svg)](https://github.com/alliander-opensource/openstf/actions/workflows/reuse-compliance.yaml)
 <!-- SonarCloud badges -->
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=alliander-opensource_short-term-forecasting&metric=alert_status)](https://sonarcloud.io/dashboard?id=alliander-opensource_short-term-forecasting)
 [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=alliander-opensource_short-term-forecasting&metric=bugs)](https://sonarcloud.io/dashboard?id=alliander-opensource_short-term-forecasting)

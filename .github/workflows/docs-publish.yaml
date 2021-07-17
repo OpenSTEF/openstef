@@ -33,7 +33,7 @@ jobs:
     # Commit documentation changes to the gh-pages branch
     - name: Commit documentation changes
       run: |
-        git clone https://github.com/alliander-opensource/short-term-forecasting.git --branch gh-pages --single-branch gh-pages
+        git clone https://github.com/alliander-opensource/openstf.git --branch gh-pages --single-branch gh-pages
         cp -r docs/_build/html/* gh-pages/
         cd gh-pages
         touch .nojekyll
