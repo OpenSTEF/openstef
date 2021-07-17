@@ -19,9 +19,9 @@ SPDX-License-Identifier: MPL-2.0
 [![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=alliander-opensource_short-term-forecasting&metric=sqale_index)](https://sonarcloud.io/dashboard?id=alliander-opensource_short-term-forecasting)
 [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=alliander-opensource_short-term-forecasting&metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=alliander-opensource_short-term-forecasting)
 
-# Short Term Forcasting
+# Openstf
 
-Short term forcasting builds the `openstf` Python package which is used to make short term forecasts for the energy sector. This repository contains all components for the machine learning pipeline required to make a forecast. In order to use the package you need to provide your own data storage and retrieval interface. `openstf` is available at: https://pypi.org/project/openstf/
+Openstf is a Python package which is used to make short term forecasts for the energy sector. This repository contains all components for the machine learning pipeline required to make a forecast. In order to use the package you need to provide your own data storage and retrieval interface. `openstf` is available at: https://pypi.org/project/openstf/
 
 # Installation
 
