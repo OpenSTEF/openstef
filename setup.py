@@ -33,7 +33,7 @@ setup(
     description="Open short term forcasting",
     long_description=read_long_description_from_readme(),
     long_description_content_type="text/markdown",
-    url="https://github.com/alliander-opensource/short-term-forecasting",
+    url="https://github.com/alliander-opensource/openstf",
     author="Alliander N.V",
     author_email="korte.termijn.prognoses@alliander.com",
     license="MPL-2.0",
