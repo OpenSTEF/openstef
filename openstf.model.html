@@ -494,6 +494,24 @@ study.optimize(objective)</p>
 <dd></dd></dl>
 
 <dl class="method">
+<dt id="openstf.model.serializer.PersistentStorageSerializer.determine_model_age_from_pid">
+<code class="sig-name descname">determine_model_age_from_pid</code><span class="sig-paren">(</span><em class="sig-param">pid: int</em><span class="sig-paren">)</span> &#x2192; float<a class="headerlink" href="#openstf.model.serializer.PersistentStorageSerializer.determine_model_age_from_pid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine model age in days of most recent model for a given pid.
+If no previous model is found, float(Inf) is returned</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>pid</strong> – int</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>model age in days</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="openstf.model.serializer.PersistentStorageSerializer.find_model_folders">
 <code class="sig-name descname">find_model_folders</code><span class="sig-paren">(</span><em class="sig-param">pid: Union[int, str], ascending: Optional[bool] = False</em><span class="sig-paren">)</span> &#x2192; List[pathlib.Path]<a class="headerlink" href="#openstf.model.serializer.PersistentStorageSerializer.find_model_folders" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>

@@ -336,6 +336,27 @@ These horizons are also used to make predictions (one for every horizon)</p></li
 <div class="section" id="module-openstf.pipeline.train_model">
 <span id="openstf-pipeline-train-model-module"></span><h2>openstf.pipeline.train_model module<a class="headerlink" href="#module-openstf.pipeline.train_model" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
+<dt id="openstf.pipeline.train_model.get_model_age">
+<code class="sig-prename descclassname">openstf.pipeline.train_model.</code><code class="sig-name descname">get_model_age</code><span class="sig-paren">(</span><em class="sig-param">trained_models_folder: str</em>, <em class="sig-param">pid: int</em><span class="sig-paren">)</span> &#x2192; float<a class="headerlink" href="#openstf.pipeline.train_model.get_model_age" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns age of most recently trained model in days.
+If no previous model can be found, this returns float(inf).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>trained_models_folder</strong> – str</p></li>
+<li><p><strong>pid</strong> – int</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>age of most recent model in days</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
 <dt id="openstf.pipeline.train_model.train_model_pipeline">
 <code class="sig-prename descclassname">openstf.pipeline.train_model.</code><code class="sig-name descname">train_model_pipeline</code><span class="sig-paren">(</span><em class="sig-param">pj: dict, input_data: pandas.core.frame.DataFrame, check_old_model_age: bool, trained_models_folder: Union[str, pathlib.Path], save_figures_folder: Union[str, pathlib.Path]</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#openstf.pipeline.train_model.train_model_pipeline" title="Permalink to this definition">¶</a></dt>
 <dd><p>Midle level pipeline that takes care of all persistent storage dependencies</p>
