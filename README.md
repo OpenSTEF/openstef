@@ -8,16 +8,16 @@ SPDX-License-Identifier: MPL-2.0
 [![Python Build](https://github.com/alliander-opensource/openstf/actions/workflows/python-build.yaml/badge.svg)](https://github.com/alliander-opensource/openstf/actions/workflows/python-build.yaml)
 [![REUSE Compliance Check](https://github.com/alliander-opensource/openstf/actions/workflows/reuse-compliance.yaml/badge.svg)](https://github.com/alliander-opensource/openstf/actions/workflows/reuse-compliance.yaml)
 <!-- SonarCloud badges -->
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=alliander-opensource_short-term-forecasting&metric=alert_status)](https://sonarcloud.io/dashboard?id=alliander-opensource_short-term-forecasting)
-[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=alliander-opensource_short-term-forecasting&metric=bugs)](https://sonarcloud.io/dashboard?id=alliander-opensource_short-term-forecasting)
-[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=alliander-opensource_short-term-forecasting&metric=code_smells)](https://sonarcloud.io/dashboard?id=alliander-opensource_short-term-forecasting)
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=alliander-opensource_short-term-forecasting&metric=coverage)](https://sonarcloud.io/dashboard?id=alliander-opensource_short-term-forecasting)
-[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=alliander-opensource_short-term-forecasting&metric=duplicated_lines_density)](https://sonarcloud.io/dashboard?id=alliander-opensource_short-term-forecasting)
-[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=alliander-opensource_short-term-forecasting&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=alliander-opensource_short-term-forecasting)
-[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=alliander-opensource_short-term-forecasting&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=alliander-opensource_short-term-forecasting)
-[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=alliander-opensource_short-term-forecasting&metric=security_rating)](https://sonarcloud.io/dashboard?id=alliander-opensource_short-term-forecasting)
-[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=alliander-opensource_short-term-forecasting&metric=sqale_index)](https://sonarcloud.io/dashboard?id=alliander-opensource_short-term-forecasting)
-[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=alliander-opensource_short-term-forecasting&metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=alliander-opensource_short-term-forecasting)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=alliander-opensource_openstf&metric=alert_status)](https://sonarcloud.io/dashboard?id=alliander-opensource_openstf)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=alliander-opensource_openstf&metric=bugs)](https://sonarcloud.io/dashboard?id=alliander-opensource_openstf)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=alliander-opensource_openstf&metric=code_smells)](https://sonarcloud.io/dashboard?id=alliander-opensource_openstf)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=alliander-opensource_openstf&metric=coverage)](https://sonarcloud.io/dashboard?id=alliander-opensource_openstf)
+[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=alliander-opensource_openstf&metric=duplicated_lines_density)](https://sonarcloud.io/dashboard?id=alliander-opensource_openstf)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=alliander-opensource_openstf&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=alliander-opensource_openstf)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=alliander-opensource_openstf&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=alliander-opensource_openstf)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=alliander-opensource_openstf&metric=security_rating)](https://sonarcloud.io/dashboard?id=alliander-opensource_openstf)
+[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=alliander-opensource_openstf&metric=sqale_index)](https://sonarcloud.io/dashboard?id=alliander-opensource_openstf)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=alliander-opensource_openstf&metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=alliander-opensource_openstf)
 
 # Openstf
 
