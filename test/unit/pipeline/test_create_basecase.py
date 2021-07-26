@@ -2,42 +2,41 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 from test.utils import BaseTestCase, TestData
-import pytz
 
 import numpy as np
 import pandas as pd
 
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta
 
-from openstf.pipeline.create_basecase_forecast import create_basecase_forecast_pipeline
-
-NOW = datetime.now(timezone.utc)
+from openstf.pipeline.create_basecase_forecast import create_basecase_forecast_pipeline, BaseCaseNoForecastException
 
 
 class TestBaseCaseForecast(BaseTestCase):
-    def test_basecase_pipeline_happy_flow(self):
-        # Test happy flow
-        PJ = TestData.get_prediction_job(pid=307)
+
+    def setUp(self) -> None:
+        super().setUp()
+        # Generic prep for test
+        pj = TestData.get_prediction_job(pid=307)
         forecast_input = TestData.load("reference_sets/307-test-data.csv")
-        PJ["model_type_group"] = "default"
+        # Set last 7 days to nan, just like operationally
+        forecast_input.loc[forecast_input.index.max()-timedelta(days=7):, 'load'] = np.nan
+        # Shift so the input matches 'now'
+        offset_seconds = (pd.to_datetime(datetime.utcnow(), utc=True) -
+                          (forecast_input.index.max()-timedelta(days=7))).total_seconds()
+        forecast_input = forecast_input.shift(freq='T',
+                                              periods=int(int(offset_seconds/60./15.)*15))
+        pj["model_type_group"] = "default"
 
-        # Shift example data to match current time interval as code expects data
-        # available relative to the current time.
-        utc_now = (
-            pd.Series(datetime.utcnow().replace(tzinfo=pytz.utc))
-            .min()
-            .round("15T")
-            .to_pydatetime()
-        )
-        most_recent_date = forecast_input.index.max().ceil("15T").to_pydatetime()
-        delta = utc_now - most_recent_date + timedelta(3)
+        self.PJ = pj
+        self.forecast_input = forecast_input
 
-        forecast_input.index = forecast_input.index.shift(delta, freq=1)
+    def test_basecase_pipeline_happy_flow(self):
+        """Test happy flow - everything should work just fine"""
 
-        base_case_forecast = create_basecase_forecast_pipeline(PJ, forecast_input)
+        base_case_forecast = create_basecase_forecast_pipeline(self.PJ, self.forecast_input)
 
         # Test length of the output
-        self.assertEqual(len(base_case_forecast), 1153)
+        self.assertEqual(len(base_case_forecast), 480)
 
         # Test available columns
         self.assertEqual(
@@ -68,15 +67,30 @@ class TestBaseCaseForecast(BaseTestCase):
 
     def test_create_basecase_forecast_pipeline_constant_load(self):
         """Historic load can be constant, basecase should still be possible"""
-        # Generic prep for test
-        PJ = TestData.get_prediction_job(pid=307)
-        forecast_input = TestData.load("reference_sets/307-test-data.csv")
-        PJ["model_type_group"] = "default"
 
-        # change historic load to be constant for last 14days
-        forecast_input.loc[forecast_input.index.max()-timedelta(days=14):, 'load'] = forecast_input.loc[forecast_input.index.max()-timedelta(days=14), 'load']
+        # load of inputdata is NaN for last 7 days (since normally these are in the future)
+        # Change load of inputdata so at the end,
+        # 14 days are constant and then 7 days are nan
+        forecast_input = self.forecast_input.copy()
+        forecast_input.loc[forecast_input.index.max()-timedelta(days=21):, 'load'] =\
+            forecast_input.loc[forecast_input.index.max()-timedelta(days=14), 'load']
+        forecast_input.loc[forecast_input.index.max()-timedelta(days=7):, 'load'] = np.nan
 
-        base_case_forecast = create_basecase_forecast_pipeline(PJ, forecast_input)
+        base_case_forecast = create_basecase_forecast_pipeline(self.PJ, forecast_input)
 
-        # add some asserts
-        self.assertListEqual(base_case_forecast.columns, [''])
+        # Check for length
+        self.assertEqual(len(base_case_forecast), 480)
+        self.assertEqual(len(base_case_forecast.dropna()), 480)
+
+    def test_create_basecase_forecast_pipeline_exception_for_empty_forecast(self):
+        """An empty basecase input (after validation) should yield an exception"""
+        forecast_input = self.forecast_input
+        # Set last 21days to nan
+        forecast_input.loc[forecast_input.index.max()-timedelta(days=21):, 'load'] = np.nan
+
+        try:
+            create_basecase_forecast_pipeline(self.PJ, forecast_input)
+            raise Exception('A BaseCaseNoForecastException should have been raised')
+        except BaseCaseNoForecastException:
+            # This is expected
+            pass

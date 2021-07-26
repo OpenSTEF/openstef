@@ -2,10 +2,10 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 from pathlib import Path
+from datetime import datetime, timedelta
 
 import pandas as pd
-from datetime import timedelta, tzinfo
-import pytz
+import numpy as np
 import structlog
 from openstf.enums import ForecastType
 from openstf.feature_engineering.feature_applicator import (
@@ -24,6 +24,12 @@ MODEL_LOCATION = Path(".")
 BASECASE_HORIZON = 60 * 24 * 14  # 14 days ahead
 BASECASE_RESOLUTION = 15
 
+class BaseCaseNoForecastException(Exception):
+    """Exception if no basecaseforecast could be made"""
+
+    def __init__(self, message):
+        self.message = message
+
 
 def create_basecase_forecast_pipeline(
     pj: dict, input_data: pd.DataFrame
@@ -41,28 +47,9 @@ def create_basecase_forecast_pipeline(
     logger = structlog.get_logger(__name__)
 
     logger.info("Preprocessing data for basecase forecast")
-    # Validate and clean data
-    validated_data = validation.validate(input_data)
-
-    # Prep forecast input by selecting only the forecast datetime interval
-    forecast_start, forecast_end = generate_forecast_datetime_range(
-        BASECASE_RESOLUTION, BASECASE_HORIZON
-    )
-
-    # Dont forecast the horizon of the regular models
-    forecast_start = forecast_start + timedelta(minutes=pj["horizon_minutes"])
-
-    # Make sure forecast interval is available in the input interval
-
-    # Start of the new range is start of the input interval
-    new_start = validated_data.index.min().to_pydatetime().replace(tzinfo=pytz.utc)
-    # End of the new range is end of the forecast interval
-    new_end = forecast_end.replace(tzinfo=pytz.utc)
-    # Resample to the desired time resolution
-    freq = f'{pj["resolution_minutes"]}T'
-
-    new_date_range = pd.date_range(new_start, new_end, freq=freq)
-    validated_data = validated_data.reindex(new_date_range)  # Reindex to new date range
+    # Validate and clean data - use a very long flatliner threshold.
+    # If a measurement was constant for a long period, a basecase should still be made.
+    validated_data = validation.validate(input_data, flatliner_threshold=4*24*14+1)
 
     # Add features
     data_with_features = OperationalPredictFeatureApplicator(
@@ -73,21 +60,27 @@ def create_basecase_forecast_pipeline(
         ],  # Generate features for load 7 days ago and load 14 days ago these are the same as the basecase forecast.
     ).add_features(validated_data)
 
-    # Select the basecase forecast interval
-    forecast_input_data = data_with_features[forecast_start:forecast_end]
+    # Select desired period for basecase forecast.
+    # This should NOT include the first 24 hours
+    # TODO it would make more sense to include this check right before writing the data to the database,
+    # or at least at the Task level
+    data_selected_period = data_with_features.loc[data_with_features.index > (pd.to_datetime(datetime.utcnow(), utc=True)+timedelta(hours=48)), :]
+
+    if len(data_selected_period.dropna(how='all')) == 0:
+        raise BaseCaseNoForecastException('Length of input for basecaseforecast was zero or all NA. No basecase forecast could be made')
 
     # Initialize model
     model = BaseCaseModel()
     logger.info("Making basecase forecast")
     # Make basecase forecast
-    basecase_forecast = BaseCaseModel().predict(forecast_input_data)
+    basecase_forecast = BaseCaseModel().predict(data_selected_period)
 
     # Estimate the stdev by using the stdev of the hour for historic (T-14d) load
     model.standard_deviation = generate_basecase_confidence_interval(data_with_features)
     logger.info("Postprocessing basecase forecast")
     # Apply confidence interval
     basecase_forecast = ConfidenceIntervalApplicator(
-        model, forecast_input_data
+        model, data_selected_period
     ).add_confidence_interval(basecase_forecast, pj, default_confindence_interval=True)
 
     # Add basecase for the component forecasts

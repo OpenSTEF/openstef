@@ -51,6 +51,7 @@ class BaseCaseModel(BaseEstimator, RegressorMixin):
         """
 
         # Validate input to make sure we are not overwriting regular forecasts
+        # TODO this should be moved to right before writing the data to the database, or at least the Task level...
         requested_start = forecast_input_data.index.min().ceil(f"{MINIMAL_RESOLUTION}T")
         allowed_start = pd.Series(
             datetime.utcnow().replace(tzinfo=pytz.utc)
