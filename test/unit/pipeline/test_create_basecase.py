@@ -65,3 +65,18 @@ class TestBaseCaseForecast(BaseTestCase):
 
         # Test forecast quality label
         self.assertEqual(base_case_forecast["quality"][0], "not_renewed")
+
+    def test_create_basecase_forecast_pipeline_constant_load(self):
+        """Historic load can be constant, basecase should still be possible"""
+        # Generic prep for test
+        PJ = TestData.get_prediction_job(pid=307)
+        forecast_input = TestData.load("reference_sets/307-test-data.csv")
+        PJ["model_type_group"] = "default"
+
+        # change historic load to be constant for last 14days
+        forecast_input.loc[forecast_input.index.max()-timedelta(days=14):, 'load'] = forecast_input.loc[forecast_input.index.max()-timedelta(days=14), 'load']
+
+        base_case_forecast = create_basecase_forecast_pipeline(PJ, forecast_input)
+
+        # add some asserts
+        self.assertListEqual(base_case_forecast.columns, [''])
