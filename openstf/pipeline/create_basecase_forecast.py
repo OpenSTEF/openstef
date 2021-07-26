@@ -45,7 +45,9 @@ def create_basecase_forecast_pipeline(
     validated_data = validation.validate(input_data)
 
     # Prep forecast input by selecting only the forecast datetime interval
-    forecast_start, forecast_end = generate_forecast_datetime_range(BASECASE_RESOLUTION, BASECASE_HORIZON)
+    forecast_start, forecast_end = generate_forecast_datetime_range(
+        BASECASE_RESOLUTION, BASECASE_HORIZON
+    )
 
     # Dont forecast the horizon of the regular models
     forecast_start = forecast_start + timedelta(minutes=pj["horizon_minutes"])
