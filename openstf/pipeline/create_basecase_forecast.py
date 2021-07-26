@@ -24,12 +24,6 @@ MODEL_LOCATION = Path(".")
 BASECASE_HORIZON = 60 * 24 * 14  # 14 days ahead
 BASECASE_RESOLUTION = 15
 
-class BaseCaseNoForecastException(Exception):
-    """Exception if no basecaseforecast could be made"""
-
-    def __init__(self, message):
-        self.message = message
-
 
 def create_basecase_forecast_pipeline(
     pj: dict, input_data: pd.DataFrame
@@ -60,27 +54,21 @@ def create_basecase_forecast_pipeline(
         ],  # Generate features for load 7 days ago and load 14 days ago these are the same as the basecase forecast.
     ).add_features(validated_data)
 
-    # Select desired period for basecase forecast.
-    # This should NOT include the first 24 hours
-    # TODO it would make more sense to include this check right before writing the data to the database,
-    # or at least at the Task level
-    data_selected_period = data_with_features.loc[data_with_features.index > (pd.to_datetime(datetime.utcnow(), utc=True)+timedelta(hours=48)), :]
-
-    if len(data_selected_period.dropna(how='all')) == 0:
-        raise BaseCaseNoForecastException('Length of input for basecaseforecast was zero or all NA. No basecase forecast could be made')
+    # Only try to make a forecast for moments where load = nan
+    forecast_input = data_with_features.loc[data_with_features['load'].isna(), :]
 
     # Initialize model
     model = BaseCaseModel()
     logger.info("Making basecase forecast")
     # Make basecase forecast
-    basecase_forecast = BaseCaseModel().predict(data_selected_period)
+    basecase_forecast = BaseCaseModel().predict(forecast_input)
 
     # Estimate the stdev by using the stdev of the hour for historic (T-14d) load
-    model.standard_deviation = generate_basecase_confidence_interval(data_with_features)
+    model.standard_deviation = generate_basecase_confidence_interval(forecast_input)
     logger.info("Postprocessing basecase forecast")
     # Apply confidence interval
     basecase_forecast = ConfidenceIntervalApplicator(
-        model, data_selected_period
+        model, forecast_input
     ).add_confidence_interval(basecase_forecast, pj, default_confindence_interval=True)
 
     # Add basecase for the component forecasts

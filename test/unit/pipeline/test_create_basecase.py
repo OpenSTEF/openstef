@@ -8,7 +8,7 @@ import pandas as pd
 
 from datetime import datetime, timedelta
 
-from openstf.pipeline.create_basecase_forecast import create_basecase_forecast_pipeline, BaseCaseNoForecastException
+from openstf.pipeline.create_basecase_forecast import create_basecase_forecast_pipeline
 
 
 class TestBaseCaseForecast(BaseTestCase):
@@ -36,7 +36,7 @@ class TestBaseCaseForecast(BaseTestCase):
         base_case_forecast = create_basecase_forecast_pipeline(self.PJ, self.forecast_input)
 
         # Test length of the output
-        self.assertEqual(len(base_case_forecast), 480)
+        self.assertEqual(len(base_case_forecast), 673)
 
         # Test available columns
         self.assertEqual(
@@ -79,18 +79,5 @@ class TestBaseCaseForecast(BaseTestCase):
         base_case_forecast = create_basecase_forecast_pipeline(self.PJ, forecast_input)
 
         # Check for length
-        self.assertEqual(len(base_case_forecast), 480)
-        self.assertEqual(len(base_case_forecast.dropna()), 480)
-
-    def test_create_basecase_forecast_pipeline_exception_for_empty_forecast(self):
-        """An empty basecase input (after validation) should yield an exception"""
-        forecast_input = self.forecast_input
-        # Set last 21days to nan
-        forecast_input.loc[forecast_input.index.max()-timedelta(days=21):, 'load'] = np.nan
-
-        try:
-            create_basecase_forecast_pipeline(self.PJ, forecast_input)
-            raise Exception('A BaseCaseNoForecastException should have been raised')
-        except BaseCaseNoForecastException:
-            # This is expected
-            pass
+        self.assertEqual(len(base_case_forecast), 673)
+        self.assertEqual(len(base_case_forecast.dropna()), 673)

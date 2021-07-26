@@ -19,6 +19,7 @@ Example:
         $ python create_basecase_forecast.py
 """
 from datetime import datetime, timedelta
+import pandas as pd
 
 from openstf.pipeline.create_basecase_forecast import create_basecase_forecast_pipeline
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
@@ -50,6 +51,11 @@ def create_basecase_forecast_task(pj: dict, context: TaskContext) -> None:
 
     # Make basecase forecast using the corresponding pipeline
     basecase_forecast = create_basecase_forecast_pipeline(pj, input_data)
+
+    # Do not store basecase forecasts for moments within next 48 hours.
+    # Those should be updated by regular forecast process.
+    basecase_forecast = basecase_forecast.loc[basecase_forecast.index > (pd.to_datetime(datetime.utcnow(), utc=True) + timedelta(hours=48)), :]
+
 
     # Write basecase forecast to the database
     context.database.write_forecast(basecase_forecast, t_ahead_series=True)
