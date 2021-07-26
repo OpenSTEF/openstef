@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-# Defines pre-commit hooks. You can enable your IDE to run these before submitting a commit.default_language_version:
+# Defines pre-commit hooks. You can enable your IDE to run these before submitting a commit
 # Currently, this applies the 'black' formatter.default_language_version:
 # If files are changed, you have to inspect the changes and push the commits again
 # instructions for running
