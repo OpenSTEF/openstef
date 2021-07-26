@@ -91,7 +91,6 @@ def create_basecase_forecast_pipeline(
         pj=pj,
         forecast=basecase_forecast,
         algorithm_type="basecase_lastweek",
-        forecast_type=ForecastType.BASECASE,
         forecast_quality="not_renewed",
     )
 
