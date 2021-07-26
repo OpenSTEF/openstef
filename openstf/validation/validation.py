@@ -21,7 +21,9 @@ MINIMAL_TABLE_LENGTH = 100
 FLATLINER_TRESHOLD = 24
 
 
-def validate(data: pd.DataFrame, flatliner_threshold: int=FLATLINER_TRESHOLD) -> pd.DataFrame:
+def validate(
+    data: pd.DataFrame, flatliner_threshold: int = FLATLINER_TRESHOLD
+) -> pd.DataFrame:
     logger = structlog.get_logger(__name__)
     # Drop 'false' measurements. e.g. where load appears to be constant.
     data = replace_repeated_values_with_nan(

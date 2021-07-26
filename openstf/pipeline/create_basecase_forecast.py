@@ -43,7 +43,9 @@ def create_basecase_forecast_pipeline(
     logger.info("Preprocessing data for basecase forecast")
     # Validate and clean data - use a very long flatliner threshold.
     # If a measurement was constant for a long period, a basecase should still be made.
-    validated_data = validation.validate(input_data, flatliner_threshold=4*24*14+1)
+    validated_data = validation.validate(
+        input_data, flatliner_threshold=4 * 24 * 14 + 1
+    )
 
     # Add features
     data_with_features = OperationalPredictFeatureApplicator(
@@ -55,7 +57,7 @@ def create_basecase_forecast_pipeline(
     ).add_features(validated_data)
 
     # Only try to make a forecast for moments where load = nan
-    forecast_input = data_with_features.loc[data_with_features['load'].isna(), :]
+    forecast_input = data_with_features.loc[data_with_features["load"].isna(), :]
 
     # Initialize model
     model = BaseCaseModel()

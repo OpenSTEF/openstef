@@ -13,8 +13,15 @@ from test.utils import TestData
 # Specify forecast mock.
 # Make sure this has a datetime of at least NOW+48hours,
 # since this is filtered in the task
-FORECAST_MOCK = pd.DataFrame(index=pd.to_datetime([datetime.utcnow()], utc=True)+timedelta(days=3), data=dict(forecast=[10.0]))
-FORECAST_NEAR_FUTURE_MOCK = pd.DataFrame(index=pd.to_datetime([datetime.utcnow()], utc=True)+timedelta(days=1), data=dict(forecast=[10.0]))
+FORECAST_MOCK = pd.DataFrame(
+    index=pd.to_datetime([datetime.utcnow()], utc=True) + timedelta(days=3),
+    data=dict(forecast=[10.0]),
+)
+FORECAST_NEAR_FUTURE_MOCK = pd.DataFrame(
+    index=pd.to_datetime([datetime.utcnow()], utc=True) + timedelta(days=1),
+    data=dict(forecast=[10.0]),
+)
+
 
 class TestCreateBasecaseForecastTask(TestCase):
     def setUp(self) -> None:

@@ -12,19 +12,23 @@ from openstf.pipeline.create_basecase_forecast import create_basecase_forecast_p
 
 
 class TestBaseCaseForecast(BaseTestCase):
-
     def setUp(self) -> None:
         super().setUp()
         # Generic prep for test
         pj = TestData.get_prediction_job(pid=307)
         forecast_input = TestData.load("reference_sets/307-test-data.csv")
         # Set last 7 days to nan, just like operationally
-        forecast_input.loc[forecast_input.index.max()-timedelta(days=7):, 'load'] = np.nan
+        forecast_input.loc[
+            forecast_input.index.max() - timedelta(days=7) :, "load"
+        ] = np.nan
         # Shift so the input matches 'now'
-        offset_seconds = (pd.to_datetime(datetime.utcnow(), utc=True) -
-                          (forecast_input.index.max()-timedelta(days=7))).total_seconds()
-        forecast_input = forecast_input.shift(freq='T',
-                                              periods=int(int(offset_seconds/60./15.)*15))
+        offset_seconds = (
+            pd.to_datetime(datetime.utcnow(), utc=True)
+            - (forecast_input.index.max() - timedelta(days=7))
+        ).total_seconds()
+        forecast_input = forecast_input.shift(
+            freq="T", periods=int(int(offset_seconds / 60.0 / 15.0) * 15)
+        )
         pj["model_type_group"] = "default"
 
         self.PJ = pj
@@ -33,7 +37,9 @@ class TestBaseCaseForecast(BaseTestCase):
     def test_basecase_pipeline_happy_flow(self):
         """Test happy flow - everything should work just fine"""
 
-        base_case_forecast = create_basecase_forecast_pipeline(self.PJ, self.forecast_input)
+        base_case_forecast = create_basecase_forecast_pipeline(
+            self.PJ, self.forecast_input
+        )
 
         # Test length of the output
         self.assertEqual(len(base_case_forecast), 673)
@@ -72,9 +78,12 @@ class TestBaseCaseForecast(BaseTestCase):
         # Change load of inputdata so at the end,
         # 14 days are constant and then 7 days are nan
         forecast_input = self.forecast_input.copy()
-        forecast_input.loc[forecast_input.index.max()-timedelta(days=21):, 'load'] =\
-            forecast_input.loc[forecast_input.index.max()-timedelta(days=14), 'load']
-        forecast_input.loc[forecast_input.index.max()-timedelta(days=7):, 'load'] = np.nan
+        forecast_input.loc[
+            forecast_input.index.max() - timedelta(days=21) :, "load"
+        ] = forecast_input.loc[forecast_input.index.max() - timedelta(days=14), "load"]
+        forecast_input.loc[
+            forecast_input.index.max() - timedelta(days=7) :, "load"
+        ] = np.nan
 
         base_case_forecast = create_basecase_forecast_pipeline(self.PJ, forecast_input)
 
