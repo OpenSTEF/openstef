@@ -21,7 +21,6 @@ from datetime import datetime, timedelta
 from openstf.pipeline.optimize_hyperparameters import optimize_hyperparameters_pipeline
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
-from openstf.monitoring import teams
 
 MAX_AGE_HYPER_PARAMS_DAYS = 31
 
@@ -74,13 +73,6 @@ def optimize_hyperparameters_task(pj: dict, context: TaskContext) -> None:
     hyperparameters = optimize_hyperparameters_pipeline(pj, input_data)
 
     context.database.write_hyper_params(pj, hyperparameters)
-
-    # Sent message to Teams
-    title = (
-        f'Optimized hyperparameters for prediction job {pj["name"]} {pj["description"]}'
-    )
-
-    teams.post_teams(teams.format_message(title=title, params=hyperparameters))
 
 
 def main():
