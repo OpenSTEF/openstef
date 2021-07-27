@@ -45,10 +45,16 @@ class TestOptimizeHyperparametersTask(TestCase):
             context.mock_calls[1].args[0], "Skip hyperparameter optimization"
         )
 
+    @patch(
+        "openstf.tasks.optimize_hyperparameters.optimize_hyperparameters_pipeline",
+        MagicMock(return_value=HYPERPARAM_MOCK),
+    )
     def test_optimize_hyperparams_no_old_params(self):
+        """If no old hyperparams exist, new hyperparams should be optimized"""
         context = self.context
         # Set old param age to None
         context.database.get_hyper_params_last_optimized.return_value = None
 
         optimize_hyperparameters_task(self.pj, context)
-        assert True
+        # Same as happy flow, evaluate the pipeline has written hyperparams
+        self.assertDictEqual(context.mock_calls[5].args[-1], HYPERPARAM_MOCK)

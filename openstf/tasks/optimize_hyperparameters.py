@@ -39,7 +39,12 @@ def optimize_hyperparameters_task(pj: dict, context: TaskContext) -> None:
 
     # Determine if we need to optimize hyperparams
     datetime_last_optimized = context.database.get_hyper_params_last_optimized(pj)
-    last_optimized_days = (datetime.utcnow() - datetime_last_optimized).days
+    try:
+        last_optimized_days = (datetime.utcnow() - datetime_last_optimized).days
+    except TypeError:
+        # This happens when no old hyperparams are found.
+        # In that case, set last_optimized_days to exceed the threshold
+        last_optimized_days = MAX_AGE_HYPER_PARAMS_DAYS + 1
 
     if last_optimized_days < MAX_AGE_HYPER_PARAMS_DAYS:
         context.logger.warning(
