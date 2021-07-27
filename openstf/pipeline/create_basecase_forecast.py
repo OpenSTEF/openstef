@@ -26,7 +26,8 @@ BASECASE_RESOLUTION_MINUTES = 15
 
 
 def create_basecase_forecast_pipeline(
-    pj: dict, input_data: pd.DataFrame,
+    pj: dict,
+    input_data: pd.DataFrame,
 ) -> pd.DataFrame:
     """Computes the base case forecast and confidence intervals for a given prediction job and input data.
 
@@ -59,8 +60,10 @@ def create_basecase_forecast_pipeline(
     # Similarly to the forecast pipeline, only try to make a forecast for moments in the future
     # TODO, do we want to be this strict on time window of forecast in this place?
     # see issue https://github.com/alliander-opensource/openstf/issues/121
-    start, end = generate_forecast_datetime_range(resolution_minutes=BASECASE_RESOLUTION_MINUTES,
-                                                  horizon_minutes=BASECASE_HORIZON_MINUTES)
+    start, end = generate_forecast_datetime_range(
+        resolution_minutes=BASECASE_RESOLUTION_MINUTES,
+        horizon_minutes=BASECASE_HORIZON_MINUTES,
+    )
     forecast_input = data_with_features[start:end]
 
     # Initialize model
