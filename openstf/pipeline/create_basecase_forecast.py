@@ -21,12 +21,12 @@ from openstf.postprocessing.postprocessing import (
 from openstf.validation import validation
 
 MODEL_LOCATION = Path(".")
-BASECASE_HORIZON = 60 * 24 * 14  # 14 days ahead
-BASECASE_RESOLUTION = 15
+BASECASE_HORIZON_MINUTES = 60 * 24 * 14  # 14 days ahead
+BASECASE_RESOLUTION_MINUTES = 15
 
 
 def create_basecase_forecast_pipeline(
-    pj: dict, input_data: pd.DataFrame
+    pj: dict, input_data: pd.DataFrame,
 ) -> pd.DataFrame:
     """Computes the base case forecast and confidence intervals for a given prediction job and input data.
 
@@ -56,8 +56,12 @@ def create_basecase_forecast_pipeline(
         ],  # Generate features for load 7 days ago and load 14 days ago these are the same as the basecase forecast.
     ).add_features(validated_data)
 
-    # Only try to make a forecast for moments where load = nan
-    forecast_input = data_with_features.loc[data_with_features["load"].isna(), :]
+    # Similarly to the forecast pipeline, only try to make a forecast for moments in the future
+    # TODO, do we want to be this strict on time window of forecast in this place?
+    # see issue https://github.com/alliander-opensource/openstf/issues/121
+    start, end = generate_forecast_datetime_range(resolution_minutes=BASECASE_RESOLUTION_MINUTES,
+                                                  horizon_minutes=BASECASE_HORIZON_MINUTES)
+    forecast_input = data_with_features[start:end]
 
     # Initialize model
     model = BaseCaseModel()
