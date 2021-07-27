@@ -5,7 +5,7 @@ from unittest import TestCase
 from unittest.mock import MagicMock, patch
 from datetime import datetime, timedelta
 
-from test.utils import BaseTestCase, TestData
+from test.utils import TestData
 from openstf.tasks.optimize_hyperparameters import optimize_hyperparameters_task
 
 HYPERPARAM_MOCK = dict(float_param=1.0, string_param="string")
