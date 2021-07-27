@@ -1,0 +1,20 @@
+# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+#
+# SPDX-License-Identifier: MPL-2.0
+
+# Defines pre-commit hooks. You can enable your IDE to run these before submitting a commit
+# Currently, this applies the 'black' formatter.default_language_version:
+# If files are changed, you have to inspect the changes and push the commits again
+# instructions for running
+# ```shell
+# pip install pre-commit
+# pre-commit install
+# ```
+
+
+repos:
+-   repo: https://github.com/ambv/black
+    rev: 21.7b0
+    hooks:
+    - id: black
+      language_version: python3.9
