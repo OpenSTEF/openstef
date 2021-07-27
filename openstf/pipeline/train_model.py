@@ -17,7 +17,7 @@ from openstf.model.serializer import PersistentStorageSerializer
 from openstf.model_selection.model_selection import split_data_train_validation_test
 from openstf.validation import validation
 
-DEFAULT_TRAIN_HORIZONS: List[float] = [0.25, 24.0]
+DEFAULT_TRAIN_HORIZONS: List[float] = [0.25, 47.0]
 MAXIMUM_MODEL_AGE: int = 7
 
 DEFAULT_EARLY_STOPPING_ROUNDS: int = 10
