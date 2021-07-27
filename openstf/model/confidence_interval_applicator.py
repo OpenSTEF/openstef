@@ -90,24 +90,13 @@ class ConfidenceIntervalApplicator:
             return forecast
 
         # -------- Moved from feature_engineering.add_stdev ------------------------- #
-        # pivot
+        # pivot. idea is to have a dataframe with columns [stdev, hour, horizon] for a 'near' and a 'far' horizon
         stdev = standard_deviation.pivot_table(columns=["horizon"], index="hour")[
             "stdev"
         ]
-        # Prepare input dataframes
-        # Rename Near and Far to 0.25 and 47 respectively, if present.
-        # Timehorizon in hours is preferred to less descriptive Near/Far
-        if "Near" in stdev.columns:
-            near = (forecast.index[1] - forecast.index[0]).total_seconds() / 3600.0
-            # Try to infer for forecast df, else use a max of 48 hours
-            far = min(
-                48.0,
-                (forecast.index.max() - forecast.index.min()).total_seconds() / 3600.0,
-            )
-            stdev.rename(columns={"Near": near, "Far": far}, inplace=True)
-        else:
-            near = stdev.columns.min()
-            far = stdev.columns.max()
+        # Prepare input dataframes for near and far horizon
+        near = stdev.columns.min()
+        far = stdev.columns.max()
 
         forecast_copy = forecast.copy()
         # add time ahead column if not already present

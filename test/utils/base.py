@@ -36,8 +36,9 @@ class BaseTestCase(unittest.TestCase):
 
     def tearDown(self) -> None:
         super().tearDown()
-        for patcher in self.patchers:
-            patcher.stop()
+        if hasattr(self, "patchers"):
+            for patcher in self.patchers:
+                patcher.stop()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

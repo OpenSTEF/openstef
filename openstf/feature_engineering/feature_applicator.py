@@ -120,6 +120,7 @@ class OperationalPredictFeatureApplicator(AbstractFeatureApplicator):
         )
         df = add_missing_feature_columns(df, self.feature_names)
         # NOTE this is required since apply_features could add additional features
-        df = remove_non_requested_feature_columns(df, self.feature_names)
+        if self.feature_names is not None:
+            df = remove_non_requested_feature_columns(df, self.feature_names)
 
         return enforce_feature_order(df)

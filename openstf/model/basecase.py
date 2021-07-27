@@ -49,19 +49,6 @@ class BaseCaseModel(BaseEstimator, RegressorMixin):
 
 
         """
-
-        # Validate input to make sure we are not overwriting regular forecasts
-        requested_start = forecast_input_data.index.min().ceil(f"{MINIMAL_RESOLUTION}T")
-        allowed_start = pd.Series(
-            datetime.utcnow().replace(tzinfo=pytz.utc)
-        ).min().floor(f"{MINIMAL_RESOLUTION}T").to_pydatetime() + timedelta(
-            hours=overwrite_delay_hours
-        )
-        if requested_start < allowed_start:
-            raise ValueError(
-                f"Basecase forecast requested for horizon of regular forecast! Please check input! Requested start {requested_start}, allowed start {allowed_start}"
-            )
-
         # Check if required features are provided
         if not all(
             item in forecast_input_data.columns.to_list() for item in ["T-14d", "T-7d"]
