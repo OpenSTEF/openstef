@@ -158,11 +158,6 @@ def train_model_pipeline_core(
         except ValueError as e:
             logging.info("Could not compare to old model", exc_info=e)
 
-    # Do confidence interval determination
-    model = StandardDeviationGenerator(
-        pj, validation_data
-    ).generate_standard_deviation_data(model)
-
     # Report about the training procces
     report = Reporter(pj, train_data, validation_data, test_data).generate_report(model)
 
@@ -244,7 +239,7 @@ def train_pipeline_common(
 
     # Do confidence interval determination
     model = StandardDeviationGenerator(
-        pj, validation_data
+        validation_data
     ).generate_standard_deviation_data(model)
     return model, train_data, validation_data, test_data
 

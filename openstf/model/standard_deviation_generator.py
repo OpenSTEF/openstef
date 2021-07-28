@@ -7,9 +7,8 @@ from sklearn.base import RegressorMixin
 
 
 class StandardDeviationGenerator:
-    def __init__(self, pj: dict, validation_data: pd.DataFrame) -> None:
+    def __init__(self, validation_data: pd.DataFrame) -> None:
 
-        self.pj = pj
         self.validation_data = validation_data
 
     def generate_standard_deviation_data(self, model: RegressorMixin) -> RegressorMixin:
@@ -39,7 +38,7 @@ class StandardDeviationGenerator:
                 confidence_interval_horizon
             )
 
-            model.standard_deviation = self.standard_deviation
+        model.standard_deviation = self.standard_deviation
 
         return model
 
