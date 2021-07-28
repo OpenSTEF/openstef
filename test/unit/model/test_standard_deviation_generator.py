@@ -9,25 +9,29 @@ from openstf.model.standard_deviation_generator import StandardDeviationGenerato
 
 
 class MockModel:
-    def predict(self, mock_input_data):
-
-        # Do something with the input
-        print(mock_input_data.head())
+    def predict(self, *args):
 
         # Prepare mock_forecast
         mock_forecast = pd.DataFrame(
-            {"forecast": [1, 2, 3, 4], "horizon": [47.0, 47.0, 47.0, 47.0]}
+            {
+                "forecast": [1, 2, 3, 4, 1, 3, 3, 7],
+                "horizon": [47.0, 47.0, 47.0, 47.0, 24.0, 24.0, 24.0, 24.0],
+            }
         )
         mock_forecast = mock_forecast.set_index(
-            pd.date_range("2018-01-01", periods=4, freq="H")
+            pd.to_datetime(
+                [
+                    "2018-01-01 00:00:00",
+                    "2018-01-01 01:00:00",
+                    "2018-01-01 02:00:00",
+                    "2018-01-01 03:00:00",
+                    "2018-01-01 00:00:00",
+                    "2018-01-01 01:00:00",
+                    "2018-01-01 02:00:00",
+                    "2018-01-01 03:00:00",
+                ]
+            )
         )
-        mock_forecast_far = pd.DataFrame(
-            {"forecast": [1, 3, 3, 7], "horizon": [24.0, 24.0, 24.0, 24.0]}
-        )
-        mock_forecast_far = mock_forecast_far.set_index(
-            pd.date_range("2018-01-01", periods=4, freq="H")
-        )
-        mock_forecast = mock_forecast.append(mock_forecast_far)
 
         # Return mock forecast
         return mock_forecast["forecast"]
@@ -40,33 +44,34 @@ class TestStandardDeviationGenerator(unittest.TestCase):
         # Prepare mock validation data
         mock_validation_data = pd.DataFrame(
             {
-                "load": [4, 2, 5, 2],
-                "feature_1": [4, 2, 5, 2],
-                "feature_2": [4, 2, 5, 2],
-                "horizon": [47.0, 47.0, 47.0, 47.0],
+                "load": [4, 2, 5, 2, 4, 2, 5, 2],
+                "feature_1": [4, 2, 5, 2, 5, 4, 8, 2],
+                "feature_2": [4, 2, 5, 2, 5, 4, 8, 2],
+                "horizon": [47.0, 47.0, 47.0, 47.0, 24.0, 24.0, 24.0, 24.0],
             }
         )
+
         mock_validation_data = mock_validation_data.set_index(
-            pd.date_range("2018-01-01", periods=4, freq="H")
+            pd.to_datetime(
+                [
+                    "2018-01-01 00:00:00",
+                    "2018-01-01 01:00:00",
+                    "2018-01-01 02:00:00",
+                    "2018-01-01 03:00:00",
+                    "2018-01-01 00:00:00",
+                    "2018-01-01 01:00:00",
+                    "2018-01-01 02:00:00",
+                    "2018-01-01 03:00:00",
+                ]
+            )
         )
-        mock_validation_data_far = pd.DataFrame(
-            {
-                "load": [4, 2, 5, 2],
-                "feature_1": [5, 4, 8, 2],
-                "feature_2": [5, 4, 8, 2],
-                "horizon": [24.0, 24.0, 24.0, 24.0],
-            }
-        )
-        mock_validation_data_far = mock_validation_data_far.set_index(
-            pd.date_range("2018-01-01", periods=4, freq="H")
-        )
-        mock_validation_data = mock_validation_data.append(mock_validation_data_far)
+
         self.mock_validation_data = mock_validation_data
 
-    def test_generate_horizons_happy_flow(self):
+    def test_generate_standard_deviation_data_happy_flow(self):
         # Test happy flow
 
-        # Generate reference dataframe of expected output
+        # Generate reference dataframe of expected output, this data has been checked.
         ref_df = pd.DataFrame(
             {
                 "stdev": [0, 0.5, 0, 1.5],
