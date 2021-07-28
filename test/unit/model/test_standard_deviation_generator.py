@@ -67,7 +67,7 @@ class TestStandardDeviationGenerator(unittest.TestCase):
         # Test happy flow
 
         # Generate reference dataframe of expected output
-        ref_df = df = pd.DataFrame(
+        ref_df = pd.DataFrame(
             {
                 "stdev": [0, 0.5, 0, 1.5],
                 "hour": [0.0, 1.0, 2.0, 3.0],
