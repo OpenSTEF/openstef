@@ -74,7 +74,7 @@ class TestStandardDeviationGenerator(unittest.TestCase):
         # Generate reference dataframe of expected output, this data has been checked.
         ref_df = pd.DataFrame(
             {
-                "stdev": [0, 0.5, 0, 1.5],
+                "stdev": [0, 0.0, 0.0, 0.0],
                 "hour": [0.0, 1.0, 2.0, 3.0],
                 "horizon": [47.0, 47.0, 47.0, 47.0],
             }
