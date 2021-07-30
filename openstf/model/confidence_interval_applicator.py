@@ -93,8 +93,12 @@ class ConfidenceIntervalApplicator:
 
         # Fill stdev nans with the mean of all stdev values
         if standard_deviation.stdev.isnull().values.any():
-            self.logger.warning("Stdev for some hours is not known, filling in with mean.")
-            standard_deviation['stdev'] = standard_deviation.stdev.fillna(standard_deviation.stdev.mean())
+            self.logger.warning(
+                "Stdev for some hours is not known, filling in with mean."
+            )
+            standard_deviation["stdev"] = standard_deviation.stdev.fillna(
+                standard_deviation.stdev.mean()
+            )
 
         # -------- Moved from feature_engineering.add_stdev ------------------------- #
         # pivot. idea is to have a dataframe with columns [stdev, hour, horizon] for a 'near' and a 'far' horizon
