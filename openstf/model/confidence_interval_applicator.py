@@ -4,6 +4,7 @@
 from datetime import datetime
 import pytz
 from typing import List
+import structlog
 
 import numpy as np
 import pandas as pd
@@ -17,6 +18,7 @@ class ConfidenceIntervalApplicator:
     def __init__(self, model: RegressorMixin, forecast_input_data: pd.DataFrame):
         self.model = model
         self.forecast_input_data = forecast_input_data
+        self.logger = structlog.get_logger(self.__class__.__name__)
 
     def add_confidence_interval(
         self,
@@ -88,6 +90,15 @@ class ConfidenceIntervalApplicator:
 
         if standard_deviation is None:
             return forecast
+
+        # Fill stdev nans with the mean of all stdev values
+        if standard_deviation.stdev.isnull().values.any():
+            self.logger.warning(
+                "Stdev for some hours is not known, filling in with mean."
+            )
+            standard_deviation["stdev"] = standard_deviation.stdev.fillna(
+                standard_deviation.stdev.mean()
+            )
 
         # -------- Moved from feature_engineering.add_stdev ------------------------- #
         # pivot. idea is to have a dataframe with columns [stdev, hour, horizon] for a 'near' and a 'far' horizon
