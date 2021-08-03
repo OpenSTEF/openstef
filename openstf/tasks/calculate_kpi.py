@@ -21,7 +21,7 @@ Attributes:
 """
 # Import builtins
 from datetime import datetime, timedelta
-
+from pathlib import Path
 import numpy as np
 import pandas as pd
 from openstf_dbc.database import DataBase
@@ -38,7 +38,9 @@ THRESHOLD_OPTIMIZING = 0.50
 
 
 def main():
-    with TaskContext("calculate_kpi") as context:
+    taskname = Path(__file__).name.replace(".py", "")
+
+    with TaskContext(taskname) as context:
         model_type = ["xgb", "lgb"]
         # Set start and end time
         start_time = datetime.date(datetime.utcnow()) - timedelta(days=1)

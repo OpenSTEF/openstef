@@ -15,7 +15,7 @@ Attributes:
 
 """
 from datetime import datetime, timedelta
-
+from pathlib import Path
 import numpy as np
 import pandas as pd
 from scipy import optimize
@@ -215,7 +215,9 @@ def fides(data, all_forecasts=False):
 
 
 def main():
-    with TaskContext("create_solar_forecast") as context:
+    taskname = Path(__file__).name.replace(".py", "")
+
+    with TaskContext(taskname) as context:
         context.logger.info("Querying wind prediction jobs from database")
         prediction_jobs = context.database.get_prediction_jobs_solar()
         num_prediction_jobs = len(prediction_jobs)

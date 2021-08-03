@@ -17,10 +17,12 @@ Example:
 
 """
 from datetime import datetime, timedelta
+from pathlib import Path
 
 from openstf.pipeline.optimize_hyperparameters import optimize_hyperparameters_pipeline
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
+from openstf.monitoring import teams
 
 MAX_AGE_HYPER_PARAMS_DAYS = 31
 
@@ -38,12 +40,7 @@ def optimize_hyperparameters_task(pj: dict, context: TaskContext) -> None:
 
     # Determine if we need to optimize hyperparams
     datetime_last_optimized = context.database.get_hyper_params_last_optimized(pj)
-    try:
-        last_optimized_days = (datetime.utcnow() - datetime_last_optimized).days
-    except TypeError:
-        # This happens when no old hyperparams are found.
-        # In that case, set last_optimized_days to exceed the threshold
-        last_optimized_days = MAX_AGE_HYPER_PARAMS_DAYS + 1
+    last_optimized_days = (datetime.utcnow() - datetime_last_optimized).days
 
     if last_optimized_days < MAX_AGE_HYPER_PARAMS_DAYS:
         context.logger.warning(
@@ -74,9 +71,18 @@ def optimize_hyperparameters_task(pj: dict, context: TaskContext) -> None:
 
     context.database.write_hyper_params(pj, hyperparameters)
 
+    # Sent message to Teams
+    title = (
+        f'Optimized hyperparameters for prediction job {pj["name"]} {pj["description"]}'
+    )
+
+    teams.post_teams(teams.format_message(title=title, params=hyperparameters))
+
 
 def main():
-    with TaskContext("optimize_hyperparameters") as context:
+    taskname = Path(__file__).name.replace(".py", "")
+
+    with TaskContext(taskname) as context:
         model_type = ["xgb", "xgb_quantile", "lgb"]
 
         PredictionJobLoop(context, model_type=model_type).map(

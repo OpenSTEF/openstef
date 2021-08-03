@@ -31,6 +31,7 @@ Attributes:
 """
 import structlog
 from datetime import datetime, timedelta
+from pathlib import Path
 
 from openstf.pipeline.create_component_forecast import (
     create_components_forecast_pipeline,
@@ -107,7 +108,9 @@ def create_components_forecast_task(pj, context):
 
 
 def main():
-    with TaskContext("create_components_forecast") as context:
+    taskname = Path(__file__).name.replace(".py", "")
+
+    with TaskContext(taskname) as context:
 
         # status file callback after every iteration
         # TODO change implementation to a database one

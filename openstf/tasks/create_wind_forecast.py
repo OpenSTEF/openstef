@@ -15,6 +15,7 @@ Example:
 Attributes:
 
 """
+from pathlib import Path
 
 from openstf.feature_engineering import weather_features
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
@@ -55,7 +56,9 @@ def make_wind_forcast_pj(pj, context):
 
 
 def main():
-    with TaskContext("create_wind_forecast") as context:
+    taskname = Path(__file__).name.replace(".py", "")
+
+    with TaskContext(taskname) as context:
         context.logger.info("Querying wind prediction jobs from database")
         prediction_jobs = context.database.get_prediction_jobs_wind()
         prediction_jobs = [x for x in prediction_jobs if x["model"] == "latest"]
