@@ -9,6 +9,7 @@ import pandas as pd
 from openstf.model.capacity.train import train_capacity_prognosis
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
+from openstf.enums import MLModelType
 
 
 def main():
@@ -20,7 +21,7 @@ def main():
         datetime_end = datetime.utcnow()
         datetime_start = datetime_end - pd.Timedelta("400D")
 
-        model_type = ["xgb", "lgb"]
+        model_type = [ml.value for ml in MLModelType]
         PredictionJobLoop(context, model_type=model_type).map(
             train_capacity_prognosis,
             datetime_start=datetime_start,

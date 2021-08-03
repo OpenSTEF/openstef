@@ -21,6 +21,7 @@ from datetime import datetime, timedelta
 from openstf.pipeline.optimize_hyperparameters import optimize_hyperparameters_pipeline
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
+from openstf.enums import MLModelType
 
 MAX_AGE_HYPER_PARAMS_DAYS = 31
 
@@ -77,7 +78,7 @@ def optimize_hyperparameters_task(pj: dict, context: TaskContext) -> None:
 
 def main():
     with TaskContext("optimize_hyperparameters") as context:
-        model_type = ["xgb", "xgb_quantile", "lgb"]
+        model_type = [ml.value for ml in MLModelType]
 
         PredictionJobLoop(context, model_type=model_type).map(
             optimize_hyperparameters_task, context
