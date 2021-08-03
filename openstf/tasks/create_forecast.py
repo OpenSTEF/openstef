@@ -33,6 +33,7 @@ from openstf.pipeline.create_forecast import create_forecast_pipeline
 from openstf.tasks.utils.utils import check_status_change, update_status_change
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
+from openstf.enums import MLModelType
 
 T_BEHIND_DAYS: int = 14
 T_AHEAD_DAYS: int = 3
@@ -75,7 +76,7 @@ def create_forecast_task(pj: dict, context: TaskContext) -> None:
 def main(model_type=None):
 
     if model_type is None:
-        model_type = ["xgb", "xgb_quantile", "lgb"]
+        model_type = [ml.value for ml in MLModelType]
 
     with TaskContext("create_forecast") as context:
         # status file callback after every iteration

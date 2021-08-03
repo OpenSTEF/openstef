@@ -32,6 +32,7 @@ from openstf.pipeline.train_model import (
 )
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
+from openstf.enums import MLModelType
 
 TRAINING_PERIOD_DAYS: int = 120
 DEFAULT_CHECK_MODEL_AGE: bool = True
@@ -113,7 +114,7 @@ def train_model_task(
 
 def main(model_type=None):
     if model_type is None:
-        model_type = ["xgb", "xgb_quantile", "lgb"]
+        model_type = [ml.value for ml in MLModelType]
 
     with TaskContext("train_model") as context:
         PredictionJobLoop(context, model_type=model_type).map(train_model_task, context)

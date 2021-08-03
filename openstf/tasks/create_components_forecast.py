@@ -38,6 +38,7 @@ from openstf.pipeline.create_component_forecast import (
 from openstf.tasks.utils.utils import check_status_change, update_status_change
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
+from openstf.enums import MLModelType
 
 T_BEHIND_DAYS = 0
 T_AHEAD_DAYS = 3
@@ -120,7 +121,7 @@ def main():
 
                 update_status_change(status_id, status_code)
 
-        model_type = ["xgb", "xgb_quantile", "lgb"]
+        model_type = [ml.value for ml in MLModelType]
 
         PredictionJobLoop(
             context,
