@@ -6,6 +6,8 @@
 These are not complete, but will be added on a case by case basis
 """
 
+from typing import Union
+
 # Define custom exception
 class NoPredictionException(Exception):
     """Custom exception if no historic predictions are available
@@ -15,7 +17,9 @@ class NoPredictionException(Exception):
     """
 
     def __init__(
-        self, pid, message="No historic predictions found." "Could not calc KPI"
+        self,
+        pid: Union[int, str],
+        message: str = "No historic predictions found." "Could not calc KPI",
     ):
         self.pid = pid
         self.message = message
@@ -29,7 +33,11 @@ class NoLoadException(Exception):
         message -- explanation of the error
     """
 
-    def __init__(self, pid, message="No historic load found." "Could not calc KPI"):
+    def __init__(
+        self,
+        pid: Union[int, str],
+        message: str = "No historic load found." "Could not calc KPI",
+    ):
         self.pid = pid
         self.message = message
         super().__init__(self.message)
