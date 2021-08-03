@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 
 from datetime import datetime, timedelta
+from pathlib import Path
 
 from openstf.model.capacity.predict import predict_capacity_prognosis
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
@@ -11,7 +12,9 @@ from openstf.enums import MLModelType
 
 
 def main():
-    with TaskContext("create_capacity_forecast") as context:
+    taskname = Path(__file__).name.replace(".py", "")
+
+    with TaskContext(taskname) as context:
         # prediction horizons
         y_hor = list(range(13))
 

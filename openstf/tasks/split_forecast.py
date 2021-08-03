@@ -27,7 +27,7 @@ Attributes:
 
 """
 from datetime import datetime
-
+from pathlib import Path
 import numpy as np
 import pandas as pd
 from openstf_dbc.database import DataBase
@@ -44,7 +44,9 @@ COEF_MAX_FRACTION_DIFF = 0.3
 
 
 def main():
-    with TaskContext("split_forecast") as context:
+    taskname = Path(__file__).name.replace(".py", "")
+
+    with TaskContext(taskname) as context:
         model_type = [ml.value for ml in MLModelType]
 
         PredictionJobLoop(

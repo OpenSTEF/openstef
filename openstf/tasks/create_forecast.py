@@ -28,6 +28,7 @@ Attributes:
 
 """
 from datetime import datetime, timedelta
+from pathlib import Path
 
 from openstf.pipeline.create_forecast import create_forecast_pipeline
 from openstf.tasks.utils.utils import check_status_change, update_status_change
@@ -78,7 +79,9 @@ def main(model_type=None):
     if model_type is None:
         model_type = [ml.value for ml in MLModelType]
 
-    with TaskContext("create_forecast") as context:
+    taskname = Path(__file__).name.replace(".py", "")
+
+    with TaskContext(taskname) as context:
         # status file callback after every iteration
         # TODO change implementation to a database one
         def callback(pj, successful):

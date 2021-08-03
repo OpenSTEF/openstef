@@ -116,7 +116,8 @@ def main(model_type=None):
     if model_type is None:
         model_type = [ml.value for ml in MLModelType]
 
-    with TaskContext("train_model") as context:
+    taskname = Path(__file__).name.replace(".py", "")
+    with TaskContext(taskname) as context:
         PredictionJobLoop(context, model_type=model_type).map(train_model_task, context)
 
 

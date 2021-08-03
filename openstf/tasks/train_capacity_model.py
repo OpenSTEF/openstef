@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 
 from datetime import datetime
+from pathlib import Path
 
 import pandas as pd
 
@@ -13,7 +14,9 @@ from openstf.enums import MLModelType
 
 
 def main():
-    with TaskContext("train_capacity_model") as context:
+    taskname = Path(__file__).name.replace(".py", "")
+
+    with TaskContext(taskname) as context:
         # training horizons
         y_hor = [0, 6, 13]
 

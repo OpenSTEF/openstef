@@ -38,6 +38,7 @@ Attributes:
 # PRIMARY KEY (`id`), UNIQUE `id` (`id`))
 # ENGINE = InnoDB;
 
+from pathlib import Path
 
 from openstf.monitoring import teams
 from openstf.tasks.utils.taskcontext import TaskContext
@@ -120,7 +121,9 @@ def run_tracy_job(job, pj, context):
 
 
 def main():
-    with TaskContext("run_tracy") as context:
+    taskname = Path(__file__).name.replace(".py", "")
+
+    with TaskContext(taskname) as context:
         run_tracy(context)
 
 
