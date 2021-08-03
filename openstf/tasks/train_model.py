@@ -68,7 +68,7 @@ def train_model_task(
 
     # Get the paths for storing model and reports from the config manager
     trained_models_folder = Path(context.config.paths.trained_models_folder)
-    save_figures_folder = Path(context.config.paths.webroot) / str(pj["id"])
+    save_figures_folder = trained_models_folder / str(pj["id"])
 
     # If required, let's check the old model age before retrieving all the input data
     if check_old_model_age:
