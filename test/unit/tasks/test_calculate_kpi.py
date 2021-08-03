@@ -116,7 +116,7 @@ class TestPerformanceCalcKpiForSpecificPid(BaseTestCase):
         self.assertAlmostEqual(kpis["4.0h"]["MAE"], 2.9145, places=3)
 
     @patch("openstf.tasks.calculate_kpi.DataBase", get_database_mock_realised_empty)
-    def test_calc_kpi_correct_exceptions(self):
+    def test_calc_kpi_no_load_exception(self):
         """Assert that correct exceptions are raised for
         empty load"""
 
@@ -124,7 +124,7 @@ class TestPerformanceCalcKpiForSpecificPid(BaseTestCase):
             calc_kpi_for_specific_pid({"id": 295})
 
     @patch("openstf.tasks.calculate_kpi.DataBase", get_database_mock_predicted_empty)
-    def test_calc_kpi_correct_exceptions(self):
+    def test_calc_kpi_no_prediction_exception(self):
         """Assert that correct exceptions are raised for
         empty prediction"""
 
