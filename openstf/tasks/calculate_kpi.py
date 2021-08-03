@@ -31,6 +31,7 @@ from openstf.validation import validation
 from openstf.metrics import metrics
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
+from openstf.exceptions import NoLoadException, NoPredictionException
 
 # Thresholds for retraining and optimizing
 THRESHOLD_RETRAINING = 0.25
@@ -131,19 +132,11 @@ def calc_kpi_for_specific_pid(pid, start_time=None, end_time=None):
 
     # If predicted is empty, exit
     if len(predicted_load) == 0:
-        raise ValueError(
-            "Found no predicted load for pid {} between {} and {}!".format(
-                pj["id"], start_time, end_time
-            )
-        )
+        raise NoPredictionException(pid=pj["id"])
 
     # If realised is empty, exit
     if len(realised) == 0:
-        raise ValueError(
-            "Found no realised load for pid {} between {} and {}!".format(
-                pj["id"], start_time, end_time
-            )
-        )
+        raise NoLoadException(pid=pj["id"])
 
     # Calculate completeness en raise exception if completeness does not meet requirements
     completeness_realised = validation.calc_completeness(realised)
