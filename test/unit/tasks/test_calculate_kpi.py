@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 
 from openstf.tasks.calculate_kpi import calc_kpi_for_specific_pid
+from openstf.exceptions import NoLoadException, NoPredictionException
 from test.utils import BaseTestCase, TestData
 
 # Get test data
@@ -62,6 +63,18 @@ def get_database_mock_realised_constant():
     return db
 
 
+def get_database_mock_realised_empty():
+    db = get_database_mock_realised_constant()
+    db.get_load_pid.return_value = pd.DataFrame()
+    return db
+
+
+def get_database_mock_predicted_empty():
+    db = get_database_mock_predicted_nan()
+    db.get_predicted_load_tahead.return_value = pd.DataFrame()
+    return db
+
+
 class TestPerformanceCalcKpiForSpecificPid(BaseTestCase):
 
     # Test whether correct kpis are calculated for specific test data
@@ -101,6 +114,22 @@ class TestPerformanceCalcKpiForSpecificPid(BaseTestCase):
         kpis = calc_kpi_for_specific_pid({"id": 295})
         self.assertIsNAN(kpis["4.0h"]["MAE"])  # arbitrary time horizon tested
         self.assertAlmostEqual(kpis["4.0h"]["MAE"], 2.9145, places=3)
+
+    @patch("openstf.tasks.calculate_kpi.DataBase", get_database_mock_realised_empty)
+    def test_calc_kpi_correct_exceptions(self):
+        """Assert that correct exceptions are raised for
+        empty load"""
+
+        with self.assertRaises(NoLoadException):
+            calc_kpi_for_specific_pid({"id": 295})
+
+    @patch("openstf.tasks.calculate_kpi.DataBase", get_database_mock_predicted_empty)
+    def test_calc_kpi_correct_exceptions(self):
+        """Assert that correct exceptions are raised for
+        empty prediction"""
+
+        with self.assertRaises(NoPredictionException):
+            calc_kpi_for_specific_pid({"id": 295})
 
 
 # Run all tests
