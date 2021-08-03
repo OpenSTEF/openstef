@@ -7,9 +7,8 @@ from sklearn.base import RegressorMixin
 
 
 class StandardDeviationGenerator:
-    def __init__(self, pj: dict, validation_data: pd.DataFrame) -> None:
+    def __init__(self, validation_data: pd.DataFrame) -> None:
 
-        self.pj = pj
         self.validation_data = validation_data
 
     def generate_standard_deviation_data(self, model: RegressorMixin) -> RegressorMixin:
@@ -39,7 +38,7 @@ class StandardDeviationGenerator:
                 confidence_interval_horizon
             )
 
-            model.standard_deviation = self.standard_deviation
+        model.standard_deviation = self.standard_deviation
 
         return model
 
@@ -61,7 +60,9 @@ class StandardDeviationGenerator:
         # For the time starts with 00, 01, 02, etc. TODO (MAKE MORE ELEGANT SOLUTION THAN A LOOP)
         for hour in range(24):
             hour_error = error[error.index == hour]
-            result["stdev"].iloc[hour] = np.std(hour_error)
+            result["stdev"].iloc[hour] = np.std(
+                hour_error[1:]
+            )  # Exclude first item as this is the hour itself!
             result["hour"].iloc[hour] = hour
 
         result = result.astype("float")

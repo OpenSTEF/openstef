@@ -8,6 +8,7 @@ from pathlib import Path
 from openstf.model.capacity.predict import predict_capacity_prognosis
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
+from openstf.enums import MLModelType
 
 
 def main():
@@ -20,7 +21,7 @@ def main():
         # define input range
         datetime_start = datetime.utcnow().date() - timedelta(days=30)
         datetime_end = datetime.utcnow().date() + timedelta(days=max(y_hor) + 1)
-        model_type = ["xgb", "lgb"]
+        model_type = [ml.value for ml in MLModelType]
 
         PredictionJobLoop(context, model_type=model_type).map(
             predict_capacity_prognosis,

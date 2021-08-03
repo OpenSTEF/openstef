@@ -37,6 +37,7 @@ import scipy.optimize
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
 import openstf.monitoring.teams as monitoring
+from openstf.enums import MLModelType
 
 
 COEF_MAX_FRACTION_DIFF = 0.3
@@ -46,7 +47,7 @@ def main():
     taskname = Path(__file__).name.replace(".py", "")
 
     with TaskContext(taskname) as context:
-        model_type = ["xgb", "lgb"]
+        model_type = [ml.value for ml in MLModelType]
 
         PredictionJobLoop(
             context,

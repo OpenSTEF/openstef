@@ -23,6 +23,7 @@ from openstf.pipeline.optimize_hyperparameters import optimize_hyperparameters_p
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
 from openstf.monitoring import teams
+from openstf.enums import MLModelType
 
 MAX_AGE_HYPER_PARAMS_DAYS = 31
 
@@ -83,7 +84,7 @@ def main():
     taskname = Path(__file__).name.replace(".py", "")
 
     with TaskContext(taskname) as context:
-        model_type = ["xgb", "xgb_quantile", "lgb"]
+        model_type = [ml.value for ml in MLModelType]
 
         PredictionJobLoop(context, model_type=model_type).map(
             optimize_hyperparameters_task, context
