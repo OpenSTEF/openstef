@@ -28,6 +28,14 @@ openstf.enums module
    :undoc-members:
    :show-inheritance:
 
+openstf.exceptions module
+-------------------------
+
+.. automodule:: openstf.exceptions
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 
 Module contents
 ---------------

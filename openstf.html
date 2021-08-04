@@ -89,6 +89,7 @@
 <li><a class="reference internal" href="#subpackages">Subpackages</a></li>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
 <li><a class="reference internal" href="#module-openstf.enums">openstf.enums module</a></li>
+<li><a class="reference internal" href="#module-openstf.exceptions">openstf.exceptions module</a></li>
 <li><a class="reference internal" href="#module-openstf">Module contents</a></li>
 </ul>
 </li>
@@ -357,6 +358,37 @@
 <dl class="attribute">
 <dt id="openstf.enums.TracyJobResult.UNKNOWN">
 <code class="sig-name descname">UNKNOWN</code><em class="property"> = 'unknown'</em><a class="headerlink" href="#openstf.enums.TracyJobResult.UNKNOWN" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-openstf.exceptions">
+<span id="openstf-exceptions-module"></span><h2>openstf.exceptions module<a class="headerlink" href="#module-openstf.exceptions" title="Permalink to this headline">¶</a></h2>
+<p>Define custom exception classes.
+These are not complete, but will be added on a case by case basis</p>
+<dl class="exception">
+<dt id="openstf.exceptions.NoLoadException">
+<em class="property">exception </em><code class="sig-prename descclassname">openstf.exceptions.</code><code class="sig-name descname">NoLoadException</code><span class="sig-paren">(</span><em class="sig-param">pid: Union[int, str], message: str = 'No historic load found.Could not calc KPI'</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.exceptions.NoLoadException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Custom Exception if no historic load is available
+.. attribute:: pid – prediction job id for which the exception occurred</p>
+<dl class="attribute">
+<dt>
+<code class="sig-name descname">message -- explanation of the error</code></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="openstf.exceptions.NoPredictionException">
+<em class="property">exception </em><code class="sig-prename descclassname">openstf.exceptions.</code><code class="sig-name descname">NoPredictionException</code><span class="sig-paren">(</span><em class="sig-param">pid: Union[int, str], message: str = 'No historic predictions found.Could not calc KPI'</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.exceptions.NoPredictionException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Custom exception if no historic predictions are available
+.. attribute:: pid – prediction job id for which the exception occurred</p>
+<dl class="attribute">
+<dt>
+<code class="sig-name descname">message -- explanation of the error</code></dt>
 <dd></dd></dl>
 
 </dd></dl>
