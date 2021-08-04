@@ -26,6 +26,7 @@ from openstf.monitoring import teams
 from openstf.enums import MLModelType
 
 MAX_AGE_HYPER_PARAMS_DAYS = 31
+DEFAULT_TRAINING_PERIOD_DAYS = 91
 
 
 def optimize_hyperparameters_task(pj: dict, context: TaskContext) -> None:
@@ -54,10 +55,14 @@ def optimize_hyperparameters_task(pj: dict, context: TaskContext) -> None:
 
     # Get input data (usese "id" and "model")
     current_hyperparams = context.database.get_hyper_params(pj)
-    # TODO this conversion should be done in the database
-    training_period_days = int(current_hyperparams["training_period_days"])
 
-    datetime_start = datetime.utcnow() - timedelta(days=training_period_days)
+    datetime_start = datetime.utcnow() - timedelta(
+        days=int(
+            current_hyperparams.get(
+                "training_period_days", DEFAULT_TRAINING_PERIOD_DAYS
+            )
+        )
+    )
     datetime_end = datetime.utcnow()
 
     input_data = context.database.get_model_input(
