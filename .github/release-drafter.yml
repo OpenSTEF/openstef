@@ -1,8 +1,8 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501
 #
 # SPDX-License-Identifier: MPL-2.0
-name-template: 'v$RESOLVED_VERSION 🌈'
-tag-template: 'v$RESOLVED_VERSION'
+name-template: 'v*update yourself based on setup.py* 🌈'
+tag-template: 'v*update yourself based on setup.py*'
 categories:
   - title: '🚀 Features'
     labels:
@@ -14,22 +14,8 @@ categories:
       - 'bugfix'
       - 'bug'
   - title: '🧰 Maintenance'
-    labels:
-      - 'hotfix'
-      - 'chore'
-change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
-version-resolver:
-  major:
-    labels:
-      - 'major'
-  minor:
-    labels:
-      - 'minor'
-  patch:
-    labels:
-      - 'patch'
-  default: patch
+    label: 'chore'
 template: |
-  ## What’s Changed
+  ## Changes
 
   $CHANGES
