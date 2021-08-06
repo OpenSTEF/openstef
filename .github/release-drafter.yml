@@ -1,6 +1,9 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501
 #
 # SPDX-License-Identifier: MPL-2.0
+# config of action in ./workflows/...
+# PRs in a new draft are categorized based on their labels.
+# Their labels can automatically be determined by an action
 name: 'v*update yourself based on setup.py* 🌈'
 tag: 'v*update yourself based on setup.py*'
 categories:
