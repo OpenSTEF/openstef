@@ -5,4 +5,3 @@
 "feature": ['feature*', 'feat*']
 "fix": ['fix*','bugfix','hotfix']
 "chore": ['chore*', 'doc*']
-"fixed-branch": fixed-branch-name
