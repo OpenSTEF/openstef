@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 # config of action in ./workflows/...
-feature: ['feature*', 'feat*']
-fix: ['fix*','bugfix','hotfix']
-chore: ['chore*', 'doc*']
-fixed-branch: fixed-branch-name
+"feature": ['feature*', 'feat*']
+"fix": ['fix*','bugfix','hotfix']
+"chore": ['chore*', 'doc*']
+"fixed-branch": fixed-branch-name
