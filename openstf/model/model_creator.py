@@ -99,7 +99,9 @@ class ModelCreator:
         model_type = MLModelType(model_type)
         # only pass relevant arguments to model constructor to prevent warnings
         model_kwargs = {
-            key: value for key, value in kwargs.items() if key in valid_model_kwargs[model_type]
+            key: value
+            for key, value in kwargs.items()
+            if key in valid_model_kwargs[model_type]
         }
 
         return ModelCreator.MODEL_CONSTRUCTORS[model_type](**model_kwargs)
