@@ -55,4 +55,4 @@ Please read [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) and [CONTRIBUTING.md](CONTR
 
 ## Contact
 
-N.V. Alliander - Team Korte Termijn Prognoses <korte.termijn.prognoses@alliander.com>
+N.V. Alliander - Team Korte Termijn Prognoses (Short Term Forecasting) <korte.termijn.prognoses@alliander.com>
