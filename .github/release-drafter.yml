@@ -19,9 +19,13 @@ categories:
   - title: '🧰 Maintenance'
     label: 'chore'
 template: |
+  Notes to devs (remove when turning draft into actual release):
+  - PRs are automatically categorized based on their label.
+    Be helpful by adding labels to uncategorized PRs:)
+  - Please bump the version number in setup.py yourself
+    and use that in the titel of the release
+  
   ## Changes
 
   $CHANGES
   
-  NB: PRs are automatically categorized based on their label.
-  Be helpful by adding labels to uncategorized PRs:)
