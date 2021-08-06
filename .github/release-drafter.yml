@@ -22,3 +22,6 @@ template: |
   ## Changes
 
   $CHANGES
+  
+  NB: PRs are automatically categorized based on their label.
+  Be helpful by adding labels to uncategorized PRs:)
