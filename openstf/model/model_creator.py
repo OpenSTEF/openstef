@@ -98,6 +98,8 @@ class ModelCreator:
         # This will raise a ValueError when an invalid model_type str is used
         model_type = MLModelType(model_type)
         # only pass relevant arguments to model constructor to prevent warnings
-        model_kwargs = {key: value for key, value in kwargs if key in valid_model_kwarts[model_type]}
+        model_kwargs = {
+            key: value for key, value in kwargs if key in valid_model_kwarts[model_type]
+        }
 
         return ModelCreator.MODEL_CONSTRUCTORS[model_type](**model_kwargs)
