@@ -128,7 +128,7 @@ def post_process_wind_solar(forecast: pd.Series, forecast_type):
     Args:
         forecast (pd.Series): Series with forecast data.
         forecast_type (ForecastType): Specifies the type of forecast. This can be retrieved
-            from the prediction job as pj['typ']
+            from the prediction job as pj['forecast_type']
 
     Returns:
         forecast (pd.DataFrame): post-processed forecast.
@@ -187,7 +187,7 @@ def add_prediction_job_properties_to_forecast(
 
     logger.info("Postproces in preparation of storing")
     if forecast_type is None:
-        forecast_type = pj["typ"]
+        forecast_type = pj["forecast_type"]
     else:
         # get the value from the enum
         forecast_type = forecast_type.value

@@ -82,7 +82,10 @@ class TestData:
         with open(cls.DATA_FILES_FOLDER / "prediction_jobs.json", "r") as fh:
             prediction_jobs = json.load(fh, object_hook=prediction_job_decoder)
 
-        return prediction_jobs[str(pid)]
+            out_dict = prediction_jobs[str(pid)]
+            out_dict["forecast_type"] = out_dict.pop("typ")
+
+        return out_dict
 
     @classmethod
     def get_prediction_jobs(cls):
