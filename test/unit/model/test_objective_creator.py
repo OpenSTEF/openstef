@@ -7,13 +7,18 @@ from test.utils.base import BaseTestCase
 
 from openstf.enums import MLModelType
 from openstf.model.objective_creator import ObjectiveCreator
-from openstf.model.objective import XGBRegressorObjective
+from openstf.model.objective import XGBRegressorObjective, RegressorObjective
 
 
 class TestObjectiveCreator(BaseTestCase):
-    def test_create_objective(self):
+    def test_create_objective_happy(self):
         Objective = ObjectiveCreator.create_objective(MLModelType.XGB)
         self.assertEqual(Objective, XGBRegressorObjective)
+
+    def test_create_objective_all_model_types(self):
+        """Test if a nice error is returned if an nit-implemented model is requested"""
+        with self.assertRaises(NotImplementedError):
+            ObjectiveCreator.create_objective("AnUnimplementedModelType")
 
 
 if __name__ == "__main__":

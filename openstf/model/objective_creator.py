@@ -13,6 +13,14 @@ class ObjectiveCreator:
 
     @staticmethod
     def create_objective(model_type: Union[MLModelType, str]) -> RegressorObjective:
+        if model_type not in ObjectiveCreator.OBJECTIVES.keys():
+            raise NotImplementedError(
+                "This model_type is not implemented "
+                "for hyperparam optimization."
+                f"Received: {model_type}, "
+                "Should be in: "
+                f"{list(ObjectiveCreator.OBJECTIVES.keys())}"
+            )
         model_type = MLModelType(model_type)
 
         return ObjectiveCreator.OBJECTIVES[model_type]
