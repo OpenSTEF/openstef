@@ -1,0 +1,12 @@
+# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501
+#
+# SPDX-License-Identifier: MPL-2.0
+[tool.pylint.format]
+max-line-length = 88
+
+[tool.black]
+line-length = 88
+
+[tool.isort]
+profile = "black"
+
