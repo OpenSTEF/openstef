@@ -16,7 +16,7 @@ class TestObjectiveCreator(BaseTestCase):
         self.assertEqual(Objective, XGBRegressorObjective)
 
     def test_create_objective_not_implemented_model_type(self):
-        """Test if a nice error is returned if an nit-implemented model is requested"""
+        """Test if a nice error is returned if a not-implemented model is requested"""
         with self.assertRaises(NotImplementedError):
             ObjectiveCreator.create_objective("AnUnimplementedModelType")
 
