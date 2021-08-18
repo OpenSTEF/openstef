@@ -3,17 +3,22 @@
 # SPDX-License-Identifier: MPL-2.0
 import logging
 from pathlib import Path
-from typing import List, Union, Tuple
+from typing import List, Tuple, Union
 
 import pandas as pd
-from sklearn.base import RegressorMixin
 import structlog
+from sklearn.base import RegressorMixin
 
+from openstf.exceptions import (
+    InputDataInsufficientError,
+    InputDataWrongColumnOrderError,
+    OldModelHigherScoreError,
+)
 from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
-from openstf.model.standard_deviation_generator import StandardDeviationGenerator
+from openstf.metrics.reporter import Report, Reporter
 from openstf.model.model_creator import ModelCreator
-from openstf.metrics.reporter import Reporter, Report
 from openstf.model.serializer import PersistentStorageSerializer
+from openstf.model.standard_deviation_generator import StandardDeviationGenerator
 from openstf.model_selection.model_selection import split_data_train_validation_test
 from openstf.validation import validation
 
@@ -72,7 +77,7 @@ def train_model_pipeline(
     # Train model with core pipeline
     try:
         model, report = train_model_pipeline_core(pj, input_data, old_model)
-    except RuntimeError as e:
+    except OldModelHigherScoreError as e:
         logger.error(f"Old model is better than new model for {pj['name']}", exc_info=e)
         return
 
@@ -110,8 +115,9 @@ def train_model_pipeline_core(
         horizons (List[float]): horizons to train on in hours.
 
     Raises:
-        ValueError: When input data is insufficient
-        RuntimeError: When old model is better than new model
+        InputDataInsufficientError: when input data is insufficient.
+        InputDataWrongColumnOrderError: when input data has a invalid column order.
+        OldModelHigherScoreError: When old model is better than new model
 
     Returns:
         Tuple[RegressorMixin, Report]: Trained model and report (with figures)
@@ -146,7 +152,7 @@ def train_model_pipeline_core(
             # Check if R^2 is better for old model
             if score_old_model > score_new_model * PENALTY_FACTOR_OLD_MODEL:
                 raise (
-                    RuntimeError(
+                    OldModelHigherScoreError(
                         f"Old model is better than new model for {pj['name']}."
                         f"NOT updating model"
                     )
@@ -182,6 +188,9 @@ def train_pipeline_common(
         Tuple[RegressorMixin, pd.DataFrame, pd.DataFrame, pd.DataFrame]: Trained model,
          train_data, validation_data and test_data
 
+    Raises:
+        InputDataInsufficientError: when input data is insufficient.
+        InputDataWrongColumnOrderError: when input data has a invalid column order.
 
     """
 
@@ -190,7 +199,7 @@ def train_pipeline_common(
 
     # Check if sufficient data is left after cleaning
     if not validation.is_data_sufficient(validated_data):
-        raise ValueError(
+        raise InputDataInsufficientError(
             f"Input data is insufficient for {pj['name']} "
             f"after validation and cleaning"
         )
@@ -207,15 +216,14 @@ def train_pipeline_common(
         backtest=backtest,
     )
 
-    # Create relevant model
-    model = ModelCreator.create_model(pj["model"], quantiles=pj["quantiles"])
-
     # Test if first column is "load" and last column is "horizon"
     if train_data.columns[0] != "load" or train_data.columns[-1] != "horizon":
-        raise RuntimeError(
-            "Column order in train input data not as expected, "
-            "could not train a model!"
+        raise InputDataWrongColumnOrderError(
+            "'load' column should be first and 'horizon' column last."
         )
+
+    # Create relevant model
+    model = ModelCreator.create_model(pj["model"], quantiles=pj["quantiles"])
 
     # split x and y data
     train_x, train_y = train_data.iloc[:, 1:-1], train_data.iloc[:, 0]
