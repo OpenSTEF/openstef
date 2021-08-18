@@ -8,6 +8,7 @@ These are not complete, but will be added on a case by case basis
 
 from typing import Union
 
+
 # Define custom exception
 class NoPredictionException(Exception):
     """Custom exception if no historic predictions are available
@@ -41,3 +42,19 @@ class NoLoadException(Exception):
         self.pid = pid
         self.message = message
         super().__init__(self.message)
+
+
+class InputDataInvalidError(Exception):
+    """Invalid input data"""
+
+
+class InputDataInsufficientError(InputDataInvalidError):
+    """Insufficient input data"""
+
+
+class InputDataWrongColumnOrderError(InputDataInvalidError):
+    """Wrong column order input data"""
+
+
+class OldModelHigherScoreError(Exception):
+    """Old model has a higher score then new model"""
