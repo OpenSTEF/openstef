@@ -117,7 +117,7 @@ def train_model_pipeline_core(
     Raises:
         InputDataInsufficientError: when input data is insufficient.
         InputDataWrongColumnOrderError: when input data has a invalid column order.
-        OldModelHigherScoreError: When old model is better than new model
+        OldModelHigherScoreError: When old model is better than new model.
 
     Returns:
         Tuple[RegressorMixin, Report]: Trained model and report (with figures)

@@ -10,7 +10,7 @@ from typing import Union
 
 
 # Define custom exception
-class NoPredictionException(Exception):
+class NoPredictionError(Exception):
     """Custom exception if no historic predictions are available
     Attributes:
         pid -- prediction job id for which the exception occurred
@@ -27,7 +27,7 @@ class NoPredictionException(Exception):
         super().__init__(self.message)
 
 
-class NoLoadException(Exception):
+class NoLoadError(Exception):
     """Custom Exception if no historic load is available
     Attributes:
         pid -- prediction job id for which the exception occurred

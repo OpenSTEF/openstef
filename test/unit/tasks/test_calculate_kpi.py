@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 
 from openstf.tasks.calculate_kpi import calc_kpi_for_specific_pid
-from openstf.exceptions import NoLoadException, NoPredictionException
+from openstf.exceptions import NoLoadError, NoPredictionError
 from test.utils import BaseTestCase, TestData
 
 # Get test data
@@ -120,7 +120,7 @@ class TestPerformanceCalcKpiForSpecificPid(BaseTestCase):
         """Assert that correct exceptions are raised for
         empty load"""
 
-        with self.assertRaises(NoLoadException):
+        with self.assertRaises(NoLoadError):
             calc_kpi_for_specific_pid({"id": 295})
 
     @patch("openstf.tasks.calculate_kpi.DataBase", get_database_mock_predicted_empty)
@@ -128,7 +128,7 @@ class TestPerformanceCalcKpiForSpecificPid(BaseTestCase):
         """Assert that correct exceptions are raised for
         empty prediction"""
 
-        with self.assertRaises(NoPredictionException):
+        with self.assertRaises(NoPredictionError):
             calc_kpi_for_specific_pid({"id": 295})
 
 
