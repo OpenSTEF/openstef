@@ -7,7 +7,10 @@ import unittest
 from test.utils import TestData
 from unittest.mock import MagicMock, Mock, patch
 
-from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
+from openstf.tasks.utils.predictionjobloop import (
+    PredictionJobLoop,
+    PredictionJobException,
+)
 
 # import project modules
 from openstf.tasks.utils.taskcontext import TaskContext
@@ -73,6 +76,47 @@ class TestTaskContext(BaseTestCase):
 
         with TaskContext("unit_test_supposed_to_fail", True, False) as context:
             PredictionJobLoop(context, prediction_jobs=PREDICTION_JOBS).map(func_fail)
+
+    @patch("openstf.tasks.utils.taskcontext.post_teams")
+    def test_task_context_teams_message(self, postteamsmock, dbmock):
+        """Test to check that:
+        if multiple exceptions are raised,
+        pids they are nicely grouped per exception type."""
+        # Specify which types of exceptions are raised
+        func_fail = Mock()
+        func_fail.side_effect = [
+            None,
+            ValueError("Forced error"),
+            ValueError("Forced error"),
+            NotImplementedError("Different Forced error"),
+        ]
+
+        # Specify test prediction jobs.
+        # Required are the 'id' key and a second 'random' key.
+        # The presence of a second key ensures that no additional pj_data is collected
+        test_prediction_jobs = [
+            dict(id=1, key_for_testing=10),
+            dict(id=2, key_for_testing=10),
+            dict(id=3, key_for_testing=10),
+            dict(id=4, key_for_testing=10),
+        ]
+
+        with self.assertRaises(PredictionJobException):
+            with TaskContext("test_with_teams_message", False, True) as context:
+                PredictionJobLoop(context, prediction_jobs=test_prediction_jobs).map(
+                    func_fail
+                )
+
+            # Assert that specification of exception: [pids] is 'posted' to the postteamsmock
+            self.assertListEqual(
+                postteamsmock.call_args_list[0].args[0]["sections"][2]["facts"],
+                [
+                    (
+                        "Exceptions: pid(s)",
+                        "Forced error:[3, 4]\n\nDifferent Forced error:[1]\n",
+                    )
+                ],
+            )
 
 
 if __name__ == "__main__":
