@@ -23,11 +23,11 @@ jobs:
       uses: actions/checkout@v1
     # Build documentation
     - name: Build documentation
-      uses: ammaraskar/sphinx-action@0.4
+      uses: ammaraskar/sphinx-action@master
       with:
         pre-build-command: |
           cp requirements.txt docs/requirements.txt &&\
-          echo -e "\nsphinx_rtd_theme" >> docs/requirements.txt &&\
+          echo "sphinx_rtd_theme" >> docs/requirements.txt &&\
           echo "DEBUG HERE" &&\
           cat docs/requirements.txt &&\
           sphinx-apidoc -o docs openstf
