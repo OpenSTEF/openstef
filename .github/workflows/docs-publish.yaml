@@ -20,8 +20,8 @@ jobs:
       uses: ammaraskar/sphinx-action@master
       with:
         pre-build-command: |
-          cp requirements.txt docs/requirements.txt
-          echo -e "\nsphinx_rtd_theme" >> docs/requirements.txt
+          cp requirements.txt docs/requirements.txt &&\
+          printf "\nsphinx_rtd_theme\n" >> docs/requirements.txt &&\
           sphinx-apidoc -o docs openstf
         docs-folder: "docs/"
     # Upload artifact so it is available from the action-window
