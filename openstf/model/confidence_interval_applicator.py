@@ -2,12 +2,11 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 from datetime import datetime
-import pytz
 from typing import List
-import structlog
 
 import numpy as np
 import pandas as pd
+import structlog
 from scipy import stats
 from sklearn.base import RegressorMixin
 
@@ -54,7 +53,7 @@ class ConfidenceIntervalApplicator:
                 mostly used for a basecase forecast
 
         Returns:
-            pd.DataFrame: Forecast DataFram with columns: "forecast", "stdev" and
+            pd.DataFrame: Forecast DataFrame with columns: "forecast", "stdev" and
                 quantile columns
 
         """

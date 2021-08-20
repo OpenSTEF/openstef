@@ -1,22 +1,20 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-from datetime import datetime, timedelta
 import unittest
+from datetime import datetime, timedelta
+from test.utils import BaseTestCase, TestData
 from unittest.mock import MagicMock, patch
-from test.utils import TestData
-from test.utils import BaseTestCase
 
 import pandas as pd
 import sklearn
 
-from openstf.pipeline.train_model import (
-    train_model_pipeline_core,
-    train_model_pipeline,
-    split_data_train_validation_test,
-)
 from openstf.metrics.reporter import Report
-
+from openstf.pipeline.train_model import (
+    split_data_train_validation_test,
+    train_model_pipeline,
+    train_model_pipeline_core,
+)
 
 # define constants
 
@@ -65,6 +63,7 @@ class TestTrainModelPipeline(BaseTestCase):
         self.assertEqual(len(validation_data), 1297)
         self.assertEqual(len(test_data), 1)
 
+    # TODO move to model_selction unit test
     def test_split_data_train_validation_test_period(self):
         train_data, validation_data, test_data = split_data_train_validation_test(
             self.data, period_sampling=True
