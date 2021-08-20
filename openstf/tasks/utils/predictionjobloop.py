@@ -4,6 +4,7 @@
 
 import random
 import sys
+from collections import defaultdict
 
 
 class PredictionJobLoop:
@@ -106,6 +107,7 @@ class PredictionJobLoop:
         """
         pids_successful = []
         pids_unsuccessful = []
+        pids_unsuccessful_dict = defaultdict(list)
         last_job_exception = None
 
         num_jobs = len(self.prediction_jobs)
@@ -138,6 +140,7 @@ class PredictionJobLoop:
 
             except Exception as exception:
                 pids_unsuccessful.append(prediction_job["id"])
+                pids_unsuccessful_dict[str(exception)].append(prediction_job["id"])
                 last_job_exception = exception
 
                 self._handle_exception_during_iteration(prediction_job, exception)
@@ -168,6 +171,7 @@ class PredictionJobLoop:
                 "num_jobs": num_jobs,
                 "pids_successful": pids_successful,
                 "pids_unsuccessful": pids_unsuccessful,
+                "exceptions": pids_unsuccessful_dict,
                 "jobs_successful": jobs_successful,
                 "jobs_unsuccessful": jobs_unsuccessful,
                 "jobs_started": jobs_started,
