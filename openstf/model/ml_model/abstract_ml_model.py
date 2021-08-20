@@ -46,8 +46,9 @@ class AbstractMLModel(BaseEstimator, RegressorMixin, ABC):
     # - model._Booster.feature_names returns a list of feature names
     @property
     @abstractmethod
-    def importance_type(self: Union["gain", "weight"]):
-        pass
+    def importance_type(self, importance_type: str):
+        if importance_type not in ["gain", "weight"]:
+            raise NotImplementedError("importance_type should be in [gain, weight]")
 
     @property
     @abstractmethod
