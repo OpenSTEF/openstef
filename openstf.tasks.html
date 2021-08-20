@@ -237,6 +237,12 @@ These metric include:</p>
 <dd class="field-even"><p>Dictionary that includes a dictonary for each t_ahead.
 Dict includes enddate en window (in days) for clarification</p>
 </dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><a class="reference internal" href="openstf.html#openstf.exceptions.NoPredictedLoadError" title="openstf.exceptions.NoPredictedLoadError"><strong>NoPredictedLoadError</strong></a> – When no predicted load for given datatime range.</p></li>
+<li><p><a class="reference internal" href="openstf.html#openstf.exceptions.NoRealisedLoadError" title="openstf.exceptions.NoRealisedLoadError"><strong>NoRealisedLoadError</strong></a> – When no realised load for given datetime range.</p></li>
+</ul>
+</dd>
 </dl>
 <p class="rubric">Example</p>
 <p>To get the rMAE for the 24 hours ahead prediction: kpis[‘24h’][‘rMAE’]</p>

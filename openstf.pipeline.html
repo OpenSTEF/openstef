@@ -361,7 +361,7 @@ If no previous model can be found, this returns float(inf).</p>
 <code class="sig-prename descclassname">openstf.pipeline.train_model.</code><code class="sig-name descname">train_model_pipeline</code><span class="sig-paren">(</span><em class="sig-param">pj: dict, input_data: pandas.core.frame.DataFrame, check_old_model_age: bool, trained_models_folder: Union[str, pathlib.Path], save_figures_folder: Union[str, pathlib.Path]</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#openstf.pipeline.train_model.train_model_pipeline" title="Permalink to this definition">¶</a></dt>
 <dd><p>Midle level pipeline that takes care of all persistent storage dependencies</p>
 <dl class="simple">
-<dt>Expected prediction jobs keys: “id”, “name”, “model”, “hyper_params”,</dt><dd><p>“feature_names”</p>
+<dt>Expected prediction jobs keys: “id”, “model”, “hyper_params”,</dt><dd><p>“feature_names”</p>
 </dd>
 </dl>
 <dl class="field-list simple">
@@ -391,7 +391,7 @@ required anymore.</p>
 <p>For training a model the following keys in the prediction job dictionairy are
 expected:</p>
 <blockquote>
-<div><p>“name”          Arbitray name only used for logging
+<div><p>“id”            Only used for logging
 “model”         Model type, any of “xgb”, “lgb”,
 “hyper_params”  Hyper parameters dictionairy specific to the model_type
 “feature_names”      List of features to train model on or None to use all features</p>
@@ -407,8 +407,9 @@ expected:</p>
 </dd>
 <dt class="field-even">Raises</dt>
 <dd class="field-even"><ul class="simple">
-<li><p><strong>ValueError</strong> – When input data is insufficient</p></li>
-<li><p><strong>RuntimeError</strong> – When old model is better than new model</p></li>
+<li><p><a class="reference internal" href="openstf.html#openstf.exceptions.InputDataInsufficientError" title="openstf.exceptions.InputDataInsufficientError"><strong>InputDataInsufficientError</strong></a> – when input data is insufficient.</p></li>
+<li><p><a class="reference internal" href="openstf.html#openstf.exceptions.InputDataWrongColumnOrderError" title="openstf.exceptions.InputDataWrongColumnOrderError"><strong>InputDataWrongColumnOrderError</strong></a> – when input data has a invalid column order.</p></li>
+<li><p><a class="reference internal" href="openstf.html#openstf.exceptions.OldModelHigherScoreError" title="openstf.exceptions.OldModelHigherScoreError"><strong>OldModelHigherScoreError</strong></a> – When old model is better than new model.</p></li>
 </ul>
 </dd>
 <dt class="field-odd">Returns</dt>
@@ -441,6 +442,12 @@ expected:</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Tuple[RegressorMixin, pd.DataFrame, pd.DataFrame, pd.DataFrame]</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference internal" href="openstf.html#openstf.exceptions.InputDataInsufficientError" title="openstf.exceptions.InputDataInsufficientError"><strong>InputDataInsufficientError</strong></a> – when input data is insufficient.</p></li>
+<li><p><a class="reference internal" href="openstf.html#openstf.exceptions.InputDataWrongColumnOrderError" title="openstf.exceptions.InputDataWrongColumnOrderError"><strong>InputDataWrongColumnOrderError</strong></a> – when input data has a invalid column order.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>

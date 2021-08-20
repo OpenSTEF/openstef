@@ -365,32 +365,47 @@
 </div>
 <div class="section" id="module-openstf.exceptions">
 <span id="openstf-exceptions-module"></span><h2>openstf.exceptions module<a class="headerlink" href="#module-openstf.exceptions" title="Permalink to this headline">¶</a></h2>
-<p>Define custom exception classes.
-These are not complete, but will be added on a case by case basis</p>
+<p>openstf custom exceptions</p>
 <dl class="exception">
-<dt id="openstf.exceptions.NoLoadException">
-<em class="property">exception </em><code class="sig-prename descclassname">openstf.exceptions.</code><code class="sig-name descname">NoLoadException</code><span class="sig-paren">(</span><em class="sig-param">pid: Union[int, str], message: str = 'No historic load found.Could not calc KPI'</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.exceptions.NoLoadException" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
-<p>Custom Exception if no historic load is available
-.. attribute:: pid – prediction job id for which the exception occurred</p>
-<dl class="attribute">
-<dt>
-<code class="sig-name descname">message -- explanation of the error</code></dt>
-<dd></dd></dl>
-
+<dt id="openstf.exceptions.InputDataInsufficientError">
+<em class="property">exception </em><code class="sig-prename descclassname">openstf.exceptions.</code><code class="sig-name descname">InputDataInsufficientError</code><a class="headerlink" href="#openstf.exceptions.InputDataInsufficientError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#openstf.exceptions.InputDataInvalidError" title="openstf.exceptions.InputDataInvalidError"><code class="xref py py-class docutils literal notranslate"><span class="pre">openstf.exceptions.InputDataInvalidError</span></code></a></p>
+<p>Insufficient input data</p>
 </dd></dl>
 
 <dl class="exception">
-<dt id="openstf.exceptions.NoPredictionException">
-<em class="property">exception </em><code class="sig-prename descclassname">openstf.exceptions.</code><code class="sig-name descname">NoPredictionException</code><span class="sig-paren">(</span><em class="sig-param">pid: Union[int, str], message: str = 'No historic predictions found.Could not calc KPI'</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.exceptions.NoPredictionException" title="Permalink to this definition">¶</a></dt>
+<dt id="openstf.exceptions.InputDataInvalidError">
+<em class="property">exception </em><code class="sig-prename descclassname">openstf.exceptions.</code><code class="sig-name descname">InputDataInvalidError</code><a class="headerlink" href="#openstf.exceptions.InputDataInvalidError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
-<p>Custom exception if no historic predictions are available
-.. attribute:: pid – prediction job id for which the exception occurred</p>
-<dl class="attribute">
-<dt>
-<code class="sig-name descname">message -- explanation of the error</code></dt>
-<dd></dd></dl>
+<p>Invalid input data</p>
+</dd></dl>
 
+<dl class="exception">
+<dt id="openstf.exceptions.InputDataWrongColumnOrderError">
+<em class="property">exception </em><code class="sig-prename descclassname">openstf.exceptions.</code><code class="sig-name descname">InputDataWrongColumnOrderError</code><a class="headerlink" href="#openstf.exceptions.InputDataWrongColumnOrderError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#openstf.exceptions.InputDataInvalidError" title="openstf.exceptions.InputDataInvalidError"><code class="xref py py-class docutils literal notranslate"><span class="pre">openstf.exceptions.InputDataInvalidError</span></code></a></p>
+<p>Wrong column order input data</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="openstf.exceptions.NoPredictedLoadError">
+<em class="property">exception </em><code class="sig-prename descclassname">openstf.exceptions.</code><code class="sig-name descname">NoPredictedLoadError</code><a class="headerlink" href="#openstf.exceptions.NoPredictedLoadError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>No predicted load for given datatime range</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="openstf.exceptions.NoRealisedLoadError">
+<em class="property">exception </em><code class="sig-prename descclassname">openstf.exceptions.</code><code class="sig-name descname">NoRealisedLoadError</code><a class="headerlink" href="#openstf.exceptions.NoRealisedLoadError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>No realised load for given datetime range</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="openstf.exceptions.OldModelHigherScoreError">
+<em class="property">exception </em><code class="sig-prename descclassname">openstf.exceptions.</code><code class="sig-name descname">OldModelHigherScoreError</code><a class="headerlink" href="#openstf.exceptions.OldModelHigherScoreError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Old model has a higher score then new model</p>
 </dd></dl>
 
 </div>
