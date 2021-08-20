@@ -38,7 +38,7 @@ def train_model_pipeline(
 ) -> None:
     """Midle level pipeline that takes care of all persistent storage dependencies
 
-    Expected prediction jobs keys: "id", "name", "model", "hyper_params",
+    Expected prediction jobs keys: "id", "model", "hyper_params",
         "feature_names"
 
     Args:
@@ -78,7 +78,7 @@ def train_model_pipeline(
     try:
         model, report = train_model_pipeline_core(pj, input_data, old_model)
     except OldModelHigherScoreError as e:
-        logger.error(f"Old model is better than new model for {pj['name']}", exc_info=e)
+        logger.error(f"Old model is better than new model for {pj['id']}", exc_info=e)
         return
 
     # Save model
@@ -103,7 +103,7 @@ def train_model_pipeline_core(
 
     For training a model the following keys in the prediction job dictionairy are
     expected:
-        "name"          Arbitray name only used for logging
+        "id"            Only used for logging
         "model"         Model type, any of "xgb", "lgb",
         "hyper_params"  Hyper parameters dictionairy specific to the model_type
         "feature_names"      List of features to train model on or None to use all features
@@ -151,11 +151,8 @@ def train_model_pipeline_core(
 
             # Check if R^2 is better for old model
             if score_old_model > score_new_model * PENALTY_FACTOR_OLD_MODEL:
-                raise (
-                    OldModelHigherScoreError(
-                        f"Old model is better than new model for {pj['name']}."
-                        f"NOT updating model"
-                    )
+                raise OldModelHigherScoreError(
+                    f"Old model is better than new model for {pj['id']}."
                 )
 
             logger.info(
@@ -200,7 +197,7 @@ def train_pipeline_common(
     # Check if sufficient data is left after cleaning
     if not validation.is_data_sufficient(validated_data):
         raise InputDataInsufficientError(
-            f"Input data is insufficient for {pj['name']} "
+            f"Input data is insufficient for {pj['id']} "
             f"after validation and cleaning"
         )
 
@@ -219,6 +216,7 @@ def train_pipeline_common(
     # Test if first column is "load" and last column is "horizon"
     if train_data.columns[0] != "load" or train_data.columns[-1] != "horizon":
         raise InputDataWrongColumnOrderError(
+            f"Wrong column order for {pj['id']} "
             "'load' column should be first and 'horizon' column last."
         )
 

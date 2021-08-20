@@ -22,16 +22,17 @@ Attributes:
 # Import builtins
 from datetime import datetime, timedelta
 from pathlib import Path
+
 import numpy as np
 import pandas as pd
-from openstf_dbc.database import DataBase
 import structlog
+from openstf_dbc.database import DataBase
 
-from openstf.validation import validation
+from openstf.exceptions import NoPredictedLoadError, NoRealisedLoadError
 from openstf.metrics import metrics
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
-from openstf.exceptions import NoLoadError, NoPredictionError
+from openstf.validation import validation
 
 # Thresholds for retraining and optimizing
 THRESHOLD_RETRAINING = 0.25
@@ -106,6 +107,10 @@ def calc_kpi_for_specific_pid(pid, start_time=None, end_time=None):
         Dictionary that includes a dictonary for each t_ahead.
         Dict includes enddate en window (in days) for clarification
 
+    Raises:
+        NoPredictedLoadError: When no predicted load for given datatime range.
+        NoRealisedLoadError: When no realised load for given datetime range.
+
     Example:
         To get the rMAE for the 24 hours ahead prediction: kpis['24h']['rMAE']
     """
@@ -130,21 +135,23 @@ def calc_kpi_for_specific_pid(pid, start_time=None, end_time=None):
     # Get predicted load
     predicted_load = db.get_predicted_load_tahead(pj, start_time, end_time)
 
-    # If predicted is empty, exit
+    # If predicted is empty
     if len(predicted_load) == 0:
-        raise NoPredictionError(pid=pj["id"])
+        raise NoPredictedLoadError(
+            f"No predicted load found for {pid} from {start_time} to {end_time}"
+        )
 
-    # If realised is empty, exit
+    # If realised is empty
     if len(realised) == 0:
-        raise NoLoadError(pid=pj["id"])
+        raise NoRealisedLoadError(
+            f"No realised load found for {pid} from {start_time} to {end_time}"
+        )
 
-    # Calculate completeness en raise exception if completeness does not meet requirements
     completeness_realised = validation.calc_completeness(realised)
 
     # Interpolate missing data if needed
     realised = realised.resample("15T").interpolate(limit=3)
 
-    # Calculate completeness for realised load
     completeness_predicted_load = validation.calc_completeness(predicted_load)
 
     # Combine the forecast and the realised to make sure indices are matched nicely
