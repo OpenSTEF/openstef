@@ -9,6 +9,7 @@ from xgboost import XGBRegressor
 from openstf.model.xgb_quantile import XGBQuantileRegressor
 
 from openstf.model.model_creator import ModelCreator
+from openstf.enums import MLModelType
 
 
 class TestModelCreator(TestCase):
@@ -35,3 +36,27 @@ class TestModelCreator(TestCase):
 
         with self.assertRaises(ValueError):
             ModelCreator.create_model(model_type)
+
+
+class TestMLModelInterfaces(TestCase):
+    """Test if all ml models defined in openstf.model.ml_model
+    adhere to the expected interface"""
+
+    def _check_expected_methods(self, cls):
+        assert hasattr(cls, "predict")
+        assert hasattr(cls, "fit")
+        assert hasattr(cls, "score")
+        assert hasattr(cls, "set_params")
+        # assert hasattr(cls, 'valid_model_kwargs')  # TODO: determine if this really is required
+
+    def test_ml_model_interfaces(self):
+        # Loop over all specified model types
+        for model_type in MLModelType:
+            model = ModelCreator.create_model(model_type)
+            try:
+                self._check_expected_methods(model)
+            except AssertionError as e:
+                raise AssertionError(
+                    f"Required method not found"
+                    f" for model_type: {model}. Details: {e}"
+                )
