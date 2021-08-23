@@ -86,9 +86,9 @@ class TestTaskContext(BaseTestCase):
         func_fail = Mock()
         func_fail.side_effect = [
             None,
-            ValueError("Forced error"),
-            ValueError("Forced error"),
-            NotImplementedError("Different Forced error"),
+            ValueError("Forced error, pid=2"),
+            ValueError("Forced error, pid=3"),
+            NotImplementedError("Different Forced error, pid=4"),
         ]
 
         # Specify test prediction jobs.
