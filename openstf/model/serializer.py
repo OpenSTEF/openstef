@@ -3,11 +3,11 @@
 # SPDX-License-Identifier: MPL-2.0
 from abc import ABC, abstractmethod
 from datetime import datetime
-import pytz
 from pathlib import Path
 from typing import List, Optional, Union
 
 import joblib
+import pytz
 import structlog
 from sklearn.base import RegressorMixin
 
@@ -230,7 +230,7 @@ class PersistentStorageSerializer(AbstractSerializer):
         self,
         pid: Union[int, str],
         limit: Optional[int] = 1,
-        ascending: Optional[bool] = True,
+        ascending: Optional[bool] = False,
     ) -> List[Path]:
         model_paths = [
             f / MODEL_FILENAME for f in self.find_model_folders(pid, ascending)

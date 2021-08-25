@@ -122,6 +122,17 @@ class TaskContext:
                     ]
                 }
             )
+            # Add details of exceptions and pids
+            string_pids_exceptions = "\n".join(
+                [f"{key}:{value}\n" for key, value in metrics["exceptions"].items()]
+            )
+            msg["sections"].append(
+                {
+                    "facts": [
+                        ("Exceptions: pid(s)", string_pids_exceptions),
+                    ]
+                }
+            )
 
         msg["sections"].append(
             {
