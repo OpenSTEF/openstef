@@ -2,42 +2,30 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-"""Define custom exception classes.
-These are not complete, but will be added on a case by case basis
+"""openstf custom exceptions
 """
 
-from typing import Union
 
 # Define custom exception
-class NoPredictionException(Exception):
-    """Custom exception if no historic predictions are available
-    Attributes:
-        pid -- prediction job id for which the exception occurred
-        message -- explanation of the error
-    """
-
-    def __init__(
-        self,
-        pid: Union[int, str],
-        message: str = "No historic predictions found." "Could not calc KPI",
-    ):
-        self.pid = pid
-        self.message = message
-        super().__init__(self.message)
+class NoPredictedLoadError(Exception):
+    """No predicted load for given datatime range"""
 
 
-class NoLoadException(Exception):
-    """Custom Exception if no historic load is available
-    Attributes:
-        pid -- prediction job id for which the exception occurred
-        message -- explanation of the error
-    """
+class NoRealisedLoadError(Exception):
+    """No realised load for given datetime range"""
 
-    def __init__(
-        self,
-        pid: Union[int, str],
-        message: str = "No historic load found." "Could not calc KPI",
-    ):
-        self.pid = pid
-        self.message = message
-        super().__init__(self.message)
+
+class InputDataInvalidError(Exception):
+    """Invalid input data"""
+
+
+class InputDataInsufficientError(InputDataInvalidError):
+    """Insufficient input data"""
+
+
+class InputDataWrongColumnOrderError(InputDataInvalidError):
+    """Wrong column order input data"""
+
+
+class OldModelHigherScoreError(Exception):
+    """Old model has a higher score then new model"""

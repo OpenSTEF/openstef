@@ -30,11 +30,11 @@ Attributes:
 from datetime import datetime, timedelta
 from pathlib import Path
 
+from openstf.enums import MLModelType
 from openstf.pipeline.create_forecast import create_forecast_pipeline
-from openstf.tasks.utils.utils import check_status_change, update_status_change
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
-from openstf.enums import MLModelType
+from openstf.tasks.utils.utils import check_status_change, update_status_change
 
 T_BEHIND_DAYS: int = 14
 T_AHEAD_DAYS: int = 3
@@ -66,7 +66,6 @@ def create_forecast_task(pj: dict, context: TaskContext) -> None:
         datetime_start=datetime_start,
         datetime_end=datetime_end,
     )
-
     # Make forecast with the forecast pipeline
     forecast = create_forecast_pipeline(pj, input_data, trained_models_folder)
 

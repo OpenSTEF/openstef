@@ -3,7 +3,8 @@
 # SPDX-License-Identifier: MPL-2.0
 
 from pathlib import Path
-from setuptools import setup, find_packages
+
+from setuptools import find_packages, setup
 
 pkg_dir = Path(__file__).parent.absolute()
 
@@ -28,7 +29,7 @@ def read_long_description_from_readme():
 
 setup(
     name="openstf",
-    version="2.2.1",
+    version="2.2.2",
     packages=find_packages(include=["openstf", "openstf.*"]),
     description="Open short term forcasting",
     long_description=read_long_description_from_readme(),
