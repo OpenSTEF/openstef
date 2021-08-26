@@ -2,11 +2,11 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 from sklearn.base import RegressorMixin
-from xgboost import XGBRegressor
-from lightgbm import LGBMRegressor
 
 from openstf.enums import MLModelType
-from openstf.model.xgb_quantile import XGBQuantileRegressor
+from openstf.model.regressors.xgb_quantile import XGBQuantileStfRegressor
+from openstf.model.regressors.xgb import XGBStfRegressor
+from openstf.model.regressors.lgbm import LGBMStfRegressor
 
 valid_model_kwargs = {
     MLModelType.XGB: [
@@ -76,9 +76,9 @@ class ModelCreator:
 
     # Set object mapping
     MODEL_CONSTRUCTORS = {
-        MLModelType.XGB: XGBRegressor,
-        MLModelType.LGB: LGBMRegressor,
-        MLModelType.XGB_QUANTILE: XGBQuantileRegressor,
+        MLModelType.XGB: XGBStfRegressor,
+        MLModelType.LGB: LGBMStfRegressor,
+        MLModelType.XGB_QUANTILE: XGBQuantileStfRegressor,
     }
 
     @staticmethod

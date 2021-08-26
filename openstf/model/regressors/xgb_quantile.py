@@ -4,7 +4,7 @@
 from typing import Tuple
 from functools import partial
 
-from sklearn.base import RegressorMixin, BaseEstimator
+from openstf.model.regressors.abstract_stf_regressor import AbstractStfRegressor
 from sklearn.utils.validation import check_X_y, check_array, check_is_fitted
 import xgboost as xgb
 from xgboost import Booster
@@ -15,7 +15,7 @@ import openstf.metrics.metrics as metrics
 DEFAULT_QUANTILES: Tuple[float, ...] = (0.9, 0.5, 0.1)
 
 
-class XGBQuantileRegressor(BaseEstimator, RegressorMixin):
+class XGBQuantileStfRegressor(AbstractStfRegressor):
     def __init__(
         self,
         quantiles: Tuple[float, ...] = DEFAULT_QUANTILES,
@@ -50,7 +50,7 @@ class XGBQuantileRegressor(BaseEstimator, RegressorMixin):
         self.gamma = gamma
         self.colsample_bytree = colsample_bytree
 
-    def fit(self, x: np.array, y: np.array, **kwargs) -> RegressorMixin:
+    def fit(self, x: np.array, y: np.array, **kwargs) -> AbstractStfRegressor:
         """Fits xgb quantile model
 
         Args:
@@ -143,27 +143,6 @@ class XGBQuantileRegressor(BaseEstimator, RegressorMixin):
         return self.estimators_[quantile].predict(
             dmatrix_input, ntree_limit=self.estimators_[quantile].best_ntree_limit
         )
-
-    def set_params(self, **params):
-        """Sets hyperparameters, based on the XGBoost version.
-            https://github.com/dmlc/xgboost/blob/master/python-package/xgboost/sklearn.py
-
-        Args:
-            **params: hyperparameters
-
-        Returns:
-            self
-
-        """
-
-        # Set the parameters if they excist
-        for key, value in params.items():
-            if hasattr(self, key):
-                setattr(self, key, value)
-            else:
-                continue
-
-        return self
 
     @classmethod
     def get_feature_importances_from_booster(cls, booster: Booster) -> np.ndarray:

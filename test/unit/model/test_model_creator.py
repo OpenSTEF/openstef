@@ -6,7 +6,7 @@ from unittest import TestCase
 
 from xgboost import XGBRegressor
 
-from openstf.model.xgb_quantile import XGBQuantileRegressor
+from openstf.model.regressors.xgb_quantile import XGBQuantileStfRegressor
 
 from openstf.model.model_creator import ModelCreator
 from openstf.enums import MLModelType
@@ -27,7 +27,7 @@ class TestModelCreator(TestCase):
         # Create relevant model
         model = ModelCreator.create_model(model_type, quantiles=quantiles)
 
-        self.assertIsInstance(model, XGBQuantileRegressor)
+        self.assertIsInstance(model, XGBQuantileStfRegressor)
         self.assertEqual(model.quantiles, quantiles)
 
     def test_create_model_unknown_model(self):
