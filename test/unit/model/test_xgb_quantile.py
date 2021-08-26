@@ -2,9 +2,10 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 import unittest
-from unittest import TestCase
+from test.utils import BaseTestCase, TestData
 
 from sklearn.utils.estimator_checks import check_estimator
+import sklearn
 
 from openstf.model.regressors.xgb_quantile import XGBQuantileStfRegressor
 
@@ -38,7 +39,10 @@ class MockBooster:
             return MockScore()
 
 
-class TestXgbQuantile(TestCase):
+train_input = TestData.load("reference_sets/307-train-data.csv")
+
+
+class TestXgbQuantile(BaseTestCase):
     def setUp(self) -> None:
         self.quantiles = [0.9, 0.5, 0.6, 0.1]
 
@@ -52,6 +56,17 @@ class TestXgbQuantile(TestCase):
     def test_quantile_loading(self):
         model = XGBQuantileStfRegressor(tuple(self.quantiles))
         self.assertEqual(model.quantiles, tuple(self.quantiles))
+
+    def test_quantile_fit(self):
+        """Test happy flow of the training of model"""
+        model = XGBQuantileStfRegressor()
+        model.fit(train_input.iloc[:, 1:], train_input.iloc[:, 0])
+
+        # check if the model was fitted (raises NotFittedError when not fitted)
+        self.assertIsNone(sklearn.utils.validation.check_is_fitted(model))
+
+        # check if model is sklearn compatible
+        self.assertTrue(isinstance(model, sklearn.base.BaseEstimator))
 
     def test_value_error_raised(self):
         # Check if Value Error is raised when 0.5 is not in the requested quantiles list

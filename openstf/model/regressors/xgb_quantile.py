@@ -67,17 +67,26 @@ class XGBQuantileStfRegressor(AbstractStfRegressor):
 
         # Convert x and y to dmatrix input
         dtrain = xgb.DMatrix(x.copy(deep=True), label=y.copy(deep=True))
-        dval = xgb.DMatrix(
-            kwargs["eval_set"][1][0].copy(deep=True),
-            label=kwargs["eval_set"][1][1].copy(deep=True),
-        )
 
-        # Define data set to be monitored during training, the last(validation)
-        #  will be used for early stopping
-        watchlist = [(dtrain, "train"), (dval, "validation")]
+        # Define watchlist if eval_set is defined
+        if "eval_set" in kwargs.keys():
+            dval = xgb.DMatrix(
+                kwargs["eval_set"][1][0].copy(deep=True),
+                label=kwargs["eval_set"][1][1].copy(deep=True),
+            )
 
-        # Get fitting parameters
-        params_quantile = self.get_params().copy()
+            # Define data set to be monitored during training, the last(validation)
+            #  will be used for early stopping
+            watchlist = [(dtrain, "train"), (dval, "validation")]
+        else:
+            watchlist = ()
+
+        # Get fitting parameters - only those required for xgbooster's
+        xgb_regressor_params = {
+            key: value
+            for key, value in self.get_params().items()
+            if key in xgb.XGBRegressor().get_params().keys()
+        }
 
         quantile_models = {}
 
@@ -92,7 +101,7 @@ class XGBQuantileStfRegressor(AbstractStfRegressor):
 
             # Train quantile model
             quantile_models[quantile] = xgb.train(
-                params=params_quantile,
+                params=xgb_regressor_params,
                 dtrain=dtrain,
                 evals=watchlist,
                 # Can be large because we are early stopping anyway
@@ -100,7 +109,7 @@ class XGBQuantileStfRegressor(AbstractStfRegressor):
                 obj=xgb_quantile_obj_this_quantile,
                 feval=xgb_quantile_eval_this_quantile,
                 verbose_eval=False,
-                early_stopping_rounds=kwargs["early_stopping_rounds"],
+                early_stopping_rounds=kwargs.get("early_stopping_rounds", None),
             )
 
         # Set weigths and features from the 0.5 (median) model
