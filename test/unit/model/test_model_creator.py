@@ -7,7 +7,7 @@ from unittest import TestCase
 from xgboost import XGBRegressor
 
 from openstf.model.regressors.xgb_quantile import XGBQuantileOpenstfRegressor
-
+from openstf.model.regressors.regressor_interface import OpenstfRegressorInterface
 from openstf.model.model_creator import ModelCreator
 from openstf.enums import MLModelType
 
@@ -40,25 +40,10 @@ class TestModelCreator(TestCase):
 
 class TestMLModelInterfaces(TestCase):
     """Test if all ml models defined in openstf.model.ml_model
-    adhere to the expected interface.
-    Probably not strictly required, since the methods are either
-    defined in the OpenstfRegressorInterface, or inherited from parents,
-    but better safe than sorry"""
-
-    def _check_expected_methods(self, cls):
-        assert hasattr(cls, "predict")
-        assert hasattr(cls, "fit")
-        assert hasattr(cls, "score")
-        assert hasattr(cls, "set_params")
+    can be created"""
 
     def test_ml_model_interfaces(self):
         # Loop over all specified model types
         for model_type in MLModelType:
             model = ModelCreator.create_model(model_type)
-            try:
-                self._check_expected_methods(model)
-            except AssertionError as e:
-                raise AssertionError(
-                    f"Required method not found"
-                    f" for model_type: {model}. Details: {e}"
-                )
+            self.assertTrue(issubclass(model.__class__, OpenstfRegressorInterface))
