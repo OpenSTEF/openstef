@@ -40,14 +40,16 @@ class TestModelCreator(TestCase):
 
 class TestMLModelInterfaces(TestCase):
     """Test if all ml models defined in openstf.model.ml_model
-    adhere to the expected interface"""
+    adhere to the expected interface.
+    Probably not strictly required, since the methods are either
+    defined in the AbstractStfRegressor, or inherited from parents,
+    but better safe than sorry"""
 
     def _check_expected_methods(self, cls):
         assert hasattr(cls, "predict")
         assert hasattr(cls, "fit")
         assert hasattr(cls, "score")
         assert hasattr(cls, "set_params")
-        # assert hasattr(cls, 'valid_model_kwargs')  # TODO: determine if this really is required
 
     def test_ml_model_interfaces(self):
         # Loop over all specified model types
