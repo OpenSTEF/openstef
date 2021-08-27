@@ -19,10 +19,11 @@ class OpenstfRegressorInterface(BaseEstimator, RegressorMixin, ABC):
     """
 
     @abstractmethod
-    def predict(self, x: pd.DataFrame) -> np.array:
+    def predict(self, x: pd.DataFrame, **kwargs) -> np.array:
         """Makes a prediction. Only available after the model has been trained
         Args:
             x (np.array): Feature matrix
+            kwargs: model-specific keywords
 
         Returns:
             (np.array): prediction
@@ -36,6 +37,7 @@ class OpenstfRegressorInterface(BaseEstimator, RegressorMixin, ABC):
         Args:
             x (np.array): Feature matrix
             y (np.array): Labels
+            kwargs: model-specific keywords
 
         Returns:
             Fitted model

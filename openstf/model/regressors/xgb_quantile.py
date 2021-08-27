@@ -133,7 +133,8 @@ class XGBQuantileOpenstfRegressor(OpenstfRegressorInterface):
         Args:
             x (np.array): Feature matrix
             quantile (float): Quantile for which a prediciton is desired,
-            note that only quantile are available for which a model is trained
+            note that only quantile are available for which a model is trained,
+            and that this is a quantile-model specific keyword
 
         Returns:
             (np.array): prediction
