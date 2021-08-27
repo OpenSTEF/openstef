@@ -3,13 +3,10 @@
 # SPDX-License-Identifier: MPL-2.0
 
 from lightgbm import LGBMRegressor
-from openstf.model.regressors.abstract_stf_regressor import AbstractStfRegressor
+from openstf.model.regressors.regressor_interface import OpenstfRegressorInterface
 
 
-class LGBMStfRegressor(LGBMRegressor, AbstractStfRegressor):
-    """Inherits all/most functionality directly from LGBMRegressor
-    If the AbstractStfRegressor interface changes, we potentially need to include
-    functionality here.
-    """
+class LGBMOpenstfRegressor(LGBMRegressor, OpenstfRegressorInterface):
+    """LGBM Regressor which implements the Openstf regressor API."""
 
     pass

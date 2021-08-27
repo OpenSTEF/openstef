@@ -9,7 +9,7 @@ import numpy as np
 from sklearn.base import RegressorMixin, BaseEstimator
 
 
-class AbstractStfRegressor(BaseEstimator, RegressorMixin, ABC):
+class OpenstfRegressorInterface(BaseEstimator, RegressorMixin, ABC):
     """
     This class defines an abstract ML model,
     of which concrete implementation can be used as a workhorse throughout openstf
@@ -18,15 +18,28 @@ class AbstractStfRegressor(BaseEstimator, RegressorMixin, ABC):
     defined here
     """
 
-    def __init__(self) -> None:
-        self.logger = structlog.get_logger(self.__class__.__name__)
-
     @abstractmethod
     def predict(self, x: pd.DataFrame) -> np.array:
+        """Makes a prediction. Only available after the model has been trained
+        Args:
+            x (np.array): Feature matrix
+
+        Returns:
+            (np.array): prediction
+        """
         pass
 
     @abstractmethod
     def fit(self, x: np.array, y: np.array, **kwargs) -> RegressorMixin:
+        """Fits the regressor
+
+        Args:
+            x (np.array): Feature matrix
+            y (np.array): Labels
+
+        Returns:
+            Fitted model
+        """
         pass
 
 

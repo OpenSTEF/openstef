@@ -3,13 +3,10 @@
 # SPDX-License-Identifier: MPL-2.0
 
 from xgboost import XGBRegressor
-from openstf.model.regressors.abstract_stf_regressor import AbstractStfRegressor
+from openstf.model.regressors.regressor_interface import OpenstfRegressorInterface
 
 
-class XGBStfRegressor(XGBRegressor, AbstractStfRegressor):
-    """Inherits all/most functionality directly from XGBRegressor
-    If the AbstractStfRegressor interface changes, we potentially need to include
-    functionality here.
-    """
+class XGBOpenstfRegressor(XGBRegressor, OpenstfRegressorInterface):
+    """XGB Regressor which implements the Openstf regressor API."""
 
     pass

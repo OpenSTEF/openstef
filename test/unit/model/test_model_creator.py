@@ -6,7 +6,7 @@ from unittest import TestCase
 
 from xgboost import XGBRegressor
 
-from openstf.model.regressors.xgb_quantile import XGBQuantileStfRegressor
+from openstf.model.regressors.xgb_quantile import XGBQuantileOpenstfRegressor
 
 from openstf.model.model_creator import ModelCreator
 from openstf.enums import MLModelType
@@ -27,7 +27,7 @@ class TestModelCreator(TestCase):
         # Create relevant model
         model = ModelCreator.create_model(model_type, quantiles=quantiles)
 
-        self.assertIsInstance(model, XGBQuantileStfRegressor)
+        self.assertIsInstance(model, XGBQuantileOpenstfRegressor)
         self.assertEqual(model.quantiles, quantiles)
 
     def test_create_model_unknown_model(self):
@@ -42,7 +42,7 @@ class TestMLModelInterfaces(TestCase):
     """Test if all ml models defined in openstf.model.ml_model
     adhere to the expected interface.
     Probably not strictly required, since the methods are either
-    defined in the AbstractStfRegressor, or inherited from parents,
+    defined in the OpenstfRegressorInterface, or inherited from parents,
     but better safe than sorry"""
 
     def _check_expected_methods(self, cls):

@@ -7,7 +7,7 @@ from test.utils import BaseTestCase, TestData
 from sklearn.utils.estimator_checks import check_estimator
 import sklearn
 
-from openstf.model.regressors.xgb_quantile import XGBQuantileStfRegressor
+from openstf.model.regressors.xgb_quantile import XGBQuantileOpenstfRegressor
 
 import pandas as pd
 import numpy as np
@@ -51,15 +51,15 @@ class TestXgbQuantile(BaseTestCase):
         # Use sklearn build in check, this will raise an exception if some check fails
         # During these tests the fit and predict methods are elaborately tested
         # More info: https://scikit-learn.org/stable/modules/generated/sklearn.utils.estimator_checks.check_estimator.html
-        check_estimator(XGBQuantileStfRegressor(tuple(self.quantiles)))
+        check_estimator(XGBQuantileOpenstfRegressor(tuple(self.quantiles)))
 
     def test_quantile_loading(self):
-        model = XGBQuantileStfRegressor(tuple(self.quantiles))
+        model = XGBQuantileOpenstfRegressor(tuple(self.quantiles))
         self.assertEqual(model.quantiles, tuple(self.quantiles))
 
     def test_quantile_fit(self):
         """Test happy flow of the training of model"""
-        model = XGBQuantileStfRegressor()
+        model = XGBQuantileOpenstfRegressor()
         model.fit(train_input.iloc[:, 1:], train_input.iloc[:, 0])
 
         # check if the model was fitted (raises NotFittedError when not fitted)
@@ -71,18 +71,18 @@ class TestXgbQuantile(BaseTestCase):
     def test_value_error_raised(self):
         # Check if Value Error is raised when 0.5 is not in the requested quantiles list
         with self.assertRaises(ValueError):
-            XGBQuantileStfRegressor((0.2, 0.3, 0.6, 0.7))
+            XGBQuantileOpenstfRegressor((0.2, 0.3, 0.6, 0.7))
 
     def test_predict_raises_valueerror_no_model_trained_for_quantile(self):
         # Test if value error is raised when model is not available
         with self.assertRaises(ValueError):
-            model = XGBQuantileStfRegressor((0.2, 0.3, 0.5, 0.6, 0.7))
+            model = XGBQuantileOpenstfRegressor((0.2, 0.3, 0.5, 0.6, 0.7))
             model.predict("test_data", quantile=0.8)
 
     def test_set_params(self):
         # Check hyperparameters are set correctly and do not cause errors
 
-        model = XGBQuantileStfRegressor((0.2, 0.3, 0.5, 0.6, 0.7))
+        model = XGBQuantileOpenstfRegressor((0.2, 0.3, 0.5, 0.6, 0.7))
 
         hyperparams = {
             "subsample": "0.9",
@@ -106,7 +106,7 @@ class TestXgbQuantile(BaseTestCase):
 
     def test_get_feature_names_from_booster(self):
         # Check if feature importance is extracted corretly
-        model = XGBQuantileStfRegressor((0.2, 0.3, 0.5, 0.6, 0.7))
+        model = XGBQuantileOpenstfRegressor((0.2, 0.3, 0.5, 0.6, 0.7))
         self.assertTrue(
             (
                 model.get_feature_importances_from_booster(MockBooster())

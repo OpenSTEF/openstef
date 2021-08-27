@@ -4,7 +4,7 @@
 from typing import Tuple
 from functools import partial
 
-from openstf.model.regressors.abstract_stf_regressor import AbstractStfRegressor
+from openstf.model.regressors.regressor_interface import OpenstfRegressorInterface
 from sklearn.utils.validation import check_X_y, check_array, check_is_fitted
 import xgboost as xgb
 from xgboost import Booster
@@ -15,7 +15,7 @@ import openstf.metrics.metrics as metrics
 DEFAULT_QUANTILES: Tuple[float, ...] = (0.9, 0.5, 0.1)
 
 
-class XGBQuantileStfRegressor(AbstractStfRegressor):
+class XGBQuantileOpenstfRegressor(OpenstfRegressorInterface):
     def __init__(
         self,
         quantiles: Tuple[float, ...] = DEFAULT_QUANTILES,
@@ -50,7 +50,7 @@ class XGBQuantileStfRegressor(AbstractStfRegressor):
         self.gamma = gamma
         self.colsample_bytree = colsample_bytree
 
-    def fit(self, x: np.array, y: np.array, **kwargs) -> AbstractStfRegressor:
+    def fit(self, x: np.array, y: np.array, **kwargs) -> OpenstfRegressorInterface:
         """Fits xgb quantile model
 
         Args:
@@ -62,6 +62,10 @@ class XGBQuantileStfRegressor(AbstractStfRegressor):
 
         """
 
+        # TODO: specify these required kwargs in the function definition
+        early_stopping_rounds = kwargs.get("early_stopping_rounds", None)
+        eval_set = kwargs.get("eval_set", None)
+
         # Check/validate input
         check_X_y(x, y, force_all_finite="allow-nan")
 
@@ -69,10 +73,10 @@ class XGBQuantileStfRegressor(AbstractStfRegressor):
         dtrain = xgb.DMatrix(x.copy(deep=True), label=y.copy(deep=True))
 
         # Define watchlist if eval_set is defined
-        if "eval_set" in kwargs.keys():
+        if eval_set:
             dval = xgb.DMatrix(
-                kwargs["eval_set"][1][0].copy(deep=True),
-                label=kwargs["eval_set"][1][1].copy(deep=True),
+                eval_set[1][0].copy(deep=True),
+                label=eval_set[1][1].copy(deep=True),
             )
 
             # Define data set to be monitored during training, the last(validation)
@@ -109,7 +113,7 @@ class XGBQuantileStfRegressor(AbstractStfRegressor):
                 obj=xgb_quantile_obj_this_quantile,
                 feval=xgb_quantile_eval_this_quantile,
                 verbose_eval=False,
-                early_stopping_rounds=kwargs.get("early_stopping_rounds", None),
+                early_stopping_rounds=early_stopping_rounds,
             )
 
         # Set weigths and features from the 0.5 (median) model

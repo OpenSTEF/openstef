@@ -4,9 +4,9 @@
 from sklearn.base import RegressorMixin
 
 from openstf.enums import MLModelType
-from openstf.model.regressors.xgb_quantile import XGBQuantileStfRegressor
-from openstf.model.regressors.xgb import XGBStfRegressor
-from openstf.model.regressors.lgbm import LGBMStfRegressor
+from openstf.model.regressors.xgb_quantile import XGBQuantileOpenstfRegressor
+from openstf.model.regressors.xgb import XGBOpenstfRegressor
+from openstf.model.regressors.lgbm import LGBMOpenstfRegressor
 
 valid_model_kwargs = {
     MLModelType.XGB: [
@@ -76,9 +76,9 @@ class ModelCreator:
 
     # Set object mapping
     MODEL_CONSTRUCTORS = {
-        MLModelType.XGB: XGBStfRegressor,
-        MLModelType.LGB: LGBMStfRegressor,
-        MLModelType.XGB_QUANTILE: XGBQuantileStfRegressor,
+        MLModelType.XGB: XGBOpenstfRegressor,
+        MLModelType.LGB: LGBMOpenstfRegressor,
+        MLModelType.XGB_QUANTILE: XGBQuantileOpenstfRegressor,
     }
 
     @staticmethod
