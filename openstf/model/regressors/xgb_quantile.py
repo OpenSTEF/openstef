@@ -4,7 +4,7 @@
 from typing import Tuple
 from functools import partial
 
-from sklearn.base import RegressorMixin, BaseEstimator
+from openstf.model.regressors.regressor_interface import OpenstfRegressorInterface
 from sklearn.utils.validation import check_X_y, check_array, check_is_fitted
 import xgboost as xgb
 from xgboost import Booster
@@ -15,7 +15,7 @@ import openstf.metrics.metrics as metrics
 DEFAULT_QUANTILES: Tuple[float, ...] = (0.9, 0.5, 0.1)
 
 
-class XGBQuantileRegressor(BaseEstimator, RegressorMixin):
+class XGBQuantileOpenstfRegressor(OpenstfRegressorInterface):
     def __init__(
         self,
         quantiles: Tuple[float, ...] = DEFAULT_QUANTILES,
@@ -50,7 +50,7 @@ class XGBQuantileRegressor(BaseEstimator, RegressorMixin):
         self.gamma = gamma
         self.colsample_bytree = colsample_bytree
 
-    def fit(self, x: np.array, y: np.array, **kwargs) -> RegressorMixin:
+    def fit(self, x: np.array, y: np.array, **kwargs) -> OpenstfRegressorInterface:
         """Fits xgb quantile model
 
         Args:
@@ -62,22 +62,35 @@ class XGBQuantileRegressor(BaseEstimator, RegressorMixin):
 
         """
 
+        # TODO: specify these required kwargs in the function definition
+        early_stopping_rounds = kwargs.get("early_stopping_rounds", None)
+        eval_set = kwargs.get("eval_set", None)
+
         # Check/validate input
         check_X_y(x, y, force_all_finite="allow-nan")
 
         # Convert x and y to dmatrix input
         dtrain = xgb.DMatrix(x.copy(deep=True), label=y.copy(deep=True))
-        dval = xgb.DMatrix(
-            kwargs["eval_set"][1][0].copy(deep=True),
-            label=kwargs["eval_set"][1][1].copy(deep=True),
-        )
 
-        # Define data set to be monitored during training, the last(validation)
-        #  will be used for early stopping
-        watchlist = [(dtrain, "train"), (dval, "validation")]
+        # Define watchlist if eval_set is defined
+        if eval_set:
+            dval = xgb.DMatrix(
+                eval_set[1][0].copy(deep=True),
+                label=eval_set[1][1].copy(deep=True),
+            )
 
-        # Get fitting parameters
-        params_quantile = self.get_params().copy()
+            # Define data set to be monitored during training, the last(validation)
+            #  will be used for early stopping
+            watchlist = [(dtrain, "train"), (dval, "validation")]
+        else:
+            watchlist = ()
+
+        # Get fitting parameters - only those required for xgbooster's
+        xgb_regressor_params = {
+            key: value
+            for key, value in self.get_params().items()
+            if key in xgb.XGBRegressor().get_params().keys()
+        }
 
         quantile_models = {}
 
@@ -92,7 +105,7 @@ class XGBQuantileRegressor(BaseEstimator, RegressorMixin):
 
             # Train quantile model
             quantile_models[quantile] = xgb.train(
-                params=params_quantile,
+                params=xgb_regressor_params,
                 dtrain=dtrain,
                 evals=watchlist,
                 # Can be large because we are early stopping anyway
@@ -100,7 +113,7 @@ class XGBQuantileRegressor(BaseEstimator, RegressorMixin):
                 obj=xgb_quantile_obj_this_quantile,
                 feval=xgb_quantile_eval_this_quantile,
                 verbose_eval=False,
-                early_stopping_rounds=kwargs["early_stopping_rounds"],
+                early_stopping_rounds=early_stopping_rounds,
             )
 
         # Set weigths and features from the 0.5 (median) model
@@ -120,7 +133,8 @@ class XGBQuantileRegressor(BaseEstimator, RegressorMixin):
         Args:
             x (np.array): Feature matrix
             quantile (float): Quantile for which a prediciton is desired,
-            note that only quantile are available for which a model is trained
+            note that only quantile are available for which a model is trained,
+            and that this is a quantile-model specific keyword
 
         Returns:
             (np.array): prediction
@@ -143,27 +157,6 @@ class XGBQuantileRegressor(BaseEstimator, RegressorMixin):
         return self.estimators_[quantile].predict(
             dmatrix_input, ntree_limit=self.estimators_[quantile].best_ntree_limit
         )
-
-    def set_params(self, **params):
-        """Sets hyperparameters, based on the XGBoost version.
-            https://github.com/dmlc/xgboost/blob/master/python-package/xgboost/sklearn.py
-
-        Args:
-            **params: hyperparameters
-
-        Returns:
-            self
-
-        """
-
-        # Set the parameters if they excist
-        for key, value in params.items():
-            if hasattr(self, key):
-                setattr(self, key, value)
-            else:
-                continue
-
-        return self
 
     @classmethod
     def get_feature_importances_from_booster(cls, booster: Booster) -> np.ndarray:

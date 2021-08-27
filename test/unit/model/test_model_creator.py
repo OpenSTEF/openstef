@@ -6,9 +6,10 @@ from unittest import TestCase
 
 from xgboost import XGBRegressor
 
-from openstf.model.xgb_quantile import XGBQuantileRegressor
-
+from openstf.model.regressors.xgb_quantile import XGBQuantileOpenstfRegressor
+from openstf.model.regressors.regressor_interface import OpenstfRegressorInterface
 from openstf.model.model_creator import ModelCreator
+from openstf.enums import MLModelType
 
 
 class TestModelCreator(TestCase):
@@ -26,7 +27,7 @@ class TestModelCreator(TestCase):
         # Create relevant model
         model = ModelCreator.create_model(model_type, quantiles=quantiles)
 
-        self.assertIsInstance(model, XGBQuantileRegressor)
+        self.assertIsInstance(model, XGBQuantileOpenstfRegressor)
         self.assertEqual(model.quantiles, quantiles)
 
     def test_create_model_unknown_model(self):
@@ -35,3 +36,14 @@ class TestModelCreator(TestCase):
 
         with self.assertRaises(ValueError):
             ModelCreator.create_model(model_type)
+
+
+class TestMLModelInterfaces(TestCase):
+    """Test if all ml models defined in openstf.model.ml_model
+    can be created"""
+
+    def test_ml_model_interfaces(self):
+        # Loop over all specified model types
+        for model_type in MLModelType:
+            model = ModelCreator.create_model(model_type)
+            self.assertTrue(issubclass(model.__class__, OpenstfRegressorInterface))
