@@ -11,6 +11,7 @@ from openstf.tasks.utils.predictionjobloop import (
     PredictionJobLoop,
     PredictionJobException,
 )
+from openstf.exceptions import NoPredictedLoadError, NoRealisedLoadError
 
 # import project modules
 from openstf.tasks.utils.taskcontext import TaskContext
@@ -86,9 +87,9 @@ class TestTaskContext(BaseTestCase):
         func_fail = Mock()
         func_fail.side_effect = [
             None,
-            ValueError("Forced error"),
-            ValueError("Forced error"),
-            NotImplementedError("Different Forced error"),
+            NoPredictedLoadError(2),
+            NoPredictedLoadError(3),
+            NoRealisedLoadError(4),
         ]
 
         # Specify test prediction jobs.
