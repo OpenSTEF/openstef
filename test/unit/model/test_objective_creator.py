@@ -13,7 +13,7 @@ from openstf.model.objective import XGBRegressorObjective, RegressorObjective
 class TestObjectiveCreator(BaseTestCase):
     def test_create_objective_happy(self):
         """Test if the created objectiv is the right objective, for model type is 'xgb'"""
-        model_type = 'xgb'
+        model_type = "xgb"
         Objective = ObjectiveCreator.create_objective(model_type)
         self.assertEqual(Objective, XGBRegressorObjective)
 
