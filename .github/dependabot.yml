@@ -7,9 +7,6 @@ version: 2
 updates:
   - package-ecosystem: "pip"
     directory: "/"
-    insecure-external-code-execution: allow    
-    registries:
-    - nexus
     schedule:
       interval: "daily"
     allow:
