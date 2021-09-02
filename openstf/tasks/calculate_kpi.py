@@ -137,15 +137,11 @@ def calc_kpi_for_specific_pid(pid, start_time=None, end_time=None):
 
     # If predicted is empty
     if len(predicted_load) == 0:
-        raise NoPredictedLoadError(
-            pid, start_time, end_time
-        )
+        raise NoPredictedLoadError(pid, start_time, end_time)
 
     # If realised is empty
     if len(realised) == 0:
-        raise NoRealisedLoadError(
-            pid, start_time, end_time
-        )
+        raise NoRealisedLoadError(pid, start_time, end_time)
 
     completeness_realised = validation.calc_completeness(realised)
 

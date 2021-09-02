@@ -108,9 +108,9 @@ class TestTaskContext(BaseTestCase):
 
         with self.assertRaises(PredictionJobException):
             with TaskContext("test_with_teams_message", False, True) as context:
-                PredictionJobLoop(context, prediction_jobs=test_prediction_jobs, random_order=False).map(
-                    func_fail
-                )
+                PredictionJobLoop(
+                    context, prediction_jobs=test_prediction_jobs, random_order=False
+                ).map(func_fail)
 
         # Assert that specification of exception: [pids] is 'posted' to the postteamsmock
         self.assertListEqual(
