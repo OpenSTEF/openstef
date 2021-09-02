@@ -8,16 +8,15 @@
 # Define custom exception
 class NoPredictedLoadError(Exception):
     """No predicted load for given datatime range"""
-
-    def __init__(self, pid, message="No predicted load found"):
-        self.pid = pid
+    def __init__(self, pid: int, message: str ="No predicted load found") -> Exception:
+        self.pid = pid # unused
         self.message = message
         super().__init__(self.message)
 
 class NoRealisedLoadError(Exception):
     """No realised load for given datetime range"""
-    def __init__(self, pid, message="No realised load found"):
-        self.pid = pid
+    def __init__(self, pid: int, message: str ="No realised load found") -> Exception:
+        self.pid = pid # unused
         self.message = message
         super().__init__(self.message)
 

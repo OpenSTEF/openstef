@@ -85,6 +85,7 @@ class TestTaskContext(BaseTestCase):
         pids they are nicely grouped per exception type."""
         # Specify which types of exceptions are raised
         func_fail = Mock()
+        # the int/pid is arbitrary, unused currently.
         func_fail.side_effect = [
             None,
             NoPredictedLoadError(2),
@@ -104,20 +105,20 @@ class TestTaskContext(BaseTestCase):
 
         with self.assertRaises(PredictionJobException):
             with TaskContext("test_with_teams_message", False, True) as context:
-                PredictionJobLoop(context, prediction_jobs=test_prediction_jobs).map(
+                PredictionJobLoop(context, prediction_jobs=test_prediction_jobs, random_order=False).map(
                     func_fail
                 )
 
-            # Assert that specification of exception: [pids] is 'posted' to the postteamsmock
-            self.assertListEqual(
-                postteamsmock.call_args_list[0].args[0]["sections"][2]["facts"],
-                [
-                    (
-                        "Exceptions: pid(s)",
-                        "Forced error:[3, 4]\n\nDifferent Forced error:[1]\n",
-                    )
-                ],
-            )
+        # Assert that specification of exception: [pids] is 'posted' to the postteamsmock
+        self.assertListEqual(
+            postteamsmock.call_args_list[0].args[0]["sections"][2]["facts"],
+            [
+                (
+                    "Exceptions: pid(s)",
+                    "No predicted load found:[2, 3]\n\nNo realised load found:[4]\n",
+                )
+            ],
+        )
 
 
 if __name__ == "__main__":
