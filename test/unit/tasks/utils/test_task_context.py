@@ -6,6 +6,7 @@
 import unittest
 from test.utils import TestData
 from unittest.mock import MagicMock, Mock, patch
+from datetime import datetime, timedelta
 
 from openstf.tasks.utils.predictionjobloop import (
     PredictionJobLoop,
@@ -86,11 +87,13 @@ class TestTaskContext(BaseTestCase):
         # Specify which types of exceptions are raised
         func_fail = Mock()
         # the int/pid is arbitrary, unused currently.
+        start_time = datetime.utcnow()
+        end_time = datetime.utcnow() - timedelta(days=1)
         func_fail.side_effect = [
             None,
-            NoPredictedLoadError(2),
-            NoPredictedLoadError(3),
-            NoRealisedLoadError(4),
+            NoPredictedLoadError(2, start_time, end_time),
+            NoPredictedLoadError(3, start_time, end_time),
+            NoRealisedLoadError(4, start_time, end_time),
         ]
 
         # Specify test prediction jobs.
