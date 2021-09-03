@@ -19,7 +19,7 @@ class ObjectiveCreator:
             model_type (Union[MLModelType, str]): Model type to construct.
 
         Raises:
-            NotImplementedError: When using an invalid model_type string.
+            NotImplementedError: When using an invalid model_type.
 
         Returns:
             RegressorObjective: Objective function

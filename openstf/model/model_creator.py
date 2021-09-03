@@ -92,7 +92,7 @@ class ModelCreator:
             kwargs (dict): Optional keyword argument to pass to the model.
 
         Raises:
-            NotImplementedError: When using an invalid model_type string.
+            NotImplementedError: When using an invalid model_type.
 
         Returns:
             RegressorMixin: model
