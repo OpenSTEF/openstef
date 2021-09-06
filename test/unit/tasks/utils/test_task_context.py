@@ -6,11 +6,13 @@
 import unittest
 from test.utils import TestData
 from unittest.mock import MagicMock, Mock, patch
+from datetime import datetime, timedelta
 
 from openstf.tasks.utils.predictionjobloop import (
     PredictionJobLoop,
     PredictionJobException,
 )
+from openstf.exceptions import NoPredictedLoadError, NoRealisedLoadError
 
 # import project modules
 from openstf.tasks.utils.taskcontext import TaskContext
@@ -84,11 +86,14 @@ class TestTaskContext(BaseTestCase):
         pids they are nicely grouped per exception type."""
         # Specify which types of exceptions are raised
         func_fail = Mock()
+        # the int/pid is arbitrary, unused currently.
+        start_time = datetime.utcnow()
+        end_time = datetime.utcnow() - timedelta(days=1)
         func_fail.side_effect = [
             None,
-            ValueError("Forced error"),
-            ValueError("Forced error"),
-            NotImplementedError("Different Forced error"),
+            NoPredictedLoadError(2, start_time, end_time),
+            NoPredictedLoadError(3, start_time, end_time),
+            NoRealisedLoadError(4, start_time, end_time),
         ]
 
         # Specify test prediction jobs.
@@ -103,20 +108,20 @@ class TestTaskContext(BaseTestCase):
 
         with self.assertRaises(PredictionJobException):
             with TaskContext("test_with_teams_message", False, True) as context:
-                PredictionJobLoop(context, prediction_jobs=test_prediction_jobs).map(
-                    func_fail
-                )
+                PredictionJobLoop(
+                    context, prediction_jobs=test_prediction_jobs, random_order=False
+                ).map(func_fail)
 
-            # Assert that specification of exception: [pids] is 'posted' to the postteamsmock
-            self.assertListEqual(
-                postteamsmock.call_args_list[0].args[0]["sections"][2]["facts"],
-                [
-                    (
-                        "Exceptions: pid(s)",
-                        "Forced error:[3, 4]\n\nDifferent Forced error:[1]\n",
-                    )
-                ],
-            )
+        # Assert that specification of exception: [pids] is 'posted' to the postteamsmock
+        self.assertListEqual(
+            postteamsmock.call_args_list[0].args[0]["sections"][2]["facts"],
+            [
+                (
+                    "Exceptions: pid(s)",
+                    "No predicted load found:[2, 3]\n\nNo realised load found:[4]\n",
+                )
+            ],
+        )
 
 
 if __name__ == "__main__":
