@@ -1,12 +1,14 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+from typing import Union
+
 from sklearn.base import RegressorMixin
 
 from openstf.enums import MLModelType
-from openstf.model.regressors.xgb_quantile import XGBQuantileOpenstfRegressor
-from openstf.model.regressors.xgb import XGBOpenstfRegressor
 from openstf.model.regressors.lgbm import LGBMOpenstfRegressor
+from openstf.model.regressors.xgb import XGBOpenstfRegressor
+from openstf.model.regressors.xgb_quantile import XGBQuantileOpenstfRegressor
 
 valid_model_kwargs = {
     MLModelType.XGB: [
@@ -82,21 +84,30 @@ class ModelCreator:
     }
 
     @staticmethod
-    def create_model(model_type, **kwargs) -> RegressorMixin:
+    def create_model(model_type: Union[MLModelType, str], **kwargs) -> RegressorMixin:
         """Create a machine learning model based on model type.
 
         Args:
-            model_type (Union[MLModelType, str]): Model type
-            kwargs (dict): Optional keyword argument to pass to the model
+            model_type (Union[MLModelType, str]): Model type to construct.
+            kwargs (dict): Optional keyword argument to pass to the model.
 
         Raises:
-            ValueError: When using an invalid model_type string
+            NotImplementedError: When using an invalid model_type.
 
         Returns:
             RegressorMixin: model
         """
-        # This will raise a ValueError when an invalid model_type str is used
-        model_type = MLModelType(model_type)
+        try:
+            # This will raise a ValueError when an invalid model_type str is used
+            # and nothing when a MLModelType enum is used.
+            model_type = MLModelType(model_type)
+        except ValueError as e:
+            valid_types = [t.value for t in MLModelType]
+            raise NotImplementedError(
+                f"No constructor for '{model_type}', "
+                f"valid model_types are: {valid_types}"
+            ) from e
+
         # only pass relevant arguments to model constructor to prevent warnings
         model_kwargs = {
             key: value
