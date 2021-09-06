@@ -9,30 +9,16 @@ from openstf.model.objective import RegressorObjective, XGBRegressorObjective
 
 
 class ObjectiveCreator:
-    OBJECTIVES = {MLModelType.XGB: XGBRegressorObjective}
+    OBJECTIVES = {MLModelType.XGB.value: XGBRegressorObjective}
 
     @staticmethod
     def create_objective(model_type: Union[MLModelType, str]) -> RegressorObjective:
-        """Create an objective function based on model type.
-
-        Args:
-            model_type (Union[MLModelType, str]): Model type to construct.
-
-        Raises:
-            NotImplementedError: When using an invalid model_type.
-
-        Returns:
-            RegressorObjective: Objective function
-        """
-        try:
-            # This will raise a ValueError when an invalid model_type str is used
-            # and nothing when a MLModelType enum is used.
-            model_type = MLModelType(model_type)
-        except ValueError as e:
-            valid_types = [t.value for t in MLModelType]
+        valid_types = list(ObjectiveCreator.OBJECTIVES.keys())
+        if model_type not in valid_types:
             raise NotImplementedError(
-                f"No objective for '{model_type}', "
-                f"valid model_types are: {valid_types}"
-            ) from e
+                f"No objective function for {model_type} valid model_types are:"
+                f"{', '.join([t for t in valid_types])}"
+            )
+        model_type = MLModelType(model_type).value
 
         return ObjectiveCreator.OBJECTIVES[model_type]
