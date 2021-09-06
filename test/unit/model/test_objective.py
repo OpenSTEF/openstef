@@ -2,8 +2,9 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 import unittest
-from test.utils.base import BaseTestCase
 from unittest.mock import MagicMock, patch
+
+from test.utils.base import BaseTestCase
 
 from openstf.enums import MLModelType
 from openstf.model.objective import XGBRegressorObjective
