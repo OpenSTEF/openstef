@@ -2,11 +2,12 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 import optuna
-
+from typing import Union, Tuple
+import pandas as pd
+from openstf.model.regressors.regressor_interface import OpenstfRegressorInterface
 from openstf.enums import MLModelType
-from openstf.model.model_creator import ModelCreator
+from datetime import datetime, timedelta
 from openstf.model_selection.model_selection import split_data_train_validation_test
-from openstf.metrics.metrics import mae
 
 EARLY_STOPPING_ROUNDS: int = 10
 TEST_FRACTION: float = 0.1
@@ -31,6 +32,52 @@ class RegressorObjective:
         study.optimize(objective)
     """
 
+    def process_tuple(self, trial: optuna.trial.FrozenTrial, key: str, value: (Union[int, float], Union[int, float])) -> \
+    Union[int, float]:
+        """ Pick hyperparameter for tuple  """
+        tup, log = value
+        startValue, endValue = tup
+
+        error = "input values for the tuple can be float/float, float/int, int/float, int/int"
+
+        if isinstance(startValue, float) or isinstance(endValue, float):
+            return trial.suggest_float(key, float(startValue), float(endValue), log=log)
+
+        elif isinstance(startValue, int) and isinstance(endValue, int):
+            return trial.suggest_int(key, startValue, endValue)
+
+        else:
+            raise TypeError(error)
+
+    def get_trial_parameters(self, model_params: dict, trial: optuna.trial.FrozenTrial) -> dict:
+        """
+        Pick hyperparameters from the hyperparameter space using optuna.
+        The dictionary can contain 2 possible types: tuple or List
+        1. a list can directly be used in the suggest_categorical
+        2. For the tuple we need a check to see what the tuple contains
+            a. two strings; it will pick one of the values based on the model used
+            b. one float with one integer or two floats;
+            will set the first value as lowerbound and the second value as upperbound and picks floats between those bounds.
+            This uses the log boolean which is defined in the tuple
+            c. two integers;
+            will set the first value as lowerbound and the second value as upperbound and picks integers between those bounds.
+            log boolean is ignored.
+
+        """
+        param = {}
+        for key, value in model_params.items():
+            # In the default parameter space we make use of tuples ((startValue: Union[int, float], endValue: Union[int, float]),log: bool)
+            if isinstance(value, tuple):
+                param[key] = self.process_tuple(trial, key, value)
+            # If the parameter is a list it means it is a categorical feature
+            elif isinstance(value, list):
+                param[key] = trial.suggest_categorical(key, value)
+
+            else:
+                raise TypeError("Possible input values: tuple, list")
+
+        return param
+
     def __init__(
         self,
         input_data,
@@ -47,7 +94,11 @@ class RegressorObjective:
         # Should be set on a derived classes
         self.model_type = None
 
-    def __call__(self, trial: optuna.trial.FrozenTrial) -> float:
+    def __call__(self, trial: optuna.trial.FrozenTrial, model: OpenstfRegressorInterface,
+              pruning_function: optuna.integration, #data: pd.DataFrame, target: pd.Series,
+              model_params: dict,
+              start_time: datetime,
+              **args_eval) -> float:
         """Optuna objective function.
 
         Args: trial
@@ -55,6 +106,11 @@ class RegressorObjective:
         Returns:
             float: Mean absolute error for this trial.
         """
+        # Check elapsed time
+        elapsed = datetime.utcnow() - start_time
+        if elapsed > timedelta(minutes=2, seconds=0):
+            trial.study.stop()
+
         # Perform data preprocessing
         train_data, validation_data, test_data = split_data_train_validation_test(
             self.input_data,
@@ -78,21 +134,17 @@ class RegressorObjective:
         # Configure evals for early stopping
         eval_set = [(train_x, train_y), (valid_x, valid_y)]
 
-        model = ModelCreator.create_model(self.model_type)
+        # get the parameters used in this trial
+        param = self.get_trial_parameters(model_params, trial)
 
-        params = self.get_params(trial)
+        # create the specific pruning callback
+        pruning_callback = pruning_function(trial, **args_eval)
 
-        model.set_params(**params)
+        # insert parameters into model
+        model.set_params(**param)
 
         eval_metric = self.eval_metric
 
-        # See https://optuna.readthedocs.io/en/stable/reference/generated/optuna.integration.XGBoostPruningCallback.html
-        pruning_callback = optuna.integration.XGBoostPruningCallback(
-            # Use validation_0 to prune on the train set
-            # Use validation_1 to prune on the validation set
-            trial,
-            observation_key=f"validation_1-{eval_metric}",
-        )
         # validation_0 and validation_1 are available
         model.fit(
             train_x,
@@ -106,8 +158,13 @@ class RegressorObjective:
 
         forecast_y = model.predict(test_x)
 
-        return mae(test_y, forecast_y)
+        try:
+            loss = "openstf.metrics.metrics." + eval_metric
 
+            metric = eval(loss + "(valid_y, forecast_y)")
+            return metric
+        except AttributeError:
+            print("loss function is not defined in openstf.metrics.metrics")
 
 class XGBRegressorObjective(RegressorObjective):
     def __init__(self, *args, **kwargs):
