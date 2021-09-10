@@ -15,6 +15,7 @@ input_data = TestData.load("reference_sets/307-train-data.csv")
 input_data_with_features = TrainFeatureApplicator(horizons=[0.25, 24.0]).add_features(
             input_data
         )
+input_data_with_features = input_data_with_features.iloc[::50,:]
 pj = TestData.get_prediction_job(pid=60)
 
 default_paramspace: dict = {
