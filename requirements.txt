@@ -24,3 +24,9 @@ sklearn~=0.0
 wheel~=0.36.2
 xgboost~=1.3.3
 structlog>=20,<21
+
+openstf~=2.2.2
+joblib~=1.0.1
+matplotlib~=3.3.4
+geopy~=2.1.0
+ipython~=7.22.0

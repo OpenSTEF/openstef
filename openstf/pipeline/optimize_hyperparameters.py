@@ -137,9 +137,9 @@ def optimize_hyperparameters_pipeline(
 
     start_time = datetime.utcnow()
 
-    Objective(model, pruning_function, input_data_with_features, model_params, start_time, **args_eval)
+    Objective = Objective(model, pruning_function, input_data_with_features, model_params, start_time, **args_eval)
     study.optimize(
-        Objective(),
+        Objective,
         n_trials=n_trials,
         callbacks=[_log_study_progress],
         show_progress_bar=False,

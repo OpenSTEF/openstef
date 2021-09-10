@@ -3,6 +3,8 @@
 # SPDX-License-Identifier: MPL-2.0
 import optuna
 from typing import Union, Tuple
+
+import openstf
 from openstf.model.regressors.regressor_interface import OpenstfRegressorInterface
 from openstf.enums import MLModelType
 from datetime import datetime, timedelta
@@ -163,7 +165,6 @@ class RegressorObjective:
 
         try:
             loss = "openstf.metrics.metrics." + self.eval_metric
-
             metric = eval(loss)(test_y, forecast_y)
             return metric
         except AttributeError:
