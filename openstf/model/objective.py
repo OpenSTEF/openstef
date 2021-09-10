@@ -46,7 +46,9 @@ class RegressorObjective:
         error = "input values for the tuple can be float/float, float/int, int/float, int/int"
 
         if isinstance(start_value, float) or isinstance(end_value, float):
-            return trial.suggest_float(key, float(start_value), float(end_value), log=log)
+            return trial.suggest_float(
+                key, float(start_value), float(end_value), log=log
+            )
 
         elif isinstance(start_value, int) and isinstance(end_value, int):
             return trial.suggest_int(key, start_value, end_value)
