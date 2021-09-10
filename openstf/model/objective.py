@@ -4,7 +4,7 @@
 import optuna
 from typing import Union, Tuple
 
-import openstf # Needed for <loss = "openstf.metrics.metrics." + self.eval_metric>  and the line <metric = eval(loss)(test_y, forecast_y)>
+import openstf  # Needed for <loss = "openstf.metrics.metrics." + self.eval_metric>  and the line <metric = eval(loss)(test_y, forecast_y)>
 from openstf.model.regressors.regressor_interface import OpenstfRegressorInterface
 from openstf.enums import MLModelType
 from datetime import datetime, timedelta
@@ -33,9 +33,13 @@ class RegressorObjective:
         study.optimize(objective)
     """
 
-    def process_tuple(self, trial: optuna.trial.FrozenTrial, key: str, value: Tuple[Union[int, float], Union[int, float]]) -> \
-    Union[int, float]:
-        """ Pick hyperparameter for tuple  """
+    def process_tuple(
+        self,
+        trial: optuna.trial.FrozenTrial,
+        key: str,
+        value: Tuple[Union[int, float], Union[int, float]],
+    ) -> Union[int, float]:
+        """Pick hyperparameter for tuple"""
         tup, log = value
         start_value, end_value = tup
 
@@ -50,7 +54,9 @@ class RegressorObjective:
         else:
             raise TypeError(error)
 
-    def get_trial_parameters(self, model_params: dict, trial: optuna.trial.FrozenTrial) -> dict:
+    def get_trial_parameters(
+        self, model_params: dict, trial: optuna.trial.FrozenTrial
+    ) -> dict:
         """
         Pick hyperparameters from the hyperparameter space using optuna.
         The dictionary can contain 2 possible types: tuple or List
@@ -170,15 +176,18 @@ class RegressorObjective:
         except AttributeError:
             print("loss function is not defined in openstf.metrics.metrics")
 
+
 class XGBRegressorObjective(RegressorObjective):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.model_type = MLModelType.XGB
 
+
 class LGBRegressorObjective(RegressorObjective):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.model_type = MLModelType.LGB
+
 
 class XGBQRegressorObjective(RegressorObjective):
     def __init__(self, *args, **kwargs):

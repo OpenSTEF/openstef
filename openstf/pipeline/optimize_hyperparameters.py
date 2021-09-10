@@ -34,7 +34,6 @@ default_paramspace: dict = {
     "learning_rate": ((0.01, 0.2), True),
     "alpha": ((1e-8, 1.0), True),
     "lambda": ((1e-8, 1.0), True),
-
     "subsample": ((0.5, 0.99), False),
     "min_child_weight": ((1, 6), False),
     "max_depth": ((3, 10), False),
@@ -52,16 +51,18 @@ xgb_paramspace: dict = {
 # LGB specific
 lgb_paramspace: dict = {
     "num_leaves": ((16, 62), False),
-    "boosting_type": ['gbdt', 'dart', 'rf'],
-    "tree_learner": ['serial', 'feature', 'data', 'voting'],
+    "boosting_type": ["gbdt", "dart", "rf"],
+    "tree_learner": ["serial", "feature", "data", "voting"],
     "n_estimators": ((50, 150), False),
     "min_split_gain": ((1e-8, 1), True),
     "subsample_freq": ((1, 10), False),
 }
 
 
-def get_relevant_model_paramspace(model: OpenstfRegressorInterface, paramspace: dict) -> dict:
-    """ Return the parameters usefull for the model   """
+def get_relevant_model_paramspace(
+    model: OpenstfRegressorInterface, paramspace: dict
+) -> dict:
+    """Return the parameters usefull for the model"""
     # list the possible hyperparameters for the model
     list_default_params = model.get_params()
 
@@ -70,6 +71,7 @@ def get_relevant_model_paramspace(model: OpenstfRegressorInterface, paramspace: 
     # create a dictonairy with the matching parameters
     model_params = {parameter: paramspace[parameter] for parameter in keys}
     return model_params
+
 
 def optimize_hyperparameters_pipeline(
     pj: dict,
@@ -125,10 +127,12 @@ def optimize_hyperparameters_pipeline(
     model_params = get_relevant_model_paramspace(model, paramspace)
 
     if model_type == "lgb":
+
         model_params["objective"] = objective.eval_metric # The objective of lgb is the eval metric
         pruning_function = optuna.integration.LightGBMPruningCallback
         args_eval = {"metric" : objective.eval_metric, "valid_name" : "valid_1"}
         if objective.eval_metric == "mae":
+
             args_eval["metric"] = "l1"
     else:
         # for other models use the default objective by not setting it.
@@ -138,6 +142,7 @@ def optimize_hyperparameters_pipeline(
     start_time = datetime.utcnow()
 
     objective = objective(model, pruning_function, input_data_with_features, model_params, start_time, **args_eval)
+
     study.optimize(
         objective,
         n_trials=n_trials,
