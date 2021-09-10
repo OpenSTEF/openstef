@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: MPL-2.0
 import optuna
 from typing import Union, Tuple
-import pandas as pd
 from openstf.model.regressors.regressor_interface import OpenstfRegressorInterface
 from openstf.enums import MLModelType
 from datetime import datetime, timedelta
@@ -32,7 +31,7 @@ class RegressorObjective:
         study.optimize(objective)
     """
 
-    def process_tuple(self, trial: optuna.trial.FrozenTrial, key: str, value: (Union[int, float], Union[int, float])) -> \
+    def process_tuple(self, trial: optuna.trial.FrozenTrial, key: str, value: Tuple[Union[int, float], Union[int, float]]) -> \
     Union[int, float]:
         """ Pick hyperparameter for tuple  """
         tup, log = value
@@ -81,24 +80,30 @@ class RegressorObjective:
     def __init__(
         self,
         input_data,
+        model: OpenstfRegressorInterface,
+        pruning_function: optuna.integration,
+        model_params: dict,
+        start_time: datetime,
         test_fraction=TEST_FRACTION,
         validation_fraction=VALIDATION_FRACTION,
         eval_metric=EVAL_METRIC,
         verbose=False,
+        **args_eval
     ):
         self.input_data = input_data
+        self.model = model
+        self.pruning_function = pruning_function
+        self.model_params = model_params
+        self.start_time = start_time
         self.test_fraction = test_fraction
         self.validation_fraction = validation_fraction
         self.eval_metric = eval_metric
         self.verbose = verbose
+        self.args_eval = args_eval
         # Should be set on a derived classes
         self.model_type = None
 
-    def __call__(self, trial: optuna.trial.FrozenTrial, model: OpenstfRegressorInterface,
-              pruning_function: optuna.integration, #data: pd.DataFrame, target: pd.Series,
-              model_params: dict,
-              start_time: datetime,
-              **args_eval) -> float:
+    def __call__(self, trial: optuna.trial.FrozenTrial) -> float:
         """Optuna objective function.
 
         Args: trial
@@ -107,7 +112,7 @@ class RegressorObjective:
             float: Mean absolute error for this trial.
         """
         # Check elapsed time
-        elapsed = datetime.utcnow() - start_time
+        elapsed = datetime.utcnow() - self.start_time
         if elapsed > timedelta(minutes=2, seconds=0):
             trial.study.stop()
 
@@ -135,33 +140,31 @@ class RegressorObjective:
         eval_set = [(train_x, train_y), (valid_x, valid_y)]
 
         # get the parameters used in this trial
-        param = self.get_trial_parameters(model_params, trial)
+        param = self.get_trial_parameters(self.model_params, trial)
 
         # create the specific pruning callback
-        pruning_callback = pruning_function(trial, **args_eval)
+        pruning_callback = self.pruning_function(trial, **self.args_eval)
 
         # insert parameters into model
-        model.set_params(**param)
-
-        eval_metric = self.eval_metric
+        self.model.set_params(**param)
 
         # validation_0 and validation_1 are available
-        model.fit(
+        self.model.fit(
             train_x,
             train_y,
             eval_set=eval_set,
             early_stopping_rounds=EARLY_STOPPING_ROUNDS,
             verbose=self.verbose,
-            eval_metric=eval_metric,
+            eval_metric=self.eval_metric,
             callbacks=[pruning_callback],
         )
 
-        forecast_y = model.predict(test_x)
+        forecast_y = self.model.predict(test_x)
 
         try:
-            loss = "openstf.metrics.metrics." + eval_metric
+            loss = "openstf.metrics.metrics." + self.eval_metric
 
-            metric = eval(loss + "(valid_y, forecast_y)")
+            metric = eval(loss)(test_y, forecast_y)
             return metric
         except AttributeError:
             print("loss function is not defined in openstf.metrics.metrics")

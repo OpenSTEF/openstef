@@ -5,7 +5,7 @@ import pandas as pd
 import optuna
 from typing import List
 import structlog
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from openstf.model.model_creator import ModelCreator
 from openstf.model.objective_creator import ObjectiveCreator
@@ -40,9 +40,6 @@ default_paramspace: dict = {
     "max_depth": ((3, 10), False),
     "colsample_bytree": ((0.5, 1.0), False),
     "max_delta_step": ((1, 10), False),
-
-    # Model dependent, picks one based on model type; model_type:<objective>
-    "objective": {"xgb": "reg:squarederror", "xgb_quantile": "reg:squarederror", "lgb": metrics},
 }
 # Important parameters, model specific
 # XGB specific
@@ -113,7 +110,7 @@ def optimize_hyperparameters_pipeline(
     )
 
     # Create objective (NOTE: this is a callable class)
-    objective = ObjectiveCreator.create_objective(model_type=pj["model"])
+    Objective = ObjectiveCreator.create_objective(model_type=pj["model"])
 
     study = optuna.create_study(
         pruner=optuna.pruners.MedianPruner(n_warmup_steps=5), direction="minimize"
@@ -121,27 +118,28 @@ def optimize_hyperparameters_pipeline(
     model_type = pj["model"]
     model = ModelCreator.create_model(model_type)
 
-    # Depending on the model,change the objective
+    # Combine the default parameters with all model specific parameters
     paramspace = default_paramspace.copy()
-    paramspace["objective"] = [paramspace["objective"][model_type]]
     paramspace.update(**xgb_paramspace, **lgb_paramspace)
 
     model_params = get_relevant_model_paramspace(model, paramspace)
 
     if model_type == "lgb":
+        model_params["objective"] = Objective.eval_metric # The objective of lgb is the eval metric
         pruning_function = optuna.integration.LightGBMPruningCallback
-        args_eval = {"metric" : objective.eval_metric, "valid_name" : "valid_1"}
-        if objective.eval_metric == "mae":
+        args_eval = {"metric" : Objective.eval_metric, "valid_name" : "valid_1"}
+        if Objective.eval_metric == "mae":
             args_eval["metric"] = "l1"
     else:
+        # for other models use the default objective by not setting it.
         pruning_function = optuna.integration.XGBoostPruningCallback
-        args_eval = {"observation_key" : "validation_1-{}".format(objective.eval_metric)}
+        args_eval = {"observation_key" : "validation_1-{}".format(Objective.eval_metric)}
 
     start_time = datetime.utcnow()
 
+    Objective(model, pruning_function, input_data_with_features, model_params, start_time, **args_eval)
     study.optimize(
-        lambda trial:
-        objective(trial, model, pruning_function, input_data_with_features, model_params, start_time, **args_eval),
+        Objective(),
         n_trials=n_trials,
         callbacks=[_log_study_progress],
         show_progress_bar=False,
