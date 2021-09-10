@@ -110,7 +110,7 @@ def optimize_hyperparameters_pipeline(
     )
 
     # Create objective (NOTE: this is a callable class)
-    Objective = ObjectiveCreator.create_objective(model_type=pj["model"])
+    objective = ObjectiveCreator.create_objective(model_type=pj["model"])
 
     study = optuna.create_study(
         pruner=optuna.pruners.MedianPruner(n_warmup_steps=5), direction="minimize"
@@ -125,21 +125,21 @@ def optimize_hyperparameters_pipeline(
     model_params = get_relevant_model_paramspace(model, paramspace)
 
     if model_type == "lgb":
-        model_params["objective"] = Objective.eval_metric # The objective of lgb is the eval metric
+        model_params["objective"] = objective.eval_metric # The objective of lgb is the eval metric
         pruning_function = optuna.integration.LightGBMPruningCallback
-        args_eval = {"metric" : Objective.eval_metric, "valid_name" : "valid_1"}
-        if Objective.eval_metric == "mae":
+        args_eval = {"metric" : objective.eval_metric, "valid_name" : "valid_1"}
+        if objective.eval_metric == "mae":
             args_eval["metric"] = "l1"
     else:
         # for other models use the default objective by not setting it.
         pruning_function = optuna.integration.XGBoostPruningCallback
-        args_eval = {"observation_key" : "validation_1-{}".format(Objective.eval_metric)}
+        args_eval = {"observation_key" : "validation_1-{}".format(objective.eval_metric)}
 
     start_time = datetime.utcnow()
 
-    Objective = Objective(model, pruning_function, input_data_with_features, model_params, start_time, **args_eval)
+    objective = objective(model, pruning_function, input_data_with_features, model_params, start_time, **args_eval)
     study.optimize(
-        Objective,
+        objective,
         n_trials=n_trials,
         callbacks=[_log_study_progress],
         show_progress_bar=False,

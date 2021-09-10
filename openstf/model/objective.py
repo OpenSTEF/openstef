@@ -37,15 +37,15 @@ class RegressorObjective:
     Union[int, float]:
         """ Pick hyperparameter for tuple  """
         tup, log = value
-        startValue, endValue = tup
+        start_value, end_value = tup
 
         error = "input values for the tuple can be float/float, float/int, int/float, int/int"
 
-        if isinstance(startValue, float) or isinstance(endValue, float):
-            return trial.suggest_float(key, float(startValue), float(endValue), log=log)
+        if isinstance(start_value, float) or isinstance(end_value, float):
+            return trial.suggest_float(key, float(start_value), float(end_value), log=log)
 
-        elif isinstance(startValue, int) and isinstance(endValue, int):
-            return trial.suggest_int(key, startValue, endValue)
+        elif isinstance(start_value, int) and isinstance(end_value, int):
+            return trial.suggest_int(key, start_value, end_value)
 
         else:
             raise TypeError(error)
@@ -113,7 +113,7 @@ class RegressorObjective:
         Returns:
             float: Mean absolute error for this trial.
         """
-        # Check elapsed time
+        # Check elapsed time and after n minutes end trial and stop the study
         elapsed = datetime.utcnow() - self.start_time
         if elapsed > timedelta(minutes=2, seconds=0):
             trial.study.stop()
