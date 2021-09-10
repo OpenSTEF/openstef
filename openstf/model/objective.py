@@ -4,7 +4,7 @@
 import optuna
 from typing import Union, Tuple
 
-import openstf
+import openstf # Needed for <loss = "openstf.metrics.metrics." + self.eval_metric>  and the line <metric = eval(loss)(test_y, forecast_y)>
 from openstf.model.regressors.regressor_interface import OpenstfRegressorInterface
 from openstf.enums import MLModelType
 from datetime import datetime, timedelta

@@ -4,14 +4,13 @@
 import unittest
 import optuna
 from test.utils import BaseTestCase, TestData
-from unittest.mock import MagicMock, patch
 from datetime import datetime
 
 from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
 from openstf.model.objective_creator import ObjectiveCreator
-from openstf.model.objective import RegressorObjective
 from openstf.model.model_creator import ModelCreator
 from openstf.pipeline.optimize_hyperparameters import get_relevant_model_paramspace
+
 input_data = TestData.load("reference_sets/307-train-data.csv")
 input_data_with_features = TrainFeatureApplicator(horizons=[0.25, 24.0]).add_features(
             input_data
@@ -52,9 +51,6 @@ lgb_paramspace: dict = {
 
 class TestXGBRegressorObjective(BaseTestCase):
     def test_call(self):
-
-
-
         model_type = "xgb"
         model = ModelCreator.create_model(model_type)
 
@@ -67,7 +63,7 @@ class TestXGBRegressorObjective(BaseTestCase):
             pruner=optuna.pruners.MedianPruner(n_warmup_steps=5), direction="minimize"
         )
         study.optimize( objective,
-                       n_trials=2)
+                       n_trials=1)
 
         self.assertIsInstance(study.best_trial.params,dict)
 
@@ -87,15 +83,12 @@ class TestLGBRegressorObjective(BaseTestCase):
             pruner=optuna.pruners.MedianPruner(n_warmup_steps=5), direction="minimize"
         )
         study.optimize(objective,
-                       n_trials=2)
+                       n_trials=1)
 
         self.assertIsInstance(study.best_trial.params, dict)
 
 class TestXGBQRegressorObjective(BaseTestCase):
     def test_call(self):
-
-
-
         model_type = "xgb_quantile"
         model = ModelCreator.create_model(model_type)
 
@@ -108,7 +101,7 @@ class TestXGBQRegressorObjective(BaseTestCase):
             pruner=optuna.pruners.MedianPruner(n_warmup_steps=5), direction="minimize"
         )
         study.optimize( objective,
-                       n_trials=2)
+                       n_trials=1)
 
         self.assertIsInstance(study.best_trial.params,dict)
 
