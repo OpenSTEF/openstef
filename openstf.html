@@ -197,6 +197,15 @@
 <li class="toctree-l4"><a class="reference internal" href="openstf.model.capacity.html#module-openstf.model.capacity">Module contents</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="openstf.model.regressors.html">openstf.model.regressors package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstf.model.regressors.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstf.model.regressors.html#module-openstf.model.regressors.lgbm">openstf.model.regressors.lgbm module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstf.model.regressors.html#module-openstf.model.regressors.regressor_interface">openstf.model.regressors.regressor_interface module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstf.model.regressors.html#module-openstf.model.regressors.xgb">openstf.model.regressors.xgb module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstf.model.regressors.html#module-openstf.model.regressors.xgb_quantile">openstf.model.regressors.xgb_quantile module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstf.model.regressors.html#module-openstf.model.regressors">Module contents</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="openstf.model.html#submodules">Submodules</a></li>
@@ -208,7 +217,6 @@
 <li class="toctree-l2"><a class="reference internal" href="openstf.model.html#module-openstf.model.objective_creator">openstf.model.objective_creator module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstf.model.html#module-openstf.model.serializer">openstf.model.serializer module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstf.model.html#module-openstf.model.standard_deviation_generator">openstf.model.standard_deviation_generator module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="openstf.model.html#module-openstf.model.xgb_quantile">openstf.model.xgb_quantile module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstf.model.html#module-openstf.model">Module contents</a></li>
 </ul>
 </li>
@@ -389,14 +397,14 @@
 
 <dl class="exception">
 <dt id="openstf.exceptions.NoPredictedLoadError">
-<em class="property">exception </em><code class="sig-prename descclassname">openstf.exceptions.</code><code class="sig-name descname">NoPredictedLoadError</code><a class="headerlink" href="#openstf.exceptions.NoPredictedLoadError" title="Permalink to this definition">¶</a></dt>
+<em class="property">exception </em><code class="sig-prename descclassname">openstf.exceptions.</code><code class="sig-name descname">NoPredictedLoadError</code><span class="sig-paren">(</span><em class="sig-param">pid: int</em>, <em class="sig-param">start_time: datetime.datetime</em>, <em class="sig-param">end_time: datetime.datetime</em>, <em class="sig-param">message: str = 'No predicted load found'</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.exceptions.NoPredictedLoadError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
 <p>No predicted load for given datatime range</p>
 </dd></dl>
 
 <dl class="exception">
 <dt id="openstf.exceptions.NoRealisedLoadError">
-<em class="property">exception </em><code class="sig-prename descclassname">openstf.exceptions.</code><code class="sig-name descname">NoRealisedLoadError</code><a class="headerlink" href="#openstf.exceptions.NoRealisedLoadError" title="Permalink to this definition">¶</a></dt>
+<em class="property">exception </em><code class="sig-prename descclassname">openstf.exceptions.</code><code class="sig-name descname">NoRealisedLoadError</code><span class="sig-paren">(</span><em class="sig-param">pid: int</em>, <em class="sig-param">start_time: datetime.datetime</em>, <em class="sig-param">end_time: datetime.datetime</em>, <em class="sig-param">message: str = 'No realised load found'</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.exceptions.NoRealisedLoadError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
 <p>No realised load for given datetime range</p>
 </dd></dl>

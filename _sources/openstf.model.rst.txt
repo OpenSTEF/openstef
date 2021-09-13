@@ -7,6 +7,7 @@ Subpackages
 .. toctree::
 
    openstf.model.capacity
+   openstf.model.regressors
 
 Submodules
 ----------
@@ -71,14 +72,6 @@ openstf.model.standard\_deviation\_generator module
 ---------------------------------------------------
 
 .. automodule:: openstf.model.standard_deviation_generator
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-openstf.model.xgb\_quantile module
-----------------------------------
-
-.. automodule:: openstf.model.xgb_quantile
    :members:
    :undoc-members:
    :show-inheritance:
