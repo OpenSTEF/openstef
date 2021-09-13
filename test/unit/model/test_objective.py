@@ -6,7 +6,11 @@ import optuna
 from test.utils import BaseTestCase, TestData
 
 from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
-from openstf.model.objective import XGBRegressorObjective, LGBRegressorObjective, XGBQRegressorObjective
+from openstf.model.objective import (
+    XGBRegressorObjective,
+    LGBRegressorObjective,
+    XGBQRegressorObjective,
+)
 from openstf.model.model_creator import ModelCreator
 
 input_data = TestData.load("reference_sets/307-train-data.csv")
@@ -17,6 +21,7 @@ input_data_with_features = input_data_with_features.iloc[::50, :]
 pj = TestData.get_prediction_job(pid=307)
 N_TRIALS = 1
 
+
 class TestXGBRegressorObjective(BaseTestCase):
     def test_call(self):
         model_type = "xgb"
@@ -26,14 +31,15 @@ class TestXGBRegressorObjective(BaseTestCase):
             input_data_with_features,
             model,
         )
-        study = optuna.create_study( study_name= model_type,
-            pruner=optuna.pruners.MedianPruner(n_warmup_steps=5), direction="minimize"
+        study = optuna.create_study(
+            study_name=model_type,
+            pruner=optuna.pruners.MedianPruner(n_warmup_steps=5),
+            direction="minimize",
         )
         study.optimize(objective, n_trials=N_TRIALS)
 
         self.assertIsInstance(objective, XGBRegressorObjective)
         self.assertEqual(len(study.trials), N_TRIALS)
-
 
 
 class TestLGBRegressorObjective(BaseTestCase):
@@ -45,13 +51,16 @@ class TestLGBRegressorObjective(BaseTestCase):
             input_data_with_features,
             model,
         )
-        study = optuna.create_study( study_name= model_type,
-            pruner=optuna.pruners.MedianPruner(n_warmup_steps=5), direction="minimize"
+        study = optuna.create_study(
+            study_name=model_type,
+            pruner=optuna.pruners.MedianPruner(n_warmup_steps=5),
+            direction="minimize",
         )
         study.optimize(objective, n_trials=N_TRIALS)
 
         self.assertIsInstance(objective, LGBRegressorObjective)
         self.assertEqual(len(study.trials), N_TRIALS)
+
 
 class TestXGBQRegressorObjective(BaseTestCase):
     def test_call(self):
@@ -62,13 +71,16 @@ class TestXGBQRegressorObjective(BaseTestCase):
             input_data_with_features,
             model,
         )
-        study = optuna.create_study( study_name= model_type,
-            pruner=optuna.pruners.MedianPruner(n_warmup_steps=5), direction="minimize"
+        study = optuna.create_study(
+            study_name=model_type,
+            pruner=optuna.pruners.MedianPruner(n_warmup_steps=5),
+            direction="minimize",
         )
         study.optimize(objective, n_trials=N_TRIALS)
 
         self.assertIsInstance(objective, XGBQRegressorObjective)
         self.assertEqual(len(study.trials), N_TRIALS)
+
 
 if __name__ == "__main__":
     unittest.main()

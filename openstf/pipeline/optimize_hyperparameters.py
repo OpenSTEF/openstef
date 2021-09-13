@@ -24,6 +24,7 @@ N_TRIALS: int = 8  # The number of trials.
 TIMEOUT: int = 200  # Stop study after the given number of second(s).
 TRAIN_HORIZONS: List[float] = [0.25, 24.0]
 
+
 def optimize_hyperparameters_pipeline(
     pj: dict,
     input_data: pd.DataFrame,
@@ -73,8 +74,10 @@ def optimize_hyperparameters_pipeline(
         input_data_with_features,
     )
 
-    study = optuna.create_study( study_name= model_type,
-        pruner=optuna.pruners.MedianPruner(n_warmup_steps=5), direction="minimize"
+    study = optuna.create_study(
+        study_name=model_type,
+        pruner=optuna.pruners.MedianPruner(n_warmup_steps=5),
+        direction="minimize",
     )
 
     study.optimize(

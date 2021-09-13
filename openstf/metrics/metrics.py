@@ -12,6 +12,7 @@
 import numpy as np
 import pandas as pd
 
+
 def get_eval_metric_function(metric_name):
     evaluation_function = {
         "bias": bias,
@@ -33,6 +34,7 @@ def get_eval_metric_function(metric_name):
         raise KeyError(f"Unknown evaluation metric function {metric_name}")
 
     return evaluation_function
+
 
 def rmse(realised, forecast):
     """Function that calculates the Root Mean Square Error

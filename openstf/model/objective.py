@@ -32,6 +32,7 @@ class RegressorObjective:
         # use the objective function
         study.optimize(objective)
     """
+
     def __init__(
         self,
         input_data,
@@ -65,7 +66,7 @@ class RegressorObjective:
         # Check elapsed time and after n minutes end trial and stop the study
         study_duration = datetime.utcnow() - self.start_time
         if study_duration > timedelta(minutes=2, seconds=0):
-            logging.info('Study stopped due to time constraint')
+            logging.info("Study stopped due to time constraint")
             trial.study.stop()
 
         # Perform data preprocessing
@@ -132,6 +133,7 @@ class RegressorObjective:
     def get_loss(self):
         pass
 
+
 class XGBRegressorObjective(RegressorObjective):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -155,9 +157,10 @@ class XGBRegressorObjective(RegressorObjective):
         return {**model_params, **params}
 
     def get_pruning_callback(self, trial: optuna.trial.FrozenTrial):
-        return optuna.integration.XGBoostPruningCallback( trial,
-            observation_key=f"validation_1-{self.eval_metric}"
+        return optuna.integration.XGBoostPruningCallback(
+            trial, observation_key=f"validation_1-{self.eval_metric}"
         )
+
 
 class LGBRegressorObjective(RegressorObjective):
     def __init__(self, *args, **kwargs):
@@ -192,11 +195,9 @@ class LGBRegressorObjective(RegressorObjective):
         metric = self.eval_metric
         if metric == "mae":
             metric = "l1"
-        return optuna.integration.LightGBMPruningCallback(trial,
-                                                          metric = metric,
-                                                          valid_name = "valid_1")
-
-
+        return optuna.integration.LightGBMPruningCallback(
+            trial, metric=metric, valid_name="valid_1"
+        )
 
 
 class XGBQRegressorObjective(RegressorObjective):
@@ -220,6 +221,6 @@ class XGBQRegressorObjective(RegressorObjective):
         return {**model_params, **params}
 
     def get_pruning_callback(self, trial: optuna.trial.FrozenTrial):
-        return optuna.integration.XGBoostPruningCallback( trial,
-            observation_key=f"validation_1-{self.eval_metric}"
+        return optuna.integration.XGBoostPruningCallback(
+            trial, observation_key=f"validation_1-{self.eval_metric}"
         )
