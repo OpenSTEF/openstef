@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+import pandas as pd
 from xgboost import XGBRegressor
 from openstf.model.regressors.regressor_interface import OpenstfRegressorInterface
 
@@ -9,4 +10,13 @@ from openstf.model.regressors.regressor_interface import OpenstfRegressorInterfa
 class XGBOpenstfRegressor(XGBRegressor, OpenstfRegressorInterface):
     """XGB Regressor which implements the Openstf regressor API."""
 
-    pass
+    def get_feature_importance(self, cols):
+        self.importance_type = "total_gain"
+        gain = self.feature_importances_
+
+        self.importance_type = "weight"
+        number = self.feature_importances_
+        number = (number / sum(number)) * 100
+
+        feature_importance = pd.DataFrame({"gain": gain, "number": number}, index=cols)
+        return feature_importance
