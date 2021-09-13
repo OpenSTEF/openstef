@@ -250,6 +250,10 @@ def train_pipeline_common(
     )
     logging.info("Fitted a new model, not yet stored")
 
+    importance = (model.feature_importances_ / sum(model.feature_importances_)) * 100
+    feature_importance = dict(zip(list(train_x.columns), importance))
+    model.feature_importance = feature_importance
+
     # Do confidence interval determination
     model = StandardDeviationGenerator(
         validation_data

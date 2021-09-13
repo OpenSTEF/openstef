@@ -114,13 +114,12 @@ class XGBRegressorObjective(RegressorObjective):
         super().__init__(*args, **kwargs)
         self.model_type = MLModelType.XGB
 
-    def get_params(self, trial: optuna.trial.FrozenTrial) -> dict:
-        params = {
-            "eta": trial.suggest_float("eta", 0.01, 0.2),
-            "subsample": trial.suggest_float("subsample", 0.5, 1.0),
-            "min_child_weight": trial.suggest_int("min_child_weight", 1, 6),
-            "max_depth": trial.suggest_int("max_depth", 3, 10),
-            "gamma": trial.suggest_float("gamma", 0.0, 1.0),
-            "colsample_bytree": trial.suggest_float("colsample_bytree", 0.5, 1.0),
-        }
-        return params
+class LGBRegressorObjective(RegressorObjective):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.model_type = MLModelType.LGB
+
+class XGBQRegressorObjective(RegressorObjective):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.model_type = MLModelType.XGB_QUANTILE

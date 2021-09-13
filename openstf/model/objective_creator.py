@@ -5,22 +5,28 @@
 from typing import Union
 
 from openstf.enums import MLModelType
-from openstf.model.objective import RegressorObjective, XGBRegressorObjective
+from openstf.model.objective import (
+    RegressorObjective,
+    XGBRegressorObjective,
+    LGBRegressorObjective,
+    XGBQRegressorObjective,
+)
 
 
 class ObjectiveCreator:
-    OBJECTIVES = {MLModelType.XGB: XGBRegressorObjective}
+    OBJECTIVES = {
+        MLModelType.XGB: XGBRegressorObjective,
+        MLModelType.LGB: LGBRegressorObjective,
+        MLModelType.XGB_QUANTILE: XGBQRegressorObjective,
+    }
 
     @staticmethod
     def create_objective(model_type: Union[MLModelType, str]) -> RegressorObjective:
         """Create an objective function based on model type.
-
         Args:
             model_type (Union[MLModelType, str]): Model type to construct.
-
         Raises:
             NotImplementedError: When using an invalid model_type.
-
         Returns:
             RegressorObjective: Objective function
         """
