@@ -1,10 +1,10 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+import logging
 import optuna
-from typing import Union, Tuple
 
-import openstf  # Needed for <loss = "openstf.metrics.metrics." + self.eval_metric>  and the line <metric = eval(loss)(test_y, forecast_y)>
+from openstf.metrics import metrics
 from openstf.model.regressors.regressor_interface import OpenstfRegressorInterface
 from openstf.enums import MLModelType
 from datetime import datetime, timedelta
@@ -15,7 +15,7 @@ TEST_FRACTION: float = 0.1
 VALIDATION_FRACTION: float = 0.1
 # See https://xgboost.readthedocs.io/en/latest/parameter.html for all possibilities
 EVAL_METRIC: str = "mae"
-
+MAX_DURATION_MINUTES = 2
 
 # https://optuna.readthedocs.io/en/stable/faq.html#objective-func-additional-args
 class RegressorObjective:
@@ -32,84 +32,25 @@ class RegressorObjective:
         # use the objective function
         study.optimize(objective)
     """
-
-    def process_tuple(
-        self,
-        trial: optuna.trial.FrozenTrial,
-        key: str,
-        value: Tuple[Union[int, float], Union[int, float]],
-    ) -> Union[int, float]:
-        """Pick hyperparameter for tuple"""
-        tup, log = value
-        start_value, end_value = tup
-
-        error = "input values for the tuple can be float/float, float/int, int/float, int/int"
-
-        if isinstance(start_value, float) or isinstance(end_value, float):
-            return trial.suggest_float(
-                key, float(start_value), float(end_value), log=log
-            )
-
-        elif isinstance(start_value, int) and isinstance(end_value, int):
-            return trial.suggest_int(key, start_value, end_value)
-
-        else:
-            raise TypeError(error)
-
-    def get_trial_parameters(
-        self, model_params: dict, trial: optuna.trial.FrozenTrial
-    ) -> dict:
-        """
-        Pick hyperparameters from the hyperparameter space using optuna.
-        The dictionary can contain 2 possible types: tuple or List
-        1. a list can directly be used in the suggest_categorical
-        2. For the tuple we need a check to see what the tuple contains
-            a. two strings; it will pick one of the values based on the model used
-            b. one float with one integer or two floats;
-            will set the first value as lowerbound and the second value as upperbound and picks floats between those bounds.
-            This uses the log boolean which is defined in the tuple
-            c. two integers;
-            will set the first value as lowerbound and the second value as upperbound and picks integers between those bounds.
-            log boolean is ignored.
-
-        """
-        param = {}
-        for key, value in model_params.items():
-            # In the default parameter space we make use of tuples ((startValue: Union[int, float], endValue: Union[int, float]),log: bool)
-            if isinstance(value, tuple):
-                param[key] = self.process_tuple(trial, key, value)
-            # If the parameter is a list it means it is a categorical feature
-            elif isinstance(value, list):
-                param[key] = trial.suggest_categorical(key, value)
-
-            else:
-                raise TypeError("Possible input values: tuple, list")
-
-        return param
-
     def __init__(
         self,
         input_data,
         model: OpenstfRegressorInterface,
-        pruning_function: optuna.integration,
-        model_params: dict,
-        start_time: datetime,
+        max_duration_minutes=MAX_DURATION_MINUTES,
         test_fraction=TEST_FRACTION,
         validation_fraction=VALIDATION_FRACTION,
         eval_metric=EVAL_METRIC,
         verbose=False,
-        **args_eval
     ):
         self.input_data = input_data
         self.model = model
-        self.pruning_function = pruning_function
-        self.model_params = model_params
-        self.start_time = start_time
+        self.start_time = datetime.utcnow()
         self.test_fraction = test_fraction
         self.validation_fraction = validation_fraction
         self.eval_metric = eval_metric
+        self.eval_metric_function = metrics.get_eval_metric_function(eval_metric)
         self.verbose = verbose
-        self.args_eval = args_eval
+        self.max_duration_minutes = max_duration_minutes
         # Should be set on a derived classes
         self.model_type = None
 
@@ -122,8 +63,9 @@ class RegressorObjective:
             float: Mean absolute error for this trial.
         """
         # Check elapsed time and after n minutes end trial and stop the study
-        elapsed = datetime.utcnow() - self.start_time
-        if elapsed > timedelta(minutes=2, seconds=0):
+        study_duration = datetime.utcnow() - self.start_time
+        if study_duration > timedelta(minutes=2, seconds=0):
+            logging.info('Study stopped due to time constraint')
             trial.study.stop()
 
         # Perform data preprocessing
@@ -150,13 +92,13 @@ class RegressorObjective:
         eval_set = [(train_x, train_y), (valid_x, valid_y)]
 
         # get the parameters used in this trial
-        param = self.get_trial_parameters(self.model_params, trial)
-
-        # create the specific pruning callback
-        pruning_callback = self.pruning_function(trial, **self.args_eval)
+        hyper_params = self.get_params(trial)
 
         # insert parameters into model
-        self.model.set_params(**param)
+        self.model.set_params(**hyper_params)
+
+        # create the specific pruning callback
+        pruning_callback = self.get_pruning_callback(trial)
 
         # validation_0 and validation_1 are available
         self.model.fit(
@@ -171,27 +113,113 @@ class RegressorObjective:
 
         forecast_y = self.model.predict(test_x)
 
-        try:
-            loss = "openstf.metrics.metrics." + self.eval_metric
-            metric = eval(loss)(test_y, forecast_y)
-            return metric
-        except AttributeError:
-            print("loss function is not defined in openstf.metrics.metrics")
+        return self.eval_metric_function(test_y, forecast_y)
 
+    def get_default_params(self, trial: optuna.trial.FrozenTrial) -> dict:
+        # Default parameters
+        params = {
+            "learning_rate": trial.suggest_float("learning_rate", 0.01, 0.2),
+            "alpha": trial.suggest_float("alpha", 1e-8, 1.0),
+            "lambda": trial.suggest_float("lambda", 1e-8, 1.0),
+            "subsample": trial.suggest_float("subsample", 0.5, 0.99),
+            "min_child_weight": trial.suggest_int("min_child_weight", 1, 6),
+            "max_depth": trial.suggest_int("max_depth", 3, 10),
+            "colsample_bytree": trial.suggest_float("colsample_bytree", 0.5, 1.0),
+            "max_delta_step": trial.suggest_int("max_delta_step", 1, 10),
+        }
+        return params
+
+    def get_loss(self):
+        pass
 
 class XGBRegressorObjective(RegressorObjective):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.model_type = MLModelType.XGB
 
+    # extend the parameters with the model specific ones per implementation
+    def get_params(self, trial: optuna.trial.FrozenTrial) -> dict:
+        default_params = super().get_default_params(trial)
+
+        # Compare the list to the default parameter space
+        model_parameters = self.model.get_params()
+        keys = [x for x in model_parameters.keys() if x in default_params.keys()]
+        # create a dictionary with the matching parameters
+        model_params = {parameter: default_params[parameter] for parameter in keys}
+
+        # XGB specific parameters
+        params = {
+            "gamma": trial.suggest_float("gamma", 1e-8, 1.0),
+            "booster": trial.suggest_categorical("booster", ["gbtree", "dart"]),
+        }
+        return {**model_params, **params}
+
+    def get_pruning_callback(self, trial: optuna.trial.FrozenTrial):
+        return optuna.integration.XGBoostPruningCallback( trial,
+            observation_key=f"validation_1-{self.eval_metric}"
+        )
 
 class LGBRegressorObjective(RegressorObjective):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.model_type = MLModelType.LGB
 
+    def get_params(self, trial: optuna.trial.FrozenTrial) -> dict:
+        default_params = super().get_default_params(trial)
+
+        # Compare the list to the default parameter space
+        model_parameters = self.model.get_params()
+        keys = [x for x in model_parameters.keys() if x in default_params.keys()]
+        # create a dictionary with the matching parameters
+        model_params = {parameter: default_params[parameter] for parameter in keys}
+
+        # LGB specific parameters
+        params = {
+            "num_leaves": trial.suggest_int("num_leaves", 16, 62),
+            "boosting_type": trial.suggest_categorical(
+                "boosting_type", ["gbdt", "dart", "rf"]
+            ),
+            "tree_learner": trial.suggest_categorical(
+                "tree_learner", ["serial", "feature", "data", "voting"]
+            ),
+            "n_estimators": trial.suggest_int("n_estimators", 50, 150),
+            "min_split_gain": trial.suggest_float("min_split_gain", 1e-8, 1),
+            "subsample_freq": trial.suggest_int("subsample_freq", 1, 10),
+        }
+        return {**model_params, **params}
+
+    def get_pruning_callback(self, trial: optuna.trial.FrozenTrial):
+        metric = self.eval_metric
+        if metric == "mae":
+            metric = "l1"
+        return optuna.integration.LightGBMPruningCallback(trial,
+                                                          metric = metric,
+                                                          valid_name = "valid_1")
+
+
+
 
 class XGBQRegressorObjective(RegressorObjective):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.model_type = MLModelType.XGB_QUANTILE
+
+    def get_params(self, trial: optuna.trial.FrozenTrial) -> dict:
+        default_params = super().get_default_params(trial)
+
+        # Compare the list to the default parameter space
+        model_parameters = self.model.get_params()
+        keys = [x for x in model_parameters.keys() if x in default_params.keys()]
+        # create a dictionary with the matching parameters
+        model_params = {parameter: default_params[parameter] for parameter in keys}
+
+        # XGB specific parameters
+        params = {
+            "gamma": trial.suggest_float("gamma", 1e-8, 1.0),
+        }
+        return {**model_params, **params}
+
+    def get_pruning_callback(self, trial: optuna.trial.FrozenTrial):
+        return optuna.integration.XGBoostPruningCallback( trial,
+            observation_key=f"validation_1-{self.eval_metric}"
+        )
