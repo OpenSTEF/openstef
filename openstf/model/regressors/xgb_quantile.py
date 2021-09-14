@@ -190,13 +190,16 @@ class XGBQuantileOpenstfRegressor(OpenstfRegressorInterface):
             return features_importance_array
         return features_importance_array / total  # Normalize
 
-    def get_feature_importance(self):
+    def get_feature_importance(self, cols):
         self.importance_type = "total_gain"
         gain = self.feature_importances_
+        gain = (gain / sum(gain))
 
         self.importance_type = "weight"
         number = self.feature_importances_
-        number = (number / sum(number)) * 100
+        number = (number / sum(number))
 
-        feature_importance = pd.DataFrame({"gain": gain, "number": number}, index=self.feature_names)
+        feature_importance = pd.DataFrame({"gain": gain, "weight": number},
+                                          index=cols)
+        feature_importance.sort_values(by="gain", ascending=False, inplace=True)
         return feature_importance

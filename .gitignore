@@ -159,3 +159,6 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 /test/reports/
+*.joblib
+*.html
+test/trained_models/Predictor0.25.html

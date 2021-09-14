@@ -91,39 +91,4 @@ class Reporter:
         }
 
     def _make_feature_importance_figure(self, model: RegressorMixin) -> None:
-        feature_importance = self._extract_feature_importance(model)
-
-        return figure.plot_feature_importance(feature_importance)
-
-    def _extract_feature_importance(self, model):
-        """Return feature importances and weights of trained model.
-
-        Returns:
-            pandas.DataFrame: A DataFrame describing the feature importances and
-            weights of the trained model.
-
-        """
-        if model is None:
-            return None
-        model.importance_type = "gain"
-        feature_gain = pd.DataFrame(
-            model.feature_importances_,
-            index=model._Booster.feature_names,
-            columns=["gain"],
-        )
-        feature_gain /= feature_gain.sum()
-
-        model.importance_type = "weight"
-        feature_weight = pd.DataFrame(
-            model.feature_importances_,
-            index=model._Booster.feature_names,
-            columns=["weight"],
-        )
-        feature_weight /= feature_weight.sum()
-
-        feature_importance = pd.merge(
-            feature_gain, feature_weight, left_index=True, right_index=True
-        )
-        feature_importance.sort_values(by="gain", ascending=False, inplace=True)
-
-        return feature_importance
+        return figure.plot_feature_importance(model.feature_dataframe)

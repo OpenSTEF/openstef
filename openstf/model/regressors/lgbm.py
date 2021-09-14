@@ -10,12 +10,15 @@ from openstf.model.regressors.regressor_interface import OpenstfRegressorInterfa
 class LGBMOpenstfRegressor(LGBMRegressor, OpenstfRegressorInterface):
     """LGBM Regressor which implements the Openstf regressor API."""
 
-    def get_feature_importance(self):
+    def get_feature_importance(self, cols):
         self.importance_type = "gain"
         gain = self.feature_importances_
+        gain = (gain / sum(gain))
 
         self.importance_type = "split"
         number = self.feature_importances_
-        number = (number / sum(number)) * 100
-        feature_importance = pd.DataFrame({"gain": gain, "number": number}, index=self.feature_name_)
+        number = (number / sum(number))
+        feature_importance = pd.DataFrame({"gain": gain, "weight": number},
+                                          index=cols)
+        feature_importance.sort_values(by="gain", ascending=False, inplace=True)
         return feature_importance
