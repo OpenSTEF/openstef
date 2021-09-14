@@ -17,7 +17,7 @@ DEFAULT_QUANTILES: Tuple[float, ...] = (0.9, 0.5, 0.1)
 
 
 class XGBQuantileOpenstfRegressor(OpenstfRegressor):
-    gain_importance_name = "total_gain",
+    gain_importance_name = ("total_gain",)
     weight_importance_name = "weight"
 
     def __init__(
@@ -192,4 +192,3 @@ class XGBQuantileOpenstfRegressor(OpenstfRegressor):
         if total == 0:
             return features_importance_array
         return features_importance_array / total  # Normalize
-
