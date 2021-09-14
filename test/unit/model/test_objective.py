@@ -81,6 +81,24 @@ class TestXGBQRegressorObjective(BaseTestCase):
         self.assertIsInstance(objective, XGBQuantileRegressor)
         self.assertEqual(len(study.trials), N_TRIALS)
 
+class ColumnOrderTest(BaseTestCase):
+    def test_call(self):
+        model_type = "xgb"
+        model = ModelCreator.create_model(model_type)
+
+        objective = XGBRegressorObjective(
+            input_data,
+            model,
+        )
+
+        study = optuna.create_study(
+            study_name=model_type,
+            pruner=optuna.pruners.MedianPruner(n_warmup_steps=5),
+            direction="minimize",
+        )
+        with self.assertRaises(RuntimeError):
+            study.optimize(objective, n_trials=N_TRIALS)
+
 
 if __name__ == "__main__":
     unittest.main()
