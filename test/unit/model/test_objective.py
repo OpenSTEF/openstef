@@ -81,6 +81,7 @@ class TestXGBQRegressorObjective(BaseTestCase):
         self.assertIsInstance(objective, XGBQuantileRegressor)
         self.assertEqual(len(study.trials), N_TRIALS)
 
+
 class ColumnOrderTest(BaseTestCase):
     def test_call(self):
         model_type = "xgb"
