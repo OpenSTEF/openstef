@@ -14,12 +14,13 @@ class OpenstfRegressor(OpenstfRegressorInterface):
 
         Returns:
          pd.DataFrame
-             """
+        """
         gain = self._fraction_importance(self.gain_importance_name)
         weight_importance = self._fraction_importance(self.weight_importance_name)
 
-        feature_importance = pd.DataFrame({"gain": gain, "weight": weight_importance},
-                                          index=feature_names)
+        feature_importance = pd.DataFrame(
+            {"gain": gain, "weight": weight_importance}, index=feature_names
+        )
 
         feature_importance.sort_values(by="gain", ascending=False, inplace=True)
         return feature_importance

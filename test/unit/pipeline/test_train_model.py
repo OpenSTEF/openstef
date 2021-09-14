@@ -164,7 +164,9 @@ class TestTrainModelPipeline(BaseTestCase):
         # split x and y data
         train_x = train_data.iloc[:, 1:-1]
 
-        self.assertIsInstance(model.get_feature_importance(train_x.columns), pd.DataFrame)
+        self.assertIsInstance(
+            model.get_feature_importance(train_x.columns), pd.DataFrame
+        )
 
 
 if __name__ == "__main__":

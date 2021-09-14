@@ -9,6 +9,6 @@ from openstf.model.regressors.regressor import OpenstfRegressor
 
 class LGBMOpenstfRegressor(LGBMRegressor, OpenstfRegressor):
     """LGBM Regressor which implements the Openstf regressor API."""
+
     gain_importance_name = "gain"
     weight_importance_name = "split"
-
