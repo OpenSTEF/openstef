@@ -7,12 +7,15 @@ from openstf.model.regressors.regressor_interface import OpenstfRegressorInterfa
 
 
 class OpenstfRegressor(OpenstfRegressorInterface):
-    def get_feature_importance_base(self, cols, gain_importance_name, weight_importance_name):
+    def get_feature_importance_base(
+        self, cols, gain_importance_name, weight_importance_name
+    ):
         gain = self._fraction_importance(gain_importance_name)
         weight_importance = self._fraction_importance(weight_importance_name)
 
-        feature_importance = pd.DataFrame({"gain": gain, "weight": weight_importance},
-                                          index=cols)
+        feature_importance = pd.DataFrame(
+            {"gain": gain, "weight": weight_importance}, index=cols
+        )
         feature_importance.sort_values(by="gain", ascending=False, inplace=True)
         return feature_importance
 

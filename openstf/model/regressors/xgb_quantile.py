@@ -190,6 +190,6 @@ class XGBQuantileOpenstfRegressor(OpenstfRegressor):
         return features_importance_array / total  # Normalize
 
     def get_feature_importance(self, cols):
-        return self.get_feature_importance_base(cols,
-                                                gain_importance_name= "total_gain",
-                                                weight_importance_name= "weight")
+        return self.get_feature_importance_base(
+            cols, gain_importance_name="total_gain", weight_importance_name="weight"
+        )

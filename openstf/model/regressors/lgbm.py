@@ -8,7 +8,8 @@ from openstf.model.regressors.regressor import OpenstfRegressor
 
 class LGBMOpenstfRegressor(LGBMRegressor, OpenstfRegressor):
     """LGBM Regressor which implements the Openstf regressor API."""
+
     def get_feature_importance(self, cols):
-        return self.get_feature_importance_base(cols,
-                                                gain_importance_name="gain",
-                                                weight_importance_name="split")
+        return self.get_feature_importance_base(
+            cols, gain_importance_name="gain", weight_importance_name="split"
+        )
