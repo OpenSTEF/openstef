@@ -13,6 +13,29 @@ import numpy as np
 import pandas as pd
 
 
+def get_eval_metric_function(metric_name):
+    evaluation_function = {
+        "bias": bias,
+        "nsme": nsme,
+        "mae": mae,
+        "r_mae": r_mae,
+        "frac_in_stdev": frac_in_stdev,
+        "r_mae_highest": r_mae_highest,
+        "r_mne_highest": r_mne_highest,
+        "r_mpe_highest": r_mpe_highest,
+        "r_mae_lowest": r_mae_lowest,
+        "skill_score": skill_score,
+        "skill_score_positive_peaks": skill_score_positive_peaks,
+        "franks_skill_score": franks_skill_score,
+        "franks_skill_score_peaks": franks_skill_score_peaks,
+    }.get(metric_name, None)
+
+    if evaluation_function is None:
+        raise KeyError(f"Unknown evaluation metric function {metric_name}")
+
+    return evaluation_function
+
+
 def rmse(realised, forecast):
     """Function that calculates the Root Mean Square Error
     based on the true and prediciton"""
