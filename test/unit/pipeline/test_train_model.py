@@ -84,6 +84,7 @@ class TestTrainModelPipeline(BaseTestCase):
             pj=self.pj, input_data=self.train_input
         )
 
+        self.assertIsInstance(model.feature_dataframe, pd.DataFrame)
         # check if the model was fitted (raises NotFittedError when not fitted)
         self.assertIsNone(sklearn.utils.validation.check_is_fitted(model))
 
