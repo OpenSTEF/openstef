@@ -193,13 +193,12 @@ class XGBQuantileOpenstfRegressor(OpenstfRegressorInterface):
     def get_feature_importance(self, cols):
         self.importance_type = "total_gain"
         gain = self.feature_importances_
-        gain = (gain / sum(gain))
+        gain = gain / sum(gain)
 
         self.importance_type = "weight"
         number = self.feature_importances_
-        number = (number / sum(number))
+        number = number / sum(number)
 
-        feature_importance = pd.DataFrame({"gain": gain, "weight": number},
-                                          index=cols)
+        feature_importance = pd.DataFrame({"gain": gain, "weight": number}, index=cols)
         feature_importance.sort_values(by="gain", ascending=False, inplace=True)
         return feature_importance
