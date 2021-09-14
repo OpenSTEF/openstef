@@ -85,7 +85,7 @@ def optimize_hyperparameters_pipeline(
         n_trials=n_trials,
         callbacks=[_log_study_progress],
         show_progress_bar=False,
-        timeout= TIMEOUT,
+        timeout=TIMEOUT,
     )
 
     optimized_hyperparams = study.best_params

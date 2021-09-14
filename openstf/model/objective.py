@@ -113,10 +113,10 @@ class RegressorObjective:
     def get_default_params(self, trial: optuna.trial.FrozenTrial) -> dict:
         """get default parameters function.
 
-                Args: trial
+        Args: trial
 
-                Returns:
-                    dict: {parameter: hyperparameter_value}
+        Returns:
+            dict: {parameter: hyperparameter_value}
         """
         # Default parameters
         params = {
@@ -134,10 +134,10 @@ class RegressorObjective:
     def get_params(self, trial: optuna.trial.FrozenTrial) -> dict:
         """get parameters for objective without model specific get_params function.
 
-                        Args: trial
+        Args: trial
 
-                        Returns:
-                            dict: {parameter: hyperparameter_value}
+        Returns:
+            dict: {parameter: hyperparameter_value}
         """
         default_params = super().get_default_params(trial)
 
@@ -148,6 +148,7 @@ class RegressorObjective:
         params = {parameter: default_params[parameter] for parameter in keys}
 
         return params
+
 
 class XGBRegressorObjective(RegressorObjective):
     def __init__(self, *args, **kwargs):

@@ -18,7 +18,9 @@ class TestOptimizeHyperParametersPipeline(BaseTestCase):
         pj = TestData.get_prediction_job(pid=307)
         input_data = TestData.load("input_data_train.pickle")
         hyperparameters = optimize_hyperparameters_pipeline(pj, input_data)
-        self.assertEqual(hyperparameters._extract_mock_name(), 'optuna.create_study().best_params')
+        self.assertEqual(
+            hyperparameters._extract_mock_name(), "optuna.create_study().best_params"
+        )
 
     def test_optimize_hyperparameters_pipeline_insufficient_data(self, *args):
         validation_mock = args[3]
