@@ -153,6 +153,7 @@ class RegressorObjective:
     def get_pruning_callback(self, trial: optuna.trial.FrozenTrial):
         return None
 
+
 class XGBRegressorObjective(RegressorObjective):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

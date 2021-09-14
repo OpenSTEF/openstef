@@ -22,6 +22,7 @@ input_data_with_features = input_data_with_features.iloc[::50, :]
 pj = TestData.get_prediction_job(pid=307)
 N_TRIALS = 1
 
+
 class TestRegressorObjective(BaseTestCase):
     def test_call(self):
         model_type = "xgb"
@@ -41,6 +42,7 @@ class TestRegressorObjective(BaseTestCase):
 
         self.assertIsInstance(objective, RegressorObjective)
         self.assertEqual(len(study.trials), N_TRIALS)
+
 
 class TestXGBRegressorObjective(BaseTestCase):
     def test_call(self):
