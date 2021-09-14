@@ -11,5 +11,5 @@ class TestEvalMetricFunction(unittest.TestCase):
             get_eval_metric_function("non-existing")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
