@@ -2,13 +2,14 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+import pandas as pd
 from lightgbm import LGBMRegressor
 from openstf.model.regressors.regressor import OpenstfRegressor
 
 
 class LGBMOpenstfRegressor(LGBMRegressor, OpenstfRegressor):
     """LGBM Regressor which implements the Openstf regressor API."""
-    def get_feature_importance(self, cols):
-        return self.get_feature_importance_base(cols,
-                                                gain_importance_name="gain",
-                                                weight_importance_name="split")
+    def get_feature_importance(self, cols: list) -> pd.DataFrame:
+        return super().get_feature_importance(cols,
+                                           gain_importance_name="gain",
+                                           weight_importance_name="split")

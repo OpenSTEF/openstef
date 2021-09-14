@@ -9,6 +9,7 @@ from sklearn.utils.validation import check_X_y, check_array, check_is_fitted
 import xgboost as xgb
 from xgboost import Booster
 import numpy as np
+import pandas as pd
 
 import openstf.metrics.metrics as metrics
 
@@ -189,7 +190,7 @@ class XGBQuantileOpenstfRegressor(OpenstfRegressor):
             return features_importance_array
         return features_importance_array / total  # Normalize
 
-    def get_feature_importance(self, cols):
-        return self.get_feature_importance_base(cols,
-                                                gain_importance_name= "total_gain",
-                                                weight_importance_name= "weight")
+    def get_feature_importance(self, cols: list) -> pd.DataFrame:
+        return super().get_feature_importance(cols,
+                                           gain_importance_name="total_gain",
+                                           weight_importance_name="weight")

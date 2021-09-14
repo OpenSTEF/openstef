@@ -7,7 +7,7 @@ from openstf.model.regressors.regressor_interface import OpenstfRegressorInterfa
 
 
 class OpenstfRegressor(OpenstfRegressorInterface):
-    def get_feature_importance_base(self, cols, gain_importance_name, weight_importance_name):
+    def get_feature_importance(self, cols, gain_importance_name, weight_importance_name):
         gain = self._fraction_importance(gain_importance_name)
         weight_importance = self._fraction_importance(weight_importance_name)
 
