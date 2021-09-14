@@ -7,7 +7,7 @@ import optuna
 from openstf.metrics import metrics
 from openstf.model.regressors.regressor_interface import OpenstfRegressorInterface
 from openstf.enums import MLModelType
-from datetime import datetime, timedelta
+from datetime import datetime
 from openstf.model_selection.model_selection import split_data_train_validation_test
 
 EARLY_STOPPING_ROUNDS: int = 10
@@ -15,7 +15,6 @@ TEST_FRACTION: float = 0.1
 VALIDATION_FRACTION: float = 0.1
 # See https://xgboost.readthedocs.io/en/latest/parameter.html for all possibilities
 EVAL_METRIC: str = "mae"
-MAX_DURATION_MINUTES = 2
 
 # https://optuna.readthedocs.io/en/stable/faq.html#objective-func-additional-args
 class RegressorObjective:
@@ -37,7 +36,6 @@ class RegressorObjective:
         self,
         input_data,
         model: OpenstfRegressorInterface,
-        max_duration_minutes=MAX_DURATION_MINUTES,
         test_fraction=TEST_FRACTION,
         validation_fraction=VALIDATION_FRACTION,
         eval_metric=EVAL_METRIC,
@@ -51,7 +49,6 @@ class RegressorObjective:
         self.eval_metric = eval_metric
         self.eval_metric_function = metrics.get_eval_metric_function(eval_metric)
         self.verbose = verbose
-        self.max_duration_minutes = max_duration_minutes
         # Should be set on a derived classes
         self.model_type = None
 
