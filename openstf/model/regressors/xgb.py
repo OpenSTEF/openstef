@@ -10,7 +10,7 @@ from openstf.model.regressors.regressor_interface import OpenstfRegressorInterfa
 class XGBOpenstfRegressor(XGBRegressor, OpenstfRegressorInterface):
     """XGB Regressor which implements the Openstf regressor API."""
 
-    def get_feature_importance(self, cols):
+    def get_feature_importance(self):
         self.importance_type = "total_gain"
         gain = self.feature_importances_
 
@@ -18,5 +18,5 @@ class XGBOpenstfRegressor(XGBRegressor, OpenstfRegressorInterface):
         number = self.feature_importances_
         number = (number / sum(number)) * 100
 
-        feature_importance = pd.DataFrame({"gain": gain, "number": number}, index=cols)
+        feature_importance = pd.DataFrame({"gain": gain, "number": number}, index=self.feature_names)
         return feature_importance
