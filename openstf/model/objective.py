@@ -164,10 +164,10 @@ class XGBRegressorObjective(RegressorObjective):
         """get parameters for XGB Regressor Objective
         with objective specific parameters.
 
-                                Args: trial
+            Args: trial
 
-                                Returns:
-                                    dict: {parameter: hyperparameter_value}
+            Returns:
+                dict: {parameter: hyperparameter_value}
         """
         default_params = super().get_default_params(trial)
 
@@ -199,10 +199,10 @@ class LGBRegressorObjective(RegressorObjective):
         """get parameters for LGB Regressor Objective
         with objective specific parameters.
 
-                                Args: trial
+            Args: trial
 
-                                Returns:
-                                    dict: {parameter: hyperparameter_value}
+            Returns:
+                dict: {parameter: hyperparameter_value}
         """
         default_params = super().get_default_params(trial)
 
@@ -245,10 +245,10 @@ class XGBQuantileRegressorObjective(RegressorObjective):
         """get parameters for XGBQuantile Regressor Objective
         with objective specific parameters.
 
-                                Args: trial
+            Args: trial
 
-                                Returns:
-                                    dict: {parameter: hyperparameter_value}
+            Returns:
+                dict: {parameter: hyperparameter_value}
         """
         default_params = super().get_default_params(trial)
 

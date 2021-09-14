@@ -9,6 +9,8 @@ from unittest.mock import MagicMock, patch
 import pandas as pd
 import sklearn
 
+from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
+from openstf.validation import validation
 from openstf.metrics.reporter import Report
 from openstf.pipeline.train_model import (
     split_data_train_validation_test,
@@ -84,7 +86,6 @@ class TestTrainModelPipeline(BaseTestCase):
             pj=self.pj, input_data=self.train_input
         )
 
-        self.assertIsInstance(model.feature_dataframe, pd.DataFrame)
         # check if the model was fitted (raises NotFittedError when not fitted)
         self.assertIsNone(sklearn.utils.validation.check_is_fitted(model))
 
@@ -140,6 +141,30 @@ class TestTrainModelPipeline(BaseTestCase):
             save_figures_folder="OTHER_TEST",
         )
         self.assertFalse(pipeline_mock.called)
+
+    def test_feature_importance(self):
+        """Test feature importance retrieval"""
+        model, report = train_model_pipeline_core(
+            pj=self.pj, input_data=self.train_input
+        )
+
+        # Validate and clean data
+        validated_data = validation.clean(validation.validate(self.train_input))
+
+        # Add features
+        data_with_features = TrainFeatureApplicator(
+            horizons=[0.25, 47.0], feature_names=self.pj["feature_names"]
+        ).add_features(validated_data)
+
+        # Split data
+        train_data, validation_data, test_data = split_data_train_validation_test(
+            data_with_features
+        )
+
+        # split x and y data
+        train_x, train_y = train_data.iloc[:, 1:-1], train_data.iloc[:, 0]
+
+        self.assertIsInstance(model.get_feature_importance(train_x.columns), pd.DataFrame)
 
 
 if __name__ == "__main__":

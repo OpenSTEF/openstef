@@ -6,11 +6,7 @@ import pandas as pd
 from xgboost import XGBRegressor
 from openstf.model.regressors.regressor import OpenstfRegressor
 
-
 class XGBOpenstfRegressor(XGBRegressor, OpenstfRegressor):
     """XGB Regressor which implements the Openstf regressor API."""
-
-    def get_feature_importance(self, cols: list) -> pd.DataFrame:
-        return super().get_feature_importance(cols,
-                                           gain_importance_name="total_gain",
-                                           weight_importance_name="weight")
+    gain_importance_name = "total_gain"
+    weight_importance_name = "weight"
