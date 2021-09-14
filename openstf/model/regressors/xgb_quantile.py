@@ -192,3 +192,4 @@ class XGBQuantileOpenstfRegressor(OpenstfRegressor):
         if total == 0:
             return features_importance_array
         return features_importance_array / total  # Normalize
+
