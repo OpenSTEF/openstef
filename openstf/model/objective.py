@@ -63,12 +63,6 @@ class RegressorObjective:
         Returns:
             float: Mean absolute error for this trial.
         """
-        # Check elapsed time and after n minutes end trial and stop the study
-        study_duration = datetime.utcnow() - self.start_time
-        if study_duration > timedelta(minutes=2, seconds=0):
-            logging.info("Study stopped due to time constraint")
-            trial.study.stop()
-
         # Perform data preprocessing
         train_data, validation_data, test_data = split_data_train_validation_test(
             self.input_data,
@@ -117,6 +111,13 @@ class RegressorObjective:
         return self.eval_metric_function(test_y, forecast_y)
 
     def get_default_params(self, trial: optuna.trial.FrozenTrial) -> dict:
+        """get default parameters function.
+
+                Args: trial
+
+                Returns:
+                    dict: {parameter: hyperparameter_value}
+        """
         # Default parameters
         params = {
             "learning_rate": trial.suggest_float("learning_rate", 0.01, 0.2),
@@ -130,9 +131,23 @@ class RegressorObjective:
         }
         return params
 
-    def get_loss(self):
-        pass
+    def get_params(self, trial: optuna.trial.FrozenTrial) -> dict:
+        """get parameters for objective without model specific get_params function.
 
+                        Args: trial
+
+                        Returns:
+                            dict: {parameter: hyperparameter_value}
+        """
+        default_params = super().get_default_params(trial)
+
+        # Compare the list to the default parameter space
+        model_parameters = self.model.get_params()
+        keys = [x for x in model_parameters.keys() if x in default_params.keys()]
+        # create a dictionary with the matching parameters
+        params = {parameter: default_params[parameter] for parameter in keys}
+
+        return params
 
 class XGBRegressorObjective(RegressorObjective):
     def __init__(self, *args, **kwargs):
@@ -141,6 +156,14 @@ class XGBRegressorObjective(RegressorObjective):
 
     # extend the parameters with the model specific ones per implementation
     def get_params(self, trial: optuna.trial.FrozenTrial) -> dict:
+        """get parameters for XGB Regressor Objective
+        with objective specific parameters.
+
+                                Args: trial
+
+                                Returns:
+                                    dict: {parameter: hyperparameter_value}
+        """
         default_params = super().get_default_params(trial)
 
         # Compare the list to the default parameter space
@@ -168,6 +191,14 @@ class LGBRegressorObjective(RegressorObjective):
         self.model_type = MLModelType.LGB
 
     def get_params(self, trial: optuna.trial.FrozenTrial) -> dict:
+        """get parameters for LGB Regressor Objective
+        with objective specific parameters.
+
+                                Args: trial
+
+                                Returns:
+                                    dict: {parameter: hyperparameter_value}
+        """
         default_params = super().get_default_params(trial)
 
         # Compare the list to the default parameter space
@@ -200,12 +231,20 @@ class LGBRegressorObjective(RegressorObjective):
         )
 
 
-class XGBQRegressorObjective(RegressorObjective):
+class XGBQuantileRegressor(RegressorObjective):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.model_type = MLModelType.XGB_QUANTILE
 
     def get_params(self, trial: optuna.trial.FrozenTrial) -> dict:
+        """get parameters for XGBQuantile Regressor Objective
+        with objective specific parameters.
+
+                                Args: trial
+
+                                Returns:
+                                    dict: {parameter: hyperparameter_value}
+        """
         default_params = super().get_default_params(trial)
 
         # Compare the list to the default parameter space

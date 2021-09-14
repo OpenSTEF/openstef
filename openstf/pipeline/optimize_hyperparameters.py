@@ -10,7 +10,6 @@ from openstf.model.model_creator import ModelCreator
 from openstf.model.objective_creator import ObjectiveCreator
 from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
 from openstf.validation import validation
-from openstf.model.regressors.regressor_interface import OpenstfRegressorInterface
 
 # This is required to disable the default optuna logger and pass the logs to our own
 # structlog logger
@@ -41,7 +40,8 @@ def optimize_hyperparameters_pipeline(
         horizons (List[float]): horizons for feature engineering.
         n_trials (int, optional): The number of trials. Defaults to N_TRIALS.
         timeout (int, optional): Stop study after the given number of second(s).
-            Defaults to TIMEOUT.
+            Defaults to TIMEOUT. Will give an exception if the optimization is only
+            1 trial.
 
     Raises:
         ValueError: If the input_date is insufficient.
@@ -85,6 +85,7 @@ def optimize_hyperparameters_pipeline(
         n_trials=n_trials,
         callbacks=[_log_study_progress],
         show_progress_bar=False,
+        timeout= TIMEOUT,
     )
 
     optimized_hyperparams = study.best_params

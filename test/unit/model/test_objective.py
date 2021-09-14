@@ -9,7 +9,7 @@ from openstf.feature_engineering.feature_applicator import TrainFeatureApplicato
 from openstf.model.objective import (
     XGBRegressorObjective,
     LGBRegressorObjective,
-    XGBQRegressorObjective,
+    XGBQuantileRegressor,
 )
 from openstf.model.model_creator import ModelCreator
 
@@ -67,7 +67,7 @@ class TestXGBQRegressorObjective(BaseTestCase):
         model_type = "xgb_quantile"
         model = ModelCreator.create_model(model_type)
 
-        objective = XGBQRegressorObjective(
+        objective = XGBQuantileRegressor(
             input_data_with_features,
             model,
         )
@@ -78,7 +78,7 @@ class TestXGBQRegressorObjective(BaseTestCase):
         )
         study.optimize(objective, n_trials=N_TRIALS)
 
-        self.assertIsInstance(objective, XGBQRegressorObjective)
+        self.assertIsInstance(objective, XGBQuantileRegressor)
         self.assertEqual(len(study.trials), N_TRIALS)
 
 
