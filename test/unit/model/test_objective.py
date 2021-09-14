@@ -7,6 +7,7 @@ from test.utils import BaseTestCase, TestData
 
 from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
 from openstf.model.objective import (
+    RegressorObjective,
     XGBRegressorObjective,
     LGBRegressorObjective,
     XGBQuantileRegressor,
@@ -21,6 +22,25 @@ input_data_with_features = input_data_with_features.iloc[::50, :]
 pj = TestData.get_prediction_job(pid=307)
 N_TRIALS = 1
 
+class TestRegressorObjective(BaseTestCase):
+    def test_call(self):
+        model_type = "xgb"
+        model = ModelCreator.create_model(model_type)
+
+        objective = RegressorObjective(
+            input_data_with_features,
+            model,
+        )
+
+        study = optuna.create_study(
+            study_name=model_type,
+            pruner=optuna.pruners.MedianPruner(n_warmup_steps=5),
+            direction="minimize",
+        )
+        study.optimize(objective, n_trials=N_TRIALS)
+
+        self.assertIsInstance(objective, RegressorObjective)
+        self.assertEqual(len(study.trials), N_TRIALS)
 
 class TestXGBRegressorObjective(BaseTestCase):
     def test_call(self):

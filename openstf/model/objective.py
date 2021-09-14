@@ -91,6 +91,10 @@ class RegressorObjective:
 
         # create the specific pruning callback
         pruning_callback = self.get_pruning_callback(trial)
+        if pruning_callback is None:
+            callbacks = None
+        else:
+            callbacks = [pruning_callback]
 
         # validation_0 and validation_1 are available
         self.model.fit(
@@ -100,7 +104,7 @@ class RegressorObjective:
             early_stopping_rounds=EARLY_STOPPING_ROUNDS,
             verbose=self.verbose,
             eval_metric=self.eval_metric,
-            callbacks=[pruning_callback],
+            callbacks=callbacks,
         )
 
         forecast_y = self.model.predict(test_x)
@@ -136,7 +140,7 @@ class RegressorObjective:
         Returns:
             dict: {parameter: hyperparameter_value}
         """
-        default_params = super().get_default_params(trial)
+        default_params = self.get_default_params(trial)
 
         # Compare the list to the default parameter space
         model_parameters = self.model.get_params()
@@ -146,6 +150,8 @@ class RegressorObjective:
 
         return params
 
+    def get_pruning_callback(self, trial: optuna.trial.FrozenTrial):
+        return None
 
 class XGBRegressorObjective(RegressorObjective):
     def __init__(self, *args, **kwargs):
