@@ -83,6 +83,7 @@ class TestTrainModelPipeline(BaseTestCase):
         but it can/should include predictors (e.g. weather data)
 
         """
+        train_input = self.train_input.iloc[::50, :]
         for model_type in MLModelType:
             with self.subTest(model_type=model_type):
                 pj = self.pj
@@ -90,7 +91,7 @@ class TestTrainModelPipeline(BaseTestCase):
                 # Use default parameters
                 pj['hyper_params'] = {}
                 model, report = train_model_pipeline_core(
-                    pj=pj, input_data=self.train_input
+                    pj=pj, input_data=train_input
                 )
 
                 # check if the model was fitted (raises NotFittedError when not fitted)
@@ -103,7 +104,7 @@ class TestTrainModelPipeline(BaseTestCase):
                 self.assertTrue(isinstance(report, Report))
 
                 # Validate and clean data
-                validated_data = validation.clean(validation.validate(self.train_input))
+                validated_data = validation.clean(validation.validate(train_input))
 
                 # Add features
                 data_with_features = TrainFeatureApplicator(
