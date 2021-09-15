@@ -119,7 +119,7 @@ class RegressorObjective:
         Returns:
             dict: {parameter: hyperparameter_value}
         """
-        default_params  = {
+        default_params = {
             "learning_rate": trial.suggest_float("learning_rate", 0.01, 0.2),
             "alpha": trial.suggest_float("alpha", 1e-8, 1.0),
             "lambda": trial.suggest_float("lambda", 1e-8, 1.0),

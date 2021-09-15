@@ -87,9 +87,9 @@ class TestTrainModelPipeline(BaseTestCase):
         for model_type in MLModelType:
             with self.subTest(model_type=model_type):
                 pj = self.pj
-                pj['model'] = model_type.value
+                pj["model"] = model_type.value
                 # Use default parameters
-                pj['hyper_params'] = {}
+                pj["hyper_params"] = {}
                 model, report = train_model_pipeline_core(
                     pj=pj, input_data=train_input
                 )
@@ -112,16 +112,16 @@ class TestTrainModelPipeline(BaseTestCase):
                 ).add_features(validated_data)
 
                 # Split data
-                train_data, validation_data, test_data = split_data_train_validation_test(
-                    data_with_features
-                )
+                (
+                    train_data,
+                    validation_data,
+                    test_data,
+                ) = split_data_train_validation_test(data_with_features)
 
                 # split x and y data
                 train_x = train_data.iloc[:, 1:-1]
                 importance = model.get_feature_importance(train_x.columns)
-                self.assertIsInstance(
-                    importance, pd.DataFrame
-                )
+                self.assertIsInstance(importance, pd.DataFrame)
 
     @patch("openstf.pipeline.train_model.train_model_pipeline_core")
     @patch("openstf.pipeline.train_model.PersistentStorageSerializer")
