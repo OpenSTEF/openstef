@@ -59,7 +59,7 @@ class Reporter:
     ) -> Report:
 
         data_series_figures = self._make_data_series_figures(model)
-        feature_importance_figure = self._make_feature_importance_figure(model)
+        feature_importance_figure = figure.plot_feature_importance(model.feature_dataframe)
 
         report = Report(
             data_series_figures=data_series_figures,
@@ -89,6 +89,3 @@ class Reporter:
             )
             for horizon in self.horizons
         }
-
-    def _make_feature_importance_figure(self, model: RegressorMixin) -> None:
-        return figure.plot_feature_importance(model.feature_dataframe)

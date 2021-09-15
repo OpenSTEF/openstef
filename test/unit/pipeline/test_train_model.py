@@ -9,6 +9,7 @@ from unittest.mock import MagicMock, patch
 import pandas as pd
 import sklearn
 
+from openstf.enums import MLModelType
 from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
 from openstf.validation import validation
 from openstf.metrics.reporter import Report
@@ -82,18 +83,44 @@ class TestTrainModelPipeline(BaseTestCase):
         but it can/should include predictors (e.g. weather data)
 
         """
-        model, report = train_model_pipeline_core(
-            pj=self.pj, input_data=self.train_input
-        )
+        for model_type in MLModelType:
+            with self.subTest(model_type=model_type):
+                pj = self.pj
+                pj['model'] = model_type.value
+                # Use default parameters
+                pj['hyper_params'] = {}
+                model, report = train_model_pipeline_core(
+                    pj=pj, input_data=self.train_input
+                )
 
-        # check if the model was fitted (raises NotFittedError when not fitted)
-        self.assertIsNone(sklearn.utils.validation.check_is_fitted(model))
+                # check if the model was fitted (raises NotFittedError when not fitted)
+                self.assertIsNone(sklearn.utils.validation.check_is_fitted(model))
 
-        # check if model is sklearn compatible
-        self.assertTrue(isinstance(model, sklearn.base.BaseEstimator))
+                # check if model is sklearn compatible
+                self.assertTrue(isinstance(model, sklearn.base.BaseEstimator))
 
-        # check if report is a Report
-        self.assertTrue(isinstance(report, Report))
+                # check if report is a Report
+                self.assertTrue(isinstance(report, Report))
+
+                # Validate and clean data
+                validated_data = validation.clean(validation.validate(self.train_input))
+
+                # Add features
+                data_with_features = TrainFeatureApplicator(
+                    horizons=[0.25, 47.0], feature_names=pj["feature_names"]
+                ).add_features(validated_data)
+
+                # Split data
+                train_data, validation_data, test_data = split_data_train_validation_test(
+                    data_with_features
+                )
+
+                # split x and y data
+                train_x = train_data.iloc[:, 1:-1]
+                importance = model.get_feature_importance(train_x.columns)
+                self.assertIsInstance(
+                    importance, pd.DataFrame
+                )
 
     @patch("openstf.pipeline.train_model.train_model_pipeline_core")
     @patch("openstf.pipeline.train_model.PersistentStorageSerializer")
@@ -141,32 +168,6 @@ class TestTrainModelPipeline(BaseTestCase):
             save_figures_folder="OTHER_TEST",
         )
         self.assertFalse(pipeline_mock.called)
-
-    def test_feature_importance(self):
-        """Test feature importance retrieval"""
-        model, report = train_model_pipeline_core(
-            pj=self.pj, input_data=self.train_input
-        )
-
-        # Validate and clean data
-        validated_data = validation.clean(validation.validate(self.train_input))
-
-        # Add features
-        data_with_features = TrainFeatureApplicator(
-            horizons=[0.25, 47.0], feature_names=self.pj["feature_names"]
-        ).add_features(validated_data)
-
-        # Split data
-        train_data, validation_data, test_data = split_data_train_validation_test(
-            data_with_features
-        )
-
-        # split x and y data
-        train_x = train_data.iloc[:, 1:-1]
-
-        self.assertIsInstance(
-            model.get_feature_importance(train_x.columns), pd.DataFrame
-        )
 
 
 if __name__ == "__main__":
