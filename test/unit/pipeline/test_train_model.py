@@ -91,9 +91,7 @@ class TestTrainModelPipeline(BaseTestCase):
                 pj["model"] = model_type.value
                 # Use default parameters
                 pj["hyper_params"] = {}
-                model, report = train_model_pipeline_core(
-                    pj=pj, input_data=train_input
-                )
+                model, report = train_model_pipeline_core(pj=pj, input_data=train_input)
 
                 # check if the model was fitted (raises NotFittedError when not fitted)
                 self.assertIsNone(sklearn.utils.validation.check_is_fitted(model))
