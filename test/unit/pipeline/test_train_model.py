@@ -83,6 +83,7 @@ class TestTrainModelPipeline(BaseTestCase):
         but it can/should include predictors (e.g. weather data)
 
         """
+        # Select 50 data points to speedup test
         train_input = self.train_input.iloc[::50, :]
         for model_type in MLModelType:
             with self.subTest(model_type=model_type):
