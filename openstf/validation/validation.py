@@ -23,7 +23,9 @@ FLATLINER_TRESHOLD = 24
 
 
 def validate(
-    pj_id: Union[int, str], data: pd.DataFrame, flatliner_threshold: int = FLATLINER_TRESHOLD
+    pj_id: Union[int, str],
+    data: pd.DataFrame,
+    flatliner_threshold: int = FLATLINER_TRESHOLD,
 ) -> pd.DataFrame:
     logger = structlog.get_logger(__name__)
     # Drop 'false' measurements. e.g. where load appears to be constant.
@@ -34,7 +36,8 @@ def validate(
     if num_const_load_values > 0:
         logger.warning(
             f"Changed {num_const_load_values} values of constant load to NA.",
-            pj_id=pj_id, num_const_load_values=num_const_load_values,
+            pj_id=pj_id,
+            num_const_load_values=num_const_load_values,
         )
 
     # Check for repeated load observations due to invalid measurements
@@ -47,7 +50,8 @@ def validate(
         num_nan = sum([True for i, row in data.iterrows() if all(row.isnull())])
         logger.warning(
             "Found suspicious data points, converted to NaN value",
-            pj_id=pj_id, num_nan_values=num_nan,
+            pj_id=pj_id,
+            num_nan_values=num_nan,
         )
     return data
 
