@@ -39,8 +39,8 @@ def validate(
             f"Found {num_const_load_values} values of constant load, converted to NaN value.",
             cleansing_step="Constant_load_values",
             pj_id=pj_id,
-            num_const_load_values=num_const_load_values,
-            frac_const_load_values=frac_const_load_values,
+            num_values=num_const_load_values,
+            frac_values=frac_const_load_values,
         )
 
     # Check for repeated load observations due to invalid measurements
@@ -56,8 +56,8 @@ def validate(
             f"Found {num_nan_values} suspicious data points, converted to NaN value.",
             cleansing_step="Suspicious_data_points",
             pj_id=pj_id,
-            num_nan_values=num_nan_values,
-            frac_nan_values=frac_nan_values,
+            num_values=num_nan_values,
+            frac_values=frac_nan_values,
         )
     return data
 
