@@ -2,11 +2,13 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+import pandas as pd
 from lightgbm import LGBMRegressor
-from openstf.model.regressors.regressor_interface import OpenstfRegressorInterface
+from openstf.model.regressors.regressor import OpenstfRegressor
 
 
-class LGBMOpenstfRegressor(LGBMRegressor, OpenstfRegressorInterface):
+class LGBMOpenstfRegressor(LGBMRegressor, OpenstfRegressor):
     """LGBM Regressor which implements the Openstf regressor API."""
 
-    pass
+    gain_importance_name = "gain"
+    weight_importance_name = "split"

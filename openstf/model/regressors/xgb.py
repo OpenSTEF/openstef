@@ -2,11 +2,13 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+import pandas as pd
 from xgboost import XGBRegressor
-from openstf.model.regressors.regressor_interface import OpenstfRegressorInterface
+from openstf.model.regressors.regressor import OpenstfRegressor
 
 
-class XGBOpenstfRegressor(XGBRegressor, OpenstfRegressorInterface):
+class XGBOpenstfRegressor(XGBRegressor, OpenstfRegressor):
     """XGB Regressor which implements the Openstf regressor API."""
 
-    pass
+    gain_importance_name = "total_gain"
+    weight_importance_name = "weight"

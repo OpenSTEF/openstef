@@ -111,16 +111,15 @@ class RegressorObjective:
 
         return self.eval_metric_function(test_y, forecast_y)
 
-    def get_default_params(self, trial: optuna.trial.FrozenTrial) -> dict:
-        """get default parameters function.
+    def get_params(self, trial: optuna.trial.FrozenTrial) -> dict:
+        """get parameters for objective without model specific get_params function.
 
         Args: trial
 
         Returns:
             dict: {parameter: hyperparameter_value}
         """
-        # Default parameters
-        params = {
+        default_params = {
             "learning_rate": trial.suggest_float("learning_rate", 0.01, 0.2),
             "alpha": trial.suggest_float("alpha", 1e-8, 1.0),
             "lambda": trial.suggest_float("lambda", 1e-8, 1.0),
@@ -130,17 +129,6 @@ class RegressorObjective:
             "colsample_bytree": trial.suggest_float("colsample_bytree", 0.5, 1.0),
             "max_delta_step": trial.suggest_int("max_delta_step", 1, 10),
         }
-        return params
-
-    def get_params(self, trial: optuna.trial.FrozenTrial) -> dict:
-        """get parameters for objective without model specific get_params function.
-
-        Args: trial
-
-        Returns:
-            dict: {parameter: hyperparameter_value}
-        """
-        default_params = self.get_default_params(trial)
 
         # Compare the list to the default parameter space
         model_parameters = self.model.get_params()
@@ -164,18 +152,13 @@ class XGBRegressorObjective(RegressorObjective):
         """get parameters for XGB Regressor Objective
         with objective specific parameters.
 
-                                Args: trial
+            Args: trial
 
-                                Returns:
-                                    dict: {parameter: hyperparameter_value}
+            Returns:
+                dict: {parameter: hyperparameter_value}
         """
-        default_params = super().get_default_params(trial)
-
-        # Compare the list to the default parameter space
-        model_parameters = self.model.get_params()
-        keys = [x for x in model_parameters.keys() if x in default_params.keys()]
-        # create a dictionary with the matching parameters
-        model_params = {parameter: default_params[parameter] for parameter in keys}
+        # Filtered default parameters
+        model_params = super().get_params(trial)
 
         # XGB specific parameters
         params = {
@@ -199,18 +182,13 @@ class LGBRegressorObjective(RegressorObjective):
         """get parameters for LGB Regressor Objective
         with objective specific parameters.
 
-                                Args: trial
+            Args: trial
 
-                                Returns:
-                                    dict: {parameter: hyperparameter_value}
+            Returns:
+                dict: {parameter: hyperparameter_value}
         """
-        default_params = super().get_default_params(trial)
-
-        # Compare the list to the default parameter space
-        model_parameters = self.model.get_params()
-        keys = [x for x in model_parameters.keys() if x in default_params.keys()]
-        # create a dictionary with the matching parameters
-        model_params = {parameter: default_params[parameter] for parameter in keys}
+        # Filtered default parameters
+        model_params = super().get_params(trial)
 
         # LGB specific parameters
         params = {
@@ -236,7 +214,7 @@ class LGBRegressorObjective(RegressorObjective):
         )
 
 
-class XGBQuantileRegressor(RegressorObjective):
+class XGBQuantileRegressorObjective(RegressorObjective):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.model_type = MLModelType.XGB_QUANTILE
@@ -245,18 +223,13 @@ class XGBQuantileRegressor(RegressorObjective):
         """get parameters for XGBQuantile Regressor Objective
         with objective specific parameters.
 
-                                Args: trial
+            Args: trial
 
-                                Returns:
-                                    dict: {parameter: hyperparameter_value}
+            Returns:
+                dict: {parameter: hyperparameter_value}
         """
-        default_params = super().get_default_params(trial)
-
-        # Compare the list to the default parameter space
-        model_parameters = self.model.get_params()
-        keys = [x for x in model_parameters.keys() if x in default_params.keys()]
-        # create a dictionary with the matching parameters
-        model_params = {parameter: default_params[parameter] for parameter in keys}
+        # Filtered default parameters
+        model_params = super().get_params(trial)
 
         # XGB specific parameters
         params = {

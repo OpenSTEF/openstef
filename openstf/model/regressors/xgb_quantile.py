@@ -4,18 +4,22 @@
 from typing import Tuple
 from functools import partial
 
-from openstf.model.regressors.regressor_interface import OpenstfRegressorInterface
+from openstf.model.regressors.regressor import OpenstfRegressor
 from sklearn.utils.validation import check_X_y, check_array, check_is_fitted
 import xgboost as xgb
 from xgboost import Booster
 import numpy as np
+import pandas as pd
 
 import openstf.metrics.metrics as metrics
 
 DEFAULT_QUANTILES: Tuple[float, ...] = (0.9, 0.5, 0.1)
 
 
-class XGBQuantileOpenstfRegressor(OpenstfRegressorInterface):
+class XGBQuantileOpenstfRegressor(OpenstfRegressor):
+    gain_importance_name = "total_gain"
+    weight_importance_name = "weight"
+
     def __init__(
         self,
         quantiles: Tuple[float, ...] = DEFAULT_QUANTILES,
@@ -50,7 +54,7 @@ class XGBQuantileOpenstfRegressor(OpenstfRegressorInterface):
         self.gamma = gamma
         self.colsample_bytree = colsample_bytree
 
-    def fit(self, x: np.array, y: np.array, **kwargs) -> OpenstfRegressorInterface:
+    def fit(self, x: np.array, y: np.array, **kwargs) -> OpenstfRegressor:
         """Fits xgb quantile model
 
         Args:
