@@ -4,8 +4,6 @@ import numpy as np
 import pandas as pd
 import secrets
 
-import random
-
 import plotly.express as px
 import plotly.graph_objects as go
 
@@ -219,7 +217,7 @@ def sample_indices_train_val(data, peaks, period_lengths, end_first, begin_last)
     return np.sort(list(sampled))
 
 
-def random_sample(list_sample: list, k: int) -> list:
+def random_sample(list_sample, k):
     """
     Random sampling of numbers out of a list
 
@@ -392,7 +390,7 @@ def split_data_train_validation_test(
 
             idx_val_split = sample_indices_train_val(
                 data, random_sample(peak_all_days[:train_val_amount], k=split_val + 1),
-                (amount_day / period_timedelta),
+                int(amount_day / period_timedelta),
                 idx_first_last,
                 idx_begin_end,
             )
@@ -418,7 +416,7 @@ def split_data_train_validation_test(
             idx_val_split = sample_indices_train_val(
                 data,
                 random_sample(peak_all_days[start_idx_train_val:], k=split_val + 1),
-                (amount_day / period_timedelta),
+                int(amount_day / period_timedelta),
                 idx_first_last,
                 idx_begin_end,
             )
