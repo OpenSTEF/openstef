@@ -103,7 +103,9 @@ class TestTrainModelPipeline(BaseTestCase):
                 self.assertTrue(isinstance(report, Report))
 
                 # Validate and clean data
-                validated_data = validation.clean(validation.validate(pj["id"], train_input))
+                validated_data = validation.clean(
+                    validation.validate(pj["id"], train_input)
+                )
 
                 # Add features
                 data_with_features = TrainFeatureApplicator(
