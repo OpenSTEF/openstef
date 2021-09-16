@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 
 from datetime import timedelta
+from typing import Union
 
 import numpy as np
 import pandas as pd
@@ -22,7 +23,9 @@ FLATLINER_TRESHOLD = 24
 
 
 def validate(
-    data: pd.DataFrame, flatliner_threshold: int = FLATLINER_TRESHOLD
+    pj_id: Union[int, str],
+    data: pd.DataFrame,
+    flatliner_threshold: int = FLATLINER_TRESHOLD,
 ) -> pd.DataFrame:
     logger = structlog.get_logger(__name__)
     # Drop 'false' measurements. e.g. where load appears to be constant.
@@ -30,10 +33,12 @@ def validate(
         data, max_length=flatliner_threshold, column_name=data.columns[0]
     )
     num_const_load_values = len(data) - len(data.iloc[:, 0].dropna())
-    logger.debug(
-        f"Changed {num_const_load_values} values of constant load to NA.",
-        num_const_load_values=num_const_load_values,
-    )
+    if num_const_load_values > 0:
+        logger.warning(
+            f"Changed {num_const_load_values} values of constant load to NA.",
+            pj_id=pj_id,
+            num_const_load_values=num_const_load_values,
+        )
 
     # Check for repeated load observations due to invalid measurements
     suspicious_moments = find_nonzero_flatliner(data, threshold=flatliner_threshold)
@@ -45,6 +50,7 @@ def validate(
         num_nan = sum([True for i, row in data.iterrows() if all(row.isnull())])
         logger.warning(
             "Found suspicious data points, converted to NaN value",
+            pj_id=pj_id,
             num_nan_values=num_nan,
         )
     return data

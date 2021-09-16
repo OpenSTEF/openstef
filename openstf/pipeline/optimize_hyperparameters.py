@@ -6,6 +6,7 @@ import optuna
 from typing import List
 import structlog
 
+from openstf.model.model_creator import ModelCreator
 from openstf.model.objective_creator import ObjectiveCreator
 from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
 from openstf.validation import validation
@@ -28,7 +29,6 @@ def optimize_hyperparameters_pipeline(
     input_data: pd.DataFrame,
     horizons: List[float] = TRAIN_HORIZONS,
     n_trials: int = N_TRIALS,
-    timeout: int = TIMEOUT,
 ) -> dict:
     """Optimize hyperparameters pipeline.
 
@@ -40,7 +40,8 @@ def optimize_hyperparameters_pipeline(
         horizons (List[float]): horizons for feature engineering.
         n_trials (int, optional): The number of trials. Defaults to N_TRIALS.
         timeout (int, optional): Stop study after the given number of second(s).
-            Defaults to TIMEOUT.
+            Defaults to TIMEOUT. Will give an exception if the optimization is only
+            1 trial.
 
     Raises:
         ValueError: If the input_date is insufficient.
@@ -49,7 +50,7 @@ def optimize_hyperparameters_pipeline(
         dict: Optimized hyperparameters.
     """
     # Validate and clean data
-    validated_data = validation.clean(validation.validate(input_data))
+    validated_data = validation.clean(validation.validate(pj["id"], input_data))
 
     # Check if sufficient data is left after cleaning
     if not validation.is_data_sufficient(validated_data):
@@ -65,16 +66,26 @@ def optimize_hyperparameters_pipeline(
     # Create objective (NOTE: this is a callable class)
     objective = ObjectiveCreator.create_objective(model_type=pj["model"])
 
+    model_type = pj["model"]
+    model = ModelCreator.create_model(model_type)
+
+    objective = objective(
+        model,
+        input_data_with_features,
+    )
+
     study = optuna.create_study(
-        pruner=optuna.pruners.MedianPruner(n_warmup_steps=5), direction="minimize"
+        study_name=model_type,
+        pruner=optuna.pruners.MedianPruner(n_warmup_steps=5),
+        direction="minimize",
     )
 
     study.optimize(
-        objective(input_data_with_features),
+        objective,
         n_trials=n_trials,
-        timeout=timeout,
         callbacks=[_log_study_progress],
         show_progress_bar=False,
+        timeout=TIMEOUT,
     )
 
     optimized_hyperparams = study.best_params
