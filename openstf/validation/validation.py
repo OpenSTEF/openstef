@@ -37,7 +37,7 @@ def validate(
         frac_const_load_values = num_const_load_values / len(data.index)
         logger.warning(
             f"Found {num_const_load_values} values of constant load, converted to NaN value.",
-            cleansing_step= "Constant_load_values",
+            cleansing_step="Constant_load_values",
             pj_id=pj_id,
             num_const_load_values=num_const_load_values,
             frac_const_load_values=frac_const_load_values,
@@ -51,7 +51,7 @@ def validate(
         # Calculate number of NaN values
         # TODO should this not be part of the replace_invalid_data function?
         num_nan_values = sum([True for i, row in data.iterrows() if all(row.isnull())])
-        frac_nan_values = num_nan_values/len(data.index)
+        frac_nan_values = num_nan_values / len(data.index)
         logger.warning(
             f"Found {num_nan_values} suspicious data points, converted to NaN value.",
             cleansing_step="Suspicious_data_points",
@@ -71,7 +71,8 @@ def clean(data: pd.DataFrame) -> pd.DataFrame:
     data = data.loc[np.isnan(data.iloc[:, 0]) != True, :]  # noqa E712
     num_removed_values = len_original - len(data)
     logger.debug(
-        f"Removed {num_removed_values} NaN values", num_removed_values=num_removed_values
+        f"Removed {num_removed_values} NaN values",
+        num_removed_values=num_removed_values,
     )
     return data
 
