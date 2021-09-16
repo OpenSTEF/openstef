@@ -193,9 +193,9 @@ def sample_indices_train_val(data, peaks, period_lengths, end_first, begin_last)
     for peak in peaks:
         start_point = int(peak * period_lengths) + end_first
         if start_point < (len(data.index) - begin_last + 1):
-            end_point = int(start_point + period_lengths)# + 6)  # hour before and after
+            end_point = int(start_point + period_lengths)
         else:
-            end_point = int(start_point + end_first)  # hour before and after (+6)
+            end_point = int(start_point + end_first)
         sampled |= set(range(start_point, end_point))
     return np.sort(list(sampled))
 
