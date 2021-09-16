@@ -1,69 +1,30 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8" />
-  
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
-  <title>openstf.pipeline package &mdash; Short Term Forecasting  documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-
-  
-  
-
-  
-  
-
-  
-
-  
+  <title>openstf.pipeline package &mdash; Short Term Forecasting  documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+  <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/language_data.js"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
-    
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
             <a href="index.html" class="icon icon-home"> Short Term Forecasting
-          
-
-          
           </a>
-
-          
-            
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -71,18 +32,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <!-- Local TOC -->
               <div class="local-toc"><ul>
 <li><a class="reference internal" href="#">openstf.pipeline package</a><ul>
@@ -99,71 +49,30 @@
 </li>
 </ul>
 </div>
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">Short Term Forecasting</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-        
       <li>openstf.pipeline package</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-          
             <a href="_sources/openstf.pipeline.rst.txt" rel="nofollow"> View page source</a>
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
+             
   <div class="section" id="openstf-pipeline-package">
 <h1>openstf.pipeline package<a class="headerlink" href="#openstf-pipeline-package" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="submodules">
@@ -281,7 +190,7 @@ This pipeline has no database or persisitent storage dependencies.</p>
 <span id="openstf-pipeline-optimize-hyperparameters-module"></span><h2>openstf.pipeline.optimize_hyperparameters module<a class="headerlink" href="#module-openstf.pipeline.optimize_hyperparameters" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="openstf.pipeline.optimize_hyperparameters.optimize_hyperparameters_pipeline">
-<code class="sig-prename descclassname">openstf.pipeline.optimize_hyperparameters.</code><code class="sig-name descname">optimize_hyperparameters_pipeline</code><span class="sig-paren">(</span><em class="sig-param">pj: dict, input_data: pandas.core.frame.DataFrame, horizons: List[float] = [0.25, 24.0], n_trials: int = 8, timeout: int = 200</em><span class="sig-paren">)</span> &#x2192; dict<a class="headerlink" href="#openstf.pipeline.optimize_hyperparameters.optimize_hyperparameters_pipeline" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstf.pipeline.optimize_hyperparameters.</code><code class="sig-name descname">optimize_hyperparameters_pipeline</code><span class="sig-paren">(</span><em class="sig-param">pj: dict, input_data: pandas.core.frame.DataFrame, horizons: List[float] = [0.25, 24.0], n_trials: int = 8</em><span class="sig-paren">)</span> &#x2192; dict<a class="headerlink" href="#openstf.pipeline.optimize_hyperparameters.optimize_hyperparameters_pipeline" title="Permalink to this definition">¶</a></dt>
 <dd><p>Optimize hyperparameters pipeline.</p>
 <p>Expected prediction job key’s: “name”, “model”</p>
 <dl class="field-list simple">
@@ -292,7 +201,8 @@ This pipeline has no database or persisitent storage dependencies.</p>
 <li><p><strong>horizons</strong> (<em>List</em><em>[</em><em>float</em><em>]</em>) – horizons for feature engineering.</p></li>
 <li><p><strong>n_trials</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of trials. Defaults to N_TRIALS.</p></li>
 <li><p><strong>timeout</strong> (<em>int</em><em>, </em><em>optional</em>) – Stop study after the given number of second(s).
-Defaults to TIMEOUT.</p></li>
+Defaults to TIMEOUT. Will give an exception if the optimization is only
+1 trial.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises</dt>
@@ -468,46 +378,30 @@ expected:</p>
 
 
            </div>
-           
           </div>
           <footer>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &#169; Copyright 2017-2021 Alliander N.V..
-
-    </p>
+    <p>&#169; Copyright 2017-2021 Alliander N.V..</p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>
