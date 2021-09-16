@@ -369,7 +369,6 @@ def split_data_train_validation_test(
                 + start_idx_test * (amount_day / period_timedelta) * delta
             )
 
-            train_val_data = data[start_date_train_val:start_date_test]
             test_data = data[start_date_test:None]
 
             idx_val_split = sample_indices_train_val(
