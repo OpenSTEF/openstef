@@ -65,7 +65,7 @@ class RegressorObjective:
             self.input_data,
             test_fraction=self.test_fraction,
             validation_fraction=self.validation_fraction,
-            backtest=True,
+            back_test=True,
         )
 
         # Test if first column is "load" and last column is "horizon"
