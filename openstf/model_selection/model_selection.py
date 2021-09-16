@@ -2,6 +2,7 @@ import os
 
 import numpy as np
 import pandas as pd
+import secrets
 
 import random
 
@@ -103,7 +104,7 @@ def min_max_peaks(data, start, end, percentiles):
         min_peaks = min(
             data["load"][start:end][
                 data["load"] < data["load"].quantile(min_percentile)
-            ]
+                ]
         )
     except:
         min_peaks = np.nan
@@ -112,7 +113,7 @@ def min_max_peaks(data, start, end, percentiles):
         max_peaks = max(
             data["load"][start:end][
                 data["load"] > data["load"].quantile(max_percentile)
-            ]
+                ]
         )
     except:
         max_peaks = np.nan
@@ -121,7 +122,7 @@ def min_max_peaks(data, start, end, percentiles):
 
 
 def min_max_fill_days(
-    data, end_first, begin_last, percentiles, amount_day, period_timedelta
+        data, end_first, begin_last, percentiles, amount_day, period_timedelta
 ):
     """
     Fill arrays with the minimum and maximum quantiles for each day
@@ -218,13 +219,34 @@ def sample_indices_train_val(data, peaks, period_lengths, end_first, begin_last)
     return np.sort(list(sampled))
 
 
+def random_sample(list_sample: list, k: int) -> list:
+    """
+    Random sampling of numbers out of a list
+
+    Args:
+        list_sample (list:int): List with numbers to sample from
+        k (int): Number of wanted samples
+
+    Returns:
+        list: Sorted list with the random samples
+
+    """
+
+    random_list = []
+    for i in range(k):
+        element_random = secrets.choice(list_sample)
+        list_sample.remove(element_random)
+        random_list.append(element_random)
+    return random_list
+
+
 def split_data_train_validation_test(
-    data_,
-    test_fraction=0.1,
-    validation_fraction=0.15,
-    back_test=False,
-    stratification=True,
-    period_timedelta=1,
+        data_,
+        test_fraction=0.1,
+        validation_fraction=0.15,
+        back_test=False,
+        stratification=True,
+        period_timedelta=1,
 ):
     """
     Split input data into train, test and validation set.
@@ -291,7 +313,7 @@ def split_data_train_validation_test(
     # Calculate total of quarter hours (PTU's) in input data
     number_indices = len(data.index.unique())  # Total number of unique timepoints
     delta = (
-        data.index.unique().sort_values()[1] - data.index.unique().sort_values()[0]
+            data.index.unique().sort_values()[1] - data.index.unique().sort_values()[0]
     )  # Delta t, assumed to be constant troughout DataFrame
     delta = timedelta(
         seconds=delta.seconds
@@ -327,22 +349,22 @@ def split_data_train_validation_test(
         if back_test:
             start_date_val = start_date
             start_date_train = (
-                start_date_val + np.round(number_indices * validation_fraction) * delta
+                    start_date_val + np.round(number_indices * validation_fraction) * delta
             )
             start_date_test = (
-                start_date_train
-                + np.round(number_indices * (1 - validation_fraction - test_fraction))
-                * delta
+                    start_date_train
+                    + np.round(number_indices * (1 - validation_fraction - test_fraction))
+                    * delta
             )
             train_data = data[start_date_train:start_date_test]
             test_data = data[start_date_test:None]
         else:
             start_date_test = start_date
             start_date_val = (
-                start_date + np.round(number_indices * test_fraction) * delta
+                    start_date + np.round(number_indices * test_fraction) * delta
             )
             start_date_train = (
-                start_date_val + np.round(number_indices * validation_fraction) * delta
+                    start_date_val + np.round(number_indices * validation_fraction) * delta
             )
             test_data = data[start_date_test:start_date_val]
             train_data = data[start_date_train:None]
@@ -360,21 +382,16 @@ def split_data_train_validation_test(
 
             start_date_train_val = start_date
 
-            start_idx_test = int(
-                random.sample(
-                    peak_all_days[train_val_amount : train_val_amount + 1], k=1
-                )[0]
-            )
+            start_idx_test = int(random_sample(peak_all_days[train_val_amount: train_val_amount + 1], k=1)[0])
             start_date_test = (
-                start_date_train_val
-                + start_idx_test * (amount_day / period_timedelta) * delta
+                    start_date_train_val
+                    + start_idx_test * (amount_day / period_timedelta) * delta
             )
 
             test_data = data[start_date_test:None]
 
             idx_val_split = sample_indices_train_val(
-                data,
-                random.sample(peak_all_days[:train_val_amount], k=split_val + 1),
+                data, random_sample(peak_all_days[:train_val_amount], k=split_val + 1),
                 (amount_day / period_timedelta),
                 idx_first_last,
                 idx_begin_end,
@@ -389,18 +406,18 @@ def split_data_train_validation_test(
             start_date_test = start_date
 
             start_idx_train_val = int(
-                random.sample(peak_all_days[test_amount : test_amount + 1], k=1)[0]
+                random_sample(peak_all_days[test_amount: test_amount + 1], k=1)[0]
             )
             start_date_train_val = (
-                start_date_test
-                + start_idx_train_val * (amount_day / period_timedelta) * delta
+                    start_date_test
+                    + start_idx_train_val * (amount_day / period_timedelta) * delta
             )
 
             test_data = data[start_date_test:start_date_train_val]
 
             idx_val_split = sample_indices_train_val(
                 data,
-                random.sample(peak_all_days[start_idx_train_val:], k=split_val + 1),
+                random_sample(peak_all_days[start_idx_train_val:], k=split_val + 1),
                 (amount_day / period_timedelta),
                 idx_first_last,
                 idx_begin_end,
