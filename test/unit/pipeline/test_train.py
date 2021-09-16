@@ -45,7 +45,7 @@ class TestTrain(BaseTestCase):
         train_fraction = 1-(SPLIT_HYPER_PARAMS['test_fraction']+SPLIT_HYPER_PARAMS['validation_fraction'])
 
         clean_data, train_set, valid_set, test_set = split_data_train_validation_test (
-            self.data, test_fraction = SPLIT_HYPER_PARAMS['test_fraction'],
+            self.data_table, test_fraction = SPLIT_HYPER_PARAMS['test_fraction'],
             validation_fraction = SPLIT_HYPER_PARAMS['validation_fraction'],
             period_timedelta = SPLIT_HYPER_PARAMS['period_timedelta'],
             back_test=False, stratification=True
@@ -70,7 +70,7 @@ class TestTrain(BaseTestCase):
         train_fraction = 1-(SPLIT_HYPER_PARAMS['test_fraction']+SPLIT_HYPER_PARAMS['validation_fraction'])
 
         clean_data, train_set, valid_set, test_set = split_data_train_validation_test (
-            self.data, test_fraction = SPLIT_HYPER_PARAMS['test_fraction'],
+            self.data_table, test_fraction = SPLIT_HYPER_PARAMS['test_fraction'],
             validation_fraction = SPLIT_HYPER_PARAMS['validation_fraction'],
             period_timedelta = SPLIT_HYPER_PARAMS['period_timedelta'],
             back_test=True, stratification=True
@@ -94,7 +94,7 @@ class TestTrain(BaseTestCase):
         train_fraction = 1-(SPLIT_HYPER_PARAMS['test_fraction']+SPLIT_HYPER_PARAMS['validation_fraction'])
 
         clean_data, train_set, valid_set, test_set = split_data_train_validation_test (
-            self.data, test_fraction = SPLIT_HYPER_PARAMS['test_fraction'],
+            self.data_table, test_fraction = SPLIT_HYPER_PARAMS['test_fraction'],
             validation_fraction = SPLIT_HYPER_PARAMS['validation_fraction'],
             period_timedelta = SPLIT_HYPER_PARAMS['period_timedelta'],
             back_test=False, stratification=False
@@ -118,7 +118,7 @@ class TestTrain(BaseTestCase):
         train_fraction = 1-(SPLIT_HYPER_PARAMS['test_fraction']+SPLIT_HYPER_PARAMS['validation_fraction'])
 
         clean_data, train_set, valid_set, test_set = split_data_train_validation_test (
-            self.data, test_fraction = SPLIT_HYPER_PARAMS['test_fraction'],
+            self.data_table, test_fraction = SPLIT_HYPER_PARAMS['test_fraction'],
             validation_fraction = SPLIT_HYPER_PARAMS['validation_fraction'],
             period_timedelta = SPLIT_HYPER_PARAMS['period_timedelta'],
             back_test=True, stratification=False
