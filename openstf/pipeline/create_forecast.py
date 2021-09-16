@@ -75,7 +75,7 @@ def create_forecast_pipeline_core(
     fallback_strategy = "extreme_day"  # this can later be expanded
 
     # Validate and clean data
-    validated_data = validation.validate(pj["id"], input_data)
+    validated_data = validation.validate(input_data)
 
     # Add features
     data_with_features = OperationalPredictFeatureApplicator(
