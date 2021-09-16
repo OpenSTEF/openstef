@@ -1,242 +1,353 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
-#
-# SPDX-License-Identifier: MPL-2.0
-from typing import List, Tuple
-from datetime import timedelta
+import os
 
 import numpy as np
 import pandas as pd
-import structlog
 
+import random
 
-def split_data_train_validation_test(
-    data: pd.DataFrame,
-    test_fraction: float = 0.0,
-    validation_fraction: float = 0.15,
-    backtest: bool = False,
-    period_sampling: bool = True,
-    period_timedelta: timedelta = timedelta(days=2),
-) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    """Split input data into train, test and validation set.
+import plotly.express as px
+import plotly.graph_objects as go
 
-    Function for splitting cleaned data with features in a train, test and
+from datetime import datetime, timedelta
+from dateutil.parser import parse
+
+def idx_start_end_date (data, amount_day):
+
+    """
+    Retrieve the index of the last cell of the first day, and the first cell of the last day.
+    This is due to different length of period_timedelta for those two days.
+
+    Args:
+        data (pandas.DataFrame): Clean data with features
+        amount_day (int):  Duration of the periods (in T-15) that are in a day (default = 96)
+    Returns:
+        end_first (int): Index of the last cell of first day
+        begin_last (int) : Index of the first cell of the last day
+
+    """
+
+    start_date_idx = parse(data.index[0].strftime('%Y-%m-%d')).day
+    for i in range(0,amount_day):
+        day_i = parse(data.index[i].strftime('%Y-%m-%d')).day
+        if day_i != start_date_idx:
+            end_first = i
+            break
+
+    end_date_idx = parse(data.index[len(data.index)-1].strftime('%Y-%m-%d')).day
+    for i in range(len(data.index),-1,-1):
+        day_i = parse(data.index[i-1].strftime('%Y-%m-%d')).day
+        if day_i != end_date_idx:
+            begin_last = len(data.index)-i+2
+            break
+
+    return end_first, begin_last
+
+def fill_days (data, end_first, begin_last, amount_day, period_timedelta):
+    
+    """
+    Fill an array with the respective number for the day (increasing)
+
+    Args:
+        data (pandas.DataFrame): Clean data with features
+        end_first (int): Index of the last cell of first day
+        begin_last (int) : Index of the first cell of the last day
+        amount_day (int): Duration of the periods (in T-15) that are in a day (default = 96)
+        period_timedelta (int): Duration of the periods (in days) that will
+            be sampled as validation data for each split.
+
+    Returns:
+        days_np (np.array): Array with increasing number of the days
+
+    """
+    
+    number_i = 0
+    days_np = np.array(end_first*[number_i])
+    number_i += 1
+    
+    days_idx = np.arange(end_first+1,len(data['load'])-(amount_day/period_timedelta),
+                            (amount_day/period_timedelta))
+    
+    for i in days_idx:
+        days_np = np.append(days_np, int(amount_day/period_timedelta)*[number_i])
+        number_i += 1
+        
+    days_np = np.append(days_np, begin_last*[number_i])
+        
+    return days_np
+
+def min_max_peaks (data, start, end, percentiles):
+        
+    """
+    Retrieve minimum and maximum quantiles for a day (start till end)
+
+    Args:
+        data (pandas.DataFrame): Clean data with features
+        start (int): Index of the start of the day
+        end (int) : Index of the end of the day
+        percentiles (list:int): List with the lower and upper quantiles
+
+    Returns:
+        min_peaks (float): Minimum peak of a day
+        max_peaks (float): Maximum peak of a day
+
+    """
+    min_percentile = percentiles[0]
+    max_percentile = percentiles[1]
+
+    try:
+        min_peaks = min(data["load"][start:end][data["load"] < data["load"].quantile(min_percentile)])
+    except:
+        min_peaks = np.nan
+    
+    try:
+        max_peaks = max(data["load"][start:end][data["load"] > data["load"].quantile(max_percentile)])
+    except:
+        max_peaks = np.nan
+    
+    return min_peaks, max_peaks
+
+def min_max_fill_days (data, end_first, begin_last, percentiles, amount_day, period_timedelta):
+        
+    """
+    Fill arrays with the minimum and maximum quantiles for each day
+
+    Args:
+        data (pandas.DataFrame): Clean data with features
+        end_first (int): Index of the last cell of first day
+        begin_last (int) : Index of the first cell of the last day
+        percentiles (list:int): List with the lower and upper quantiles
+        amount_day (int): Duration of the periods (in T-15) that are in a day (default = 96)
+        period_timedelta (int): Duration of the periods (in days) that will
+            be sampled as validation data for each split.
+
+    Returns:
+        fill_min (np.array): Array filled with the minimum quantile for each day
+        fill_max (np.array): Array filled with the maximum quantile for each day
+
+    """
+    
+    min_i, max_i = min_max_peaks(data, 0, end_first,  percentiles)
+    
+    fill_min = np.array(end_first*[min_i])
+    fill_max = np.array(end_first*[max_i])
+    
+    start = end_first+1
+    end = start+int(amount_day/period_timedelta)
+    
+    days_idx = np.arange(start,len(data['load'])-(amount_day/period_timedelta),(amount_day/period_timedelta))
+    
+    for i in days_idx:
+        min_i, max_i = min_max_peaks(data, start+1, end,  percentiles)
+        
+        fill_min = np.append(fill_min, int(amount_day/period_timedelta)*[min_i])
+        fill_max = np.append(fill_max, int(amount_day/period_timedelta)*[max_i])
+        
+        start += int(amount_day/period_timedelta)
+        end += int(amount_day/period_timedelta)
+    
+    min_i, max_i = min_max_peaks(data, start+1, len(data['load']), percentiles)
+    
+    fill_min = np.append(fill_min, begin_last*[min_i])
+    fill_max = np.append(fill_max, begin_last*[max_i])
+        
+    return fill_min, fill_max
+
+def peak_present(data):
+        
+    """
+    Checks if there is a peak present, there is at least one peak (minimum or maximum)
+
+    Args:
+        data (pandas.DataFrame): Clean data with features
+
+    Returns:
+        boolean: Value for the presence of a peak
+
+    """
+    
+    if (data['min_peak'] == True) or (data['max_peak'] == True):
+        return True
+    else:
+        return False
+
+def sample_indices_train_val(data, peaks, period_lengths, end_first, begin_last):
+        
+    """
+    Sample indices of given period length assuming the peaks are evenly spreaded.
+
+    Args:
+        data (pandas.DataFrame): Clean data with features
+        peaks (list:int): List of selected peaks to sample the indices from
+        period_lengths (int): Duration of the periods (default = 96)
+        end_first (int): Index of the last cell of first day
+        begin_last (int) : Index of the first cell of the last day
+
+    Returns:
+        np.array: Sorted list with the indices corresponding to the peak
+
+    """
+    
+    sampled = set()
+    for peak in peaks:
+        start_point = int(peak*period_lengths)+end_first
+        if start_point < (len(data.index)-begin_last+1):
+            end_point = int(start_point + period_lengths + 8) #hour before and after
+        else:
+            end_point = int(start_point + end_first + 8) #hour before and after
+        sampled |= set(range(start_point, end_point))
+    return np.sort(list(sampled))
+
+def split_data_train_validation_test (
+    data_, test_fraction = 0.1, validation_fraction = 0.15,
+    back_test=False, stratification=True, period_timedelta = 1):
+    
+    """
+    Split input data into train, test and validation set.
+
+    Function for splitting data with features in a train, test and
     validation dataset. In an operational setting the folowing sequence is
-    returned:
+    returned (when using stratification):
 
-    Test >> Validation >> Train
+    Test >> Train >> Validation
 
     For a back test (indicated with argument "back_test") the folowing sequence
     is returned:
 
-    Validation >> Train >> Test
+    Train >> Validation >> Test
 
     The ratios of the different types can be set with test_fraction and
     validation fraction.
 
     Args:
-        data (pandas.DataFrame): Clean data with features
+        data_ (pandas.DataFrame): Cleaned data with features
         test_fraction (float): Number between 0 and 1 that indicates the desired
             fraction of test data.
         validation_fraction (float): Number between 0 and 1 that indicates the
             desired fraction of validation data.
-        backtest (bool): Indicates if data is intended for a back test.
-        period_sampling (bool): Indicates if validation data must be sampled as
-            periods.
-        period_timedelta (datetime.timedelta): Duration of the periods that will
-            be sampled as validation data. Only used for period_sampling=True.
+        back_test (bool): Indicates if data is intended for a back test.
+        stratification (bool): Indicates if validation data must be sampled as
+            periods, using stratification
+        period_timedelta (int): Duration of the periods (in days) that will
+            be sampled as validation data for each split.
 
     Returns:
-        Tuple with train data, validation data and test data:
-            [0] (pandas.DataFrame): Train data
-            [1] (pandas.DataFrame): Validation data
-            [2] (pandas.DataFrame): Test data
+        data (pandas.DataFrame): Clean data with features
+        train_data (pandas.DataFrame): Train data.
+        validation_data (pandas.DataFrame): Validation data.
+        test_data (pandas.DataFrame): Test data.
+
     """
-    MIN_TRAIN_FRACTION = 0.5
-    logger = structlog.get_logger(__name__)
-
+    
+    amount_day = 96
+    
     # Check input
-    train_fraction = 1 - (test_fraction + validation_fraction)
+    data_.loc[:,'timestamp'] = data_.index
+    data = data_[data_['Horizon']==47]
 
+    MIN_TRAIN_FRACTION = 0.5
+    train_fraction = (1 - (test_fraction + validation_fraction))
+    train_val_fraction = train_fraction + validation_fraction
     if train_fraction < 0:
         raise ValueError(
             "Test ({test_fraction}) and validation fraction ({validation_fraction}) too high."
         )
 
-    if train_fraction < MIN_TRAIN_FRACTION:
-        # TODO no action if above threshold? Which settings are meant here?
-        logger.warning("Current settings only allow for 50% train data")
+    idx_first_last, idx_begin_end = idx_start_end_date(data, amount_day)
+
+    # Quantiles in order to identify the peaks
+    max_quantile = 0.95
+    min_quantile = 0.05
 
     # Get start date from the index
     start_date = data.index.min().to_pydatetime()
 
     # Calculate total of quarter hours (PTU's) in input data
     number_indices = len(data.index.unique())  # Total number of unique timepoints
-    delta = (
-        data.index.unique().sort_values()[1] - data.index.unique().sort_values()[0]
-    )  # Delta t, assumed to be constant troughout DataFrame
-    delta = timedelta(
-        seconds=delta.seconds
-    )  # Convert from pandas timedelta to original python timedelta
+    delta = (data.index.unique().sort_values()[1] - data.index.unique().sort_values()[0])  # Delta t, assumed to be constant troughout DataFrame
+    delta = timedelta(seconds=delta.seconds)  # Convert from pandas timedelta to original python timedelta
+    
+    # Identify the peaks and list them
+    peaks_min, peaks_max = min_max_fill_days(data, idx_first_last, idx_begin_end,
+                            [min_quantile, max_quantile], amount_day, period_timedelta)
+    min_nan = np.where(np.isnan(peaks_min), False, True)
+    max_nan = np.where(np.isnan(peaks_max), False, True)
 
+    data.loc[:,'min_peak'] = min_nan
+    data.loc[:,'max_peak'] = max_nan
+    data.loc[:,'days'] = fill_days(data, idx_first_last, idx_begin_end, amount_day, period_timedelta)
+    data.loc[:,'peaks_day'] = data.apply(peak_present, axis=1)
+    
+    peak_n_days = len(np.unique(data[data['peaks_day']==True]['days']))
+    peak_all_days = list(np.unique(data[data['peaks_day']==True]['days']))
+    
     # Default sampling, take a single validation set.
-    if not period_sampling:
-        # Define start and end datetimes of test, train, val sets based on input
-        if backtest:
+    if not stratification:
+        if back_test:
             start_date_val = start_date
-            start_date_train = (
-                start_date_val + np.round(number_indices * validation_fraction) * delta
-            )
-            start_date_test = (
-                start_date_train
-                + np.round(number_indices * (1 - validation_fraction - test_fraction))
-                * delta
-            )
+            start_date_train = (start_date_val
+                                + np.round(number_indices * validation_fraction) * delta)
+            start_date_test = (start_date_train
+                               + np.round(number_indices * (1 - validation_fraction - test_fraction)) * delta)
             train_data = data[start_date_train:start_date_test]
             test_data = data[start_date_test:None]
         else:
             start_date_test = start_date
-            start_date_val = (
-                start_date + np.round(number_indices * test_fraction) * delta
-            )
-            start_date_train = (
-                start_date_val + np.round(number_indices * validation_fraction) * delta
-            )
+            start_date_val = (start_date
+                              + np.round(number_indices * test_fraction) * delta)
+            start_date_train = (start_date_val
+                                + np.round(number_indices * validation_fraction) * delta)
             test_data = data[start_date_test:start_date_val]
             train_data = data[start_date_train:None]
 
-        # In either case validation data is before the training data
         validation_data = data[start_date_val:start_date_train]
-
-    # Sample periods in the training part as the validation set.
+    
+    # Sample periods in the training part as the validation set using stratification (peaks).
     else:
-        if backtest:
-            start_date_combined = start_date
-            start_date_test = (
-                start_date_combined
-                + np.round(number_indices * (1 - test_fraction)) * delta
-            )
+        test_amount = int(test_fraction*(peak_n_days))
+        train_val_amount = int(train_val_fraction*(peak_n_days))
+        train_amount = int(train_fraction*(peak_n_days))
+        val_amount = int(validation_fraction*(peak_n_days))
+        split_val = int((peak_n_days*validation_fraction)/period_timedelta)
+                        
+        if back_test:
+            # Train + Val >> Test
 
-            combined_data = data[start_date_combined:start_date_test]
+            start_date_train_val = start_date
+
+            start_idx_test= int(random.sample(peak_all_days[train_val_amount:train_val_amount+1], k=1)[0])
+            start_date_test = (start_date_train_val + start_idx_test*(amount_day/period_timedelta) * delta)
+
+            train_val_data = data[start_date_train_val:start_date_test]
             test_data = data[start_date_test:None]
+
+            idx_val_split = sample_indices_train_val(data,
+                random.sample(peak_all_days[:train_val_amount], k=split_val+1),
+                (amount_day/period_timedelta), idx_first_last, idx_begin_end)
+
+            validation_data = data.loc[data.index.unique()[idx_val_split]]
+            train_data = data[~data.index.isin(validation_data.index)]
+            train_data = train_data[~train_data.index.isin(test_data.index)]
         else:
+            # Test >> Train + Val
+
             start_date_test = start_date
-            start_date_combined = (
-                start_date + np.round(number_indices * test_fraction) * delta
-            )
 
-            combined_data = data[start_date_combined:]
-            test_data = data[start_date_test:start_date_combined]
+            start_idx_train_val = int(random.sample(peak_all_days[test_amount-1:test_amount], k=1)[0])
+            start_date_train_val = (start_date_test + start_idx_train_val*(amount_day/period_timedelta) * delta)
 
-        train_data, validation_data = sample_validation_data_periods(
-            combined_data,
-            validation_fraction=validation_fraction / (1 - test_fraction),
-            period_length=int(period_timedelta / delta),
-        )
+            test_data = data[start_date_test:start_date_train_val]
+            train_val_data = data[start_date_train_val:None]
 
-    # Return datasets
-    return train_data, validation_data, test_data
+            idx_val_split = sample_indices_train_val(data,
+                random.sample(peak_all_days[start_idx_train_val:], k=split_val+1),
+                (amount_day/period_timedelta), idx_first_last, idx_begin_end)
 
-
-def sample_validation_data_periods(
-    data: pd.DataFrame, validation_fraction: float = 0.15, period_length: int = 192
-) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    """Splits data in train and validation dataset.
-
-    Tries to sample random periods of given length to form a validation set of
-    the desired size. Will raise an error if the number of attempts exceeds the
-    maximum given to this function (default: 10).
-
-    Args:
-        data (pandas.DataFrame): Clean data with features
-        validation_fraction (float): Number between 0 and 1 that indicates the
-            desired fraction of validation data. Using a value larger than ~0.4 might
-            lead to this function failing.
-        period_length (int): Desired size of the sampled periods. The actual
-            values can be slightly different if this is required to create the
-            right fraction of validation data. Each period will have a duration
-            of at least half period_length and at most one and a half
-            period_length.
-
-    Returns:
-        train_data (pandas.DataFrame): Train data.
-        validation_data (pandas.DataFrame): Validation data.
-    """
-
-    data_size = len(data.index.unique())
-    validation_size = np.round(data_size * validation_fraction).astype(int)
-    number_periods = np.round(validation_size / period_length).astype(int)
-
-    # Always atleast one validation period
-    if number_periods < 1:
-        number_periods = 1
-
-    period_lengths = [period_length] * (number_periods - 1)
-    period_lengths += [validation_size - sum(period_lengths)]
-
-    # Default buffer is equal to period_length
-    buffer_length = period_length
-
-    # Check if the dataset has enough points for the current settings
-    if validation_size + 2 * number_periods * buffer_length >= data_size:
-        # Use half period_length otherwise
-        buffer_length = np.round(buffer_length / 2).astype(int)
-
-    # Sample indices as validation data
-    try:
-        validation_indices = _sample_indices(
-            data_size - max(period_lengths), period_lengths, buffer_length
-        )
-    except ValueError:
-        raise ValueError(
-            "Could not sample {} periods from data of size {}. Maybe the \
-            validation_fraction is too high (>0.4)?".format(
-                period_lengths, data_size
-            )
-        )
-
-    # Select validation data
-    validation_data = data.loc[data.index.unique()[validation_indices]]
-
-    # Select the other data as training data
-    train_data = data[~data.index.isin(validation_data.index)]
-
-    return train_data, validation_data
-
-
-def _sample_indices(
-    number_indices: int, period_lengths: List[int], buffer_length: int
-) -> np.array:
-    """Samples periods of given length with the given buffer.
-
-    Args:
-        number_indices (int): Total number of indices that are available for
-            sampling.
-        period_lengths (list:int): List of lengths for each period that will be
-            sampled.
-        buffer_length (int): Number of indices between each sampled period that
-            will be removed from the sampling set.
-
-    Returns:
-        numpy.array: Sorted (ascending) list of sampled indices.
-
-    """
-    stockpile = set(range(number_indices))
-
-    rng = np.random.default_rng()
-    sampled = set()
-    for period_length in period_lengths:
-        # Sample random starting indices from indices set
-        start_point = rng.choice(list(stockpile))
-        end_point = start_point + period_length
-
-        # Append sampled indices
-        sampled |= set(range(start_point, end_point))
-
-        # Remove sampled indices plus a buffer zone.
-        stockpile -= set(
-            range(
-                start_point - period_length - buffer_length, end_point + buffer_length
-            )
-        )
-
-    return np.sort(list(sampled))
+            validation_data = data.loc[data.index.unique()[idx_val_split]]
+            train_data = data[~data.index.isin(validation_data.index)]
+            train_data = train_data[~train_data.index.isin(test_data.index)]
+            
+    train_data = train_data.sort_values(by='timestamp')
+    validation_data = validation_data.sort_values(by='timestamp')
+    test_data = test_data.sort_values(by='timestamp')
+                        
+    return data, train_data, validation_data, test_data

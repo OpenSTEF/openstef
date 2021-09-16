@@ -207,7 +207,7 @@ def train_pipeline_common(
     ).add_features(validated_data)
 
     # Split data
-    train_data, validation_data, test_data = split_data_train_validation_test(
+    data, train_data, validation_data, test_data = split_data_train_validation_test(
         data_with_features,
         test_fraction=test_fraction,
         backtest=backtest,
