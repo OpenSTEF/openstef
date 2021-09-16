@@ -352,8 +352,6 @@ def split_data_train_validation_test(
     else:
         test_amount = int(test_fraction * (peak_n_days))
         train_val_amount = int(train_val_fraction * (peak_n_days))
-        train_amount = int(train_fraction * (peak_n_days))
-        val_amount = int(validation_fraction * (peak_n_days))
         split_val = int((peak_n_days * validation_fraction) / period_timedelta)
 
         if back_test:
@@ -399,7 +397,6 @@ def split_data_train_validation_test(
             )
 
             test_data = data[start_date_test:start_date_train_val]
-            train_val_data = data[start_date_train_val:None]
 
             idx_val_split = sample_indices_train_val(
                 data,

@@ -6,13 +6,8 @@ from datetime import datetime, timedelta
 from test.utils import BaseTestCase, TestData
 from unittest.mock import MagicMock, patch
 
-# from test.utils.base import BaseTestCase
-# from test.utils.data import TestData
-
-
 import pandas as pd
 import sklearn
-import numpy as np
 
 from openstf.metrics.reporter import Report
 from openstf.pipeline.train_model import (

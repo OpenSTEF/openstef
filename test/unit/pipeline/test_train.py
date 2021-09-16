@@ -5,7 +5,6 @@ from datetime import datetime, timedelta
 import unittest
 
 import pandas as pd
-import numpy as np
 
 from test.utils.base import BaseTestCase
 from test.utils.data import TestData
