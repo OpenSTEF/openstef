@@ -18,9 +18,7 @@ DEFAULT_EARLY_STOPPING_ROUNDS: int = 10
 
 
 def train_model_and_forecast_back_test(
-    pj: dict,
-    input_data: pd.DataFrame,
-    training_horizons: List[float] = None,
+    pj: dict, input_data: pd.DataFrame, training_horizons: List[float] = None,
 ) -> Tuple[pd.DataFrame, RegressorMixin]:
     """Pipeline for a back test.
 

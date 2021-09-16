@@ -18,9 +18,7 @@ class TestFallback(BaseTestCase):
         forc_section = TestData.load("fallback_index.csv")
 
         fallback_forecast = generate_fallback(
-            forecast_input=forc_section,
-            load=load,
-            fallback_strategy="extreme_day",
+            forecast_input=forc_section, load=load, fallback_strategy="extreme_day",
         )
 
         self.assertDataframeEqual(fallback_forecast, expected_forecast)
@@ -31,10 +29,7 @@ class TestFallback(BaseTestCase):
         load *= np.nan
         forc_section = TestData.load("fallback_index.csv")
         self.assertRaises(
-            ValueError,
-            generate_fallback,
-            forecast_input=forc_section.index,
-            load=load,
+            ValueError, generate_fallback, forecast_input=forc_section.index, load=load,
         )
 
     def test_generate_fallback_unimplemented_input(self):

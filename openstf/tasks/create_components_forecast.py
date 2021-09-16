@@ -127,9 +127,7 @@ def main():
         model_type = [ml.value for ml in MLModelType]
 
         PredictionJobLoop(
-            context,
-            model_type=model_type,
-            on_end_callback=callback,
+            context, model_type=model_type, on_end_callback=callback,
         ).map(create_components_forecast_task, context)
 
 

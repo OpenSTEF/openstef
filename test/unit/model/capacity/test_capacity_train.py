@@ -29,17 +29,10 @@ TDCV_DATA = TestData.load("capacity_tdcv_load_profiles.csv")
 @patch("openstf.model.capacity.train.DataBase")
 class TestCapacityTrain(BaseTestCase):
     def test_no_exception(
-        self,
-        db_mock,
-        apply_features_mock,
-        model_mock,
-        prepare_data_mock,
+        self, db_mock, apply_features_mock, model_mock, prepare_data_mock,
     ):
         self.add_mock_return_values(
-            db_mock,
-            apply_features_mock,
-            model_mock,
-            prepare_data_mock,
+            db_mock, apply_features_mock, model_mock, prepare_data_mock,
         )
 
         # run function
@@ -60,10 +53,7 @@ class TestCapacityTrain(BaseTestCase):
 
     @staticmethod
     def add_mock_return_values(
-        db_mock,
-        apply_features_mock,
-        model_mock,
-        prepare_data_mock,
+        db_mock, apply_features_mock, model_mock, prepare_data_mock,
     ):
         # set database return values
         db_mock.return_value.get_load_pid.return_value = LOAD_DATA

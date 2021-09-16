@@ -9,9 +9,7 @@ import numpy as np
 from test.utils.base import BaseTestCase
 from test.utils.data import TestData
 
-from openstf.pipeline.train_model import (
-    split_data_train_validation_test,
-)
+from openstf.pipeline.train_model import split_data_train_validation_test
 
 # define constants
 SPLIT_HYPER_PARAMS = {
@@ -19,6 +17,7 @@ SPLIT_HYPER_PARAMS = {
     "validation_fraction": 0.15,
     "period_timedelta": 1,
 }
+
 
 class TestTrain(BaseTestCase):
     def setUp(self) -> None:
@@ -42,19 +41,33 @@ class TestTrain(BaseTestCase):
 
         """
 
-        train_fraction = 1-(SPLIT_HYPER_PARAMS['test_fraction']+SPLIT_HYPER_PARAMS['validation_fraction'])
+        train_fraction = 1 - (
+            SPLIT_HYPER_PARAMS["test_fraction"]
+            + SPLIT_HYPER_PARAMS["validation_fraction"]
+        )
 
-        clean_data, train_set, valid_set, test_set = split_data_train_validation_test (
-            self.data_table, test_fraction = SPLIT_HYPER_PARAMS['test_fraction'],
-            validation_fraction = SPLIT_HYPER_PARAMS['validation_fraction'],
-            period_timedelta = SPLIT_HYPER_PARAMS['period_timedelta'],
-            back_test=False, stratification=True
-            )
+        clean_data, train_set, valid_set, test_set = split_data_train_validation_test(
+            self.data_table,
+            test_fraction=SPLIT_HYPER_PARAMS["test_fraction"],
+            validation_fraction=SPLIT_HYPER_PARAMS["validation_fraction"],
+            period_timedelta=SPLIT_HYPER_PARAMS["period_timedelta"],
+            back_test=False,
+            stratification=True,
+        )
 
-        self.assertAlmostEqual(len(valid_set), len(clean_data.index)*SPLIT_HYPER_PARAMS['validation_fraction'], delta=2*96)
-        self.assertAlmostEqual(len(test_set), len(clean_data.index)*SPLIT_HYPER_PARAMS['test_fraction'], delta=2*96)
-        self.assertAlmostEqual(len(train_set), len(clean_data.index)*train_fraction, delta=2*96)
-
+        self.assertAlmostEqual(
+            len(valid_set),
+            len(clean_data.index) * SPLIT_HYPER_PARAMS["validation_fraction"],
+            delta=2 * 96,
+        )
+        self.assertAlmostEqual(
+            len(test_set),
+            len(clean_data.index) * SPLIT_HYPER_PARAMS["test_fraction"],
+            delta=2 * 96,
+        )
+        self.assertAlmostEqual(
+            len(train_set), len(clean_data.index) * train_fraction, delta=2 * 96
+        )
 
     def test_split_data_train_validation_test_stratification_backtest(self):
 
@@ -67,18 +80,33 @@ class TestTrain(BaseTestCase):
 
         """
 
-        train_fraction = 1-(SPLIT_HYPER_PARAMS['test_fraction']+SPLIT_HYPER_PARAMS['validation_fraction'])
+        train_fraction = 1 - (
+            SPLIT_HYPER_PARAMS["test_fraction"]
+            + SPLIT_HYPER_PARAMS["validation_fraction"]
+        )
 
-        clean_data, train_set, valid_set, test_set = split_data_train_validation_test (
-            self.data_table, test_fraction = SPLIT_HYPER_PARAMS['test_fraction'],
-            validation_fraction = SPLIT_HYPER_PARAMS['validation_fraction'],
-            period_timedelta = SPLIT_HYPER_PARAMS['period_timedelta'],
-            back_test=True, stratification=True
-            )
+        clean_data, train_set, valid_set, test_set = split_data_train_validation_test(
+            self.data_table,
+            test_fraction=SPLIT_HYPER_PARAMS["test_fraction"],
+            validation_fraction=SPLIT_HYPER_PARAMS["validation_fraction"],
+            period_timedelta=SPLIT_HYPER_PARAMS["period_timedelta"],
+            back_test=True,
+            stratification=True,
+        )
 
-        self.assertAlmostEqual(len(valid_set), len(clean_data.index)*SPLIT_HYPER_PARAMS['validation_fraction'], delta=2*96)
-        self.assertAlmostEqual(len(test_set), len(clean_data.index)*SPLIT_HYPER_PARAMS['test_fraction'], delta=2*96)
-        self.assertAlmostEqual(len(train_set), len(clean_data.index)*train_fraction, delta=2*96)
+        self.assertAlmostEqual(
+            len(valid_set),
+            len(clean_data.index) * SPLIT_HYPER_PARAMS["validation_fraction"],
+            delta=2 * 96,
+        )
+        self.assertAlmostEqual(
+            len(test_set),
+            len(clean_data.index) * SPLIT_HYPER_PARAMS["test_fraction"],
+            delta=2 * 96,
+        )
+        self.assertAlmostEqual(
+            len(train_set), len(clean_data.index) * train_fraction, delta=2 * 96
+        )
 
     def test_split_data_train_validation_test_no_stratification(self):
 
@@ -91,18 +119,33 @@ class TestTrain(BaseTestCase):
 
         """
 
-        train_fraction = 1-(SPLIT_HYPER_PARAMS['test_fraction']+SPLIT_HYPER_PARAMS['validation_fraction'])
+        train_fraction = 1 - (
+            SPLIT_HYPER_PARAMS["test_fraction"]
+            + SPLIT_HYPER_PARAMS["validation_fraction"]
+        )
 
-        clean_data, train_set, valid_set, test_set = split_data_train_validation_test (
-            self.data_table, test_fraction = SPLIT_HYPER_PARAMS['test_fraction'],
-            validation_fraction = SPLIT_HYPER_PARAMS['validation_fraction'],
-            period_timedelta = SPLIT_HYPER_PARAMS['period_timedelta'],
-            back_test=False, stratification=False
-            )
+        clean_data, train_set, valid_set, test_set = split_data_train_validation_test(
+            self.data_table,
+            test_fraction=SPLIT_HYPER_PARAMS["test_fraction"],
+            validation_fraction=SPLIT_HYPER_PARAMS["validation_fraction"],
+            period_timedelta=SPLIT_HYPER_PARAMS["period_timedelta"],
+            back_test=False,
+            stratification=False,
+        )
 
-        self.assertAlmostEqual(len(valid_set), len(clean_data.index)*SPLIT_HYPER_PARAMS['validation_fraction'], delta=2*96)
-        self.assertAlmostEqual(len(test_set), len(clean_data.index)*SPLIT_HYPER_PARAMS['test_fraction'], delta=2*96)
-        self.assertAlmostEqual(len(train_set), len(clean_data.index)*train_fraction, delta=2*96)
+        self.assertAlmostEqual(
+            len(valid_set),
+            len(clean_data.index) * SPLIT_HYPER_PARAMS["validation_fraction"],
+            delta=2 * 96,
+        )
+        self.assertAlmostEqual(
+            len(test_set),
+            len(clean_data.index) * SPLIT_HYPER_PARAMS["test_fraction"],
+            delta=2 * 96,
+        )
+        self.assertAlmostEqual(
+            len(train_set), len(clean_data.index) * train_fraction, delta=2 * 96
+        )
 
     def test_split_data_train_validation_test_no_stratification_backtest(self):
 
@@ -114,19 +157,35 @@ class TestTrain(BaseTestCase):
             AssertionError: -
 
         """
-    
-        train_fraction = 1-(SPLIT_HYPER_PARAMS['test_fraction']+SPLIT_HYPER_PARAMS['validation_fraction'])
 
-        clean_data, train_set, valid_set, test_set = split_data_train_validation_test (
-            self.data_table, test_fraction = SPLIT_HYPER_PARAMS['test_fraction'],
-            validation_fraction = SPLIT_HYPER_PARAMS['validation_fraction'],
-            period_timedelta = SPLIT_HYPER_PARAMS['period_timedelta'],
-            back_test=True, stratification=False
-            )
+        train_fraction = 1 - (
+            SPLIT_HYPER_PARAMS["test_fraction"]
+            + SPLIT_HYPER_PARAMS["validation_fraction"]
+        )
 
-        self.assertAlmostEqual(len(valid_set), len(clean_data.index)*SPLIT_HYPER_PARAMS['validation_fraction'], delta=2*96)
-        self.assertAlmostEqual(len(test_set), len(clean_data.index)*SPLIT_HYPER_PARAMS['test_fraction'], delta=2*96)
-        self.assertAlmostEqual(len(train_set), len(clean_data.index)*train_fraction, delta=2*96)
+        clean_data, train_set, valid_set, test_set = split_data_train_validation_test(
+            self.data_table,
+            test_fraction=SPLIT_HYPER_PARAMS["test_fraction"],
+            validation_fraction=SPLIT_HYPER_PARAMS["validation_fraction"],
+            period_timedelta=SPLIT_HYPER_PARAMS["period_timedelta"],
+            back_test=True,
+            stratification=False,
+        )
+
+        self.assertAlmostEqual(
+            len(valid_set),
+            len(clean_data.index) * SPLIT_HYPER_PARAMS["validation_fraction"],
+            delta=2 * 96,
+        )
+        self.assertAlmostEqual(
+            len(test_set),
+            len(clean_data.index) * SPLIT_HYPER_PARAMS["test_fraction"],
+            delta=2 * 96,
+        )
+        self.assertAlmostEqual(
+            len(train_set), len(clean_data.index) * train_fraction, delta=2 * 96
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

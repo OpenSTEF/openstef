@@ -26,9 +26,7 @@ class TestTrainBackTestPipeline(BaseTestCase):
             validation_data,
             test_data,
         ) = train_model_and_forecast_back_test(
-            pj=self.pj,
-            input_data=self.train_input,
-            training_horizons=[0.25, 24.0],
+            pj=self.pj, input_data=self.train_input, training_horizons=[0.25, 24.0],
         )
 
         self.assertTrue("forecast" in forecast.columns)

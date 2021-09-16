@@ -75,8 +75,7 @@ class XGBQuantileOpenstfRegressor(OpenstfRegressorInterface):
         # Define watchlist if eval_set is defined
         if eval_set:
             dval = xgb.DMatrix(
-                eval_set[1][0].copy(deep=True),
-                label=eval_set[1][1].copy(deep=True),
+                eval_set[1][0].copy(deep=True), label=eval_set[1][1].copy(deep=True),
             )
 
             # Define data set to be monitored during training, the last(validation)

@@ -39,28 +39,14 @@ class TestPostProcess(BaseTestCase):
         # Define test reference output
         weather_data_norm_ref = pd.DataFrame(
             {
-                "radiation": [
-                    -0.309406,
-                    -0.495050,
-                    -1.021040,
-                    0.030941,
-                    0.061881,
-                ],
-                "windpower": [
-                    -0.303030,
-                    -0.454545,
-                    -1.000000,
-                    -0.030303,
-                    -0.060606,
-                ],
+                "radiation": [-0.309406, -0.495050, -1.021040, 0.030941, 0.061881,],
+                "windpower": [-0.303030, -0.454545, -1.000000, -0.030303, -0.060606,],
             }
         )
 
         # Carry out test
-        weather_data_norm_test = (
-            postprocessing.normalize_and_convert_weather_data_for_splitting(
-                weather_data_test
-            )
+        weather_data_norm_test = postprocessing.normalize_and_convert_weather_data_for_splitting(
+            weather_data_test
         )
         print(weather_data_norm_test.columns)
         # Check column names are correctly set

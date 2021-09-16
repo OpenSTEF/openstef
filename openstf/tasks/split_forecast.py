@@ -49,10 +49,9 @@ def main():
     with TaskContext(taskname) as context:
         model_type = [ml.value for ml in MLModelType]
 
-        PredictionJobLoop(
-            context,
-            model_type=model_type,
-        ).map(lambda pj: split_forecast(pj["id"]))
+        PredictionJobLoop(context, model_type=model_type,).map(
+            lambda pj: split_forecast(pj["id"])
+        )
 
 
 def split_forecast(pid):

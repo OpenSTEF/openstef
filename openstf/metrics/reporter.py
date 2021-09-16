@@ -53,10 +53,7 @@ class Reporter:
         self.predicted_data_list = []
         self.input_data_list = [train_data, validation_data, test_data]
 
-    def generate_report(
-        self,
-        model: RegressorMixin,
-    ) -> Report:
+    def generate_report(self, model: RegressorMixin,) -> Report:
 
         data_series_figures = self._make_data_series_figures(model)
         feature_importance_figure = self._make_feature_importance_figure(model)

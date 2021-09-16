@@ -26,9 +26,7 @@ class TestCreateForeCastTask(TestCase):
         create_forecast_task(self.pj, context)
         self.assertEqual(context.mock_calls[1].args[0], FORECAST_MOCK)
 
-    @patch(
-        "openstf.tasks.utils.taskcontext.DataBase",
-    )
+    @patch("openstf.tasks.utils.taskcontext.DataBase",)
     @patch("openstf.tasks.utils.taskcontext.ConfigManager")
     @patch("openstf.tasks.utils.utils.ConfigManager")
     @patch("openstf.tasks.utils.taskcontext.post_teams")
