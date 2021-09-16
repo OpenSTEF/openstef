@@ -50,7 +50,7 @@ def optimize_hyperparameters_pipeline(
         dict: Optimized hyperparameters.
     """
     # Validate and clean data
-    validated_data = validation.clean(validation.validate(input_data))
+    validated_data = validation.clean(validation.validate(pj["id"], input_data))
 
     # Check if sufficient data is left after cleaning
     if not validation.is_data_sufficient(validated_data):
