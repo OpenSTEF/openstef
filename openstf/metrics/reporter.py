@@ -60,7 +60,7 @@ class Reporter:
 
         data_series_figures = self._make_data_series_figures(model)
         feature_importance_figure = figure.plot_feature_importance(
-            model.feature_dataframe
+            model.feature_importance_dataframe
         )
 
         report = Report(

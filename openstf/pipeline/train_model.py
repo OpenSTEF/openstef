@@ -248,7 +248,8 @@ def train_pipeline_common(
         early_stopping_rounds=DEFAULT_EARLY_STOPPING_ROUNDS,
         verbose=False,
     )
-    model.feature_dataframe = model.get_feature_importance(train_x.columns)
+
+    model.feature_importance_dataframe = model._set_feature_importance(train_x.columns)
     logging.info("Fitted a new model, not yet stored")
 
     # Do confidence interval determination
