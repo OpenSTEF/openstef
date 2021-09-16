@@ -127,8 +127,7 @@ class TestTrainModelPipeline(BaseTestCase):
 
         train_fraction = 1-(SPLIT_HYPER_PARAMS['test_fraction']+SPLIT_HYPER_PARAMS['validation_fraction'])
 
-        clean_data, train_set, valid_set, test_set =
-            split_data_train_validation_test (
+        clean_data, train_set, valid_set, test_set = split_data_train_validation_test (
             self.data, test_fraction = SPLIT_HYPER_PARAMS['test_fraction'],
             validation_fraction = SPLIT_HYPER_PARAMS['validation_fraction'],
             period_timedelta = SPLIT_HYPER_PARAMS['period_timedelta'],
