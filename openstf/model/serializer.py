@@ -28,7 +28,7 @@ class AbstractSerializer(ABC):
 
     @abstractmethod
     def save_model(self, model: RegressorMixin) -> None:
-        """Persists trained sklearn compantible model
+        """Persists trained sklearn compatible model
 
         Args:
             model: Trained sklearn compatible model object

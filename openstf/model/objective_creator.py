@@ -9,7 +9,7 @@ from openstf.model.objective import (
     RegressorObjective,
     XGBRegressorObjective,
     LGBRegressorObjective,
-    XGBQuantileRegressor,
+    XGBQuantileRegressorObjective,
 )
 
 
@@ -17,19 +17,16 @@ class ObjectiveCreator:
     OBJECTIVES = {
         MLModelType.XGB: XGBRegressorObjective,
         MLModelType.LGB: LGBRegressorObjective,
-        MLModelType.XGB_QUANTILE: XGBQuantileRegressor,
+        MLModelType.XGB_QUANTILE: XGBQuantileRegressorObjective,
     }
 
     @staticmethod
     def create_objective(model_type: Union[MLModelType, str]) -> RegressorObjective:
         """Create an objective function based on model type.
-
         Args:
             model_type (Union[MLModelType, str]): Model type to construct.
-
         Raises:
             NotImplementedError: When using an invalid model_type.
-
         Returns:
             RegressorObjective: Objective function
         """

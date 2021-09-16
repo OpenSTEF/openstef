@@ -40,6 +40,7 @@ class TestDataValidation(BaseTestCase):
         null_row.isnull.return_value = [True]
         processed_input_data_rows = [(0, null_row), (1, null_row)]
         processed_input_data = MagicMock()
+        processed_input_data.index = range(0, 1000)
         processed_input_data.iterrows.return_value = processed_input_data_rows
 
         nonzero_flatliner_mock.return_value = suspicious_moments
