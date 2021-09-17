@@ -212,7 +212,7 @@ def sample_indices_train_val(data, peaks, period_lengths, end_first, begin_last)
     for peak in peaks:
         if peak < (len(data)):
             start_point = int(peak * period_lengths) + end_first
-            if start_point < (len(data.index) - begin_last + 1):
+            if start_point < (len(data.index) - period_lengths + 1):
                 end_point = int(start_point + period_lengths) - 1
             else:
                 end_point = int(start_point + end_first) - 1
