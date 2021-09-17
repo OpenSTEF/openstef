@@ -117,7 +117,9 @@ def create_forecast_pipeline_core(
 
     # Prepare for output
     forecast = add_prediction_job_properties_to_forecast(
-        pj, forecast, algorithm_type=str(model.path),
+        pj,
+        forecast,
+        algorithm_type=str(model.path),
     )
 
     return forecast

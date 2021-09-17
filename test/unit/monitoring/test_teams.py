@@ -38,7 +38,11 @@ class TestTeams(BaseTestCase):
 
         msg = "test"
         invalid_coefs = pd.DataFrame(
-            {"coef_name": ["a"], "coef_value_last": [0], "coef_value_new": [1],},
+            {
+                "coef_name": ["a"],
+                "coef_value_last": [0],
+                "coef_value_new": [1],
+            },
         )
         coefsdf = pd.DataFrame()
 

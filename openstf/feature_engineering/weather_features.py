@@ -112,7 +112,13 @@ def add_humidity_features(
     # Otherwise check if they are among the reuqested features
     else:
         humidity_features = any(
-            x in ["saturation_pressure", "vapour_pressure", "dewpoint", "air_density",]
+            x
+            in [
+                "saturation_pressure",
+                "vapour_pressure",
+                "dewpoint",
+                "air_density",
+            ]
             for x in feature_names
         )
 

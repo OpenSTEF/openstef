@@ -105,7 +105,7 @@ def min_max_peaks(data, start, end, percentiles):
         min_peaks = min(
             data["load"][start:end][
                 data["load"] < data["load"].quantile(min_percentile)
-                ]
+            ]
         )
     except:
         min_peaks = np.nan
@@ -114,7 +114,7 @@ def min_max_peaks(data, start, end, percentiles):
         max_peaks = max(
             data["load"][start:end][
                 data["load"] > data["load"].quantile(max_percentile)
-                ]
+            ]
         )
     except:
         max_peaks = np.nan
@@ -123,7 +123,7 @@ def min_max_peaks(data, start, end, percentiles):
 
 
 def min_max_fill_days(
-        data, end_first, begin_last, percentiles, amount_day, period_timedelta
+    data, end_first, begin_last, percentiles, amount_day, period_timedelta
 ):
     """
     Fill arrays with the minimum and maximum quantiles for each day
@@ -213,9 +213,9 @@ def sample_indices_train_val(data, peaks, period_lengths, end_first, begin_last)
         if peak < (len(data)):
             start_point = int(peak * period_lengths) + end_first
             if start_point < (len(data.index) - begin_last + 1):
-                end_point = int(start_point + period_lengths)-1
+                end_point = int(start_point + period_lengths) - 1
             else:
-                end_point = int(start_point + end_first)-1
+                end_point = int(start_point + end_first) - 1
             sampled |= set(range(start_point, end_point))
     return np.sort(list(sampled))
 
@@ -242,12 +242,12 @@ def random_sample(list_sample, k):
 
 
 def split_data_train_validation_test(
-        data_,
-        test_fraction=0.1,
-        validation_fraction=0.15,
-        back_test=False,
-        stratification=True,
-        period_timedelta=1,
+    data_,
+    test_fraction=0.1,
+    validation_fraction=0.15,
+    back_test=False,
+    stratification=True,
+    period_timedelta=1,
 ):
     """
     Split input data into train, test and validation set.
@@ -314,7 +314,7 @@ def split_data_train_validation_test(
     # Calculate total of quarter hours (PTU's) in input data
     number_indices = len(data.index.unique())  # Total number of unique timepoints
     delta = (
-            data.index.unique().sort_values()[1] - data.index.unique().sort_values()[0]
+        data.index.unique().sort_values()[1] - data.index.unique().sort_values()[0]
     )  # Delta t, assumed to be constant troughout DataFrame
     delta = timedelta(
         seconds=delta.seconds
@@ -350,22 +350,22 @@ def split_data_train_validation_test(
         if back_test:
             start_date_val = start_date
             start_date_train = (
-                    start_date_val + np.round(number_indices * validation_fraction) * delta
+                start_date_val + np.round(number_indices * validation_fraction) * delta
             )
             start_date_test = (
-                    start_date_train
-                    + np.round(number_indices * (1 - validation_fraction - test_fraction))
-                    * delta
+                start_date_train
+                + np.round(number_indices * (1 - validation_fraction - test_fraction))
+                * delta
             )
             train_data = data[start_date_train:start_date_test]
             test_data = data[start_date_test:None]
         else:
             start_date_test = start_date
             start_date_val = (
-                    start_date + np.round(number_indices * test_fraction) * delta
+                start_date + np.round(number_indices * test_fraction) * delta
             )
             start_date_train = (
-                    start_date_val + np.round(number_indices * validation_fraction) * delta
+                start_date_val + np.round(number_indices * validation_fraction) * delta
             )
             test_data = data[start_date_test:start_date_val]
             train_data = data[start_date_train:None]
@@ -383,16 +383,21 @@ def split_data_train_validation_test(
 
             start_date_train_val = start_date
 
-            start_idx_test = int(random_sample(peak_all_days[train_val_amount: train_val_amount + 1], k=1)[0])
+            start_idx_test = int(
+                random_sample(
+                    peak_all_days[train_val_amount : train_val_amount + 1], k=1
+                )[0]
+            )
             start_date_test = (
-                    start_date_train_val
-                    + start_idx_test * (amount_day / period_timedelta) * delta
+                start_date_train_val
+                + start_idx_test * (amount_day / period_timedelta) * delta
             )
 
             test_data = data[start_date_test:None]
 
             idx_val_split = sample_indices_train_val(
-                data, random_sample(peak_all_days[:train_val_amount], k=split_val + 1),
+                data,
+                random_sample(peak_all_days[:train_val_amount], k=split_val + 1),
                 int(amount_day / period_timedelta),
                 idx_first_last,
                 idx_begin_end,
@@ -407,11 +412,11 @@ def split_data_train_validation_test(
             start_date_test = start_date
 
             start_idx_train_val = int(
-                random_sample(peak_all_days[test_amount: test_amount + 1], k=1)[0]
+                random_sample(peak_all_days[test_amount : test_amount + 1], k=1)[0]
             )
             start_date_train_val = (
-                    start_date_test
-                    + start_idx_train_val * (amount_day / period_timedelta) * delta
+                start_date_test
+                + start_idx_train_val * (amount_day / period_timedelta) * delta
             )
 
             test_data = data[start_date_test:start_date_train_val]

@@ -72,7 +72,9 @@ class TaskContext:
                 self.on_successful()
         else:
             self.logger.error(
-                "An error has occured", exc_info=exc_info, stack_info=stack_info,
+                "An error has occured",
+                exc_info=exc_info,
+                stack_info=stack_info,
             )
             if self.on_exception is not None:
                 self.on_exception(exc_type, exc_info, stack_info)
@@ -114,18 +116,28 @@ class TaskContext:
                 [f"{pid:d}" for pid in metrics["pids_unsuccessful"]]
             )
             msg["sections"].append(
-                {"facts": [("Unsuccessful pid(s)", string_pids_unsuccessful),]}
+                {
+                    "facts": [
+                        ("Unsuccessful pid(s)", string_pids_unsuccessful),
+                    ]
+                }
             )
             # Add details of exceptions and pids
             string_pids_exceptions = "\n".join(
                 [f"{key}:{value}\n" for key, value in metrics["exceptions"].items()]
             )
             msg["sections"].append(
-                {"facts": [("Exceptions: pid(s)", string_pids_exceptions),]}
+                {
+                    "facts": [
+                        ("Exceptions: pid(s)", string_pids_exceptions),
+                    ]
+                }
             )
 
         msg["sections"].append(
-            {"text": f"    {stack_text}",}
+            {
+                "text": f"    {stack_text}",
+            }
         )
 
         post_teams(msg)

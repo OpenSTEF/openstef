@@ -30,7 +30,9 @@ class PerformanceMeter:
         self.levels[level_label] = level_name
 
         self.logger.info(
-            f"{level_label.capitalize()} started", **self.levels, **kwargs,
+            f"{level_label.capitalize()} started",
+            **self.levels,
+            **kwargs,
         )
         time = perf_counter()
         self.level_timers.append(time)

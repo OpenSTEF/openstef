@@ -23,12 +23,12 @@ SPLIT_HYPER_PARAMS = {
 class TestTrain(BaseTestCase):
     def test_split_data_train_validation_test_stratification(self):
 
-        """ Test spliting data with stratification.
-            Test the `split_data_stratification` function and compare the proportion of the split 
+        """Test spliting data with stratification.
+            Test the `split_data_stratification` function and compare the proportion of the split
             of data into training, test, and validation subsets with the fractions.
 
         Raises:
-            AssertionError: - 
+            AssertionError: -
 
         """
 
@@ -68,12 +68,12 @@ class TestTrain(BaseTestCase):
 
     def test_split_data_train_validation_test_stratification_backtest(self):
 
-        """ Test spliting data with stratification and a backtest.
-            Test the `split_data_stratification` function and compare the proportion of the split 
+        """Test spliting data with stratification and a backtest.
+            Test the `split_data_stratification` function and compare the proportion of the split
             of data into training, test, and validation subsets with the fractions.
 
         Raises:
-            AssertionError: - 
+            AssertionError: -
 
         """
 
@@ -113,12 +113,12 @@ class TestTrain(BaseTestCase):
 
     def test_split_data_train_validation_test_no_stratification(self):
 
-        """ Test spliting data with no stratification.
-            Test the `split_data_stratification` function and compare the proportion of the split 
+        """Test spliting data with no stratification.
+            Test the `split_data_stratification` function and compare the proportion of the split
             of data into training, test, and validation subsets with the fractions.
 
         Raises:
-            AssertionError: - 
+            AssertionError: -
 
         """
 
@@ -158,12 +158,12 @@ class TestTrain(BaseTestCase):
 
     def test_split_data_train_validation_test_no_stratification_backtest(self):
 
-        """ Test spliting data with backtest and no stratification.
-            Test the `split_data_stratification` function and compare the proportion of the split 
+        """Test spliting data with backtest and no stratification.
+            Test the `split_data_stratification` function and compare the proportion of the split
             of data into training, test, and validation subsets with the fractions.
 
         Raises:
-            AssertionError: - 
+            AssertionError: -
 
         """
 

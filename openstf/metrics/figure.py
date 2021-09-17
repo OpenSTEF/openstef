@@ -34,7 +34,14 @@ def plot_feature_importance(feature_importance):
                 "<br>weight: %{customdata:.1%}<extra></extra>"
             ),
         ),
-        layout={"margin": {"t": 0, "r": 0, "b": 0, "l": 0,}},
+        layout={
+            "margin": {
+                "t": 0,
+                "r": 0,
+                "b": 0,
+                "l": 0,
+            }
+        },
     )
 
 
@@ -103,7 +110,9 @@ def plot_data_series(data, predict_data=None, horizon=47, names=None):
         predictions = predict_data
 
     fig = _plot_data_and_predictions(names, actuals, predictions)
-    fig.update_layout(title=f"Predictor in action for horizon: {horizon}",)
+    fig.update_layout(
+        title=f"Predictor in action for horizon: {horizon}",
+    )
 
     return fig
 
@@ -127,7 +136,9 @@ def _plot_data(names, series):
     combined = []
     for name, sequence in zip(names, series):
         combined.extend(
-            [sequence.rename(name),]
+            [
+                sequence.rename(name),
+            ]
         )
     df_plot = pd.concat(combined, axis=1)
 
@@ -170,7 +181,10 @@ def _plot_data_and_predictions(names, actuals, predictions):
     combined = []
     for name, actual, prediction in zip(names, actuals, predictions):
         combined.extend(
-            [actual.rename(f"{name}_actual"), prediction.rename(f"{name}_predict"),]
+            [
+                actual.rename(f"{name}_actual"),
+                prediction.rename(f"{name}_predict"),
+            ]
         )
     df_plot = pd.concat(combined, axis=1)
 

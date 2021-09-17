@@ -69,7 +69,10 @@ def optimize_hyperparameters_pipeline(
     model_type = pj["model"]
     model = ModelCreator.create_model(model_type)
 
-    objective = objective(model, input_data_with_features,)
+    objective = objective(
+        model,
+        input_data_with_features,
+    )
 
     study = optuna.create_study(
         study_name=model_type,

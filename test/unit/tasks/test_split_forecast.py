@@ -31,7 +31,12 @@ class TestSplitEnergy(BaseTestCase):
         )
 
         expected_result = pd.DataFrame(
-            columns=["coef_name", "coef_value_last", "coef_value_new", "difference",],
+            columns=[
+                "coef_name",
+                "coef_value_last",
+                "coef_value_new",
+                "difference",
+            ],
         )
         result = split_forecast.determine_invalid_coefs(new_coefs, last_coefs)
         self.assertDataframeEqual(

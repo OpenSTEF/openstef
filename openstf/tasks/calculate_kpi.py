@@ -50,7 +50,10 @@ def main():
 
         if datetime.utcnow().weekday() in [0, 1, 2, 3, 4]:
             PredictionJobLoop(context, model_type=model_type).map(
-                check_kpi_pj, context, start_time=start_time, end_time=end_time,
+                check_kpi_pj,
+                context,
+                start_time=start_time,
+                end_time=end_time,
             )
 
 

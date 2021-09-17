@@ -26,7 +26,8 @@ BASECASE_RESOLUTION_MINUTES = 15
 
 
 def create_basecase_forecast_pipeline(
-    pj: dict, input_data: pd.DataFrame,
+    pj: dict,
+    input_data: pd.DataFrame,
 ) -> pd.DataFrame:
     """Computes the base case forecast and confidence intervals for a given prediction job and input data.
 

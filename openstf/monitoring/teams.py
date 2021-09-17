@@ -53,9 +53,19 @@ def post_teams(msg, invalid_coefs=None, coefsdf=None, url=None):
             "title": "Invalid energy splitting coefficients",
             "text": msg,
             "sections": [
-                {"text": invalid_coefs_text, "markdown": True,},
-                {"title": "Manual query", "text": query_text, "markdown": True,},
-                {"text": query, "markdown": True,},
+                {
+                    "text": invalid_coefs_text,
+                    "markdown": True,
+                },
+                {
+                    "title": "Manual query",
+                    "text": query_text,
+                    "markdown": True,
+                },
+                {
+                    "text": query,
+                    "markdown": True,
+                },
             ],
         }
 
@@ -288,7 +298,10 @@ def send_report_teams_worse(pj):
                 ],
                 "markdown": False,
             },
-            {"title": "New Model Performance", "images": [graph],},
+            {
+                "title": "New Model Performance",
+                "images": [graph],
+            },
         ],
         "links": [
             {

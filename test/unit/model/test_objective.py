@@ -28,7 +28,10 @@ class TestRegressorObjective(BaseTestCase):
         model_type = "xgb"
         model = ModelCreator.create_model(model_type)
 
-        objective = RegressorObjective(input_data_with_features, model,)
+        objective = RegressorObjective(
+            input_data_with_features,
+            model,
+        )
 
         study = optuna.create_study(
             study_name=model_type,
@@ -46,7 +49,10 @@ class TestXGBRegressorObjective(BaseTestCase):
         model_type = "xgb"
         model = ModelCreator.create_model(model_type)
 
-        objective = XGBRegressorObjective(input_data_with_features, model,)
+        objective = XGBRegressorObjective(
+            input_data_with_features,
+            model,
+        )
         study = optuna.create_study(
             study_name=model_type,
             pruner=optuna.pruners.MedianPruner(n_warmup_steps=5),
@@ -63,7 +69,10 @@ class TestLGBRegressorObjective(BaseTestCase):
         model_type = "lgb"
         model = ModelCreator.create_model(model_type)
 
-        objective = LGBRegressorObjective(input_data_with_features, model,)
+        objective = LGBRegressorObjective(
+            input_data_with_features,
+            model,
+        )
         study = optuna.create_study(
             study_name=model_type,
             pruner=optuna.pruners.MedianPruner(n_warmup_steps=5),
@@ -80,7 +89,10 @@ class TestXGBQRegressorObjective(BaseTestCase):
         model_type = "xgb_quantile"
         model = ModelCreator.create_model(model_type)
 
-        objective = XGBQuantileRegressor(input_data_with_features, model,)
+        objective = XGBQuantileRegressor(
+            input_data_with_features,
+            model,
+        )
         study = optuna.create_study(
             study_name=model_type,
             pruner=optuna.pruners.MedianPruner(n_warmup_steps=5),
@@ -97,7 +109,10 @@ class ColumnOrderTest(BaseTestCase):
         model_type = "xgb"
         model = ModelCreator.create_model(model_type)
 
-        objective = XGBRegressorObjective(input_data, model,)
+        objective = XGBRegressorObjective(
+            input_data,
+            model,
+        )
 
         study = optuna.create_study(
             study_name=model_type,
