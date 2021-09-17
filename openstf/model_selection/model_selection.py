@@ -210,15 +210,19 @@ def sample_indices_train_val(data, peaks, period_lengths, end_first, begin_last)
 
     sampled = set()
     for peak in peaks:
-        if peak < (len(data)):
-            start_point = int(peak * period_lengths) + end_first
-            if start_point < (len(data) - period_lengths + 1):
-                end_point = int(start_point + period_lengths) - 1
-            elif start_point < (len(data) - end_first + 1):
-                end_point = int(start_point + end_first) - 1
+        if (int(peak * period_lengths) + end_first) < (len(data)):
+            start_point = int(peak * period_lengths) + end_first - 1
+            if start_point < (len(data) - end_first - 1):
+                if start_point >= (len(data) - period_lengths + 1):
+                    end_point = int(start_point + end_first)
+                else:
+                    end_point = int(start_point + period_lengths)
             else:
-                end_point = int(start_point + 1)
-            sampled |= set(range(start_point, end_point))
+                end_point = len(data) - 1
+        else:
+            start_point = int(peak * period_lengths) - 1
+            end_point = len(data) - 1
+        sampled |= set(range(start_point, end_point))
     return np.sort(list(sampled))
 
 
@@ -399,7 +403,7 @@ def split_data_train_validation_test(
 
             idx_val_split = sample_indices_train_val(
                 data,
-                random_sample(peak_all_days[:train_val_amount], k=split_val + 1),
+                random_sample(peak_all_days[:train_val_amount], k=split_val + 2),
                 int(amount_day / period_timedelta),
                 idx_first_last,
                 idx_begin_end,
@@ -425,7 +429,7 @@ def split_data_train_validation_test(
 
             idx_val_split = sample_indices_train_val(
                 data,
-                random_sample(peak_all_days[start_idx_train_val:], k=split_val + 1),
+                random_sample(peak_all_days[start_idx_train_val:], k=split_val + 2),
                 int(amount_day / period_timedelta),
                 idx_first_last,
                 idx_begin_end,
