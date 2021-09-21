@@ -174,16 +174,16 @@ def split_data_train_validation_test(
     )  # Convert from pandas timedelta to original python timedelta
 
     # Identify the peaks and list them
-    data.loc[:, "days"] = (
+    data.loc[:, "int_days"] = (
         pd.to_datetime(data.index, format="%Y%m%d")
         .strftime("%Y%m%d")
         .astype(int)
         .tolist()
     )
     data.loc[:, "days"] = np.where(
-        (data.days.diff().fillna(0).astype(int)[: (len(data))] > 0),
+        (data.int_days.diff().fillna(0).astype(int)[: (len(data))] > 0),
         1,
-        data.days.diff().fillna(0).astype(int)[: (len(data))],
+        data.int_days.diff().fillna(0).astype(int)[: (len(data))],
     ).cumsum()
 
     peak_all_days = find_corresponding_min_max_days(data).tolist()
@@ -278,7 +278,7 @@ def split_data_train_validation_test(
     test_data = test_data.sort_values(by="timestamp")
 
     return (
-        train_data.iloc[:, :-3],
-        validation_data.iloc[:, :-3],
-        test_data.iloc[:, :-3],
+        train_data.iloc[:, :-4],
+        validation_data.iloc[:, :-4],
+        test_data.iloc[:, :-4],
     )
