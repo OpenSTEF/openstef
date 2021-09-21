@@ -31,7 +31,7 @@ XGB_HYPER_PARAMS = {
 SPLIT_HYPER_PARAMS = {
     "test_fraction": 0.1,
     "validation_fraction": 0.15,
-    "period_timedelta": 1,
+    "amount_day": 96,
 }
 
 
@@ -76,27 +76,33 @@ class TestTrainModelPipeline(BaseTestCase):
             + SPLIT_HYPER_PARAMS["validation_fraction"]
         )
 
-        clean_data, train_set, valid_set, test_set = split_data_train_validation_test(
+        train_set, valid_set, test_set = split_data_train_validation_test(
             self.data_table,
             test_fraction=SPLIT_HYPER_PARAMS["test_fraction"],
             validation_fraction=SPLIT_HYPER_PARAMS["validation_fraction"],
-            period_timedelta=SPLIT_HYPER_PARAMS["period_timedelta"],
             back_test=False,
             stratification=True,
         )
 
+        if "Horizon" in self.data_table.columns:
+            self.data_table = self.data_table[self.data_table["Horizon"] == 47]
+        else:
+            self.data_table = self.data_table
+
         self.assertAlmostEqual(
             len(valid_set),
-            len(clean_data.index) * SPLIT_HYPER_PARAMS["validation_fraction"],
-            delta=2 * 96,
+            len(self.data_table.index) * SPLIT_HYPER_PARAMS["validation_fraction"],
+            delta=2 * SPLIT_HYPER_PARAMS["amount_day"],
         )
         self.assertAlmostEqual(
             len(test_set),
-            len(clean_data.index) * SPLIT_HYPER_PARAMS["test_fraction"],
-            delta=2 * 96,
+            len(self.data_table.index) * SPLIT_HYPER_PARAMS["test_fraction"],
+            delta=2 * SPLIT_HYPER_PARAMS["amount_day"],
         )
         self.assertAlmostEqual(
-            len(train_set), len(clean_data.index) * train_fraction, delta=2 * 96
+            len(train_set),
+            len(self.data_table.index) * train_fraction,
+            delta=2 * SPLIT_HYPER_PARAMS["amount_day"],
         )
 
     def test_split_data_train_validation_test_stratification_backtest(self):
@@ -115,27 +121,33 @@ class TestTrainModelPipeline(BaseTestCase):
             + SPLIT_HYPER_PARAMS["validation_fraction"]
         )
 
-        clean_data, train_set, valid_set, test_set = split_data_train_validation_test(
+        train_set, valid_set, test_set = split_data_train_validation_test(
             self.data_table,
             test_fraction=SPLIT_HYPER_PARAMS["test_fraction"],
             validation_fraction=SPLIT_HYPER_PARAMS["validation_fraction"],
-            period_timedelta=SPLIT_HYPER_PARAMS["period_timedelta"],
             back_test=True,
             stratification=True,
         )
 
+        if "Horizon" in self.data_table.columns:
+            self.data_table = self.data_table[self.data_table["Horizon"] == 47]
+        else:
+            self.data_table = self.data_table
+
         self.assertAlmostEqual(
             len(valid_set),
-            len(clean_data.index) * SPLIT_HYPER_PARAMS["validation_fraction"],
-            delta=2 * 96,
+            len(self.data_table.index) * SPLIT_HYPER_PARAMS["validation_fraction"],
+            delta=2 * SPLIT_HYPER_PARAMS["amount_day"],
         )
         self.assertAlmostEqual(
             len(test_set),
-            len(clean_data.index) * SPLIT_HYPER_PARAMS["test_fraction"],
-            delta=2 * 96,
+            len(self.data_table.index) * SPLIT_HYPER_PARAMS["test_fraction"],
+            delta=2 * SPLIT_HYPER_PARAMS["amount_day"],
         )
         self.assertAlmostEqual(
-            len(train_set), len(clean_data.index) * train_fraction, delta=2 * 96
+            len(train_set),
+            len(self.data_table.index) * train_fraction,
+            delta=2 * SPLIT_HYPER_PARAMS["amount_day"],
         )
 
     def test_split_data_train_validation_test_no_stratification(self):
@@ -154,27 +166,33 @@ class TestTrainModelPipeline(BaseTestCase):
             + SPLIT_HYPER_PARAMS["validation_fraction"]
         )
 
-        clean_data, train_set, valid_set, test_set = split_data_train_validation_test(
+        train_set, valid_set, test_set = split_data_train_validation_test(
             self.data_table,
             test_fraction=SPLIT_HYPER_PARAMS["test_fraction"],
             validation_fraction=SPLIT_HYPER_PARAMS["validation_fraction"],
-            period_timedelta=SPLIT_HYPER_PARAMS["period_timedelta"],
             back_test=False,
             stratification=False,
         )
 
+        if "Horizon" in self.data_table.columns:
+            self.data_table = self.data_table[self.data_table["Horizon"] == 47]
+        else:
+            self.data_table = self.data_table
+
         self.assertAlmostEqual(
             len(valid_set),
-            len(clean_data.index) * SPLIT_HYPER_PARAMS["validation_fraction"],
-            delta=2 * 96,
+            len(self.data_table.index) * SPLIT_HYPER_PARAMS["validation_fraction"],
+            delta=2 * SPLIT_HYPER_PARAMS["amount_day"],
         )
         self.assertAlmostEqual(
             len(test_set),
-            len(clean_data.index) * SPLIT_HYPER_PARAMS["test_fraction"],
-            delta=2 * 96,
+            len(self.data_table.index) * SPLIT_HYPER_PARAMS["test_fraction"],
+            delta=2 * SPLIT_HYPER_PARAMS["amount_day"],
         )
         self.assertAlmostEqual(
-            len(train_set), len(clean_data.index) * train_fraction, delta=2 * 96
+            len(train_set),
+            len(self.data_table.index) * train_fraction,
+            delta=2 * SPLIT_HYPER_PARAMS["amount_day"],
         )
 
     def test_split_data_train_validation_test_no_stratification_backtest(self):
@@ -193,27 +211,33 @@ class TestTrainModelPipeline(BaseTestCase):
             + SPLIT_HYPER_PARAMS["validation_fraction"]
         )
 
-        clean_data, train_set, valid_set, test_set = split_data_train_validation_test(
+        train_set, valid_set, test_set = split_data_train_validation_test(
             self.data_table,
             test_fraction=SPLIT_HYPER_PARAMS["test_fraction"],
             validation_fraction=SPLIT_HYPER_PARAMS["validation_fraction"],
-            period_timedelta=SPLIT_HYPER_PARAMS["period_timedelta"],
             back_test=True,
             stratification=False,
         )
 
+        if "Horizon" in self.data_table.columns:
+            self.data_table = self.data_table[self.data_table["Horizon"] == 47]
+        else:
+            self.data_table = self.data_table
+
         self.assertAlmostEqual(
             len(valid_set),
-            len(clean_data.index) * SPLIT_HYPER_PARAMS["validation_fraction"],
-            delta=2 * 96,
+            len(self.data_table.index) * SPLIT_HYPER_PARAMS["validation_fraction"],
+            delta=2 * SPLIT_HYPER_PARAMS["amount_day"],
         )
         self.assertAlmostEqual(
             len(test_set),
-            len(clean_data.index) * SPLIT_HYPER_PARAMS["test_fraction"],
-            delta=2 * 96,
+            len(self.data_table.index) * SPLIT_HYPER_PARAMS["test_fraction"],
+            delta=2 * SPLIT_HYPER_PARAMS["amount_day"],
         )
         self.assertAlmostEqual(
-            len(train_set), len(clean_data.index) * train_fraction, delta=2 * 96
+            len(train_set),
+            len(self.data_table.index) * train_fraction,
+            delta=2 * SPLIT_HYPER_PARAMS["amount_day"],
         )
 
     def test_train_model_pipeline_core_happy_flow(self):

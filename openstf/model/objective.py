@@ -61,7 +61,7 @@ class RegressorObjective:
             float: Mean absolute error for this trial.
         """
         # Perform data preprocessing
-        data, train_data, validation_data, test_data = split_data_train_validation_test(
+        train_data, validation_data, test_data = split_data_train_validation_test(
             self.input_data,
             test_fraction=self.test_fraction,
             validation_fraction=self.validation_fraction,

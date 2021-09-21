@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: MPL-2.0
 import unittest
 
-# from test.utils import BaseTestCase, TestData
 from test.utils.base import BaseTestCase
 from test.utils.data import TestData
 
@@ -16,7 +15,7 @@ from openstf.model_selection import model_selection
 SPLIT_HYPER_PARAMS = {
     "test_fraction": 0.1,
     "validation_fraction": 0.15,
-    "period_timedelta": 1,
+    "amount_day": 96,
 }
 
 
@@ -39,7 +38,6 @@ class TestTrain(BaseTestCase):
         )
 
         (
-            clean_data,
             train_set,
             valid_set,
             test_set,
@@ -47,23 +45,29 @@ class TestTrain(BaseTestCase):
             data,
             test_fraction=SPLIT_HYPER_PARAMS["test_fraction"],
             validation_fraction=SPLIT_HYPER_PARAMS["validation_fraction"],
-            period_timedelta=SPLIT_HYPER_PARAMS["period_timedelta"],
             back_test=False,
             stratification=True,
         )
 
+        if "Horizon" in data.columns:
+            data = data[data["Horizon"] == 47]
+        else:
+            data = data
+
         self.assertAlmostEqual(
             len(valid_set),
-            len(clean_data.index) * SPLIT_HYPER_PARAMS["validation_fraction"],
-            delta=2 * 96,
+            len(data.index) * SPLIT_HYPER_PARAMS["validation_fraction"],
+            delta=2 * SPLIT_HYPER_PARAMS["amount_day"],
         )
         self.assertAlmostEqual(
             len(test_set),
-            len(clean_data.index) * SPLIT_HYPER_PARAMS["test_fraction"],
-            delta=2 * 96,
+            len(data.index) * SPLIT_HYPER_PARAMS["test_fraction"],
+            delta=2 * SPLIT_HYPER_PARAMS["amount_day"],
         )
         self.assertAlmostEqual(
-            len(train_set), len(clean_data.index) * train_fraction, delta=2 * 96
+            len(train_set),
+            len(data.index) * train_fraction,
+            delta=2 * SPLIT_HYPER_PARAMS["amount_day"],
         )
 
     def test_split_data_train_validation_test_stratification_backtest(self):
@@ -84,7 +88,6 @@ class TestTrain(BaseTestCase):
         )
 
         (
-            clean_data,
             train_set,
             valid_set,
             test_set,
@@ -92,23 +95,29 @@ class TestTrain(BaseTestCase):
             data,
             test_fraction=SPLIT_HYPER_PARAMS["test_fraction"],
             validation_fraction=SPLIT_HYPER_PARAMS["validation_fraction"],
-            period_timedelta=SPLIT_HYPER_PARAMS["period_timedelta"],
             back_test=True,
             stratification=True,
         )
 
+        if "Horizon" in data.columns:
+            data = data[data["Horizon"] == 47]
+        else:
+            data = data
+
         self.assertAlmostEqual(
             len(valid_set),
-            len(clean_data.index) * SPLIT_HYPER_PARAMS["validation_fraction"],
-            delta=2 * 96,
+            len(data.index) * SPLIT_HYPER_PARAMS["validation_fraction"],
+            delta=2 * SPLIT_HYPER_PARAMS["amount_day"],
         )
         self.assertAlmostEqual(
             len(test_set),
-            len(clean_data.index) * SPLIT_HYPER_PARAMS["test_fraction"],
-            delta=2 * 96,
+            len(data.index) * SPLIT_HYPER_PARAMS["test_fraction"],
+            delta=2 * SPLIT_HYPER_PARAMS["amount_day"],
         )
         self.assertAlmostEqual(
-            len(train_set), len(clean_data.index) * train_fraction, delta=2 * 96
+            len(train_set),
+            len(data.index) * train_fraction,
+            delta=2 * SPLIT_HYPER_PARAMS["amount_day"],
         )
 
     def test_split_data_train_validation_test_no_stratification(self):
@@ -129,7 +138,6 @@ class TestTrain(BaseTestCase):
         )
 
         (
-            clean_data,
             train_set,
             valid_set,
             test_set,
@@ -137,23 +145,29 @@ class TestTrain(BaseTestCase):
             data,
             test_fraction=SPLIT_HYPER_PARAMS["test_fraction"],
             validation_fraction=SPLIT_HYPER_PARAMS["validation_fraction"],
-            period_timedelta=SPLIT_HYPER_PARAMS["period_timedelta"],
             back_test=False,
             stratification=False,
         )
 
+        if "Horizon" in data.columns:
+            data = data[data["Horizon"] == 47]
+        else:
+            data = data
+
         self.assertAlmostEqual(
             len(valid_set),
-            len(clean_data.index) * SPLIT_HYPER_PARAMS["validation_fraction"],
-            delta=2 * 96,
+            len(data.index) * SPLIT_HYPER_PARAMS["validation_fraction"],
+            delta=2 * SPLIT_HYPER_PARAMS["amount_day"],
         )
         self.assertAlmostEqual(
             len(test_set),
-            len(clean_data.index) * SPLIT_HYPER_PARAMS["test_fraction"],
-            delta=2 * 96,
+            len(data.index) * SPLIT_HYPER_PARAMS["test_fraction"],
+            delta=2 * SPLIT_HYPER_PARAMS["amount_day"],
         )
         self.assertAlmostEqual(
-            len(train_set), len(clean_data.index) * train_fraction, delta=2 * 96
+            len(train_set),
+            len(data.index) * train_fraction,
+            delta=2 * SPLIT_HYPER_PARAMS["amount_day"],
         )
 
     def test_split_data_train_validation_test_no_stratification_backtest(self):
@@ -174,7 +188,6 @@ class TestTrain(BaseTestCase):
         )
 
         (
-            clean_data,
             train_set,
             valid_set,
             test_set,
@@ -182,23 +195,29 @@ class TestTrain(BaseTestCase):
             data,
             test_fraction=SPLIT_HYPER_PARAMS["test_fraction"],
             validation_fraction=SPLIT_HYPER_PARAMS["validation_fraction"],
-            period_timedelta=SPLIT_HYPER_PARAMS["period_timedelta"],
             back_test=True,
             stratification=False,
         )
 
+        if "Horizon" in data.columns:
+            data = data[data["Horizon"] == 47]
+        else:
+            data = data
+
         self.assertAlmostEqual(
             len(valid_set),
-            len(clean_data.index) * SPLIT_HYPER_PARAMS["validation_fraction"],
-            delta=2 * 96,
+            len(data.index) * SPLIT_HYPER_PARAMS["validation_fraction"],
+            delta=2 * SPLIT_HYPER_PARAMS["amount_day"],
         )
         self.assertAlmostEqual(
             len(test_set),
-            len(clean_data.index) * SPLIT_HYPER_PARAMS["test_fraction"],
-            delta=2 * 96,
+            len(data.index) * SPLIT_HYPER_PARAMS["test_fraction"],
+            delta=2 * SPLIT_HYPER_PARAMS["amount_day"],
         )
         self.assertAlmostEqual(
-            len(train_set), len(clean_data.index) * train_fraction, delta=2 * 96
+            len(train_set),
+            len(data.index) * train_fraction,
+            delta=2 * SPLIT_HYPER_PARAMS["amount_day"],
         )
 
 
