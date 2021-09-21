@@ -30,24 +30,19 @@ def find_min_max_peaks(data: pd.DataFrame) -> (List[float], List[float]):
     """
 
     try:
-        min_peaks = (
-            data["days"][:][data["load"] < data["load"].quantile(MIN_QUANTILE)]
-        )
+        min_peaks = data["days"][:][data["load"] < data["load"].quantile(MIN_QUANTILE)]
     except ValueError:
         min_peaks = np.nan
 
     try:
-        max_peaks = (
-            data["days"][:][data["load"] > data["load"].quantile(MAX_QUANTILE)]
-        )
+        max_peaks = data["days"][:][data["load"] > data["load"].quantile(MAX_QUANTILE)]
     except ValueError:
         max_peaks = np.nan
 
     return min_peaks, max_peaks
 
 
-def find_corresponding_min_max_days(
-    data: pd.DataFrame) -> np.array:
+def find_corresponding_min_max_days(data: pd.DataFrame) -> np.array:
     """
     Checks if there is a peak present, there is at least one peak (minimum or maximum)
 
@@ -61,14 +56,12 @@ def find_corresponding_min_max_days(
     min_peaks = find_min_max_peaks(data)[0].to_numpy()
     max_peaks = find_min_max_peaks(data)[1].to_numpy()
 
-    present_peaks = np.unique(np.append(min_peaks,max_peaks))
+    present_peaks = np.unique(np.append(min_peaks, max_peaks))
 
     return present_peaks
 
 
-def sample_indices_train_val(
-    data: pd.DataFrame, peaks: List[int]
-) -> np.array:
+def sample_indices_train_val(data: pd.DataFrame, peaks: List[int]) -> np.array:
     """
     Sample indices of given period length assuming the peaks are evenly spreaded.
 
@@ -220,8 +213,7 @@ def split_data_train_validation_test(
             test_data = data[start_date_test:None]
 
             idx_val_split = sample_indices_train_val(
-                data,
-                random_sample(peak_all_days[:train_val_amount], k=split_val + 2)
+                data, random_sample(peak_all_days[:train_val_amount], k=split_val + 2)
             )
 
             validation_data = data.loc[data.index.unique()[idx_val_split]]
@@ -244,7 +236,7 @@ def split_data_train_validation_test(
 
             idx_val_split = sample_indices_train_val(
                 data,
-                random_sample(peak_all_days[start_idx_train_val:], k=split_val + 2)
+                random_sample(peak_all_days[start_idx_train_val:], k=split_val + 2),
             )
 
             validation_data = data.loc[data.index[idx_val_split]]
