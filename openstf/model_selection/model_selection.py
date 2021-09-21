@@ -180,8 +180,11 @@ def split_data_train_validation_test(
         .astype(int)
         .tolist()
     )
-    data.loc[:, "days"] = data["days"].diff().fillna(0).astype(int)[: (len(data))]
-    data.loc[:, "days"] = np.where((data.days > 0), 1, data.days).cumsum()
+    data.loc[:, "days"] = np.where(
+        (data.days.diff().fillna(0).astype(int)[: (len(data))] > 0),
+        1,
+        data.days.diff().fillna(0).astype(int)[: (len(data))],
+    ).cumsum()
 
     peak_all_days = find_corresponding_min_max_days(data).tolist()
     peak_n_days = len(peak_all_days)
