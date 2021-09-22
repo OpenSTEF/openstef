@@ -35,13 +35,15 @@ def validate(
     num_repeated_values = len(data) - len(data.iloc[:, 0].dropna())
     if num_repeated_values > 0:
         frac_const_load_values = num_repeated_values / len(data.index)
-        logger.warning(
-            f"Found {num_repeated_values} values of constant load (repeated values), converted to NaN value.",
-            cleansing_step="repeated_values",
-            pj_id=pj_id,
-            num_values=num_repeated_values,
-            frac_values=frac_const_load_values,
-        )
+    else:
+        frac_const_load_values = 0.0
+    logger.warning(
+        f"Found {num_repeated_values} values of constant load (repeated values), converted to NaN value.",
+        cleansing_step="repeated_values",
+        pj_id=pj_id,
+        num_values=num_repeated_values,
+        frac_values=frac_const_load_values,
+    )
 
     # Check for repeated load observations due to invalid measurements
     nonzero_flatliners = find_nonzero_flatliner(data, threshold=flatliner_threshold)
@@ -52,13 +54,16 @@ def validate(
         # TODO should this not be part of the replace_invalid_data function?
         num_nan_values = sum([True for i, row in data.iterrows() if all(row.isnull())])
         frac_nan_values = num_nan_values / len(data.index)
-        logger.warning(
-            f"Found {num_nan_values} nonzero flatliner data points, converted to NaN value.",
-            cleansing_step="nonzero_flatliner_data_points",
-            pj_id=pj_id,
-            num_values=num_nan_values,
-            frac_values=frac_nan_values,
-        )
+    else:
+        num_nan_values = 0
+        frac_nan_values = 0.0
+    logger.warning(
+        f"Found {num_nan_values} nonzero flatliner data points, converted to NaN value.",
+        cleansing_step="nonzero_flatliner_data_points",
+        pj_id=pj_id,
+        num_values=num_nan_values,
+        frac_values=frac_nan_values,
+    )
     return data
 
 
