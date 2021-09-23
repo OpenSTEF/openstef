@@ -8,7 +8,7 @@ import pickle
 from pathlib import Path
 
 import pandas as pd
-
+from typing import Union
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 
@@ -80,11 +80,13 @@ class TestData:
         raise ValueError(f"File type not support: {filename}")
 
     @classmethod
-    def get_prediction_job(cls, pid):
+    def get_prediction_job(cls, pid: Union[int, str]):
         with open(cls.DATA_FILES_FOLDER / "prediction_jobs.json", "r") as fh:
             prediction_jobs = json.load(fh, object_hook=prediction_job_decoder)
 
             out_dict = prediction_jobs[str(pid)]
+
+            # Change the typ column to forecast_type normally done after query
             out_dict["forecast_type"] = out_dict.pop("typ")
 
         return PredictionJobDataClass(**out_dict)
@@ -96,7 +98,9 @@ class TestData:
 
         prediction_jobs_list = []
         for v in prediction_jobs.values():
+            # Change the typ column to forecast_type normally done after query
             v["forecast_type"] = v.pop("typ")
+
             prediction_jobs_list.append(PredictionJobDataClass(**v))
         return prediction_jobs_list
 

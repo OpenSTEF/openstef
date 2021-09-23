@@ -16,7 +16,20 @@ class TestSolar(BaseTestCase):
         super().setUp()
         self.test_solar_input = TestData.load("solar_input.csv")
         self.solar_ref = TestData.load("solar_ref.csv")
-        self.pj = TestData.get_prediction_job(307)
+        self.pj = {
+            "id": 71,
+            "typ": "solar",
+            "model": "latest",
+            "horizon_minutes": 2880,
+            "resolution_minutes": 15,
+            "name": "Provincies",
+            "lat": 52.5,
+            "lon": 4.9,
+            "sid": None,
+            "radius": 30,
+            "peak_power": 180961000.0,
+            "description": "",
+        }
 
     def test_make_solar_predicion_pj(self):
 
