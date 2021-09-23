@@ -123,11 +123,7 @@ class PredictionJobLoop:
             )
 
             self.context.perf_meter.start_level(
-                "iteration",
-                i,
-                num_jobs=num_jobs,
-                pid=prediction_job["id"],
-                **kwargs
+                "iteration", i, num_jobs=num_jobs, pid=prediction_job["id"], **kwargs
             )
 
             try:

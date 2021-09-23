@@ -17,7 +17,6 @@ class TestDataValidation(BaseTestCase):
         self.data_predict = TestData.load("input_data.pickle")
         self.pj = TestData.get_prediction_job(pid=307)
 
-
     def test_clean(self):
 
         cleaned_data = validation.clean(self.data_train)
