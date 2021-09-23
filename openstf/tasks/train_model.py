@@ -72,13 +72,13 @@ def train_model_task(
 
     # If required, let's check the old model age before retrieving all the input data
     if check_old_model_age:
-        old_model_age = get_model_age(trained_models_folder, pj.get("id"))
+        old_model_age = get_model_age(trained_models_folder, pj["id"])
         context.logger.debug(f"Old model age: {old_model_age}")
         if old_model_age < MAXIMUM_MODEL_AGE:
             # Old model is new enough. Skip this pj
             context.logger.info(
                 f"Old model was new enough, skipping ({old_model_age}<{MAXIMUM_MODEL_AGE})",
-                pid=pj.get("id"),
+                pid=pj["id"],
             )
             return
 

@@ -16,7 +16,7 @@ from openstf.pipeline import utils
 from openstf.pipeline import create_forecast
 
 NOW = datetime.now(timezone.utc)
-PJ = TestData.get_prediction_job(pid=60)
+PJ = TestData.get_prediction_job(pid=307)
 
 forecast_input = TestData.load("reference_sets/307-test-data.csv")
 

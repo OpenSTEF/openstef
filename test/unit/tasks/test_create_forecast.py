@@ -6,6 +6,7 @@ from unittest.mock import MagicMock, patch
 
 from openstf.tasks.create_forecast import create_forecast_task
 import openstf.tasks.create_forecast as task
+from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 from test.utils import TestData
 
@@ -44,8 +45,8 @@ class TestCreateForeCastTask(TestCase):
         dbmock,
     ):
         dbmock().get_prediction_jobs.return_value = [
-            TestData.get_prediction_job(pid=307),
-            TestData.get_prediction_job(pid=307),
+            self.pj,
+            self.pj,
         ]
         testdata = TestData.load("reference_sets/307-test-data.csv")
         dbmock().get_model_input.return_value = testdata

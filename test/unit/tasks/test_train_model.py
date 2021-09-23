@@ -6,6 +6,7 @@ from unittest.mock import MagicMock, patch
 
 from openstf.tasks.train_model import train_model_task
 from openstf.pipeline.train_model import MAXIMUM_MODEL_AGE
+from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 from test.utils import TestData
 

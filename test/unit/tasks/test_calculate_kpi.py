@@ -8,6 +8,7 @@ from unittest.mock import MagicMock, patch
 import numpy as np
 import pandas as pd
 
+from openstf_dbc.services.prediction_job import PredictionJobDataClass
 from openstf.tasks.calculate_kpi import calc_kpi_for_specific_pid
 from openstf.exceptions import NoRealisedLoadError, NoPredictedLoadError
 from test.utils import BaseTestCase, TestData
@@ -25,15 +26,14 @@ realised_load_nan.loc[realised_load_nan.sample(frac=0.5).index, :] = np.NaN
 predicted_load_nan = predicted_load.copy()
 predicted_load_nan.loc[predicted_load_nan.sample(frac=0.5).index, :] = np.NaN
 
+prediction_job = TestData.get_prediction_job(307)
 
 # Prepare Database mocks
-
-
 def get_database_mock():
     db = MagicMock()
     db.get_load_pid = MagicMock(return_value=realised_load)
     db.get_predicted_load_tahead = MagicMock(return_value=predicted_load)
-    db.get_prediction_job = MagicMock(return_value={"id": 295})
+    db.get_prediction_job = MagicMock(return_value=prediction_job)
     return db
 
 
@@ -41,7 +41,7 @@ def get_database_mock_realised_nan():
     db = MagicMock()
     db.get_load_pid = MagicMock(return_value=realised_load_nan)
     db.get_predicted_load_tahead = MagicMock(return_value=predicted_load)
-    db.get_prediction_job = MagicMock(return_value={"id": 295})
+    db.get_prediction_job = MagicMock(return_value=prediction_job)
     return db
 
 
@@ -49,7 +49,7 @@ def get_database_mock_predicted_nan():
     db = MagicMock()
     db.get_load_pid = MagicMock(return_value=realised_load)
     db.get_predicted_load_tahead = MagicMock(return_value=predicted_load_nan)
-    db.get_prediction_job = MagicMock(return_value={"id": 295})
+    db.get_prediction_job = MagicMock(return_value=prediction_job)
     return db
 
 
@@ -59,7 +59,7 @@ def get_database_mock_realised_constant():
     realised_load_constant.iloc[1:, :] = realised_load_constant.iloc[0, :]
     db.get_load_pid = MagicMock(return_value=realised_load_constant)
     db.get_predicted_load_tahead = MagicMock(return_value=predicted_load)
-    db.get_prediction_job = MagicMock(return_value={"id": 295})
+    db.get_prediction_job = MagicMock(return_value=prediction_job)
     return db
 
 
@@ -80,7 +80,7 @@ class TestPerformanceCalcKpiForSpecificPid(BaseTestCase):
     # Test whether correct kpis are calculated for specific test data
     @patch("openstf.tasks.calculate_kpi.DataBase", get_database_mock)
     def test_calc_kpi_for_specific_pid(self):
-        kpis = calc_kpi_for_specific_pid({"id": 295})
+        kpis = calc_kpi_for_specific_pid(307)
         # use this to store new kpis
         # json.dump(kpis, open(filename, "w"), default=str)
         kpis_ref = TestData.load("calculate_kpi_kpi.json")

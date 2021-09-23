@@ -5,6 +5,7 @@ from unittest import TestCase
 from unittest.mock import MagicMock, patch
 
 from openstf.tasks.create_components_forecast import create_components_forecast_task
+from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 from test.utils import TestData
 

@@ -82,7 +82,7 @@ class PredictionJobLoop:
         prediction_jobs = []
 
         for pj in prediction_jobs_input:
-            if len(pj.keys()) > 1:
+            if len(pj.dict().keys()) > 1:
                 prediction_jobs.append(pj)
                 continue
 
@@ -118,15 +118,15 @@ class PredictionJobLoop:
             successful = False
 
             self.context.logger = self.context.logger.bind(
-                prediction_id=prediction_job.get("id"),
-                prediction_name=prediction_job.get("name", ""),
+                prediction_id=prediction_job["id"],
+                prediction_name=prediction_job["name"],
             )
 
             self.context.perf_meter.start_level(
                 "iteration",
                 i,
                 num_jobs=num_jobs,
-                pid=prediction_job.get("id"),
+                pid=prediction_job["id"],
                 **kwargs
             )
 

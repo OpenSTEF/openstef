@@ -7,6 +7,7 @@ import pandas as pd
 from datetime import datetime, timedelta
 
 from openstf.tasks.create_basecase_forecast import create_basecase_forecast_task
+from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 from test.utils import TestData
 

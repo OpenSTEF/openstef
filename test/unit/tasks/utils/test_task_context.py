@@ -91,19 +91,19 @@ class TestTaskContext(BaseTestCase):
         end_time = datetime.utcnow() - timedelta(days=1)
         func_fail.side_effect = [
             None,
-            NoPredictedLoadError(2, start_time, end_time),
-            NoPredictedLoadError(3, start_time, end_time),
-            NoRealisedLoadError(4, start_time, end_time),
+            NoPredictedLoadError(60, start_time, end_time),
+            NoRealisedLoadError(307, start_time, end_time),
+            None,
         ]
 
         # Specify test prediction jobs.
         # Required are the 'id' key and a second 'random' key.
         # The presence of a second key ensures that no additional pj_data is collected
         test_prediction_jobs = [
-            dict(id=1, key_for_testing=10),
-            dict(id=2, key_for_testing=10),
-            dict(id=3, key_for_testing=10),
-            dict(id=4, key_for_testing=10),
+            TestData.get_prediction_job(pid=307),
+            TestData.get_prediction_job(pid=60),
+            TestData.get_prediction_job(pid=307),
+            TestData.get_prediction_job(pid=60),
         ]
 
         with self.assertRaises(PredictionJobException):
@@ -118,7 +118,7 @@ class TestTaskContext(BaseTestCase):
             [
                 (
                     "Exceptions: pid(s)",
-                    "No predicted load found:[2, 3]\n\nNo realised load found:[4]\n",
+                    "No predicted load found:[60]\n\nNo realised load found:[307]\n",
                 )
             ],
         )

@@ -9,6 +9,8 @@ from pathlib import Path
 
 import pandas as pd
 
+from openstf_dbc.services.prediction_job import PredictionJobDataClass
+
 
 class TestData:
 
@@ -85,13 +87,18 @@ class TestData:
             out_dict = prediction_jobs[str(pid)]
             out_dict["forecast_type"] = out_dict.pop("typ")
 
-        return out_dict
+        return PredictionJobDataClass(**out_dict)
 
     @classmethod
     def get_prediction_jobs(cls):
         with open(cls.DATA_FILES_FOLDER / "prediction_jobs.json", "r") as fh:
             prediction_jobs = json.load(fh, object_hook=prediction_job_decoder)
-        return [v for v in prediction_jobs.values()]
+
+        prediction_jobs_list = []
+        for v in prediction_jobs.values():
+            v["forecast_type"] = v.pop("typ")
+            prediction_jobs_list.append(PredictionJobDataClass(**v))
+        return prediction_jobs_list
 
 
 def prediction_job_decoder(dct):
