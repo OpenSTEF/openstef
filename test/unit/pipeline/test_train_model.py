@@ -11,7 +11,6 @@ import sklearn
 
 from openstf.metrics.reporter import Report
 from openstf.pipeline.train_model import (
-    split_data_train_validation_test,
     train_model_pipeline,
     train_model_pipeline_core,
 )
@@ -27,11 +26,6 @@ XGB_HYPER_PARAMS = {
     "colsample_bytree": 0.85,
     "eta": 0.1,
     "training_period_days": 90,
-}
-SPLIT_HYPER_PARAMS = {
-    "test_fraction": 0.1,
-    "validation_fraction": 0.15,
-    "amount_day": 96,
 }
 
 
@@ -58,186 +52,6 @@ class TestTrainModelPipeline(BaseTestCase):
             check_old_model_age=False,
             trained_models_folder="./test/trained_models",
             save_figures_folder="./test/trained_models",
-        )
-
-    def test_split_data_train_validation_test_stratification(self):
-
-        """Test spliting data with stratification.
-            Test the `split_data_stratification` function and compare the proportion of the split
-            of data into training, test, and validation subsets with the fractions.
-
-        Raises:
-            AssertionError: -
-
-        """
-
-        train_fraction = 1 - (
-            SPLIT_HYPER_PARAMS["test_fraction"]
-            + SPLIT_HYPER_PARAMS["validation_fraction"]
-        )
-
-        train_set, valid_set, test_set = split_data_train_validation_test(
-            self.data_table,
-            test_fraction=SPLIT_HYPER_PARAMS["test_fraction"],
-            validation_fraction=SPLIT_HYPER_PARAMS["validation_fraction"],
-            back_test=False,
-            stratification=True,
-        )
-
-        if "Horizon" in self.data_table.columns:
-            self.data_table = self.data_table[self.data_table["Horizon"] == 47]
-        else:
-            self.data_table = self.data_table
-
-        self.assertAlmostEqual(
-            len(valid_set),
-            len(self.data_table.index) * SPLIT_HYPER_PARAMS["validation_fraction"],
-            delta=2 * SPLIT_HYPER_PARAMS["amount_day"],
-        )
-        self.assertAlmostEqual(
-            len(test_set),
-            len(self.data_table.index) * SPLIT_HYPER_PARAMS["test_fraction"],
-            delta=2 * SPLIT_HYPER_PARAMS["amount_day"],
-        )
-        self.assertAlmostEqual(
-            len(train_set),
-            len(self.data_table.index) * train_fraction,
-            delta=2 * SPLIT_HYPER_PARAMS["amount_day"],
-        )
-
-    def test_split_data_train_validation_test_stratification_backtest(self):
-
-        """Test spliting data with stratification and a backtest.
-            Test the `split_data_stratification` function and compare the proportion of the split
-            of data into training, test, and validation subsets with the fractions.
-
-        Raises:
-            AssertionError: -
-
-        """
-
-        train_fraction = 1 - (
-            SPLIT_HYPER_PARAMS["test_fraction"]
-            + SPLIT_HYPER_PARAMS["validation_fraction"]
-        )
-
-        train_set, valid_set, test_set = split_data_train_validation_test(
-            self.data_table,
-            test_fraction=SPLIT_HYPER_PARAMS["test_fraction"],
-            validation_fraction=SPLIT_HYPER_PARAMS["validation_fraction"],
-            back_test=True,
-            stratification=True,
-        )
-
-        if "Horizon" in self.data_table.columns:
-            self.data_table = self.data_table[self.data_table["Horizon"] == 47]
-        else:
-            self.data_table = self.data_table
-
-        self.assertAlmostEqual(
-            len(valid_set),
-            len(self.data_table.index) * SPLIT_HYPER_PARAMS["validation_fraction"],
-            delta=2 * SPLIT_HYPER_PARAMS["amount_day"],
-        )
-        self.assertAlmostEqual(
-            len(test_set),
-            len(self.data_table.index) * SPLIT_HYPER_PARAMS["test_fraction"],
-            delta=2 * SPLIT_HYPER_PARAMS["amount_day"],
-        )
-        self.assertAlmostEqual(
-            len(train_set),
-            len(self.data_table.index) * train_fraction,
-            delta=2 * SPLIT_HYPER_PARAMS["amount_day"],
-        )
-
-    def test_split_data_train_validation_test_no_stratification(self):
-
-        """Test spliting data with no stratification.
-            Test the `split_data_stratification` function and compare the proportion of the split
-            of data into training, test, and validation subsets with the fractions.
-
-        Raises:
-            AssertionError: -
-
-        """
-
-        train_fraction = 1 - (
-            SPLIT_HYPER_PARAMS["test_fraction"]
-            + SPLIT_HYPER_PARAMS["validation_fraction"]
-        )
-
-        train_set, valid_set, test_set = split_data_train_validation_test(
-            self.data_table,
-            test_fraction=SPLIT_HYPER_PARAMS["test_fraction"],
-            validation_fraction=SPLIT_HYPER_PARAMS["validation_fraction"],
-            back_test=False,
-            stratification=False,
-        )
-
-        if "Horizon" in self.data_table.columns:
-            self.data_table = self.data_table[self.data_table["Horizon"] == 47]
-        else:
-            self.data_table = self.data_table
-
-        self.assertAlmostEqual(
-            len(valid_set),
-            len(self.data_table.index) * SPLIT_HYPER_PARAMS["validation_fraction"],
-            delta=2 * SPLIT_HYPER_PARAMS["amount_day"],
-        )
-        self.assertAlmostEqual(
-            len(test_set),
-            len(self.data_table.index) * SPLIT_HYPER_PARAMS["test_fraction"],
-            delta=2 * SPLIT_HYPER_PARAMS["amount_day"],
-        )
-        self.assertAlmostEqual(
-            len(train_set),
-            len(self.data_table.index) * train_fraction,
-            delta=2 * SPLIT_HYPER_PARAMS["amount_day"],
-        )
-
-    def test_split_data_train_validation_test_no_stratification_backtest(self):
-
-        """Test spliting data with backtest and no stratification.
-            Test the `split_data_stratification` function and compare the proportion of the split
-            of data into training, test, and validation subsets with the fractions.
-
-        Raises:
-            AssertionError: -
-
-        """
-
-        train_fraction = 1 - (
-            SPLIT_HYPER_PARAMS["test_fraction"]
-            + SPLIT_HYPER_PARAMS["validation_fraction"]
-        )
-
-        train_set, valid_set, test_set = split_data_train_validation_test(
-            self.data_table,
-            test_fraction=SPLIT_HYPER_PARAMS["test_fraction"],
-            validation_fraction=SPLIT_HYPER_PARAMS["validation_fraction"],
-            back_test=True,
-            stratification=False,
-        )
-
-        if "Horizon" in self.data_table.columns:
-            self.data_table = self.data_table[self.data_table["Horizon"] == 47]
-        else:
-            self.data_table = self.data_table
-
-        self.assertAlmostEqual(
-            len(valid_set),
-            len(self.data_table.index) * SPLIT_HYPER_PARAMS["validation_fraction"],
-            delta=2 * SPLIT_HYPER_PARAMS["amount_day"],
-        )
-        self.assertAlmostEqual(
-            len(test_set),
-            len(self.data_table.index) * SPLIT_HYPER_PARAMS["test_fraction"],
-            delta=2 * SPLIT_HYPER_PARAMS["amount_day"],
-        )
-        self.assertAlmostEqual(
-            len(train_set),
-            len(self.data_table.index) * train_fraction,
-            delta=2 * SPLIT_HYPER_PARAMS["amount_day"],
         )
 
     def test_train_model_pipeline_core_happy_flow(self):
