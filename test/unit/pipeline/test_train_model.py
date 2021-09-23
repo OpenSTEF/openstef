@@ -11,6 +11,7 @@ import sklearn
 
 from openstf.enums import MLModelType
 from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
+from openstf.model_selection.model_selection import split_data_train_validation_test
 from openstf.validation import validation
 from openstf.metrics.reporter import Report
 from openstf.pipeline.train_model import (
@@ -95,7 +96,8 @@ class TestTrainModelPipeline(BaseTestCase):
                 ).add_features(validated_data)
 
                 # Split data
-                (
+                (   _,
+                    _,
                     train_data,
                     validation_data,
                     test_data,
