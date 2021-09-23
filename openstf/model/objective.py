@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 import logging
 import optuna
+import pandas as pd
 
 from openstf.metrics import metrics
 from openstf.model.regressors.regressor_interface import OpenstfRegressorInterface
@@ -34,8 +35,8 @@ class RegressorObjective:
 
     def __init__(
         self,
-        input_data,
         model: OpenstfRegressorInterface,
+        input_data: pd.DataFrame,
         test_fraction=TEST_FRACTION,
         validation_fraction=VALIDATION_FRACTION,
         eval_metric=EVAL_METRIC,
