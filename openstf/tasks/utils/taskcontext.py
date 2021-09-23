@@ -56,7 +56,7 @@ class TaskContext:
 
         self.logger = structlog.get_logger(__name__).bind(task=self.name)
 
-        self.database = DataBase()
+        self.database = DataBase(self.config)
 
         self.perf_meter = PerformanceMeter(self.logger)
 

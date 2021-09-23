@@ -11,10 +11,10 @@ import sklearn
 
 from openstf.enums import MLModelType
 from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
+from openstf.model_selection.model_selection import split_data_train_validation_test
 from openstf.validation import validation
 from openstf.metrics.reporter import Report
 from openstf.pipeline.train_model import (
-    split_data_train_validation_test,
     train_model_pipeline,
     train_model_pipeline_core,
 )
@@ -58,23 +58,6 @@ class TestTrainModelPipeline(BaseTestCase):
             save_figures_folder="./test/trained_models",
         )
 
-    def test_split_data_train_validation_test(self):
-        train_data, validation_data, test_data = split_data_train_validation_test(
-            self.data, period_sampling=False
-        )
-        self.assertEqual(len(train_data), 7345)
-        self.assertEqual(len(validation_data), 1297)
-        self.assertEqual(len(test_data), 1)
-
-    # TODO move to model_selction unit test
-    def test_split_data_train_validation_test_period(self):
-        train_data, validation_data, test_data = split_data_train_validation_test(
-            self.data, period_sampling=True
-        )
-        self.assertEqual(len(train_data), 7345)
-        self.assertEqual(len(validation_data), 1296)
-        self.assertEqual(len(test_data), 1)
-
     def test_train_model_pipeline_core_happy_flow(self):
         """Test happy flow of the train model pipeline
 
@@ -113,7 +96,8 @@ class TestTrainModelPipeline(BaseTestCase):
                 ).add_features(validated_data)
 
                 # Split data
-                (
+                (   _,
+                    _,
                     train_data,
                     validation_data,
                     test_data,

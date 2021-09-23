@@ -30,8 +30,8 @@ class TestRegressorObjective(BaseTestCase):
         model = ModelCreator.create_model(model_type)
 
         objective = RegressorObjective(
-            input_data_with_features,
             model,
+            input_data_with_features,
         )
 
         study = optuna.create_study(
@@ -51,8 +51,8 @@ class TestXGBRegressorObjective(BaseTestCase):
         model = ModelCreator.create_model(model_type)
 
         objective = XGBRegressorObjective(
-            input_data_with_features,
             model,
+            input_data_with_features,
         )
         study = optuna.create_study(
             study_name=model_type,
@@ -71,8 +71,8 @@ class TestLGBRegressorObjective(BaseTestCase):
         model = ModelCreator.create_model(model_type)
 
         objective = LGBRegressorObjective(
-            input_data_with_features,
             model,
+            input_data_with_features,
         )
         study = optuna.create_study(
             study_name=model_type,
@@ -91,8 +91,8 @@ class TestXGBQRegressorObjective(BaseTestCase):
         model = ModelCreator.create_model(model_type)
 
         objective = XGBQuantileRegressorObjective(
-            input_data_with_features,
             model,
+            input_data_with_features,
         )
         study = optuna.create_study(
             study_name=model_type,
@@ -111,8 +111,8 @@ class ColumnOrderTest(BaseTestCase):
         model = ModelCreator.create_model(model_type)
 
         objective = XGBRegressorObjective(
-            input_data,
             model,
+            input_data,
         )
 
         study = optuna.create_study(

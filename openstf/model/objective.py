@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 import logging
 import optuna
+import pandas as pd
 
 from openstf.metrics import metrics
 from openstf.model.regressors.regressor_interface import OpenstfRegressorInterface
@@ -34,8 +35,8 @@ class RegressorObjective:
 
     def __init__(
         self,
-        input_data,
         model: OpenstfRegressorInterface,
+        input_data: pd.DataFrame,
         test_fraction=TEST_FRACTION,
         validation_fraction=VALIDATION_FRACTION,
         eval_metric=EVAL_METRIC,
@@ -61,11 +62,17 @@ class RegressorObjective:
             float: Mean absolute error for this trial.
         """
         # Perform data preprocessing
-        train_data, validation_data, test_data = split_data_train_validation_test(
+        (
+            peaks,
+            peaks_val_train,
+            train_data,
+            validation_data,
+            test_data,
+        ) = split_data_train_validation_test(
             self.input_data,
             test_fraction=self.test_fraction,
             validation_fraction=self.validation_fraction,
-            backtest=True,
+            back_test=True,
         )
 
         # Test if first column is "load" and last column is "horizon"
