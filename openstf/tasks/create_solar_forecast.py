@@ -34,8 +34,8 @@ def make_solar_predicion_pj(pj, context):
     Args:
         pj: (dict) prediction job
     """
-    pj["radius"] = 30 # should this be added to the dataclass?
-    pj["peak_power"] = 180961000.0 # should this be added to the dataclass?
+    pj["radius"] = 30  # should this be added to the dataclass?
+    pj["peak_power"] = 180961000.0  # should this be added to the dataclass?
     context.logger.info("Get solar input data from database")
     # pvdata is only stored in the prd database
     solar_input = context.database.get_solar_input(
