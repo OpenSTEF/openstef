@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 import secrets
 
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from typing import List, Tuple
 
@@ -39,7 +39,7 @@ def sample_indices_train_val(
     return peaks_val, np.sort(list(sampled))
 
 
-def random_sample(all_peaks: np.array, k: int) -> List[int]:
+def random_sample(all_peaks: np.array, k: int) -> np.array:
     """
     Random sampling of numbers out of a np.array
     (implemented due to security sonar cloud not accepting the random built-in functions)
@@ -68,7 +68,7 @@ def split_data_train_validation_test(
     validation_fraction: float = 0.15,
     back_test: bool = False,
     stratification_min_max: bool = True,
-) -> Tuple[List[int], pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+) -> (List[int], pd.DataFrame, pd.DataFrame, pd.DataFrame):
     """
     Split input data into train, test and validation set.
 
@@ -94,7 +94,9 @@ def split_data_train_validation_test(
             desired fraction of validation data.
         back_test (bool): Indicates if data is intended for a back test.
         stratification_min_max (bool): Indicates if validation data must be sampled as
-            periods, using stratification
+            periods, using stratification on min and max values per day.
+            If True, 'extreme days' are ensured to be included in the validation and train sets,
+            ensuring the validation set to be representative of the train set.
 
     Returns:
         peak_all_days (lint:int):
@@ -170,7 +172,7 @@ def split_data_train_validation_test(
         split_val = int((peak_n_days * validation_fraction) / PERIOD_TIMEDELTA)
         peaks_val, idx_val_split = sample_indices_train_val(
             data_,
-            random_sample(min_max_dates.index.date, k=split_val),
+            random_sample(np.array(min_max_dates.index.date), k=split_val),
         )
         peaks_train = list(set(min_max_dates.index.date) - set(peaks_val))
         peaks_val_train[0].append(peaks_val)
