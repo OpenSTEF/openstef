@@ -30,7 +30,6 @@ class TestTrain(BaseTestCase):
 
         data = TestData.load("input_data_train.pickle")
         start_date = data.index.min().to_pydatetime()
-        end_date = data.index.max().to_pydatetime()
 
         selection = [start_date]
 
