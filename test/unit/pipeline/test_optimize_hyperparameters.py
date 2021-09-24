@@ -4,6 +4,8 @@
 import unittest
 from unittest.mock import patch
 
+import pandas as pd
+
 from test.utils import BaseTestCase, TestData
 from openstf.pipeline.optimize_hyperparameters import optimize_hyperparameters_pipeline
 
@@ -29,6 +31,17 @@ class TestOptimizeHyperParametersPipeline(BaseTestCase):
         pj = TestData.get_prediction_job(pid=307)
         input_data = TestData.load("input_data_train.pickle")
         # if data is not sufficient a ValueError should be raised
+        with self.assertRaises(ValueError):
+            optimize_hyperparameters_pipeline(pj, input_data)
+
+    def test_optimize_hyperparameters_pipeline_no_data(self, *args):
+        validation_mock = args[3]
+        validation_mock.is_data_sufficient.return_value = False
+
+        pj = TestData.get_prediction_job(pid=307)
+        input_data = pd.DataFrame()
+
+        # if there is no data a ValueError should be raised
         with self.assertRaises(ValueError):
             optimize_hyperparameters_pipeline(pj, input_data)
 

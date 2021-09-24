@@ -49,6 +49,9 @@ def optimize_hyperparameters_pipeline(
     Returns:
         dict: Optimized hyperparameters.
     """
+    if input_data.empty:
+        raise ValueError("Input dataframe is empty")
+
     # Validate and clean data
     validated_data = validation.clean(validation.validate(pj["id"], input_data))
 
