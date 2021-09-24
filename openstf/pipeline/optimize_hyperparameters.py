@@ -51,6 +51,8 @@ def optimize_hyperparameters_pipeline(
     """
     if input_data.empty:
         raise ValueError("Input dataframe is empty")
+    elif "load" not in input_data.columns:
+        raise ValueError("Missing the load column in the input dataframe")
 
     # Validate and clean data
     validated_data = validation.clean(validation.validate(pj["id"], input_data))

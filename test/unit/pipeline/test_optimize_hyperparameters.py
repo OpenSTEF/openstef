@@ -45,6 +45,17 @@ class TestOptimizeHyperParametersPipeline(BaseTestCase):
         with self.assertRaises(ValueError):
             optimize_hyperparameters_pipeline(pj, input_data)
 
+    def test_optimize_hyperparameters_pipeline_no_load_data(self, *args):
+        validation_mock = args[3]
+        validation_mock.is_data_sufficient.return_value = False
+
+        pj = TestData.get_prediction_job(pid=307)
+        input_data = TestData.load("input_data_train.pickle")
+        input_data = input_data.drop("load", axis=1)
+        # if there is no data a ValueError should be raised
+        with self.assertRaises(ValueError):
+            optimize_hyperparameters_pipeline(pj, input_data)
+
 
 if __name__ == "__main__":
     unittest.main()
