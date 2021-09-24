@@ -339,7 +339,7 @@ with objective specific parameters.</p>
 
 <dl class="class">
 <dt id="openstf.model.objective.RegressorObjective">
-<em class="property">class </em><code class="sig-prename descclassname">openstf.model.objective.</code><code class="sig-name descname">RegressorObjective</code><span class="sig-paren">(</span><em class="sig-param">input_data</em>, <em class="sig-param">model: openstf.model.regressors.regressor_interface.OpenstfRegressorInterface</em>, <em class="sig-param">test_fraction=0.1</em>, <em class="sig-param">validation_fraction=0.1</em>, <em class="sig-param">eval_metric='mae'</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.objective.RegressorObjective" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">openstf.model.objective.</code><code class="sig-name descname">RegressorObjective</code><span class="sig-paren">(</span><em class="sig-param">model: openstf.model.regressors.regressor_interface.OpenstfRegressorInterface</em>, <em class="sig-param">input_data: pandas.core.frame.DataFrame</em>, <em class="sig-param">test_fraction=0.1</em>, <em class="sig-param">validation_fraction=0.1</em>, <em class="sig-param">eval_metric='mae'</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.objective.RegressorObjective" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Regressor optuna objective function.</p>
 <p>Use any of the derived classses for optimization using an optuna study.

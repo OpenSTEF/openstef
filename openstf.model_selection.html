@@ -75,71 +75,83 @@
 <div class="section" id="module-openstf.model_selection.model_selection">
 <span id="openstf-model-selection-model-selection-module"></span><h2>openstf.model_selection.model_selection module<a class="headerlink" href="#module-openstf.model_selection.model_selection" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
-<dt id="openstf.model_selection.model_selection.sample_validation_data_periods">
-<code class="sig-prename descclassname">openstf.model_selection.model_selection.</code><code class="sig-name descname">sample_validation_data_periods</code><span class="sig-paren">(</span><em class="sig-param">data: pandas.core.frame.DataFrame</em>, <em class="sig-param">validation_fraction: float = 0.15</em>, <em class="sig-param">period_length: int = 192</em><span class="sig-paren">)</span> &#x2192; Tuple[pandas.core.frame.DataFrame, pandas.core.frame.DataFrame]<a class="headerlink" href="#openstf.model_selection.model_selection.sample_validation_data_periods" title="Permalink to this definition">¶</a></dt>
-<dd><p>Splits data in train and validation dataset.</p>
-<p>Tries to sample random periods of given length to form a validation set of
-the desired size. Will raise an error if the number of attempts exceeds the
-maximum given to this function (default: 10).</p>
+<dt id="openstf.model_selection.model_selection.random_sample">
+<code class="sig-prename descclassname">openstf.model_selection.model_selection.</code><code class="sig-name descname">random_sample</code><span class="sig-paren">(</span><em class="sig-param">all_peaks: numpy.array</em>, <em class="sig-param">k: int</em><span class="sig-paren">)</span> &#x2192; numpy.array<a class="headerlink" href="#openstf.model_selection.model_selection.random_sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Random sampling of numbers out of a np.array
+(implemented due to security sonar cloud not accepting the random built-in functions)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>all_peaks</strong> (<em>np.array</em>) – List with numbers to sample from</p></li>
+<li><p><strong>k</strong> (<em>int</em>) – Number of wanted samples</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Sorted array with the random samples (dates from the peaks)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="openstf.model_selection.model_selection.sample_indices_train_val">
+<code class="sig-prename descclassname">openstf.model_selection.model_selection.</code><code class="sig-name descname">sample_indices_train_val</code><span class="sig-paren">(</span><em class="sig-param">data: pandas.core.frame.DataFrame</em>, <em class="sig-param">peaks: pandas.core.frame.DataFrame</em><span class="sig-paren">)</span> &#x2192; Tuple[numpy.array, numpy.array]<a class="headerlink" href="#openstf.model_selection.model_selection.sample_indices_train_val" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample indices of given period length assuming the peaks are evenly spreaded.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>data</strong> (<em>pandas.DataFrame</em>) – Clean data with features</p></li>
-<li><p><strong>validation_fraction</strong> (<em>float</em>) – Number between 0 and 1 that indicates the
-desired fraction of validation data. Using a value larger than ~0.4 might
-lead to this function failing.</p></li>
-<li><p><strong>period_length</strong> (<em>int</em>) – Desired size of the sampled periods. The actual
-values can be slightly different if this is required to create the
-right fraction of validation data. Each period will have a duration
-of at least half period_length and at most one and a half
-period_length.</p></li>
+<li><p><strong>peaks</strong> (<em>pd.DataFrame</em>) – Data frame of selected peaks to sample the dates from</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Train data.
-validation_data (pandas.DataFrame): Validation data.</p>
+<dd class="field-even"><p>List with the start point of each peak
+np.array: Sorted list with the indices corresponding to the peak</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>train_data (pandas.DataFrame)</p>
+<dd class="field-odd"><p>np.array</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="openstf.model_selection.model_selection.split_data_train_validation_test">
-<code class="sig-prename descclassname">openstf.model_selection.model_selection.</code><code class="sig-name descname">split_data_train_validation_test</code><span class="sig-paren">(</span><em class="sig-param">data: pandas.core.frame.DataFrame</em>, <em class="sig-param">test_fraction: float = 0.0</em>, <em class="sig-param">validation_fraction: float = 0.15</em>, <em class="sig-param">backtest: bool = False</em>, <em class="sig-param">period_sampling: bool = True</em>, <em class="sig-param">period_timedelta: datetime.timedelta = datetime.timedelta(days=2)</em><span class="sig-paren">)</span> &#x2192; Tuple[pandas.core.frame.DataFrame, pandas.core.frame.DataFrame, pandas.core.frame.DataFrame]<a class="headerlink" href="#openstf.model_selection.model_selection.split_data_train_validation_test" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstf.model_selection.model_selection.</code><code class="sig-name descname">split_data_train_validation_test</code><span class="sig-paren">(</span><em class="sig-param">data_: pandas.core.frame.DataFrame, test_fraction: float = 0.1, validation_fraction: float = 0.15, back_test: bool = False, stratification_min_max: bool = True) -&gt; (typing.List[int], &lt;class 'pandas.core.frame.DataFrame'&gt;, &lt;class 'pandas.core.frame.DataFrame'&gt;, &lt;class 'pandas.core.frame.DataFrame'&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model_selection.model_selection.split_data_train_validation_test" title="Permalink to this definition">¶</a></dt>
 <dd><p>Split input data into train, test and validation set.</p>
-<p>Function for splitting cleaned data with features in a train, test and
-validation dataset. In an operational setting the folowing sequence is
-returned:</p>
-<p>Test &gt;&gt; Validation &gt;&gt; Train</p>
-<p>For a back test (indicated with argument “back_test”) the folowing sequence
+<p>Function for splitting data with features in a train, test and
+validation dataset. In an operational setting the following sequence is
+returned (when using stratification):</p>
+<p>Test &gt;&gt; Train &gt;&gt; Validation</p>
+<p>For a back test (indicated with argument “back_test”) the following sequence
 is returned:</p>
-<p>Validation &gt;&gt; Train &gt;&gt; Test</p>
+<p>Train &gt;&gt; Validation &gt;&gt; Test</p>
 <p>The ratios of the different types can be set with test_fraction and
 validation fraction.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<em>pandas.DataFrame</em>) – Clean data with features</p></li>
+<li><p><strong>data_</strong> (<em>pandas.DataFrame</em>) – Cleaned data with features</p></li>
 <li><p><strong>test_fraction</strong> (<em>float</em>) – Number between 0 and 1 that indicates the desired
 fraction of test data.</p></li>
 <li><p><strong>validation_fraction</strong> (<em>float</em>) – Number between 0 and 1 that indicates the
 desired fraction of validation data.</p></li>
-<li><p><strong>backtest</strong> (<em>bool</em>) – Indicates if data is intended for a back test.</p></li>
-<li><p><strong>period_sampling</strong> (<em>bool</em>) – Indicates if validation data must be sampled as
-periods.</p></li>
-<li><p><strong>period_timedelta</strong> (<em>datetime.timedelta</em>) – Duration of the periods that will
-be sampled as validation data. Only used for period_sampling=True.</p></li>
+<li><p><strong>back_test</strong> (<em>bool</em>) – Indicates if data is intended for a back test.</p></li>
+<li><p><strong>stratification_min_max</strong> (<em>bool</em>) – Indicates if validation data must be sampled as
+periods, using stratification on min and max values per day.
+If True, ‘extreme days’ are ensured to be included in the validation and train sets,
+ensuring the validation set to be representative of the train set.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>[0] (pandas.DataFrame): Train data
-[1] (pandas.DataFrame): Validation data
-[2] (pandas.DataFrame): Test data</p>
+<dd class="field-even"><p>int):
+train_data (pandas.DataFrame): Train data.
+validation_data (pandas.DataFrame): Validation data.
+test_data (pandas.DataFrame): Test data.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Tuple with train data, validation data and test data</p>
+<dd class="field-odd"><p>peak_all_days (lint</p>
 </dd>
 </dl>
 </dd></dl>
