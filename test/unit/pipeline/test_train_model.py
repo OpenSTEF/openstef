@@ -96,7 +96,8 @@ class TestTrainModelPipeline(BaseTestCase):
                 ).add_features(validated_data)
 
                 # Split data
-                (   _,
+                (
+                    _,
                     _,
                     train_data,
                     validation_data,
