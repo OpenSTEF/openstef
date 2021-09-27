@@ -78,17 +78,20 @@ def train_model_pipeline(
     try:
         model, report = train_model_pipeline_core(pj, input_data, old_model)
     except OldModelHigherScoreError as OMHSE:
-        logger.error("Old model is better than new model",
-                     pid=pj['id'], exc_info=OMHSE)
+        logger.error("Old model is better than new model", pid=pj["id"], exc_info=OMHSE)
         return
     except InputDataInsufficientError as IDIE:
-        logger.error("Input data is insufficient after validation and cleaning",
-            pid=pj['id'], exc_info=IDIE
+        logger.error(
+            "Input data is insufficient after validation and cleaning",
+            pid=pj["id"],
+            exc_info=IDIE,
         )
         return
     except InputDataWrongColumnOrderError as IDWCOE:
-        logger.error("Wrong column order, 'load' column should be first and 'horizon' column last.",
-            pid = pj['id'], exc_info=IDWCOE
+        logger.error(
+            "Wrong column order, 'load' column should be first and 'horizon' column last.",
+            pid=pj["id"],
+            exc_info=IDWCOE,
         )
         return
 
