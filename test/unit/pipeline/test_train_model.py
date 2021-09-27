@@ -3,8 +3,10 @@
 # SPDX-License-Identifier: MPL-2.0
 import unittest
 from datetime import datetime, timedelta
+
+from openstf.exceptions import InputDataInsufficientError, InputDataWrongColumnOrderError
 from test.utils import BaseTestCase, TestData
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, patch, Mock
 
 import pandas as pd
 import sklearn
@@ -154,6 +156,21 @@ class TestTrainModelPipeline(BaseTestCase):
             save_figures_folder="OTHER_TEST",
         )
         self.assertFalse(pipeline_mock.called)
+
+    @patch("openstf.pipeline.train_model.validation")
+    def test_train_model_InputDataInsufficientError(self, validation_is_data_sufficient_mock):
+        validation_is_data_sufficient_mock.is_data_sufficient.return_value = False
+        with self.assertRaises(InputDataInsufficientError):
+            train_model_pipeline_core(pj=self.pj, input_data=self.train_input)
+
+    def test_train_model_InputDataWrongColumnOrderError(self):
+        input_data = self.train_input
+        input_data["load2"] = input_data["load"]
+        input_data = input_data.drop("load", axis=1)
+        input_data["load"] = input_data["load2"]
+        input_data = input_data.drop("load2", axis=1)
+        with self.assertRaises(InputDataWrongColumnOrderError):
+            train_model_pipeline_core(pj=self.pj, input_data=input_data)
 
 
 if __name__ == "__main__":
