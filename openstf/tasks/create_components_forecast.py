@@ -74,7 +74,7 @@ def create_components_forecast_task(pj, context):
     )
     # Check if input_data is not empty
     if len(input_data) == 0:
-        logger.warning(f'No forecast found. Skipping pid', pid=pj["id"])
+        logger.warning(f"No forecast found. Skipping pid", pid=pj["id"])
         return
 
     logger.info("retrieving weather data")
@@ -95,7 +95,7 @@ def create_components_forecast_task(pj, context):
     split_coefs = context.database.get_energy_split_coefs(pj)
 
     if len(split_coefs) == 0:
-        logger.warning(f'No Coefs found. Skipping pid', pid=pj["id"])
+        logger.warning(f"No Coefs found. Skipping pid", pid=pj["id"])
         return
 
     # Make forecast for the demand, wind and pv components
