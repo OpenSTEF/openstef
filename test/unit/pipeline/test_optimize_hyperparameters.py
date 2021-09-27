@@ -4,6 +4,7 @@
 import unittest
 from unittest.mock import patch
 
+from openstf.exceptions import InputDataInsufficientError
 from test.utils import BaseTestCase, TestData
 from openstf.pipeline.optimize_hyperparameters import optimize_hyperparameters_pipeline
 
@@ -29,7 +30,7 @@ class TestOptimizeHyperParametersPipeline(BaseTestCase):
         pj = TestData.get_prediction_job(pid=307)
         input_data = TestData.load("input_data_train.pickle")
         # if data is not sufficient a ValueError should be raised
-        with self.assertRaises(ValueError):
+        with self.assertRaises(InputDataInsufficientError):
             optimize_hyperparameters_pipeline(pj, input_data)
 
 
