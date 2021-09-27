@@ -201,7 +201,6 @@ def train_pipeline_common(
         InputDataWrongColumnOrderError: when input data has a invalid column order.
 
     """
-    logger = structlog.get_logger(__name__)
     # Validate and clean data
     validated_data = validation.clean(validation.validate(pj["id"], input_data))
 
