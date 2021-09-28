@@ -76,7 +76,6 @@ class PredictionJobLoop:
 
         return prediction_jobs
 
-
     def map(self, function, *args, **kwargs):
         """Maps the passed function over all prediction jobs.
 
