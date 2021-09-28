@@ -65,7 +65,7 @@ def train_model_pipeline(
     except FileNotFoundError:
         old_model = None
         old_model_age = float("inf")
-        logger.warning("No old model found, training new model")
+        logger.warning("No old model found, training new model", pid=pj["id"])
 
     # Check old model age and continue yes/no
     if (old_model_age < MAXIMUM_MODEL_AGE) and check_old_model_age:
@@ -77,9 +77,25 @@ def train_model_pipeline(
     # Train model with core pipeline
     try:
         model, report = train_model_pipeline_core(pj, input_data, old_model)
-    except OldModelHigherScoreError as e:
-        logger.error(f"Old model is better than new model for {pj['id']}", exc_info=e)
+    except OldModelHigherScoreError as OMHSE:
+        logger.error("Old model is better than new model", pid=pj["id"], exc_info=OMHSE)
         return
+
+    except InputDataInsufficientError as IDIE:
+        logger.error(
+            "Input data is insufficient after validation and cleaning",
+            pid=pj["id"],
+            exc_info=IDIE,
+        )
+        raise InputDataInsufficientError(IDIE)
+
+    except InputDataWrongColumnOrderError as IDWCOE:
+        logger.error(
+            "Wrong column order, 'load' column should be first and 'horizon' column last.",
+            pid=pj["id"],
+            exc_info=IDWCOE,
+        )
+        raise InputDataWrongColumnOrderError(IDWCOE)
 
     # Save model
     serializer.save_model(model, pid=pj["id"])
@@ -159,7 +175,7 @@ def train_model_pipeline_core(
                 "New model is better than old model, continuing with training procces"
             )
         except ValueError as e:
-            logging.info("Could not compare to old model", exc_info=e)
+            logger.info("Could not compare to old model", pid=pj["id"], exc_info=e)
 
     # Report about the training procces
     report = Reporter(pj, train_data, validation_data, test_data).generate_report(model)
@@ -190,7 +206,6 @@ def train_pipeline_common(
         InputDataWrongColumnOrderError: when input data has a invalid column order.
 
     """
-
     # Validate and clean data
     validated_data = validation.clean(validation.validate(pj["id"], input_data))
 

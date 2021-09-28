@@ -6,6 +6,10 @@ import optuna
 from typing import List
 import structlog
 
+from openstf.exceptions import (
+    InputDataInsufficientError,
+    InputDataWrongColumnOrderError,
+)
 from openstf.model.model_creator import ModelCreator
 from openstf.model.objective_creator import ObjectiveCreator
 from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
@@ -50,16 +54,18 @@ def optimize_hyperparameters_pipeline(
         dict: Optimized hyperparameters.
     """
     if input_data.empty:
-        raise ValueError("Input dataframe is empty")
+        raise InputDataInsufficientError("Input dataframe is empty")
     elif "load" not in input_data.columns:
-        raise ValueError("Missing the load column in the input dataframe")
+        raise InputDataWrongColumnOrderError(
+            "Missing the load column in the input dataframe"
+        )
 
     # Validate and clean data
     validated_data = validation.clean(validation.validate(pj["id"], input_data))
 
     # Check if sufficient data is left after cleaning
     if not validation.is_data_sufficient(validated_data):
-        raise ValueError(
+        raise InputDataInsufficientError(
             f"Input data is insufficient for {pj['name']} "
             f"after validation and cleaning"
         )
