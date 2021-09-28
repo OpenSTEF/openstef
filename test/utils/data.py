@@ -6,9 +6,10 @@ import importlib
 import json
 import pickle
 from pathlib import Path
+from typing import Union
 
 import pandas as pd
-from typing import Union
+
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 

@@ -2,12 +2,10 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 from pathlib import Path
-from datetime import datetime, timedelta
 
 import pandas as pd
-import numpy as np
 import structlog
-from openstf.enums import ForecastType
+
 from openstf.feature_engineering.feature_applicator import (
     OperationalPredictFeatureApplicator,
 )

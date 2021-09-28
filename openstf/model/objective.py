@@ -1,14 +1,14 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-import logging
+from datetime import datetime
+
 import optuna
 import pandas as pd
 
+from openstf.enums import MLModelType
 from openstf.metrics import metrics
 from openstf.model.regressors.regressor_interface import OpenstfRegressorInterface
-from openstf.enums import MLModelType
-from datetime import datetime
 from openstf.model_selection.model_selection import split_data_train_validation_test
 
 EARLY_STOPPING_ROUNDS: int = 10

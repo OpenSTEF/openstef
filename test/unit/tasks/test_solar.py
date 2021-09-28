@@ -6,8 +6,6 @@ import unittest
 from unittest.mock import MagicMock
 
 from openstf.tasks.create_solar_forecast import make_solar_predicion_pj
-from openstf_dbc.services.prediction_job import PredictionJobDataClass
-
 from test.utils import BaseTestCase, TestData
 
 

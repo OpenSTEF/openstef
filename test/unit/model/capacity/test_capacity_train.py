@@ -9,7 +9,6 @@ from unittest.mock import patch
 
 # import project modules
 from openstf.model.capacity.train import train_capacity_prognosis
-
 from test.utils import BaseTestCase, TestData
 
 # define constants for mocking return values

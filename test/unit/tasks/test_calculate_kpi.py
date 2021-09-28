@@ -8,9 +8,8 @@ from unittest.mock import MagicMock, patch
 import numpy as np
 import pandas as pd
 
-from openstf_dbc.services.prediction_job import PredictionJobDataClass
-from openstf.tasks.calculate_kpi import calc_kpi_for_specific_pid
 from openstf.exceptions import NoRealisedLoadError, NoPredictedLoadError
+from openstf.tasks.calculate_kpi import calc_kpi_for_specific_pid
 from test.utils import BaseTestCase, TestData
 
 # Get test data

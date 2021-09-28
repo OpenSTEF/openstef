@@ -22,9 +22,10 @@ Example:
         $ python model_train.py
 
 """
-from pathlib import Path
 from datetime import datetime, timedelta
+from pathlib import Path
 
+from openstf.enums import MLModelType
 from openstf.pipeline.train_model import (
     train_model_pipeline,
     MAXIMUM_MODEL_AGE,
@@ -32,7 +33,6 @@ from openstf.pipeline.train_model import (
 )
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
-from openstf.enums import MLModelType
 
 TRAINING_PERIOD_DAYS: int = 120
 DEFAULT_CHECK_MODEL_AGE: bool = True

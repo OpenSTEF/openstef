@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 import unittest
+
 from openstf.metrics.metrics import get_eval_metric_function, mae
 
 

@@ -1,19 +1,18 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-from openstf.model.serializer import PersistentStorageSerializer
 import unittest
-import pytz
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-
-import pandas as pd
-
-from test.utils import BaseTestCase, TestData
 from unittest.mock import patch
 
-from openstf.pipeline import utils
+import pandas as pd
+import pytz
+
+from openstf.model.serializer import PersistentStorageSerializer
 from openstf.pipeline import create_forecast
+from openstf.pipeline import utils
+from test.utils import BaseTestCase, TestData
 
 NOW = datetime.now(timezone.utc)
 PJ = TestData.get_prediction_job(pid=307)

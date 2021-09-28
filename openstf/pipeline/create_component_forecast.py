@@ -1,9 +1,8 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-import structlog
-
 import pandas as pd
+import structlog
 
 import openstf.postprocessing.postprocessing as postprocessing
 

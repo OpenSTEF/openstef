@@ -7,7 +7,6 @@ from datetime import datetime, timedelta
 import pandas as pd
 
 from openstf.validation.validation import find_nonzero_flatliner
-
 from test.utils import BaseTestCase
 
 now = datetime.utcnow()

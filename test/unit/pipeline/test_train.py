@@ -1,15 +1,14 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-from datetime import datetime, timedelta
 import unittest
+from datetime import datetime, timedelta
 
 import pandas as pd
 
+from openstf.pipeline.train_model import split_data_train_validation_test
 from test.utils.base import BaseTestCase
 from test.utils.data import TestData
-
-from openstf.pipeline.train_model import split_data_train_validation_test
 
 # define constants
 SPLIT_PARAMS = {

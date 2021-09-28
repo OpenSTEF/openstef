@@ -20,11 +20,11 @@ import pandas as pd
 from openstf.feature_engineering.holiday_features import (
     generate_holiday_feature_functions,
 )
+from openstf.feature_engineering.lag_features import generate_lag_feature_functions
 from openstf.feature_engineering.weather_features import (
     add_humidity_features,
     add_additional_wind_features,
 )
-from openstf.feature_engineering.lag_features import generate_lag_feature_functions
 
 
 def apply_features(

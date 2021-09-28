@@ -5,7 +5,6 @@
 import pandas as pd
 
 from openstf.metrics.figure import plot_data_series, plot_feature_importance
-
 from test.utils import BaseTestCase, TestData
 
 

@@ -4,20 +4,18 @@
 
 # import builtins
 import unittest
-from test.utils import TestData
-from unittest.mock import MagicMock, Mock, patch
 from datetime import datetime, timedelta
+from unittest.mock import MagicMock, Mock, patch
 
+from openstf.exceptions import NoPredictedLoadError, NoRealisedLoadError
 from openstf.tasks.utils.predictionjobloop import (
     PredictionJobLoop,
     PredictionJobException,
 )
-from openstf.exceptions import NoPredictedLoadError, NoRealisedLoadError
-
 # import project modules
 from openstf.tasks.utils.taskcontext import TaskContext
-
 from test.utils import BaseTestCase
+from test.utils import TestData
 
 # define constants
 PREDICTION_JOBS = TestData.get_prediction_jobs()

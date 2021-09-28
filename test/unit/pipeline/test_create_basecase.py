@@ -1,14 +1,13 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-from test.utils import BaseTestCase, TestData
+from datetime import datetime, timedelta
 
 import numpy as np
 import pandas as pd
 
-from datetime import datetime, timedelta
-
 from openstf.pipeline.create_basecase_forecast import create_basecase_forecast_pipeline
+from test.utils import BaseTestCase, TestData
 
 
 class TestBaseCaseForecast(BaseTestCase):

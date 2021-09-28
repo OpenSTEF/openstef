@@ -1,26 +1,24 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-from typing import Union
-from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from typing import Union
 
 import pandas as pd
 import structlog
 from sklearn.base import RegressorMixin
 
-from openstf.validation import validation
 from openstf.feature_engineering.feature_applicator import (
     OperationalPredictFeatureApplicator,
 )
 from openstf.model.confidence_interval_applicator import ConfidenceIntervalApplicator
-
+from openstf.model.fallback import generate_fallback
 from openstf.model.serializer import PersistentStorageSerializer
+from openstf.pipeline.utils import generate_forecast_datetime_range
 from openstf.postprocessing.postprocessing import (
     add_prediction_job_properties_to_forecast,
 )
-from openstf.model.fallback import generate_fallback
-from openstf.pipeline.utils import generate_forecast_datetime_range
+from openstf.validation import validation
 
 
 def create_forecast_pipeline(

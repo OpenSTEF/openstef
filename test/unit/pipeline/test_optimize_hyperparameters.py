@@ -6,8 +6,8 @@ from unittest.mock import patch
 
 import pandas as pd
 
-from test.utils import BaseTestCase, TestData
 from openstf.pipeline.optimize_hyperparameters import optimize_hyperparameters_pipeline
+from test.utils import BaseTestCase, TestData
 
 
 @patch("openstf.pipeline.optimize_hyperparameters.structlog")

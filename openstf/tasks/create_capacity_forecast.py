@@ -5,10 +5,10 @@
 from datetime import datetime, timedelta
 from pathlib import Path
 
+from openstf.enums import MLModelType
 from openstf.model.capacity.predict import predict_capacity_prognosis
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
-from openstf.enums import MLModelType
 
 
 def main():

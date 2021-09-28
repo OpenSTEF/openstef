@@ -1,17 +1,16 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-from typing import Tuple
 from functools import partial
+from typing import Tuple
 
-from openstf.model.regressors.regressor import OpenstfRegressor
-from sklearn.utils.validation import check_X_y, check_array, check_is_fitted
-import xgboost as xgb
-from xgboost import Booster
 import numpy as np
-import pandas as pd
+import xgboost as xgb
+from sklearn.utils.validation import check_X_y, check_array, check_is_fitted
+from xgboost import Booster
 
 import openstf.metrics.metrics as metrics
+from openstf.model.regressors.regressor import OpenstfRegressor
 
 DEFAULT_QUANTILES: Tuple[float, ...] = (0.9, 0.5, 0.1)
 

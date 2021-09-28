@@ -6,7 +6,6 @@ import unittest
 from openstf.feature_engineering.holiday_features import (
     generate_holiday_feature_functions,
 )
-
 from test.utils import BaseTestCase
 
 expected_keys = [

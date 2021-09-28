@@ -19,8 +19,9 @@ Example:
         $ python create_basecase_forecast.py
 """
 from datetime import datetime, timedelta
-import pandas as pd
 from pathlib import Path
+
+import pandas as pd
 
 from openstf.pipeline.create_basecase_forecast import create_basecase_forecast_pipeline
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop

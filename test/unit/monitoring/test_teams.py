@@ -8,7 +8,6 @@ from unittest.mock import patch
 import pandas as pd
 
 from openstf.monitoring import teams
-
 from test.utils import BaseTestCase, TestData
 
 
