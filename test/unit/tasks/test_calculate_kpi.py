@@ -94,14 +94,14 @@ class TestPerformanceCalcKpiForSpecificPid(BaseTestCase):
     # Test whether none is returned in case of poor completeness for realised data
     @patch("openstf.tasks.calculate_kpi.DataBase", get_database_mock_realised_nan)
     def test_calc_kpi_for_specific_pid_poor_completeness_realized(self):
-        kpis = calc_kpi_for_specific_pid({"id": 295})
+        kpis = calc_kpi_for_specific_pid(307)
         t_ahead_keys = kpis.keys()
         self.assertIs(kpis[list(t_ahead_keys)[0]]["rMAE"], np.NaN)
 
     # Test whether none is returned in case of poor completeness for predicted data
     @patch("openstf.tasks.calculate_kpi.DataBase", get_database_mock_predicted_nan)
     def test_calc_kpi_for_specific_pid_poor_completeness_predicted(self):
-        kpis = calc_kpi_for_specific_pid({"id": 295})
+        kpis = calc_kpi_for_specific_pid(307)
 
         t_ahead_keys = kpis.keys()
         self.assertIs(kpis[list(t_ahead_keys)[0]]["rMAE"], np.NaN)
@@ -110,7 +110,7 @@ class TestPerformanceCalcKpiForSpecificPid(BaseTestCase):
     def test_calc_kpi_for_specific_pid_constant_load(self):
         """If load is constant, a warning should be raised, but kpi's should still be calculated"""
 
-        kpis = calc_kpi_for_specific_pid({"id": 295})
+        kpis = calc_kpi_for_specific_pid(307)
         self.assertIsNAN(kpis["4.0h"]["MAE"])  # arbitrary time horizon tested
         self.assertAlmostEqual(kpis["4.0h"]["MAE"], 2.9145, places=3)
 
@@ -120,7 +120,7 @@ class TestPerformanceCalcKpiForSpecificPid(BaseTestCase):
         empty load"""
 
         with self.assertRaises(NoRealisedLoadError):
-            calc_kpi_for_specific_pid({"id": 295})
+            calc_kpi_for_specific_pid(307)
 
     @patch("openstf.tasks.calculate_kpi.DataBase", get_database_mock_predicted_empty)
     def test_calc_kpi_no_prediction_exception(self):
@@ -128,7 +128,7 @@ class TestPerformanceCalcKpiForSpecificPid(BaseTestCase):
         empty prediction"""
 
         with self.assertRaises(NoPredictedLoadError):
-            calc_kpi_for_specific_pid({"id": 295})
+            calc_kpi_for_specific_pid(307)
 
 
 # Run all tests
