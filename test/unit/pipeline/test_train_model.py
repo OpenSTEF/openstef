@@ -4,7 +4,7 @@
 import unittest
 from datetime import datetime, timedelta
 
-from openstf.exceptions import InputDataInsufficientError, InputDataWrongColumnOrderError
+from openstf.exceptions import InputDataInsufficientError, InputDataWrongColumnOrderError, OldModelHigherScoreError
 from test.utils import BaseTestCase, TestData
 from unittest.mock import MagicMock, patch, Mock
 
@@ -171,6 +171,18 @@ class TestTrainModelPipeline(BaseTestCase):
         input_data = input_data.drop("load2", axis=1)
         with self.assertRaises(InputDataWrongColumnOrderError):
             train_model_pipeline_core(pj=self.pj, input_data=input_data)
+
+    @patch("openstf.pipeline.train_model.PersistentStorageSerializer")
+    def test_train_model_OldModelHigherScoreError(self, serializer_mock):
+        old_model_mock = MagicMock()
+        old_model_mock.age = 3
+
+        serializer_mock_instance = MagicMock()
+        serializer_mock_instance.load_model.return_value = old_model_mock
+        serializer_mock.return_value = serializer_mock_instance
+        old_model_mock.score.return_value = 5
+        with self.assertRaises(OldModelHigherScoreError):
+            train_model_pipeline_core(pj=self.pj, input_data=self.train_input, old_model=old_model_mock)
 
 
 if __name__ == "__main__":
