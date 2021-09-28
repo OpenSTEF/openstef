@@ -6,7 +6,7 @@ from unittest.mock import patch
 
 import pandas as pd
 
-from openstf.exceptions import InputDataInsufficientError
+from openstf.exceptions import InputDataInsufficientError, InputDataWrongColumnOrderError
 from test.utils import BaseTestCase, TestData
 from openstf.pipeline.optimize_hyperparameters import optimize_hyperparameters_pipeline
 
@@ -42,7 +42,7 @@ class TestOptimizeHyperParametersPipeline(BaseTestCase):
         pj = TestData.get_prediction_job(pid=307)
         input_data = pd.DataFrame()
 
-        # if there is no data a ValueError should be raised
+        # if there is no data a InputDataInsufficientError should be raised
         with self.assertRaises(InputDataInsufficientError):
             optimize_hyperparameters_pipeline(pj, input_data)
 
@@ -53,8 +53,8 @@ class TestOptimizeHyperParametersPipeline(BaseTestCase):
         pj = TestData.get_prediction_job(pid=307)
         input_data = TestData.load("input_data_train.pickle")
         input_data = input_data.drop("load", axis=1)
-        # if there is no data a ValueError should be raised
-        with self.assertRaises(InputDataInsufficientError):
+        # if there is no data a InputDataInsufficientError should be raised
+        with self.assertRaises(InputDataWrongColumnOrderError):
             optimize_hyperparameters_pipeline(pj, input_data)
 
 
