@@ -62,9 +62,7 @@ class PredictionJobLoop:
         if prediction_jobs is None:
             self.prediction_jobs = self._get_prediction_jobs()
         else:
-            self.prediction_jobs = self._add_missing_info_prediction_jobs(
-                prediction_jobs
-            )
+            self.prediction_jobs = prediction_jobs
 
         if self.random_order:
             random.shuffle(self.prediction_jobs)
@@ -78,17 +76,6 @@ class PredictionJobLoop:
 
         return prediction_jobs
 
-    def _add_missing_info_prediction_jobs(self, prediction_jobs_input):
-        prediction_jobs = []
-
-        for pj in prediction_jobs_input:
-            if len(pj.dict().keys()) > 1:
-                prediction_jobs.append(pj)
-                continue
-
-            prediction_jobs.append(self.context.database.get_prediction_job(pj["id"]))
-
-        return prediction_jobs
 
     def map(self, function, *args, **kwargs):
         """Maps the passed function over all prediction jobs.
