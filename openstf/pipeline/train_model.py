@@ -80,20 +80,22 @@ def train_model_pipeline(
     except OldModelHigherScoreError as OMHSE:
         logger.error("Old model is better than new model", pid=pj["id"], exc_info=OMHSE)
         return
+
     except InputDataInsufficientError as IDIE:
         logger.error(
             "Input data is insufficient after validation and cleaning",
             pid=pj["id"],
             exc_info=IDIE,
         )
-        return
+        raise InputDataInsufficientError(IDIE)
+
     except InputDataWrongColumnOrderError as IDWCOE:
         logger.error(
             "Wrong column order, 'load' column should be first and 'horizon' column last.",
             pid=pj["id"],
             exc_info=IDWCOE,
         )
-        return
+        raise InputDataWrongColumnOrderError(IDWCOE)
 
     # Save model
     serializer.save_model(model, pid=pj["id"])
@@ -173,7 +175,7 @@ def train_model_pipeline_core(
                 "New model is better than old model, continuing with training procces"
             )
         except ValueError as e:
-            logging.info("Could not compare to old model", pid=pj["id"], exc_info=e)
+            logger.info("Could not compare to old model", pid=pj["id"], exc_info=e)
 
     # Report about the training procces
     report = Reporter(pj, train_data, validation_data, test_data).generate_report(model)

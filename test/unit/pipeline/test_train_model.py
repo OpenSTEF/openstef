@@ -4,9 +4,10 @@
 import unittest
 from datetime import datetime, timedelta
 
-from openstf.exceptions import InputDataInsufficientError, InputDataWrongColumnOrderError, OldModelHigherScoreError
+from openstf.exceptions import InputDataInsufficientError, InputDataWrongColumnOrderError
+
 from test.utils import BaseTestCase, TestData
-from unittest.mock import MagicMock, patch, Mock
+from unittest.mock import MagicMock, patch
 
 import pandas as pd
 import sklearn
@@ -160,29 +161,132 @@ class TestTrainModelPipeline(BaseTestCase):
     @patch("openstf.pipeline.train_model.validation")
     def test_train_model_InputDataInsufficientError(self, validation_is_data_sufficient_mock):
         validation_is_data_sufficient_mock.is_data_sufficient.return_value = False
-        with self.assertRaises(InputDataInsufficientError):
-            train_model_pipeline_core(pj=self.pj, input_data=self.train_input)
+        # This error is caught and then raised again and logged
+        with self.assertLogs('openstf.pipeline.train_model', level='ERROR') as captured:
+            with self.assertRaises(InputDataInsufficientError):
+                train_model_pipeline(
+                    pj=self.pj,
+                    input_data=self.train_input,
+                    check_old_model_age=True,
+                    trained_models_folder="TEST",
+                    save_figures_folder="OTHER_TEST",
+                )
+
+        self.assertEqual(len(captured.records), 1)  # check that there is only one error log message
+        # search for log
+        self.assertRegex(captured.records[0].getMessage(), 'Input data is insufficient after validation and cleaning')
+
 
     def test_train_model_InputDataWrongColumnOrderError(self):
-        input_data = self.train_input
-        input_data["load2"] = input_data["load"]
-        input_data = input_data.drop("load", axis=1)
-        input_data["load"] = input_data["load2"]
-        input_data = input_data.drop("load2", axis=1)
-        with self.assertRaises(InputDataWrongColumnOrderError):
-            train_model_pipeline_core(pj=self.pj, input_data=input_data)
+        # change the column order
+        input_data = self.train_input.iloc[:, ::-1]
+
+        # This error is caught and then raised again and logged
+        with self.assertLogs('openstf.pipeline.train_model', level='ERROR') as captured:
+            with self.assertRaises(InputDataWrongColumnOrderError):
+                train_model_pipeline(
+                    pj=self.pj,
+                    input_data=input_data,
+                    check_old_model_age=True,
+                    trained_models_folder="TEST",
+                    save_figures_folder="OTHER_TEST",
+                )
+
+        self.assertEqual(len(captured.records), 1)  # check that there is only one error log message
+        # search for log
+        self.assertRegex(captured.records[0].getMessage(), 'Wrong column order')
 
     @patch("openstf.pipeline.train_model.PersistentStorageSerializer")
     def test_train_model_OldModelHigherScoreError(self, serializer_mock):
+        # Mock an old model which is better than the new one.
         old_model_mock = MagicMock()
-        old_model_mock.age = 3
+        old_model_mock.age = 8
 
         serializer_mock_instance = MagicMock()
         serializer_mock_instance.load_model.return_value = old_model_mock
         serializer_mock.return_value = serializer_mock_instance
         old_model_mock.score.return_value = 5
-        with self.assertRaises(OldModelHigherScoreError):
-            train_model_pipeline_core(pj=self.pj, input_data=self.train_input, old_model=old_model_mock)
+
+        # This error is caught so we check if logging contains the error.
+        with self.assertLogs('openstf.pipeline.train_model', level='ERROR') as captured:
+            train_model_pipeline(
+                pj=self.pj,
+                input_data=self.train_input,
+                check_old_model_age=True,
+                trained_models_folder="TEST",
+                save_figures_folder="OTHER_TEST",
+            )
+
+        self.assertEqual(len(captured.records), 1)  # check that there is only one error log message
+        # search for the old model is better log
+        self.assertRegex(captured.records[0].getMessage(), 'Old model is better than new model')
+
+    @patch("openstf.pipeline.train_model.PersistentStorageSerializer")
+    def test_train_model_log_new_model_better(self, serializer_mock):
+        # Mock an old model which is better than the new one.
+        old_model_mock = MagicMock()
+        old_model_mock.age = 8
+
+        serializer_mock_instance = MagicMock()
+        serializer_mock_instance.load_model.return_value = old_model_mock
+        serializer_mock.return_value = serializer_mock_instance
+        old_model_mock.score.return_value = 0.1
+
+        with self.assertLogs('openstf.pipeline.train_model', level='INFO') as captured:
+            train_model_pipeline(
+                pj=self.pj,
+                input_data=self.train_input,
+                check_old_model_age=True,
+                trained_models_folder="TEST",
+                save_figures_folder="OTHER_TEST",
+            )
+
+        # search for the old model is better log
+        self.assertRegex(captured.records[0].getMessage(), 'New model is better than old model')
+
+    @patch("openstf.pipeline.train_model.PersistentStorageSerializer")
+    def test_train_model_log_couldnt_compare(self, serializer_mock):
+        # Mock an old model which is better than the new one.
+        old_model_mock = MagicMock()
+        old_model_mock.age = 8
+
+        serializer_mock_instance = MagicMock()
+        serializer_mock_instance.load_model.return_value = old_model_mock
+        serializer_mock.return_value = serializer_mock_instance
+        old_model_mock.score.side_effect = ValueError()
+
+        with self.assertLogs('openstf.pipeline.train_model', level='INFO') as captured:
+            train_model_pipeline(
+                pj=self.pj,
+                input_data=self.train_input,
+                check_old_model_age=True,
+                trained_models_folder="TEST",
+                save_figures_folder="OTHER_TEST",
+            )
+
+        # search for the old model is better log
+        self.assertRegex(captured.records[0].getMessage(), 'Could not compare to old model')
+
+    @patch("openstf.pipeline.train_model.PersistentStorageSerializer")
+    def test_train_model_No_old_model(self, serializer_mock):
+        # Mock an old model which is better than the new one.
+        old_model_mock = MagicMock()
+        old_model_mock.age = 8
+
+        serializer_mock_instance = MagicMock()
+        serializer_mock_instance.load_model.side_effect = FileNotFoundError()
+
+        with self.assertLogs('openstf.pipeline.train_model', level='WARNING') as captured:
+            train_model_pipeline(
+                pj=self.pj,
+                input_data=self.train_input,
+                check_old_model_age=True,
+                trained_models_folder="TEST",
+                save_figures_folder="OTHER_TEST",
+            )
+
+            # search for the old model is better log
+        self.assertRegex(captured.records[0].getMessage(), 'No old model')
 
 
 if __name__ == "__main__":
