@@ -6,7 +6,10 @@ from unittest.mock import patch
 
 import pandas as pd
 
-from openstf.exceptions import InputDataInsufficientError, InputDataWrongColumnOrderError
+from openstf.exceptions import (
+    InputDataInsufficientError,
+    InputDataWrongColumnOrderError,
+)
 from test.utils import BaseTestCase, TestData
 from openstf.pipeline.optimize_hyperparameters import optimize_hyperparameters_pipeline
 
