@@ -57,5 +57,6 @@ class TestOptimizeHyperParametersPipeline(BaseTestCase):
         with self.assertRaises(InputDataInsufficientError):
             optimize_hyperparameters_pipeline(pj, input_data)
 
+
 if __name__ == "__main__":
     unittest.main()
