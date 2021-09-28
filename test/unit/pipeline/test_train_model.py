@@ -274,7 +274,10 @@ class TestTrainModelPipeline(BaseTestCase):
         old_model_mock.age = 8
 
         serializer_mock_instance = MagicMock()
+        serializer_mock_instance.load_model.return_value = old_model_mock
         serializer_mock_instance.load_model.side_effect = FileNotFoundError()
+        serializer_mock.return_value = serializer_mock_instance
+
 
         with self.assertLogs('openstf.pipeline.train_model', level='WARNING') as captured:
             train_model_pipeline(
@@ -285,8 +288,8 @@ class TestTrainModelPipeline(BaseTestCase):
                 save_figures_folder="OTHER_TEST",
             )
 
-            # search for the old model is better log
-        self.assertRegex(captured.records[0].getMessage(), 'No old model')
+        # search for the old model is better log
+        self.assertRegex(captured.records[0].getMessage(), 'No old model found')
 
 
 if __name__ == "__main__":
