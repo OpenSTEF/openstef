@@ -26,6 +26,8 @@ class PredictionJobLoop:
         function. If another set of prediction jobs is desired, manually pass
         them using the prediction_jobs argument.
 
+        Tip: For debugging a specific PID, use prediction_jobs=[dict(id={specific_pid})]
+
         Args:
             context (openstf.tasks.util.taskcontext.TaskContext): The
                 context to run this loop in.

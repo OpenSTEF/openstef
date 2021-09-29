@@ -55,3 +55,7 @@ class InputDataWrongColumnOrderError(InputDataInvalidError):
 
 class OldModelHigherScoreError(Exception):
     """Old model has a higher score then new model"""
+
+
+class ModelWithoutStDev(Exception):
+    """A machine learning model should have a valid standard deviation"""
