@@ -22,9 +22,10 @@ Example:
         $ python model_train.py
 
 """
-from pathlib import Path
 from datetime import datetime, timedelta
+from pathlib import Path
 
+from openstf.enums import MLModelType
 from openstf.pipeline.train_model import (
     train_model_pipeline,
     MAXIMUM_MODEL_AGE,
@@ -32,7 +33,6 @@ from openstf.pipeline.train_model import (
 )
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
-from openstf.enums import MLModelType
 
 TRAINING_PERIOD_DAYS: int = 120
 DEFAULT_CHECK_MODEL_AGE: bool = True
@@ -72,13 +72,13 @@ def train_model_task(
 
     # If required, let's check the old model age before retrieving all the input data
     if check_old_model_age:
-        old_model_age = get_model_age(trained_models_folder, pj.get("id"))
+        old_model_age = get_model_age(trained_models_folder, pj["id"])
         context.logger.debug(f"Old model age: {old_model_age}")
         if old_model_age < MAXIMUM_MODEL_AGE:
             # Old model is new enough. Skip this pj
             context.logger.info(
                 f"Old model was new enough, skipping ({old_model_age}<{MAXIMUM_MODEL_AGE})",
-                pid=pj.get("id"),
+                pid=pj["id"],
             )
             return
 

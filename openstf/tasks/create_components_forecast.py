@@ -29,17 +29,18 @@ Attributes:
 
 
 """
-import structlog
 from datetime import datetime, timedelta
 from pathlib import Path
 
+import structlog
+
+from openstf.enums import MLModelType
 from openstf.pipeline.create_component_forecast import (
     create_components_forecast_pipeline,
 )
-from openstf.tasks.utils.utils import check_status_change, update_status_change
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
-from openstf.enums import MLModelType
+from openstf.tasks.utils.utils import check_status_change, update_status_change
 
 T_BEHIND_DAYS = 0
 T_AHEAD_DAYS = 3

@@ -4,7 +4,6 @@
 
 # import builtins
 import unittest
-from test.utils import TestData
 from unittest.mock import MagicMock, Mock
 
 # import project modules
@@ -12,8 +11,8 @@ from openstf.tasks.utils.predictionjobloop import (
     PredictionJobException,
     PredictionJobLoop,
 )
-
 from test.utils import BaseTestCase
+from test.utils import TestData
 
 # define constants
 PREDICTION_JOBS = TestData.get_prediction_jobs()

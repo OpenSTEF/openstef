@@ -16,13 +16,14 @@ Attributes:
 """
 from datetime import datetime, timedelta
 from pathlib import Path
+
 import numpy as np
 import pandas as pd
 from scipy import optimize
 
+from openstf import PROJECT_ROOT
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
-from openstf import PROJECT_ROOT
 
 # TODO move to config
 PV_COEFS_FILEPATH = PROJECT_ROOT / "openstf" / "data" / "pv_single_coefs.csv"
@@ -34,6 +35,8 @@ def make_solar_predicion_pj(pj, context):
     Args:
         pj: (dict) prediction job
     """
+    pj["radius"] = 30
+    pj["peak_power"] = 180961000.0
     context.logger.info("Get solar input data from database")
     # pvdata is only stored in the prd database
     solar_input = context.database.get_solar_input(

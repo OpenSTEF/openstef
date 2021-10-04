@@ -4,9 +4,8 @@
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
 
-from openstf.tasks.train_model import train_model_task
 from openstf.pipeline.train_model import MAXIMUM_MODEL_AGE
-
+from openstf.tasks.train_model import train_model_task
 from test.utils import TestData
 
 FORECAST_MOCK = "forecast_mock"

@@ -3,14 +3,14 @@
 # SPDX-License-Identifier: MPL-2.0
 
 import traceback
+
 import structlog
 
+from openstf.monitoring.performance_meter import PerformanceMeter
+from openstf.monitoring.teams import post_teams
+from openstf.tasks.utils.predictionjobloop import PredictionJobException
 from openstf_dbc.config.config import ConfigManager
 from openstf_dbc.database import DataBase
-
-from openstf.monitoring.teams import post_teams
-from openstf.monitoring.performance_meter import PerformanceMeter
-from openstf.tasks.utils.predictionjobloop import PredictionJobException
 
 
 class TaskContext:

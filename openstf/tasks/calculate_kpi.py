@@ -26,13 +26,13 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import structlog
-from openstf_dbc.database import DataBase
 
 from openstf.exceptions import NoPredictedLoadError, NoRealisedLoadError
 from openstf.metrics import metrics
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
 from openstf.validation import validation
+from openstf_dbc.database import DataBase
 
 # Thresholds for retraining and optimizing
 THRESHOLD_RETRAINING = 0.25

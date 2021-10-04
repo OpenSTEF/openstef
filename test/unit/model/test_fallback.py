@@ -6,8 +6,8 @@ import unittest
 
 import numpy as np
 
-from test.utils import BaseTestCase, TestData
 from openstf.model.fallback import generate_fallback
+from test.utils import BaseTestCase, TestData
 
 
 class TestFallback(BaseTestCase):

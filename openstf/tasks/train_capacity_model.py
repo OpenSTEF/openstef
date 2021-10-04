@@ -7,10 +7,10 @@ from pathlib import Path
 
 import pandas as pd
 
+from openstf.enums import MLModelType
 from openstf.model.capacity.train import train_capacity_prognosis
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
-from openstf.enums import MLModelType
 
 
 def main():

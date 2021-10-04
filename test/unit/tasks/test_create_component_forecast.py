@@ -5,7 +5,6 @@ from unittest import TestCase
 from unittest.mock import MagicMock, patch
 
 from openstf.tasks.create_components_forecast import create_components_forecast_task
-
 from test.utils import TestData
 
 FORECAST_MOCK = "forecast_mock"

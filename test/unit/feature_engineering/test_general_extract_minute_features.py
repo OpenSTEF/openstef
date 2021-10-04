@@ -3,12 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 import unittest
 
-from test.utils.data import TestData
-
 from openstf.feature_engineering.lag_features import extract_lag_features
-from openstf.enums import MLModelType
-from openstf.model.serializer import PersistentStorageSerializer
-
 from test.utils import BaseTestCase
 
 

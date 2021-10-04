@@ -1,13 +1,12 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+import secrets
+from datetime import timedelta
+from typing import List, Tuple
+
 import numpy as np
 import pandas as pd
-import secrets
-
-from datetime import timedelta
-
-from typing import List, Tuple
 
 AMOUNT_DAY = 96  # Duration of the periods (in T-15) that are in a day (default = 96)
 PERIOD_TIMEDELTA = 1  # Duration of the periods (in days) that will be sampled as validation data for each split.

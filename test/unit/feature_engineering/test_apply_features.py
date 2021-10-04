@@ -6,6 +6,7 @@ import unittest
 
 import numpy as np
 import pandas as pd
+
 from openstf.feature_engineering import apply_features, weather_features
 from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
 from openstf.feature_engineering.lag_features import generate_lag_feature_functions

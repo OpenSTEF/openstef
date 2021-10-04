@@ -2,15 +2,14 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 import unittest
-from test.utils import BaseTestCase, TestData
 
-from sklearn.utils.estimator_checks import check_estimator
+import numpy as np
+import pandas as pd
 import sklearn
+from sklearn.utils.estimator_checks import check_estimator
 
 from openstf.model.regressors.xgb_quantile import XGBQuantileOpenstfRegressor
-
-import pandas as pd
-import numpy as np
+from test.utils import BaseTestCase, TestData
 
 
 class MockModel:

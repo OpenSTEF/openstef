@@ -1,12 +1,11 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-from unittest import TestCase, skip
+from unittest import TestCase
 from unittest.mock import MagicMock, patch
 
-from openstf.tasks.create_forecast import create_forecast_task
 import openstf.tasks.create_forecast as task
-
+from openstf.tasks.create_forecast import create_forecast_task
 from test.utils import TestData
 
 FORECAST_MOCK = "forecast_mock"
@@ -44,8 +43,8 @@ class TestCreateForeCastTask(TestCase):
         dbmock,
     ):
         dbmock().get_prediction_jobs.return_value = [
-            TestData.get_prediction_job(pid=307),
-            TestData.get_prediction_job(pid=307),
+            self.pj,
+            self.pj,
         ]
         testdata = TestData.load("reference_sets/307-test-data.csv")
         dbmock().get_model_input.return_value = testdata

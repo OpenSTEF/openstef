@@ -2,11 +2,9 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-from openstf.validation import validation
-
 from unittest.mock import patch, MagicMock
 
-
+from openstf.validation import validation
 from test.utils import BaseTestCase, TestData
 
 

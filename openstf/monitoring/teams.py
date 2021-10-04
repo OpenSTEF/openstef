@@ -4,8 +4,9 @@
 from pathlib import Path
 
 import pymsteams
-from openstf_dbc.config.config import ConfigManager
 import structlog
+
+from openstf_dbc.config.config import ConfigManager
 
 
 def post_teams(msg, invalid_coefs=None, coefsdf=None, url=None):

@@ -5,9 +5,9 @@
 from datetime import timedelta, datetime
 from typing import Tuple
 
+import holidays
 import numpy as np
 import pandas as pd
-import holidays
 
 from openstf import PROJECT_ROOT
 

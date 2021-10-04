@@ -3,15 +3,14 @@
 # SPDX-License-Identifier: MPL-2.0
 from typing import List, Tuple
 
-
 import pandas as pd
 from sklearn.base import RegressorMixin
 
 from openstf.model.confidence_interval_applicator import ConfidenceIntervalApplicator
+from openstf.pipeline.train_model import train_pipeline_common
 from openstf.postprocessing.postprocessing import (
     add_prediction_job_properties_to_forecast,
 )
-from openstf.pipeline.train_model import train_pipeline_common
 
 DEFAULT_TRAIN_HORIZONS: List[float] = [0.25, 24.0]
 DEFAULT_EARLY_STOPPING_ROUNDS: int = 10

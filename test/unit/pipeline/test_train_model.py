@@ -3,13 +3,11 @@
 # SPDX-License-Identifier: MPL-2.0
 import unittest
 from datetime import datetime, timedelta
-
 from openstf.exceptions import (
     InputDataInsufficientError,
     InputDataWrongColumnOrderError,
 )
 
-from test.utils import BaseTestCase, TestData
 from unittest.mock import MagicMock, patch
 
 import pandas as pd
@@ -17,13 +15,14 @@ import sklearn
 
 from openstf.enums import MLModelType
 from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
-from openstf.model_selection.model_selection import split_data_train_validation_test
-from openstf.validation import validation
 from openstf.metrics.reporter import Report
+from openstf.model_selection.model_selection import split_data_train_validation_test
 from openstf.pipeline.train_model import (
     train_model_pipeline,
     train_model_pipeline_core,
 )
+from openstf.validation import validation
+from test.utils import BaseTestCase, TestData
 
 # define constants
 

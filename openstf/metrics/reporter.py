@@ -1,15 +1,15 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-from dataclasses import dataclass
 import os
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict
 
-from plotly.graph_objects import Figure
 import pandas as pd
-from sklearn.base import RegressorMixin
 import structlog
+from plotly.graph_objects import Figure
+from sklearn.base import RegressorMixin
 
 from openstf.metrics import figure
 

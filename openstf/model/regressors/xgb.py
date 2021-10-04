@@ -2,8 +2,8 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-import pandas as pd
 from xgboost import XGBRegressor
+
 from openstf.model.regressors.regressor import OpenstfRegressor
 
 

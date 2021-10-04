@@ -1,16 +1,15 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-from test.utils import BaseTestCase, TestData
-import pytz
+from datetime import datetime, timezone, timedelta
 
 import pandas as pd
-
-from datetime import datetime, timezone, timedelta
+import pytz
 
 from openstf.pipeline.create_component_forecast import (
     create_components_forecast_pipeline,
 )
+from test.utils import BaseTestCase, TestData
 
 NOW = datetime.now(timezone.utc)
 

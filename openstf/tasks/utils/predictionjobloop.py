@@ -64,9 +64,7 @@ class PredictionJobLoop:
         if prediction_jobs is None:
             self.prediction_jobs = self._get_prediction_jobs()
         else:
-            self.prediction_jobs = self._add_missing_info_prediction_jobs(
-                prediction_jobs
-            )
+            self.prediction_jobs = prediction_jobs
 
         if self.random_order:
             random.shuffle(self.prediction_jobs)
@@ -77,18 +75,6 @@ class PredictionJobLoop:
             "Querying prediction jobs from database", **self.pj_kwargs
         )
         prediction_jobs = self.context.database.get_prediction_jobs(**self.pj_kwargs)
-
-        return prediction_jobs
-
-    def _add_missing_info_prediction_jobs(self, prediction_jobs_input):
-        prediction_jobs = []
-
-        for pj in prediction_jobs_input:
-            if len(pj.keys()) > 1:
-                prediction_jobs.append(pj)
-                continue
-
-            prediction_jobs.append(self.context.database.get_prediction_job(pj["id"]))
 
         return prediction_jobs
 
@@ -120,16 +106,12 @@ class PredictionJobLoop:
             successful = False
 
             self.context.logger = self.context.logger.bind(
-                prediction_id=prediction_job.get("id"),
-                prediction_name=prediction_job.get("name", ""),
+                prediction_id=prediction_job["id"],
+                prediction_name=prediction_job["name"],
             )
 
             self.context.perf_meter.start_level(
-                "iteration",
-                i,
-                num_jobs=num_jobs,
-                pid=prediction_job.get("id"),
-                **kwargs
+                "iteration", i, num_jobs=num_jobs, pid=prediction_job["id"], **kwargs
             )
 
             try:

@@ -1,18 +1,21 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-import pandas as pd
-import optuna
 from typing import List
+
+import optuna
+import pandas as pd
 import structlog
 
+
+from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
 from openstf.exceptions import (
     InputDataInsufficientError,
     InputDataWrongColumnOrderError,
 )
+
 from openstf.model.model_creator import ModelCreator
 from openstf.model.objective_creator import ObjectiveCreator
-from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
 from openstf.validation import validation
 
 # This is required to disable the default optuna logger and pass the logs to our own

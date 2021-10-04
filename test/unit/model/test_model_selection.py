@@ -3,12 +3,11 @@
 # SPDX-License-Identifier: MPL-2.0
 import unittest
 
+import numpy as np
+
+from openstf.model_selection import model_selection
 from test.utils.base import BaseTestCase
 from test.utils.data import TestData
-from openstf.model_selection import model_selection
-
-import pandas as pd
-import numpy as np
 
 # define constants
 SPLIT_PARAMS = {

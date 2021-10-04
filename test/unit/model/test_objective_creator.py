@@ -2,9 +2,9 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 import unittest
-from test.utils.base import BaseTestCase
 
 from openstf.model.objective_creator import ObjectiveCreator
+from test.utils.base import BaseTestCase
 
 
 class TestObjectiveCreator(BaseTestCase):
