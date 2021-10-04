@@ -12,6 +12,7 @@ from openstf.feature_engineering.feature_applicator import TrainFeatureApplicato
 from openstf.exceptions import (
     InputDataInsufficientError,
     InputDataWrongColumnOrderError,
+)
 
 from openstf.model.model_creator import ModelCreator
 from openstf.model.objective_creator import ObjectiveCreator
