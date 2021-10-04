@@ -10,6 +10,8 @@ import structlog
 from scipy import stats
 from sklearn.base import RegressorMixin
 
+from openstf.exceptions import ModelWithoutStDev
+
 MINIMAL_RESOLUTION: int = 15  # Minimal time resolution in minutes
 
 
@@ -87,8 +89,12 @@ class ConfidenceIntervalApplicator:
 
         standard_deviation = self.model.standard_deviation
 
+        # raise an exception if no valid standard deviation is available
         if standard_deviation is None:
-            return forecast
+            raise ModelWithoutStDev("No stdev available")
+
+        if standard_deviation.stdev.isnull().values.all():
+            raise ModelWithoutStDev("All stdev values are NA")
 
         # Fill stdev nans with the mean of all stdev values
         if standard_deviation.stdev.isnull().values.any():

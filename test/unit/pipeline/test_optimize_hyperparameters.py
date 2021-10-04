@@ -6,6 +6,11 @@ from unittest.mock import patch
 
 import pandas as pd
 
+
+from openstf.exceptions import (
+    InputDataInsufficientError,
+    InputDataWrongColumnOrderError,
+)
 from openstf.pipeline.optimize_hyperparameters import optimize_hyperparameters_pipeline
 from test.utils import BaseTestCase, TestData
 
@@ -30,8 +35,8 @@ class TestOptimizeHyperParametersPipeline(BaseTestCase):
 
         pj = TestData.get_prediction_job(pid=307)
         input_data = TestData.load("input_data_train.pickle")
-        # if data is not sufficient a ValueError should be raised
-        with self.assertRaises(ValueError):
+        # if data is not sufficient a InputDataInsufficientError should be raised
+        with self.assertRaises(InputDataInsufficientError):
             optimize_hyperparameters_pipeline(pj, input_data)
 
     def test_optimize_hyperparameters_pipeline_no_data(self, *args):
@@ -41,8 +46,8 @@ class TestOptimizeHyperParametersPipeline(BaseTestCase):
         pj = TestData.get_prediction_job(pid=307)
         input_data = pd.DataFrame()
 
-        # if there is no data a ValueError should be raised
-        with self.assertRaises(ValueError):
+        # if there is no data a InputDataInsufficientError should be raised
+        with self.assertRaises(InputDataInsufficientError):
             optimize_hyperparameters_pipeline(pj, input_data)
 
     def test_optimize_hyperparameters_pipeline_no_load_data(self, *args):
@@ -52,8 +57,8 @@ class TestOptimizeHyperParametersPipeline(BaseTestCase):
         pj = TestData.get_prediction_job(pid=307)
         input_data = TestData.load("input_data_train.pickle")
         input_data = input_data.drop("load", axis=1)
-        # if there is no data a ValueError should be raised
-        with self.assertRaises(ValueError):
+        # if there is no data a InputDataWrongColumnOrderError should be raised
+        with self.assertRaises(InputDataWrongColumnOrderError):
             optimize_hyperparameters_pipeline(pj, input_data)
 
 

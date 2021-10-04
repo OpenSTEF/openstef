@@ -43,18 +43,16 @@ def main():
     taskname = Path(__file__).name.replace(".py", "")
 
     with TaskContext(taskname) as context:
-        model_type = ["xgb", "lgb"]
         # Set start and end time
-        start_time = datetime.date(datetime.utcnow()) - timedelta(days=1)
-        end_time = datetime.date(datetime.utcnow())
+        start_time = datetime.utcnow() - timedelta(days=1)
+        end_time = datetime.utcnow()
 
-        if datetime.utcnow().weekday() in [0, 1, 2, 3, 4]:
-            PredictionJobLoop(context, model_type=model_type).map(
-                check_kpi_pj,
-                context,
-                start_time=start_time,
-                end_time=end_time,
-            )
+        PredictionJobLoop(context,).map(
+            check_kpi_pj,
+            context,
+            start_time=start_time,
+            end_time=end_time,
+        )
 
 
 def check_kpi_pj(pj, context, start_time, end_time):
