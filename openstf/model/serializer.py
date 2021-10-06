@@ -1,15 +1,21 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+import os
 from abc import ABC, abstractmethod
 from datetime import datetime
 from pathlib import Path
 from typing import List, Optional, Union
 
 import joblib
+import mlflow
 import pytz
 import structlog
+from mlflow.tracking import MlflowClient
 from sklearn.base import RegressorMixin
+
+from openstf.metrics.reporter import Report
+from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 MODEL_FILENAME = "model.joblib"
 FOLDER_DATETIME_FORMAT = "%Y%m%d%H%M%S"
@@ -23,6 +29,7 @@ class AbstractSerializer(ABC):
         Returns:
             object:
         """
+        self.mlflow_folder = os.path.join(trained_models_folder, "mlruns")
         self.logger = structlog.get_logger(self.__class__.__name__)
         self.trained_models_folder = trained_models_folder
 
@@ -46,11 +53,11 @@ class AbstractSerializer(ABC):
 
 
 class PersistentStorageSerializer(AbstractSerializer):
-    def save_model(
-        self,
-        model: RegressorMixin,
-        pid: Optional[Union[int, str]] = None,
-        model_id: Optional[str] = None,
+    def save_model_old(
+            self,
+            model: RegressorMixin,
+            pid: Optional[Union[int, str]] = None,
+            model_id: Optional[str] = None,
     ) -> str:
         """Save sklearn compatible model to persistent storage.
 
@@ -88,8 +95,96 @@ class PersistentStorageSerializer(AbstractSerializer):
 
         return model_id
 
-    def load_model(
-        self, pid: Optional[Union[int, str]] = None, model_id: Optional[str] = None
+    def save_model(
+            self,
+            model: RegressorMixin,
+            pj: Union[dict, PredictionJobDataClass],
+            report:  Report,
+    ):
+        """Save sklearn compatible model to persistent storage with MLflow.
+
+                Either a pid or a model_id should be given. If a pid is given the model_id
+                will be generated.
+
+            Args:
+                model: Trained sklearn compatible model object.
+                pj: Prediction job.
+                report: Report object.
+
+        """
+        model_type = pj["model"]
+        pid = pj['id']
+        mlflow.set_tracking_uri(self.mlflow_folder)
+        client = MlflowClient()
+        mlflow.set_experiment(str(pid))
+        experiment_id = client.get_experiment_by_name(str(pid)).experiment_id
+        # return the latest run of the model
+        pref_run = mlflow.search_runs(experiment_id, filter_string=f"tag.mlflow.runName = '{pj['model']}'",
+                                      max_results=1, )
+        try:
+            pref_run_id = str(pref_run["run_id"][0])
+        except KeyError:
+            self.logger.info("No previous model found in MLflow")
+            pref_run_id = None
+        with mlflow.start_run(run_name=model_type):
+            mlflow.set_tag("phase", "training")
+            mlflow.set_tag("Previous_version_id", pref_run_id)
+            mlflow.set_tag("model_type", model_type)
+            mlflow.set_tag("prediction_job", pid)
+            mlflow.log_metrics(report.metrics)
+            mlflow.log_params(model.get_params())
+            mlflow.sklearn.log_model(
+                sk_model=model,
+                artifact_path="model",
+                signature=report.signature,
+            )
+            mlflow.log_figure(report.feature_importance_figure,
+                              f"{pid}_{model_type}_feature_importance.png")
+            try:
+                mlflow.log_figure(report.data_series_figures,
+                                  f"{pid}_{model_type}_data_series.png")
+            except Exception:
+                self.logger.warning("Couldn't log data series figure")
+
+    def load_model(self, pid: Optional[Union[int, str]] = None, model_id: Optional[str] = None) -> RegressorMixin:
+        """Load sklearn compatible model from persistent storage.
+
+                    Either a pid or a model_id should be given. If a pid is given the most
+                    recent model for that pid will be loaded.
+
+                Args:
+                    pid (Optional[Union[int, str]], optional): Prediction job id. Defaults to None.
+                    model_id (Optional[str], optional): Model id. Defaults to None. Used when MLflow didn't work.
+
+                Raises:
+                    AttributeError: when there is no experiment with pid in MLflow
+                    KeyError: when there is no model in MLflow
+
+                Returns:
+                    RegressorMixin: Loaded model
+                """
+        try:
+            client = MlflowClient()
+            experiment_id = client.get_experiment_by_name(str(pid)).experiment_id
+            # return the latest run of the model
+            latest_run = mlflow.search_runs(experiment_id,
+                                            max_results=1,
+                                            ).iloc[0]
+            loaded_model = mlflow.sklearn.load_model(latest_run.artifact_uri)
+            # Add model age to model object
+            loaded_model.age = self._determine_model_age_from_MLflow_run(latest_run)
+            loaded_model.path = os.path.join(latest_run.artifact_uri, "model")
+            self.logger.info("Model successfully loaded with MLflow")
+            return loaded_model
+        # AttributeError will occur when there is no experiment with pid in MLflow
+        except AttributeError:
+            return self.load_model_no_mlflow(pid, model_id)
+        # KeyError will occur when there is no model in MLflow
+        except KeyError:
+            return self.load_model_no_mlflow(pid, model_id)
+
+    def load_model_no_mlflow(
+            self, pid: Optional[Union[int, str]] = None, model_id: Optional[str] = None
     ) -> RegressorMixin:
         """Load sklearn compatible model from persistent storage.
 
@@ -107,6 +202,7 @@ class PersistentStorageSerializer(AbstractSerializer):
         Returns:
             RegressorMixin: Loaded model
         """
+        self.logger.warning("Couldn't load with MLflow, trying another way", pid=pid)
         if pid is None and model_id is None:
             raise ValueError("Need to supply either a pid or a model_id")
 
@@ -199,8 +295,17 @@ class PersistentStorageSerializer(AbstractSerializer):
 
         return model_age_days
 
+    def _determine_model_age_from_MLflow_run(self, run):
+
+        model_datetime = run.end_time.to_pydatetime()
+        model_datetime = model_datetime.replace(tzinfo=None)
+        model_age_days = (datetime.utcnow() - model_datetime).days
+
+        return model_age_days
+
+
     def find_model_folders(
-        self, pid: Union[int, str], ascending: Optional[bool] = False
+            self, pid: Union[int, str], ascending: Optional[bool] = False
     ) -> List[Path]:
         pid_model_folder = Path(self.trained_models_folder) / f"{pid}"
 
@@ -227,10 +332,10 @@ class PersistentStorageSerializer(AbstractSerializer):
         return model_folders
 
     def find_model_paths(
-        self,
-        pid: Union[int, str],
-        limit: Optional[int] = 1,
-        ascending: Optional[bool] = False,
+            self,
+            pid: Union[int, str],
+            limit: Optional[int] = 1,
+            ascending: Optional[bool] = False,
     ) -> List[Path]:
         model_paths = [
             f / MODEL_FILENAME for f in self.find_model_folders(pid, ascending)

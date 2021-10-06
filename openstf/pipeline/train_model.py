@@ -7,6 +7,7 @@ from typing import List, Tuple, Union
 
 import pandas as pd
 import structlog
+from mlflow.models.signature import infer_signature
 from sklearn.base import RegressorMixin
 
 from openstf.exceptions import (
@@ -20,6 +21,7 @@ from openstf.model.model_creator import ModelCreator
 from openstf.model.serializer import PersistentStorageSerializer
 from openstf.model.standard_deviation_generator import StandardDeviationGenerator
 from openstf.model_selection.model_selection import split_data_train_validation_test
+from openstf.pipeline.utils import get_metrics
 from openstf.validation import validation
 
 DEFAULT_TRAIN_HORIZONS: List[float] = [0.25, 47.0]
@@ -98,7 +100,7 @@ def train_model_pipeline(
         raise InputDataWrongColumnOrderError(IDWCOE)
 
     # Save model
-    serializer.save_model(model, pid=pj["id"])
+    serializer.save_model(model, report, pj=pj)
 
     # Save reports/figures
     report.save_figures(save_path=save_figures_folder)
@@ -145,7 +147,7 @@ def train_model_pipeline_core(
     logger = structlog.get_logger(__name__)
 
     # Call common pipeline
-    model, train_data, validation_data, test_data = train_pipeline_common(
+    model, report, train_data, validation_data, test_data = train_pipeline_common(
         pj, input_data, horizons
     )
 
@@ -176,9 +178,6 @@ def train_model_pipeline_core(
             )
         except ValueError as e:
             logger.info("Could not compare to old model", pid=pj["id"], exc_info=e)
-
-    # Report about the training procces
-    report = Reporter(pj, train_data, validation_data, test_data).generate_report(model)
 
     return model, report
 
@@ -277,7 +276,14 @@ def train_pipeline_common(
     model = StandardDeviationGenerator(
         validation_data
     ).generate_standard_deviation_data(model)
-    return model, train_data, validation_data, test_data
+
+    # Report about the training procces
+    report = Reporter(pj, train_data, validation_data, test_data).generate_report(model)
+
+    pred_y = model.predict(validation_x)
+    report.signature = infer_signature(train_x, train_y)
+    report.metrics = get_metrics(pred_y, validation_y)
+    return model, report, train_data, validation_data, test_data
 
 
 def get_model_age(trained_models_folder: str, pid: int) -> float:

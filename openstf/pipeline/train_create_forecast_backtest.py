@@ -39,7 +39,7 @@ def train_model_and_forecast_back_test(
         training_horizons = DEFAULT_TRAIN_HORIZONS
 
     # Call common training pipeline
-    model, train_data, validation_data, test_data = train_pipeline_common(
+    model, report, train_data, validation_data, test_data = train_pipeline_common(
         pj, input_data, training_horizons, test_fraction=0.15, backtest=True
     )
 
