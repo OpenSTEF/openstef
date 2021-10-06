@@ -23,6 +23,7 @@ from openstf.model.standard_deviation_generator import StandardDeviationGenerato
 from openstf.model_selection.model_selection import split_data_train_validation_test
 from openstf.pipeline.utils import get_metrics
 from openstf.validation import validation
+from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 DEFAULT_TRAIN_HORIZONS: List[float] = [0.25, 47.0]
 MAXIMUM_MODEL_AGE: int = 7
@@ -32,7 +33,7 @@ PENALTY_FACTOR_OLD_MODEL: float = 1.2
 
 
 def train_model_pipeline(
-    pj: dict,
+    pj: Union[dict, PredictionJobDataClass],
     input_data: pd.DataFrame,
     check_old_model_age: bool,
     trained_models_folder: Union[str, Path],
@@ -44,7 +45,7 @@ def train_model_pipeline(
         "feature_names"
 
     Args:
-        pj (dict): Prediction job
+        pj (Union[dict, PredictionJobDataClass]): Prediction job
         input_data (pd.DataFrame): Raw training input data
         check_old_model_age (bool): Check if training should be skipped because the model is too young
         trained_models_folder (Path): Path where trained models are stored
@@ -107,7 +108,7 @@ def train_model_pipeline(
 
 
 def train_model_pipeline_core(
-    pj: dict,
+    pj: Union[dict, PredictionJobDataClass],
     input_data: pd.DataFrame,
     old_model: RegressorMixin = None,
     horizons: List[float] = None,
@@ -127,7 +128,7 @@ def train_model_pipeline_core(
         "feature_names"      List of features to train model on or None to use all features
 
     Args:
-        pj (dict): Prediction job
+        pj (Union[dict, PredictionJobDataClass]): Prediction job
         input_data (pd.DataFrame): Input data
         old_model (RegressorMixin, optional): Old model to compare to. Defaults to None.
         horizons (List[float]): horizons to train on in hours.
@@ -183,7 +184,7 @@ def train_model_pipeline_core(
 
 
 def train_pipeline_common(
-    pj: dict,
+    pj: Union[dict, PredictionJobDataClass],
     input_data: pd.DataFrame,
     horizons: List[float],
     test_fraction: float = 0.0,
@@ -192,7 +193,7 @@ def train_pipeline_common(
     """Common pipeline shared with operational training and backtest training
 
     Args:
-        pj (dict): Prediction job
+        pj (Union[dict, PredictionJobDataClass]): Prediction job
         input_data (pd.DataFrame): Input data
         horizons (List[float]): horizons to train on in hours.
 

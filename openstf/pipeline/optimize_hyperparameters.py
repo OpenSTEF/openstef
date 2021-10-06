@@ -1,25 +1,25 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-from typing import List
+from typing import List, Union
 
 import optuna
 import pandas as pd
 import structlog
 
-
-from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
 from openstf.exceptions import (
     InputDataInsufficientError,
     InputDataWrongColumnOrderError,
 )
-
+from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
 from openstf.model.model_creator import ModelCreator
 from openstf.model.objective_creator import ObjectiveCreator
 from openstf.validation import validation
 
 # This is required to disable the default optuna logger and pass the logs to our own
 # structlog logger
+from openstf_dbc.services.prediction_job import PredictionJobDataClass
+
 optuna.logging.enable_propagation()  # Propagate logs to the root logger.
 optuna.logging.disable_default_handler()  # Stop showing logs in sys.stderr.
 
@@ -32,7 +32,7 @@ TRAIN_HORIZONS: List[float] = [0.25, 24.0]
 
 
 def optimize_hyperparameters_pipeline(
-    pj: dict,
+    pj: Union[dict, PredictionJobDataClass],
     input_data: pd.DataFrame,
     horizons: List[float] = TRAIN_HORIZONS,
     n_trials: int = N_TRIALS,
@@ -42,7 +42,7 @@ def optimize_hyperparameters_pipeline(
     Expected prediction job key's: "name", "model"
 
     Args:
-        pj (dict): Prediction job
+        pj (Union[dict, PredictionJobDataClass]): Prediction job
         input_data (pd.DataFrame): Raw training input data
         horizons (List[float]): horizons for feature engineering.
         n_trials (int, optional): The number of trials. Defaults to N_TRIALS.

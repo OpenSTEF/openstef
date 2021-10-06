@@ -19,10 +19,11 @@ from openstf.postprocessing.postprocessing import (
     add_prediction_job_properties_to_forecast,
 )
 from openstf.validation import validation
+from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 
 def create_forecast_pipeline(
-    pj: dict, input_data: pd.DataFrame, trained_models_folder: Union[str, Path]
+    pj: Union[dict, PredictionJobDataClass], input_data: pd.DataFrame, trained_models_folder: Union[str, Path]
 ) -> pd.DataFrame:
     """Create forecast pipeline
 
@@ -32,7 +33,7 @@ def create_forecast_pipeline(
     Expected prediction job keys: "id",
 
     Args:
-        pj (dict): Prediction job
+        pj (Union[dict, PredictionJobDataClass]): Prediction job
         input_data (pd.DataFrame): Training input data (without features)
         trained_models_folder (Path): Path where trained models are stored
 
@@ -50,7 +51,7 @@ def create_forecast_pipeline(
 
 
 def create_forecast_pipeline_core(
-    pj: dict, input_data: pd.DataFrame, model: RegressorMixin
+    pj: Union[dict, PredictionJobDataClass], input_data: pd.DataFrame, model: RegressorMixin
 ) -> pd.DataFrame:
     """Create forecast pipeline (core)
 
@@ -61,7 +62,7 @@ def create_forecast_pipeline_core(
         "name", "model_type_group", "quantiles"
 
     Args:
-        pj (dict): Prediction job.
+        pj (Union[dict, PredictionJobDataClass]): Prediction job.
         input_data (pandas.DataFrame): Iput data for the prediction.
         model (RegressorMixin): Model to use for this prediction.
 

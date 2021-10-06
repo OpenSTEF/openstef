@@ -119,6 +119,7 @@ class PersistentStorageSerializer(AbstractSerializer):
         mlflow.set_experiment(str(pid))
         experiment_id = client.get_experiment_by_name(str(pid)).experiment_id
         # return the latest run of the model
+        #TODO: filter on phase tag = training
         pref_run = mlflow.search_runs(experiment_id, filter_string=f"tag.mlflow.runName = '{pj['model']}'",
                                       max_results=1, )
         try:
@@ -167,6 +168,7 @@ class PersistentStorageSerializer(AbstractSerializer):
             client = MlflowClient()
             experiment_id = client.get_experiment_by_name(str(pid)).experiment_id
             # return the latest run of the model
+            # TODO: filter on phase tag = training
             latest_run = mlflow.search_runs(experiment_id,
                                             max_results=1,
                                             ).iloc[0]

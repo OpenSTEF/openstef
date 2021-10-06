@@ -24,6 +24,7 @@ Example:
 """
 from datetime import datetime, timedelta
 from pathlib import Path
+from typing import Union
 
 from openstf.enums import MLModelType
 from openstf.pipeline.train_model import (
@@ -33,13 +34,14 @@ from openstf.pipeline.train_model import (
 )
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
+from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 TRAINING_PERIOD_DAYS: int = 120
 DEFAULT_CHECK_MODEL_AGE: bool = True
 
 
 def train_model_task(
-    pj: dict, context: TaskContext, check_old_model_age: bool = DEFAULT_CHECK_MODEL_AGE
+    pj: Union[dict, PredictionJobDataClass], context: TaskContext, check_old_model_age: bool = DEFAULT_CHECK_MODEL_AGE
 ) -> None:
     """Train model task.
 
@@ -49,7 +51,7 @@ def train_model_task(
     Expected prediction job keys:  "id", "model", "lat", "lon", "name"
 
     Args:
-        pj (dict): Prediction job
+        pj (Union[dict, PredictionJobDataClass]): Prediction job
         context (TaskContext): Contect object that holds a config manager and a
             database connection.
         check_old_model_age (bool): check if model is too young to be retrained

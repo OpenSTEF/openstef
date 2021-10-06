@@ -18,25 +18,27 @@ Example:
 """
 from datetime import datetime, timedelta
 from pathlib import Path
+from typing import Union
 
 from openstf.enums import MLModelType
 from openstf.monitoring import teams
 from openstf.pipeline.optimize_hyperparameters import optimize_hyperparameters_pipeline
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
+from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 MAX_AGE_HYPER_PARAMS_DAYS = 31
 DEFAULT_TRAINING_PERIOD_DAYS = 91
 
 
-def optimize_hyperparameters_task(pj: dict, context: TaskContext) -> None:
+def optimize_hyperparameters_task(pj: Union[dict, PredictionJobDataClass], context: TaskContext) -> None:
     """Optimize hyperparameters task.
 
     Expected prediction job keys: "id", "model", "lat", "lon", "name", "description"
     Only used for logging: "name", "description"
 
     Args:
-        pj (dict): Prediction job
+        pj (Union[dict, PredictionJobDataClass]): Prediction job
         context (TaskContext): Task context
     """
 
