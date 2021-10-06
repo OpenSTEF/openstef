@@ -100,7 +100,7 @@ def train_model_pipeline(
         raise InputDataWrongColumnOrderError(IDWCOE)
 
     # Save model
-    serializer.save_model(model, report, pj=pj)
+    serializer.save_model(model, pj=pj, report=report)
 
     # Save reports/figures
     report.save_figures(save_path=save_figures_folder)
