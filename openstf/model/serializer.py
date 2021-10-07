@@ -76,18 +76,18 @@ class PersistentStorageSerializer(AbstractSerializer):
         client = MlflowClient()
         mlflow.set_experiment(str(pid))
         experiment_id = client.get_experiment_by_name(str(pid)).experiment_id
-        # return the latest run of the model can be phase tag = training or hyperparameter tuning
-        pref_run = mlflow.search_runs(experiment_id,
-                                      filter_string=f"tags.mlflow.runName = '{model_type}'",
-                                      max_results=1, )
         try:
-            pref_run_id = str(pref_run["run_id"][0])
-        except KeyError:
+            # return the latest run of the model can be phase tag = training or hyperparameter tuning
+            prev_run = mlflow.search_runs(experiment_id,
+                                          filter_string=f"tags.mlflow.runName = '{model_type}'",
+                                          max_results=1, )
+            prev_run_id = str(prev_run["run_id"][0])
+        except LookupError:
             self.logger.info("No previous model found in MLflow")
-            pref_run_id = None
+            prev_run_id = None
         with mlflow.start_run(run_name=model_type):
             mlflow.set_tag("phase", "training")
-            mlflow.set_tag("Previous_version_id", pref_run_id)
+            mlflow.set_tag("Previous_version_id", prev_run_id)
             mlflow.set_tag("model_type", model_type)
             mlflow.set_tag("prediction_job", pid)
             mlflow.log_metrics(report.metrics)
@@ -97,6 +97,7 @@ class PersistentStorageSerializer(AbstractSerializer):
                 artifact_path="",
                 signature=report.signature,
             )
+            self.logger.info("Model saved with MLflow")
             mlflow.log_figure(report.feature_importance_figure,
                               f"{pid}_{model_type}_feature_importance.png")
             try:
@@ -125,10 +126,9 @@ class PersistentStorageSerializer(AbstractSerializer):
         try:
             client = MlflowClient()
             experiment_id = client.get_experiment_by_name(str(pid)).experiment_id
-            # return the latest run of the trained model
+            # return the latest run of the model
             latest_run = mlflow.search_runs(experiment_id,
                                             max_results=1,
-                                            filter_string="tags.phase = 'training'",
                                             ).iloc[0]
             loaded_model = mlflow.sklearn.load_model(latest_run.artifact_uri)
             # Add model age to model object
@@ -199,7 +199,7 @@ class PersistentStorageSerializer(AbstractSerializer):
             self.logger.error("Could not load most recent model!", exception=str(e))
             raise FileNotFoundError("Could not load model from the model file!")
 
-        # exctract model age
+        # extract model age
         model_age_in_days = float("inf")  # In case no model is loaded,
         # we still need to provide an age
         if loaded_model is not None:

@@ -21,7 +21,6 @@ from openstf.model.model_creator import ModelCreator
 from openstf.model.serializer import PersistentStorageSerializer
 from openstf.model.standard_deviation_generator import StandardDeviationGenerator
 from openstf.model_selection.model_selection import split_data_train_validation_test
-from openstf.pipeline.utils import get_metrics
 from openstf.validation import validation
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
@@ -283,7 +282,7 @@ def train_pipeline_common(
 
     pred_y = model.predict(validation_x)
     report.signature = infer_signature(train_x, train_y)
-    report.metrics = get_metrics(pred_y, validation_y)
+    report.get_metrics(pred_y, validation_y)
     return model, report, train_data, validation_data, test_data
 
 

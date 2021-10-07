@@ -6,12 +6,15 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, Union
 
+import numpy as np
 import pandas as pd
 import structlog
 from plotly.graph_objects import Figure
+from sklearn import metrics
 from sklearn.base import RegressorMixin
 
 from openstf.metrics import figure
+from openstf.metrics.metrics import bias, nsme, mae, r_mae, rmse
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 
@@ -20,6 +23,9 @@ class Report:
     feature_importance_figure: Figure
     data_series_figures: Dict[str, Figure]
     logger = structlog.get_logger("Report")
+
+    def __init__(self):
+        self.metrics = None
 
     def save_figures(self, save_path):
         save_path = Path(save_path)
@@ -31,11 +37,40 @@ class Report:
             fig.write_html(str(save_path / f"{key}.html"), auto_open=False)
         self.logger.info(f"Saved figures to {save_path}")
 
+    def get_metrics(self, y_pred: np.array, y_true: np.array) -> None:
+        """ Calculate the metrics for a prediction
+
+        Args:
+            y_pred: np.array
+            y_true: np.array
+
+        Returns:
+            dictionary: metrics for the prediction
+        """
+        bias_value = bias(y_true, y_pred)
+        nsme_value = nsme
+        mae_value = mae
+        r_mae_value = r_mae
+        rmse_value = rmse
+        explained_variance = metrics.explained_variance_score(y_true, y_pred)
+        mse = metrics.mean_squared_error(y_true, y_pred)
+        r2 = metrics.r2_score(y_true, y_pred)
+        self.metrics = {
+            "explained_variance": explained_variance,
+            "r2": r2,
+            "MAE": mae_value,
+            "R_MAE": r_mae_value,
+            "MSE": mse,
+            "RMSE": rmse_value,
+            "bias": bias_value,
+            "NSME": nsme_value,
+        }
+
 
 class Reporter:
     def __init__(
         self,
-        pj: Union[dict,PredictionJobDataClass] = None,
+        pj: Union[dict, PredictionJobDataClass] = None,
         train_data: pd.DataFrame = None,
         validation_data: pd.DataFrame = None,
         test_data: pd.DataFrame = None,
@@ -44,10 +79,10 @@ class Reporter:
         """Initializes reporter
 
         Args:
-            pj:
-            train_data:
-            validation_data:
-            test_data:
+            pj: Union[dict, PredictionJobDataClass]
+            train_data: pd.DataFrame
+            validation_data: pd.DataFrame
+            test_data: pd.DataFrame
         """
         self.pj = pj
         self.horizons = train_data.horizon.unique()
