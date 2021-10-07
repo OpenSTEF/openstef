@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 from pathlib import Path
+from typing import Union
 
 import pandas as pd
 import structlog
@@ -17,6 +18,7 @@ from openstf.postprocessing.postprocessing import (
     add_components_base_case_forecast,
 )
 from openstf.validation import validation
+from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 MODEL_LOCATION = Path(".")
 BASECASE_HORIZON_MINUTES = 60 * 24 * 14  # 14 days ahead
@@ -24,7 +26,7 @@ BASECASE_RESOLUTION_MINUTES = 15
 
 
 def create_basecase_forecast_pipeline(
-    pj: dict,
+    pj: Union[dict, PredictionJobDataClass],
     input_data: pd.DataFrame,
 ) -> pd.DataFrame:
     """Computes the base case forecast and confidence intervals for a given prediction job and input data.

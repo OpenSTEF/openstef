@@ -4,7 +4,7 @@
 import os
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict
+from typing import Dict, Union
 
 import pandas as pd
 import structlog
@@ -12,6 +12,7 @@ from plotly.graph_objects import Figure
 from sklearn.base import RegressorMixin
 
 from openstf.metrics import figure
+from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 
 @dataclass
@@ -34,7 +35,7 @@ class Report:
 class Reporter:
     def __init__(
         self,
-        pj: dict = None,
+        pj: Union[dict,PredictionJobDataClass] = None,
         train_data: pd.DataFrame = None,
         validation_data: pd.DataFrame = None,
         test_data: pd.DataFrame = None,
