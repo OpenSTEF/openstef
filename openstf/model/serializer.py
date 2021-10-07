@@ -76,9 +76,9 @@ class PersistentStorageSerializer(AbstractSerializer):
         client = MlflowClient()
         mlflow.set_experiment(str(pid))
         experiment_id = client.get_experiment_by_name(str(pid)).experiment_id
-        # return the latest run of the model
-        #TODO: filter on phase tag = training
-        pref_run = mlflow.search_runs(experiment_id, filter_string=f"tag.mlflow.runName = '{pj['model']}'",
+        # return the latest run of the model with phase tag = training
+        pref_run = mlflow.search_runs(experiment_id,
+                                      filter_string=f"tags.phase = 'training' AND tags.mlflow.runName = '{model_type}'",
                                       max_results=1, )
         try:
             pref_run_id = str(pref_run["run_id"][0])
@@ -125,10 +125,10 @@ class PersistentStorageSerializer(AbstractSerializer):
         try:
             client = MlflowClient()
             experiment_id = client.get_experiment_by_name(str(pid)).experiment_id
-            # return the latest run of the model
-            # TODO: filter on phase tag = training
+            # return the latest run of the trained model
             latest_run = mlflow.search_runs(experiment_id,
                                             max_results=1,
+                                            ilter_string="tags.phase = 'training'",
                                             ).iloc[0]
             loaded_model = mlflow.sklearn.load_model(latest_run.artifact_uri)
             # Add model age to model object
