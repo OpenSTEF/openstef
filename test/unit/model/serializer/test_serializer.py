@@ -80,3 +80,16 @@ class TestAbstractModelSerializer(BaseTestCase):
                 report = report_mock
             )
             self.assertRegex(captured.records[0].getMessage(), "No previous model found in MLflow")
+
+    def test_determine_model_age_from_MLflow_run(self):
+        ts = pd.Timestamp('2021-01-25 00:00:00')
+        run = pd.DataFrame({'end_time': [ts, ], 'col1':[1,]}).iloc[0]
+        days = PersistentStorageSerializer("")._determine_model_age_from_MLflow_run(run)
+        self.assertGreater(days, 7)
+
+    def test_determine_model_age_from_MLflow_run_exception(self):
+        ts = pd.Timestamp('2021-01-25 00:00:00')
+        run = pd.DataFrame({'end_time': [ts, ], 'col1':[1,]})
+        with self.assertLogs("PersistentStorageSerializer", level="WARNING") as captured:
+            days = PersistentStorageSerializer("")._determine_model_age_from_MLflow_run(run)
+        self.assertRegex(captured.records[0].getMessage(), "Could not get model age. Returning infinite age!")

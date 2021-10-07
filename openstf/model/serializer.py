@@ -99,13 +99,14 @@ class PersistentStorageSerializer(AbstractSerializer):
                 signature=report.signature,
             )
             self.logger.info("Model saved with MLflow")
-            mlflow.log_figure(report.feature_importance_figure,
-                              f"{pid}_{model_type}_feature_importance.png")
             try:
-                mlflow.log_figure(report.data_series_figures,
+                mlflow.log_figure(report.feature_importance_figure,
+                                  f"{pid}_{model_type}_feature_importance.png")
+
+                mlflow.log_artifacts(report.data_series_figures,
                                   f"{pid}_{model_type}_data_series.png")
             except Exception:
-                self.logger.warning("Couldn't log data series figure")
+                self.logger.warning("Couldn't log figures")
 
     def load_model(self, pid: Optional[Union[int, str]] = None, model_id: Optional[str] = None) -> RegressorMixin:
         """Load sklearn compatible model from persistent storage.
@@ -255,11 +256,25 @@ class PersistentStorageSerializer(AbstractSerializer):
         return model_age_days
 
     def _determine_model_age_from_MLflow_run(self, run):
+        """Determines how many days ago a model is trained from the mlflow run
 
-        model_datetime = run.end_time.to_pydatetime()
-        model_datetime = model_datetime.replace(tzinfo=None)
-        model_age_days = (datetime.utcnow() - model_datetime).days
+        Args:
+            run (mlfow run): run containing the information about the trained model
 
+        Returns:
+            model_age_days (int): age of the model
+        """
+        try:
+            model_datetime = run.end_time.to_pydatetime()
+            model_datetime = model_datetime.replace(tzinfo=None)
+            model_age_days = (datetime.utcnow() - model_datetime).days
+        except Exception as e:
+            self.logger.warning(
+                "Could not get model age. Returning infinite age!",
+                exception=e,
+                time=run.end_time,
+            )
+            return float("inf")  # Return fallback age
         return model_age_days
 
 
