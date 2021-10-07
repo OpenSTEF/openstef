@@ -53,48 +53,6 @@ class AbstractSerializer(ABC):
 
 
 class PersistentStorageSerializer(AbstractSerializer):
-    def save_model_old(
-            self,
-            model: RegressorMixin,
-            pid: Optional[Union[int, str]] = None,
-            model_id: Optional[str] = None,
-    ) -> str:
-        """Save sklearn compatible model to persistent storage.
-
-            Either a pid or a model_id should be given. If a pid is given the model_id
-            will be generated.
-
-        Args:
-            model: Trained sklearn compatible model object.
-            pid: Prediction job id. Defaults to None.
-            model_id: Model id. Defaults to None.
-
-        Returns:
-            str: Model id of the saved model.
-        """
-
-        if pid is None and model_id is None:
-            raise ValueError("Need to supply either a pid or a model_id")
-
-        if pid is not None and model_id is not None:
-            raise ValueError("Cannot supply both a pid and a model_id")
-
-        if pid is not None:
-            model_id = self.generate_model_id(pid)
-
-        model_folder = self.convert_model_id_into_model_folder(model_id)
-
-        # Create save path if necessary
-        model_folder.mkdir(parents=True, exist_ok=True)
-
-        model_path = model_folder / MODEL_FILENAME
-
-        # Save model
-        self.save_model_to_path(model_path, model)
-        self.logger.info(f"Saved model to {model_path}")
-
-        return model_id
-
     def save_model(
             self,
             model: RegressorMixin,
@@ -136,7 +94,7 @@ class PersistentStorageSerializer(AbstractSerializer):
             mlflow.log_params(model.get_params())
             mlflow.sklearn.log_model(
                 sk_model=model,
-                artifact_path="model",
+                artifact_path="",
                 signature=report.signature,
             )
             mlflow.log_figure(report.feature_importance_figure,
@@ -175,7 +133,8 @@ class PersistentStorageSerializer(AbstractSerializer):
             loaded_model = mlflow.sklearn.load_model(latest_run.artifact_uri)
             # Add model age to model object
             loaded_model.age = self._determine_model_age_from_MLflow_run(latest_run)
-            loaded_model.path = os.path.join(latest_run.artifact_uri, "model")
+            # can this path be a uri? containing file:/// before the path
+            loaded_model.path = latest_run.artifact_uri
             self.logger.info("Model successfully loaded with MLflow")
             return loaded_model
         # AttributeError will occur when there is no experiment with pid in MLflow
