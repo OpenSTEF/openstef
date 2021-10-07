@@ -282,7 +282,7 @@ def train_pipeline_common(
 
     pred_y = model.predict(validation_x)
     report.signature = infer_signature(train_x, train_y)
-    report.get_metrics(pred_y, validation_y)
+    report.metrics = report.get_metrics(pred_y, validation_y)
     return model, report, train_data, validation_data, test_data
 
 

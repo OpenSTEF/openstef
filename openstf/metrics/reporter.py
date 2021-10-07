@@ -17,15 +17,11 @@ from openstf.metrics import figure
 from openstf.metrics.metrics import bias, nsme, mae, r_mae, rmse
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
-
 @dataclass
 class Report:
     feature_importance_figure: Figure
     data_series_figures: Dict[str, Figure]
     logger = structlog.get_logger("Report")
-
-    def __init__(self):
-        self.metrics = None
 
     def save_figures(self, save_path):
         save_path = Path(save_path)
@@ -37,7 +33,8 @@ class Report:
             fig.write_html(str(save_path / f"{key}.html"), auto_open=False)
         self.logger.info(f"Saved figures to {save_path}")
 
-    def get_metrics(self, y_pred: np.array, y_true: np.array) -> None:
+    @staticmethod
+    def get_metrics(y_pred: np.array, y_true: np.array) -> None:
         """ Calculate the metrics for a prediction
 
         Args:
@@ -55,7 +52,7 @@ class Report:
         explained_variance = metrics.explained_variance_score(y_true, y_pred)
         mse = metrics.mean_squared_error(y_true, y_pred)
         r2 = metrics.r2_score(y_true, y_pred)
-        self.metrics = {
+        return {
             "explained_variance": explained_variance,
             "r2": r2,
             "MAE": mae_value,
@@ -69,13 +66,12 @@ class Report:
 
 class Reporter:
     def __init__(
-        self,
-        pj: Union[dict, PredictionJobDataClass] = None,
-        train_data: pd.DataFrame = None,
-        validation_data: pd.DataFrame = None,
-        test_data: pd.DataFrame = None,
+            self,
+            pj: Union[dict, PredictionJobDataClass] = None,
+            train_data: pd.DataFrame = None,
+            validation_data: pd.DataFrame = None,
+            test_data: pd.DataFrame = None,
     ) -> None:
-
         """Initializes reporter
 
         Args:
@@ -90,10 +86,9 @@ class Reporter:
         self.input_data_list = [train_data, validation_data, test_data]
 
     def generate_report(
-        self,
-        model: RegressorMixin,
+            self,
+            model: RegressorMixin,
     ) -> Report:
-
         data_series_figures = self._make_data_series_figures(model)
         feature_importance_figure = figure.plot_feature_importance(
             model.feature_importance_dataframe
@@ -107,7 +102,6 @@ class Reporter:
         return report
 
     def _make_data_series_figures(self, model: RegressorMixin) -> dict:
-
         # Make model predictions
         for data_set in self.input_data_list:
             # First ("load") and last ("horizon") are removed here

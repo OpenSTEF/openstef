@@ -11,6 +11,7 @@ import joblib
 import mlflow
 import pytz
 import structlog
+from mlflow.exceptions import MlflowException
 from mlflow.tracking import MlflowClient
 from sklearn.base import RegressorMixin
 
@@ -137,11 +138,8 @@ class PersistentStorageSerializer(AbstractSerializer):
             loaded_model.path = latest_run.artifact_uri
             self.logger.info("Model successfully loaded with MLflow")
             return loaded_model
-        # AttributeError will occur when there is no experiment with pid in MLflow
-        except AttributeError:
-            return self.load_model_no_mlflow(pid, model_id)
-        # KeyError will occur when there is no model in MLflow
-        except KeyError:
+        # Catch possible errors
+        except (AttributeError, KeyError, MlflowException):
             return self.load_model_no_mlflow(pid, model_id)
 
     def load_model_no_mlflow(
