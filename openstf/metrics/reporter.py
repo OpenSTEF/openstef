@@ -17,7 +17,9 @@ from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 @dataclass
 class Report:
-    def __init__(self, feature_importance_figure: Figure, data_series_figures: Dict[str, Figure]):
+    def __init__(
+        self, feature_importance_figure: Figure, data_series_figures: Dict[str, Figure]
+    ):
         self.feature_importance_figure = feature_importance_figure
         self.data_series_figures = data_series_figures
         self.metrics = None
@@ -25,7 +27,7 @@ class Report:
 
     @staticmethod
     def get_metrics(y_pred: np.array, y_true: np.array) -> dict:
-        """ Calculate the metrics for a prediction
+        """Calculate the metrics for a prediction
 
         Args:
             y_pred: np.array
@@ -56,11 +58,11 @@ class Report:
 
 class Reporter:
     def __init__(
-            self,
-            pj: Union[dict, PredictionJobDataClass] = None,
-            train_data: pd.DataFrame = None,
-            validation_data: pd.DataFrame = None,
-            test_data: pd.DataFrame = None,
+        self,
+        pj: Union[dict, PredictionJobDataClass] = None,
+        train_data: pd.DataFrame = None,
+        validation_data: pd.DataFrame = None,
+        test_data: pd.DataFrame = None,
     ) -> None:
         """Initializes reporter
 
@@ -76,8 +78,8 @@ class Reporter:
         self.input_data_list = [train_data, validation_data, test_data]
 
     def generate_report(
-            self,
-            model: RegressorMixin,
+        self,
+        model: RegressorMixin,
     ) -> Report:
         data_series_figures = self._make_data_series_figures(model)
         feature_importance_figure = figure.plot_feature_importance(

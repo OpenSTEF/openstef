@@ -54,8 +54,12 @@ class TestTrainModelPipeline(BaseTestCase):
     def test_train_model_pipeline_update_stored_model(self):
         """Test happy flow of the train model pipeline"""
 
-        train_model_pipeline(pj=self.pj, input_data=self.train_input, check_old_model_age=False,
-                             trained_models_folder="./test/trained_models")
+        train_model_pipeline(
+            pj=self.pj,
+            input_data=self.train_input,
+            check_old_model_age=False,
+            trained_models_folder="./test/trained_models",
+        )
 
     def test_train_model_pipeline_core_happy_flow(self):
         """Test happy flow of the train model pipeline
@@ -123,8 +127,12 @@ class TestTrainModelPipeline(BaseTestCase):
         report_mock = MagicMock()
         pipeline_mock.return_value = ("a", report_mock)
 
-        train_model_pipeline(pj=self.pj, input_data=self.train_input, check_old_model_age=True,
-                             trained_models_folder="TEST")
+        train_model_pipeline(
+            pj=self.pj,
+            input_data=self.train_input,
+            check_old_model_age=True,
+            trained_models_folder="TEST",
+        )
 
     @patch("openstf.pipeline.train_model.train_model_pipeline_core")
     @patch("openstf.pipeline.train_model.PersistentStorageSerializer")
@@ -140,8 +148,12 @@ class TestTrainModelPipeline(BaseTestCase):
         report_mock = MagicMock()
         pipeline_mock.return_value = ("a", report_mock)
 
-        train_model_pipeline(pj=self.pj, input_data=self.train_input, check_old_model_age=True,
-                             trained_models_folder="TEST")
+        train_model_pipeline(
+            pj=self.pj,
+            input_data=self.train_input,
+            check_old_model_age=True,
+            trained_models_folder="TEST",
+        )
         self.assertFalse(pipeline_mock.called)
 
     @patch("openstf.pipeline.train_model.validation")
@@ -152,8 +164,12 @@ class TestTrainModelPipeline(BaseTestCase):
         # This error is caught and then raised again and logged
         with self.assertLogs("openstf.pipeline.train_model", level="ERROR") as captured:
             with self.assertRaises(InputDataInsufficientError):
-                train_model_pipeline(pj=self.pj, input_data=self.train_input, check_old_model_age=True,
-                                     trained_models_folder="TEST")
+                train_model_pipeline(
+                    pj=self.pj,
+                    input_data=self.train_input,
+                    check_old_model_age=True,
+                    trained_models_folder="TEST",
+                )
 
         self.assertEqual(
             len(captured.records), 1
@@ -171,8 +187,12 @@ class TestTrainModelPipeline(BaseTestCase):
         # This error is caught and then raised again and logged
         with self.assertLogs("openstf.pipeline.train_model", level="ERROR") as captured:
             with self.assertRaises(InputDataWrongColumnOrderError):
-                train_model_pipeline(pj=self.pj, input_data=input_data, check_old_model_age=True,
-                                     trained_models_folder="TEST")
+                train_model_pipeline(
+                    pj=self.pj,
+                    input_data=input_data,
+                    check_old_model_age=True,
+                    trained_models_folder="TEST",
+                )
 
         self.assertEqual(
             len(captured.records), 1
@@ -193,8 +213,12 @@ class TestTrainModelPipeline(BaseTestCase):
 
         # This error is caught so we check if logging contains the error.
         with self.assertLogs("openstf.pipeline.train_model", level="ERROR") as captured:
-            train_model_pipeline(pj=self.pj, input_data=self.train_input, check_old_model_age=True,
-                                 trained_models_folder="TEST")
+            train_model_pipeline(
+                pj=self.pj,
+                input_data=self.train_input,
+                check_old_model_age=True,
+                trained_models_folder="TEST",
+            )
 
         self.assertEqual(
             len(captured.records), 1
@@ -216,8 +240,12 @@ class TestTrainModelPipeline(BaseTestCase):
         old_model_mock.score.return_value = 0.1
 
         with self.assertLogs("openstf.pipeline.train_model", level="INFO") as captured:
-            train_model_pipeline(pj=self.pj, input_data=self.train_input, check_old_model_age=True,
-                                 trained_models_folder="TEST")
+            train_model_pipeline(
+                pj=self.pj,
+                input_data=self.train_input,
+                check_old_model_age=True,
+                trained_models_folder="TEST",
+            )
 
         # search for the old model is better log
         self.assertRegex(
@@ -236,8 +264,12 @@ class TestTrainModelPipeline(BaseTestCase):
         old_model_mock.score.side_effect = ValueError()
 
         with self.assertLogs("openstf.pipeline.train_model", level="INFO") as captured:
-            train_model_pipeline(pj=self.pj, input_data=self.train_input, check_old_model_age=True,
-                                 trained_models_folder="TEST")
+            train_model_pipeline(
+                pj=self.pj,
+                input_data=self.train_input,
+                check_old_model_age=True,
+                trained_models_folder="TEST",
+            )
 
         # search for the old model is better log
         self.assertRegex(
@@ -258,8 +290,12 @@ class TestTrainModelPipeline(BaseTestCase):
         with self.assertLogs(
             "openstf.pipeline.train_model", level="WARNING"
         ) as captured:
-            train_model_pipeline(pj=self.pj, input_data=self.train_input, check_old_model_age=True,
-                                 trained_models_folder="TEST")
+            train_model_pipeline(
+                pj=self.pj,
+                input_data=self.train_input,
+                check_old_model_age=True,
+                trained_models_folder="TEST",
+            )
 
         # search for the old model is better log
         self.assertRegex(captured.records[0].getMessage(), "No old model found")

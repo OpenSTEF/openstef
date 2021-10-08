@@ -23,7 +23,9 @@ from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 
 def create_forecast_pipeline(
-    pj: Union[dict, PredictionJobDataClass], input_data: pd.DataFrame, trained_models_folder: Union[str, Path]
+    pj: Union[dict, PredictionJobDataClass],
+    input_data: pd.DataFrame,
+    trained_models_folder: Union[str, Path],
 ) -> pd.DataFrame:
     """Create forecast pipeline
 
@@ -51,7 +53,9 @@ def create_forecast_pipeline(
 
 
 def create_forecast_pipeline_core(
-    pj: Union[dict, PredictionJobDataClass], input_data: pd.DataFrame, model: RegressorMixin
+    pj: Union[dict, PredictionJobDataClass],
+    input_data: pd.DataFrame,
+    model: RegressorMixin,
 ) -> pd.DataFrame:
     """Create forecast pipeline (core)
 

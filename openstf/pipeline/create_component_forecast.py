@@ -10,7 +10,9 @@ import openstf.postprocessing.postprocessing as postprocessing
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 
-def create_components_forecast_pipeline(pj: Union[dict, PredictionJobDataClass], input_data, weather_data, split_coefs):
+def create_components_forecast_pipeline(
+    pj: Union[dict, PredictionJobDataClass], input_data, weather_data, split_coefs
+):
     """Pipeline for creating a component forecast
 
     Args:

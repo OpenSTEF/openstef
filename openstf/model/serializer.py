@@ -55,35 +55,37 @@ class AbstractSerializer(ABC):
 
 class PersistentStorageSerializer(AbstractSerializer):
     def save_model(
-            self,
-            model: RegressorMixin,
-            pj: Union[dict, PredictionJobDataClass],
-            report:  Report,
-            phase: str = "training"
+        self,
+        model: RegressorMixin,
+        pj: Union[dict, PredictionJobDataClass],
+        report: Report,
+        phase: str = "training",
     ):
         """Save sklearn compatible model to persistent storage with MLflow.
 
-                Either a pid or a model_id should be given. If a pid is given the model_id
-                will be generated.
+            Either a pid or a model_id should be given. If a pid is given the model_id
+            will be generated.
 
-            Args:
-                model: Trained sklearn compatible model object.
-                pj: Prediction job.
-                report: Report object.
-                phase: Where does the model come from, default is "training"
+        Args:
+            model: Trained sklearn compatible model object.
+            pj: Prediction job.
+            report: Report object.
+            phase: Where does the model come from, default is "training"
 
         """
         model_type = pj["model"]
-        pid = pj['id']
+        pid = pj["id"]
         mlflow.set_tracking_uri(self.mlflow_folder)
         client = MlflowClient()
         mlflow.set_experiment(str(pid))
         experiment_id = client.get_experiment_by_name(str(pid)).experiment_id
         try:
             # return the latest run of the model can be phase tag = training or hyperparameter tuning
-            prev_run = mlflow.search_runs(experiment_id,
-                                          filter_string=f"tags.mlflow.runName = '{model_type}'",
-                                          max_results=1, )
+            prev_run = mlflow.search_runs(
+                experiment_id,
+                filter_string=f"tags.mlflow.runName = '{model_type}'",
+                max_results=1,
+            )
             prev_run_id = str(prev_run["run_id"][0])
         except LookupError:
             self.logger.info("No previous model found in MLflow")
@@ -108,33 +110,38 @@ class PersistentStorageSerializer(AbstractSerializer):
                 mlflow.log_figure(fig, f"{key}.html")
             self.logger.info(f"logged figures to MLflow")
 
-    def load_model(self, pid: Optional[Union[int, str]] = None, model_id: Optional[str] = None) -> RegressorMixin:
+    def load_model(
+        self, pid: Optional[Union[int, str]] = None, model_id: Optional[str] = None
+    ) -> RegressorMixin:
         """Load sklearn compatible model from persistent storage.
 
-                    Either a pid or a model_id should be given. If a pid is given the most
-                    recent model for that pid will be loaded.
+            Either a pid or a model_id should be given. If a pid is given the most
+            recent model for that pid will be loaded.
 
-                Args:
-                    pid (Optional[Union[int, str]], optional): Prediction job id. Defaults to None.
-                    model_id (Optional[str], optional): Model id. Defaults to None. Used when MLflow didn't work.
+        Args:
+            pid (Optional[Union[int, str]], optional): Prediction job id. Defaults to None.
+            model_id (Optional[str], optional): Model id. Defaults to None. Used when MLflow didn't work.
 
-                Raises:
-                    AttributeError: when there is no experiment with pid in MLflow
-                    KeyError: when there is no model in MLflow
-                    OSError: When directory doesn't exist
-                    MlflowException: When MLflow is not able to log
+        Raises:
+            AttributeError: when there is no experiment with pid in MLflow
+            KeyError: when there is no model in MLflow
+            OSError: When directory doesn't exist
+            MlflowException: When MLflow is not able to log
 
-                Returns:
-                    RegressorMixin: Loaded model
-                """
+        Returns:
+            RegressorMixin: Loaded model
+        """
         try:
             client = MlflowClient()
             experiment_id = client.get_experiment_by_name(str(pid)).experiment_id
             # return the latest run of the model
-            latest_run = mlflow.search_runs(experiment_id,
-                                            max_results=1,
-                                            ).iloc[0]
-            loaded_model = mlflow.sklearn.load_model(os.path.join(latest_run.artifact_uri, "model/"))
+            latest_run = mlflow.search_runs(
+                experiment_id,
+                max_results=1,
+            ).iloc[0]
+            loaded_model = mlflow.sklearn.load_model(
+                os.path.join(latest_run.artifact_uri, "model/")
+            )
             # Add model age to model object
             loaded_model.age = self._determine_model_age_from_MLflow_run(latest_run)
             # can this path be a uri? containing file:/// before the path
@@ -143,11 +150,13 @@ class PersistentStorageSerializer(AbstractSerializer):
             return loaded_model
         # Catch possible errors
         except (AttributeError, KeyError, MlflowException, OSError) as e:
-            self.logger.warning("Couldn't load with MLflow, trying the old way", pid=pid, error=e)
+            self.logger.warning(
+                "Couldn't load with MLflow, trying the old way", pid=pid, error=e
+            )
             return self.load_model_no_mlflow(pid, model_id)
 
     def load_model_no_mlflow(
-            self, pid: Optional[Union[int, str]] = None, model_id: Optional[str] = None
+        self, pid: Optional[Union[int, str]] = None, model_id: Optional[str] = None
     ) -> RegressorMixin:
         """Load sklearn compatible model from persistent storage.
 
@@ -282,7 +291,7 @@ class PersistentStorageSerializer(AbstractSerializer):
         return model_age_days
 
     def find_model_folders(
-            self, pid: Union[int, str], ascending: Optional[bool] = False
+        self, pid: Union[int, str], ascending: Optional[bool] = False
     ) -> List[Path]:
         pid_model_folder = Path(self.trained_models_folder) / f"{pid}"
 
@@ -309,10 +318,10 @@ class PersistentStorageSerializer(AbstractSerializer):
         return model_folders
 
     def find_model_paths(
-            self,
-            pid: Union[int, str],
-            limit: Optional[int] = 1,
-            ascending: Optional[bool] = False,
+        self,
+        pid: Union[int, str],
+        limit: Optional[int] = 1,
+        ascending: Optional[bool] = False,
     ) -> List[Path]:
         model_paths = [
             f / MODEL_FILENAME for f in self.find_model_folders(pid, ascending)

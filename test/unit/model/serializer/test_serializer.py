@@ -39,8 +39,15 @@ class TestAbstractModelSerializer(BaseTestCase):
     @patch("mlflow.log_metrics")
     @patch("mlflow.set_tag")
     @patch("mlflow.search_runs")
-    def test_save_model(self, mock_search, mock_set_tag, mock_log_metrics, mock_log_params, mock_log_figure,
-                                    mock_log_model, ):
+    def test_save_model(
+        self,
+        mock_search,
+        mock_set_tag,
+        mock_log_metrics,
+        mock_log_params,
+        mock_log_figure,
+        mock_log_model,
+    ):
 
         model_type = "xgb"
         model = ModelCreator.create_model(model_type)
@@ -48,8 +55,12 @@ class TestAbstractModelSerializer(BaseTestCase):
         report_mock = MagicMock()
         report_mock.get_metrics.return_value = {"mae", 0.2}
         with self.assertLogs("PersistentStorageSerializer", level="INFO") as captured:
-            PersistentStorageSerializer("").save_model(model=model, pj=pj, report=report_mock)
-            self.assertRegex(captured.records[0].getMessage(), "Model saved with MLflow")
+            PersistentStorageSerializer("").save_model(
+                model=model, pj=pj, report=report_mock
+            )
+            self.assertRegex(
+                captured.records[0].getMessage(), "Model saved with MLflow"
+            )
 
     @patch("mlflow.sklearn.log_model")
     @patch("mlflow.log_figure")
@@ -57,28 +68,64 @@ class TestAbstractModelSerializer(BaseTestCase):
     @patch("mlflow.log_metrics")
     @patch("mlflow.set_tag")
     @patch("mlflow.search_runs")
-    def test_save_model_no_previous(self, mock_search, mock_set_tag, mock_log_metrics, mock_log_params, mock_log_figure,
-                                    mock_log_model, ):
+    def test_save_model_no_previous(
+        self,
+        mock_search,
+        mock_set_tag,
+        mock_log_metrics,
+        mock_log_params,
+        mock_log_figure,
+        mock_log_model,
+    ):
 
         model_type = "xgb"
         model = ModelCreator.create_model(model_type)
         pj = TestData.get_prediction_job(pid=307)
         report_mock = MagicMock()
         report_mock.get_metrics.return_value = {"mae", 0.2}
-        mock_search.return_value = pd.DataFrame(columns = ["run_id"])
+        mock_search.return_value = pd.DataFrame(columns=["run_id"])
         with self.assertLogs("PersistentStorageSerializer", level="INFO") as captured:
-            PersistentStorageSerializer("").save_model(model=model, pj=pj, report=report_mock)
-            self.assertRegex(captured.records[0].getMessage(), "No previous model found in MLflow")
+            PersistentStorageSerializer("").save_model(
+                model=model, pj=pj, report=report_mock
+            )
+            self.assertRegex(
+                captured.records[0].getMessage(), "No previous model found in MLflow"
+            )
 
     def test_determine_model_age_from_MLflow_run(self):
-        ts = pd.Timestamp('2021-01-25 00:00:00')
-        run = pd.DataFrame({'end_time': [ts, ], 'col1':[1,]}).iloc[0]
+        ts = pd.Timestamp("2021-01-25 00:00:00")
+        run = pd.DataFrame(
+            {
+                "end_time": [
+                    ts,
+                ],
+                "col1": [
+                    1,
+                ],
+            }
+        ).iloc[0]
         days = PersistentStorageSerializer("")._determine_model_age_from_MLflow_run(run)
         self.assertGreater(days, 7)
 
     def test_determine_model_age_from_MLflow_run_exception(self):
-        ts = pd.Timestamp('2021-01-25 00:00:00')
-        run = pd.DataFrame({'end_time': [ts, ], 'col1':[1,]})
-        with self.assertLogs("PersistentStorageSerializer", level="WARNING") as captured:
-            days = PersistentStorageSerializer("")._determine_model_age_from_MLflow_run(run)
-        self.assertRegex(captured.records[0].getMessage(), "Could not get model age. Returning infinite age!")
+        ts = pd.Timestamp("2021-01-25 00:00:00")
+        run = pd.DataFrame(
+            {
+                "end_time": [
+                    ts,
+                ],
+                "col1": [
+                    1,
+                ],
+            }
+        )
+        with self.assertLogs(
+            "PersistentStorageSerializer", level="WARNING"
+        ) as captured:
+            days = PersistentStorageSerializer("")._determine_model_age_from_MLflow_run(
+                run
+            )
+        self.assertRegex(
+            captured.records[0].getMessage(),
+            "Could not get model age. Returning infinite age!",
+        )
