@@ -1,7 +1,6 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-from openstf.model.regressors.linear import LinearRTEOpenstfRegressor
 from typing import Union
 
 from sklearn.base import RegressorMixin
