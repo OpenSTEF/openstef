@@ -12,7 +12,6 @@ from openstf.tasks.utils.predictionjobloop import (
     PredictionJobLoop,
     PredictionJobException,
 )
-
 # import project modules
 from openstf.tasks.utils.taskcontext import TaskContext
 from test.utils import BaseTestCase

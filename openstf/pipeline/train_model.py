@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 import logging
+import warnings
 from pathlib import Path
 from typing import List, Tuple, Union
 
@@ -31,13 +32,8 @@ DEFAULT_EARLY_STOPPING_ROUNDS: int = 10
 PENALTY_FACTOR_OLD_MODEL: float = 1.2
 
 
-def train_model_pipeline(
-    pj: Union[dict, PredictionJobDataClass],
-    input_data: pd.DataFrame,
-    check_old_model_age: bool,
-    trained_models_folder: Union[str, Path],
-    save_figures_folder: Union[str, Path],
-) -> None:
+def train_model_pipeline(pj: Union[dict, PredictionJobDataClass], input_data: pd.DataFrame, check_old_model_age: bool,
+                         trained_models_folder: Union[str, Path]) -> None:
     """Midle level pipeline that takes care of all persistent storage dependencies
 
     Expected prediction jobs keys: "id", "model", "hyper_params",
@@ -102,15 +98,12 @@ def train_model_pipeline(
     # Save model
     serializer.save_model(model, pj=pj, report=report)
 
-    # Save reports/figures
-    report.save_figures(save_path=save_figures_folder)
-
 
 def train_model_pipeline_core(
-    pj: Union[dict, PredictionJobDataClass],
-    input_data: pd.DataFrame,
-    old_model: RegressorMixin = None,
-    horizons: List[float] = None,
+        pj: Union[dict, PredictionJobDataClass],
+        input_data: pd.DataFrame,
+        old_model: RegressorMixin = None,
+        horizons: List[float] = None,
 ) -> Tuple[RegressorMixin, Report]:
     """Train model core pipeline.
     Trains a new model given a predction job, input data and compares it to an old model.
@@ -183,11 +176,11 @@ def train_model_pipeline_core(
 
 
 def train_pipeline_common(
-    pj: Union[dict, PredictionJobDataClass],
-    input_data: pd.DataFrame,
-    horizons: List[float],
-    test_fraction: float = 0.0,
-    backtest: bool = False,
+        pj: Union[dict, PredictionJobDataClass],
+        input_data: pd.DataFrame,
+        horizons: List[float],
+        test_fraction: float = 0.0,
+        backtest: bool = False,
 ) -> Tuple[RegressorMixin, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Common pipeline shared with operational training and backtest training
 
@@ -269,7 +262,7 @@ def train_pipeline_common(
         verbose=False,
     )
 
-    model.feature_importance_dataframe = model._set_feature_importance(train_x.columns)
+    model.feature_importance_dataframe = model.set_feature_importance(train_x.columns)
     logging.info("Fitted a new model, not yet stored")
 
     # Do confidence interval determination
@@ -281,7 +274,9 @@ def train_pipeline_common(
     report = Reporter(pj, train_data, validation_data, test_data).generate_report(model)
 
     pred_y = model.predict(validation_x)
-    report.signature = infer_signature(train_x, train_y)
+    # infer_signature always gives a warning what happens if NaN in training.
+    with warnings.catch_warnings():
+        report.signature = infer_signature(train_x, train_y)
     report.metrics = report.get_metrics(pred_y, validation_y)
     return model, report, train_data, validation_data, test_data
 

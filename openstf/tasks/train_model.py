@@ -103,13 +103,7 @@ def train_model_task(
     context.perf_meter.checkpoint("Retrieved timeseries input")
 
     # Excecute the model training pipeline
-    train_model_pipeline(
-        pj,
-        input_data,
-        check_old_model_age=False,  # Old model age is already checked
-        trained_models_folder=trained_models_folder,
-        save_figures_folder=save_figures_folder,
-    )
+    train_model_pipeline(pj, input_data, check_old_model_age=False, trained_models_folder=trained_models_folder)
 
     context.perf_meter.checkpoint("Model trained")
 

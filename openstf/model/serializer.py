@@ -30,7 +30,7 @@ class AbstractSerializer(ABC):
         Returns:
             object:
         """
-        self.mlflow_folder = os.path.join(trained_models_folder, "mlruns")
+        self.mlflow_folder = os.path.join(trained_models_folder, "mlruns/")
         self.logger = structlog.get_logger(self.__class__.__name__)
         self.trained_models_folder = trained_models_folder
 
@@ -59,6 +59,7 @@ class PersistentStorageSerializer(AbstractSerializer):
             model: RegressorMixin,
             pj: Union[dict, PredictionJobDataClass],
             report:  Report,
+            phase: str = "training"
     ):
         """Save sklearn compatible model to persistent storage with MLflow.
 
@@ -69,6 +70,7 @@ class PersistentStorageSerializer(AbstractSerializer):
                 model: Trained sklearn compatible model object.
                 pj: Prediction job.
                 report: Report object.
+                phase: Where does the model come from, default is "training"
 
         """
         model_type = pj["model"]
@@ -87,7 +89,7 @@ class PersistentStorageSerializer(AbstractSerializer):
             self.logger.info("No previous model found in MLflow")
             prev_run_id = None
         with mlflow.start_run(run_name=model_type):
-            mlflow.set_tag("phase", "training")
+            mlflow.set_tag("phase", phase)
             mlflow.set_tag("Previous_version_id", prev_run_id)
             mlflow.set_tag("model_type", model_type)
             mlflow.set_tag("prediction_job", pid)
@@ -95,18 +97,16 @@ class PersistentStorageSerializer(AbstractSerializer):
             mlflow.log_params(model.get_params())
             mlflow.sklearn.log_model(
                 sk_model=model,
-                artifact_path="",
+                artifact_path="model",
                 signature=report.signature,
             )
             self.logger.info("Model saved with MLflow")
-            try:
-                mlflow.log_figure(report.feature_importance_figure,
-                                  f"{pid}_{model_type}_feature_importance.png")
 
-                mlflow.log_artifacts(report.data_series_figures,
-                                  f"{pid}_{model_type}_data_series.png")
-            except Exception:
-                self.logger.warning("Couldn't log figures")
+            # log reports/figures in the artifact folder
+            mlflow.log_figure(report.feature_importance_figure, "weight_plot.html")
+            for key, fig in report.data_series_figures.items():
+                mlflow.log_figure(fig, f"{key}.html")
+            self.logger.info(f"logged figures to MLflow")
 
     def load_model(self, pid: Optional[Union[int, str]] = None, model_id: Optional[str] = None) -> RegressorMixin:
         """Load sklearn compatible model from persistent storage.
@@ -121,6 +121,8 @@ class PersistentStorageSerializer(AbstractSerializer):
                 Raises:
                     AttributeError: when there is no experiment with pid in MLflow
                     KeyError: when there is no model in MLflow
+                    OSError: When directory doesn't exist
+                    MlflowException: When MLflow is not able to log
 
                 Returns:
                     RegressorMixin: Loaded model
@@ -132,15 +134,16 @@ class PersistentStorageSerializer(AbstractSerializer):
             latest_run = mlflow.search_runs(experiment_id,
                                             max_results=1,
                                             ).iloc[0]
-            loaded_model = mlflow.sklearn.load_model(latest_run.artifact_uri)
+            loaded_model = mlflow.sklearn.load_model(os.path.join(latest_run.artifact_uri, "model/"))
             # Add model age to model object
             loaded_model.age = self._determine_model_age_from_MLflow_run(latest_run)
             # can this path be a uri? containing file:/// before the path
-            loaded_model.path = latest_run.artifact_uri
+            loaded_model.path = os.path.join(latest_run.artifact_uri, "model/")
             self.logger.info("Model successfully loaded with MLflow")
             return loaded_model
         # Catch possible errors
-        except (AttributeError, KeyError, MlflowException):
+        except (AttributeError, KeyError, MlflowException, OSError) as e:
+            self.logger.warning("Couldn't load with MLflow, trying the old way", pid=pid, error=e)
             return self.load_model_no_mlflow(pid, model_id)
 
     def load_model_no_mlflow(
@@ -162,7 +165,6 @@ class PersistentStorageSerializer(AbstractSerializer):
         Returns:
             RegressorMixin: Loaded model
         """
-        self.logger.warning("Couldn't load with MLflow, trying another way", pid=pid)
         if pid is None and model_id is None:
             raise ValueError("Need to supply either a pid or a model_id")
 
@@ -171,7 +173,7 @@ class PersistentStorageSerializer(AbstractSerializer):
 
         if pid is not None:
             model_path = self.find_most_recent_model_path(pid)
-        elif model_id is not None:
+        else:
             model_path = self.convert_model_id_into_model_path(model_id)
 
         if model_path is None:
@@ -186,7 +188,8 @@ class PersistentStorageSerializer(AbstractSerializer):
 
         return self.load_model_from_path(model_path)
 
-    def save_model_to_path(self, model_path, model):
+    @staticmethod
+    def save_model_to_path(model_path, model):
         joblib.dump(model, model_path)
 
     def load_model_from_path(self, model_path):
@@ -230,7 +233,7 @@ class PersistentStorageSerializer(AbstractSerializer):
         """Determines how many days ago a model is trained base on the folder name.
 
         Args:
-            model_location: pathlib.Path: Path to the model folder
+            model_path: pathlib.Path: Path to the model folder
 
         Returns: Number of days since training of the model
 
@@ -255,6 +258,7 @@ class PersistentStorageSerializer(AbstractSerializer):
 
         return model_age_days
 
+    # noinspection PyPep8Naming
     def _determine_model_age_from_MLflow_run(self, run):
         """Determines how many days ago a model is trained from the mlflow run
 
@@ -276,7 +280,6 @@ class PersistentStorageSerializer(AbstractSerializer):
             )
             return float("inf")  # Return fallback age
         return model_age_days
-
 
     def find_model_folders(
             self, pid: Union[int, str], ascending: Optional[bool] = False
@@ -355,7 +358,7 @@ class PersistentStorageSerializer(AbstractSerializer):
                 "<prediction_job_id>/<datetime>"
 
         Args:
-            trained_model_id ([type]): [description]
+            model_id ([type]): [description]
         """
         base_path = self.trained_models_folder
 
@@ -366,7 +369,8 @@ class PersistentStorageSerializer(AbstractSerializer):
     def convert_model_id_into_model_path(self, model_id):
         return self.convert_model_id_into_model_folder(model_id) / MODEL_FILENAME
 
-    def generate_model_id(self, pid: Union[int, str]):
+    @staticmethod
+    def generate_model_id(pid: Union[int, str]):
         now = datetime.now(pytz.utc).strftime(FOLDER_DATETIME_FORMAT)
         model_id = f"{pid}{MODEL_ID_SEP}{now}"
         return model_id

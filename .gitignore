@@ -19,6 +19,8 @@ ktprognoses.egg-info/
 tmp
 mlruns
 OTHER_TEST
+/test/reports/
+MagicMock/
 
 # default Python .gitignore template: https://raw.githubusercontent.com/github/gitignore/master/Python.gitignore
 
@@ -160,4 +162,4 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
-/test/reports/
+

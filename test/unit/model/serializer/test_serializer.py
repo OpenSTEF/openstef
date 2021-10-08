@@ -7,10 +7,7 @@ from pathlib import Path
 from unittest.mock import patch, MagicMock
 
 import pandas as pd
-from mlflow.models import infer_signature
 
-from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
-from openstf.metrics.reporter import Reporter
 from openstf.model.model_creator import ModelCreator
 from openstf.model.serializer import (
     PersistentStorageSerializer,
@@ -51,11 +48,7 @@ class TestAbstractModelSerializer(BaseTestCase):
         report_mock = MagicMock()
         report_mock.get_metrics.return_value = {"mae", 0.2}
         with self.assertLogs("PersistentStorageSerializer", level="INFO") as captured:
-            PersistentStorageSerializer("").save_model(
-                model = model,
-                pj = pj,
-                report = report_mock
-            )
+            PersistentStorageSerializer("").save_model(model=model, pj=pj, report=report_mock)
             self.assertRegex(captured.records[0].getMessage(), "Model saved with MLflow")
 
     @patch("mlflow.sklearn.log_model")
@@ -74,11 +67,7 @@ class TestAbstractModelSerializer(BaseTestCase):
         report_mock.get_metrics.return_value = {"mae", 0.2}
         mock_search.return_value = pd.DataFrame(columns = ["run_id"])
         with self.assertLogs("PersistentStorageSerializer", level="INFO") as captured:
-            PersistentStorageSerializer("").save_model(
-                model = model,
-                pj = pj,
-                report = report_mock
-            )
+            PersistentStorageSerializer("").save_model(model=model, pj=pj, report=report_mock)
             self.assertRegex(captured.records[0].getMessage(), "No previous model found in MLflow")
 
     def test_determine_model_age_from_MLflow_run(self):

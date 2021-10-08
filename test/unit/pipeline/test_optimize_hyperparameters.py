@@ -6,7 +6,6 @@ from unittest.mock import patch
 
 import pandas as pd
 
-
 from openstf.exceptions import (
     InputDataInsufficientError,
     InputDataWrongColumnOrderError,

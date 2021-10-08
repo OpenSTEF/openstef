@@ -15,7 +15,6 @@ from openstf.feature_engineering.feature_applicator import TrainFeatureApplicato
 from openstf.model.model_creator import ModelCreator
 from openstf.model.objective_creator import ObjectiveCreator
 from openstf.validation import validation
-
 # This is required to disable the default optuna logger and pass the logs to our own
 # structlog logger
 from openstf_dbc.services.prediction_job import PredictionJobDataClass

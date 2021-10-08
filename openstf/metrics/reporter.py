@@ -1,14 +1,11 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-import os
 from dataclasses import dataclass
-from pathlib import Path
 from typing import Dict, Union
 
 import numpy as np
 import pandas as pd
-import structlog
 from plotly.graph_objects import Figure
 from sklearn import metrics
 from sklearn.base import RegressorMixin
@@ -17,24 +14,17 @@ from openstf.metrics import figure
 from openstf.metrics.metrics import bias, nsme, mae, r_mae, rmse
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
+
 @dataclass
 class Report:
-    feature_importance_figure: Figure
-    data_series_figures: Dict[str, Figure]
-    logger = structlog.get_logger("Report")
-
-    def save_figures(self, save_path):
-        save_path = Path(save_path)
-        os.makedirs(save_path, exist_ok=True)
-
-        self.feature_importance_figure.write_html(str(save_path / "weight_plot.html"))
-
-        for key, fig in self.data_series_figures.items():
-            fig.write_html(str(save_path / f"{key}.html"), auto_open=False)
-        self.logger.info(f"Saved figures to {save_path}")
+    def __init__(self, feature_importance_figure: Figure, data_series_figures: Dict[str, Figure]):
+        self.feature_importance_figure = feature_importance_figure
+        self.data_series_figures = data_series_figures
+        self.metrics = None
+        self.signature = None
 
     @staticmethod
-    def get_metrics(y_pred: np.array, y_true: np.array) -> None:
+    def get_metrics(y_pred: np.array, y_true: np.array) -> dict:
         """ Calculate the metrics for a prediction
 
         Args:
