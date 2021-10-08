@@ -6,7 +6,7 @@ from typing import Tuple
 
 
 def generate_forecast_datetime_range(
-        resolution_minutes: int, horizon_minutes: int
+    resolution_minutes: int, horizon_minutes: int
 ) -> Tuple[datetime, datetime]:
     # get current date and time UTC
     datetime_utc = datetime.utcnow()
@@ -15,5 +15,3 @@ def generate_forecast_datetime_range(
     forecast_end = datetime_utc + timedelta(minutes=horizon_minutes)
 
     return forecast_start, forecast_end
-
-

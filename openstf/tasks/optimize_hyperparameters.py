@@ -31,7 +31,9 @@ MAX_AGE_HYPER_PARAMS_DAYS = 31
 DEFAULT_TRAINING_PERIOD_DAYS = 91
 
 
-def optimize_hyperparameters_task(pj: Union[dict, PredictionJobDataClass], context: TaskContext) -> None:
+def optimize_hyperparameters_task(
+    pj: Union[dict, PredictionJobDataClass], context: TaskContext
+) -> None:
     """Optimize hyperparameters task.
 
     Expected prediction job keys: "id", "model", "lat", "lon", "name", "description"

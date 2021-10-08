@@ -41,7 +41,9 @@ DEFAULT_CHECK_MODEL_AGE: bool = True
 
 
 def train_model_task(
-    pj: Union[dict, PredictionJobDataClass], context: TaskContext, check_old_model_age: bool = DEFAULT_CHECK_MODEL_AGE
+    pj: Union[dict, PredictionJobDataClass],
+    context: TaskContext,
+    check_old_model_age: bool = DEFAULT_CHECK_MODEL_AGE,
 ) -> None:
     """Train model task.
 
@@ -103,7 +105,12 @@ def train_model_task(
     context.perf_meter.checkpoint("Retrieved timeseries input")
 
     # Excecute the model training pipeline
-    train_model_pipeline(pj, input_data, check_old_model_age=False, trained_models_folder=trained_models_folder)
+    train_model_pipeline(
+        pj,
+        input_data,
+        check_old_model_age=False,
+        trained_models_folder=trained_models_folder,
+    )
 
     context.perf_meter.checkpoint("Model trained")
 

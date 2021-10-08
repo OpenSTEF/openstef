@@ -32,8 +32,12 @@ DEFAULT_EARLY_STOPPING_ROUNDS: int = 10
 PENALTY_FACTOR_OLD_MODEL: float = 1.2
 
 
-def train_model_pipeline(pj: Union[dict, PredictionJobDataClass], input_data: pd.DataFrame, check_old_model_age: bool,
-                         trained_models_folder: Union[str, Path]) -> None:
+def train_model_pipeline(
+    pj: Union[dict, PredictionJobDataClass],
+    input_data: pd.DataFrame,
+    check_old_model_age: bool,
+    trained_models_folder: Union[str, Path],
+) -> None:
     """Midle level pipeline that takes care of all persistent storage dependencies
 
     Expected prediction jobs keys: "id", "model", "hyper_params",
@@ -100,10 +104,10 @@ def train_model_pipeline(pj: Union[dict, PredictionJobDataClass], input_data: pd
 
 
 def train_model_pipeline_core(
-        pj: Union[dict, PredictionJobDataClass],
-        input_data: pd.DataFrame,
-        old_model: RegressorMixin = None,
-        horizons: List[float] = None,
+    pj: Union[dict, PredictionJobDataClass],
+    input_data: pd.DataFrame,
+    old_model: RegressorMixin = None,
+    horizons: List[float] = None,
 ) -> Tuple[RegressorMixin, Report]:
     """Train model core pipeline.
     Trains a new model given a predction job, input data and compares it to an old model.
@@ -176,11 +180,11 @@ def train_model_pipeline_core(
 
 
 def train_pipeline_common(
-        pj: Union[dict, PredictionJobDataClass],
-        input_data: pd.DataFrame,
-        horizons: List[float],
-        test_fraction: float = 0.0,
-        backtest: bool = False,
+    pj: Union[dict, PredictionJobDataClass],
+    input_data: pd.DataFrame,
+    horizons: List[float],
+    test_fraction: float = 0.0,
+    backtest: bool = False,
 ) -> Tuple[RegressorMixin, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Common pipeline shared with operational training and backtest training
 
