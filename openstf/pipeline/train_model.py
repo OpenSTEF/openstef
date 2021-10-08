@@ -44,7 +44,6 @@ def train_model_pipeline(pj: Union[dict, PredictionJobDataClass], input_data: pd
         input_data (pd.DataFrame): Raw training input data
         check_old_model_age (bool): Check if training should be skipped because the model is too young
         trained_models_folder (Path): Path where trained models are stored
-        save_figures_folder (Path): path were reports (mostly figures) about the training procces are stored
 
     Returns:
         None
