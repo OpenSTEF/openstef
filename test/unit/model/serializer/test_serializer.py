@@ -130,4 +130,3 @@ class TestAbstractModelSerializer(BaseTestCase):
             "Could not get model age. Returning infinite age!",
         )
         self.assertEqual(days, float("inf"))
-        
