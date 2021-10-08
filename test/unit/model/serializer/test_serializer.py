@@ -109,6 +109,7 @@ class TestAbstractModelSerializer(BaseTestCase):
 
     def test_determine_model_age_from_MLflow_run_exception(self):
         ts = pd.Timestamp("2021-01-25 00:00:00")
+        # Without .iloc it will not be able to get the age, resulting in a error
         run = pd.DataFrame(
             {
                 "end_time": [
