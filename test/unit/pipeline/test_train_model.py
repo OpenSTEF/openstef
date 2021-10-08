@@ -79,6 +79,9 @@ class TestTrainModelPipeline(BaseTestCase):
                 pj["model"] = model_type.value
                 # Use default parameters
                 pj["hyper_params"] = {}
+                # For Linear model we need to choose an imputation strategy to handle missing value
+                if model_type == MLModelType.LINEAR:
+                    pj["hyper_params"]["imputation_strategy"] = "mean"
                 model, report = train_model_pipeline_core(pj=pj, input_data=train_input)
 
                 # check if the model was fitted (raises NotFittedError when not fitted)
