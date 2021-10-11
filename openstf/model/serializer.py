@@ -115,7 +115,10 @@ class PersistentStorageSerializer(AbstractSerializer):
         try:
             experiment_id = self.setup_mlflow(pid)
             # return the latest run of the model, .iloc[0] because it returns a list with max_results number of runs
-            latest_run = mlflow.search_runs(experiment_id, max_results=1,).iloc[0]
+            latest_run = mlflow.search_runs(
+                experiment_id,
+                max_results=1,
+            ).iloc[0]
             loaded_model = mlflow.sklearn.load_model(
                 os.path.join(latest_run.artifact_uri, "model/")
             )
@@ -362,7 +365,7 @@ class PersistentStorageSerializer(AbstractSerializer):
         return model_id
 
     def setup_mlflow(self, pid: Union[int, str]) -> str:
-        """ Setup MLflow with a tracking uri and create a client
+        """Setup MLflow with a tracking uri and create a client
 
         Args:
             pid (int): Prediction job id
@@ -397,7 +400,9 @@ class PersistentStorageSerializer(AbstractSerializer):
         mlflow.log_params(model.get_params())
         # Log the model to the run
         mlflow.sklearn.log_model(
-            sk_model=model, artifact_path="model", signature=report.signature,
+            sk_model=model,
+            artifact_path="model",
+            signature=report.signature,
         )
         self.logger.info("Model saved with MLflow")
 
