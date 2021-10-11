@@ -6,6 +6,7 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 from pathlib import Path
 from typing import List, Optional, Union
+from urllib.parse import unquote, urlparse
 
 import joblib
 import mlflow
@@ -121,8 +122,10 @@ class PersistentStorageSerializer(AbstractSerializer):
             )
             # Add model age to model object
             loaded_model.age = self._determine_model_age_from_MLflow_run(latest_run)
-            # can this path be a uri? containing file:/// before the path
-            loaded_model.path = os.path.join(latest_run.artifact_uri, "model/")
+            # URI containing file:/// before the path
+            uri = os.path.join(latest_run.artifact_uri, "model/")
+            # Path without file:///
+            loaded_model.path = unquote(urlparse(uri).path)
             self.logger.info("Model successfully loaded with MLflow")
             return loaded_model
         # Catch possible errors
