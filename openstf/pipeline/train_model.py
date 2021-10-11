@@ -193,7 +193,7 @@ def train_pipeline_common(
         horizons (List[float]): horizons to train on in hours.
 
     Returns:
-        Tuple[RegressorMixin, pd.DataFrame, pd.DataFrame, pd.DataFrame]: Trained model,
+        Tuple[RegressorMixin, Report, pd.DataFrame, pd.DataFrame, pd.DataFrame]: Trained model, report
          train_data, validation_data and test_data
 
     Raises:
@@ -274,13 +274,14 @@ def train_pipeline_common(
     ).generate_standard_deviation_data(model)
 
     # Report about the training procces
-    report = Reporter(pj, train_data, validation_data, test_data).generate_report(model)
+    reporter = Reporter(pj, train_data, validation_data, test_data)
+    report = reporter.generate_report(model)
 
     pred_y = model.predict(validation_x)
     # infer_signature always gives a warning what happens if NaN in training.
     with warnings.catch_warnings():
         report.signature = infer_signature(train_x, train_y)
-    report.metrics = report.get_metrics(pred_y, validation_y)
+    report.metrics = reporter.get_metrics(pred_y, validation_y)
     return model, report, train_data, validation_data, test_data
 
 

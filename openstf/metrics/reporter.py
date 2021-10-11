@@ -25,36 +25,6 @@ class Report:
         self.metrics = None
         self.signature = None
 
-    @staticmethod
-    def get_metrics(y_pred: np.array, y_true: np.array) -> dict:
-        """Calculate the metrics for a prediction
-
-        Args:
-            y_pred: np.array
-            y_true: np.array
-
-        Returns:
-            dictionary: metrics for the prediction
-        """
-        bias_value = bias(y_true, y_pred)
-        nsme_value = nsme
-        mae_value = mae
-        r_mae_value = r_mae
-        rmse_value = rmse
-        explained_variance = metrics.explained_variance_score(y_true, y_pred)
-        mse = metrics.mean_squared_error(y_true, y_pred)
-        r2 = metrics.r2_score(y_true, y_pred)
-        return {
-            "explained_variance": explained_variance,
-            "r2": r2,
-            "MAE": mae_value,
-            "R_MAE": r_mae_value,
-            "MSE": mse,
-            "RMSE": rmse_value,
-            "bias": bias_value,
-            "NSME": nsme_value,
-        }
-
 
 class Reporter:
     def __init__(
@@ -77,10 +47,7 @@ class Reporter:
         self.predicted_data_list = []
         self.input_data_list = [train_data, validation_data, test_data]
 
-    def generate_report(
-        self,
-        model: RegressorMixin,
-    ) -> Report:
+    def generate_report(self, model: RegressorMixin,) -> Report:
         data_series_figures = self._make_data_series_figures(model)
         feature_importance_figure = figure.plot_feature_importance(
             model.feature_importance_dataframe
@@ -92,6 +59,36 @@ class Reporter:
         )
 
         return report
+
+    @staticmethod
+    def get_metrics(y_pred: np.array, y_true: np.array) -> dict:
+        """Calculate the metrics for a prediction
+
+        Args:
+            y_pred: np.array
+            y_true: np.array
+
+        Returns:
+            dictionary: metrics for the prediction
+        """
+        bias_value = bias(y_true, y_pred)
+        nsme_value = nsme(y_true, y_pred)
+        mae_value = mae(y_true, y_pred)
+        r_mae_value = r_mae(y_true, y_pred)
+        rmse_value = rmse(y_true, y_pred)
+        explained_variance = metrics.explained_variance_score(y_true, y_pred)
+        mse = metrics.mean_squared_error(y_true, y_pred)
+        r2 = metrics.r2_score(y_true, y_pred)
+        return {
+            "explained_variance": explained_variance,
+            "r2": r2,
+            "MAE": mae_value,
+            "R_MAE": r_mae_value,
+            "MSE": mse,
+            "RMSE": rmse_value,
+            "bias": bias_value,
+            "NSME": nsme_value,
+        }
 
     def _make_data_series_figures(self, model: RegressorMixin) -> dict:
         # Make model predictions

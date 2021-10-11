@@ -9,6 +9,7 @@ from typing import List, Optional, Union
 
 import joblib
 import mlflow
+import pandas as pd
 import pytz
 import structlog
 from mlflow.exceptions import MlflowException
@@ -33,6 +34,7 @@ class AbstractSerializer(ABC):
         self.mlflow_folder = os.path.join(trained_models_folder, "mlruns/")
         self.logger = structlog.get_logger(self.__class__.__name__)
         self.trained_models_folder = trained_models_folder
+        self.client = None
 
     @abstractmethod
     def save_model(self, model: RegressorMixin) -> None:
@@ -73,42 +75,21 @@ class PersistentStorageSerializer(AbstractSerializer):
             phase: Where does the model come from, default is "training"
 
         """
-        model_type = pj["model"]
-        pid = pj["id"]
-        mlflow.set_tracking_uri(self.mlflow_folder)
-        client = MlflowClient()
-        mlflow.set_experiment(str(pid))
-        experiment_id = client.get_experiment_by_name(str(pid)).experiment_id
+        experiment_id = self.setup_mlflow(pj["id"])
         try:
             # return the latest run of the model can be phase tag = training or hyperparameter tuning
             prev_run = mlflow.search_runs(
                 experiment_id,
-                filter_string=f"tags.mlflow.runName = '{model_type}'",
+                filter_string="tags.mlflow.runName = '{}'".format(pj["model"]),
                 max_results=1,
             )
             prev_run_id = str(prev_run["run_id"][0])
         except LookupError:
             self.logger.info("No previous model found in MLflow")
             prev_run_id = None
-        with mlflow.start_run(run_name=model_type):
-            mlflow.set_tag("phase", phase)
-            mlflow.set_tag("Previous_version_id", prev_run_id)
-            mlflow.set_tag("model_type", model_type)
-            mlflow.set_tag("prediction_job", pid)
-            mlflow.log_metrics(report.metrics)
-            mlflow.log_params(model.get_params())
-            mlflow.sklearn.log_model(
-                sk_model=model,
-                artifact_path="model",
-                signature=report.signature,
-            )
-            self.logger.info("Model saved with MLflow")
-
-            # log reports/figures in the artifact folder
-            mlflow.log_figure(report.feature_importance_figure, "weight_plot.html")
-            for key, fig in report.data_series_figures.items():
-                mlflow.log_figure(fig, f"{key}.html")
-            self.logger.info(f"logged figures to MLflow")
+        with mlflow.start_run(run_name=pj["model"]):
+            self._log_model_with_mlflow(pj, model, report, phase, prev_run_id)
+            self._log_figure_with_mlflow(report)
 
     def load_model(
         self, pid: Optional[Union[int, str]] = None, model_id: Optional[str] = None
@@ -132,13 +113,9 @@ class PersistentStorageSerializer(AbstractSerializer):
             RegressorMixin: Loaded model
         """
         try:
-            client = MlflowClient()
-            experiment_id = client.get_experiment_by_name(str(pid)).experiment_id
-            # return the latest run of the model
-            latest_run = mlflow.search_runs(
-                experiment_id,
-                max_results=1,
-            ).iloc[0]
+            experiment_id = self.setup_mlflow(pid)
+            # return the latest run of the model, .iloc[0] because it returns a list with max_results number of runs
+            latest_run = mlflow.search_runs(experiment_id, max_results=1,).iloc[0]
             loaded_model = mlflow.sklearn.load_model(
                 os.path.join(latest_run.artifact_uri, "model/")
             )
@@ -268,7 +245,7 @@ class PersistentStorageSerializer(AbstractSerializer):
         return model_age_days
 
     # noinspection PyPep8Naming
-    def _determine_model_age_from_MLflow_run(self, run):
+    def _determine_model_age_from_MLflow_run(self, run: pd.Series):
         """Determines how many days ago a model is trained from the mlflow run
 
         Args:
@@ -383,3 +360,50 @@ class PersistentStorageSerializer(AbstractSerializer):
         now = datetime.now(pytz.utc).strftime(FOLDER_DATETIME_FORMAT)
         model_id = f"{pid}{MODEL_ID_SEP}{now}"
         return model_id
+
+    def setup_mlflow(self, pid: Union[int, str]) -> str:
+        """ Setup MLflow with a tracking uri and create a client
+
+        Args:
+            pid (int): Prediction job id
+
+        Returns:
+            str: The experiment id of the prediction job
+
+        """
+        # Set a folder where MLflow will write to
+        mlflow.set_tracking_uri(self.mlflow_folder)
+        # Setup a client to get the experiment id
+        self.client = MlflowClient()
+        mlflow.set_experiment(str(pid))
+        return self.client.get_experiment_by_name(str(pid)).experiment_id
+
+    def _log_model_with_mlflow(
+        self,
+        pj: Union[dict, PredictionJobDataClass],
+        model: RegressorMixin,
+        report: Report,
+        phase: str,
+        prev_run_id: str,
+    ):
+        # Set tags to the run, can be used to filter on the UI
+        mlflow.set_tag("phase", phase)
+        mlflow.set_tag("Previous_version_id", prev_run_id)
+        mlflow.set_tag("model_type", pj["model"])
+        mlflow.set_tag("prediction_job", pj["id"])
+        # Add metrics to the run
+        mlflow.log_metrics(report.metrics)
+        # Add the used parameters to the run
+        mlflow.log_params(model.get_params())
+        # Log the model to the run
+        mlflow.sklearn.log_model(
+            sk_model=model, artifact_path="model", signature=report.signature,
+        )
+        self.logger.info("Model saved with MLflow")
+
+    def _log_figure_with_mlflow(self, report):
+        # log reports/figures in the artifact folder
+        mlflow.log_figure(report.feature_importance_figure, "weight_plot.html")
+        for key, fig in report.data_series_figures.items():
+            mlflow.log_figure(fig, f"{key}.html")
+        self.logger.info(f"logged figures to MLflow")
