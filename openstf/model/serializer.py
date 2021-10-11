@@ -126,7 +126,7 @@ class PersistentStorageSerializer(AbstractSerializer):
             self.logger.info("Model successfully loaded with MLflow")
             return loaded_model
         # Catch possible errors
-        except (AttributeError, KeyError, MlflowException, OSError) as e:
+        except (AttributeError, LookupError, MlflowException, OSError) as e:
             self.logger.warning(
                 "Couldn't load with MLflow, trying the old way", pid=pid, error=e
             )
