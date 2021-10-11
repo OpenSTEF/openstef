@@ -105,7 +105,7 @@ class PersistentStorageSerializer(AbstractSerializer):
 
         Raises:
             AttributeError: when there is no experiment with pid in MLflow
-            KeyError: when there is no model in MLflow
+            LookupError: when there is no model in MLflow
             OSError: When directory doesn't exist
             MlflowException: When MLflow is not able to log
 
