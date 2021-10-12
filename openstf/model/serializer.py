@@ -17,6 +17,7 @@ from mlflow.exceptions import MlflowException
 from mlflow.tracking import MlflowClient
 from sklearn.base import RegressorMixin
 
+from openstf.model.regressors.regressor import OpenstfRegressor
 from openstf.metrics.reporter import Report
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
@@ -38,7 +39,7 @@ class AbstractSerializer(ABC):
         self.client = None
 
     @abstractmethod
-    def save_model(self, model: RegressorMixin) -> None:
+    def save_model(self, model: OpenstfRegressor) -> None:
         """Persists trained sklearn compatible model
 
         Args:
@@ -47,7 +48,7 @@ class AbstractSerializer(ABC):
         self.logger.error("This is an abstract method!")
 
     @abstractmethod
-    def load_model(self) -> RegressorMixin:
+    def load_model(self) -> OpenstfRegressor:
         """Loads model that has been trained earlier
 
         Returns: Trained sklearn compatible model object
@@ -59,7 +60,7 @@ class AbstractSerializer(ABC):
 class PersistentStorageSerializer(AbstractSerializer):
     def save_model(
         self,
-        model: RegressorMixin,
+        model: OpenstfRegressor,
         pj: Union[dict, PredictionJobDataClass],
         report: Report,
         phase: str = "training",
@@ -94,7 +95,7 @@ class PersistentStorageSerializer(AbstractSerializer):
 
     def load_model(
         self, pid: Optional[Union[int, str]] = None, model_id: Optional[str] = None
-    ) -> RegressorMixin:
+    ) -> OpenstfRegressor:
         """Load sklearn compatible model from persistent storage.
 
             Either a pid or a model_id should be given. If a pid is given the most
@@ -111,7 +112,7 @@ class PersistentStorageSerializer(AbstractSerializer):
             MlflowException: When MLflow is not able to log
 
         Returns:
-            RegressorMixin: Loaded model
+            OpenstfRegressor: Loaded model
         """
         try:
             experiment_id = self.setup_mlflow(pid)
@@ -140,7 +141,7 @@ class PersistentStorageSerializer(AbstractSerializer):
 
     def load_model_no_mlflow(
         self, pid: Optional[Union[int, str]] = None, model_id: Optional[str] = None
-    ) -> RegressorMixin:
+    ) -> OpenstfRegressor:
         """Load sklearn compatible model from persistent storage.
 
             Either a pid or a model_id should be given. If a pid is given the most
@@ -155,7 +156,7 @@ class PersistentStorageSerializer(AbstractSerializer):
             FileNotFoundError: When the model does not exist
 
         Returns:
-            RegressorMixin: Loaded model
+            OpenstfRegressor: Loaded model
         """
         if pid is None and model_id is None:
             raise ValueError("Need to supply either a pid or a model_id")
@@ -181,10 +182,10 @@ class PersistentStorageSerializer(AbstractSerializer):
         return self.load_model_from_path(model_path)
 
     @staticmethod
-    def save_model_to_path(model_path, model):
+    def save_model_to_path(model_path: Union[Path, str], model: OpenstfRegressor):
         joblib.dump(model, model_path)
 
-    def load_model_from_path(self, model_path):
+    def load_model_from_path(self, model_path: Union[Path, str]) -> OpenstfRegressor:
         # Load most recent model from disk
         try:
             self.logger.debug(f"Trying to load model from: {model_path}")
@@ -251,7 +252,7 @@ class PersistentStorageSerializer(AbstractSerializer):
         return model_age_days
 
     # noinspection PyPep8Naming
-    def _determine_model_age_from_mlflow_run(self, run: pd.Series):
+    def _determine_model_age_from_mlflow_run(self, run: pd.Series) -> Union[int, float]:
         """Determines how many days ago a model is trained from the mlflow run
 
         Args:
@@ -337,13 +338,13 @@ class PersistentStorageSerializer(AbstractSerializer):
         # return the first model folder (ascending order)
         return model_folders[0]
 
-    def find_most_recent_model_path(self, pid: Union[int, str]):
+    def find_most_recent_model_path(self, pid: Union[int, str]) -> Union[Path, None]:
         model_folder = self.find_most_recent_model_folder(pid)
         if model_folder is None:
             return None
         return self.find_most_recent_model_folder(pid) / MODEL_FILENAME
 
-    def convert_model_id_into_model_folder(self, model_id: str):
+    def convert_model_id_into_model_folder(self, model_id: str) -> Path:
         """Convert a trained model id into a model folder.
 
             The model_id should use the following format:
@@ -362,7 +363,7 @@ class PersistentStorageSerializer(AbstractSerializer):
         return self.convert_model_id_into_model_folder(model_id) / MODEL_FILENAME
 
     @staticmethod
-    def generate_model_id(pid: Union[int, str]):
+    def generate_model_id(pid: Union[int, str]) -> str:
         now = datetime.now(pytz.utc).strftime(FOLDER_DATETIME_FORMAT)
         model_id = f"{pid}{MODEL_ID_SEP}{now}"
         return model_id
@@ -374,7 +375,7 @@ class PersistentStorageSerializer(AbstractSerializer):
             pid (int): Prediction job id
 
         Returns:
-            str: The experiment id of the prediction job
+            int: The experiment id of the prediction job
 
         """
         # Set a folder where MLflow will write to
@@ -387,11 +388,21 @@ class PersistentStorageSerializer(AbstractSerializer):
     def _log_model_with_mlflow(
         self,
         pj: Union[dict, PredictionJobDataClass],
-        model: RegressorMixin,
+        model: OpenstfRegressor,
         report: Report,
         phase: str,
         prev_run_id: str,
-    ):
+    ) -> None:
+        """ Log model with MLflow
+
+        Args:
+            pj (PredictionJobDataClass): Prediction job
+            model (OpenstfRegressor): Model to be logged
+            report (Report): report where the info is stored
+            phase (str): Origin of the model (Training or Hyperparameter_opt)
+            prev_run_id (str): Run-id of the previous run in this prediction job
+
+        """
         # Set tags to the run, can be used to filter on the UI
         mlflow.set_tag("phase", phase)
         mlflow.set_tag("Previous_version_id", prev_run_id)
@@ -409,7 +420,13 @@ class PersistentStorageSerializer(AbstractSerializer):
         )
         self.logger.info("Model saved with MLflow")
 
-    def _log_figure_with_mlflow(self, report):
+    def _log_figure_with_mlflow(self, report) -> None:
+        """ Log model with MLflow
+
+        Args:
+            report (Report): report where the info is stored
+
+        """
         # log reports/figures in the artifact folder
         mlflow.log_figure(report.feature_importance_figure, "weight_plot.html")
         for key, fig in report.data_series_figures.items():
