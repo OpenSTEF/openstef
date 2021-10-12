@@ -9,9 +9,9 @@ import optuna
 import pandas as pd
 from mlflow.models import infer_signature
 
-from metrics.reporter import Report, Reporter
 from openstf.enums import MLModelType
 from openstf.metrics import metrics
+from openstf.metrics.reporter import Report, Reporter
 from openstf.model.regressors.regressor import OpenstfRegressor
 from openstf.model_selection.model_selection import split_data_train_validation_test
 

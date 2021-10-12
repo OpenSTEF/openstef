@@ -9,7 +9,7 @@ import optuna
 import pandas as pd
 import structlog
 
-from model.serializer import PersistentStorageSerializer
+from openstf.model.serializer import PersistentStorageSerializer
 from openstf.exceptions import (
     InputDataInsufficientError,
     InputDataWrongColumnOrderError,

@@ -5,7 +5,6 @@ import unittest
 
 import optuna
 
-from model_selection.model_selection import split_data_train_validation_test
 from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
 from openstf.model.model_creator import ModelCreator
 from openstf.model.objective import (
