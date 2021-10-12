@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from sklearn.base import RegressorMixin, BaseEstimator
 from sklearn.linear_model import LinearRegression
 from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
@@ -8,7 +9,7 @@ from sklearn.utils.validation import check_X_y, check_array, check_is_fitted
 from openstf.model.regressors.regressor import OpenstfRegressor
 
 
-class LinearRTEOpenstfRegressor(OpenstfRegressor):
+class LinearRegressor(BaseEstimator, RegressorMixin):
     """Class for Linear Models that handles missing values,
 
     Pipeline of imputer for missing value and linear regressor.
@@ -47,9 +48,6 @@ class LinearRTEOpenstfRegressor(OpenstfRegressor):
         feature_importances_: ndarray (n_features_in_, )
             The absolute values of the regressions' coefficients for valid feratures and zero otherwise.
     """
-
-    gain_importance_name = "total_gain"
-    weight_importance_name = "weight"
 
     def __init__(
         self, missing_values=np.nan, imputation_strategy=None, fill_value=None
@@ -104,3 +102,8 @@ class LinearRTEOpenstfRegressor(OpenstfRegressor):
         if type(X) != pd.DataFrame:
             X = pd.DataFrame(np.array(X))
         return self.pipeline_.predict(X[self.non_null_columns_])
+
+
+class LinearRTEOpenstfRegressor(LinearRegressor, OpenstfRegressor):
+    gain_importance_name = "total_gain"
+    weight_importance_name = "weight"
