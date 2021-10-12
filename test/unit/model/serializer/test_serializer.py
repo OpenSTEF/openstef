@@ -104,7 +104,7 @@ class TestAbstractModelSerializer(BaseTestCase):
                 ],
             }
         ).iloc[0]
-        days = PersistentStorageSerializer("")._determine_model_age_from_MLflow_run(run)
+        days = PersistentStorageSerializer("")._determine_model_age_from_mlflow_run(run)
         self.assertGreater(days, 7)
 
     def test_determine_model_age_from_MLflow_run_exception(self):
@@ -123,7 +123,7 @@ class TestAbstractModelSerializer(BaseTestCase):
         with self.assertLogs(
             "PersistentStorageSerializer", level="WARNING"
         ) as captured:
-            days = PersistentStorageSerializer("")._determine_model_age_from_MLflow_run(
+            days = PersistentStorageSerializer("")._determine_model_age_from_mlflow_run(
                 run
             )
         self.assertRegex(

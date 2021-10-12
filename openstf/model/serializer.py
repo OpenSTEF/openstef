@@ -124,7 +124,7 @@ class PersistentStorageSerializer(AbstractSerializer):
                 os.path.join(latest_run.artifact_uri, "model/")
             )
             # Add model age to model object
-            loaded_model.age = self._determine_model_age_from_MLflow_run(latest_run)
+            loaded_model.age = self._determine_model_age_from_mlflow_run(latest_run)
             # URI containing file:/// before the path
             uri = os.path.join(latest_run.artifact_uri, "model/")
             # Path without file:///
@@ -251,7 +251,7 @@ class PersistentStorageSerializer(AbstractSerializer):
         return model_age_days
 
     # noinspection PyPep8Naming
-    def _determine_model_age_from_MLflow_run(self, run: pd.Series):
+    def _determine_model_age_from_mlflow_run(self, run: pd.Series):
         """Determines how many days ago a model is trained from the mlflow run
 
         Args:
