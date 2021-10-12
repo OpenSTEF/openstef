@@ -85,6 +85,7 @@ class PersistentStorageSerializer(AbstractSerializer):
                 filter_string="tags.mlflow.runName = '{}'".format(pj["model"]),
                 max_results=1,
             )
+            # Use [0] to only get latest run id
             prev_run_id = str(prev_run["run_id"][0])
         except LookupError:
             self.logger.info("No previous model found in MLflow")
