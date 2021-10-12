@@ -248,3 +248,27 @@ class XGBQuantileRegressorObjective(RegressorObjective):
         return optuna.integration.XGBoostPruningCallback(
             trial, observation_key=f"validation_1-{self.eval_metric}"
         )
+
+
+class LinearRegressorObjective(RegressorObjective):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.model_type = MLModelType.LINEAR
+
+    def get_params(self, trial: optuna.trial.FrozenTrial) -> dict:
+        """get parameters for Linear Regressor Objective
+        with objective specific parameters.
+
+            Args: trial
+
+            Returns:
+                dict: {parameter: hyperparameter_value}
+        """
+
+        # Imputation strategy
+        params = {
+            "imputation_strategy": trial.suggest_categorical(
+                "imputation_strategy", ["mean", "median", "most_frequent"]
+            ),
+        }
+        return params
