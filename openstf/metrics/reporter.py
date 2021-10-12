@@ -34,7 +34,6 @@ class Report:
 class Reporter:
     def __init__(
         self,
-        pj: dict = None,
         train_data: pd.DataFrame = None,
         validation_data: pd.DataFrame = None,
         test_data: pd.DataFrame = None,
@@ -48,7 +47,6 @@ class Reporter:
             validation_data:
             test_data:
         """
-        self.pj = pj
         self.horizons = train_data.horizon.unique()
         self.predicted_data_list = []
         self.input_data_list = [train_data, validation_data, test_data]
