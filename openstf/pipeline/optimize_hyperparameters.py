@@ -38,13 +38,13 @@ TRAIN_HORIZONS: List[float] = [0.25, 24.0]
 TEST_FRACTION: float = 0.1
 VALIDATION_FRACTION: float = 0.1
 
-def optimize_hyperparameters_pipeline(
-        pj: Union[dict, PredictionJobDataClass],
-        input_data: pd.DataFrame,
-        trained_models_folder: Union[str, Path],
-        horizons: List[float] = TRAIN_HORIZONS,
-        n_trials: int = N_TRIALS,
 
+def optimize_hyperparameters_pipeline(
+    pj: Union[dict, PredictionJobDataClass],
+    input_data: pd.DataFrame,
+    trained_models_folder: Union[str, Path],
+    horizons: List[float] = TRAIN_HORIZONS,
+    n_trials: int = N_TRIALS,
 ) -> dict:
     """Optimize hyperparameters pipeline.
 
@@ -97,7 +97,6 @@ def optimize_hyperparameters_pipeline(
     model_type = pj["model"]
     model = ModelCreator.create_model(model_type)
 
-
     objective = objective(
         model,
         input_data_with_features,
@@ -132,13 +131,20 @@ def optimize_hyperparameters_pipeline(
     trials = objective.get_trial_track()
 
     # Save model
-    serializer.save_model(model, pj=pj, report=report, phase="Hyperparameter_opt", trials=trials, trial_number=study.best_trial.number)
+    serializer.save_model(
+        model,
+        pj=pj,
+        report=report,
+        phase="Hyperparameter_opt",
+        trials=trials,
+        trial_number=study.best_trial.number,
+    )
 
     return optimized_hyperparams
 
 
 def _log_study_progress(
-        study: optuna.study.Study, trial: optuna.trial.FrozenTrial
+    study: optuna.study.Study, trial: optuna.trial.FrozenTrial
 ) -> None:
     # Collect study and trial data
     trial_index = study.trials.index(trial)
@@ -151,6 +157,3 @@ def _log_study_progress(
         f"Trial {trial_index} finished with value: {value} and parameters: {params}."
         f"Best trial is {best_trial_index}. Iteration took {duration} s"
     )
-
-
-

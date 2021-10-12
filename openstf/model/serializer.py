@@ -64,7 +64,7 @@ class PersistentStorageSerializer(AbstractSerializer):
         pj: Union[dict, PredictionJobDataClass],
         report: Report,
         phase: str = "training",
-        **args
+        **args,
     ):
         """Save sklearn compatible model to persistent storage with MLflow.
 
@@ -394,7 +394,7 @@ class PersistentStorageSerializer(AbstractSerializer):
         report: Report,
         phase: str,
         prev_run_id: str,
-        **args
+        **args,
     ) -> None:
         """Log model with MLflow
 

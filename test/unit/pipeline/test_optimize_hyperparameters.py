@@ -14,7 +14,9 @@ from openstf.pipeline.optimize_hyperparameters import optimize_hyperparameters_p
 from test.utils import BaseTestCase, TestData
 
 
-@patch("openstf.pipeline.optimize_hyperparameters.PersistentStorageSerializer.save_model")
+@patch(
+    "openstf.pipeline.optimize_hyperparameters.PersistentStorageSerializer.save_model"
+)
 @patch("openstf.pipeline.optimize_hyperparameters.structlog")
 @patch("openstf.pipeline.optimize_hyperparameters.validation")
 @patch("openstf.pipeline.optimize_hyperparameters.TrainFeatureApplicator")
@@ -24,7 +26,9 @@ class TestOptimizeHyperParametersPipeline(BaseTestCase):
     def test_optimize_hyperparameters_pipeline(self, *args):
         pj = TestData.get_prediction_job(pid=307)
         input_data = TestData.load("input_data_train.pickle")
-        hyperparameters = optimize_hyperparameters_pipeline(pj, input_data, "OTHER_TEST")
+        hyperparameters = optimize_hyperparameters_pipeline(
+            pj, input_data, "OTHER_TEST"
+        )
         self.assertEqual(
             hyperparameters._extract_mock_name(), "optuna.create_study().best_params"
         )

@@ -43,8 +43,7 @@ class TestRegressorObjective(BaseTestCase):
             direction="minimize",
         )
 
-        study.optimize(objective,
-                       n_trials=N_TRIALS)
+        study.optimize(objective, n_trials=N_TRIALS)
 
         self.assertIsInstance(objective, RegressorObjective)
         self.assertEqual(len(study.trials), N_TRIALS)
@@ -65,8 +64,7 @@ class TestXGBRegressorObjective(BaseTestCase):
             direction="minimize",
         )
 
-        study.optimize(objective,
-                       n_trials=N_TRIALS)
+        study.optimize(objective, n_trials=N_TRIALS)
 
         self.assertIsInstance(objective, XGBRegressorObjective)
         self.assertEqual(len(study.trials), N_TRIALS)
@@ -87,8 +85,7 @@ class TestLGBRegressorObjective(BaseTestCase):
             direction="minimize",
         )
 
-        study.optimize(objective,
-                       n_trials=N_TRIALS)
+        study.optimize(objective, n_trials=N_TRIALS)
 
         self.assertIsInstance(objective, LGBRegressorObjective)
         self.assertEqual(len(study.trials), N_TRIALS)
@@ -109,8 +106,7 @@ class TestXGBQRegressorObjective(BaseTestCase):
             direction="minimize",
         )
 
-        study.optimize(objective,
-                       n_trials=N_TRIALS)
+        study.optimize(objective, n_trials=N_TRIALS)
 
         self.assertIsInstance(objective, XGBQuantileRegressorObjective)
         self.assertEqual(len(study.trials), N_TRIALS)
@@ -133,8 +129,7 @@ class ColumnOrderTest(BaseTestCase):
         )
 
         with self.assertRaises(RuntimeError):
-            study.optimize(objective,
-                           n_trials=N_TRIALS)
+            study.optimize(objective, n_trials=N_TRIALS)
 
 
 if __name__ == "__main__":

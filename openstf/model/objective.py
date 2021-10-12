@@ -63,7 +63,10 @@ class RegressorObjective:
         self.model_type = None
         self.track_trials = {}
 
-    def __call__(self, trial: optuna.trial.FrozenTrial,) -> float:
+    def __call__(
+        self,
+        trial: optuna.trial.FrozenTrial,
+    ) -> float:
         """Optuna objective function.
 
         Args: trial
@@ -86,7 +89,10 @@ class RegressorObjective:
         )
 
         # Test if first column is "load" and last column is "horizon"
-        if self.train_data.columns[0] != "load" or self.train_data.columns[-1] != "horizon":
+        if (
+            self.train_data.columns[0] != "load"
+            or self.train_data.columns[-1] != "horizon"
+        ):
             raise RuntimeError(
                 "Column order in train input data not as expected, "
                 "could not train a model!"
@@ -94,7 +100,10 @@ class RegressorObjective:
 
         # Split in x, y data (x are the features, y is the load)
         train_x, train_y = self.train_data.iloc[:, 1:-1], self.train_data.iloc[:, 0]
-        valid_x, valid_y = self.validation_data.iloc[:, 1:-1], self.validation_data.iloc[:, 0]
+        valid_x, valid_y = (
+            self.validation_data.iloc[:, 1:-1],
+            self.validation_data.iloc[:, 0],
+        )
         test_x, test_y = self.test_data.iloc[:, 1:-1], self.test_data.iloc[:, 0]
 
         # Configure evals for early stopping
@@ -161,7 +170,7 @@ class RegressorObjective:
         return None
 
     def get_trial_track(self) -> dict:
-        """ Get a dictionary of al trials
+        """Get a dictionary of al trials
 
         Returns:
             dict: dict with al trials and it's parameters
@@ -175,7 +184,10 @@ class RegressorObjective:
         report = reporter.generate_report(model)
 
         train_x, train_y = self.train_data.iloc[:, 1:-1], self.train_data.iloc[:, 0]
-        valid_x, valid_y = self.validation_data.iloc[:, 1:-1], self.validation_data.iloc[:, 0]
+        valid_x, valid_y = (
+            self.validation_data.iloc[:, 1:-1],
+            self.validation_data.iloc[:, 0],
+        )
 
         pred_y = model.predict(valid_x)
         # infer_signature always gives a warning what happens if NaN in training.
@@ -183,6 +195,7 @@ class RegressorObjective:
             self.report.signature = infer_signature(train_x, train_y)
         self.report.metrics = reporter.get_metrics(pred_y, valid_y)
         return report
+
 
 class XGBRegressorObjective(RegressorObjective):
     def __init__(self, *args, **kwargs):

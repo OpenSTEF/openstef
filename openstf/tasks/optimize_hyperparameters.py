@@ -79,9 +79,11 @@ def optimize_hyperparameters_task(
     )
 
     # Optimize hyperparams
-    hyperparameters = optimize_hyperparameters_pipeline(pj,
-                                                        input_data,
-                                                        trained_models_folder=trained_models_folder,)
+    hyperparameters = optimize_hyperparameters_pipeline(
+        pj,
+        input_data,
+        trained_models_folder=trained_models_folder,
+    )
 
     context.database.write_hyper_params(pj, hyperparameters)
 
