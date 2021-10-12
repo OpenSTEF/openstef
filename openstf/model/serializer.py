@@ -394,7 +394,7 @@ class PersistentStorageSerializer(AbstractSerializer):
         phase: str,
         prev_run_id: str,
     ) -> None:
-        """ Log model with MLflow
+        """Log model with MLflow
 
         Args:
             pj (PredictionJobDataClass): Prediction job
@@ -422,7 +422,7 @@ class PersistentStorageSerializer(AbstractSerializer):
         self.logger.info("Model saved with MLflow")
 
     def _log_figure_with_mlflow(self, report) -> None:
-        """ Log model with MLflow
+        """Log model with MLflow
 
         Args:
             report (Report): report where the info is stored
