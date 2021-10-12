@@ -1,14 +1,18 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+import warnings
 from datetime import datetime
+from typing import Union
 
 import optuna
 import pandas as pd
+from mlflow.models import infer_signature
 
+from metrics.reporter import Report, Reporter
 from openstf.enums import MLModelType
 from openstf.metrics import metrics
-from openstf.model.regressors.regressor_interface import OpenstfRegressorInterface
+from openstf.model.regressors.regressor import OpenstfRegressor
 from openstf.model_selection.model_selection import split_data_train_validation_test
 
 EARLY_STOPPING_ROUNDS: int = 10
@@ -18,6 +22,8 @@ VALIDATION_FRACTION: float = 0.1
 EVAL_METRIC: str = "mae"
 
 # https://optuna.readthedocs.io/en/stable/faq.html#objective-func-additional-args
+
+
 class RegressorObjective:
     """Regressor optuna objective function.
 
@@ -35,7 +41,7 @@ class RegressorObjective:
 
     def __init__(
         self,
-        model: OpenstfRegressorInterface,
+        model: OpenstfRegressor,
         input_data: pd.DataFrame,
         test_fraction=TEST_FRACTION,
         validation_fraction=VALIDATION_FRACTION,
@@ -43,6 +49,9 @@ class RegressorObjective:
         verbose=False,
     ):
         self.input_data = input_data
+        self.train_data = None
+        self.validation_data = None
+        self.test_data = None
         self.model = model
         self.start_time = datetime.utcnow()
         self.test_fraction = test_fraction
@@ -52,8 +61,9 @@ class RegressorObjective:
         self.verbose = verbose
         # Should be set on a derived classes
         self.model_type = None
+        self.track_trials = {}
 
-    def __call__(self, trial: optuna.trial.FrozenTrial) -> float:
+    def __call__(self, trial: optuna.trial.FrozenTrial,) -> float:
         """Optuna objective function.
 
         Args: trial
@@ -65,9 +75,9 @@ class RegressorObjective:
         (
             peaks,
             peaks_val_train,
-            train_data,
-            validation_data,
-            test_data,
+            self.train_data,
+            self.validation_data,
+            self.test_data,
         ) = split_data_train_validation_test(
             self.input_data,
             test_fraction=self.test_fraction,
@@ -76,16 +86,16 @@ class RegressorObjective:
         )
 
         # Test if first column is "load" and last column is "horizon"
-        if train_data.columns[0] != "load" or train_data.columns[-1] != "horizon":
+        if self.train_data.columns[0] != "load" or self.train_data.columns[-1] != "horizon":
             raise RuntimeError(
                 "Column order in train input data not as expected, "
                 "could not train a model!"
             )
 
         # Split in x, y data (x are the features, y is the load)
-        train_x, train_y = train_data.iloc[:, 1:-1], train_data.iloc[:, 0]
-        valid_x, valid_y = validation_data.iloc[:, 1:-1], validation_data.iloc[:, 0]
-        test_x, test_y = test_data.iloc[:, 1:-1], test_data.iloc[:, 0]
+        train_x, train_y = self.train_data.iloc[:, 1:-1], self.train_data.iloc[:, 0]
+        valid_x, valid_y = self.validation_data.iloc[:, 1:-1], self.validation_data.iloc[:, 0]
+        test_x, test_y = self.test_data.iloc[:, 1:-1], self.test_data.iloc[:, 0]
 
         # Configure evals for early stopping
         eval_set = [(train_x, train_y), (valid_x, valid_y)]
@@ -115,8 +125,10 @@ class RegressorObjective:
         )
 
         forecast_y = self.model.predict(test_x)
+        score = self.eval_metric_function(test_y, forecast_y)
 
-        return self.eval_metric_function(test_y, forecast_y)
+        self.track_trials[trial.number] = {"score": score, "params": hyper_params}
+        return score
 
     def get_params(self, trial: optuna.trial.FrozenTrial) -> dict:
         """get parameters for objective without model specific get_params function.
@@ -148,6 +160,29 @@ class RegressorObjective:
     def get_pruning_callback(self, trial: optuna.trial.FrozenTrial):
         return None
 
+    def get_trial_track(self) -> dict:
+        """ Get a dictionary of al trials
+
+        Returns:
+            dict: dict with al trials and it's parameters
+
+        """
+        return self.track_trial
+
+    def create_report(self, pj: Union[dict], model: OpenstfRegressor) -> Report:
+        # Report about the training procces
+        reporter = Reporter(pj, self.train_data, self.validation_data, self.test_data)
+        report = reporter.generate_report(model)
+
+        train_x, train_y = self.train_data.iloc[:, 1:-1], self.train_data.iloc[:, 0]
+        valid_x, valid_y = self.validation_data.iloc[:, 1:-1], self.validation_data.iloc[:, 0]
+
+        pred_y = model.predict(valid_x)
+        # infer_signature always gives a warning what happens if NaN in training.
+        with warnings.catch_warnings():
+            self.report.signature = infer_signature(train_x, train_y)
+        self.report.metrics = reporter.get_metrics(pred_y, valid_y)
+        return report
 
 class XGBRegressorObjective(RegressorObjective):
     def __init__(self, *args, **kwargs):

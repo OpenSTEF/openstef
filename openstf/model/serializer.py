@@ -64,6 +64,7 @@ class PersistentStorageSerializer(AbstractSerializer):
         pj: Union[dict, PredictionJobDataClass],
         report: Report,
         phase: str = "training",
+        **args
     ):
         """Save sklearn compatible model to persistent storage with MLflow.
 
@@ -91,7 +92,7 @@ class PersistentStorageSerializer(AbstractSerializer):
             self.logger.info("No previous model found in MLflow")
             prev_run_id = None
         with mlflow.start_run(run_name=pj["model"]):
-            self._log_model_with_mlflow(pj, model, report, phase, prev_run_id)
+            self._log_model_with_mlflow(pj, model, report, phase, prev_run_id, **args)
             self._log_figure_with_mlflow(report)
 
     def load_model(
@@ -393,6 +394,7 @@ class PersistentStorageSerializer(AbstractSerializer):
         report: Report,
         phase: str,
         prev_run_id: str,
+        **args
     ) -> None:
         """Log model with MLflow
 
@@ -419,6 +421,13 @@ class PersistentStorageSerializer(AbstractSerializer):
             artifact_path="model",
             signature=report.signature,
         )
+        # Process args
+        for key, value in args.items():
+            if value is dict:
+                mlflow.log_dict(value, f"{key}.json")
+            if value is str or value is int:
+                mlflow.set_tag(key, value)
+
         self.logger.info("Model saved with MLflow")
 
     def _log_figure_with_mlflow(self, report) -> None:

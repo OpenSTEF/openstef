@@ -5,6 +5,7 @@ import unittest
 
 import optuna
 
+from model_selection.model_selection import split_data_train_validation_test
 from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
 from openstf.model.model_creator import ModelCreator
 from openstf.model.objective import (
@@ -21,8 +22,9 @@ input_data_with_features = TrainFeatureApplicator(horizons=[0.25, 24.0]).add_fea
 )
 # Select 50 data points to speedup test
 input_data_with_features = input_data_with_features.iloc[::50, :]
+
 pj = TestData.get_prediction_job(pid=307)
-N_TRIALS = 1
+N_TRIALS = 2
 
 
 class TestRegressorObjective(BaseTestCase):
@@ -40,7 +42,9 @@ class TestRegressorObjective(BaseTestCase):
             pruner=optuna.pruners.MedianPruner(n_warmup_steps=5),
             direction="minimize",
         )
-        study.optimize(objective, n_trials=N_TRIALS)
+
+        study.optimize(objective,
+                       n_trials=N_TRIALS)
 
         self.assertIsInstance(objective, RegressorObjective)
         self.assertEqual(len(study.trials), N_TRIALS)
@@ -60,7 +64,9 @@ class TestXGBRegressorObjective(BaseTestCase):
             pruner=optuna.pruners.MedianPruner(n_warmup_steps=5),
             direction="minimize",
         )
-        study.optimize(objective, n_trials=N_TRIALS)
+
+        study.optimize(objective,
+                       n_trials=N_TRIALS)
 
         self.assertIsInstance(objective, XGBRegressorObjective)
         self.assertEqual(len(study.trials), N_TRIALS)
@@ -80,7 +86,9 @@ class TestLGBRegressorObjective(BaseTestCase):
             pruner=optuna.pruners.MedianPruner(n_warmup_steps=5),
             direction="minimize",
         )
-        study.optimize(objective, n_trials=N_TRIALS)
+
+        study.optimize(objective,
+                       n_trials=N_TRIALS)
 
         self.assertIsInstance(objective, LGBRegressorObjective)
         self.assertEqual(len(study.trials), N_TRIALS)
@@ -100,7 +108,9 @@ class TestXGBQRegressorObjective(BaseTestCase):
             pruner=optuna.pruners.MedianPruner(n_warmup_steps=5),
             direction="minimize",
         )
-        study.optimize(objective, n_trials=N_TRIALS)
+
+        study.optimize(objective,
+                       n_trials=N_TRIALS)
 
         self.assertIsInstance(objective, XGBQuantileRegressorObjective)
         self.assertEqual(len(study.trials), N_TRIALS)
@@ -121,8 +131,10 @@ class ColumnOrderTest(BaseTestCase):
             pruner=optuna.pruners.MedianPruner(n_warmup_steps=5),
             direction="minimize",
         )
+
         with self.assertRaises(RuntimeError):
-            study.optimize(objective, n_trials=N_TRIALS)
+            study.optimize(objective,
+                           n_trials=N_TRIALS)
 
 
 if __name__ == "__main__":

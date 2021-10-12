@@ -43,6 +43,8 @@ def optimize_hyperparameters_task(
         pj (Union[dict, PredictionJobDataClass]): Prediction job
         context (TaskContext): Task context
     """
+    # Folder where to store models
+    trained_models_folder = Path(context.config.paths.trained_models_folder)
 
     # Determine if we need to optimize hyperparams
     datetime_last_optimized = context.database.get_hyper_params_last_optimized(pj)
@@ -77,7 +79,9 @@ def optimize_hyperparameters_task(
     )
 
     # Optimize hyperparams
-    hyperparameters = optimize_hyperparameters_pipeline(pj, input_data)
+    hyperparameters = optimize_hyperparameters_pipeline(pj,
+                                                        input_data,
+                                                        trained_models_folder=trained_models_folder,)
 
     context.database.write_hyper_params(pj, hyperparameters)
 

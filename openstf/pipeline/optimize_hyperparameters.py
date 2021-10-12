@@ -1,12 +1,18 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+import warnings
+from pathlib import Path
 from typing import List, Union
 
 import optuna
 import pandas as pd
 import structlog
+from mlflow.models import infer_signature
 
+from metrics.reporter import Reporter
+from model.serializer import PersistentStorageSerializer
+from model_selection.model_selection import split_data_train_validation_test
 from openstf.exceptions import (
     InputDataInsufficientError,
     InputDataWrongColumnOrderError,
@@ -29,13 +35,16 @@ logger = structlog.get_logger(__name__)
 N_TRIALS: int = 8  # The number of trials.
 TIMEOUT: int = 200  # Stop study after the given number of second(s).
 TRAIN_HORIZONS: List[float] = [0.25, 24.0]
-
+TEST_FRACTION: float = 0.1
+VALIDATION_FRACTION: float = 0.1
 
 def optimize_hyperparameters_pipeline(
-    pj: Union[dict, PredictionJobDataClass],
-    input_data: pd.DataFrame,
-    horizons: List[float] = TRAIN_HORIZONS,
-    n_trials: int = N_TRIALS,
+        pj: Union[dict, PredictionJobDataClass],
+        input_data: pd.DataFrame,
+        trained_models_folder: Union[str, Path],
+        horizons: List[float] = TRAIN_HORIZONS,
+        n_trials: int = N_TRIALS,
+
 ) -> dict:
     """Optimize hyperparameters pipeline.
 
@@ -44,6 +53,7 @@ def optimize_hyperparameters_pipeline(
     Args:
         pj (Union[dict, PredictionJobDataClass]): Prediction job
         input_data (pd.DataFrame): Raw training input data
+        trained_models_folder (Path): Path where trained models are stored
         horizons (List[float]): horizons for feature engineering.
         n_trials (int, optional): The number of trials. Defaults to N_TRIALS.
         timeout (int, optional): Stop study after the given number of second(s).
@@ -77,11 +87,16 @@ def optimize_hyperparameters_pipeline(
         input_data
     )
 
+    # Create serializer
+    serializer = PersistentStorageSerializer(trained_models_folder)
+    # Start MLflow
+    serializer.setup_mlflow(pj["id"])
+
     # Create objective (NOTE: this is a callable class)
     objective = ObjectiveCreator.create_objective(model_type=pj["model"])
-
     model_type = pj["model"]
     model = ModelCreator.create_model(model_type)
+
 
     objective = objective(
         model,
@@ -110,11 +125,20 @@ def optimize_hyperparameters_pipeline(
         f"and params {optimized_hyperparams}"
     )
 
+    # get report
+    report = objective.create_report(pj, model)
+
+    # Get trials
+    trials = objective.get_trial_track()
+
+    # Save model
+    serializer.save_model(model, pj=pj, report=report, phase="Hyperparameter_opt", trials=trials, trial_number=study.best_trial.number)
+
     return optimized_hyperparams
 
 
 def _log_study_progress(
-    study: optuna.study.Study, trial: optuna.trial.FrozenTrial
+        study: optuna.study.Study, trial: optuna.trial.FrozenTrial
 ) -> None:
     # Collect study and trial data
     trial_index = study.trials.index(trial)
@@ -127,3 +151,6 @@ def _log_study_progress(
         f"Trial {trial_index} finished with value: {value} and parameters: {params}."
         f"Best trial is {best_trial_index}. Iteration took {duration} s"
     )
+
+
+
