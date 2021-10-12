@@ -177,8 +177,8 @@ def train_model_pipeline_core(
         except ValueError as e:
             logger.info("Could not compare to old model", pid=pj["id"], exc_info=e)
 
-    # Report about the training procces
-    report = Reporter(pj, train_data, validation_data, test_data).generate_report(model)
+    # Report about the training process
+    report = Reporter(train_data, validation_data, test_data).generate_report(model)
 
     return model, report
 

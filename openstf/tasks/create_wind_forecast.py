@@ -22,7 +22,7 @@ from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
 
 
-def make_wind_forcast_pj(pj, context):
+def make_wind_forecast_pj(pj, context):
     """Make a wind prediction for a specific prediction job
 
     Args:
@@ -64,7 +64,7 @@ def main():
         prediction_jobs = [x for x in prediction_jobs if x["model"] == "latest"]
 
         PredictionJobLoop(context, prediction_jobs=prediction_jobs).map(
-            make_wind_forcast_pj, context
+            make_wind_forecast_pj, context
         )
 
 
