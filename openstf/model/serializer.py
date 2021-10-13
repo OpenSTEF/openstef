@@ -13,9 +13,11 @@ import mlflow
 import pandas as pd
 import pytz
 import structlog
+from matplotlib import figure
 from mlflow.exceptions import MlflowException
 from mlflow.tracking import MlflowClient
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
+from plotly import graph_objects
 
 from openstf.metrics.reporter import Report
 from openstf.model.regressors.regressor import OpenstfRegressor
@@ -421,8 +423,14 @@ class PersistentStorageSerializer(AbstractSerializer):
         for key, value in args.items():
             if isinstance(value, dict):
                 mlflow.log_dict(value, f"{key}.json")
-            if isinstance(value, str) or isinstance(value, int):
+            elif isinstance(value, str) or isinstance(value, int):
                 mlflow.set_tag(key, value)
+            elif isinstance(value, figure.Figure):
+                mlflow.log_figure(value, f"figures/{key}.png")
+            elif isinstance(value, graph_objects.Figure):
+                mlflow.log_figure(value, f"figures/{key}.html")
+            else:
+                self.logger.warning(f"Couldn't log {key}, {type(key)} not supported", pid=pj["id"])
 
         # Log the model to the run
         mlflow.sklearn.log_model(
@@ -440,7 +448,7 @@ class PersistentStorageSerializer(AbstractSerializer):
 
         """
         # log reports/figures in the artifact folder
-        mlflow.log_figure(report.feature_importance_figure, "weight_plot.html")
+        mlflow.log_figure(report.feature_importance_figure, "figures/weight_plot.html")
         for key, fig in report.data_series_figures.items():
-            mlflow.log_figure(fig, f"{key}.html")
+            mlflow.log_figure(fig, f"figures/{key}.html")
         self.logger.info(f"logged figures to MLflow")
