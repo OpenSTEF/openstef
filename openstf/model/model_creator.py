@@ -9,6 +9,7 @@ from openstf.enums import MLModelType
 from openstf.model.regressors.lgbm import LGBMOpenstfRegressor
 from openstf.model.regressors.xgb import XGBOpenstfRegressor
 from openstf.model.regressors.xgb_quantile import XGBQuantileOpenstfRegressor
+from openstf.model.regressors.proloaf import OpenstfProloafRegressor
 
 valid_model_kwargs = {
     MLModelType.XGB: [
@@ -70,6 +71,10 @@ valid_model_kwargs = {
         "min_child_weight",
         "max_depth",
     ],
+    MLModelType.ProLoaf: [
+        "deep",
+        "feature_name"
+    ],
 }
 
 
@@ -81,6 +86,7 @@ class ModelCreator:
         MLModelType.XGB: XGBOpenstfRegressor,
         MLModelType.LGB: LGBMOpenstfRegressor,
         MLModelType.XGB_QUANTILE: XGBQuantileOpenstfRegressor,
+        MLModelType.ProLoaf: OpenstfProloafRegressor,
     }
 
     @staticmethod
