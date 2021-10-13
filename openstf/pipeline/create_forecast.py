@@ -79,7 +79,7 @@ def create_forecast_pipeline_core(
     data_with_features = OperationalPredictFeatureApplicator(
         # TODO use saved feature_names (should be saved while training the model)
         horizons=[0.25],
-        feature_names=model._Booster.feature_names,
+        feature_names=model.feature_names,
     ).add_features(validated_data)
 
     # Prep forecast input by selecting only the forecast datetime interval (this is much smaller than the input range)

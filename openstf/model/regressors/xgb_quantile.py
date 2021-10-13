@@ -191,3 +191,7 @@ class XGBQuantileOpenstfRegressor(OpenstfRegressor):
         if total == 0:
             return features_importance_array
         return features_importance_array / total  # Normalize
+
+    @property
+    def feature_names(self):
+        return self._Booster.feature_names
