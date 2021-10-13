@@ -156,8 +156,7 @@ class TestTrainModelPipeline(BaseTestCase):
         )
         self.assertFalse(pipeline_mock.called)
 
-    @patch("openstf.validation.validation.is_data_sufficient",
-           return_value=False)
+    @patch("openstf.validation.validation.is_data_sufficient", return_value=False)
     def test_train_model_InputDataInsufficientError(
         self, validation_is_data_sufficient_mock
     ):

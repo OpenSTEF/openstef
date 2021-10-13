@@ -7,7 +7,10 @@ from typing import Tuple, Union, List
 import pandas as pd
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
-from openstf.exceptions import InputDataInsufficientError, InputDataWrongColumnOrderError
+from openstf.exceptions import (
+    InputDataInsufficientError,
+    InputDataWrongColumnOrderError,
+)
 from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
 from openstf.validation import validation
 
@@ -25,11 +28,11 @@ def generate_forecast_datetime_range(
 
 
 def data_cleaning(
-        pj: Union[PredictionJobDataClass, dict],
-        input_data: pd.DataFrame,
-        horizons: List[float],
+    pj: Union[PredictionJobDataClass, dict],
+    input_data: pd.DataFrame,
+    horizons: List[float],
 ) -> pd.DataFrame:
-    """ Clean the input data and perform some checks
+    """Clean the input data and perform some checks
 
     Args:
         pj: Prediction job
@@ -56,6 +59,4 @@ def data_cleaning(
             f"after validation and cleaning"
         )
 
-    return TrainFeatureApplicator(horizons=horizons).add_features(
-        input_data
-    )
+    return TrainFeatureApplicator(horizons=horizons).add_features(input_data)

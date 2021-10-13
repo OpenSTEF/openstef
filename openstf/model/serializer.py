@@ -40,7 +40,6 @@ class AbstractSerializer(ABC):
         self.trained_models_folder = trained_models_folder
         self.client = None
 
-
     @abstractmethod
     def save_model(self, model: OpenstfRegressor) -> None:
         """Persists trained sklearn compatible model
@@ -430,7 +429,9 @@ class PersistentStorageSerializer(AbstractSerializer):
             elif isinstance(value, graph_objects.Figure):
                 mlflow.log_figure(value, f"figures/{key}.html")
             else:
-                self.logger.warning(f"Couldn't log {key}, {type(key)} not supported", pid=pj["id"])
+                self.logger.warning(
+                    f"Couldn't log {key}, {type(key)} not supported", pid=pj["id"]
+                )
 
         # Log the model to the run
         mlflow.sklearn.log_model(
