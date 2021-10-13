@@ -27,7 +27,7 @@ class LinearRegressor(BaseEstimator, RegressorMixin):
 
      Attributes
     ----------
-        feature_names_: list(str)
+        feature_names: list(str)
             All input feature.
 
         non_null_columns_: list(str)
@@ -84,9 +84,9 @@ class LinearRegressor(BaseEstimator, RegressorMixin):
         self.pipeline_.fit(X[self.non_null_columns_], y)
 
         reg_feature_importances = np.abs(self.regressor_.coef_)
-        self.feature_importances_ = np.zeros(len(self.feature_names_))
+        self.feature_importances_ = np.zeros(len(self.feature_names))
         j = 0
-        for i, c in enumerate(self.feature_names_):
+        for i, c in enumerate(self.feature_names):
             if c in self.non_null_columns_:
                 self.feature_importances_[i] = reg_feature_importances[j]
                 j += 1
@@ -107,3 +107,7 @@ class LinearRegressor(BaseEstimator, RegressorMixin):
 class LinearRTEOpenstfRegressor(LinearRegressor, OpenstfRegressor):
     gain_importance_name = "total_gain"
     weight_importance_name = "weight"
+
+    @property
+    def feature_names(self):
+        return self.feature_names_
