@@ -9,6 +9,7 @@ from typing import List, Tuple, Union
 import pandas as pd
 import structlog
 from mlflow.models.signature import infer_signature
+from openstf_dbc.services.prediction_job import PredictionJobDataClass
 from sklearn.base import RegressorMixin
 
 from openstf.exceptions import (
@@ -16,14 +17,12 @@ from openstf.exceptions import (
     InputDataWrongColumnOrderError,
     OldModelHigherScoreError,
 )
-from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
 from openstf.metrics.reporter import Report, Reporter
 from openstf.model.model_creator import ModelCreator
 from openstf.model.serializer import PersistentStorageSerializer
 from openstf.model.standard_deviation_generator import StandardDeviationGenerator
 from openstf.model_selection.model_selection import split_data_train_validation_test
-from openstf.validation import validation
-from openstf_dbc.services.prediction_job import PredictionJobDataClass
+from openstf.pipeline.utils import data_cleaning
 
 DEFAULT_TRAIN_HORIZONS: List[float] = [0.25, 47.0]
 MAXIMUM_MODEL_AGE: int = 7
@@ -202,19 +201,7 @@ def train_pipeline_common(
 
     """
     # Validate and clean data
-    validated_data = validation.clean(validation.validate(pj["id"], input_data))
-
-    # Check if sufficient data is left after cleaning
-    if not validation.is_data_sufficient(validated_data):
-        raise InputDataInsufficientError(
-            f"Input data is insufficient for {pj['id']} "
-            f"after validation and cleaning"
-        )
-
-    # Add features
-    data_with_features = TrainFeatureApplicator(
-        horizons=horizons, feature_names=pj["feature_names"]
-    ).add_features(validated_data)
+    data_with_features = data_cleaning(pj, input_data, horizons)
 
     # Split data
     (

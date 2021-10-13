@@ -13,6 +13,7 @@ from openstf.enums import MLModelType
 from openstf.metrics import metrics
 from openstf.metrics.reporter import Report, Reporter
 from openstf.model.regressors.regressor import OpenstfRegressor
+from openstf.model.standard_deviation_generator import StandardDeviationGenerator
 from openstf.model_selection.model_selection import split_data_train_validation_test
 
 EARLY_STOPPING_ROUNDS: int = 10
@@ -133,10 +134,17 @@ class RegressorObjective:
             callbacks=callbacks,
         )
 
+        self.model.feature_importance_dataframe = self.model._set_feature_importance(train_x.columns)
+
+        # Do confidence interval determination
+        model = StandardDeviationGenerator(
+            self.validation_data
+        ).generate_standard_deviation_data(self.model)
+
         forecast_y = self.model.predict(test_x)
         score = self.eval_metric_function(test_y, forecast_y)
 
-        self.track_trials[trial.number] = {"score": score, "params": hyper_params}
+        self.track_trials[f" trial: {trial.number}"] = {"score": score, "params": hyper_params}
         return score
 
     def get_params(self, trial: optuna.trial.FrozenTrial) -> dict:
@@ -176,7 +184,7 @@ class RegressorObjective:
             dict: dict with al trials and it's parameters
 
         """
-        return self.track_trial
+        return self.track_trials
 
     def create_report(self, pj: Union[dict], model: OpenstfRegressor) -> Report:
         # Report about the training procces
@@ -192,8 +200,8 @@ class RegressorObjective:
         pred_y = model.predict(valid_x)
         # infer_signature always gives a warning what happens if NaN in training.
         with warnings.catch_warnings():
-            self.report.signature = infer_signature(train_x, train_y)
-        self.report.metrics = reporter.get_metrics(pred_y, valid_y)
+            report.signature = infer_signature(train_x, train_y)
+        report.metrics = reporter.get_metrics(pred_y, valid_y)
         return report
 
 

@@ -15,11 +15,10 @@ import pytz
 import structlog
 from mlflow.exceptions import MlflowException
 from mlflow.tracking import MlflowClient
-from sklearn.base import RegressorMixin
-
-from openstf.model.regressors.regressor import OpenstfRegressor
-from openstf.metrics.reporter import Report
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
+
+from openstf.metrics.reporter import Report
+from openstf.model.regressors.regressor import OpenstfRegressor
 
 MODEL_FILENAME = "model.joblib"
 FOLDER_DATETIME_FORMAT = "%Y%m%d%H%M%S"
@@ -33,10 +32,12 @@ class AbstractSerializer(ABC):
         Returns:
             object:
         """
-        self.mlflow_folder = os.path.join(trained_models_folder, "mlruns/")
+        path = os.path.abspath(f"{trained_models_folder}/mlruns/")
+        self.mlflow_folder = Path(path).as_uri()
         self.logger = structlog.get_logger(self.__class__.__name__)
         self.trained_models_folder = trained_models_folder
         self.client = None
+
 
     @abstractmethod
     def save_model(self, model: OpenstfRegressor) -> None:
@@ -415,19 +416,20 @@ class PersistentStorageSerializer(AbstractSerializer):
         mlflow.log_metrics(report.metrics)
         # Add the used parameters to the run
         mlflow.log_params(model.get_params())
+
+        # Process args
+        for key, value in args.items():
+            if isinstance(value, dict):
+                mlflow.log_dict(value, f"{key}.json")
+            if isinstance(value, str) or isinstance(value, int):
+                mlflow.set_tag(key, value)
+
         # Log the model to the run
         mlflow.sklearn.log_model(
             sk_model=model,
             artifact_path="model",
             signature=report.signature,
         )
-        # Process args
-        for key, value in args.items():
-            if value is dict:
-                mlflow.log_dict(value, f"{key}.json")
-            if value is str or value is int:
-                mlflow.set_tag(key, value)
-
         self.logger.info("Model saved with MLflow")
 
     def _log_figure_with_mlflow(self, report) -> None:
