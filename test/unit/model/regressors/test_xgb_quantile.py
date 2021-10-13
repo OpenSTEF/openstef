@@ -118,6 +118,5 @@ class TestXgbQuantile(BaseTestCase):
         model._Booster = MockBooster()
         features_names = model.feature_names
         np.testing.assert_array_equal(
-            features_names, MockBooster.feature_names,
-            "Feature names are not equal"
+            features_names, MockBooster.feature_names, "Feature names are not equal"
         )
