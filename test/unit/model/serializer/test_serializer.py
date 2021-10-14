@@ -104,7 +104,9 @@ class TestAbstractModelSerializer(BaseTestCase):
                 ],
             }
         ).iloc[0]
-        days = PersistentStorageSerializer("OTHER_TEST")._determine_model_age_from_mlflow_run(run)
+        days = PersistentStorageSerializer(
+            "OTHER_TEST"
+        )._determine_model_age_from_mlflow_run(run)
         self.assertGreater(days, 7)
 
     def test_determine_model_age_from_MLflow_run_exception(self):
@@ -123,9 +125,9 @@ class TestAbstractModelSerializer(BaseTestCase):
         with self.assertLogs(
             "PersistentStorageSerializer", level="WARNING"
         ) as captured:
-            days = PersistentStorageSerializer("OTHER_TEST")._determine_model_age_from_mlflow_run(
-                run
-            )
+            days = PersistentStorageSerializer(
+                "OTHER_TEST"
+            )._determine_model_age_from_mlflow_run(run)
         self.assertRegex(
             captured.records[0].getMessage(),
             "Could not get model age. Returning infinite age!",
