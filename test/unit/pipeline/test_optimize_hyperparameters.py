@@ -12,7 +12,10 @@ from openstf.exceptions import (
     InputDataInsufficientError,
     InputDataWrongColumnOrderError,
 )
-from openstf.pipeline.optimize_hyperparameters import optimize_hyperparameters_pipeline, optuna_optimization
+from openstf.pipeline.optimize_hyperparameters import (
+    optimize_hyperparameters_pipeline,
+    optuna_optimization,
+)
 from test.utils import BaseTestCase, TestData
 
 
@@ -23,14 +26,10 @@ class TestOptimizeHyperParametersPipeline(BaseTestCase):
         self.pj = TestData.get_prediction_job(pid=307)
 
     def test_optimize_hyperparameters_pipeline(self):
-        optimize_hyperparameters_pipeline(
-            self.pj, self.input_data, "OTHER_TEST"
-        )
+        optimize_hyperparameters_pipeline(self.pj, self.input_data, "OTHER_TEST")
 
-    @patch("openstf.validation.validation.is_data_sufficient",
-           return_value= False)
+    @patch("openstf.validation.validation.is_data_sufficient", return_value=False)
     def test_optimize_hyperparameters_pipeline_insufficient_data(self, mock):
-
 
         # if data is not sufficient a InputDataInsufficientError should be raised
         with self.assertRaises(InputDataInsufficientError):

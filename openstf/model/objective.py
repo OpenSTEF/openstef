@@ -134,7 +134,9 @@ class RegressorObjective:
             callbacks=callbacks,
         )
 
-        self.model.feature_importance_dataframe = self.model._set_feature_importance(train_x.columns)
+        self.model.feature_importance_dataframe = self.model._set_feature_importance(
+            train_x.columns
+        )
 
         # Do confidence interval determination
         self.model = StandardDeviationGenerator(
@@ -144,7 +146,10 @@ class RegressorObjective:
         forecast_y = self.model.predict(test_x)
         score = self.eval_metric_function(test_y, forecast_y)
 
-        self.track_trials[f" trial: {trial.number}"] = {"score": score, "params": hyper_params}
+        self.track_trials[f" trial: {trial.number}"] = {
+            "score": score,
+            "params": hyper_params,
+        }
         return score
 
     def get_params(self, trial: optuna.trial.FrozenTrial) -> dict:

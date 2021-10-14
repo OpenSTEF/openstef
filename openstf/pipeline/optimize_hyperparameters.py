@@ -12,6 +12,7 @@ from openstf_dbc.services.prediction_job import PredictionJobDataClass
 from openstf.model.model_creator import ModelCreator
 from openstf.model.objective import RegressorObjective
 from openstf.model.objective_creator import ObjectiveCreator
+
 # This is required to disable the default optuna logger and pass the logs to our own
 # structlog logger
 from openstf.model.regressors.regressor import OpenstfRegressor
@@ -68,7 +69,9 @@ def optimize_hyperparameters_pipeline(
     # Create objective (NOTE: this is a callable class)
     objective = ObjectiveCreator.create_objective(model_type=pj["model"])
 
-    model, study, objective = optuna_optimization(pj, objective, input_data_with_features, n_trials)
+    model, study, objective = optuna_optimization(
+        pj, objective, input_data_with_features, n_trials
+    )
 
     optimized_hyperparams = study.best_params
     optimized_error = study.best_value
@@ -82,21 +85,22 @@ def optimize_hyperparameters_pipeline(
     serializer.save_model(
         model,
         pj=pj,
-        report=objective.create_report(pj= pj, model= model),
+        report=objective.create_report(pj=pj, model=model),
         phase="Hyperparameter_opt",
-        trials= objective.get_trial_track(),
+        trials=objective.get_trial_track(),
         trial_number=study.best_trial.number,
     )
 
     return optimized_hyperparams
 
 
-def optuna_optimization(pj: Union[PredictionJobDataClass, dict],
-                        objective: RegressorObjective,
-                        input_data_with_features: pd.DataFrame,
-                        n_trials: int,
-                        ) -> Tuple[OpenstfRegressor, optuna.study.Study, RegressorObjective]:
-    """ Perform hyperparameter optimization with optuna
+def optuna_optimization(
+    pj: Union[PredictionJobDataClass, dict],
+    objective: RegressorObjective,
+    input_data_with_features: pd.DataFrame,
+    n_trials: int,
+) -> Tuple[OpenstfRegressor, optuna.study.Study, RegressorObjective]:
+    """Perform hyperparameter optimization with optuna
 
     Args:
         pj: Prediction job
