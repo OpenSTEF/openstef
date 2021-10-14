@@ -79,6 +79,7 @@ class PersistentStorageSerializer(AbstractSerializer):
             pj: Prediction job.
             report: Report object.
             phase: Where does the model come from, default is "training"
+            **args: Extra information to be logged with mlflow
 
         """
         experiment_id = self.setup_mlflow(pj["id"])
@@ -407,8 +408,10 @@ class PersistentStorageSerializer(AbstractSerializer):
             report (Report): report where the info is stored
             phase (str): Origin of the model (Training or Hyperparameter_opt)
             prev_run_id (str): Run-id of the previous run in this prediction job
+            **args: Extra information to be logged with mlflow
 
         """
+
         # Set tags to the run, can be used to filter on the UI
         mlflow.set_tag("phase", phase)
         mlflow.set_tag("Previous_version_id", prev_run_id)

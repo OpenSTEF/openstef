@@ -137,7 +137,7 @@ class RegressorObjective:
         self.model.feature_importance_dataframe = self.model._set_feature_importance(train_x.columns)
 
         # Do confidence interval determination
-        model = StandardDeviationGenerator(
+        self.model = StandardDeviationGenerator(
             self.validation_data
         ).generate_standard_deviation_data(self.model)
 
