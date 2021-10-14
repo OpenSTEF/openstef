@@ -6,8 +6,6 @@ from unittest.mock import patch
 
 import pandas as pd
 
-import openstf.validation.validation
-from model.objective_creator import ObjectiveCreator
 from openstf.exceptions import (
     InputDataInsufficientError,
     InputDataWrongColumnOrderError,

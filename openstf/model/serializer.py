@@ -13,7 +13,6 @@ import mlflow
 import pandas as pd
 import pytz
 import structlog
-from matplotlib import figure
 from mlflow.exceptions import MlflowException
 from mlflow.tracking import MlflowClient
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
@@ -427,8 +426,6 @@ class PersistentStorageSerializer(AbstractSerializer):
                 mlflow.log_dict(value, f"{key}.json")
             elif isinstance(value, str) or isinstance(value, int):
                 mlflow.set_tag(key, value)
-            elif isinstance(value, figure.Figure):
-                mlflow.log_figure(value, f"figures/{key}.png")
             elif isinstance(value, graph_objects.Figure):
                 mlflow.log_figure(value, f"figures/{key}.html")
             else:
