@@ -127,6 +127,8 @@ def optuna_optimization(
         direction="minimize",
     )
 
+    # Optuna updates the model by itself
+    # and the model is the optimized over this finishes
     study.optimize(
         objective,
         n_trials=n_trials,
