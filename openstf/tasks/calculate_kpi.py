@@ -40,7 +40,7 @@ THRESHOLD_RETRAINING = 0.25
 THRESHOLD_OPTIMIZING = 0.50
 
 
-def main(model_type= None):
+def main(model_type=None):
     taskname = Path(__file__).name.replace(".py", "")
     if model_type is None:
         model_type = [ml.value for ml in MLModelType]
@@ -50,10 +50,7 @@ def main(model_type= None):
         start_time = datetime.utcnow() - timedelta(days=1)
         end_time = datetime.utcnow()
 
-        PredictionJobLoop(
-            context,
-            model_type=model_type
-        ).map(
+        PredictionJobLoop(context, model_type=model_type).map(
             check_kpi_pj,
             context,
             start_time=start_time,
