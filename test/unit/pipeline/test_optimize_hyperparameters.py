@@ -24,7 +24,9 @@ class TestOptimizeHyperParametersPipeline(BaseTestCase):
         self.pj = TestData.get_prediction_job(pid=307)
 
     def test_optimize_hyperparameters_pipeline(self):
-        parameters = optimize_hyperparameters_pipeline(self.pj, self.input_data, "OTHER_TEST")
+        parameters = optimize_hyperparameters_pipeline(
+            self.pj, self.input_data, "OTHER_TEST"
+        )
         self.assertIsInstance(parameters, dict)
 
     @patch("openstf.validation.validation.is_data_sufficient", return_value=False)
