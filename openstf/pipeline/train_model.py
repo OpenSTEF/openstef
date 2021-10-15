@@ -216,7 +216,9 @@ def train_pipeline_common(
             f"after validation and cleaning"
         )
 
-    data_with_features = TrainFeatureApplicator(horizons=horizons).add_features(input_data)
+    data_with_features = TrainFeatureApplicator(horizons=horizons).add_features(
+        input_data
+    )
 
     # Split data
     (

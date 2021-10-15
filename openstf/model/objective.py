@@ -190,7 +190,7 @@ class RegressorObjective:
         return self.track_trials
 
     def create_report(self, pj: Union[dict], model: OpenstfRegressor) -> Report:
-        """ Generate a report from the data available inside the objective function
+        """Generate a report from the data available inside the objective function
 
         Args:
             pj: Prediction job

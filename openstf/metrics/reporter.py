@@ -25,7 +25,7 @@ class Report:
         feature_importance_figure: Figure,
         data_series_figures: Dict[str, Figure],
         metrics: dict,
-        signature: ModelSignature
+        signature: ModelSignature,
     ):
         self.feature_importance_figure = feature_importance_figure
         self.data_series_figures = data_series_figures
@@ -58,7 +58,7 @@ class Reporter:
         self,
         model: OpenstfRegressor,
     ) -> Report:
-        """ Generate a report on a given model
+        """Generate a report on a given model
 
         Args:
             model (OpenstfRegressor): the model to create a report on
@@ -67,7 +67,10 @@ class Reporter:
             Report: reporter object containing info about the model
         """
         # Get training (input_data_list[0]) and validation (input_data_list[1]) set
-        train_x, train_y = self.input_data_list[0].iloc[:, 1:-1], self.input_data_list[0].iloc[:, 0]
+        train_x, train_y = (
+            self.input_data_list[0].iloc[:, 1:-1],
+            self.input_data_list[0].iloc[:, 0],
+        )
         valid_x, valid_y = (
             self.input_data_list[1].iloc[:, 1:-1],
             self.input_data_list[1].iloc[:, 0],
@@ -82,7 +85,7 @@ class Reporter:
             data_series_figures=data_series_figures,
             feature_importance_figure=feature_importance_figure,
             metrics=self.get_metrics(model.predict(valid_x), valid_y),
-            signature=infer_signature(train_x, train_y)
+            signature=infer_signature(train_x, train_y),
         )
 
         return report

@@ -9,11 +9,15 @@ import pandas as pd
 import structlog
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
-from openstf.exceptions import InputDataInsufficientError, InputDataWrongColumnOrderError
+from openstf.exceptions import (
+    InputDataInsufficientError,
+    InputDataWrongColumnOrderError,
+)
 from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
 from openstf.model.model_creator import ModelCreator
 from openstf.model.objective import RegressorObjective
 from openstf.model.objective_creator import ObjectiveCreator
+
 # This is required to disable the default optuna logger and pass the logs to our own
 # structlog logger
 from openstf.model.regressors.regressor import OpenstfRegressor
@@ -74,7 +78,9 @@ def optimize_hyperparameters_pipeline(
             f"after validation and cleaning"
         )
 
-    input_data_with_features = TrainFeatureApplicator(horizons=horizons).add_features(input_data)
+    input_data_with_features = TrainFeatureApplicator(horizons=horizons).add_features(
+        input_data
+    )
 
     # Create serializer
     serializer = PersistentStorageSerializer(trained_models_folder)
