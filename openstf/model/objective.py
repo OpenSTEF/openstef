@@ -1,13 +1,11 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-import warnings
 from datetime import datetime
 from typing import Union
 
 import optuna
 import pandas as pd
-from mlflow.models import infer_signature
 
 from openstf.enums import MLModelType
 from openstf.metrics import metrics
@@ -192,21 +190,19 @@ class RegressorObjective:
         return self.track_trials
 
     def create_report(self, pj: Union[dict], model: OpenstfRegressor) -> Report:
-        # Report about the training procces
+        """ Generate a report from the data available inside the objective function
+
+        Args:
+            pj: Prediction job
+            model: OpenstfRegressor, model to create a report on
+
+        Returns:
+            Report: report about the model
+        """
+        # Report about the training process
         reporter = Reporter(pj, self.train_data, self.validation_data, self.test_data)
         report = reporter.generate_report(model)
 
-        train_x, train_y = self.train_data.iloc[:, 1:-1], self.train_data.iloc[:, 0]
-        valid_x, valid_y = (
-            self.validation_data.iloc[:, 1:-1],
-            self.validation_data.iloc[:, 0],
-        )
-
-        pred_y = model.predict(valid_x)
-        # infer_signature always gives a warning what happens if NaN in training.
-        with warnings.catch_warnings():
-            report.signature = infer_signature(train_x, train_y)
-        report.metrics = reporter.get_metrics(pred_y, valid_y)
         return report
 
 

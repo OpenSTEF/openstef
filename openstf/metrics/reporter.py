@@ -2,10 +2,13 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 from dataclasses import dataclass
-from typing import Dict, Union
+from typing import Dict, Union, List
 
 import numpy as np
 import pandas as pd
+from mlflow.models import infer_signature, ModelSignature
+
+from openstf.model.regressors.regressor import OpenstfRegressor
 from plotly.graph_objects import Figure
 from sklearn import metrics
 from sklearn.base import RegressorMixin
@@ -18,12 +21,16 @@ from openstf_dbc.services.prediction_job import PredictionJobDataClass
 @dataclass
 class Report:
     def __init__(
-        self, feature_importance_figure: Figure, data_series_figures: Dict[str, Figure]
+        self,
+        feature_importance_figure: Figure,
+        data_series_figures: Dict[str, Figure],
+        metrics: dict,
+        signature: ModelSignature
     ):
         self.feature_importance_figure = feature_importance_figure
         self.data_series_figures = data_series_figures
-        self.metrics = None
-        self.signature = None
+        self.metrics = metrics
+        self.signature = signature
 
 
 class Reporter:
@@ -49,8 +56,23 @@ class Reporter:
 
     def generate_report(
         self,
-        model: RegressorMixin,
+        model: OpenstfRegressor,
     ) -> Report:
+        """ Generate a report on a given model
+
+        Args:
+            model (OpenstfRegressor): the model to create a report on
+
+        Returns:
+            Report: reporter object containing info about the model
+        """
+        # Get training (input_data_list[0]) and validation (input_data_list[1]) set
+        train_x, train_y = self.input_data_list[0].iloc[:, 1:-1], self.input_data_list[0].iloc[:, 0]
+        valid_x, valid_y = (
+            self.input_data_list[1].iloc[:, 1:-1],
+            self.input_data_list[1].iloc[:, 0],
+        )
+
         data_series_figures = self._make_data_series_figures(model)
         feature_importance_figure = figure.plot_feature_importance(
             model.feature_importance_dataframe
@@ -59,6 +81,8 @@ class Reporter:
         report = Report(
             data_series_figures=data_series_figures,
             feature_importance_figure=feature_importance_figure,
+            metrics=self.get_metrics(model.predict(valid_x), valid_y),
+            signature=infer_signature(train_x, train_y)
         )
 
         return report

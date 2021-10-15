@@ -9,15 +9,16 @@ import pandas as pd
 import structlog
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
+from openstf.exceptions import InputDataInsufficientError, InputDataWrongColumnOrderError
+from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
 from openstf.model.model_creator import ModelCreator
 from openstf.model.objective import RegressorObjective
 from openstf.model.objective_creator import ObjectiveCreator
-
 # This is required to disable the default optuna logger and pass the logs to our own
 # structlog logger
 from openstf.model.regressors.regressor import OpenstfRegressor
 from openstf.model.serializer import PersistentStorageSerializer
-from openstf.pipeline.utils import data_cleaning
+from openstf.validation import validation
 
 optuna.logging.enable_propagation()  # Propagate logs to the root logger.
 optuna.logging.disable_default_handler()  # Stop showing logs in sys.stderr.
@@ -49,9 +50,6 @@ def optimize_hyperparameters_pipeline(
         trained_models_folder (Path): Path where trained models are stored
         horizons (List[float]): horizons for feature engineering.
         n_trials (int, optional): The number of trials. Defaults to N_TRIALS.
-        timeout (int, optional): Stop study after the given number of second(s).
-            Defaults to TIMEOUT. Will give an exception if the optimization is only
-            1 trial.
 
     Raises:
         ValueError: If the input_date is insufficient.
@@ -59,7 +57,24 @@ def optimize_hyperparameters_pipeline(
     Returns:
         dict: Optimized hyperparameters.
     """
-    input_data_with_features = data_cleaning(pj, input_data, horizons)
+    if input_data.empty:
+        raise InputDataInsufficientError("Input dataframe is empty")
+    elif "load" not in input_data.columns:
+        raise InputDataWrongColumnOrderError(
+            "Missing the load column in the input dataframe"
+        )
+
+    # Validate and clean data
+    validated_data = validation.clean(validation.validate(pj["id"], input_data))
+
+    # Check if sufficient data is left after cleaning
+    if not validation.is_data_sufficient(validated_data):
+        raise InputDataInsufficientError(
+            f"Input data is insufficient for {pj['name']} "
+            f"after validation and cleaning"
+        )
+
+    input_data_with_features = TrainFeatureApplicator(horizons=horizons).add_features(input_data)
 
     # Create serializer
     serializer = PersistentStorageSerializer(trained_models_folder)
@@ -73,25 +88,23 @@ def optimize_hyperparameters_pipeline(
         pj, objective, input_data_with_features, n_trials
     )
 
-    optimized_hyperparams = study.best_params
-    optimized_error = study.best_value
-
     logger.info(
-        f"Finished hyperparameter optimization, error objective {optimized_error} "
-        f"and params {optimized_hyperparams}"
+        f"Finished hyperparameter optimization, error objective {study.best_value} "
+        f"and params {study.best_params}"
     )
 
     # Save model
     serializer.save_model(
         model,
         pj=pj,
+        # In objective we have the data, thus we create the report there
         report=objective.create_report(pj=pj, model=model),
         phase="Hyperparameter_opt",
         trials=objective.get_trial_track(),
         trial_number=study.best_trial.number,
     )
 
-    return optimized_hyperparams
+    return study.best_params
 
 
 def optuna_optimization(

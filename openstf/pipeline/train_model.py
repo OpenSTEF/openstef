@@ -2,13 +2,11 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 import logging
-import warnings
 from pathlib import Path
 from typing import List, Tuple, Union
 
 import pandas as pd
 import structlog
-from mlflow.models.signature import infer_signature
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
 from sklearn.base import RegressorMixin
 
@@ -17,12 +15,13 @@ from openstf.exceptions import (
     InputDataWrongColumnOrderError,
     OldModelHigherScoreError,
 )
+from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
 from openstf.metrics.reporter import Report, Reporter
 from openstf.model.model_creator import ModelCreator
 from openstf.model.serializer import PersistentStorageSerializer
 from openstf.model.standard_deviation_generator import StandardDeviationGenerator
 from openstf.model_selection.model_selection import split_data_train_validation_test
-from openstf.pipeline.utils import data_cleaning
+from openstf.validation import validation
 
 DEFAULT_TRAIN_HORIZONS: List[float] = [0.25, 47.0]
 MAXIMUM_MODEL_AGE: int = 7
@@ -200,8 +199,24 @@ def train_pipeline_common(
         InputDataWrongColumnOrderError: when input data has a invalid column order.
 
     """
-    # Validate and clean data
-    data_with_features = data_cleaning(pj, input_data, horizons)
+    if input_data.empty:
+        raise InputDataInsufficientError("Input dataframe is empty")
+    elif "load" not in input_data.columns:
+        raise InputDataWrongColumnOrderError(
+            "Missing the load column in the input dataframe"
+        )
+
+        # Validate and clean data
+    validated_data = validation.clean(validation.validate(pj["id"], input_data))
+
+    # Check if sufficient data is left after cleaning
+    if not validation.is_data_sufficient(validated_data):
+        raise InputDataInsufficientError(
+            f"Input data is insufficient for {pj['name']} "
+            f"after validation and cleaning"
+        )
+
+    data_with_features = TrainFeatureApplicator(horizons=horizons).add_features(input_data)
 
     # Split data
     (
@@ -260,15 +275,10 @@ def train_pipeline_common(
         validation_data
     ).generate_standard_deviation_data(model)
 
-    # Report about the training procces
+    # Report about the training process
     reporter = Reporter(pj, train_data, validation_data, test_data)
     report = reporter.generate_report(model)
 
-    pred_y = model.predict(validation_x)
-    # infer_signature always gives a warning what happens if NaN in training.
-    with warnings.catch_warnings():
-        report.signature = infer_signature(train_x, train_y)
-    report.metrics = reporter.get_metrics(pred_y, validation_y)
     return model, report, train_data, validation_data, test_data
 
 

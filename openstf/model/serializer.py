@@ -65,7 +65,7 @@ class PersistentStorageSerializer(AbstractSerializer):
         pj: Union[dict, PredictionJobDataClass],
         report: Report,
         phase: str = "training",
-        **args,
+        **kwargs,
     ):
         """Save sklearn compatible model to persistent storage with MLflow.
 
@@ -77,7 +77,7 @@ class PersistentStorageSerializer(AbstractSerializer):
             pj: Prediction job.
             report: Report object.
             phase: Where does the model come from, default is "training"
-            **args: Extra information to be logged with mlflow
+            **kwargs: Extra information to be logged with mlflow, this can add the extra modelspecs
 
         """
         experiment_id = self.setup_mlflow(pj["id"])
@@ -94,7 +94,7 @@ class PersistentStorageSerializer(AbstractSerializer):
             self.logger.info("No previous model found in MLflow")
             prev_run_id = None
         with mlflow.start_run(run_name=pj["model"]):
-            self._log_model_with_mlflow(pj, model, report, phase, prev_run_id, **args)
+            self._log_model_with_mlflow(pj, model, report, phase, prev_run_id, **kwargs)
             self._log_figure_with_mlflow(report)
 
     def load_model(
@@ -396,7 +396,7 @@ class PersistentStorageSerializer(AbstractSerializer):
         report: Report,
         phase: str,
         prev_run_id: str,
-        **args,
+        **kwargs,
     ) -> None:
         """Log model with MLflow
 
@@ -406,7 +406,7 @@ class PersistentStorageSerializer(AbstractSerializer):
             report (Report): report where the info is stored
             phase (str): Origin of the model (Training or Hyperparameter_opt)
             prev_run_id (str): Run-id of the previous run in this prediction job
-            **args: Extra information to be logged with mlflow
+            **kwargs: Extra information to be logged with mlflow
 
         """
 
@@ -421,7 +421,7 @@ class PersistentStorageSerializer(AbstractSerializer):
         mlflow.log_params(model.get_params())
 
         # Process args
-        for key, value in args.items():
+        for key, value in kwargs.items():
             if isinstance(value, dict):
                 mlflow.log_dict(value, f"{key}.json")
             elif isinstance(value, str) or isinstance(value, int):
