@@ -12,7 +12,6 @@ from openstf.exceptions import (
 )
 from openstf.pipeline.optimize_hyperparameters import (
     optimize_hyperparameters_pipeline,
-    optuna_optimization,
 )
 from test.utils import BaseTestCase, TestData
 
