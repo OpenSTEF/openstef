@@ -26,6 +26,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import structlog
+from openstf.enums import MLModelType
 
 from openstf.exceptions import NoPredictedLoadError, NoRealisedLoadError
 from openstf.metrics import metrics
@@ -39,15 +40,20 @@ THRESHOLD_RETRAINING = 0.25
 THRESHOLD_OPTIMIZING = 0.50
 
 
-def main():
+def main(model_type= None):
     taskname = Path(__file__).name.replace(".py", "")
+    if model_type is None:
+        model_type = [ml.value for ml in MLModelType]
 
     with TaskContext(taskname) as context:
         # Set start and end time
         start_time = datetime.utcnow() - timedelta(days=1)
         end_time = datetime.utcnow()
 
-        PredictionJobLoop(context,).map(
+        PredictionJobLoop(
+            context,
+            model_type=model_type
+        ).map(
             check_kpi_pj,
             context,
             start_time=start_time,
