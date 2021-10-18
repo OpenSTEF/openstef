@@ -63,7 +63,8 @@ class Reporter:
 
         data_series_figures = self._make_data_series_figures(model)
 
-        # feature_importance_dataframe should be a dataframe, can be None if we have no feature importance
+        # feature_importance_dataframe should be a dataframe, to create a figure
+        # can be None if we have no feature importance
         if isinstance(model.feature_importance_dataframe, pd.DataFrame):
             feature_importance_figure = figure.plot_feature_importance(
                 model.feature_importance_dataframe
