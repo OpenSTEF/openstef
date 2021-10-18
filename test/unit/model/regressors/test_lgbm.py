@@ -11,6 +11,3 @@ class TestXGB(BaseTestCase):
 
     def test_importance_names(self):
         self.assertIsInstance(self.model._get_importance_names(), dict)
-
-
-

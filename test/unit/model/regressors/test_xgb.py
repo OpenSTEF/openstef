@@ -4,12 +4,10 @@
 from test.utils import BaseTestCase
 from openstf.model.regressors.xgb import XGBOpenstfRegressor
 
+
 class TestXGB(BaseTestCase):
     def setUp(self) -> None:
         self.model = XGBOpenstfRegressor()
 
     def test_importance_names(self):
         self.assertIsInstance(self.model._get_importance_names(), dict)
-
-
-
