@@ -118,7 +118,9 @@ class OperationalPredictFeatureApplicator(AbstractFeatureApplicator):
         df = apply_features(
             df, feature_names=self.feature_names, horizon=self.horizons[0]
         )
+
         df = add_missing_feature_columns(df, self.feature_names)
+
         # NOTE this is required since apply_features could add additional features
         if self.feature_names is not None:
             df = remove_non_requested_feature_columns(df, self.feature_names)
