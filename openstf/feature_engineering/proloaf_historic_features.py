@@ -8,6 +8,7 @@
 from typing import List
 import pandas as pd
 
+
 def add_additional_proloaf_features(
     data: pd.DataFrame, feature_names: List[str] = None
 ) -> (pd.DataFrame, List[str]):
