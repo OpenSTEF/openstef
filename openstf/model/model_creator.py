@@ -3,6 +3,8 @@
 # SPDX-License-Identifier: MPL-2.0
 from typing import Union
 
+from openstf.model.regressors.regressor import OpenstfRegressor
+from openstf_dbc.services.prediction_job import PredictionJobDataClass
 from sklearn.base import RegressorMixin
 
 from openstf.enums import MLModelType
@@ -84,11 +86,12 @@ class ModelCreator:
     }
 
     @staticmethod
-    def create_model(model_type: Union[MLModelType, str], **kwargs) -> RegressorMixin:
+    def create_model(model_type: Union[MLModelType, str], pj: Union[PredictionJobDataClass, dict], **kwargs) -> OpenstfRegressor:
         """Create a machine learning model based on model type.
 
         Args:
             model_type (Union[MLModelType, str]): Model type to construct.
+            pj (Union[PredictionJobDataClass, dict]): prediction job
             kwargs (dict): Optional keyword argument to pass to the model.
 
         Raises:
@@ -108,11 +111,12 @@ class ModelCreator:
                 f"valid model_types are: {valid_types}"
             ) from e
 
+        model = ModelCreator.MODEL_CONSTRUCTORS[model_type]()
         # only pass relevant arguments to model constructor to prevent warnings
         model_kwargs = {
-            key: value
-            for key, value in kwargs.items()
+            key: pj[value]
+            for key, value in model.init_parameters().items()
             if key in valid_model_kwargs[model_type]
         }
-
-        return ModelCreator.MODEL_CONSTRUCTORS[model_type](**model_kwargs)
+        model.set_params(**model_kwargs)
+        return model

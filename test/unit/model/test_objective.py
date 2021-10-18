@@ -26,9 +26,10 @@ N_TRIALS = 1
 
 
 class TestRegressorObjective(BaseTestCase):
+
     def test_call(self):
         model_type = "xgb"
-        model = ModelCreator.create_model(model_type)
+        model = ModelCreator.create_model(model_type, pj)
 
         objective = RegressorObjective(
             model,
@@ -49,7 +50,7 @@ class TestRegressorObjective(BaseTestCase):
 class TestXGBRegressorObjective(BaseTestCase):
     def test_call(self):
         model_type = "xgb"
-        model = ModelCreator.create_model(model_type)
+        model = ModelCreator.create_model(model_type, pj)
 
         objective = XGBRegressorObjective(
             model,
@@ -69,7 +70,7 @@ class TestXGBRegressorObjective(BaseTestCase):
 class TestLGBRegressorObjective(BaseTestCase):
     def test_call(self):
         model_type = "lgb"
-        model = ModelCreator.create_model(model_type)
+        model = ModelCreator.create_model(model_type, pj)
 
         objective = LGBRegressorObjective(
             model,
@@ -89,7 +90,7 @@ class TestLGBRegressorObjective(BaseTestCase):
 class TestXGBQRegressorObjective(BaseTestCase):
     def test_call(self):
         model_type = "xgb_quantile"
-        model = ModelCreator.create_model(model_type)
+        model = ModelCreator.create_model(model_type, pj)
 
         objective = XGBQuantileRegressorObjective(
             model,
@@ -109,7 +110,7 @@ class TestXGBQRegressorObjective(BaseTestCase):
 class ColumnOrderTest(BaseTestCase):
     def test_call(self):
         model_type = "xgb"
-        model = ModelCreator.create_model(model_type)
+        model = ModelCreator.create_model(model_type, pj)
 
         objective = XGBRegressorObjective(
             model,
