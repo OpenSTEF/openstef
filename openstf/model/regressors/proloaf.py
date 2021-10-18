@@ -1,57 +1,24 @@
-from abc import ABC
+from pathlib import Path
+
+import numpy as np
 import pandas as pd
 import torch
-import numpy as np
 import utils.datahandler as dh
-from utils.modelhandler import ModelWrapper
-from typing import Union, List, Dict, Any
-
 from openstf.model.regressors.regressor import OpenstfRegressor
+from utils.modelhandler import ModelWrapper
 
 
 class OpenstfProloafRegressor(OpenstfRegressor, ModelWrapper):
     def __init__(
             self,
-            name: str = "model",
-            core_net: str = "torch.nn.LSTM",
-            relu_leak: float = 0.1,
-            encoder_features: List[str] = None,
-            decoder_features: List[str] = None,
-            core_layers: int = 1,
-            rel_linear_hidden_size: float = 1.0,
-            rel_core_hidden_size: float = 1.0,
-            dropout_fc: float = 0.4,
-            dropout_core: float = 0.3,
-            training_metric: str = "nllgauss",
-            metric_options: Dict[str, Any] = {},
-            optimizer_name: str = "adam",
-            early_stopping_patience: int = 7,
-            early_stopping_margin: float = 0.0,
-            learning_rate: float = 1e-4,
-            max_epochs: int = 2,
+            json_path: Path = "model/regressors/parameters/proloaf_parameters.json"
     ):
-        self.gain_importance_name = "mock"
-        self.weight_importance_name = "name"
+        with open(json_path) as json_file:
+            parameters = json.load(json_file)
 
         ModelWrapper.__init__(
             self,
-            name=name,
-            core_net=core_net,
-            relu_leak=relu_leak,
-            encoder_features=encoder_features,
-            decoder_features=decoder_features,
-            core_layers=core_layers,
-            rel_linear_hidden_size=rel_linear_hidden_size,
-            rel_core_hidden_size=rel_core_hidden_size,
-            dropout_fc=dropout_fc,
-            dropout_core=dropout_core,
-            training_metric=training_metric,
-            metric_options=metric_options,
-            optimizer_name=optimizer_name,
-            early_stopping_patience=early_stopping_patience,
-            early_stopping_margin=early_stopping_margin,
-            learning_rate=learning_rate,
-            max_epochs=max_epochs,
+            **parameters
         )
 
     def predict(self, x: pd.DataFrame) -> np.ndarray:
@@ -98,10 +65,6 @@ class OpenstfProloafRegressor(OpenstfRegressor, ModelWrapper):
         model_params = self.get_model_config()
         training_params = self.get_training_config()
         return {**model_params, **training_params}
-
-    def _fraction_importance(self, name):
-
-        return np.array([1])
 
     def set_params(self, encoder_features = ['feature_a', 'feature_b'], decoder_features = ['feature_a', 'feature_b'], **params):
         self.update(**params)
