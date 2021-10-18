@@ -4,7 +4,7 @@ import torch
 import utils.datahandler as dh
 from openstf.model.regressors.regressor import OpenstfRegressor
 from utils.modelhandler import ModelWrapper
-
+from typing import List, Dict
 
 class OpenstfProloafRegressor(OpenstfRegressor, ModelWrapper):
     def __init__(
