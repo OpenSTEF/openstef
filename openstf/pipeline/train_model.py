@@ -242,7 +242,9 @@ def train_pipeline_common(
         )
 
     # Create relevant model
-    model = ModelCreator.create_model(pj["model"], quantiles=pj["quantiles"], forecast_horizon=pj["horizon_minutes"])
+    model = ModelCreator.create_model(
+        pj["model"], quantiles=pj["quantiles"], forecast_horizon=pj["horizon_minutes"]
+    )
 
     # split x and y data
     train_x, train_y = train_data.iloc[:, 1:-1], train_data.iloc[:, 0]

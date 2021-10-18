@@ -31,7 +31,6 @@ class OpenstfProloafRegressor(OpenstfRegressor, ModelWrapper):
         split_percent: float = 0.85,
         history_horizon: int = 24,
         forecast_horizon: int = None,
-
     ):
         self.device = device
         self.batch_size = batch_size
@@ -99,9 +98,10 @@ class OpenstfProloafRegressor(OpenstfRegressor, ModelWrapper):
         training_params = self.get_training_config()
         return {**model_params, **training_params}
 
-    def set_params(self,**params):
+    def set_params(self, **params):
         self.update(**params)
         return self
+
 
 if __name__ == "__main__":
     test = OpenstfProloafRegressor()
