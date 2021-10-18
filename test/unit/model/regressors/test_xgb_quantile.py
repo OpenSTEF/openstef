@@ -112,3 +112,7 @@ class TestXgbQuantile(BaseTestCase):
                 == np.array([0.16901408, 0.32394367, 0.5070422], dtype=np.float32)
             ).all()
         )
+
+    def test_importance_names(self):
+        model = XGBQuantileOpenstfRegressor(tuple(self.quantiles))
+        self.assertIsInstance(model._get_importance_names(), dict)
