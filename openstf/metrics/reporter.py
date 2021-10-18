@@ -8,6 +8,7 @@ from typing import Dict
 
 import pandas as pd
 import structlog
+from openstf.model.regressors.regressor import OpenstfRegressor
 from plotly.graph_objects import Figure
 from sklearn.base import RegressorMixin
 
@@ -24,7 +25,11 @@ class Report:
         save_path = Path(save_path)
         os.makedirs(save_path, exist_ok=True)
 
-        self.feature_importance_figure.write_html(str(save_path / "weight_plot.html"))
+        # Write feature_importance_figure if we have one
+        if self.feature_importance_figure is not None:
+            self.feature_importance_figure.write_html(
+                str(save_path / "weight_plot.html")
+            )
 
         for key, fig in self.data_series_figures.items():
             fig.write_html(str(save_path / f"{key}.html"), auto_open=False)
@@ -42,10 +47,10 @@ class Reporter:
         """Initializes reporter
 
         Args:
-            pj:
-            train_data:
-            validation_data:
-            test_data:
+            pj: Prediction job
+            train_data: Dataframe with training data
+            validation_data: Dataframe with validation data
+            test_data: Dataframe with test data
         """
         self.horizons = train_data.horizon.unique()
         self.predicted_data_list = []
@@ -53,13 +58,20 @@ class Reporter:
 
     def generate_report(
         self,
-        model: RegressorMixin,
+        model: OpenstfRegressor,
     ) -> Report:
 
         data_series_figures = self._make_data_series_figures(model)
-        feature_importance_figure = figure.plot_feature_importance(
-            model.feature_importance_dataframe
-        )
+
+        # feature_importance_dataframe should be a dataframe, to create a figure
+        # can be None if we have no feature importance
+        if isinstance(model.feature_importance_dataframe, pd.DataFrame):
+            feature_importance_figure = figure.plot_feature_importance(
+                model.feature_importance_dataframe
+            )
+        # If it isn't a dataframe we will set feature_importance_figure, so it will not create the figure
+        else:
+            feature_importance_figure = None
 
         report = Report(
             data_series_figures=data_series_figures,
@@ -68,7 +80,7 @@ class Reporter:
 
         return report
 
-    def _make_data_series_figures(self, model: RegressorMixin) -> dict:
+    def _make_data_series_figures(self, model: OpenstfRegressor) -> dict:
 
         # Make model predictions
         for data_set in self.input_data_list:
