@@ -89,7 +89,7 @@ class OpenstfProloafRegressor(OpenstfRegressor, ModelWrapper):
             validation_split=1.0,
             device=self.device,
         )
-        self.to(device)
+        self.to(self.device)
         self.init_model()
         return self.run_training(train_dl, validation_dl)
 
