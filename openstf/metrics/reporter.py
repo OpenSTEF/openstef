@@ -25,6 +25,7 @@ class Report:
         save_path = Path(save_path)
         os.makedirs(save_path, exist_ok=True)
 
+        # Write feature_importance_figure if we have one
         if self.feature_importance_figure is not None:
             self.feature_importance_figure.write_html(
                 str(save_path / "weight_plot.html")
@@ -62,10 +63,12 @@ class Reporter:
 
         data_series_figures = self._make_data_series_figures(model)
 
-        if model.feature_importance_dataframe is not None:
+        # feature_importance_dataframe should be a dataframe, can be None if we have no feature importance
+        if isinstance(model.feature_importance_dataframe, pd.DataFrame):
             feature_importance_figure = figure.plot_feature_importance(
                 model.feature_importance_dataframe
             )
+        # If it isn't a dataframe we will set feature_importance_figure, so it will not create the figure
         else:
             feature_importance_figure = None
 
