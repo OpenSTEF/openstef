@@ -16,7 +16,6 @@ DEFAULT_QUANTILES: Tuple[float, ...] = (0.9, 0.5, 0.1)
 
 
 class XGBQuantileOpenstfRegressor(OpenstfRegressor):
-
     @staticmethod
     def _get_importance_names():
         return {

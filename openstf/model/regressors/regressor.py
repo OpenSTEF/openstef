@@ -29,7 +29,9 @@ class OpenstfRegressor(OpenstfRegressorInterface):
             return None
 
         gain = self._fraction_importance(importance_names["gain_importance_name"])
-        weight_importance = self._fraction_importance(importance_names["weight_importance_name"])
+        weight_importance = self._fraction_importance(
+            importance_names["weight_importance_name"]
+        )
 
         feature_importance = pd.DataFrame(
             {"gain": gain, "weight": weight_importance}, index=feature_names
@@ -46,7 +48,7 @@ class OpenstfRegressor(OpenstfRegressorInterface):
 
     @staticmethod
     def _get_importance_names() -> Optional[dict]:
-        """ Get importance names if applicable
+        """Get importance names if applicable
 
         Returns:
             Optional (dict): Returns a dict or None, return None if the model can't get feature importance

@@ -26,7 +26,9 @@ class Report:
         os.makedirs(save_path, exist_ok=True)
 
         if self.feature_importance_figure is not None:
-            self.feature_importance_figure.write_html(str(save_path / "weight_plot.html"))
+            self.feature_importance_figure.write_html(
+                str(save_path / "weight_plot.html")
+            )
 
         for key, fig in self.data_series_figures.items():
             fig.write_html(str(save_path / f"{key}.html"), auto_open=False)
