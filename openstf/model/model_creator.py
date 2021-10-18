@@ -71,10 +71,7 @@ valid_model_kwargs = {
         "min_child_weight",
         "max_depth",
     ],
-    MLModelType.ProLoaf: [
-        "deep",
-        "feature_name"
-    ],
+    MLModelType.ProLoaf: ["deep", "feature_name"],
 }
 
 
