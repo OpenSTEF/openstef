@@ -451,7 +451,7 @@ class PersistentStorageSerializer(AbstractSerializer):
         # log reports/figures in the artifact folder
 
         if report.feature_importance_figure is not None:
-            mlflow.log_figure(report.feature_importance_figure, "weight_plot.html")
+            mlflow.log_figure(report.feature_importance_figure, "figures/weight_plot.html")
 
         for key, fig in report.data_series_figures.items():
             mlflow.log_figure(fig, f"figures/{key}.html")
