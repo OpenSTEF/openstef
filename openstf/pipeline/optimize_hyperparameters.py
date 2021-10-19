@@ -104,7 +104,7 @@ def optimize_hyperparameters_pipeline(
         model,
         pj=pj,
         # In objective we have the data, thus we create the report there
-        report=objective.create_report(pj=pj, model=model),
+        report=objective.create_report(model=model),
         phase="Hyperparameter_opt",
         trials=objective.get_trial_track(),
         trial_number=study.best_trial.number,

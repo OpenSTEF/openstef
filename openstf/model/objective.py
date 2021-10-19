@@ -132,7 +132,7 @@ class RegressorObjective:
             callbacks=callbacks,
         )
 
-        self.model.feature_importance_dataframe = self.model._set_feature_importance(
+        self.model.feature_importance_dataframe = self.model.set_feature_importance(
             train_x.columns
         )
 
@@ -189,18 +189,17 @@ class RegressorObjective:
         """
         return self.track_trials
 
-    def create_report(self, pj: Union[dict], model: OpenstfRegressor) -> Report:
+    def create_report(self, model: OpenstfRegressor) -> Report:
         """Generate a report from the data available inside the objective function
 
         Args:
-            pj: Prediction job
             model: OpenstfRegressor, model to create a report on
 
         Returns:
             Report: report about the model
         """
         # Report about the training process
-        reporter = Reporter(pj, self.train_data, self.validation_data, self.test_data)
+        reporter = Reporter(self.train_data, self.validation_data, self.test_data)
         report = reporter.generate_report(model)
 
         return report
