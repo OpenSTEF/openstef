@@ -15,11 +15,11 @@ import pytz
 import structlog
 from mlflow.exceptions import MlflowException
 from mlflow.tracking import MlflowClient
-from sklearn.base import RegressorMixin
-
-from openstf.model.regressors.regressor import OpenstfRegressor
-from openstf.metrics.reporter import Report
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
+from plotly import graph_objects
+
+from openstf.metrics.reporter import Report
+from openstf.model.regressors.regressor import OpenstfRegressor
 
 MODEL_FILENAME = "model.joblib"
 FOLDER_DATETIME_FORMAT = "%Y%m%d%H%M%S"
@@ -33,7 +33,8 @@ class AbstractSerializer(ABC):
         Returns:
             object:
         """
-        self.mlflow_folder = os.path.join(trained_models_folder, "mlruns/")
+        path = os.path.abspath(f"{trained_models_folder}/mlruns/")
+        self.mlflow_folder = Path(path).as_uri()
         self.logger = structlog.get_logger(self.__class__.__name__)
         self.trained_models_folder = trained_models_folder
         self.client = None
@@ -64,6 +65,7 @@ class PersistentStorageSerializer(AbstractSerializer):
         pj: Union[dict, PredictionJobDataClass],
         report: Report,
         phase: str = "training",
+        **kwargs,
     ):
         """Save sklearn compatible model to persistent storage with MLflow.
 
@@ -75,6 +77,7 @@ class PersistentStorageSerializer(AbstractSerializer):
             pj: Prediction job.
             report: Report object.
             phase: Where does the model come from, default is "training"
+            **kwargs: Extra information to be logged with mlflow, this can add the extra modelspecs
 
         """
         experiment_id = self.setup_mlflow(pj["id"])
@@ -91,7 +94,7 @@ class PersistentStorageSerializer(AbstractSerializer):
             self.logger.info("No previous model found in MLflow")
             prev_run_id = None
         with mlflow.start_run(run_name=pj["model"]):
-            self._log_model_with_mlflow(pj, model, report, phase, prev_run_id)
+            self._log_model_with_mlflow(pj, model, report, phase, prev_run_id, **kwargs)
             self._log_figure_with_mlflow(report)
 
     def load_model(
@@ -393,6 +396,7 @@ class PersistentStorageSerializer(AbstractSerializer):
         report: Report,
         phase: str,
         prev_run_id: str,
+        **kwargs,
     ) -> None:
         """Log model with MLflow
 
@@ -402,8 +406,10 @@ class PersistentStorageSerializer(AbstractSerializer):
             report (Report): report where the info is stored
             phase (str): Origin of the model (Training or Hyperparameter_opt)
             prev_run_id (str): Run-id of the previous run in this prediction job
+            **kwargs: Extra information to be logged with mlflow
 
         """
+
         # Set tags to the run, can be used to filter on the UI
         mlflow.set_tag("phase", phase)
         mlflow.set_tag("Previous_version_id", prev_run_id)
@@ -413,6 +419,20 @@ class PersistentStorageSerializer(AbstractSerializer):
         mlflow.log_metrics(report.metrics)
         # Add the used parameters to the run
         mlflow.log_params(model.get_params())
+
+        # Process args
+        for key, value in kwargs.items():
+            if isinstance(value, dict):
+                mlflow.log_dict(value, f"{key}.json")
+            elif isinstance(value, str) or isinstance(value, int):
+                mlflow.set_tag(key, value)
+            elif isinstance(value, graph_objects.Figure):
+                mlflow.log_figure(value, f"figures/{key}.html")
+            else:
+                self.logger.warning(
+                    f"Couldn't log {key}, {type(key)} not supported", pid=pj["id"]
+                )
+
         # Log the model to the run
         mlflow.sklearn.log_model(
             sk_model=model,
@@ -429,8 +449,12 @@ class PersistentStorageSerializer(AbstractSerializer):
 
         """
         # log reports/figures in the artifact folder
+
         if report.feature_importance_figure is not None:
-            mlflow.log_figure(report.feature_importance_figure, "weight_plot.html")
+            mlflow.log_figure(
+                report.feature_importance_figure, "figures/weight_plot.html"
+            )
+
         for key, fig in report.data_series_figures.items():
-            mlflow.log_figure(fig, f"{key}.html")
+            mlflow.log_figure(fig, f"figures/{key}.html")
         self.logger.info(f"logged figures to MLflow")
