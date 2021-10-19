@@ -25,6 +25,7 @@ class Report:
         self.metrics = None
         self.signature = None
 
+
 class Reporter:
     def __init__(
         self,
@@ -65,7 +66,6 @@ class Reporter:
         )
 
         return report
-
 
     @staticmethod
     def get_metrics(y_pred: np.array, y_true: np.array) -> dict:
