@@ -9,6 +9,7 @@ from typing import List, Tuple, Union
 import pandas as pd
 import structlog
 from mlflow.models.signature import infer_signature
+from openstf.model.regressors.regressor import OpenstfRegressor
 from sklearn.base import RegressorMixin
 
 from openstf.exceptions import (
@@ -107,7 +108,7 @@ def train_model_pipeline_core(
     input_data: pd.DataFrame,
     old_model: RegressorMixin = None,
     horizons: List[float] = None,
-) -> Tuple[RegressorMixin, Report]:
+) -> Tuple[OpenstfRegressor, Report]:
     """Train model core pipeline.
     Trains a new model given a predction job, input data and compares it to an old model.
     This pipeline has no database or persisitent storage dependencies.
@@ -184,7 +185,7 @@ def train_pipeline_common(
     horizons: List[float],
     test_fraction: float = 0.0,
     backtest: bool = False,
-) -> Tuple[RegressorMixin, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+) -> Tuple[OpenstfRegressor, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Common pipeline shared with operational training and backtest training
 
     Args:
