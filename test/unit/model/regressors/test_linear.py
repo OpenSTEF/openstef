@@ -43,7 +43,7 @@ class TestLinearRTEOpenstfRegressor(BaseTestCase):
         model.fit(X, train_input.iloc[:, 0])
 
         # check if non null columns are well retrieved
-        self.assertTrue((columns == model.estimator_.non_null_columns_).all())
+        self.assertTrue((columns == model.non_null_columns_).all())
 
         X_ = X.copy(deep=True)
         X_["Empty2"] = pd.Series(n_sample * [np.nan])
@@ -69,5 +69,5 @@ class TestLinearRTEOpenstfRegressor(BaseTestCase):
         model2.fit(X, train_input.iloc[:, 0])
         self.assertIsNone(sklearn.utils.validation.check_is_fitted(model2))
 
-        X_ = pd.DataFrame(model2.estimator_.imputer_.transform(X), columns=X.columns)
+        X_ = pd.DataFrame(model2.imputer_.transform(X), columns=X.columns)
         self.assertTrue((model2.predict(X_) == model2.predict(X)).all())

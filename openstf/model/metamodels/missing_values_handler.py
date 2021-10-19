@@ -66,10 +66,11 @@ class MissingValueHandler(BaseEstimator, RegressorMixin, MetaEstimatorMixin):
 
     def _get_tags(self):
         tags = self.base_estimator._get_tags()
+        tags["multioutput"] = False
         tags["allow_nan"] = self.imputation_strategy is not None
         return tags
 
-    def fit(self, X, y, **kwargs):
+    def fit(self, X, y):
 
         _, y = check_X_y(X, y, force_all_finite="allow-nan", y_numeric=True)
         if type(X) != pd.DataFrame:
