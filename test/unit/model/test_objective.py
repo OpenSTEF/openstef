@@ -26,7 +26,6 @@ N_TRIALS = 1
 
 
 class TestRegressorObjective(BaseTestCase):
-
     def test_call(self):
         pj = TestData.get_prediction_job(pid=307)
         model = ModelCreator.create_model(pj)

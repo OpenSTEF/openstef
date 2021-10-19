@@ -86,7 +86,9 @@ class ModelCreator:
     }
 
     @staticmethod
-    def create_model(pj: Union[PredictionJobDataClass, dict], **kwargs) -> OpenstfRegressor:
+    def create_model(
+        pj: Union[PredictionJobDataClass, dict], **kwargs
+    ) -> OpenstfRegressor:
         """Create a machine learning model based on model type.
 
         Args:
@@ -106,7 +108,9 @@ class ModelCreator:
         except ValueError as e:
             valid_types = [t.value for t in MLModelType]
             raise NotImplementedError(
-                "No constructor for '{}', valid model_types are: {}".format(pj["model"], valid_types)
+                "No constructor for '{}', valid model_types are: {}".format(
+                    pj["model"], valid_types
+                )
             ) from e
 
         model = ModelCreator.MODEL_CONSTRUCTORS[model_type]()
