@@ -8,7 +8,7 @@ from typing import List, Tuple, Union
 import pandas as pd
 import structlog
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
-from sklearn.base import RegressorMixin
+from openstf.model.regressors.regressor import OpenstfRegressor
 
 from openstf.exceptions import (
     InputDataInsufficientError,
@@ -103,9 +103,9 @@ def train_model_pipeline(
 def train_model_pipeline_core(
     pj: Union[dict, PredictionJobDataClass],
     input_data: pd.DataFrame,
-    old_model: RegressorMixin = None,
+    old_model: OpenstfRegressor = None,
     horizons: List[float] = None,
-) -> Tuple[RegressorMixin, Report]:
+) -> Tuple[OpenstfRegressor, Report]:
     """Train model core pipeline.
     Trains a new model given a predction job, input data and compares it to an old model.
     This pipeline has no database or persisitent storage dependencies.
@@ -182,7 +182,7 @@ def train_pipeline_common(
     horizons: List[float],
     test_fraction: float = 0.0,
     backtest: bool = False,
-) -> Tuple[RegressorMixin, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+) -> Tuple[OpenstfRegressor, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Common pipeline shared with operational training and backtest training
 
     Args:
@@ -268,8 +268,9 @@ def train_pipeline_common(
         early_stopping_rounds=DEFAULT_EARLY_STOPPING_ROUNDS,
         verbose=False,
     )
+    # Gets the feature importance df or None if we don't have feature importance
+    model.feature_importance_dataframe = model.set_feature_importance(train_x.columns)
 
-    model.feature_importance_dataframe = model._set_feature_importance(train_x.columns)
     logging.info("Fitted a new model, not yet stored")
 
     # Do confidence interval determination
@@ -277,8 +278,9 @@ def train_pipeline_common(
         validation_data
     ).generate_standard_deviation_data(model)
 
+
     # Report about the training process
-    reporter = Reporter(pj, train_data, validation_data, test_data)
+    reporter = Reporter(train_data, validation_data, test_data)
     report = reporter.generate_report(model)
 
     return model, report, train_data, validation_data, test_data

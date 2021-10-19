@@ -11,11 +11,10 @@ from mlflow.models import infer_signature, ModelSignature
 from openstf.model.regressors.regressor import OpenstfRegressor
 from plotly.graph_objects import Figure
 from sklearn import metrics
-from sklearn.base import RegressorMixin
+
 
 from openstf.metrics import figure
 from openstf.metrics.metrics import bias, nsme, mae, r_mae, rmse
-from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 
 @dataclass
@@ -36,7 +35,6 @@ class Report:
 class Reporter:
     def __init__(
         self,
-        pj: Union[dict, PredictionJobDataClass] = None,
         train_data: pd.DataFrame = None,
         validation_data: pd.DataFrame = None,
         test_data: pd.DataFrame = None,
@@ -44,12 +42,10 @@ class Reporter:
         """Initializes reporter
 
         Args:
-            pj: Union[dict, PredictionJobDataClass]
-            train_data: pd.DataFrame
-            validation_data: pd.DataFrame
-            test_data: pd.DataFrame
+            train_data: Dataframe with training data
+            validation_data: Dataframe with validation data
+            test_data: Dataframe with test data
         """
-        self.pj = pj
         self.horizons = train_data.horizon.unique()
         self.predicted_data_list = []
         self.input_data_list = [train_data, validation_data, test_data]
@@ -77,9 +73,16 @@ class Reporter:
         )
 
         data_series_figures = self._make_data_series_figures(model)
-        feature_importance_figure = figure.plot_feature_importance(
-            model.feature_importance_dataframe
-        )
+
+        # feature_importance_dataframe should be a dataframe, to create a figure
+        # can be None if we have no feature importance
+        if isinstance(model.feature_importance_dataframe, pd.DataFrame):
+            feature_importance_figure = figure.plot_feature_importance(
+                model.feature_importance_dataframe
+            )
+        # If it isn't a dataframe we will set feature_importance_figure, so it will not create the figure
+        else:
+            feature_importance_figure = None
 
         report = Report(
             data_series_figures=data_series_figures,
@@ -120,7 +123,7 @@ class Reporter:
             "NSME": nsme_value,
         }
 
-    def _make_data_series_figures(self, model: RegressorMixin) -> dict:
+    def _make_data_series_figures(self, model: OpenstfRegressor) -> dict:
         # Make model predictions
         for data_set in self.input_data_list:
             # First ("load") and last ("horizon") are removed here
