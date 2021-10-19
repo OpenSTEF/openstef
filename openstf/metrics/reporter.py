@@ -25,7 +25,6 @@ class Report:
         self.metrics = None
         self.signature = None
 
-
 class Reporter:
     def __init__(
         self,
@@ -36,9 +35,9 @@ class Reporter:
         """Initializes reporter
 
         Args:
-            train_data: pd.DataFrame
-            validation_data: pd.DataFrame
-            test_data: pd.DataFrame
+            train_data: Dataframe with training data
+            validation_data: Dataframe with validation data
+            test_data: Dataframe with test data
         """
         self.horizons = train_data.horizon.unique()
         self.predicted_data_list = []
@@ -49,6 +48,7 @@ class Reporter:
         model: OpenstfRegressor,
     ) -> Report:
         data_series_figures = self._make_data_series_figures(model)
+
         # feature_importance_dataframe should be a dataframe, to create a figure
         # can be None if we have no feature importance
         if isinstance(model.feature_importance_dataframe, pd.DataFrame):
@@ -65,6 +65,7 @@ class Reporter:
         )
 
         return report
+
 
     @staticmethod
     def get_metrics(y_pred: np.array, y_true: np.array) -> dict:

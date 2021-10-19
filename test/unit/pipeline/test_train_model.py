@@ -109,7 +109,7 @@ class TestTrainModelPipeline(BaseTestCase):
 
                 # split x and y data
                 train_x = train_data.iloc[:, 1:-1]
-                importance = model._set_feature_importance(train_x.columns)
+                importance = model.set_feature_importance(train_x.columns)
                 self.assertIsInstance(importance, pd.DataFrame)
 
     @patch("openstf.pipeline.train_model.train_model_pipeline_core")
