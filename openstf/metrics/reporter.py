@@ -52,9 +52,15 @@ class Reporter:
         model: RegressorMixin,
     ) -> Report:
         data_series_figures = self._make_data_series_figures(model)
-        feature_importance_figure = figure.plot_feature_importance(
-            model.feature_importance_dataframe
-        )
+        # feature_importance_dataframe should be a dataframe, to create a figure
+        # can be None if we have no feature importance
+        if isinstance(model.feature_importance_dataframe, pd.DataFrame):
+            feature_importance_figure = figure.plot_feature_importance(
+                model.feature_importance_dataframe
+            )
+        # If it isn't a dataframe we will set feature_importance_figure, so it will not create the figure
+        else:
+            feature_importance_figure = None
 
         report = Report(
             data_series_figures=data_series_figures,
