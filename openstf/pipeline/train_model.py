@@ -278,7 +278,6 @@ def train_pipeline_common(
         validation_data
     ).generate_standard_deviation_data(model)
 
-
     # Report about the training process
     reporter = Reporter(train_data, validation_data, test_data)
     report = reporter.generate_report(model)
