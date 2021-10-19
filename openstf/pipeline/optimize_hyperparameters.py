@@ -81,7 +81,7 @@ def optimize_hyperparameters_pipeline(
     objective = ObjectiveCreator.create_objective(model_type=pj["model"])
 
     model_type = pj["model"]
-    model = ModelCreator.create_model(model_type, pj)
+    model = ModelCreator.create_model(pj)
 
     objective = objective(
         model,

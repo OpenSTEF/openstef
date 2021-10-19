@@ -86,11 +86,10 @@ class ModelCreator:
     }
 
     @staticmethod
-    def create_model(model_type: Union[MLModelType, str], pj: Union[PredictionJobDataClass, dict], **kwargs) -> OpenstfRegressor:
+    def create_model(pj: Union[PredictionJobDataClass, dict], **kwargs) -> OpenstfRegressor:
         """Create a machine learning model based on model type.
 
         Args:
-            model_type (Union[MLModelType, str]): Model type to construct.
             pj (Union[PredictionJobDataClass, dict]): prediction job
             kwargs (dict): Optional keyword argument to pass to the model.
 
@@ -98,17 +97,16 @@ class ModelCreator:
             NotImplementedError: When using an invalid model_type.
 
         Returns:
-            RegressorMixin: model
+            OpenstfRegressor: model
         """
         try:
             # This will raise a ValueError when an invalid model_type str is used
             # and nothing when a MLModelType enum is used.
-            model_type = MLModelType(model_type)
+            model_type = MLModelType(pj["model"])
         except ValueError as e:
             valid_types = [t.value for t in MLModelType]
             raise NotImplementedError(
-                f"No constructor for '{model_type}', "
-                f"valid model_types are: {valid_types}"
+                "No constructor for '{}', valid model_types are: {}".format(pj["model"], valid_types)
             ) from e
 
         model = ModelCreator.MODEL_CONSTRUCTORS[model_type]()
