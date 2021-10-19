@@ -6,9 +6,10 @@ from typing import Dict, Union
 
 import numpy as np
 import pandas as pd
+from openstf.model.regressors.regressor import OpenstfRegressor
 from plotly.graph_objects import Figure
 from sklearn import metrics
-from sklearn.base import RegressorMixin
+
 
 from openstf.metrics import figure
 from openstf.metrics.metrics import bias, nsme, mae, r_mae, rmse
@@ -49,7 +50,7 @@ class Reporter:
 
     def generate_report(
         self,
-        model: RegressorMixin,
+        model: OpenstfRegressor,
     ) -> Report:
         data_series_figures = self._make_data_series_figures(model)
         # feature_importance_dataframe should be a dataframe, to create a figure
@@ -99,7 +100,7 @@ class Reporter:
             "NSME": nsme_value,
         }
 
-    def _make_data_series_figures(self, model: RegressorMixin) -> dict:
+    def _make_data_series_figures(self, model: OpenstfRegressor) -> dict:
         # Make model predictions
         for data_set in self.input_data_list:
             # First ("load") and last ("horizon") are removed here
