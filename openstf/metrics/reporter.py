@@ -13,7 +13,6 @@ from sklearn import metrics
 
 from openstf.metrics import figure
 from openstf.metrics.metrics import bias, nsme, mae, r_mae, rmse
-from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 
 @dataclass
@@ -30,7 +29,6 @@ class Report:
 class Reporter:
     def __init__(
         self,
-        pj: Union[dict, PredictionJobDataClass] = None,
         train_data: pd.DataFrame = None,
         validation_data: pd.DataFrame = None,
         test_data: pd.DataFrame = None,
@@ -38,12 +36,10 @@ class Reporter:
         """Initializes reporter
 
         Args:
-            pj: Union[dict, PredictionJobDataClass]
             train_data: pd.DataFrame
             validation_data: pd.DataFrame
             test_data: pd.DataFrame
         """
-        self.pj = pj
         self.horizons = train_data.horizon.unique()
         self.predicted_data_list = []
         self.input_data_list = [train_data, validation_data, test_data]
