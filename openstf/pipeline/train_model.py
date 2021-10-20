@@ -150,7 +150,10 @@ def train_model_pipeline_core(
     # Check if new model is better than old model
     if old_model:
         combined = train_data.append(validation_data)
-        x_data, y_data = combined.iloc[:, 1:-1].reset_index(), combined.iloc[:, 0].reset_index()
+        x_data, y_data = (
+            combined.iloc[:, 1:-1].reset_index(),
+            combined.iloc[:, 0].reset_index(),
+        )
 
         # Score method always returns R^2
         score_new_model = model.score(x_data, y_data)
