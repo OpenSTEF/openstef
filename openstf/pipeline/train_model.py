@@ -215,13 +215,12 @@ def train_pipeline_common(
     # Check if sufficient data is left after cleaning
     if not validation.is_data_sufficient(validated_data):
         raise InputDataInsufficientError(
-            f"Input data is insufficient for {pj['name']} "
-            f"after validation and cleaning"
+            "Input data is insufficient, after validation and cleaning"
         )
 
-    data_with_features = TrainFeatureApplicator(horizons=horizons).add_features(
-        input_data
-    )
+    data_with_features = TrainFeatureApplicator(
+        horizons=horizons, feature_names=pj["feature_names"]
+    ).add_features(validated_data)
 
     # Split data
     (
