@@ -55,9 +55,9 @@ class TestAbstractModelSerializer(BaseTestCase):
         report_mock = MagicMock()
         report_mock.get_metrics.return_value = {"mae", 0.2}
         with self.assertLogs("PersistentStorageSerializer", level="INFO") as captured:
-            PersistentStorageSerializer(trained_models_folder="./test/trained_models").save_model(
-                model=model, pj=pj, report=report_mock
-            )
+            PersistentStorageSerializer(
+                trained_models_folder="./test/trained_models"
+            ).save_model(model=model, pj=pj, report=report_mock)
             self.assertRegex(
                 captured.records[1].getMessage(), "Model saved with MLflow"
             )
@@ -85,9 +85,9 @@ class TestAbstractModelSerializer(BaseTestCase):
         report_mock.get_metrics.return_value = {"mae", 0.2}
         mock_search.return_value = pd.DataFrame(columns=["run_id"])
         with self.assertLogs("PersistentStorageSerializer", level="INFO") as captured:
-            PersistentStorageSerializer(trained_models_folder="./test/trained_models").save_model(
-                model=model, pj=pj, report=report_mock
-            )
+            PersistentStorageSerializer(
+                trained_models_folder="./test/trained_models"
+            ).save_model(model=model, pj=pj, report=report_mock)
             self.assertRegex(
                 captured.records[1].getMessage(), "No previous model found in MLflow"
             )

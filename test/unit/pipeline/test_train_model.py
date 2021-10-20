@@ -116,7 +116,9 @@ class TestTrainModelPipeline(BaseTestCase):
     @patch("openstf.model.serializer.PersistentStorageSerializer.save_model")
     @patch("openstf.pipeline.train_model.train_model_pipeline_core")
     @patch("openstf.pipeline.train_model.PersistentStorageSerializer")
-    def test_train_model_pipeline_happy_flow(self, serializer_mock, pipeline_mock, save_model_mock):
+    def test_train_model_pipeline_happy_flow(
+        self, serializer_mock, pipeline_mock, save_model_mock
+    ):
         """Test happy flow of the train model pipeline"""
 
         old_model_mock = MagicMock()
@@ -139,7 +141,9 @@ class TestTrainModelPipeline(BaseTestCase):
     @patch("openstf.model.serializer.PersistentStorageSerializer.save_model")
     @patch("openstf.pipeline.train_model.train_model_pipeline_core")
     @patch("openstf.pipeline.train_model.PersistentStorageSerializer")
-    def test_train_model_pipeline_young_model(self, serializer_mock, pipeline_mock, save_model_mock):
+    def test_train_model_pipeline_young_model(
+        self, serializer_mock, pipeline_mock, save_model_mock
+    ):
         """Test pipeline core is not called when model is young"""
         old_model_mock = MagicMock()
         old_model_mock.age = 3
@@ -162,7 +166,7 @@ class TestTrainModelPipeline(BaseTestCase):
     @patch("openstf.model.serializer.PersistentStorageSerializer.save_model")
     @patch("openstf.validation.validation.is_data_sufficient", return_value=False)
     def test_train_model_InputDataInsufficientError(
-        self, validation_is_data_sufficient_mock , save_model_mock
+        self, validation_is_data_sufficient_mock, save_model_mock
     ):
         # This error is caught and then raised again and logged
         with self.assertLogs("openstf.pipeline.train_model", level="ERROR") as captured:
@@ -206,7 +210,9 @@ class TestTrainModelPipeline(BaseTestCase):
 
     @patch("openstf.model.serializer.PersistentStorageSerializer.save_model")
     @patch("openstf.pipeline.train_model.PersistentStorageSerializer")
-    def test_train_model_OldModelHigherScoreError(self, serializer_mock, save_model_mock):
+    def test_train_model_OldModelHigherScoreError(
+        self, serializer_mock, save_model_mock
+    ):
         # Mock an old model which is better than the new one.
         old_model_mock = MagicMock()
         old_model_mock.age = 8

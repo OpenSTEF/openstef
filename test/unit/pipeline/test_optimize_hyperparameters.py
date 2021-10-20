@@ -34,21 +34,27 @@ class TestOptimizeHyperParametersPipeline(BaseTestCase):
 
         # if data is not sufficient a InputDataInsufficientError should be raised
         with self.assertRaises(InputDataInsufficientError):
-            optimize_hyperparameters_pipeline(self.pj, self.input_data, "./test/trained_models")
+            optimize_hyperparameters_pipeline(
+                self.pj, self.input_data, "./test/trained_models"
+            )
 
     def test_optimize_hyperparameters_pipeline_no_data(self):
         input_data = pd.DataFrame()
 
         # if there is no data a InputDataInsufficientError should be raised
         with self.assertRaises(InputDataInsufficientError):
-            optimize_hyperparameters_pipeline(self.pj, input_data, "./test/trained_models")
+            optimize_hyperparameters_pipeline(
+                self.pj, input_data, "./test/trained_models"
+            )
 
     def test_optimize_hyperparameters_pipeline_no_load_data(self):
 
         input_data = self.input_data.drop("load", axis=1)
         # if there is no data a InputDataWrongColumnOrderError should be raised
         with self.assertRaises(InputDataWrongColumnOrderError):
-            optimize_hyperparameters_pipeline(self.pj, input_data, "./test/trained_models")
+            optimize_hyperparameters_pipeline(
+                self.pj, input_data, "./test/trained_models"
+            )
 
 
 if __name__ == "__main__":
