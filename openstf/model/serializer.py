@@ -207,7 +207,7 @@ class PersistentStorageSerializer(AbstractSerializer):
         # Add model age to model object
         loaded_model.age = model_age_in_days
         loaded_model.path = model_path
-
+        self.logger.info("Model loaded")
         return loaded_model
 
     def determine_model_age_from_pid(self, pid: int) -> float:
