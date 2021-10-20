@@ -32,4 +32,4 @@ class TestTrainBackTestPipeline(BaseTestCase):
         self.assertTrue("forecast" in forecast.columns)
         self.assertTrue("realised" in forecast.columns)
         self.assertTrue("horizon" in forecast.columns)
-        self.assertEqual(list(forecast.horizon.unique()), [24.0, 0.25])
+        self.assertEqual(list(forecast.horizon.unique()), [0.25, 24.0])
