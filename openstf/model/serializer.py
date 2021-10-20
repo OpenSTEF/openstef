@@ -387,6 +387,7 @@ class PersistentStorageSerializer(AbstractSerializer):
         # Setup a client to get the experiment id
         self.client = MlflowClient()
         mlflow.set_experiment(str(pid))
+        self.logger.info("MLflow experiment set")
         return self.client.get_experiment_by_name(str(pid)).experiment_id
 
     def _log_model_with_mlflow(

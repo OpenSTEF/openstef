@@ -49,7 +49,7 @@ class TestCreateForecastPipeline(BaseTestCase):
         pj = TestData.get_prediction_job(pid=307)
         pj["model_type_group"] = "default"
         model = PersistentStorageSerializer(
-            trained_models_folder=Path("./test/trained_models")
+            trained_models_folder="./test/trained_models"
         ).load_model(pid=307)
         if not hasattr(model, "standard_deviation"):  # Renamed the attribute
             model.standard_deviation = model.confidence_interval
@@ -81,7 +81,7 @@ class TestCreateForecastPipeline(BaseTestCase):
         self.pj["feature_names"] = self.forecast_input.columns[1:]
 
         model = PersistentStorageSerializer(
-            trained_models_folder=Path("./test/trained_models")
+            trained_models_folder="./test/trained_models"
         ).load_model(pid=307)
 
         if not hasattr(model, "standard_deviation"):  # Renamed the attribute

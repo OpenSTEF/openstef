@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+import warnings
 from dataclasses import dataclass
 from typing import Dict, Union, List
 
@@ -84,12 +85,14 @@ class Reporter:
         else:
             feature_importance_figure = None
 
-        report = Report(
-            data_series_figures=data_series_figures,
-            feature_importance_figure=feature_importance_figure,
-            metrics=self.get_metrics(model.predict(valid_x), valid_y),
-            signature=infer_signature(train_x, train_y),
-        )
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            report = Report(
+                data_series_figures=data_series_figures,
+                feature_importance_figure=feature_importance_figure,
+                metrics=self.get_metrics(model.predict(valid_x), valid_y),
+                signature=infer_signature(train_x, train_y),
+            )
 
         return report
 

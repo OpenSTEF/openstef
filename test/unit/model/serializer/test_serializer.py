@@ -28,7 +28,7 @@ class TestAbstractModelSerializer(BaseTestCase):
         )
 
         model_age = PersistentStorageSerializer(
-            trained_models_folder="OTHER_TEST"
+            trained_models_folder="./test/trained_models"
         )._determine_model_age_from_path(model_path)
 
         self.assertEqual(model_age, expected_model_age)
@@ -55,11 +55,11 @@ class TestAbstractModelSerializer(BaseTestCase):
         report_mock = MagicMock()
         report_mock.get_metrics.return_value = {"mae", 0.2}
         with self.assertLogs("PersistentStorageSerializer", level="INFO") as captured:
-            PersistentStorageSerializer("OTHER_TEST").save_model(
+            PersistentStorageSerializer(trained_models_folder="./test/trained_models").save_model(
                 model=model, pj=pj, report=report_mock
             )
             self.assertRegex(
-                captured.records[0].getMessage(), "Model saved with MLflow"
+                captured.records[1].getMessage(), "Model saved with MLflow"
             )
 
     @patch("mlflow.sklearn.log_model")
@@ -85,11 +85,11 @@ class TestAbstractModelSerializer(BaseTestCase):
         report_mock.get_metrics.return_value = {"mae", 0.2}
         mock_search.return_value = pd.DataFrame(columns=["run_id"])
         with self.assertLogs("PersistentStorageSerializer", level="INFO") as captured:
-            PersistentStorageSerializer("OTHER_TEST").save_model(
+            PersistentStorageSerializer(trained_models_folder="./test/trained_models").save_model(
                 model=model, pj=pj, report=report_mock
             )
             self.assertRegex(
-                captured.records[0].getMessage(), "No previous model found in MLflow"
+                captured.records[1].getMessage(), "No previous model found in MLflow"
             )
 
     def test_determine_model_age_from_MLflow_run(self):
@@ -105,7 +105,7 @@ class TestAbstractModelSerializer(BaseTestCase):
             }
         ).iloc[0]
         days = PersistentStorageSerializer(
-            "OTHER_TEST"
+            trained_models_folder="./test/trained_models"
         )._determine_model_age_from_mlflow_run(run)
         self.assertGreater(days, 7)
 
@@ -126,7 +126,7 @@ class TestAbstractModelSerializer(BaseTestCase):
             "PersistentStorageSerializer", level="WARNING"
         ) as captured:
             days = PersistentStorageSerializer(
-                "OTHER_TEST"
+                trained_models_folder="./test/trained_models"
             )._determine_model_age_from_mlflow_run(run)
         self.assertRegex(
             captured.records[0].getMessage(),
