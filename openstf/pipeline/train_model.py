@@ -242,7 +242,9 @@ def train_pipeline_common(
         )
 
     # Create relevant model
-    model = ModelCreator.create_model(pj["model"], quantiles=pj["quantiles"])
+    model = ModelCreator.create_model(
+        pj["model"], quantiles=pj["quantiles"], forecast_horizon=pj["horizon_minutes"]
+    )
 
     # split x and y data
     train_x, train_y = train_data.iloc[:, 1:-1], train_data.iloc[:, 0]
@@ -269,8 +271,9 @@ def train_pipeline_common(
         early_stopping_rounds=DEFAULT_EARLY_STOPPING_ROUNDS,
         verbose=False,
     )
+    # Gets the feature importance df or None if we don't have feature importance
+    model.feature_importance_dataframe = model.set_feature_importance(train_x.columns)
 
-    model.feature_importance_dataframe = model._set_feature_importance(train_x.columns)
     logging.info("Fitted a new model, not yet stored")
 
     # Do confidence interval determination

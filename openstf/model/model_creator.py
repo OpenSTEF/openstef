@@ -3,13 +3,12 @@
 # SPDX-License-Identifier: MPL-2.0
 from typing import Union
 
-from sklearn.base import RegressorMixin
-
 from openstf.enums import MLModelType
 from openstf.model.regressors.lgbm import LGBMOpenstfRegressor
+from openstf.model.regressors.proloaf import OpenstfProloafRegressor
+from openstf.model.regressors.regressor import OpenstfRegressor
 from openstf.model.regressors.xgb import XGBOpenstfRegressor
 from openstf.model.regressors.xgb_quantile import XGBQuantileOpenstfRegressor
-from openstf.model.regressors.proloaf import OpenstfProloafRegressor
 
 valid_model_kwargs = {
     MLModelType.XGB: [
@@ -72,8 +71,28 @@ valid_model_kwargs = {
         "max_depth",
     ],
     MLModelType.ProLoaf: [
-        "deep",
-        "feature_name"
+        "name",
+        "core_net",
+        "relu_leak",
+        "encoder_features",
+        "decoder_features",
+        "core_layers",
+        "rel_linear_hidden_size",
+        "rel_core_hidden_size",
+        "dropout_fc",
+        "dropout_core",
+        "training_metric",
+        "metric_options",
+        "optimizer_name",
+        "early_stopping_patience",
+        "early_stopping_margin",
+        "learning_rate",
+        "max_epochs",
+        "device",
+        "batch_size",
+        "split_percent",
+        "history_horizon",
+        "forecast_horizon",
     ],
 }
 
@@ -90,7 +109,7 @@ class ModelCreator:
     }
 
     @staticmethod
-    def create_model(model_type: Union[MLModelType, str], **kwargs) -> RegressorMixin:
+    def create_model(model_type: Union[MLModelType, str], **kwargs) -> OpenstfRegressor:
         """Create a machine learning model based on model type.
 
         Args:
@@ -101,7 +120,7 @@ class ModelCreator:
             NotImplementedError: When using an invalid model_type.
 
         Returns:
-            RegressorMixin: model
+            OpenstfRegressor: model
         """
         try:
             # This will raise a ValueError when an invalid model_type str is used
@@ -113,6 +132,11 @@ class ModelCreator:
                 f"No constructor for '{model_type}', "
                 f"valid model_types are: {valid_types}"
             ) from e
+
+        # TODO:
+        #  1. replace parsing of kwargs with a function parsing prediction job
+        #  2. specify in the regressor the needed parameters from the prediction job
+        #           for example pj["quantiles"] in xgb_quantile
 
         # only pass relevant arguments to model constructor to prevent warnings
         model_kwargs = {

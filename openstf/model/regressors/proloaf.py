@@ -1,38 +1,43 @@
-from abc import ABC
+import numpy as np
 import pandas as pd
 import torch
-import numpy as np
 import utils.datahandler as dh
-from utils.modelhandler import ModelWrapper
-from typing import Union, List, Dict, Any
-
 from openstf.model.regressors.regressor import OpenstfRegressor
+from utils.modelhandler import ModelWrapper
+from typing import List, Dict
 
 
 class OpenstfProloafRegressor(OpenstfRegressor, ModelWrapper):
     def __init__(
-            self,
-            name: str = "model",
-            core_net: str = "torch.nn.LSTM",
-            relu_leak: float = 0.1,
-            encoder_features: List[str] = None,
-            decoder_features: List[str] = None,
-            core_layers: int = 1,
-            rel_linear_hidden_size: float = 1.0,
-            rel_core_hidden_size: float = 1.0,
-            dropout_fc: float = 0.4,
-            dropout_core: float = 0.3,
-            training_metric: str = "nllgauss",
-            metric_options: Dict[str, Any] = {},
-            optimizer_name: str = "adam",
-            early_stopping_patience: int = 7,
-            early_stopping_margin: float = 0.0,
-            learning_rate: float = 1e-4,
-            max_epochs: int = 2,
+        self,
+        name: str = "model",
+        core_net: str = "torch.nn.LSTM",
+        relu_leak: float = 0.1,
+        encoder_features: List[str] = None,
+        decoder_features: List[str] = None,
+        core_layers: int = 1,
+        rel_linear_hidden_size: float = 1.0,
+        rel_core_hidden_size: float = 1.0,
+        dropout_fc: float = 0.4,
+        dropout_core: float = 0.3,
+        training_metric: str = "nllgaus",
+        metric_options: Dict[str, Any] = {},
+        optimizer_name: str = "adam",
+        early_stopping_patience: int = 7,
+        early_stopping_margin: float = 0.0,
+        learning_rate: float = 1e-4,
+        max_epochs: int = 100,
+        device: str = "cpu",
+        batch_size: int = 10,
+        split_percent: float = 0.85,
+        history_horizon: int = 24,
+        forecast_horizon: int = None,
     ):
-        self.gain_importance_name = "mock"
-        self.weight_importance_name = "name"
-
+        self.device = device
+        self.batch_size = batch_size
+        self.split_percent = split_percent
+        self.history_horizon = history_horizon
+        self.forecast_horizon = forecast_horizon
         ModelWrapper.__init__(
             self,
             name=name,
@@ -60,20 +65,15 @@ class OpenstfProloafRegressor(OpenstfRegressor, ModelWrapper):
         # selected_features, scalers = dh.scale_all(x, **config)
         inputs_enc = torch.tensor(x[self.encoder_features]).unsqueeze(dim=0)
         inputs_dec = torch.tensor(x[self.decoder_features]).unsqueeze(dim=0)
-        return super().predict(inputs_enc, inputs_dec)[:,:,0].squeeze().numpy()
+        return super().predict(inputs_enc, inputs_dec)[:, :, 0].squeeze().numpy()
 
     def fit(
-            self,
-            x: pd.DataFrame,
-            y: pd.DataFrame,
-            device: str = "cpu",
-            batch_size: int = 10,
-            split_percent: float = 0.85,
-            history_horizon: int = 24,
-            forecast_horizon: int = 24,
-            eval_set: tuple = None,
-            early_stopping_rounds: int = None,
-            verbose: bool = False
+        self,
+        x: pd.DataFrame,
+        y: pd.DataFrame,
+        eval_set: tuple = None,
+        early_stopping_rounds: int = None,
+        verbose: bool = False,
     ) -> ModelWrapper:
         y = y.to_frame()
         self.target_id = [y.columns[0]]
@@ -82,34 +82,26 @@ class OpenstfProloafRegressor(OpenstfRegressor, ModelWrapper):
             df=df,  # TODO this needs to be x and y cacatinated
             encoder_features=self.encoder_features,
             decoder_features=self.decoder_features,
-            batch_size=batch_size,
-            history_horizon=history_horizon,
-            forecast_horizon=forecast_horizon,
+            batch_size=self.batch_size,
+            history_horizon=self.history_horizon,
+            forecast_horizon=self.forecast_horizon,
             target_id=self.target_id,
-            train_split=split_percent,
+            train_split=self.split_percent,
             validation_split=1.0,
-            device=device,
+            device=self.device,
         )
-        self.to(device)
+        self.to(self.device)
         self.init_model()
         return self.run_training(train_dl, validation_dl)
 
-    def get_params(self,  deep=True):
+    def get_params(self, deep=True):
         model_params = self.get_model_config()
         training_params = self.get_training_config()
         return {**model_params, **training_params}
 
-    def _fraction_importance(self, name):
-
-        return np.array([1])
-
-    def set_params(self, encoder_features = ['feature_a', 'feature_b'], decoder_features = ['feature_a', 'feature_b'], **params):
+    def set_params(self, **params):
         self.update(**params)
-        self.update(encoder_features=encoder_features)
-        self.update(decoder_features=decoder_features)
-
         return self
-
 
 
 if __name__ == "__main__":
