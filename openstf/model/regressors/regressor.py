@@ -56,6 +56,3 @@ class OpenstfRegressor(OpenstfRegressorInterface):
         """
         return None
 
-    @staticmethod
-    def init_parameters():
-        return {}

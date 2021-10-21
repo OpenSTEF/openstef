@@ -23,10 +23,6 @@ class XGBQuantileOpenstfRegressor(OpenstfRegressor):
             "weight_importance_name": "weight",
         }
 
-    @staticmethod
-    def init_parameters():
-        return {"quantiles": "quantiles"}
-
     def __init__(
         self,
         quantiles: Tuple[float, ...] = DEFAULT_QUANTILES,
