@@ -1,8 +1,12 @@
+<!--
+SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com>
+
+SPDX-License-Identifier: MPL-2.0
+-->
 # Getting Help
 
 There are a few ways to connect with the OpenSTF project:
 
-* _todo: add email list_
 * _DM one of the most recent [Contributors](https://github.com/alliander-opensource/openstf/graphs/contributors)_
 * _submit an issue on github_
 
