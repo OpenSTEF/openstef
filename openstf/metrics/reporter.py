@@ -11,7 +11,7 @@ from mlflow.models import infer_signature, ModelSignature
 
 from openstf.model.regressors.regressor import OpenstfRegressor
 from plotly.graph_objects import Figure
-from sklearn import metrics
+import sklearn
 
 
 from openstf.metrics import figure
@@ -107,24 +107,23 @@ class Reporter:
         Returns:
             dictionary: metrics for the prediction
         """
-        bias_value = bias(y_true, y_pred)
-        nsme_value = nsme(y_true, y_pred)
-        mae_value = mae(y_true, y_pred)
-        r_mae_value = r_mae(y_true, y_pred)
-        rmse_value = rmse(y_true, y_pred)
-        explained_variance = metrics.explained_variance_score(y_true, y_pred)
-        mse = metrics.mean_squared_error(y_true, y_pred)
-        r2 = metrics.r2_score(y_true, y_pred)
-        return {
-            "explained_variance": explained_variance,
-            "r2": r2,
-            "MAE": mae_value,
-            "R_MAE": r_mae_value,
-            "MSE": mse,
-            "RMSE": rmse_value,
-            "bias": bias_value,
-            "NSME": nsme_value,
+        metric_dict = {
+            "bias": bias,
+            "NSME": nsme,
+            "MAE": mae,
+            "R_MAE": r_mae,
+            "RMSE": rmse,
+            "explained_variance": sklearn.metrics.explained_variance_score,
+            "MSE": sklearn.metrics.mean_squared_error,
+            "r2": sklearn.metrics.r2_score,
         }
+        results = {}
+        for name, metric in metric_dict.items():
+            try:
+                results[name] = metric(y_true, y_pred)
+            except ValueError:
+                continue
+        return results
 
     def _make_data_series_figures(self, model: OpenstfRegressor) -> dict:
         # Make model predictions
