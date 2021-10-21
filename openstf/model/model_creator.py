@@ -3,6 +3,8 @@
 # SPDX-License-Identifier: MPL-2.0
 from typing import Union
 
+from openstf_dbc.services.prediction_job import PredictionJobDataClass
+
 from openstf.enums import MLModelType
 from openstf.model.regressors.lgbm import LGBMOpenstfRegressor
 from openstf.model.regressors.proloaf import OpenstfProloafRegressor
@@ -10,89 +12,15 @@ from openstf.model.regressors.regressor import OpenstfRegressor
 from openstf.model.regressors.xgb import XGBOpenstfRegressor
 from openstf.model.regressors.xgb_quantile import XGBQuantileOpenstfRegressor
 
-valid_model_kwargs = {
-    MLModelType.XGB: [
-        "n_estimators",
-        "objective",
-        "max_depth",
-        "learning_rate",
-        "verbosity",
-        "booster",
-        "tree_method",
-        "gamma",
-        "min_child_weight",
-        "max_delta_step",
-        "subsample",
-        "colsample_bytree",
-        "colsample_bylevel",
-        "colsample_bynode",
-        "reg_alpha",
-        "reg_lambda",
-        "scale_pos_weight",
-        "base_score",
-        "missing",
-        "num_parallel_tree",
-        "kwargs",
-        "random_state",
-        "n_jobs",
-        "monotone_constraints",
-        "interaction_constraints",
-        "importance_type",
-        "gpu_id",
-        "validate_parameters",
-    ],
-    MLModelType.LGB: [
-        "boosting_type",
-        "objective",
-        "num_leaves",
-        "max_depth",
-        "learning_rate",
-        "n_estimators",
-        "subsample_for_bin",
-        "min_split_gain",
-        "min_child_weight",
-        "min_child_samples",
-        "subsample",
-        "subsample_freq",
-        "colsample_bytree",
-        "reg_alpha",
-        "reg_lambda",
-        "random_state",
-        "n_jobs",
-        "silent",
-        "importance_type",
-    ],
+# Model parameters needed for init from prediction job
+model_init_args = {
+    MLModelType.XGB: [],
+    MLModelType.LGB: [],
     MLModelType.XGB_QUANTILE: [
         "quantiles",
-        "gamma",
-        "colsample_bytree",
-        "subsample",
-        "min_child_weight",
-        "max_depth",
     ],
     MLModelType.ProLoaf: [
-        "name",
-        "core_net",
-        "relu_leak",
-        "encoder_features",
-        "decoder_features",
-        "core_layers",
-        "rel_linear_hidden_size",
-        "rel_core_hidden_size",
-        "dropout_fc",
-        "dropout_core",
-        "training_metric",
-        "metric_options",
-        "optimizer_name",
-        "early_stopping_patience",
-        "early_stopping_margin",
-        "learning_rate",
-        "max_epochs",
-        "device",
-        "batch_size",
-        "split_percent",
-        "history_horizon",
-        "forecast_horizon",
+        "horizon_minutes",
     ],
 }
 
@@ -109,12 +37,13 @@ class ModelCreator:
     }
 
     @staticmethod
-    def create_model(model_type: Union[MLModelType, str], **kwargs) -> OpenstfRegressor:
+    def create_model(
+        pj: Union[PredictionJobDataClass, dict],
+    ) -> OpenstfRegressor:
         """Create a machine learning model based on model type.
 
         Args:
-            model_type (Union[MLModelType, str]): Model type to construct.
-            kwargs (dict): Optional keyword argument to pass to the model.
+            pj (Union[PredictionJobDataClass, dict]): prediction job
 
         Raises:
             NotImplementedError: When using an invalid model_type.
@@ -125,24 +54,15 @@ class ModelCreator:
         try:
             # This will raise a ValueError when an invalid model_type str is used
             # and nothing when a MLModelType enum is used.
-            model_type = MLModelType(model_type)
+            model_type = MLModelType(pj["model"])
         except ValueError as e:
             valid_types = [t.value for t in MLModelType]
             raise NotImplementedError(
-                f"No constructor for '{model_type}', "
-                f"valid model_types are: {valid_types}"
+                "No constructor for '{}', valid model_types are: {}".format(
+                    pj["model"], valid_types
+                )
             ) from e
 
-        # TODO:
-        #  1. replace parsing of kwargs with a function parsing prediction job
-        #  2. specify in the regressor the needed parameters from the prediction job
-        #           for example pj["quantiles"] in xgb_quantile
-
         # only pass relevant arguments to model constructor to prevent warnings
-        model_kwargs = {
-            key: value
-            for key, value in kwargs.items()
-            if key in valid_model_kwargs[model_type]
-        }
-
+        model_kwargs = {key: pj[key] for key in model_init_args[model_type]}
         return ModelCreator.MODEL_CONSTRUCTORS[model_type](**model_kwargs)

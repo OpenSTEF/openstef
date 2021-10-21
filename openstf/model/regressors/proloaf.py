@@ -31,13 +31,13 @@ class OpenstfProloafRegressor(OpenstfRegressor, ModelWrapper):
         batch_size: int = 10,
         split_percent: float = 0.85,
         history_horizon: int = 24,
-        forecast_horizon: int = None,
+        horizon_minutes: int = None,
     ):
         self.device = device
         self.batch_size = batch_size
         self.split_percent = split_percent
         self.history_horizon = history_horizon
-        self.forecast_horizon = forecast_horizon
+        self.forecast_horizon = int(horizon_minutes / 60)
         ModelWrapper.__init__(
             self,
             name=name,
