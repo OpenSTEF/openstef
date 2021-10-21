@@ -270,7 +270,7 @@ def train_pipeline_common(
         verbose=False,
     )
 
-    model.feature_importance_dataframe = model._set_feature_importance(train_x.columns)
+    model.feature_importance_dataframe = model._set_feature_importance()
     logging.info("Fitted a new model, not yet stored")
 
     # Do confidence interval determination
