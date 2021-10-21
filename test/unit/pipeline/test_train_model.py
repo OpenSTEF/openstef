@@ -109,8 +109,6 @@ class TestTrainModelPipeline(BaseTestCase):
                     test_data,
                 ) = split_data_train_validation_test(data_with_features)
 
-                # split x and y data
-                train_x = train_data.iloc[:, 1:-1]
                 importance = model._set_feature_importance()
                 self.assertIsInstance(importance, pd.DataFrame)
 
