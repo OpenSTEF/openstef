@@ -34,10 +34,9 @@ class TestFeatureApplicator(TestCase):
     def test_train_feature_applicator_correct_order_historic_load(self):
         # Test for expected column order of the output and test for expected historic_load column
         input_data = TestData.load("input_data.pickle")
-        input_data["T-x"] = input_data["load"]
         data_with_features = TrainFeatureApplicator(
-            horizons=[0.25, 24.0], feature_names=["T-x"]
-        ).add_features(input_data)
+            horizons=[0.25, 24.0], feature_names=["historic_load"]
+        ).add_features(input_data[["load"]])
         self.assertTrue("historic_load" in data_with_features.columns.to_list())
         self.assertEqual(data_with_features.columns.to_list()[0], "load")
         self.assertEqual(data_with_features.columns.to_list()[-1], "horizon")
@@ -46,10 +45,9 @@ class TestFeatureApplicator(TestCase):
         # Test for expected column order of the output and test for expected historic_load column
         # Also check "horizons" is not in the output
         input_data = TestData.load("input_data.pickle")
-        input_data["T-x"] = input_data["load"]
         data_with_features = OperationalPredictFeatureApplicator(
-            horizons=[0.25], feature_names=["T-x"]
-        ).add_features(input_data)
+            horizons=[0.25], feature_names=["historic_load"]
+        ).add_features(input_data[["load"]])
         self.assertTrue("historic_load" in data_with_features.columns.to_list())
         self.assertEqual(data_with_features.columns.to_list()[0], "load")
         self.assertTrue("horizon" not in data_with_features.columns.to_list())

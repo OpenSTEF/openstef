@@ -7,12 +7,13 @@
 """
 from typing import List
 import pandas as pd
+import structlog
 
 
-def add_additional_proloaf_features(
+def add_historic_load_as_a_feature(
     data: pd.DataFrame, feature_names: List[str] = None
-) -> (pd.DataFrame, List[str]):
-    """Adds additional proloaf features to the input data. historic_load (equal to the load)
+) -> pd.DataFrame:
+    """Adds additional proloaf features to the input data, historic_load (equal to the load)
 
     Args:
         data (pd.DataFrame): Dataframe to which the wind features have to be added
@@ -20,16 +21,15 @@ def add_additional_proloaf_features(
 
     Returns:
         pd.DataFrame same as input dataframe with extra columns for the added proloaf features
-        feature_names (List[str]): List of requested features to transform in historic_load
 
     """
-    if feature_names is None:
-        feature_names = list(data.columns)
-        feature_names.append("historic_load")
-        data["historic_load"] = data["load"]
-    elif any([s for s in feature_names if "T-" in s]):
-        feature_names.remove([s for s in feature_names if "T-" in s][0])
-        feature_names.append("historic_load")
-        data["historic_load"] = data["load"]
+    logger = structlog.get_logger(__name__)
 
-    return data, feature_names
+    if feature_names is not None and "historic_load" in feature_names:
+        data["historic_load"] = data["load"]
+        logger.warning(
+            "The historic_load is added to the data, this is a copy of the load. "
+            "Adding this feature is in most of the cases not a good idea, it is designed for the proloaf model."
+        )
+
+    return data
