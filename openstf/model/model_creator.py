@@ -14,10 +14,8 @@ from openstf.model.regressors.xgb_quantile import XGBQuantileOpenstfRegressor
 
 # Model parameters needed for init from prediction job
 model_init_args = {
-    MLModelType.XGB: [
-    ],
-    MLModelType.LGB: [
-    ],
+    MLModelType.XGB: [],
+    MLModelType.LGB: [],
     MLModelType.XGB_QUANTILE: [
         "quantiles",
     ],
@@ -66,8 +64,5 @@ class ModelCreator:
             ) from e
 
         # only pass relevant arguments to model constructor to prevent warnings
-        model_kwargs = {
-            key: pj[key]
-            for key in model_init_args[model_type]
-        }
+        model_kwargs = {key: pj[key] for key in model_init_args[model_type]}
         return ModelCreator.MODEL_CONSTRUCTORS[model_type](**model_kwargs)

@@ -55,4 +55,3 @@ class OpenstfRegressor(OpenstfRegressorInterface):
 
         """
         return None
-

@@ -37,7 +37,7 @@ class OpenstfProloafRegressor(OpenstfRegressor, ModelWrapper):
         self.batch_size = batch_size
         self.split_percent = split_percent
         self.history_horizon = history_horizon
-        self.forecast_horizon = int(horizon_minutes/60)
+        self.forecast_horizon = int(horizon_minutes / 60)
         ModelWrapper.__init__(
             self,
             name=name,
