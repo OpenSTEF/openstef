@@ -20,7 +20,7 @@ class OpenstfProloafRegressor(OpenstfRegressor, ModelWrapper):
         rel_core_hidden_size: float = 1.0,
         dropout_fc: float = 0.4,
         dropout_core: float = 0.3,
-        training_metric: str = "nllgaus",
+        training_metric: str = "nllgauss",
         metric_options: Dict[str, Any] = {},
         optimizer_name: str = "adam",
         early_stopping_patience: int = 7,
