@@ -3,11 +3,12 @@
 # SPDX-License-Identifier: MPL-2.0
 from typing import Union
 
-from openstf.model.regressors.regressor import OpenstfRegressor
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 from openstf.enums import MLModelType
 from openstf.model.regressors.lgbm import LGBMOpenstfRegressor
+from openstf.model.regressors.proloaf import OpenstfProloafRegressor
+from openstf.model.regressors.regressor import OpenstfRegressor
 from openstf.model.regressors.xgb import XGBOpenstfRegressor
 from openstf.model.regressors.xgb_quantile import XGBQuantileOpenstfRegressor
 
@@ -20,6 +21,9 @@ model_init_args = {
     MLModelType.XGB_QUANTILE: [
         "quantiles",
     ],
+    MLModelType.ProLoaf: [
+        "horizon_minutes",
+    ],
 }
 
 
@@ -31,6 +35,7 @@ class ModelCreator:
         MLModelType.XGB: XGBOpenstfRegressor,
         MLModelType.LGB: LGBMOpenstfRegressor,
         MLModelType.XGB_QUANTILE: XGBQuantileOpenstfRegressor,
+        MLModelType.ProLoaf: OpenstfProloafRegressor,
     }
 
     @staticmethod
