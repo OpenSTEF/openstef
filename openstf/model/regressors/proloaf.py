@@ -1,12 +1,10 @@
-from abc import ABC
+import numpy as np
 import pandas as pd
 import torch
-import numpy as np
 import utils.datahandler as dh
-from utils.modelhandler import ModelWrapper
-from typing import Union, List, Dict, Any
-
 from openstf.model.regressors.regressor import OpenstfRegressor
+from utils.modelhandler import ModelWrapper
+from typing import List, Dict
 
 
 class OpenstfProloafRegressor(OpenstfRegressor, ModelWrapper):
@@ -28,11 +26,18 @@ class OpenstfProloafRegressor(OpenstfRegressor, ModelWrapper):
         early_stopping_patience: int = 7,
         early_stopping_margin: float = 0.0,
         learning_rate: float = 1e-4,
-        max_epochs: int = 2,
+        max_epochs: int = 100,
+        device: str = "cpu",
+        batch_size: int = 10,
+        split_percent: float = 0.85,
+        history_horizon: int = 24,
+        forecast_horizon: int = None,
     ):
-        self.gain_importance_name = "mock"
-        self.weight_importance_name = "name"
-
+        self.device = device
+        self.batch_size = batch_size
+        self.split_percent = split_percent
+        self.history_horizon = history_horizon
+        self.forecast_horizon = forecast_horizon
         ModelWrapper.__init__(
             self,
             name=name,
@@ -66,11 +71,6 @@ class OpenstfProloafRegressor(OpenstfRegressor, ModelWrapper):
         self,
         x: pd.DataFrame,
         y: pd.DataFrame,
-        device: str = "cpu",
-        batch_size: int = 10,
-        split_percent: float = 0.85,
-        history_horizon: int = 24,
-        forecast_horizon: int = 24,
         eval_set: tuple = None,
         early_stopping_rounds: int = None,
         verbose: bool = False,
@@ -82,15 +82,15 @@ class OpenstfProloafRegressor(OpenstfRegressor, ModelWrapper):
             df=df,  # TODO this needs to be x and y cacatinated
             encoder_features=self.encoder_features,
             decoder_features=self.decoder_features,
-            batch_size=batch_size,
-            history_horizon=history_horizon,
-            forecast_horizon=forecast_horizon,
+            batch_size=self.batch_size,
+            history_horizon=self.history_horizon,
+            forecast_horizon=self.forecast_horizon,
             target_id=self.target_id,
-            train_split=split_percent,
+            train_split=self.split_percent,
             validation_split=1.0,
-            device=device,
+            device=self.device,
         )
-        self.to(device)
+        self.to(self.device)
         self.init_model()
         return self.run_training(train_dl, validation_dl)
 
@@ -99,20 +99,8 @@ class OpenstfProloafRegressor(OpenstfRegressor, ModelWrapper):
         training_params = self.get_training_config()
         return {**model_params, **training_params}
 
-    def _fraction_importance(self, name):
-
-        return np.array([1])
-
-    def set_params(
-        self,
-        encoder_features=["feature_a", "feature_b"],
-        decoder_features=["feature_a", "feature_b"],
-        **params
-    ):
+    def set_params(self, **params):
         self.update(**params)
-        self.update(encoder_features=encoder_features)
-        self.update(decoder_features=decoder_features)
-
         return self
 
 
