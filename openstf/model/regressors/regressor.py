@@ -8,10 +8,8 @@ from openstf.model.regressors.regressor_interface import OpenstfRegressorInterfa
 
 
 class OpenstfRegressor(OpenstfRegressorInterface):
-    def _set_feature_importance(self, feature_names: list) -> pd.DataFrame:
+    def _set_feature_importance(self) -> pd.DataFrame:
         """get feature importance.
-
-        Args: feature_names; list of features in the original column order
 
         Returns:
          pd.DataFrame
@@ -20,7 +18,7 @@ class OpenstfRegressor(OpenstfRegressorInterface):
         weight_importance = self._fraction_importance(self.weight_importance_name)
 
         feature_importance = pd.DataFrame(
-            {"gain": gain, "weight": weight_importance}, index=feature_names
+            {"gain": gain, "weight": weight_importance}, index=self.feature_names
         )
 
         feature_importance.sort_values(by="gain", ascending=False, inplace=True)
