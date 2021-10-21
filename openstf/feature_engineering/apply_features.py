@@ -31,7 +31,9 @@ from openstf.feature_engineering.proloaf_historic_features import (
 
 
 def apply_features(
-    data: pd.DataFrame, feature_names: List[str] = None, horizon: float = 24.0,
+    data: pd.DataFrame,
+    feature_names: List[str] = None,
+    horizon: float = 24.0,
 ) -> pd.DataFrame:
     """This script applies the feature functions defined in
         feature_functions.py and returns the complete dataframe. Features requiring
