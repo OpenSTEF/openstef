@@ -30,7 +30,7 @@ optuna.logging.disable_default_handler()  # Stop showing logs in sys.stderr.
 logger = structlog.get_logger(__name__)
 
 # See https://optuna.readthedocs.io/en/stable/reference/generated/optuna.study.Study.html#optuna.study.Study.optimize
-N_TRIALS: int = 3  # The number of trials.
+N_TRIALS: int = 50  # The number of trials.
 TIMEOUT: int = 200  # Stop study after the given number of second(s).
 TRAIN_HORIZONS: List[float] = [0.25, 24.0]
 TEST_FRACTION: float = 0.1
