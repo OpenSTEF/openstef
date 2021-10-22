@@ -29,7 +29,6 @@ class TestCreateForeCastTask(TestCase):
         "openstf.tasks.utils.taskcontext.DataBase",
     )
     @patch("openstf.tasks.utils.taskcontext.ConfigManager")
-    @patch("openstf.tasks.utils.utils.ConfigManager")
     @patch("openstf.tasks.utils.taskcontext.post_teams")
     @patch("openstf.tasks.create_forecast.datetime")
     @patch("openstf.pipeline.utils.datetime")
@@ -38,7 +37,6 @@ class TestCreateForeCastTask(TestCase):
         utils_datetime_mock,
         datetime_mock,
         post_teamsmock,
-        configmock_utils,
         configmock_taskcontext,
         dbmock,
     ):
@@ -53,8 +51,6 @@ class TestCreateForeCastTask(TestCase):
             "test/trained_models/"
         )
         configmock_taskcontext.get_instance.return_value.paths.webroot = "test_webroot"
-
-        configmock_utils().get_instance.return_value = configmock_taskcontext
 
         # Set 'NOW' to -10% points of testdata with known load
         datetime_mock.utcnow.return_value = testdata.iloc[-100, :].name

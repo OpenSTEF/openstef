@@ -31,12 +31,12 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Union
 
+from openstf_dbc.services.prediction_job import PredictionJobDataClass
+
 from openstf.enums import MLModelType
 from openstf.pipeline.create_forecast import create_forecast_pipeline
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
-from openstf.tasks.utils.utils import check_status_change, update_status_change
-from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 T_BEHIND_DAYS: int = 14
 T_AHEAD_DAYS: int = 3
@@ -79,26 +79,16 @@ def create_forecast_task(
 
 def main(model_type=None):
 
-    if model_type is None:
-        model_type = [ml.value for ml in MLModelType]
-
     taskname = Path(__file__).name.replace(".py", "")
 
     with TaskContext(taskname) as context:
-        # status file callback after every iteration
-        # TODO change implementation to a database one
-        def callback(pj, successful):
-            status_id = "Pred {}, {}".format(pj["name"], pj["description"])
-            status_code = 0 if successful else 2
-            if check_status_change(status_id, status_code):
-                context.logger.warning("Status changed", status_code=status_code)
-                update_status_change(status_id, status_code)
+
+        if model_type is None:
+            model_type = [ml.value for ml in MLModelType]
 
         PredictionJobLoop(
             context,
             model_type=model_type,
-            on_end_callback=callback,
-            # Debug specific pid
         ).map(create_forecast_task, context)
 
 

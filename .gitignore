@@ -18,9 +18,6 @@ ktprognoses.egg-info/
 .DS_Store
 tmp
 mlruns
-OTHER_TEST
-/test/reports/
-MagicMock/
 
 # default Python .gitignore template: https://raw.githubusercontent.com/github/gitignore/master/Python.gitignore
 
