@@ -72,7 +72,7 @@ def train_model_task(
 
     # Get the paths for storing model and reports from the config manager
     trained_models_folder = Path(context.config.paths.trained_models_folder)
-
+    context.logger.info(f"trained_models_folder: {trained_models_folder}")
     # If required, let's check the old model age before retrieving all the input data
     if check_old_model_age:
         old_model_age = get_model_age(trained_models_folder, pj["id"])
