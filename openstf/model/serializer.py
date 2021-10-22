@@ -9,6 +9,7 @@ from typing import List, Optional, Union
 from urllib.parse import unquote, urlparse
 
 import joblib
+from matplotlib import figure
 import mlflow
 import pandas as pd
 import pytz
@@ -85,7 +86,7 @@ class PersistentStorageSerializer(AbstractSerializer):
             # return the latest run of the model can be phase tag = training or hyperparameter tuning
             prev_run = mlflow.search_runs(
                 experiment_id,
-                filter_string="tags.mlflow.runName = '{}'".format(pj["model"]),
+                filter_string=" attribute.status = 'FINISHED' AND tags.mlflow.runName = '{}'".format(pj["model"]),
                 max_results=1,
             )
             # Use [0] to only get latest run id
@@ -123,6 +124,7 @@ class PersistentStorageSerializer(AbstractSerializer):
             # return the latest run of the model, .iloc[0] because it returns a list with max_results number of runs
             latest_run = mlflow.search_runs(
                 experiment_id,
+                filter_string="attribute.status = 'FINISHED'",
                 max_results=1,
             ).iloc[0]
             loaded_model = mlflow.sklearn.load_model(
@@ -429,6 +431,8 @@ class PersistentStorageSerializer(AbstractSerializer):
                 mlflow.set_tag(key, value)
             elif isinstance(value, graph_objects.Figure):
                 mlflow.log_figure(value, f"figures/{key}.html")
+            elif isinstance(value, figure.Figure):
+                mlflow.log_figure(value, f"figures/{key}.png")
             else:
                 self.logger.warning(
                     f"Couldn't log {key}, {type(key)} not supported", pid=pj["id"]
