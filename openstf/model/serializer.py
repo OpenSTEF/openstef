@@ -86,7 +86,9 @@ class PersistentStorageSerializer(AbstractSerializer):
             # return the latest run of the model can be phase tag = training or hyperparameter tuning
             prev_run = mlflow.search_runs(
                 experiment_id,
-                filter_string=" attribute.status = 'FINISHED' AND tags.mlflow.runName = '{}'".format(pj["model"]),
+                filter_string=" attribute.status = 'FINISHED' AND tags.mlflow.runName = '{}'".format(
+                    pj["model"]
+                ),
                 max_results=1,
             )
             # Use [0] to only get latest run id
