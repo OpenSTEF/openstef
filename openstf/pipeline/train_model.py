@@ -8,7 +8,6 @@ from typing import List, Tuple, Union
 import pandas as pd
 import structlog
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
-from openstf.model.regressors.regressor import OpenstfRegressor
 
 from openstf.exceptions import (
     InputDataInsufficientError,
@@ -18,6 +17,7 @@ from openstf.exceptions import (
 from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
 from openstf.metrics.reporter import Report, Reporter
 from openstf.model.model_creator import ModelCreator
+from openstf.model.regressors.regressor import OpenstfRegressor
 from openstf.model.serializer import PersistentStorageSerializer
 from openstf.model.standard_deviation_generator import StandardDeviationGenerator
 from openstf.model_selection.model_selection import split_data_train_validation_test

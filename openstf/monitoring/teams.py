@@ -6,7 +6,6 @@ from typing import Union
 
 import pymsteams
 import structlog
-
 from openstf_dbc.config.config import ConfigManager
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
 

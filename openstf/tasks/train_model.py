@@ -26,6 +26,8 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Union
 
+from openstf_dbc.services.prediction_job import PredictionJobDataClass
+
 from openstf.enums import MLModelType
 from openstf.pipeline.train_model import (
     train_model_pipeline,
@@ -34,7 +36,6 @@ from openstf.pipeline.train_model import (
 )
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
-from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 TRAINING_PERIOD_DAYS: int = 120
 DEFAULT_CHECK_MODEL_AGE: bool = True

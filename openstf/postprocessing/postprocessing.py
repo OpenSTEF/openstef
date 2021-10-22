@@ -8,10 +8,10 @@ from typing import Union
 import numpy as np
 import pandas as pd
 import structlog
+from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 from openstf.enums import ForecastType
 from openstf.feature_engineering import weather_features
-from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 
 def normalize_and_convert_weather_data_for_splitting(weather_data):

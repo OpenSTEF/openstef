@@ -5,9 +5,9 @@ from typing import Union
 
 import pandas as pd
 import structlog
+from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 import openstf.postprocessing.postprocessing as postprocessing
-from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 
 def create_components_forecast_pipeline(

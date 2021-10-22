@@ -3,19 +3,17 @@
 # SPDX-License-Identifier: MPL-2.0
 import warnings
 from dataclasses import dataclass
-from typing import Dict, Union, List
+from typing import Dict
 
 import numpy as np
 import pandas as pd
-from mlflow.models import infer_signature, ModelSignature
-
-from openstf.model.regressors.regressor import OpenstfRegressor
-from plotly.graph_objects import Figure
 import sklearn
-
+from mlflow.models import infer_signature, ModelSignature
+from plotly.graph_objects import Figure
 
 from openstf.metrics import figure
 from openstf.metrics.metrics import bias, nsme, mae, r_mae, rmse
+from openstf.model.regressors.regressor import OpenstfRegressor
 
 
 @dataclass

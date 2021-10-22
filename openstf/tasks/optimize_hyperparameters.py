@@ -20,12 +20,13 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Union
 
+from openstf_dbc.services.prediction_job import PredictionJobDataClass
+
 from openstf.enums import MLModelType
 from openstf.monitoring import teams
 from openstf.pipeline.optimize_hyperparameters import optimize_hyperparameters_pipeline
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
-from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 MAX_AGE_HYPER_PARAMS_DAYS = 31
 DEFAULT_TRAINING_PERIOD_DAYS = 91

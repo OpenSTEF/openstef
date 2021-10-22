@@ -9,11 +9,11 @@ from typing import List, Optional, Union
 from urllib.parse import unquote, urlparse
 
 import joblib
-from matplotlib import figure
 import mlflow
 import pandas as pd
 import pytz
 import structlog
+from matplotlib import figure
 from mlflow.exceptions import MlflowException
 from mlflow.tracking import MlflowClient
 from openstf_dbc.services.prediction_job import PredictionJobDataClass

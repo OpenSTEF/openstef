@@ -5,12 +5,12 @@
 import traceback
 
 import structlog
+from openstf_dbc.config.config import ConfigManager
+from openstf_dbc.database import DataBase
 
 from openstf.monitoring.performance_meter import PerformanceMeter
 from openstf.monitoring.teams import post_teams
 from openstf.tasks.utils.predictionjobloop import PredictionJobException
-from openstf_dbc.config.config import ConfigManager
-from openstf_dbc.database import DataBase
 
 
 class TaskContext:

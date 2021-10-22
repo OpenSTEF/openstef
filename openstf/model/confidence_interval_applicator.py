@@ -7,11 +7,11 @@ from typing import List, Union
 import numpy as np
 import pandas as pd
 import structlog
+from openstf_dbc.services.prediction_job import PredictionJobDataClass
 from scipy import stats
 from sklearn.base import RegressorMixin
 
 from openstf.exceptions import ModelWithoutStDev
-from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 MINIMAL_RESOLUTION: int = 15  # Minimal time resolution in minutes
 

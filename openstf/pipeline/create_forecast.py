@@ -6,6 +6,7 @@ from typing import Union
 
 import pandas as pd
 import structlog
+from openstf_dbc.services.prediction_job import PredictionJobDataClass
 from sklearn.base import RegressorMixin
 
 from openstf.feature_engineering.feature_applicator import (
@@ -19,7 +20,6 @@ from openstf.postprocessing.postprocessing import (
     add_prediction_job_properties_to_forecast,
 )
 from openstf.validation import validation
-from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 
 def create_forecast_pipeline(

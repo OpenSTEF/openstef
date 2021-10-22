@@ -33,12 +33,12 @@ import numpy as np
 import pandas as pd
 import scipy.optimize
 import structlog
+from openstf_dbc.database import DataBase
 
 import openstf.monitoring.teams as monitoring
 from openstf.enums import MLModelType
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
-from openstf_dbc.database import DataBase
 
 COEF_MAX_FRACTION_DIFF = 0.3
 

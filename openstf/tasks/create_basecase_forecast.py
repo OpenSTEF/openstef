@@ -23,11 +23,11 @@ from pathlib import Path
 from typing import Union
 
 import pandas as pd
+from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 from openstf.pipeline.create_basecase_forecast import create_basecase_forecast_pipeline
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
-from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 T_BEHIND_DAYS: int = 15
 T_AHEAD_DAYS: int = 14

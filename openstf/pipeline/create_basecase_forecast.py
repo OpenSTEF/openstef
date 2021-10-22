@@ -6,6 +6,7 @@ from typing import Union
 
 import pandas as pd
 import structlog
+from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 from openstf.feature_engineering.feature_applicator import (
     OperationalPredictFeatureApplicator,
@@ -18,7 +19,6 @@ from openstf.postprocessing.postprocessing import (
     add_components_base_case_forecast,
 )
 from openstf.validation import validation
-from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 MODEL_LOCATION = Path(".")
 BASECASE_HORIZON_MINUTES = 60 * 24 * 14  # 14 days ahead
