@@ -58,8 +58,9 @@ class TestAbstractModelSerializer(BaseTestCase):
             PersistentStorageSerializer(
                 trained_models_folder="./test/trained_models"
             ).save_model(model=model, pj=pj, report=report_mock)
+            # The index shifts if logging is added
             self.assertRegex(
-                captured.records[1].getMessage(), "Model saved with MLflow"
+                captured.records[2].getMessage(), "Model saved with MLflow"
             )
 
     @patch("mlflow.sklearn.log_model")
@@ -88,8 +89,9 @@ class TestAbstractModelSerializer(BaseTestCase):
             PersistentStorageSerializer(
                 trained_models_folder="./test/trained_models"
             ).save_model(model=model, pj=pj, report=report_mock)
+            # The index shifts if logging is added
             self.assertRegex(
-                captured.records[1].getMessage(), "No previous model found in MLflow"
+                captured.records[2].getMessage(), "No previous model found in MLflow"
             )
 
     def test_determine_model_age_from_MLflow_run(self):
@@ -128,6 +130,7 @@ class TestAbstractModelSerializer(BaseTestCase):
             days = PersistentStorageSerializer(
                 trained_models_folder="./test/trained_models"
             )._determine_model_age_from_mlflow_run(run)
+        # The index shifts if logging is added
         self.assertRegex(
             captured.records[0].getMessage(),
             "Could not get model age. Returning infinite age!",
