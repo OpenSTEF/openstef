@@ -215,14 +215,14 @@ following keys: text, title, images, facts, markdown. Also see:
 
 <dl class="function">
 <dt id="openstf.monitoring.teams.send_report_teams_better">
-<code class="sig-prename descclassname">openstf.monitoring.teams.</code><code class="sig-name descname">send_report_teams_better</code><span class="sig-paren">(</span><em class="sig-param">pj: Union[dict, openstf_dbc.services.prediction_job.PredictionJobDataClass], feature_importance</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.monitoring.teams.send_report_teams_better" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstf.monitoring.teams.</code><code class="sig-name descname">send_report_teams_better</code><span class="sig-paren">(</span><em class="sig-param">pj</em>, <em class="sig-param">feature_importance</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.monitoring.teams.send_report_teams_better" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send a report to teams for monitoring input for an improved model.</p>
 <p>Post includes information (performance, figures, etc.) about the trained
 model. Use when the new trained model is better than the old model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>pj</strong> (<em>Union</em><em>[</em><em>dict</em><em>, </em><em>PredictionJobDataClass</em><em>]</em>) – <p>A dictionarry specifying the prediction job. This dict should
+<li><p><strong>pj</strong> (<em>dict</em>) – <p>A dictionarry specifying the prediction job. This dict should
 at least contain the following keys: {</p>
 <blockquote>
 <div><p>’id’: (int),
@@ -253,13 +253,13 @@ feature importances and weights of the trained model.</p></li>
 
 <dl class="function">
 <dt id="openstf.monitoring.teams.send_report_teams_worse">
-<code class="sig-prename descclassname">openstf.monitoring.teams.</code><code class="sig-name descname">send_report_teams_worse</code><span class="sig-paren">(</span><em class="sig-param">pj: Union[dict, openstf_dbc.services.prediction_job.PredictionJobDataClass]</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.monitoring.teams.send_report_teams_worse" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstf.monitoring.teams.</code><code class="sig-name descname">send_report_teams_worse</code><span class="sig-paren">(</span><em class="sig-param">pj</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.monitoring.teams.send_report_teams_worse" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send a report to teams for monitoring input for a worsened model.</p>
 <p>Post includes information (performance, figures, etc.) about the trained
 model. Use when the new trained model is worse than the old model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>pj</strong> (<em>Union</em><em>[</em><em>dict</em><em>, </em><em>PredictionJobDataClass</em><em>]</em>) – <p>A dictionarry specifying the prediction job. This dict should
+<dd class="field-odd"><p><strong>pj</strong> (<em>dict</em>) – <p>A dictionarry specifying the prediction job. This dict should
 at least contain the following keys: {</p>
 <blockquote>
 <div><p>’id’: (int),

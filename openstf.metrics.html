@@ -301,8 +301,28 @@ However, be sure that hyperparameter named
 <span id="openstf-metrics-reporter-module"></span><h2>openstf.metrics.reporter module<a class="headerlink" href="#module-openstf.metrics.reporter" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="openstf.metrics.reporter.Report">
-<em class="property">class </em><code class="sig-prename descclassname">openstf.metrics.reporter.</code><code class="sig-name descname">Report</code><span class="sig-paren">(</span><em class="sig-param">feature_importance_figure: plotly.graph_objs._figure.Figure, data_series_figures: Dict[str, plotly.graph_objs._figure.Figure], metrics: dict, signature: mlflow.models.signature.ModelSignature</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.metrics.reporter.Report" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">openstf.metrics.reporter.</code><code class="sig-name descname">Report</code><span class="sig-paren">(</span><em class="sig-param">feature_importance_figure: plotly.graph_objs._figure.Figure, data_series_figures: Dict[str, plotly.graph_objs._figure.Figure]</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.metrics.reporter.Report" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="attribute">
+<dt id="openstf.metrics.reporter.Report.data_series_figures">
+<code class="sig-name descname">data_series_figures</code><em class="property">: Dict[str, Figure]</em><em class="property"> = None</em><a class="headerlink" href="#openstf.metrics.reporter.Report.data_series_figures" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="openstf.metrics.reporter.Report.feature_importance_figure">
+<code class="sig-name descname">feature_importance_figure</code><em class="property">: Figure</em><em class="property"> = None</em><a class="headerlink" href="#openstf.metrics.reporter.Report.feature_importance_figure" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="openstf.metrics.reporter.Report.logger">
+<code class="sig-name descname">logger</code><em class="property"> = &lt;BoundLoggerLazyProxy(logger=None, wrapper_class=None, processors=None, context_class=None, initial_values={}, logger_factory_args=('Report',))&gt;</em><a class="headerlink" href="#openstf.metrics.reporter.Report.logger" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="openstf.metrics.reporter.Report.save_figures">
+<code class="sig-name descname">save_figures</code><span class="sig-paren">(</span><em class="sig-param">save_path</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.metrics.reporter.Report.save_figures" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -312,39 +332,7 @@ However, be sure that hyperparameter named
 <dl class="method">
 <dt id="openstf.metrics.reporter.Reporter.generate_report">
 <code class="sig-name descname">generate_report</code><span class="sig-paren">(</span><em class="sig-param">model: openstf.model.regressors.regressor.OpenstfRegressor</em><span class="sig-paren">)</span> &#x2192; openstf.metrics.reporter.Report<a class="headerlink" href="#openstf.metrics.reporter.Reporter.generate_report" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generate a report on a given model</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>model</strong> (<a class="reference internal" href="openstf.model.regressors.html#openstf.model.regressors.regressor.OpenstfRegressor" title="openstf.model.regressors.regressor.OpenstfRegressor"><em>OpenstfRegressor</em></a>) – the model to create a report on</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>reporter object containing info about the model</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference internal" href="#openstf.metrics.reporter.Report" title="openstf.metrics.reporter.Report">Report</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="openstf.metrics.reporter.Reporter.get_metrics">
-<em class="property">static </em><code class="sig-name descname">get_metrics</code><span class="sig-paren">(</span><em class="sig-param">y_pred: numpy.array</em>, <em class="sig-param">y_true: numpy.array</em><span class="sig-paren">)</span> &#x2192; dict<a class="headerlink" href="#openstf.metrics.reporter.Reporter.get_metrics" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate the metrics for a prediction</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>y_pred</strong> – np.array</p></li>
-<li><p><strong>y_true</strong> – np.array</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>metrics for the prediction</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>dictionary</p>
-</dd>
-</dl>
-</dd></dl>
+<dd></dd></dl>
 
 </dd></dl>
 
