@@ -15,4 +15,4 @@ class LGBMOpenstfRegressor(LGBMRegressor, OpenstfRegressor):
 
     @property
     def feature_names(self):
-        return self._Booster.feature_names
+        return self._Booster.feature_name()
