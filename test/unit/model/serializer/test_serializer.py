@@ -60,7 +60,7 @@ class TestAbstractModelSerializer(BaseTestCase):
             ).save_model(model=model, pj=pj, report=report_mock)
             # The index shifts if logging is added
             self.assertRegex(
-                captured.records[2].getMessage(), "Model saved with MLflow"
+                captured.records[0].getMessage(), "Model saved with MLflow"
             )
 
     @patch("mlflow.sklearn.log_model")
@@ -91,7 +91,7 @@ class TestAbstractModelSerializer(BaseTestCase):
             ).save_model(model=model, pj=pj, report=report_mock)
             # The index shifts if logging is added
             self.assertRegex(
-                captured.records[2].getMessage(), "No previous model found in MLflow"
+                captured.records[0].getMessage(), "No previous model found in MLflow"
             )
 
     def test_determine_model_age_from_MLflow_run(self):

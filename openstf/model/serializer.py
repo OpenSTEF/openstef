@@ -39,7 +39,7 @@ class AbstractSerializer(ABC):
         self.logger = structlog.get_logger(self.__class__.__name__)
         self.trained_models_folder = trained_models_folder
         self.client = None
-        self.logger.info(f"MLflow path at init= {self.mlflow_folder}")
+        self.logger.debug(f"MLflow path at init= {self.mlflow_folder}")
 
     @abstractmethod
     def save_model(self, model: OpenstfRegressor) -> None:
@@ -100,7 +100,7 @@ class PersistentStorageSerializer(AbstractSerializer):
         with mlflow.start_run(run_name=pj["model"]):
             self._log_model_with_mlflow(pj, model, report, phase, prev_run_id, **kwargs)
             self._log_figure_with_mlflow(report)
-        self.logger.info(f"MLflow path after saving= {self.mlflow_folder}")
+        self.logger.debug(f"MLflow path after saving= {self.mlflow_folder}")
 
     def load_model(
         self, pid: Optional[Union[int, str]] = None, model_id: Optional[str] = None
@@ -393,7 +393,7 @@ class PersistentStorageSerializer(AbstractSerializer):
         # Setup a client to get the experiment id
         self.client = MlflowClient()
         mlflow.set_experiment(str(pid))
-        self.logger.info(f"MLflow path during setup= {self.mlflow_folder}")
+        self.logger.debug(f"MLflow path during setup= {self.mlflow_folder}")
         return self.client.get_experiment_by_name(str(pid)).experiment_id
 
     def _log_model_with_mlflow(
@@ -418,6 +418,7 @@ class PersistentStorageSerializer(AbstractSerializer):
         """
 
         # Set tags to the run, can be used to filter on the UI
+        mlflow.set_tag("run_id", mlflow.active_run().info.run_id)
         mlflow.set_tag("phase", phase)
         mlflow.set_tag("Previous_version_id", prev_run_id)
         mlflow.set_tag("model_type", pj["model"])
