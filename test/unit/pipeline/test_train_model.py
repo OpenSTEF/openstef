@@ -86,6 +86,9 @@ class TestTrainModelPipeline(BaseTestCase):
                 # check if the model was fitted (raises NotFittedError when not fitted)
                 self.assertIsNone(sklearn.utils.validation.check_is_fitted(model))
 
+                # check if the model has a feature_names property
+                self.assertIsNotNone(model.feature_names)
+
                 # check if model is sklearn compatible
                 self.assertTrue(isinstance(model, sklearn.base.BaseEstimator))
 
