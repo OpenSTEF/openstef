@@ -173,7 +173,7 @@ However a fit method is still included to be fully comatible with sklearn.</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="method">
 <dt id="openstf.model.confidence_interval_applicator.ConfidenceIntervalApplicator.add_confidence_interval">
-<code class="sig-name descname">add_confidence_interval</code><span class="sig-paren">(</span><em class="sig-param">forecast: pandas.core.frame.DataFrame</em>, <em class="sig-param">pj: dict</em>, <em class="sig-param">default_confindence_interval: bool = False</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstf.model.confidence_interval_applicator.ConfidenceIntervalApplicator.add_confidence_interval" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_confidence_interval</code><span class="sig-paren">(</span><em class="sig-param">forecast: pandas.core.frame.DataFrame, pj: Union[dict, openstf_dbc.services.prediction_job.PredictionJobDataClass], default_confindence_interval: bool = False</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstf.model.confidence_interval_applicator.ConfidenceIntervalApplicator.add_confidence_interval" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a confidence interval to a forecast.</p>
 <dl>
 <dt>Adds a confidence interval to a forecast in two ways:</dt><dd><ol class="arabic">
@@ -213,7 +213,7 @@ regression or the default method.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>forecast</strong> (<em>pd.DataFrame</em>) – Forecast DataFram with columns: “forecast”</p></li>
-<li><p><strong>pj</strong> (<em>dict</em>) – Prediction job</p></li>
+<li><p><strong>pj</strong> (<em>Union</em><em>[</em><em>dict</em><em>, </em><em>PredictionJobDataClass</em><em>]</em>) – Prediction job</p></li>
 <li><p><strong>default_confindence_interval</strong> (<em>bool</em>) – switch to always make a default confidence interval
 and skip quantile regression forecasting,
 mostly used for a basecase forecast</p></li>
@@ -286,7 +286,7 @@ Set the value of the forecast ‘quality’ column to ‘substituted’</p>
 
 <dl class="method">
 <dt id="openstf.model.model_creator.ModelCreator.create_model">
-<em class="property">static </em><code class="sig-name descname">create_model</code><span class="sig-paren">(</span><em class="sig-param">model_type: Union[openstf.enums.MLModelType, str], **kwargs</em><span class="sig-paren">)</span> &#x2192; sklearn.base.RegressorMixin<a class="headerlink" href="#openstf.model.model_creator.ModelCreator.create_model" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">create_model</code><span class="sig-paren">(</span><em class="sig-param">model_type: Union[openstf.enums.MLModelType, str], **kwargs</em><span class="sig-paren">)</span> &#x2192; openstf.model.regressors.regressor.OpenstfRegressor<a class="headerlink" href="#openstf.model.model_creator.ModelCreator.create_model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a machine learning model based on model type.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -339,7 +339,7 @@ with objective specific parameters.</p>
 
 <dl class="class">
 <dt id="openstf.model.objective.RegressorObjective">
-<em class="property">class </em><code class="sig-prename descclassname">openstf.model.objective.</code><code class="sig-name descname">RegressorObjective</code><span class="sig-paren">(</span><em class="sig-param">model: openstf.model.regressors.regressor_interface.OpenstfRegressorInterface</em>, <em class="sig-param">input_data: pandas.core.frame.DataFrame</em>, <em class="sig-param">test_fraction=0.1</em>, <em class="sig-param">validation_fraction=0.1</em>, <em class="sig-param">eval_metric='mae'</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.objective.RegressorObjective" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">openstf.model.objective.</code><code class="sig-name descname">RegressorObjective</code><span class="sig-paren">(</span><em class="sig-param">model: openstf.model.regressors.regressor.OpenstfRegressor</em>, <em class="sig-param">input_data: pandas.core.frame.DataFrame</em>, <em class="sig-param">test_fraction=0.1</em>, <em class="sig-param">validation_fraction=0.1</em>, <em class="sig-param">eval_metric='mae'</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.objective.RegressorObjective" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Regressor optuna objective function.</p>
 <p>Use any of the derived classses for optimization using an optuna study.
@@ -351,6 +351,23 @@ optimization.</p>
 objective = XGBRegressorObjective(input_data, test_fraction)
 # use the objective function
 study.optimize(objective)</p>
+<dl class="method">
+<dt id="openstf.model.objective.RegressorObjective.create_report">
+<code class="sig-name descname">create_report</code><span class="sig-paren">(</span><em class="sig-param">model: openstf.model.regressors.regressor.OpenstfRegressor</em><span class="sig-paren">)</span> &#x2192; openstf.metrics.reporter.Report<a class="headerlink" href="#openstf.model.objective.RegressorObjective.create_report" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a report from the data available inside the objective function</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>model</strong> – OpenstfRegressor, model to create a report on</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>report about the model</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="openstf.metrics.html#openstf.metrics.reporter.Report" title="openstf.metrics.reporter.Report">Report</a></p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="method">
 <dt id="openstf.model.objective.RegressorObjective.get_params">
 <code class="sig-name descname">get_params</code><span class="sig-paren">(</span><em class="sig-param">trial: optuna.trial._frozen.FrozenTrial</em><span class="sig-paren">)</span> &#x2192; dict<a class="headerlink" href="#openstf.model.objective.RegressorObjective.get_params" title="Permalink to this definition">¶</a></dt>
@@ -370,6 +387,20 @@ study.optimize(objective)</p>
 <dt id="openstf.model.objective.RegressorObjective.get_pruning_callback">
 <code class="sig-name descname">get_pruning_callback</code><span class="sig-paren">(</span><em class="sig-param">trial: optuna.trial._frozen.FrozenTrial</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.objective.RegressorObjective.get_pruning_callback" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="method">
+<dt id="openstf.model.objective.RegressorObjective.get_trial_track">
+<code class="sig-name descname">get_trial_track</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; dict<a class="headerlink" href="#openstf.model.objective.RegressorObjective.get_trial_track" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a dictionary of al trials</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>dict with al trials and it’s parameters</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -465,14 +496,14 @@ with objective specific parameters.</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
 <dl class="method">
 <dt id="openstf.model.serializer.AbstractSerializer.load_model">
-<em class="property">abstract </em><code class="sig-name descname">load_model</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; sklearn.base.RegressorMixin<a class="headerlink" href="#openstf.model.serializer.AbstractSerializer.load_model" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract </em><code class="sig-name descname">load_model</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; openstf.model.regressors.regressor.OpenstfRegressor<a class="headerlink" href="#openstf.model.serializer.AbstractSerializer.load_model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Loads model that has been trained earlier</p>
 <p>Returns: Trained sklearn compatible model object</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="openstf.model.serializer.AbstractSerializer.save_model">
-<em class="property">abstract </em><code class="sig-name descname">save_model</code><span class="sig-paren">(</span><em class="sig-param">model: sklearn.base.RegressorMixin</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#openstf.model.serializer.AbstractSerializer.save_model" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract </em><code class="sig-name descname">save_model</code><span class="sig-paren">(</span><em class="sig-param">model: openstf.model.regressors.regressor.OpenstfRegressor</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#openstf.model.serializer.AbstractSerializer.save_model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Persists trained sklearn compatible model</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -489,7 +520,7 @@ with objective specific parameters.</p>
 <dd><p>Bases: <a class="reference internal" href="#openstf.model.serializer.AbstractSerializer" title="openstf.model.serializer.AbstractSerializer"><code class="xref py py-class docutils literal notranslate"><span class="pre">openstf.model.serializer.AbstractSerializer</span></code></a></p>
 <dl class="method">
 <dt id="openstf.model.serializer.PersistentStorageSerializer.convert_model_id_into_model_folder">
-<code class="sig-name descname">convert_model_id_into_model_folder</code><span class="sig-paren">(</span><em class="sig-param">model_id: str</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.serializer.PersistentStorageSerializer.convert_model_id_into_model_folder" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">convert_model_id_into_model_folder</code><span class="sig-paren">(</span><em class="sig-param">model_id: str</em><span class="sig-paren">)</span> &#x2192; pathlib.Path<a class="headerlink" href="#openstf.model.serializer.PersistentStorageSerializer.convert_model_id_into_model_folder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert a trained model id into a model folder.</p>
 <blockquote>
 <div><dl class="simple">
@@ -499,7 +530,7 @@ with objective specific parameters.</p>
 </div></blockquote>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>trained_model_id</strong> (<em>[</em><em>type</em><em>]</em>) – [description]</p>
+<dd class="field-odd"><p><strong>model_id</strong> (<em>[</em><em>type</em><em>]</em>) – [description]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -565,17 +596,54 @@ folder for a specific pid) and find the
 
 <dl class="method">
 <dt id="openstf.model.serializer.PersistentStorageSerializer.find_most_recent_model_path">
-<code class="sig-name descname">find_most_recent_model_path</code><span class="sig-paren">(</span><em class="sig-param">pid: Union[int, str]</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.serializer.PersistentStorageSerializer.find_most_recent_model_path" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">find_most_recent_model_path</code><span class="sig-paren">(</span><em class="sig-param">pid: Union[int, str]</em><span class="sig-paren">)</span> &#x2192; Optional[pathlib.Path]<a class="headerlink" href="#openstf.model.serializer.PersistentStorageSerializer.find_most_recent_model_path" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="openstf.model.serializer.PersistentStorageSerializer.generate_model_id">
-<code class="sig-name descname">generate_model_id</code><span class="sig-paren">(</span><em class="sig-param">pid: Union[int, str]</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.serializer.PersistentStorageSerializer.generate_model_id" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">generate_model_id</code><span class="sig-paren">(</span><em class="sig-param">pid: Union[int, str]</em><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#openstf.model.serializer.PersistentStorageSerializer.generate_model_id" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="openstf.model.serializer.PersistentStorageSerializer.load_model">
-<code class="sig-name descname">load_model</code><span class="sig-paren">(</span><em class="sig-param">pid: Union[int</em>, <em class="sig-param">str</em>, <em class="sig-param">None] = None</em>, <em class="sig-param">model_id: Optional[str] = None</em><span class="sig-paren">)</span> &#x2192; sklearn.base.RegressorMixin<a class="headerlink" href="#openstf.model.serializer.PersistentStorageSerializer.load_model" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">load_model</code><span class="sig-paren">(</span><em class="sig-param">pid: Union[int</em>, <em class="sig-param">str</em>, <em class="sig-param">None] = None</em>, <em class="sig-param">model_id: Optional[str] = None</em><span class="sig-paren">)</span> &#x2192; openstf.model.regressors.regressor.OpenstfRegressor<a class="headerlink" href="#openstf.model.serializer.PersistentStorageSerializer.load_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load sklearn compatible model from persistent storage.</p>
+<blockquote>
+<div><p>Either a pid or a model_id should be given. If a pid is given the most
+recent model for that pid will be loaded.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pid</strong> (<em>Optional</em><em>[</em><em>Union</em><em>[</em><em>int</em><em>, </em><em>str</em><em>]</em><em>]</em><em>, </em><em>optional</em>) – Prediction job id. Defaults to None.</p></li>
+<li><p><strong>model_id</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em><em>, </em><em>optional</em>) – Model id. Defaults to None. Used when MLflow didn’t work.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>AttributeError</strong> – when there is no experiment with pid in MLflow</p></li>
+<li><p><strong>LookupError</strong> – when there is no model in MLflow</p></li>
+<li><p><strong>OSError</strong> – When directory doesn’t exist</p></li>
+<li><p><strong>MlflowException</strong> – When MLflow is not able to log</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Loaded model</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="openstf.model.regressors.html#openstf.model.regressors.regressor.OpenstfRegressor" title="openstf.model.regressors.regressor.OpenstfRegressor">OpenstfRegressor</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="openstf.model.serializer.PersistentStorageSerializer.load_model_from_path">
+<code class="sig-name descname">load_model_from_path</code><span class="sig-paren">(</span><em class="sig-param">model_path: Union[pathlib.Path, str]</em><span class="sig-paren">)</span> &#x2192; openstf.model.regressors.regressor.OpenstfRegressor<a class="headerlink" href="#openstf.model.serializer.PersistentStorageSerializer.load_model_from_path" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="openstf.model.serializer.PersistentStorageSerializer.load_model_no_mlflow">
+<code class="sig-name descname">load_model_no_mlflow</code><span class="sig-paren">(</span><em class="sig-param">pid: Union[int</em>, <em class="sig-param">str</em>, <em class="sig-param">None] = None</em>, <em class="sig-param">model_id: Optional[str] = None</em><span class="sig-paren">)</span> &#x2192; openstf.model.regressors.regressor.OpenstfRegressor<a class="headerlink" href="#openstf.model.serializer.PersistentStorageSerializer.load_model_no_mlflow" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load sklearn compatible model from persistent storage.</p>
 <blockquote>
 <div><p>Either a pid or a model_id should be given. If a pid is given the most
@@ -598,20 +666,15 @@ recent model for that pid will be loaded.</p>
 <dd class="field-odd"><p>Loaded model</p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p>RegressorMixin</p>
+<dd class="field-even"><p><a class="reference internal" href="openstf.model.regressors.html#openstf.model.regressors.regressor.OpenstfRegressor" title="openstf.model.regressors.regressor.OpenstfRegressor">OpenstfRegressor</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="method">
-<dt id="openstf.model.serializer.PersistentStorageSerializer.load_model_from_path">
-<code class="sig-name descname">load_model_from_path</code><span class="sig-paren">(</span><em class="sig-param">model_path</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.serializer.PersistentStorageSerializer.load_model_from_path" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
 <dt id="openstf.model.serializer.PersistentStorageSerializer.save_model">
-<code class="sig-name descname">save_model</code><span class="sig-paren">(</span><em class="sig-param">model: sklearn.base.RegressorMixin</em>, <em class="sig-param">pid: Union[int</em>, <em class="sig-param">str</em>, <em class="sig-param">None] = None</em>, <em class="sig-param">model_id: Optional[str] = None</em><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#openstf.model.serializer.PersistentStorageSerializer.save_model" title="Permalink to this definition">¶</a></dt>
-<dd><p>Save sklearn compatible model to persistent storage.</p>
+<code class="sig-name descname">save_model</code><span class="sig-paren">(</span><em class="sig-param">model: openstf.model.regressors.regressor.OpenstfRegressor, pj: Union[dict, openstf_dbc.services.prediction_job.PredictionJobDataClass], report: openstf.metrics.reporter.Report, phase: str = 'training', **kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.serializer.PersistentStorageSerializer.save_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save sklearn compatible model to persistent storage with MLflow.</p>
 <blockquote>
 <div><p>Either a pid or a model_id should be given. If a pid is given the model_id
 will be generated.</p>
@@ -620,23 +683,36 @@ will be generated.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>model</strong> – Trained sklearn compatible model object.</p></li>
-<li><p><strong>pid</strong> – Prediction job id. Defaults to None.</p></li>
-<li><p><strong>model_id</strong> – Model id. Defaults to None.</p></li>
+<li><p><strong>pj</strong> – Prediction job.</p></li>
+<li><p><strong>report</strong> – Report object.</p></li>
+<li><p><strong>phase</strong> – Where does the model come from, default is “training”</p></li>
+<li><p><strong>**kwargs</strong> – Extra information to be logged with mlflow, this can add the extra modelspecs</p></li>
 </ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Model id of the saved model.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>str</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="openstf.model.serializer.PersistentStorageSerializer.save_model_to_path">
-<code class="sig-name descname">save_model_to_path</code><span class="sig-paren">(</span><em class="sig-param">model_path</em>, <em class="sig-param">model</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.serializer.PersistentStorageSerializer.save_model_to_path" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">save_model_to_path</code><span class="sig-paren">(</span><em class="sig-param">model_path: Union[pathlib.Path, str], model: openstf.model.regressors.regressor.OpenstfRegressor</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.serializer.PersistentStorageSerializer.save_model_to_path" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="method">
+<dt id="openstf.model.serializer.PersistentStorageSerializer.setup_mlflow">
+<code class="sig-name descname">setup_mlflow</code><span class="sig-paren">(</span><em class="sig-param">pid: Union[int, str]</em><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#openstf.model.serializer.PersistentStorageSerializer.setup_mlflow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Setup MLflow with a tracking uri and create a client</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>pid</strong> (<em>int</em>) – Prediction job id</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The experiment id of the prediction job</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
