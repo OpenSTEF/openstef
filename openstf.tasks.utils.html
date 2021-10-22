@@ -39,7 +39,6 @@
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
 <li><a class="reference internal" href="#module-openstf.tasks.utils.predictionjobloop">openstf.tasks.utils.predictionjobloop module</a></li>
 <li><a class="reference internal" href="#module-openstf.tasks.utils.taskcontext">openstf.tasks.utils.taskcontext module</a></li>
-<li><a class="reference internal" href="#module-openstf.tasks.utils.utils">openstf.tasks.utils.utils module</a></li>
 <li><a class="reference internal" href="#module-openstf.tasks.utils">Module contents</a></li>
 </ul>
 </li>
@@ -119,50 +118,6 @@ logged.</p></li>
 <dt id="openstf.tasks.utils.taskcontext.TaskContext">
 <em class="property">class </em><code class="sig-prename descclassname">openstf.tasks.utils.taskcontext.</code><code class="sig-name descname">TaskContext</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">suppress_exceptions=False</em>, <em class="sig-param">post_teams_on_exception=True</em>, <em class="sig-param">on_exception=None</em>, <em class="sig-param">on_successful=None</em>, <em class="sig-param">on_end=None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.tasks.utils.taskcontext.TaskContext" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-</dd></dl>
-
-</div>
-<div class="section" id="module-openstf.tasks.utils.utils">
-<span id="openstf-tasks-utils-utils-module"></span><h2>openstf.tasks.utils.utils module<a class="headerlink" href="#module-openstf.tasks.utils.utils" title="Permalink to this headline">¶</a></h2>
-<dl class="function">
-<dt id="openstf.tasks.utils.utils.check_status_change">
-<code class="sig-prename descclassname">openstf.tasks.utils.utils.</code><code class="sig-name descname">check_status_change</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">new_code</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.tasks.utils.utils.check_status_change" title="Permalink to this definition">¶</a></dt>
-<dd><p>Check if the old status code equals the new code.
-If no status if found it is assumed that the old code is 0
-:param name: name of the status field
-:param new_code: int
-:return: True if changed</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="openstf.tasks.utils.utils.load_status_file">
-<code class="sig-prename descclassname">openstf.tasks.utils.utils.</code><code class="sig-name descname">load_status_file</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#openstf.tasks.utils.utils.load_status_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>This function loads the json status file
-:return: dictionary (status object)</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="openstf.tasks.utils.utils.update_status_change">
-<code class="sig-prename descclassname">openstf.tasks.utils.utils.</code><code class="sig-name descname">update_status_change</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">new_code</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.tasks.utils.utils.update_status_change" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> – name of the status field</p></li>
-<li><p><strong>new_code</strong> – int</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>None</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="openstf.tasks.utils.utils.write_status_file">
-<code class="sig-prename descclassname">openstf.tasks.utils.utils.</code><code class="sig-name descname">write_status_file</code><span class="sig-paren">(</span><em class="sig-param">status</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.tasks.utils.utils.write_status_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>This function writes the given status object to a json file
-:param status: dictionary
-:return: None</p>
 </dd></dl>
 
 </div>

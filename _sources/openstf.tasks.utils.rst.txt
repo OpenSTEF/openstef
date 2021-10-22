@@ -20,14 +20,6 @@ openstf.tasks.utils.taskcontext module
    :undoc-members:
    :show-inheritance:
 
-openstf.tasks.utils.utils module
---------------------------------
-
-.. automodule:: openstf.tasks.utils.utils
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 
 Module contents
 ---------------
