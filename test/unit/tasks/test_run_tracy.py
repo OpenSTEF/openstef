@@ -5,7 +5,6 @@ from unittest import TestCase
 from unittest.mock import MagicMock, patch
 
 from openstf.tasks.run_tracy import run_tracy
-
 from test.utils import TestData
 
 

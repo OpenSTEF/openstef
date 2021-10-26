@@ -1,13 +1,21 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-import pandas as pd
-import optuna
 from typing import List
+
+import optuna
+import pandas as pd
 import structlog
 
-from openstf.model.objective_creator import ObjectiveCreator
+
 from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
+from openstf.exceptions import (
+    InputDataInsufficientError,
+    InputDataWrongColumnOrderError,
+)
+
+from openstf.model.model_creator import ModelCreator
+from openstf.model.objective_creator import ObjectiveCreator
 from openstf.validation import validation
 
 # This is required to disable the default optuna logger and pass the logs to our own
@@ -28,7 +36,6 @@ def optimize_hyperparameters_pipeline(
     input_data: pd.DataFrame,
     horizons: List[float] = TRAIN_HORIZONS,
     n_trials: int = N_TRIALS,
-    timeout: int = TIMEOUT,
 ) -> dict:
     """Optimize hyperparameters pipeline.
 
@@ -40,7 +47,8 @@ def optimize_hyperparameters_pipeline(
         horizons (List[float]): horizons for feature engineering.
         n_trials (int, optional): The number of trials. Defaults to N_TRIALS.
         timeout (int, optional): Stop study after the given number of second(s).
-            Defaults to TIMEOUT.
+            Defaults to TIMEOUT. Will give an exception if the optimization is only
+            1 trial.
 
     Raises:
         ValueError: If the input_date is insufficient.
@@ -48,12 +56,19 @@ def optimize_hyperparameters_pipeline(
     Returns:
         dict: Optimized hyperparameters.
     """
+    if input_data.empty:
+        raise InputDataInsufficientError("Input dataframe is empty")
+    elif "load" not in input_data.columns:
+        raise InputDataWrongColumnOrderError(
+            "Missing the load column in the input dataframe"
+        )
+
     # Validate and clean data
-    validated_data = validation.clean(validation.validate(input_data))
+    validated_data = validation.clean(validation.validate(pj["id"], input_data))
 
     # Check if sufficient data is left after cleaning
     if not validation.is_data_sufficient(validated_data):
-        raise ValueError(
+        raise InputDataInsufficientError(
             f"Input data is insufficient for {pj['name']} "
             f"after validation and cleaning"
         )
@@ -65,16 +80,26 @@ def optimize_hyperparameters_pipeline(
     # Create objective (NOTE: this is a callable class)
     objective = ObjectiveCreator.create_objective(model_type=pj["model"])
 
+    model_type = pj["model"]
+    model = ModelCreator.create_model(model_type)
+
+    objective = objective(
+        model,
+        input_data_with_features,
+    )
+
     study = optuna.create_study(
-        pruner=optuna.pruners.MedianPruner(n_warmup_steps=5), direction="minimize"
+        study_name=model_type,
+        pruner=optuna.pruners.MedianPruner(n_warmup_steps=5),
+        direction="minimize",
     )
 
     study.optimize(
-        objective(input_data_with_features),
+        objective,
         n_trials=n_trials,
-        timeout=timeout,
         callbacks=[_log_study_progress],
         show_progress_bar=False,
+        timeout=TIMEOUT,
     )
 
     optimized_hyperparams = study.best_params

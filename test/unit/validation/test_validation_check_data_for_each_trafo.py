@@ -16,7 +16,6 @@ from datetime import datetime, timedelta
 import pandas as pd
 
 from openstf.validation.validation import check_data_for_each_trafo
-
 from test.utils import BaseTestCase
 
 now = datetime.utcnow()

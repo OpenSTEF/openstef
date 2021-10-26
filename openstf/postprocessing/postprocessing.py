@@ -2,13 +2,14 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+from enum import Enum
+
 import numpy as np
 import pandas as pd
 import structlog
-from enum import Enum
 
-from openstf.feature_engineering import weather_features
 from openstf.enums import ForecastType
+from openstf.feature_engineering import weather_features
 
 
 def normalize_and_convert_weather_data_for_splitting(weather_data):

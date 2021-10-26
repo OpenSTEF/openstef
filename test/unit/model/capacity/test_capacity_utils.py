@@ -2,19 +2,18 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-from datetime import datetime, timedelta
-from test.utils.data import TestData
 import unittest
+from datetime import datetime, timedelta
 
 import numpy as np
 import pytz
 
-from openstf.model.capacity import utils
 from openstf.feature_engineering.capacity_prognoses_features import (
     apply_capacity_features,
 )
-
+from openstf.model.capacity import utils
 from test.utils import BaseTestCase
+from test.utils.data import TestData
 
 data = TestData.load("input_data_train.pickle")
 load_profile_names = TestData.load("input_data_train_load_profile_names.json")

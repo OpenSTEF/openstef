@@ -2,12 +2,10 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 from pathlib import Path
-from datetime import datetime, timedelta
 
 import pandas as pd
-import numpy as np
 import structlog
-from openstf.enums import ForecastType
+
 from openstf.feature_engineering.feature_applicator import (
     OperationalPredictFeatureApplicator,
 )
@@ -45,7 +43,7 @@ def create_basecase_forecast_pipeline(
     # Validate and clean data - use a very long flatliner threshold.
     # If a measurement was constant for a long period, a basecase should still be made.
     validated_data = validation.validate(
-        input_data, flatliner_threshold=4 * 24 * 14 + 1
+        pj["id"], input_data, flatliner_threshold=4 * 24 * 14 + 1
     )
 
     # Add features

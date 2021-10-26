@@ -5,10 +5,10 @@
 from datetime import datetime, timedelta
 from pathlib import Path
 
+from openstf.enums import MLModelType
 from openstf.model.capacity.predict import predict_capacity_prognosis
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
-from openstf.enums import MLModelType
 
 
 def main():
@@ -19,8 +19,8 @@ def main():
         y_hor = list(range(13))
 
         # define input range
-        datetime_start = datetime.utcnow().date() - timedelta(days=30)
-        datetime_end = datetime.utcnow().date() + timedelta(days=max(y_hor) + 1)
+        datetime_start = datetime.utcnow() - timedelta(days=30)
+        datetime_end = datetime.utcnow() + timedelta(days=max(y_hor) + 1)
         model_type = [ml.value for ml in MLModelType]
 
         PredictionJobLoop(context, model_type=model_type).map(

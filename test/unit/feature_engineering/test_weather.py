@@ -7,7 +7,6 @@ import unittest
 import pandas as pd
 
 from openstf.feature_engineering import weather_features
-
 from test.utils import BaseTestCase
 
 

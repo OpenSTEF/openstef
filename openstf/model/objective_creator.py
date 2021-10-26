@@ -5,20 +5,40 @@
 from typing import Union
 
 from openstf.enums import MLModelType
-from openstf.model.objective import RegressorObjective, XGBRegressorObjective
+from openstf.model.objective import (
+    RegressorObjective,
+    XGBRegressorObjective,
+    LGBRegressorObjective,
+    XGBQuantileRegressorObjective,
+)
 
 
 class ObjectiveCreator:
-    OBJECTIVES = {MLModelType.XGB: XGBRegressorObjective}
+    OBJECTIVES = {
+        MLModelType.XGB: XGBRegressorObjective,
+        MLModelType.LGB: LGBRegressorObjective,
+        MLModelType.XGB_QUANTILE: XGBQuantileRegressorObjective,
+    }
 
     @staticmethod
     def create_objective(model_type: Union[MLModelType, str]) -> RegressorObjective:
-        valid_types = list(ObjectiveCreator.OBJECTIVES.keys())
-        if model_type not in valid_types:
+        """Create an objective function based on model type.
+        Args:
+            model_type (Union[MLModelType, str]): Model type to construct.
+        Raises:
+            NotImplementedError: When using an invalid model_type.
+        Returns:
+            RegressorObjective: Objective function
+        """
+        try:
+            # This will raise a ValueError when an invalid model_type str is used
+            # and nothing when a MLModelType enum is used.
+            model_type = MLModelType(model_type)
+        except ValueError as e:
+            valid_types = [t.value for t in MLModelType]
             raise NotImplementedError(
-                f"No objective function for {model_type} valid model_types are:"
-                f"{', '.join([t.value for t in valid_types])}"
-            )
-        model_type = MLModelType(model_type)
+                f"No objective for '{model_type}', "
+                f"valid model_types are: {valid_types}"
+            ) from e
 
         return ObjectiveCreator.OBJECTIVES[model_type]

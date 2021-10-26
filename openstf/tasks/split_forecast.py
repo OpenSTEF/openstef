@@ -28,17 +28,17 @@ Attributes:
 """
 from datetime import datetime
 from pathlib import Path
+
 import numpy as np
 import pandas as pd
-from openstf_dbc.database import DataBase
-import structlog
 import scipy.optimize
+import structlog
 
-from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
-from openstf.tasks.utils.taskcontext import TaskContext
 import openstf.monitoring.teams as monitoring
 from openstf.enums import MLModelType
-
+from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
+from openstf.tasks.utils.taskcontext import TaskContext
+from openstf_dbc.database import DataBase
 
 COEF_MAX_FRACTION_DIFF = 0.3
 

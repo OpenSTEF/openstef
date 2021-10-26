@@ -2,14 +2,14 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 import unittest
-from unittest import TestCase
 
+import numpy as np
+import pandas as pd
+import sklearn
 from sklearn.utils.estimator_checks import check_estimator
 
-from openstf.model.xgb_quantile import XGBQuantileRegressor
-
-import pandas as pd
-import numpy as np
+from openstf.model.regressors.xgb_quantile import XGBQuantileOpenstfRegressor
+from test.utils import BaseTestCase, TestData
 
 
 class MockModel:
@@ -38,7 +38,10 @@ class MockBooster:
             return MockScore()
 
 
-class TestXgbQuantile(TestCase):
+train_input = TestData.load("reference_sets/307-train-data.csv")
+
+
+class TestXgbQuantile(BaseTestCase):
     def setUp(self) -> None:
         self.quantiles = [0.9, 0.5, 0.6, 0.1]
 
@@ -47,40 +50,54 @@ class TestXgbQuantile(TestCase):
         # Use sklearn build in check, this will raise an exception if some check fails
         # During these tests the fit and predict methods are elaborately tested
         # More info: https://scikit-learn.org/stable/modules/generated/sklearn.utils.estimator_checks.check_estimator.html
-        check_estimator(XGBQuantileRegressor(tuple(self.quantiles)))
+        check_estimator(XGBQuantileOpenstfRegressor(tuple(self.quantiles)))
 
     def test_quantile_loading(self):
-        model = XGBQuantileRegressor(tuple(self.quantiles))
+        model = XGBQuantileOpenstfRegressor(tuple(self.quantiles))
         self.assertEqual(model.quantiles, tuple(self.quantiles))
+
+    def test_quantile_fit(self):
+        """Test happy flow of the training of model"""
+        model = XGBQuantileOpenstfRegressor()
+        model.fit(train_input.iloc[:, 1:], train_input.iloc[:, 0])
+
+        # check if the model was fitted (raises NotFittedError when not fitted)
+        self.assertIsNone(sklearn.utils.validation.check_is_fitted(model))
+
+        # check if model is sklearn compatible
+        self.assertTrue(isinstance(model, sklearn.base.BaseEstimator))
 
     def test_value_error_raised(self):
         # Check if Value Error is raised when 0.5 is not in the requested quantiles list
         with self.assertRaises(ValueError):
-            XGBQuantileRegressor((0.2, 0.3, 0.6, 0.7))
+            XGBQuantileOpenstfRegressor((0.2, 0.3, 0.6, 0.7))
 
     def test_predict_raises_valueerror_no_model_trained_for_quantile(self):
         # Test if value error is raised when model is not available
         with self.assertRaises(ValueError):
-            model = XGBQuantileRegressor((0.2, 0.3, 0.5, 0.6, 0.7))
+            model = XGBQuantileOpenstfRegressor((0.2, 0.3, 0.5, 0.6, 0.7))
             model.predict("test_data", quantile=0.8)
 
     def test_set_params(self):
         # Check hyperparameters are set correctly and do not cause errors
 
-        model = XGBQuantileRegressor((0.2, 0.3, 0.5, 0.6, 0.7))
+        model = XGBQuantileOpenstfRegressor((0.2, 0.3, 0.5, 0.6, 0.7))
 
         hyperparams = {
-            "featureset_name": "G",
             "subsample": "0.9",
             "min_child_weight": "4",
             "max_depth": "4",
             "gamma": "0.37879654",
             "colsample_bytree": "0.78203051",
-            "silent": "1",
-            "objective": "reg:squarederror",
             "training_period_days": "90",
         }
-        model.set_params(**hyperparams)
+        valid_hyper_parameters = {
+            key: value
+            for key, value in hyperparams.items()
+            if key in model.get_params().keys()
+        }
+
+        model.set_params(**valid_hyper_parameters)
 
         # Check if vallues are properly set
         self.assertEqual(model.max_depth, hyperparams["max_depth"])
@@ -88,10 +105,14 @@ class TestXgbQuantile(TestCase):
 
     def test_get_feature_names_from_booster(self):
         # Check if feature importance is extracted corretly
-        model = XGBQuantileRegressor((0.2, 0.3, 0.5, 0.6, 0.7))
+        model = XGBQuantileOpenstfRegressor((0.2, 0.3, 0.5, 0.6, 0.7))
         self.assertTrue(
             (
                 model.get_feature_importances_from_booster(MockBooster())
                 == np.array([0.16901408, 0.32394367, 0.5070422], dtype=np.float32)
             ).all()
         )
+
+    def test_importance_names(self):
+        model = XGBQuantileOpenstfRegressor(tuple(self.quantiles))
+        self.assertIsInstance(model._get_importance_names(), dict)

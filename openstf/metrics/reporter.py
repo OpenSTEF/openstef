@@ -1,15 +1,16 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-from dataclasses import dataclass
 import os
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict
 
-from plotly.graph_objects import Figure
 import pandas as pd
-from sklearn.base import RegressorMixin
 import structlog
+from openstf.model.regressors.regressor import OpenstfRegressor
+from plotly.graph_objects import Figure
+from sklearn.base import RegressorMixin
 
 from openstf.metrics import figure
 
@@ -24,7 +25,11 @@ class Report:
         save_path = Path(save_path)
         os.makedirs(save_path, exist_ok=True)
 
-        self.feature_importance_figure.write_html(str(save_path / "weight_plot.html"))
+        # Write feature_importance_figure if we have one
+        if self.feature_importance_figure is not None:
+            self.feature_importance_figure.write_html(
+                str(save_path / "weight_plot.html")
+            )
 
         for key, fig in self.data_series_figures.items():
             fig.write_html(str(save_path / f"{key}.html"), auto_open=False)
@@ -34,7 +39,6 @@ class Report:
 class Reporter:
     def __init__(
         self,
-        pj: dict = None,
         train_data: pd.DataFrame = None,
         validation_data: pd.DataFrame = None,
         test_data: pd.DataFrame = None,
@@ -43,23 +47,31 @@ class Reporter:
         """Initializes reporter
 
         Args:
-            pj:
-            train_data:
-            validation_data:
-            test_data:
+            pj: Prediction job
+            train_data: Dataframe with training data
+            validation_data: Dataframe with validation data
+            test_data: Dataframe with test data
         """
-        self.pj = pj
         self.horizons = train_data.horizon.unique()
         self.predicted_data_list = []
         self.input_data_list = [train_data, validation_data, test_data]
 
     def generate_report(
         self,
-        model: RegressorMixin,
+        model: OpenstfRegressor,
     ) -> Report:
 
         data_series_figures = self._make_data_series_figures(model)
-        feature_importance_figure = self._make_feature_importance_figure(model)
+
+        # feature_importance_dataframe should be a dataframe, to create a figure
+        # can be None if we have no feature importance
+        if isinstance(model.feature_importance_dataframe, pd.DataFrame):
+            feature_importance_figure = figure.plot_feature_importance(
+                model.feature_importance_dataframe
+            )
+        # If it isn't a dataframe we will set feature_importance_figure, so it will not create the figure
+        else:
+            feature_importance_figure = None
 
         report = Report(
             data_series_figures=data_series_figures,
@@ -68,7 +80,7 @@ class Reporter:
 
         return report
 
-    def _make_data_series_figures(self, model: RegressorMixin) -> dict:
+    def _make_data_series_figures(self, model: OpenstfRegressor) -> dict:
 
         # Make model predictions
         for data_set in self.input_data_list:
@@ -89,41 +101,3 @@ class Reporter:
             )
             for horizon in self.horizons
         }
-
-    def _make_feature_importance_figure(self, model: RegressorMixin) -> None:
-        feature_importance = self._extract_feature_importance(model)
-
-        return figure.plot_feature_importance(feature_importance)
-
-    def _extract_feature_importance(self, model):
-        """Return feature importances and weights of trained model.
-
-        Returns:
-            pandas.DataFrame: A DataFrame describing the feature importances and
-            weights of the trained model.
-
-        """
-        if model is None:
-            return None
-        model.importance_type = "gain"
-        feature_gain = pd.DataFrame(
-            model.feature_importances_,
-            index=model._Booster.feature_names,
-            columns=["gain"],
-        )
-        feature_gain /= feature_gain.sum()
-
-        model.importance_type = "weight"
-        feature_weight = pd.DataFrame(
-            model.feature_importances_,
-            index=model._Booster.feature_names,
-            columns=["weight"],
-        )
-        feature_weight /= feature_weight.sum()
-
-        feature_importance = pd.merge(
-            feature_gain, feature_weight, left_index=True, right_index=True
-        )
-        feature_importance.sort_values(by="gain", ascending=False, inplace=True)
-
-        return feature_importance

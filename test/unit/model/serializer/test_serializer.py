@@ -2,16 +2,15 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-import unittest
 from datetime import datetime, timedelta
 from pathlib import Path
-from test.utils import BaseTestCase
 
 from openstf.model.serializer import (
     PersistentStorageSerializer,
     MODEL_FILENAME,
     FOLDER_DATETIME_FORMAT,
 )
+from test.utils import BaseTestCase
 
 
 class TestAbstractModelSerializer(BaseTestCase):

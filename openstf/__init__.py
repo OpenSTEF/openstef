@@ -2,8 +2,8 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-from pathlib import Path
 from importlib.metadata import version, PackageNotFoundError
+from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).parent.parent.absolute()
 

@@ -26,35 +26,36 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import structlog
-from openstf_dbc.database import DataBase
+from openstf.enums import MLModelType
 
 from openstf.exceptions import NoPredictedLoadError, NoRealisedLoadError
 from openstf.metrics import metrics
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
 from openstf.validation import validation
+from openstf_dbc.database import DataBase
 
 # Thresholds for retraining and optimizing
 THRESHOLD_RETRAINING = 0.25
 THRESHOLD_OPTIMIZING = 0.50
 
 
-def main():
+def main(model_type=None):
     taskname = Path(__file__).name.replace(".py", "")
+    if model_type is None:
+        model_type = [ml.value for ml in MLModelType]
 
     with TaskContext(taskname) as context:
-        model_type = ["xgb", "lgb"]
         # Set start and end time
-        start_time = datetime.date(datetime.utcnow()) - timedelta(days=1)
-        end_time = datetime.date(datetime.utcnow())
+        start_time = datetime.utcnow() - timedelta(days=1)
+        end_time = datetime.utcnow()
 
-        if datetime.utcnow().weekday() in [0, 1, 2, 3, 4]:
-            PredictionJobLoop(context, model_type=model_type).map(
-                check_kpi_pj,
-                context,
-                start_time=start_time,
-                end_time=end_time,
-            )
+        PredictionJobLoop(context, model_type=model_type).map(
+            check_kpi_pj,
+            context,
+            start_time=start_time,
+            end_time=end_time,
+        )
 
 
 def check_kpi_pj(pj, context, start_time, end_time):
@@ -137,15 +138,11 @@ def calc_kpi_for_specific_pid(pid, start_time=None, end_time=None):
 
     # If predicted is empty
     if len(predicted_load) == 0:
-        raise NoPredictedLoadError(
-            f"No predicted load found for {pid} from {start_time} to {end_time}."
-        )
+        raise NoPredictedLoadError(pid, start_time, end_time)
 
     # If realised is empty
     if len(realised) == 0:
-        raise NoRealisedLoadError(
-            f"No realised load found for {pid} from {start_time} to {end_time}."
-        )
+        raise NoRealisedLoadError(pid, start_time, end_time)
 
     completeness_realised = validation.calc_completeness(realised)
 

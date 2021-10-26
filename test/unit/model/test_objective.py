@@ -2,37 +2,127 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 import unittest
-from unittest.mock import MagicMock, patch
 
-from test.utils.base import BaseTestCase
+import optuna
 
-from openstf.enums import MLModelType
-from openstf.model.objective import XGBRegressorObjective
+from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
+from openstf.model.model_creator import ModelCreator
+from openstf.model.objective import (
+    RegressorObjective,
+    XGBRegressorObjective,
+    LGBRegressorObjective,
+    XGBQuantileRegressorObjective,
+)
+from test.utils import BaseTestCase, TestData
+
+input_data = TestData.load("reference_sets/307-train-data.csv")
+input_data_with_features = TrainFeatureApplicator(horizons=[0.25, 24.0]).add_features(
+    input_data
+)
+# Select 50 data points to speedup test
+input_data_with_features = input_data_with_features.iloc[::50, :]
+pj = TestData.get_prediction_job(pid=307)
+N_TRIALS = 1
 
 
-@patch("openstf.model.objective.split_data_train_validation_test")
-@patch("openstf.model.objective.mae")
-@patch("openstf.model.objective.ModelCreator")
-class TestXGBRegressorObjective(BaseTestCase):
-    def test_call(self, model_creator_mock, mea_mock, split_data_mock):
+class TestRegressorObjective(BaseTestCase):
+    def test_call(self):
+        model_type = "xgb"
+        model = ModelCreator.create_model(model_type)
 
-        train_data_mock = MagicMock()
-        train_data_mock.columns = ["load", "a", "b", "horizon"]
-
-        split_data_mock.return_value = train_data_mock, train_data_mock, train_data_mock
-        input_data = None
-
-        objective = XGBRegressorObjective(input_data)
-        trial_mock = MagicMock()
-        objective(trial_mock)
-
-        # the first arg to split_data should be input_data
-        self.assertEqual(split_data_mock.call_args[0][0], input_data)
-
-        # create model should be called the the right model type
-        self.assertEqual(
-            model_creator_mock.create_model.call_args[0][0], MLModelType.XGB
+        objective = RegressorObjective(
+            model,
+            input_data_with_features,
         )
+
+        study = optuna.create_study(
+            study_name=model_type,
+            pruner=optuna.pruners.MedianPruner(n_warmup_steps=5),
+            direction="minimize",
+        )
+        study.optimize(objective, n_trials=N_TRIALS)
+
+        self.assertIsInstance(objective, RegressorObjective)
+        self.assertEqual(len(study.trials), N_TRIALS)
+
+
+class TestXGBRegressorObjective(BaseTestCase):
+    def test_call(self):
+        model_type = "xgb"
+        model = ModelCreator.create_model(model_type)
+
+        objective = XGBRegressorObjective(
+            model,
+            input_data_with_features,
+        )
+        study = optuna.create_study(
+            study_name=model_type,
+            pruner=optuna.pruners.MedianPruner(n_warmup_steps=5),
+            direction="minimize",
+        )
+        study.optimize(objective, n_trials=N_TRIALS)
+
+        self.assertIsInstance(objective, XGBRegressorObjective)
+        self.assertEqual(len(study.trials), N_TRIALS)
+
+
+class TestLGBRegressorObjective(BaseTestCase):
+    def test_call(self):
+        model_type = "lgb"
+        model = ModelCreator.create_model(model_type)
+
+        objective = LGBRegressorObjective(
+            model,
+            input_data_with_features,
+        )
+        study = optuna.create_study(
+            study_name=model_type,
+            pruner=optuna.pruners.MedianPruner(n_warmup_steps=5),
+            direction="minimize",
+        )
+        study.optimize(objective, n_trials=N_TRIALS)
+
+        self.assertIsInstance(objective, LGBRegressorObjective)
+        self.assertEqual(len(study.trials), N_TRIALS)
+
+
+class TestXGBQRegressorObjective(BaseTestCase):
+    def test_call(self):
+        model_type = "xgb_quantile"
+        model = ModelCreator.create_model(model_type)
+
+        objective = XGBQuantileRegressorObjective(
+            model,
+            input_data_with_features,
+        )
+        study = optuna.create_study(
+            study_name=model_type,
+            pruner=optuna.pruners.MedianPruner(n_warmup_steps=5),
+            direction="minimize",
+        )
+        study.optimize(objective, n_trials=N_TRIALS)
+
+        self.assertIsInstance(objective, XGBQuantileRegressorObjective)
+        self.assertEqual(len(study.trials), N_TRIALS)
+
+
+class ColumnOrderTest(BaseTestCase):
+    def test_call(self):
+        model_type = "xgb"
+        model = ModelCreator.create_model(model_type)
+
+        objective = XGBRegressorObjective(
+            model,
+            input_data,
+        )
+
+        study = optuna.create_study(
+            study_name=model_type,
+            pruner=optuna.pruners.MedianPruner(n_warmup_steps=5),
+            direction="minimize",
+        )
+        with self.assertRaises(RuntimeError):
+            study.optimize(objective, n_trials=N_TRIALS)
 
 
 if __name__ == "__main__":

@@ -19,8 +19,9 @@ Example:
         $ python create_basecase_forecast.py
 """
 from datetime import datetime, timedelta
-import pandas as pd
 from pathlib import Path
+
+import pandas as pd
 
 from openstf.pipeline.create_basecase_forecast import create_basecase_forecast_pipeline
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
@@ -69,7 +70,7 @@ def main():
     taskname = Path(__file__).name.replace(".py", "")
 
     with TaskContext(taskname) as context:
-        model_type = ["xgb", "lgb"]
+        model_type = ["xgb", "xgb_quantile", "lgb"]
 
         PredictionJobLoop(context, model_type=model_type).map(
             create_basecase_forecast_task, context

@@ -1,12 +1,11 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-from unittest import TestCase, skip
+from unittest import TestCase
 from unittest.mock import MagicMock, patch
 
-from openstf.tasks.create_forecast import create_forecast_task
 import openstf.tasks.create_forecast as task
-
+from openstf.tasks.create_forecast import create_forecast_task
 from test.utils import TestData
 
 FORECAST_MOCK = "forecast_mock"
@@ -30,7 +29,6 @@ class TestCreateForeCastTask(TestCase):
         "openstf.tasks.utils.taskcontext.DataBase",
     )
     @patch("openstf.tasks.utils.taskcontext.ConfigManager")
-    @patch("openstf.tasks.utils.utils.ConfigManager")
     @patch("openstf.tasks.utils.taskcontext.post_teams")
     @patch("openstf.tasks.create_forecast.datetime")
     @patch("openstf.pipeline.utils.datetime")
@@ -39,13 +37,12 @@ class TestCreateForeCastTask(TestCase):
         utils_datetime_mock,
         datetime_mock,
         post_teamsmock,
-        configmock_utils,
         configmock_taskcontext,
         dbmock,
     ):
         dbmock().get_prediction_jobs.return_value = [
-            TestData.get_prediction_job(pid=307),
-            TestData.get_prediction_job(pid=307),
+            self.pj,
+            self.pj,
         ]
         testdata = TestData.load("reference_sets/307-test-data.csv")
         dbmock().get_model_input.return_value = testdata
@@ -54,8 +51,6 @@ class TestCreateForeCastTask(TestCase):
             "test/trained_models/"
         )
         configmock_taskcontext.get_instance.return_value.paths.webroot = "test_webroot"
-
-        configmock_utils().get_instance.return_value = configmock_taskcontext
 
         # Set 'NOW' to -10% points of testdata with known load
         datetime_mock.utcnow.return_value = testdata.iloc[-100, :].name

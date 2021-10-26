@@ -1,13 +1,11 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-from unittest.mock import patch
-from test.utils import TestData
-from test.utils import BaseTestCase
-
 from openstf.pipeline.train_create_forecast_backtest import (
     train_model_and_forecast_back_test,
 )
+from test.utils import BaseTestCase
+from test.utils import TestData
 
 
 class TestTrainBackTestPipeline(BaseTestCase):

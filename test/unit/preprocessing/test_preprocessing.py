@@ -11,7 +11,6 @@ import pandas as pd
 
 from openstf.preprocessing import preprocessing
 from openstf.validation import validation
-
 from test.utils import BaseTestCase
 
 now = datetime.utcnow()
