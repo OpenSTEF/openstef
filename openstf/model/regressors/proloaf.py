@@ -4,7 +4,7 @@ import torch
 import utils.datahandler as dh
 from openstf.model.regressors.regressor import OpenstfRegressor
 from utils.modelhandler import ModelWrapper
-from typing import List, Dict
+from typing import List, Dict, Any
 
 
 class OpenstfProloafRegressor(OpenstfRegressor, ModelWrapper):
@@ -26,16 +26,16 @@ class OpenstfProloafRegressor(OpenstfRegressor, ModelWrapper):
         early_stopping_patience: int = 7,
         early_stopping_margin: float = 0.0,
         learning_rate: float = 1e-4,
-        max_epochs: int = 100,
+        max_epochs: int = 1,
         device: str = "cpu",
         batch_size: int = 10,
-        split_percent: float = 0.85,
+        # split_percent: float = 0.85,  # XXX now unsued
         history_horizon: int = 24,
         horizon_minutes: int = None,
     ):
         self.device = device
         self.batch_size = batch_size
-        self.split_percent = split_percent
+        # self.split_percent = split_percent  # XXX now unsued
         self.history_horizon = history_horizon
         self.forecast_horizon = int(horizon_minutes / 60)
         ModelWrapper.__init__(
@@ -77,16 +77,32 @@ class OpenstfProloafRegressor(OpenstfRegressor, ModelWrapper):
     ) -> ModelWrapper:
         y = y.to_frame()
         self.target_id = [y.columns[0]]
-        df = pd.concat([x, y], axis="columns", verify_integrity=True)
-        train_dl, validation_dl, _ = dh.transform(
-            df=df,  # TODO this needs to be x and y cacatinated
+        df_train = pd.concat([x, y], axis="columns", verify_integrity=True)
+        print(f"{self.encoder_features = }")
+        print(f"{self.decoder_features = }")
+        train_dl, _, _ = dh.transform(
+            df=df_train,  # TODO this needs to be x and y cacatinated
             encoder_features=self.encoder_features,
             decoder_features=self.decoder_features,
             batch_size=self.batch_size,
             history_horizon=self.history_horizon,
             forecast_horizon=self.forecast_horizon,
             target_id=self.target_id,
-            train_split=self.split_percent,
+            train_split=1.0,
+            validation_split=1.0,
+            device=self.device,
+        )
+        df_val = pd.concat(eval_set[1],
+                           axis="columns", verify_integrity=True)
+        _, validation_dl, _ = dh.transform(
+            df=df_val,  # TODO this needs to be x and y cacatinated
+            encoder_features=self.encoder_features,
+            decoder_features=self.decoder_features,
+            batch_size=self.batch_size,
+            history_horizon=self.history_horizon,
+            forecast_horizon=self.forecast_horizon,
+            target_id=self.target_id,
+            train_split=0.0,
             validation_split=1.0,
             device=self.device,
         )
