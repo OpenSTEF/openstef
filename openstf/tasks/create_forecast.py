@@ -36,7 +36,7 @@ from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
 
 T_BEHIND_DAYS: int = 14
-T_AHEAD_DAYS: int = 3
+T_AHEAD_DAYS: int = 2
 
 
 def create_forecast_task(pj: dict, context: TaskContext) -> None:

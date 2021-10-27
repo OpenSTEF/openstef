@@ -21,20 +21,14 @@ forecast_input = TestData.load("reference_sets/307-test-data.csv")
 
 
 class TestCreateForecastPipeline(BaseTestCase):
-    @patch("openstf.pipeline.utils.datetime")
-    def test_forecast_datetime_range(self, datetime_mock):
-        datetime_mock.utcnow.return_value = NOW
-        # get current date and time UTC
-        datetime_utc = NOW
-        # Time range for time interval to be predicted
-        forecast_start_expected = datetime_utc - timedelta(
-            minutes=PJ["resolution_minutes"]
-        )
-        forecast_end_expected = datetime_utc + timedelta(minutes=PJ["horizon_minutes"])
+    def test_forecast_datetime_range(self):
+        time_format = "%Y-%m-%d %H:%M:%S"
+        forecast_start_expected = datetime.strptime("2020-11-25 23:45:00", time_format)
+        forecast_end_expected = datetime.strptime("2020-11-30 00:00:00", time_format)
 
-        (forecast_start, forecast_end,) = utils.generate_forecast_datetime_range(
-            resolution_minutes=PJ["resolution_minutes"],
-            horizon_minutes=PJ["horizon_minutes"],
+        forecast_data = TestData.load("forecast_data_missing_4_days.csv")
+        forecast_start, forecast_end = utils.generate_forecast_datetime_range(
+            forecast_data=forecast_data
         )
         self.assertEqual(forecast_start, forecast_start_expected)
         self.assertEqual(forecast_end, forecast_end_expected)
