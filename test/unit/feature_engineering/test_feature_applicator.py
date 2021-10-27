@@ -35,11 +35,10 @@ class TestFeatureApplicator(TestCase):
         # Also check "horizons" is not in the output
         input_data = TestData.load("input_data.pickle")
         with self.assertRaises(ValueError):
-            OperationalPredictFeatureApplicator(
-                horizons=[0.25, 1.0]
-            ).add_features(input_data[["load"]])
+            OperationalPredictFeatureApplicator(horizons=[0.25, 1.0]).add_features(
+                input_data[["load"]]
+            )
         with self.assertRaises(ValueError):
-            OperationalPredictFeatureApplicator(
-                horizons=[]
-            ).add_features(input_data[["load"]])
-
+            OperationalPredictFeatureApplicator(horizons=[]).add_features(
+                input_data[["load"]]
+            )
