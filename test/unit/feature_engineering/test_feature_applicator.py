@@ -29,3 +29,17 @@ class TestFeatureApplicator(TestCase):
         ).add_features(input_data[["load"]])
         self.assertEqual(data_with_features.columns.to_list()[0], "load")
         self.assertTrue("horizon" not in data_with_features.columns.to_list())
+
+    def test_operational_feature_applicator_one_horizon(self):
+        # Test for expected column order of the output
+        # Also check "horizons" is not in the output
+        input_data = TestData.load("input_data.pickle")
+        with self.assertRaises(ValueError):
+            OperationalPredictFeatureApplicator(
+                horizons=[0.25, 1.0]
+            ).add_features(input_data[["load"]])
+        with self.assertRaises(ValueError):
+            OperationalPredictFeatureApplicator(
+                horizons=[]
+            ).add_features(input_data[["load"]])
+
