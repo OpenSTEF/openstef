@@ -29,6 +29,9 @@ Attributes:
 """
 from datetime import datetime, timedelta
 from pathlib import Path
+from typing import Union
+
+from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 from openstf.enums import MLModelType
 from openstf.pipeline.create_forecast import create_forecast_pipeline
@@ -39,7 +42,9 @@ T_BEHIND_DAYS: int = 14
 T_AHEAD_DAYS: int = 3
 
 
-def create_forecast_task(pj: dict, context: TaskContext) -> None:
+def create_forecast_task(
+    pj: Union[dict, PredictionJobDataClass], context: TaskContext
+) -> None:
     """Top level task that creates a forecast.
 
     On this task level all database and context manager dependencies are resolved.
@@ -48,7 +53,7 @@ def create_forecast_task(pj: dict, context: TaskContext) -> None:
         "horizon_minutes", "type", "name", "model_type_group", "quantiles"
 
     Args:
-        pj (dict): Prediction job
+        pj (Union[dict, PredictionJobDataClass]): Prediction job
         context (TaskContext): Contect object that holds a config manager and a database connection
     """
     # Extract trained models folder

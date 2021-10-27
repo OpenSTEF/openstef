@@ -17,7 +17,8 @@ class OpenstfRegressor(OpenstfRegressorInterface):
     def set_feature_importance(self, feature_names: list) -> Optional[pd.DataFrame]:
         """get feature importance.
 
-        Args: feature_names; list of features in the original column order
+        Args:
+            feature_names (list): list of features in the original column order
 
         Returns:
          pd.DataFrame

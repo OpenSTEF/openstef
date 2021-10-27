@@ -3,10 +3,12 @@
 # SPDX-License-Identifier: MPL-2.0
 
 from enum import Enum
+from typing import Union
 
 import numpy as np
 import pandas as pd
 import structlog
+from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 from openstf.enums import ForecastType
 from openstf.feature_engineering import weather_features
@@ -177,7 +179,7 @@ def add_components_base_case_forecast(basecase_forecast: pd.DataFrame) -> pd.Dat
 
 
 def add_prediction_job_properties_to_forecast(
-    pj: dict,
+    pj: Union[dict, PredictionJobDataClass],
     forecast: pd.DataFrame,
     algorithm_type: str,
     forecast_type: Enum = None,

@@ -3,17 +3,16 @@
 # SPDX-License-Identifier: MPL-2.0
 import unittest
 from datetime import datetime, timedelta
-from openstf.exceptions import (
-    InputDataInsufficientError,
-    InputDataWrongColumnOrderError,
-)
-
 from unittest.mock import MagicMock, patch
 
 import pandas as pd
 import sklearn
 
 from openstf.enums import MLModelType
+from openstf.exceptions import (
+    InputDataInsufficientError,
+    InputDataWrongColumnOrderError,
+)
 from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
 from openstf.metrics.reporter import Report
 from openstf.model_selection.model_selection import split_data_train_validation_test
@@ -60,10 +59,10 @@ class TestTrainModelPipeline(BaseTestCase):
             input_data=self.train_input,
             check_old_model_age=False,
             trained_models_folder="./test/trained_models",
-            save_figures_folder="./test/trained_models",
         )
 
-    def test_train_model_pipeline_core_happy_flow(self):
+    @patch("openstf.model.serializer.PersistentStorageSerializer.save_model")
+    def test_train_model_pipeline_core_happy_flow(self, save_model_mock):
         """Test happy flow of the train model pipeline
 
         NOTE this does not explain WHY this is the case?
@@ -114,9 +113,12 @@ class TestTrainModelPipeline(BaseTestCase):
                 importance = model.set_feature_importance(train_x.columns)
                 self.assertIsInstance(importance, pd.DataFrame)
 
+    @patch("openstf.model.serializer.PersistentStorageSerializer.save_model")
     @patch("openstf.pipeline.train_model.train_model_pipeline_core")
     @patch("openstf.pipeline.train_model.PersistentStorageSerializer")
-    def test_train_model_pipeline_happy_flow(self, serializer_mock, pipeline_mock):
+    def test_train_model_pipeline_happy_flow(
+        self, serializer_mock, pipeline_mock, save_model_mock
+    ):
         """Test happy flow of the train model pipeline"""
 
         old_model_mock = MagicMock()
@@ -133,14 +135,15 @@ class TestTrainModelPipeline(BaseTestCase):
             pj=self.pj,
             input_data=self.train_input,
             check_old_model_age=True,
-            trained_models_folder="TEST",
-            save_figures_folder="OTHER_TEST",
+            trained_models_folder="./test/trained_models",
         )
-        self.assertEqual(report_mock.method_calls[0].kwargs["save_path"], "OTHER_TEST")
 
+    @patch("openstf.model.serializer.PersistentStorageSerializer.save_model")
     @patch("openstf.pipeline.train_model.train_model_pipeline_core")
     @patch("openstf.pipeline.train_model.PersistentStorageSerializer")
-    def test_train_model_pipeline_young_model(self, serializer_mock, pipeline_mock):
+    def test_train_model_pipeline_young_model(
+        self, serializer_mock, pipeline_mock, save_model_mock
+    ):
         """Test pipeline core is not called when model is young"""
         old_model_mock = MagicMock()
         old_model_mock.age = 3
@@ -156,16 +159,15 @@ class TestTrainModelPipeline(BaseTestCase):
             pj=self.pj,
             input_data=self.train_input,
             check_old_model_age=True,
-            trained_models_folder="TEST",
-            save_figures_folder="OTHER_TEST",
+            trained_models_folder="./test/trained_models",
         )
         self.assertFalse(pipeline_mock.called)
 
-    @patch("openstf.pipeline.train_model.validation")
+    @patch("openstf.model.serializer.PersistentStorageSerializer.save_model")
+    @patch("openstf.validation.validation.is_data_sufficient", return_value=False)
     def test_train_model_InputDataInsufficientError(
-        self, validation_is_data_sufficient_mock
+        self, validation_is_data_sufficient_mock, save_model_mock
     ):
-        validation_is_data_sufficient_mock.is_data_sufficient.return_value = False
         # This error is caught and then raised again and logged
         with self.assertLogs("openstf.pipeline.train_model", level="ERROR") as captured:
             with self.assertRaises(InputDataInsufficientError):
@@ -173,8 +175,7 @@ class TestTrainModelPipeline(BaseTestCase):
                     pj=self.pj,
                     input_data=self.train_input,
                     check_old_model_age=True,
-                    trained_models_folder="TEST",
-                    save_figures_folder="OTHER_TEST",
+                    trained_models_folder="./test/trained_models",
                 )
 
         self.assertEqual(
@@ -186,7 +187,8 @@ class TestTrainModelPipeline(BaseTestCase):
             "Input data is insufficient after validation and cleaning",
         )
 
-    def test_train_model_InputDataWrongColumnOrderError(self):
+    @patch("openstf.model.serializer.PersistentStorageSerializer.save_model")
+    def test_train_model_InputDataWrongColumnOrderError(self, save_model_mock):
         # change the column order
         input_data = self.train_input.iloc[:, ::-1]
 
@@ -197,8 +199,7 @@ class TestTrainModelPipeline(BaseTestCase):
                     pj=self.pj,
                     input_data=input_data,
                     check_old_model_age=True,
-                    trained_models_folder="TEST",
-                    save_figures_folder="OTHER_TEST",
+                    trained_models_folder="./test/trained_models",
                 )
 
         self.assertEqual(
@@ -207,8 +208,11 @@ class TestTrainModelPipeline(BaseTestCase):
         # search for log
         self.assertRegex(captured.records[0].getMessage(), "Wrong column order")
 
+    @patch("openstf.model.serializer.PersistentStorageSerializer.save_model")
     @patch("openstf.pipeline.train_model.PersistentStorageSerializer")
-    def test_train_model_OldModelHigherScoreError(self, serializer_mock):
+    def test_train_model_OldModelHigherScoreError(
+        self, serializer_mock, save_model_mock
+    ):
         # Mock an old model which is better than the new one.
         old_model_mock = MagicMock()
         old_model_mock.age = 8
@@ -224,8 +228,7 @@ class TestTrainModelPipeline(BaseTestCase):
                 pj=self.pj,
                 input_data=self.train_input,
                 check_old_model_age=True,
-                trained_models_folder="TEST",
-                save_figures_folder="OTHER_TEST",
+                trained_models_folder="./test/trained_models",
             )
 
         self.assertEqual(
@@ -236,8 +239,9 @@ class TestTrainModelPipeline(BaseTestCase):
             captured.records[0].getMessage(), "Old model is better than new model"
         )
 
+    @patch("openstf.model.serializer.PersistentStorageSerializer.save_model")
     @patch("openstf.pipeline.train_model.PersistentStorageSerializer")
-    def test_train_model_log_new_model_better(self, serializer_mock):
+    def test_train_model_log_new_model_better(self, serializer_mock, save_model_mock):
         # Mock an old model which is better than the new one.
         old_model_mock = MagicMock()
         old_model_mock.age = 8
@@ -252,8 +256,7 @@ class TestTrainModelPipeline(BaseTestCase):
                 pj=self.pj,
                 input_data=self.train_input,
                 check_old_model_age=True,
-                trained_models_folder="TEST",
-                save_figures_folder="OTHER_TEST",
+                trained_models_folder="./test/trained_models",
             )
 
         # search for the old model is better log
@@ -261,8 +264,9 @@ class TestTrainModelPipeline(BaseTestCase):
             captured.records[0].getMessage(), "New model is better than old model"
         )
 
+    @patch("openstf.model.serializer.PersistentStorageSerializer.save_model")
     @patch("openstf.pipeline.train_model.PersistentStorageSerializer")
-    def test_train_model_log_couldnt_compare(self, serializer_mock):
+    def test_train_model_log_couldnt_compare(self, serializer_mock, save_model_mock):
         # Mock an old model which is better than the new one.
         old_model_mock = MagicMock()
         old_model_mock.age = 8
@@ -277,8 +281,7 @@ class TestTrainModelPipeline(BaseTestCase):
                 pj=self.pj,
                 input_data=self.train_input,
                 check_old_model_age=True,
-                trained_models_folder="TEST",
-                save_figures_folder="OTHER_TEST",
+                trained_models_folder="./test/trained_models",
             )
 
         # search for the old model is better log
@@ -286,8 +289,9 @@ class TestTrainModelPipeline(BaseTestCase):
             captured.records[0].getMessage(), "Could not compare to old model"
         )
 
+    @patch("openstf.model.serializer.PersistentStorageSerializer.save_model")
     @patch("openstf.pipeline.train_model.PersistentStorageSerializer")
-    def test_train_model_No_old_model(self, serializer_mock):
+    def test_train_model_No_old_model(self, serializer_mock, save_model_mock):
         # Mock an old model which is better than the new one.
         old_model_mock = MagicMock()
         old_model_mock.age = 8
@@ -304,8 +308,7 @@ class TestTrainModelPipeline(BaseTestCase):
                 pj=self.pj,
                 input_data=self.train_input,
                 check_old_model_age=True,
-                trained_models_folder="TEST",
-                save_figures_folder="OTHER_TEST",
+                trained_models_folder="./test/trained_models",
             )
 
         # search for the old model is better log
