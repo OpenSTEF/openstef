@@ -79,7 +79,7 @@ class TrainFeatureApplicator(AbstractFeatureApplicator):
         # Loop over horizons and add corresponding features
         for horizon in self.horizons:
             # Deep copy of df is important, because we want a fresh start every iteration!
-            res = apply_features(df.copy(deep=True), horizon=horizon)
+            res = apply_features(df.copy(deep=True), horizon=horizon, feature_names=self.feature_names)
             res["horizon"] = horizon
             result = result.append(res)
 
@@ -113,7 +113,7 @@ class OperationalPredictFeatureApplicator(AbstractFeatureApplicator):
         """
         num_horizons = len(self.horizons)
         if num_horizons != 1:
-            raise ValueError("Expected one horizon, got {num_horizons}")
+            raise ValueError(f"Expected one horizon, got {num_horizons}")
 
         df = apply_features(
             df, feature_names=self.feature_names, horizon=self.horizons[0]
