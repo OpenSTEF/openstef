@@ -79,7 +79,9 @@ class TrainFeatureApplicator(AbstractFeatureApplicator):
         # Loop over horizons and add corresponding features
         for horizon in self.horizons:
             # Deep copy of df is important, because we want a fresh start every iteration!
-            res = apply_features(df.copy(deep=True), horizon=horizon, feature_names=self.feature_names)
+            res = apply_features(
+                df.copy(deep=True), horizon=horizon, feature_names=self.feature_names
+            )
             res["horizon"] = horizon
             result = result.append(res)
 
