@@ -31,7 +31,7 @@ class OpenstfProloafRegressor(OpenstfRegressor, ModelWrapper):
         batch_size: int = 10,
         # split_percent: float = 0.85,  # XXX now unsued
         history_horizon: int = 24,
-        horizon_minutes: int = None,
+        horizon_minutes: int = 2880 #2 days in minutes,
     ):
         self.device = device
         self.batch_size = batch_size

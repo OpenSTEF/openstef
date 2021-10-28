@@ -49,9 +49,8 @@ class TestAbstractModelSerializer(BaseTestCase):
         mock_log_model,
     ):
 
-        model_type = "xgb"
-        model = ModelCreator.create_model(model_type)
         pj = TestData.get_prediction_job(pid=307)
+        model = ModelCreator.create_model(pj)
         report_mock = MagicMock()
         report_mock.get_metrics.return_value = {"mae", 0.2}
         with self.assertLogs("PersistentStorageSerializer", level="INFO") as captured:
@@ -78,10 +77,8 @@ class TestAbstractModelSerializer(BaseTestCase):
         mock_log_figure,
         mock_log_model,
     ):
-
-        model_type = "xgb"
-        model = ModelCreator.create_model(model_type)
         pj = TestData.get_prediction_job(pid=307)
+        model = ModelCreator.create_model(pj)
         report_mock = MagicMock()
         report_mock.get_metrics.return_value = {"mae", 0.2}
         mock_search.return_value = pd.DataFrame(columns=["run_id"])

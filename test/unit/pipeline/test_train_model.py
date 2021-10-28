@@ -70,14 +70,20 @@ class TestTrainModelPipeline(BaseTestCase):
         but it can/should include predictors (e.g. weather data)
 
         """
-        # Select 50 data points to speedup test
-        train_input = self.train_input.iloc[::50, :]
+        # Select 50 data points to speedup test (unless proloaf is used)
         for model_type in MLModelType:
             with self.subTest(model_type=model_type):
                 pj = self.pj
                 pj["model"] = model_type.value
                 # Use default parameters
-                pj["hyper_params"] = {}
+                if pj["model"] == "proloaf":
+                    train_input = self.train_input 
+                    pj["hyper_params"]["encoder_features"] = list(self.train_input.columns)[1:]
+                    pj["hyper_params"]["decoder_features"] = list(self.train_input.columns)[1:]
+                else:
+                    pj["hyper_params"] = {}
+                    train_input = self.train_input.iloc[::50, :]
+
                 model, report = train_model_pipeline_core(pj=pj, input_data=train_input)
 
                 # check if the model was fitted (raises NotFittedError when not fitted)
