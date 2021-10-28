@@ -113,7 +113,7 @@ class TestTrainModelPipeline(BaseTestCase):
                     test_data,
                 ) = split_data_train_validation_test(data_with_features)
 
-                importance = model._set_feature_importance()
+                importance = model.set_feature_importance()
                 self.assertIsInstance(importance, pd.DataFrame)
 
     @patch("openstf.model.serializer.PersistentStorageSerializer.save_model")
