@@ -63,9 +63,21 @@ class OpenstfProloafRegressor(OpenstfRegressor, ModelWrapper):
         # x = dh.fill_if_missing(x, periodicity=24)
         # This would be needed if no previous scaling is done
         # selected_features, scalers = dh.scale_all(x, **config)
-        inputs_enc = torch.tensor(x[self.encoder_features]).unsqueeze(dim=0)
-        inputs_dec = torch.tensor(x[self.decoder_features]).unsqueeze(dim=0)
-        return super().predict(inputs_enc, inputs_dec)[:, :, 0].squeeze().numpy()
+        inputs_enc = torch.tensor(
+            x[self.encoder_features].to_numpy(), dtype=torch.float
+        ).unsqueeze(dim=0)
+        print(f"{inputs_enc.dtype}")
+        inputs_dec = torch.tensor(
+            x[self.decoder_features].to_numpy(), dtype=torch.float
+        ).unsqueeze(dim=0)
+        prediction = (
+            ModelWrapper.predict(self, inputs_enc, inputs_dec)[:, :, 0]
+            .squeeze()
+            .detach()
+            .numpy()
+        )
+        print(f"{prediction = }")
+        return prediction
 
     def fit(
         self,
@@ -92,8 +104,7 @@ class OpenstfProloafRegressor(OpenstfRegressor, ModelWrapper):
             validation_split=1.0,
             device=self.device,
         )
-        df_val = pd.concat(eval_set[1],
-                           axis="columns", verify_integrity=True)
+        df_val = pd.concat(eval_set[1], axis="columns", verify_integrity=True)
         _, validation_dl, _ = dh.transform(
             df=df_val,  # TODO this needs to be x and y cacatinated
             encoder_features=self.encoder_features,
