@@ -15,6 +15,7 @@ import pandas as pd
 
 def get_eval_metric_function(metric_name):
     evaluation_function = {
+        "rmse": rmse,
         "bias": bias,
         "nsme": nsme,
         "mae": mae,

@@ -18,6 +18,9 @@ Example:
 """
 from datetime import datetime, timedelta
 from pathlib import Path
+from typing import Union
+
+from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 from openstf.enums import MLModelType
 from openstf.monitoring import teams
@@ -29,16 +32,20 @@ MAX_AGE_HYPER_PARAMS_DAYS = 31
 DEFAULT_TRAINING_PERIOD_DAYS = 91
 
 
-def optimize_hyperparameters_task(pj: dict, context: TaskContext) -> None:
+def optimize_hyperparameters_task(
+    pj: Union[dict, PredictionJobDataClass], context: TaskContext
+) -> None:
     """Optimize hyperparameters task.
 
     Expected prediction job keys: "id", "model", "lat", "lon", "name", "description"
     Only used for logging: "name", "description"
 
     Args:
-        pj (dict): Prediction job
+        pj (Union[dict, PredictionJobDataClass]): Prediction job
         context (TaskContext): Task context
     """
+    # Folder where to store models
+    trained_models_folder = Path(context.config.paths.trained_models_folder)
 
     # Determine if we need to optimize hyperparams
     datetime_last_optimized = context.database.get_hyper_params_last_optimized(pj)
@@ -73,7 +80,11 @@ def optimize_hyperparameters_task(pj: dict, context: TaskContext) -> None:
     )
 
     # Optimize hyperparams
-    hyperparameters = optimize_hyperparameters_pipeline(pj, input_data)
+    hyperparameters = optimize_hyperparameters_pipeline(
+        pj,
+        input_data,
+        trained_models_folder=trained_models_folder,
+    )
 
     context.database.write_hyper_params(pj, hyperparameters)
 

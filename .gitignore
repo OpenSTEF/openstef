@@ -17,6 +17,7 @@ ktprognoses.egg-info/
 # Ignore these files
 .DS_Store
 tmp
+mlruns
 
 # default Python .gitignore template: https://raw.githubusercontent.com/github/gitignore/master/Python.gitignore
 
@@ -158,4 +159,4 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
-/test/reports/
+

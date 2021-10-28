@@ -2,11 +2,12 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 from datetime import datetime
-from typing import List
+from typing import List, Union
 
 import numpy as np
 import pandas as pd
 import structlog
+from openstf_dbc.services.prediction_job import PredictionJobDataClass
 from scipy import stats
 from sklearn.base import RegressorMixin
 
@@ -24,7 +25,7 @@ class ConfidenceIntervalApplicator:
     def add_confidence_interval(
         self,
         forecast: pd.DataFrame,
-        pj: dict,
+        pj: Union[dict, PredictionJobDataClass],
         default_confindence_interval: bool = False,
     ) -> pd.DataFrame:
         """Add a confidence interval to a forecast.
@@ -48,7 +49,7 @@ class ConfidenceIntervalApplicator:
 
         Args:
             forecast (pd.DataFrame): Forecast DataFram with columns: "forecast"
-            pj (dict): Prediction job
+            pj (Union[dict, PredictionJobDataClass]): Prediction job
             default_confindence_interval (bool):
                 switch to always make a default confidence interval
                 and skip quantile regression forecasting,
