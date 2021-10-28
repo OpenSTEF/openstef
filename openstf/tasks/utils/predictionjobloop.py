@@ -101,7 +101,7 @@ class PredictionJobLoop:
         num_jobs = len(self.prediction_jobs)
         self.context.perf_meter.checkpoint("pre-loop")
 
-        # loop over prefiction jobs's
+        # loop over prediction jobs
         for i, prediction_job in enumerate(self.prediction_jobs):
             successful = False
 

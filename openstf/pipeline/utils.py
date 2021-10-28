@@ -10,8 +10,9 @@ def generate_forecast_datetime_range(
     forecast_data: pd.DataFrame,
 ) -> Tuple[datetime, datetime]:
     """Generate start and end forecast time based on forecast data."""
-    # Forecast start is based on when the energy load data is missing
-    forecast_start_dt64 = forecast_data.index[forecast_data.load.notnull()].values[-1]
+    # Forecast start is based on when the target column has null values
+    forecast_null_values = forecast_data.iloc[:, 0].isnull()
+    forecast_start_dt64 = forecast_data.index[forecast_null_values].values[0]
     forecast_start_datetime = pd.Timestamp(forecast_start_dt64).to_pydatetime()
 
     # Forecast end is based on last datetime of given forecast data
