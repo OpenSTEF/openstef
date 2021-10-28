@@ -31,7 +31,7 @@ class OpenstfProloafRegressor(OpenstfRegressor, ModelWrapper):
         batch_size: int = 10,
         # split_percent: float = 0.85,  # XXX now unsued
         history_horizon: int = 24,
-        horizon_minutes: int = 2880 #2 days in minutes,
+        horizon_minutes: int = 2880,  # 2 days in minutes,
     ):
         self.device = device
         self.batch_size = batch_size
@@ -66,7 +66,6 @@ class OpenstfProloafRegressor(OpenstfRegressor, ModelWrapper):
         inputs_enc = torch.tensor(
             x[self.encoder_features].to_numpy(), dtype=torch.float
         ).unsqueeze(dim=0)
-        print(f"{inputs_enc.dtype}")
         inputs_dec = torch.tensor(
             x[self.decoder_features].to_numpy(), dtype=torch.float
         ).unsqueeze(dim=0)
@@ -76,7 +75,6 @@ class OpenstfProloafRegressor(OpenstfRegressor, ModelWrapper):
             .detach()
             .numpy()
         )
-        print(f"{prediction = }")
         return prediction
 
     def fit(
