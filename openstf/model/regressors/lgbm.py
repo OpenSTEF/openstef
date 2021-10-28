@@ -23,4 +23,3 @@ class LGBMOpenstfRegressor(LGBMRegressor, OpenstfRegressor):
             "gain_importance_name": "gain",
             "weight_importance_name": "split",
         }
-
