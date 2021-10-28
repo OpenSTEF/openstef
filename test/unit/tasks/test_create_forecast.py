@@ -43,7 +43,7 @@ class TestCreateForeCastTask(TestCase):
         dbmock().get_model_input.return_value = forecast_data
 
         configmock_taskcontext.get_instance.return_value.paths.trained_models_folder = (
-            "../pipeline/test/trained_models/"
+            "./pipeline/test/trained_models/"
         )
         configmock_taskcontext.get_instance.return_value.paths.webroot = "test_webroot"
 
