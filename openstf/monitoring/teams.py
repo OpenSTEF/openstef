@@ -2,11 +2,12 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 from pathlib import Path
+from typing import Union
 
 import pymsteams
 import structlog
-
 from openstf_dbc.config.config import ConfigManager
+from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 
 def post_teams(msg, invalid_coefs=None, coefsdf=None, url=None):
@@ -178,14 +179,16 @@ def build_sql_query_string(df, table):
     return query
 
 
-def send_report_teams_better(pj, feature_importance):
+def send_report_teams_better(
+    pj: Union[dict, PredictionJobDataClass], feature_importance
+):
     """Send a report to teams for monitoring input for an improved model.
 
     Post includes information (performance, figures, etc.) about the trained
     model. Use when the new trained model is better than the old model.
 
     Args:
-        pj (dict): A dictionarry specifying the prediction job. This dict should
+        pj (Union[dict, PredictionJobDataClass]): A dictionarry specifying the prediction job. This dict should
             at least contain the following keys: {
                 'id': (int),
                 'sid': (str),
@@ -251,14 +254,14 @@ def send_report_teams_better(pj, feature_importance):
     post_teams(msg)
 
 
-def send_report_teams_worse(pj):
+def send_report_teams_worse(pj: Union[dict, PredictionJobDataClass]):
     """Send a report to teams for monitoring input for a worsened model.
 
     Post includes information (performance, figures, etc.) about the trained
     model. Use when the new trained model is worse than the old model.
 
     Args:
-        pj (dict): A dictionarry specifying the prediction job. This dict should
+        pj (Union[dict, PredictionJobDataClass]): A dictionarry specifying the prediction job. This dict should
             at least contain the following keys: {
                 'id': (int),
                 'sid': (str),

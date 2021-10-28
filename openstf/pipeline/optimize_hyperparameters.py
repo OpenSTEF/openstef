@@ -1,39 +1,46 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-from typing import List
+from pathlib import Path
+from typing import List, Union, Tuple
 
 import optuna
 import pandas as pd
 import structlog
+from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
-
-from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
 from openstf.exceptions import (
     InputDataInsufficientError,
     InputDataWrongColumnOrderError,
 )
-
+from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
 from openstf.model.model_creator import ModelCreator
+from openstf.model.objective import RegressorObjective
 from openstf.model.objective_creator import ObjectiveCreator
-from openstf.validation import validation
 
 # This is required to disable the default optuna logger and pass the logs to our own
 # structlog logger
+from openstf.model.regressors.regressor import OpenstfRegressor
+from openstf.model.serializer import PersistentStorageSerializer
+from openstf.validation import validation
+
 optuna.logging.enable_propagation()  # Propagate logs to the root logger.
 optuna.logging.disable_default_handler()  # Stop showing logs in sys.stderr.
 
 logger = structlog.get_logger(__name__)
 
 # See https://optuna.readthedocs.io/en/stable/reference/generated/optuna.study.Study.html#optuna.study.Study.optimize
-N_TRIALS: int = 8  # The number of trials.
+N_TRIALS: int = 50  # The number of trials.
 TIMEOUT: int = 200  # Stop study after the given number of second(s).
 TRAIN_HORIZONS: List[float] = [0.25, 24.0]
+TEST_FRACTION: float = 0.1
+VALIDATION_FRACTION: float = 0.1
 
 
 def optimize_hyperparameters_pipeline(
-    pj: dict,
+    pj: Union[dict, PredictionJobDataClass],
     input_data: pd.DataFrame,
+    trained_models_folder: Union[str, Path],
     horizons: List[float] = TRAIN_HORIZONS,
     n_trials: int = N_TRIALS,
 ) -> dict:
@@ -42,13 +49,11 @@ def optimize_hyperparameters_pipeline(
     Expected prediction job key's: "name", "model"
 
     Args:
-        pj (dict): Prediction job
+        pj (Union[dict, PredictionJobDataClass]): Prediction job
         input_data (pd.DataFrame): Raw training input data
+        trained_models_folder (Path): Path where trained models are stored
         horizons (List[float]): horizons for feature engineering.
         n_trials (int, optional): The number of trials. Defaults to N_TRIALS.
-        timeout (int, optional): Stop study after the given number of second(s).
-            Defaults to TIMEOUT. Will give an exception if the optimization is only
-            1 trial.
 
     Raises:
         ValueError: If the input_date is insufficient.
@@ -77,10 +82,58 @@ def optimize_hyperparameters_pipeline(
         input_data
     )
 
+    # Create serializer
+    serializer = PersistentStorageSerializer(trained_models_folder)
+    # Start MLflow
+    serializer.setup_mlflow(pj["id"])
+
     # Create objective (NOTE: this is a callable class)
     objective = ObjectiveCreator.create_objective(model_type=pj["model"])
 
-    model_type = pj["model"]
+
+    model, study, objective = optuna_optimization(
+        pj, objective, input_data_with_features, n_trials
+    )
+
+    logger.info(
+        f"Finished hyperparameter optimization, error objective {study.best_value} "
+        f"and params {study.best_params}"
+    )
+
+    # Save model
+    serializer.save_model(
+        model,
+        pj=pj,
+        # In objective we have the data, thus we create the report there
+        report=objective.create_report(model=model),
+        phase="Hyperparameter_opt",
+        trials=objective.get_trial_track(),
+        trial_number=study.best_trial.number,
+    )
+
+    return study.best_params
+
+
+def optuna_optimization(
+    pj: Union[PredictionJobDataClass, dict],
+    objective: RegressorObjective,
+    input_data_with_features: pd.DataFrame,
+    n_trials: int,
+) -> Tuple[OpenstfRegressor, optuna.study.Study, RegressorObjective]:
+    """Perform hyperparameter optimization with optuna
+
+    Args:
+        pj: Prediction job
+        objective: Objective function for optuna
+        input_data_with_features: cleaned input dataframe
+        n_trials: number of optuna trials
+
+    Returns:
+        model (OpenstfRegressor): Optimized model
+        study (optuna.study.Study): Optimization study from optuna
+        objective : The objective object used by optuna
+
+    """
     model = ModelCreator.create_model(pj)
 
     objective = objective(
@@ -89,11 +142,13 @@ def optimize_hyperparameters_pipeline(
     )
 
     study = optuna.create_study(
-        study_name=model_type,
+        study_name=pj["model"],
         pruner=optuna.pruners.MedianPruner(n_warmup_steps=5),
         direction="minimize",
     )
 
+    # Optuna updates the model by itself
+    # and the model is the optimized over this finishes
     study.optimize(
         objective,
         n_trials=n_trials,
@@ -102,15 +157,7 @@ def optimize_hyperparameters_pipeline(
         timeout=TIMEOUT,
     )
 
-    optimized_hyperparams = study.best_params
-    optimized_error = study.best_value
-
-    logger.info(
-        f"Finished hyperparameter optimization, error objective {optimized_error} "
-        f"and params {optimized_hyperparams}"
-    )
-
-    return optimized_hyperparams
+    return model, study, objective
 
 
 def _log_study_progress(
