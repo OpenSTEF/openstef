@@ -53,7 +53,7 @@ def run_tracy(context):
     num_jobs = len(tracy_jobs)
 
     if num_jobs == 0:
-        context.logger.warning("Number of tracy jobs is {num_jobs}, exit task")
+        context.logger.warning(f"Number of tracy jobs is {num_jobs}, exit task")
         return
 
     context.logger.info("Start processing Tracy jobs", num_jobs=num_jobs)

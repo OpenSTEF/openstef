@@ -7,7 +7,7 @@ from typing import List, Tuple, Union
 
 import pandas as pd
 import structlog
-from sklearn.base import RegressorMixin
+from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 from openstf.exceptions import (
     InputDataInsufficientError,
@@ -17,6 +17,7 @@ from openstf.exceptions import (
 from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
 from openstf.metrics.reporter import Report, Reporter
 from openstf.model.model_creator import ModelCreator
+from openstf.model.regressors.regressor import OpenstfRegressor
 from openstf.model.serializer import PersistentStorageSerializer
 from openstf.model.standard_deviation_generator import StandardDeviationGenerator
 from openstf.model_selection.model_selection import split_data_train_validation_test
@@ -30,11 +31,10 @@ PENALTY_FACTOR_OLD_MODEL: float = 1.2
 
 
 def train_model_pipeline(
-    pj: dict,
+    pj: Union[dict, PredictionJobDataClass],
     input_data: pd.DataFrame,
     check_old_model_age: bool,
     trained_models_folder: Union[str, Path],
-    save_figures_folder: Union[str, Path],
 ) -> None:
     """Midle level pipeline that takes care of all persistent storage dependencies
 
@@ -42,11 +42,10 @@ def train_model_pipeline(
         "feature_names"
 
     Args:
-        pj (dict): Prediction job
+        pj (Union[dict, PredictionJobDataClass]): Prediction job
         input_data (pd.DataFrame): Raw training input data
         check_old_model_age (bool): Check if training should be skipped because the model is too young
         trained_models_folder (Path): Path where trained models are stored
-        save_figures_folder (Path): path were reports (mostly figures) about the training procces are stored
 
     Returns:
         None
@@ -98,18 +97,15 @@ def train_model_pipeline(
         raise InputDataWrongColumnOrderError(IDWCOE)
 
     # Save model
-    serializer.save_model(model, pid=pj["id"])
-
-    # Save reports/figures
-    report.save_figures(save_path=save_figures_folder)
+    serializer.save_model(model, pj=pj, report=report)
 
 
 def train_model_pipeline_core(
-    pj: dict,
+    pj: Union[dict, PredictionJobDataClass],
     input_data: pd.DataFrame,
-    old_model: RegressorMixin = None,
+    old_model: OpenstfRegressor = None,
     horizons: List[float] = None,
-) -> Tuple[RegressorMixin, Report]:
+) -> Tuple[OpenstfRegressor, Report]:
     """Train model core pipeline.
     Trains a new model given a predction job, input data and compares it to an old model.
     This pipeline has no database or persisitent storage dependencies.
@@ -125,7 +121,7 @@ def train_model_pipeline_core(
         "feature_names"      List of features to train model on or None to use all features
 
     Args:
-        pj (dict): Prediction job
+        pj (Union[dict, PredictionJobDataClass]): Prediction job
         input_data (pd.DataFrame): Input data
         old_model (RegressorMixin, optional): Old model to compare to. Defaults to None.
         horizons (List[float]): horizons to train on in hours.
@@ -145,7 +141,7 @@ def train_model_pipeline_core(
     logger = structlog.get_logger(__name__)
 
     # Call common pipeline
-    model, train_data, validation_data, test_data = train_pipeline_common(
+    model, report, train_data, validation_data, test_data = train_pipeline_common(
         pj, input_data, horizons
     )
 
@@ -153,8 +149,11 @@ def train_model_pipeline_core(
 
     # Check if new model is better than old model
     if old_model:
-        combined = train_data.append(validation_data)
-        x_data, y_data = combined.iloc[:, 1:-1], combined.iloc[:, 0]
+        combined = train_data.append(validation_data).reset_index(drop=True)
+        x_data, y_data = (
+            combined.iloc[:, 1:-1],
+            combined.iloc[:, 0],
+        )
 
         # Score method always returns R^2
         score_new_model = model.score(x_data, y_data)
@@ -177,28 +176,25 @@ def train_model_pipeline_core(
         except ValueError as e:
             logger.info("Could not compare to old model", pid=pj["id"], exc_info=e)
 
-    # Report about the training process
-    report = Reporter(train_data, validation_data, test_data).generate_report(model)
-
     return model, report
 
 
 def train_pipeline_common(
-    pj: dict,
+    pj: Union[dict, PredictionJobDataClass],
     input_data: pd.DataFrame,
     horizons: List[float],
     test_fraction: float = 0.0,
     backtest: bool = False,
-) -> Tuple[RegressorMixin, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+) -> Tuple[OpenstfRegressor, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Common pipeline shared with operational training and backtest training
 
     Args:
-        pj (dict): Prediction job
+        pj (Union[dict, PredictionJobDataClass]): Prediction job
         input_data (pd.DataFrame): Input data
         horizons (List[float]): horizons to train on in hours.
 
     Returns:
-        Tuple[RegressorMixin, pd.DataFrame, pd.DataFrame, pd.DataFrame]: Trained model,
+        Tuple[RegressorMixin, Report, pd.DataFrame, pd.DataFrame, pd.DataFrame]: Trained model, report
          train_data, validation_data and test_data
 
     Raises:
@@ -206,17 +202,22 @@ def train_pipeline_common(
         InputDataWrongColumnOrderError: when input data has a invalid column order.
 
     """
-    # Validate and clean data
+    if input_data.empty:
+        raise InputDataInsufficientError("Input dataframe is empty")
+    elif "load" not in input_data.columns:
+        raise InputDataWrongColumnOrderError(
+            "Missing the load column in the input dataframe"
+        )
+
+        # Validate and clean data
     validated_data = validation.clean(validation.validate(pj["id"], input_data))
 
     # Check if sufficient data is left after cleaning
     if not validation.is_data_sufficient(validated_data):
         raise InputDataInsufficientError(
-            f"Input data is insufficient for {pj['id']} "
-            f"after validation and cleaning"
+            "Input data is insufficient, after validation and cleaning"
         )
 
-    # Add features
     data_with_features = TrainFeatureApplicator(
         horizons=horizons, feature_names=pj["feature_names"]
     ).add_features(validated_data)
@@ -269,15 +270,21 @@ def train_pipeline_common(
         early_stopping_rounds=DEFAULT_EARLY_STOPPING_ROUNDS,
         verbose=False,
     )
-
+    # Gets the feature importance df or None if we don't have feature importance
     model.feature_importance_dataframe = model._set_feature_importance()
+
     logging.info("Fitted a new model, not yet stored")
 
     # Do confidence interval determination
     model = StandardDeviationGenerator(
         validation_data
     ).generate_standard_deviation_data(model)
-    return model, train_data, validation_data, test_data
+
+    # Report about the training process
+    reporter = Reporter(train_data, validation_data, test_data)
+    report = reporter.generate_report(model)
+
+    return model, report, train_data, validation_data, test_data
 
 
 def get_model_age(trained_models_folder: str, pid: int) -> float:

@@ -16,3 +16,11 @@ class XGBOpenstfRegressor(XGBRegressor, OpenstfRegressor):
     @property
     def feature_names(self):
         return self._Booster.feature_names
+
+    @staticmethod
+    def _get_importance_names():
+        return {
+            "gain_importance_name": "total_gain",
+            "weight_importance_name": "weight",
+        }
+

@@ -7,6 +7,7 @@ from sklearn.base import RegressorMixin
 
 from openstf.enums import MLModelType
 from openstf.model.regressors.lgbm import LGBMOpenstfRegressor
+from openstf.model.regressors.regressor import OpenstfRegressor
 from openstf.model.regressors.xgb import XGBOpenstfRegressor
 from openstf.model.regressors.xgb_quantile import XGBQuantileOpenstfRegressor
 
@@ -84,7 +85,7 @@ class ModelCreator:
     }
 
     @staticmethod
-    def create_model(model_type: Union[MLModelType, str], **kwargs) -> RegressorMixin:
+    def create_model(model_type: Union[MLModelType, str], **kwargs) -> OpenstfRegressor:
         """Create a machine learning model based on model type.
 
         Args:

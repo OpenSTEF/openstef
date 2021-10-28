@@ -16,3 +16,11 @@ class LGBMOpenstfRegressor(LGBMRegressor, OpenstfRegressor):
     @property
     def feature_names(self):
         return self._Booster.feature_name()
+
+    @staticmethod
+    def _get_importance_names():
+        return {
+            "gain_importance_name": "gain",
+            "weight_importance_name": "split",
+        }
+

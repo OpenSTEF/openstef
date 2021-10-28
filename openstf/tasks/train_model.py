@@ -24,6 +24,9 @@ Example:
 """
 from datetime import datetime, timedelta
 from pathlib import Path
+from typing import Union
+
+from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 from openstf.enums import MLModelType
 from openstf.pipeline.train_model import (
@@ -39,7 +42,9 @@ DEFAULT_CHECK_MODEL_AGE: bool = True
 
 
 def train_model_task(
-    pj: dict, context: TaskContext, check_old_model_age: bool = DEFAULT_CHECK_MODEL_AGE
+    pj: Union[dict, PredictionJobDataClass],
+    context: TaskContext,
+    check_old_model_age: bool = DEFAULT_CHECK_MODEL_AGE,
 ) -> None:
     """Train model task.
 
@@ -49,7 +54,7 @@ def train_model_task(
     Expected prediction job keys:  "id", "model", "lat", "lon", "name"
 
     Args:
-        pj (dict): Prediction job
+        pj (Union[dict, PredictionJobDataClass]): Prediction job
         context (TaskContext): Contect object that holds a config manager and a
             database connection.
         check_old_model_age (bool): check if model is too young to be retrained
@@ -68,8 +73,7 @@ def train_model_task(
 
     # Get the paths for storing model and reports from the config manager
     trained_models_folder = Path(context.config.paths.trained_models_folder)
-    save_figures_folder = trained_models_folder / str(pj["id"])
-
+    context.logger.debug(f"trained_models_folder: {trained_models_folder}")
     # If required, let's check the old model age before retrieving all the input data
     if check_old_model_age:
         old_model_age = get_model_age(trained_models_folder, pj["id"])
@@ -104,9 +108,8 @@ def train_model_task(
     train_model_pipeline(
         pj,
         input_data,
-        check_old_model_age=False,  # Old model age is already checked
+        check_old_model_age=False,
         trained_models_folder=trained_models_folder,
-        save_figures_folder=save_figures_folder,
     )
 
     context.perf_meter.checkpoint("Model trained")
