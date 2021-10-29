@@ -10,15 +10,15 @@ import scipy.ndimage.measurements as mnts
 def generate_forecast_datetime_range(
     forecast_data: pd.DataFrame,
 ) -> Tuple[datetime, datetime]:
-    """Generate forecast window where forecast data has null values."""
-    # Cluster null values to find last cluster with null values
+    """Generate forecast range based on last cluster of null values in forecast data."""
+    # Cluster null/nan values of target column to find last cluster with null/nan values
     labeled, clusters = mnts.label(forecast_data.iloc[:, 0].isnull().values)
     if clusters == 0:
         raise ValueError(
             "Forecast target column must have null values to indicate "
             "when forecast starts and ends."
         )
-    # Get first datetime index of last cluster with null values
+    # Get first datetime index of last cluster with null/nan values
     forecast_start_dt = forecast_data.loc[labeled == clusters].index[0].to_pydatetime()
 
     # Forecast end is based on last datetime of given forecast data
