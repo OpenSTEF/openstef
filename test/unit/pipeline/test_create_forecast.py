@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 import unittest
-from datetime import datetime, timedelta, timezone
+from datetime import datetime as dt
 from pathlib import Path
 from unittest.mock import patch
 
@@ -13,16 +13,57 @@ from test.utils import BaseTestCase, TestData
 
 
 class TestCreateForecastPipeline(BaseTestCase):
-    def test_generate_forecast_datetime_range(self):
+    def test_generate_forecast_datetime_range_happy_flow(self):
         """Test if correct forecast window is made based on forecast data."""
-        time_format = "%Y-%m-%d %H:%M:%S"
-        forecast_start_expected = datetime.strptime("2020-11-26 00:00:00", time_format)
-        forecast_end_expected = datetime.strptime("2020-11-30 00:00:00", time_format)
+        time_format = "%Y-%m-%d %H:%M:%S%z"
+        forecast_start_expected = dt.strptime("2020-11-26 00:00:00+0000", time_format)
+        forecast_end_expected = dt.strptime("2020-11-30 00:00:00+0000", time_format)
+        forecast_data = TestData.load("reference_sets/307-test-data.csv")
+        forecast_data.loc["2020-11-26":"2020-12-01", forecast_data.columns[0]] = None
 
-        forecast_data = TestData.load("forecast_data_missing_4_days.csv")
         forecast_start, forecast_end = utils.generate_forecast_datetime_range(
             forecast_data=forecast_data
         )
+
+        self.assertEqual(forecast_start, forecast_start_expected)
+        self.assertEqual(forecast_end, forecast_end_expected)
+
+    def test_generate_forecast_datetime_range_multiple_null_values(self):
+        """Test if correct forecast window is made with multiple ranges of nulls."""
+        time_format = "%Y-%m-%d %H:%M:%S%z"
+        forecast_start_expected = dt.strptime("2020-11-26 00:00:00+0000", time_format)
+        forecast_end_expected = dt.strptime("2020-11-30 00:00:00+0000", time_format)
+        forecast_data = TestData.load("reference_sets/307-test-data.csv")
+        forecast_data.loc["2020-11-26":"2020-12-01", forecast_data.columns[0]] = None
+        forecast_data.loc["2020-11-23":"2020-11-24", forecast_data.columns[0]] = None
+
+        forecast_start, forecast_end = utils.generate_forecast_datetime_range(
+            forecast_data=forecast_data
+        )
+
+        self.assertEqual(forecast_start, forecast_start_expected)
+        self.assertEqual(forecast_end, forecast_end_expected)
+
+    def test_generate_forecast_datetime_range_not_null_values_target_column(self):
+        """Test if error is raised when forecast data has no null values."""
+        forecast_data = TestData.load("reference_sets/307-test-data.csv")
+        forecast_data.loc["2020-11-26":"2020-12-01", forecast_data.columns[0]] = 1
+        self.assertRaises(
+            ValueError, utils.generate_forecast_datetime_range, forecast_data
+        )
+
+    def test_generate_forecast_datetime_range_only_null_values_target_column(self):
+        """Test if forecast window is created when data only has null values."""
+        time_format = "%Y-%m-%d %H:%M:%S%z"
+        forecast_start_expected = dt.strptime("2020-10-31 00:45:00+0000", time_format)
+        forecast_end_expected = dt.strptime("2020-11-30 00:00:00+0000", time_format)
+        forecast_data = TestData.load("reference_sets/307-test-data.csv")
+        forecast_data.loc[:, forecast_data.columns[0]] = None
+
+        forecast_start, forecast_end = utils.generate_forecast_datetime_range(
+            forecast_data=forecast_data
+        )
+
         self.assertEqual(forecast_start, forecast_start_expected)
         self.assertEqual(forecast_end, forecast_end_expected)
 
