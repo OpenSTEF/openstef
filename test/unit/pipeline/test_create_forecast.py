@@ -13,8 +13,8 @@ from test.utils import BaseTestCase, TestData
 
 
 class TestCreateForecastPipeline(BaseTestCase):
-    def test_generate_forecast_datetime_range_happy_flow(self):
-        """Test if correct forecast window is made based on forecast data."""
+    def test_generate_forecast_datetime_range_single_null_values_target_column(self):
+        """Test if correct forecast window is made with single range of nulls."""
         time_format = "%Y-%m-%d %H:%M:%S%z"
         forecast_start_expected = dt.strptime("2020-11-26 00:00:00+0000", time_format)
         forecast_end_expected = dt.strptime("2020-11-30 00:00:00+0000", time_format)
@@ -28,7 +28,7 @@ class TestCreateForecastPipeline(BaseTestCase):
         self.assertEqual(forecast_start, forecast_start_expected)
         self.assertEqual(forecast_end, forecast_end_expected)
 
-    def test_generate_forecast_datetime_range_multiple_null_values(self):
+    def test_generate_forecast_datetime_range_multiple_null_values_target_column(self):
         """Test if correct forecast window is made with multiple ranges of nulls."""
         time_format = "%Y-%m-%d %H:%M:%S%z"
         forecast_start_expected = dt.strptime("2020-11-26 00:00:00+0000", time_format)
@@ -45,7 +45,7 @@ class TestCreateForecastPipeline(BaseTestCase):
         self.assertEqual(forecast_end, forecast_end_expected)
 
     def test_generate_forecast_datetime_range_not_null_values_target_column(self):
-        """Test if error is raised when forecast data has no null values."""
+        """Test if error is raised when data has no nulls."""
         forecast_data = TestData.load("reference_sets/307-test-data.csv")
         forecast_data.loc["2020-11-26":"2020-12-01", forecast_data.columns[0]] = 1
         self.assertRaises(
@@ -53,7 +53,7 @@ class TestCreateForecastPipeline(BaseTestCase):
         )
 
     def test_generate_forecast_datetime_range_only_null_values_target_column(self):
-        """Test if forecast window is created when data only has null values."""
+        """Test if correct forecast window is made when data only has nulls."""
         time_format = "%Y-%m-%d %H:%M:%S%z"
         forecast_start_expected = dt.strptime("2020-10-31 00:45:00+0000", time_format)
         forecast_end_expected = dt.strptime("2020-11-30 00:00:00+0000", time_format)
