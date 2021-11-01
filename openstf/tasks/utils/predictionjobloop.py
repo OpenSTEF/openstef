@@ -77,7 +77,7 @@ class PredictionJobLoop:
         self.context.logger.info(
             "Querying prediction jobs from database", **self.pj_kwargs
         )
-        if self.debug_pid is not None:
+        if self.debug_pid is None:
             prediction_jobs = self.context.database.get_prediction_jobs(
                 **self.pj_kwargs
             )
