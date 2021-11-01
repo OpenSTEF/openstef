@@ -73,9 +73,9 @@ def optimize_hyperparameters_pipeline(
             f"after validation and cleaning"
         )
 
-    input_data_with_features = TrainFeatureApplicator(horizons=horizons).add_features(
-        input_data
-    )
+    validated_data_with_features = TrainFeatureApplicator(
+        horizons=horizons
+    ).add_features(validated_data)
 
     # Create objective (NOTE: this is a callable class)
     objective = ObjectiveCreator.create_objective(model_type=pj["model"])
@@ -85,7 +85,7 @@ def optimize_hyperparameters_pipeline(
 
     objective = objective(
         model,
-        input_data_with_features,
+        validated_data_with_features,
     )
 
     study = optuna.create_study(
