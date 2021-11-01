@@ -28,12 +28,15 @@ class TestFeatureApplicator(TestCase):
         # Test for expected column order of the output
         # Also check "horizons" is not in the output
         features = self.input_data.columns.to_list()[:15]
-        data_with_features = TrainFeatureApplicator(horizons=[0.25, 24.0], feature_names=features).add_features(
-            self.input_data
-        )
+        data_with_features = TrainFeatureApplicator(
+            horizons=[0.25, 24.0], feature_names=features
+        ).add_features(self.input_data)
 
         self.assertIn("horizon", data_with_features.columns.to_list())
-        self.assertListEqual(list(np.sort(features+["horizon"])), list(np.sort(data_with_features.columns.to_list())))
+        self.assertListEqual(
+            list(np.sort(features + ["horizon"])),
+            list(np.sort(data_with_features.columns.to_list())),
+        )
 
     def test_operational_feature_applicator_correct_order(self):
         # Test for expected column order of the output
@@ -60,8 +63,10 @@ class TestFeatureApplicator(TestCase):
         # Test for expected column order of the output
         # Also check "horizons" is not in the output
         features = self.input_data.columns.to_list()
-        data_with_features = OperationalPredictFeatureApplicator(horizons=[0.25], feature_names=features).add_features(
-            self.input_data[["load"]]
-        )
+        data_with_features = OperationalPredictFeatureApplicator(
+            horizons=[0.25], feature_names=features
+        ).add_features(self.input_data[["load"]])
 
-        self.assertListEqual(list(np.sort(features)), list(np.sort(data_with_features.columns.to_list())))
+        self.assertListEqual(
+            list(np.sort(features)), list(np.sort(data_with_features.columns.to_list()))
+        )
