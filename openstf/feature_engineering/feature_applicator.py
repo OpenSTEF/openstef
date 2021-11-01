@@ -95,6 +95,11 @@ class TrainFeatureApplicator(AbstractFeatureApplicator):
         for feature, time in latency_config.items():
             result.loc[result["horizon"] > time, feature] = np.nan
 
+        # NOTE this is required since apply_features could add additional features
+        if self.feature_names is not None:
+            features = self.feature_names + ["horizon"]
+            result = remove_non_requested_feature_columns(result, features)
+
         # Sort all features except for the (first) load and (last) horizon columns
         return enforce_feature_order(result)
 
