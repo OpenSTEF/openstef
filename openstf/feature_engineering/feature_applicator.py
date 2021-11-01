@@ -97,6 +97,7 @@ class TrainFeatureApplicator(AbstractFeatureApplicator):
 
         # NOTE this is required since apply_features could add additional features
         if self.feature_names is not None:
+            # Add horizon to requested features else it is removed
             features = self.feature_names + ["horizon"]
             result = remove_non_requested_feature_columns(result, features)
 
