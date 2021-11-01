@@ -17,6 +17,7 @@ class PredictionJobLoop:
         on_successful_callback=None,
         on_end_callback=None,
         prediction_jobs=None,
+        debug_pid=None,
         **pj_kwargs
     ):
         """Convenience objects that maps a function over prediction jobs.
@@ -26,7 +27,7 @@ class PredictionJobLoop:
         function. If another set of prediction jobs is desired, manually pass
         them using the prediction_jobs argument.
 
-        Tip: For debugging a specific PID, use prediction_jobs=[dict(id={specific_pid})]
+        Tip: For debugging a specific PID, use debug_pid=specific_pid
 
         Args:
             context (openstf.tasks.util.taskcontext.TaskContext): The
@@ -46,9 +47,10 @@ class PredictionJobLoop:
                 iteration is completed. Callable gets the pj and and bool
                 indicating success as argument.
             prediction_jobs (list of dicts, optional): Manually pass a list of
-                prediction jobs that will be looped over. A prediction job is a dict
-                with at least a value set for the key `id`. If set to None, will fetch
-                prediction jobs from database.
+                prediction jobs that will be looped over. If set to None, will fetch
+                prediction jobs from database based on pj_kwargs
+            debug_pid (int): enter a specific pid for debugging.
+                If not None, the prediction job loop will only look at this pid
             **pj_kwargs: Any other kwargs willed will be directed to the
                 prediction job getting function.
 
@@ -60,6 +62,7 @@ class PredictionJobLoop:
         self.on_successful_callback = on_successful_callback
         self.on_end_callback = on_end_callback
         self.pj_kwargs = pj_kwargs
+        self.debug_pid = debug_pid
 
         if prediction_jobs is None:
             self.prediction_jobs = self._get_prediction_jobs()
@@ -74,7 +77,17 @@ class PredictionJobLoop:
         self.context.logger.info(
             "Querying prediction jobs from database", **self.pj_kwargs
         )
-        prediction_jobs = self.context.database.get_prediction_jobs(**self.pj_kwargs)
+        if self.debug_pid is None:
+            prediction_jobs = self.context.database.get_prediction_jobs(
+                **self.pj_kwargs
+            )
+        else:
+            # retrieve prediction_job for single pid - useful for debugging
+            prediction_jobs = [
+                self.context.database.get_prediction_job(
+                    pid=self.debug_pid, **self.pj_kwargs
+                )
+            ]
 
         return prediction_jobs
 
