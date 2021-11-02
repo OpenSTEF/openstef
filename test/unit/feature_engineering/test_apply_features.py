@@ -100,6 +100,10 @@ class TestApplyFeaturesModule(BaseTestCase):
             TestData.load("input_data.pickle")
         )
 
+        test_data_load = TestData.load("input_data_multi_horizon_features.csv")
+
+        print(set(test_data_load.columns.unique())-set(input_data_with_features.columns.unique()))
+
         self.assertDataframeEqual(
             input_data_with_features,
             TestData.load("input_data_multi_horizon_features.csv"),

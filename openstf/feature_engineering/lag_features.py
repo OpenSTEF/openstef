@@ -114,7 +114,7 @@ def generate_trivial_lag_features(horizon: float) -> Tuple[list, list]:
     lag_time_days_list = list(np.linspace(mindays, 14, 15 - mindays))
 
     # Make list of trivial lag times
-    trivial_lag_minutes_list = np.linspace(60, 24 * 60, 24).tolist() + [15, 30, 45]
+    trivial_lag_minutes_list = np.linspace(60, 23 * 60, 23).tolist() + [15, 30, 45]
 
     # Discard lag times that are not available for the specified horizon
     trivial_lag_times_minutes = list(
