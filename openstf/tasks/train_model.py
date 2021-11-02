@@ -64,7 +64,7 @@ def train_model_task(
     # Include hyperparameter information in the prediction job
     pj["hyper_params"] = {
         "training_period_days": TRAINING_PERIOD_DAYS,
-        "featureset_name": "D",
+        "featureset_name": "N",
     }
     pj["hyper_params"].update(context.database.get_hyper_params(pj))
     pj["feature_names"] = context.database.get_featureset(

@@ -94,6 +94,12 @@ class TestPredictionJob(BaseTestCase):
         self.assertEqual(on_successful_callback.call_count, 0)
         self.assertEqual(on_end_callback.call_count, 1)
 
+    def test_prediction_job_loop_debug_pid(self):
+        """Test if a list of prediction_jobs with len 1 is returned if debug_pid is given"""
+        context_mock = MagicMock()
+        pjl = PredictionJobLoop(context_mock, debug_pid=1)
+        self.assertEqual(len(pjl.prediction_jobs), 1)
+
 
 if __name__ == "__main__":
     unittest.main()
