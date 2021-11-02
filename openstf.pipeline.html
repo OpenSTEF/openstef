@@ -217,14 +217,14 @@ This pipeline has no database or persisitent storage dependencies.</p>
 
 <dl class="function">
 <dt id="openstf.pipeline.optimize_hyperparameters.optuna_optimization">
-<code class="sig-prename descclassname">openstf.pipeline.optimize_hyperparameters.</code><code class="sig-name descname">optuna_optimization</code><span class="sig-paren">(</span><em class="sig-param">pj: Union[openstf_dbc.services.prediction_job.PredictionJobDataClass, dict], objective: openstf.model.objective.RegressorObjective, input_data_with_features: pandas.core.frame.DataFrame, n_trials: int</em><span class="sig-paren">)</span> &#x2192; Tuple[openstf.model.regressors.regressor.OpenstfRegressor, optuna.study.Study, openstf.model.objective.RegressorObjective]<a class="headerlink" href="#openstf.pipeline.optimize_hyperparameters.optuna_optimization" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstf.pipeline.optimize_hyperparameters.</code><code class="sig-name descname">optuna_optimization</code><span class="sig-paren">(</span><em class="sig-param">pj: Union[openstf_dbc.services.prediction_job.PredictionJobDataClass, dict], objective: openstf.model.objective.RegressorObjective, validated_data_with_features: pandas.core.frame.DataFrame, n_trials: int</em><span class="sig-paren">)</span> &#x2192; Tuple[openstf.model.regressors.regressor.OpenstfRegressor, optuna.study.Study, openstf.model.objective.RegressorObjective]<a class="headerlink" href="#openstf.pipeline.optimize_hyperparameters.optuna_optimization" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform hyperparameter optimization with optuna</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pj</strong> – Prediction job</p></li>
 <li><p><strong>objective</strong> – Objective function for optuna</p></li>
-<li><p><strong>input_data_with_features</strong> – cleaned input dataframe</p></li>
+<li><p><strong>validated_data_with_features</strong> – cleaned input dataframe</p></li>
 <li><p><strong>n_trials</strong> – number of optuna trials</p></li>
 </ul>
 </dd>
