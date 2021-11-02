@@ -91,7 +91,7 @@ def optimize_hyperparameters_pipeline(
     objective = ObjectiveCreator.create_objective(model_type=pj["model"])
 
     model, study, objective = optuna_optimization(
-        pj, objective, input_data_with_features, n_trials
+        pj, objective, validated_data_with_features, n_trials
     )
 
     logger.info(
@@ -116,7 +116,7 @@ def optimize_hyperparameters_pipeline(
 def optuna_optimization(
     pj: Union[PredictionJobDataClass, dict],
     objective: RegressorObjective,
-    input_data_with_features: pd.DataFrame,
+    validated_data_with_features: pd.DataFrame,
     n_trials: int,
 ) -> Tuple[OpenstfRegressor, optuna.study.Study, RegressorObjective]:
     """Perform hyperparameter optimization with optuna
@@ -124,7 +124,7 @@ def optuna_optimization(
     Args:
         pj: Prediction job
         objective: Objective function for optuna
-        input_data_with_features: cleaned input dataframe
+        validated_data_with_features: cleaned input dataframe
         n_trials: number of optuna trials
 
     Returns:
