@@ -25,7 +25,7 @@ class TestOptimizeHyperParametersPipeline(BaseTestCase):
     @patch("openstf.model.serializer.PersistentStorageSerializer.save_model")
     def test_optimize_hyperparameters_pipeline(self, mock_save):
         parameters = optimize_hyperparameters_pipeline(
-            self.pj, self.input_data, "./test/trained_models"
+            self.pj, self.input_data, "./test/trained_models", n_trials=2
         )
         self.assertIsInstance(parameters, dict)
 

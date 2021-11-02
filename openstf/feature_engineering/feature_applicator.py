@@ -79,7 +79,9 @@ class TrainFeatureApplicator(AbstractFeatureApplicator):
         # Loop over horizons and add corresponding features
         for horizon in self.horizons:
             # Deep copy of df is important, because we want a fresh start every iteration!
-            res = apply_features(df.copy(deep=True), horizon=horizon)
+            res = apply_features(
+                df.copy(deep=True), horizon=horizon, feature_names=self.feature_names
+            )
             res["horizon"] = horizon
             result = result.append(res)
 
@@ -92,6 +94,12 @@ class TrainFeatureApplicator(AbstractFeatureApplicator):
         # latency
         for feature, time in latency_config.items():
             result.loc[result["horizon"] > time, feature] = np.nan
+
+        # NOTE this is required since apply_features could add additional features
+        if self.feature_names is not None:
+            # Add horizon to requested features else it is removed
+            features = self.feature_names + ["horizon"]
+            result = remove_non_requested_feature_columns(result, features)
 
         # Sort all features except for the (first) load and (last) horizon columns
         return enforce_feature_order(result)
@@ -113,7 +121,7 @@ class OperationalPredictFeatureApplicator(AbstractFeatureApplicator):
         """
         num_horizons = len(self.horizons)
         if num_horizons != 1:
-            raise ValueError("Expected one horizon, got {num_horizons}")
+            raise ValueError(f"Expected one horizon, got {num_horizons}")
 
         df = apply_features(
             df, feature_names=self.feature_names, horizon=self.horizons[0]
