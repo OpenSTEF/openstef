@@ -13,13 +13,13 @@ FORECAST_MOCK = "forecast_mock"
 
 class TestTrainModelTask(TestCase):
     def setUp(self) -> None:
-        self.pj = TestData.get_prediction_job(pid=307)
+        self.pj, self.modelspecs = TestData.get_prediction_job(pid=307)
 
     @patch("openstf.tasks.train_model.train_model_pipeline")
     def test_create_train_model_task_happy_flow(self, train_model_pipeline_mock):
         # Test happy flow of create forecast task
         context = MagicMock()
-        train_model_task(self.pj, context)
+        train_model_task(self.pj, self.modelspecs, context)
 
         self.assertEqual(train_model_pipeline_mock.call_count, 1)
         self.assertEqual(
@@ -36,7 +36,7 @@ class TestTrainModelTask(TestCase):
         """If an old model exists which is recent, abort the training immediately."""
         # Test happy flow of create forecast task
         context = MagicMock()
-        train_model_task(self.pj, context)
+        train_model_task(self.pj, self.modelspecs, context)
         # Assert that the context is not called. This would be the case if input data was retrieved
         context.database.get_model_input.assert_not_called()
 
@@ -50,6 +50,6 @@ class TestTrainModelTask(TestCase):
         """If an old model exists but is not recent, training should continue."""
         # Test happy flow of create forecast task
         context = MagicMock()
-        train_model_task(self.pj, context)
+        train_model_task(self.pj, self.modelspecs, context)
         # Assert that the context is called. This would be the case if input data was retrieved
         context.database.get_model_input.assert_called()

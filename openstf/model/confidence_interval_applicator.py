@@ -62,7 +62,7 @@ class ConfidenceIntervalApplicator:
         """
         temp_forecast = self._add_standard_deviation_to_forecast(forecast)
 
-        if pj["model_type_group"] == "quantile" and not default_confindence_interval:
+        if "quantile" in pj["model"] and not default_confindence_interval:
             return self._add_quantiles_to_forecast_quantile_regression(
                 temp_forecast, pj["quantiles"]
             )

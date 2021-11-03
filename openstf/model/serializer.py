@@ -16,6 +16,7 @@ import structlog
 from matplotlib import figure
 from mlflow.exceptions import MlflowException
 from mlflow.tracking import MlflowClient
+from openstf_dbc.services.model_specifications import ModelSpecificationDataClass
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
 from plotly import graph_objects
 
@@ -65,6 +66,7 @@ class PersistentStorageSerializer(AbstractSerializer):
         self,
         model: OpenstfRegressor,
         pj: Union[dict, PredictionJobDataClass],
+        modelspecs: ModelSpecificationDataClass,
         report: Report,
         phase: str = "training",
         **kwargs,
@@ -98,7 +100,7 @@ class PersistentStorageSerializer(AbstractSerializer):
             self.logger.info("No previous model found in MLflow", pid=pj["id"])
             prev_run_id = None
         with mlflow.start_run(run_name=pj["model"]):
-            self._log_model_with_mlflow(pj, model, report, phase, prev_run_id, **kwargs)
+            self._log_model_with_mlflow(pj, modelspecs, model, report, phase, prev_run_id, **kwargs)
             self._log_figure_with_mlflow(report)
         self.logger.debug(f"MLflow path after saving= {self.mlflow_folder}")
 
@@ -399,6 +401,7 @@ class PersistentStorageSerializer(AbstractSerializer):
     def _log_model_with_mlflow(
         self,
         pj: Union[dict, PredictionJobDataClass],
+        modelspecs: ModelSpecificationDataClass,
         model: OpenstfRegressor,
         report: Report,
         phase: str,
@@ -423,6 +426,7 @@ class PersistentStorageSerializer(AbstractSerializer):
         mlflow.set_tag("Previous_version_id", prev_run_id)
         mlflow.set_tag("model_type", pj["model"])
         mlflow.set_tag("prediction_job", pj["id"])
+        mlflow.set_tags(modelspecs.dict())
         # Add metrics to the run
         mlflow.log_metrics(report.metrics)
         # Add the used parameters to the run

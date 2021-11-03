@@ -15,7 +15,7 @@ from test.utils import BaseTestCase, TestData
 class TestTeams(BaseTestCase):
     def setUp(self):
         super().setUp()
-        self.pj = TestData.get_prediction_job(pid=307)
+        self.pj, self.modelspecs = TestData.get_prediction_job(pid=307)
 
     def test_post_teams(self, teamsmock):
 

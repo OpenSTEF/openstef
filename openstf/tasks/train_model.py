@@ -26,6 +26,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Union
 
+from openstf_dbc.services.model_specifications import ModelSpecificationRetriever
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 from openstf.enums import MLModelType
@@ -43,6 +44,7 @@ DEFAULT_CHECK_MODEL_AGE: bool = True
 
 def train_model_task(
     pj: Union[dict, PredictionJobDataClass],
+    modelspecs,
     context: TaskContext,
     check_old_model_age: bool = DEFAULT_CHECK_MODEL_AGE,
 ) -> None:
@@ -61,15 +63,7 @@ def train_model_task(
     """
 
     # TODO Update get_prediction job in openstf_dbc such that hyperparams are already included in the prediciton jobs
-    # Include hyperparameter information in the prediction job
-    pj["hyper_params"] = {
-        "training_period_days": TRAINING_PERIOD_DAYS,
-        "featureset_name": "N",
-    }
-    pj["hyper_params"].update(context.database.get_hyper_params(pj))
-    pj["feature_names"] = context.database.get_featureset(
-        pj["hyper_params"]["featureset_name"]
-    )
+    modelspecs["hyper_params"].update({"training_period_days":TRAINING_PERIOD_DAYS})
 
     # Get the paths for storing model and reports from the config manager
     trained_models_folder = Path(context.config.paths.trained_models_folder)
@@ -90,7 +84,7 @@ def train_model_task(
 
     # Define start and end of the training input data
     datetime_start = datetime.utcnow() - timedelta(
-        days=int(pj["hyper_params"]["training_period_days"])
+        days=int(modelspecs["hyper_params"]["training_period_days"])
     )
     datetime_end = datetime.utcnow()
 
@@ -107,6 +101,7 @@ def train_model_task(
     # Excecute the model training pipeline
     train_model_pipeline(
         pj,
+        modelspecs,
         input_data,
         check_old_model_age=False,
         trained_models_folder=trained_models_folder,

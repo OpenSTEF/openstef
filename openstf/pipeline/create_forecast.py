@@ -63,7 +63,7 @@ def create_forecast_pipeline_core(
     This pipeline has no database or persisitent storage dependencies.
 
     Expected prediction job keys: "resolution_minutes", "horizon_minutes", "id", "type",
-        "name", "model_type_group", "quantiles"
+        "name", "quantiles"
 
     Args:
         pj (Union[dict, PredictionJobDataClass]): Prediction job.

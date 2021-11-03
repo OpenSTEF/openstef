@@ -4,6 +4,7 @@
 from typing import List, Tuple, Union
 
 import pandas as pd
+from openstf_dbc.services.model_specifications import ModelSpecificationRetriever
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
 from sklearn.base import RegressorMixin
 
@@ -18,7 +19,8 @@ DEFAULT_EARLY_STOPPING_ROUNDS: int = 10
 
 
 def train_model_and_forecast_back_test(
-    pj: Union[dict, PredictionJobDataClass],
+    pj: PredictionJobDataClass,
+    modelspecs,
     input_data: pd.DataFrame,
     training_horizons: List[float] = None,
 ) -> Tuple[pd.DataFrame, RegressorMixin]:
@@ -41,7 +43,7 @@ def train_model_and_forecast_back_test(
 
     # Call common training pipeline
     model, report, train_data, validation_data, test_data = train_pipeline_common(
-        pj, input_data, training_horizons, test_fraction=0.15, backtest=True
+        pj, modelspecs, input_data, training_horizons, test_fraction=0.15, backtest=True
     )
 
     # Predict

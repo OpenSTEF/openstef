@@ -7,6 +7,7 @@ from typing import List, Union, Tuple
 import optuna
 import pandas as pd
 import structlog
+from openstf_dbc.services.model_specifications import ModelSpecificationRetriever
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 from openstf.exceptions import (
@@ -39,6 +40,7 @@ VALIDATION_FRACTION: float = 0.1
 
 def optimize_hyperparameters_pipeline(
     pj: Union[dict, PredictionJobDataClass],
+    modelspecs,
     input_data: pd.DataFrame,
     trained_models_folder: Union[str, Path],
     horizons: List[float] = TRAIN_HORIZONS,
@@ -103,6 +105,7 @@ def optimize_hyperparameters_pipeline(
     serializer.save_model(
         model,
         pj=pj,
+        modelspecs=modelspecs,
         # In objective we have the data, thus we create the report there
         report=objective.create_report(model=model),
         phase="Hyperparameter_opt",

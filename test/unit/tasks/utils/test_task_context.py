@@ -99,10 +99,10 @@ class TestTaskContext(BaseTestCase):
         # Required are the 'id' key and a second 'random' key.
         # The presence of a second key ensures that no additional pj_data is collected
         test_prediction_jobs = [
-            TestData.get_prediction_job(pid=307),
-            TestData.get_prediction_job(pid=60),
-            TestData.get_prediction_job(pid=307),
-            TestData.get_prediction_job(pid=60),
+            TestData.get_prediction_job(pid=307)[0],
+            TestData.get_prediction_job(pid=60)[0],
+            TestData.get_prediction_job(pid=307)[0],
+            TestData.get_prediction_job(pid=60)[0],
         ]
 
         with self.assertRaises(PredictionJobException):

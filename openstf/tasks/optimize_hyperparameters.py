@@ -33,7 +33,7 @@ DEFAULT_TRAINING_PERIOD_DAYS = 91
 
 
 def optimize_hyperparameters_task(
-    pj: Union[dict, PredictionJobDataClass], context: TaskContext
+    pj: PredictionJobDataClass, modelspecs, context: TaskContext
 ) -> None:
     """Optimize hyperparameters task.
 
@@ -82,6 +82,7 @@ def optimize_hyperparameters_task(
     # Optimize hyperparams
     hyperparameters = optimize_hyperparameters_pipeline(
         pj,
+        modelspecs,
         input_data,
         trained_models_folder=trained_models_folder,
     )

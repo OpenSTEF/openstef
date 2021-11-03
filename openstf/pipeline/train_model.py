@@ -7,6 +7,7 @@ from typing import List, Tuple, Union
 
 import pandas as pd
 import structlog
+from openstf_dbc.services.model_specifications import ModelSpecificationDataClass, ModelSpecificationRetriever
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 from openstf.exceptions import (
@@ -31,7 +32,8 @@ PENALTY_FACTOR_OLD_MODEL: float = 1.2
 
 
 def train_model_pipeline(
-    pj: Union[dict, PredictionJobDataClass],
+    pj: PredictionJobDataClass,
+    modelspecs: ModelSpecificationDataClass,
     input_data: pd.DataFrame,
     check_old_model_age: bool,
     trained_models_folder: Union[str, Path],
@@ -75,7 +77,7 @@ def train_model_pipeline(
 
     # Train model with core pipeline
     try:
-        model, report = train_model_pipeline_core(pj, input_data, old_model)
+        model, report = train_model_pipeline_core(pj,modelspecs, input_data, old_model)
     except OldModelHigherScoreError as OMHSE:
         logger.error("Old model is better than new model", pid=pj["id"], exc_info=OMHSE)
         return
@@ -97,11 +99,12 @@ def train_model_pipeline(
         raise InputDataWrongColumnOrderError(IDWCOE)
 
     # Save model
-    serializer.save_model(model, pj=pj, report=report)
+    serializer.save_model(model, modelspecs=modelspecs, pj=pj, report=report)
 
 
 def train_model_pipeline_core(
-    pj: Union[dict, PredictionJobDataClass],
+    pj: PredictionJobDataClass,
+    modelspecs: ModelSpecificationDataClass,
     input_data: pd.DataFrame,
     old_model: OpenstfRegressor = None,
     horizons: List[float] = None,
@@ -142,7 +145,7 @@ def train_model_pipeline_core(
 
     # Call common pipeline
     model, report, train_data, validation_data, test_data = train_pipeline_common(
-        pj, input_data, horizons
+        pj, modelspecs, input_data, horizons
     )
 
     logging.info("Fitted a new model, not yet stored")
@@ -181,6 +184,7 @@ def train_model_pipeline_core(
 
 def train_pipeline_common(
     pj: Union[dict, PredictionJobDataClass],
+    modelspecs: ModelSpecificationDataClass,
     input_data: pd.DataFrame,
     horizons: List[float],
     test_fraction: float = 0.0,
@@ -219,7 +223,7 @@ def train_pipeline_common(
         )
 
     data_with_features = TrainFeatureApplicator(
-        horizons=horizons, feature_names=pj["feature_names"]
+        horizons=horizons, feature_names=modelspecs["feature_names"]
     ).add_features(validated_data)
 
     # Split data
@@ -258,7 +262,7 @@ def train_pipeline_common(
     # Set relevant hyperparameters
     valid_hyper_parameters = {
         key: value
-        for key, value in pj["hyper_params"].items()
+        for key, value in modelspecs["hyper_params"].items()
         if key in model.get_params().keys()
     }
 

@@ -7,6 +7,7 @@ from unittest.mock import MagicMock, patch
 
 import pandas as pd
 import sklearn
+from openstf_dbc.services.model_specifications import ModelSpecificationRetriever
 
 from openstf.enums import MLModelType
 from openstf.exceptions import (
@@ -25,7 +26,7 @@ from test.utils import BaseTestCase, TestData
 
 # define constants
 
-PJ = TestData.get_prediction_job(pid=307)
+PJ, modelspecs = TestData.get_prediction_job(pid=307)
 XGB_HYPER_PARAMS = {
     "subsample": 0.9,
     "min_child_weight": 4,
@@ -40,7 +41,7 @@ XGB_HYPER_PARAMS = {
 class TestTrainModelPipeline(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
-        self.pj = TestData.get_prediction_job(pid=307)
+        self.pj, self.modelspecs = TestData.get_prediction_job(pid=307)
         datetime_start = datetime.utcnow() - timedelta(days=90)
         datetime_end = datetime.utcnow()
         self.data_table = TestData.load("input_data_train.pickle").head(8641)
@@ -56,13 +57,14 @@ class TestTrainModelPipeline(BaseTestCase):
 
         train_model_pipeline(
             pj=self.pj,
+            modelspecs=self.modelspecs,
             input_data=self.train_input,
             check_old_model_age=False,
             trained_models_folder="./test/trained_models",
         )
 
-    @patch("openstf.model.serializer.PersistentStorageSerializer.save_model")
-    def test_train_model_pipeline_core_happy_flow(self, save_model_mock):
+    #@patch("openstf.model.serializer.PersistentStorageSerializer.save_model")
+    def test_train_model_pipeline_core_happy_flow(self):#, save_model_mock):
         """Test happy flow of the train model pipeline
 
         NOTE this does not explain WHY this is the case?
@@ -77,8 +79,7 @@ class TestTrainModelPipeline(BaseTestCase):
                 pj = self.pj
                 pj["model"] = model_type.value
                 # Use default parameters
-                pj["hyper_params"] = {}
-                model, report = train_model_pipeline_core(pj=pj, input_data=train_input)
+                model, report = train_model_pipeline_core(pj=pj, modelspecs=self.modelspecs, input_data=train_input)
 
                 # check if the model was fitted (raises NotFittedError when not fitted)
                 self.assertIsNone(sklearn.utils.validation.check_is_fitted(model))
@@ -96,7 +97,7 @@ class TestTrainModelPipeline(BaseTestCase):
 
                 # Add features
                 data_with_features = TrainFeatureApplicator(
-                    horizons=[0.25, 47.0], feature_names=pj["feature_names"]
+                    horizons=[0.25, 47.0], feature_names=self.modelspecs["feature_names"]
                 ).add_features(validated_data)
 
                 # Split data
@@ -133,6 +134,7 @@ class TestTrainModelPipeline(BaseTestCase):
 
         train_model_pipeline(
             pj=self.pj,
+            modelspecs=self.modelspecs,
             input_data=self.train_input,
             check_old_model_age=True,
             trained_models_folder="./test/trained_models",
@@ -157,6 +159,7 @@ class TestTrainModelPipeline(BaseTestCase):
 
         train_model_pipeline(
             pj=self.pj,
+            modelspecs=self.modelspecs,
             input_data=self.train_input,
             check_old_model_age=True,
             trained_models_folder="./test/trained_models",
@@ -173,6 +176,7 @@ class TestTrainModelPipeline(BaseTestCase):
             with self.assertRaises(InputDataInsufficientError):
                 train_model_pipeline(
                     pj=self.pj,
+                    modelspecs=self.modelspecs,
                     input_data=self.train_input,
                     check_old_model_age=True,
                     trained_models_folder="./test/trained_models",
@@ -197,6 +201,7 @@ class TestTrainModelPipeline(BaseTestCase):
             with self.assertRaises(InputDataWrongColumnOrderError):
                 train_model_pipeline(
                     pj=self.pj,
+                    modelspecs=self.modelspecs,
                     input_data=input_data,
                     check_old_model_age=True,
                     trained_models_folder="./test/trained_models",
@@ -226,6 +231,7 @@ class TestTrainModelPipeline(BaseTestCase):
         with self.assertLogs("openstf.pipeline.train_model", level="ERROR") as captured:
             train_model_pipeline(
                 pj=self.pj,
+                modelspecs=self.modelspecs,
                 input_data=self.train_input,
                 check_old_model_age=True,
                 trained_models_folder="./test/trained_models",
@@ -254,6 +260,7 @@ class TestTrainModelPipeline(BaseTestCase):
         with self.assertLogs("openstf.pipeline.train_model", level="INFO") as captured:
             train_model_pipeline(
                 pj=self.pj,
+                modelspecs=self.modelspecs,
                 input_data=self.train_input,
                 check_old_model_age=True,
                 trained_models_folder="./test/trained_models",
@@ -279,6 +286,7 @@ class TestTrainModelPipeline(BaseTestCase):
         with self.assertLogs("openstf.pipeline.train_model", level="INFO") as captured:
             train_model_pipeline(
                 pj=self.pj,
+                modelspecs=self.modelspecs,
                 input_data=self.train_input,
                 check_old_model_age=True,
                 trained_models_folder="./test/trained_models",
@@ -306,6 +314,7 @@ class TestTrainModelPipeline(BaseTestCase):
         ) as captured:
             train_model_pipeline(
                 pj=self.pj,
+                modelspecs=self.modelspecs,
                 input_data=self.train_input,
                 check_old_model_age=True,
                 trained_models_folder="./test/trained_models",

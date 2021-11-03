@@ -50,7 +50,7 @@ def create_forecast_task(
     On this task level all database and context manager dependencies are resolved.
 
     Expected prediction job keys: "id", "lat", "lon", "resolution_minutes",
-        "horizon_minutes", "type", "name", "model_type_group", "quantiles"
+        "horizon_minutes", "type", "name", "quantiles"
 
     Args:
         pj (Union[dict, PredictionJobDataClass]): Prediction job

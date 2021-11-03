@@ -7,6 +7,7 @@ from pathlib import Path
 from unittest.mock import patch, MagicMock
 
 import pandas as pd
+from openstf_dbc.services.model_specifications import ModelSpecificationRetriever
 
 from openstf.model.model_creator import ModelCreator
 from openstf.model.serializer import (
@@ -24,7 +25,7 @@ class TestAbstractModelSerializer(BaseTestCase):
         model_datetime = datetime.utcnow() - timedelta(days=expected_model_age)
 
         model_path = (
-            Path(f"{model_datetime.strftime(FOLDER_DATETIME_FORMAT)}") / MODEL_FILENAME
+                Path(f"{model_datetime.strftime(FOLDER_DATETIME_FORMAT)}") / MODEL_FILENAME
         )
 
         model_age = PersistentStorageSerializer(
@@ -40,24 +41,27 @@ class TestAbstractModelSerializer(BaseTestCase):
     @patch("mlflow.set_tag")
     @patch("mlflow.search_runs")
     def test_save_model(
-        self,
-        mock_search,
-        mock_set_tag,
-        mock_log_metrics,
-        mock_log_params,
-        mock_log_figure,
-        mock_log_model,
+            self,
+            mock_search,
+            mock_set_tag,
+            mock_log_metrics,
+            mock_log_params,
+            mock_log_figure,
+            mock_log_model,
     ):
-
         model_type = "xgb"
         model = ModelCreator.create_model(model_type)
-        pj = TestData.get_prediction_job(pid=307)
+        pj, modelspecs = TestData.get_prediction_job(pid=307)
         report_mock = MagicMock()
         report_mock.get_metrics.return_value = {"mae", 0.2}
         with self.assertLogs("PersistentStorageSerializer", level="INFO") as captured:
             PersistentStorageSerializer(
                 trained_models_folder="./test/trained_models"
-            ).save_model(model=model, pj=pj, report=report_mock)
+            ).save_model(model=model,
+                         modelspecs=modelspecs,
+                         pj=pj,
+                         report=report_mock
+                         )
             # The index shifts if logging is added
             self.assertRegex(
                 captured.records[0].getMessage(), "Model saved with MLflow"
@@ -70,25 +74,28 @@ class TestAbstractModelSerializer(BaseTestCase):
     @patch("mlflow.set_tag")
     @patch("mlflow.search_runs")
     def test_save_model_no_previous(
-        self,
-        mock_search,
-        mock_set_tag,
-        mock_log_metrics,
-        mock_log_params,
-        mock_log_figure,
-        mock_log_model,
+            self,
+            mock_search,
+            mock_set_tag,
+            mock_log_metrics,
+            mock_log_params,
+            mock_log_figure,
+            mock_log_model,
     ):
-
         model_type = "xgb"
         model = ModelCreator.create_model(model_type)
-        pj = TestData.get_prediction_job(pid=307)
+        pj, modelspecs = TestData.get_prediction_job(pid=307)
         report_mock = MagicMock()
         report_mock.get_metrics.return_value = {"mae", 0.2}
         mock_search.return_value = pd.DataFrame(columns=["run_id"])
         with self.assertLogs("PersistentStorageSerializer", level="INFO") as captured:
             PersistentStorageSerializer(
                 trained_models_folder="./test/trained_models"
-            ).save_model(model=model, pj=pj, report=report_mock)
+            ).save_model(model=model,
+                         modelspecs=modelspecs,
+                         pj=pj,
+                         report=report_mock
+            )
             # The index shifts if logging is added
             self.assertRegex(
                 captured.records[0].getMessage(), "No previous model found in MLflow"
@@ -125,7 +132,7 @@ class TestAbstractModelSerializer(BaseTestCase):
             }
         )
         with self.assertLogs(
-            "PersistentStorageSerializer", level="WARNING"
+                "PersistentStorageSerializer", level="WARNING"
         ) as captured:
             days = PersistentStorageSerializer(
                 trained_models_folder="./test/trained_models"

@@ -15,7 +15,7 @@ from openstf.pipeline import utils
 from test.utils import BaseTestCase, TestData
 
 NOW = datetime.now(timezone.utc)
-PJ = TestData.get_prediction_job(pid=307)
+PJ, modelspecs = TestData.get_prediction_job(pid=307)
 
 forecast_input = TestData.load("reference_sets/307-test-data.csv")
 
@@ -46,8 +46,7 @@ class TestCreateForecastPipeline(BaseTestCase):
         """Test if a fallback forecast is used when input is incomplete"""
         input_data = forecast_input
         is_data_sufficient_mock.return_value = False
-        pj = TestData.get_prediction_job(pid=307)
-        pj["model_type_group"] = "default"
+        pj, modelspecs = TestData.get_prediction_job(pid=307)
         model = PersistentStorageSerializer(
             trained_models_folder="./test/trained_models"
         ).load_model(pid=307)
@@ -61,8 +60,7 @@ class TestCreateForecastPipeline(BaseTestCase):
     def test_create_forecast_pipeline_happy_flow(self):
         """Test the happy flow of the predict pipeline, using a previously trained model"""
         # Test happy flow
-        self.pj = TestData.get_prediction_job(pid=307)
-        self.pj["model_type_group"] = "default"
+        self.pj, modelspecs = TestData.get_prediction_job(pid=307)
         self.forecast_input = TestData.load("reference_sets/307-test-data.csv")
 
         # Shift example data to match current time interval as code expects data
@@ -77,8 +75,6 @@ class TestCreateForecastPipeline(BaseTestCase):
         delta = utc_now - most_recent_date + timedelta(3)
 
         self.forecast_input.index = self.forecast_input.index.shift(delta, freq=1)
-
-        self.pj["feature_names"] = self.forecast_input.columns[1:]
 
         model = PersistentStorageSerializer(
             trained_models_folder="./test/trained_models"

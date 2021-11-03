@@ -70,8 +70,8 @@ def run_tracy(context):
 
         pid = int(job["args"])
         pj = context.database.get_prediction_job(pid)
-
-        result, exc = run_tracy_job(job, pj, context)
+        modelspecs = context.database.get_modelspecs(pj, featureset_name='N')
+        result, exc = run_tracy_job(job, pj, modelspecs, context)
         # job processing was succefull
         if result is TracyJobResult.SUCCESS:
             logger.info("Succesfully processed Tracy job")
@@ -94,19 +94,19 @@ def run_tracy(context):
     context.logger.info("Finished processing all Tracy jobs - Tracy out!")
 
 
-def run_tracy_job(job, pj, context):
+def run_tracy_job(job, pj, modelspecs, context):
     # Try to process Tracy job
     try:
         # If train model job (TODO remove old name when jobs are done)
         if job["function"] in ["train_model", "train_specific_model"]:
-            train_model_task(pj, context, check_old_model_age=False)
+            train_model_task(pj, modelspecs, context, check_old_model_age=False)
 
         # If optimize hyperparameters job (TODO remove old name when jobs are done)
         elif job["function"] in [
             "optimize_hyperparameters",
             "optimize_hyperparameters_for_specific_pid",
         ]:
-            optimize_hyperparameters_task(pj, context)
+            optimize_hyperparameters_task(pj, modelspecs, context)
 
         # Else unknown job
         else:

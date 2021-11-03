@@ -17,7 +17,7 @@ NOW = datetime.now(timezone.utc)
 class TestComponentForecast(BaseTestCase):
     def test_component_forecast_pipeline_happy_flow(self):
         # Test happy flow
-        PJ = TestData.get_prediction_job(pid=307)
+        PJ, modelspecs = TestData.get_prediction_job(pid=307)
         data = TestData.load("reference_sets/307-test-data.csv")
         weather = data[["radiation", "windspeed_100m"]]
         forecast_input = TestData.load("forecastdf_test_add_corrections.csv")
@@ -61,7 +61,7 @@ class TestComponentForecast(BaseTestCase):
 
     def test_component_forecast_pipeline_not_all_weather_data_available(self):
         # Test happy flow
-        PJ = TestData.get_prediction_job(pid=307)
+        PJ, modelspecs = TestData.get_prediction_job(pid=307)
         data = TestData.load("reference_sets/307-test-data.csv")
         weather = data[["radiation"]]
         forecast_input = TestData.load("forecastdf_test_add_corrections.csv")
