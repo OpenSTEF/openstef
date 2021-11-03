@@ -41,6 +41,8 @@ class TestTrainModelPipeline(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
         self.pj = TestData.get_prediction_job(pid=307)
+        # Set n_estimators to a small number to speed up training
+        self.pj.hyper_params["n_estimators"] = 3
         datetime_start = datetime.utcnow() - timedelta(days=90)
         datetime_end = datetime.utcnow()
         self.data_table = TestData.load("input_data_train.pickle").head(8641)
@@ -83,6 +85,9 @@ class TestTrainModelPipeline(BaseTestCase):
                 # check if the model was fitted (raises NotFittedError when not fitted)
                 self.assertIsNone(sklearn.utils.validation.check_is_fitted(model))
 
+                # check if the model has a feature_names property
+                self.assertIsNotNone(model.feature_names)
+
                 # check if model is sklearn compatible
                 self.assertTrue(isinstance(model, sklearn.base.BaseEstimator))
 
@@ -108,9 +113,7 @@ class TestTrainModelPipeline(BaseTestCase):
                     test_data,
                 ) = split_data_train_validation_test(data_with_features)
 
-                # split x and y data
-                train_x = train_data.iloc[:, 1:-1]
-                importance = model.set_feature_importance(train_x.columns)
+                importance = model.set_feature_importance()
                 self.assertIsInstance(importance, pd.DataFrame)
 
     @patch("openstf.model.serializer.PersistentStorageSerializer.save_model")

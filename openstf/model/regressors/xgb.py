@@ -10,6 +10,13 @@ from openstf.model.regressors.regressor import OpenstfRegressor
 class XGBOpenstfRegressor(XGBRegressor, OpenstfRegressor):
     """XGB Regressor which implements the Openstf regressor API."""
 
+    gain_importance_name = "total_gain"
+    weight_importance_name = "weight"
+
+    @property
+    def feature_names(self):
+        return self._Booster.feature_names
+
     @staticmethod
     def _get_importance_names():
         return {

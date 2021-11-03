@@ -14,11 +14,8 @@ class OpenstfRegressor(OpenstfRegressorInterface):
         self.feature_importance_dataframe = None
         self.feature_importances_ = None
 
-    def set_feature_importance(self, feature_names: list) -> Optional[pd.DataFrame]:
+    def set_feature_importance(self) -> Optional[pd.DataFrame]:
         """get feature importance.
-
-        Args:
-            feature_names (list): list of features in the original column order
 
         Returns:
          pd.DataFrame
@@ -35,7 +32,7 @@ class OpenstfRegressor(OpenstfRegressorInterface):
         )
 
         feature_importance = pd.DataFrame(
-            {"gain": gain, "weight": weight_importance}, index=feature_names
+            {"gain": gain, "weight": weight_importance}, index=self.feature_names
         )
 
         feature_importance.sort_values(by="gain", ascending=False, inplace=True)
