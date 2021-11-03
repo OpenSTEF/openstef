@@ -61,7 +61,7 @@ def optimize_hyperparameters_task(
             return
 
     # Get input data (usese "id" and "model")
-    current_hyperparams = context.database.get_hyper_params(pj)
+    current_hyperparams = modelspecs["hyper_params"]
 
     datetime_start = datetime.utcnow() - timedelta(
         days=int(
