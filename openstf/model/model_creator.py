@@ -10,6 +10,7 @@ from openstf.model.regressors.lgbm import LGBMOpenstfRegressor
 from openstf.model.regressors.regressor import OpenstfRegressor
 from openstf.model.regressors.xgb import XGBOpenstfRegressor
 from openstf.model.regressors.xgb_quantile import XGBQuantileOpenstfRegressor
+from openstf.model.regressors.custom_regressor import create_custom_model
 
 valid_model_kwargs = {
     MLModelType.XGB: [
@@ -82,6 +83,7 @@ class ModelCreator:
         MLModelType.XGB: XGBOpenstfRegressor,
         MLModelType.LGB: LGBMOpenstfRegressor,
         MLModelType.XGB_QUANTILE: XGBQuantileOpenstfRegressor,
+        MLModelType.CUSTOM: create_custom_model
     }
 
     @staticmethod
@@ -109,11 +111,14 @@ class ModelCreator:
                 f"valid model_types are: {valid_types}"
             ) from e
 
-        # only pass relevant arguments to model constructor to prevent warnings
-        model_kwargs = {
-            key: value
-            for key, value in kwargs.items()
-            if key in valid_model_kwargs[model_type]
-        }
+        if model_type != MLModelType.CUSTOM:
+            # only pass relevant arguments to model constructor to prevent warnings
+            model_kwargs = {
+                key: value
+                for key, value in kwargs.items()
+                if key in valid_model_kwargs[model_type]
+            }
+            return ModelCreator.MODEL_CONSTRUCTORS[model_type](**model_kwargs)
+        else:
+            return create_custom_model(**kwargs)
 
-        return ModelCreator.MODEL_CONSTRUCTORS[model_type](**model_kwargs)
