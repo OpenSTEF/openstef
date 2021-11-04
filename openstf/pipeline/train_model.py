@@ -243,7 +243,9 @@ def train_pipeline_common(
         )
 
     # Create relevant model
-    model = ModelCreator.create_model(pj["model"], quantiles=pj["quantiles"])
+    model = ModelCreator.create_model(pj["model"],
+                                      quantiles=pj["quantiles"],
+                                      **pj["hyper_params"])
 
     # split x and y data
     train_x, train_y = train_data.iloc[:, 1:-1], train_data.iloc[:, 0]
@@ -255,14 +257,6 @@ def train_pipeline_common(
     # Configure evals for early stopping
     eval_set = [(train_x, train_y), (validation_x, validation_y)]
 
-    # Set relevant hyperparameters
-    valid_hyper_parameters = {
-        key: value
-        for key, value in pj["hyper_params"].items()
-        if key in model.get_params().keys()
-    }
-
-    model.set_params(**valid_hyper_parameters)
     model.fit(
         train_x,
         train_y,
