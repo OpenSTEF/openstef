@@ -51,7 +51,6 @@ class TestTrainModelPipeline(BaseTestCase):
 
         self.train_input = TestData.load("reference_sets/307-train-data.csv")
 
-    @unittest.skip("If you want to store a newly trained model, use test below")
     def test_train_model_pipeline_update_stored_model(self):
         """Test happy flow of the train model pipeline"""
 
@@ -63,8 +62,7 @@ class TestTrainModelPipeline(BaseTestCase):
             trained_models_folder="./test/trained_models",
         )
 
-    #@patch("openstf.model.serializer.PersistentStorageSerializer.save_model")
-    def test_train_model_pipeline_core_happy_flow(self):#, save_model_mock):
+    def test_train_model_pipeline_core_happy_flow(self):
         """Test happy flow of the train model pipeline
 
         NOTE this does not explain WHY this is the case?

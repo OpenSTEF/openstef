@@ -7,7 +7,7 @@ from typing import List, Tuple, Union
 
 import pandas as pd
 import structlog
-from openstf_dbc.services.model_specifications import ModelSpecificationDataClass, ModelSpecificationRetriever
+from openstf_dbc.services.model_specifications import ModelSpecificationDataClass
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 from openstf.exceptions import (
@@ -45,6 +45,7 @@ def train_model_pipeline(
 
     Args:
         pj (Union[dict, PredictionJobDataClass]): Prediction job
+        modelspecs (ModelSpecificationDataClass): Dataclass containing model specifications
         input_data (pd.DataFrame): Raw training input data
         check_old_model_age (bool): Check if training should be skipped because the model is too young
         trained_models_folder (Path): Path where trained models are stored
@@ -99,7 +100,7 @@ def train_model_pipeline(
         raise InputDataWrongColumnOrderError(IDWCOE)
 
     # Save model
-    serializer.save_model(model, modelspecs=modelspecs, pj=pj, report=report)
+    serializer.save_model(model, pj=pj, modelspecs=modelspecs, report=report)
 
 
 def train_model_pipeline_core(
@@ -116,15 +117,17 @@ def train_model_pipeline_core(
     TODO once we have a data model for a prediction job this explantion is not
     required anymore.
 
-    For training a model the following keys in the prediction job dictionairy are
+    For training a model the following keys in the prediction job are
     expected:
         "id"            Only used for logging
         "model"         Model type, any of "xgb", "lgb",
+    And in modelspecs:
         "hyper_params"  Hyper parameters dictionairy specific to the model_type
         "feature_names"      List of features to train model on or None to use all features
 
     Args:
         pj (Union[dict, PredictionJobDataClass]): Prediction job
+        modelspecs (ModelSpecificationDataClass): Dataclass containing model specifications
         input_data (pd.DataFrame): Input data
         old_model (RegressorMixin, optional): Old model to compare to. Defaults to None.
         horizons (List[float]): horizons to train on in hours.
@@ -183,7 +186,7 @@ def train_model_pipeline_core(
 
 
 def train_pipeline_common(
-    pj: Union[dict, PredictionJobDataClass],
+    pj: PredictionJobDataClass,
     modelspecs: ModelSpecificationDataClass,
     input_data: pd.DataFrame,
     horizons: List[float],
@@ -193,9 +196,12 @@ def train_pipeline_common(
     """Common pipeline shared with operational training and backtest training
 
     Args:
-        pj (Union[dict, PredictionJobDataClass]): Prediction job
+        pj (PredictionJobDataClass): Prediction job
+        modelspecs (ModelSpecificationDataClass): Dataclass containing model specifications
         input_data (pd.DataFrame): Input data
         horizons (List[float]): horizons to train on in hours.
+        test_fraction (float): fration of data to use for testingset
+        backtest (bool): boolean if we need to do a backtest
 
     Returns:
         Tuple[RegressorMixin, Report, pd.DataFrame, pd.DataFrame, pd.DataFrame]: Trained model, report

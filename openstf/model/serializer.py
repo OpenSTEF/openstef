@@ -62,25 +62,19 @@ class AbstractSerializer(ABC):
 
 
 class PersistentStorageSerializer(AbstractSerializer):
-    def save_model(
-        self,
-        model: OpenstfRegressor,
-        pj: Union[dict, PredictionJobDataClass],
-        modelspecs: ModelSpecificationDataClass,
-        report: Report,
-        phase: str = "training",
-        **kwargs,
-    ):
+    def save_model(self, model: OpenstfRegressor, pj: PredictionJobDataClass, modelspecs: ModelSpecificationDataClass,
+                   report: Report, phase: str = "training", **kwargs) -> None:
         """Save sklearn compatible model to persistent storage with MLflow.
 
             Either a pid or a model_id should be given. If a pid is given the model_id
             will be generated.
 
         Args:
-            model: Trained sklearn compatible model object.
-            pj: Prediction job.
-            report: Report object.
-            phase: Where does the model come from, default is "training"
+            model (OpenstfRegressor): Trained sklearn compatible model object.
+            pj (PredictionJobDataClass): Prediction job.
+            modelspecs (ModelSpecificationDataClass): Dataclass containing model specifications
+            report (Report): Report object.
+            phase (str): Where does the model come from, default is "training"
             **kwargs: Extra information to be logged with mlflow, this can add the extra modelspecs
 
         """
@@ -426,11 +420,19 @@ class PersistentStorageSerializer(AbstractSerializer):
         mlflow.set_tag("Previous_version_id", prev_run_id)
         mlflow.set_tag("model_type", pj["model"])
         mlflow.set_tag("prediction_job", pj["id"])
-        mlflow.set_tags(modelspecs.dict())
+        # add all modelspecs attributes except hyper_params
+        for attribute in modelspecs.__dict__.keys():
+            if attribute is not "hyper_params":
+                mlflow.set_tag(attribute, modelspecs[attribute])
         # Add metrics to the run
         mlflow.log_metrics(report.metrics)
-        # Add the used parameters to the run
-        mlflow.log_params(model.get_params())
+        # Add the used parameters to the run + the params from the prediction job
+        model_params = model.get_params()
+        prediction_params = modelspecs["hyper_params"]
+        diff = set(prediction_params.keys()) - set(model_params.keys())
+        for key in diff:
+            model_params.update({key: prediction_params[key]})
+        mlflow.log_params(model_params)
 
         # Process args
         for key, value in kwargs.items():

@@ -52,16 +52,13 @@ class TestAbstractModelSerializer(BaseTestCase):
         model_type = "xgb"
         model = ModelCreator.create_model(model_type)
         pj, modelspecs = TestData.get_prediction_job(pid=307)
+        pj["id"] = "Default"
         report_mock = MagicMock()
         report_mock.get_metrics.return_value = {"mae", 0.2}
         with self.assertLogs("PersistentStorageSerializer", level="INFO") as captured:
             PersistentStorageSerializer(
                 trained_models_folder="./test/trained_models"
-            ).save_model(model=model,
-                         modelspecs=modelspecs,
-                         pj=pj,
-                         report=report_mock
-                         )
+            ).save_model(model=model, pj=pj, modelspecs=modelspecs, report=report_mock)
             # The index shifts if logging is added
             self.assertRegex(
                 captured.records[0].getMessage(), "Model saved with MLflow"
@@ -85,17 +82,14 @@ class TestAbstractModelSerializer(BaseTestCase):
         model_type = "xgb"
         model = ModelCreator.create_model(model_type)
         pj, modelspecs = TestData.get_prediction_job(pid=307)
+        pj["id"] = "Default"
         report_mock = MagicMock()
         report_mock.get_metrics.return_value = {"mae", 0.2}
         mock_search.return_value = pd.DataFrame(columns=["run_id"])
         with self.assertLogs("PersistentStorageSerializer", level="INFO") as captured:
             PersistentStorageSerializer(
                 trained_models_folder="./test/trained_models"
-            ).save_model(model=model,
-                         modelspecs=modelspecs,
-                         pj=pj,
-                         report=report_mock
-            )
+            ).save_model(model=model, pj=pj, modelspecs=modelspecs, report=report_mock)
             # The index shifts if logging is added
             self.assertRegex(
                 captured.records[0].getMessage(), "No previous model found in MLflow"

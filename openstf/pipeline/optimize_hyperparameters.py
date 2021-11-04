@@ -7,7 +7,7 @@ from typing import List, Union, Tuple
 import optuna
 import pandas as pd
 import structlog
-from openstf_dbc.services.model_specifications import ModelSpecificationRetriever
+from openstf_dbc.services.model_specifications import ModelSpecificationDataClass
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 from openstf.exceptions import (
@@ -18,7 +18,6 @@ from openstf.feature_engineering.feature_applicator import TrainFeatureApplicato
 from openstf.model.model_creator import ModelCreator
 from openstf.model.objective import RegressorObjective
 from openstf.model.objective_creator import ObjectiveCreator
-
 # This is required to disable the default optuna logger and pass the logs to our own
 # structlog logger
 from openstf.model.regressors.regressor import OpenstfRegressor
@@ -40,7 +39,7 @@ VALIDATION_FRACTION: float = 0.1
 
 def optimize_hyperparameters_pipeline(
     pj: Union[dict, PredictionJobDataClass],
-    modelspecs,
+    modelspecs: ModelSpecificationDataClass,
     input_data: pd.DataFrame,
     trained_models_folder: Union[str, Path],
     horizons: List[float] = TRAIN_HORIZONS,
@@ -52,6 +51,7 @@ def optimize_hyperparameters_pipeline(
 
     Args:
         pj (Union[dict, PredictionJobDataClass]): Prediction job
+        modelspecs (ModelSpecificationDataClass): Dataclass containing model specifications
         input_data (pd.DataFrame): Raw training input data
         trained_models_folder (Path): Path where trained models are stored
         horizons (List[float]): horizons for feature engineering.
@@ -102,16 +102,9 @@ def optimize_hyperparameters_pipeline(
     )
 
     # Save model
-    serializer.save_model(
-        model,
-        pj=pj,
-        modelspecs=modelspecs,
-        # In objective we have the data, thus we create the report there
-        report=objective.create_report(model=model),
-        phase="Hyperparameter_opt",
-        trials=objective.get_trial_track(),
-        trial_number=study.best_trial.number,
-    )
+    serializer.save_model(model, pj=pj, modelspecs=modelspecs, report=objective.create_report(model=model),
+                          phase="Hyperparameter_opt", trials=objective.get_trial_track(),
+                          trial_number=study.best_trial.number)
 
     return study.best_params
 

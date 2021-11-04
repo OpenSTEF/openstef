@@ -4,7 +4,7 @@
 from typing import List, Tuple, Union
 
 import pandas as pd
-from openstf_dbc.services.model_specifications import ModelSpecificationRetriever
+from openstf_dbc.services.model_specifications import ModelSpecificationDataClass
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
 from sklearn.base import RegressorMixin
 
@@ -20,7 +20,7 @@ DEFAULT_EARLY_STOPPING_ROUNDS: int = 10
 
 def train_model_and_forecast_back_test(
     pj: PredictionJobDataClass,
-    modelspecs,
+    modelspecs: ModelSpecificationDataClass,
     input_data: pd.DataFrame,
     training_horizons: List[float] = None,
 ) -> Tuple[pd.DataFrame, RegressorMixin]:
@@ -30,6 +30,7 @@ def train_model_and_forecast_back_test(
 
     Args:
         pj (Union[dict, PredictionJobDataClass]): Prediction job.
+        modelspecs (ModelSpecificationDataClass): Dataclass containing model specifications
         input_data (pd.DataFrame): Input data
         training_horizons (list): horizons to train on in hours.
             These horizons are also used to make predictions (one for every horizon)

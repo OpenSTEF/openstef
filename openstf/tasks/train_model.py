@@ -26,7 +26,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Union
 
-from openstf_dbc.services.model_specifications import ModelSpecificationRetriever
+from openstf_dbc.services.model_specifications import ModelSpecificationDataClass
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 from openstf.enums import MLModelType
@@ -43,8 +43,8 @@ DEFAULT_CHECK_MODEL_AGE: bool = True
 
 
 def train_model_task(
-    pj: Union[dict, PredictionJobDataClass],
-    modelspecs,
+    pj: PredictionJobDataClass,
+    modelspecs: ModelSpecificationDataClass,
     context: TaskContext,
     check_old_model_age: bool = DEFAULT_CHECK_MODEL_AGE,
 ) -> None:
@@ -56,7 +56,8 @@ def train_model_task(
     Expected prediction job keys:  "id", "model", "lat", "lon", "name"
 
     Args:
-        pj (Union[dict, PredictionJobDataClass]): Prediction job
+        pj (PredictionJobDataClass): Prediction job
+        modelspecs (ModelSpecificationDataClass): Dataclass containing model specifications
         context (TaskContext): Contect object that holds a config manager and a
             database connection.
         check_old_model_age (bool): check if model is too young to be retrained
