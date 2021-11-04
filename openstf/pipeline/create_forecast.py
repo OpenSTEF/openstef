@@ -89,9 +89,7 @@ def create_forecast_pipeline_core(
 
     # Prep forecast input by selecting only the forecast datetime interval (this is much smaller than the input range)
     # Also drop the load column
-    forecast_start, forecast_end = generate_forecast_datetime_range(
-        pj["resolution_minutes"], pj["horizon_minutes"]
-    )
+    forecast_start, forecast_end = generate_forecast_datetime_range(data_with_features)
     forecast_input_data = data_with_features[forecast_start:forecast_end].drop(
         columns="load"
     )
