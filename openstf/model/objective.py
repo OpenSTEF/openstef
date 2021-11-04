@@ -11,7 +11,6 @@ from openstf.metrics import metrics
 from openstf.metrics.reporter import Report, Reporter
 from openstf.model.regressors.regressor import OpenstfRegressor
 from openstf.model.standard_deviation_generator import StandardDeviationGenerator
-from openstf.model.regressors.custom_regressor import CustomOpenstfRegressor
 from openstf.model_selection.model_selection import split_data_train_validation_test
 
 EARLY_STOPPING_ROUNDS: int = 10
@@ -302,20 +301,3 @@ class XGBQuantileRegressorObjective(RegressorObjective):
         return optuna.integration.XGBoostPruningCallback(
             trial, observation_key=f"validation_1-{self.eval_metric}"
         )
-
-
-def create_custom_objective(
-    model: CustomOpenstfRegressor,
-    input_data: pd.DataFrame,
-    test_fraction=TEST_FRACTION,
-    validation_fraction=VALIDATION_FRACTION,
-    eval_metric=EVAL_METRIC,
-    verbose=False):
-    return model.objective(
-        model,
-        input_data=input_data,
-        test_fraction=test_fraction,
-        validation_fraction=validation_fraction,
-        eval_metric=eval_metric,
-        verbose=verbose
-    )

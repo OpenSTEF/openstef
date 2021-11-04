@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 
 from typing import Union
+import pandas as pd
 
 from openstf.enums import MLModelType
 from openstf.model.objective import (
@@ -10,8 +11,8 @@ from openstf.model.objective import (
     XGBRegressorObjective,
     LGBRegressorObjective,
     XGBQuantileRegressorObjective,
-    create_custom_objective
 )
+from openstf.model.regressors.custom_regressor import create_custom_objective
 
 
 class ObjectiveCreator:
@@ -19,7 +20,7 @@ class ObjectiveCreator:
         MLModelType.XGB: XGBRegressorObjective,
         MLModelType.LGB: LGBRegressorObjective,
         MLModelType.XGB_QUANTILE: XGBQuantileRegressorObjective,
-        MLModelType.CUSTOM: create_custom_objective
+        MLModelType.CUSTOM: create_custom_objective,
     }
 
     @staticmethod
