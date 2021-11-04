@@ -22,8 +22,43 @@ from openstf.pipeline.train_model import (
 )
 from openstf.validation import validation
 from test.utils import BaseTestCase, TestData
+from openstf.model.regressors.custom_regressor import CustomOpenstfRegressor
+from openstf.model.objective import RegressorObjective
 
 # define constants
+
+
+class DummyObjective(RegressorObjective):
+    ...
+
+
+class DummyRegressor(CustomOpenstfRegressor):
+    @staticmethod
+    def valid_kwargs():
+        return []
+
+    @property
+    def objective(self):
+        return DummyObjective
+
+    @property
+    def feature_names(self):
+        return self._feature_names
+
+    def fit(self, X, y, **fit_params):
+        self._feature_names = list(X.columns)
+        return self
+
+    def predict(self, X, **kwargs):
+        import numpy as np
+        return np.zeros(len(X))
+
+    def set_feature_importance(self):
+        return pd.DataFrame({
+            "weight": [0] * len(self.feature_names),
+            "gain": [0] * len(self.feature_names)
+        }, index=self.feature_names)
+
 
 PJ = TestData.get_prediction_job(pid=307)
 XGB_HYPER_PARAMS = {
@@ -79,7 +114,10 @@ class TestTrainModelPipeline(BaseTestCase):
                 pj = self.pj
                 pj["model"] = model_type.value
                 # Use default parameters
-                pj["hyper_params"] = {}
+                if model_type == MLModelType.CUSTOM:
+                    pj["hyper_params"] = {"custom_model_path": __name__ + ".DummyRegressor"}
+                else:
+                    pj["hyper_params"] = {}
                 model, report = train_model_pipeline_core(pj=pj, input_data=train_input)
 
                 # check if the model was fitted (raises NotFittedError when not fitted)
