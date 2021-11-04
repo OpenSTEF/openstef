@@ -212,16 +212,13 @@ def train_pipeline_common(
         raise InputDataWrongColumnOrderError(
             "Missing the load column in the input dataframe"
         )
-
-        # Validate and clean data
+    # Validate and clean data
     validated_data = validation.clean(validation.validate(pj["id"], input_data))
-
     # Check if sufficient data is left after cleaning
     if not validation.is_data_sufficient(validated_data):
         raise InputDataInsufficientError(
             "Input data is insufficient, after validation and cleaning"
         )
-
     data_with_features = TrainFeatureApplicator(
         horizons=horizons, feature_names=modelspecs["feature_names"]
     ).add_features(validated_data)
@@ -248,6 +245,8 @@ def train_pipeline_common(
 
     # Create relevant model
     model = ModelCreator.create_model(pj["model"], quantiles=pj["quantiles"])
+
+
 
     # split x and y data
     train_x, train_y = train_data.iloc[:, 1:-1], train_data.iloc[:, 0]

@@ -78,7 +78,9 @@ class TestTrainModelPipeline(BaseTestCase):
             with self.subTest(model_type=model_type):
                 pj = self.pj
                 pj["model"] = model_type.value
+
                 # Use default parameters
+                self.modelspecs["hyper_params"] = {}
                 model, report = train_model_pipeline_core(pj=pj, modelspecs=self.modelspecs, input_data=train_input)
 
                 # check if the model was fitted (raises NotFittedError when not fitted)
@@ -136,7 +138,7 @@ class TestTrainModelPipeline(BaseTestCase):
             pj=self.pj,
             modelspecs=self.modelspecs,
             input_data=self.train_input,
-            check_old_model_age=True,
+            check_old_model_age=False,
             trained_models_folder="./test/trained_models",
         )
 
@@ -178,9 +180,9 @@ class TestTrainModelPipeline(BaseTestCase):
                     pj=self.pj,
                     modelspecs=self.modelspecs,
                     input_data=self.train_input,
-                    check_old_model_age=True,
+                    check_old_model_age=False,
                     trained_models_folder="./test/trained_models",
-                )
+            )
 
         self.assertEqual(
             len(captured.records), 1
@@ -203,7 +205,7 @@ class TestTrainModelPipeline(BaseTestCase):
                     pj=self.pj,
                     modelspecs=self.modelspecs,
                     input_data=input_data,
-                    check_old_model_age=True,
+                    check_old_model_age=False,
                     trained_models_folder="./test/trained_models",
                 )
 
