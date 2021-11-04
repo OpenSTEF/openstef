@@ -9,7 +9,6 @@ class MLModelType(Enum):
     XGB = "xgb"
     XGB_QUANTILE = "xgb_quantile"
     LGB = "lgb"
-    CUSTOM = "custom"
 
 
 class ForecastType(Enum):

@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: MPL-2.0
 
 from typing import Union
-import pandas as pd
 
 from openstf.enums import MLModelType
 from openstf.model.objective import (
@@ -12,15 +11,14 @@ from openstf.model.objective import (
     LGBRegressorObjective,
     XGBQuantileRegressorObjective,
 )
-from openstf.model.regressors.custom_regressor import create_custom_objective
+from openstf.model.regressors.custom_regressor import create_custom_objective, is_custom_type
 
 
 class ObjectiveCreator:
     OBJECTIVES = {
         MLModelType.XGB: XGBRegressorObjective,
         MLModelType.LGB: LGBRegressorObjective,
-        MLModelType.XGB_QUANTILE: XGBQuantileRegressorObjective,
-        MLModelType.CUSTOM: create_custom_objective,
+        MLModelType.XGB_QUANTILE: XGBQuantileRegressorObjective
     }
 
     @staticmethod
@@ -37,11 +35,15 @@ class ObjectiveCreator:
             # This will raise a ValueError when an invalid model_type str is used
             # and nothing when a MLModelType enum is used.
             model_type = MLModelType(model_type)
+            objective = ObjectiveCreator.OBJECTIVES[model_type]
         except ValueError as e:
-            valid_types = [t.value for t in MLModelType]
-            raise NotImplementedError(
-                f"No objective for '{model_type}', "
-                f"valid model_types are: {valid_types}"
-            ) from e
+            if is_custom_type(model_type):
+                objective = create_custom_objective
+            else:
+                valid_types = [t.value for t in MLModelType]
+                raise NotImplementedError(
+                    f"No objective for '{model_type}', "
+                    f"valid model_types are: {valid_types}"
+                ) from e
 
-        return ObjectiveCreator.OBJECTIVES[model_type]
+        return objective

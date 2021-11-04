@@ -257,6 +257,14 @@ def train_pipeline_common(
     # Configure evals for early stopping
     eval_set = [(train_x, train_y), (validation_x, validation_y)]
 
+    # Set relevant hyperparameters
+    valid_hyper_parameters = {
+        key: value
+        for key, value in pj["hyper_params"].items()
+        if key in model.get_params().keys()
+    }
+
+    model.set_params(**valid_hyper_parameters)
     model.fit(
         train_x,
         train_y,

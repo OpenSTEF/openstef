@@ -28,7 +28,7 @@ class CustomOpenstfRegressor(OpenstfRegressor):
         ...
 
 
-def create_custom_model(custom_model_path, **kwargs) -> CustomOpenstfRegressor:
+def load_custom_model(custom_model_path) -> CustomOpenstfRegressor:
     path_elts = custom_model_path.split(".")
     module_path = ".".join(path_elts[:-1])
     module = import_module(module_path)
@@ -44,9 +44,11 @@ def create_custom_model(custom_model_path, **kwargs) -> CustomOpenstfRegressor:
             f"The path {custom_model_path!r} does not correspond to a concrete CustomOpenstfRegressor subclass"
         )
 
-    model_kwargs = {k: v for k, v in kwargs.items() if k in model_class.valid_kwargs()}
+    return model_class
 
-    return model_class(**model_kwargs)
+
+def is_custom_type(model_type):
+    return isinstance(model_type, str) and "." in model_type
 
 
 def create_custom_objective(

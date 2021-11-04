@@ -51,13 +51,17 @@ class DummyRegressor(CustomOpenstfRegressor):
 
     def predict(self, X, **kwargs):
         import numpy as np
+
         return np.zeros(len(X))
 
     def set_feature_importance(self):
-        return pd.DataFrame({
-            "weight": [0] * len(self.feature_names),
-            "gain": [0] * len(self.feature_names)
-        }, index=self.feature_names)
+        return pd.DataFrame(
+            {
+                "weight": [0] * len(self.feature_names),
+                "gain": [0] * len(self.feature_names),
+            },
+            index=self.feature_names,
+        )
 
 
 PJ = TestData.get_prediction_job(pid=307)
@@ -109,15 +113,12 @@ class TestTrainModelPipeline(BaseTestCase):
         """
         # Select 50 data points to speedup test
         train_input = self.train_input.iloc[::50, :]
-        for model_type in MLModelType:
+        for model_type in list(MLModelType) + [__name__ + ".DummyRegressor"]:
             with self.subTest(model_type=model_type):
                 pj = self.pj
-                pj["model"] = model_type.value
+                pj["model"] = model_type.value if hasattr(model_type, "value") else model_type
                 # Use default parameters
-                if model_type == MLModelType.CUSTOM:
-                    pj["hyper_params"] = {"custom_model_path": __name__ + ".DummyRegressor"}
-                else:
-                    pj["hyper_params"] = {}
+                pj["hyper_params"] = {}
                 model, report = train_model_pipeline_core(pj=pj, input_data=train_input)
 
                 # check if the model was fitted (raises NotFittedError when not fitted)

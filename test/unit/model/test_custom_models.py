@@ -7,7 +7,7 @@ import unittest
 
 from openstf.model.regressors.custom_regressor import (
     CustomOpenstfRegressor,
-    create_custom_model,
+    load_custom_model,
     create_custom_objective,
 )
 from openstf.model.objective import RegressorObjective
@@ -48,28 +48,29 @@ class InvalidRegressor:
 class TestCustomModels(unittest.TestCase):
     def test_create_custom_model(self):
         model_path = __name__ + ".DummyRegressor"
-        model = create_custom_model(model_path)
-        assert isinstance(model, DummyRegressor)
+        model_class = load_custom_model(model_path)
+        assert model_class == DummyRegressor
 
         model = ModelCreator().create_model(
-            MLModelType.CUSTOM, custom_model_path=model_path
+            model_path
         )
         assert isinstance(model, DummyRegressor)
 
         with self.assertRaises(AttributeError):
             model_path = __name__ + ".UnknownRegressor"
-            create_custom_model(model_path)
+            load_custom_model(model_path)
 
         with self.assertRaises(ValueError):
             model_path = __name__ + ".InvalidRegressor"
-            create_custom_model(model_path)
+            load_custom_model(model_path)
 
     def test_create_custom_objective(self):
         model = DummyRegressor()
+        model_path = __name__ + ".DummyRegressor"
         obj = create_custom_objective(model, None)
 
         assert isinstance(obj, DummyObjective)
 
-        obj = ObjectiveCreator().create_objective(MLModelType.CUSTOM)(model, None)
+        obj = ObjectiveCreator().create_objective(model_path)(model, None)
 
         assert isinstance(obj, DummyObjective)
