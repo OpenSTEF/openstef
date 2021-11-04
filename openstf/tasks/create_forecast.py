@@ -31,6 +31,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Union
 
+from openstf_dbc.services.model_specifications import ModelSpecificationDataClass
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 from openstf.enums import MLModelType
@@ -43,7 +44,7 @@ T_AHEAD_DAYS: int = 3
 
 
 def create_forecast_task(
-    pj: Union[dict, PredictionJobDataClass], context: TaskContext
+    pj: PredictionJobDataClass, context: TaskContext
 ) -> None:
     """Top level task that creates a forecast.
 
@@ -63,6 +64,8 @@ def create_forecast_task(
     datetime_start = datetime.utcnow() - timedelta(days=T_BEHIND_DAYS)
     datetime_end = datetime.utcnow() + timedelta(days=T_AHEAD_DAYS)
 
+    # get modelspecs
+    modelspecs = context.database.get_modelspecs(pj, featureset_name='N')
     # Retrieve input data
     input_data = context.database.get_model_input(
         pid=pj["id"],
@@ -71,7 +74,7 @@ def create_forecast_task(
         datetime_end=datetime_end,
     )
     # Make forecast with the forecast pipeline
-    forecast = create_forecast_pipeline(pj, input_data, trained_models_folder)
+    forecast = create_forecast_pipeline(pj, modelspecs, input_data, trained_models_folder)
 
     # Write forecast to the database
     context.database.write_forecast(forecast, t_ahead_series=True)

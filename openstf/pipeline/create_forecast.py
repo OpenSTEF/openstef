@@ -6,6 +6,7 @@ from typing import Union
 
 import pandas as pd
 import structlog
+from openstf_dbc.services.model_specifications import ModelSpecificationDataClass
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
 from sklearn.base import RegressorMixin
 
@@ -23,7 +24,8 @@ from openstf.validation import validation
 
 
 def create_forecast_pipeline(
-    pj: Union[dict, PredictionJobDataClass],
+    pj: PredictionJobDataClass,
+    modelspecs: ModelSpecificationDataClass,
     input_data: pd.DataFrame,
     trained_models_folder: Union[str, Path],
 ) -> pd.DataFrame:
@@ -35,7 +37,8 @@ def create_forecast_pipeline(
     Expected prediction job keys: "id",
 
     Args:
-        pj (Union[dict, PredictionJobDataClass]): Prediction job
+        pj (PredictionJobDataClass): Prediction job
+        modelspecs (ModelSpecificationDataClass): Dataclass containing model specifications
         input_data (pd.DataFrame): Training input data (without features)
         trained_models_folder (Path): Path where trained models are stored
 
@@ -45,15 +48,15 @@ def create_forecast_pipeline(
 
     """
     # Load most recent model for the given pid
-    model = PersistentStorageSerializer(
+    model, modelspecs = PersistentStorageSerializer(
         trained_models_folder=trained_models_folder
-    ).load_model(pid=pj["id"])
+    ).load_model(modelspecs)
 
     return create_forecast_pipeline_core(pj, input_data, model)
 
 
 def create_forecast_pipeline_core(
-    pj: Union[dict, PredictionJobDataClass],
+    pj: PredictionJobDataClass,
     input_data: pd.DataFrame,
     model: RegressorMixin,
 ) -> pd.DataFrame:
@@ -66,7 +69,7 @@ def create_forecast_pipeline_core(
         "name", "quantiles"
 
     Args:
-        pj (Union[dict, PredictionJobDataClass]): Prediction job.
+        pj (PredictionJobDataClass): Prediction job.
         input_data (pandas.DataFrame): Iput data for the prediction.
         model (RegressorMixin): Model to use for this prediction.
 

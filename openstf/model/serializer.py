@@ -20,6 +20,7 @@ from openstf_dbc.services.model_specifications import ModelSpecificationDataClas
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
 from plotly import graph_objects
 
+from model.model_creator import ModelCreator
 from openstf.metrics.reporter import Report
 from openstf.model.regressors.regressor import OpenstfRegressor
 
@@ -99,7 +100,7 @@ class PersistentStorageSerializer(AbstractSerializer):
         self.logger.debug(f"MLflow path after saving= {self.mlflow_folder}")
 
     def load_model(
-        self, pid: Optional[Union[int, str]] = None, model_id: Optional[str] = None
+        self, modelspecs: ModelSpecificationDataClass, model_id: Optional[str] = None,
     ) -> OpenstfRegressor:
         """Load sklearn compatible model from persistent storage.
 
@@ -107,8 +108,9 @@ class PersistentStorageSerializer(AbstractSerializer):
             recent model for that pid will be loaded.
 
         Args:
-            pid (Optional[Union[int, str]], optional): Prediction job id. Defaults to None.
+            modelspecs (ModelSpecificationDataClass): Dataclass containing model specifications
             model_id (Optional[str], optional): Model id. Defaults to None. Used when MLflow didn't work.
+
 
         Raises:
             AttributeError: when there is no experiment with pid in MLflow
@@ -118,15 +120,22 @@ class PersistentStorageSerializer(AbstractSerializer):
 
         Returns:
             OpenstfRegressor: Loaded model
+            ModelSpecificationDataClass: model specifications
         """
         try:
-            experiment_id = self.setup_mlflow(pid)
+            experiment_id = self.setup_mlflow(modelspecs["id"])
             # return the latest run of the model, .iloc[0] because it returns a list with max_results number of runs
             latest_run = mlflow.search_runs(
                 experiment_id,
                 filter_string="attribute.status = 'FINISHED'",
                 max_results=1,
             ).iloc[0]
+
+            # update modelspecs based on previous run
+            params = mlflow.get_run(latest_run.run_id).data.params
+            # todo: this causes an error after the first run
+            #modelspecs["hyper_params"] = params
+
             loaded_model = mlflow.sklearn.load_model(
                 os.path.join(latest_run.artifact_uri, "model/")
             )
@@ -137,13 +146,13 @@ class PersistentStorageSerializer(AbstractSerializer):
             # Path without file:///
             loaded_model.path = unquote(urlparse(uri).path)
             self.logger.info("Model successfully loaded with MLflow")
-            return loaded_model
+            return loaded_model, modelspecs
         # Catch possible errors
         except (AttributeError, LookupError, MlflowException, OSError) as e:
             self.logger.warning(
-                "Couldn't load with MLflow, trying the old way", pid=pid, error=e
+                "Couldn't load with MLflow, trying the old way", pid=modelspecs["id"], error=e
             )
-            return self.load_model_no_mlflow(pid, model_id)
+            return self.load_model_no_mlflow(modelspecs["id"], model_id), modelspecs
 
     def load_model_no_mlflow(
         self, pid: Optional[Union[int, str]] = None, model_id: Optional[str] = None
@@ -166,25 +175,20 @@ class PersistentStorageSerializer(AbstractSerializer):
         """
         if pid is None and model_id is None:
             raise ValueError("Need to supply either a pid or a model_id")
-
         if pid is not None and model_id is not None:
             raise ValueError("Cannot supply both a pid and a model_id")
-
         if pid is not None:
             model_path = self.find_most_recent_model_path(pid)
         else:
             model_path = self.convert_model_id_into_model_path(model_id)
-
         if model_path is None:
             msg = f"No (most recent) model found"
             self.logger.error(msg)
             raise FileNotFoundError(msg)
-
         if model_path.is_file() is False:
             msg = f"model_path is not a file ({model_path})"
             self.logger.error(msg)
             raise FileNotFoundError(msg)
-
         return self.load_model_from_path(model_path)
 
     @staticmethod
@@ -422,16 +426,13 @@ class PersistentStorageSerializer(AbstractSerializer):
         mlflow.set_tag("prediction_job", pj["id"])
         # add all modelspecs attributes except hyper_params
         for attribute in modelspecs.__dict__.keys():
-            if attribute is not "hyper_params":
+            if attribute != "hyper_params":
                 mlflow.set_tag(attribute, modelspecs[attribute])
         # Add metrics to the run
         mlflow.log_metrics(report.metrics)
         # Add the used parameters to the run + the params from the prediction job
         model_params = model.get_params()
-        prediction_params = modelspecs["hyper_params"]
-        diff = set(prediction_params.keys()) - set(model_params.keys())
-        for key in diff:
-            model_params.update({key: prediction_params[key]})
+        model_params.update((k, model.get_params()[k]) for k in model_params.keys() & model.get_params().keys())
         mlflow.log_params(model_params)
 
         # Process args

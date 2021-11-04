@@ -13,7 +13,7 @@ FORECAST_MOCK = "forecast_mock"
 
 class TestCreateForeCastTask(TestCase):
     def setUp(self) -> None:
-        self.pj, modelspecs = TestData.get_prediction_job(pid=307)
+        self.pj, self.modelspecs = TestData.get_prediction_job(pid=307)
 
     @patch(
         "openstf.tasks.create_forecast.create_forecast_pipeline",
@@ -23,8 +23,9 @@ class TestCreateForeCastTask(TestCase):
         # Test happy flow of create forecast task
         context = MagicMock()
         create_forecast_task(self.pj, context)
-        self.assertEqual(context.mock_calls[1].args[0], FORECAST_MOCK)
+        self.assertEqual(context.mock_calls[2].args[0], FORECAST_MOCK)
 
+    @patch("openstf.model.serializer.PersistentStorageSerializer")
     @patch(
         "openstf.tasks.utils.taskcontext.DataBase",
     )
@@ -39,11 +40,14 @@ class TestCreateForeCastTask(TestCase):
         post_teamsmock,
         configmock_taskcontext,
         dbmock,
+        serializer_mock
     ):
         dbmock().get_prediction_jobs.return_value = [
             self.pj,
             self.pj,
         ]
+        dbmock().get_modelspecs.return_value = self.modelspecs
+
         testdata = TestData.load("reference_sets/307-test-data.csv")
         dbmock().get_model_input.return_value = testdata
 

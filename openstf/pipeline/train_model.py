@@ -60,7 +60,7 @@ def train_model_pipeline(
 
     # Get old model and age
     try:
-        old_model = serializer.load_model(pid=pj["id"])
+        old_model, modelspecs = serializer.load_model(modelspecs)
         old_model_age = (
             old_model.age
         )  # Age attribute is openstf specific and is added by the serializer
@@ -78,7 +78,7 @@ def train_model_pipeline(
 
     # Train model with core pipeline
     try:
-        model, report = train_model_pipeline_core(pj,modelspecs, input_data, old_model)
+        model, report = train_model_pipeline_core(pj, modelspecs, input_data, old_model)
     except OldModelHigherScoreError as OMHSE:
         logger.error("Old model is better than new model", pid=pj["id"], exc_info=OMHSE)
         return

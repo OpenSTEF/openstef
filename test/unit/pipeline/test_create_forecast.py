@@ -47,9 +47,9 @@ class TestCreateForecastPipeline(BaseTestCase):
         input_data = forecast_input
         is_data_sufficient_mock.return_value = False
         pj, modelspecs = TestData.get_prediction_job(pid=307)
-        model = PersistentStorageSerializer(
+        model, modelspecs = PersistentStorageSerializer(
             trained_models_folder="./test/trained_models"
-        ).load_model(pid=307)
+        ).load_model(modelspecs)
         if not hasattr(model, "standard_deviation"):  # Renamed the attribute
             model.standard_deviation = model.confidence_interval
         forecast = create_forecast.create_forecast_pipeline_core(
@@ -76,9 +76,9 @@ class TestCreateForecastPipeline(BaseTestCase):
 
         self.forecast_input.index = self.forecast_input.index.shift(delta, freq=1)
 
-        model = PersistentStorageSerializer(
+        model, modelspecs = PersistentStorageSerializer(
             trained_models_folder="./test/trained_models"
-        ).load_model(pid=307)
+        ).load_model(modelspecs)
 
         if not hasattr(model, "standard_deviation"):  # Renamed the attribute
             model.standard_deviation = model.confidence_interval
