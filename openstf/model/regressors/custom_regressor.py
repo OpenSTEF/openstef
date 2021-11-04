@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+#
+# SPDX-License-Identifier: MPL-2.0
+
 from typing import List, Type
 from abc import abstractmethod
 from importlib import import_module
