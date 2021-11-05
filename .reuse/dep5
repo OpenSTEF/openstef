@@ -1,0 +1,6 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: openstf
+
+Files: test/trained_models/*
+Copyright: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com>
+License: MPL-2.0
