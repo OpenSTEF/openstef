@@ -61,15 +61,10 @@ def optimize_hyperparameters_task(
 
 
     # Get input data (usese "id" and "model")
-    current_hyperparams = pj["hyper_params"]
-
     datetime_start = datetime.utcnow() - timedelta(
-        days=int(
-            current_hyperparams.get(
-                "training_period_days", DEFAULT_TRAINING_PERIOD_DAYS
-            )
-        )
+        days=DEFAULT_TRAINING_PERIOD_DAYS
     )
+
     datetime_end = datetime.utcnow()
 
     input_data = context.database.get_model_input(

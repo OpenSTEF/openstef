@@ -32,8 +32,8 @@ class AbstractSerializer(ABC):
     def __init__(self, trained_models_folder: Union[Path, str]) -> None:
         """
 
-        Returns:
-            object:
+        Args:
+            trained_models_folder (Path): path to save models to
         """
         path = os.path.abspath(f"{trained_models_folder}/mlruns/")
         self.mlflow_folder = Path(path).as_uri()
@@ -432,23 +432,8 @@ class PersistentStorageSerializer(AbstractSerializer):
         # Add metrics to the run
         mlflow.log_metrics(report.metrics)
         # Add the used parameters to the run + the params from the prediction job
-        model_params = model.get_params()
-        """
-        # Only use this code if there is nothing else
-        for k, v in model.get_params().items():
-            if isinstance(v, str):
-                try:
-                    v = eval(v)
-                except:
-                    pass
-                if v != "":
-                    model_params.update({k: v})
-            elif v:
-                model_params.update({k: v})
-        """
-        # modelspecs["hyper_params"].update((k, model.get_params()[k]) for k in modelspecs["hyper_params"].keys() & model_params.keys())
-        model_params.update(modelspecs["hyper_params"])
-        mlflow.log_params(model_params)
+        modelspecs["hyper_params"].update(model.get_params())
+        mlflow.log_params(modelspecs["hyper_params"])
 
         # Process args
         for key, value in kwargs.items():
