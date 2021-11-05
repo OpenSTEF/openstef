@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/repos/short-term-forecasting/test/trained_models/models_for_serializertest/mlruns/1/405dfa2463eb4a53900de45e47477885/artifacts
+end_time: 1636126291913
+entry_point_name: ''
+experiment_id: '1'
+lifecycle_stage: active
+name: ''
+run_id: 405dfa2463eb4a53900de45e47477885
+run_uuid: 405dfa2463eb4a53900de45e47477885
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1636126288531
+status: 3
+tags: []
+user_id: AL11943
