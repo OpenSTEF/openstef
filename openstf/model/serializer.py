@@ -16,11 +16,10 @@ import structlog
 from matplotlib import figure
 from mlflow.exceptions import MlflowException
 from mlflow.tracking import MlflowClient
-from openstf_dbc.services.model_specifications import ModelSpecificationDataClass
+from openstf.dataclasses.model_specifications import ModelSpecificationDataClass
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
 from plotly import graph_objects
 
-from model.model_creator import ModelCreator
 from openstf.metrics.reporter import Report
 from openstf.model.regressors.regressor import OpenstfRegressor
 
@@ -131,14 +130,16 @@ class PersistentStorageSerializer(AbstractSerializer):
                 max_results=1,
             ).iloc[0]
 
-            # update modelspecs based on previous run
-            params = mlflow.get_run(latest_run.run_id).data.params
-            # todo: this causes an error after the first run
-            #modelspecs["hyper_params"] = params
-
             loaded_model = mlflow.sklearn.load_model(
                 os.path.join(latest_run.artifact_uri, "model/")
             )
+
+            # get the parameters from the old model, we insert these later into the new model
+            # get the hyper parameters from the previous model
+            modelspecs["hyper_params"] = loaded_model.get_params()
+            # todo: retrieve from MLflow
+            modelspecs["feature_names"] = None
+
             # Add model age to model object
             loaded_model.age = self._determine_model_age_from_mlflow_run(latest_run)
             # URI containing file:/// before the path
@@ -398,7 +399,7 @@ class PersistentStorageSerializer(AbstractSerializer):
 
     def _log_model_with_mlflow(
         self,
-        pj: Union[dict, PredictionJobDataClass],
+        pj: PredictionJobDataClass,
         modelspecs: ModelSpecificationDataClass,
         model: OpenstfRegressor,
         report: Report,
@@ -432,7 +433,21 @@ class PersistentStorageSerializer(AbstractSerializer):
         mlflow.log_metrics(report.metrics)
         # Add the used parameters to the run + the params from the prediction job
         model_params = model.get_params()
-        model_params.update((k, model.get_params()[k]) for k in model_params.keys() & model.get_params().keys())
+        """
+        # Only use this code if there is nothing else
+        for k, v in model.get_params().items():
+            if isinstance(v, str):
+                try:
+                    v = eval(v)
+                except:
+                    pass
+                if v != "":
+                    model_params.update({k: v})
+            elif v:
+                model_params.update({k: v})
+        """
+        # modelspecs["hyper_params"].update((k, model.get_params()[k]) for k in modelspecs["hyper_params"].keys() & model_params.keys())
+        model_params.update(modelspecs["hyper_params"])
         mlflow.log_params(model_params)
 
         # Process args

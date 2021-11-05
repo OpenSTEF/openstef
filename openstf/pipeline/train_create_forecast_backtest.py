@@ -1,10 +1,10 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-from typing import List, Tuple, Union
+from typing import List, Tuple
 
 import pandas as pd
-from openstf_dbc.services.model_specifications import ModelSpecificationDataClass
+from openstf.dataclasses.model_specifications import ModelSpecificationDataClass
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
 from sklearn.base import RegressorMixin
 
@@ -29,7 +29,7 @@ def train_model_and_forecast_back_test(
         DO NOT USE THIS PIPELINE FOR OPERATIONAL FORECASTS
 
     Args:
-        pj (Union[dict, PredictionJobDataClass]): Prediction job.
+        pj (PredictionJobDataClass): Prediction job.
         modelspecs (ModelSpecificationDataClass): Dataclass containing model specifications
         input_data (pd.DataFrame): Input data
         training_horizons (list): horizons to train on in hours.

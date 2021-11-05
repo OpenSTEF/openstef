@@ -18,7 +18,6 @@ Example:
 """
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Union
 
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
@@ -33,7 +32,7 @@ DEFAULT_TRAINING_PERIOD_DAYS = 91
 
 
 def optimize_hyperparameters_task(
-    pj: PredictionJobDataClass, modelspecs, context: TaskContext
+    pj: PredictionJobDataClass, context: TaskContext
 ) -> None:
     """Optimize hyperparameters task.
 
@@ -41,7 +40,7 @@ def optimize_hyperparameters_task(
     Only used for logging: "name", "description"
 
     Args:
-        pj (Union[dict, PredictionJobDataClass]): Prediction job
+        pj (PredictionJobDataClass): Prediction job
         context (TaskContext): Task context
     """
     # Folder where to store models
@@ -60,8 +59,9 @@ def optimize_hyperparameters_task(
             )
             return
 
+
     # Get input data (usese "id" and "model")
-    current_hyperparams = modelspecs["hyper_params"]
+    current_hyperparams = pj["hyper_params"]
 
     datetime_start = datetime.utcnow() - timedelta(
         days=int(
@@ -82,7 +82,6 @@ def optimize_hyperparameters_task(
     # Optimize hyperparams
     hyperparameters = optimize_hyperparameters_pipeline(
         pj,
-        modelspecs,
         input_data,
         trained_models_folder=trained_models_folder,
     )

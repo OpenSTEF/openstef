@@ -7,7 +7,7 @@ from typing import List, Tuple, Union
 
 import pandas as pd
 import structlog
-from openstf_dbc.services.model_specifications import ModelSpecificationDataClass
+from openstf.dataclasses.model_specifications import ModelSpecificationDataClass
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 from openstf.exceptions import (
@@ -44,7 +44,7 @@ def train_model_pipeline(
         "feature_names"
 
     Args:
-        pj (Union[dict, PredictionJobDataClass]): Prediction job
+        pj (PredictionJobDataClass): Prediction job
         modelspecs (ModelSpecificationDataClass): Dataclass containing model specifications
         input_data (pd.DataFrame): Raw training input data
         check_old_model_age (bool): Check if training should be skipped because the model is too young
@@ -126,7 +126,7 @@ def train_model_pipeline_core(
         "feature_names"      List of features to train model on or None to use all features
 
     Args:
-        pj (Union[dict, PredictionJobDataClass]): Prediction job
+        pj (PredictionJobDataClass): Prediction job
         modelspecs (ModelSpecificationDataClass): Dataclass containing model specifications
         input_data (pd.DataFrame): Input data
         old_model (RegressorMixin, optional): Old model to compare to. Defaults to None.

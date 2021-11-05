@@ -6,7 +6,7 @@ from typing import Union
 
 import pandas as pd
 import structlog
-from openstf_dbc.services.model_specifications import ModelSpecificationDataClass
+from openstf.dataclasses.model_specifications import ModelSpecificationDataClass
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
 from sklearn.base import RegressorMixin
 
@@ -25,7 +25,6 @@ from openstf.validation import validation
 
 def create_forecast_pipeline(
     pj: PredictionJobDataClass,
-    modelspecs: ModelSpecificationDataClass,
     input_data: pd.DataFrame,
     trained_models_folder: Union[str, Path],
 ) -> pd.DataFrame:
@@ -47,6 +46,8 @@ def create_forecast_pipeline(
         pd.DataFrame with the forecast
 
     """
+    # model specification
+    modelspecs = ModelSpecificationDataClass(id=pj["id"])
     # Load most recent model for the given pid
     model, modelspecs = PersistentStorageSerializer(
         trained_models_folder=trained_models_folder

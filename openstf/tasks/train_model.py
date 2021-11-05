@@ -24,9 +24,8 @@ Example:
 """
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Union
 
-from openstf_dbc.services.model_specifications import ModelSpecificationDataClass
+from openstf.dataclasses.model_specifications import ModelSpecificationDataClass
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 from openstf.enums import MLModelType

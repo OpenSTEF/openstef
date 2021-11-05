@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 from pathlib import Path
-from typing import Union
 
 import pymsteams
 import structlog
@@ -180,7 +179,7 @@ def build_sql_query_string(df, table):
 
 
 def send_report_teams_better(
-    pj: Union[dict, PredictionJobDataClass], feature_importance
+    pj: PredictionJobDataClass, feature_importance
 ):
     """Send a report to teams for monitoring input for an improved model.
 
@@ -188,7 +187,7 @@ def send_report_teams_better(
     model. Use when the new trained model is better than the old model.
 
     Args:
-        pj (Union[dict, PredictionJobDataClass]): A dictionarry specifying the prediction job. This dict should
+        pj (PredictionJobDataClass): A dictionarry specifying the prediction job. This dict should
             at least contain the following keys: {
                 'id': (int),
                 'sid': (str),
@@ -254,14 +253,14 @@ def send_report_teams_better(
     post_teams(msg)
 
 
-def send_report_teams_worse(pj: Union[dict, PredictionJobDataClass]):
+def send_report_teams_worse(pj: PredictionJobDataClass):
     """Send a report to teams for monitoring input for a worsened model.
 
     Post includes information (performance, figures, etc.) about the trained
     model. Use when the new trained model is worse than the old model.
 
     Args:
-        pj (Union[dict, PredictionJobDataClass]): A dictionarry specifying the prediction job. This dict should
+        pj (PredictionJobDataClass): A dictionarry specifying the prediction job. This dict should
             at least contain the following keys: {
                 'id': (int),
                 'sid': (str),

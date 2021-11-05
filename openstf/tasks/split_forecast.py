@@ -149,7 +149,7 @@ def convert_coefdict_to_coefsdf(pj, input_split_function, coefdict):
     storage.
 
     Args:
-        pj (Union[dict, PredictionJobDataClass]): prediction job
+        pj (PredictionJobDataClass): prediction job
         input_split_function (pd.DataFrame): df of columns of standard load profiles,
             i.e. wind, solar, household
         coefdict (dict): dict of coefficient per standard load profile

@@ -23,7 +23,7 @@ class TestCreateForeCastTask(TestCase):
         # Test happy flow of create forecast task
         context = MagicMock()
         create_forecast_task(self.pj, context)
-        self.assertEqual(context.mock_calls[2].args[0], FORECAST_MOCK)
+        self.assertEqual(context.mock_calls[1].args[0], FORECAST_MOCK)
 
     @patch("openstf.model.serializer.PersistentStorageSerializer")
     @patch(
