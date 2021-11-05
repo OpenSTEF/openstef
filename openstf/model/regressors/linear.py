@@ -30,7 +30,7 @@ class LinearRegressor(MissingValueHandler):
         )
 
 
-class LinearRTEOpenstfRegressor(LinearRegressor, OpenstfRegressor):
+class LinearOpenstfRegressor(LinearRegressor, OpenstfRegressor):
     gain_importance_name = "total_gain"
     weight_importance_name = "weight"
 

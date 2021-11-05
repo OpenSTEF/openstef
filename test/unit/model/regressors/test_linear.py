@@ -8,22 +8,22 @@ import pandas as pd
 import sklearn
 from sklearn.utils.estimator_checks import check_estimator
 
-from openstf.model.regressors.linear import LinearRTEOpenstfRegressor
+from openstf.model.regressors.linear import LinearOpenstfRegressor
 from test.utils import BaseTestCase, TestData
 
 train_input = TestData.load("reference_sets/307-train-data.csv")
 
 
-class TestLinearRTEOpenstfRegressor(BaseTestCase):
+class TestLinearOpenstfRegressor(BaseTestCase):
     def test_sklearn_compliant(self):
         # Use sklearn build in check, this will raise an exception if some check fails
         # During these tests the fit and predict methods are elaborately tested
         # More info: https://scikit-learn.org/stable/modules/generated/sklearn.utils.estimator_checks.check_estimator.html
-        check_estimator(LinearRTEOpenstfRegressor())
+        check_estimator(LinearOpenstfRegressor())
 
     def test_fit(self):
         """Test happy flow of the training of model"""
-        model = LinearRTEOpenstfRegressor()
+        model = LinearOpenstfRegressor()
         model.fit(train_input.iloc[:, 1:], train_input.iloc[:, 0])
 
         # check if the model was fitted (raises NotFittedError when not fitted)
@@ -39,7 +39,7 @@ class TestLinearRTEOpenstfRegressor(BaseTestCase):
         X = train_input.iloc[:, 1:].copy(deep=True)
         X["Empty"] = pd.Series(n_sample * [np.nan])
 
-        model = LinearRTEOpenstfRegressor()
+        model = LinearOpenstfRegressor()
         model.fit(X, train_input.iloc[:, 0])
 
         # check if non null columns are well retrieved
@@ -60,12 +60,12 @@ class TestLinearRTEOpenstfRegressor(BaseTestCase):
         sp = np.ones(n_sample)
         sp[-1] = np.nan
         X["Sparse"] = sp
-        model1 = LinearRTEOpenstfRegressor(imputation_strategy=None)
+        model1 = LinearOpenstfRegressor(imputation_strategy=None)
 
         with self.assertRaises(ValueError):
             model1.fit(X, train_input.iloc[:, 0])
 
-        model2 = LinearRTEOpenstfRegressor(imputation_strategy="mean")
+        model2 = LinearOpenstfRegressor(imputation_strategy="mean")
         model2.fit(X, train_input.iloc[:, 0])
         self.assertIsNone(sklearn.utils.validation.check_is_fitted(model2))
 
