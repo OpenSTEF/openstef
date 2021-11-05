@@ -42,7 +42,7 @@ class TestCreateForeCastTask(TestCase):
         forecast_data.loc["2020-11-28 00:00:00":"2020-12-01", col_name] = None
         dbmock().get_model_input.return_value = forecast_data
         configmock_taskcontext.get_instance.return_value.paths.trained_models_folder = (
-            "test/unit/pipeline/test/trained_models/"
+            "test/trained_models/"
         )
         configmock_taskcontext.get_instance.return_value.paths.webroot = "test_webroot"
 
