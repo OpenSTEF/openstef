@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 import tempfile
+from distutils.dir_util import copy_tree
 
 import pandas as pd
 
@@ -140,27 +141,38 @@ class TestAbstractModelSerializer(BaseTestCase):
         self.assertEqual(days, float("inf"))
 
     def test_serializer_remove_old_models(self):
-        """Test if correct number of models are removed when removing old models.
-        Test stores 4 models, then is allowed to keep 2.
+        """
+        Test if correct number of models are removed when removing old models.
+        Test uses 5 previously stored models, then is allowed to keep 2.
         Check if it keeps the 2 most recent models"""
 
         #####
         # Set up
-        model_type = "xgb"
-        model = ModelCreator.create_model(model_type)
         pj = TestData.get_prediction_job(pid=307)
-        dummy_report = Report(
-            feature_importance_figure=None,
-            data_series_figures={},
-            metrics={},
-            signature=None,
-        )
+        local_model_dir = "./test/trained_models/models_for_serializertest"
 
-        # Store models
+        ### Run the code below once, to generate stored models
+        # We want to test using pre-stored models, since MLflow takes ~6seconds per save_model()
+        ## If you want to store new models, run the lines below:
+        # model_type = "xgb"
+        # model = ModelCreator.create_model(model_type)
+        # dummy_report = Report(
+        #     feature_importance_figure=None,
+        #     data_series_figures={},
+        #     metrics={},
+        #     signature=None,
+        # )
+        # serializer = PersistentStorageSerializer(local_model_dir)
+        # for _ in range(4):
+        #     serializer.save_model(model, pj, report=dummy_report)
+
+        # We copy the already stored models to a temp dir and test the functionality from there
         with tempfile.TemporaryDirectory() as temp_model_dir:
+            # Copy already stored models to temp dir
+            copy_tree(local_model_dir, temp_model_dir)
+
             serializer = PersistentStorageSerializer(temp_model_dir)
-            for _ in range(4):
-                serializer.save_model(model, pj, report=dummy_report)
+            # Find all stored models
             all_stored_models = serializer._find_all_models(pj)
 
             # Remove old models
