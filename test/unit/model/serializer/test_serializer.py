@@ -5,6 +5,7 @@
 from datetime import datetime, timedelta
 from pathlib import Path
 from unittest.mock import patch, MagicMock
+import tempfile
 
 import pandas as pd
 
@@ -14,6 +15,7 @@ from openstf.model.serializer import (
     MODEL_FILENAME,
     FOLDER_DATETIME_FORMAT,
 )
+from openstf.metrics.reporter import Report
 from test.utils import BaseTestCase, TestData
 
 
@@ -136,3 +138,43 @@ class TestAbstractModelSerializer(BaseTestCase):
             "Could not get model age. Returning infinite age!",
         )
         self.assertEqual(days, float("inf"))
+
+    def test_serializer_remove_old_models(self):
+        """Test if correct number of models are removed when removing old models.
+        Test stores 4 models, then is allowed to keep 2.
+        Check if it keeps the 2 most recent models"""
+
+        #####
+        # Set up
+        model_type = "xgb"
+        model = ModelCreator.create_model(model_type)
+        pj = TestData.get_prediction_job(pid=307)
+        dummy_report = Report(
+            feature_importance_figure=None,
+            data_series_figures={},
+            metrics={},
+            signature=None,
+        )
+
+        # Store models
+        with tempfile.TemporaryDirectory() as temp_model_dir:
+            serializer = PersistentStorageSerializer(temp_model_dir)
+            for _ in range(4):
+                serializer.save_model(model, pj, report=dummy_report)
+            all_stored_models = serializer._find_all_models(pj)
+
+            # Remove old models
+            serializer.remove_old_models(pj, max_n_models=2)
+
+            # Check which models are left
+            final_stored_models = serializer._find_all_models(pj)
+            # Compare final_stored_models to all_stored_models
+            self.assertEqual(len(all_stored_models), 4)
+            self.assertEqual(len(final_stored_models), 2)
+            # Check if the runs match to the oldest two runs
+            self.assertDataframeEqual(
+                final_stored_models.sort_values(by="end_time", ascending=False),
+                all_stored_models.sort_values(by="end_time", ascending=False).iloc[
+                    :2, :
+                ],
+            )

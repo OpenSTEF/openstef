@@ -98,6 +98,8 @@ def train_model_pipeline(
 
     # Save model
     serializer.save_model(model, pj=pj, report=report)
+    # Clean up older models
+    serializer.remove_old_models(pj=pj)
 
 
 def train_model_pipeline_core(
