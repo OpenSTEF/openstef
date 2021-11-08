@@ -388,8 +388,18 @@ expected:</p>
 <span id="openstf-pipeline-utils-module"></span><h2>openstf.pipeline.utils module<a class="headerlink" href="#module-openstf.pipeline.utils" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="openstf.pipeline.utils.generate_forecast_datetime_range">
-<code class="sig-prename descclassname">openstf.pipeline.utils.</code><code class="sig-name descname">generate_forecast_datetime_range</code><span class="sig-paren">(</span><em class="sig-param">resolution_minutes: int</em>, <em class="sig-param">horizon_minutes: int</em><span class="sig-paren">)</span> &#x2192; Tuple[datetime.datetime, datetime.datetime]<a class="headerlink" href="#openstf.pipeline.utils.generate_forecast_datetime_range" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-prename descclassname">openstf.pipeline.utils.</code><code class="sig-name descname">generate_forecast_datetime_range</code><span class="sig-paren">(</span><em class="sig-param">forecast_data: pandas.core.frame.DataFrame</em><span class="sig-paren">)</span> &#x2192; Tuple[datetime.datetime, datetime.datetime]<a class="headerlink" href="#openstf.pipeline.utils.generate_forecast_datetime_range" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate forecast range based on last cluster of null values in first target
+column of forecast data.</p>
+<blockquote>
+<div><p>Example: a forecast dataset with data between 2021-11-05 and 2021-11-19, and the
+target column ‘load’ as first column is given as input to this function. The first
+column ‘load’ has null values between 2021-11-17 04:00:00 and 2021-11-19 05:00:00.
+The null values at the end of the column indicate when forecasts are needed.
+Therefore this function sets starting time of forecasts as 2021-11-17 04:00:00 and
+end time of forecasts as 2021-11-19 05:00:00.</p>
+</div></blockquote>
+</dd></dl>
 
 </div>
 <div class="section" id="module-openstf.pipeline">

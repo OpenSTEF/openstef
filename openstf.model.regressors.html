@@ -83,6 +83,27 @@
 <em class="property">class </em><code class="sig-prename descclassname">openstf.model.regressors.lgbm.</code><code class="sig-name descname">LGBMOpenstfRegressor</code><span class="sig-paren">(</span><em class="sig-param">boosting_type='gbdt'</em>, <em class="sig-param">num_leaves=31</em>, <em class="sig-param">max_depth=-1</em>, <em class="sig-param">learning_rate=0.1</em>, <em class="sig-param">n_estimators=100</em>, <em class="sig-param">subsample_for_bin=200000</em>, <em class="sig-param">objective=None</em>, <em class="sig-param">class_weight=None</em>, <em class="sig-param">min_split_gain=0.0</em>, <em class="sig-param">min_child_weight=0.001</em>, <em class="sig-param">min_child_samples=20</em>, <em class="sig-param">subsample=1.0</em>, <em class="sig-param">subsample_freq=0</em>, <em class="sig-param">colsample_bytree=1.0</em>, <em class="sig-param">reg_alpha=0.0</em>, <em class="sig-param">reg_lambda=0.0</em>, <em class="sig-param">random_state=None</em>, <em class="sig-param">n_jobs=-1</em>, <em class="sig-param">silent=True</em>, <em class="sig-param">importance_type='split'</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.regressors.lgbm.LGBMOpenstfRegressor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">lightgbm.sklearn.LGBMRegressor</span></code>, <a class="reference internal" href="#openstf.model.regressors.regressor.OpenstfRegressor" title="openstf.model.regressors.regressor.OpenstfRegressor"><code class="xref py py-class docutils literal notranslate"><span class="pre">openstf.model.regressors.regressor.OpenstfRegressor</span></code></a></p>
 <p>LGBM Regressor which implements the Openstf regressor API.</p>
+<dl class="method">
+<dt id="openstf.model.regressors.lgbm.LGBMOpenstfRegressor.feature_names">
+<em class="property">property </em><code class="sig-name descname">feature_names</code><a class="headerlink" href="#openstf.model.regressors.lgbm.LGBMOpenstfRegressor.feature_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve the model input feature names</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The list of feature names</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="openstf.model.regressors.lgbm.LGBMOpenstfRegressor.gain_importance_name">
+<code class="sig-name descname">gain_importance_name</code><em class="property"> = 'gain'</em><a class="headerlink" href="#openstf.model.regressors.lgbm.LGBMOpenstfRegressor.gain_importance_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="openstf.model.regressors.lgbm.LGBMOpenstfRegressor.weight_importance_name">
+<code class="sig-name descname">weight_importance_name</code><em class="property"> = 'split'</em><a class="headerlink" href="#openstf.model.regressors.lgbm.LGBMOpenstfRegressor.weight_importance_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 </div>
@@ -94,14 +115,11 @@
 <dd><p>Bases: <a class="reference internal" href="#openstf.model.regressors.regressor_interface.OpenstfRegressorInterface" title="openstf.model.regressors.regressor_interface.OpenstfRegressorInterface"><code class="xref py py-class docutils literal notranslate"><span class="pre">openstf.model.regressors.regressor_interface.OpenstfRegressorInterface</span></code></a></p>
 <dl class="method">
 <dt id="openstf.model.regressors.regressor.OpenstfRegressor.set_feature_importance">
-<code class="sig-name descname">set_feature_importance</code><span class="sig-paren">(</span><em class="sig-param">feature_names: list</em><span class="sig-paren">)</span> &#x2192; Optional[pandas.core.frame.DataFrame]<a class="headerlink" href="#openstf.model.regressors.regressor.OpenstfRegressor.set_feature_importance" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_feature_importance</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Optional[pandas.core.frame.DataFrame]<a class="headerlink" href="#openstf.model.regressors.regressor.OpenstfRegressor.set_feature_importance" title="Permalink to this definition">¶</a></dt>
 <dd><p>get feature importance.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>feature_names</strong> (<em>list</em>) – list of features in the original column order</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>pd.DataFrame</p>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
 </dd>
 </dl>
 </dd></dl>
@@ -119,6 +137,17 @@
 of which concrete implementation can be used as a workhorse throughout openstf</p>
 <p>If you want to include a new ML model in openstf, it should adhere to the interface
 defined here</p>
+<dl class="method">
+<dt id="openstf.model.regressors.regressor_interface.OpenstfRegressorInterface.feature_names">
+<em class="property">abstract property </em><code class="sig-name descname">feature_names</code><a class="headerlink" href="#openstf.model.regressors.regressor_interface.OpenstfRegressorInterface.feature_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve the model input feature names</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The list of feature names</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="method">
 <dt id="openstf.model.regressors.regressor_interface.OpenstfRegressorInterface.fit">
 <em class="property">abstract </em><code class="sig-name descname">fit</code><span class="sig-paren">(</span><em class="sig-param">x: numpy.array</em>, <em class="sig-param">y: numpy.array</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span> &#x2192; sklearn.base.RegressorMixin<a class="headerlink" href="#openstf.model.regressors.regressor_interface.OpenstfRegressorInterface.fit" title="Permalink to this definition">¶</a></dt>
@@ -164,6 +193,27 @@ defined here</p>
 <em class="property">class </em><code class="sig-prename descclassname">openstf.model.regressors.xgb.</code><code class="sig-name descname">XGBOpenstfRegressor</code><span class="sig-paren">(</span><em class="sig-param">*</em>, <em class="sig-param">objective='reg:squarederror'</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.regressors.xgb.XGBOpenstfRegressor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">xgboost.sklearn.XGBRegressor</span></code>, <a class="reference internal" href="#openstf.model.regressors.regressor.OpenstfRegressor" title="openstf.model.regressors.regressor.OpenstfRegressor"><code class="xref py py-class docutils literal notranslate"><span class="pre">openstf.model.regressors.regressor.OpenstfRegressor</span></code></a></p>
 <p>XGB Regressor which implements the Openstf regressor API.</p>
+<dl class="method">
+<dt id="openstf.model.regressors.xgb.XGBOpenstfRegressor.feature_names">
+<em class="property">property </em><code class="sig-name descname">feature_names</code><a class="headerlink" href="#openstf.model.regressors.xgb.XGBOpenstfRegressor.feature_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve the model input feature names</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The list of feature names</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="openstf.model.regressors.xgb.XGBOpenstfRegressor.gain_importance_name">
+<code class="sig-name descname">gain_importance_name</code><em class="property"> = 'total_gain'</em><a class="headerlink" href="#openstf.model.regressors.xgb.XGBOpenstfRegressor.gain_importance_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="openstf.model.regressors.xgb.XGBOpenstfRegressor.weight_importance_name">
+<code class="sig-name descname">weight_importance_name</code><em class="property"> = 'weight'</em><a class="headerlink" href="#openstf.model.regressors.xgb.XGBOpenstfRegressor.weight_importance_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 </div>
@@ -173,6 +223,17 @@ defined here</p>
 <dt id="openstf.model.regressors.xgb_quantile.XGBQuantileOpenstfRegressor">
 <em class="property">class </em><code class="sig-prename descclassname">openstf.model.regressors.xgb_quantile.</code><code class="sig-name descname">XGBQuantileOpenstfRegressor</code><span class="sig-paren">(</span><em class="sig-param">quantiles: Tuple[float</em>, <em class="sig-param">...] = (0.9</em>, <em class="sig-param">0.5</em>, <em class="sig-param">0.1)</em>, <em class="sig-param">gamma: float = 0.37879654</em>, <em class="sig-param">colsample_bytree: float = 0.78203051</em>, <em class="sig-param">subsample: float = 0.9</em>, <em class="sig-param">min_child_weight: int = 4</em>, <em class="sig-param">max_depth: int = 4</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.regressors.xgb_quantile.XGBQuantileOpenstfRegressor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#openstf.model.regressors.regressor.OpenstfRegressor" title="openstf.model.regressors.regressor.OpenstfRegressor"><code class="xref py py-class docutils literal notranslate"><span class="pre">openstf.model.regressors.regressor.OpenstfRegressor</span></code></a></p>
+<dl class="method">
+<dt id="openstf.model.regressors.xgb_quantile.XGBQuantileOpenstfRegressor.feature_names">
+<em class="property">property </em><code class="sig-name descname">feature_names</code><a class="headerlink" href="#openstf.model.regressors.xgb_quantile.XGBQuantileOpenstfRegressor.feature_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve the model input feature names</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The list of feature names</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="method">
 <dt id="openstf.model.regressors.xgb_quantile.XGBQuantileOpenstfRegressor.fit">
 <code class="sig-name descname">fit</code><span class="sig-paren">(</span><em class="sig-param">x: numpy.array</em>, <em class="sig-param">y: numpy.array</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span> &#x2192; openstf.model.regressors.regressor.OpenstfRegressor<a class="headerlink" href="#openstf.model.regressors.xgb_quantile.XGBQuantileOpenstfRegressor.fit" title="Permalink to this definition">¶</a></dt>

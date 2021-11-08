@@ -672,6 +672,13 @@ recent model for that pid will be loaded.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="openstf.model.serializer.PersistentStorageSerializer.remove_old_models">
+<code class="sig-name descname">remove_old_models</code><span class="sig-paren">(</span><em class="sig-param">pj: openstf_dbc.services.prediction_job.PredictionJobDataClass</em>, <em class="sig-param">max_n_models: int = 10</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.serializer.PersistentStorageSerializer.remove_old_models" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove old models for the experiment defined by PJ.
+A maximum of ‘max_n_models’ is allowed</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="openstf.model.serializer.PersistentStorageSerializer.save_model">
 <code class="sig-name descname">save_model</code><span class="sig-paren">(</span><em class="sig-param">model: openstf.model.regressors.regressor.OpenstfRegressor, pj: Union[dict, openstf_dbc.services.prediction_job.PredictionJobDataClass], report: openstf.metrics.reporter.Report, phase: str = 'training', **kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.serializer.PersistentStorageSerializer.save_model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save sklearn compatible model to persistent storage with MLflow.</p>
