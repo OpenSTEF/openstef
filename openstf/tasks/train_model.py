@@ -29,11 +29,8 @@ from openstf.dataclasses.model_specifications import ModelSpecificationDataClass
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 from openstf.enums import MLModelType
-from openstf.pipeline.train_model import (
-    train_model_pipeline,
-    MAXIMUM_MODEL_AGE,
-    get_model_age,
-)
+from openstf.pipeline.train_model import train_model_pipeline
+
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
 
@@ -61,30 +58,15 @@ def train_model_task(
             database connection.
         check_old_model_age (bool): check if model is too young to be retrained
     """
-
-    # TODO Update get_prediction job in openstf_dbc such that hyperparams are already included in the prediciton jobs
-    modelspecs["hyper_params"].update({"training_period_days":TRAINING_PERIOD_DAYS})
-
     # Get the paths for storing model and reports from the config manager
     trained_models_folder = Path(context.config.paths.trained_models_folder)
     context.logger.debug(f"trained_models_folder: {trained_models_folder}")
-    # If required, let's check the old model age before retrieving all the input data
-    if check_old_model_age:
-        old_model_age = get_model_age(trained_models_folder, pj["id"])
-        context.logger.debug(f"Old model age: {old_model_age}")
-        if old_model_age < MAXIMUM_MODEL_AGE:
-            # Old model is new enough. Skip this pj
-            context.logger.info(
-                f"Old model was new enough, skipping ({old_model_age}<{MAXIMUM_MODEL_AGE})",
-                pid=pj["id"],
-            )
-            return
 
     context.perf_meter.checkpoint("Added metadata to PredictionJob")
 
     # Define start and end of the training input data
     datetime_start = datetime.utcnow() - timedelta(
-        days=int(modelspecs["hyper_params"]["training_period_days"])
+        days=TRAINING_PERIOD_DAYS
     )
     datetime_end = datetime.utcnow()
 
@@ -103,7 +85,7 @@ def train_model_task(
         pj,
         modelspecs,
         input_data,
-        check_old_model_age=False,
+        check_old_model_age=check_old_model_age,
         trained_models_folder=trained_models_folder,
     )
 

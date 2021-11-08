@@ -57,7 +57,6 @@ def train_model_pipeline(
     # Intitialize logger and serializer
     logger = structlog.get_logger(__name__)
     serializer = PersistentStorageSerializer(trained_models_folder)
-
     # Get old model and age
     try:
         old_model, modelspecs = serializer.load_model(modelspecs)
@@ -150,7 +149,7 @@ def train_model_pipeline_core(
     model, report, train_data, validation_data, test_data = train_pipeline_common(
         pj, modelspecs, input_data, horizons
     )
-
+    modelspecs.feature_names=list(train_data.columns)
     logging.info("Fitted a new model, not yet stored")
 
     # Check if new model is better than old model
@@ -226,7 +225,7 @@ def train_pipeline_common(
             "Input data is insufficient, after validation and cleaning"
         )
     data_with_features = TrainFeatureApplicator(
-        horizons=horizons, feature_names=modelspecs["feature_names"]
+        horizons=horizons, feature_names=modelspecs.feature_names
     ).add_features(validated_data)
 
     # Split data
@@ -267,7 +266,7 @@ def train_pipeline_common(
     # Set relevant hyperparameters
     valid_hyper_parameters = {
         key: value
-        for key, value in modelspecs["hyper_params"].items()
+        for key, value in modelspecs.hyper_params.items()
         if key in model.get_params().keys()
     }
 

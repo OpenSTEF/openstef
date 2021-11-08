@@ -51,6 +51,7 @@ class TestTrainModelPipeline(BaseTestCase):
 
         self.train_input = TestData.load("reference_sets/307-train-data.csv")
 
+    @unittest.skip("Do this test if we want to train a new model")
     def test_train_model_pipeline_update_stored_model(self):
         """Test happy flow of the train model pipeline"""
 
@@ -78,8 +79,8 @@ class TestTrainModelPipeline(BaseTestCase):
                 pj["model"] = model_type.value
 
                 # Use default parameters
-                self.modelspecs["hyper_params"] = {}
-                model, report = train_model_pipeline_core(pj=pj, modelspecs=self.modelspecs, input_data=train_input)
+                self.modelspecs.hyper_params = {}
+                model, report = train_model_pipeline_core(pj=pj, modelspecs=self.modelspecs, input_data=self.train_input)
 
                 # check if the model was fitted (raises NotFittedError when not fitted)
                 self.assertIsNone(sklearn.utils.validation.check_is_fitted(model))
@@ -92,12 +93,12 @@ class TestTrainModelPipeline(BaseTestCase):
 
                 # Validate and clean data
                 validated_data = validation.clean(
-                    validation.validate(pj["id"], train_input)
+                    validation.validate(pj["id"], self.train_input)
                 )
 
                 # Add features
                 data_with_features = TrainFeatureApplicator(
-                    horizons=[0.25, 47.0], feature_names=self.modelspecs["feature_names"]
+                    horizons=[0.25, 47.0], feature_names=self.modelspecs.feature_names
                 ).add_features(validated_data)
 
                 # Split data

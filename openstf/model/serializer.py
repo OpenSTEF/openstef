@@ -122,7 +122,7 @@ class PersistentStorageSerializer(AbstractSerializer):
             ModelSpecificationDataClass: model specifications
         """
         try:
-            experiment_id = self.setup_mlflow(modelspecs["id"])
+            experiment_id = self.setup_mlflow(modelspecs.id)
             # return the latest run of the model, .iloc[0] because it returns a list with max_results number of runs
             latest_run = mlflow.search_runs(
                 experiment_id,
@@ -136,9 +136,9 @@ class PersistentStorageSerializer(AbstractSerializer):
 
             # get the parameters from the old model, we insert these later into the new model
             # get the hyper parameters from the previous model
-            modelspecs["hyper_params"] = loaded_model.get_params()
+            modelspecs.hyper_params = loaded_model.get_params()
             # todo: retrieve from MLflow
-            modelspecs["feature_names"] = None
+            modelspecs.feature_names = None
 
             # Add model age to model object
             loaded_model.age = self._determine_model_age_from_mlflow_run(latest_run)
@@ -151,9 +151,9 @@ class PersistentStorageSerializer(AbstractSerializer):
         # Catch possible errors
         except (AttributeError, LookupError, MlflowException, OSError) as e:
             self.logger.warning(
-                "Couldn't load with MLflow, trying the old way", pid=modelspecs["id"], error=e
+                "Couldn't load with MLflow, trying the old way", pid=modelspecs.id, error=e
             )
-            return self.load_model_no_mlflow(modelspecs["id"], model_id), modelspecs
+            return self.load_model_no_mlflow(modelspecs.id, model_id), modelspecs
 
     def load_model_no_mlflow(
         self, pid: Optional[Union[int, str]] = None, model_id: Optional[str] = None
@@ -425,15 +425,18 @@ class PersistentStorageSerializer(AbstractSerializer):
         mlflow.set_tag("Previous_version_id", prev_run_id)
         mlflow.set_tag("model_type", pj["model"])
         mlflow.set_tag("prediction_job", pj["id"])
-        # add all modelspecs attributes except hyper_params
-        for attribute in modelspecs.__dict__.keys():
-            if attribute != "hyper_params":
-                mlflow.set_tag(attribute, modelspecs[attribute])
+
+        # add modelspecs attributes except hyper_params
+
+        # save feature names and target to MLflow, assume target is the first column
+        mlflow.set_tag("feature_names", modelspecs.feature_names[1:])
+        mlflow.set_tag("target", modelspecs.feature_names[0])
+
         # Add metrics to the run
         mlflow.log_metrics(report.metrics)
         # Add the used parameters to the run + the params from the prediction job
-        modelspecs["hyper_params"].update(model.get_params())
-        mlflow.log_params(modelspecs["hyper_params"])
+        modelspecs.hyper_params.update(model.get_params())
+        mlflow.log_params(modelspecs.hyper_params)
 
         # Process args
         for key, value in kwargs.items():

@@ -101,6 +101,9 @@ def optimize_hyperparameters_pipeline(
 
     # model specification
     modelspecs = ModelSpecificationDataClass(id=pj["id"])
+    # model data columns
+    modelspecs.feature_names = list(validated_data_with_features.columns)
+
     # Save model
     serializer.save_model(model, pj=pj, modelspecs=modelspecs, report=objective.create_report(model=model),
                           phase="Hyperparameter_opt", trials=objective.get_trial_track(),
