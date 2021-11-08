@@ -1,9 +1,11 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+import json
 import os
 from abc import ABC, abstractmethod
 from datetime import datetime
+from json import JSONDecodeError
 from pathlib import Path
 from typing import List, Optional, Union
 from urllib.parse import unquote, urlparse
@@ -137,9 +139,11 @@ class PersistentStorageSerializer(AbstractSerializer):
             # get the parameters from the old model, we insert these later into the new model
             # get the hyper parameters from the previous model
             modelspecs.hyper_params = loaded_model.get_params()
-            # todo: retrieve from MLflow
-            modelspecs.feature_names = None
-
+            # get used feature names else use all feature names
+            try:
+                modelspecs.feature_names = json.loads(latest_run["tags.feature_names"].replace("\'", "\""))
+            except (AttributeError, JSONDecodeError):
+                modelspecs.feature_names = None
             # Add model age to model object
             loaded_model.age = self._determine_model_age_from_mlflow_run(latest_run)
             # URI containing file:/// before the path
