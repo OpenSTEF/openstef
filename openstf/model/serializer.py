@@ -25,6 +25,7 @@ from openstf.model.regressors.regressor import OpenstfRegressor
 MODEL_FILENAME = "model.joblib"
 FOLDER_DATETIME_FORMAT = "%Y%m%d%H%M%S"
 MODEL_ID_SEP = "-"
+MAX_N_MODELS = 10  # Number of models per experiment allowed in model registry
 
 
 class AbstractSerializer(ABC):
@@ -468,3 +469,37 @@ class PersistentStorageSerializer(AbstractSerializer):
         for key, fig in report.data_series_figures.items():
             mlflow.log_figure(fig, f"figures/{key}.html")
         self.logger.info(f"logged figures to MLflow")
+
+    def _find_all_models(self, pj: PredictionJobDataClass):
+        experiment_id = self.setup_mlflow(pj["id"])
+        prev_runs = mlflow.search_runs(
+            experiment_id,
+            filter_string=" attribute.status = 'FINISHED' AND tags.mlflow.runName = '{}'".format(
+                pj["model"]
+            ),
+        )
+        return prev_runs
+
+    def remove_old_models(
+        self, pj: PredictionJobDataClass, max_n_models: int = MAX_N_MODELS
+    ):
+        """Remove old models for the experiment defined by PJ.
+        A maximum of 'max_n_models' is allowed"""
+        if max_n_models < 1:
+            raise ValueError(
+                f"MAX_N_MODELS should be greater than 1! Received: {max_n_models}"
+            )
+
+        prev_runs = self._find_all_models(pj)
+
+        if len(prev_runs) > max_n_models:
+            self.logger.debug(
+                f"Going to delete old models. {len(prev_runs)}>{max_n_models}"
+            )
+            # Find run_ids of oldest runs
+            runs_to_remove = prev_runs.sort_values(by="end_time", ascending=False).loc[
+                max_n_models:, :
+            ]
+            for _, run in runs_to_remove.iterrows():
+                self.logger.debug(f"Removing run {run.run_id}, from {run.end_time}")
+                mlflow.delete_run(run.run_id)
