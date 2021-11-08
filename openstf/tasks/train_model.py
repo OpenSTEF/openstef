@@ -29,11 +29,7 @@ from typing import Union
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 from openstf.enums import MLModelType
-from openstf.pipeline.train_model import (
-    train_model_pipeline,
-    MAXIMUM_MODEL_AGE,
-    get_model_age,
-)
+from openstf.pipeline.train_model import train_model_pipeline
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
 
@@ -74,17 +70,6 @@ def train_model_task(
     # Get the paths for storing model and reports from the config manager
     trained_models_folder = Path(context.config.paths.trained_models_folder)
     context.logger.debug(f"trained_models_folder: {trained_models_folder}")
-    # If required, let's check the old model age before retrieving all the input data
-    if check_old_model_age:
-        old_model_age = get_model_age(trained_models_folder, pj["id"])
-        context.logger.debug(f"Old model age: {old_model_age}")
-        if old_model_age < MAXIMUM_MODEL_AGE:
-            # Old model is new enough. Skip this pj
-            context.logger.info(
-                f"Old model was new enough, skipping ({old_model_age}<{MAXIMUM_MODEL_AGE})",
-                pid=pj["id"],
-            )
-            return
 
     context.perf_meter.checkpoint("Added metadata to PredictionJob")
 
@@ -94,6 +79,7 @@ def train_model_task(
     )
     datetime_end = datetime.utcnow()
 
+    # todo: See if we can check model age before getting the data
     # Get training input data from database
     input_data = context.database.get_model_input(
         pid=pj["id"],
@@ -108,7 +94,7 @@ def train_model_task(
     train_model_pipeline(
         pj,
         input_data,
-        check_old_model_age=False,
+        check_old_model_age=check_old_model_age,
         trained_models_folder=trained_models_folder,
     )
 
