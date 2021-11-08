@@ -19,7 +19,7 @@ class TestTrainModelTask(TestCase):
     def test_create_train_model_task_happy_flow(self, train_model_pipeline_mock):
         # Test happy flow of create forecast task
         context = MagicMock()
-        train_model_task(self.pj, self.modelspecs, context)
+        train_model_task(self.pj, context)
 
         self.assertEqual(train_model_pipeline_mock.call_count, 1)
         self.assertEqual(

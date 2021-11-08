@@ -40,7 +40,6 @@ DEFAULT_CHECK_MODEL_AGE: bool = True
 
 def train_model_task(
     pj: PredictionJobDataClass,
-    modelspecs: ModelSpecificationDataClass,
     context: TaskContext,
     check_old_model_age: bool = DEFAULT_CHECK_MODEL_AGE,
 ) -> None:
@@ -53,7 +52,6 @@ def train_model_task(
 
     Args:
         pj (PredictionJobDataClass): Prediction job
-        modelspecs (ModelSpecificationDataClass): Dataclass containing model specifications
         context (TaskContext): Contect object that holds a config manager and a
             database connection.
         check_old_model_age (bool): check if model is too young to be retrained
@@ -79,6 +77,9 @@ def train_model_task(
     )
 
     context.perf_meter.checkpoint("Retrieved timeseries input")
+
+    # create basic modelspecs
+    modelspecs = ModelSpecificationDataClass(id=pj["id"])
 
     # Excecute the model training pipeline
     train_model_pipeline(
