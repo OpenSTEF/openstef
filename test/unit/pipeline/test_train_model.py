@@ -80,7 +80,7 @@ class TestTrainModelPipeline(BaseTestCase):
 
                 # Use default parameters
                 self.modelspecs.hyper_params = {}
-                model, report = train_model_pipeline_core(pj=pj, modelspecs=self.modelspecs, input_data=self.train_input)
+                model, report = train_model_pipeline_core(pj=pj, modelspecs=self.modelspecs, input_data=train_input)
 
                 # check if the model was fitted (raises NotFittedError when not fitted)
                 self.assertIsNone(sklearn.utils.validation.check_is_fitted(model))
@@ -93,7 +93,7 @@ class TestTrainModelPipeline(BaseTestCase):
 
                 # Validate and clean data
                 validated_data = validation.clean(
-                    validation.validate(pj["id"], self.train_input)
+                    validation.validate(pj["id"], train_input)
                 )
 
                 # Add features
