@@ -91,10 +91,21 @@ class TestData:
             # Change the typ column to forecast_type normally done after query
             out_dict["forecast_type"] = out_dict.pop("typ")
 
-        return PredictionJobDataClass(**out_dict), ModelSpecificationDataClass(
-            **out_dict
-        )
+        return PredictionJobDataClass(**out_dict)
 
+    @classmethod
+    def get_prediction_job_and_modelspecs(cls, pid: Union[int, str]):
+        with open(cls.DATA_FILES_FOLDER / "prediction_jobs.json", "r") as fh:
+            prediction_jobs = json.load(fh, object_hook=prediction_job_decoder)
+
+            out_dict = prediction_jobs[str(pid)]
+
+            # Change the typ column to forecast_type normally done after query
+            out_dict["forecast_type"] = out_dict.pop("typ")
+
+        return PredictionJobDataClass(**out_dict),\
+               ModelSpecificationDataClass(**out_dict)
+    
     @classmethod
     def get_prediction_jobs(cls):
         with open(cls.DATA_FILES_FOLDER / "prediction_jobs.json", "r") as fh:

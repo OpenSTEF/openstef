@@ -22,7 +22,6 @@ input_data_with_features = TrainFeatureApplicator(horizons=[0.25, 24.0]).add_fea
 # Select 50 data points to speedup test
 input_data_with_features = input_data_with_features.iloc[::50, :]
 
-pj, modelspecs = TestData.get_prediction_job(pid=307)
 N_TRIALS = 2
 
 

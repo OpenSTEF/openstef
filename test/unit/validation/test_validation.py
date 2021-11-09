@@ -13,7 +13,7 @@ class TestDataValidation(BaseTestCase):
         super().setUp()
         self.data_train = TestData.load("input_data_train.pickle")
         self.data_predict = TestData.load("input_data.pickle")
-        self.pj, modelspecs = TestData.get_prediction_job(pid=307)
+        self.pj = TestData.get_prediction_job(pid=307)
 
     def test_clean(self):
 

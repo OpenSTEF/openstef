@@ -21,7 +21,7 @@ SPLIT_PARAMS = {
 class TestTrain(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
-        self.pj, modelspecs = TestData.get_prediction_job(pid=307)
+        self.pj = TestData.get_prediction_job(pid=307)
         datetime_start = datetime.utcnow() - timedelta(days=90)
         datetime_end = datetime.utcnow()
         self.data_table = TestData.load("input_data_train.pickle").head(8641)

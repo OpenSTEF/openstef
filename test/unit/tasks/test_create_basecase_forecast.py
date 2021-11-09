@@ -25,7 +25,7 @@ FORECAST_NEAR_FUTURE_MOCK = pd.DataFrame(
 
 class TestCreateBasecaseForecastTask(TestCase):
     def setUp(self) -> None:
-        self.pj, modelspecs = TestData.get_prediction_job(pid=307)
+        self.pj = TestData.get_prediction_job(pid=307)
 
     @patch(
         "openstf.tasks.create_basecase_forecast.create_basecase_forecast_pipeline",

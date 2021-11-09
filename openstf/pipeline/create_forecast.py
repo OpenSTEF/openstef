@@ -37,7 +37,6 @@ def create_forecast_pipeline(
 
     Args:
         pj (PredictionJobDataClass): Prediction job
-        modelspecs (ModelSpecificationDataClass): Dataclass containing model specifications
         input_data (pd.DataFrame): Training input data (without features)
         trained_models_folder (Path): Path where trained models are stored
 
@@ -46,12 +45,10 @@ def create_forecast_pipeline(
         pd.DataFrame with the forecast
 
     """
-    # model specification
-    modelspecs = ModelSpecificationDataClass(id=pj["id"])
     # Load most recent model for the given pid
     model, modelspecs = PersistentStorageSerializer(
         trained_models_folder=trained_models_folder
-    ).load_model(modelspecs)
+    ).load_model(pj["id"])
 
     return create_forecast_pipeline_core(pj, input_data, model)
 

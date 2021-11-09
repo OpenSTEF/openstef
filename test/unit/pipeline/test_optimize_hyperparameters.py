@@ -20,7 +20,7 @@ class TestOptimizeHyperParametersPipeline(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
         self.input_data = TestData.load("reference_sets/307-train-data.csv")
-        self.pj, self.modelspecs = TestData.get_prediction_job(pid=307)
+        self.pj, self.modelspecs = TestData.get_prediction_job_and_modelspecs(pid=307)
 
     def test_optimize_hyperparameters_pipeline(self):
         parameters = optimize_hyperparameters_pipeline(

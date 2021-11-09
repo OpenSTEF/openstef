@@ -15,9 +15,12 @@ NOW = datetime.now(timezone.utc)
 
 
 class TestComponentForecast(BaseTestCase):
+    def setUp(self) -> None:
+        super().setUp()
+        self.PJ = TestData.get_prediction_job(pid=307)
+
     def test_component_forecast_pipeline_happy_flow(self):
         # Test happy flow
-        PJ, modelspecs = TestData.get_prediction_job(pid=307)
         data = TestData.load("reference_sets/307-test-data.csv")
         weather = data[["radiation", "windspeed_100m"]]
         forecast_input = TestData.load("forecastdf_test_add_corrections.csv")
@@ -41,7 +44,7 @@ class TestComponentForecast(BaseTestCase):
         weather.index = weather.index.shift(delta, freq=1)
 
         component_forecast = create_components_forecast_pipeline(
-            PJ, forecast_input, weather, coefs
+            self.PJ, forecast_input, weather, coefs
         )
 
         self.assertEqual(len(component_forecast), 193)
@@ -61,7 +64,6 @@ class TestComponentForecast(BaseTestCase):
 
     def test_component_forecast_pipeline_not_all_weather_data_available(self):
         # Test happy flow
-        PJ, modelspecs = TestData.get_prediction_job(pid=307)
         data = TestData.load("reference_sets/307-test-data.csv")
         weather = data[["radiation"]]
         forecast_input = TestData.load("forecastdf_test_add_corrections.csv")
@@ -84,7 +86,7 @@ class TestComponentForecast(BaseTestCase):
         delta = utc_now - most_recent_date + timedelta(3)
         weather.index = weather.index.shift(delta, freq=1)
         component_forecast = create_components_forecast_pipeline(
-            PJ, forecast_input, weather, coefs
+            self.PJ, forecast_input, weather, coefs
         )
         # Check if the output matches expectations
         self.assertEqual(

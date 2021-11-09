@@ -11,7 +11,7 @@ from test.utils import TestData
 class TestTrainBackTestPipeline(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
-        self.pj, self.modelspecs = TestData.get_prediction_job(pid=307)
+        self.pj, self.modelspecs = TestData.get_prediction_job_and_modelspecs(pid=307)
         self.train_input = TestData.load("reference_sets/307-train-data.csv")
 
     def test_train_model_pipeline_core_happy_flow(self):

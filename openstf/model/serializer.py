@@ -55,7 +55,7 @@ class AbstractSerializer(ABC):
         self.logger.error("This is an abstract method!")
 
     @abstractmethod
-    def load_model(self) -> OpenstfRegressor:
+    def load_model(self, pid: Union[str, int]) -> Tuple[OpenstfRegressor, ModelSpecificationDataClass]:
         """Loads model that has been trained earlier
 
         Returns: Trained sklearn compatible model object
@@ -112,13 +112,12 @@ class PersistentStorageSerializer(AbstractSerializer):
 
     def load_model(
         self,
-        modelspecs: ModelSpecificationDataClass,
+        pid: Union[str, int],
         model_id: Optional[str] = None,
     ) -> Tuple[OpenstfRegressor, ModelSpecificationDataClass]:
         """Load sklearn compatible model from persistent storage.
 
-            Either a pid or a model_id should be given. If a pid is given the most
-            recent model for that pid will be loaded.
+            If a pid is given the most recent model for that pid will be loaded.
 
         Args:
             modelspecs (ModelSpecificationDataClass): Dataclass containing model specifications
@@ -136,7 +135,7 @@ class PersistentStorageSerializer(AbstractSerializer):
             ModelSpecificationDataClass: model specifications
         """
         try:
-            experiment_id = self.setup_mlflow(modelspecs.id)
+            experiment_id = self.setup_mlflow(pid)
             # return the latest run of the model, .iloc[0] because it returns a list with max_results number of runs
             latest_run = mlflow.search_runs(
                 experiment_id,
@@ -148,6 +147,9 @@ class PersistentStorageSerializer(AbstractSerializer):
                 os.path.join(latest_run.artifact_uri, "model/")
             )
 
+            # create basic modelspecs
+            modelspecs = ModelSpecificationDataClass(id=pid)
+
             # get the parameters from the old model, we insert these later into the new model
             # get the hyper parameters from the previous model
             modelspecs.hyper_params = loaded_model.get_params()
@@ -156,8 +158,16 @@ class PersistentStorageSerializer(AbstractSerializer):
                 modelspecs.feature_names = json.loads(
                     latest_run["tags.feature_names"].replace("'", '"')
                 )
-            except (AttributeError, JSONDecodeError):
-                modelspecs.feature_names = None
+            except KeyError:
+                modelspecs = self._log_error_feature_names(modelspecs,
+                                                           "tags.feature_names, doesn't exist in run")
+            except AttributeError:
+                modelspecs = self._log_error_feature_names(modelspecs,
+                                                           "tags.feature_names, needs to be a string")
+            except JSONDecodeError:
+                modelspecs = self._log_error_feature_names(modelspecs,
+                                                           "tags.feature_names, needs to be a string of a list")
+
             # Add model age to model object
             loaded_model.age = self._determine_model_age_from_mlflow_run(latest_run)
             # URI containing file:/// before the path
@@ -174,6 +184,23 @@ class PersistentStorageSerializer(AbstractSerializer):
                 error=e,
             )
             return self.load_model_no_mlflow(modelspecs.id, model_id), modelspecs
+
+    def _log_error_feature_names(self, modelspecs: ModelSpecificationDataClass, msg: str):
+        """ A function to log what went wrong during the retrieving of feature_names
+
+        Args:
+            modelspecs (ModelSpecificationDataClass): The model specifications containing feature_names
+            msg (str): error message
+
+        Returns:
+            ModelSpecificationDataClass: model specifications with updated feature_names as None
+        """
+        modelspecs.feature_names = None
+        self.logger.warning("feature_names couldn't be loaded, setting to None",
+                            pid=modelspecs.id,
+                            error=msg,
+                            )
+        return modelspecs
 
     def load_model_no_mlflow(
         self, pid: Optional[Union[int, str]] = None, model_id: Optional[str] = None

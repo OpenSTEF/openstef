@@ -33,7 +33,6 @@ PENALTY_FACTOR_OLD_MODEL: float = 1.2
 
 def train_model_pipeline(
     pj: PredictionJobDataClass,
-    modelspecs: ModelSpecificationDataClass,
     input_data: pd.DataFrame,
     check_old_model_age: bool,
     trained_models_folder: Union[str, Path],
@@ -45,7 +44,6 @@ def train_model_pipeline(
 
     Args:
         pj (PredictionJobDataClass): Prediction job
-        modelspecs (ModelSpecificationDataClass): Dataclass containing model specifications
         input_data (pd.DataFrame): Raw training input data
         check_old_model_age (bool): Check if training should be skipped because the model is too young
         trained_models_folder (Path): Path where trained models are stored
@@ -57,15 +55,18 @@ def train_model_pipeline(
     # Intitialize logger and serializer
     logger = structlog.get_logger(__name__)
     serializer = PersistentStorageSerializer(trained_models_folder)
+
     # Get old model and age
     try:
-        old_model, modelspecs = serializer.load_model(modelspecs)
+        old_model, modelspecs = serializer.load_model(pj["id"])
         old_model_age = (
             old_model.age
         )  # Age attribute is openstf specific and is added by the serializer
     except FileNotFoundError:
         old_model = None
         old_model_age = float("inf")
+        # create basic modelspecs
+        modelspecs = ModelSpecificationDataClass(id=pj["id"])
         logger.warning("No old model found, training new model", pid=pj["id"])
 
     # Check old model age and continue yes/no
@@ -77,7 +78,7 @@ def train_model_pipeline(
 
     # Train model with core pipeline
     try:
-        model, report = train_model_pipeline_core(pj, modelspecs, input_data, old_model)
+        model, report, modelspecs_updated = train_model_pipeline_core(pj, modelspecs, input_data, old_model)
     except OldModelHigherScoreError as OMHSE:
         logger.error("Old model is better than new model", pid=pj["id"], exc_info=OMHSE)
         return
@@ -99,7 +100,7 @@ def train_model_pipeline(
         raise InputDataWrongColumnOrderError(IDWCOE)
 
     # Save model
-    serializer.save_model(model, pj=pj, modelspecs=modelspecs, report=report)
+    serializer.save_model(model, pj=pj, modelspecs=modelspecs_updated, report=report)
 
     # Clean up older models
     serializer.remove_old_models(pj=pj)
@@ -111,10 +112,10 @@ def train_model_pipeline_core(
     input_data: pd.DataFrame,
     old_model: OpenstfRegressor = None,
     horizons: List[float] = None,
-) -> Tuple[OpenstfRegressor, Report]:
+) -> Tuple[OpenstfRegressor, Report, ModelSpecificationDataClass]:
     """Train model core pipeline.
-    Trains a new model given a predction job, input data and compares it to an old model.
-    This pipeline has no database or persisitent storage dependencies.
+    Trains a new model given a prediction job, input data and compares it to an old model.
+    This pipeline has no database or persistent storage dependencies.
 
     TODO once we have a data model for a prediction job this explantion is not
     required anymore.
@@ -131,7 +132,7 @@ def train_model_pipeline_core(
         pj (PredictionJobDataClass): Prediction job
         modelspecs (ModelSpecificationDataClass): Dataclass containing model specifications
         input_data (pd.DataFrame): Input data
-        old_model (RegressorMixin, optional): Old model to compare to. Defaults to None.
+        old_model (OpenstfRegressor, optional): Old model to compare to. Defaults to None.
         horizons (List[float]): horizons to train on in hours.
 
     Raises:
@@ -140,7 +141,7 @@ def train_model_pipeline_core(
         OldModelHigherScoreError: When old model is better than new model.
 
     Returns:
-        Tuple[RegressorMixin, Report]: Trained model and report (with figures)
+        Tuple[OpenstfRegressor, Report, ModelSpecificationDataClass]: Trained model and report (with figures)
     """
 
     if horizons is None:
@@ -184,7 +185,7 @@ def train_model_pipeline_core(
         except ValueError as e:
             logger.info("Could not compare to old model", pid=pj["id"], exc_info=e)
 
-    return model, report
+    return model, report, modelspecs
 
 
 def train_pipeline_common(
@@ -202,7 +203,7 @@ def train_pipeline_common(
         modelspecs (ModelSpecificationDataClass): Dataclass containing model specifications
         input_data (pd.DataFrame): Input data
         horizons (List[float]): horizons to train on in hours.
-        test_fraction (float): fration of data to use for testingset
+        test_fraction (float): fraction of data to use for testing
         backtest (bool): boolean if we need to do a backtest
 
     Returns:

@@ -13,7 +13,7 @@ FORECAST_MOCK = "forecast_mock"
 
 class TestCreateForeCastTask(TestCase):
     def setUp(self) -> None:
-        self.pj, self.modelspecs = TestData.get_prediction_job(pid=307)
+        self.pj, self.modelspecs = TestData.get_prediction_job_and_modelspecs(pid=307)
 
     @patch(
         "openstf.tasks.create_forecast.create_forecast_pipeline",
