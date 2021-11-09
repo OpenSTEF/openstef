@@ -7,7 +7,7 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 from json import JSONDecodeError
 from pathlib import Path
-from typing import List, Optional, Union
+from typing import List, Optional, Union, Tuple
 from urllib.parse import unquote, urlparse
 
 import joblib
@@ -114,7 +114,7 @@ class PersistentStorageSerializer(AbstractSerializer):
         self,
         modelspecs: ModelSpecificationDataClass,
         model_id: Optional[str] = None,
-    ) -> OpenstfRegressor:
+    ) -> Tuple[OpenstfRegressor, ModelSpecificationDataClass]:
         """Load sklearn compatible model from persistent storage.
 
             Either a pid or a model_id should be given. If a pid is given the most
