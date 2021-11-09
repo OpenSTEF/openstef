@@ -138,7 +138,7 @@ class PersistentStorageSerializer(AbstractSerializer):
         """
         # create basic modelspecs
         modelspecs = ModelSpecificationDataClass(id=pid)
-        
+
         try:
             experiment_id = self.setup_mlflow(pid)
             # return the latest run of the model, .iloc[0] because it returns a list with max_results number of runs
