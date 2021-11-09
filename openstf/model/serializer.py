@@ -161,20 +161,23 @@ class PersistentStorageSerializer(AbstractSerializer):
                     latest_run["tags.feature_names"].replace("'", '"')
                 )
             except KeyError:
-                self.logger.warning("feature_names couldn't be loaded, using None",
-                                    pid=modelspecs.id,
-                                    error="tags.feature_names, doesn't exist in run",
-                                    )
+                self.logger.warning(
+                    "feature_names couldn't be loaded, using None",
+                    pid=modelspecs.id,
+                    error="tags.feature_names, doesn't exist in run",
+                )
             except AttributeError:
-                self.logger.warning("feature_names couldn't be loaded, using None",
-                                    pid=modelspecs.id,
-                                    error="tags.feature_names, needs to be a string",
-                                    )
+                self.logger.warning(
+                    "feature_names couldn't be loaded, using None",
+                    pid=modelspecs.id,
+                    error="tags.feature_names, needs to be a string",
+                )
             except JSONDecodeError:
-                self.logger.warning("feature_names couldn't be loaded, using None",
-                                    pid=modelspecs.id,
-                                    error="tags.feature_names, needs to be a string of a list",
-                                    )
+                self.logger.warning(
+                    "feature_names couldn't be loaded, using None",
+                    pid=modelspecs.id,
+                    error="tags.feature_names, needs to be a string of a list",
+                )
 
             # Add model age to model object
             loaded_model.age = self._determine_model_age_from_mlflow_run(latest_run)
