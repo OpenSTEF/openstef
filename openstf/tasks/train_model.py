@@ -68,6 +68,7 @@ def train_model_task(
     )
     datetime_end = datetime.utcnow()
 
+    # todo: See if we can check model age before getting the data
     # Get training input data from database
     input_data = context.database.get_model_input(
         pid=pj["id"],

@@ -101,6 +101,9 @@ def train_model_pipeline(
     # Save model
     serializer.save_model(model, pj=pj, modelspecs=modelspecs, report=report)
 
+    # Clean up older models
+    serializer.remove_old_models(pj=pj)
+
 
 def train_model_pipeline_core(
     pj: PredictionJobDataClass,
@@ -279,7 +282,7 @@ def train_pipeline_common(
         verbose=False,
     )
     # Gets the feature importance df or None if we don't have feature importance
-    model.feature_importance_dataframe = model.set_feature_importance(train_x.columns)
+    model.feature_importance_dataframe = model.set_feature_importance()
 
     logging.info("Fitted a new model, not yet stored")
 

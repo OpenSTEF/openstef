@@ -44,6 +44,16 @@ class OpenstfRegressorInterface(BaseEstimator, RegressorMixin, ABC):
         """
         pass
 
+    @property
+    @abstractmethod
+    def feature_names(self):
+        """Retrieve the model input feature names
+
+        Returns:
+            The list of feature names
+        """
+        pass
+
 
 # In the future, expand this class with:
 # - calculate_feature_importance()

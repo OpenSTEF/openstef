@@ -27,6 +27,7 @@ def validate(
     data: pd.DataFrame,
     flatliner_threshold: int = FLATLINER_TRESHOLD,
 ) -> pd.DataFrame:
+    """Validate prediction job and timeseries data."""
     logger = structlog.get_logger(__name__)
     # Drop 'false' measurements. e.g. where load appears to be constant.
     data = replace_repeated_values_with_nan(
