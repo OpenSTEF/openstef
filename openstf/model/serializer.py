@@ -136,6 +136,9 @@ class PersistentStorageSerializer(AbstractSerializer):
             OpenstfRegressor: Loaded model
             ModelSpecificationDataClass: model specifications
         """
+        # create basic modelspecs
+        modelspecs = ModelSpecificationDataClass(id=pid)
+        
         try:
             experiment_id = self.setup_mlflow(pid)
             # return the latest run of the model, .iloc[0] because it returns a list with max_results number of runs
@@ -148,9 +151,6 @@ class PersistentStorageSerializer(AbstractSerializer):
             loaded_model = mlflow.sklearn.load_model(
                 os.path.join(latest_run.artifact_uri, "model/")
             )
-
-            # create basic modelspecs
-            modelspecs = ModelSpecificationDataClass(id=pid)
 
             # get the parameters from the old model, we insert these later into the new model
             # get the hyper parameters from the previous model
