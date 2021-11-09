@@ -161,17 +161,20 @@ class PersistentStorageSerializer(AbstractSerializer):
                     latest_run["tags.feature_names"].replace("'", '"')
                 )
             except KeyError:
-                modelspecs = self._log_error_feature_names(
-                    modelspecs, "tags.feature_names, doesn't exist in run"
-                )
+                self.logger.warning("feature_names couldn't be loaded, using None",
+                                    pid=modelspecs.id,
+                                    error="tags.feature_names, doesn't exist in run",
+                                    )
             except AttributeError:
-                modelspecs = self._log_error_feature_names(
-                    modelspecs, "tags.feature_names, needs to be a string"
-                )
+                self.logger.warning("feature_names couldn't be loaded, using None",
+                                    pid=modelspecs.id,
+                                    error="tags.feature_names, needs to be a string",
+                                    )
             except JSONDecodeError:
-                modelspecs = self._log_error_feature_names(
-                    modelspecs, "tags.feature_names, needs to be a string of a list"
-                )
+                self.logger.warning("feature_names couldn't be loaded, using None",
+                                    pid=modelspecs.id,
+                                    error="tags.feature_names, needs to be a string of a list",
+                                    )
 
             # Add model age to model object
             loaded_model.age = self._determine_model_age_from_mlflow_run(latest_run)
@@ -189,26 +192,6 @@ class PersistentStorageSerializer(AbstractSerializer):
                 error=e,
             )
             return self.load_model_no_mlflow(modelspecs.id, model_id), modelspecs
-
-    def _log_error_feature_names(
-        self, modelspecs: ModelSpecificationDataClass, msg: str
-    ):
-        """A function to log what went wrong during the retrieving of feature_names
-
-        Args:
-            modelspecs (ModelSpecificationDataClass): The model specifications containing feature_names
-            msg (str): error message
-
-        Returns:
-            ModelSpecificationDataClass: model specifications with updated feature_names as None
-        """
-        modelspecs.feature_names = None
-        self.logger.warning(
-            "feature_names couldn't be loaded, setting to None",
-            pid=modelspecs.id,
-            error=msg,
-        )
-        return modelspecs
 
     def load_model_no_mlflow(
         self, pid: Optional[Union[int, str]] = None, model_id: Optional[str] = None
