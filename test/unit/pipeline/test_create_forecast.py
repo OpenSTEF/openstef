@@ -112,6 +112,7 @@ class TestCreateForecastPipeline(BaseTestCase):
 
         # Forecast
         forecast = create_forecast.create_forecast_pipeline_core(
+            pj, forecast_data, model
         )
 
         # Verify forecast works correctly

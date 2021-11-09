@@ -149,7 +149,7 @@ class TestAbstractModelSerializer(BaseTestCase):
 
         #####
         # Set up
-        pj = TestData.get_prediction_job(pid=307)
+        pj, modelspecs = TestData.get_prediction_job(pid=307)
         local_model_dir = "./test/trained_models/models_for_serializertest"
 
         ### Run the code below once, to generate stored models
