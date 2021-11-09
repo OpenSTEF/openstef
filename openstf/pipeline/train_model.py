@@ -78,7 +78,9 @@ def train_model_pipeline(
 
     # Train model with core pipeline
     try:
-        model, report, modelspecs_updated = train_model_pipeline_core(pj, modelspecs, input_data, old_model)
+        model, report, modelspecs_updated = train_model_pipeline_core(
+            pj, modelspecs, input_data, old_model
+        )
     except OldModelHigherScoreError as OMHSE:
         logger.error("Old model is better than new model", pid=pj["id"], exc_info=OMHSE)
         return

@@ -104,7 +104,6 @@ class TestCreateForecastPipeline(BaseTestCase):
         col_name = forecast_data.columns[0]
         forecast_data.loc["2020-11-28 00:00:00":"2020-12-01", col_name] = None
 
-
         # Load model
         model, modelspecs = PersistentStorageSerializer(
             trained_models_folder="./test/trained_models"
@@ -132,7 +131,6 @@ class TestCreateForecastPipeline(BaseTestCase):
         col_name = forecast_data.columns[0]
         forecast_data.loc["2020-11-26 00:00:00":"2020-12-01", col_name] = None
 
-
         # Load model
         model, modelspecs = PersistentStorageSerializer(
             trained_models_folder="./test/trained_models"
@@ -159,7 +157,6 @@ class TestCreateForecastPipeline(BaseTestCase):
         forecast_data = TestData.load("reference_sets/307-test-data.csv")
         col_name = forecast_data.columns[0]
         forecast_data.loc["2020-11-25 00:00:00":"2020-12-01", col_name] = None
-
 
         # Load model
         model, modelspecs = PersistentStorageSerializer(

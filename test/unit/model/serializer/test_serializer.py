@@ -28,12 +28,16 @@ class TestAbstractModelSerializer(BaseTestCase):
     @patch("mlflow.search_runs")
     @patch("mlflow.sklearn.load_model")
     def test_serializer_feature_names_keyerror(self, mock_load, mock_search_runs):
-        mock_search_runs.return_value=pd.DataFrame(
-        data={
-            'run_id': [1, 2],
-            'artifact_uri': ["path1", "path2"],
-            "end_time": [datetime.utcnow() - timedelta(days=2),
-                         datetime.utcnow() - timedelta(days=3)]})
+        mock_search_runs.return_value = pd.DataFrame(
+            data={
+                "run_id": [1, 2],
+                "artifact_uri": ["path1", "path2"],
+                "end_time": [
+                    datetime.utcnow() - timedelta(days=2),
+                    datetime.utcnow() - timedelta(days=3),
+                ],
+            }
+        )
 
         loaded_model, modelspecs = PersistentStorageSerializer(
             trained_models_folder="./test/trained_models"
@@ -46,16 +50,20 @@ class TestAbstractModelSerializer(BaseTestCase):
     def test_serializer_feature_names_attributeerror(self, mock_load, mock_search_runs):
         mock_search_runs.return_value = pd.DataFrame(
             data={
-                'run_id': [1, 2],
-                'artifact_uri': ["path1", "path2"],
+                "run_id": [1, 2],
+                "artifact_uri": ["path1", "path2"],
                 # give wrong feature_name type, something else than a str of a list or dict
-                'tags.feature_names': [1, 2],
-                "end_time": [datetime.utcnow() - timedelta(days=2),
-                             datetime.utcnow() - timedelta(days=3)]})
+                "tags.feature_names": [1, 2],
+                "end_time": [
+                    datetime.utcnow() - timedelta(days=2),
+                    datetime.utcnow() - timedelta(days=3),
+                ],
+            }
+        )
 
         loaded_model, modelspecs = PersistentStorageSerializer(
-                trained_models_folder="./test/trained_models"
-            ).load_model(307)
+            trained_models_folder="./test/trained_models"
+        ).load_model(307)
         self.assertIsInstance(modelspecs, ModelSpecificationDataClass)
         self.assertEqual(modelspecs.feature_names, None)
 
@@ -64,12 +72,16 @@ class TestAbstractModelSerializer(BaseTestCase):
     def test_serializer_feature_names_jsonerror(self, mock_load, mock_search_runs):
         mock_search_runs.return_value = pd.DataFrame(
             data={
-                'run_id': [1, 2],
-                'artifact_uri': ["path1", "path2"],
+                "run_id": [1, 2],
+                "artifact_uri": ["path1", "path2"],
                 # give wrong feature_name type, something else than a str of a list or dict
-                'tags.feature_names': ["feature1", "feature1"],
-                "end_time": [datetime.utcnow() - timedelta(days=2),
-                             datetime.utcnow() - timedelta(days=3)]})
+                "tags.feature_names": ["feature1", "feature1"],
+                "end_time": [
+                    datetime.utcnow() - timedelta(days=2),
+                    datetime.utcnow() - timedelta(days=3),
+                ],
+            }
+        )
 
         loaded_model, modelspecs = PersistentStorageSerializer(
             trained_models_folder="./test/trained_models"
@@ -118,7 +130,9 @@ class TestAbstractModelSerializer(BaseTestCase):
         with self.assertLogs("PersistentStorageSerializer", level="INFO") as captured:
             PersistentStorageSerializer(
                 trained_models_folder="./test/trained_models"
-            ).save_model(model=model, pj=pj, modelspecs=self.modelspecs, report=report_mock)
+            ).save_model(
+                model=model, pj=pj, modelspecs=self.modelspecs, report=report_mock
+            )
             # The index shifts if logging is added
             self.assertRegex(
                 captured.records[0].getMessage(), "Model saved with MLflow"
@@ -150,7 +164,9 @@ class TestAbstractModelSerializer(BaseTestCase):
         with self.assertLogs("PersistentStorageSerializer", level="INFO") as captured:
             PersistentStorageSerializer(
                 trained_models_folder="./test/trained_models"
-            ).save_model(model=model, pj=pj, modelspecs=self.modelspecs, report=report_mock)
+            ).save_model(
+                model=model, pj=pj, modelspecs=self.modelspecs, report=report_mock
+            )
             # The index shifts if logging is added
             self.assertRegex(
                 captured.records[0].getMessage(), "No previous model found in MLflow"
@@ -248,5 +264,3 @@ class TestAbstractModelSerializer(BaseTestCase):
                     :2, :
                 ],
             )
-
-
