@@ -163,19 +163,19 @@ class PersistentStorageSerializer(AbstractSerializer):
             except KeyError:
                 self.logger.warning(
                     "feature_names couldn't be loaded, using None",
-                    pid=modelspecs.id,
+                    pid=pid,
                     error="tags.feature_names, doesn't exist in run",
                 )
             except AttributeError:
                 self.logger.warning(
                     "feature_names couldn't be loaded, using None",
-                    pid=modelspecs.id,
+                    pid=pid,
                     error="tags.feature_names, needs to be a string",
                 )
             except JSONDecodeError:
                 self.logger.warning(
                     "feature_names couldn't be loaded, using None",
-                    pid=modelspecs.id,
+                    pid=pid,
                     error="tags.feature_names, needs to be a string of a list",
                 )
 
@@ -191,10 +191,10 @@ class PersistentStorageSerializer(AbstractSerializer):
         except (AttributeError, LookupError, MlflowException, OSError) as e:
             self.logger.warning(
                 "Couldn't load with MLflow, trying the old way",
-                pid=modelspecs.id,
+                pid=pid,
                 error=e,
             )
-            return self.load_model_no_mlflow(modelspecs.id, model_id), modelspecs
+            return self.load_model_no_mlflow(pid, model_id), modelspecs
 
     def load_model_no_mlflow(
         self, pid: Optional[Union[int, str]] = None, model_id: Optional[str] = None
