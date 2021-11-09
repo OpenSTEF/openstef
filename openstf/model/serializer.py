@@ -65,8 +65,15 @@ class AbstractSerializer(ABC):
 
 
 class PersistentStorageSerializer(AbstractSerializer):
-    def save_model(self, model: OpenstfRegressor, pj: PredictionJobDataClass, modelspecs: ModelSpecificationDataClass,
-                   report: Report, phase: str = "training", **kwargs) -> None:
+    def save_model(
+        self,
+        model: OpenstfRegressor,
+        pj: PredictionJobDataClass,
+        modelspecs: ModelSpecificationDataClass,
+        report: Report,
+        phase: str = "training",
+        **kwargs,
+    ) -> None:
         """Save sklearn compatible model to persistent storage with MLflow.
 
             Either a pid or a model_id should be given. If a pid is given the model_id
@@ -97,12 +104,16 @@ class PersistentStorageSerializer(AbstractSerializer):
             self.logger.info("No previous model found in MLflow", pid=pj["id"])
             prev_run_id = None
         with mlflow.start_run(run_name=pj["model"]):
-            self._log_model_with_mlflow(pj, modelspecs, model, report, phase, prev_run_id, **kwargs)
+            self._log_model_with_mlflow(
+                pj, modelspecs, model, report, phase, prev_run_id, **kwargs
+            )
             self._log_figure_with_mlflow(report)
         self.logger.debug(f"MLflow path after saving= {self.mlflow_folder}")
 
     def load_model(
-        self, modelspecs: ModelSpecificationDataClass, model_id: Optional[str] = None,
+        self,
+        modelspecs: ModelSpecificationDataClass,
+        model_id: Optional[str] = None,
     ) -> OpenstfRegressor:
         """Load sklearn compatible model from persistent storage.
 
@@ -142,7 +153,9 @@ class PersistentStorageSerializer(AbstractSerializer):
             modelspecs.hyper_params = loaded_model.get_params()
             # get used feature names else use all feature names
             try:
-                modelspecs.feature_names = json.loads(latest_run["tags.feature_names"].replace("\'", "\""))
+                modelspecs.feature_names = json.loads(
+                    latest_run["tags.feature_names"].replace("'", '"')
+                )
             except (AttributeError, JSONDecodeError):
                 modelspecs.feature_names = None
             # Add model age to model object
@@ -156,7 +169,9 @@ class PersistentStorageSerializer(AbstractSerializer):
         # Catch possible errors
         except (AttributeError, LookupError, MlflowException, OSError) as e:
             self.logger.warning(
-                "Couldn't load with MLflow, trying the old way", pid=modelspecs.id, error=e
+                "Couldn't load with MLflow, trying the old way",
+                pid=modelspecs.id,
+                error=e,
             )
             return self.load_model_no_mlflow(modelspecs.id, model_id), modelspecs
 

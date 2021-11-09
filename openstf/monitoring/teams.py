@@ -178,9 +178,7 @@ def build_sql_query_string(df, table):
     return query
 
 
-def send_report_teams_better(
-    pj: PredictionJobDataClass, feature_importance
-):
+def send_report_teams_better(pj: PredictionJobDataClass, feature_importance):
     """Send a report to teams for monitoring input for an improved model.
 
     Post includes information (performance, figures, etc.) about the trained

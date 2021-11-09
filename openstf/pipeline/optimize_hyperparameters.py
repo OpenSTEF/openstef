@@ -18,6 +18,7 @@ from openstf.feature_engineering.feature_applicator import TrainFeatureApplicato
 from openstf.model.model_creator import ModelCreator
 from openstf.model.objective import RegressorObjective
 from openstf.model.objective_creator import ObjectiveCreator
+
 # This is required to disable the default optuna logger and pass the logs to our own
 # structlog logger
 from openstf.model.regressors.regressor import OpenstfRegressor
@@ -105,9 +106,15 @@ def optimize_hyperparameters_pipeline(
     modelspecs.feature_names = list(validated_data_with_features.columns)
 
     # Save model
-    serializer.save_model(model, pj=pj, modelspecs=modelspecs, report=objective.create_report(model=model),
-                          phase="Hyperparameter_opt", trials=objective.get_trial_track(),
-                          trial_number=study.best_trial.number)
+    serializer.save_model(
+        model,
+        pj=pj,
+        modelspecs=modelspecs,
+        report=objective.create_report(model=model),
+        phase="Hyperparameter_opt",
+        trials=objective.get_trial_track(),
+        trial_number=study.best_trial.number,
+    )
 
     return study.best_params
 

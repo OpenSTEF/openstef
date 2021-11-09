@@ -41,9 +41,7 @@ T_BEHIND_DAYS: int = 14
 T_AHEAD_DAYS: int = 2
 
 
-def create_forecast_task(
-    pj: PredictionJobDataClass, context: TaskContext
-) -> None:
+def create_forecast_task(pj: PredictionJobDataClass, context: TaskContext) -> None:
     """Top level task that creates a forecast.
 
     On this task level all database and context manager dependencies are resolved.

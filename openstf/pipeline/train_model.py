@@ -152,7 +152,7 @@ def train_model_pipeline_core(
     model, report, train_data, validation_data, test_data = train_pipeline_common(
         pj, modelspecs, input_data, horizons
     )
-    modelspecs.feature_names=list(train_data.columns)
+    modelspecs.feature_names = list(train_data.columns)
     logging.info("Fitted a new model, not yet stored")
 
     # Check if new model is better than old model
@@ -253,8 +253,6 @@ def train_pipeline_common(
 
     # Create relevant model
     model = ModelCreator.create_model(pj["model"], quantiles=pj["quantiles"])
-
-
 
     # split x and y data
     train_x, train_y = train_data.iloc[:, 1:-1], train_data.iloc[:, 0]

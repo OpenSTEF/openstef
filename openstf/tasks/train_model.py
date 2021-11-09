@@ -63,9 +63,7 @@ def train_model_task(
     context.perf_meter.checkpoint("Added metadata to PredictionJob")
 
     # Define start and end of the training input data
-    datetime_start = datetime.utcnow() - timedelta(
-        days=TRAINING_PERIOD_DAYS
-    )
+    datetime_start = datetime.utcnow() - timedelta(days=TRAINING_PERIOD_DAYS)
     datetime_end = datetime.utcnow()
 
     # todo: See if we can check model age before getting the data

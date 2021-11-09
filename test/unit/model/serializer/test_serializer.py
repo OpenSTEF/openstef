@@ -28,7 +28,7 @@ class TestAbstractModelSerializer(BaseTestCase):
         model_datetime = datetime.utcnow() - timedelta(days=expected_model_age)
 
         model_path = (
-                Path(f"{model_datetime.strftime(FOLDER_DATETIME_FORMAT)}") / MODEL_FILENAME
+            Path(f"{model_datetime.strftime(FOLDER_DATETIME_FORMAT)}") / MODEL_FILENAME
         )
 
         model_age = PersistentStorageSerializer(
@@ -44,13 +44,13 @@ class TestAbstractModelSerializer(BaseTestCase):
     @patch("mlflow.set_tag")
     @patch("mlflow.search_runs")
     def test_save_model(
-            self,
-            mock_search,
-            mock_set_tag,
-            mock_log_metrics,
-            mock_log_params,
-            mock_log_figure,
-            mock_log_model,
+        self,
+        mock_search,
+        mock_set_tag,
+        mock_log_metrics,
+        mock_log_params,
+        mock_log_figure,
+        mock_log_model,
     ):
         model_type = "xgb"
         model = ModelCreator.create_model(model_type)
@@ -74,13 +74,13 @@ class TestAbstractModelSerializer(BaseTestCase):
     @patch("mlflow.set_tag")
     @patch("mlflow.search_runs")
     def test_save_model_no_previous(
-            self,
-            mock_search,
-            mock_set_tag,
-            mock_log_metrics,
-            mock_log_params,
-            mock_log_figure,
-            mock_log_model,
+        self,
+        mock_search,
+        mock_set_tag,
+        mock_log_metrics,
+        mock_log_params,
+        mock_log_figure,
+        mock_log_model,
     ):
         model_type = "xgb"
         model = ModelCreator.create_model(model_type)
@@ -129,7 +129,7 @@ class TestAbstractModelSerializer(BaseTestCase):
             }
         )
         with self.assertLogs(
-                "PersistentStorageSerializer", level="WARNING"
+            "PersistentStorageSerializer", level="WARNING"
         ) as captured:
             days = PersistentStorageSerializer(
                 trained_models_folder="./test/trained_models"

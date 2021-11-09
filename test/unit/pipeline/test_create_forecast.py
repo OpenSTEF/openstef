@@ -11,6 +11,7 @@ from openstf.pipeline import create_forecast
 from openstf.pipeline import utils
 from test.utils import BaseTestCase, TestData
 
+
 class TestCreateForecastPipeline(BaseTestCase):
     def test_generate_forecast_datetime_range_single_null_values_target_column(self):
         """Test if correct forecast window is made with single range of nulls."""

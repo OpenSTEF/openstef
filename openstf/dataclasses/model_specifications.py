@@ -21,4 +21,3 @@ class ModelSpecificationDataClass(BaseModel):
             self.__dict__[key] = value
         else:
             raise AttributeError(f"{key} not an attribute of model specifications.")
-

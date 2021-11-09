@@ -29,10 +29,7 @@ class TestCreateForeCastTask(TestCase):
     @patch("openstf.tasks.utils.taskcontext.DataBase")
     @patch("openstf.tasks.utils.taskcontext.ConfigManager")
     def test_create_forecast_task_with_context(
-        self,
-        configmock_taskcontext,
-        dbmock,
-        serializer_mock
+        self, configmock_taskcontext, dbmock, serializer_mock
     ):
         """Test create forecast task with context."""
         dbmock().get_prediction_jobs.return_value = [
