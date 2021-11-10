@@ -10,7 +10,7 @@ from distutils.dir_util import copy_tree
 
 import pandas as pd
 
-from openstf.dataclasses.model_specifications import ModelSpecificationDataClass
+from openstf.data_classes.model_specifications import ModelSpecificationDataClass
 from openstf.model.model_creator import ModelCreator
 from openstf.model.serializer import (
     PersistentStorageSerializer,

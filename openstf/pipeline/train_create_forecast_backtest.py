@@ -7,7 +7,7 @@ import pandas as pd
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
 from sklearn.base import RegressorMixin
 
-from openstf.dataclasses.model_specifications import ModelSpecificationDataClass
+from openstf.data_classes.model_specifications import ModelSpecificationDataClass
 from openstf.model.confidence_interval_applicator import ConfidenceIntervalApplicator
 from openstf.pipeline.train_model import train_pipeline_common
 from openstf.postprocessing.postprocessing import (
