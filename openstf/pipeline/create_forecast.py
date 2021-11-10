@@ -8,12 +8,12 @@ import pandas as pd
 import structlog
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
-from model.regressors.regressor import OpenstfRegressor
 from openstf.feature_engineering.feature_applicator import (
     OperationalPredictFeatureApplicator,
 )
 from openstf.model.confidence_interval_applicator import ConfidenceIntervalApplicator
 from openstf.model.fallback import generate_fallback
+from openstf.model.regressors.regressor import OpenstfRegressor
 from openstf.model.serializer import PersistentStorageSerializer
 from openstf.pipeline.utils import generate_forecast_datetime_range
 from openstf.postprocessing.postprocessing import (
