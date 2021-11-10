@@ -31,6 +31,7 @@ MODEL_ID_SEP = "-"
 MAX_N_MODELS = 10  # Number of models per experiment allowed in model registry
 E_MSG = "feature_names couldn't be loaded, using None"
 
+
 class AbstractSerializer(ABC):
     def __init__(self, trained_models_folder: Union[Path, str]) -> None:
         """
