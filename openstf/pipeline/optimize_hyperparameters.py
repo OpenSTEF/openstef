@@ -18,6 +18,7 @@ from openstf.feature_engineering.feature_applicator import TrainFeatureApplicato
 from openstf.model.model_creator import ModelCreator
 from openstf.model.objective import RegressorObjective
 from openstf.model.objective_creator import ObjectiveCreator
+
 # This is required to disable the default optuna logger and pass the logs to our own
 # structlog logger
 from openstf.model.regressors.regressor import OpenstfRegressor
