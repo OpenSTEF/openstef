@@ -7,9 +7,9 @@ from typing import List, Tuple, Union
 
 import pandas as pd
 import structlog
-from openstf.dataclasses.model_specifications import ModelSpecificationDataClass
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
+from openstf.dataclasses.model_specifications import ModelSpecificationDataClass
 from openstf.exceptions import (
     InputDataInsufficientError,
     InputDataWrongColumnOrderError,

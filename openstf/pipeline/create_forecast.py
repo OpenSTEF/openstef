@@ -6,10 +6,9 @@ from typing import Union
 
 import pandas as pd
 import structlog
-from openstf.dataclasses.model_specifications import ModelSpecificationDataClass
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
-from sklearn.base import RegressorMixin
 
+from model.regressors.regressor import OpenstfRegressor
 from openstf.feature_engineering.feature_applicator import (
     OperationalPredictFeatureApplicator,
 )
@@ -56,7 +55,7 @@ def create_forecast_pipeline(
 def create_forecast_pipeline_core(
     pj: PredictionJobDataClass,
     input_data: pd.DataFrame,
-    model: RegressorMixin,
+    model: OpenstfRegressor,
 ) -> pd.DataFrame:
     """Create forecast pipeline (core)
 
@@ -69,7 +68,7 @@ def create_forecast_pipeline_core(
     Args:
         pj (PredictionJobDataClass): Prediction job.
         input_data (pandas.DataFrame): Iput data for the prediction.
-        model (RegressorMixin): Model to use for this prediction.
+        model (OpenstfRegressor): Model to use for this prediction.
 
     Returns:
         forecast (pandas.DataFrame)

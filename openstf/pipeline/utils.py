@@ -2,8 +2,9 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 from datetime import datetime
-import pandas as pd
 from typing import Tuple
+
+import pandas as pd
 import scipy.ndimage.measurements as mnts
 
 

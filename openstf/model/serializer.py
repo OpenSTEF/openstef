@@ -18,10 +18,10 @@ import structlog
 from matplotlib import figure
 from mlflow.exceptions import MlflowException
 from mlflow.tracking import MlflowClient
-from openstf.dataclasses.model_specifications import ModelSpecificationDataClass
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
 from plotly import graph_objects
 
+from openstf.dataclasses.model_specifications import ModelSpecificationDataClass
 from openstf.metrics.reporter import Report
 from openstf.model.regressors.regressor import OpenstfRegressor
 
