@@ -29,7 +29,7 @@ MODEL_FILENAME = "model.joblib"
 FOLDER_DATETIME_FORMAT = "%Y%m%d%H%M%S"
 MODEL_ID_SEP = "-"
 MAX_N_MODELS = 10  # Number of models per experiment allowed in model registry
-
+E_MSG = "feature_names couldn't be loaded, using None"
 
 class AbstractSerializer(ABC):
     def __init__(self, trained_models_folder: Union[Path, str]) -> None:
@@ -162,19 +162,19 @@ class PersistentStorageSerializer(AbstractSerializer):
                 )
             except KeyError:
                 self.logger.warning(
-                    "feature_names couldn't be loaded, using None",
+                    E_MSG,
                     pid=pid,
                     error="tags.feature_names, doesn't exist in run",
                 )
             except AttributeError:
                 self.logger.warning(
-                    "feature_names couldn't be loaded, using None",
+                    E_MSG,
                     pid=pid,
                     error="tags.feature_names, needs to be a string",
                 )
             except JSONDecodeError:
                 self.logger.warning(
-                    "feature_names couldn't be loaded, using None",
+                    E_MSG,
                     pid=pid,
                     error="tags.feature_names, needs to be a string of a list",
                 )
