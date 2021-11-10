@@ -496,7 +496,7 @@ with objective specific parameters.</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
 <dl class="method">
 <dt id="openstf.model.serializer.AbstractSerializer.load_model">
-<em class="property">abstract </em><code class="sig-name descname">load_model</code><span class="sig-paren">(</span><em class="sig-param">pid: Union[str, int]</em><span class="sig-paren">)</span> &#x2192; Tuple[openstf.model.regressors.regressor.OpenstfRegressor, openstf.dataclasses.model_specifications.ModelSpecificationDataClass]<a class="headerlink" href="#openstf.model.serializer.AbstractSerializer.load_model" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract </em><code class="sig-name descname">load_model</code><span class="sig-paren">(</span><em class="sig-param">pid: Union[str, int]</em><span class="sig-paren">)</span> &#x2192; Tuple[openstf.model.regressors.regressor.OpenstfRegressor, openstf.data_classes.model_specifications.ModelSpecificationDataClass]<a class="headerlink" href="#openstf.model.serializer.AbstractSerializer.load_model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Loads model that has been trained earlier</p>
 <p>Returns: Trained sklearn compatible model object</p>
 </dd></dl>
@@ -606,7 +606,7 @@ folder for a specific pid) and find the
 
 <dl class="method">
 <dt id="openstf.model.serializer.PersistentStorageSerializer.load_model">
-<code class="sig-name descname">load_model</code><span class="sig-paren">(</span><em class="sig-param">pid: Union[str, int], model_id: Optional[str] = None</em><span class="sig-paren">)</span> &#x2192; Tuple[openstf.model.regressors.regressor.OpenstfRegressor, openstf.dataclasses.model_specifications.ModelSpecificationDataClass]<a class="headerlink" href="#openstf.model.serializer.PersistentStorageSerializer.load_model" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">load_model</code><span class="sig-paren">(</span><em class="sig-param">pid: Union[str, int], model_id: Optional[str] = None</em><span class="sig-paren">)</span> &#x2192; Tuple[openstf.model.regressors.regressor.OpenstfRegressor, openstf.data_classes.model_specifications.ModelSpecificationDataClass]<a class="headerlink" href="#openstf.model.serializer.PersistentStorageSerializer.load_model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load sklearn compatible model from persistent storage.</p>
 <blockquote>
 <div><p>If a pid is given the most recent model for that pid will be loaded.</p>
@@ -614,7 +614,7 @@ folder for a specific pid) and find the
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>modelspecs</strong> (<em>ModelSpecificationDataClass</em>) – Dataclass containing model specifications</p></li>
+<li><p><strong>modelspecs</strong> (<a class="reference internal" href="openstf.data_classes.html#openstf.data_classes.model_specifications.ModelSpecificationDataClass" title="openstf.data_classes.model_specifications.ModelSpecificationDataClass"><em>ModelSpecificationDataClass</em></a>) – Dataclass containing model specifications</p></li>
 <li><p><strong>model_id</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em><em>, </em><em>optional</em>) – Model id. Defaults to None. Used when MLflow didn’t work.</p></li>
 </ul>
 </dd>
@@ -680,7 +680,7 @@ A maximum of ‘max_n_models’ is allowed</p>
 
 <dl class="method">
 <dt id="openstf.model.serializer.PersistentStorageSerializer.save_model">
-<code class="sig-name descname">save_model</code><span class="sig-paren">(</span><em class="sig-param">model: openstf.model.regressors.regressor.OpenstfRegressor</em>, <em class="sig-param">pj: openstf_dbc.services.prediction_job.PredictionJobDataClass</em>, <em class="sig-param">modelspecs: openstf.dataclasses.model_specifications.ModelSpecificationDataClass</em>, <em class="sig-param">report: openstf.metrics.reporter.Report</em>, <em class="sig-param">phase: str = 'training'</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#openstf.model.serializer.PersistentStorageSerializer.save_model" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">save_model</code><span class="sig-paren">(</span><em class="sig-param">model: openstf.model.regressors.regressor.OpenstfRegressor</em>, <em class="sig-param">pj: openstf_dbc.services.prediction_job.PredictionJobDataClass</em>, <em class="sig-param">modelspecs: openstf.data_classes.model_specifications.ModelSpecificationDataClass</em>, <em class="sig-param">report: openstf.metrics.reporter.Report</em>, <em class="sig-param">phase: str = 'training'</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#openstf.model.serializer.PersistentStorageSerializer.save_model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save sklearn compatible model to persistent storage with MLflow.</p>
 <blockquote>
 <div><p>Either a pid or a model_id should be given. If a pid is given the model_id
@@ -691,7 +691,7 @@ will be generated.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>model</strong> (<a class="reference internal" href="openstf.model.regressors.html#openstf.model.regressors.regressor.OpenstfRegressor" title="openstf.model.regressors.regressor.OpenstfRegressor"><em>OpenstfRegressor</em></a>) – Trained sklearn compatible model object.</p></li>
 <li><p><strong>pj</strong> (<em>PredictionJobDataClass</em>) – Prediction job.</p></li>
-<li><p><strong>modelspecs</strong> (<em>ModelSpecificationDataClass</em>) – Dataclass containing model specifications</p></li>
+<li><p><strong>modelspecs</strong> (<a class="reference internal" href="openstf.data_classes.html#openstf.data_classes.model_specifications.ModelSpecificationDataClass" title="openstf.data_classes.model_specifications.ModelSpecificationDataClass"><em>ModelSpecificationDataClass</em></a>) – Dataclass containing model specifications</p></li>
 <li><p><strong>report</strong> (<a class="reference internal" href="openstf.metrics.html#openstf.metrics.reporter.Report" title="openstf.metrics.reporter.Report"><em>Report</em></a>) – Report object.</p></li>
 <li><p><strong>phase</strong> (<em>str</em>) – Where does the model come from, default is “training”</p></li>
 <li><p><strong>**kwargs</strong> – Extra information to be logged with mlflow, this can add the extra modelspecs</p></li>
