@@ -9,6 +9,7 @@ import pandas as pd
 import structlog
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
+from openstf.dataclasses.model_specifications import ModelSpecificationDataClass
 from openstf.exceptions import (
     InputDataInsufficientError,
     InputDataWrongColumnOrderError,
@@ -38,7 +39,7 @@ VALIDATION_FRACTION: float = 0.1
 
 
 def optimize_hyperparameters_pipeline(
-    pj: Union[dict, PredictionJobDataClass],
+    pj: PredictionJobDataClass,
     input_data: pd.DataFrame,
     trained_models_folder: Union[str, Path],
     horizons: List[float] = TRAIN_HORIZONS,
@@ -49,7 +50,7 @@ def optimize_hyperparameters_pipeline(
     Expected prediction job key's: "name", "model"
 
     Args:
-        pj (Union[dict, PredictionJobDataClass]): Prediction job
+        pj (PredictionJobDataClass): Prediction job
         input_data (pd.DataFrame): Raw training input data
         trained_models_folder (Path): Path where trained models are stored
         horizons (List[float]): horizons for feature engineering.
@@ -99,11 +100,16 @@ def optimize_hyperparameters_pipeline(
         f"and params {study.best_params}"
     )
 
+    # model specification
+    modelspecs = ModelSpecificationDataClass(id=pj["id"])
+    # model data columns
+    modelspecs.feature_names = list(validated_data_with_features.columns)
+
     # Save model
     serializer.save_model(
         model,
         pj=pj,
-        # In objective we have the data, thus we create the report there
+        modelspecs=modelspecs,
         report=objective.create_report(model=model),
         phase="Hyperparameter_opt",
         trials=objective.get_trial_track(),
@@ -114,7 +120,7 @@ def optimize_hyperparameters_pipeline(
 
 
 def optuna_optimization(
-    pj: Union[PredictionJobDataClass, dict],
+    pj: PredictionJobDataClass,
     objective: RegressorObjective,
     validated_data_with_features: pd.DataFrame,
     n_trials: int,

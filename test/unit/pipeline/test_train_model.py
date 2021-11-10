@@ -25,7 +25,6 @@ from test.utils import BaseTestCase, TestData
 
 # define constants
 
-PJ = TestData.get_prediction_job(pid=307)
 XGB_HYPER_PARAMS = {
     "subsample": 0.9,
     "min_child_weight": 4,
@@ -40,9 +39,9 @@ XGB_HYPER_PARAMS = {
 class TestTrainModelPipeline(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
-        self.pj = TestData.get_prediction_job(pid=307)
+        self.pj, self.modelspecs = TestData.get_prediction_job_and_modelspecs(pid=307)
         # Set n_estimators to a small number to speed up training
-        self.pj.hyper_params["n_estimators"] = 3
+        self.modelspecs.hyper_params["n_estimators"] = 3
         datetime_start = datetime.utcnow() - timedelta(days=90)
         datetime_end = datetime.utcnow()
         self.data_table = TestData.load("input_data_train.pickle").head(8641)
@@ -52,19 +51,19 @@ class TestTrainModelPipeline(BaseTestCase):
 
         self.train_input = TestData.load("reference_sets/307-train-data.csv")
 
-    @unittest.skip("If you want to store a newly trained model, use test below")
+    @unittest.skip("Do this test if we want to train a new model")
     def test_train_model_pipeline_update_stored_model(self):
         """Test happy flow of the train model pipeline"""
 
         train_model_pipeline(
             pj=self.pj,
+            modelspecs=self.modelspecs,
             input_data=self.train_input,
             check_old_model_age=False,
             trained_models_folder="./test/trained_models",
         )
 
-    @patch("openstf.model.serializer.PersistentStorageSerializer.save_model")
-    def test_train_model_pipeline_core_happy_flow(self, save_model_mock):
+    def test_train_model_pipeline_core_happy_flow(self):
         """Test happy flow of the train model pipeline
 
         NOTE this does not explain WHY this is the case?
@@ -78,9 +77,13 @@ class TestTrainModelPipeline(BaseTestCase):
             with self.subTest(model_type=model_type):
                 pj = self.pj
                 pj["model"] = model_type.value
+
+                modelspecs = self.modelspecs
                 # Use default parameters
-                pj["hyper_params"] = {}
-                model, report = train_model_pipeline_core(pj=pj, input_data=train_input)
+                modelspecs.hyper_params = {}
+                model, report, modelspecs = train_model_pipeline_core(
+                    pj=pj, modelspecs=self.modelspecs, input_data=train_input
+                )
 
                 # check if the model was fitted (raises NotFittedError when not fitted)
                 self.assertIsNone(sklearn.utils.validation.check_is_fitted(model))
@@ -101,7 +104,7 @@ class TestTrainModelPipeline(BaseTestCase):
 
                 # Add features
                 data_with_features = TrainFeatureApplicator(
-                    horizons=[0.25, 47.0], feature_names=pj["feature_names"]
+                    horizons=[0.25, 47.0], feature_names=self.modelspecs.feature_names
                 ).add_features(validated_data)
 
                 # Split data
@@ -128,16 +131,19 @@ class TestTrainModelPipeline(BaseTestCase):
         old_model_mock.age = 8
 
         serializer_mock_instance = MagicMock()
-        serializer_mock_instance.load_model.return_value = old_model_mock
+        serializer_mock_instance.load_model.return_value = (
+            old_model_mock,
+            self.modelspecs,
+        )
         serializer_mock.return_value = serializer_mock_instance
 
         report_mock = MagicMock()
-        pipeline_mock.return_value = ("a", report_mock)
+        pipeline_mock.return_value = ("a", report_mock, self.modelspecs)
 
         train_model_pipeline(
             pj=self.pj,
             input_data=self.train_input,
-            check_old_model_age=True,
+            check_old_model_age=False,
             trained_models_folder="./test/trained_models",
         )
 
@@ -152,7 +158,10 @@ class TestTrainModelPipeline(BaseTestCase):
         old_model_mock.age = 3
 
         serializer_mock_instance = MagicMock()
-        serializer_mock_instance.load_model.return_value = old_model_mock
+        serializer_mock_instance.load_model.return_value = (
+            old_model_mock,
+            self.modelspecs,
+        )
         serializer_mock.return_value = serializer_mock_instance
 
         report_mock = MagicMock()
@@ -177,7 +186,7 @@ class TestTrainModelPipeline(BaseTestCase):
                 train_model_pipeline(
                     pj=self.pj,
                     input_data=self.train_input,
-                    check_old_model_age=True,
+                    check_old_model_age=False,
                     trained_models_folder="./test/trained_models",
                 )
 
@@ -201,7 +210,7 @@ class TestTrainModelPipeline(BaseTestCase):
                 train_model_pipeline(
                     pj=self.pj,
                     input_data=input_data,
-                    check_old_model_age=True,
+                    check_old_model_age=False,
                     trained_models_folder="./test/trained_models",
                 )
 
@@ -221,7 +230,10 @@ class TestTrainModelPipeline(BaseTestCase):
         old_model_mock.age = 8
 
         serializer_mock_instance = MagicMock()
-        serializer_mock_instance.load_model.return_value = old_model_mock
+        serializer_mock_instance.load_model.return_value = (
+            old_model_mock,
+            self.modelspecs,
+        )
         serializer_mock.return_value = serializer_mock_instance
         old_model_mock.score.return_value = 5
 
@@ -250,7 +262,10 @@ class TestTrainModelPipeline(BaseTestCase):
         old_model_mock.age = 8
 
         serializer_mock_instance = MagicMock()
-        serializer_mock_instance.load_model.return_value = old_model_mock
+        serializer_mock_instance.load_model.return_value = (
+            old_model_mock,
+            self.modelspecs,
+        )
         serializer_mock.return_value = serializer_mock_instance
         old_model_mock.score.return_value = 0.1
 
@@ -275,7 +290,10 @@ class TestTrainModelPipeline(BaseTestCase):
         old_model_mock.age = 8
 
         serializer_mock_instance = MagicMock()
-        serializer_mock_instance.load_model.return_value = old_model_mock
+        serializer_mock_instance.load_model.return_value = (
+            old_model_mock,
+            self.modelspecs,
+        )
         serializer_mock.return_value = serializer_mock_instance
         old_model_mock.score.side_effect = ValueError()
 
@@ -300,7 +318,10 @@ class TestTrainModelPipeline(BaseTestCase):
         old_model_mock.age = 8
 
         serializer_mock_instance = MagicMock()
-        serializer_mock_instance.load_model.return_value = old_model_mock
+        serializer_mock_instance.load_model.return_value = (
+            old_model_mock,
+            self.modelspecs,
+        )
         serializer_mock_instance.load_model.side_effect = FileNotFoundError()
         serializer_mock.return_value = serializer_mock_instance
 

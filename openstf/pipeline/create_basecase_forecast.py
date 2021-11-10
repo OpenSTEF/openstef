@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 from pathlib import Path
-from typing import Union
 
 import pandas as pd
 import structlog
@@ -26,7 +25,7 @@ BASECASE_RESOLUTION_MINUTES = 15
 
 
 def create_basecase_forecast_pipeline(
-    pj: Union[dict, PredictionJobDataClass],
+    pj: PredictionJobDataClass,
     input_data: pd.DataFrame,
 ) -> pd.DataFrame:
     """Computes the base case forecast and confidence intervals for a given prediction job and input data.

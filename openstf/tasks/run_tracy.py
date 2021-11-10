@@ -70,7 +70,6 @@ def run_tracy(context):
 
         pid = int(job["args"])
         pj = context.database.get_prediction_job(pid)
-
         result, exc = run_tracy_job(job, pj, context)
         # job processing was succefull
         if result is TracyJobResult.SUCCESS:

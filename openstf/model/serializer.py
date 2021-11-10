@@ -1,11 +1,13 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+import json
 import os
 from abc import ABC, abstractmethod
 from datetime import datetime
+from json import JSONDecodeError
 from pathlib import Path
-from typing import List, Optional, Union
+from typing import List, Optional, Union, Tuple
 from urllib.parse import unquote, urlparse
 
 import joblib
@@ -16,6 +18,7 @@ import structlog
 from matplotlib import figure
 from mlflow.exceptions import MlflowException
 from mlflow.tracking import MlflowClient
+from openstf.dataclasses.model_specifications import ModelSpecificationDataClass
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
 from plotly import graph_objects
 
@@ -26,14 +29,15 @@ MODEL_FILENAME = "model.joblib"
 FOLDER_DATETIME_FORMAT = "%Y%m%d%H%M%S"
 MODEL_ID_SEP = "-"
 MAX_N_MODELS = 10  # Number of models per experiment allowed in model registry
+E_MSG = "feature_names couldn't be loaded, using None"
 
 
 class AbstractSerializer(ABC):
     def __init__(self, trained_models_folder: Union[Path, str]) -> None:
         """
 
-        Returns:
-            object:
+        Args:
+            trained_models_folder (Path): path to save models to
         """
         path = os.path.abspath(f"{trained_models_folder}/mlruns/")
         self.mlflow_folder = Path(path).as_uri()
@@ -52,7 +56,9 @@ class AbstractSerializer(ABC):
         self.logger.error("This is an abstract method!")
 
     @abstractmethod
-    def load_model(self) -> OpenstfRegressor:
+    def load_model(
+        self, pid: Union[str, int]
+    ) -> Tuple[OpenstfRegressor, ModelSpecificationDataClass]:
         """Loads model that has been trained earlier
 
         Returns: Trained sklearn compatible model object
@@ -65,21 +71,23 @@ class PersistentStorageSerializer(AbstractSerializer):
     def save_model(
         self,
         model: OpenstfRegressor,
-        pj: Union[dict, PredictionJobDataClass],
+        pj: PredictionJobDataClass,
+        modelspecs: ModelSpecificationDataClass,
         report: Report,
         phase: str = "training",
         **kwargs,
-    ):
+    ) -> None:
         """Save sklearn compatible model to persistent storage with MLflow.
 
             Either a pid or a model_id should be given. If a pid is given the model_id
             will be generated.
 
         Args:
-            model: Trained sklearn compatible model object.
-            pj: Prediction job.
-            report: Report object.
-            phase: Where does the model come from, default is "training"
+            model (OpenstfRegressor): Trained sklearn compatible model object.
+            pj (PredictionJobDataClass): Prediction job.
+            modelspecs (ModelSpecificationDataClass): Dataclass containing model specifications
+            report (Report): Report object.
+            phase (str): Where does the model come from, default is "training"
             **kwargs: Extra information to be logged with mlflow, this can add the extra modelspecs
 
         """
@@ -99,21 +107,25 @@ class PersistentStorageSerializer(AbstractSerializer):
             self.logger.info("No previous model found in MLflow", pid=pj["id"])
             prev_run_id = None
         with mlflow.start_run(run_name=pj["model"]):
-            self._log_model_with_mlflow(pj, model, report, phase, prev_run_id, **kwargs)
+            self._log_model_with_mlflow(
+                pj, modelspecs, model, report, phase, prev_run_id, **kwargs
+            )
             self._log_figure_with_mlflow(report)
         self.logger.debug(f"MLflow path after saving= {self.mlflow_folder}")
 
     def load_model(
-        self, pid: Optional[Union[int, str]] = None, model_id: Optional[str] = None
-    ) -> OpenstfRegressor:
+        self,
+        pid: Union[str, int],
+        model_id: Optional[str] = None,
+    ) -> Tuple[OpenstfRegressor, ModelSpecificationDataClass]:
         """Load sklearn compatible model from persistent storage.
 
-            Either a pid or a model_id should be given. If a pid is given the most
-            recent model for that pid will be loaded.
+            If a pid is given the most recent model for that pid will be loaded.
 
         Args:
-            pid (Optional[Union[int, str]], optional): Prediction job id. Defaults to None.
+            modelspecs (ModelSpecificationDataClass): Dataclass containing model specifications
             model_id (Optional[str], optional): Model id. Defaults to None. Used when MLflow didn't work.
+
 
         Raises:
             AttributeError: when there is no experiment with pid in MLflow
@@ -123,7 +135,11 @@ class PersistentStorageSerializer(AbstractSerializer):
 
         Returns:
             OpenstfRegressor: Loaded model
+            ModelSpecificationDataClass: model specifications
         """
+        # create basic modelspecs
+        modelspecs = ModelSpecificationDataClass(id=pid)
+
         try:
             experiment_id = self.setup_mlflow(pid)
             # return the latest run of the model, .iloc[0] because it returns a list with max_results number of runs
@@ -132,9 +148,38 @@ class PersistentStorageSerializer(AbstractSerializer):
                 filter_string="attribute.status = 'FINISHED'",
                 max_results=1,
             ).iloc[0]
+
             loaded_model = mlflow.sklearn.load_model(
                 os.path.join(latest_run.artifact_uri, "model/")
             )
+
+            # get the parameters from the old model, we insert these later into the new model
+            # get the hyper parameters from the previous model
+            modelspecs.hyper_params = loaded_model.get_params()
+            # get used feature names else use all feature names
+            try:
+                modelspecs.feature_names = json.loads(
+                    latest_run["tags.feature_names"].replace("'", '"')
+                )
+            except KeyError:
+                self.logger.warning(
+                    E_MSG,
+                    pid=pid,
+                    error="tags.feature_names, doesn't exist in run",
+                )
+            except AttributeError:
+                self.logger.warning(
+                    E_MSG,
+                    pid=pid,
+                    error="tags.feature_names, needs to be a string",
+                )
+            except JSONDecodeError:
+                self.logger.warning(
+                    E_MSG,
+                    pid=pid,
+                    error="tags.feature_names, needs to be a string of a list",
+                )
+
             # Add model age to model object
             loaded_model.age = self._determine_model_age_from_mlflow_run(latest_run)
             # URI containing file:/// before the path
@@ -142,13 +187,15 @@ class PersistentStorageSerializer(AbstractSerializer):
             # Path without file:///
             loaded_model.path = unquote(urlparse(uri).path)
             self.logger.info("Model successfully loaded with MLflow")
-            return loaded_model
+            return loaded_model, modelspecs
         # Catch possible errors
         except (AttributeError, LookupError, MlflowException, OSError) as e:
             self.logger.warning(
-                "Couldn't load with MLflow, trying the old way", pid=pid, error=e
+                "Couldn't load with MLflow, trying the old way",
+                pid=pid,
+                error=e,
             )
-            return self.load_model_no_mlflow(pid, model_id)
+            return self.load_model_no_mlflow(pid, model_id), modelspecs
 
     def load_model_no_mlflow(
         self, pid: Optional[Union[int, str]] = None, model_id: Optional[str] = None
@@ -171,25 +218,20 @@ class PersistentStorageSerializer(AbstractSerializer):
         """
         if pid is None and model_id is None:
             raise ValueError("Need to supply either a pid or a model_id")
-
         if pid is not None and model_id is not None:
             raise ValueError("Cannot supply both a pid and a model_id")
-
         if pid is not None:
             model_path = self.find_most_recent_model_path(pid)
         else:
             model_path = self.convert_model_id_into_model_path(model_id)
-
         if model_path is None:
             msg = f"No (most recent) model found"
             self.logger.error(msg)
             raise FileNotFoundError(msg)
-
         if model_path.is_file() is False:
             msg = f"model_path is not a file ({model_path})"
             self.logger.error(msg)
             raise FileNotFoundError(msg)
-
         return self.load_model_from_path(model_path)
 
     @staticmethod
@@ -399,7 +441,8 @@ class PersistentStorageSerializer(AbstractSerializer):
 
     def _log_model_with_mlflow(
         self,
-        pj: Union[dict, PredictionJobDataClass],
+        pj: PredictionJobDataClass,
+        modelspecs: ModelSpecificationDataClass,
         model: OpenstfRegressor,
         report: Report,
         phase: str,
@@ -424,10 +467,18 @@ class PersistentStorageSerializer(AbstractSerializer):
         mlflow.set_tag("Previous_version_id", prev_run_id)
         mlflow.set_tag("model_type", pj["model"])
         mlflow.set_tag("prediction_job", pj["id"])
+
+        # add modelspecs attributes except hyper_params
+
+        # save feature names and target to MLflow, assume target is the first column
+        mlflow.set_tag("feature_names", modelspecs.feature_names[1:])
+        mlflow.set_tag("target", modelspecs.feature_names[0])
+
         # Add metrics to the run
         mlflow.log_metrics(report.metrics)
-        # Add the used parameters to the run
-        mlflow.log_params(model.get_params())
+        # Add the used parameters to the run + the params from the prediction job
+        modelspecs.hyper_params.update(model.get_params())
+        mlflow.log_params(modelspecs.hyper_params)
 
         # Process args
         for key, value in kwargs.items():
