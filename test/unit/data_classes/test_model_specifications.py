@@ -1,6 +1,7 @@
 import unittest
 from test.utils.data import TestData
 
+
 class TestModelSpecifications(unittest.TestCase):
     def setUp(self) -> None:
         super().setUp()
@@ -20,6 +21,5 @@ class TestModelSpecifications(unittest.TestCase):
             self.modelspecs.__setitem__("unknown", "shouldn't set")
 
 
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
