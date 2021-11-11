@@ -52,15 +52,14 @@ def optimize_hyperparameters_task(
     # retrieve last model from MLflow
     old_model = PersistentStorageSerializer(trained_models_folder).load_model(pj["id"])
 
-    if old_model.age is not None:
-        if old_model.age < MAX_AGE_HYPER_PARAMS_DAYS:
-            context.logger.warning(
-                "Skip hyperparameter optimization",
-                pid=pj["id"],
-                model_age=old_model.age,
-                max_age=MAX_AGE_HYPER_PARAMS_DAYS,
-            )
-            return
+    if old_model.age is not None and old_model.age < MAX_AGE_HYPER_PARAMS_DAYS:
+        context.logger.warning(
+            "Skip hyperparameter optimization",
+            pid=pj["id"],
+            model_age=old_model.age,
+            max_age=MAX_AGE_HYPER_PARAMS_DAYS,
+        )
+        return
 
     datetime_start = datetime.utcnow() - timedelta(days=DEFAULT_TRAINING_PERIOD_DAYS)
     datetime_end = datetime.utcnow()
