@@ -22,6 +22,7 @@ from pathlib import Path
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 from openstf.enums import MLModelType
+from openstf.model.serializer import PersistentStorageSerializer
 from openstf.monitoring import teams
 from openstf.pipeline.optimize_hyperparameters import optimize_hyperparameters_pipeline
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
@@ -47,14 +48,16 @@ def optimize_hyperparameters_task(
     trained_models_folder = Path(context.config.paths.trained_models_folder)
 
     # Determine if we need to optimize hyperparams
-    datetime_last_optimized = context.database.get_hyper_params_last_optimized(pj)
-    if datetime_last_optimized is not None:
-        last_optimized_days = (datetime.utcnow() - datetime_last_optimized).days
-        if last_optimized_days < MAX_AGE_HYPER_PARAMS_DAYS:
+
+    # retrieve last model from MLflow
+    old_model = PersistentStorageSerializer(trained_models_folder).load_model(pj["id"])
+
+    if old_model.age is not None:
+        if old_model.age < MAX_AGE_HYPER_PARAMS_DAYS:
             context.logger.warning(
                 "Skip hyperparameter optimization",
                 pid=pj["id"],
-                last_optimized_days=last_optimized_days,
+                model_age=old_model.age,
                 max_age=MAX_AGE_HYPER_PARAMS_DAYS,
             )
             return
@@ -75,8 +78,6 @@ def optimize_hyperparameters_task(
         input_data,
         trained_models_folder=trained_models_folder,
     )
-
-    context.database.write_hyper_params(pj, hyperparameters)
 
     # Sent message to Teams
     title = (
