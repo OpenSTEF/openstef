@@ -28,7 +28,9 @@ class TestAbstractModelSerializer(BaseTestCase):
     @patch("openstf.data_classes.model_specifications.ModelSpecificationDataClass")
     @patch("mlflow.search_runs")
     @patch("mlflow.sklearn.load_model")
-    def test_serializer_feature_names_keyerror(self, mock_load, mock_search_runs, mock_modelspecs):
+    def test_serializer_feature_names_keyerror(
+        self, mock_load, mock_search_runs, mock_modelspecs
+    ):
         mock_search_runs.return_value = pd.DataFrame(
             data={
                 "run_id": [1, 2],
@@ -50,7 +52,9 @@ class TestAbstractModelSerializer(BaseTestCase):
     @patch("openstf.data_classes.model_specifications.ModelSpecificationDataClass")
     @patch("mlflow.search_runs")
     @patch("mlflow.sklearn.load_model")
-    def test_serializer_feature_names_attributeerror(self, mock_load, mock_search_runs, mock_modelspecs):
+    def test_serializer_feature_names_attributeerror(
+        self, mock_load, mock_search_runs, mock_modelspecs
+    ):
         mock_search_runs.return_value = pd.DataFrame(
             data={
                 "run_id": [1, 2],
@@ -74,7 +78,9 @@ class TestAbstractModelSerializer(BaseTestCase):
     @patch("openstf.data_classes.model_specifications.ModelSpecificationDataClass")
     @patch("mlflow.search_runs")
     @patch("mlflow.sklearn.load_model")
-    def test_serializer_feature_names_jsonerror(self, mock_load, mock_search_runs, mock_modelspecs):
+    def test_serializer_feature_names_jsonerror(
+        self, mock_load, mock_search_runs, mock_modelspecs
+    ):
         mock_search_runs.return_value = pd.DataFrame(
             data={
                 "run_id": [1, 2],

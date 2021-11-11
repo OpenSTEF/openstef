@@ -157,7 +157,9 @@ class PersistentStorageSerializer(AbstractSerializer):
             # get the hyper parameters from the previous model
             modelspecs.hyper_params = loaded_model.get_params()
             # get used feature names else use all feature names
-            modelspecs.feature_names = self._get_feature_names(pid, latest_run, modelspecs, loaded_model)
+            modelspecs.feature_names = self._get_feature_names(
+                pid, latest_run, modelspecs, loaded_model
+            )
 
             # Add model age to model object
             loaded_model.age = self._determine_model_age_from_mlflow_run(latest_run)
@@ -534,8 +536,14 @@ class PersistentStorageSerializer(AbstractSerializer):
                 self.logger.debug(f"Removing run {run.run_id}, from {run.end_time}")
                 mlflow.delete_run(run.run_id)
 
-    def _get_feature_names(self,pid: Union[int,str], latest_run: pd.Series, modelspecs: ModelSpecificationDataClass, loaded_model: OpenstfRegressor) -> Optional[list]:
-        """ Get the feature_names from MLflow or the old model
+    def _get_feature_names(
+        self,
+        pid: Union[int, str],
+        latest_run: pd.Series,
+        modelspecs: ModelSpecificationDataClass,
+        loaded_model: OpenstfRegressor,
+    ) -> Optional[list]:
+        """Get the feature_names from MLflow or the old model
 
         Args:
             pid: prediction job id
