@@ -50,7 +50,9 @@ def optimize_hyperparameters_task(
     # Determine if we need to optimize hyperparams
 
     # retrieve last model from MLflow
-    old_model, modelspecs = PersistentStorageSerializer(trained_models_folder).load_model(pj["id"])
+    old_model, modelspecs = PersistentStorageSerializer(
+        trained_models_folder
+    ).load_model(pj["id"])
 
     if old_model.age is not None and old_model.age < MAX_AGE_HYPER_PARAMS_DAYS:
         context.logger.warning(
