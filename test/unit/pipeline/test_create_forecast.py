@@ -6,6 +6,9 @@ from datetime import datetime as dt
 from pathlib import Path
 from unittest.mock import patch
 
+from metrics.reporter import Report
+from model.model_creator import ModelCreator
+from model.standard_deviation_generator import StandardDeviationGenerator
 from openstf.model.serializer import MLflowSerializer
 from openstf.pipeline import create_forecast
 from openstf.pipeline import utils
@@ -16,13 +19,17 @@ class TestCreateForecastPipeline(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
         self.pj = TestData.get_prediction_job(pid=307)
+        self.serializer = MLflowSerializer(
+            trained_models_folder="./test/trained_models"
+        )
+        self.data = TestData.load("reference_sets/307-test-data.csv")
 
     def test_generate_forecast_datetime_range_single_null_values_target_column(self):
         """Test if correct forecast window is made with single range of nulls."""
         time_format = "%Y-%m-%d %H:%M:%S%z"
         forecast_start_expected = dt.strptime("2020-11-26 00:00:00+0000", time_format)
         forecast_end_expected = dt.strptime("2020-11-30 00:00:00+0000", time_format)
-        forecast_data = TestData.load("reference_sets/307-test-data.csv")
+        forecast_data = self.data
         forecast_data.loc["2020-11-26":"2020-12-01", forecast_data.columns[0]] = None
 
         forecast_start, forecast_end = utils.generate_forecast_datetime_range(
@@ -37,7 +44,7 @@ class TestCreateForecastPipeline(BaseTestCase):
         time_format = "%Y-%m-%d %H:%M:%S%z"
         forecast_start_expected = dt.strptime("2020-11-26 00:00:00+0000", time_format)
         forecast_end_expected = dt.strptime("2020-11-30 00:00:00+0000", time_format)
-        forecast_data = TestData.load("reference_sets/307-test-data.csv")
+        forecast_data = self.data
         forecast_data.loc["2020-11-26":"2020-12-01", forecast_data.columns[0]] = None
         forecast_data.loc["2020-11-23":"2020-11-24", forecast_data.columns[0]] = None
 
@@ -50,7 +57,7 @@ class TestCreateForecastPipeline(BaseTestCase):
 
     def test_generate_forecast_datetime_range_not_null_values_target_column(self):
         """Test if error is raised when data has no nulls."""
-        forecast_data = TestData.load("reference_sets/307-test-data.csv")
+        forecast_data = self.data
         forecast_data.loc["2020-11-26":"2020-12-01", forecast_data.columns[0]] = 1
         self.assertRaises(
             ValueError, utils.generate_forecast_datetime_range, forecast_data
@@ -61,7 +68,7 @@ class TestCreateForecastPipeline(BaseTestCase):
         time_format = "%Y-%m-%d %H:%M:%S%z"
         forecast_start_expected = dt.strptime("2020-10-31 00:45:00+0000", time_format)
         forecast_end_expected = dt.strptime("2020-11-30 00:00:00+0000", time_format)
-        forecast_data = TestData.load("reference_sets/307-test-data.csv")
+        forecast_data = self.data
         forecast_data.loc[:, forecast_data.columns[0]] = None
 
         forecast_start, forecast_end = utils.generate_forecast_datetime_range(
@@ -79,13 +86,11 @@ class TestCreateForecastPipeline(BaseTestCase):
         # Load mock value, forecast data, prediction job and model
         is_data_sufficient_mock.return_value = False
 
-        forecast_data = TestData.load("reference_sets/307-test-data.csv")
+        forecast_data = self.data
         col_name = forecast_data.columns[0]
         forecast_data.loc["2020-11-28 00:00:00":"2020-12-01", col_name] = None
 
-        model, modelspecs = MLflowSerializer(
-            trained_models_folder="./test/trained_models"
-        ).load_model(self.pj["id"])
+        model, modelspecs = self.serializer.load_model(self.pj["id"])
         if not hasattr(model, "standard_deviation"):  # Renamed the attribute
             model.standard_deviation = model.confidence_interval
 
@@ -100,14 +105,12 @@ class TestCreateForecastPipeline(BaseTestCase):
     def test_create_forecast_pipeline_happy_flow_2_days(self):
         """Test the happy flow of the forecast pipeline with a trained model."""
         # Load prediction job and forecast data
-        forecast_data = TestData.load("reference_sets/307-test-data.csv")
+        forecast_data = self.data
         col_name = forecast_data.columns[0]
         forecast_data.loc["2020-11-28 00:00:00":"2020-12-01", col_name] = None
 
         # Load model
-        model, modelspecs = MLflowSerializer(
-            trained_models_folder="./test/trained_models"
-        ).load_model(self.pj["id"])
+        model, modelspecs = self.serializer.load_model(self.pj["id"])
         modelspecs.feature_names = forecast_data.columns[1:]
 
         if not hasattr(model, "standard_deviation"):  # Renamed the attribute
@@ -127,14 +130,12 @@ class TestCreateForecastPipeline(BaseTestCase):
     def test_create_forecast_pipeline_happy_flow_4_days(self):
         """Test the happy flow of the forecast pipeline with a trained model."""
         # Load prediction job and forecast data
-        forecast_data = TestData.load("reference_sets/307-test-data.csv")
+        forecast_data = self.data
         col_name = forecast_data.columns[0]
         forecast_data.loc["2020-11-26 00:00:00":"2020-12-01", col_name] = None
 
         # Load model
-        model, modelspecs = MLflowSerializer(
-            trained_models_folder="./test/trained_models"
-        ).load_model(self.pj["id"])
+        model, modelspecs = self.serializer.load_model(self.pj["id"])
         modelspecs.feature_names = forecast_data.columns[1:]
 
         if not hasattr(model, "standard_deviation"):  # Renamed the attribute
@@ -154,14 +155,12 @@ class TestCreateForecastPipeline(BaseTestCase):
     def test_create_forecast_pipeline_happy_flow_5_days(self):
         """Test the happy flow of the forecast pipeline with a trained model."""
         # Load prediction job and forecast data
-        forecast_data = TestData.load("reference_sets/307-test-data.csv")
+        forecast_data = self.data
         col_name = forecast_data.columns[0]
         forecast_data.loc["2020-11-25 00:00:00":"2020-12-01", col_name] = None
 
         # Load model
-        model, modelspecs = MLflowSerializer(
-            trained_models_folder="./test/trained_models"
-        ).load_model(self.pj["id"])
+        model, modelspecs = self.serializer.load_model(self.pj["id"])
         modelspecs.feature_names = forecast_data.columns[1:]
 
         if not hasattr(model, "standard_deviation"):  # Renamed the attribute

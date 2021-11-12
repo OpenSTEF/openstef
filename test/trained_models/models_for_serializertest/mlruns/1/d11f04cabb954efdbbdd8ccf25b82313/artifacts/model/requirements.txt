@@ -1,0 +1,4 @@
+mlflow
+cloudpickle==2.0.0
+openstf==2.2.2
+scikit-learn==0.0
