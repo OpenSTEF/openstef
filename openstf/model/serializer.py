@@ -135,7 +135,7 @@ class MLflowSerializer(AbstractSerializer):
         """
         try:
             # return the latest run
-            prev_run = self._find_models(pj["id"])
+            prev_run = self._find_models(pj["id"], n=1)
             # Use [0] to only get latest run id
             prev_run_id = str(prev_run["run_id"])
         except LookupError:
@@ -175,7 +175,7 @@ class MLflowSerializer(AbstractSerializer):
 
         try:
             # return the latest run of the model
-            latest_run = self._find_models(pid)
+            latest_run = self._find_models(pid, n=1)
 
             loaded_model = mlflow.sklearn.load_model(
                 os.path.join(latest_run.artifact_uri, "model/")
@@ -204,7 +204,7 @@ class MLflowSerializer(AbstractSerializer):
 
     def get_model_age(self, pid: Union[int, str]) -> int:
         # get run
-        run = self._find_models(pid)
+        run = self._find_models(pid, n=1)
         # get age of model
         age = self._determine_model_age_from_mlflow_run(run)
         return age
@@ -219,7 +219,7 @@ class MLflowSerializer(AbstractSerializer):
                 f"MAX_N_MODELS should be greater than 1! Received: {max_n_models}"
             )
 
-        prev_runs = self._find_models(pj["id"], n=None)
+        prev_runs = self._find_models(pj["id"])
 
         if len(prev_runs) > max_n_models:
             self.logger.debug(
@@ -275,7 +275,7 @@ class MLflowSerializer(AbstractSerializer):
         self.logger.debug(f"MLflow path during setup= {self.mlflow_folder}")
         return mlflow.get_experiment_by_name(str(pid)).experiment_id
 
-    def _find_models(self, pid: Union[int, str], n: Optional[int] = 1) -> Union[pd.Series, pd.DataFrame]:
+    def _find_models(self, pid: Union[int, str], n: Optional[int] = None) -> Union[pd.Series, pd.DataFrame]:
         """
 
         Args:
