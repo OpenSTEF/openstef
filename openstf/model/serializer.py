@@ -7,17 +7,14 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 from json import JSONDecodeError
 from pathlib import Path
-from typing import List, Optional, Union, Tuple
+from typing import Optional, Union, Tuple
 from urllib.parse import unquote, urlparse
 
-import joblib
 import mlflow
 import pandas as pd
-import pytz
 import structlog
 from matplotlib import figure
 from mlflow.exceptions import MlflowException
-from mlflow.tracking import MlflowClient
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
 from plotly import graph_objects
 

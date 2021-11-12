@@ -3,20 +3,17 @@
 # SPDX-License-Identifier: MPL-2.0
 
 from datetime import datetime, timedelta
-from pathlib import Path
 from unittest.mock import patch, MagicMock, PropertyMock
 import tempfile
 from distutils.dir_util import copy_tree
 
 import pandas as pd
 
-from metrics.reporter import Report
+from openstf.metrics.reporter import Report
 from openstf.data_classes.model_specifications import ModelSpecificationDataClass
 from openstf.model.model_creator import ModelCreator
 from openstf.model.serializer import (
-    MLflowSerializer,
-    MODEL_FILENAME,
-    FOLDER_DATETIME_FORMAT,
+    MLflowSerializer
 )
 from test.utils import BaseTestCase, TestData
 
