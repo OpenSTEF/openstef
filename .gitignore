@@ -16,7 +16,7 @@ ktprognoses.egg-info/
 # Ignore these files
 .DS_Store
 tmp
-mlruns/
+test/trained_models/mlruns/
 test/trained_models/models_for_serializertest/mlruns/
 
 # default Python .gitignore template: https://raw.githubusercontent.com/github/gitignore/master/Python.gitignore
