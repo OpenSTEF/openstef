@@ -222,6 +222,11 @@ def train_pipeline_common(
         horizons=horizons, feature_names=pj["feature_names"]
     ).add_features(validated_data)
 
+    if pj['model'] == 'proloaf':
+        stratification_min_max = False
+    else:
+        stratification_min_max = True
+
     # Split data
     (
         peaks,
@@ -232,6 +237,7 @@ def train_pipeline_common(
     ) = split_data_train_validation_test(
         data_with_features,
         test_fraction=test_fraction,
+        stratification_min_max=stratification_min_max,
         back_test=backtest,
     )
 
