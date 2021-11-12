@@ -3,12 +3,8 @@
 # SPDX-License-Identifier: MPL-2.0
 import unittest
 from datetime import datetime as dt
-from pathlib import Path
 from unittest.mock import patch
 
-from metrics.reporter import Report
-from model.model_creator import ModelCreator
-from model.standard_deviation_generator import StandardDeviationGenerator
 from openstf.model.serializer import MLflowSerializer
 from openstf.pipeline import create_forecast
 from openstf.pipeline import utils
