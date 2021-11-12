@@ -22,7 +22,7 @@ from openstf.model.objective_creator import ObjectiveCreator
 # This is required to disable the default optuna logger and pass the logs to our own
 # structlog logger
 from openstf.model.regressors.regressor import OpenstfRegressor
-from openstf.model.serializer import PersistentStorageSerializer
+from openstf.model.serializer import MLflowSerializer
 from openstf.validation import validation
 
 optuna.logging.enable_propagation()  # Propagate logs to the root logger.
@@ -84,9 +84,7 @@ def optimize_hyperparameters_pipeline(
     ).add_features(validated_data)
 
     # Create serializer
-    serializer = PersistentStorageSerializer(trained_models_folder)
-    # Start MLflow
-    serializer.setup_mlflow(pj["id"])
+    serializer = MLflowSerializer(trained_models_folder)
 
     # Create objective (NOTE: this is a callable class)
     objective = ObjectiveCreator.create_objective(model_type=pj["model"])

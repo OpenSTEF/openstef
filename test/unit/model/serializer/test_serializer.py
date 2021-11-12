@@ -10,10 +10,11 @@ from distutils.dir_util import copy_tree
 
 import pandas as pd
 
+from metrics.reporter import Report
 from openstf.data_classes.model_specifications import ModelSpecificationDataClass
 from openstf.model.model_creator import ModelCreator
 from openstf.model.serializer import (
-    PersistentStorageSerializer,
+    MLflowSerializer,
     MODEL_FILENAME,
     FOLDER_DATETIME_FORMAT,
 )
@@ -43,7 +44,7 @@ class TestAbstractModelSerializer(BaseTestCase):
         )
         mock_modelspecs.return_value = self.modelspecs
         type(mock_load.return_value).feature_names = PropertyMock(return_value=None)
-        loaded_model, modelspecs = PersistentStorageSerializer(
+        loaded_model, modelspecs = MLflowSerializer(
             trained_models_folder="./test/trained_models"
         ).load_model(307)
         self.assertIsInstance(modelspecs, ModelSpecificationDataClass)
@@ -69,7 +70,7 @@ class TestAbstractModelSerializer(BaseTestCase):
         )
         mock_modelspecs.return_value = self.modelspecs
         type(mock_load.return_value).feature_names = PropertyMock(return_value=None)
-        loaded_model, modelspecs = PersistentStorageSerializer(
+        loaded_model, modelspecs = MLflowSerializer(
             trained_models_folder="./test/trained_models"
         ).load_model(307)
         self.assertIsInstance(modelspecs, ModelSpecificationDataClass)
@@ -96,27 +97,11 @@ class TestAbstractModelSerializer(BaseTestCase):
 
         mock_modelspecs.return_value = self.modelspecs
         type(mock_load.return_value).feature_names = PropertyMock(return_value=None)
-        loaded_model, modelspecs = PersistentStorageSerializer(
+        loaded_model, modelspecs = MLflowSerializer(
             trained_models_folder="./test/trained_models"
         ).load_model(307)
         self.assertIsInstance(modelspecs, ModelSpecificationDataClass)
         self.assertEqual(modelspecs.feature_names, None)
-
-    # Not MLflow age tester
-    def test_determine_model_age_from_path(self):
-        expected_model_age = 7
-
-        model_datetime = datetime.utcnow() - timedelta(days=expected_model_age)
-
-        model_path = (
-            Path(f"{model_datetime.strftime(FOLDER_DATETIME_FORMAT)}") / MODEL_FILENAME
-        )
-
-        model_age = PersistentStorageSerializer(
-            trained_models_folder="./test/trained_models"
-        )._determine_model_age_from_path(model_path)
-
-        self.assertEqual(model_age, expected_model_age)
 
     @patch("mlflow.sklearn.log_model")
     @patch("mlflow.log_figure")
@@ -140,9 +125,9 @@ class TestAbstractModelSerializer(BaseTestCase):
         pj["id"] = "Default"
         report_mock = MagicMock()
         report_mock.get_metrics.return_value = {"mae", 0.2}
-        with self.assertLogs("PersistentStorageSerializer", level="INFO") as captured:
+        with self.assertLogs("MLflowSerializer", level="INFO") as captured:
 
-            PersistentStorageSerializer(
+            MLflowSerializer(
                 trained_models_folder="./test/trained_models"
             ).save_model(
                 model=model, pj=pj, modelspecs=self.modelspecs, report=report_mock
@@ -175,8 +160,8 @@ class TestAbstractModelSerializer(BaseTestCase):
         report_mock = MagicMock()
         report_mock.get_metrics.return_value = {"mae", 0.2}
         mock_search.return_value = pd.DataFrame(columns=["run_id"])
-        with self.assertLogs("PersistentStorageSerializer", level="INFO") as captured:
-            PersistentStorageSerializer(
+        with self.assertLogs("MLflowSerializer", level="INFO") as captured:
+            MLflowSerializer(
                 trained_models_folder="./test/trained_models"
             ).save_model(
                 model=model, pj=pj, modelspecs=self.modelspecs, report=report_mock
@@ -198,7 +183,7 @@ class TestAbstractModelSerializer(BaseTestCase):
                 ],
             }
         ).iloc[0]
-        days = PersistentStorageSerializer(
+        days = MLflowSerializer(
             trained_models_folder="./test/trained_models"
         )._determine_model_age_from_mlflow_run(run)
         self.assertGreater(days, 7)
@@ -217,9 +202,9 @@ class TestAbstractModelSerializer(BaseTestCase):
             }
         )
         with self.assertLogs(
-            "PersistentStorageSerializer", level="WARNING"
+            "MLflowSerializer", level="WARNING"
         ) as captured:
-            days = PersistentStorageSerializer(
+            days = MLflowSerializer(
                 trained_models_folder="./test/trained_models"
             )._determine_model_age_from_mlflow_run(run)
         # The index shifts if logging is added
@@ -239,39 +224,42 @@ class TestAbstractModelSerializer(BaseTestCase):
         # Set up
         local_model_dir = "./test/trained_models/models_for_serializertest"
 
-        ### Run the code below once, to generate stored models
+        ### The code below generates stored models, makes sure there are 4 models
         # We want to test using pre-stored models, since MLflow takes ~6seconds per save_model()
-        ## If you want to store new models, run the lines below:
-        # model_type = "xgb"
-        # model = ModelCreator.create_model(model_type)
-        # dummy_report = Report(
-        #     feature_importance_figure=None,
-        #     data_series_figures={},
-        #     metrics={},
-        #     signature=None,
-        # )
-        # serializer = PersistentStorageSerializer(local_model_dir)
-        # for _ in range(4):
-        #     serializer.save_model(model, self.pj, self.modelspecs, report=dummy_report)
+        def store_models(pj, modelspecs, n):
+            model_type = "xgb"
+            model = ModelCreator.create_model(model_type)
+            dummy_report = Report(
+                feature_importance_figure=None,
+                data_series_figures={},
+                metrics={},
+                signature=None,
+            )
+            serializer = MLflowSerializer(local_model_dir)
+            for _ in range(n):
+                serializer.save_model(model, pj, modelspecs, report=dummy_report)
+            return serializer._find_models(pj["id"], n=None)
 
         # We copy the already stored models to a temp dir and test the functionality from there
         with tempfile.TemporaryDirectory() as temp_model_dir:
             # Copy already stored models to temp dir
             copy_tree(local_model_dir, temp_model_dir)
 
-            serializer = PersistentStorageSerializer(temp_model_dir)
+            serializer = MLflowSerializer(temp_model_dir)
             # Find all stored models
-            all_stored_models = serializer._find_all_models(self.pj)
+            all_stored_models = serializer._find_models(self.pj["id"], n=None)
+
+            if len(all_stored_models) < 4:
+                all_stored_models = store_models(self.pj, self.modelspecs, n=int(4 - len(all_stored_models)))
 
             # Remove old models
             serializer.remove_old_models(self.pj, max_n_models=2)
+            final_stored_models = serializer._find_models(self.pj["id"], n=None)
 
-            # Check which models are left
-            final_stored_models = serializer._find_all_models(self.pj)
             # Compare final_stored_models to all_stored_models
             self.assertEqual(len(all_stored_models), 4)
             self.assertEqual(len(final_stored_models), 2)
-            # Check if the runs match to the oldest two runs
+            # Check if the runs match to the newest two runs
             self.assertDataframeEqual(
                 final_stored_models.sort_values(by="end_time", ascending=False),
                 all_stored_models.sort_values(by="end_time", ascending=False).iloc[

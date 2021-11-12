@@ -25,7 +25,7 @@ class TestCreateForeCastTask(TestCase):
         create_forecast_task(self.pj, context)
         self.assertEqual(context.mock_calls[1].args[0], FORECAST_MOCK)
 
-    @patch("openstf.model.serializer.PersistentStorageSerializer")
+    @patch("openstf.model.serializer.MLflowSerializer")
     @patch("openstf.tasks.utils.taskcontext.DataBase")
     @patch("openstf.tasks.utils.taskcontext.ConfigManager")
     def test_create_forecast_task_with_context(

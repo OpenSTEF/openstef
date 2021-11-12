@@ -6,7 +6,7 @@ from datetime import datetime as dt
 from pathlib import Path
 from unittest.mock import patch
 
-from openstf.model.serializer import PersistentStorageSerializer
+from openstf.model.serializer import MLflowSerializer
 from openstf.pipeline import create_forecast
 from openstf.pipeline import utils
 from test.utils import BaseTestCase, TestData
@@ -83,7 +83,7 @@ class TestCreateForecastPipeline(BaseTestCase):
         col_name = forecast_data.columns[0]
         forecast_data.loc["2020-11-28 00:00:00":"2020-12-01", col_name] = None
 
-        model, modelspecs = PersistentStorageSerializer(
+        model, modelspecs = MLflowSerializer(
             trained_models_folder="./test/trained_models"
         ).load_model(self.pj["id"])
         if not hasattr(model, "standard_deviation"):  # Renamed the attribute
@@ -105,7 +105,7 @@ class TestCreateForecastPipeline(BaseTestCase):
         forecast_data.loc["2020-11-28 00:00:00":"2020-12-01", col_name] = None
 
         # Load model
-        model, modelspecs = PersistentStorageSerializer(
+        model, modelspecs = MLflowSerializer(
             trained_models_folder="./test/trained_models"
         ).load_model(self.pj["id"])
         modelspecs.feature_names = forecast_data.columns[1:]
@@ -132,7 +132,7 @@ class TestCreateForecastPipeline(BaseTestCase):
         forecast_data.loc["2020-11-26 00:00:00":"2020-12-01", col_name] = None
 
         # Load model
-        model, modelspecs = PersistentStorageSerializer(
+        model, modelspecs = MLflowSerializer(
             trained_models_folder="./test/trained_models"
         ).load_model(self.pj["id"])
         modelspecs.feature_names = forecast_data.columns[1:]
@@ -159,7 +159,7 @@ class TestCreateForecastPipeline(BaseTestCase):
         forecast_data.loc["2020-11-25 00:00:00":"2020-12-01", col_name] = None
 
         # Load model
-        model, modelspecs = PersistentStorageSerializer(
+        model, modelspecs = MLflowSerializer(
             trained_models_folder="./test/trained_models"
         ).load_model(self.pj["id"])
         modelspecs.feature_names = forecast_data.columns[1:]

@@ -22,7 +22,7 @@ from pathlib import Path
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 from openstf.enums import MLModelType
-from openstf.model.serializer import PersistentStorageSerializer
+from openstf.model.serializer import MLflowSerializer
 from openstf.monitoring import teams
 from openstf.pipeline.optimize_hyperparameters import optimize_hyperparameters_pipeline
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
@@ -49,16 +49,16 @@ def optimize_hyperparameters_task(
 
     # Determine if we need to optimize hyperparams
 
-    # retrieve last model from MLflow
-    old_model, modelspecs = PersistentStorageSerializer(
+    # retrieve last model age
+    model_age = MLflowSerializer(
         trained_models_folder
-    ).load_model(pj["id"])
+    ).get_model_age(pj["id"])
 
-    if old_model.age is not None and old_model.age < MAX_AGE_HYPER_PARAMS_DAYS:
+    if model_age < MAX_AGE_HYPER_PARAMS_DAYS:
         context.logger.warning(
             "Skip hyperparameter optimization",
             pid=pj["id"],
-            model_age=old_model.age,
+            model_age=model_age,
             max_age=MAX_AGE_HYPER_PARAMS_DAYS,
         )
         return
