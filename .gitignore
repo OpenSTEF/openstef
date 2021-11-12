@@ -16,7 +16,8 @@ ktprognoses.egg-info/
 # Ignore these files
 .DS_Store
 tmp
-mlruns
+mlruns/
+test/trained_models/models_for_serializertest/mlruns/
 
 # default Python .gitignore template: https://raw.githubusercontent.com/github/gitignore/master/Python.gitignore
 
@@ -161,3 +162,4 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
+test/trained_models/models_for_serializertest/mlruns
