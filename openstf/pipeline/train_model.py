@@ -62,7 +62,7 @@ def train_model_pipeline(
         old_model_age = (
             old_model.age
         )  # Age attribute is openstf specific and is added by the serializer
-    except FileNotFoundError:
+    except (AttributeError, FileNotFoundError):
         old_model = None
         old_model_age = float("inf")
         # create basic modelspecs

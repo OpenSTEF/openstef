@@ -151,16 +151,13 @@ class MLflowSerializer(AbstractSerializer):
     def load_model(
         self,
         pid: Union[str, int],
-        model_id: Optional[str] = None,
     ) -> Tuple[OpenstfRegressor, ModelSpecificationDataClass]:
         """Load sklearn compatible model from persistent storage.
 
             If a pid is given the most recent model for that pid will be loaded.
 
         Args:
-            modelspecs (ModelSpecificationDataClass): Dataclass containing model specifications
-            model_id (Optional[str], optional): Model id. Defaults to None. Used when MLflow didn't work.
-
+            pid (int): prediction job id
 
         Raises:
             AttributeError: when there is no experiment with pid in MLflow

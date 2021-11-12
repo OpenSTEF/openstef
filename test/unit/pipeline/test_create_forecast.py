@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+import pickle
 import unittest
 from datetime import datetime as dt
 from unittest.mock import patch
@@ -19,6 +20,11 @@ class TestCreateForecastPipeline(BaseTestCase):
             trained_models_folder="./test/trained_models"
         )
         self.data = TestData.load("reference_sets/307-test-data.csv")
+        self.train_input = TestData.load("reference_sets/307-train-data.csv")
+        pickle_model = "./test/trained_models/mlruns/1/ef5808eaa1c647cdaf88cd959f918fea/artifacts/model/model.pkl"
+        # load model
+        with open(pickle_model, 'rb') as f:
+            self.model = pickle.load(f)
 
     def test_generate_forecast_datetime_range_single_null_values_target_column(self):
         """Test if correct forecast window is made with single range of nulls."""
@@ -98,8 +104,10 @@ class TestCreateForecastPipeline(BaseTestCase):
         # Verify backtest was performed
         assert "substituted" in forecast.quality.values
 
-    def test_create_forecast_pipeline_happy_flow_2_days(self):
+    @patch("mlflow.sklearn.load_model")
+    def test_create_forecast_pipeline_happy_flow_2_days(self, load_mock):
         """Test the happy flow of the forecast pipeline with a trained model."""
+        load_mock.return_value = self.model
         # Load prediction job and forecast data
         forecast_data = self.data
         col_name = forecast_data.columns[0]
@@ -123,8 +131,10 @@ class TestCreateForecastPipeline(BaseTestCase):
         self.assertGreater(forecast.forecast.min(), -5)
         self.assertLess(forecast.forecast.max(), 85)
 
-    def test_create_forecast_pipeline_happy_flow_4_days(self):
+    @patch("mlflow.sklearn.load_model")
+    def test_create_forecast_pipeline_happy_flow_4_days(self, load_mock):
         """Test the happy flow of the forecast pipeline with a trained model."""
+        load_mock.return_value = self.model
         # Load prediction job and forecast data
         forecast_data = self.data
         col_name = forecast_data.columns[0]
@@ -148,8 +158,10 @@ class TestCreateForecastPipeline(BaseTestCase):
         self.assertGreater(forecast.forecast.min(), -5)
         self.assertLess(forecast.forecast.max(), 85)
 
-    def test_create_forecast_pipeline_happy_flow_5_days(self):
+    @patch("mlflow.sklearn.load_model")
+    def test_create_forecast_pipeline_happy_flow_5_days(self, load_mock):
         """Test the happy flow of the forecast pipeline with a trained model."""
+        load_mock.return_value = self.model
         # Load prediction job and forecast data
         forecast_data = self.data
         col_name = forecast_data.columns[0]
@@ -172,7 +184,6 @@ class TestCreateForecastPipeline(BaseTestCase):
         self.assertEqual(len(forecast.columns), 15)
         self.assertGreater(forecast.forecast.min(), -5)
         self.assertLess(forecast.forecast.max(), 85)
-
 
 if __name__ == "__main__":
     unittest.main()

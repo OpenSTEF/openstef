@@ -57,7 +57,6 @@ class TestTrainModelPipeline(BaseTestCase):
 
         train_model_pipeline(
             pj=self.pj,
-            modelspecs=self.modelspecs,
             input_data=self.train_input,
             check_old_model_age=False,
             trained_models_folder="./test/trained_models",
