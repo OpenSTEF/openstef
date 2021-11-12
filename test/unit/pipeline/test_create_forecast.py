@@ -80,11 +80,13 @@ class TestCreateForecastPipeline(BaseTestCase):
         self.assertEqual(forecast_start, forecast_start_expected)
         self.assertEqual(forecast_end, forecast_end_expected)
 
+    @patch("mlflow.sklearn.load_model")
     @patch("openstf.validation.validation.is_data_sufficient")
     def test_create_forecast_pipeline_incomplete_inputdata(
-        self, is_data_sufficient_mock
+        self, is_data_sufficient_mock, load_mock
     ):
         """Test if a fallback forecast is used when input is incomplete."""
+        load_mock.return_value = self.model
         # Load mock value, forecast data, prediction job and model
         is_data_sufficient_mock.return_value = False
 
