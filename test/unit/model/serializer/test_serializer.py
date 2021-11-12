@@ -27,7 +27,7 @@ class TestAbstractModelSerializer(BaseTestCase):
     @patch("mlflow.search_runs")
     @patch("mlflow.sklearn.load_model")
     def test_serializer_feature_names_keyerror(
-        self, mock_load, mock_search_runs, mock_modelspecs
+            self, mock_load, mock_search_runs, mock_modelspecs
     ):
         mock_search_runs.return_value = pd.DataFrame(
             data={
@@ -51,7 +51,7 @@ class TestAbstractModelSerializer(BaseTestCase):
     @patch("mlflow.search_runs")
     @patch("mlflow.sklearn.load_model")
     def test_serializer_feature_names_attributeerror(
-        self, mock_load, mock_search_runs, mock_modelspecs
+            self, mock_load, mock_search_runs, mock_modelspecs
     ):
         mock_search_runs.return_value = pd.DataFrame(
             data={
@@ -77,7 +77,7 @@ class TestAbstractModelSerializer(BaseTestCase):
     @patch("mlflow.search_runs")
     @patch("mlflow.sklearn.load_model")
     def test_serializer_feature_names_jsonerror(
-        self, mock_load, mock_search_runs, mock_modelspecs
+            self, mock_load, mock_search_runs, mock_modelspecs
     ):
         mock_search_runs.return_value = pd.DataFrame(
             data={
@@ -107,13 +107,13 @@ class TestAbstractModelSerializer(BaseTestCase):
     @patch("mlflow.set_tag")
     @patch("mlflow.search_runs")
     def test_save_model(
-        self,
-        mock_search,
-        mock_set_tag,
-        mock_log_metrics,
-        mock_log_params,
-        mock_log_figure,
-        mock_log_model,
+            self,
+            mock_search,
+            mock_set_tag,
+            mock_log_metrics,
+            mock_log_params,
+            mock_log_figure,
+            mock_log_model,
     ):
         model_type = "xgb"
         model = ModelCreator.create_model(model_type)
@@ -123,7 +123,6 @@ class TestAbstractModelSerializer(BaseTestCase):
         report_mock = MagicMock()
         report_mock.get_metrics.return_value = {"mae", 0.2}
         with self.assertLogs("MLflowSerializer", level="INFO") as captured:
-
             MLflowSerializer(
                 trained_models_folder="./test/trained_models"
             ).save_model(
@@ -141,13 +140,13 @@ class TestAbstractModelSerializer(BaseTestCase):
     @patch("mlflow.set_tag")
     @patch("mlflow.search_runs")
     def test_save_model_no_previous(
-        self,
-        mock_search,
-        mock_set_tag,
-        mock_log_metrics,
-        mock_log_params,
-        mock_log_figure,
-        mock_log_model,
+            self,
+            mock_search,
+            mock_set_tag,
+            mock_log_metrics,
+            mock_log_params,
+            mock_log_figure,
+            mock_log_model,
     ):
         model_type = "xgb"
         model = ModelCreator.create_model(model_type)
@@ -199,7 +198,7 @@ class TestAbstractModelSerializer(BaseTestCase):
             }
         )
         with self.assertLogs(
-            "MLflowSerializer", level="WARNING"
+                "MLflowSerializer", level="WARNING"
         ) as captured:
             days = MLflowSerializer(
                 trained_models_folder="./test/trained_models"
@@ -221,7 +220,7 @@ class TestAbstractModelSerializer(BaseTestCase):
         # Set up
         local_model_dir = "./test/trained_models/models_for_serializertest"
 
-        ### The code below generates stored models, makes sure there are 4 models
+        # The code below generates stored models, makes sure there are 4 models
         # We want to test using pre-stored models, since MLflow takes ~6seconds per save_model()
         def store_models(pj, modelspecs, n):
             model_type = "xgb"
@@ -232,10 +231,10 @@ class TestAbstractModelSerializer(BaseTestCase):
                 metrics={},
                 signature=None,
             )
-            serializer = MLflowSerializer(local_model_dir)
+            serializer_local = MLflowSerializer(local_model_dir)
             for _ in range(n):
-                serializer.save_model(model, pj, modelspecs, report=dummy_report)
-            return serializer._find_models(pj["id"], n=None)
+                serializer_local.save_model(model, pj, modelspecs, report=dummy_report)
+            return serializer_local._find_models(pj["id"], n=None)
 
         # We copy the already stored models to a temp dir and test the functionality from there
         with tempfile.TemporaryDirectory() as temp_model_dir:
@@ -245,10 +244,15 @@ class TestAbstractModelSerializer(BaseTestCase):
             serializer = MLflowSerializer(temp_model_dir)
             # Find all stored models
             all_stored_models = serializer._find_models(self.pj["id"], n=None)
-
-            if len(all_stored_models) < 4:
-                all_stored_models = store_models(self.pj, self.modelspecs, n=int(4 - len(all_stored_models)))
-
+            # make models if needed
+            try:
+                if len(all_stored_models) < 4:
+                    store_models(self.pj, self.modelspecs, n=int(4 - len(all_stored_models)))
+                    copy_tree(local_model_dir, temp_model_dir)
+                    # Find all stored models
+                    all_stored_models = serializer._find_models(self.pj["id"], n=None)
+            except PermissionError:
+                pass
             # Remove old models
             serializer.remove_old_models(self.pj, max_n_models=2)
             final_stored_models = serializer._find_models(self.pj["id"], n=None)
@@ -260,6 +264,6 @@ class TestAbstractModelSerializer(BaseTestCase):
             self.assertDataframeEqual(
                 final_stored_models.sort_values(by="end_time", ascending=False),
                 all_stored_models.sort_values(by="end_time", ascending=False).iloc[
-                    :2, :
+                :2, :
                 ],
             )
