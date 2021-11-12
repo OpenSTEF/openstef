@@ -40,14 +40,15 @@ class AbstractSerializer(ABC):
         self.trained_models_folder = trained_models_folder
 
     @abstractmethod
-    def save_model(self,
+    def save_model(
+        self,
         model: OpenstfRegressor,
         pj: PredictionJobDataClass,
         modelspecs: ModelSpecificationDataClass,
         report: Report,
-        **kwargs
+        **kwargs,
     ) -> None:
-        """ Save a trained model
+        """Save a trained model
 
         Args:
             model (OpenstfRegressor): trained model
@@ -197,7 +198,9 @@ class MLflowSerializer(AbstractSerializer):
                 pid=pid,
                 error=e,
             )
-            raise AttributeError("Model couldn't be found or doesn't exist. First train a model!")
+            raise AttributeError(
+                "Model couldn't be found or doesn't exist. First train a model!"
+            )
 
     def get_model_age(self, pid: Union[int, str]) -> int:
         # get run
@@ -230,8 +233,13 @@ class MLflowSerializer(AbstractSerializer):
                 self.logger.debug(f"Removing run {run.run_id}, from {run.end_time}")
                 mlflow.delete_run(run.run_id)
 
-    def _get_model_specs(self, pid: Union[int, str], loaded_model: OpenstfRegressor, latest_run: pd.Series) -> ModelSpecificationDataClass:
-        """ get model specifications from a model
+    def _get_model_specs(
+        self,
+        pid: Union[int, str],
+        loaded_model: OpenstfRegressor,
+        latest_run: pd.Series,
+    ) -> ModelSpecificationDataClass:
+        """get model specifications from a model
 
         Args:
             pid (int): prediction job id
@@ -272,7 +280,9 @@ class MLflowSerializer(AbstractSerializer):
         self.logger.debug(f"MLflow path during setup= {self.mlflow_folder}")
         return mlflow.get_experiment_by_name(str(pid)).experiment_id
 
-    def _find_models(self, pid: Union[int, str], n: Optional[int] = None) -> Union[pd.Series, pd.DataFrame]:
+    def _find_models(
+        self, pid: Union[int, str], n: Optional[int] = None
+    ) -> Union[pd.Series, pd.DataFrame]:
         """
 
         Args:

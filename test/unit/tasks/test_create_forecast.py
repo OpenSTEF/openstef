@@ -17,7 +17,7 @@ class TestCreateForeCastTask(TestCase):
         self.pj, self.modelspecs = TestData.get_prediction_job_and_modelspecs(pid=307)
         pickle_model = "./test/trained_models/mlruns/1/ef5808eaa1c647cdaf88cd959f918fea/artifacts/model/model.pkl"
         # load model
-        with open(pickle_model, 'rb') as f:
+        with open(pickle_model, "rb") as f:
             self.model = pickle.load(f)
 
     @patch(

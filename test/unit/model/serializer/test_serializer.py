@@ -12,9 +12,7 @@ import pandas as pd
 from openstf.metrics.reporter import Report
 from openstf.data_classes.model_specifications import ModelSpecificationDataClass
 from openstf.model.model_creator import ModelCreator
-from openstf.model.serializer import (
-    MLflowSerializer
-)
+from openstf.model.serializer import MLflowSerializer
 from test.utils import BaseTestCase, TestData
 
 MAKE_RUNS = False
@@ -29,7 +27,7 @@ class TestAbstractModelSerializer(BaseTestCase):
     @patch("mlflow.search_runs")
     @patch("mlflow.sklearn.load_model")
     def test_serializer_feature_names_keyerror(
-            self, mock_load, mock_search_runs, mock_modelspecs
+        self, mock_load, mock_search_runs, mock_modelspecs
     ):
         mock_search_runs.return_value = pd.DataFrame(
             data={
@@ -53,7 +51,7 @@ class TestAbstractModelSerializer(BaseTestCase):
     @patch("mlflow.search_runs")
     @patch("mlflow.sklearn.load_model")
     def test_serializer_feature_names_attributeerror(
-            self, mock_load, mock_search_runs, mock_modelspecs
+        self, mock_load, mock_search_runs, mock_modelspecs
     ):
         mock_search_runs.return_value = pd.DataFrame(
             data={
@@ -79,7 +77,7 @@ class TestAbstractModelSerializer(BaseTestCase):
     @patch("mlflow.search_runs")
     @patch("mlflow.sklearn.load_model")
     def test_serializer_feature_names_jsonerror(
-            self, mock_load, mock_search_runs, mock_modelspecs
+        self, mock_load, mock_search_runs, mock_modelspecs
     ):
         mock_search_runs.return_value = pd.DataFrame(
             data={
@@ -109,13 +107,13 @@ class TestAbstractModelSerializer(BaseTestCase):
     @patch("mlflow.set_tag")
     @patch("mlflow.search_runs")
     def test_save_model(
-            self,
-            mock_search,
-            mock_set_tag,
-            mock_log_metrics,
-            mock_log_params,
-            mock_log_figure,
-            mock_log_model,
+        self,
+        mock_search,
+        mock_set_tag,
+        mock_log_metrics,
+        mock_log_params,
+        mock_log_figure,
+        mock_log_model,
     ):
         model_type = "xgb"
         model = ModelCreator.create_model(model_type)
@@ -125,9 +123,7 @@ class TestAbstractModelSerializer(BaseTestCase):
         report_mock = MagicMock()
         report_mock.get_metrics.return_value = {"mae", 0.2}
         with self.assertLogs("MLflowSerializer", level="INFO") as captured:
-            MLflowSerializer(
-                trained_models_folder="./test/trained_models"
-            ).save_model(
+            MLflowSerializer(trained_models_folder="./test/trained_models").save_model(
                 model=model, pj=pj, modelspecs=self.modelspecs, report=report_mock
             )
             # The index shifts if logging is added
@@ -142,13 +138,13 @@ class TestAbstractModelSerializer(BaseTestCase):
     @patch("mlflow.set_tag")
     @patch("mlflow.search_runs")
     def test_save_model_no_previous(
-            self,
-            mock_search,
-            mock_set_tag,
-            mock_log_metrics,
-            mock_log_params,
-            mock_log_figure,
-            mock_log_model,
+        self,
+        mock_search,
+        mock_set_tag,
+        mock_log_metrics,
+        mock_log_params,
+        mock_log_figure,
+        mock_log_model,
     ):
         model_type = "xgb"
         model = ModelCreator.create_model(model_type)
@@ -159,9 +155,7 @@ class TestAbstractModelSerializer(BaseTestCase):
         report_mock.get_metrics.return_value = {"mae", 0.2}
         mock_search.return_value = pd.DataFrame(columns=["run_id"])
         with self.assertLogs("MLflowSerializer", level="INFO") as captured:
-            MLflowSerializer(
-                trained_models_folder="./test/trained_models"
-            ).save_model(
+            MLflowSerializer(trained_models_folder="./test/trained_models").save_model(
                 model=model, pj=pj, modelspecs=self.modelspecs, report=report_mock
             )
             # The index shifts if logging is added
@@ -199,9 +193,7 @@ class TestAbstractModelSerializer(BaseTestCase):
                 ],
             }
         )
-        with self.assertLogs(
-                "MLflowSerializer", level="WARNING"
-        ) as captured:
+        with self.assertLogs("MLflowSerializer", level="WARNING") as captured:
             days = MLflowSerializer(
                 trained_models_folder="./test/trained_models"
             )._determine_model_age_from_mlflow_run(run)
@@ -236,7 +228,9 @@ class TestAbstractModelSerializer(BaseTestCase):
             )
             serializer = MLflowSerializer(local_model_dir)
             for _ in range(4):
-                serializer.save_model(model, self.pj, self.modelspecs, report=dummy_report)
+                serializer.save_model(
+                    model, self.pj, self.modelspecs, report=dummy_report
+                )
 
         # We copy the already stored models to a temp dir and test the functionality from there
         with tempfile.TemporaryDirectory() as temp_model_dir:
@@ -247,20 +241,22 @@ class TestAbstractModelSerializer(BaseTestCase):
             # Find all stored models
             all_stored_models = serializer._find_models(self.pj["id"])
 
-
-
             # Remove old models
             serializer.remove_old_models(self.pj, max_n_models=2)
 
             # Check which models are left
             final_stored_models = serializer._find_models(self.pj["id"])
             # Compare final_stored_models to all_stored_models
-            self.assertEqual(len(all_stored_models), 4, f"we expect 4 models at the start- (now {len(all_stored_models)}), please remove runs (manually) or add runs with MAKE_RUNS == TRUE ")
+            self.assertEqual(
+                len(all_stored_models),
+                4,
+                f"we expect 4 models at the start- (now {len(all_stored_models)}), please remove runs (manually) or add runs with MAKE_RUNS == TRUE ",
+            )
             self.assertEqual(len(final_stored_models), 2)
             # Check if the runs match to the oldest two runs
             self.assertDataframeEqual(
                 final_stored_models.sort_values(by="end_time", ascending=False),
                 all_stored_models.sort_values(by="end_time", ascending=False).iloc[
-                :2, :
+                    :2, :
                 ],
             )

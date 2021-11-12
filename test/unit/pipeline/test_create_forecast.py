@@ -23,7 +23,7 @@ class TestCreateForecastPipeline(BaseTestCase):
         self.train_input = TestData.load("reference_sets/307-train-data.csv")
         pickle_model = "./test/trained_models/mlruns/1/ef5808eaa1c647cdaf88cd959f918fea/artifacts/model/model.pkl"
         # load model
-        with open(pickle_model, 'rb') as f:
+        with open(pickle_model, "rb") as f:
             self.model = pickle.load(f)
 
     def test_generate_forecast_datetime_range_single_null_values_target_column(self):
@@ -186,6 +186,7 @@ class TestCreateForecastPipeline(BaseTestCase):
         self.assertEqual(len(forecast.columns), 15)
         self.assertGreater(forecast.forecast.min(), -5)
         self.assertLess(forecast.forecast.max(), 85)
+
 
 if __name__ == "__main__":
     unittest.main()
