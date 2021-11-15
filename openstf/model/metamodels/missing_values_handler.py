@@ -11,7 +11,9 @@ from sklearn.utils.validation import check_is_fitted, check_X_y, check_array
 
 class MissingValueHandler(BaseEstimator, RegressorMixin, MetaEstimatorMixin):
     """Class for a meta-models that handles missing values and removes columns filled exclusively by NaN.
-    Pipeline of imputer for missing value and a regressor.
+    It's a pipeline of:
+        - An Imputation transformer for completing missing values.
+        - A Regressor fitted on the filled data.
 
     Parameters
     ----------
@@ -19,14 +21,30 @@ class MissingValueHandler(BaseEstimator, RegressorMixin, MetaEstimatorMixin):
     base_estimator: RegressorMixin
         Regressor used in the pipeline.
 
-    missing_values: default=np.nan
-        Type of missing values handled by the imputer.
+    missing_values : int, float, str, np.nan or None, default=np.nan
+        The placeholder for the missing values. All occurrences of
+        `missing_values` will be imputed. For pandas' dataframes with
+        nullable integer dtypes with missing values, `missing_values`
+        should be set to `np.nan`, since `pd.NA` will be converted to `np.nan`.
 
-    imputation_strategy: str, default=None
-        Imputing strategy for the imputer. If None, nan values are not allow and the linear regression will raise a ValueError.
+    imputation_strategy : str, default=None
+        The imputation strategy.
+        - If None no imputation is performed.
+        - If "mean", then replace missing values using the mean along
+          each column. Can only be used with numeric data.
+        - If "median", then replace missing values using the median along
+          each column. Can only be used with numeric data.
+        - If "most_frequent", then replace missing using the most frequent
+          value along each column. Can be used with strings or numeric data.
+          If there is more than one such value, only the smallest is returned.
+        - If "constant", then replace missing values with fill_value. Can be
+          used with strings or numeric data.
 
-    fill_value: optional
-        Value used by the imputer for missing values.
+    fill_value : str or numerical value, default=None
+        When strategy == "constant", fill_value is used to replace all
+        occurrences of missing_values.
+        If left to the default, fill_value will be 0 when imputing numerical
+        data and "missing_value" for strings or object data types.
 
      Attributes
     ----------
