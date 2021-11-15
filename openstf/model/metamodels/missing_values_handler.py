@@ -6,6 +6,7 @@ import pandas as pd
 from sklearn.base import BaseEstimator, RegressorMixin, MetaEstimatorMixin, clone
 from sklearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import FunctionTransformer
 from sklearn.utils.validation import check_is_fitted, check_X_y, check_array
 
 
@@ -84,6 +85,7 @@ class MissingValuesHandler(BaseEstimator, RegressorMixin, MetaEstimatorMixin):
 
     def _get_tags(self):
         tags = self.base_estimator._get_tags()
+        tags["requires_y"] = True
         tags["multioutput"] = False
         tags["allow_nan"] = self.imputation_strategy is not None
         return tags
@@ -93,30 +95,39 @@ class MissingValuesHandler(BaseEstimator, RegressorMixin, MetaEstimatorMixin):
         _, y = check_X_y(x, y, force_all_finite="allow-nan", y_numeric=True)
         if type(x) != pd.DataFrame:
             x = pd.DataFrame(np.asarray(x))
-
-        # Remove always null columns
-        columns = x.isnull().all(0)
-        self.feature_names_ = list(x.columns)
-        self.non_null_columns_ = list(columns[~columns].index)
+        self.feature_in_names_ = list(x.columns)
         self.n_features_in_ = x.shape[1]
 
+        # Remove always null columns
+        is_column_null = x.isnull().all(axis="index")
+        self.non_null_columns_ = list(x.columns[~is_column_null])
+
         self.regressor_ = clone(self.base_estimator)
+
+        # Build the proper imputation transformer
+        # - Identity function if strategy is None
+        # - SimpleImputer with the dedicated strategy
         if self.imputation_strategy is None:
-            self.imputer_ = None
-            self.pipeline_ = Pipeline([("regressor", self.regressor_)])
+            self.imputer_ = FunctionTransformer(func=self._identity)
         else:
             self.imputer_ = SimpleImputer(
                 missing_values=self.missing_values,
                 strategy=self.imputation_strategy,
                 fill_value=self.fill_value,
             )
-            self.pipeline_ = Pipeline(
-                [("imputer", self.imputer_), ("regressor", self.regressor_)]
-            )
 
+        self.pipeline_ = Pipeline(
+            [("imputer", self.imputer_), ("regressor", self.regressor_)]
+        )
+
+        # Fit only on non_null_columns
         self.pipeline_.fit(x[self.non_null_columns_], y)
 
         return self
+
+    @classmethod
+    def _identity(cls, x):
+        return x
 
     def predict(self, x):
         check_is_fitted(self)

@@ -76,9 +76,9 @@ class LinearOpenstfRegressor(LinearRegressor, OpenstfRegressor):
             zip(self.non_null_columns_, feature_importance_linear)
         )
         return np.array(
-            [reg_feature_importances_dict.get(c, 0) for c in self.feature_names_]
+            [reg_feature_importances_dict.get(c, 0) for c in self.feature_in_names_]
         )
 
     @property
     def feature_names(self):
-        return self.feature_names_
+        return self.feature_in_names_
