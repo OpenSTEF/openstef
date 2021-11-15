@@ -71,3 +71,32 @@ class TestLinearOpenstfRegressor(BaseTestCase):
 
         X_ = pd.DataFrame(model2.imputer_.transform(X), columns=X.columns)
         self.assertTrue((model2.predict(X_) == model2.predict(X)).all())
+
+    def test_get_feature_importance_from_linear(self):
+        model = LinearOpenstfRegressor()
+        model.fit(train_input.iloc[:, 1:], train_input.iloc[:, 0])
+        features_in = list(train_input.columns[1:])
+
+        feature_importance_linear = np.abs(model.regressor_.coef_)
+        feature_importance_model = np.array(
+            [
+                x
+                for name, x in zip(
+                    features_in, model._get_feature_importance_from_linear()
+                )
+                if name in model.non_null_columns_
+            ]
+        )
+        feature_importance_null = np.array(
+            [
+                x
+                for name, x in zip(
+                    features_in, model._get_feature_importance_from_linear()
+                )
+                if not (name in model.non_null_columns_)
+            ]
+        )
+
+        # check the retrieval of feature importance
+        self.assertTrue((feature_importance_linear == feature_importance_model).all())
+        self.assertTrue((feature_importance_null == 0).all())
