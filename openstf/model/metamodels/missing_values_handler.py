@@ -116,15 +116,6 @@ class MissingValuesHandler(BaseEstimator, RegressorMixin, MetaEstimatorMixin):
 
         self.pipeline_.fit(x[self.non_null_columns_], y)
 
-        if hasattr(self.regressor_, "feature_importances_"):
-            reg_feature_importances = self.regressor_.feature_importances_
-            self.feature_importances_ = np.zeros(self.n_features_in_)
-            j = 0
-            for i, c in enumerate(self.feature_names_):
-                if c in self.non_null_columns_:
-                    self.feature_importances_[i] = reg_feature_importances[j]
-                    j += 1
-
         return self
 
     def predict(self, x):
