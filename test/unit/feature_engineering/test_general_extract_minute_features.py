@@ -162,6 +162,7 @@ class TestGeneralExtractMinuteFeatures(BaseTestCase):
             [
                 900,
                 780,
+                15,
                 1425,
                 660,
                 540,

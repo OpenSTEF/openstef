@@ -11,8 +11,8 @@ from test.utils import TestData
 class TestTrainBackTestPipeline(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
-        self.pj = TestData.get_prediction_job(pid=307)
-        self.train_input = TestData.load("reference_sets/307-train-data.csv").head(2000)
+        self.pj, self.modelspecs = TestData.get_prediction_job_and_modelspecs(pid=307)
+        self.train_input = TestData.load("reference_sets/307-train-data.csv")
 
     def test_train_model_pipeline_core_happy_flow(self):
         """Test happy flow of the train model pipeline"""
@@ -25,6 +25,7 @@ class TestTrainBackTestPipeline(BaseTestCase):
             test_data,
         ) = train_model_and_forecast_back_test(
             pj=self.pj,
+            modelspecs=self.modelspecs,
             input_data=self.train_input,
             training_horizons=[0.25, 24.0],
         )
@@ -32,4 +33,4 @@ class TestTrainBackTestPipeline(BaseTestCase):
         self.assertTrue("forecast" in forecast.columns)
         self.assertTrue("realised" in forecast.columns)
         self.assertTrue("horizon" in forecast.columns)
-        self.assertEqual(list(forecast.horizon.unique()), [24.0, 0.25])
+        self.assertEqual(list(forecast.horizon.unique()), [0.25, 24.0])

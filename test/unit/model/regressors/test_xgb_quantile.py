@@ -112,3 +112,15 @@ class TestXgbQuantile(BaseTestCase):
                 == np.array([0.16901408, 0.32394367, 0.5070422], dtype=np.float32)
             ).all()
         )
+
+    def test_feature_names_property(self):
+        model = XGBQuantileOpenstfRegressor((0.2, 0.3, 0.5, 0.6, 0.7))
+        model._Booster = MockBooster()
+        features_names = model.feature_names
+        np.testing.assert_array_equal(
+            features_names, MockBooster.feature_names, "Feature names are not equal"
+        )
+
+    def test_importance_names(self):
+        model = XGBQuantileOpenstfRegressor(tuple(self.quantiles))
+        self.assertIsInstance(model._get_importance_names(), dict)

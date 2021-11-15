@@ -33,12 +33,12 @@ import numpy as np
 import pandas as pd
 import scipy.optimize
 import structlog
+from openstf_dbc.database import DataBase
 
 import openstf.monitoring.teams as monitoring
 from openstf.enums import MLModelType
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
-from openstf_dbc.database import DataBase
 
 COEF_MAX_FRACTION_DIFF = 0.3
 
@@ -149,7 +149,7 @@ def convert_coefdict_to_coefsdf(pj, input_split_function, coefdict):
     storage.
 
     Args:
-        pj (PredictionJob): prediction job
+        pj (PredictionJobDataClass): prediction job
         input_split_function (pd.DataFrame): df of columns of standard load profiles,
             i.e. wind, solar, household
         coefdict (dict): dict of coefficient per standard load profile

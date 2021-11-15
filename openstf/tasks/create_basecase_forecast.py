@@ -22,6 +22,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 import pandas as pd
+from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 from openstf.pipeline.create_basecase_forecast import create_basecase_forecast_pipeline
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
@@ -31,12 +32,14 @@ T_BEHIND_DAYS: int = 15
 T_AHEAD_DAYS: int = 14
 
 
-def create_basecase_forecast_task(pj: dict, context: TaskContext) -> None:
+def create_basecase_forecast_task(
+    pj: PredictionJobDataClass, context: TaskContext
+) -> None:
     """Top level task that creates a basecase forecast.
     On this task level all database and context manager dependencies are resolved.
 
     Args:
-        pj (dict): Prediction job
+        pj (PredictionJobDataClass): Prediction job
         context (TaskContext): Contect object that holds a config manager and a database connection
     """
     # Define datetime range for input data

@@ -53,7 +53,7 @@ def run_tracy(context):
     num_jobs = len(tracy_jobs)
 
     if num_jobs == 0:
-        context.logger.warning("Number of tracy jobs is {num_jobs}, exit task")
+        context.logger.warning(f"Number of tracy jobs is {num_jobs}, exit task")
         return
 
     context.logger.info("Start processing Tracy jobs", num_jobs=num_jobs)
@@ -70,7 +70,6 @@ def run_tracy(context):
 
         pid = int(job["args"])
         pj = context.database.get_prediction_job(pid)
-
         result, exc = run_tracy_job(job, pj, context)
         # job processing was succefull
         if result is TracyJobResult.SUCCESS:

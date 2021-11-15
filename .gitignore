@@ -7,7 +7,6 @@ config.user.yaml
 
 # Ignore these folders
 prof/
-/trained_models/
 docs/build/
 output
 certificates/
@@ -17,6 +16,7 @@ ktprognoses.egg-info/
 # Ignore these files
 .DS_Store
 tmp
+mlruns
 
 # default Python .gitignore template: https://raw.githubusercontent.com/github/gitignore/master/Python.gitignore
 
@@ -72,6 +72,8 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 cover/
+pytest-report.xml
+
 
 # Translations
 *.mo
@@ -158,4 +160,4 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
-/test/reports/
+

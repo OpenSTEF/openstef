@@ -6,14 +6,14 @@ from pathlib import Path
 
 import pandas as pd
 import structlog
+from openstf_dbc.config.config import ConfigManager
+from openstf_dbc.database import DataBase
 
 from openstf.feature_engineering.capacity_prognoses_features import (
     apply_capacity_features,
 )
 from openstf.model.capacity.model import CapacityPredictionModel
 from openstf.model.capacity.utils import prepare_training_data
-from openstf_dbc.config.config import ConfigManager
-from openstf_dbc.database import DataBase
 
 
 def train_capacity_prognosis(pj, datetime_start, datetime_end, y_hor=[0, 6, 13]):

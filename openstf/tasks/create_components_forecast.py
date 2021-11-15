@@ -33,6 +33,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 import structlog
+from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 from openstf.enums import MLModelType
 from openstf.pipeline.create_component_forecast import (
@@ -40,18 +41,17 @@ from openstf.pipeline.create_component_forecast import (
 )
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
-from openstf.tasks.utils.utils import check_status_change, update_status_change
 
 T_BEHIND_DAYS = 0
 T_AHEAD_DAYS = 3
 
 
-def create_components_forecast_task(pj, context):
+def create_components_forecast_task(pj: PredictionJobDataClass, context: TaskContext):
     """Top level task that creates a components forecast.
     On this task level all database and context manager dependencies are resolved.
 
     Args:
-        pj (dict): Prediction job
+        pj (PredictionJobDataClass): Prediction job
         context (TaskContext): Contect object that holds a config manager and a database connection
     """
     logger = structlog.get_logger(__name__)
@@ -114,23 +114,11 @@ def main():
 
     with TaskContext(taskname) as context:
 
-        # status file callback after every iteration
-        # TODO change implementation to a database one
-        def callback(pj, successful):
-            status_id = "Pred {}, {}".format(pj["name"], pj["description"])
-            status_code = 0 if successful else 2
-
-            if check_status_change(status_id, status_code):
-                context.logger.warning("Status changed", status_code=status_code)
-
-                update_status_change(status_id, status_code)
-
         model_type = [ml.value for ml in MLModelType]
 
         PredictionJobLoop(
             context,
             model_type=model_type,
-            on_end_callback=callback,
         ).map(create_components_forecast_task, context)
 
 

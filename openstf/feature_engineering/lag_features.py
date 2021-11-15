@@ -91,8 +91,8 @@ def extract_lag_features(
             days_list.append(int(number_of_days[1]))
 
     # Discard lag times that are not available for the specified horizon
-    minutes_list = list(set([i for i in minutes_list if i > horizon * 60]))
-    days_list = list(set([i for i in days_list if i > horizon / 24]))
+    minutes_list = list(set([i for i in minutes_list if i >= horizon * 60]))
+    days_list = list(set([i for i in days_list if i >= horizon / 24]))
 
     return minutes_list, days_list
 
@@ -114,11 +114,11 @@ def generate_trivial_lag_features(horizon: float) -> Tuple[list, list]:
     lag_time_days_list = list(np.linspace(mindays, 14, 15 - mindays))
 
     # Make list of trivial lag times
-    trivial_lag_minutes_list = np.linspace(60, 24 * 60, 24).tolist() + [15, 30, 45]
+    trivial_lag_minutes_list = np.linspace(60, 23 * 60, 23).tolist() + [15, 30, 45]
 
     # Discard lag times that are not available for the specified horizon
     trivial_lag_times_minutes = list(
-        set([i for i in trivial_lag_minutes_list if i > horizon * 60])
+        set([i for i in trivial_lag_minutes_list if i >= horizon * 60])
     )
 
     return trivial_lag_times_minutes, lag_time_days_list

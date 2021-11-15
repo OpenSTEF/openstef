@@ -4,6 +4,8 @@
 from typing import List, Tuple
 
 import pandas as pd
+from openstf.dataclasses.model_specifications import ModelSpecificationDataClass
+from openstf_dbc.services.prediction_job import PredictionJobDataClass
 from sklearn.base import RegressorMixin
 
 from openstf.model.confidence_interval_applicator import ConfidenceIntervalApplicator
@@ -17,7 +19,8 @@ DEFAULT_EARLY_STOPPING_ROUNDS: int = 10
 
 
 def train_model_and_forecast_back_test(
-    pj: dict,
+    pj: PredictionJobDataClass,
+    modelspecs: ModelSpecificationDataClass,
     input_data: pd.DataFrame,
     training_horizons: List[float] = None,
 ) -> Tuple[pd.DataFrame, RegressorMixin]:
@@ -26,7 +29,8 @@ def train_model_and_forecast_back_test(
         DO NOT USE THIS PIPELINE FOR OPERATIONAL FORECASTS
 
     Args:
-        pj (dict): Prediction job.
+        pj (PredictionJobDataClass): Prediction job.
+        modelspecs (ModelSpecificationDataClass): Dataclass containing model specifications
         input_data (pd.DataFrame): Input data
         training_horizons (list): horizons to train on in hours.
             These horizons are also used to make predictions (one for every horizon)
@@ -39,8 +43,8 @@ def train_model_and_forecast_back_test(
         training_horizons = DEFAULT_TRAIN_HORIZONS
 
     # Call common training pipeline
-    model, train_data, validation_data, test_data = train_pipeline_common(
-        pj, input_data, training_horizons, test_fraction=0.15, backtest=True
+    model, report, train_data, validation_data, test_data = train_pipeline_common(
+        pj, modelspecs, input_data, training_horizons, test_fraction=0.15, backtest=True
     )
 
     # Predict

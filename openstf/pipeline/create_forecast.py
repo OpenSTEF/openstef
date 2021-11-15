@@ -6,6 +6,8 @@ from typing import Union
 
 import pandas as pd
 import structlog
+from openstf.dataclasses.model_specifications import ModelSpecificationDataClass
+from openstf_dbc.services.prediction_job import PredictionJobDataClass
 from sklearn.base import RegressorMixin
 
 from openstf.feature_engineering.feature_applicator import (
@@ -22,7 +24,9 @@ from openstf.validation import validation
 
 
 def create_forecast_pipeline(
-    pj: dict, input_data: pd.DataFrame, trained_models_folder: Union[str, Path]
+    pj: PredictionJobDataClass,
+    input_data: pd.DataFrame,
+    trained_models_folder: Union[str, Path],
 ) -> pd.DataFrame:
     """Create forecast pipeline
 
@@ -32,7 +36,7 @@ def create_forecast_pipeline(
     Expected prediction job keys: "id",
 
     Args:
-        pj (dict): Prediction job
+        pj (PredictionJobDataClass): Prediction job
         input_data (pd.DataFrame): Training input data (without features)
         trained_models_folder (Path): Path where trained models are stored
 
@@ -42,15 +46,17 @@ def create_forecast_pipeline(
 
     """
     # Load most recent model for the given pid
-    model = PersistentStorageSerializer(
+    model, modelspecs = PersistentStorageSerializer(
         trained_models_folder=trained_models_folder
-    ).load_model(pid=pj["id"])
+    ).load_model(pj["id"])
 
     return create_forecast_pipeline_core(pj, input_data, model)
 
 
 def create_forecast_pipeline_core(
-    pj: dict, input_data: pd.DataFrame, model: RegressorMixin
+    pj: PredictionJobDataClass,
+    input_data: pd.DataFrame,
+    model: RegressorMixin,
 ) -> pd.DataFrame:
     """Create forecast pipeline (core)
 
@@ -58,10 +64,10 @@ def create_forecast_pipeline_core(
     This pipeline has no database or persisitent storage dependencies.
 
     Expected prediction job keys: "resolution_minutes", "horizon_minutes", "id", "type",
-        "name", "model_type_group", "quantiles"
+        "name", "quantiles"
 
     Args:
-        pj (dict): Prediction job.
+        pj (PredictionJobDataClass): Prediction job.
         input_data (pandas.DataFrame): Iput data for the prediction.
         model (RegressorMixin): Model to use for this prediction.
 
@@ -79,14 +85,12 @@ def create_forecast_pipeline_core(
     data_with_features = OperationalPredictFeatureApplicator(
         # TODO use saved feature_names (should be saved while training the model)
         horizons=[0.25],
-        feature_names=model._Booster.feature_names,
+        feature_names=model.feature_names,
     ).add_features(validated_data)
 
     # Prep forecast input by selecting only the forecast datetime interval (this is much smaller than the input range)
     # Also drop the load column
-    forecast_start, forecast_end = generate_forecast_datetime_range(
-        pj["resolution_minutes"], pj["horizon_minutes"]
-    )
+    forecast_start, forecast_end = generate_forecast_datetime_range(data_with_features)
     forecast_input_data = data_with_features[forecast_start:forecast_end].drop(
         columns="load"
     )

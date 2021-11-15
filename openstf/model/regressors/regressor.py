@@ -1,6 +1,8 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+from typing import Optional
+
 import numpy as np
 import pandas as pd
 
@@ -8,19 +10,29 @@ from openstf.model.regressors.regressor_interface import OpenstfRegressorInterfa
 
 
 class OpenstfRegressor(OpenstfRegressorInterface):
-    def _set_feature_importance(self, feature_names: list) -> pd.DataFrame:
-        """get feature importance.
+    def __init__(self):
+        self.feature_importance_dataframe = None
+        self.feature_importances_ = None
 
-        Args: feature_names; list of features in the original column order
+    def set_feature_importance(self) -> Optional[pd.DataFrame]:
+        """get feature importance.
 
         Returns:
          pd.DataFrame
         """
-        gain = self._fraction_importance(self.gain_importance_name)
-        weight_importance = self._fraction_importance(self.weight_importance_name)
+        # returns a dict if we can get feature importance else returns None
+        importance_names = self._get_importance_names()
+        # if the model doesn't support feature importance return None
+        if importance_names is None:
+            return None
+
+        gain = self._fraction_importance(importance_names["gain_importance_name"])
+        weight_importance = self._fraction_importance(
+            importance_names["weight_importance_name"]
+        )
 
         feature_importance = pd.DataFrame(
-            {"gain": gain, "weight": weight_importance}, index=feature_names
+            {"gain": gain, "weight": weight_importance}, index=self.feature_names
         )
 
         feature_importance.sort_values(by="gain", ascending=False, inplace=True)
@@ -31,3 +43,13 @@ class OpenstfRegressor(OpenstfRegressorInterface):
         feature_importance = self.feature_importances_
         feature_importance = feature_importance / sum(feature_importance)
         return feature_importance
+
+    @staticmethod
+    def _get_importance_names() -> Optional[dict]:
+        """Get importance names if applicable
+
+        Returns:
+            Optional (dict): Returns a dict or None, return None if the model can't get feature importance
+
+        """
+        return None
