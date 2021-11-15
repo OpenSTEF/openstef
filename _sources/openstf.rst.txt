@@ -6,7 +6,6 @@ Subpackages
 
 .. toctree::
 
-   openstf.data_classes
    openstf.feature_engineering
    openstf.metrics
    openstf.model
