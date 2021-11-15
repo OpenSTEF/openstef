@@ -54,8 +54,12 @@ class LinearRegressor(MissingValuesHandler):
 class LinearOpenstfRegressor(LinearRegressor, OpenstfRegressor):
     """Linear Regressor which implements the Openstf regressor API."""
 
-    gain_importance_name = "total_gain"
-    weight_importance_name = "weight"
+    @staticmethod
+    def _get_importance_names():
+        return {
+            "gain_importance_name": "total_gain",
+            "weight_importance_name": "weight",
+        }
 
     def fit(self, x, y, **kwargs):
         super().fit(x, y)
