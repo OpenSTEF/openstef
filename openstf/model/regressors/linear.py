@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-from openstf.model.metamodels.missing_values_handler import MissingValueHandler
+from openstf.model.metamodels.missing_values_handler import MissingValuesHandler
 import numpy as np
 from sklearn.linear_model import LinearRegression
 
@@ -20,7 +20,7 @@ class _LinearRegressor(LinearRegression):
         self.feature_importances_ = np.abs(self.coef_)
 
 
-class LinearRegressor(MissingValueHandler):
+class LinearRegressor(MissingValuesHandler):
     def __init__(self, missing_values=np.nan, imputation_strategy=None, fill_value=0):
         super().__init__(
             _LinearRegressor(),

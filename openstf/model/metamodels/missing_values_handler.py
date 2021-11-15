@@ -9,7 +9,7 @@ from sklearn.impute import SimpleImputer
 from sklearn.utils.validation import check_is_fitted, check_X_y, check_array
 
 
-class MissingValueHandler(BaseEstimator, RegressorMixin, MetaEstimatorMixin):
+class MissingValuesHandler(BaseEstimator, RegressorMixin, MetaEstimatorMixin):
     """Class for a meta-models that handles missing values and removes columns filled exclusively by NaN.
     It's a pipeline of:
         - An Imputation transformer for completing missing values.
