@@ -70,17 +70,17 @@ class MissingValueHandler(BaseEstimator, RegressorMixin, MetaEstimatorMixin):
         tags["allow_nan"] = self.imputation_strategy is not None
         return tags
 
-    def fit(self, X, y):
+    def fit(self, x, y):
 
-        _, y = check_X_y(X, y, force_all_finite="allow-nan", y_numeric=True)
-        if type(X) != pd.DataFrame:
-            X = pd.DataFrame(np.asarray(X))
+        _, y = check_X_y(x, y, force_all_finite="allow-nan", y_numeric=True)
+        if type(x) != pd.DataFrame:
+            x = pd.DataFrame(np.asarray(x))
 
         # Remove always null columns
-        columns = X.isnull().all(0)
-        self.feature_names_ = list(X.columns)
+        columns = x.isnull().all(0)
+        self.feature_names_ = list(x.columns)
         self.non_null_columns_ = list(columns[~columns].index)
-        self.n_features_in_ = X.shape[1]
+        self.n_features_in_ = x.shape[1]
 
         self.regressor_ = clone(self.base_estimator)
         if self.imputation_strategy is None:
@@ -96,7 +96,7 @@ class MissingValueHandler(BaseEstimator, RegressorMixin, MetaEstimatorMixin):
                 [("imputer", self.imputer_), ("regressor", self.regressor_)]
             )
 
-        self.pipeline_.fit(X[self.non_null_columns_], y)
+        self.pipeline_.fit(x[self.non_null_columns_], y)
 
         if hasattr(self.regressor_, "feature_importances_"):
             reg_feature_importances = self.regressor_.feature_importances_
@@ -109,12 +109,12 @@ class MissingValueHandler(BaseEstimator, RegressorMixin, MetaEstimatorMixin):
 
         return self
 
-    def predict(self, X):
+    def predict(self, x):
         check_is_fitted(self)
         check_array(
-            X,
+            x,
             force_all_finite="allow-nan",
         )
-        if type(X) != pd.DataFrame:
-            X = pd.DataFrame(np.array(X))
-        return self.pipeline_.predict(X[self.non_null_columns_])
+        if type(x) != pd.DataFrame:
+            x = pd.DataFrame(np.array(x))
+        return self.pipeline_.predict(x[self.non_null_columns_])

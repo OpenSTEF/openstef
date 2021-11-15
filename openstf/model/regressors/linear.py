@@ -15,8 +15,8 @@ class _LinearRegressor(LinearRegression):
     def __init__(self):
         super().__init__()
 
-    def fit(self, X, y):
-        super().fit(X, y)
+    def fit(self, x, y):
+        super().fit(x, y)
         self.feature_importances_ = np.abs(self.coef_)
 
 
@@ -41,8 +41,8 @@ class LinearOpenstfRegressor(LinearRegressor, OpenstfRegressor):
             fill_value=fill_value,
         )
 
-    def fit(self, X, y, **kwargs):
-        return super().fit(X, y)
+    def fit(self, x, y, **kwargs):
+        return super().fit(x, y)
 
     @property
     def feature_names(self):
