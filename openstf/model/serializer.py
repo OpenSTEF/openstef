@@ -310,7 +310,7 @@ class MLflowSerializer(AbstractSerializer):
         filter_string = "attribute.status = 'FINISHED'"
 
         if hyperparameter_optimization_only:
-            filter_string.append(" and tags.'phase' = 'Hyperparameter_opt'")
+            filter_string = filter_string + " and tags.'phase' = 'Hyperparameter_opt'"
 
         if isinstance(n, int):
             run_df = mlflow.search_runs(
