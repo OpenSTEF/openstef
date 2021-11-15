@@ -57,13 +57,6 @@ class LinearOpenstfRegressor(LinearRegressor, OpenstfRegressor):
     gain_importance_name = "total_gain"
     weight_importance_name = "weight"
 
-    # def __init__(self, missing_values=np.nan, imputation_strategy="mean", fill_value=0):
-    #    super().__init__(
-    #        missing_values=missing_values,
-    #        imputation_strategy=imputation_strategy,
-    #        fill_value=fill_value,
-    #    )
-
     def fit(self, x, y, **kwargs):
         super().fit(x, y)
         self.feature_importances_ = self._get_feature_importance_from_linear()
