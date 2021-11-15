@@ -50,13 +50,15 @@ def optimize_hyperparameters_task(
     # Determine if we need to optimize hyperparams
 
     # retrieve last model age
-    model_age = MLflowSerializer(trained_models_folder).get_model_age(pj["id"])
+    hyper_params_age = MLflowSerializer(
+        trained_models_folder
+    ).get_days_since_last_hyperparameters(pj["id"])
 
-    if model_age < MAX_AGE_HYPER_PARAMS_DAYS:
+    if hyper_params_age < MAX_AGE_HYPER_PARAMS_DAYS:
         context.logger.warning(
             "Skip hyperparameter optimization",
             pid=pj["id"],
-            model_age=model_age,
+            hyper_params_age=hyper_params_age,
             max_age=MAX_AGE_HYPER_PARAMS_DAYS,
         )
         return

@@ -207,6 +207,14 @@ class MLflowSerializer(AbstractSerializer):
         run = self._find_models(pid, n=1)
         # get age of model
         age = self._determine_model_age_from_mlflow_run(run)
+
+        return age
+
+    def get_days_since_last_hyperparameters(self, pid: Union[int, str]) -> int:
+        # get run
+        run = self._find_models(pid, n=1, hyperparameter_optimization_only=True)
+        # get age of model
+        age = self._determine_model_age_from_mlflow_run(run)
         return age
 
     def remove_old_models(
@@ -281,23 +289,33 @@ class MLflowSerializer(AbstractSerializer):
         return mlflow.get_experiment_by_name(str(pid)).experiment_id
 
     def _find_models(
-        self, pid: Union[int, str], n: Optional[int] = None
+        self,
+        pid: Union[int, str],
+        n: Optional[int] = None,
+        hyperparameter_optimization_only: bool = False,
     ) -> Union[pd.Series, pd.DataFrame]:
         """
 
         Args:
             pid (PredictionJobDataClass): Prediction job id
             n (int): return the n latest models, default = 1
+            hyperparameter_optimization_only (bool): only return rund from hyperparameter optimization
+
 
         Returns:
             pd.Series: run(s)
         """
         self.experiment_id = self._setup_mlflow(pid)
 
+        filter_string = "attribute.status = 'FINISHED'"
+
+        if hyperparameter_optimization_only:
+            filter_string.append(" and tags.'phase' = 'Hyperparameter_opt'")
+
         if isinstance(n, int):
             run_df = mlflow.search_runs(
                 self.experiment_id,
-                filter_string="attribute.status = 'FINISHED'",
+                filter_string=filter_string,
                 max_results=n,
             )
             if n == 1:
@@ -305,7 +323,7 @@ class MLflowSerializer(AbstractSerializer):
         else:
             run_df = mlflow.search_runs(
                 self.experiment_id,
-                filter_string=" attribute.status = 'FINISHED'",
+                filter_string=filter_string,
             )
         return run_df
 
