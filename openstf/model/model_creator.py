@@ -118,10 +118,7 @@ class ModelCreator:
 
         # only pass relevant arguments to model constructor to prevent warnings
         model_kwargs = {
-            key: value
-            for key, value in kwargs.items()
-            if key in valid_kwargs
+            key: value for key, value in kwargs.items() if key in valid_kwargs
         }
 
         return model_class(**model_kwargs)
-

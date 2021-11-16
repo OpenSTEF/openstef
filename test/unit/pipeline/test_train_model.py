@@ -118,7 +118,9 @@ class TestTrainModelPipeline(BaseTestCase):
             with self.subTest(model_type=model_type):
                 pj = self.pj
 
-                pj["model"] = model_type.value if hasattr(model_type, "value") else model_type
+                pj["model"] = (
+                    model_type.value if hasattr(model_type, "value") else model_type
+                )
                 modelspecs = self.modelspecs
                 # Use default parameters
                 modelspecs.hyper_params = {}
