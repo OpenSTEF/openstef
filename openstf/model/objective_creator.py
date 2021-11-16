@@ -11,14 +11,17 @@ from openstf.model.objective import (
     LGBRegressorObjective,
     XGBQuantileRegressorObjective,
 )
-from openstf.model.regressors.custom_regressor import create_custom_objective, is_custom_type
+from openstf.model.regressors.custom_regressor import (
+    create_custom_objective,
+    is_custom_type,
+)
 
 
 class ObjectiveCreator:
     OBJECTIVES = {
         MLModelType.XGB: XGBRegressorObjective,
         MLModelType.LGB: LGBRegressorObjective,
-        MLModelType.XGB_QUANTILE: XGBQuantileRegressorObjective
+        MLModelType.XGB_QUANTILE: XGBQuantileRegressorObjective,
     }
 
     @staticmethod

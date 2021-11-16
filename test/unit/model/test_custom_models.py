@@ -51,9 +51,7 @@ class TestCustomModels(unittest.TestCase):
         model_class = load_custom_model(model_path)
         assert model_class == DummyRegressor
 
-        model = ModelCreator().create_model(
-            model_path
-        )
+        model = ModelCreator().create_model(model_path)
         assert isinstance(model, DummyRegressor)
 
         with self.assertRaises(AttributeError):
