@@ -256,7 +256,8 @@ def train_pipeline_common(
 
     # Create relevant model
     model = ModelCreator.create_model(
-        pj["model"], quantiles=pj["quantiles"], **pj["hyper_params"]
+        pj["model"],
+        quantiles=pj["quantiles"],
     )
 
     # split x and y data
