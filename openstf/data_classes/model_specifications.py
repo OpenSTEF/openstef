@@ -2,8 +2,9 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-from pydantic import BaseModel
 from typing import Optional, Union
+
+from pydantic import BaseModel
 
 
 class ModelSpecificationDataClass(BaseModel):

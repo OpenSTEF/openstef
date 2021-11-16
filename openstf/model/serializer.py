@@ -18,10 +18,10 @@ import structlog
 from matplotlib import figure
 from mlflow.exceptions import MlflowException
 from mlflow.tracking import MlflowClient
-from openstf.dataclasses.model_specifications import ModelSpecificationDataClass
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
 from plotly import graph_objects
 
+from openstf.data_classes.model_specifications import ModelSpecificationDataClass
 from openstf.metrics.reporter import Report
 from openstf.model.regressors.regressor import OpenstfRegressor
 
@@ -157,28 +157,9 @@ class PersistentStorageSerializer(AbstractSerializer):
             # get the hyper parameters from the previous model
             modelspecs.hyper_params = loaded_model.get_params()
             # get used feature names else use all feature names
-            try:
-                modelspecs.feature_names = json.loads(
-                    latest_run["tags.feature_names"].replace("'", '"')
-                )
-            except KeyError:
-                self.logger.warning(
-                    E_MSG,
-                    pid=pid,
-                    error="tags.feature_names, doesn't exist in run",
-                )
-            except AttributeError:
-                self.logger.warning(
-                    E_MSG,
-                    pid=pid,
-                    error="tags.feature_names, needs to be a string",
-                )
-            except JSONDecodeError:
-                self.logger.warning(
-                    E_MSG,
-                    pid=pid,
-                    error="tags.feature_names, needs to be a string of a list",
-                )
+            modelspecs.feature_names = self._get_feature_names(
+                pid, latest_run, modelspecs, loaded_model
+            )
 
             # Add model age to model object
             loaded_model.age = self._determine_model_age_from_mlflow_run(latest_run)
@@ -554,3 +535,62 @@ class PersistentStorageSerializer(AbstractSerializer):
             for _, run in runs_to_remove.iterrows():
                 self.logger.debug(f"Removing run {run.run_id}, from {run.end_time}")
                 mlflow.delete_run(run.run_id)
+
+    def _get_feature_names(
+        self,
+        pid: Union[int, str],
+        latest_run: pd.Series,
+        modelspecs: ModelSpecificationDataClass,
+        loaded_model: OpenstfRegressor,
+    ) -> Optional[list]:
+        """Get the feature_names from MLflow or the old model
+
+        Args:
+            pid: prediction job id
+            latest_run: pandas series of the last MLflow run
+            modelspecs: model specification
+            loaded_model: previous model
+
+        Returns:
+            list: feature names to use
+        """
+        try:
+            modelspecs.feature_names = json.loads(
+                latest_run["tags.feature_names"].replace("'", '"')
+            )
+
+        except KeyError:
+            self.logger.warning(
+                E_MSG,
+                pid=pid,
+                error="tags.feature_names, doesn't exist in run",
+            )
+        except AttributeError:
+            self.logger.warning(
+                E_MSG,
+                pid=pid,
+                error="tags.feature_names, needs to be a string",
+            )
+        except JSONDecodeError:
+            self.logger.warning(
+                E_MSG,
+                pid=pid,
+                error="tags.feature_names, needs to be a string of a list",
+            )
+
+        # todo: this code should become absolute after a few runs
+        # if feature names is non see if we can retrieve them from the old model
+        if modelspecs.feature_names is None:
+            try:
+                if loaded_model.feature_names is not None:
+                    modelspecs.feature_names = loaded_model.feature_names
+                    self.logger.info(
+                        "feature_names retrieved from old model with an attribute",
+                        pid=pid,
+                    )
+            except AttributeError:
+                self.logger.warning(
+                    "feature_names not an attribute of the old model, using None ",
+                    pid=pid,
+                )
+        return modelspecs.feature_names
