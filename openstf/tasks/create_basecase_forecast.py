@@ -20,7 +20,6 @@ Example:
 """
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Union
 
 import pandas as pd
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
@@ -34,13 +33,13 @@ T_AHEAD_DAYS: int = 14
 
 
 def create_basecase_forecast_task(
-    pj: Union[dict, PredictionJobDataClass], context: TaskContext
+    pj: PredictionJobDataClass, context: TaskContext
 ) -> None:
     """Top level task that creates a basecase forecast.
     On this task level all database and context manager dependencies are resolved.
 
     Args:
-        pj (Union[dict, PredictionJobDataClass]): Prediction job
+        pj (PredictionJobDataClass): Prediction job
         context (TaskContext): Contect object that holds a config manager and a database connection
     """
     # Define datetime range for input data

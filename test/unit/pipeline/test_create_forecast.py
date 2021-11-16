@@ -13,6 +13,10 @@ from test.utils import BaseTestCase, TestData
 
 
 class TestCreateForecastPipeline(BaseTestCase):
+    def setUp(self) -> None:
+        super().setUp()
+        self.pj = TestData.get_prediction_job(pid=307)
+
     def test_generate_forecast_datetime_range_single_null_values_target_column(self):
         """Test if correct forecast window is made with single range of nulls."""
         time_format = "%Y-%m-%d %H:%M:%S%z"
@@ -74,20 +78,20 @@ class TestCreateForecastPipeline(BaseTestCase):
         """Test if a fallback forecast is used when input is incomplete."""
         # Load mock value, forecast data, prediction job and model
         is_data_sufficient_mock.return_value = False
+
         forecast_data = TestData.load("reference_sets/307-test-data.csv")
         col_name = forecast_data.columns[0]
         forecast_data.loc["2020-11-28 00:00:00":"2020-12-01", col_name] = None
-        pj = TestData.get_prediction_job(pid=307)
-        pj["model_type_group"] = "default"
-        model = PersistentStorageSerializer(
+
+        model, modelspecs = PersistentStorageSerializer(
             trained_models_folder="./test/trained_models"
-        ).load_model(pid=307)
+        ).load_model(self.pj["id"])
         if not hasattr(model, "standard_deviation"):  # Renamed the attribute
             model.standard_deviation = model.confidence_interval
 
         # Forecast
         forecast = create_forecast.create_forecast_pipeline_core(
-            pj=pj, input_data=forecast_data, model=model
+            pj=self.pj, input_data=forecast_data, model=model
         )
 
         # Verify backtest was performed
@@ -96,24 +100,22 @@ class TestCreateForecastPipeline(BaseTestCase):
     def test_create_forecast_pipeline_happy_flow_2_days(self):
         """Test the happy flow of the forecast pipeline with a trained model."""
         # Load prediction job and forecast data
-        pj = TestData.get_prediction_job(pid=307)
-        pj["model_type_group"] = "default"
         forecast_data = TestData.load("reference_sets/307-test-data.csv")
         col_name = forecast_data.columns[0]
         forecast_data.loc["2020-11-28 00:00:00":"2020-12-01", col_name] = None
-        pj["feature_names"] = forecast_data.columns[1:]
 
         # Load model
-        model = PersistentStorageSerializer(
-            trained_models_folder=Path("./test/trained_models")
-        ).load_model(pid=307)
+        model, modelspecs = PersistentStorageSerializer(
+            trained_models_folder="./test/trained_models"
+        ).load_model(self.pj["id"])
+        modelspecs.feature_names = forecast_data.columns[1:]
 
         if not hasattr(model, "standard_deviation"):  # Renamed the attribute
             model.standard_deviation = model.confidence_interval
 
         # Forecast
         forecast = create_forecast.create_forecast_pipeline_core(
-            pj=pj, input_data=forecast_data, model=model
+            self.pj, forecast_data, model
         )
 
         # Verify forecast works correctly
@@ -125,24 +127,22 @@ class TestCreateForecastPipeline(BaseTestCase):
     def test_create_forecast_pipeline_happy_flow_4_days(self):
         """Test the happy flow of the forecast pipeline with a trained model."""
         # Load prediction job and forecast data
-        pj = TestData.get_prediction_job(pid=307)
-        pj["model_type_group"] = "default"
         forecast_data = TestData.load("reference_sets/307-test-data.csv")
         col_name = forecast_data.columns[0]
         forecast_data.loc["2020-11-26 00:00:00":"2020-12-01", col_name] = None
-        pj["feature_names"] = forecast_data.columns[1:]
 
         # Load model
-        model = PersistentStorageSerializer(
+        model, modelspecs = PersistentStorageSerializer(
             trained_models_folder="./test/trained_models"
-        ).load_model(pid=307)
+        ).load_model(self.pj["id"])
+        modelspecs.feature_names = forecast_data.columns[1:]
 
         if not hasattr(model, "standard_deviation"):  # Renamed the attribute
             model.standard_deviation = model.confidence_interval
 
         # Forecast
         forecast = create_forecast.create_forecast_pipeline_core(
-            pj=pj, input_data=forecast_data, model=model
+            pj=self.pj, input_data=forecast_data, model=model
         )
 
         # Verify forecast works correctly
@@ -154,24 +154,22 @@ class TestCreateForecastPipeline(BaseTestCase):
     def test_create_forecast_pipeline_happy_flow_5_days(self):
         """Test the happy flow of the forecast pipeline with a trained model."""
         # Load prediction job and forecast data
-        pj = TestData.get_prediction_job(pid=307)
-        pj["model_type_group"] = "default"
         forecast_data = TestData.load("reference_sets/307-test-data.csv")
         col_name = forecast_data.columns[0]
         forecast_data.loc["2020-11-25 00:00:00":"2020-12-01", col_name] = None
-        pj["feature_names"] = forecast_data.columns[1:]
 
         # Load model
-        model = PersistentStorageSerializer(
-            trained_models_folder=Path("./test/trained_models")
-        ).load_model(pid=307)
+        model, modelspecs = PersistentStorageSerializer(
+            trained_models_folder="./test/trained_models"
+        ).load_model(self.pj["id"])
+        modelspecs.feature_names = forecast_data.columns[1:]
 
         if not hasattr(model, "standard_deviation"):  # Renamed the attribute
             model.standard_deviation = model.confidence_interval
 
         # Forecast
         forecast = create_forecast.create_forecast_pipeline_core(
-            pj=pj, input_data=forecast_data, model=model
+            pj=self.pj, input_data=forecast_data, model=model
         )
 
         # Verify forecast works correctly

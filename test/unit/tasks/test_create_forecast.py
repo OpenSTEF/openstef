@@ -13,7 +13,7 @@ FORECAST_MOCK = "forecast_mock"
 
 class TestCreateForeCastTask(TestCase):
     def setUp(self) -> None:
-        self.pj = TestData.get_prediction_job(pid=307)
+        self.pj, self.modelspecs = TestData.get_prediction_job_and_modelspecs(pid=307)
 
     @patch(
         "openstf.tasks.create_forecast.create_forecast_pipeline",
@@ -25,24 +25,27 @@ class TestCreateForeCastTask(TestCase):
         create_forecast_task(self.pj, context)
         self.assertEqual(context.mock_calls[1].args[0], FORECAST_MOCK)
 
+    @patch("openstf.model.serializer.PersistentStorageSerializer")
     @patch("openstf.tasks.utils.taskcontext.DataBase")
     @patch("openstf.tasks.utils.taskcontext.ConfigManager")
     def test_create_forecast_task_with_context(
-        self,
-        configmock_taskcontext,
-        dbmock,
+        self, configmock_taskcontext, dbmock, serializer_mock
     ):
         """Test create forecast task with context."""
         dbmock().get_prediction_jobs.return_value = [
             self.pj,
             self.pj,
         ]
+
+        dbmock().get_modelspecs.return_value = self.modelspecs
+
         forecast_data = TestData.load("reference_sets/307-test-data.csv")
         col_name = forecast_data.columns[0]
         forecast_data.loc["2020-11-28 00:00:00":"2020-12-01", col_name] = None
         dbmock().get_model_input.return_value = forecast_data
+
         configmock_taskcontext.get_instance.return_value.paths.trained_models_folder = (
-            "test/unit/pipeline/test/trained_models/"
+            "test/trained_models/"
         )
         configmock_taskcontext.get_instance.return_value.paths.webroot = "test_webroot"
 

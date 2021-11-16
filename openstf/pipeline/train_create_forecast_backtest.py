@@ -1,12 +1,13 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-from typing import List, Tuple, Union
+from typing import List, Tuple
 
 import pandas as pd
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
 from sklearn.base import RegressorMixin
 
+from openstf.data_classes.model_specifications import ModelSpecificationDataClass
 from openstf.model.confidence_interval_applicator import ConfidenceIntervalApplicator
 from openstf.pipeline.train_model import train_pipeline_common
 from openstf.postprocessing.postprocessing import (
@@ -18,7 +19,8 @@ DEFAULT_EARLY_STOPPING_ROUNDS: int = 10
 
 
 def train_model_and_forecast_back_test(
-    pj: Union[dict, PredictionJobDataClass],
+    pj: PredictionJobDataClass,
+    modelspecs: ModelSpecificationDataClass,
     input_data: pd.DataFrame,
     training_horizons: List[float] = None,
 ) -> Tuple[pd.DataFrame, RegressorMixin]:
@@ -27,7 +29,8 @@ def train_model_and_forecast_back_test(
         DO NOT USE THIS PIPELINE FOR OPERATIONAL FORECASTS
 
     Args:
-        pj (Union[dict, PredictionJobDataClass]): Prediction job.
+        pj (PredictionJobDataClass): Prediction job.
+        modelspecs (ModelSpecificationDataClass): Dataclass containing model specifications
         input_data (pd.DataFrame): Input data
         training_horizons (list): horizons to train on in hours.
             These horizons are also used to make predictions (one for every horizon)
@@ -41,7 +44,7 @@ def train_model_and_forecast_back_test(
 
     # Call common training pipeline
     model, report, train_data, validation_data, test_data = train_pipeline_common(
-        pj, input_data, training_horizons, test_fraction=0.15, backtest=True
+        pj, modelspecs, input_data, training_horizons, test_fraction=0.15, backtest=True
     )
 
     # Predict

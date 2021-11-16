@@ -25,7 +25,7 @@ realised_load_nan.loc[realised_load_nan.sample(frac=0.5).index, :] = np.NaN
 predicted_load_nan = predicted_load.copy()
 predicted_load_nan.loc[predicted_load_nan.sample(frac=0.5).index, :] = np.NaN
 
-prediction_job = TestData.get_prediction_job(307)
+prediction_job = TestData.get_prediction_job(pid=307)
 
 # Prepare Database mocks
 def get_database_mock():

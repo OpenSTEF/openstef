@@ -1,7 +1,6 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-from typing import Union
 
 import pandas as pd
 import structlog
@@ -11,12 +10,12 @@ import openstf.postprocessing.postprocessing as postprocessing
 
 
 def create_components_forecast_pipeline(
-    pj: Union[dict, PredictionJobDataClass], input_data, weather_data, split_coefs
+    pj: PredictionJobDataClass, input_data, weather_data, split_coefs
 ):
     """Pipeline for creating a component forecast
 
     Args:
-        pj (Union[dict, PredictionJobDataClass]): Prediction job
+        pj (PredictionJobDataClass): Prediction job
         input_data (pd.DataFrame): Input forecast for the components forecast.
         weather_data (pd.DataFrame): Weather data with 'radiation' and 'windspeed_100m' columns
         split_coefs (dict): coefieicnts for the splitting that are determined earlier

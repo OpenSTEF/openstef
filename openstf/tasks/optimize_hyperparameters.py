@@ -18,11 +18,11 @@ Example:
 """
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Union
 
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 from openstf.enums import MLModelType
+from openstf.model.serializer import PersistentStorageSerializer
 from openstf.monitoring import teams
 from openstf.pipeline.optimize_hyperparameters import optimize_hyperparameters_pipeline
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
@@ -33,7 +33,7 @@ DEFAULT_TRAINING_PERIOD_DAYS = 91
 
 
 def optimize_hyperparameters_task(
-    pj: Union[dict, PredictionJobDataClass], context: TaskContext
+    pj: PredictionJobDataClass, context: TaskContext
 ) -> None:
     """Optimize hyperparameters task.
 
@@ -41,35 +41,29 @@ def optimize_hyperparameters_task(
     Only used for logging: "name", "description"
 
     Args:
-        pj (Union[dict, PredictionJobDataClass]): Prediction job
+        pj (PredictionJobDataClass): Prediction job
         context (TaskContext): Task context
     """
     # Folder where to store models
     trained_models_folder = Path(context.config.paths.trained_models_folder)
 
     # Determine if we need to optimize hyperparams
-    datetime_last_optimized = context.database.get_hyper_params_last_optimized(pj)
-    if datetime_last_optimized is not None:
-        last_optimized_days = (datetime.utcnow() - datetime_last_optimized).days
-        if last_optimized_days < MAX_AGE_HYPER_PARAMS_DAYS:
-            context.logger.warning(
-                "Skip hyperparameter optimization",
-                pid=pj["id"],
-                last_optimized_days=last_optimized_days,
-                max_age=MAX_AGE_HYPER_PARAMS_DAYS,
-            )
-            return
 
-    # Get input data (usese "id" and "model")
-    current_hyperparams = context.database.get_hyper_params(pj)
+    # retrieve last model from MLflow
+    old_model, modelspecs = PersistentStorageSerializer(
+        trained_models_folder
+    ).load_model(pj["id"])
 
-    datetime_start = datetime.utcnow() - timedelta(
-        days=int(
-            current_hyperparams.get(
-                "training_period_days", DEFAULT_TRAINING_PERIOD_DAYS
-            )
+    if old_model.age is not None and old_model.age < MAX_AGE_HYPER_PARAMS_DAYS:
+        context.logger.warning(
+            "Skip hyperparameter optimization",
+            pid=pj["id"],
+            model_age=old_model.age,
+            max_age=MAX_AGE_HYPER_PARAMS_DAYS,
         )
-    )
+        return
+
+    datetime_start = datetime.utcnow() - timedelta(days=DEFAULT_TRAINING_PERIOD_DAYS)
     datetime_end = datetime.utcnow()
 
     input_data = context.database.get_model_input(
@@ -85,8 +79,6 @@ def optimize_hyperparameters_task(
         input_data,
         trained_models_folder=trained_models_folder,
     )
-
-    context.database.write_hyper_params(pj, hyperparameters)
 
     # Sent message to Teams
     title = (

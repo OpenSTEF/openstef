@@ -20,10 +20,9 @@ class TestOptimizeHyperParametersPipeline(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
         self.input_data = TestData.load("reference_sets/307-train-data.csv")
-        self.pj = TestData.get_prediction_job(pid=307)
+        self.pj, self.modelspecs = TestData.get_prediction_job_and_modelspecs(pid=307)
 
-    @patch("openstf.model.serializer.PersistentStorageSerializer.save_model")
-    def test_optimize_hyperparameters_pipeline(self, mock_save):
+    def test_optimize_hyperparameters_pipeline(self):
         parameters = optimize_hyperparameters_pipeline(
             self.pj, self.input_data, "./test/trained_models", n_trials=2
         )

@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Union
 
 import pandas as pd
+from openstf.data_classes.model_specifications import ModelSpecificationDataClass
 
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
@@ -91,6 +92,20 @@ class TestData:
             out_dict["forecast_type"] = out_dict.pop("typ")
 
         return PredictionJobDataClass(**out_dict)
+
+    @classmethod
+    def get_prediction_job_and_modelspecs(cls, pid: Union[int, str]):
+        with open(cls.DATA_FILES_FOLDER / "prediction_jobs.json", "r") as fh:
+            prediction_jobs = json.load(fh, object_hook=prediction_job_decoder)
+
+            out_dict = prediction_jobs[str(pid)]
+
+            # Change the typ column to forecast_type normally done after query
+            out_dict["forecast_type"] = out_dict.pop("typ")
+
+        return PredictionJobDataClass(**out_dict), ModelSpecificationDataClass(
+            **out_dict
+        )
 
     @classmethod
     def get_prediction_jobs(cls):
