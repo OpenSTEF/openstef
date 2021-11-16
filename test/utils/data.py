@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Union
 
 import pandas as pd
-from openstf.dataclasses.model_specifications import ModelSpecificationDataClass
+from openstf.data_classes.model_specifications import ModelSpecificationDataClass
 
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
 

@@ -25,12 +25,10 @@ Example:
 from datetime import datetime, timedelta
 from pathlib import Path
 
-from openstf.dataclasses.model_specifications import ModelSpecificationDataClass
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 from openstf.enums import MLModelType
 from openstf.pipeline.train_model import train_model_pipeline
-
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
 

@@ -4,14 +4,14 @@
 
 from datetime import datetime, timedelta
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch, MagicMock, PropertyMock
 import tempfile
 from distutils.dir_util import copy_tree
 import glob
 
 import pandas as pd
 
-from openstf.dataclasses.model_specifications import ModelSpecificationDataClass
+from openstf.data_classes.model_specifications import ModelSpecificationDataClass
 from openstf.model.model_creator import ModelCreator
 from openstf.model.serializer import (
     PersistentStorageSerializer,
@@ -26,9 +26,12 @@ class TestAbstractModelSerializer(BaseTestCase):
         super().setUp()
         self.pj, self.modelspecs = TestData.get_prediction_job_and_modelspecs(pid=307)
 
+    @patch("openstf.data_classes.model_specifications.ModelSpecificationDataClass")
     @patch("mlflow.search_runs")
     @patch("mlflow.sklearn.load_model")
-    def test_serializer_feature_names_keyerror(self, mock_load, mock_search_runs):
+    def test_serializer_feature_names_keyerror(
+        self, mock_load, mock_search_runs, mock_modelspecs
+    ):
         mock_search_runs.return_value = pd.DataFrame(
             data={
                 "run_id": [1, 2],
@@ -39,16 +42,20 @@ class TestAbstractModelSerializer(BaseTestCase):
                 ],
             }
         )
-
+        mock_modelspecs.return_value = self.modelspecs
+        type(mock_load.return_value).feature_names = PropertyMock(return_value=None)
         loaded_model, modelspecs = PersistentStorageSerializer(
             trained_models_folder="./test/trained_models"
         ).load_model(307)
         self.assertIsInstance(modelspecs, ModelSpecificationDataClass)
         self.assertEqual(modelspecs.feature_names, None)
 
+    @patch("openstf.data_classes.model_specifications.ModelSpecificationDataClass")
     @patch("mlflow.search_runs")
     @patch("mlflow.sklearn.load_model")
-    def test_serializer_feature_names_attributeerror(self, mock_load, mock_search_runs):
+    def test_serializer_feature_names_attributeerror(
+        self, mock_load, mock_search_runs, mock_modelspecs
+    ):
         mock_search_runs.return_value = pd.DataFrame(
             data={
                 "run_id": [1, 2],
@@ -61,16 +68,20 @@ class TestAbstractModelSerializer(BaseTestCase):
                 ],
             }
         )
-
+        mock_modelspecs.return_value = self.modelspecs
+        type(mock_load.return_value).feature_names = PropertyMock(return_value=None)
         loaded_model, modelspecs = PersistentStorageSerializer(
             trained_models_folder="./test/trained_models"
         ).load_model(307)
         self.assertIsInstance(modelspecs, ModelSpecificationDataClass)
         self.assertEqual(modelspecs.feature_names, None)
 
+    @patch("openstf.data_classes.model_specifications.ModelSpecificationDataClass")
     @patch("mlflow.search_runs")
     @patch("mlflow.sklearn.load_model")
-    def test_serializer_feature_names_jsonerror(self, mock_load, mock_search_runs):
+    def test_serializer_feature_names_jsonerror(
+        self, mock_load, mock_search_runs, mock_modelspecs
+    ):
         mock_search_runs.return_value = pd.DataFrame(
             data={
                 "run_id": [1, 2],
@@ -84,6 +95,8 @@ class TestAbstractModelSerializer(BaseTestCase):
             }
         )
 
+        mock_modelspecs.return_value = self.modelspecs
+        type(mock_load.return_value).feature_names = PropertyMock(return_value=None)
         loaded_model, modelspecs = PersistentStorageSerializer(
             trained_models_folder="./test/trained_models"
         ).load_model(307)
@@ -129,6 +142,7 @@ class TestAbstractModelSerializer(BaseTestCase):
         report_mock = MagicMock()
         report_mock.get_metrics.return_value = {"mae", 0.2}
         with self.assertLogs("PersistentStorageSerializer", level="INFO") as captured:
+
             PersistentStorageSerializer(
                 trained_models_folder="./test/trained_models"
             ).save_model(
