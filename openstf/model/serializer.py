@@ -9,6 +9,7 @@ from json import JSONDecodeError
 from pathlib import Path
 from typing import List, Optional, Union, Tuple
 from urllib.parse import unquote, urlparse
+import shutil
 
 import joblib
 import mlflow
@@ -516,7 +517,10 @@ class PersistentStorageSerializer(AbstractSerializer):
         self, pj: PredictionJobDataClass, max_n_models: int = MAX_N_MODELS
     ):
         """Remove old models for the experiment defined by PJ.
-        A maximum of 'max_n_models' is allowed"""
+        A maximum of 'max_n_models' is allowed.
+        Note that the current implementation only works if the Storage backend is used
+        This functionality is not incorporated in MLFlow natively
+        See also: https://github.com/mlflow/mlflow/issues/2152"""
         if max_n_models < 1:
             raise ValueError(
                 f"MAX_N_MODELS should be greater than 1! Received: {max_n_models}"
@@ -533,8 +537,18 @@ class PersistentStorageSerializer(AbstractSerializer):
                 max_n_models:, :
             ]
             for _, run in runs_to_remove.iterrows():
-                self.logger.debug(f"Removing run {run.run_id}, from {run.end_time}")
+                artifact_location = os.path.join(
+                    self.trained_models_folder, f"mlruns/1/{run.run_id}"
+                )
+                self.logger.debug(
+                    f"Going to remove run {run.run_id}, from {run.end_time}."
+                    f" Artifact location: {artifact_location}"
+                )
                 mlflow.delete_run(run.run_id)
+                # Also remove artifact from disk.
+                # mlflow.delete_run only marks it as deleted but does not delete it by itself
+                shutil.rmtree(artifact_location)
+                self.logger.debug("Removed run")
 
     def _get_feature_names(
         self,
