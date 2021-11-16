@@ -11,6 +11,7 @@ from typing import Optional, Union, Tuple
 from urllib.parse import unquote, urlparse
 
 import mlflow
+import numpy as np
 import pandas as pd
 import structlog
 from matplotlib import figure
@@ -202,20 +203,24 @@ class MLflowSerializer(AbstractSerializer):
                 "Model couldn't be found or doesn't exist. First train a model!"
             )
 
-    def get_model_age(self, pid: Union[int, str]) -> int:
+    def get_model_age(
+        self, pid: Union[int, str], hyperparameter_optimization_only: bool = False
+    ) -> int:
         # get run
-        run = self._find_models(pid, n=1)
-        # get age of model
-        age = self._determine_model_age_from_mlflow_run(run)
+        df_runs = self._find_models(
+            pid, n=1, hyperparameter_optimization_only=hyperparameter_optimization_only
+        )
 
-        return age
+        if len(df_runs) > 0:
+            run = df_runs.iloc[0]
+        else:
+            self.logger.info("No model found returning infinite model age!")
+            return np.inf
 
-    def get_days_since_last_hyperparameters(self, pid: Union[int, str]) -> int:
-        # get run
-        run = self._find_models(pid, n=1, hyperparameter_optimization_only=True)
         # get age of model
-        age = self._determine_model_age_from_mlflow_run(run)
-        return age
+        model_age = self._determine_model_age_from_mlflow_run(run)
+
+        return model_age
 
     def remove_old_models(
         self, pj: PredictionJobDataClass, max_n_models: int = MAX_N_MODELS
@@ -318,6 +323,7 @@ class MLflowSerializer(AbstractSerializer):
                 filter_string=filter_string,
                 max_results=n,
             )
+
             if n == 1:
                 run_df = run_df.iloc[0]
         else:
