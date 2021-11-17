@@ -230,30 +230,6 @@ class MLflowSerializer(AbstractSerializer):
 
         return model_age
 
-    def remove_old_models(
-        self, pj: PredictionJobDataClass, max_n_models: int = MAX_N_MODELS
-    ):
-        """Remove old models for the experiment defined by PJ.
-        A maximum of 'max_n_models' is allowed"""
-        if max_n_models < 1:
-            raise ValueError(
-                f"MAX_N_MODELS should be greater than 1! Received: {max_n_models}"
-            )
-
-        prev_runs = self._find_models(pj["id"])
-
-        if len(prev_runs) > max_n_models:
-            self.logger.debug(
-                f"Going to delete old models. {len(prev_runs)}>{max_n_models}"
-            )
-            # Find run_ids of oldest runs
-            runs_to_remove = prev_runs.sort_values(by="end_time", ascending=False).loc[
-                max_n_models:, :
-            ]
-            for _, run in runs_to_remove.iterrows():
-                self.logger.debug(f"Removing run {run.run_id}, from {run.end_time}")
-                mlflow.delete_run(run.run_id)
-
     def _get_model_specs(
         self,
         pid: Union[int, str],
