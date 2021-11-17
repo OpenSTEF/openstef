@@ -444,7 +444,7 @@ class MLflowSerializer(AbstractSerializer):
         self.logger.info(f"logged figures to MLflow")
 
     def _find_all_models(self, pj: PredictionJobDataClass):
-        experiment_id = self.setup_mlflow(pj["id"])
+        experiment_id = self._setup_mlflow(pj["id"])
         prev_runs = mlflow.search_runs(
             experiment_id,
             filter_string=" attribute.status = 'FINISHED' AND tags.mlflow.runName = '{}'".format(
