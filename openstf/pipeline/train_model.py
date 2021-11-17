@@ -19,7 +19,7 @@ from openstf.feature_engineering.feature_applicator import TrainFeatureApplicato
 from openstf.metrics.reporter import Report, Reporter
 from openstf.model.model_creator import ModelCreator
 from openstf.model.regressors.regressor import OpenstfRegressor
-from openstf.model.serializer import PersistentStorageSerializer
+from openstf.model.serializer import MLflowSerializer
 from openstf.model.standard_deviation_generator import StandardDeviationGenerator
 from openstf.model_selection.model_selection import split_data_train_validation_test
 from openstf.validation import validation
@@ -54,7 +54,7 @@ def train_model_pipeline(
     """
     # Intitialize logger and serializer
     logger = structlog.get_logger(__name__)
-    serializer = PersistentStorageSerializer(trained_models_folder)
+    serializer = MLflowSerializer(trained_models_folder)
 
     # Get old model and age
     try:
@@ -62,7 +62,7 @@ def train_model_pipeline(
         old_model_age = (
             old_model.age
         )  # Age attribute is openstf specific and is added by the serializer
-    except FileNotFoundError:
+    except (AttributeError, FileNotFoundError):
         old_model = None
         old_model_age = float("inf")
         # create basic modelspecs
@@ -297,17 +297,3 @@ def train_pipeline_common(
     report = reporter.generate_report(model)
 
     return model, report, train_data, validation_data, test_data
-
-
-def get_model_age(trained_models_folder: str, pid: int) -> float:
-    """returns age of most recently trained model in days.
-    If no previous model can be found, this returns float(inf).
-
-    Args:
-        trained_models_folder: str
-        pid: int
-
-    Returns:
-        float: age of most recent model in days"""
-    serializer = PersistentStorageSerializer(trained_models_folder)
-    return serializer.determine_model_age_from_pid(pid)

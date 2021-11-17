@@ -8,15 +8,18 @@ config.user.yaml
 # Ignore these folders
 prof/
 docs/build/
-output
+output/
 certificates/
 ktprognoses.egg-info/
 .idea/
 .vscode/
+test/trained_models/mlruns/
+test/trained_models/models_for_serializertest/mlruns/
+
 # Ignore these files
 .DS_Store
 tmp
-mlruns
+
 
 # default Python .gitignore template: https://raw.githubusercontent.com/github/gitignore/master/Python.gitignore
 
@@ -160,4 +163,3 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
-

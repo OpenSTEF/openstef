@@ -22,7 +22,7 @@ from openstf.model.objective_creator import ObjectiveCreator
 # This is required to disable the default optuna logger and pass the logs to our own
 # structlog logger
 from openstf.model.regressors.regressor import OpenstfRegressor
-from openstf.model.serializer import PersistentStorageSerializer
+from openstf.model.serializer import MLflowSerializer
 from openstf.validation import validation
 
 optuna.logging.enable_propagation()  # Propagate logs to the root logger.
@@ -84,14 +84,12 @@ def optimize_hyperparameters_pipeline(
     ).add_features(validated_data)
 
     # Create serializer
-    serializer = PersistentStorageSerializer(trained_models_folder)
-    # Start MLflow
-    serializer.setup_mlflow(pj["id"])
+    serializer = MLflowSerializer(trained_models_folder)
 
     # Create objective (NOTE: this is a callable class)
     objective = ObjectiveCreator.create_objective(model_type=pj["model"])
 
-    model, study, objective = optuna_optimization(
+    study, objective = optuna_optimization(
         pj, objective, validated_data_with_features, n_trials
     )
 
@@ -107,10 +105,10 @@ def optimize_hyperparameters_pipeline(
 
     # Save model
     serializer.save_model(
-        model,
+        study.user_attrs["best_model"],
         pj=pj,
         modelspecs=modelspecs,
-        report=objective.create_report(model=model),
+        report=objective.create_report(model=study.user_attrs["best_model"]),
         phase="Hyperparameter_opt",
         trials=objective.get_trial_track(),
         trial_number=study.best_trial.number,
@@ -124,7 +122,7 @@ def optuna_optimization(
     objective: RegressorObjective,
     validated_data_with_features: pd.DataFrame,
     n_trials: int,
-) -> Tuple[OpenstfRegressor, optuna.study.Study, RegressorObjective]:
+) -> Tuple[optuna.study.Study, RegressorObjective]:
     """Perform hyperparameter optimization with optuna
 
     Args:
@@ -157,25 +155,28 @@ def optuna_optimization(
     study.optimize(
         objective,
         n_trials=n_trials,
-        callbacks=[_log_study_progress],
+        callbacks=[_log_study_progress_and_save_best_model],
         show_progress_bar=False,
         timeout=TIMEOUT,
     )
 
-    return model, study, objective
+    return study, objective
 
 
-def _log_study_progress(
+def _log_study_progress_and_save_best_model(
     study: optuna.study.Study, trial: optuna.trial.FrozenTrial
 ) -> None:
     # Collect study and trial data
-    trial_index = study.trials.index(trial)
-    best_trial_index = study.trials.index(study.best_trial)
+    # trial_index = study.trials.index(trial)
+    # best_trial_index = study.trials.index(study.best_trial)
     value = trial.value
     params = trial.params
     duration = (trial.datetime_complete - trial.datetime_start).total_seconds()
     # Log information about this trial
     logger.debug(
-        f"Trial {trial_index} finished with value: {value} and parameters: {params}."
-        f"Best trial is {best_trial_index}. Iteration took {duration} s"
+        f"Trial {trial.number} finished with value: {value} and parameters: {params}."
+        f"Best trial is {study.best_trial.number}. Iteration took {duration} s"
     )
+    # If this trial is the best save the model as a study attribute
+    if study.best_trial.number == trial.number:
+        study.set_user_attr(key="best_model", value=trial.user_attrs["model"])
