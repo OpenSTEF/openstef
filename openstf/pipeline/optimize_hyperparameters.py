@@ -167,8 +167,8 @@ def _log_study_progress_and_save_best_model(
     study: optuna.study.Study, trial: optuna.trial.FrozenTrial
 ) -> None:
     # Collect study and trial data
-    #trial_index = study.trials.index(trial)
-    #best_trial_index = study.trials.index(study.best_trial)
+    # trial_index = study.trials.index(trial)
+    # best_trial_index = study.trials.index(study.best_trial)
     value = trial.value
     params = trial.params
     duration = (trial.datetime_complete - trial.datetime_start).total_seconds()
@@ -180,6 +180,3 @@ def _log_study_progress_and_save_best_model(
     # If this trial is the best save the model as a study attribute
     if study.best_trial.number == trial.number:
         study.set_user_attr(key="best_model", value=trial.user_attrs["model"])
-
-
-
