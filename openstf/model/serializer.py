@@ -206,10 +206,17 @@ class MLflowSerializer(AbstractSerializer):
     def get_model_age(
         self, pid: Union[int, str], hyperparameter_optimization_only: bool = False
     ) -> int:
+
+        if hyperparameter_optimization_only:
+            filter_string = (
+                "attribute.status = 'FINISHED' AND tags.phase = 'Hyperparameter_opt'"
+            )
+
+        else:
+            filter_string = "attribute.status = 'FINISHED'"
+
         # get run
-        df_runs = self._find_models(
-            pid, n=1, hyperparameter_optimization_only=hyperparameter_optimization_only
-        )
+        df_runs = self._find_models(pid, n=1, filter_string=filter_string)
 
         if len(df_runs) > 0:
             run = df_runs.iloc[0]
@@ -297,7 +304,7 @@ class MLflowSerializer(AbstractSerializer):
         self,
         pid: Union[int, str],
         n: Optional[int] = None,
-        hyperparameter_optimization_only: bool = False,
+        filter_string: str = None,
     ) -> Union[pd.Series, pd.DataFrame]:
         """
 
@@ -312,10 +319,8 @@ class MLflowSerializer(AbstractSerializer):
         """
         self.experiment_id = self._setup_mlflow(pid)
 
-        filter_string = "attribute.status = 'FINISHED'"
-
-        if hyperparameter_optimization_only:
-            filter_string = filter_string + "AND tags.phase = 'Hyperparameter_opt'"
+        if filter_string is None:
+            filter_string = "attribute.status = 'FINISHED'"
 
         if isinstance(n, int):
             run_df = mlflow.search_runs(
