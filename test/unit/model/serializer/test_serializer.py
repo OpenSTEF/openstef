@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 from unittest.mock import patch, MagicMock, PropertyMock
 import tempfile
 from distutils.dir_util import copy_tree
+import glob
 
 import pandas as pd
 
@@ -260,3 +261,7 @@ class TestAbstractModelSerializer(BaseTestCase):
                     :2, :
                 ],
             )
+
+            # Check if models are removed from disk
+            model_dirs = glob.glob(f"{temp_model_dir}/mlruns/1/*/", recursive=True)
+            self.assertEqual(len(model_dirs), 2)

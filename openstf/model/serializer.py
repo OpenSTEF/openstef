@@ -9,6 +9,7 @@ from json import JSONDecodeError
 from pathlib import Path
 from typing import Optional, Union, Tuple
 from urllib.parse import unquote, urlparse
+import shutil
 
 import mlflow
 import numpy as np
@@ -441,6 +442,57 @@ class MLflowSerializer(AbstractSerializer):
         for key, fig in report.data_series_figures.items():
             mlflow.log_figure(fig, f"figures/{key}.html")
         self.logger.info(f"logged figures to MLflow")
+
+    def _find_all_models(self, pj: PredictionJobDataClass):
+        experiment_id = self.setup_mlflow(pj["id"])
+        prev_runs = mlflow.search_runs(
+            experiment_id,
+            filter_string=" attribute.status = 'FINISHED' AND tags.mlflow.runName = '{}'".format(
+                pj["model"]
+            ),
+        )
+        return prev_runs
+
+    def remove_old_models(
+        self, pj: PredictionJobDataClass, max_n_models: int = MAX_N_MODELS
+    ):
+        """Remove old models for the experiment defined by PJ.
+        A maximum of 'max_n_models' is allowed.
+        Note that the current implementation only works if the Storage backend is used
+        This functionality is not incorporated in MLFlow natively
+        See also: https://github.com/mlflow/mlflow/issues/2152"""
+        if max_n_models < 1:
+            raise ValueError(
+                f"MAX_N_MODELS should be greater than 1! Received: {max_n_models}"
+            )
+
+        prev_runs = self._find_all_models(pj)
+
+        if len(prev_runs) > max_n_models:
+            self.logger.debug(
+                f"Going to delete old models. {len(prev_runs)}>{max_n_models}"
+            )
+            # Find run_ids of oldest runs
+            runs_to_remove = prev_runs.sort_values(by="end_time", ascending=False).loc[
+                max_n_models:, :
+            ]
+            for _, run in runs_to_remove.iterrows():
+                artifact_location = os.path.join(
+                    self.trained_models_folder, f"mlruns/1/{run.run_id}"
+                )
+                self.logger.debug(
+                    f"Going to remove run {run.run_id}, from {run.end_time}."
+                    f" Artifact location: {artifact_location}"
+                )
+                mlflow.delete_run(run.run_id)
+                # Also remove artifact from disk.
+                # mlflow.delete_run only marks it as deleted but does not delete it by itself
+                try:
+                    shutil.rmtree(artifact_location)
+                except Exception as e:
+                    self.logger.info(f"Failed removing artifacts: {e}")
+
+                self.logger.debug("Removed run")
 
     def _get_feature_names(
         self,
