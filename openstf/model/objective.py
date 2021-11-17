@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 from datetime import datetime
+import copy
 
 import optuna
 import pandas as pd
@@ -145,6 +146,7 @@ class RegressorObjective:
             "score": score,
             "params": hyper_params,
         }
+        trial.set_user_attr(key="model", value=copy.deepcopy(self.model))
         return score
 
     def get_params(self, trial: optuna.trial.FrozenTrial) -> dict:
