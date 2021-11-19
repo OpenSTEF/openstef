@@ -58,5 +58,6 @@ class TestTrainBackTestPipeline(BaseTestCase):
         self.assertEqual(list(forecast.horizon.unique()), [0.25, 24.0])
 
         # check if forecast is indeed of the entire range of the input data
-        self.assertEqual(len(forecast[forecast['horizon']==24.]), len(self.train_input))
-
+        self.assertEqual(
+            len(forecast[forecast["horizon"] == 24.0]), len(self.train_input)
+        )
