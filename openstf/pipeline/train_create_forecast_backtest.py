@@ -67,6 +67,8 @@ def train_model_and_forecast_back_test(
     train_data_entire = []
     test_data_entire = []
 
+    forecast = None
+
     if apply_folds:
         # prepare data in order to apply nfolds
         input_data.index = pd.to_datetime(input_data.index)
