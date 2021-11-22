@@ -136,16 +136,13 @@ class MLflowSerializer(AbstractSerializer):
             **kwargs: Extra information to be logged with mlflow, this can add the extra modelspecs
 
         """
-        try:
-            # return the latest run
-            prev_run = self._find_models(pj["id"], n=1)
-            # Use [0] to only get latest run id
-            if not prev_run.empty:
-                prev_run_id = prev_run["run_id"][0]
-            else:
-                self.logger.info("No previous model found in MLflow", pid=pj["id"])
-                prev_run_id = None
-        except KeyError:
+
+        # return the latest run
+        prev_run = self._find_models(pj["id"], n=1)
+        # Use [0] to only get latest run id
+        if not prev_run.empty:
+            prev_run_id = prev_run["run_id"][0]
+        else:
             self.logger.info("No previous model found in MLflow", pid=pj["id"])
             prev_run_id = None
         with mlflow.start_run(run_name=pj["model"]):
@@ -223,7 +220,7 @@ class MLflowSerializer(AbstractSerializer):
         # get run
         run = self._find_models(pid, n=1, filter_string=filter_string)
 
-        if len(run) > 0:
+        if isinstance(run, pd.Series):
             # get age of model
             return self._determine_model_age_from_mlflow_run(run)
         else:
