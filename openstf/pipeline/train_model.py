@@ -197,6 +197,7 @@ def train_pipeline_common(
     horizons: List[float],
     test_fraction: float = 0.0,
     backtest: bool = False,
+    test_data_predefined: pd.DataFrame = pd.DataFrame(),
 ) -> Tuple[OpenstfRegressor, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Common pipeline shared with operational training and backtest training
 
@@ -207,6 +208,8 @@ def train_pipeline_common(
         horizons (List[float]): horizons to train on in hours.
         test_fraction (float): fraction of data to use for testing
         backtest (bool): boolean if we need to do a backtest
+        test_data_predefined (pd.DataFrame): Predefined test data frame to be used in the pipeline
+            (empty data frame by default)
 
     Returns:
         Tuple[RegressorMixin, Report, pd.DataFrame, pd.DataFrame, pd.DataFrame]: Trained model, report
@@ -223,6 +226,7 @@ def train_pipeline_common(
         raise InputDataWrongColumnOrderError(
             "Missing the load column in the input dataframe"
         )
+
     # Validate and clean data
     validated_data = validation.clean(validation.validate(pj["id"], input_data))
     # Check if sufficient data is left after cleaning
@@ -230,9 +234,19 @@ def train_pipeline_common(
         raise InputDataInsufficientError(
             "Input data is insufficient, after validation and cleaning"
         )
+
     data_with_features = TrainFeatureApplicator(
         horizons=horizons, feature_names=modelspecs.feature_names
     ).add_features(validated_data)
+
+    # if test_data is predefined, apply the pipeline only on the remaining data
+    if not test_data_predefined.empty:
+        test_data_predefined = data_with_features[
+            data_with_features.index.isin(test_data_predefined.index)
+        ].sort_index()
+        data_with_features = data_with_features[
+            ~data_with_features.index.isin(test_data_predefined.index)
+        ].sort_index()
 
     # Split data
     (
@@ -246,6 +260,10 @@ def train_pipeline_common(
         test_fraction=test_fraction,
         back_test=backtest,
     )
+
+    # if test_data is predefined, use this over the returned test_data of split function
+    if not test_data_predefined.empty:
+        test_data = test_data_predefined
 
     # Test if first column is "load" and last column is "horizon"
     if train_data.columns[0] != "load" or train_data.columns[-1] != "horizon":
