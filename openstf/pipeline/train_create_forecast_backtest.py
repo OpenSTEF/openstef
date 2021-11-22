@@ -76,10 +76,20 @@ def train_model_and_forecast_back_test(
         # empty dataframe to fill with forecasts from each fold
         column_quantiles = []
         for quantile in pj.quantiles:
-            column_quantiles.append('quantile_' + str(quantile * 10).replace('.', ''))
-        forecast_df_columns = ['forecast', 'tAhead', 'stdev'] + column_quantiles + ['pid', 'customer', 'description',
-                                                                                    'type', 'algtype', 'realised',
-                                                                                    'horizon']
+            column_quantiles.append("quantile_" + str(quantile * 10).replace(".", ""))
+        forecast_df_columns = (
+            ["forecast", "tAhead", "stdev"]
+            + column_quantiles
+            + [
+                "pid",
+                "customer",
+                "description",
+                "type",
+                "algtype",
+                "realised",
+                "horizon",
+            ]
+        )
         forecast = pd.DataFrame(columns=forecast_df_columns)
 
         # iterate of the folds, train and forecast for each fold
@@ -96,10 +106,12 @@ def train_model_and_forecast_back_test(
             ) = train_model_and_forecast_test_core(
                 pj,
                 modelspecs,
-                input_data.iloc[:, :-2],  # ignore the added columns (dates, random_fold)
+                input_data.iloc[
+                    :, :-2
+                ],  # ignore the added columns (dates, random_fold)
                 training_horizons,
                 test_fraction=0.0,
-                test_data = test_df,
+                test_data=test_df,
             )
 
             models_entire.append(model)
@@ -116,10 +128,7 @@ def train_model_and_forecast_back_test(
             validation_data,
             test_data,
         ) = train_model_and_forecast_test_core(
-            pj,
-            modelspecs,
-            input_data,
-            training_horizons=training_horizons,
+            pj, modelspecs, input_data, training_horizons=training_horizons,
         )
 
         models_entire.append(model)
@@ -189,5 +198,3 @@ def train_model_and_forecast_test_core(
     forecast["horizon"] = test_data.iloc[:, -1]
 
     return forecast, model, train_data, validation_data, test_data
-
-

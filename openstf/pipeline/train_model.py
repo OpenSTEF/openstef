@@ -241,8 +241,12 @@ def train_pipeline_common(
 
     # if test_data is predefined, apply the pipeline only on the remaining data
     if not test_data_predefined.empty:
-        test_data_predefined = data_with_features[data_with_features.index.isin(test_data_predefined.index)].sort_index()
-        data_with_features = data_with_features[~data_with_features.index.isin(test_data_predefined.index)].sort_index()
+        test_data_predefined = data_with_features[
+            data_with_features.index.isin(test_data_predefined.index)
+        ].sort_index()
+        data_with_features = data_with_features[
+            ~data_with_features.index.isin(test_data_predefined.index)
+        ].sort_index()
 
     # Split data
     (
@@ -252,9 +256,7 @@ def train_pipeline_common(
         validation_data,
         test_data,
     ) = split_data_train_validation_test(
-        data_with_features,
-        test_fraction=test_fraction,
-        back_test=backtest,
+        data_with_features, test_fraction=test_fraction, back_test=backtest,
     )
 
     # if test_data is predefined, use this over the returned test_data of split function

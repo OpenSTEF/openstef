@@ -67,6 +67,4 @@ class TestTrainBackTestPipeline(BaseTestCase):
         data_with_features = TrainFeatureApplicator(
             horizons=[0.25, 24.0], feature_names=self.modelspecs.feature_names
         ).add_features(validated_data)
-        self.assertEqual(
-            len(forecast), len(data_with_features)
-        )
+        self.assertEqual(len(forecast), len(data_with_features))

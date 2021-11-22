@@ -15,6 +15,7 @@ AMOUNT_DAY = 96  # Duration of the periods (in T-15) that are in a day (default 
 PERIOD_TIMEDELTA = 1  # Duration of the periods (in days) that will be sampled as validation data for each split.
 PEAK_FRACTION = 0.15
 
+
 def group_kfold(
     input_data: pd.DataFrame, n_folds: int, random_split: bool = True
 ) -> pd.DataFrame:
@@ -30,17 +31,21 @@ def group_kfold(
         grouped data (pandas.DataFrame)
 
     """
-    unique_dates = input_data["dates"].unique() # dates defines the day (Y-M-D)
+    unique_dates = input_data["dates"].unique()  # dates defines the day (Y-M-D)
     # Group separators
-    len_data = len(unique_dates) # number of indices that can be used for splitting
-    size = len_data // n_folds # size of each fold set
-    rem = len_data % n_folds # remaining number of indices when divided in fold sets of equal size
-    separators = list(accumulate([0] + [size + 1] * rem + [size] * (n_folds - rem))) # location of seperators
+    len_data = len(unique_dates)  # number of indices that can be used for splitting
+    size = len_data // n_folds  # size of each fold set
+    rem = (
+        len_data % n_folds
+    )  # remaining number of indices when divided in fold sets of equal size
+    separators = list(
+        accumulate([0] + [size + 1] * rem + [size] * (n_folds - rem))
+    )  # location of seperators
 
     items = list(unique_dates)
 
     if random_split:
-        random.shuffle(items) # if random, shuffle the days
+        random.shuffle(items)  # if random, shuffle the days
 
     for i, s in enumerate(zip(separators, separators[1:])):
         group = items[slice(*s)]
@@ -207,8 +212,7 @@ def split_data_train_validation_test(
     if stratification_min_max:
         split_val = int((peak_n_days * validation_fraction) / PERIOD_TIMEDELTA)
         peaks_val, idx_val_split = sample_indices_train_val(
-            data_,
-            random_sample(np.array(min_max_dates.index.date), k=split_val),
+            data_, random_sample(np.array(min_max_dates.index.date), k=split_val),
         )
         peaks_train = list(set(min_max_dates.index.date) - set(peaks_val))
         peaks_val_train[0].append(peaks_val)
