@@ -140,8 +140,12 @@ class MLflowSerializer(AbstractSerializer):
             # return the latest run
             prev_run = self._find_models(pj["id"], n=1)
             # Use [0] to only get latest run id
-            prev_run_id = str(prev_run["run_id"])
-        except LookupError:
+            if not prev_run.empty:
+                prev_run_id = prev_run["run_id"][0]
+            else:
+                self.logger.info("No previous model found in MLflow", pid=pj["id"])
+                prev_run_id = None
+        except KeyError:
             self.logger.info("No previous model found in MLflow", pid=pj["id"])
             prev_run_id = None
         with mlflow.start_run(run_name=pj["model"]):
@@ -217,16 +221,14 @@ class MLflowSerializer(AbstractSerializer):
             filter_string = "attribute.status = 'FINISHED'"
 
         # get run
-        df_runs = self._find_models(pid, n=1, filter_string=filter_string)
+        run = self._find_models(pid, n=1, filter_string=filter_string)
 
-        if len(df_runs) > 0:
-            run = df_runs.iloc[0]
+        if len(run) > 0:
+            # get age of model
+            model_age = self._determine_model_age_from_mlflow_run(run)
         else:
             self.logger.info("No model found returning infinite model age!")
             return np.inf
-
-        # get age of model
-        model_age = self._determine_model_age_from_mlflow_run(run)
 
         return model_age
 
@@ -306,8 +308,9 @@ class MLflowSerializer(AbstractSerializer):
                 max_results=n,
             )
 
-            if n == 1:
+            if n == 1 and len(run_df) > 0:
                 run_df = run_df.iloc[0]
+
         else:
             run_df = mlflow.search_runs(
                 self.experiment_id,
@@ -330,11 +333,9 @@ class MLflowSerializer(AbstractSerializer):
             model_age_days = (datetime.utcnow() - model_datetime).days
         except Exception as e:
             self.logger.warning(
-                "Could not get model age. Returning infinite age!",
-                exception=e,
-                time=run.end_time,
+                "Could not get model age. Returning infinite age!", exception=e
             )
-            return float("inf")  # Return fallback age
+            return np.inf  # Return fallback age
         return model_age_days
 
     def _log_model_with_mlflow(
