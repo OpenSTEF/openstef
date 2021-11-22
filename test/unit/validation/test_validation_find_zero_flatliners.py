@@ -23,6 +23,12 @@ df_no_flatliner = pd.DataFrame(
 df_flatliner = pd.DataFrame(
     {"date": date_rng2, "col1": [8.0, 8.0, 8.0, 8.0, 8.0], "col2": [8.0, 0, 0, 0, 8.0]}
 )
+df_flatline_at_end = df_flatliner = pd.DataFrame(
+    {"date": date_rng2, "col1": [8.0, 8.0, 8.0, 8.0, 8.0], "col2": [8.0, 0, 0, 0, 0]}
+)
+df_flatline_at_start = df_flatliner = pd.DataFrame(
+    {"date": date_rng2, "col1": [8.0, 8.0, 8.0, 8.0, 8.0], "col2": [0, 0, 0, 8.0, 8.0]}
+)
 df_compensated_flatliner = pd.DataFrame(
     {"date": date_rng2, "col1": [8.0, 16, 16, 16, 8.0], "col2": [8.0, 0, 0, 0, 8.0]}
 )
@@ -151,6 +157,20 @@ class TestValidationFindZeroFlatliners(BaseTestCase):
         self.assertEqual(result, expected)
 
         # Run all tests
+
+    def test_flatline_at_end(self):
+        """The function should be able to handle arrays of unequal length. Bug KTPS-1823"""
+        df = df_flatline_at_end
+        threshold = 0.25
+        result = find_zero_flatliner(df, threshold)
+        self.assertEqual(result, None)
+
+    def test_flatline_at_start(self):
+        """The function should be able to handle arrays of unequal length. Bug KTPS-1823"""
+        df = df_flatline_at_start
+        threshold = 0.25
+        result = find_zero_flatliner(df, threshold)
+        self.assertEqual(result, None)
 
 
 if __name__ == "__main__":
