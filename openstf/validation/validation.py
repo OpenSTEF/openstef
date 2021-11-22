@@ -226,7 +226,13 @@ def find_nonzero_flatliner(df: pd.DataFrame, threshold: int) -> pd.DataFrame:
     last_zeros = flatliner_total[1:][
         (flatliner_total.iloc[:-1] != 0).values * (flatliner_total.iloc[1:] == 0).values
     ]
-    last_zeros.index = last_zeros.index - pd.Timedelta("15m")
+
+    # If a zero-value is at start or end of df, remove from last_* list
+    if len(flatliner_total) > 0:
+        if flatliner_total.iloc[0]:
+            last_zeros = last_zeros[1:]
+        if flatliner_total.iloc[-1]:
+            first_zeros = first_zeros[:-1]
 
     # Give as output from:to
     interval_df = pd.DataFrame(
@@ -279,10 +285,11 @@ def find_zero_flatliner(
             ]
 
             # If a zero-value is at start or end of df, remove from last_* list
-            if zero_values.iloc[0]:
-                last_zeros = last_zeros[1:]
-            if zero_values.iloc[-1]:
-                first_zeros = first_zeros[:-1]
+            if len(zero_values) > 0:
+                if zero_values.iloc[0]:
+                    last_zeros = last_zeros[1:]
+                if zero_values.iloc[-1]:
+                    first_zeros = first_zeros[:-1]
 
             interval_df = pd.DataFrame(
                 {

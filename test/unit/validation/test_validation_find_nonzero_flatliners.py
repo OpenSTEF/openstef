@@ -174,9 +174,8 @@ class TestValidationFindNonzeroFlatliners(BaseTestCase):
         """
         df = df_flatliner_start_end
         threshold = 0.25
-        expected = None
         result = find_nonzero_flatliner(df, threshold)
-        self.assertEqual(result, expected)
+        self.assertEqual(1, len(result))
 
     # Run all tests
 
