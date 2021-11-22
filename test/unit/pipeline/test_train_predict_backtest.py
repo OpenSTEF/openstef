@@ -7,6 +7,9 @@ from openstf.pipeline.train_create_forecast_backtest import (
 from test.utils import BaseTestCase
 from test.utils import TestData
 
+from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
+from openstf.validation import validation
+
 
 class TestTrainBackTestPipeline(BaseTestCase):
     def setUp(self) -> None:
@@ -55,9 +58,15 @@ class TestTrainBackTestPipeline(BaseTestCase):
         self.assertTrue("forecast" in forecast.columns)
         self.assertTrue("realised" in forecast.columns)
         self.assertTrue("horizon" in forecast.columns)
-        self.assertEqual(list(forecast.horizon.unique()), [0.25, 24.0])
+        self.assertEqual(sorted(list(forecast.horizon.unique())), [0.25, 24.0])
 
         # check if forecast is indeed of the entire range of the input data
+        validated_data = validation.clean(
+            validation.validate(self.pj["id"], self.train_input)
+        )
+        data_with_features = TrainFeatureApplicator(
+            horizons=[0.25, 24.0], feature_names=self.modelspecs.feature_names
+        ).add_features(validated_data)
         self.assertEqual(
-            len(forecast[forecast["horizon"] == 24.0]), len(self.train_input)
+            len(forecast), len(data_with_features)
         )

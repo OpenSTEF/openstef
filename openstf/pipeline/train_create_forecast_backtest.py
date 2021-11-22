@@ -3,9 +3,6 @@
 # SPDX-License-Identifier: MPL-2.0
 from typing import List, Tuple
 
-import random
-from itertools import accumulate
-
 from openstf.model.regressors.regressor import OpenstfRegressor
 
 import pandas as pd
@@ -17,7 +14,7 @@ from openstf.pipeline.train_model import train_pipeline_common
 from openstf.postprocessing.postprocessing import (
     add_prediction_job_properties_to_forecast,
 )
-from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
+from openstf.model_selection.model_selection import group_kfold
 
 DEFAULT_TRAIN_HORIZONS: List[float] = [0.25, 24.0]
 DEFAULT_EARLY_STOPPING_ROUNDS: int = 10
@@ -67,8 +64,6 @@ def train_model_and_forecast_back_test(
     train_data_entire = []
     test_data_entire = []
 
-    forecast = None
-
     if apply_folds:
         # prepare data in order to apply nfolds
         input_data.index = pd.to_datetime(input_data.index)
@@ -78,25 +73,22 @@ def train_model_and_forecast_back_test(
         # divide each day in a fold
         input_data = group_kfold(input_data, n_folds)
 
-        # iterate of the folds, train and forecast for each fold
-        for i in range(n_folds):
-            test_idx = input_data[
-                input_data.index.isin(input_data[input_data.random_fold == i].index)
-            ].index.sort_values()
-            train_idx = input_data[
-                input_data.index.isin(input_data[input_data.random_fold != i].index)
-            ].index.sort_values()
-            test_df = input_data.loc[test_idx, :]
-            train_df = input_data.loc[train_idx, :]
+        # empty dataframe to fill with forecasts from each fold
+        column_quantiles = []
+        for quantile in pj.quantiles:
+            column_quantiles.append('quantile_' + str(quantile * 10).replace('.', ''))
+        forecast_df_columns = ['forecast', 'tAhead', 'stdev'] + column_quantiles + ['pid', 'customer', 'description',
+                                                                                    'type', 'algtype', 'realised',
+                                                                                    'horizon']
+        forecast = pd.DataFrame(columns=forecast_df_columns)
 
-            test_df = TrainFeatureApplicator(
-                horizons=training_horizons, feature_names=modelspecs.feature_names
-            ).add_features(
-                test_df.iloc[:, :-2]
-            )  # ignore the added columns (dates, random_fold)
+        # iterate of the folds, train and forecast for each fold
+        for fold in range(n_folds):
+            # Select according to indices with fold, and sort the indices
+            test_df = input_data[input_data.random_fold == fold].sort_index()
 
             (
-                forecast_i,
+                forecast_fold,
                 model,
                 train_data,
                 validation_data,
@@ -104,11 +96,10 @@ def train_model_and_forecast_back_test(
             ) = train_model_and_forecast_test_core(
                 pj,
                 modelspecs,
-                train_df.iloc[:, :-2],  # ignore the added columns (dates, random_fold)
-                test_df,
+                input_data.iloc[:, :-2],  # ignore the added columns (dates, random_fold)
                 training_horizons,
-                apply_folds,
                 test_fraction=0.0,
+                test_data = test_df,
             )
 
             models_entire.append(model)
@@ -116,10 +107,7 @@ def train_model_and_forecast_back_test(
             train_data_entire.append(train_data)
             test_data_entire.append(test_data)
 
-            if i > 0:
-                forecast = forecast.append(forecast_i)
-            else:
-                forecast = forecast_i
+            forecast = forecast.append(forecast_fold).sort_index()
     else:
         (
             forecast,
@@ -132,7 +120,6 @@ def train_model_and_forecast_back_test(
             modelspecs,
             input_data,
             training_horizons=training_horizons,
-            apply_folds=apply_folds,
         )
 
         models_entire.append(model)
@@ -153,9 +140,8 @@ def train_model_and_forecast_test_core(
     pj: PredictionJobDataClass,
     modelspecs: ModelSpecificationDataClass,
     input_data: pd.DataFrame,
-    test_data: pd.DataFrame = None,
     training_horizons: List[float] = None,
-    apply_folds: bool = False,
+    test_data: pd.DataFrame = pd.DataFrame(),
     test_fraction: float = 0.15,
 ) -> Tuple[pd.DataFrame, OpenstfRegressor]:
     """Core part of the backtest pipeline, in order to create a model and forecast from input data
@@ -171,17 +157,15 @@ def train_model_and_forecast_test_core(
         forecast (pandas.DataFrame)
 
     """
-    model, report, train_data, validation_data, test_data_ = train_pipeline_common(
+    model, report, train_data, validation_data, test_data = train_pipeline_common(
         pj,
         modelspecs,
         input_data,
         training_horizons,
         test_fraction=test_fraction,
         backtest=True,
+        test_data_predefined=test_data,
     )
-
-    if not apply_folds:
-        test_data = test_data_
 
     # Predict
     model_forecast = model.predict(test_data.iloc[:, 1:-1])
@@ -207,36 +191,3 @@ def train_model_and_forecast_test_core(
     return forecast, model, train_data, validation_data, test_data
 
 
-def group_kfold(
-    input_data: pd.DataFrame, n_folds: int, random_split: bool = True
-) -> pd.DataFrame:
-    """Function to group data into groups, according to the date and the number of folds
-        - each date gets assigned a number between 0 and n_folds
-
-    Args:
-        input_data (pd.DataFrame): Input data
-        n_folds (int): Number of folds
-        random_split (bool): Indicates if random split needs to be applied
-
-    Returns:
-        grouped data (pandas.DataFrame)
-
-    """
-    unique_dates = input_data["dates"].unique()
-    # Group separators
-    len_data = len(unique_dates)
-    size = len_data // n_folds
-    rem = len_data % n_folds
-    separators = list(accumulate([0] + [size + 1] * rem + [size] * (n_folds - rem)))
-
-    items = list(unique_dates)
-
-    if random_split:
-        random.shuffle(items)
-
-    for i, s in enumerate(zip(separators, separators[1:])):
-        group = items[slice(*s)]
-        input_data.loc[
-            input_data[input_data["dates"].isin(group)].index, "random_fold"
-        ] = i
-    return input_data

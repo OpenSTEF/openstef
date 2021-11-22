@@ -5,12 +5,49 @@ import secrets
 from datetime import timedelta
 from typing import List, Tuple
 
+import random
+from itertools import accumulate
+
 import numpy as np
 import pandas as pd
 
 AMOUNT_DAY = 96  # Duration of the periods (in T-15) that are in a day (default = 96)
 PERIOD_TIMEDELTA = 1  # Duration of the periods (in days) that will be sampled as validation data for each split.
 PEAK_FRACTION = 0.15
+
+def group_kfold(
+    input_data: pd.DataFrame, n_folds: int, random_split: bool = True
+) -> pd.DataFrame:
+    """Function to group data into groups, according to the date and the number of folds
+        - each date gets assigned a number between 0 and n_folds
+
+    Args:
+        input_data (pd.DataFrame): Input data
+        n_folds (int): Number of folds
+        random_split (bool): Indicates if random split needs to be applied
+
+    Returns:
+        grouped data (pandas.DataFrame)
+
+    """
+    unique_dates = input_data["dates"].unique() # dates defines the day (Y-M-D)
+    # Group separators
+    len_data = len(unique_dates) # number of indices that can be used for splitting
+    size = len_data // n_folds # size of each fold set
+    rem = len_data % n_folds # remaining number of indices when divided in fold sets of equal size
+    separators = list(accumulate([0] + [size + 1] * rem + [size] * (n_folds - rem))) # location of seperators
+
+    items = list(unique_dates)
+
+    if random_split:
+        random.shuffle(items) # if random, shuffle the days
+
+    for i, s in enumerate(zip(separators, separators[1:])):
+        group = items[slice(*s)]
+        input_data.loc[
+            input_data[input_data["dates"].isin(group)].index, "random_fold"
+        ] = i
+    return input_data
 
 
 def sample_indices_train_val(
