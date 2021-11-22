@@ -12,14 +12,6 @@ openstf.feature\_engineering.apply\_features module
    :undoc-members:
    :show-inheritance:
 
-openstf.feature\_engineering.capacity\_prognoses\_features module
------------------------------------------------------------------
-
-.. automodule:: openstf.feature_engineering.capacity_prognoses_features
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 openstf.feature\_engineering.feature\_applicator module
 -------------------------------------------------------
 

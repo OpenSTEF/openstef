@@ -6,7 +6,6 @@ Subpackages
 
 .. toctree::
 
-   openstf.model.capacity
    openstf.model.regressors
 
 Submodules

@@ -244,11 +244,36 @@ objective : The objective object used by optuna</p>
 <span id="openstf-pipeline-train-create-forecast-backtest-module"></span><h2>openstf.pipeline.train_create_forecast_backtest module<a class="headerlink" href="#module-openstf.pipeline.train_create_forecast_backtest" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="openstf.pipeline.train_create_forecast_backtest.train_model_and_forecast_back_test">
-<code class="sig-prename descclassname">openstf.pipeline.train_create_forecast_backtest.</code><code class="sig-name descname">train_model_and_forecast_back_test</code><span class="sig-paren">(</span><em class="sig-param">pj: openstf_dbc.services.prediction_job.PredictionJobDataClass</em>, <em class="sig-param">modelspecs: openstf.data_classes.model_specifications.ModelSpecificationDataClass</em>, <em class="sig-param">input_data: pandas.core.frame.DataFrame</em>, <em class="sig-param">training_horizons: List[float] = None</em><span class="sig-paren">)</span> &#x2192; Tuple[pandas.core.frame.DataFrame, sklearn.base.RegressorMixin]<a class="headerlink" href="#openstf.pipeline.train_create_forecast_backtest.train_model_and_forecast_back_test" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstf.pipeline.train_create_forecast_backtest.</code><code class="sig-name descname">train_model_and_forecast_back_test</code><span class="sig-paren">(</span><em class="sig-param">pj: openstf_dbc.services.prediction_job.PredictionJobDataClass</em>, <em class="sig-param">modelspecs: openstf.data_classes.model_specifications.ModelSpecificationDataClass</em>, <em class="sig-param">input_data: pandas.core.frame.DataFrame</em>, <em class="sig-param">training_horizons: List[float] = None</em>, <em class="sig-param">n_folds: int = 1</em><span class="sig-paren">)</span> &#x2192; Tuple[pandas.core.frame.DataFrame, List[openstf.model.regressors.regressor.OpenstfRegressor], List[pandas.core.frame.DataFrame], List[pandas.core.frame.DataFrame], List[pandas.core.frame.DataFrame]]<a class="headerlink" href="#openstf.pipeline.train_create_forecast_backtest.train_model_and_forecast_back_test" title="Permalink to this definition">¶</a></dt>
 <dd><p>Pipeline for a back test.</p>
 <blockquote>
-<div><p>DO NOT USE THIS PIPELINE FOR OPERATIONAL FORECASTS</p>
+<div><p>When number of folds is larger than 1: apply pipeline for a back test when forecasting the entire input range.
+- Makes use of kfold cross validation in order to split data multiple times.
+- Results of all the testsets are added together to obtain the forecast for the whole input range.
+- Obtaining the days for each fold can be done either randomly or not</p>
+<p>DO NOT USE THIS PIPELINE FOR OPERATIONAL FORECASTS</p>
 </div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pj</strong> (<em>PredictionJobDataClass</em>) – Prediction job.</p></li>
+<li><p><strong>modelspecs</strong> (<a class="reference internal" href="openstf.data_classes.html#openstf.data_classes.model_specifications.ModelSpecificationDataClass" title="openstf.data_classes.model_specifications.ModelSpecificationDataClass"><em>ModelSpecificationDataClass</em></a>) – Dataclass containing model specifications</p></li>
+<li><p><strong>input_data</strong> (<em>pd.DataFrame</em>) – Input data</p></li>
+<li><p><strong>training_horizons</strong> (<em>list</em>) – horizons to train on in hours.
+These horizons are also used to make predictions (one for every horizon)</p></li>
+<li><p><strong>n_folds</strong> (<em>int</em>) – number of folds to apply (if 1, no cross validation will be applied)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>forecast (pandas.DataFrame)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="openstf.pipeline.train_create_forecast_backtest.train_model_and_forecast_test_core">
+<code class="sig-prename descclassname">openstf.pipeline.train_create_forecast_backtest.</code><code class="sig-name descname">train_model_and_forecast_test_core</code><span class="sig-paren">(</span><em class="sig-param">pj: openstf_dbc.services.prediction_job.PredictionJobDataClass</em>, <em class="sig-param">modelspecs: openstf.data_classes.model_specifications.ModelSpecificationDataClass</em>, <em class="sig-param">input_data: pandas.core.frame.DataFrame</em>, <em class="sig-param">training_horizons: List[float] = None</em>, <em class="sig-param">test_data: pandas.core.frame.DataFrame = Empty DataFrame Columns: [] Index: []</em>, <em class="sig-param">test_fraction: float = 0.15</em><span class="sig-paren">)</span> &#x2192; Tuple[pandas.core.frame.DataFrame, openstf.model.regressors.regressor.OpenstfRegressor]<a class="headerlink" href="#openstf.pipeline.train_create_forecast_backtest.train_model_and_forecast_test_core" title="Permalink to this definition">¶</a></dt>
+<dd><p>Core part of the backtest pipeline, in order to create a model and forecast from input data</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -338,7 +363,7 @@ expected:</p>
 
 <dl class="function">
 <dt id="openstf.pipeline.train_model.train_pipeline_common">
-<code class="sig-prename descclassname">openstf.pipeline.train_model.</code><code class="sig-name descname">train_pipeline_common</code><span class="sig-paren">(</span><em class="sig-param">pj: openstf_dbc.services.prediction_job.PredictionJobDataClass, modelspecs: openstf.data_classes.model_specifications.ModelSpecificationDataClass, input_data: pandas.core.frame.DataFrame, horizons: List[float], test_fraction: float = 0.0, backtest: bool = False</em><span class="sig-paren">)</span> &#x2192; Tuple[openstf.model.regressors.regressor.OpenstfRegressor, pandas.core.frame.DataFrame, pandas.core.frame.DataFrame, pandas.core.frame.DataFrame]<a class="headerlink" href="#openstf.pipeline.train_model.train_pipeline_common" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstf.pipeline.train_model.</code><code class="sig-name descname">train_pipeline_common</code><span class="sig-paren">(</span><em class="sig-param">pj: openstf_dbc.services.prediction_job.PredictionJobDataClass, modelspecs: openstf.data_classes.model_specifications.ModelSpecificationDataClass, input_data: pandas.core.frame.DataFrame, horizons: List[float], test_fraction: float = 0.0, backtest: bool = False, test_data_predefined: pandas.core.frame.DataFrame = Empty DataFrame Columns: [] Index: []</em><span class="sig-paren">)</span> &#x2192; Tuple[openstf.model.regressors.regressor.OpenstfRegressor, pandas.core.frame.DataFrame, pandas.core.frame.DataFrame, pandas.core.frame.DataFrame]<a class="headerlink" href="#openstf.pipeline.train_model.train_pipeline_common" title="Permalink to this definition">¶</a></dt>
 <dd><p>Common pipeline shared with operational training and backtest training</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -349,6 +374,8 @@ expected:</p>
 <li><p><strong>horizons</strong> (<em>List</em><em>[</em><em>float</em><em>]</em>) – horizons to train on in hours.</p></li>
 <li><p><strong>test_fraction</strong> (<em>float</em>) – fraction of data to use for testing</p></li>
 <li><p><strong>backtest</strong> (<em>bool</em>) – boolean if we need to do a backtest</p></li>
+<li><p><strong>test_data_predefined</strong> (<em>pd.DataFrame</em>) – Predefined test data frame to be used in the pipeline
+(empty data frame by default)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>

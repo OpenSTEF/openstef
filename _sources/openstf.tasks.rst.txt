@@ -27,14 +27,6 @@ openstf.tasks.create\_basecase\_forecast module
    :undoc-members:
    :show-inheritance:
 
-openstf.tasks.create\_capacity\_forecast module
------------------------------------------------
-
-.. automodule:: openstf.tasks.create_capacity_forecast
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 openstf.tasks.create\_components\_forecast module
 -------------------------------------------------
 
@@ -87,14 +79,6 @@ openstf.tasks.split\_forecast module
 ------------------------------------
 
 .. automodule:: openstf.tasks.split_forecast
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-openstf.tasks.train\_capacity\_model module
--------------------------------------------
-
-.. automodule:: openstf.tasks.train_capacity_model
    :members:
    :undoc-members:
    :show-inheritance:

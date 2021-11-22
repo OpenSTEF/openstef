@@ -75,6 +75,29 @@
 <div class="section" id="module-openstf.model_selection.model_selection">
 <span id="openstf-model-selection-model-selection-module"></span><h2>openstf.model_selection.model_selection module<a class="headerlink" href="#module-openstf.model_selection.model_selection" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
+<dt id="openstf.model_selection.model_selection.group_kfold">
+<code class="sig-prename descclassname">openstf.model_selection.model_selection.</code><code class="sig-name descname">group_kfold</code><span class="sig-paren">(</span><em class="sig-param">input_data: pandas.core.frame.DataFrame</em>, <em class="sig-param">n_folds: int</em>, <em class="sig-param">random_split: bool = True</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstf.model_selection.model_selection.group_kfold" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Function to group data into groups, according to the date and the number of folds</dt><dd><ul class="simple">
+<li><p>each date gets assigned a number between 0 and n_folds</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_data</strong> (<em>pd.DataFrame</em>) – Input data</p></li>
+<li><p><strong>n_folds</strong> (<em>int</em>) – Number of folds</p></li>
+<li><p><strong>random_split</strong> (<em>bool</em>) – Indicates if random split needs to be applied</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>grouped data (pandas.DataFrame)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
 <dt id="openstf.model_selection.model_selection.random_sample">
 <code class="sig-prename descclassname">openstf.model_selection.model_selection.</code><code class="sig-name descname">random_sample</code><span class="sig-paren">(</span><em class="sig-param">all_peaks: numpy.array</em>, <em class="sig-param">k: int</em><span class="sig-paren">)</span> &#x2192; numpy.array<a class="headerlink" href="#openstf.model_selection.model_selection.random_sample" title="Permalink to this definition">¶</a></dt>
 <dd><p>Random sampling of numbers out of a np.array
