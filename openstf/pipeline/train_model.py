@@ -256,7 +256,9 @@ def train_pipeline_common(
         validation_data,
         test_data,
     ) = split_data_train_validation_test(
-        data_with_features, test_fraction=test_fraction, back_test=backtest,
+        data_with_features,
+        test_fraction=test_fraction,
+        back_test=backtest,
     )
 
     # if test_data is predefined, use this over the returned test_data of split function

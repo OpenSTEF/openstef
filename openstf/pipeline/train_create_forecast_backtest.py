@@ -128,7 +128,10 @@ def train_model_and_forecast_back_test(
             validation_data,
             test_data,
         ) = train_model_and_forecast_test_core(
-            pj, modelspecs, input_data, training_horizons=training_horizons,
+            pj,
+            modelspecs,
+            input_data,
+            training_horizons=training_horizons,
         )
 
         models_entire.append(model)
