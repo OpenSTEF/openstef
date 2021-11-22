@@ -225,12 +225,10 @@ class MLflowSerializer(AbstractSerializer):
 
         if len(run) > 0:
             # get age of model
-            model_age = self._determine_model_age_from_mlflow_run(run)
+            return self._determine_model_age_from_mlflow_run(run)
         else:
             self.logger.info("No model found returning infinite model age!")
             return np.inf
-
-        return model_age
 
     def _get_model_specs(
         self,
