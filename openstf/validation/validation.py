@@ -264,6 +264,7 @@ def find_zero_flatliner(
     load_threshold: float = 0.3,
 ) -> pd.DataFrame or None:
     """Function that detects a zero value where the load is not compensated by the other trafo's of the station.
+    If zero value is at start or end, ignore that block.
 
     Input:
     - df: pd.dataFrame(index=DatetimeIndex, columns = [load1, ..., loadN]). Load_corrections should be indicated by 'LC_'

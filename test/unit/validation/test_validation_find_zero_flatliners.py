@@ -23,10 +23,10 @@ df_no_flatliner = pd.DataFrame(
 df_flatliner = pd.DataFrame(
     {"date": date_rng2, "col1": [8.0, 8.0, 8.0, 8.0, 8.0], "col2": [8.0, 0, 0, 0, 8.0]}
 )
-df_flatline_at_end = df_flatliner = pd.DataFrame(
+df_flatline_at_end = pd.DataFrame(
     {"date": date_rng2, "col1": [8.0, 8.0, 8.0, 8.0, 8.0], "col2": [8.0, 0, 0, 0, 0]}
 )
-df_flatline_at_start = df_flatliner = pd.DataFrame(
+df_flatline_at_start = pd.DataFrame(
     {"date": date_rng2, "col1": [8.0, 8.0, 8.0, 8.0, 8.0], "col2": [0, 0, 0, 8.0, 8.0]}
 )
 df_compensated_flatliner = pd.DataFrame(
@@ -93,9 +93,9 @@ class TestValidationFindZeroFlatliners(BaseTestCase):
         self.assertEqual(result, expected)
 
     def test_find_zero_flatliner(self):
-        """Data: zero-values at one trafo which is not compensated
+        """Data: zero-values at one trafo which is not compensated, only at start.
 
-        Expected: list containing all trafo values and timestamps of the zero_value flatliners + trafo name
+        Expected: None, since
         """
         df = df_flatliner
         threshold = 0.25
