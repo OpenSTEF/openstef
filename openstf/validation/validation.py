@@ -277,6 +277,13 @@ def find_zero_flatliner(
             first_zeros = zero_values[1:][
                 (zero_values.iloc[:-1] == 0).values * (zero_values.iloc[1:] != 0).values
             ]
+
+            # If a zero-value is at start or end of df, remove from last_* list
+            if zero_values.iloc[0]:
+                last_zeros = last_zeros[1:]
+            if zero_values.iloc[-1]:
+                first_zeros = first_zeros[:-1]
+
             interval_df = pd.DataFrame(
                 {
                     "from_time": first_zeros.index,
