@@ -202,6 +202,12 @@ def find_nonzero_flatliner(df: pd.DataFrame, threshold: int) -> pd.DataFrame:
     Returns:
     # TODO: function returns None or a DataFrame
         list: flatline moments
+
+    TODO: a lot of the logic of this function can be improved using: mnts.label
+    ```
+    import scipy.ndimage.measurements as mnts
+    mnts.label
+    ```
     """
 
     if len(df) == 0:
@@ -267,7 +273,14 @@ def find_zero_flatliner(
     before and during the zero-value(s).
 
     return:
-    - pd.DataFrame of timestamps, or None if none"""
+    - pd.DataFrame of timestamps, or None if none
+
+    TODO: a lot of the logic of this function can be improved using: mnts.label
+    ```
+    import scipy.ndimage.measurements as mnts
+    mnts.label
+    ```
+    """
     result_df = pd.DataFrame()
 
     for col in df.columns:
