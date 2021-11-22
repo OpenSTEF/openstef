@@ -102,7 +102,7 @@ class TestPreprocessing(BaseTestCase):
         Expected: list containing all trafo values and timestamps of the
         stationsflatliners + the generates diff_columns to detect the flatliners.
         """
-        df = df_flatliner
+        df = df_flatliner.copy()
         suspicious_moments = validation.find_nonzero_flatliner(df, 0.25)
         # create expected output with diff_columns
         df_flatliner_output = pd.DataFrame(
