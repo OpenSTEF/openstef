@@ -129,7 +129,7 @@ class TestAbstractModelSerializer(BaseTestCase):
             )
             # The index shifts if logging is added
             self.assertRegex(
-                captured.records[0].getMessage(), "Model saved with MLflow"
+                captured.records[1].getMessage(), "Model saved with MLflow"
             )
 
     @patch("mlflow.sklearn.log_model")
