@@ -76,7 +76,7 @@ def train_model_and_forecast_back_test(
         # empty dataframe to fill with forecasts from each fold
         column_quantiles = []
         for quantile in pj.quantiles:
-            column_quantiles.append("quantile_" + str(quantile * 10).replace(".", ""))
+            column_quantiles.append("quantile_P" + str(quantile * 10).replace(".", ""))
         forecast_df_columns = (
             ["forecast", "tAhead", "stdev"]
             + column_quantiles
