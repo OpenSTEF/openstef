@@ -146,12 +146,18 @@ Load_corrections should be indicated by ‘<a href="#id3"><span class="problemat
 <blockquote>
 <div><p>list: flatline moments</p>
 </div></blockquote>
+<p>TODO: a lot of the logic of this function can be improved using: mnts.label
+<code class="docutils literal notranslate"><span class="pre">`</span>
+<span class="pre">import</span> <span class="pre">scipy.ndimage.measurements</span> <span class="pre">as</span> <span class="pre">mnts</span>
+<span class="pre">mnts.label</span>
+<span class="pre">`</span></code></p>
 </dd></dl>
 
 <dl class="function">
 <dt id="openstf.validation.validation.find_zero_flatliner">
 <code class="sig-prename descclassname">openstf.validation.validation.</code><code class="sig-name descname">find_zero_flatliner</code><span class="sig-paren">(</span><em class="sig-param">df: pandas.core.frame.DataFrame</em>, <em class="sig-param">threshold: float</em>, <em class="sig-param">window: datetime.timedelta = datetime.timedelta(seconds=1800)</em>, <em class="sig-param">load_threshold: float = 0.3</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstf.validation.validation.find_zero_flatliner" title="Permalink to this definition">¶</a></dt>
-<dd><p>Function that detects a zero value where the load is not compensated by the other trafo’s of the station.</p>
+<dd><p>Function that detects a zero value where the load is not compensated by the other trafo’s of the station.
+If zero value is at start or end, ignore that block.</p>
 <p>Input:
 - df: pd.dataFrame(index=DatetimeIndex, columns = [load1, …, loadN]). Load_corrections should be indicated by ‘<a href="#id5"><span class="problematic" id="id6">LC_</span></a>’
 - threshold (float): after how many hours should the function detect a flatliner.
@@ -160,6 +166,11 @@ Load_corrections should be indicated by ‘<a href="#id3"><span class="problemat
 before and during the zero-value(s).</p>
 <p>return:
 - pd.DataFrame of timestamps, or None if none</p>
+<p>TODO: a lot of the logic of this function can be improved using: mnts.label
+<code class="docutils literal notranslate"><span class="pre">`</span>
+<span class="pre">import</span> <span class="pre">scipy.ndimage.measurements</span> <span class="pre">as</span> <span class="pre">mnts</span>
+<span class="pre">mnts.label</span>
+<span class="pre">`</span></code></p>
 </dd></dl>
 
 <dl class="function">
