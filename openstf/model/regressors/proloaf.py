@@ -1,10 +1,10 @@
 import numpy as np
 import pandas as pd
 import torch
-import utils.datahandler as dh
+import proloaf.datahandler as dh
 from openstf.model.regressors.regressor import OpenstfRegressor
-from utils.modelhandler import ModelWrapper
-from typing import List, Dict, Any
+from proloaf.modelhandler import ModelWrapper
+from typing import List, Dict, Any, Union
 from torch.utils.tensorboard import SummaryWriter
 
 NO_SCALE_FEATURES = ['humidity',
@@ -91,8 +91,8 @@ class OpenstfProloafRegressor(OpenstfRegressor, ModelWrapper):
         early_stopping_patience: int = 7,
         early_stopping_margin: float = 0,
         learning_rate: float = 1e-3,
-        max_epochs: int = 50,
-        device: str = "cpu",
+        max_epochs: int = 100,
+        device: Union[str,int] = "cuda",
         batch_size: int = 6,
         # split_percent: float = 0.85,  # XXX now unsued
         history_horizon: int = 24,
@@ -123,6 +123,7 @@ class OpenstfProloafRegressor(OpenstfRegressor, ModelWrapper):
             learning_rate=learning_rate,
             max_epochs=max_epochs,
         )
+        self.to(device)
 
     def predict(self, x: pd.DataFrame) -> np.ndarray:
         x = dh.fill_if_missing(x, periodicity=24) #for scaling and NAN
@@ -175,6 +176,8 @@ class OpenstfProloafRegressor(OpenstfRegressor, ModelWrapper):
             .detach()
             .numpy()
         )
+        print("Encoder Inputs Scaled: ", inputs_enc)
+        print("Decoder Inputs Scaled: ", inputs_dec)
         return prediction
 
     def fit(
