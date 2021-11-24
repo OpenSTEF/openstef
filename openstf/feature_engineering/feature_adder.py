@@ -15,16 +15,16 @@ class FeatureAdder(ABC):
     @property
     @abstractmethod
     def _regex(self) -> str:
-        ...
+        pass
 
     @property
     @abstractmethod
     def name(self) -> str:
-        ...
+        pass
 
     @abstractmethod
     def required_features(self, feature_names) -> List[str]:
-        ...
+        pass
 
     def __hash__(self):
         return hash(self.name)
@@ -57,7 +57,7 @@ class FeatureAdder(ABC):
     def apply_features(
         self, df: pd.DataFrame, parsed_feature_names: Sequence[ParsedFeature]
     ) -> pd.DataFrame:
-        ...
+        pass
 
     def __repr__(self):
         return "%s(<%s>)" % (self.__class__.__name__, self.name)

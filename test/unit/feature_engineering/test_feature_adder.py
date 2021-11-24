@@ -54,11 +54,19 @@ class TestFeatureAdder(BaseTestCase):
     def setUp(self) -> None:
         self.input_data = TestData.load("input_data.pickle")
 
+    def test_repr_fearureAdder(self):
+        dummy = DummyFeature()
+        self.assertTrue(dummy.__repr__(), "DummyFeature(<dummy>)")
+
     def test_ambiguous_features(self):
         feature_names = ["dummy_0", "dummy_-1", "dummy_0.5", "dummy_42"]
         feat_disp = FeatureDispatcher([DummyFeature(), DummyIntFeature()])
         with self.assertRaises(RuntimeError):
             feat_disp.dispatch_features(feature_names)
+
+    def test_duplicate_featureAdder(self):
+        with self.assertRaises(RuntimeError):
+            FeatureDispatcher([DummyFeature(), DummyFeature()])
 
     def test_dispatch_features(self):
         feature_names = ["dummy_0", "dummy_-1", "dummy_0.5", "dummy_42"]
