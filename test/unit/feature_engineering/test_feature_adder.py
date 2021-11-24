@@ -63,7 +63,6 @@ class TestFeatureAdder(BaseTestCase):
     def test_dispatch_features(self):
         feature_names = ["dummy_0", "dummy_-1", "dummy_0.5", "dummy_42"]
         feat_disp = FeatureDispatcher([DummyFeature()])
-        dispatched_features = feat_disp.dispatch_features(feature_names)
         df_out = feat_disp.apply_features(self.input_data, feature_names)
         # Test if the features have been correctly added
         self.assertTrue(
