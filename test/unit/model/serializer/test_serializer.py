@@ -164,48 +164,6 @@ class TestMLflowSerializer(BaseTestCase):
     @patch("mlflow.log_metrics")
     @patch("mlflow.set_tag")
     @patch("mlflow.search_runs")
-    @patch("openstf.model.serializer.MLflowSerializer._find_models")
-    def test_serializer_save_model_existing_models(
-        self,
-        mock_find_models,
-        mock_search_runs,
-        mock_set_tag,
-        mock_log_metrics,
-        mock_log_params,
-        mock_log_figure,
-        mock_log_model,
-    ):
-        model_type = "xgb"
-        model = ModelCreator.create_model(model_type)
-        pj = self.pj
-        pj["id"] = "Default"  # set ID to default, so MLflow saves it in default folder
-        report_mock = MagicMock()
-        report_mock.get_metrics.return_value = {"mae", 0.2}
-        models_df = pd.DataFrame(
-            data={
-                "run_id": [1, 2],
-                "artifact_uri": ["path1", "path2"],
-                "end_time": [
-                    datetime.utcnow() - timedelta(days=2),
-                    datetime.utcnow() - timedelta(days=3),
-                ],
-            }
-        )
-        mock_find_models.return_value = models_df
-        with self.assertLogs("MLflowSerializer", level="INFO") as captured:
-            MLflowSerializer(trained_models_folder="./test/trained_models").save_model(
-                model=model, pj=pj, modelspecs=self.modelspecs, report=report_mock
-            )
-            self.assertEqual(
-                captured.records[0].msg["event"], "Model saved with MLflow"
-            )
-
-    @patch("mlflow.sklearn.log_model")
-    @patch("mlflow.log_figure")
-    @patch("mlflow.log_params")
-    @patch("mlflow.log_metrics")
-    @patch("mlflow.set_tag")
-    @patch("mlflow.search_runs")
     def test_serializer_save_model_no_previous(
         self,
         mock_search,
