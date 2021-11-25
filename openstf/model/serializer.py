@@ -151,7 +151,8 @@ class MLflowSerializer(AbstractSerializer):
         self.logger.debug(f"MLflow path after saving= {self.mlflow_folder}")
 
     def load_model(
-        self, pid: Union[str, int],
+        self,
+        pid: Union[str, int],
     ) -> Tuple[OpenstfRegressor, ModelSpecificationDataClass]:
         """Load sklearn compatible model from persistent storage.
 
@@ -201,7 +202,9 @@ class MLflowSerializer(AbstractSerializer):
         # Catch possible errors
         except (AttributeError, MlflowException, OSError) as e:
             self.logger.error(
-                "Couldn't load model", pid=pid, error=e,
+                "Couldn't load model",
+                pid=pid,
+                error=e,
             )
             raise AttributeError(
                 "Model couldn't be found or doesn't exist. First train a model!"
@@ -274,7 +277,10 @@ class MLflowSerializer(AbstractSerializer):
         return mlflow.get_experiment_by_name(str(pid)).experiment_id
 
     def _find_models(
-        self, pid: Union[int, str], n: Optional[int] = None, filter_string: str = None,
+        self,
+        pid: Union[int, str],
+        n: Optional[int] = None,
+        filter_string: str = None,
     ) -> Union[pd.DataFrame]:
         """
         Finds trained models for specific pid sorted by age in descending order.
@@ -295,14 +301,17 @@ class MLflowSerializer(AbstractSerializer):
 
         if isinstance(n, int):
             models_df = mlflow.search_runs(
-                self.experiment_id, filter_string=filter_string, max_results=n,
+                self.experiment_id,
+                filter_string=filter_string,
+                max_results=n,
             )
 
             if n == 1 and len(models_df) > 0:
                 models_df = models_df.iloc[:1]  # filter on first row of dataframe
         else:
             models_df = mlflow.search_runs(
-                self.experiment_id, filter_string=filter_string,
+                self.experiment_id,
+                filter_string=filter_string,
             )
         return models_df
 
@@ -384,7 +393,9 @@ class MLflowSerializer(AbstractSerializer):
 
         # Log the model to the run
         mlflow.sklearn.log_model(
-            sk_model=model, artifact_path="model", signature=report.signature,
+            sk_model=model,
+            artifact_path="model",
+            signature=report.signature,
         )
         self.logger.info("Model saved with MLflow", pid=pj["id"])
 
@@ -482,11 +493,15 @@ class MLflowSerializer(AbstractSerializer):
 
         except KeyError:
             self.logger.warning(
-                E_MSG, pid=pid, error="tags.feature_names, doesn't exist in run",
+                E_MSG,
+                pid=pid,
+                error="tags.feature_names, doesn't exist in run",
             )
         except AttributeError:
             self.logger.warning(
-                E_MSG, pid=pid, error="tags.feature_names, needs to be a string",
+                E_MSG,
+                pid=pid,
+                error="tags.feature_names, needs to be a string",
             )
         except JSONDecodeError:
             self.logger.warning(
