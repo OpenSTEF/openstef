@@ -7,6 +7,7 @@ from unittest.mock import MagicMock, patch
 
 import pandas as pd
 import sklearn
+import glob
 
 from openstf.enums import MLModelType
 from openstf.exceptions import (
@@ -139,11 +140,12 @@ class TestTrainModelPipeline(BaseTestCase):
         report_mock = MagicMock()
         pipeline_mock.return_value = ("a", report_mock, self.modelspecs)
 
+        trained_models_folder = "./test/trained_models"
         train_model_pipeline(
             pj=self.pj,
             input_data=self.train_input,
             check_old_model_age=False,
-            trained_models_folder="./test/trained_models",
+            trained_models_folder=trained_models_folder,
         )
 
     @patch("openstf.model.serializer.MLflowSerializer.save_model")

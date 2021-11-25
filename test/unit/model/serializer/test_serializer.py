@@ -10,6 +10,7 @@ import glob
 
 import numpy as np
 import pandas as pd
+import cufflinks
 
 from openstf.metrics.reporter import Report
 from openstf.data_classes.model_specifications import ModelSpecificationDataClass
@@ -126,17 +127,36 @@ class TestMLflowSerializer(BaseTestCase):
         model = ModelCreator.create_model(model_type)
         pj = self.pj
         # set ID to default, so MLflow saves it in a default folder
-        pj["id"] = "Default"
+        pj["id"] = "307"
+
+        # Build reporter mock, including html figures so we can test if they are stored correctly
         report_mock = MagicMock()
         report_mock.get_metrics.return_value = {"mae", 0.2}
-        with self.assertLogs("MLflowSerializer", level="INFO") as captured:
-            MLflowSerializer(trained_models_folder="./test/trained_models").save_model(
-                model=model, pj=pj, modelspecs=self.modelspecs, report=report_mock
-            )
-            # The index shifts if logging is added
-            self.assertEqual(
-                captured.records[1].msg["event"], "Model saved with MLflow"
-            )
+        # define dummy plot
+        dummy_fig = pd.DataFrame(index=[1, 2], data={"dummy": [1, 2]}).iplot(
+            asFigure=True
+        )
+        report_mock.feature_importance_figure = dummy_fig
+        report_mock.data_series_figures = {
+            "Predictor1": dummy_fig,
+            "Predictor2": dummy_fig,
+        }
+
+        # Use tempdir structure to test if model reports are stored correctly
+        with tempfile.TemporaryDirectory() as trained_models_folder:
+            with self.assertLogs("MLflowSerializer", level="INFO") as captured:
+                MLflowSerializer(
+                    trained_models_folder=trained_models_folder
+                ).save_model(
+                    model=model, pj=pj, modelspecs=self.modelspecs, report=report_mock
+                )
+                # The index shifts if logging is added
+                self.assertEqual(
+                    captured.records[1].msg["event"], "Model saved with MLflow"
+                )
+            # Check if reports are stored in correct place
+            report_files = glob.glob(f"{trained_models_folder}/{self.pj['id']}/*.html")
+            self.assertEqual(len(report_files), 3)
 
     @patch("mlflow.sklearn.log_model")
     @patch("mlflow.log_figure")
