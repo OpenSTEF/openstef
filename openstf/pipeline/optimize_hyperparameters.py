@@ -142,7 +142,7 @@ def optuna_optimization(
         objective : The objective object used by optuna
 
     """
-    model = ModelCreator.create_model(pj)
+    model = ModelCreator.create_model(pj["model"])
 
     objective = objective(
         model,

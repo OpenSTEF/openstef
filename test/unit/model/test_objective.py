@@ -27,8 +27,8 @@ N_TRIALS = 2
 
 class TestRegressorObjective(BaseTestCase):
     def test_call(self):
-        pj = TestData.get_prediction_job(pid=307)
-        model = ModelCreator.create_model(pj)
+        model_type = "xgb"
+        model = ModelCreator.create_model(model_type)
 
         objective = RegressorObjective(
             model,
@@ -36,7 +36,7 @@ class TestRegressorObjective(BaseTestCase):
         )
 
         study = optuna.create_study(
-            study_name=pj["model"],
+            study_name=model_type,
             pruner=optuna.pruners.MedianPruner(n_warmup_steps=5),
             direction="minimize",
         )
@@ -49,15 +49,15 @@ class TestRegressorObjective(BaseTestCase):
 
 class TestXGBRegressorObjective(BaseTestCase):
     def test_call(self):
-        pj = TestData.get_prediction_job(pid=307)
-        model = ModelCreator.create_model(pj)
+        model_type = "xgb"
+        model = ModelCreator.create_model(model_type)
 
         objective = XGBRegressorObjective(
             model,
             input_data_with_features,
         )
         study = optuna.create_study(
-            study_name=pj["model"],
+            study_name=model_type,
             pruner=optuna.pruners.MedianPruner(n_warmup_steps=5),
             direction="minimize",
         )
@@ -70,16 +70,15 @@ class TestXGBRegressorObjective(BaseTestCase):
 
 class TestLGBRegressorObjective(BaseTestCase):
     def test_call(self):
-        pj = TestData.get_prediction_job(pid=307)
-        pj["model"] = "lgb"
-        model = ModelCreator.create_model(pj)
+        model_type = "lgb"
+        model = ModelCreator.create_model(model_type)
 
         objective = LGBRegressorObjective(
             model,
             input_data_with_features,
         )
         study = optuna.create_study(
-            study_name=pj["model"],
+            study_name=model_type,
             pruner=optuna.pruners.MedianPruner(n_warmup_steps=5),
             direction="minimize",
         )
@@ -92,16 +91,15 @@ class TestLGBRegressorObjective(BaseTestCase):
 
 class TestXGBQRegressorObjective(BaseTestCase):
     def test_call(self):
-        pj = TestData.get_prediction_job(pid=307)
-        pj["model"] = "xgb_quantile"
-        model = ModelCreator.create_model(pj)
+        model_type = "xgb_quantile"
+        model = ModelCreator.create_model(model_type)
 
         objective = XGBQuantileRegressorObjective(
             model,
             input_data_with_features,
         )
         study = optuna.create_study(
-            study_name=pj["model"],
+            study_name=model_type,
             pruner=optuna.pruners.MedianPruner(n_warmup_steps=5),
             direction="minimize",
         )
@@ -114,8 +112,8 @@ class TestXGBQRegressorObjective(BaseTestCase):
 
 class ColumnOrderTest(BaseTestCase):
     def test_call(self):
-        pj = TestData.get_prediction_job(pid=307)
-        model = ModelCreator.create_model(pj)
+        model_type = "xgb"
+        model = ModelCreator.create_model(model_type)
 
         objective = XGBRegressorObjective(
             model,
@@ -123,7 +121,7 @@ class ColumnOrderTest(BaseTestCase):
         )
 
         study = optuna.create_study(
-            study_name=pj["model"],
+            study_name=model_type,
             pruner=optuna.pruners.MedianPruner(n_warmup_steps=5),
             direction="minimize",
         )

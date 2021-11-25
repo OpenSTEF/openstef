@@ -27,4 +27,5 @@ structlog>=20,<21
 pydantic~=1.8.2
 torch~=1.10.0
 proloaf~=0.2.0
-
+mlflow~=1.21.0
+matplotlib~=3.3.4
