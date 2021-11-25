@@ -34,8 +34,6 @@ logger = structlog.get_logger(__name__)
 N_TRIALS: int = 50  # The number of trials.
 TIMEOUT: int = 200  # Stop study after the given number of second(s).
 TRAIN_HORIZONS: List[float] = [0.25, 24.0]
-TEST_FRACTION: float = 0.1
-VALIDATION_FRACTION: float = 0.1
 
 
 def optimize_hyperparameters_pipeline(

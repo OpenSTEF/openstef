@@ -15,8 +15,8 @@ from openstf.model.standard_deviation_generator import StandardDeviationGenerato
 from openstf.model_selection.model_selection import split_data_train_validation_test
 
 EARLY_STOPPING_ROUNDS: int = 10
-TEST_FRACTION: float = 0.1
-VALIDATION_FRACTION: float = 0.1
+TEST_FRACTION: float = 0.15
+VALIDATION_FRACTION: float = 0.15
 # See https://xgboost.readthedocs.io/en/latest/parameter.html for all possibilities
 EVAL_METRIC: str = "mae"
 
