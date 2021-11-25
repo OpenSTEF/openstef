@@ -176,8 +176,6 @@ class OpenstfProloafRegressor(OpenstfRegressor, ModelWrapper):
             .detach()
             .numpy()
         )
-        print("Encoder Inputs Scaled: ", inputs_enc)
-        print("Decoder Inputs Scaled: ", inputs_dec)
         return prediction
 
     def fit(
