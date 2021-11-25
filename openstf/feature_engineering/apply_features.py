@@ -68,7 +68,7 @@ def apply_features(
 
     """
     # Add if needed the proloaf feature (historic_load)
-    data = add_historic_load_as_a_feature(data, ['historic_load']) #TO DO: input feature_names
+    data = add_historic_load_as_a_feature(data, feature_names)
 
     # Get lag feature functions
     feature_functions = generate_lag_feature_functions(feature_names, horizon)

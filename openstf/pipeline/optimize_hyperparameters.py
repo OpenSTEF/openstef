@@ -78,7 +78,12 @@ def optimize_hyperparameters_pipeline(
             f"after validation and cleaning"
         )
 
-    input_data_with_features = TrainFeatureApplicator(horizons=horizons).add_features(
+    if pj['model'] == 'proloaf':
+        feature_names_model = pj['feature_names']
+    else:
+        feature_names_model = None
+
+    input_data_with_features = TrainFeatureApplicator(horizons=horizons, feature_names=feature_names_model).add_features(
         input_data
     )
 
@@ -89,7 +94,6 @@ def optimize_hyperparameters_pipeline(
 
     # Create objective (NOTE: this is a callable class)
     objective = ObjectiveCreator.create_objective(model_type=pj["model"])
-
 
     model, study, objective = optuna_optimization(
         pj, objective, input_data_with_features, n_trials
