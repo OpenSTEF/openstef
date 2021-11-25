@@ -179,13 +179,29 @@ class OpenstfProloafRegressor(OpenstfRegressor, ModelWrapper):
             df_onehot.iloc[:, :] = result_oh_scale.T
 
         selected_features = pd.concat([selected_features, df_onehot], axis=1)
-
         x = selected_features.iloc[:, :].replace(np.nan, 0)
+
+        # TODO: scale the train_y
         y = y.to_frame()
+        scaled_y, _ = dh.scale_all(
+            y,
+            feature_groups=[
+                {
+                    "name": "main",
+                    "scaler": ["minmax", -1.0, 1.0],
+                    "features": [y.columns[0]],
+                },
+            ],
+        )
+        #y = scaled_y
+
         self.target_id = [y.columns[0]]
+
         df_train = pd.concat([x, y], axis="columns", verify_integrity=True)
+
         print(f"{self.encoder_features = }")
         print(f"{self.decoder_features = }")
+
         train_dl, _, _ = dh.transform(
             df=df_train,
             encoder_features=self.encoder_features,
@@ -198,7 +214,10 @@ class OpenstfProloafRegressor(OpenstfRegressor, ModelWrapper):
             validation_split=1.0,
             device=self.device,
         )
+
+        # TODO: scaling of eval_set[1]
         df_val = pd.concat(eval_set[1], axis="columns", verify_integrity=True)
+
         _, validation_dl, _ = dh.transform(
             df=df_val,
             encoder_features=self.encoder_features,
