@@ -37,7 +37,6 @@ def divide_scaling_groups(x: pd.DataFrame) -> Tuple[List[str], List[str], List[s
         else:
             no_scale_features.append(column)
 
-    print(minmax_scale_features, oh_scale_features, no_scale_features)
     return minmax_scale_features, oh_scale_features, no_scale_features
 
 
