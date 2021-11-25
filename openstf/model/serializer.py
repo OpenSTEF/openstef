@@ -21,7 +21,7 @@ from openstf_dbc.services.prediction_job import PredictionJobDataClass
 from plotly import graph_objects
 
 from openstf.data_classes.model_specifications import ModelSpecificationDataClass
-from openstf.metrics.reporter import Report
+from openstf.metrics.reporter import Report, Reporter
 from openstf.model.regressors.regressor import OpenstfRegressor
 
 MODEL_FILENAME = "model.joblib"
@@ -108,6 +108,7 @@ class MLflowSerializer(AbstractSerializer):
 
         path = os.path.abspath(f"{trained_models_folder}/mlruns/")
         self.mlflow_folder = Path(path).as_uri()
+        self.web_volume = Path(f"{trained_models_folder}")
 
         self.logger.debug(f"MLflow path at init= {self.mlflow_folder}")
 
@@ -149,6 +150,12 @@ class MLflowSerializer(AbstractSerializer):
             )
             self._log_figure_with_mlflow(report)
         self.logger.debug(f"MLflow path after saving= {self.mlflow_folder}")
+
+        # Also store report files in easy-to-find location, which are updated on each new model
+        # Easy for web visualisation, e.g. through grafana
+        location = os.path.join(self.web_volume, f'{pj["id"]}')
+        Reporter.write_report_to_disk(report, location=location)
+        self.logger.info(f"Stored report to disk: {location}")
 
     def load_model(
         self,
