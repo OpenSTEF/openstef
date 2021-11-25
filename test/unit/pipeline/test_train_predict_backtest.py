@@ -7,6 +7,9 @@ from openstf.pipeline.train_create_forecast_backtest import (
 from test.utils import BaseTestCase
 from test.utils import TestData
 
+from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
+from openstf.validation import validation
+
 
 class TestTrainBackTestPipeline(BaseTestCase):
     def setUp(self) -> None:
@@ -34,3 +37,34 @@ class TestTrainBackTestPipeline(BaseTestCase):
         self.assertTrue("realised" in forecast.columns)
         self.assertTrue("horizon" in forecast.columns)
         self.assertEqual(list(forecast.horizon.unique()), [0.25, 24.0])
+
+    def test_train_model_pipeline_core_happy_flow_nfold(self):
+        """Test happy flow of the train model pipeline, using cross validation to forecast the entire input range"""
+
+        (
+            forecast,
+            model,
+            train_data,
+            validation_data,
+            test_data,
+        ) = train_model_and_forecast_back_test(
+            pj=self.pj,
+            modelspecs=self.modelspecs,
+            input_data=self.train_input,
+            training_horizons=[0.25, 24.0],
+            n_folds=4,
+        )
+
+        self.assertTrue("forecast" in forecast.columns)
+        self.assertTrue("realised" in forecast.columns)
+        self.assertTrue("horizon" in forecast.columns)
+        self.assertEqual(sorted(list(forecast.horizon.unique())), [0.25, 24.0])
+
+        # check if forecast is indeed of the entire range of the input data
+        validated_data = validation.clean(
+            validation.validate(self.pj["id"], self.train_input)
+        )
+        data_with_features = TrainFeatureApplicator(
+            horizons=[0.25, 24.0], feature_names=self.modelspecs.feature_names
+        ).add_features(validated_data)
+        self.assertEqual(len(forecast), len(data_with_features))
