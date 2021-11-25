@@ -137,11 +137,9 @@ class MLflowSerializer(AbstractSerializer):
 
         """
 
-        # return the latest run
-        prev_run = self._find_models(pj["id"], n=1)
-        # Use [0] to only get latest run id
-        if not prev_run.empty:
-            prev_run_id = prev_run["run_id"][0]
+        models_df = self._find_models(pj["id"], n=1)  # returns latest model
+        if not models_df.empty:
+            prev_run_id = models_df["run_id"][0]  # Use [0] to only get latest run id
         else:
             self.logger.info("No previous model found in MLflow", pid=pj["id"])
             prev_run_id = None
@@ -176,7 +174,14 @@ class MLflowSerializer(AbstractSerializer):
 
         try:
             # return the latest run of the model
-            latest_run = self._find_models(pid, n=1)
+            models_df = self._find_models(pid, n=1)
+            if not models_df.empty:
+                latest_run = models_df.iloc[0]  # Use .iloc[0] to only get latest run
+            else:
+                self.logger.info("No previous model found in MLflow", pid=pid)
+                raise LookupError(
+                    f"Model couldn't be found for pid {pid}. First train a model!"
+                )
 
             loaded_model = mlflow.sklearn.load_model(
                 os.path.join(latest_run.artifact_uri, "model/")
@@ -195,7 +200,7 @@ class MLflowSerializer(AbstractSerializer):
             self.logger.info("Model successfully loaded with MLflow")
             return loaded_model, modelspecs
         # Catch possible errors
-        except (AttributeError, LookupError, MlflowException, OSError) as e:
+        except (AttributeError, MlflowException, OSError) as e:
             self.logger.error(
                 "Couldn't load model",
                 pid=pid,
@@ -209,19 +214,16 @@ class MLflowSerializer(AbstractSerializer):
         self, pid: Union[int, str], hyperparameter_optimization_only: bool = False
     ) -> int:
 
+        filter_string = "attribute.status = 'FINISHED'"
         if hyperparameter_optimization_only:
-            filter_string = (
-                "attribute.status = 'FINISHED' AND tags.phase = 'Hyperparameter_opt'"
-            )
+            filter_string += " AND tags.phase = 'Hyperparameter_opt'"
 
-        else:
-            filter_string = "attribute.status = 'FINISHED'"
+        # get models
+        models_df = self._find_models(pid, n=1, filter_string=filter_string)
 
-        # get run
-        run = self._find_models(pid, n=1, filter_string=filter_string)
-
-        if isinstance(run, pd.Series):
+        if not models_df.empty:
             # get age of model
+            run = models_df.iloc[0]
             return self._determine_model_age_from_mlflow_run(run)
         else:
             self.logger.info("No model found returning infinite model age!")
@@ -279,17 +281,18 @@ class MLflowSerializer(AbstractSerializer):
         pid: Union[int, str],
         n: Optional[int] = None,
         filter_string: str = None,
-    ) -> Union[pd.Series, pd.DataFrame]:
+    ) -> pd.DataFrame:
         """
+        Finds trained models for specific pid sorted by age in descending order.
 
         Args:
             pid (PredictionJobDataClass): Prediction job id
-            n (int): return the n latest models, default = 1
-            hyperparameter_optimization_only (bool): only return rund from hyperparameter optimization
+            n (int): return the n latest models, default = None
+            filter_string (str): filter runs (e.g. "attribute.status = 'FINISHED'")
 
 
         Returns:
-            pd.Series: run(s)
+            pd.DataFrame: models_df (this dataframe can have 0, 1 or multiple rows)
         """
         self.experiment_id = self._setup_mlflow(pid)
 
@@ -297,21 +300,20 @@ class MLflowSerializer(AbstractSerializer):
             filter_string = "attribute.status = 'FINISHED'"
 
         if isinstance(n, int):
-            run_df = mlflow.search_runs(
+            models_df = mlflow.search_runs(
                 self.experiment_id,
                 filter_string=filter_string,
                 max_results=n,
             )
 
-            if n == 1 and len(run_df) > 0:
-                run_df = run_df.iloc[0]
-
+            if n == 1 and len(models_df) > 0:
+                models_df = models_df.iloc[:1]  # filter on first row of dataframe
         else:
-            run_df = mlflow.search_runs(
+            models_df = mlflow.search_runs(
                 self.experiment_id,
                 filter_string=filter_string,
             )
-        return run_df
+        return models_df
 
     def _determine_model_age_from_mlflow_run(self, run: pd.Series) -> Union[int, float]:
         """Determines how many days ago a model is trained from the mlflow run

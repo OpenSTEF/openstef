@@ -8,6 +8,7 @@ import tempfile
 from distutils.dir_util import copy_tree
 import glob
 
+import numpy as np
 import pandas as pd
 
 from openstf.metrics.reporter import Report
@@ -16,10 +17,8 @@ from openstf.model.model_creator import ModelCreator
 from openstf.model.serializer import MLflowSerializer
 from test.utils import BaseTestCase, TestData
 
-MAKE_RUNS = False
 
-
-class TestAbstractModelSerializer(BaseTestCase):
+class TestMLflowSerializer(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
         self.pj, self.modelspecs = TestData.get_prediction_job_and_modelspecs(pid=307)
@@ -27,7 +26,7 @@ class TestAbstractModelSerializer(BaseTestCase):
     @patch("openstf.data_classes.model_specifications.ModelSpecificationDataClass")
     @patch("mlflow.search_runs")
     @patch("mlflow.sklearn.load_model")
-    def test_serializer_feature_names_keyerror(
+    def test_serializer_load_model_feature_names_keyerror(
         self, mock_load, mock_search_runs, mock_modelspecs
     ):
         mock_search_runs.return_value = pd.DataFrame(
@@ -51,7 +50,7 @@ class TestAbstractModelSerializer(BaseTestCase):
     @patch("openstf.data_classes.model_specifications.ModelSpecificationDataClass")
     @patch("mlflow.search_runs")
     @patch("mlflow.sklearn.load_model")
-    def test_serializer_feature_names_attributeerror(
+    def test_serializer_load_model_feature_names_attributeerror(
         self, mock_load, mock_search_runs, mock_modelspecs
     ):
         mock_search_runs.return_value = pd.DataFrame(
@@ -77,7 +76,7 @@ class TestAbstractModelSerializer(BaseTestCase):
     @patch("openstf.data_classes.model_specifications.ModelSpecificationDataClass")
     @patch("mlflow.search_runs")
     @patch("mlflow.sklearn.load_model")
-    def test_serializer_feature_names_jsonerror(
+    def test_serializer_load_model_feature_names_jsonerror(
         self, mock_load, mock_search_runs, mock_modelspecs
     ):
         mock_search_runs.return_value = pd.DataFrame(
@@ -101,15 +100,22 @@ class TestAbstractModelSerializer(BaseTestCase):
         self.assertIsInstance(modelspecs, ModelSpecificationDataClass)
         self.assertEqual(modelspecs.feature_names, None)
 
+    @patch("openstf.model.serializer.MLflowSerializer._find_models")
+    def test_serializer_load_model_empty_df_raise_lookuperror(self, mock_find_models):
+        mock_find_models.return_value = pd.DataFrame()
+        self.assertRaises(
+            LookupError, MLflowSerializer(trained_models_folder="/").load_model, 307
+        )
+
     @patch("mlflow.sklearn.log_model")
     @patch("mlflow.log_figure")
     @patch("mlflow.log_params")
     @patch("mlflow.log_metrics")
     @patch("mlflow.set_tag")
     @patch("mlflow.search_runs")
-    def test_save_model(
+    def test_serializer_save_model(
         self,
-        mock_search,
+        mock_search_runs,
         mock_set_tag,
         mock_log_metrics,
         mock_log_params,
@@ -128,8 +134,8 @@ class TestAbstractModelSerializer(BaseTestCase):
                 model=model, pj=pj, modelspecs=self.modelspecs, report=report_mock
             )
             # The index shifts if logging is added
-            self.assertRegex(
-                captured.records[1].getMessage(), "Model saved with MLflow"
+            self.assertEqual(
+                captured.records[1].msg["event"], "Model saved with MLflow"
             )
 
     @patch("mlflow.sklearn.log_model")
@@ -138,7 +144,49 @@ class TestAbstractModelSerializer(BaseTestCase):
     @patch("mlflow.log_metrics")
     @patch("mlflow.set_tag")
     @patch("mlflow.search_runs")
-    def test_save_model_no_previous(
+    @patch("openstf.model.serializer.MLflowSerializer._find_models")
+    def test_serializer_save_model_existing_models(
+        self,
+        mock_find_models,
+        mock_search_runs,
+        mock_set_tag,
+        mock_log_metrics,
+        mock_log_params,
+        mock_log_figure,
+        mock_log_model,
+    ):
+        model_type = "xgb"
+        model = ModelCreator.create_model(model_type)
+        pj = self.pj
+        pj["id"] = "Default"  # set ID to default, so MLflow saves it in default folder
+        report_mock = MagicMock()
+        report_mock.get_metrics.return_value = {"mae", 0.2}
+        models_df = pd.DataFrame(
+            data={
+                "run_id": [1, 2],
+                "artifact_uri": ["path1", "path2"],
+                "end_time": [
+                    datetime.utcnow() - timedelta(days=2),
+                    datetime.utcnow() - timedelta(days=3),
+                ],
+            }
+        )
+        mock_find_models.return_value = models_df
+        with self.assertLogs("MLflowSerializer", level="INFO") as captured:
+            MLflowSerializer(trained_models_folder="./test/trained_models").save_model(
+                model=model, pj=pj, modelspecs=self.modelspecs, report=report_mock
+            )
+            self.assertEqual(
+                captured.records[0].msg["event"], "Model saved with MLflow"
+            )
+
+    @patch("mlflow.sklearn.log_model")
+    @patch("mlflow.log_figure")
+    @patch("mlflow.log_params")
+    @patch("mlflow.log_metrics")
+    @patch("mlflow.set_tag")
+    @patch("mlflow.search_runs")
+    def test_serializer_save_model_no_previous(
         self,
         mock_search,
         mock_set_tag,
@@ -164,7 +212,52 @@ class TestAbstractModelSerializer(BaseTestCase):
                 captured.records[0].getMessage(), "No previous model found in MLflow"
             )
 
-    def test_determine_model_age_from_MLflow_run(self):
+    @patch("openstf.model.serializer.MLflowSerializer._find_models")
+    def test_serializer_get_model_age_no_hyperparameter_optimization(
+        self, mock_find_models
+    ):
+        models_df = pd.DataFrame(
+            data={
+                "run_id": [1],
+                "artifact_uri": ["path1"],
+                "end_time": [datetime.utcnow() - timedelta(days=2)],
+            }
+        )
+        mock_find_models.return_value = models_df
+        days = MLflowSerializer(
+            trained_models_folder="./test/trained_models"
+        ).get_model_age(307, hyperparameter_optimization_only=False)
+        self.assertEqual(days, 2)
+
+    @patch("openstf.model.serializer.MLflowSerializer._find_models")
+    def test_serializer_get_model_age_hyperparameter_optimization(
+        self, mock_find_models
+    ):
+        models_df = pd.DataFrame(
+            data={
+                "run_id": [1, 2],
+                "artifact_uri": ["path1", "path2"],
+                "end_time": [datetime.utcnow() - timedelta(days=8), datetime.utcnow()],
+            }
+        )
+        mock_find_models.return_value = models_df
+        days = MLflowSerializer(
+            trained_models_folder="./test/trained_models"
+        ).get_model_age(307, hyperparameter_optimization_only=True)
+        self.assertGreater(days, 7)
+        self.assertEqual(days, 8)
+
+    @patch("openstf.model.serializer.MLflowSerializer._find_models")
+    def test_serializer_get_model_age_empty_df(self, mock_find_models):
+        models_df = pd.DataFrame()
+        mock_find_models.return_value = models_df
+        days = MLflowSerializer(
+            trained_models_folder="./test/trained_models"
+        ).get_model_age(307, hyperparameter_optimization_only=True)
+        self.assertGreater(days, 7)
+        self.assertEqual(days, np.inf)
+
+    def test_serializer_determine_model_age_from_MLflow_run(self):
         ts = pd.Timestamp("2021-01-25 00:00:00")
         run = pd.DataFrame(
             {
@@ -181,7 +274,7 @@ class TestAbstractModelSerializer(BaseTestCase):
         )._determine_model_age_from_mlflow_run(run)
         self.assertGreater(days, 7)
 
-    def test_determine_model_age_from_MLflow_run_exception(self):
+    def test_serializer_determine_model_age_from_MLflow_run_exception(self):
         ts = pd.Timestamp("2021-01-25 00:00:00")
         # Without .iloc it will not be able to get the age, resulting in a error
         run = pd.DataFrame(
@@ -210,15 +303,13 @@ class TestAbstractModelSerializer(BaseTestCase):
         Test if correct number of models are removed when removing old models.
         Test uses 5 previously stored models, then is allowed to keep 2.
         Check if it keeps the 2 most recent models"""
-
-        #####
         # Set up
         local_model_dir = "./test/trained_models/models_for_serializertest"
 
-        ### Run the code below once, to generate stored models
-        # We want to test using pre-stored models, since MLflow takes ~6seconds per save_model()
-        ## If you want to store new models, run the lines below:
-        if MAKE_RUNS:
+        # Run the code below once, to generate stored models
+        # We want to test using pre-stored models, since it takes ~6s per save_model()
+        # If you want to store new models, run the lines below:
+        if False:  # set to true if we want to generate models
             model_type = "xgb"
             model = ModelCreator.create_model(model_type)
             dummy_report = Report(
@@ -233,7 +324,7 @@ class TestAbstractModelSerializer(BaseTestCase):
                     model, self.pj, self.modelspecs, report=dummy_report
                 )
 
-        # We copy the already stored models to a temp dir and test the functionality from there
+        # We copy the stored models to a temp dir and test the functionality from there
         with tempfile.TemporaryDirectory() as temp_model_dir:
             # Copy already stored models to temp dir
             copy_tree(local_model_dir, temp_model_dir)
