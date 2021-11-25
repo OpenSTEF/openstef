@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -41,6 +41,16 @@ class OpenstfRegressorInterface(BaseEstimator, RegressorMixin, ABC):
 
         Returns:
             Fitted model
+        """
+        pass
+
+    @property
+    @abstractmethod
+    def feature_names(self):
+        """Retrieve the model input feature names
+
+        Returns:
+            The list of feature names
         """
         pass
 

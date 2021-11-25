@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 import unittest
@@ -7,6 +7,7 @@ from unittest.mock import MagicMock, patch
 
 import pandas as pd
 import sklearn
+import glob
 
 from openstf.enums import MLModelType
 from openstf.exceptions import (
@@ -25,7 +26,6 @@ from test.utils import BaseTestCase, TestData
 
 # define constants
 
-PJ = TestData.get_prediction_job(pid=307)
 XGB_HYPER_PARAMS = {
     "subsample": 0.9,
     "min_child_weight": 4,
@@ -40,7 +40,9 @@ XGB_HYPER_PARAMS = {
 class TestTrainModelPipeline(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
-        self.pj = TestData.get_prediction_job(pid=307)
+        self.pj, self.modelspecs = TestData.get_prediction_job_and_modelspecs(pid=307)
+        # Set n_estimators to a small number to speed up training
+        self.modelspecs.hyper_params["n_estimators"] = 3
         datetime_start = datetime.utcnow() - timedelta(days=90)
         datetime_end = datetime.utcnow()
         self.data_table = TestData.load("input_data_train.pickle").head(8641)
@@ -50,7 +52,7 @@ class TestTrainModelPipeline(BaseTestCase):
 
         self.train_input = TestData.load("reference_sets/307-train-data.csv")
 
-    @unittest.skip("If you want to store a newly trained model, use test below")
+    @unittest.skip("Do this test if we want to train a new model")
     def test_train_model_pipeline_update_stored_model(self):
         """Test happy flow of the train model pipeline"""
 
@@ -61,8 +63,7 @@ class TestTrainModelPipeline(BaseTestCase):
             trained_models_folder="./test/trained_models",
         )
 
-    @patch("openstf.model.serializer.PersistentStorageSerializer.save_model")
-    def test_train_model_pipeline_core_happy_flow(self, save_model_mock):
+    def test_train_model_pipeline_core_happy_flow(self):
         """Test happy flow of the train model pipeline
 
         NOTE this does not explain WHY this is the case?
@@ -75,7 +76,10 @@ class TestTrainModelPipeline(BaseTestCase):
             with self.subTest(model_type=model_type):
                 pj = self.pj
                 pj["model"] = model_type.value
+
+                modelspecs = self.modelspecs
                 # Use default parameters
+
                 if pj["model"] == "proloaf":
                     train_input = self.train_input
                     pj["hyper_params"]["encoder_features"] = list(self.train_input.columns)[2:3]
@@ -85,10 +89,15 @@ class TestTrainModelPipeline(BaseTestCase):
                     pj["hyper_params"] = {}
                     train_input = self.train_input.iloc[::50, :]
 
-                model, report = train_model_pipeline_core(pj=pj, input_data=train_input)
+                model, report, modelspecs = train_model_pipeline_core(
+                    pj=pj, modelspecs=self.modelspecs, input_data=train_input
+                )
 
                 # check if the model was fitted (raises NotFittedError when not fitted)
                 self.assertIsNone(sklearn.utils.validation.check_is_fitted(model))
+
+                # check if the model has a feature_names property
+                self.assertIsNotNone(model.feature_names)
 
                 # check if model is sklearn compatible
                 self.assertTrue(isinstance(model, sklearn.base.BaseEstimator))
@@ -103,7 +112,7 @@ class TestTrainModelPipeline(BaseTestCase):
 
                 # Add features
                 data_with_features = TrainFeatureApplicator(
-                    horizons=[0.25, 47.0], feature_names=pj["feature_names"]
+                    horizons=[0.25, 47.0], feature_names=self.modelspecs.feature_names
                 ).add_features(validated_data)
 
                 # Split data
@@ -115,14 +124,12 @@ class TestTrainModelPipeline(BaseTestCase):
                     test_data,
                 ) = split_data_train_validation_test(data_with_features)
 
-                # split x and y data
-                train_x = train_data.iloc[:, 1:-1]
-                importance = model.set_feature_importance(train_x.columns)
+                importance = model.set_feature_importance()
                 self.assertIsInstance(importance, pd.DataFrame)
 
-    @patch("openstf.model.serializer.PersistentStorageSerializer.save_model")
+    @patch("openstf.model.serializer.MLflowSerializer.save_model")
     @patch("openstf.pipeline.train_model.train_model_pipeline_core")
-    @patch("openstf.pipeline.train_model.PersistentStorageSerializer")
+    @patch("openstf.pipeline.train_model.MLflowSerializer")
     def test_train_model_pipeline_happy_flow(
         self, serializer_mock, pipeline_mock, save_model_mock
     ):
@@ -132,22 +139,26 @@ class TestTrainModelPipeline(BaseTestCase):
         old_model_mock.age = 8
 
         serializer_mock_instance = MagicMock()
-        serializer_mock_instance.load_model.return_value = old_model_mock
+        serializer_mock_instance.load_model.return_value = (
+            old_model_mock,
+            self.modelspecs,
+        )
         serializer_mock.return_value = serializer_mock_instance
 
         report_mock = MagicMock()
-        pipeline_mock.return_value = ("a", report_mock)
+        pipeline_mock.return_value = ("a", report_mock, self.modelspecs)
 
+        trained_models_folder = "./test/trained_models"
         train_model_pipeline(
             pj=self.pj,
             input_data=self.train_input,
-            check_old_model_age=True,
-            trained_models_folder="./test/trained_models",
+            check_old_model_age=False,
+            trained_models_folder=trained_models_folder,
         )
 
-    @patch("openstf.model.serializer.PersistentStorageSerializer.save_model")
+    @patch("openstf.model.serializer.MLflowSerializer.save_model")
     @patch("openstf.pipeline.train_model.train_model_pipeline_core")
-    @patch("openstf.pipeline.train_model.PersistentStorageSerializer")
+    @patch("openstf.pipeline.train_model.MLflowSerializer")
     def test_train_model_pipeline_young_model(
         self, serializer_mock, pipeline_mock, save_model_mock
     ):
@@ -156,7 +167,10 @@ class TestTrainModelPipeline(BaseTestCase):
         old_model_mock.age = 3
 
         serializer_mock_instance = MagicMock()
-        serializer_mock_instance.load_model.return_value = old_model_mock
+        serializer_mock_instance.load_model.return_value = (
+            old_model_mock,
+            self.modelspecs,
+        )
         serializer_mock.return_value = serializer_mock_instance
 
         report_mock = MagicMock()
@@ -170,7 +184,7 @@ class TestTrainModelPipeline(BaseTestCase):
         )
         self.assertFalse(pipeline_mock.called)
 
-    @patch("openstf.model.serializer.PersistentStorageSerializer.save_model")
+    @patch("openstf.model.serializer.MLflowSerializer.save_model")
     @patch("openstf.validation.validation.is_data_sufficient", return_value=False)
     def test_train_model_InputDataInsufficientError(
         self, validation_is_data_sufficient_mock, save_model_mock
@@ -181,7 +195,7 @@ class TestTrainModelPipeline(BaseTestCase):
                 train_model_pipeline(
                     pj=self.pj,
                     input_data=self.train_input,
-                    check_old_model_age=True,
+                    check_old_model_age=False,
                     trained_models_folder="./test/trained_models",
                 )
 
@@ -194,7 +208,7 @@ class TestTrainModelPipeline(BaseTestCase):
             "Input data is insufficient after validation and cleaning",
         )
 
-    @patch("openstf.model.serializer.PersistentStorageSerializer.save_model")
+    @patch("openstf.model.serializer.MLflowSerializer.save_model")
     def test_train_model_InputDataWrongColumnOrderError(self, save_model_mock):
         # change the column order
         input_data = self.train_input.iloc[:, ::-1]
@@ -205,7 +219,7 @@ class TestTrainModelPipeline(BaseTestCase):
                 train_model_pipeline(
                     pj=self.pj,
                     input_data=input_data,
-                    check_old_model_age=True,
+                    check_old_model_age=False,
                     trained_models_folder="./test/trained_models",
                 )
 
@@ -215,8 +229,8 @@ class TestTrainModelPipeline(BaseTestCase):
         # search for log
         self.assertRegex(captured.records[0].getMessage(), "Wrong column order")
 
-    @patch("openstf.model.serializer.PersistentStorageSerializer.save_model")
-    @patch("openstf.pipeline.train_model.PersistentStorageSerializer")
+    @patch("openstf.model.serializer.MLflowSerializer.save_model")
+    @patch("openstf.pipeline.train_model.MLflowSerializer")
     def test_train_model_OldModelHigherScoreError(
         self, serializer_mock, save_model_mock
     ):
@@ -225,7 +239,10 @@ class TestTrainModelPipeline(BaseTestCase):
         old_model_mock.age = 8
 
         serializer_mock_instance = MagicMock()
-        serializer_mock_instance.load_model.return_value = old_model_mock
+        serializer_mock_instance.load_model.return_value = (
+            old_model_mock,
+            self.modelspecs,
+        )
         serializer_mock.return_value = serializer_mock_instance
         old_model_mock.score.return_value = 5
 
@@ -246,15 +263,18 @@ class TestTrainModelPipeline(BaseTestCase):
             captured.records[0].getMessage(), "Old model is better than new model"
         )
 
-    @patch("openstf.model.serializer.PersistentStorageSerializer.save_model")
-    @patch("openstf.pipeline.train_model.PersistentStorageSerializer")
+    @patch("openstf.model.serializer.MLflowSerializer.save_model")
+    @patch("openstf.pipeline.train_model.MLflowSerializer")
     def test_train_model_log_new_model_better(self, serializer_mock, save_model_mock):
         # Mock an old model which is better than the new one.
         old_model_mock = MagicMock()
         old_model_mock.age = 8
 
         serializer_mock_instance = MagicMock()
-        serializer_mock_instance.load_model.return_value = old_model_mock
+        serializer_mock_instance.load_model.return_value = (
+            old_model_mock,
+            self.modelspecs,
+        )
         serializer_mock.return_value = serializer_mock_instance
         old_model_mock.score.return_value = 0.1
 
@@ -271,15 +291,18 @@ class TestTrainModelPipeline(BaseTestCase):
             captured.records[0].getMessage(), "New model is better than old model"
         )
 
-    @patch("openstf.model.serializer.PersistentStorageSerializer.save_model")
-    @patch("openstf.pipeline.train_model.PersistentStorageSerializer")
+    @patch("openstf.model.serializer.MLflowSerializer.save_model")
+    @patch("openstf.pipeline.train_model.MLflowSerializer")
     def test_train_model_log_couldnt_compare(self, serializer_mock, save_model_mock):
         # Mock an old model which is better than the new one.
         old_model_mock = MagicMock()
         old_model_mock.age = 8
 
         serializer_mock_instance = MagicMock()
-        serializer_mock_instance.load_model.return_value = old_model_mock
+        serializer_mock_instance.load_model.return_value = (
+            old_model_mock,
+            self.modelspecs,
+        )
         serializer_mock.return_value = serializer_mock_instance
         old_model_mock.score.side_effect = ValueError()
 
@@ -296,15 +319,18 @@ class TestTrainModelPipeline(BaseTestCase):
             captured.records[0].getMessage(), "Could not compare to old model"
         )
 
-    @patch("openstf.model.serializer.PersistentStorageSerializer.save_model")
-    @patch("openstf.pipeline.train_model.PersistentStorageSerializer")
+    @patch("openstf.model.serializer.MLflowSerializer.save_model")
+    @patch("openstf.pipeline.train_model.MLflowSerializer")
     def test_train_model_No_old_model(self, serializer_mock, save_model_mock):
         # Mock an old model which is better than the new one.
         old_model_mock = MagicMock()
         old_model_mock.age = 8
 
         serializer_mock_instance = MagicMock()
-        serializer_mock_instance.load_model.return_value = old_model_mock
+        serializer_mock_instance.load_model.return_value = (
+            old_model_mock,
+            self.modelspecs,
+        )
         serializer_mock_instance.load_model.side_effect = FileNotFoundError()
         serializer_mock.return_value = serializer_mock_instance
 

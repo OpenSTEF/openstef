@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 import unittest
@@ -20,10 +20,10 @@ class TestOptimizeHyperParametersPipeline(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
         self.input_data = TestData.load("reference_sets/307-train-data.csv")
-        self.pj = TestData.get_prediction_job(pid=307)
+        self.pj, self.modelspecs = TestData.get_prediction_job_and_modelspecs(pid=307)
 
-    @patch("openstf.model.serializer.PersistentStorageSerializer.save_model")
-    def test_optimize_hyperparameters_pipeline(self, mock_save):
+    @patch("openstf.model.serializer.MLflowSerializer.save_model")
+    def test_optimize_hyperparameters_pipeline(self, save_model_mock):
         parameters = optimize_hyperparameters_pipeline(
             self.pj, self.input_data, "./test/trained_models", n_trials=2
         )

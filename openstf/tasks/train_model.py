@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -24,16 +24,11 @@ Example:
 """
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Union
 
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 from openstf.enums import MLModelType
-from openstf.pipeline.train_model import (
-    train_model_pipeline,
-    MAXIMUM_MODEL_AGE,
-    get_model_age,
-)
+from openstf.pipeline.train_model import train_model_pipeline
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
 
@@ -42,7 +37,7 @@ DEFAULT_CHECK_MODEL_AGE: bool = True
 
 
 def train_model_task(
-    pj: Union[dict, PredictionJobDataClass],
+    pj: PredictionJobDataClass,
     context: TaskContext,
     check_old_model_age: bool = DEFAULT_CHECK_MODEL_AGE,
 ) -> None:
@@ -54,46 +49,22 @@ def train_model_task(
     Expected prediction job keys:  "id", "model", "lat", "lon", "name"
 
     Args:
-        pj (Union[dict, PredictionJobDataClass]): Prediction job
+        pj (PredictionJobDataClass): Prediction job
         context (TaskContext): Contect object that holds a config manager and a
             database connection.
         check_old_model_age (bool): check if model is too young to be retrained
     """
-
-    # TODO Update get_prediction job in openstf_dbc such that hyperparams are already included in the prediciton jobs
-    # Include hyperparameter information in the prediction job
-    pj["hyper_params"] = {
-        "training_period_days": TRAINING_PERIOD_DAYS,
-        "featureset_name": "D",
-    }
-    pj["hyper_params"].update(context.database.get_hyper_params(pj))
-    pj["feature_names"] = context.database.get_featureset(
-        pj["hyper_params"]["featureset_name"]
-    )
-
     # Get the paths for storing model and reports from the config manager
     trained_models_folder = Path(context.config.paths.trained_models_folder)
     context.logger.debug(f"trained_models_folder: {trained_models_folder}")
-    # If required, let's check the old model age before retrieving all the input data
-    if check_old_model_age:
-        old_model_age = get_model_age(trained_models_folder, pj["id"])
-        context.logger.debug(f"Old model age: {old_model_age}")
-        if old_model_age < MAXIMUM_MODEL_AGE:
-            # Old model is new enough. Skip this pj
-            context.logger.info(
-                f"Old model was new enough, skipping ({old_model_age}<{MAXIMUM_MODEL_AGE})",
-                pid=pj["id"],
-            )
-            return
 
     context.perf_meter.checkpoint("Added metadata to PredictionJob")
 
     # Define start and end of the training input data
-    datetime_start = datetime.utcnow() - timedelta(
-        days=int(pj["hyper_params"]["training_period_days"])
-    )
+    datetime_start = datetime.utcnow() - timedelta(days=TRAINING_PERIOD_DAYS)
     datetime_end = datetime.utcnow()
 
+    # todo: See if we can check model age before getting the data
     # Get training input data from database
     input_data = context.database.get_model_input(
         pid=pj["id"],
@@ -108,7 +79,7 @@ def train_model_task(
     train_model_pipeline(
         pj,
         input_data,
-        check_old_model_age=False,
+        check_old_model_age=check_old_model_age,
         trained_models_folder=trained_models_folder,
     )
 

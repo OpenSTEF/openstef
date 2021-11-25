@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 import unittest
@@ -30,6 +30,16 @@ df_flatliner = pd.DataFrame(
         "col2": [8.0, 8.75, 8.75, 8.75, 8.0],
     }
 )
+
+df_flatliner_start_end = pd.DataFrame(
+    {
+        "date": date_rng2,
+        "LC_trafo": [0, 0, 0, 0, 0],
+        "col1": [8.0, 8.0, 8.16, 8.0, 8.0],
+        "col2": [8.0, 8.0, 8.75, 8.0, 8.0],
+    }
+)
+
 df_zerovalues_flatliner = pd.DataFrame(
     {
         "date": date_rng2,
@@ -38,6 +48,7 @@ df_zerovalues_flatliner = pd.DataFrame(
         "col2": [8.0, 0, 0, 0, 8.0],
     }
 )
+
 df_trafo_flatliner = pd.DataFrame(
     {
         "date4": date_rng,
@@ -58,6 +69,7 @@ df_zerovalues_flatliner = df_zerovalues_flatliner.set_index("date")
 df_trafo_flatliner = df_trafo_flatliner.set_index("date4")
 df_zero_file = df_zero_file.set_index("date5")
 df_zero_flatliner = df_zero_flatliner.set_index("date6")
+df_flatliner_start_end = df_flatliner_start_end.set_index("date")
 
 
 # eerste column invoegen (die weer verwijderd wordt)
@@ -83,9 +95,9 @@ class TestValidationFindNonzeroFlatliners(BaseTestCase):
         df_flatliner_output = pd.DataFrame(
             {
                 "from_time": [now - timedelta(minutes=45)],
-                "to_time": [now - timedelta(minutes=15)],
+                "to_time": [now - timedelta(minutes=0)],
                 "duration_h": [
-                    (now - timedelta(minutes=15)) - (now - timedelta(minutes=45))
+                    (now - timedelta(minutes=0)) - (now - timedelta(minutes=45))
                 ],
             }
         )
@@ -108,9 +120,9 @@ class TestValidationFindNonzeroFlatliners(BaseTestCase):
         df_zerovalues_flatliner_output = pd.DataFrame(
             {
                 "from_time": [now - timedelta(minutes=45)],
-                "to_time": [now - timedelta(minutes=15)],
+                "to_time": [now - timedelta(minutes=0)],
                 "duration_h": [
-                    (now - timedelta(minutes=15)) - (now - timedelta(minutes=45))
+                    (now - timedelta(minutes=0)) - (now - timedelta(minutes=45))
                 ],
             }
         )
@@ -154,6 +166,16 @@ class TestValidationFindNonzeroFlatliners(BaseTestCase):
         expected = None
         result = find_nonzero_flatliner(df, threshold)
         self.assertEqual(result, expected)
+
+    def test_flatliner_start_end(self):
+        """Data: zero value flatliner for complete station
+
+        Expected: empty list, since the function detects only non-zero station flatliners
+        """
+        df = df_flatliner_start_end
+        threshold = 0.25
+        result = find_nonzero_flatliner(df, threshold)
+        self.assertEqual(1, len(result))
 
     # Run all tests
 

@@ -3,7 +3,6 @@
         "id": 60,
         "typ": "wind",
         "model": "latest",
-        "model_type_group" : "default",
         "horizon_minutes": 2880,
         "resolution_minutes": 15,
         "train_components": 0,
@@ -18,8 +17,8 @@
     "307": {
         "id": 307,
         "typ": "demand",
-        "model_type_group" : "default",
         "model": "xgb",
+        "model_type_group": "xgb",
         "horizon_minutes": 2880,
         "resolution_minutes": 15,
         "train_components": 1,

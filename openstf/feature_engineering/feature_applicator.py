@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 from abc import ABC, abstractmethod
@@ -95,6 +95,12 @@ class TrainFeatureApplicator(AbstractFeatureApplicator):
         for feature, time in latency_config.items():
             result.loc[result["horizon"] > time, feature] = np.nan
 
+        # NOTE this is required since apply_features could add additional features
+        if self.feature_names is not None:
+            # Add horizon to requested features else it is removed
+            features = self.feature_names + ["horizon"]
+            result = remove_non_requested_feature_columns(result, features)
+
         # Sort all features except for the (first) load and (last) horizon columns
         return enforce_feature_order(result)
 
@@ -115,7 +121,7 @@ class OperationalPredictFeatureApplicator(AbstractFeatureApplicator):
         """
         num_horizons = len(self.horizons)
         if num_horizons != 1:
-            raise ValueError("Expected one horizon, got {num_horizons}")
+            raise ValueError(f"Expected one horizon, got {num_horizons}")
 
         df = apply_features(
             df, feature_names=self.feature_names, horizon=self.horizons[0]

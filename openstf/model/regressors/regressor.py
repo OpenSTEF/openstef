@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 from typing import Optional
@@ -14,11 +14,8 @@ class OpenstfRegressor(OpenstfRegressorInterface):
         self.feature_importance_dataframe = None
         self.feature_importances_ = None
 
-    def set_feature_importance(self, feature_names: list) -> Optional[pd.DataFrame]:
+    def set_feature_importance(self) -> Optional[pd.DataFrame]:
         """get feature importance.
-
-        Args:
-            feature_names (list): list of features in the original column order
 
         Returns:
          pd.DataFrame
@@ -35,7 +32,7 @@ class OpenstfRegressor(OpenstfRegressorInterface):
         )
 
         feature_importance = pd.DataFrame(
-            {"gain": gain, "weight": weight_importance}, index=feature_names
+            {"gain": gain, "weight": weight_importance}, index=self.feature_names
         )
 
         feature_importance.sort_values(by="gain", ascending=False, inplace=True)

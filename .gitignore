@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 
 # SPDX-License-Identifier: MPL-2.0
 
@@ -7,17 +7,19 @@ config.user.yaml
 
 # Ignore these folders
 prof/
-/trained_models/
 docs/build/
-output
+output/
 certificates/
 ktprognoses.egg-info/
 .idea/
 .vscode/
+test/trained_models/mlruns/
+test/trained_models/models_for_serializertest/mlruns/
+
 # Ignore these files
 .DS_Store
 tmp
-mlruns
+
 
 # default Python .gitignore template: https://raw.githubusercontent.com/github/gitignore/master/Python.gitignore
 
@@ -73,6 +75,8 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 cover/
+pytest-report.xml
+
 
 # Translations
 *.mo
@@ -159,4 +163,3 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
-

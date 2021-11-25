@@ -1,7 +1,8 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 from datetime import datetime
+import copy
 
 import optuna
 import pandas as pd
@@ -136,9 +137,7 @@ class RegressorObjective:
             callbacks=callbacks,
         )
 
-        self.model.feature_importance_dataframe = self.model.set_feature_importance(
-            train_x.columns
-        )
+        self.model.feature_importance_dataframe = self.model.set_feature_importance()
 
         # Do confidence interval determination
         self.model = StandardDeviationGenerator(
@@ -152,6 +151,7 @@ class RegressorObjective:
             "score": score,
             "params": hyper_params,
         }
+        trial.set_user_attr(key="model", value=copy.deepcopy(self.model))
         return score
 
     def get_params(self, trial: optuna.trial.FrozenTrial) -> dict:
