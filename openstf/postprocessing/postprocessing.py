@@ -76,7 +76,7 @@ def split_forecast_in_components(forecast, weather_data, split_coefs):
     ):
         raise ValueError("weather data does not contain required data!")
 
-    # Merge to ensure datFetime index is the same
+    # Merge to ensure datetime index is the same
     weather_ref_profiles = forecast.merge(
         weather_ref_profiles, how="outer", right_index=True, left_index=True
     )
