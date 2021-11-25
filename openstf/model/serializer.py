@@ -281,7 +281,7 @@ class MLflowSerializer(AbstractSerializer):
         pid: Union[int, str],
         n: Optional[int] = None,
         filter_string: str = None,
-    ) -> Union[pd.DataFrame]:
+    ) -> pd.DataFrame:
         """
         Finds trained models for specific pid sorted by age in descending order.
 

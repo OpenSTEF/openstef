@@ -259,7 +259,16 @@ class TestMLflowSerializer(BaseTestCase):
 
     def test_serializer_determine_model_age_from_MLflow_run(self):
         ts = pd.Timestamp("2021-01-25 00:00:00")
-        run = pd.DataFrame({"end_time": [ts,], "col1": [1,],}).iloc[0]
+        run = pd.DataFrame(
+            {
+                "end_time": [
+                    ts,
+                ],
+                "col1": [
+                    1,
+                ],
+            }
+        ).iloc[0]
         days = MLflowSerializer(
             trained_models_folder="./test/trained_models"
         )._determine_model_age_from_mlflow_run(run)
@@ -268,7 +277,16 @@ class TestMLflowSerializer(BaseTestCase):
     def test_serializer_determine_model_age_from_MLflow_run_exception(self):
         ts = pd.Timestamp("2021-01-25 00:00:00")
         # Without .iloc it will not be able to get the age, resulting in a error
-        run = pd.DataFrame({"end_time": [ts,], "col1": [1,],})
+        run = pd.DataFrame(
+            {
+                "end_time": [
+                    ts,
+                ],
+                "col1": [
+                    1,
+                ],
+            }
+        )
         with self.assertLogs("MLflowSerializer", level="WARNING") as captured:
             days = MLflowSerializer(
                 trained_models_folder="./test/trained_models"
