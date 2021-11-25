@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V.
+# SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -25,7 +25,7 @@ sys.path.insert(0, os.path.abspath("../"))
 # -- Project information -----------------------------------------------------
 
 project = "Short Term Forecasting"
-copyright = "2017-2021 Alliander N.V."
+copyright = "2017-2021 Contributors to the OpenSTF project"
 author = "Frank Kreuwel"
 
 
