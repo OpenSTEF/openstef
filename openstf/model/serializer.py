@@ -179,7 +179,7 @@ class MLflowSerializer(AbstractSerializer):
             else:
                 self.logger.info("No previous model found in MLflow", pid=pid)
                 raise LookupError(
-                    "Model couldn't be found or doesn't exist. First train a model!"
+                    f"Model couldn't be found for pid {pid}. First train a model!"
                 )
 
             loaded_model = mlflow.sklearn.load_model(
