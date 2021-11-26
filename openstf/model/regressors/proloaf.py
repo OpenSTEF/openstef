@@ -39,6 +39,50 @@ def divide_scaling_groups(x: pd.DataFrame) -> Tuple[List[str], List[str], List[s
 
     return minmax_scale_features, oh_scale_features, no_scale_features
 
+def apply_scaling (scaler_features: Tuple[List[str], List[str], List[str]], data: pd.DataFrame, scalers=None):
+    """Applies different scaling methods to a certain dataframe (minmax, one hot, or no scaling)
+
+        Args:
+            scaler_features (Tuple[List[str], List[str], List[str]]): Three different lists with features for each scaling
+            x (pd.DataFrame): Dataframe from which columns have to be divided
+            scalers: scalers resulting from the previous scaling
+
+        Returns:
+            Dataframe with all the scaled features
+
+    """
+    selected_features, scalers = dh.scale_all(
+        data,
+        scalers=scalers,
+        feature_groups=[
+            {
+                "name": "main",
+                "scaler": ["minmax", -1.0, 1.0],
+                "features": scaler_features[0],
+            },
+            {"name": "aux", "scaler": None, "features": scaler_features[2]},
+        ],
+    )
+
+    # One hot encoding certain features
+    onehot_feature_groups = [
+        {
+            "name": "main",
+            "scaler": [
+                "onehot",
+            ],
+            "features": scaler_features[1],
+        }
+    ]
+    for group in onehot_feature_groups:
+        df_onehot = data.filter(group["features"])
+        result_oh_scale = np.transpose(np.array(df_onehot.iloc[:, :], dtype=np.int))
+        df_onehot.iloc[:, :] = result_oh_scale.T
+
+    selected_features = pd.concat([selected_features, df_onehot], axis=1)
+    data = selected_features.iloc[:, :].replace(np.nan, 0)
+
+    return data, scalers
 
 class OpenstfProloafRegressor(OpenstfRegressor, ModelWrapper):
     def __init__(
@@ -46,8 +90,8 @@ class OpenstfProloafRegressor(OpenstfRegressor, ModelWrapper):
         name: str = "model",
         core_net: str = "torch.nn.LSTM",
         relu_leak: float = 0.1,
-        encoder_features: List[str] = None,
-        decoder_features: List[str] = None,
+        encoder_features: List[str] = ['historic_load','Month'], # make sure historic load is present, TODO: implement so you can use None
+        decoder_features: List[str] = ['air_density'], # TODO: implement so you can use None
         core_layers: int = 1,
         rel_linear_hidden_size: float = 1.0,
         rel_core_hidden_size: float = 1.0,
@@ -90,40 +134,16 @@ class OpenstfProloafRegressor(OpenstfRegressor, ModelWrapper):
             max_epochs=max_epochs,
         )
 
+    @property
+    def feature_names(self):
+        return ['load']+self.encoder_features+self.decoder_features # TODO: gehele range, of een enkele feature
+
     def predict(self, x: pd.DataFrame) -> np.ndarray:
         # Apply scaling and interpolation for NaN values
         x = dh.fill_if_missing(x, periodicity=24)
-        selected_features, scalers = dh.scale_all(
-            x,
-            scalers=self.scalers,
-            feature_groups=[
-                {
-                    "name": "main",
-                    "scaler": ["minmax", -1.0, 1.0],
-                    "features": self.minmax_scale_features,
-                },
-                {"name": "aux", "scaler": None, "features": self.no_scale_features},
-            ],
-        )
+        x, _ = apply_scaling([self.minmax_scale_features, self.oh_scale_features, self.no_scale_features],
+                             x, self.scalers)
 
-        # One hot encoding certain features
-        onehot_feature_groups = [
-            {
-                "name": "main",
-                "scaler": [
-                    "onehot",
-                ],
-                "features": self.oh_scale_features,
-            }
-        ]
-        for group in onehot_feature_groups:
-            df_onehot = x.filter(group["features"])
-            result_oh_scale = np.transpose(np.array(df_onehot.iloc[:, :], dtype=np.int))
-            df_onehot.iloc[:, :] = result_oh_scale.T
-
-        selected_features = pd.concat([selected_features, df_onehot], axis=1)
-
-        x = selected_features.iloc[:, :].replace(np.nan, 0)
         inputs_enc = torch.tensor(
             x[self.encoder_features].to_numpy(), dtype=torch.float
         ).unsqueeze(dim=0)
@@ -136,6 +156,7 @@ class OpenstfProloafRegressor(OpenstfRegressor, ModelWrapper):
             .detach()
             .numpy()
         )
+
         return prediction
 
     def fit(
@@ -150,51 +171,9 @@ class OpenstfProloafRegressor(OpenstfRegressor, ModelWrapper):
         # Apply scaling and interpolation for NaN values
         x = dh.fill_if_missing(x, periodicity=24)
         (self.minmax_scale_features, self.oh_scale_features, self.no_scale_features) = divide_scaling_groups(x)
-        selected_features, self.scalers = dh.scale_all(
-            x,
-            scalers=self.scalers,
-            feature_groups=[
-                {
-                    "name": "main",
-                    "scaler": ["minmax", -1.0, 1.0],
-                    "features": self.minmax_scale_features,
-                },
-                {"name": "aux", "scaler": None, "features": self.no_scale_features},
-            ],
-        )
-
-        # One hot encoding certain features
-        onehot_feature_groups = [
-            {
-                "name": "main",
-                "scaler": [
-                    "onehot",
-                ],
-                "features": self.oh_scale_features,
-            }
-        ]
-        for group in onehot_feature_groups:
-            df_onehot = x.filter(group["features"])
-            result_oh_scale = np.transpose(np.array(df_onehot.iloc[:, :], dtype=np.int))
-            df_onehot.iloc[:, :] = result_oh_scale.T
-
-        selected_features = pd.concat([selected_features, df_onehot], axis=1)
-        x = selected_features.iloc[:, :].replace(np.nan, 0)
-
-        # TODO: scale the train_y
+        x, self.scalers = apply_scaling([self.minmax_scale_features, self.oh_scale_features, self.no_scale_features],
+                             x, self.scalers)
         y = y.to_frame()
-        scaled_y, _ = dh.scale_all(
-            y,
-            feature_groups=[
-                {
-                    "name": "main",
-                    "scaler": ["minmax", -1.0, 1.0],
-                    "features": [y.columns[0]],
-                },
-            ],
-        )
-        #y = scaled_y
-
         self.target_id = [y.columns[0]]
 
         df_train = pd.concat([x, y], axis="columns", verify_integrity=True)
@@ -215,8 +194,12 @@ class OpenstfProloafRegressor(OpenstfRegressor, ModelWrapper):
             device=self.device,
         )
 
-        # TODO: scaling of eval_set[1]
-        df_val = pd.concat(eval_set[1], axis="columns", verify_integrity=True)
+        val_x, val_y = eval_set[1][0], eval_set[1][1]
+        val_x = dh.fill_if_missing(val_x, periodicity=24)
+        val_x,_ = apply_scaling([self.minmax_scale_features, self.oh_scale_features, self.no_scale_features],
+                             val_x, self.scalers)
+
+        df_val = pd.concat([val_x, val_y], axis="columns", verify_integrity=True)
 
         _, validation_dl, _ = dh.transform(
             df=df_val,
