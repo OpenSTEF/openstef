@@ -92,9 +92,9 @@ valid_model_kwargs = {
         "batch_size",
         "history_horizon",
         "horizon_minutes",
-
     ],
 }
+
 
 class ModelCreator:
     """Factory object for creating machine learning models"""

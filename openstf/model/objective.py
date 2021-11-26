@@ -309,6 +309,7 @@ class XGBQuantileRegressorObjective(RegressorObjective):
             trial, observation_key=f"validation_1-{self.eval_metric}"
         )
 
+
 class ProLoafRegressorObjective(RegressorObjective):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -330,12 +331,20 @@ class ProLoafRegressorObjective(RegressorObjective):
         params = {
             "relu_leak": trial.suggest_float("relu_leak", 0.1, 1.0),
             "core_layers": trial.suggest_int("core_layers", 1, 3),
-            "rel_linear_hidden_size": trial.suggest_float("rel_linear_hidden_size", 0.1, 1.0),
-            "rel_core_hidden_size": trial.suggest_float("rel_core_hidden_size", 0.1, 1.0),
+            "rel_linear_hidden_size": trial.suggest_float(
+                "rel_linear_hidden_size", 0.1, 1.0
+            ),
+            "rel_core_hidden_size": trial.suggest_float(
+                "rel_core_hidden_size", 0.1, 1.0
+            ),
             "dropout_fc": trial.suggest_float("dropout_fc", 0.1, 0.9),
             "dropout_core": trial.suggest_float("dropout_core", 0.1, 0.9),
-            "early_stopping_patience": trial.suggest_int("early_stopping_patience", 5, 10),
-            "early_stopping_margin": trial.suggest_float("early_stopping_margin", 0.1, 0.9),
+            "early_stopping_patience": trial.suggest_int(
+                "early_stopping_patience", 5, 10
+            ),
+            "early_stopping_margin": trial.suggest_float(
+                "early_stopping_margin", 0.1, 0.9
+            ),
             "max_epochs": trial.suggest_int("max_epochs", 5, 25),
             "batch_size": trial.suggest_int("batch_size", 1, 24),
         }

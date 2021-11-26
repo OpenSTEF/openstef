@@ -240,11 +240,11 @@ def train_pipeline_common(
     ).add_features(validated_data)
 
     # TODO: look if this can be applied in the regressor of proloaf instead of the pipeline
-    if pj['model'] == 'proloaf':
+    if pj["model"] == "proloaf":
         stratification_min_max = False
         # Adds additional proloaf features to the input data, historic_load (equal to the load)
         if "historic_load" not in list(data_with_features.columns):
-            data_with_features["historic_load"] = data_with_features.iloc[:,0]
+            data_with_features["historic_load"] = data_with_features.iloc[:, 0]
             # Make sure horizons is last column
             temp_cols = data_with_features.columns.tolist()
             new_cols = temp_cols[:-2] + [temp_cols[-1]] + [temp_cols[-2]]

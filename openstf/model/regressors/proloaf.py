@@ -15,14 +15,15 @@ from torch.utils.tensorboard import SummaryWriter
 # TODO: set the default for hyperparameters in the init of OpenstfProloafRegressor
 # TODO: implement function for defining encoder and decoder features
 
+
 def divide_scaling_groups(x: pd.DataFrame) -> Tuple[List[str], List[str], List[str]]:
     """Divides the column names over different type of scaling groups
 
-        Args:
-            x (pd.DataFrame): Dataframe from which columns have to be divided
+    Args:
+        x (pd.DataFrame): Dataframe from which columns have to be divided
 
-        Returns:
-            List of all the grouped features for scaling (three groups)
+    Returns:
+        List of all the grouped features for scaling (three groups)
 
     """
     minmax_scale_features = []
@@ -32,23 +33,28 @@ def divide_scaling_groups(x: pd.DataFrame) -> Tuple[List[str], List[str], List[s
     for column in x.columns:
         if (x[column].min() <= -1) or (x[column].max() >= 1):
             minmax_scale_features.append(column)
-        elif x[column].dtype == 'bool':
+        elif x[column].dtype == "bool":
             oh_scale_features.append(column)
         else:
             no_scale_features.append(column)
 
     return minmax_scale_features, oh_scale_features, no_scale_features
 
-def apply_scaling (scaler_features: Tuple[List[str], List[str], List[str]], data: pd.DataFrame, scalers=None):
+
+def apply_scaling(
+    scaler_features: Tuple[List[str], List[str], List[str]],
+    data: pd.DataFrame,
+    scalers=None,
+):
     """Applies different scaling methods to a certain dataframe (minmax, one hot, or no scaling)
 
-        Args:
-            scaler_features (Tuple[List[str], List[str], List[str]]): Three different lists with features for each scaling
-            x (pd.DataFrame): Dataframe from which columns have to be divided
-            scalers: scalers resulting from the previous scaling
+    Args:
+        scaler_features (Tuple[List[str], List[str], List[str]]): Three different lists with features for each scaling
+        x (pd.DataFrame): Dataframe from which columns have to be divided
+        scalers: scalers resulting from the previous scaling
 
-        Returns:
-            Dataframe with all the scaled features
+    Returns:
+        Dataframe with all the scaled features
 
     """
     selected_features, scalers = dh.scale_all(
@@ -84,14 +90,20 @@ def apply_scaling (scaler_features: Tuple[List[str], List[str], List[str]], data
 
     return data, scalers
 
+
 class OpenstfProloafRegressor(OpenstfRegressor, ModelWrapper):
     def __init__(
         self,
         name: str = "model",
         core_net: str = "torch.nn.LSTM",
         relu_leak: float = 0.1,
-        encoder_features: List[str] = ['historic_load','Month'], # make sure historic load is present, TODO: implement so you can use None
-        decoder_features: List[str] = ['air_density'], # TODO: implement so you can use None
+        encoder_features: List[str] = [
+            "historic_load",
+            "Month",
+        ],  # make sure historic load is present, TODO: implement so you can use None
+        decoder_features: List[str] = [
+            "air_density"
+        ],  # TODO: implement so you can use None
         core_layers: int = 1,
         rel_linear_hidden_size: float = 1.0,
         rel_core_hidden_size: float = 1.0,
@@ -136,13 +148,22 @@ class OpenstfProloafRegressor(OpenstfRegressor, ModelWrapper):
 
     @property
     def feature_names(self):
-        return ['load']+self.encoder_features+self.decoder_features # TODO: gehele range, of een enkele feature
+        return (
+            ["load"] + self.encoder_features + self.decoder_features
+        )  # TODO: gehele range, of een enkele feature
 
     def predict(self, x: pd.DataFrame) -> np.ndarray:
         # Apply scaling and interpolation for NaN values
         x = dh.fill_if_missing(x, periodicity=24)
-        x, _ = apply_scaling([self.minmax_scale_features, self.oh_scale_features, self.no_scale_features],
-                             x, self.scalers)
+        x, _ = apply_scaling(
+            [
+                self.minmax_scale_features,
+                self.oh_scale_features,
+                self.no_scale_features,
+            ],
+            x,
+            self.scalers,
+        )
 
         inputs_enc = torch.tensor(
             x[self.encoder_features].to_numpy(), dtype=torch.float
@@ -170,9 +191,20 @@ class OpenstfProloafRegressor(OpenstfRegressor, ModelWrapper):
     ) -> ModelWrapper:
         # Apply scaling and interpolation for NaN values
         x = dh.fill_if_missing(x, periodicity=24)
-        (self.minmax_scale_features, self.oh_scale_features, self.no_scale_features) = divide_scaling_groups(x)
-        x, self.scalers = apply_scaling([self.minmax_scale_features, self.oh_scale_features, self.no_scale_features],
-                             x, self.scalers)
+        (
+            self.minmax_scale_features,
+            self.oh_scale_features,
+            self.no_scale_features,
+        ) = divide_scaling_groups(x)
+        x, self.scalers = apply_scaling(
+            [
+                self.minmax_scale_features,
+                self.oh_scale_features,
+                self.no_scale_features,
+            ],
+            x,
+            self.scalers,
+        )
         y = y.to_frame()
         self.target_id = [y.columns[0]]
 
@@ -196,8 +228,15 @@ class OpenstfProloafRegressor(OpenstfRegressor, ModelWrapper):
 
         val_x, val_y = eval_set[1][0], eval_set[1][1]
         val_x = dh.fill_if_missing(val_x, periodicity=24)
-        val_x,_ = apply_scaling([self.minmax_scale_features, self.oh_scale_features, self.no_scale_features],
-                             val_x, self.scalers)
+        val_x, _ = apply_scaling(
+            [
+                self.minmax_scale_features,
+                self.oh_scale_features,
+                self.no_scale_features,
+            ],
+            val_x,
+            self.scalers,
+        )
 
         df_val = pd.concat([val_x, val_y], axis="columns", verify_integrity=True)
 

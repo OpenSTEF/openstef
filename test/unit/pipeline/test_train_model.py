@@ -82,9 +82,16 @@ class TestTrainModelPipeline(BaseTestCase):
 
                 if pj["model"] == "proloaf":
                     train_input = self.train_input
-                    modelspecs["hyper_params"]["encoder_features"] = list(self.train_input.columns)[2:3]
-                    modelspecs["hyper_params"]["decoder_features"] = list(self.train_input.columns)[2:3]
-                    pj['feature_names'] = pj["hyper_params"]["encoder_features"] + pj["hyper_params"]["decoder_features"]
+                    modelspecs["hyper_params"]["encoder_features"] = list(
+                        self.train_input.columns
+                    )[2:3]
+                    modelspecs["hyper_params"]["decoder_features"] = list(
+                        self.train_input.columns
+                    )[2:3]
+                    pj["feature_names"] = (
+                        pj["hyper_params"]["encoder_features"]
+                        + pj["hyper_params"]["decoder_features"]
+                    )
                 else:
                     pj["hyper_params"] = {}
                     train_input = self.train_input.iloc[::50, :]
