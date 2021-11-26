@@ -330,20 +330,20 @@ class ProLoafRegressorObjective(RegressorObjective):
         # ProLoaf specific parameters
         params = {
             # TODO: look into optimizing this pipeline for proloaf
-            "relu_leak": trial.suggest_float("relu_leak", 0.1, 1.0),
-            "core_layers": trial.suggest_int("core_layers", 1, 3),
-            "rel_linear_hidden_size": trial.suggest_float(
-                "rel_linear_hidden_size", 0.1, 1
-            ),
-            "rel_core_hidden_size": trial.suggest_float("rel_core_hidden_size", 0.1, 1),
-            "dropout_fc": trial.suggest_float("dropout_fc", 0.1, 0.9),
-            "dropout_core": trial.suggest_float("dropout_core", 0.1, 0.9),
-            "early_stopping_patience": trial.suggest_int(
-                "early_stopping_patience", 5, 10
-            ),
-            "early_stopping_margin": trial.suggest_float(
-                "early_stopping_margin", 0.1, 0.9
-            ),
+            # "relu_leak": trial.suggest_float("relu_leak", 0.1, 1.0),
+            # "core_layers": trial.suggest_int("core_layers", 1, 3),
+            # "rel_linear_hidden_size": trial.suggest_float(
+            #    "rel_linear_hidden_size", 0.1, 1
+            # ),
+            # "rel_core_hidden_size": trial.suggest_float("rel_core_hidden_size", 0.1, 1),
+            # "dropout_fc": trial.suggest_float("dropout_fc", 0.1, 0.9),
+            # "dropout_core": trial.suggest_float("dropout_core", 0.1, 0.9),
+            # "early_stopping_patience": trial.suggest_int(
+            #    "early_stopping_patience", 5, 10
+            # ),
+            # "early_stopping_margin": trial.suggest_float(
+            #    "early_stopping_margin", 0.1, 0.9
+            # ),
             "max_epochs": trial.suggest_int(
                 "max_epochs", 1, 1
             ),  # TODO: change after having availability to gpu resource
