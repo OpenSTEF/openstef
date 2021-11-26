@@ -335,9 +335,7 @@ class ProLoafRegressorObjective(RegressorObjective):
             "rel_linear_hidden_size": trial.suggest_float(
                 "rel_linear_hidden_size", 0.1, 1
             ),
-            "rel_core_hidden_size": trial.suggest_float(
-                "rel_core_hidden_size", 0.1, 1
-            ),
+            "rel_core_hidden_size": trial.suggest_float("rel_core_hidden_size", 0.1, 1),
             "dropout_fc": trial.suggest_float("dropout_fc", 0.1, 0.9),
             "dropout_core": trial.suggest_float("dropout_core", 0.1, 0.9),
             "early_stopping_patience": trial.suggest_int(
@@ -346,7 +344,9 @@ class ProLoafRegressorObjective(RegressorObjective):
             "early_stopping_margin": trial.suggest_float(
                 "early_stopping_margin", 0.1, 0.9
             ),
-            "max_epochs": trial.suggest_int("max_epochs", 1, 1), # TODO: change after having availability to gpu resource
+            "max_epochs": trial.suggest_int(
+                "max_epochs", 1, 1
+            ),  # TODO: change after having availability to gpu resource
             "batch_size": trial.suggest_int("batch_size", 1, 24),
         }
         return {**model_params, **params}

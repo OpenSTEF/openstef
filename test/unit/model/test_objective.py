@@ -12,7 +12,7 @@ from openstf.model.objective import (
     XGBRegressorObjective,
     LGBRegressorObjective,
     XGBQuantileRegressorObjective,
-    ProLoafRegressorObjective
+    ProLoafRegressorObjective,
 )
 from test.utils import BaseTestCase, TestData
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
@@ -111,10 +111,11 @@ class TestXGBQRegressorObjective(BaseTestCase):
         self.assertIsInstance(objective, XGBQuantileRegressorObjective)
         self.assertEqual(len(study.trials), N_TRIALS)
 
+
 class TestProLoafRegressorObjective(BaseTestCase):
     def test_call(self):
         input_data = TestData.load("reference_sets/307-train-data.csv")
-        pj = {'model': 'proloaf'}
+        pj = {"model": "proloaf"}
         input_data_with_features = TrainFeatureApplicator(horizons=[24.0]).add_features(
             input_data, pj=pj
         )
