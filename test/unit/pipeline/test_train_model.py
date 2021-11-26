@@ -71,7 +71,6 @@ class TestTrainModelPipeline(BaseTestCase):
         but it can/should include predictors (e.g. weather data)
 
         """
-        # Select 50 data points to speedup test (unless proloaf is used)
         for model_type in MLModelType:
             with self.subTest(model_type=model_type):
                 pj = self.pj
@@ -79,7 +78,9 @@ class TestTrainModelPipeline(BaseTestCase):
 
                 # Use default parameters
                 pj["hyper_params"] = {}
-                train_input = self.train_input.iloc[::50, :]
+                train_input = self.train_input
+
+                self.modelspecs.hyper_params['max_epochs'] = 1
 
                 model, report, modelspecs = train_model_pipeline_core(
                     pj=pj, modelspecs=self.modelspecs, input_data=train_input
@@ -105,7 +106,7 @@ class TestTrainModelPipeline(BaseTestCase):
                 # Add features
                 data_with_features = TrainFeatureApplicator(
                     horizons=[0.25, 47.0], feature_names=self.modelspecs.feature_names
-                ).add_features(validated_data)
+                ).add_features(validated_data, pj=pj)
 
                 # Split data
                 (
@@ -116,8 +117,10 @@ class TestTrainModelPipeline(BaseTestCase):
                     test_data,
                 ) = split_data_train_validation_test(data_with_features)
 
-                importance = model.set_feature_importance()
-                self.assertIsInstance(importance, pd.DataFrame)
+                # not able to generate a feature importance for proloaf as this is a neural network
+                if not pj['model'] == 'proloaf':
+                    importance = model.set_feature_importance()
+                    self.assertIsInstance(importance, pd.DataFrame)
 
     @patch("openstf.model.serializer.MLflowSerializer.save_model")
     @patch("openstf.pipeline.train_model.train_model_pipeline_core")

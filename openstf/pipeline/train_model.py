@@ -239,22 +239,12 @@ def train_pipeline_common(
         stratification_min_max = False
         # proloaf is only able to train with one horizon
         horizons = [horizons[0]]
+    else:
+        stratification_min_max = True
 
     data_with_features = TrainFeatureApplicator(
         horizons=horizons, feature_names=modelspecs.feature_names
-    ).add_features(validated_data)
-
-    # TODO: look if this can be applied in the regressor of proloaf instead of the pipeline
-    if pj["model"] == "proloaf":
-        # Adds additional proloaf features to the input data, historic_load (equal to the load)
-        if "historic_load" not in list(data_with_features.columns):
-            data_with_features["historic_load"] = data_with_features.iloc[:, 0]
-            # Make sure horizons is last column
-            temp_cols = data_with_features.columns.tolist()
-            new_cols = temp_cols[:-2] + [temp_cols[-1]] + [temp_cols[-2]]
-            data_with_features = data_with_features[new_cols]
-    else:
-        stratification_min_max = True
+    ).add_features(validated_data, pj=pj)
 
     # if test_data is predefined, apply the pipeline only on the remaining data
     if not test_data_predefined.empty:

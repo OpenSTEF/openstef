@@ -81,7 +81,7 @@ def optimize_hyperparameters_pipeline(
 
     validated_data_with_features = TrainFeatureApplicator(
         horizons=horizons
-    ).add_features(validated_data)
+    ).add_features(validated_data, pj=pj)
 
     if pj["model"] == "proloaf":
         # Adds additional proloaf features to the input data, historic_load (equal to the load)

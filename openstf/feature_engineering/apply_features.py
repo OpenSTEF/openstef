@@ -28,10 +28,12 @@ from openstf.feature_engineering.weather_features import (
 from openstf.feature_engineering.proloaf_historic_features import (
     add_historic_load_as_a_feature,
 )
+from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 
 def apply_features(
     data: pd.DataFrame,
+    pj: PredictionJobDataClass = None,
     feature_names: List[str] = None,
     horizon: float = 24.0,
 ) -> pd.DataFrame:
@@ -49,6 +51,7 @@ def apply_features(
                                         index=datetime,
                                         columns=[label, predictor_1,..., predictor_n]
                                     )
+        pj (PredictionJobDataClass): Prediction job.
         feature_names (List[str]): list of reuqested features
         horizon (float): Forecast horizon limit in hours.
 
@@ -68,7 +71,7 @@ def apply_features(
 
     """
     # Add if needed the proloaf feature (historic_load)
-    data = add_historic_load_as_a_feature(data, feature_names)
+    data = add_historic_load_as_a_feature(data, pj)
 
     # Get lag feature functions
     feature_functions = generate_lag_feature_functions(feature_names, horizon)

@@ -8,16 +8,17 @@
 from typing import List
 import pandas as pd
 import structlog
+from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 
 def add_historic_load_as_a_feature(
-    data: pd.DataFrame, feature_names: List[str] = None
+    data: pd.DataFrame, pj: PredictionJobDataClass = None,
 ) -> pd.DataFrame:
     """Adds additional proloaf features to the input data, historic_load (equal to the load)
 
     Args:
         data (pd.DataFrame): Dataframe to which the wind features have to be added
-        feature_names (List[str]): List of requested features to transform in historic_load
+        pj (PredictionJobDataClass): Prediction job.
 
     Returns:
         pd.DataFrame same as input dataframe with extra columns for the added proloaf features
@@ -25,7 +26,7 @@ def add_historic_load_as_a_feature(
     """
     logger = structlog.get_logger(__name__)
 
-    if feature_names is not None and "historic_load" in feature_names:
+    if pj is not None and pj["model"] == "proloaf":
         data["historic_load"] = data["load"]
         logger.warning(
             "The historic_load is added to the data, this is a copy of the load. "

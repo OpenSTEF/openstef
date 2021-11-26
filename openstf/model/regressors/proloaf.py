@@ -153,8 +153,8 @@ class OpenstfProloafRegressor(OpenstfRegressor, ModelWrapper):
         )  # TODO: gehele range, of een enkele feature
 
     def predict(self, x: pd.DataFrame) -> np.ndarray:
+        x = x[list(self.feature_names)[1:]]
         # Apply scaling and interpolation for NaN values
-        x = x[self.feature_names[1:]]
         x = dh.fill_if_missing(x, periodicity=24)
         x, _ = apply_scaling(
             [
@@ -190,8 +190,8 @@ class OpenstfProloafRegressor(OpenstfRegressor, ModelWrapper):
         verbose: bool = False,
         **kwargs,
     ) -> ModelWrapper:
+        x = x[list(self.feature_names)[1:]]
         # Apply scaling and interpolation for NaN values
-        x = x[self.feature_names[1:]]
         x = dh.fill_if_missing(x, periodicity=24)
         (
             self.minmax_scale_features,
@@ -241,7 +241,6 @@ class OpenstfProloafRegressor(OpenstfRegressor, ModelWrapper):
         )
 
         df_val = pd.concat([val_x, val_y], axis="columns", verify_integrity=True)
-
         _, validation_dl, _ = dh.transform(
             df=df_val,
             encoder_features=self.encoder_features,
@@ -258,6 +257,8 @@ class OpenstfProloafRegressor(OpenstfRegressor, ModelWrapper):
         self.init_model()
 
         writer_tb = SummaryWriter()
+
+        self.is_fitted_ = True
 
         return self.run_training(train_dl, validation_dl, log_tb=writer_tb)
 
