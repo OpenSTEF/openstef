@@ -78,6 +78,7 @@ class TestTrainModelPipeline(BaseTestCase):
 
                 train_input = self.train_input
 
+                self.modelspecs.hyper_params = {}
                 self.modelspecs.hyper_params["max_epochs"] = 1
 
                 model, report, modelspecs = train_model_pipeline_core(
