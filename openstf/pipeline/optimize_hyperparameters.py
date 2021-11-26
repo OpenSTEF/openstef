@@ -143,6 +143,8 @@ def optuna_optimization(
         direction="minimize",
     )
 
+    # Start with evaluating the default set of parameters,
+    # this way the optimization never get worse than the default values
     study.enqueue_trial(objective.get_default_values())
 
     objective = objective(

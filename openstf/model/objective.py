@@ -165,7 +165,7 @@ class RegressorObjective:
             "min_child_weight": trial.suggest_int("min_child_weight", 1, 16),
             "max_depth": trial.suggest_int("max_depth", 3, 10),
             "colsample_bytree": trial.suggest_float("colsample_bytree", 0.5, 1.0),
-            "max_delta_step": trial.suggest_int("max_delta_step", 0, 5),
+            "max_delta_step": trial.suggest_int("max_delta_step", 0, 10),
         }
 
         # Compare the list to the default parameter space
