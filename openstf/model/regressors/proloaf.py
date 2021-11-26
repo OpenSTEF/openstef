@@ -85,7 +85,8 @@ def apply_scaling(
         result_oh_scale = np.transpose(np.array(df_onehot.iloc[:, :], dtype=np.int))
         df_onehot.iloc[:, :] = result_oh_scale.T
 
-    selected_features = pd.concat([selected_features, df_onehot], axis=1)
+    if not df_onehot.columns.empty:
+        selected_features = pd.concat([selected_features, df_onehot], axis=1)
     data = selected_features.iloc[:, :].replace(np.nan, 0)
 
     return data, scalers
@@ -99,7 +100,6 @@ class OpenstfProloafRegressor(OpenstfRegressor, ModelWrapper):
         relu_leak: float = 0.1,
         encoder_features: List[str] = [
             "historic_load",
-            "Month",
         ],  # make sure historic load is present, TODO: implement so you can use None
         decoder_features: List[str] = [
             "air_density"
@@ -154,6 +154,7 @@ class OpenstfProloafRegressor(OpenstfRegressor, ModelWrapper):
 
     def predict(self, x: pd.DataFrame) -> np.ndarray:
         # Apply scaling and interpolation for NaN values
+        x = x[self.feature_names[1:]]
         x = dh.fill_if_missing(x, periodicity=24)
         x, _ = apply_scaling(
             [
@@ -190,6 +191,7 @@ class OpenstfProloafRegressor(OpenstfRegressor, ModelWrapper):
         **kwargs,
     ) -> ModelWrapper:
         # Apply scaling and interpolation for NaN values
+        x = x[self.feature_names[1:]]
         x = dh.fill_if_missing(x, periodicity=24)
         (
             self.minmax_scale_features,

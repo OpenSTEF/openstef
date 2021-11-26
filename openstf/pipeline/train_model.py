@@ -235,13 +235,17 @@ def train_pipeline_common(
             "Input data is insufficient, after validation and cleaning"
         )
 
+    if pj["model"] == "proloaf":
+        stratification_min_max = False
+        # proloaf is only able to train with one horizon
+        horizons=[horizons[0]]
+
     data_with_features = TrainFeatureApplicator(
         horizons=horizons, feature_names=modelspecs.feature_names
     ).add_features(validated_data)
 
     # TODO: look if this can be applied in the regressor of proloaf instead of the pipeline
     if pj["model"] == "proloaf":
-        stratification_min_max = False
         # Adds additional proloaf features to the input data, historic_load (equal to the load)
         if "historic_load" not in list(data_with_features.columns):
             data_with_features["historic_load"] = data_with_features.iloc[:, 0]
