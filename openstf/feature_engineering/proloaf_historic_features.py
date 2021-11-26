@@ -12,7 +12,8 @@ from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 
 def add_historic_load_as_a_feature(
-    data: pd.DataFrame, pj: PredictionJobDataClass = None,
+    data: pd.DataFrame,
+    pj: PredictionJobDataClass = None,
 ) -> pd.DataFrame:
     """Adds additional proloaf features to the input data, historic_load (equal to the load)
 
