@@ -80,7 +80,7 @@ class TestTrainModelPipeline(BaseTestCase):
                 pj["hyper_params"] = {}
                 train_input = self.train_input
 
-                self.modelspecs.hyper_params['max_epochs'] = 1
+                self.modelspecs.hyper_params["max_epochs"] = 1
 
                 model, report, modelspecs = train_model_pipeline_core(
                     pj=pj, modelspecs=self.modelspecs, input_data=train_input
@@ -118,7 +118,7 @@ class TestTrainModelPipeline(BaseTestCase):
                 ) = split_data_train_validation_test(data_with_features)
 
                 # not able to generate a feature importance for proloaf as this is a neural network
-                if not pj['model'] == 'proloaf':
+                if not pj["model"] == "proloaf":
                     importance = model.set_feature_importance()
                     self.assertIsInstance(importance, pd.DataFrame)
 

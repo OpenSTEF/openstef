@@ -35,7 +35,9 @@ class AbstractFeatureApplicator(ABC):
         self.horizons = horizons
 
     @abstractmethod
-    def add_features(self, df: pd.DataFrame, pj: PredictionJobDataClass) -> pd.DataFrame:
+    def add_features(
+        self, df: pd.DataFrame, pj: PredictionJobDataClass
+    ) -> pd.DataFrame:
         """Adds features to an input DataFrame
 
         Args:
@@ -46,7 +48,9 @@ class AbstractFeatureApplicator(ABC):
 
 
 class TrainFeatureApplicator(AbstractFeatureApplicator):
-    def add_features(self, df: pd.DataFrame, pj: PredictionJobDataClass = None, latency_config=None) -> pd.DataFrame:
+    def add_features(
+        self, df: pd.DataFrame, pj: PredictionJobDataClass = None, latency_config=None
+    ) -> pd.DataFrame:
         """Adds features to an input DataFrame.
 
         This method is implemented specifically for a model train pipeline. For larger
@@ -83,7 +87,10 @@ class TrainFeatureApplicator(AbstractFeatureApplicator):
         for horizon in self.horizons:
             # Deep copy of df is important, because we want a fresh start every iteration!
             res = apply_features(
-                df.copy(deep=True), horizon=horizon, pj=pj, feature_names=self.feature_names
+                df.copy(deep=True),
+                horizon=horizon,
+                pj=pj,
+                feature_names=self.feature_names,
             )
             res["horizon"] = horizon
             result = result.append(res)
@@ -101,8 +108,8 @@ class TrainFeatureApplicator(AbstractFeatureApplicator):
         # NOTE this is required since apply_features could add additional features
         if self.feature_names is not None:
             # Add horizon to requested features else it is removed, and if needed the proloaf feature (historic_load)
-            if pj is not None and pj['model'] == "proloaf":
-                features = self.feature_names + ['historic_load'] + ["horizon"]
+            if pj is not None and pj["model"] == "proloaf":
+                features = self.feature_names + ["historic_load"] + ["horizon"]
             else:
                 features = self.feature_names + ["horizon"]
             result = remove_non_requested_feature_columns(result, features)
