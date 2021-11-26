@@ -238,7 +238,7 @@ def train_pipeline_common(
     if pj["model"] == "proloaf":
         stratification_min_max = False
         # proloaf is only able to train with one horizon
-        horizons=[horizons[0]]
+        horizons = [horizons[0]]
 
     data_with_features = TrainFeatureApplicator(
         horizons=horizons, feature_names=modelspecs.feature_names
