@@ -158,14 +158,14 @@ class RegressorObjective:
             dict: {parameter: hyperparameter_value}
         """
         default_params = {
-            "learning_rate": trial.suggest_float("learning_rate", 0.01, 0.2),
-            "alpha": trial.suggest_float("alpha", 1e-8, 1.0),
+            "learning_rate": trial.suggest_float("learning_rate", 0.01, 0.5),
+            "alpha": trial.suggest_float("alpha", 0, 1.0),
             "lambda": trial.suggest_float("lambda", 1e-8, 1.0),
-            "subsample": trial.suggest_float("subsample", 0.5, 0.99),
-            "min_child_weight": trial.suggest_int("min_child_weight", 1, 6),
+            "subsample": trial.suggest_float("subsample", 0.4, 1.0),
+            "min_child_weight": trial.suggest_int("min_child_weight", 1, 16),
             "max_depth": trial.suggest_int("max_depth", 3, 10),
             "colsample_bytree": trial.suggest_float("colsample_bytree", 0.5, 1.0),
-            "max_delta_step": trial.suggest_int("max_delta_step", 1, 10),
+            "max_delta_step": trial.suggest_int("max_delta_step", 0, 5),
         }
 
         # Compare the list to the default parameter space
@@ -203,6 +203,19 @@ class RegressorObjective:
 
         return report
 
+    @classmethod
+    def get_default_values(cls) -> dict:
+        return {
+            "learning_rate": 0.3,
+            "alpha": 0.0,
+            "lambda": 1.0,
+            "subsample": 1.0,
+            "min_child_weight": 1,
+            "max_depth": 6,
+            "colsample_bytree": 1,
+            "max_delta_step": 0,
+        }
+
 
 class XGBRegressorObjective(RegressorObjective):
     def __init__(self, *args, **kwargs):
@@ -224,7 +237,7 @@ class XGBRegressorObjective(RegressorObjective):
 
         # XGB specific parameters
         params = {
-            "gamma": trial.suggest_float("gamma", 1e-8, 1.0),
+            "gamma": trial.suggest_float("gamma", 0.0, 1.0),
             "booster": trial.suggest_categorical("booster", ["gbtree", "dart"]),
         }
         return {**model_params, **params}
@@ -233,6 +246,13 @@ class XGBRegressorObjective(RegressorObjective):
         return optuna.integration.XGBoostPruningCallback(
             trial, observation_key=f"validation_1-{self.eval_metric}"
         )
+
+    @classmethod
+    def get_default_values(cls) -> dict:
+
+        default_parameter_values = super().get_default_values()
+        default_parameter_values.update({"gamma": 0.0, "booster": "gbtree"})
+        return default_parameter_values
 
 
 class LGBRegressorObjective(RegressorObjective):

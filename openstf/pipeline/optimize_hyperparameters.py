@@ -31,8 +31,8 @@ optuna.logging.disable_default_handler()  # Stop showing logs in sys.stderr.
 logger = structlog.get_logger(__name__)
 
 # See https://optuna.readthedocs.io/en/stable/reference/generated/optuna.study.Study.html#optuna.study.Study.optimize
-N_TRIALS: int = 50  # The number of trials.
-TIMEOUT: int = 200  # Stop study after the given number of second(s).
+N_TRIALS: int = 100  # The number of trials.
+TIMEOUT: int = 600  # Stop study after the given number of second(s).
 TRAIN_HORIZONS: List[float] = [0.25, 24.0]
 
 
@@ -137,15 +137,17 @@ def optuna_optimization(
     """
     model = ModelCreator.create_model(pj["model"])
 
-    objective = objective(
-        model,
-        validated_data_with_features,
-    )
-
     study = optuna.create_study(
         study_name=pj["model"],
         pruner=optuna.pruners.MedianPruner(n_warmup_steps=5),
         direction="minimize",
+    )
+
+    study.enqueue_trial(objective.get_default_values())
+
+    objective = objective(
+        model,
+        validated_data_with_features,
     )
 
     # Optuna updates the model by itself
