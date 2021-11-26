@@ -76,8 +76,6 @@ class TestTrainModelPipeline(BaseTestCase):
                 pj = self.pj
                 pj["model"] = model_type.value
 
-                # Use default parameters
-                pj["hyper_params"] = {}
                 train_input = self.train_input
 
                 self.modelspecs.hyper_params["max_epochs"] = 1

@@ -255,12 +255,9 @@ class OpenstfProloafRegressor(OpenstfRegressor, ModelWrapper):
         )
         self.to(self.device)
         self.init_model()
-
-        writer_tb = SummaryWriter()
-
         self.is_fitted_ = True
 
-        return self.run_training(train_dl, validation_dl, log_tb=writer_tb)
+        return self.run_training(train_dl, validation_dl)
 
     def get_params(self, deep=True):
         model_params = self.get_model_config()
