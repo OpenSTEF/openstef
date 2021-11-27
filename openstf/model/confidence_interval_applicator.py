@@ -48,7 +48,7 @@ class ConfidenceIntervalApplicator:
                  regression or the default method.
 
         Args:
-            forecast (pd.DataFrame): Forecast DataFram with columns: "forecast"
+            forecast (pd.DataFrame): Forecast DataFrame with columns: "forecast"
             pj (PredictionJobDataClass): Prediction job
             default_confindence_interval (bool):
                 switch to always make a default confidence interval
