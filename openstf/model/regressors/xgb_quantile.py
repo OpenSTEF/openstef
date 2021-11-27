@@ -6,7 +6,7 @@ from typing import Tuple
 
 import numpy as np
 import xgboost as xgb
-from sklearn.utils.validation import check_X_y, check_array, check_is_fitted
+from sklearn.utils.validation import check_array, check_is_fitted, check_X_y
 from xgboost import Booster
 
 import openstf.metrics.metrics as metrics

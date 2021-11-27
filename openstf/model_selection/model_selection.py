@@ -1,12 +1,11 @@
 # SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+import random
 import secrets
 from datetime import timedelta
-from typing import List, Tuple
-
-import random
 from itertools import accumulate
+from typing import List, Tuple
 
 import numpy as np
 import pandas as pd

@@ -21,8 +21,6 @@ from openstf.model_selection.model_selection import split_data_train_validation_
 from openstf.pipeline.train_model import train_model_pipeline, train_model_pipeline_core
 from openstf.validation import validation
 
-# define constants
-
 XGB_HYPER_PARAMS = {
     "subsample": 0.9,
     "min_child_weight": 4,

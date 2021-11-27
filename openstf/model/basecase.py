@@ -3,8 +3,6 @@
 # SPDX-License-Identifier: MPL-2.0
 import numpy as np
 import pandas as pd
-
-
 from sklearn.base import BaseEstimator, RegressorMixin
 
 MINIMAL_RESOLUTION: int = 15  # Used for validating the forecast input

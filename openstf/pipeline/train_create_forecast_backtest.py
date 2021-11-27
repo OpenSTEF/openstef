@@ -3,18 +3,17 @@
 # SPDX-License-Identifier: MPL-2.0
 from typing import List, Tuple
 
-from openstf.model.regressors.regressor import OpenstfRegressor
-
 import pandas as pd
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 from openstf.data_classes.model_specifications import ModelSpecificationDataClass
 from openstf.model.confidence_interval_applicator import ConfidenceIntervalApplicator
+from openstf.model.regressors.regressor import OpenstfRegressor
+from openstf.model_selection.model_selection import group_kfold
 from openstf.pipeline.train_model import train_pipeline_common
 from openstf.postprocessing.postprocessing import (
     add_prediction_job_properties_to_forecast,
 )
-from openstf.model_selection.model_selection import group_kfold
 
 DEFAULT_TRAIN_HORIZONS: List[float] = [0.25, 24.0]
 DEFAULT_EARLY_STOPPING_ROUNDS: int = 10

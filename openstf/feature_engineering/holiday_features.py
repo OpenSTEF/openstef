@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-from datetime import timedelta, datetime
+from datetime import datetime, timedelta
 from typing import Tuple
 
 import holidays

@@ -6,10 +6,10 @@ from typing import Union
 
 from openstf.enums import MLModelType
 from openstf.model.objective import (
-    RegressorObjective,
-    XGBRegressorObjective,
     LGBRegressorObjective,
+    RegressorObjective,
     XGBQuantileRegressorObjective,
+    XGBRegressorObjective,
 )
 
 

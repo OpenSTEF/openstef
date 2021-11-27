@@ -3,13 +3,13 @@
 # SPDX-License-Identifier: MPL-2.0
 import json
 import os
+import shutil
 from abc import ABC, abstractmethod
 from datetime import datetime
 from json import JSONDecodeError
 from pathlib import Path
-from typing import Optional, Union, Tuple
+from typing import Optional, Tuple, Union
 from urllib.parse import unquote, urlparse
-import shutil
 
 import mlflow
 import numpy as np

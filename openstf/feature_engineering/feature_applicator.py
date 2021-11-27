@@ -10,8 +10,8 @@ import pandas as pd
 from openstf.feature_engineering.apply_features import apply_features
 from openstf.feature_engineering.general import (
     add_missing_feature_columns,
-    remove_non_requested_feature_columns,
     enforce_feature_order,
+    remove_non_requested_feature_columns,
 )
 
 LATENCY_CONFIG = {"APX": 24}  # A specific latency is part of a specific feature.
