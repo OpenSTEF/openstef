@@ -3,14 +3,15 @@
 # SPDX-License-Identifier: MPL-2.0
 
 import unittest
+from test.unit.utils.base import BaseTestCase
+from test.unit.utils.data import TestData
 from unittest.mock import MagicMock, patch
 
 import numpy as np
 import pandas as pd
 
-from openstf.exceptions import NoRealisedLoadError, NoPredictedLoadError
+from openstf.exceptions import NoPredictedLoadError, NoRealisedLoadError
 from openstf.tasks.calculate_kpi import calc_kpi_for_specific_pid
-from test.utils import BaseTestCase, TestData
 
 # Get test data
 predicted_load = TestData.load("calculate_kpi_predicted_load.csv")
@@ -26,6 +27,7 @@ predicted_load_nan = predicted_load.copy()
 predicted_load_nan.loc[predicted_load_nan.sample(frac=0.5).index, :] = np.NaN
 
 prediction_job = TestData.get_prediction_job(pid=307)
+
 
 # Prepare Database mocks
 def get_database_mock():

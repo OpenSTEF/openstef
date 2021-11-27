@@ -1,15 +1,15 @@
 # SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+from test.unit.utils.data import TestData
 from unittest import TestCase
 
 import numpy as np
 
 from openstf.feature_engineering.feature_applicator import (
-    TrainFeatureApplicator,
     OperationalPredictFeatureApplicator,
+    TrainFeatureApplicator,
 )
-from test.utils import TestData
 
 
 class TestFeatureApplicator(TestCase):

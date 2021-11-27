@@ -3,11 +3,12 @@
 # SPDX-License-Identifier: MPL-2.0
 
 import unittest
+from test.unit.utils.base import BaseTestCase
+from test.unit.utils.data import TestData
 
 import numpy as np
 
 from openstf.model.fallback import generate_fallback
-from test.utils import BaseTestCase, TestData
 
 
 class TestFallback(BaseTestCase):

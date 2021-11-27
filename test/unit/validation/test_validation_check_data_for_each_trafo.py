@@ -1,22 +1,13 @@
 # SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Jan  2 14:24:08 2020
-
-@author: AL20603
-"""
-
-
 import unittest
 from datetime import datetime, timedelta
+from test.unit.utils.base import BaseTestCase
 
 import pandas as pd
 
 from openstf.validation.validation import check_data_for_each_trafo
-from test.utils import BaseTestCase
 
 now = datetime.utcnow()
 date_rng = pd.date_range(start=now - timedelta(minutes=30), end=now, freq="0.25H")

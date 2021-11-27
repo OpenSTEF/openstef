@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/repos/openstf/test/unit/trained_models/models_for_serializertest/mlruns/1/6adc442cffbe4f3e9db55b8bb5b35de1/artifacts
+end_time: 1636126297305
+entry_point_name: ''
+experiment_id: '1'
+lifecycle_stage: active
+name: ''
+run_id: 6adc442cffbe4f3e9db55b8bb5b35de1
+run_uuid: 6adc442cffbe4f3e9db55b8bb5b35de1
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1636126294627
+status: 3
+tags: []
+user_id: AL11943

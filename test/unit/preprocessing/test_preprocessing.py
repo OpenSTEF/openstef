@@ -5,13 +5,13 @@
 import math
 import unittest
 from datetime import datetime, timedelta
+from test.unit.utils.base import BaseTestCase
 
 import numpy as np
 import pandas as pd
 
 from openstf.preprocessing import preprocessing
 from openstf.validation import validation
-from test.utils import BaseTestCase
 
 now = datetime.utcnow()
 date_range = pd.date_range(start=now - timedelta(minutes=30), end=now, freq="0.25H")

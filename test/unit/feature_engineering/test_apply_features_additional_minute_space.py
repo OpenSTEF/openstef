@@ -3,12 +3,13 @@
 # SPDX-License-Identifier: MPL-2.0
 
 import unittest
+from test.unit.utils.base import BaseTestCase
+from test.unit.utils.data import TestData
 
 import numpy as np
 import pandas as pd
 
 from openstf.feature_engineering.lag_features import generate_non_trivial_lag_times
-from test.utils import BaseTestCase, TestData
 
 
 class TestApplyFeaturesAditionalMinuteSpace(BaseTestCase):

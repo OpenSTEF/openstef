@@ -3,11 +3,11 @@
 # SPDX-License-Identifier: MPL-2.0
 
 import unittest
+from test.unit.utils.base import BaseTestCase
 
 import pandas as pd
 
 from openstf.feature_engineering import weather_features
-from test.utils import BaseTestCase
 
 
 class HumidityCalculationsTest(BaseTestCase):

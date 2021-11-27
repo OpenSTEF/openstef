@@ -1,13 +1,13 @@
 # SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+from test.unit.utils.base import BaseTestCase
+from test.unit.utils.data import TestData
+
+from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
 from openstf.pipeline.train_create_forecast_backtest import (
     train_model_and_forecast_back_test,
 )
-from test.utils import BaseTestCase
-from test.utils import TestData
-
-from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
 from openstf.validation import validation
 
 

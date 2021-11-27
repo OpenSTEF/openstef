@@ -3,12 +3,12 @@
 # SPDX-License-Identifier: MPL-2.0
 
 import unittest
+from test.unit.utils.base import BaseTestCase
 
 import pandas as pd
 
 from openstf.enums import ForecastType
 from openstf.postprocessing import postprocessing
-from test.utils.base import BaseTestCase
 
 
 class TestPostProcess(BaseTestCase):

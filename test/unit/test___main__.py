@@ -3,11 +3,12 @@
 # SPDX-License-Identifier: MPL-2.0
 
 import unittest
-from test.utils import BaseTestCase
+from test.unit.utils.base import BaseTestCase
+
 from openstf.__main__ import validate_task_name
 
 
-class Test___Main__(BaseTestCase):
+class TestMain(BaseTestCase):
     """Test functionality of the __main__.py file"""
 
     def test_validate_task_name_happy(self):

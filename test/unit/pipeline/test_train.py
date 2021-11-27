@@ -3,12 +3,12 @@
 # SPDX-License-Identifier: MPL-2.0
 import unittest
 from datetime import datetime, timedelta
+from test.unit.utils.base import BaseTestCase
+from test.unit.utils.data import TestData
 
 import pandas as pd
 
 from openstf.pipeline.train_model import split_data_train_validation_test
-from test.utils.base import BaseTestCase
-from test.utils.data import TestData
 
 # define constants
 SPLIT_PARAMS = {

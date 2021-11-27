@@ -6,11 +6,11 @@
 
 import unittest
 from datetime import datetime, timedelta
+from test.unit.utils.base import BaseTestCase
 
 import pandas as pd
 
 from openstf.validation.validation import find_zero_flatliner
-from test.utils import BaseTestCase
 
 now = datetime.utcnow()
 date_rng = pd.date_range(start=now - timedelta(minutes=30), end=now, freq="0.25H")
@@ -137,7 +137,8 @@ class TestValidationFindZeroFlatliners(BaseTestCase):
     def test_compensated_flatliner(self):
         """Data: zero-values at one trafo is compensated
 
-        Expected: empty list, since the zero-values are compensated and therefore reliable data (all trafo's)
+        Expected: empty list, since the zero-values are compensated and therefore
+        reliable data (all trafo's)
         """
         df = df_compensated_flatliner
         threshold = 0.25
@@ -159,14 +160,14 @@ class TestValidationFindZeroFlatliners(BaseTestCase):
         # Run all tests
 
     def test_flatline_at_end(self):
-        """The function should be able to handle arrays of unequal length. Bug KTPS-1823"""
+        """Test ability to handle arrays of unequal length. Bug KTPS-1823"""
         df = df_flatline_at_end
         threshold = 0.25
         result = find_zero_flatliner(df, threshold)
         self.assertEqual(result, None)
 
     def test_flatline_at_start(self):
-        """The function should be able to handle arrays of unequal length. Bug KTPS-1823"""
+        """Test ability to handle arrays of unequal length. Bug KTPS-1823"""
         df = df_flatline_at_start
         threshold = 0.25
         result = find_zero_flatliner(df, threshold)

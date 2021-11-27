@@ -3,8 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 
 import unittest
-
-from test.utils.data import TestData
+from test.unit.utils.data import TestData
 
 
 class TestModelSpecifications(unittest.TestCase):
