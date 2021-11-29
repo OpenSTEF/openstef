@@ -12,6 +12,7 @@ from openstf.model.objective import (
     XGBRegressorObjective,
     LGBRegressorObjective,
     XGBQuantileRegressorObjective,
+    LinearRegressorObjective,
 )
 from test.utils import BaseTestCase, TestData
 
@@ -107,6 +108,26 @@ class TestXGBQRegressorObjective(BaseTestCase):
         study.optimize(objective, n_trials=N_TRIALS)
 
         self.assertIsInstance(objective, XGBQuantileRegressorObjective)
+        self.assertEqual(len(study.trials), N_TRIALS)
+
+
+class TestLinearRegressorObjective(BaseTestCase):
+    def test_call(self):
+        model_type = "linear"
+        model = ModelCreator.create_model(model_type)
+
+        objective = LinearRegressorObjective(
+            model,
+            input_data_with_features,
+        )
+        study = optuna.create_study(
+            study_name=model_type,
+            pruner=optuna.pruners.MedianPruner(n_warmup_steps=5),
+            direction="minimize",
+        )
+        study.optimize(objective, n_trials=N_TRIALS)
+
+        self.assertIsInstance(objective, LinearRegressorObjective)
         self.assertEqual(len(study.trials), N_TRIALS)
 
 

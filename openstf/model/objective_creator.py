@@ -10,6 +10,7 @@ from openstf.model.objective import (
     XGBRegressorObjective,
     LGBRegressorObjective,
     XGBQuantileRegressorObjective,
+    LinearRegressorObjective,
 )
 
 
@@ -18,6 +19,7 @@ class ObjectiveCreator:
         MLModelType.XGB: XGBRegressorObjective,
         MLModelType.LGB: LGBRegressorObjective,
         MLModelType.XGB_QUANTILE: XGBQuantileRegressorObjective,
+        MLModelType.LINEAR: LinearRegressorObjective,
     }
 
     @staticmethod
