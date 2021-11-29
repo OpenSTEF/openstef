@@ -116,7 +116,7 @@ class OpenstfProloafRegressor(OpenstfRegressor, ModelWrapper):
         early_stopping_margin: float = 0,
         learning_rate: float = 1e-3,
         max_epochs: int = 100,
-        device: Union[str,int] = "cpu", #"cuda" or "cpu"
+        device: Union[str, int] = "cpu",  # "cuda" or "cpu"
         batch_size: int = 6,
         history_horizon: int = 24,
         horizon_minutes: int = 2880,  # 2 days in minutes,
