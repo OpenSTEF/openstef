@@ -190,7 +190,7 @@ This pipeline has no database or persisitent storage dependencies.</p>
 <span id="openstf-pipeline-optimize-hyperparameters-module"></span><h2>openstf.pipeline.optimize_hyperparameters module<a class="headerlink" href="#module-openstf.pipeline.optimize_hyperparameters" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="openstf.pipeline.optimize_hyperparameters.optimize_hyperparameters_pipeline">
-<code class="sig-prename descclassname">openstf.pipeline.optimize_hyperparameters.</code><code class="sig-name descname">optimize_hyperparameters_pipeline</code><span class="sig-paren">(</span><em class="sig-param">pj: openstf_dbc.services.prediction_job.PredictionJobDataClass, input_data: pandas.core.frame.DataFrame, trained_models_folder: Union[str, pathlib.Path], horizons: List[float] = [0.25, 24.0], n_trials: int = 50</em><span class="sig-paren">)</span> &#x2192; dict<a class="headerlink" href="#openstf.pipeline.optimize_hyperparameters.optimize_hyperparameters_pipeline" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstf.pipeline.optimize_hyperparameters.</code><code class="sig-name descname">optimize_hyperparameters_pipeline</code><span class="sig-paren">(</span><em class="sig-param">pj: openstf_dbc.services.prediction_job.PredictionJobDataClass, input_data: pandas.core.frame.DataFrame, trained_models_folder: Union[str, pathlib.Path], horizons: List[float] = [0.25, 24.0], n_trials: int = 100</em><span class="sig-paren">)</span> &#x2192; dict<a class="headerlink" href="#openstf.pipeline.optimize_hyperparameters.optimize_hyperparameters_pipeline" title="Permalink to this definition">¶</a></dt>
 <dd><p>Optimize hyperparameters pipeline.</p>
 <p>Expected prediction job key’s: “name”, “model”</p>
 <dl class="field-list simple">
@@ -322,19 +322,6 @@ These horizons are also used to make predictions (one for every horizon)</p></li
 <dd><p>Train model core pipeline.
 Trains a new model given a prediction job, input data and compares it to an old model.
 This pipeline has no database or persistent storage dependencies.</p>
-<p>TODO once we have a data model for a prediction job this explantion is not
-required anymore.</p>
-<p>For training a model the following keys in the prediction job are
-expected:</p>
-<blockquote>
-<div><p>“id”            Only used for logging
-“model”         Model type, any of “xgb”, “lgb”,</p>
-</div></blockquote>
-<dl class="simple">
-<dt>And in modelspecs:</dt><dd><p>“hyper_params”  Hyper parameters dictionairy specific to the model_type
-“feature_names”      List of features to train model on or None to use all features</p>
-</dd>
-</dl>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">

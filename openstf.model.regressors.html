@@ -38,6 +38,8 @@
 <li><a class="reference internal" href="#">openstf.model.regressors package</a><ul>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
 <li><a class="reference internal" href="#module-openstf.model.regressors.lgbm">openstf.model.regressors.lgbm module</a></li>
+<li><a class="reference internal" href="#module-openstf.model.regressors.linear">openstf.model.regressors.linear module</a></li>
+<li><a class="reference internal" href="#module-openstf.model.regressors.proloaf">openstf.model.regressors.proloaf module</a></li>
 <li><a class="reference internal" href="#module-openstf.model.regressors.regressor">openstf.model.regressors.regressor module</a></li>
 <li><a class="reference internal" href="#module-openstf.model.regressors.regressor_interface">openstf.model.regressors.regressor_interface module</a></li>
 <li><a class="reference internal" href="#module-openstf.model.regressors.xgb">openstf.model.regressors.xgb module</a></li>
@@ -104,6 +106,209 @@
 <code class="sig-name descname">weight_importance_name</code><em class="property"> = 'split'</em><a class="headerlink" href="#openstf.model.regressors.lgbm.LGBMOpenstfRegressor.weight_importance_name" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+</dd></dl>
+
+</div>
+<div class="section" id="module-openstf.model.regressors.linear">
+<span id="openstf-model-regressors-linear-module"></span><h2>openstf.model.regressors.linear module<a class="headerlink" href="#module-openstf.model.regressors.linear" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="openstf.model.regressors.linear.LinearOpenstfRegressor">
+<em class="property">class </em><code class="sig-prename descclassname">openstf.model.regressors.linear.</code><code class="sig-name descname">LinearOpenstfRegressor</code><span class="sig-paren">(</span><em class="sig-param">missing_values=nan</em>, <em class="sig-param">imputation_strategy=None</em>, <em class="sig-param">fill_value=0</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.regressors.linear.LinearOpenstfRegressor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#openstf.model.regressors.linear.LinearRegressor" title="openstf.model.regressors.linear.LinearRegressor"><code class="xref py py-class docutils literal notranslate"><span class="pre">openstf.model.regressors.linear.LinearRegressor</span></code></a>, <a class="reference internal" href="#openstf.model.regressors.regressor.OpenstfRegressor" title="openstf.model.regressors.regressor.OpenstfRegressor"><code class="xref py py-class docutils literal notranslate"><span class="pre">openstf.model.regressors.regressor.OpenstfRegressor</span></code></a></p>
+<p>Linear Regressor which implements the Openstf regressor API.</p>
+<dl class="method">
+<dt id="openstf.model.regressors.linear.LinearOpenstfRegressor.feature_names">
+<em class="property">property </em><code class="sig-name descname">feature_names</code><a class="headerlink" href="#openstf.model.regressors.linear.LinearOpenstfRegressor.feature_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve the model input feature names</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The list of feature names</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="openstf.model.regressors.linear.LinearOpenstfRegressor.fit">
+<code class="sig-name descname">fit</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">y</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.regressors.linear.LinearOpenstfRegressor.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fits the regressor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>np.array</em>) – Feature matrix</p></li>
+<li><p><strong>y</strong> (<em>np.array</em>) – Labels</p></li>
+<li><p><strong>kwargs</strong> – model-specific keywords</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Fitted model</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="openstf.model.regressors.linear.LinearRegressor">
+<em class="property">class </em><code class="sig-prename descclassname">openstf.model.regressors.linear.</code><code class="sig-name descname">LinearRegressor</code><span class="sig-paren">(</span><em class="sig-param">missing_values=nan</em>, <em class="sig-param">imputation_strategy=None</em>, <em class="sig-param">fill_value=0</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.regressors.linear.LinearRegressor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="openstf.model.metamodels.html#openstf.model.metamodels.missing_values_handler.MissingValuesHandler" title="openstf.model.metamodels.missing_values_handler.MissingValuesHandler"><code class="xref py py-class docutils literal notranslate"><span class="pre">openstf.model.metamodels.missing_values_handler.MissingValuesHandler</span></code></a></p>
+<p>Linear Regressor wrapped in the metamodel <cite>MissingValuesHandler</cite> that can handle missing values by imputation strategy.</p>
+<blockquote>
+<div><p>Parameters</p>
+</div></blockquote>
+<dl>
+<dt>missing_values<span class="classifier">int, float, str, np.nan or None, default=np.nan</span></dt><dd><p>The placeholder for the missing values. All occurrences of
+<cite>missing_values</cite> will be imputed. For pandas’ dataframes with
+nullable integer dtypes with missing values, <cite>missing_values</cite>
+should be set to <cite>np.nan</cite>, since <cite>pd.NA</cite> will be converted to <cite>np.nan</cite>.</p>
+</dd>
+<dt>imputation_strategy<span class="classifier">str, default=None</span></dt><dd><p>The imputation strategy.
+- If None no imputation is performed.
+- If “mean”, then replace missing values using the mean along</p>
+<blockquote>
+<div><p>each column. Can only be used with numeric data.</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>If “median”, then replace missing values using the median along
+each column. Can only be used with numeric data.</p></li>
+<li><p>If “most_frequent”, then replace missing using the most frequent
+value along each column. Can be used with strings or numeric data.
+If there is more than one such value, only the smallest is returned.</p></li>
+<li><p>If “constant”, then replace missing values with fill_value. Can be
+used with strings or numeric data.</p></li>
+</ul>
+</dd>
+<dt>fill_value<span class="classifier">str or numerical value, default=None</span></dt><dd><p>When strategy == “constant”, fill_value is used to replace all
+occurrences of missing_values.
+If left to the default, fill_value will be 0 when imputing numerical
+data and “missing_value” for strings or object data types.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-openstf.model.regressors.proloaf">
+<span id="openstf-model-regressors-proloaf-module"></span><h2>openstf.model.regressors.proloaf module<a class="headerlink" href="#module-openstf.model.regressors.proloaf" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="openstf.model.regressors.proloaf.OpenstfProloafRegressor">
+<em class="property">class </em><code class="sig-prename descclassname">openstf.model.regressors.proloaf.</code><code class="sig-name descname">OpenstfProloafRegressor</code><span class="sig-paren">(</span><em class="sig-param">name: str = 'model', core_net: str = 'torch.nn.LSTM', relu_leak: float = 0.1, encoder_features: List[str] = ['historic_load'], decoder_features: List[str] = ['air_density'], core_layers: int = 1, rel_linear_hidden_size: float = 1.0, rel_core_hidden_size: float = 1.0, dropout_fc: float = 0.4, dropout_core: float = 0.3, training_metric: str = 'nllgauss', metric_options: Dict[str, Any] = {}, optimizer_name: str = 'adam', early_stopping_patience: int = 7, early_stopping_margin: float = 0, learning_rate: float = 0.001, max_epochs: int = 100, device: Union[str, int] = 'cpu', batch_size: int = 6, history_horizon: int = 24, horizon_minutes: int = 2880</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.regressors.proloaf.OpenstfProloafRegressor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#openstf.model.regressors.regressor.OpenstfRegressor" title="openstf.model.regressors.regressor.OpenstfRegressor"><code class="xref py py-class docutils literal notranslate"><span class="pre">openstf.model.regressors.regressor.OpenstfRegressor</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">proloaf.modelhandler.ModelWrapper</span></code></p>
+<dl class="method">
+<dt id="openstf.model.regressors.proloaf.OpenstfProloafRegressor.feature_names">
+<em class="property">property </em><code class="sig-name descname">feature_names</code><a class="headerlink" href="#openstf.model.regressors.proloaf.OpenstfProloafRegressor.feature_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve the model input feature names</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The list of feature names</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="openstf.model.regressors.proloaf.OpenstfProloafRegressor.fit">
+<code class="sig-name descname">fit</code><span class="sig-paren">(</span><em class="sig-param">x: pandas.core.frame.DataFrame</em>, <em class="sig-param">y: pandas.core.frame.DataFrame</em>, <em class="sig-param">eval_set: tuple = None</em>, <em class="sig-param">early_stopping_rounds: int = None</em>, <em class="sig-param">verbose: bool = False</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span> &#x2192; proloaf.modelhandler.ModelWrapper<a class="headerlink" href="#openstf.model.regressors.proloaf.OpenstfProloafRegressor.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fits the regressor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>np.array</em>) – Feature matrix</p></li>
+<li><p><strong>y</strong> (<em>np.array</em>) – Labels</p></li>
+<li><p><strong>kwargs</strong> – model-specific keywords</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Fitted model</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="openstf.model.regressors.proloaf.OpenstfProloafRegressor.get_params">
+<code class="sig-name descname">get_params</code><span class="sig-paren">(</span><em class="sig-param">deep=True</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.regressors.proloaf.OpenstfProloafRegressor.get_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get parameters for this estimator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>deep</strong> (<em>bool</em><em>, </em><em>default=True</em>) – If True, will return the parameters for this estimator and
+contained subobjects that are estimators.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>params</strong> – Parameter names mapped to their values.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="openstf.model.regressors.proloaf.OpenstfProloafRegressor.predict">
+<code class="sig-name descname">predict</code><span class="sig-paren">(</span><em class="sig-param">x: pandas.core.frame.DataFrame</em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="headerlink" href="#openstf.model.regressors.proloaf.OpenstfProloafRegressor.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Makes a prediction. Only available after the model has been trained
+:param x: Feature matrix
+:type x: np.array
+:param kwargs: model-specific keywords</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>prediction</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>(np.array)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="openstf.model.regressors.proloaf.OpenstfProloafRegressor.set_params">
+<code class="sig-name descname">set_params</code><span class="sig-paren">(</span><em class="sig-param">**params</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.regressors.proloaf.OpenstfProloafRegressor.set_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the parameters of this estimator.</p>
+<p>The method works on simple estimators as well as on nested objects
+(such as <code class="xref py py-class docutils literal notranslate"><span class="pre">Pipeline</span></code>). The latter have
+parameters of the form <code class="docutils literal notranslate"><span class="pre">&lt;component&gt;__&lt;parameter&gt;</span></code> so that it’s
+possible to update each component of a nested object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>**params</strong> (<em>dict</em>) – Estimator parameters.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>self</strong> – Estimator instance.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>estimator instance</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="openstf.model.regressors.proloaf.apply_scaling">
+<code class="sig-prename descclassname">openstf.model.regressors.proloaf.</code><code class="sig-name descname">apply_scaling</code><span class="sig-paren">(</span><em class="sig-param">scaler_features: Tuple[List[str], List[str], List[str]], data: pandas.core.frame.DataFrame, scalers=None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.regressors.proloaf.apply_scaling" title="Permalink to this definition">¶</a></dt>
+<dd><p>Applies different scaling methods to a certain dataframe (minmax, one hot, or no scaling)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>scaler_features</strong> (<em>Tuple</em><em>[</em><em>List</em><em>[</em><em>str</em><em>]</em><em>, </em><em>List</em><em>[</em><em>str</em><em>]</em><em>, </em><em>List</em><em>[</em><em>str</em><em>]</em><em>]</em>) – Three different lists with features for each scaling</p></li>
+<li><p><strong>x</strong> (<em>pd.DataFrame</em>) – Dataframe from which columns have to be divided</p></li>
+<li><p><strong>scalers</strong> – scalers resulting from the previous scaling</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dataframe with all the scaled features</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="openstf.model.regressors.proloaf.divide_scaling_groups">
+<code class="sig-prename descclassname">openstf.model.regressors.proloaf.</code><code class="sig-name descname">divide_scaling_groups</code><span class="sig-paren">(</span><em class="sig-param">x: pandas.core.frame.DataFrame</em><span class="sig-paren">)</span> &#x2192; Tuple[List[str], List[str], List[str]]<a class="headerlink" href="#openstf.model.regressors.proloaf.divide_scaling_groups" title="Permalink to this definition">¶</a></dt>
+<dd><p>Divides the column names over different type of scaling groups</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>pd.DataFrame</em>) – Dataframe from which columns have to be divided</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of all the grouped features for scaling (three groups)</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>

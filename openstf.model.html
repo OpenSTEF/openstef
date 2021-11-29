@@ -81,9 +81,17 @@
 <h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="openstf.model.metamodels.html">openstf.model.metamodels package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="openstf.model.metamodels.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstf.model.metamodels.html#module-openstf.model.metamodels.missing_values_handler">openstf.model.metamodels.missing_values_handler module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstf.model.metamodels.html#module-openstf.model.metamodels">Module contents</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="openstf.model.regressors.html">openstf.model.regressors package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="openstf.model.regressors.html#submodules">Submodules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstf.model.regressors.html#module-openstf.model.regressors.lgbm">openstf.model.regressors.lgbm module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstf.model.regressors.html#module-openstf.model.regressors.linear">openstf.model.regressors.linear module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstf.model.regressors.html#module-openstf.model.regressors.proloaf">openstf.model.regressors.proloaf module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstf.model.regressors.html#module-openstf.model.regressors.regressor">openstf.model.regressors.regressor module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstf.model.regressors.html#module-openstf.model.regressors.regressor_interface">openstf.model.regressors.regressor_interface module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstf.model.regressors.html#module-openstf.model.regressors.xgb">openstf.model.regressors.xgb module</a></li>
@@ -164,7 +172,7 @@ However a fit method is still included to be fully comatible with sklearn.</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="method">
 <dt id="openstf.model.confidence_interval_applicator.ConfidenceIntervalApplicator.add_confidence_interval">
-<code class="sig-name descname">add_confidence_interval</code><span class="sig-paren">(</span><em class="sig-param">forecast: pandas.core.frame.DataFrame</em>, <em class="sig-param">pj: openstf_dbc.services.prediction_job.PredictionJobDataClass</em>, <em class="sig-param">default_confindence_interval: bool = False</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstf.model.confidence_interval_applicator.ConfidenceIntervalApplicator.add_confidence_interval" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_confidence_interval</code><span class="sig-paren">(</span><em class="sig-param">forecast: pandas.core.frame.DataFrame</em>, <em class="sig-param">pj: openstf_dbc.services.prediction_job.PredictionJobDataClass</em>, <em class="sig-param">quantile_confidence_interval: bool = True</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstf.model.confidence_interval_applicator.ConfidenceIntervalApplicator.add_confidence_interval" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a confidence interval to a forecast.</p>
 <dl>
 <dt>Adds a confidence interval to a forecast in two ways:</dt><dd><ol class="arabic">
@@ -203,10 +211,9 @@ regression or the default method.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>forecast</strong> (<em>pd.DataFrame</em>) – Forecast DataFram with columns: “forecast”</p></li>
+<li><p><strong>forecast</strong> (<em>pd.DataFrame</em>) – Forecast DataFrame with columns: “forecast”</p></li>
 <li><p><strong>pj</strong> (<em>PredictionJobDataClass</em>) – Prediction job</p></li>
-<li><p><strong>default_confindence_interval</strong> (<em>bool</em>) – switch to always make a default confidence interval
-and skip quantile regression forecasting,
+<li><p><strong>quantile_confidence_interval</strong> (<em>bool</em>) – switch to false to skip quantile regression forecasting,
 mostly used for a basecase forecast</p></li>
 </ul>
 </dd>
@@ -272,7 +279,7 @@ Set the value of the forecast ‘quality’ column to ‘substituted’</p>
 <p>Factory object for creating machine learning models</p>
 <dl class="attribute">
 <dt id="openstf.model.model_creator.ModelCreator.MODEL_CONSTRUCTORS">
-<code class="sig-name descname">MODEL_CONSTRUCTORS</code><em class="property"> = {&lt;MLModelType.XGB: 'xgb'&gt;: &lt;class 'openstf.model.regressors.xgb.XGBOpenstfRegressor'&gt;, &lt;MLModelType.LGB: 'lgb'&gt;: &lt;class 'openstf.model.regressors.lgbm.LGBMOpenstfRegressor'&gt;, &lt;MLModelType.XGB_QUANTILE: 'xgb_quantile'&gt;: &lt;class 'openstf.model.regressors.xgb_quantile.XGBQuantileOpenstfRegressor'&gt;}</em><a class="headerlink" href="#openstf.model.model_creator.ModelCreator.MODEL_CONSTRUCTORS" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">MODEL_CONSTRUCTORS</code><em class="property"> = {&lt;MLModelType.XGB: 'xgb'&gt;: &lt;class 'openstf.model.regressors.xgb.XGBOpenstfRegressor'&gt;, &lt;MLModelType.LGB: 'lgb'&gt;: &lt;class 'openstf.model.regressors.lgbm.LGBMOpenstfRegressor'&gt;, &lt;MLModelType.XGB_QUANTILE: 'xgb_quantile'&gt;: &lt;class 'openstf.model.regressors.xgb_quantile.XGBQuantileOpenstfRegressor'&gt;, &lt;MLModelType.ProLoaf: 'proloaf'&gt;: &lt;class 'openstf.model.regressors.proloaf.OpenstfProloafRegressor'&gt;, &lt;MLModelType.LINEAR: 'linear'&gt;: &lt;class 'openstf.model.regressors.linear.LinearOpenstfRegressor'&gt;}</em><a class="headerlink" href="#openstf.model.model_creator.ModelCreator.MODEL_CONSTRUCTORS" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -293,7 +300,7 @@ Set the value of the forecast ‘quality’ column to ‘substituted’</p>
 <dd class="field-odd"><p>model</p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p>RegressorMixin</p>
+<dd class="field-even"><p><a class="reference internal" href="openstf.model.regressors.html#openstf.model.regressors.regressor.OpenstfRegressor" title="openstf.model.regressors.regressor.OpenstfRegressor">OpenstfRegressor</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -329,8 +336,53 @@ with objective specific parameters.</p>
 </dd></dl>
 
 <dl class="class">
+<dt id="openstf.model.objective.LinearRegressorObjective">
+<em class="property">class </em><code class="sig-prename descclassname">openstf.model.objective.</code><code class="sig-name descname">LinearRegressorObjective</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.objective.LinearRegressorObjective" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#openstf.model.objective.RegressorObjective" title="openstf.model.objective.RegressorObjective"><code class="xref py py-class docutils literal notranslate"><span class="pre">openstf.model.objective.RegressorObjective</span></code></a></p>
+<dl class="method">
+<dt id="openstf.model.objective.LinearRegressorObjective.get_params">
+<code class="sig-name descname">get_params</code><span class="sig-paren">(</span><em class="sig-param">trial: optuna.trial._frozen.FrozenTrial</em><span class="sig-paren">)</span> &#x2192; dict<a class="headerlink" href="#openstf.model.objective.LinearRegressorObjective.get_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>get parameters for Linear Regressor Objective
+with objective specific parameters.</p>
+<blockquote>
+<div><p>Args: trial
+Returns:</p>
+<blockquote>
+<div><p>dict: {parameter: hyperparameter_value}</p>
+</div></blockquote>
+</div></blockquote>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="openstf.model.objective.ProLoafRegressorObjective">
+<em class="property">class </em><code class="sig-prename descclassname">openstf.model.objective.</code><code class="sig-name descname">ProLoafRegressorObjective</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.objective.ProLoafRegressorObjective" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#openstf.model.objective.RegressorObjective" title="openstf.model.objective.RegressorObjective"><code class="xref py py-class docutils literal notranslate"><span class="pre">openstf.model.objective.RegressorObjective</span></code></a></p>
+<dl class="method">
+<dt id="openstf.model.objective.ProLoafRegressorObjective.get_params">
+<code class="sig-name descname">get_params</code><span class="sig-paren">(</span><em class="sig-param">trial: optuna.trial._frozen.FrozenTrial</em><span class="sig-paren">)</span> &#x2192; dict<a class="headerlink" href="#openstf.model.objective.ProLoafRegressorObjective.get_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>get parameters for ProLoaf Regressor Objective
+with objective specific parameters.</p>
+<blockquote>
+<div><p>Args: trial</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>dict: {parameter: hyperparameter_value}</p>
+</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="openstf.model.objective.ProLoafRegressorObjective.get_pruning_callback">
+<code class="sig-name descname">get_pruning_callback</code><span class="sig-paren">(</span><em class="sig-param">trial: optuna.trial._frozen.FrozenTrial</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.objective.ProLoafRegressorObjective.get_pruning_callback" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
 <dt id="openstf.model.objective.RegressorObjective">
-<em class="property">class </em><code class="sig-prename descclassname">openstf.model.objective.</code><code class="sig-name descname">RegressorObjective</code><span class="sig-paren">(</span><em class="sig-param">model: openstf.model.regressors.regressor.OpenstfRegressor</em>, <em class="sig-param">input_data: pandas.core.frame.DataFrame</em>, <em class="sig-param">test_fraction=0.1</em>, <em class="sig-param">validation_fraction=0.1</em>, <em class="sig-param">eval_metric='mae'</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.objective.RegressorObjective" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">openstf.model.objective.</code><code class="sig-name descname">RegressorObjective</code><span class="sig-paren">(</span><em class="sig-param">model: openstf.model.regressors.regressor.OpenstfRegressor</em>, <em class="sig-param">input_data: pandas.core.frame.DataFrame</em>, <em class="sig-param">test_fraction=0.15</em>, <em class="sig-param">validation_fraction=0.15</em>, <em class="sig-param">eval_metric='mae'</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.objective.RegressorObjective" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Regressor optuna objective function.</p>
 <p>Use any of the derived classses for optimization using an optuna study.
@@ -358,6 +410,11 @@ study.optimize(objective)</p>
 </dd>
 </dl>
 </dd></dl>
+
+<dl class="method">
+<dt id="openstf.model.objective.RegressorObjective.get_default_values">
+<em class="property">classmethod </em><code class="sig-name descname">get_default_values</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; dict<a class="headerlink" href="#openstf.model.objective.RegressorObjective.get_default_values" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="openstf.model.objective.RegressorObjective.get_params">
@@ -425,6 +482,11 @@ with objective specific parameters.</p>
 <em class="property">class </em><code class="sig-prename descclassname">openstf.model.objective.</code><code class="sig-name descname">XGBRegressorObjective</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#openstf.model.objective.XGBRegressorObjective" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#openstf.model.objective.RegressorObjective" title="openstf.model.objective.RegressorObjective"><code class="xref py py-class docutils literal notranslate"><span class="pre">openstf.model.objective.RegressorObjective</span></code></a></p>
 <dl class="method">
+<dt id="openstf.model.objective.XGBRegressorObjective.get_default_values">
+<em class="property">classmethod </em><code class="sig-name descname">get_default_values</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; dict<a class="headerlink" href="#openstf.model.objective.XGBRegressorObjective.get_default_values" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
 <dt id="openstf.model.objective.XGBRegressorObjective.get_params">
 <code class="sig-name descname">get_params</code><span class="sig-paren">(</span><em class="sig-param">trial: optuna.trial._frozen.FrozenTrial</em><span class="sig-paren">)</span> &#x2192; dict<a class="headerlink" href="#openstf.model.objective.XGBRegressorObjective.get_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>get parameters for XGB Regressor Objective
@@ -454,7 +516,7 @@ with objective specific parameters.</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="attribute">
 <dt id="openstf.model.objective_creator.ObjectiveCreator.OBJECTIVES">
-<code class="sig-name descname">OBJECTIVES</code><em class="property"> = {&lt;MLModelType.XGB: 'xgb'&gt;: &lt;class 'openstf.model.objective.XGBRegressorObjective'&gt;, &lt;MLModelType.LGB: 'lgb'&gt;: &lt;class 'openstf.model.objective.LGBRegressorObjective'&gt;, &lt;MLModelType.XGB_QUANTILE: 'xgb_quantile'&gt;: &lt;class 'openstf.model.objective.XGBQuantileRegressorObjective'&gt;}</em><a class="headerlink" href="#openstf.model.objective_creator.ObjectiveCreator.OBJECTIVES" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">OBJECTIVES</code><em class="property"> = {&lt;MLModelType.XGB: 'xgb'&gt;: &lt;class 'openstf.model.objective.XGBRegressorObjective'&gt;, &lt;MLModelType.LGB: 'lgb'&gt;: &lt;class 'openstf.model.objective.LGBRegressorObjective'&gt;, &lt;MLModelType.XGB_QUANTILE: 'xgb_quantile'&gt;: &lt;class 'openstf.model.objective.XGBQuantileRegressorObjective'&gt;, &lt;MLModelType.ProLoaf: 'proloaf'&gt;: &lt;class 'openstf.model.objective.ProLoafRegressorObjective'&gt;, &lt;MLModelType.LINEAR: 'linear'&gt;: &lt;class 'openstf.model.objective.LinearRegressorObjective'&gt;}</em><a class="headerlink" href="#openstf.model.objective_creator.ObjectiveCreator.OBJECTIVES" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">

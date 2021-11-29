@@ -6,6 +6,7 @@ Subpackages
 
 .. toctree::
 
+   openstf.model.metamodels
    openstf.model.regressors
 
 Submodules

@@ -28,6 +28,14 @@ openstf.feature\_engineering.general module
    :undoc-members:
    :show-inheritance:
 
+openstf.feature\_engineering.historic\_features module
+------------------------------------------------------
+
+.. automodule:: openstf.feature_engineering.historic_features
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 openstf.feature\_engineering.holiday\_features module
 -----------------------------------------------------
 

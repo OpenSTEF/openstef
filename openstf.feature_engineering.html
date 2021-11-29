@@ -40,6 +40,7 @@
 <li><a class="reference internal" href="#module-openstf.feature_engineering.apply_features">openstf.feature_engineering.apply_features module</a></li>
 <li><a class="reference internal" href="#module-openstf.feature_engineering.feature_applicator">openstf.feature_engineering.feature_applicator module</a></li>
 <li><a class="reference internal" href="#module-openstf.feature_engineering.general">openstf.feature_engineering.general module</a></li>
+<li><a class="reference internal" href="#module-openstf.feature_engineering.historic_features">openstf.feature_engineering.historic_features module</a></li>
 <li><a class="reference internal" href="#module-openstf.feature_engineering.holiday_features">openstf.feature_engineering.holiday_features module</a></li>
 <li><a class="reference internal" href="#module-openstf.feature_engineering.lag_features">openstf.feature_engineering.lag_features module</a></li>
 <li><a class="reference internal" href="#module-openstf.feature_engineering.weather_features">openstf.feature_engineering.weather_features module</a></li>
@@ -90,7 +91,7 @@ The normalised wind power according to the turbine-specific power curve</p>
 </div></blockquote>
 <dl class="function">
 <dt id="openstf.feature_engineering.apply_features.apply_features">
-<code class="sig-prename descclassname">openstf.feature_engineering.apply_features.</code><code class="sig-name descname">apply_features</code><span class="sig-paren">(</span><em class="sig-param">data: pandas.core.frame.DataFrame</em>, <em class="sig-param">feature_names: List[str] = None</em>, <em class="sig-param">horizon: float = 24.0</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstf.feature_engineering.apply_features.apply_features" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstf.feature_engineering.apply_features.</code><code class="sig-name descname">apply_features</code><span class="sig-paren">(</span><em class="sig-param">data: pandas.core.frame.DataFrame</em>, <em class="sig-param">pj: openstf_dbc.services.prediction_job.PredictionJobDataClass = None</em>, <em class="sig-param">feature_names: List[str] = None</em>, <em class="sig-param">horizon: float = 24.0</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstf.feature_engineering.apply_features.apply_features" title="Permalink to this definition">¶</a></dt>
 <dd><dl>
 <dt>This script applies the feature functions defined in</dt><dd><p>feature_functions.py and returns the complete dataframe. Features requiring
 more recent label-data are omitted.</p>
@@ -110,6 +111,7 @@ columns=[label, predictor_1,…, predictor_n]</p>
 </div></blockquote>
 <p>)</p>
 </p></li>
+<li><p><strong>pj</strong> (<em>PredictionJobDataClass</em>) – Prediction job.</p></li>
 <li><p><strong>feature_names</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – list of reuqested features</p></li>
 <li><p><strong>horizon</strong> (<em>float</em>) – Forecast horizon limit in hours.</p></li>
 </ul>
@@ -144,11 +146,14 @@ np.random.uniform(0.7,1.7, 200)))</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
 <dl class="method">
 <dt id="openstf.feature_engineering.feature_applicator.AbstractFeatureApplicator.add_features">
-<em class="property">abstract </em><code class="sig-name descname">add_features</code><span class="sig-paren">(</span><em class="sig-param">df: pandas.core.frame.DataFrame</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstf.feature_engineering.feature_applicator.AbstractFeatureApplicator.add_features" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract </em><code class="sig-name descname">add_features</code><span class="sig-paren">(</span><em class="sig-param">df: pandas.core.frame.DataFrame</em>, <em class="sig-param">pj: openstf_dbc.services.prediction_job.PredictionJobDataClass</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstf.feature_engineering.feature_applicator.AbstractFeatureApplicator.add_features" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds features to an input DataFrame</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>df</strong> – pd.DataFrame with input data to which the features have to be added</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> – pd.DataFrame with input data to which the features have to be added</p></li>
+<li><p><strong>pj</strong> (<em>PredictionJobDataClass</em>) – Prediction job.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -188,7 +193,7 @@ np.random.uniform(0.7,1.7, 200)))</p>
 <dd><p>Bases: <a class="reference internal" href="#openstf.feature_engineering.feature_applicator.AbstractFeatureApplicator" title="openstf.feature_engineering.feature_applicator.AbstractFeatureApplicator"><code class="xref py py-class docutils literal notranslate"><span class="pre">openstf.feature_engineering.feature_applicator.AbstractFeatureApplicator</span></code></a></p>
 <dl class="method">
 <dt id="openstf.feature_engineering.feature_applicator.TrainFeatureApplicator.add_features">
-<code class="sig-name descname">add_features</code><span class="sig-paren">(</span><em class="sig-param">df: pandas.core.frame.DataFrame</em>, <em class="sig-param">latency_config=None</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstf.feature_engineering.feature_applicator.TrainFeatureApplicator.add_features" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_features</code><span class="sig-paren">(</span><em class="sig-param">df: pandas.core.frame.DataFrame</em>, <em class="sig-param">pj: openstf_dbc.services.prediction_job.PredictionJobDataClass = None</em>, <em class="sig-param">latency_config=None</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstf.feature_engineering.feature_applicator.TrainFeatureApplicator.add_features" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds features to an input DataFrame.</p>
 <p>This method is implemented specifically for a model train pipeline. For larger
 horzions data is invalidated as when they are not available.</p>
@@ -202,6 +207,7 @@ horzions data is invalidated as when they are not available.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>df</strong> (<em>pd.DataFrame</em>) – Input data to which the features will be added.</p></li>
+<li><p><strong>pj</strong> (<em>PredictionJobDataClass</em>) – Prediction job.</p></li>
 <li><p><strong>latency_config</strong> (<em>dict</em>) – Optional. Invalidate certain features that are not
 available for a specific horizon due to data latency. Default to
 {“APX”: 24}</p></li>
@@ -290,6 +296,27 @@ Furthermore the “horizon” is moved to the last position if it is pressent.</
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-openstf.feature_engineering.historic_features">
+<span id="openstf-feature-engineering-historic-features-module"></span><h2>openstf.feature_engineering.historic_features module<a class="headerlink" href="#module-openstf.feature_engineering.historic_features" title="Permalink to this headline">¶</a></h2>
+<p>This module contains historic load related functions used for feature engineering.</p>
+<dl class="function">
+<dt id="openstf.feature_engineering.historic_features.add_historic_load_as_a_feature">
+<code class="sig-prename descclassname">openstf.feature_engineering.historic_features.</code><code class="sig-name descname">add_historic_load_as_a_feature</code><span class="sig-paren">(</span><em class="sig-param">data: pandas.core.frame.DataFrame</em>, <em class="sig-param">pj: openstf_dbc.services.prediction_job.PredictionJobDataClass = None</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstf.feature_engineering.historic_features.add_historic_load_as_a_feature" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds additional proloaf features to the input data, historic_load (equal to the load)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>pd.DataFrame</em>) – Dataframe to which the wind features have to be added</p></li>
+<li><p><strong>pj</strong> (<em>PredictionJobDataClass</em>) – Prediction job.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>pd.DataFrame same as input dataframe with extra columns for the added proloaf features</p>
 </dd>
 </dl>
 </dd></dl>

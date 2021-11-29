@@ -12,6 +12,22 @@ openstf.model.regressors.lgbm module
    :undoc-members:
    :show-inheritance:
 
+openstf.model.regressors.linear module
+--------------------------------------
+
+.. automodule:: openstf.model.regressors.linear
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+openstf.model.regressors.proloaf module
+---------------------------------------
+
+.. automodule:: openstf.model.regressors.proloaf
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 openstf.model.regressors.regressor module
 -----------------------------------------
 
