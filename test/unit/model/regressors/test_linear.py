@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+from datetime import datetime
 import unittest
 
 import numpy as np
@@ -8,7 +9,8 @@ import pandas as pd
 import sklearn
 from sklearn.utils.estimator_checks import check_estimator
 
-from openstf.model.regressors.linear import LinearOpenstfRegressor
+from openstf.model.regressors.linear import LinearOpenstfRegressor, LinearRegressor
+from openstf.model.metamodels.grouped_regressor import GroupedRegressor
 from test.unit.utils.base import BaseTestCase
 from test.unit.utils.data import TestData
 
@@ -102,3 +104,41 @@ class TestLinearOpenstfRegressor(BaseTestCase):
         # check the retrieval of feature importance
         self.assertTrue((feature_importance_linear == feature_importance_model).all())
         self.assertTrue((feature_importance_null == 0).all())
+
+    def test_grouped_regressor(self):
+        model = GroupedRegressor(LinearRegressor(), group_columns=["time"])
+        model_parallel = GroupedRegressor(
+            LinearRegressor(), group_columns=["time"], n_jobs=4
+        )
+        model_without_group = GroupedRegressor(LinearRegressor(), group_columns=[])
+
+        train_with_time = self.train_input.copy(deep=True)
+        train_with_time["time"] = train_with_time.index.time
+
+        # test handling of group columns
+        with self.assertRaises(ValueError):
+            model_without_group.fit(
+                train_with_time.iloc[:, 1:], train_with_time.iloc[:, 0]
+            )
+
+        with self.assertRaises(ValueError):
+            model.fit(self.train_input.iloc[:, 1:], self.train_input.iloc[:, 0])
+
+        # test fitting metamodel
+        model.fit(train_with_time.iloc[:, 1:], train_with_time.iloc[:, 0])
+        self.assertIsNone(sklearn.utils.validation.check_is_fitted(model))
+
+        # test parallel fitting
+        model_parallel.fit(train_with_time.iloc[:, 1:], train_with_time.iloc[:, 0])
+        self.assertIsNone(sklearn.utils.validation.check_is_fitted(model_parallel))
+
+        # test prediction
+        res = model.predict(train_with_time.iloc[:, 1:])
+        group = train_with_time.iloc[:, -1]
+        for k, estimator in model.estimators_.items():
+            self.assertTrue(
+                (
+                    res[group == k]
+                    == estimator.predict(train_with_time.loc[group == k].iloc[:, 1:-1])
+                ).all()
+            )
