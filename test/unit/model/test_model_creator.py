@@ -4,6 +4,8 @@
 
 from unittest import TestCase
 
+from test.utils.data import TestData
+
 from openstf.enums import MLModelType
 from openstf.model.model_creator import ModelCreator
 from openstf.model.regressors.regressor_interface import OpenstfRegressorInterface
@@ -32,6 +34,5 @@ class TestModelCreator(TestCase):
     def test_create_model_unknown_model(self):
         # Test if NotImplementedError is raised when model type is unknown
         model_type = "Unknown"
-
         with self.assertRaises(NotImplementedError):
             ModelCreator.create_model(model_type)
