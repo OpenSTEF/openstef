@@ -29,7 +29,7 @@ from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
 
 MAX_AGE_HYPER_PARAMS_DAYS = 31
-DEFAULT_TRAINING_PERIOD_DAYS = 91
+DEFAULT_TRAINING_PERIOD_DAYS = 121
 
 
 def optimize_hyperparameters_task(

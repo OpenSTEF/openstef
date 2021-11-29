@@ -6,6 +6,7 @@ from typing import Union
 
 from openstf.enums import MLModelType
 from openstf.model.objective import (
+    LinearRegressorObjective,
     LGBRegressorObjective,
     RegressorObjective,
     XGBQuantileRegressorObjective,
@@ -18,6 +19,7 @@ class ObjectiveCreator:
         MLModelType.XGB: XGBRegressorObjective,
         MLModelType.LGB: LGBRegressorObjective,
         MLModelType.XGB_QUANTILE: XGBQuantileRegressorObjective,
+        MLModelType.LINEAR: LinearRegressorObjective,
     }
 
     @staticmethod
