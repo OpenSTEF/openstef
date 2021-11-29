@@ -2,16 +2,24 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 from typing import Union
+import structlog
 
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 from openstf.enums import MLModelType
 from openstf.model.regressors.lgbm import LGBMOpenstfRegressor
-from openstf.model.regressors.proloaf import OpenstfProloafRegressor
+
 from openstf.model.regressors.regressor import OpenstfRegressor
 from openstf.model.regressors.xgb import XGBOpenstfRegressor
 from openstf.model.regressors.xgb_quantile import XGBQuantileOpenstfRegressor
 from openstf.model.regressors.linear import LinearOpenstfRegressor
+
+logger = structlog.get_logger(__name__)
+try:
+    from openstf.model.regressors.proloaf import OpenstfProloafRegressor
+except ImportError:
+    logger.warning("Proloaf not available, switching to xgboost!")
+    OpenstfProloafRegressor = XGBOpenstfRegressor
 
 valid_model_kwargs = {
     MLModelType.XGB: [
