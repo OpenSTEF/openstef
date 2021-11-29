@@ -8,7 +8,7 @@ import torch
 import proloaf.datahandler as dh
 from openstf.model.regressors.regressor import OpenstfRegressor
 from proloaf.modelhandler import ModelWrapper
-from typing import List, Dict, Any, Tuple
+from typing import List, Dict, Any, Tuple, Union
 from torch.utils.tensorboard import SummaryWriter
 
 # TODO: implement the hyperparameter optimalisation via optuna
@@ -115,8 +115,8 @@ class OpenstfProloafRegressor(OpenstfRegressor, ModelWrapper):
         early_stopping_patience: int = 7,
         early_stopping_margin: float = 0,
         learning_rate: float = 1e-3,
-        max_epochs: int = 50,
-        device: str = "cpu",
+        max_epochs: int = 100,
+        device: Union[str, int] = "cpu",  # "cuda" or "cpu"
         batch_size: int = 6,
         history_horizon: int = 24,
         horizon_minutes: int = 2880,  # 2 days in minutes,
@@ -145,6 +145,7 @@ class OpenstfProloafRegressor(OpenstfRegressor, ModelWrapper):
             learning_rate=learning_rate,
             max_epochs=max_epochs,
         )
+        self.to(device)
 
     @property
     def feature_names(self):
