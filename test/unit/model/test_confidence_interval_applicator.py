@@ -11,18 +11,17 @@ from openstf.model.confidence_interval_applicator import ConfidenceIntervalAppli
 
 
 class MockModel:
+    """Mock model is created as input model for confidence_interval_applicator.
+    Confidence_interval_applicator requires model to have confidence interval,
+     standard deviation and predict method to test all methods."""
+
     confidence_interval = pd.DataFrame()
+
     standard_deviation = pd.DataFrame(
         {
-            "stdev": [
-                1.1089453301,
-                2.9508361224,
-                1.6705985526,
-                1.9371298645,
-                3.2265538352,
-            ],
+            "stdev": [1.1, 2.9, 1.6, 1.9, 3.2],
             "hour": [0, 1, 2, 3, 4],
-            "horizon": [47, 47, 47, 47, 47],
+            "horizon": [5, 5, 5, 5, 5],
         }
     )
 
@@ -79,23 +78,20 @@ class TestConfidenceIntervalApplicator(TestCase):
             pd.Timestamp(2012, 5, 1, 1, 45),
             pd.Timestamp(2012, 5, 1, 2, 00),
         ]
-        stdev_forecast = self.stdev_forecast
         actual_stdev_forecast = ConfidenceIntervalApplicator(
-            MockModel(), stdev_forecast
+            MockModel(), self.stdev_forecast
         )._add_standard_deviation_to_forecast(forecast)
         self.assertTrue("stdev" in actual_stdev_forecast.columns)
-        self.assertEqual(actual_stdev_forecast["stdev"][0], 2.9508361224)
-        self.assertEqual(actual_stdev_forecast["stdev"][1], 2.9508361224)
-        self.assertEqual(actual_stdev_forecast["stdev"][2], 1.6705985526)
+        self.assertEqual(actual_stdev_forecast["stdev"][0], 2.9)
+        self.assertEqual(actual_stdev_forecast["stdev"][1], 2.9)
+        self.assertEqual(actual_stdev_forecast["stdev"][2], 1.6)
 
     def test_add_quantiles_to_forecast(self):
-        stdev_forecast = self.stdev_forecast
-
         pj = {"quantiles": self.quantiles}
         pp_forecast = ConfidenceIntervalApplicator(
-            MockModel(), stdev_forecast
+            MockModel(), self.stdev_forecast
         )._add_quantiles_to_forecast_quantile_regression(
-            stdev_forecast, pj["quantiles"]
+            self.stdev_forecast, pj["quantiles"]
         )
 
         expected_new_columns = [
@@ -106,12 +102,11 @@ class TestConfidenceIntervalApplicator(TestCase):
             self.assertTrue(expected_column in pp_forecast.columns)
 
     def test_add_quantiles_to_forecast_default(self):
-        stdev_forecast = self.stdev_forecast
         pj = {"quantiles": self.quantiles}
 
         pp_forecast = ConfidenceIntervalApplicator(
             MockModel(), "TEST"
-        )._add_quantiles_to_forecast_default(stdev_forecast, pj["quantiles"])
+        )._add_quantiles_to_forecast_default(self.stdev_forecast, pj["quantiles"])
 
         expected_new_columns = [
             f"quantile_P{int(q * 100):02d}" for q in pj["quantiles"]
