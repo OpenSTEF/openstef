@@ -11,6 +11,7 @@ from openstf.model.regressors.proloaf import OpenstfProloafRegressor
 from openstf.model.regressors.regressor import OpenstfRegressor
 from openstf.model.regressors.xgb import XGBOpenstfRegressor
 from openstf.model.regressors.xgb_quantile import XGBQuantileOpenstfRegressor
+from openstf.model.regressors.linear import LinearOpenstfRegressor
 
 valid_model_kwargs = {
     MLModelType.XGB: [
@@ -93,6 +94,11 @@ valid_model_kwargs = {
         "history_horizon",
         "horizon_minutes",
     ],
+    MLModelType.LINEAR: [
+        "missing_values",
+        "imputation_strategy",
+        "fill_value",
+    ],
 }
 
 
@@ -105,6 +111,7 @@ class ModelCreator:
         MLModelType.LGB: LGBMOpenstfRegressor,
         MLModelType.XGB_QUANTILE: XGBQuantileOpenstfRegressor,
         MLModelType.ProLoaf: OpenstfProloafRegressor,
+        MLModelType.LINEAR: LinearOpenstfRegressor,
     }
 
     @staticmethod

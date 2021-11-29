@@ -11,6 +11,7 @@ from openstf.model.objective import (
     LGBRegressorObjective,
     XGBQuantileRegressorObjective,
     ProLoafRegressorObjective,
+    LinearRegressorObjective,
 )
 
 
@@ -20,6 +21,7 @@ class ObjectiveCreator:
         MLModelType.LGB: LGBRegressorObjective,
         MLModelType.XGB_QUANTILE: XGBQuantileRegressorObjective,
         MLModelType.ProLoaf: ProLoafRegressorObjective,
+        MLModelType.LINEAR: LinearRegressorObjective,
     }
 
     @staticmethod

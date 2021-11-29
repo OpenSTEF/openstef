@@ -78,8 +78,13 @@ class TestTrainModelPipeline(BaseTestCase):
 
                 train_input = self.train_input
 
+                # Use default parameters
                 self.modelspecs.hyper_params = {}
                 self.modelspecs.hyper_params["max_epochs"] = 1
+
+                # For Linear model we need to choose an imputation strategy to handle missing value
+                if model_type == MLModelType.LINEAR:
+                    self.modelspecs.hyper_params["imputation_strategy"] = "mean"
 
                 model, report, modelspecs = train_model_pipeline_core(
                     pj=pj, modelspecs=self.modelspecs, input_data=train_input

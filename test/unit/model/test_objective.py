@@ -13,6 +13,7 @@ from openstf.model.objective import (
     LGBRegressorObjective,
     XGBQuantileRegressorObjective,
     ProLoafRegressorObjective,
+    LinearRegressorObjective,
 )
 from test.utils import BaseTestCase, TestData
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
@@ -111,7 +112,6 @@ class TestXGBQRegressorObjective(BaseTestCase):
         self.assertIsInstance(objective, XGBQuantileRegressorObjective)
         self.assertEqual(len(study.trials), N_TRIALS)
 
-
 class TestProLoafRegressorObjective(BaseTestCase):
     def test_call(self):
         input_data = TestData.load("reference_sets/307-train-data.csv")
@@ -132,12 +132,29 @@ class TestProLoafRegressorObjective(BaseTestCase):
             pruner=optuna.pruners.MedianPruner(n_warmup_steps=5),
             direction="minimize",
         )
-
         study.optimize(objective, n_trials=1)
 
         self.assertIsInstance(objective, ProLoafRegressorObjective)
         self.assertEqual(len(study.trials), 1)
 
+class TestLinearRegressorObjective(BaseTestCase):
+    def test_call(self):
+        model_type = "linear"
+        model = ModelCreator.create_model(model_type)
+
+        objective = LinearRegressorObjective(
+            model,
+            input_data_with_features,
+        )
+        study = optuna.create_study(
+            study_name=model_type,
+            pruner=optuna.pruners.MedianPruner(n_warmup_steps=5),
+            direction="minimize",
+        )
+        study.optimize(objective, n_trials=N_TRIALS)
+
+        self.assertIsInstance(objective, LinearRegressorObjective)
+        self.assertEqual(len(study.trials), N_TRIALS)
 
 class ColumnOrderTest(BaseTestCase):
     def test_call(self):

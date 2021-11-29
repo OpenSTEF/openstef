@@ -10,7 +10,7 @@ class MLModelType(Enum):
     XGB_QUANTILE = "xgb_quantile"
     LGB = "lgb"
     ProLoaf = "proloaf"
-
+    LINEAR = "linear"
 
 class ForecastType(Enum):
     DEMAND = "demand"
