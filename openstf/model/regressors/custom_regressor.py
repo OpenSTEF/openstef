@@ -7,8 +7,8 @@ from abc import abstractmethod
 from importlib import import_module
 import pandas as pd
 import inspect
-from .regressor import OpenstfRegressor
-from ..objective import (
+from openstf.model.regressors.regressor import OpenstfRegressor
+from openstf.model.objective import (
     RegressorObjective,
     TEST_FRACTION,
     VALIDATION_FRACTION,
@@ -29,10 +29,10 @@ class CustomOpenstfRegressor(OpenstfRegressor):
 
 
 def load_custom_model(custom_model_path) -> CustomOpenstfRegressor:
-    path_elts = custom_model_path.split(".")
-    module_path = ".".join(path_elts[:-1])
+    path_elements = custom_model_path.split(".")
+    module_path = ".".join(path_elements[:-1])
     module = import_module(module_path)
-    model_name = path_elts[-1]
+    model_name = path_elements[-1]
     model_class = getattr(module, model_name)
 
     if (
