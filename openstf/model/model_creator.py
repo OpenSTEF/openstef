@@ -102,19 +102,20 @@ class ModelCreator:
         try:
             # This will raise a ValueError when an invalid model_type str is used
             # and nothing when a MLModelType enum is used.
-            model_type = MLModelType(model_type)
-            model_class = ModelCreator.MODEL_CONSTRUCTORS[model_type]
-            valid_kwargs = valid_model_kwargs[model_type]
-        except ValueError as e:
             if is_custom_type(model_type):
                 model_class = load_custom_model(model_type)
                 valid_kwargs = model_class.valid_kwargs()
             else:
-                valid_types = [t.value for t in MLModelType]
-                raise NotImplementedError(
-                    f"No constructor for '{model_type}', "
-                    f"valid model_types are: {valid_types}"
-                ) from e
+                model_type = MLModelType(model_type)
+                model_class = ModelCreator.MODEL_CONSTRUCTORS[model_type]
+                valid_kwargs = valid_model_kwargs[model_type]
+        except ValueError as e:
+            valid_types = [t.value for t in MLModelType]
+            raise NotImplementedError(
+                f"No constructor for '{model_type}', "
+                f"valid model_types are: {valid_types}"
+                f"or import a custom model"
+            ) from e
 
         # only pass relevant arguments to model constructor to prevent warnings
         model_kwargs = {

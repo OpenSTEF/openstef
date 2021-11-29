@@ -37,16 +37,17 @@ class ObjectiveCreator:
         try:
             # This will raise a ValueError when an invalid model_type str is used
             # and nothing when a MLModelType enum is used.
-            model_type = MLModelType(model_type)
-            objective = ObjectiveCreator.OBJECTIVES[model_type]
-        except ValueError as e:
             if is_custom_type(model_type):
                 objective = create_custom_objective
             else:
-                valid_types = [t.value for t in MLModelType]
-                raise NotImplementedError(
-                    f"No objective for '{model_type}', "
-                    f"valid model_types are: {valid_types}"
-                ) from e
+                model_type = MLModelType(model_type)
+                objective = ObjectiveCreator.OBJECTIVES[model_type]
+        except ValueError as e:
+            valid_types = [t.value for t in MLModelType]
+            raise NotImplementedError(
+                f"No objective for '{model_type}', "
+                f"valid model_types are: {valid_types}"
+                f"or import a custom model"
+            ) from e
 
         return objective
