@@ -114,7 +114,7 @@ class TestXGBQRegressorObjective(BaseTestCase):
 
 
 class TestProLoafRegressorObjective(BaseTestCase):
-    @unittest.skip # Skip as this cannot always succeed due to neural network libraries being optional
+    @unittest.skip  # Skip as this cannot always succeed due to neural network libraries being optional
     def test_call(self):
         input_data = TestData.load("reference_sets/307-train-data.csv")
         pj = {"model": "proloaf"}
