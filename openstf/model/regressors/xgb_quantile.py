@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 from functools import partial
@@ -196,3 +196,7 @@ class XGBQuantileOpenstfRegressor(OpenstfRegressor):
         if total == 0:
             return features_importance_array
         return features_importance_array / total  # Normalize
+
+    @property
+    def feature_names(self):
+        return self._Booster.feature_names

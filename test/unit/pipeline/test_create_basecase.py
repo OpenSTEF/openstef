@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 from datetime import datetime, timedelta
@@ -14,7 +14,7 @@ class TestBaseCaseForecast(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
         # Generic prep for test
-        pj = TestData.get_prediction_job(pid=307)
+        self.PJ = TestData.get_prediction_job(pid=307)
         forecast_input = TestData.load("reference_sets/307-test-data.csv")
         # Set last 7 days to nan, just like operationally
         forecast_input.loc[
@@ -28,9 +28,7 @@ class TestBaseCaseForecast(BaseTestCase):
         forecast_input = forecast_input.shift(
             freq="T", periods=int(int(offset_seconds / 60.0 / 15.0) * 15)
         )
-        pj["model_type_group"] = "default"
 
-        self.PJ = pj
         self.forecast_input = forecast_input
 
     def test_basecase_pipeline_happy_flow(self):

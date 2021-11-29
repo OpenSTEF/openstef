@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -31,7 +31,6 @@ Attributes:
 """
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Union
 
 import structlog
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
@@ -47,14 +46,12 @@ T_BEHIND_DAYS = 0
 T_AHEAD_DAYS = 3
 
 
-def create_components_forecast_task(
-    pj: Union[dict, PredictionJobDataClass], context: TaskContext
-):
+def create_components_forecast_task(pj: PredictionJobDataClass, context: TaskContext):
     """Top level task that creates a components forecast.
     On this task level all database and context manager dependencies are resolved.
 
     Args:
-        pj (Union[dict, PredictionJobDataClass]): Prediction job
+        pj (PredictionJobDataClass): Prediction job
         context (TaskContext): Contect object that holds a config manager and a database connection
     """
     logger = structlog.get_logger(__name__)

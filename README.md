@@ -1,5 +1,5 @@
 <!--
-SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com>
+SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com>
 
 SPDX-License-Identifier: MPL-2.0
 -->
@@ -40,7 +40,7 @@ python -m openstf task <task_name>
 ```
 
 ## Reference Implementation
-A complete implementation including databases, user interface, example data, etc. is available at: https://github.com/alliander-opensource/openstf-reference
+A complete implementation including databases, user interface, example data, etc. is available at: https://github.com/OpenSTEF/openstef-reference
 ![image](https://user-images.githubusercontent.com/18208480/127109029-77e09c97-8d06-4158-8789-4c1d5ecede61.png)
 
 ## License
@@ -50,9 +50,7 @@ This project is licensed under the Mozilla Public License, version 2.0 - see LIC
 This project includes third-party libraries, which are licensed under their own respective Open-Source licenses. SPDX-License-Identifier headers are used to show which license is applicable. The concerning license files can be found in the LICENSES directory.
 
 ## Contributing
-
 Please read [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) and [CONTRIBUTING.md](CONTRIBUTING.md) for details on the process for submitting pull requests to us.
 
 ## Contact
-
 N.V. Alliander - Team Korte Termijn Prognoses (Short Term Forecasting) <korte.termijn.prognoses@alliander.com>

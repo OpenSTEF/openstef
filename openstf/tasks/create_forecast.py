@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -29,7 +29,6 @@ Attributes:
 """
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Union
 
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
@@ -39,21 +38,19 @@ from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
 
 T_BEHIND_DAYS: int = 14
-T_AHEAD_DAYS: int = 3
+T_AHEAD_DAYS: int = 2
 
 
-def create_forecast_task(
-    pj: Union[dict, PredictionJobDataClass], context: TaskContext
-) -> None:
+def create_forecast_task(pj: PredictionJobDataClass, context: TaskContext) -> None:
     """Top level task that creates a forecast.
 
     On this task level all database and context manager dependencies are resolved.
 
     Expected prediction job keys: "id", "lat", "lon", "resolution_minutes",
-        "horizon_minutes", "type", "name", "model_type_group", "quantiles"
+        "horizon_minutes", "type", "name", "quantiles"
 
     Args:
-        pj (Union[dict, PredictionJobDataClass]): Prediction job
+        pj (PredictionJobDataClass): Prediction job
         context (TaskContext): Contect object that holds a config manager and a database connection
     """
     # Extract trained models folder

@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 import unittest
@@ -111,6 +111,14 @@ class TestXgbQuantile(BaseTestCase):
                 model.get_feature_importances_from_booster(MockBooster())
                 == np.array([0.16901408, 0.32394367, 0.5070422], dtype=np.float32)
             ).all()
+        )
+
+    def test_feature_names_property(self):
+        model = XGBQuantileOpenstfRegressor((0.2, 0.3, 0.5, 0.6, 0.7))
+        model._Booster = MockBooster()
+        features_names = model.feature_names
+        np.testing.assert_array_equal(
+            features_names, MockBooster.feature_names, "Feature names are not equal"
         )
 
     def test_importance_names(self):

@@ -1,9 +1,10 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 import numpy as np
 import pandas as pd
 from sklearn.base import RegressorMixin
+from openstf.model.regressors.proloaf import OpenstfProloafRegressor
 
 
 class StandardDeviationGenerator:
@@ -21,7 +22,6 @@ class StandardDeviationGenerator:
         for horizon in self.validation_data.horizon.unique():
             # Make subset for this specific horizon
             sub_val = self.validation_data[self.validation_data.horizon == horizon]
-
             try:
                 predicted = model.predict(sub_val.iloc[:, 1:-1])
             except Exception as e:

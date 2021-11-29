@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 from pathlib import Path
@@ -9,6 +9,7 @@ import pandas as pd
 import structlog
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
+from openstf.data_classes.model_specifications import ModelSpecificationDataClass
 from openstf.exceptions import (
     InputDataInsufficientError,
     InputDataWrongColumnOrderError,
@@ -21,7 +22,7 @@ from openstf.model.objective_creator import ObjectiveCreator
 # This is required to disable the default optuna logger and pass the logs to our own
 # structlog logger
 from openstf.model.regressors.regressor import OpenstfRegressor
-from openstf.model.serializer import PersistentStorageSerializer
+from openstf.model.serializer import MLflowSerializer
 from openstf.validation import validation
 
 optuna.logging.enable_propagation()  # Propagate logs to the root logger.
@@ -38,7 +39,7 @@ VALIDATION_FRACTION: float = 0.1
 
 
 def optimize_hyperparameters_pipeline(
-    pj: Union[dict, PredictionJobDataClass],
+    pj: PredictionJobDataClass,
     input_data: pd.DataFrame,
     trained_models_folder: Union[str, Path],
     horizons: List[float] = TRAIN_HORIZONS,
@@ -49,7 +50,7 @@ def optimize_hyperparameters_pipeline(
     Expected prediction job key's: "name", "model"
 
     Args:
-        pj (Union[dict, PredictionJobDataClass]): Prediction job
+        pj (PredictionJobDataClass): Prediction job
         input_data (pd.DataFrame): Raw training input data
         trained_models_folder (Path): Path where trained models are stored
         horizons (List[float]): horizons for feature engineering.
@@ -78,21 +79,30 @@ def optimize_hyperparameters_pipeline(
             f"after validation and cleaning"
         )
 
-    input_data_with_features = TrainFeatureApplicator(horizons=horizons).add_features(
-        input_data
-    )
+    validated_data_with_features = TrainFeatureApplicator(
+        horizons=horizons
+    ).add_features(validated_data, pj=pj)
+
+    # Adds additional proloaf features to the input data, historic_load (equal to the load)
+    if pj["model"] == "proloaf" and "historic_load" not in list(
+        validated_data_with_features.columns
+    ):
+        validated_data_with_features[
+            "historic_load"
+        ] = validated_data_with_features.iloc[:, 0]
+        # Make sure horizons is last column
+        temp_cols = validated_data_with_features.columns.tolist()
+        new_cols = temp_cols[:-2] + [temp_cols[-1]] + [temp_cols[-2]]
+        validated_data_with_features = validated_data_with_features[new_cols]
 
     # Create serializer
-    serializer = PersistentStorageSerializer(trained_models_folder)
-    # Start MLflow
-    serializer.setup_mlflow(pj["id"])
+    serializer = MLflowSerializer(trained_models_folder)
 
     # Create objective (NOTE: this is a callable class)
     objective = ObjectiveCreator.create_objective(model_type=pj["model"])
 
-
-    model, study, objective = optuna_optimization(
-        pj, objective, input_data_with_features, n_trials
+    study, objective = optuna_optimization(
+        pj, objective, validated_data_with_features, n_trials
     )
 
     logger.info(
@@ -100,12 +110,17 @@ def optimize_hyperparameters_pipeline(
         f"and params {study.best_params}"
     )
 
+    # model specification
+    modelspecs = ModelSpecificationDataClass(id=pj["id"])
+    # model data columns
+    modelspecs.feature_names = list(validated_data_with_features.columns)
+
     # Save model
     serializer.save_model(
-        model,
+        study.user_attrs["best_model"],
         pj=pj,
-        # In objective we have the data, thus we create the report there
-        report=objective.create_report(model=model),
+        modelspecs=modelspecs,
+        report=objective.create_report(model=study.user_attrs["best_model"]),
         phase="Hyperparameter_opt",
         trials=objective.get_trial_track(),
         trial_number=study.best_trial.number,
@@ -115,17 +130,17 @@ def optimize_hyperparameters_pipeline(
 
 
 def optuna_optimization(
-    pj: Union[PredictionJobDataClass, dict],
+    pj: PredictionJobDataClass,
     objective: RegressorObjective,
-    input_data_with_features: pd.DataFrame,
+    validated_data_with_features: pd.DataFrame,
     n_trials: int,
-) -> Tuple[OpenstfRegressor, optuna.study.Study, RegressorObjective]:
+) -> Tuple[optuna.study.Study, RegressorObjective]:
     """Perform hyperparameter optimization with optuna
 
     Args:
         pj: Prediction job
         objective: Objective function for optuna
-        input_data_with_features: cleaned input dataframe
+        validated_data_with_features: cleaned input dataframe
         n_trials: number of optuna trials
 
     Returns:
@@ -134,11 +149,11 @@ def optuna_optimization(
         objective : The objective object used by optuna
 
     """
-    model = ModelCreator.create_model(pj)
+    model = ModelCreator.create_model(pj["model"])
 
     objective = objective(
         model,
-        input_data_with_features,
+        validated_data_with_features,
     )
 
     study = optuna.create_study(
@@ -152,25 +167,28 @@ def optuna_optimization(
     study.optimize(
         objective,
         n_trials=n_trials,
-        callbacks=[_log_study_progress],
+        callbacks=[_log_study_progress_and_save_best_model],
         show_progress_bar=False,
         timeout=TIMEOUT,
     )
 
-    return model, study, objective
+    return study, objective
 
 
-def _log_study_progress(
+def _log_study_progress_and_save_best_model(
     study: optuna.study.Study, trial: optuna.trial.FrozenTrial
 ) -> None:
     # Collect study and trial data
-    trial_index = study.trials.index(trial)
-    best_trial_index = study.trials.index(study.best_trial)
+    # trial_index = study.trials.index(trial)
+    # best_trial_index = study.trials.index(study.best_trial)
     value = trial.value
     params = trial.params
     duration = (trial.datetime_complete - trial.datetime_start).total_seconds()
     # Log information about this trial
     logger.debug(
-        f"Trial {trial_index} finished with value: {value} and parameters: {params}."
-        f"Best trial is {best_trial_index}. Iteration took {duration} s"
+        f"Trial {trial.number} finished with value: {value} and parameters: {params}."
+        f"Best trial is {study.best_trial.number}. Iteration took {duration} s"
     )
+    # If this trial is the best save the model as a study attribute
+    if study.best_trial.number == trial.number:
+        study.set_user_attr(key="best_model", value=trial.user_attrs["model"])

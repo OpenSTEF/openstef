@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -70,7 +70,6 @@ def run_tracy(context):
 
         pid = int(job["args"])
         pj = context.database.get_prediction_job(pid)
-
         result, exc = run_tracy_job(job, pj, context)
         # job processing was succefull
         if result is TracyJobResult.SUCCESS:

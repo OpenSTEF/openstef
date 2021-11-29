@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 import unittest
@@ -12,8 +12,10 @@ from openstf.model.objective import (
     XGBRegressorObjective,
     LGBRegressorObjective,
     XGBQuantileRegressorObjective,
+    ProLoafRegressorObjective,
 )
 from test.utils import BaseTestCase, TestData
+from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 input_data = TestData.load("reference_sets/307-train-data.csv")
 input_data_with_features = TrainFeatureApplicator(horizons=[0.25, 24.0]).add_features(
@@ -27,8 +29,8 @@ N_TRIALS = 2
 
 class TestRegressorObjective(BaseTestCase):
     def test_call(self):
-        pj = TestData.get_prediction_job(pid=307)
-        model = ModelCreator.create_model(pj)
+        model_type = "xgb"
+        model = ModelCreator.create_model(model_type)
 
         objective = RegressorObjective(
             model,
@@ -36,7 +38,7 @@ class TestRegressorObjective(BaseTestCase):
         )
 
         study = optuna.create_study(
-            study_name=pj["model"],
+            study_name=model_type,
             pruner=optuna.pruners.MedianPruner(n_warmup_steps=5),
             direction="minimize",
         )
@@ -49,15 +51,15 @@ class TestRegressorObjective(BaseTestCase):
 
 class TestXGBRegressorObjective(BaseTestCase):
     def test_call(self):
-        pj = TestData.get_prediction_job(pid=307)
-        model = ModelCreator.create_model(pj)
+        model_type = "xgb"
+        model = ModelCreator.create_model(model_type)
 
         objective = XGBRegressorObjective(
             model,
             input_data_with_features,
         )
         study = optuna.create_study(
-            study_name=pj["model"],
+            study_name=model_type,
             pruner=optuna.pruners.MedianPruner(n_warmup_steps=5),
             direction="minimize",
         )
@@ -70,16 +72,15 @@ class TestXGBRegressorObjective(BaseTestCase):
 
 class TestLGBRegressorObjective(BaseTestCase):
     def test_call(self):
-        pj = TestData.get_prediction_job(pid=307)
-        pj["model"] = "lgb"
-        model = ModelCreator.create_model(pj)
+        model_type = "lgb"
+        model = ModelCreator.create_model(model_type)
 
         objective = LGBRegressorObjective(
             model,
             input_data_with_features,
         )
         study = optuna.create_study(
-            study_name=pj["model"],
+            study_name=model_type,
             pruner=optuna.pruners.MedianPruner(n_warmup_steps=5),
             direction="minimize",
         )
@@ -92,16 +93,15 @@ class TestLGBRegressorObjective(BaseTestCase):
 
 class TestXGBQRegressorObjective(BaseTestCase):
     def test_call(self):
-        pj = TestData.get_prediction_job(pid=307)
-        pj["model"] = "xgb_quantile"
-        model = ModelCreator.create_model(pj)
+        model_type = "xgb_quantile"
+        model = ModelCreator.create_model(model_type)
 
         objective = XGBQuantileRegressorObjective(
             model,
             input_data_with_features,
         )
         study = optuna.create_study(
-            study_name=pj["model"],
+            study_name=model_type,
             pruner=optuna.pruners.MedianPruner(n_warmup_steps=5),
             direction="minimize",
         )
@@ -112,10 +112,37 @@ class TestXGBQRegressorObjective(BaseTestCase):
         self.assertEqual(len(study.trials), N_TRIALS)
 
 
+class TestProLoafRegressorObjective(BaseTestCase):
+    def test_call(self):
+        input_data = TestData.load("reference_sets/307-train-data.csv")
+        pj = {"model": "proloaf"}
+        input_data_with_features = TrainFeatureApplicator(horizons=[24.0]).add_features(
+            input_data, pj=pj
+        )
+
+        model_type = "proloaf"
+        model = ModelCreator.create_model(model_type)
+
+        objective = ProLoafRegressorObjective(
+            model,
+            input_data_with_features,
+        )
+        study = optuna.create_study(
+            study_name=model_type,
+            pruner=optuna.pruners.MedianPruner(n_warmup_steps=5),
+            direction="minimize",
+        )
+
+        study.optimize(objective, n_trials=1)
+
+        self.assertIsInstance(objective, ProLoafRegressorObjective)
+        self.assertEqual(len(study.trials), 1)
+
+
 class ColumnOrderTest(BaseTestCase):
     def test_call(self):
-        pj = TestData.get_prediction_job(pid=307)
-        model = ModelCreator.create_model(pj)
+        model_type = "xgb"
+        model = ModelCreator.create_model(model_type)
 
         objective = XGBRegressorObjective(
             model,
@@ -123,7 +150,7 @@ class ColumnOrderTest(BaseTestCase):
         )
 
         study = optuna.create_study(
-            study_name=pj["model"],
+            study_name=model_type,
             pruner=optuna.pruners.MedianPruner(n_warmup_steps=5),
             direction="minimize",
         )
