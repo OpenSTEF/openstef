@@ -31,6 +31,11 @@ Openstf is a Python package which is used to make short term forecasts for the e
 pip install openstf
 ```
 
+_**Optional**_: if you would like to use the proloaf model with openSTF install the proloaf dependencies by running:
+```shell
+pip install openstf[proloaf]
+```
+
 # Usage
 
 To run a task use:

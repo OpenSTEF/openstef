@@ -17,7 +17,6 @@ from openstf.model.objective import (
     XGBQuantileRegressorObjective,
     XGBRegressorObjective,
 )
-from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 input_data = TestData.load("reference_sets/307-train-data.csv")
 input_data_with_features = TrainFeatureApplicator(horizons=[0.25, 24.0]).add_features(
@@ -115,6 +114,7 @@ class TestXGBQRegressorObjective(BaseTestCase):
 
 
 class TestProLoafRegressorObjective(BaseTestCase):
+    @unittest.skip  # Skip as this cannot always succeed due to neural network libraries being optional
     def test_call(self):
         input_data = TestData.load("reference_sets/307-train-data.csv")
         pj = {"model": "proloaf"}
