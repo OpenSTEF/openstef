@@ -83,9 +83,8 @@ def optimize_hyperparameters_pipeline(
         horizons=horizons
     ).add_features(validated_data, pj=pj)
 
-    if pj["model"] == "proloaf":
-        # Adds additional proloaf features to the input data, historic_load (equal to the load)
-        if "historic_load" not in list(validated_data_with_features.columns):
+    # Adds additional proloaf features to the input data, historic_load (equal to the load)
+    if pj["model"] == "proloaf" and "historic_load" not in list(validated_data_with_features.columns):
             validated_data_with_features[
                 "historic_load"
             ] = validated_data_with_features.iloc[:, 0]

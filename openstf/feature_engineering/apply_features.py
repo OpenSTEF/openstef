@@ -25,7 +25,7 @@ from openstf.feature_engineering.weather_features import (
     add_humidity_features,
     add_additional_wind_features,
 )
-from openstf.feature_engineering.proloaf_historic_features import (
+from openstf.feature_engineering.historic_features import (
     add_historic_load_as_a_feature,
 )
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
