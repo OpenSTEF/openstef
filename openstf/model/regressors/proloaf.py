@@ -2,14 +2,13 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 from typing import List, Dict, Any, Tuple, Union
-from abc import ABC
 
 import numpy as np
 import pandas as pd
 
 from openstf.model.regressors.regressor import OpenstfRegressor
 
-
+# These imports will require the proloaf optional dependencies to be installed
 import proloaf.datahandler as dh
 from proloaf.modelhandler import ModelWrapper
 import torch
