@@ -65,10 +65,10 @@ class TestCustomModels(unittest.TestCase):
     def test_create_custom_objective(self):
         model = DummyRegressor()
         model_path = __name__ + ".DummyRegressor"
-        obj = create_custom_objective(model, None)
+        objective = create_custom_objective(model, None)
 
-        assert isinstance(obj, DummyObjective)
+        assert isinstance(objective, DummyObjective)
 
-        obj = ObjectiveCreator().create_objective(model_path)(model, None)
+        objective = ObjectiveCreator().create_objective(model_path)(model, None)
 
-        assert isinstance(obj, DummyObjective)
+        assert isinstance(objective, DummyObjective)
