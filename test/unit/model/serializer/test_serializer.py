@@ -2,21 +2,22 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-from datetime import datetime, timedelta
-from unittest.mock import patch, MagicMock, PropertyMock
-import tempfile
-from distutils.dir_util import copy_tree
 import glob
+import tempfile
+from datetime import datetime, timedelta
+from distutils.dir_util import copy_tree
+from test.unit.utils.base import BaseTestCase
+from test.unit.utils.data import TestData
+from unittest.mock import MagicMock, PropertyMock, patch
 
+import cufflinks  # required for iplot() of pandas
 import numpy as np
 import pandas as pd
-import cufflinks
 
-from openstf.metrics.reporter import Report
 from openstf.data_classes.model_specifications import ModelSpecificationDataClass
+from openstf.metrics.reporter import Report
 from openstf.model.model_creator import ModelCreator
 from openstf.model.serializer import MLflowSerializer
-from test.utils import BaseTestCase, TestData
 
 
 class TestMLflowSerializer(BaseTestCase):
@@ -43,7 +44,7 @@ class TestMLflowSerializer(BaseTestCase):
         mock_modelspecs.return_value = self.modelspecs
         type(mock_load.return_value).feature_names = PropertyMock(return_value=None)
         loaded_model, modelspecs = MLflowSerializer(
-            trained_models_folder="./test/trained_models"
+            trained_models_folder="./test/unit/trained_models"
         ).load_model(307)
         self.assertIsInstance(modelspecs, ModelSpecificationDataClass)
         self.assertEqual(modelspecs.feature_names, None)
@@ -69,7 +70,7 @@ class TestMLflowSerializer(BaseTestCase):
         mock_modelspecs.return_value = self.modelspecs
         type(mock_load.return_value).feature_names = PropertyMock(return_value=None)
         loaded_model, modelspecs = MLflowSerializer(
-            trained_models_folder="./test/trained_models"
+            trained_models_folder="./test/unit/trained_models"
         ).load_model(307)
         self.assertIsInstance(modelspecs, ModelSpecificationDataClass)
         self.assertEqual(modelspecs.feature_names, None)
@@ -96,7 +97,7 @@ class TestMLflowSerializer(BaseTestCase):
         mock_modelspecs.return_value = self.modelspecs
         type(mock_load.return_value).feature_names = PropertyMock(return_value=None)
         loaded_model, modelspecs = MLflowSerializer(
-            trained_models_folder="./test/trained_models"
+            trained_models_folder="./test/unit/trained_models"
         ).load_model(307)
         self.assertIsInstance(modelspecs, ModelSpecificationDataClass)
         self.assertEqual(modelspecs.feature_names, None)
@@ -183,7 +184,9 @@ class TestMLflowSerializer(BaseTestCase):
         report_mock.get_metrics.return_value = {"mae", 0.2}
         mock_search.return_value = pd.DataFrame(columns=["run_id"])
         with self.assertLogs("MLflowSerializer", level="INFO") as captured:
-            MLflowSerializer(trained_models_folder="./test/trained_models").save_model(
+            MLflowSerializer(
+                trained_models_folder="./test/unit/trained_models"
+            ).save_model(
                 model=model, pj=pj, modelspecs=self.modelspecs, report=report_mock
             )
             # The index shifts if logging is added
@@ -204,7 +207,7 @@ class TestMLflowSerializer(BaseTestCase):
         )
         mock_find_models.return_value = models_df
         days = MLflowSerializer(
-            trained_models_folder="./test/trained_models"
+            trained_models_folder="./test/unit/trained_models"
         ).get_model_age(307, hyperparameter_optimization_only=False)
         self.assertEqual(days, 2)
 
@@ -221,7 +224,7 @@ class TestMLflowSerializer(BaseTestCase):
         )
         mock_find_models.return_value = models_df
         days = MLflowSerializer(
-            trained_models_folder="./test/trained_models"
+            trained_models_folder="./test/unit/trained_models"
         ).get_model_age(307, hyperparameter_optimization_only=True)
         self.assertGreater(days, 7)
         self.assertEqual(days, 8)
@@ -231,7 +234,7 @@ class TestMLflowSerializer(BaseTestCase):
         models_df = pd.DataFrame()
         mock_find_models.return_value = models_df
         days = MLflowSerializer(
-            trained_models_folder="./test/trained_models"
+            trained_models_folder="./test/unit/trained_models"
         ).get_model_age(307, hyperparameter_optimization_only=True)
         self.assertGreater(days, 7)
         self.assertEqual(days, np.inf)
@@ -249,7 +252,7 @@ class TestMLflowSerializer(BaseTestCase):
             }
         ).iloc[0]
         days = MLflowSerializer(
-            trained_models_folder="./test/trained_models"
+            trained_models_folder="./test/unit/trained_models"
         )._determine_model_age_from_mlflow_run(run)
         self.assertGreater(days, 7)
 
@@ -268,7 +271,7 @@ class TestMLflowSerializer(BaseTestCase):
         )
         with self.assertLogs("MLflowSerializer", level="WARNING") as captured:
             days = MLflowSerializer(
-                trained_models_folder="./test/trained_models"
+                trained_models_folder="./test/unit/trained_models"
             )._determine_model_age_from_mlflow_run(run)
         # The index shifts if logging is added
         self.assertRegex(
@@ -283,7 +286,7 @@ class TestMLflowSerializer(BaseTestCase):
         Test uses 5 previously stored models, then is allowed to keep 2.
         Check if it keeps the 2 most recent models"""
         # Set up
-        local_model_dir = "./test/trained_models/models_for_serializertest"
+        local_model_dir = "./test/unit/trained_models/models_for_serializertest"
 
         # Run the code below once, to generate stored models
         # We want to test using pre-stored models, since it takes ~6s per save_model()
@@ -321,7 +324,8 @@ class TestMLflowSerializer(BaseTestCase):
             self.assertEqual(
                 len(all_stored_models),
                 4,
-                f"we expect 4 models at the start- (now {len(all_stored_models)}), please remove runs (manually) or add runs with MAKE_RUNS == TRUE ",
+                f"we expect 4 models at the start- (now {len(all_stored_models)}), "
+                f"please remove runs (manually) or add runs with MAKE_RUNS == TRUE ",
             )
             self.assertEqual(len(final_stored_models), 2)
             # Check if the runs match to the oldest two runs

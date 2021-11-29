@@ -4,8 +4,6 @@
 
 from unittest import TestCase
 
-from test.utils.data import TestData
-
 from openstf.enums import MLModelType
 from openstf.model.model_creator import ModelCreator
 from openstf.model.regressors.regressor_interface import OpenstfRegressorInterface

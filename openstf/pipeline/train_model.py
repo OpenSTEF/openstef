@@ -62,7 +62,7 @@ def train_model_pipeline(
         old_model_age = (
             old_model.age
         )  # Age attribute is openstf specific and is added by the serializer
-    except (AttributeError, FileNotFoundError):
+    except (AttributeError, FileNotFoundError, LookupError):
         old_model = None
         old_model_age = float("inf")
         # create basic modelspecs
@@ -118,17 +118,6 @@ def train_model_pipeline_core(
     """Train model core pipeline.
     Trains a new model given a prediction job, input data and compares it to an old model.
     This pipeline has no database or persistent storage dependencies.
-
-    TODO once we have a data model for a prediction job this explantion is not
-    required anymore.
-
-    For training a model the following keys in the prediction job are
-    expected:
-        "id"            Only used for logging
-        "model"         Model type, any of "xgb", "lgb",
-    And in modelspecs:
-        "hyper_params"  Hyper parameters dictionairy specific to the model_type
-        "feature_names"      List of features to train model on or None to use all features
 
     Args:
         pj (PredictionJobDataClass): Prediction job

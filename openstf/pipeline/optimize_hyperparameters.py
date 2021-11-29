@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 from pathlib import Path
-from typing import List, Union, Tuple
+from typing import List, Tuple, Union
 
 import optuna
 import pandas as pd

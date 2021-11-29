@@ -13,8 +13,8 @@ certificates/
 ktprognoses.egg-info/
 .idea/
 .vscode/
-test/trained_models/mlruns/
-test/trained_models/models_for_serializertest/mlruns/
+test/unit/trained_models/mlruns/
+test/unit/trained_models/models_for_serializertest/mlruns/
 
 # Ignore these files
 .DS_Store

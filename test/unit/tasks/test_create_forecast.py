@@ -2,12 +2,12 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 import pickle
+from test.unit.utils.data import TestData
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
 
 import openstf.tasks.create_forecast as task
 from openstf.tasks.create_forecast import create_forecast_task
-from test.utils import TestData
 
 FORECAST_MOCK = "forecast_mock"
 
@@ -15,7 +15,7 @@ FORECAST_MOCK = "forecast_mock"
 class TestCreateForeCastTask(TestCase):
     def setUp(self) -> None:
         self.pj, self.modelspecs = TestData.get_prediction_job_and_modelspecs(pid=307)
-        pickle_model = "./test/trained_models/mlruns/1/ef5808eaa1c647cdaf88cd959f918fea/artifacts/model/model.pkl"
+        pickle_model = "./test/unit/trained_models/mlruns/1/ef5808eaa1c647cdaf88cd959f918fea/artifacts/model/model.pkl"
         # load model
         with open(pickle_model, "rb") as f:
             self.model = pickle.load(f)
@@ -52,7 +52,7 @@ class TestCreateForeCastTask(TestCase):
         dbmock().get_model_input.return_value = forecast_data
 
         configmock_taskcontext.get_instance.return_value.paths.trained_models_folder = (
-            "test/trained_models/"
+            "./test/unit/trained_models/"
         )
         configmock_taskcontext.get_instance.return_value.paths.webroot = "test_webroot"
 

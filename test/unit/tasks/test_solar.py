@@ -3,10 +3,11 @@
 # SPDX-License-Identifier: MPL-2.0
 
 import unittest
+from test.unit.utils.base import BaseTestCase
+from test.unit.utils.data import TestData
 from unittest.mock import MagicMock
 
 from openstf.tasks.create_solar_forecast import make_solar_predicion_pj
-from test.utils import BaseTestCase, TestData
 
 
 class TestSolar(BaseTestCase):

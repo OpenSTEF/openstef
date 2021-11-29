@@ -13,8 +13,6 @@ from sklearn.base import RegressorMixin
 
 from openstf.exceptions import ModelWithoutStDev
 
-MINIMAL_RESOLUTION: int = 15  # Minimal time resolution in minutes
-
 
 class ConfidenceIntervalApplicator:
     def __init__(self, model: RegressorMixin, forecast_input_data: pd.DataFrame):
@@ -26,7 +24,7 @@ class ConfidenceIntervalApplicator:
         self,
         forecast: pd.DataFrame,
         pj: PredictionJobDataClass,
-        default_confindence_interval: bool = False,
+        quantile_confidence_interval: bool = True,
     ) -> pd.DataFrame:
         """Add a confidence interval to a forecast.
 
@@ -48,11 +46,10 @@ class ConfidenceIntervalApplicator:
                  regression or the default method.
 
         Args:
-            forecast (pd.DataFrame): Forecast DataFram with columns: "forecast"
+            forecast (pd.DataFrame): Forecast DataFrame with columns: "forecast"
             pj (PredictionJobDataClass): Prediction job
-            default_confindence_interval (bool):
-                switch to always make a default confidence interval
-                and skip quantile regression forecasting,
+            quantile_confidence_interval (bool):
+                switch to false to skip quantile regression forecasting,
                 mostly used for a basecase forecast
 
         Returns:
@@ -62,7 +59,7 @@ class ConfidenceIntervalApplicator:
         """
         temp_forecast = self._add_standard_deviation_to_forecast(forecast)
 
-        if "quantile" in pj["model"] and not default_confindence_interval:
+        if "quantile" in pj["model"] and quantile_confidence_interval:
             return self._add_quantiles_to_forecast_quantile_regression(
                 temp_forecast, pj["quantiles"]
             )
@@ -81,17 +78,20 @@ class ConfidenceIntervalApplicator:
         but this will be deprecated.
 
         Args:
-            forecast (pd.DataFrame): Forecast DataFram with columns: "forecast"
+            forecast (pd.DataFrame): Forecast DataFrame with columns: "forecast"
 
         Returns:
             (pd.DataFrame): Forecast with added standard deviation. DataFrame with columns:
                 "forecast", "stdev"
         """
-
+        minimal_resolution: int = 15  # Minimal time resolution in minutes
         standard_deviation = self.model.standard_deviation
 
         # raise an exception if no valid standard deviation is available
         if standard_deviation is None:
+            raise ModelWithoutStDev("No stdev available")
+
+        if standard_deviation.empty:  # make separate statement to avoid None.empty
             raise ModelWithoutStDev("No stdev available")
 
         if standard_deviation.stdev.isnull().values.all():
@@ -123,7 +123,7 @@ class ConfidenceIntervalApplicator:
             now = (
                 pd.Series(datetime.utcnow().replace(tzinfo=forecast_copy.index.tzinfo))
                 .min()
-                .round(f"{MINIMAL_RESOLUTION}T")
+                .round(f"{minimal_resolution}T")
                 .to_pydatetime()
             )
             # Determin t_aheads by subtracting with now

@@ -22,8 +22,8 @@ from openstf.feature_engineering.holiday_features import (
 )
 from openstf.feature_engineering.lag_features import generate_lag_feature_functions
 from openstf.feature_engineering.weather_features import (
-    add_humidity_features,
     add_additional_wind_features,
+    add_humidity_features,
 )
 from openstf.feature_engineering.historic_features import (
     add_historic_load_as_a_feature,

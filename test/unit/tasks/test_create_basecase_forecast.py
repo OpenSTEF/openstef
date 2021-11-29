@@ -2,13 +2,13 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 from datetime import datetime, timedelta
+from test.unit.utils.data import TestData
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
 
 import pandas as pd
 
 from openstf.tasks.create_basecase_forecast import create_basecase_forecast_task
-from test.utils import TestData
 
 # Specify forecast mock.
 # Make sure this has a datetime of at least NOW+48hours,

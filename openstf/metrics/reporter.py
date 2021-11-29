@@ -1,20 +1,20 @@
 # SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+import os
 import warnings
 from dataclasses import dataclass
-from typing import Dict
 from pathlib import Path
-import os
+from typing import Dict
 
 import numpy as np
 import pandas as pd
 import sklearn
-from mlflow.models import infer_signature, ModelSignature
+from mlflow.models import ModelSignature, infer_signature
 from plotly.graph_objects import Figure
 
 from openstf.metrics import figure
-from openstf.metrics.metrics import bias, nsme, mae, r_mae, rmse
+from openstf.metrics.metrics import bias, mae, nsme, r_mae, rmse
 from openstf.model.regressors.regressor import OpenstfRegressor
 
 

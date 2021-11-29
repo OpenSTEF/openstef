@@ -6,6 +6,7 @@
 """
 from datetime import datetime
 
+
 # Define custom exception
 class NoPredictedLoadError(Exception):
     """No predicted load for given datatime range"""

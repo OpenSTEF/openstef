@@ -2,8 +2,9 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-import numpy as np
 from datetime import timedelta
+
+import numpy as np
 
 
 def replace_repeated_values_with_nan(df, max_length, column_name):

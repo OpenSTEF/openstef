@@ -2,20 +2,21 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 import unittest
+from test.unit.utils.base import BaseTestCase
+from test.unit.utils.data import TestData
 
 import optuna
 
 from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
 from openstf.model.model_creator import ModelCreator
 from openstf.model.objective import (
-    RegressorObjective,
-    XGBRegressorObjective,
-    LGBRegressorObjective,
-    XGBQuantileRegressorObjective,
-    ProLoafRegressorObjective,
     LinearRegressorObjective,
+    LGBRegressorObjective,
+    ProLoafRegressorObjective,
+    RegressorObjective,
+    XGBQuantileRegressorObjective,
+    XGBRegressorObjective,
 )
-from test.utils import BaseTestCase, TestData
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 input_data = TestData.load("reference_sets/307-train-data.csv")

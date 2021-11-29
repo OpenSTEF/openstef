@@ -3,11 +3,11 @@
 # SPDX-License-Identifier: MPL-2.0
 import unittest
 from datetime import datetime, timedelta
+from test.unit.utils.base import BaseTestCase
 
 import pandas as pd
 
 from openstf.validation.validation import find_nonzero_flatliner
-from test.utils import BaseTestCase
 
 now = datetime.utcnow()
 date_rng = pd.date_range(start=now - timedelta(minutes=30), end=now, freq="0.25H")
@@ -72,8 +72,6 @@ df_zero_flatliner = df_zero_flatliner.set_index("date6")
 df_flatliner_start_end = df_flatliner_start_end.set_index("date")
 
 
-# eerste column invoegen (die weer verwijderd wordt)
-# @mock.patch("openstf.model.find_nonzero_flatliner_detection.query_load_data", return_value = df_no_flatliner)
 class TestValidationFindNonzeroFlatliners(BaseTestCase):
     def test_no_flatliner(self):
         df = df_no_flatliner
@@ -101,7 +99,7 @@ class TestValidationFindNonzeroFlatliners(BaseTestCase):
                 ],
             }
         )
-        expected = []
+        expected = list()
         expected.append(df_flatliner_output)
         result = find_nonzero_flatliner(df, threshold)
         expected_output = expected[0]
@@ -126,7 +124,7 @@ class TestValidationFindNonzeroFlatliners(BaseTestCase):
                 ],
             }
         )
-        expected = []
+        expected = list()
         expected.append(df_zerovalues_flatliner_output)
         result = find_nonzero_flatliner(df, threshold)
         expected_output = expected[0]
@@ -176,8 +174,6 @@ class TestValidationFindNonzeroFlatliners(BaseTestCase):
         threshold = 0.25
         result = find_nonzero_flatliner(df, threshold)
         self.assertEqual(1, len(result))
-
-    # Run all tests
 
 
 if __name__ == "__main__":

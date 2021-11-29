@@ -10,8 +10,8 @@ import pandas as pd
 import structlog
 
 from openstf.preprocessing.preprocessing import (
-    replace_repeated_values_with_nan,
     replace_invalid_data,
+    replace_repeated_values_with_nan,
 )
 
 # TODO make this config more central

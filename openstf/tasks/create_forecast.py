@@ -83,10 +83,9 @@ def main(model_type=None):
         if model_type is None:
             model_type = [ml.value for ml in MLModelType]
 
-        PredictionJobLoop(
-            context,
-            model_type=model_type,
-        ).map(create_forecast_task, context)
+        PredictionJobLoop(context, model_type=model_type).map(
+            create_forecast_task, context
+        )
 
 
 if __name__ == "__main__":
