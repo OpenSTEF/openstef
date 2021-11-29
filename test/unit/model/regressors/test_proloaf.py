@@ -12,7 +12,9 @@ try:
     from test.unit.utils.base import BaseTestCase
     from openstf.model.regressors.proloaf import OpenstfProloafRegressor
 except ImportError:
-    logger.warning("Proloaf not available, switching to xgboost!")
+    logger.warning(
+        "Proloaf not available, switching to xgboost! See Readme how to install proloaf dependencies"
+    )
     OpenstfProloafRegressor = XGBOpenstfRegressor
 
 

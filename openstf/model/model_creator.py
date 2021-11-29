@@ -18,7 +18,9 @@ logger = structlog.get_logger(__name__)
 try:
     from openstf.model.regressors.proloaf import OpenstfProloafRegressor
 except ImportError:
-    logger.warning("Proloaf not available, switching to xgboost!")
+    logger.warning(
+        "Proloaf not available, switching to xgboost! See Readme how to install proloaf dependencies"
+    )
     OpenstfProloafRegressor = XGBOpenstfRegressor
 
 valid_model_kwargs = {
