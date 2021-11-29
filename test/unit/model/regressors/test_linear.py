@@ -108,9 +108,9 @@ class TestLinearOpenstfRegressor(BaseTestCase):
     def test_grouped_regressor(self):
         model = GroupedRegressor(LinearRegressor(), group_columns=["time"])
         model_parallel = GroupedRegressor(
-            LinearRegressor(), group_columns=["time"], n_jobs=4
+            LinearRegressor(), group_columns="time", n_jobs=4
         )
-        model_without_group = GroupedRegressor(LinearRegressor(), group_columns=[])
+        model_without_group = GroupedRegressor(LinearRegressor(), group_columns=None)
 
         train_with_time = self.train_input.copy(deep=True)
         train_with_time["time"] = train_with_time.index.time

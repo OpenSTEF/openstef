@@ -124,8 +124,8 @@ class GroupedRegressor(BaseEstimator, RegressorMixin, MetaEstimatorMixin):
         )
         return dict(group_res)
 
-    def fit(self, X, y):
-        df = pd.DataFrame(X).copy(deep=True)
+    def fit(self, x, y):
+        df = pd.DataFrame(x).copy(deep=True)
         self._check_group_columns(df)
         self.feature_names_ = [
             c for c in list(df.columns) if c not in self.group_columns
@@ -134,8 +134,8 @@ class GroupedRegressor(BaseEstimator, RegressorMixin, MetaEstimatorMixin):
         self.estimators_ = self._grouped_fit(df, self.n_jobs)
         return self
 
-    def predict(self, X):
+    def predict(self, x):
         check_is_fitted(self)
-        df = pd.DataFrame(X)
+        df = pd.DataFrame(x)
         self._check_group_columns(df)
         return self._grouped_predict(df, self.n_jobs)
