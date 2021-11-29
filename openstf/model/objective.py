@@ -376,6 +376,7 @@ class ProLoafRegressorObjective(RegressorObjective):
             trial, monitor="val_loss"
         )
 
+
 class LinearRegressorObjective(RegressorObjective):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -396,4 +397,3 @@ class LinearRegressorObjective(RegressorObjective):
             ),
         }
         return params
-

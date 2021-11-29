@@ -112,6 +112,7 @@ class TestXGBQRegressorObjective(BaseTestCase):
         self.assertIsInstance(objective, XGBQuantileRegressorObjective)
         self.assertEqual(len(study.trials), N_TRIALS)
 
+
 class TestProLoafRegressorObjective(BaseTestCase):
     def test_call(self):
         input_data = TestData.load("reference_sets/307-train-data.csv")
@@ -137,6 +138,7 @@ class TestProLoafRegressorObjective(BaseTestCase):
         self.assertIsInstance(objective, ProLoafRegressorObjective)
         self.assertEqual(len(study.trials), 1)
 
+
 class TestLinearRegressorObjective(BaseTestCase):
     def test_call(self):
         model_type = "linear"
@@ -155,6 +157,7 @@ class TestLinearRegressorObjective(BaseTestCase):
 
         self.assertIsInstance(objective, LinearRegressorObjective)
         self.assertEqual(len(study.trials), N_TRIALS)
+
 
 class ColumnOrderTest(BaseTestCase):
     def test_call(self):

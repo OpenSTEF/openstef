@@ -12,6 +12,7 @@ class MLModelType(Enum):
     ProLoaf = "proloaf"
     LINEAR = "linear"
 
+
 class ForecastType(Enum):
     DEMAND = "demand"
     WIND = "wind"
