@@ -224,9 +224,16 @@ def train_pipeline_common(
             "Input data is insufficient, after validation and cleaning"
         )
 
+    if pj["model"] == "proloaf":
+        stratification_min_max = False
+        # proloaf is only able to train with one horizon
+        horizons = [horizons[0]]
+    else:
+        stratification_min_max = True
+
     data_with_features = TrainFeatureApplicator(
         horizons=horizons, feature_names=modelspecs.feature_names
-    ).add_features(validated_data)
+    ).add_features(validated_data, pj=pj)
 
     # if test_data is predefined, apply the pipeline only on the remaining data
     if not test_data_predefined.empty:
@@ -247,6 +254,7 @@ def train_pipeline_common(
     ) = split_data_train_validation_test(
         data_with_features,
         test_fraction=test_fraction,
+        stratification_min_max=stratification_min_max,
         back_test=backtest,
     )
 

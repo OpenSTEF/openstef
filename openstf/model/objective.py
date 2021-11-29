@@ -74,6 +74,10 @@ class RegressorObjective:
             float: Mean absolute error for this trial.
         """
         # Perform data preprocessing
+        if self.model_type == MLModelType.ProLoaf:
+            stratification_min_max = False
+        else:
+            stratification_min_max = True
         (
             peaks,
             peaks_val_train,
@@ -84,6 +88,7 @@ class RegressorObjective:
             self.input_data,
             test_fraction=self.test_fraction,
             validation_fraction=self.validation_fraction,
+            stratification_min_max=stratification_min_max,
             back_test=True,
         )
 
@@ -325,6 +330,53 @@ class XGBQuantileRegressorObjective(RegressorObjective):
         )
 
 
+class ProLoafRegressorObjective(RegressorObjective):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.model_type = MLModelType.ProLoaf
+
+    def get_params(self, trial: optuna.trial.FrozenTrial) -> dict:
+        """get parameters for ProLoaf Regressor Objective
+        with objective specific parameters.
+
+            Args: trial
+
+            Returns:
+                dict: {parameter: hyperparameter_value}
+        """
+        # Filtered default parameters
+        model_params = super().get_params(trial)
+
+        # ProLoaf specific parameters
+        params = {
+            # TODO: look into optimizing this pipeline for proloaf
+            # "relu_leak": trial.suggest_float("relu_leak", 0.1, 1.0),
+            # "core_layers": trial.suggest_int("core_layers", 1, 3),
+            # "rel_linear_hidden_size": trial.suggest_float(
+            #    "rel_linear_hidden_size", 0.1, 1
+            # ),
+            # "rel_core_hidden_size": trial.suggest_float("rel_core_hidden_size", 0.1, 1),
+            # "dropout_fc": trial.suggest_float("dropout_fc", 0.1, 0.9),
+            # "dropout_core": trial.suggest_float("dropout_core", 0.1, 0.9),
+            # "early_stopping_patience": trial.suggest_int(
+            #    "early_stopping_patience", 5, 10
+            # ),
+            # "early_stopping_margin": trial.suggest_float(
+            #    "early_stopping_margin", 0.1, 0.9
+            # ),
+            "max_epochs": trial.suggest_int(
+                "max_epochs", 1, 1
+            ),  # TODO: change after having availability to gpu resource
+            "batch_size": trial.suggest_int("batch_size", 1, 24),
+        }
+        return {**model_params, **params}
+
+    def get_pruning_callback(self, trial: optuna.trial.FrozenTrial):
+        return optuna.integration.PyTorchLightningPruningCallback(
+            trial, monitor="val_loss"
+        )
+
+
 class LinearRegressorObjective(RegressorObjective):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -333,9 +385,7 @@ class LinearRegressorObjective(RegressorObjective):
     def get_params(self, trial: optuna.trial.FrozenTrial) -> dict:
         """get parameters for Linear Regressor Objective
         with objective specific parameters.
-
             Args: trial
-
             Returns:
                 dict: {parameter: hyperparameter_value}
         """

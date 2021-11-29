@@ -3,10 +3,11 @@
 # SPDX-License-Identifier: MPL-2.0
 from typing import Union
 
-from sklearn.base import RegressorMixin
+from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 from openstf.enums import MLModelType
 from openstf.model.regressors.lgbm import LGBMOpenstfRegressor
+from openstf.model.regressors.proloaf import OpenstfProloafRegressor
 from openstf.model.regressors.regressor import OpenstfRegressor
 from openstf.model.regressors.xgb import XGBOpenstfRegressor
 from openstf.model.regressors.xgb_quantile import XGBQuantileOpenstfRegressor
@@ -72,6 +73,27 @@ valid_model_kwargs = {
         "min_child_weight",
         "max_depth",
     ],
+    MLModelType.ProLoaf: [
+        "relu_leak",
+        "encoder_features",
+        "decoder_features",
+        "core_layers",
+        "rel_linear_hidden_size",
+        "rel_core_hidden_size",
+        "dropout_fc",
+        "dropout_core",
+        "training_metric",
+        "metric_options",
+        "optimizer_name",
+        "early_stopping_patience",
+        "early_stopping_margin",
+        "learning_rate",
+        "max_epochs",
+        "device",
+        "batch_size",
+        "history_horizon",
+        "horizon_minutes",
+    ],
     MLModelType.LINEAR: [
         "missing_values",
         "imputation_strategy",
@@ -88,6 +110,7 @@ class ModelCreator:
         MLModelType.XGB: XGBOpenstfRegressor,
         MLModelType.LGB: LGBMOpenstfRegressor,
         MLModelType.XGB_QUANTILE: XGBQuantileOpenstfRegressor,
+        MLModelType.ProLoaf: OpenstfProloafRegressor,
         MLModelType.LINEAR: LinearOpenstfRegressor,
     }
 
@@ -103,7 +126,7 @@ class ModelCreator:
             NotImplementedError: When using an invalid model_type.
 
         Returns:
-            RegressorMixin: model
+            OpenstfRegressor: model
         """
         try:
             # This will raise a ValueError when an invalid model_type str is used
@@ -122,5 +145,4 @@ class ModelCreator:
             for key, value in kwargs.items()
             if key in valid_model_kwargs[model_type]
         }
-
         return ModelCreator.MODEL_CONSTRUCTORS[model_type](**model_kwargs)

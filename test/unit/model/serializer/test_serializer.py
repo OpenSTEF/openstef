@@ -179,6 +179,7 @@ class TestMLflowSerializer(BaseTestCase):
         pj = self.pj
         # set ID to default, so MLflow saves it in a default folder
         pj["id"] = "Default"
+
         report_mock = MagicMock()
         report_mock.get_metrics.return_value = {"mae", 0.2}
         mock_search.return_value = pd.DataFrame(columns=["run_id"])

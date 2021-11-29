@@ -8,6 +8,7 @@ from openstf.enums import MLModelType
 from openstf.model.objective import (
     LinearRegressorObjective,
     LGBRegressorObjective,
+    ProLoafRegressorObjective,
     RegressorObjective,
     XGBQuantileRegressorObjective,
     XGBRegressorObjective,
@@ -19,6 +20,7 @@ class ObjectiveCreator:
         MLModelType.XGB: XGBRegressorObjective,
         MLModelType.LGB: LGBRegressorObjective,
         MLModelType.XGB_QUANTILE: XGBQuantileRegressorObjective,
+        MLModelType.ProLoaf: ProLoafRegressorObjective,
         MLModelType.LINEAR: LinearRegressorObjective,
     }
 
