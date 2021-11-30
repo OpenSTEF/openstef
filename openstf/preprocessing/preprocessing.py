@@ -1,6 +1,8 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+
+from datetime import timedelta
 
 import numpy as np
 
@@ -53,6 +55,8 @@ def replace_invalid_data(df, suspicious_moments):
     - pd.DataFrame without invalid data (converted to NaN values)"""
     if suspicious_moments is not None:
         for index, row in suspicious_moments.iterrows():
-            df[(row[0]) : (row[1])] = np.nan
+            df[
+                (row[0]) : (row[1] - timedelta(seconds=1))
+            ] = np.nan  # subtract 1 second to make it exclusive
         return df
     return df

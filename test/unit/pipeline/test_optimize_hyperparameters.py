@@ -1,7 +1,9 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 import unittest
+from test.unit.utils.base import BaseTestCase
+from test.unit.utils.data import TestData
 from unittest.mock import patch
 
 import pandas as pd
@@ -10,10 +12,7 @@ from openstf.exceptions import (
     InputDataInsufficientError,
     InputDataWrongColumnOrderError,
 )
-from openstf.pipeline.optimize_hyperparameters import (
-    optimize_hyperparameters_pipeline,
-)
-from test.utils import BaseTestCase, TestData
+from openstf.pipeline.optimize_hyperparameters import optimize_hyperparameters_pipeline
 
 
 class TestOptimizeHyperParametersPipeline(BaseTestCase):
@@ -22,9 +21,10 @@ class TestOptimizeHyperParametersPipeline(BaseTestCase):
         self.input_data = TestData.load("reference_sets/307-train-data.csv")
         self.pj, self.modelspecs = TestData.get_prediction_job_and_modelspecs(pid=307)
 
-    def test_optimize_hyperparameters_pipeline(self):
+    @patch("openstf.model.serializer.MLflowSerializer.save_model")
+    def test_optimize_hyperparameters_pipeline(self, save_model_mock):
         parameters = optimize_hyperparameters_pipeline(
-            self.pj, self.input_data, "./test/trained_models", n_trials=2
+            self.pj, self.input_data, "./test/unit/trained_models", n_trials=2
         )
         self.assertIsInstance(parameters, dict)
 
@@ -34,7 +34,7 @@ class TestOptimizeHyperParametersPipeline(BaseTestCase):
         # if data is not sufficient a InputDataInsufficientError should be raised
         with self.assertRaises(InputDataInsufficientError):
             optimize_hyperparameters_pipeline(
-                self.pj, self.input_data, "./test/trained_models", n_trials=2
+                self.pj, self.input_data, "./test/unit/trained_models", n_trials=2
             )
 
     def test_optimize_hyperparameters_pipeline_no_data(self):
@@ -43,7 +43,7 @@ class TestOptimizeHyperParametersPipeline(BaseTestCase):
         # if there is no data a InputDataInsufficientError should be raised
         with self.assertRaises(InputDataInsufficientError):
             optimize_hyperparameters_pipeline(
-                self.pj, input_data, "./test/trained_models", n_trials=2
+                self.pj, input_data, "./test/unit/trained_models", n_trials=2
             )
 
     def test_optimize_hyperparameters_pipeline_no_load_data(self):
@@ -52,7 +52,7 @@ class TestOptimizeHyperParametersPipeline(BaseTestCase):
         # if there is no data a InputDataWrongColumnOrderError should be raised
         with self.assertRaises(InputDataWrongColumnOrderError):
             optimize_hyperparameters_pipeline(
-                self.pj, input_data, "./test/trained_models", n_trials=2
+                self.pj, input_data, "./test/unit/trained_models", n_trials=2
             )
 
 

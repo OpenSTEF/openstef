@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 from pathlib import Path
@@ -14,7 +14,7 @@ from openstf.feature_engineering.feature_applicator import (
 from openstf.model.confidence_interval_applicator import ConfidenceIntervalApplicator
 from openstf.model.fallback import generate_fallback
 from openstf.model.regressors.regressor import OpenstfRegressor
-from openstf.model.serializer import PersistentStorageSerializer
+from openstf.model.serializer import MLflowSerializer
 from openstf.pipeline.utils import generate_forecast_datetime_range
 from openstf.postprocessing.postprocessing import (
     add_prediction_job_properties_to_forecast,
@@ -45,7 +45,7 @@ def create_forecast_pipeline(
 
     """
     # Load most recent model for the given pid
-    model, modelspecs = PersistentStorageSerializer(
+    model, modelspecs = MLflowSerializer(
         trained_models_folder=trained_models_folder
     ).load_model(pj["id"])
 

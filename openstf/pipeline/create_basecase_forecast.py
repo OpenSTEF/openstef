@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 from pathlib import Path
@@ -14,8 +14,8 @@ from openstf.model.basecase import BaseCaseModel
 from openstf.model.confidence_interval_applicator import ConfidenceIntervalApplicator
 from openstf.pipeline.utils import generate_forecast_datetime_range
 from openstf.postprocessing.postprocessing import (
-    add_prediction_job_properties_to_forecast,
     add_components_base_case_forecast,
+    add_prediction_job_properties_to_forecast,
 )
 from openstf.validation import validation
 
@@ -74,7 +74,7 @@ def create_basecase_forecast_pipeline(
     # Apply confidence interval
     basecase_forecast = ConfidenceIntervalApplicator(
         model, forecast_input
-    ).add_confidence_interval(basecase_forecast, pj, default_confindence_interval=True)
+    ).add_confidence_interval(basecase_forecast, pj, quantile_confidence_interval=False)
 
     # Add basecase for the component forecasts
     basecase_forecast = add_components_base_case_forecast(basecase_forecast)

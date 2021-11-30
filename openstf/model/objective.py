@@ -1,6 +1,7 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+import copy
 from datetime import datetime
 
 import optuna
@@ -14,8 +15,8 @@ from openstf.model.standard_deviation_generator import StandardDeviationGenerato
 from openstf.model_selection.model_selection import split_data_train_validation_test
 
 EARLY_STOPPING_ROUNDS: int = 10
-TEST_FRACTION: float = 0.1
-VALIDATION_FRACTION: float = 0.1
+TEST_FRACTION: float = 0.15
+VALIDATION_FRACTION: float = 0.15
 # See https://xgboost.readthedocs.io/en/latest/parameter.html for all possibilities
 EVAL_METRIC: str = "mae"
 
@@ -73,6 +74,10 @@ class RegressorObjective:
             float: Mean absolute error for this trial.
         """
         # Perform data preprocessing
+        if self.model_type == MLModelType.ProLoaf:
+            stratification_min_max = False
+        else:
+            stratification_min_max = True
         (
             peaks,
             peaks_val_train,
@@ -83,6 +88,7 @@ class RegressorObjective:
             self.input_data,
             test_fraction=self.test_fraction,
             validation_fraction=self.validation_fraction,
+            stratification_min_max=stratification_min_max,
             back_test=True,
         )
 
@@ -145,6 +151,7 @@ class RegressorObjective:
             "score": score,
             "params": hyper_params,
         }
+        trial.set_user_attr(key="model", value=copy.deepcopy(self.model))
         return score
 
     def get_params(self, trial: optuna.trial.FrozenTrial) -> dict:
@@ -156,14 +163,14 @@ class RegressorObjective:
             dict: {parameter: hyperparameter_value}
         """
         default_params = {
-            "learning_rate": trial.suggest_float("learning_rate", 0.01, 0.2),
-            "alpha": trial.suggest_float("alpha", 1e-8, 1.0),
+            "learning_rate": trial.suggest_float("learning_rate", 0.01, 0.5),
+            "alpha": trial.suggest_float("alpha", 0, 1.0),
             "lambda": trial.suggest_float("lambda", 1e-8, 1.0),
-            "subsample": trial.suggest_float("subsample", 0.5, 0.99),
-            "min_child_weight": trial.suggest_int("min_child_weight", 1, 6),
+            "subsample": trial.suggest_float("subsample", 0.4, 1.0),
+            "min_child_weight": trial.suggest_int("min_child_weight", 1, 16),
             "max_depth": trial.suggest_int("max_depth", 3, 10),
             "colsample_bytree": trial.suggest_float("colsample_bytree", 0.5, 1.0),
-            "max_delta_step": trial.suggest_int("max_delta_step", 1, 10),
+            "max_delta_step": trial.suggest_int("max_delta_step", 0, 10),
         }
 
         # Compare the list to the default parameter space
@@ -201,6 +208,19 @@ class RegressorObjective:
 
         return report
 
+    @classmethod
+    def get_default_values(cls) -> dict:
+        return {
+            "learning_rate": 0.3,
+            "alpha": 0.0,
+            "lambda": 1.0,
+            "subsample": 1.0,
+            "min_child_weight": 1,
+            "max_depth": 6,
+            "colsample_bytree": 1,
+            "max_delta_step": 0,
+        }
+
 
 class XGBRegressorObjective(RegressorObjective):
     def __init__(self, *args, **kwargs):
@@ -222,7 +242,7 @@ class XGBRegressorObjective(RegressorObjective):
 
         # XGB specific parameters
         params = {
-            "gamma": trial.suggest_float("gamma", 1e-8, 1.0),
+            "gamma": trial.suggest_float("gamma", 0.0, 1.0),
             "booster": trial.suggest_categorical("booster", ["gbtree", "dart"]),
         }
         return {**model_params, **params}
@@ -231,6 +251,13 @@ class XGBRegressorObjective(RegressorObjective):
         return optuna.integration.XGBoostPruningCallback(
             trial, observation_key=f"validation_1-{self.eval_metric}"
         )
+
+    @classmethod
+    def get_default_values(cls) -> dict:
+
+        default_parameter_values = super().get_default_values()
+        default_parameter_values.update({"gamma": 0.0, "booster": "gbtree"})
+        return default_parameter_values
 
 
 class LGBRegressorObjective(RegressorObjective):
@@ -301,3 +328,72 @@ class XGBQuantileRegressorObjective(RegressorObjective):
         return optuna.integration.XGBoostPruningCallback(
             trial, observation_key=f"validation_1-{self.eval_metric}"
         )
+
+
+class ProLoafRegressorObjective(RegressorObjective):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.model_type = MLModelType.ProLoaf
+
+    def get_params(self, trial: optuna.trial.FrozenTrial) -> dict:
+        """get parameters for ProLoaf Regressor Objective
+        with objective specific parameters.
+
+            Args: trial
+
+            Returns:
+                dict: {parameter: hyperparameter_value}
+        """
+        # Filtered default parameters
+        model_params = super().get_params(trial)
+
+        # ProLoaf specific parameters
+        params = {
+            # TODO: look into optimizing this pipeline for proloaf
+            # "relu_leak": trial.suggest_float("relu_leak", 0.1, 1.0),
+            # "core_layers": trial.suggest_int("core_layers", 1, 3),
+            # "rel_linear_hidden_size": trial.suggest_float(
+            #    "rel_linear_hidden_size", 0.1, 1
+            # ),
+            # "rel_core_hidden_size": trial.suggest_float("rel_core_hidden_size", 0.1, 1),
+            # "dropout_fc": trial.suggest_float("dropout_fc", 0.1, 0.9),
+            # "dropout_core": trial.suggest_float("dropout_core", 0.1, 0.9),
+            # "early_stopping_patience": trial.suggest_int(
+            #    "early_stopping_patience", 5, 10
+            # ),
+            # "early_stopping_margin": trial.suggest_float(
+            #    "early_stopping_margin", 0.1, 0.9
+            # ),
+            "max_epochs": trial.suggest_int(
+                "max_epochs", 1, 1
+            ),  # TODO: change after having availability to gpu resource
+            "batch_size": trial.suggest_int("batch_size", 1, 24),
+        }
+        return {**model_params, **params}
+
+    def get_pruning_callback(self, trial: optuna.trial.FrozenTrial):
+        return optuna.integration.PyTorchLightningPruningCallback(
+            trial, monitor="val_loss"
+        )
+
+
+class LinearRegressorObjective(RegressorObjective):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.model_type = MLModelType.LINEAR
+
+    def get_params(self, trial: optuna.trial.FrozenTrial) -> dict:
+        """get parameters for Linear Regressor Objective
+        with objective specific parameters.
+            Args: trial
+            Returns:
+                dict: {parameter: hyperparameter_value}
+        """
+
+        # Imputation strategy
+        params = {
+            "imputation_strategy": trial.suggest_categorical(
+                "imputation_strategy", ["mean", "median", "most_frequent"]
+            ),
+        }
+        return params

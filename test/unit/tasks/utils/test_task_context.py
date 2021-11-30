@@ -1,22 +1,22 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
 # import builtins
 import unittest
 from datetime import datetime, timedelta
+from test.unit.utils.base import BaseTestCase
+from test.unit.utils.data import TestData
 from unittest.mock import MagicMock, Mock, patch
 
 from openstf.exceptions import NoPredictedLoadError, NoRealisedLoadError
 from openstf.tasks.utils.predictionjobloop import (
-    PredictionJobLoop,
     PredictionJobException,
+    PredictionJobLoop,
 )
 
 # import project modules
 from openstf.tasks.utils.taskcontext import TaskContext
-from test.utils import BaseTestCase
-from test.utils import TestData
 
 # define constants
 PREDICTION_JOBS = TestData.get_prediction_jobs()

@@ -1,4 +1,4 @@
-REM SPDX-FileCopyrightText: 2017-2021 Alliander N.V.
+REM SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project
 REM
 REM SPDX-License-Identifier: MPL-2.0
 

@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -22,14 +22,14 @@ from pathlib import Path
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 from openstf.enums import MLModelType
-from openstf.model.serializer import PersistentStorageSerializer
+from openstf.model.serializer import MLflowSerializer
 from openstf.monitoring import teams
 from openstf.pipeline.optimize_hyperparameters import optimize_hyperparameters_pipeline
 from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstf.tasks.utils.taskcontext import TaskContext
 
 MAX_AGE_HYPER_PARAMS_DAYS = 31
-DEFAULT_TRAINING_PERIOD_DAYS = 91
+DEFAULT_TRAINING_PERIOD_DAYS = 121
 
 
 def optimize_hyperparameters_task(
@@ -49,16 +49,16 @@ def optimize_hyperparameters_task(
 
     # Determine if we need to optimize hyperparams
 
-    # retrieve last model from MLflow
-    old_model, modelspecs = PersistentStorageSerializer(
-        trained_models_folder
-    ).load_model(pj["id"])
+    # retrieve last model age where hyperparameters were optimized
+    hyper_params_age = MLflowSerializer(trained_models_folder).get_model_age(
+        pj["id"], hyperparameter_optimization_only=True
+    )
 
-    if old_model.age is not None and old_model.age < MAX_AGE_HYPER_PARAMS_DAYS:
+    if hyper_params_age < MAX_AGE_HYPER_PARAMS_DAYS:
         context.logger.warning(
             "Skip hyperparameter optimization",
             pid=pj["id"],
-            model_age=old_model.age,
+            hyper_params_age=hyper_params_age,
             max_age=MAX_AGE_HYPER_PARAMS_DAYS,
         )
         return

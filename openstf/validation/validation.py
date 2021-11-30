@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -10,8 +10,8 @@ import pandas as pd
 import structlog
 
 from openstf.preprocessing.preprocessing import (
-    replace_repeated_values_with_nan,
     replace_invalid_data,
+    replace_repeated_values_with_nan,
 )
 
 # TODO make this config more central
@@ -202,6 +202,12 @@ def find_nonzero_flatliner(df: pd.DataFrame, threshold: int) -> pd.DataFrame:
     Returns:
     # TODO: function returns None or a DataFrame
         list: flatline moments
+
+    TODO: a lot of the logic of this function can be improved using: mnts.label
+    ```
+    import scipy.ndimage.measurements as mnts
+    mnts.label
+    ```
     """
 
     if len(df) == 0:
@@ -226,7 +232,13 @@ def find_nonzero_flatliner(df: pd.DataFrame, threshold: int) -> pd.DataFrame:
     last_zeros = flatliner_total[1:][
         (flatliner_total.iloc[:-1] != 0).values * (flatliner_total.iloc[1:] == 0).values
     ]
-    last_zeros.index = last_zeros.index - pd.Timedelta("15m")
+
+    # If a zero-value is at start or end of df, remove from last_* list
+    if len(flatliner_total) > 0:
+        if flatliner_total.iloc[0]:
+            last_zeros = last_zeros[1:]
+        if flatliner_total.iloc[-1]:
+            first_zeros = first_zeros[:-1]
 
     # Give as output from:to
     interval_df = pd.DataFrame(
@@ -252,6 +264,7 @@ def find_zero_flatliner(
     load_threshold: float = 0.3,
 ) -> pd.DataFrame or None:
     """Function that detects a zero value where the load is not compensated by the other trafo's of the station.
+    If zero value is at start or end, ignore that block.
 
     Input:
     - df: pd.dataFrame(index=DatetimeIndex, columns = [load1, ..., loadN]). Load_corrections should be indicated by 'LC_'
@@ -261,7 +274,14 @@ def find_zero_flatliner(
     before and during the zero-value(s).
 
     return:
-    - pd.DataFrame of timestamps, or None if none"""
+    - pd.DataFrame of timestamps, or None if none
+
+    TODO: a lot of the logic of this function can be improved using: mnts.label
+    ```
+    import scipy.ndimage.measurements as mnts
+    mnts.label
+    ```
+    """
     result_df = pd.DataFrame()
 
     for col in df.columns:
@@ -277,6 +297,14 @@ def find_zero_flatliner(
             first_zeros = zero_values[1:][
                 (zero_values.iloc[:-1] == 0).values * (zero_values.iloc[1:] != 0).values
             ]
+
+            # If a zero-value is at start or end of df, remove from last_* list
+            if len(zero_values) > 0:
+                if zero_values.iloc[0]:
+                    last_zeros = last_zeros[1:]
+                if zero_values.iloc[-1]:
+                    first_zeros = first_zeros[:-1]
+
             interval_df = pd.DataFrame(
                 {
                     "from_time": first_zeros.index,

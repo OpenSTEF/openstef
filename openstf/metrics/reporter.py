@@ -1,18 +1,20 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+import os
 import warnings
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Dict
 
 import numpy as np
 import pandas as pd
 import sklearn
-from mlflow.models import infer_signature, ModelSignature
+from mlflow.models import ModelSignature, infer_signature
 from plotly.graph_objects import Figure
 
 from openstf.metrics import figure
-from openstf.metrics.metrics import bias, nsme, mae, r_mae, rmse
+from openstf.metrics.metrics import bias, mae, nsme, r_mae, rmse
 from openstf.model.regressors.regressor import OpenstfRegressor
 
 
@@ -122,6 +124,19 @@ class Reporter:
             except ValueError:
                 continue
         return results
+
+    @staticmethod
+    def write_report_to_disk(report: Report, location: Path):
+        """Write report to disk,
+        easy for e.g. viewing report of latest models using grafana"""
+        # create path if does not exist
+        if not os.path.exists(location):
+            os.makedirs(location)
+        # write feature importance figure
+        report.feature_importance_figure.write_html(f"{location}/weight_plot.html")
+        # write predictors
+        for name, figure in report.data_series_figures.items():
+            figure.write_html(f"{location}/{name}.html")
 
     def _make_data_series_figures(self, model: OpenstfRegressor) -> dict:
         # Make model predictions

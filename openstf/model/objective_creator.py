@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -6,10 +6,12 @@ from typing import Union
 
 from openstf.enums import MLModelType
 from openstf.model.objective import (
-    RegressorObjective,
-    XGBRegressorObjective,
+    LinearRegressorObjective,
     LGBRegressorObjective,
+    ProLoafRegressorObjective,
+    RegressorObjective,
     XGBQuantileRegressorObjective,
+    XGBRegressorObjective,
 )
 from openstf.model.regressors.custom_regressor import (
     create_custom_objective,
@@ -22,6 +24,8 @@ class ObjectiveCreator:
         MLModelType.XGB: XGBRegressorObjective,
         MLModelType.LGB: LGBRegressorObjective,
         MLModelType.XGB_QUANTILE: XGBQuantileRegressorObjective,
+        MLModelType.ProLoaf: ProLoafRegressorObjective,
+        MLModelType.LINEAR: LinearRegressorObjective,
     }
 
     @staticmethod

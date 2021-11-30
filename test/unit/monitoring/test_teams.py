@@ -1,14 +1,14 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
-from unittest.mock import MagicMock
-from unittest.mock import patch
+from test.unit.utils.base import BaseTestCase
+from test.unit.utils.data import TestData
+from unittest.mock import MagicMock, patch
 
 import pandas as pd
 
 from openstf.monitoring import teams
-from test.utils import BaseTestCase, TestData
 
 
 @patch("openstf.monitoring.teams.pymsteams")

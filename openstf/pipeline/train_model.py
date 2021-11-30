@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 import logging
@@ -19,7 +19,7 @@ from openstf.feature_engineering.feature_applicator import TrainFeatureApplicato
 from openstf.metrics.reporter import Report, Reporter
 from openstf.model.model_creator import ModelCreator
 from openstf.model.regressors.regressor import OpenstfRegressor
-from openstf.model.serializer import PersistentStorageSerializer
+from openstf.model.serializer import MLflowSerializer
 from openstf.model.standard_deviation_generator import StandardDeviationGenerator
 from openstf.model_selection.model_selection import split_data_train_validation_test
 from openstf.validation import validation
@@ -54,7 +54,7 @@ def train_model_pipeline(
     """
     # Intitialize logger and serializer
     logger = structlog.get_logger(__name__)
-    serializer = PersistentStorageSerializer(trained_models_folder)
+    serializer = MLflowSerializer(trained_models_folder)
 
     # Get old model and age
     try:
@@ -62,7 +62,7 @@ def train_model_pipeline(
         old_model_age = (
             old_model.age
         )  # Age attribute is openstf specific and is added by the serializer
-    except FileNotFoundError:
+    except (AttributeError, FileNotFoundError, LookupError):
         old_model = None
         old_model_age = float("inf")
         # create basic modelspecs
@@ -118,17 +118,6 @@ def train_model_pipeline_core(
     """Train model core pipeline.
     Trains a new model given a prediction job, input data and compares it to an old model.
     This pipeline has no database or persistent storage dependencies.
-
-    TODO once we have a data model for a prediction job this explantion is not
-    required anymore.
-
-    For training a model the following keys in the prediction job are
-    expected:
-        "id"            Only used for logging
-        "model"         Model type, any of "xgb", "lgb",
-    And in modelspecs:
-        "hyper_params"  Hyper parameters dictionairy specific to the model_type
-        "feature_names"      List of features to train model on or None to use all features
 
     Args:
         pj (PredictionJobDataClass): Prediction job
@@ -197,6 +186,7 @@ def train_pipeline_common(
     horizons: List[float],
     test_fraction: float = 0.0,
     backtest: bool = False,
+    test_data_predefined: pd.DataFrame = pd.DataFrame(),
 ) -> Tuple[OpenstfRegressor, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Common pipeline shared with operational training and backtest training
 
@@ -207,6 +197,8 @@ def train_pipeline_common(
         horizons (List[float]): horizons to train on in hours.
         test_fraction (float): fraction of data to use for testing
         backtest (bool): boolean if we need to do a backtest
+        test_data_predefined (pd.DataFrame): Predefined test data frame to be used in the pipeline
+            (empty data frame by default)
 
     Returns:
         Tuple[RegressorMixin, Report, pd.DataFrame, pd.DataFrame, pd.DataFrame]: Trained model, report
@@ -223,6 +215,7 @@ def train_pipeline_common(
         raise InputDataWrongColumnOrderError(
             "Missing the load column in the input dataframe"
         )
+
     # Validate and clean data
     validated_data = validation.clean(validation.validate(pj["id"], input_data))
     # Check if sufficient data is left after cleaning
@@ -230,9 +223,26 @@ def train_pipeline_common(
         raise InputDataInsufficientError(
             "Input data is insufficient, after validation and cleaning"
         )
+
+    if pj["model"] == "proloaf":
+        stratification_min_max = False
+        # proloaf is only able to train with one horizon
+        horizons = [horizons[0]]
+    else:
+        stratification_min_max = True
+
     data_with_features = TrainFeatureApplicator(
         horizons=horizons, feature_names=modelspecs.feature_names
-    ).add_features(validated_data)
+    ).add_features(validated_data, pj=pj)
+
+    # if test_data is predefined, apply the pipeline only on the remaining data
+    if not test_data_predefined.empty:
+        test_data_predefined = data_with_features[
+            data_with_features.index.isin(test_data_predefined.index)
+        ].sort_index()
+        data_with_features = data_with_features[
+            ~data_with_features.index.isin(test_data_predefined.index)
+        ].sort_index()
 
     # Split data
     (
@@ -244,8 +254,13 @@ def train_pipeline_common(
     ) = split_data_train_validation_test(
         data_with_features,
         test_fraction=test_fraction,
+        stratification_min_max=stratification_min_max,
         back_test=backtest,
     )
+
+    # if test_data is predefined, use this over the returned test_data of split function
+    if not test_data_predefined.empty:
+        test_data = test_data_predefined
 
     # Test if first column is "load" and last column is "horizon"
     if train_data.columns[0] != "load" or train_data.columns[-1] != "horizon":
@@ -300,17 +315,3 @@ def train_pipeline_common(
     report = reporter.generate_report(model)
 
     return model, report, train_data, validation_data, test_data
-
-
-def get_model_age(trained_models_folder: str, pid: int) -> float:
-    """returns age of most recently trained model in days.
-    If no previous model can be found, this returns float(inf).
-
-    Args:
-        trained_models_folder: str
-        pid: int
-
-    Returns:
-        float: age of most recent model in days"""
-    serializer = PersistentStorageSerializer(trained_models_folder)
-    return serializer.determine_model_age_from_pid(pid)

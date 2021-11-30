@@ -1,7 +1,9 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
+from test.unit.utils.base import BaseTestCase
+from test.unit.utils.data import TestData
 
 import pandas as pd
 import pytz
@@ -9,7 +11,6 @@ import pytz
 from openstf.pipeline.create_component_forecast import (
     create_components_forecast_pipeline,
 )
-from test.utils import BaseTestCase, TestData
 
 NOW = datetime.now(timezone.utc)
 

@@ -1,17 +1,17 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
 import math
 import unittest
 from datetime import datetime, timedelta
+from test.unit.utils.base import BaseTestCase
 
 import numpy as np
 import pandas as pd
 
 from openstf.preprocessing import preprocessing
 from openstf.validation import validation
-from test.utils import BaseTestCase
 
 now = datetime.utcnow()
 date_range = pd.date_range(start=now - timedelta(minutes=30), end=now, freq="0.25H")
@@ -102,7 +102,7 @@ class TestPreprocessing(BaseTestCase):
         Expected: list containing all trafo values and timestamps of the
         stationsflatliners + the generates diff_columns to detect the flatliners.
         """
-        df = df_flatliner
+        df = df_flatliner.copy()
         suspicious_moments = validation.find_nonzero_flatliner(df, 0.25)
         # create expected output with diff_columns
         df_flatliner_output = pd.DataFrame(

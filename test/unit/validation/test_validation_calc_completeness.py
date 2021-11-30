@@ -1,14 +1,14 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
 import unittest
+from test.unit.utils.base import BaseTestCase
 
 import numpy as np
 import pandas as pd
 
 from openstf.validation.validation import calc_completeness
-from test.utils import BaseTestCase
 
 
 class CalcCompletenessTest(BaseTestCase):

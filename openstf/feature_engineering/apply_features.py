@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -22,13 +22,20 @@ from openstf.feature_engineering.holiday_features import (
 )
 from openstf.feature_engineering.lag_features import generate_lag_feature_functions
 from openstf.feature_engineering.weather_features import (
-    add_humidity_features,
     add_additional_wind_features,
+    add_humidity_features,
 )
+from openstf.feature_engineering.historic_features import (
+    add_historic_load_as_a_feature,
+)
+from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 
 def apply_features(
-    data: pd.DataFrame, feature_names: List[str] = None, horizon: float = 24.0
+    data: pd.DataFrame,
+    pj: PredictionJobDataClass = None,
+    feature_names: List[str] = None,
+    horizon: float = 24.0,
 ) -> pd.DataFrame:
     """This script applies the feature functions defined in
         feature_functions.py and returns the complete dataframe. Features requiring
@@ -44,6 +51,7 @@ def apply_features(
                                         index=datetime,
                                         columns=[label, predictor_1,..., predictor_n]
                                     )
+        pj (PredictionJobDataClass): Prediction job.
         feature_names (List[str]): list of reuqested features
         horizon (float): Forecast horizon limit in hours.
 
@@ -62,6 +70,9 @@ def apply_features(
                             np.random.uniform(0.7,1.7, 200)))
 
     """
+    # Add if needed the proloaf feature (historic_load)
+    data = add_historic_load_as_a_feature(data, pj)
+
     # Get lag feature functions
     feature_functions = generate_lag_feature_functions(feature_names, horizon)
 

@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -29,7 +29,7 @@ def read_long_description_from_readme():
 
 setup(
     name="openstf",
-    version="2.6.0a4",
+    version="2.6.3",
     packages=find_packages(include=["openstf", "openstf.*"]),
     description="Open short term forcasting",
     long_description=read_long_description_from_readme(),

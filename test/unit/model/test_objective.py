@@ -1,19 +1,23 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 import unittest
+from test.unit.utils.base import BaseTestCase
+from test.unit.utils.data import TestData
 
 import optuna
 
 from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
 from openstf.model.model_creator import ModelCreator
 from openstf.model.objective import (
-    RegressorObjective,
-    XGBRegressorObjective,
+    LinearRegressorObjective,
     LGBRegressorObjective,
+    ProLoafRegressorObjective,
+    RegressorObjective,
     XGBQuantileRegressorObjective,
+    XGBRegressorObjective,
 )
-from test.utils import BaseTestCase, TestData
+from openstf_dbc.services.prediction_job import PredictionJobDataClass
 
 input_data = TestData.load("reference_sets/307-train-data.csv")
 input_data_with_features = TrainFeatureApplicator(horizons=[0.25, 24.0]).add_features(
@@ -107,6 +111,52 @@ class TestXGBQRegressorObjective(BaseTestCase):
         study.optimize(objective, n_trials=N_TRIALS)
 
         self.assertIsInstance(objective, XGBQuantileRegressorObjective)
+        self.assertEqual(len(study.trials), N_TRIALS)
+
+
+class TestProLoafRegressorObjective(BaseTestCase):
+    def test_call(self):
+        input_data = TestData.load("reference_sets/307-train-data.csv")
+        pj = {"model": "proloaf"}
+        input_data_with_features = TrainFeatureApplicator(horizons=[24.0]).add_features(
+            input_data, pj=pj
+        )
+
+        model_type = "proloaf"
+        model = ModelCreator.create_model(model_type)
+
+        objective = ProLoafRegressorObjective(
+            model,
+            input_data_with_features,
+        )
+        study = optuna.create_study(
+            study_name=model_type,
+            pruner=optuna.pruners.MedianPruner(n_warmup_steps=5),
+            direction="minimize",
+        )
+        study.optimize(objective, n_trials=1)
+
+        self.assertIsInstance(objective, ProLoafRegressorObjective)
+        self.assertEqual(len(study.trials), 1)
+
+
+class TestLinearRegressorObjective(BaseTestCase):
+    def test_call(self):
+        model_type = "linear"
+        model = ModelCreator.create_model(model_type)
+
+        objective = LinearRegressorObjective(
+            model,
+            input_data_with_features,
+        )
+        study = optuna.create_study(
+            study_name=model_type,
+            pruner=optuna.pruners.MedianPruner(n_warmup_steps=5),
+            direction="minimize",
+        )
+        study.optimize(objective, n_trials=N_TRIALS)
+
+        self.assertIsInstance(objective, LinearRegressorObjective)
         self.assertEqual(len(study.trials), N_TRIALS)
 
 
