@@ -14,7 +14,8 @@ from openstef.feature_engineering.feature_adder import (
     FeatureDispatcher,
     adders_from_modules,
 )
-from test.utils import BaseTestCase, TestData
+from test.unit.utils.base import BaseTestCase
+from test.unit.utils.data import TestData
 
 
 class DummyFeature(FeatureAdder):
