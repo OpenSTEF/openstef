@@ -9,7 +9,7 @@ import pandas as pd
 import re
 import os
 
-from openstf.feature_engineering.feature_adder import (
+from openstef.feature_engineering.feature_adder import (
     FeatureAdder,
     FeatureDispatcher,
     adders_from_modules,
