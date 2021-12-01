@@ -10,8 +10,8 @@ from test.unit.utils.base import BaseTestCase
 import numpy as np
 import pandas as pd
 
-from openstf.preprocessing import preprocessing
-from openstf.validation import validation
+from openstef.preprocessing import preprocessing
+from openstef.validation import validation
 
 now = datetime.utcnow()
 date_range = pd.date_range(start=now - timedelta(minutes=30), end=now, freq="0.25H")

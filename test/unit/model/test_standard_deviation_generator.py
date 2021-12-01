@@ -5,7 +5,7 @@ import unittest
 
 import pandas as pd
 
-from openstf.model.standard_deviation_generator import StandardDeviationGenerator
+from openstef.model.standard_deviation_generator import StandardDeviationGenerator
 
 
 class MockModel:

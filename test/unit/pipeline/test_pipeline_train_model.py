@@ -10,16 +10,62 @@ from unittest.mock import MagicMock, patch
 import pandas as pd
 import sklearn
 
-from openstf.enums import MLModelType
-from openstf.exceptions import (
+from openstef.enums import MLModelType
+from openstef.exceptions import (
     InputDataInsufficientError,
     InputDataWrongColumnOrderError,
 )
-from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
-from openstf.metrics.reporter import Report
-from openstf.model_selection.model_selection import split_data_train_validation_test
-from openstf.pipeline.train_model import train_model_pipeline, train_model_pipeline_core
-from openstf.validation import validation
+from openstef.feature_engineering.feature_applicator import TrainFeatureApplicator
+from openstef.metrics.reporter import Report
+from openstef.model_selection.model_selection import split_data_train_validation_test
+from openstef.pipeline.train_model import (
+    train_model_pipeline,
+    train_model_pipeline_core,
+)
+from openstef.validation import validation
+from openstef.model.regressors.custom_regressor import CustomOpenstfRegressor
+from openstef.model.objective import RegressorObjective
+
+# define constants
+
+
+class DummyObjective(RegressorObjective):
+    ...
+
+
+class DummyRegressor(CustomOpenstfRegressor):
+    @staticmethod
+    def valid_kwargs():
+        return []
+
+    @property
+    def objective(self):
+        return DummyObjective
+
+    @property
+    def feature_names(self):
+        return self._feature_names
+
+    def fit(self, X, y, **fit_params):
+        self._feature_names = list(X.columns)
+        return self
+
+    def predict(self, X, **kwargs):
+        import numpy as np
+
+        return np.zeros(len(X))
+
+    def set_feature_importance(self):
+        return pd.DataFrame(
+            {
+                "weight": [0] * len(self.feature_names),
+                "gain": [0] * len(self.feature_names),
+            },
+            index=self.feature_names,
+        )
+
+
+PJ = TestData.get_prediction_job(pid=307)
 
 XGB_HYPER_PARAMS = {
     "subsample": 0.9,
@@ -66,11 +112,16 @@ class TestTrainModelPipeline(BaseTestCase):
         but it can/should include predictors (e.g. weather data)
 
         """
-        for model_type in MLModelType:
+        # Select 50 data points to speedup test
+        train_input = self.train_input.iloc[::50, :]
+        for model_type in list(MLModelType) + [__name__ + ".DummyRegressor"]:
             with self.subTest(model_type=model_type):
                 pj = self.pj
-                pj["model"] = model_type.value
 
+                pj["model"] = (
+                    model_type.value if hasattr(model_type, "value") else model_type
+                )
+                modelspecs = self.modelspecs
                 train_input = self.train_input
 
                 # Use default parameters
@@ -121,9 +172,9 @@ class TestTrainModelPipeline(BaseTestCase):
                     importance = model.set_feature_importance()
                     self.assertIsInstance(importance, pd.DataFrame)
 
-    @patch("openstf.model.serializer.MLflowSerializer.save_model")
-    @patch("openstf.pipeline.train_model.train_model_pipeline_core")
-    @patch("openstf.pipeline.train_model.MLflowSerializer")
+    @patch("openstef.model.serializer.MLflowSerializer.save_model")
+    @patch("openstef.pipeline.train_model.train_model_pipeline_core")
+    @patch("openstef.pipeline.train_model.MLflowSerializer")
     def test_train_model_pipeline_happy_flow(
         self, serializer_mock, pipeline_mock, save_model_mock
     ):
@@ -150,9 +201,9 @@ class TestTrainModelPipeline(BaseTestCase):
             trained_models_folder=trained_models_folder,
         )
 
-    @patch("openstf.model.serializer.MLflowSerializer.save_model")
-    @patch("openstf.pipeline.train_model.train_model_pipeline_core")
-    @patch("openstf.pipeline.train_model.MLflowSerializer")
+    @patch("openstef.model.serializer.MLflowSerializer.save_model")
+    @patch("openstef.pipeline.train_model.train_model_pipeline_core")
+    @patch("openstef.pipeline.train_model.MLflowSerializer")
     def test_train_model_pipeline_young_model(
         self, serializer_mock, pipeline_mock, save_model_mock
     ):
@@ -178,13 +229,15 @@ class TestTrainModelPipeline(BaseTestCase):
         )
         self.assertFalse(pipeline_mock.called)
 
-    @patch("openstf.model.serializer.MLflowSerializer.save_model")
-    @patch("openstf.validation.validation.is_data_sufficient", return_value=False)
+    @patch("openstef.model.serializer.MLflowSerializer.save_model")
+    @patch("openstef.validation.validation.is_data_sufficient", return_value=False)
     def test_train_model_InputDataInsufficientError(
         self, validation_is_data_sufficient_mock, save_model_mock
     ):
         # This error is caught and then raised again and logged
-        with self.assertLogs("openstf.pipeline.train_model", level="ERROR") as captured:
+        with self.assertLogs(
+            "openstef.pipeline.train_model", level="ERROR"
+        ) as captured:
             with self.assertRaises(InputDataInsufficientError):
                 train_model_pipeline(
                     pj=self.pj,
@@ -202,13 +255,15 @@ class TestTrainModelPipeline(BaseTestCase):
             "Input data is insufficient after validation and cleaning",
         )
 
-    @patch("openstf.model.serializer.MLflowSerializer.save_model")
+    @patch("openstef.model.serializer.MLflowSerializer.save_model")
     def test_train_model_InputDataWrongColumnOrderError(self, save_model_mock):
         # change the column order
         input_data = self.train_input.iloc[:, ::-1]
 
         # This error is caught and then raised again and logged
-        with self.assertLogs("openstf.pipeline.train_model", level="ERROR") as captured:
+        with self.assertLogs(
+            "openstef.pipeline.train_model", level="ERROR"
+        ) as captured:
             with self.assertRaises(InputDataWrongColumnOrderError):
                 train_model_pipeline(
                     pj=self.pj,
@@ -223,8 +278,8 @@ class TestTrainModelPipeline(BaseTestCase):
         # search for log
         self.assertRegex(captured.records[0].getMessage(), "Wrong column order")
 
-    @patch("openstf.model.serializer.MLflowSerializer.save_model")
-    @patch("openstf.pipeline.train_model.MLflowSerializer")
+    @patch("openstef.model.serializer.MLflowSerializer.save_model")
+    @patch("openstef.pipeline.train_model.MLflowSerializer")
     def test_train_model_OldModelHigherScoreError(
         self, serializer_mock, save_model_mock
     ):
@@ -241,7 +296,9 @@ class TestTrainModelPipeline(BaseTestCase):
         old_model_mock.score.return_value = 5
 
         # This error is caught so we check if logging contains the error.
-        with self.assertLogs("openstf.pipeline.train_model", level="ERROR") as captured:
+        with self.assertLogs(
+            "openstef.pipeline.train_model", level="ERROR"
+        ) as captured:
             train_model_pipeline(
                 pj=self.pj,
                 input_data=self.train_input,
@@ -257,8 +314,8 @@ class TestTrainModelPipeline(BaseTestCase):
             captured.records[0].getMessage(), "Old model is better than new model"
         )
 
-    @patch("openstf.model.serializer.MLflowSerializer.save_model")
-    @patch("openstf.pipeline.train_model.MLflowSerializer")
+    @patch("openstef.model.serializer.MLflowSerializer.save_model")
+    @patch("openstef.pipeline.train_model.MLflowSerializer")
     def test_train_model_log_new_model_better(self, serializer_mock, save_model_mock):
         # Mock an old model which is better than the new one.
         old_model_mock = MagicMock()
@@ -272,7 +329,7 @@ class TestTrainModelPipeline(BaseTestCase):
         serializer_mock.return_value = serializer_mock_instance
         old_model_mock.score.return_value = 0.1
 
-        with self.assertLogs("openstf.pipeline.train_model", level="INFO") as captured:
+        with self.assertLogs("openstef.pipeline.train_model", level="INFO") as captured:
             train_model_pipeline(
                 pj=self.pj,
                 input_data=self.train_input,
@@ -285,8 +342,8 @@ class TestTrainModelPipeline(BaseTestCase):
             captured.records[0].getMessage(), "New model is better than old model"
         )
 
-    @patch("openstf.model.serializer.MLflowSerializer.save_model")
-    @patch("openstf.pipeline.train_model.MLflowSerializer")
+    @patch("openstef.model.serializer.MLflowSerializer.save_model")
+    @patch("openstef.pipeline.train_model.MLflowSerializer")
     def test_train_model_log_couldnt_compare(self, serializer_mock, save_model_mock):
         # Mock an old model which is better than the new one.
         old_model_mock = MagicMock()
@@ -300,7 +357,7 @@ class TestTrainModelPipeline(BaseTestCase):
         serializer_mock.return_value = serializer_mock_instance
         old_model_mock.score.side_effect = ValueError()
 
-        with self.assertLogs("openstf.pipeline.train_model", level="INFO") as captured:
+        with self.assertLogs("openstef.pipeline.train_model", level="INFO") as captured:
             train_model_pipeline(
                 pj=self.pj,
                 input_data=self.train_input,
@@ -313,8 +370,8 @@ class TestTrainModelPipeline(BaseTestCase):
             captured.records[0].getMessage(), "Could not compare to old model"
         )
 
-    @patch("openstf.model.serializer.MLflowSerializer.save_model")
-    @patch("openstf.pipeline.train_model.MLflowSerializer")
+    @patch("openstef.model.serializer.MLflowSerializer.save_model")
+    @patch("openstef.pipeline.train_model.MLflowSerializer")
     def test_train_model_No_old_model(self, serializer_mock, save_model_mock):
         # Mock an old model which is better than the new one.
         old_model_mock = MagicMock()
@@ -329,7 +386,7 @@ class TestTrainModelPipeline(BaseTestCase):
         serializer_mock.return_value = serializer_mock_instance
 
         with self.assertLogs(
-            "openstf.pipeline.train_model", level="WARNING"
+            "openstef.pipeline.train_model", level="WARNING"
         ) as captured:
             train_model_pipeline(
                 pj=self.pj,

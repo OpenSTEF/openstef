@@ -4,7 +4,7 @@
 import unittest
 from test.unit.utils.base import BaseTestCase
 
-from openstf.feature_engineering.lag_features import extract_lag_features
+from openstef.feature_engineering.lag_features import extract_lag_features
 
 
 class TestGeneralExtractMinuteFeatures(BaseTestCase):

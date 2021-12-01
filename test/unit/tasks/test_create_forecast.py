@@ -6,8 +6,9 @@ from test.unit.utils.data import TestData
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
 
-import openstf.tasks.create_forecast as task
-from openstf.tasks.create_forecast import create_forecast_task
+import openstef.tasks.create_forecast as task
+from openstef.tasks.create_forecast import create_forecast_task
+from openstef.model.serializer import MLflowSerializer
 
 FORECAST_MOCK = "forecast_mock"
 
@@ -15,13 +16,14 @@ FORECAST_MOCK = "forecast_mock"
 class TestCreateForeCastTask(TestCase):
     def setUp(self) -> None:
         self.pj, self.modelspecs = TestData.get_prediction_job_and_modelspecs(pid=307)
-        pickle_model = "./test/unit/trained_models/mlruns/1/ef5808eaa1c647cdaf88cd959f918fea/artifacts/model/model.pkl"
-        # load model
-        with open(pickle_model, "rb") as f:
-            self.model = pickle.load(f)
+        self.serializer = MLflowSerializer(
+            trained_models_folder="./test/unit/trained_models"
+        )
+        # Use MLflowSerializer to load a model
+        self.model, _ = self.serializer.load_model(pid=307)
 
     @patch(
-        "openstf.tasks.create_forecast.create_forecast_pipeline",
+        "openstef.tasks.create_forecast.create_forecast_pipeline",
         MagicMock(return_value=FORECAST_MOCK),
     )
     def test_create_forecast_task_happy_flow(self):
@@ -31,9 +33,9 @@ class TestCreateForeCastTask(TestCase):
         self.assertEqual(context.mock_calls[1].args[0], FORECAST_MOCK)
 
     @patch("mlflow.sklearn.load_model")
-    @patch("openstf.model.serializer.MLflowSerializer")
-    @patch("openstf.tasks.utils.taskcontext.DataBase")
-    @patch("openstf.tasks.utils.taskcontext.ConfigManager")
+    @patch("openstef.model.serializer.MLflowSerializer")
+    @patch("openstef.tasks.utils.taskcontext.DataBase")
+    @patch("openstef.tasks.utils.taskcontext.ConfigManager")
     def test_create_forecast_task_with_context(
         self, configmock_taskcontext, dbmock, serializer_mock, load_mock
     ):

@@ -8,8 +8,8 @@ from test.unit.utils.base import BaseTestCase
 from test.unit.utils.data import TestData
 from unittest.mock import patch
 
-from openstf.model.serializer import MLflowSerializer
-from openstf.pipeline import create_forecast, utils
+from openstef.model.serializer import MLflowSerializer
+from openstef.pipeline import create_forecast, utils
 
 
 class TestCreateForecastPipeline(BaseTestCase):
@@ -21,10 +21,8 @@ class TestCreateForecastPipeline(BaseTestCase):
         )
         self.data = TestData.load("reference_sets/307-test-data.csv")
         self.train_input = TestData.load("reference_sets/307-train-data.csv")
-        pickle_model = "./test/unit/trained_models/mlruns/1/ef5808eaa1c647cdaf88cd959f918fea/artifacts/model/model.pkl"
-        # load model
-        with open(pickle_model, "rb") as f:
-            self.model = pickle.load(f)
+        # Use MLflowSerializer to load a model
+        self.model, _ = self.serializer.load_model(pid=307)
 
     def test_generate_forecast_datetime_range_single_null_values_target_column(self):
         """Test if correct forecast window is made with single range of nulls."""
@@ -81,7 +79,7 @@ class TestCreateForecastPipeline(BaseTestCase):
         self.assertEqual(forecast_end, forecast_end_expected)
 
     @patch("mlflow.sklearn.load_model")
-    @patch("openstf.validation.validation.is_data_sufficient")
+    @patch("openstef.validation.validation.is_data_sufficient")
     def test_create_forecast_pipeline_incomplete_inputdata(
         self, is_data_sufficient_mock, load_mock
     ):
@@ -94,7 +92,7 @@ class TestCreateForecastPipeline(BaseTestCase):
         col_name = forecast_data.columns[0]
         forecast_data.loc["2020-11-28 00:00:00":"2020-12-01", col_name] = None
 
-        model, modelspecs = self.serializer.load_model(self.pj["id"])
+        model, _ = self.serializer.load_model(self.pj["id"])
         if not hasattr(model, "standard_deviation"):  # Renamed the attribute
             model.standard_deviation = model.confidence_interval
 

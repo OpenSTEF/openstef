@@ -6,7 +6,7 @@ import unittest
 from unittest.mock import patch
 
 import numpy as np
-import openstf_dbc
+import openstef_dbc
 import pandas as pd
 
 
@@ -23,13 +23,13 @@ class BaseTestCase(unittest.TestCase):
         super().setUp()
         self.patchers = []
         self.patchers.append(
-            patch("openstf_dbc.config.config.ConfigManager.get_instance", create=True)
+            patch("openstef_dbc.config.config.ConfigManager.get_instance", create=True)
         )
         for patcher in self.patchers:
             patcher.start()
 
         # add trained model path
-        conf = openstf_dbc.config.config.ConfigManager.get_instance()
+        conf = openstef_dbc.config.config.ConfigManager.get_instance()
         conf.paths = dotdict(
             dict(trained_models="/trained_models/", webroot="/reports/")
         )

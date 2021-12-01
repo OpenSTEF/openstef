@@ -4,7 +4,7 @@
 import unittest
 from test.unit.utils.base import BaseTestCase
 
-from openstf.model.objective_creator import ObjectiveCreator
+from openstef.model.objective_creator import ObjectiveCreator
 
 
 class TestObjectiveCreator(BaseTestCase):

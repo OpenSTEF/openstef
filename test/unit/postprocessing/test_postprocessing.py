@@ -7,8 +7,8 @@ from test.unit.utils.base import BaseTestCase
 
 import pandas as pd
 
-from openstf.enums import ForecastType
-from openstf.postprocessing import postprocessing
+from openstef.enums import ForecastType
+from openstef.postprocessing import postprocessing
 
 
 class TestPostProcess(BaseTestCase):

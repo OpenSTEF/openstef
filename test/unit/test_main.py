@@ -5,7 +5,7 @@
 import unittest
 from test.unit.utils.base import BaseTestCase
 
-from openstf.__main__ import validate_task_name
+from openstef.__main__ import validate_task_name
 
 
 class TestMain(BaseTestCase):

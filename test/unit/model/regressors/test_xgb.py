@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 from test.unit.utils.base import BaseTestCase
 
-from openstf.model.regressors.xgb import XGBOpenstfRegressor
+from openstef.model.regressors.xgb import XGBOpenstfRegressor
 
 
 class TestXGB(BaseTestCase):
