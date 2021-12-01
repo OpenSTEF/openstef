@@ -29,7 +29,7 @@ def read_long_description_from_readme():
 
 setup(
     name="openstef",
-    version="2.6.4",
+    version="3.0.0",
     packages=find_packages(include=["openstef", "openstef.*"]),
     description="Open short term forcasting",
     long_description=read_long_description_from_readme(),
