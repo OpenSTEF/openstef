@@ -1,9 +1,9 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 import unittest
 
-from openstf.metrics.metrics import get_eval_metric_function, mae
+from openstef.metrics.metrics import get_eval_metric_function, mae
 
 
 class TestEvalMetricFunction(unittest.TestCase):

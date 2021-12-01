@@ -1,14 +1,16 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
+from test.unit.utils.base import BaseTestCase
+from test.unit.utils.data import TestData
+
 import pandas as pd
 
-from openstf.metrics.figure import plot_data_series, plot_feature_importance
-from test.utils import BaseTestCase, TestData
+from openstef.metrics.figure import plot_data_series, plot_feature_importance
 
 
-class Teopenstfigure(BaseTestCase):
+class Teopenstefigure(BaseTestCase):
     def setUp(self):
         super().setUp()
         self.data = TestData.load("input_data.pickle").rename(

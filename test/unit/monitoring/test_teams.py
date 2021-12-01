@@ -1,17 +1,17 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
-from unittest.mock import MagicMock
-from unittest.mock import patch
+from test.unit.utils.base import BaseTestCase
+from test.unit.utils.data import TestData
+from unittest.mock import MagicMock, patch
 
 import pandas as pd
 
-from openstf.monitoring import teams
-from test.utils import BaseTestCase, TestData
+from openstef.monitoring import teams
 
 
-@patch("openstf.monitoring.teams.pymsteams")
+@patch("openstef.monitoring.teams.pymsteams")
 class TestTeams(BaseTestCase):
     def setUp(self):
         super().setUp()
@@ -66,7 +66,7 @@ class TestTeams(BaseTestCase):
         card_mock = teamsmock.connectorcard.return_value
         self.assertTrue(card_mock.send.called)
 
-    @patch("openstf.monitoring.teams.open", MagicMock())
+    @patch("openstef.monitoring.teams.open", MagicMock())
     def test_post_teams_worse(self, teamsmock):
 
         teams.send_report_teams_worse(self.pj)

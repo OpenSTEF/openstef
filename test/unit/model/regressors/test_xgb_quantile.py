@@ -1,15 +1,16 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 import unittest
+from test.unit.utils.base import BaseTestCase
+from test.unit.utils.data import TestData
 
 import numpy as np
 import pandas as pd
 import sklearn
 from sklearn.utils.estimator_checks import check_estimator
 
-from openstf.model.regressors.xgb_quantile import XGBQuantileOpenstfRegressor
-from test.utils import BaseTestCase, TestData
+from openstef.model.regressors.xgb_quantile import XGBQuantileOpenstfRegressor
 
 
 class MockModel:

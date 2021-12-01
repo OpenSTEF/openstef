@@ -18,6 +18,7 @@
         "id": 307,
         "typ": "demand",
         "model": "xgb",
+        "model_type_group": "xgb",
         "horizon_minutes": 2880,
         "resolution_minutes": 15,
         "train_components": 1,

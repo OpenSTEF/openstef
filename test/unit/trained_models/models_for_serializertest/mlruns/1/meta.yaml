@@ -1,0 +1,4 @@
+artifact_location: file:///C:/repos/openstef/test/unit/trained_models/models_for_serializertest/mlruns/1
+experiment_id: '1'
+lifecycle_stage: active
+name: '307'

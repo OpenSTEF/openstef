@@ -1,16 +1,17 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
 import unittest
+from test.unit.utils.base import BaseTestCase
+from test.unit.utils.data import TestData
 from unittest.mock import MagicMock, patch
 
 import numpy as np
 import pandas as pd
 
-from openstf.exceptions import NoRealisedLoadError, NoPredictedLoadError
-from openstf.tasks.calculate_kpi import calc_kpi_for_specific_pid
-from test.utils import BaseTestCase, TestData
+from openstef.exceptions import NoPredictedLoadError, NoRealisedLoadError
+from openstef.tasks.calculate_kpi import calc_kpi_for_specific_pid
 
 # Get test data
 predicted_load = TestData.load("calculate_kpi_predicted_load.csv")
@@ -26,6 +27,7 @@ predicted_load_nan = predicted_load.copy()
 predicted_load_nan.loc[predicted_load_nan.sample(frac=0.5).index, :] = np.NaN
 
 prediction_job = TestData.get_prediction_job(pid=307)
+
 
 # Prepare Database mocks
 def get_database_mock():
@@ -77,7 +79,7 @@ def get_database_mock_predicted_empty():
 class TestPerformanceCalcKpiForSpecificPid(BaseTestCase):
 
     # Test whether correct kpis are calculated for specific test data
-    @patch("openstf.tasks.calculate_kpi.DataBase", get_database_mock)
+    @patch("openstef.tasks.calculate_kpi.DataBase", get_database_mock)
     def test_calc_kpi_for_specific_pid(self):
         kpis = calc_kpi_for_specific_pid(307)
         # use this to store new kpis
@@ -92,21 +94,21 @@ class TestPerformanceCalcKpiForSpecificPid(BaseTestCase):
         )
 
     # Test whether none is returned in case of poor completeness for realised data
-    @patch("openstf.tasks.calculate_kpi.DataBase", get_database_mock_realised_nan)
+    @patch("openstef.tasks.calculate_kpi.DataBase", get_database_mock_realised_nan)
     def test_calc_kpi_for_specific_pid_poor_completeness_realized(self):
         kpis = calc_kpi_for_specific_pid(307)
         t_ahead_keys = kpis.keys()
         self.assertIs(kpis[list(t_ahead_keys)[0]]["rMAE"], np.NaN)
 
     # Test whether none is returned in case of poor completeness for predicted data
-    @patch("openstf.tasks.calculate_kpi.DataBase", get_database_mock_predicted_nan)
+    @patch("openstef.tasks.calculate_kpi.DataBase", get_database_mock_predicted_nan)
     def test_calc_kpi_for_specific_pid_poor_completeness_predicted(self):
         kpis = calc_kpi_for_specific_pid(307)
 
         t_ahead_keys = kpis.keys()
         self.assertIs(kpis[list(t_ahead_keys)[0]]["rMAE"], np.NaN)
 
-    @patch("openstf.tasks.calculate_kpi.DataBase", get_database_mock_realised_constant)
+    @patch("openstef.tasks.calculate_kpi.DataBase", get_database_mock_realised_constant)
     def test_calc_kpi_for_specific_pid_constant_load(self):
         """If load is constant, a warning should be raised, but kpi's should still be calculated"""
 
@@ -114,7 +116,7 @@ class TestPerformanceCalcKpiForSpecificPid(BaseTestCase):
         self.assertIsNAN(kpis["4.0h"]["MAE"])  # arbitrary time horizon tested
         self.assertAlmostEqual(kpis["4.0h"]["MAE"], 2.9145, places=3)
 
-    @patch("openstf.tasks.calculate_kpi.DataBase", get_database_mock_realised_empty)
+    @patch("openstef.tasks.calculate_kpi.DataBase", get_database_mock_realised_empty)
     def test_calc_kpi_no_load_exception(self):
         """Assert that correct exceptions are raised for
         empty load"""
@@ -122,7 +124,7 @@ class TestPerformanceCalcKpiForSpecificPid(BaseTestCase):
         with self.assertRaises(NoRealisedLoadError):
             calc_kpi_for_specific_pid(307)
 
-    @patch("openstf.tasks.calculate_kpi.DataBase", get_database_mock_predicted_empty)
+    @patch("openstef.tasks.calculate_kpi.DataBase", get_database_mock_predicted_empty)
     def test_calc_kpi_no_prediction_exception(self):
         """Assert that correct exceptions are raised for
         empty prediction"""

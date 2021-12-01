@@ -1,34 +1,39 @@
 <!--
-SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com>
+SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com>
 
 SPDX-License-Identifier: MPL-2.0
 -->
 
 <!-- Github Actions badges -->
-[![Python Build](https://github.com/alliander-opensource/openstf/actions/workflows/python-build.yaml/badge.svg)](https://github.com/alliander-opensource/openstf/actions/workflows/python-build.yaml)
-[![REUSE Compliance Check](https://github.com/alliander-opensource/openstf/actions/workflows/reuse-compliance.yaml/badge.svg)](https://github.com/alliander-opensource/openstf/actions/workflows/reuse-compliance.yaml)
+[![Python Build](https://github.com/openstef/openstef/actions/workflows/python-build.yaml/badge.svg)](https://github.com/openstef/openstef/actions/workflows/python-build.yaml)
+[![REUSE Compliance Check](https://github.com/openstef/openstef/actions/workflows/reuse-compliance.yaml/badge.svg)](https://github.com/openstef/openstef/actions/workflows/reuse-compliance.yaml)
 <!-- SonarCloud badges -->
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=alliander-opensource_openstf&metric=alert_status)](https://sonarcloud.io/dashboard?id=alliander-opensource_openstf)
-[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=alliander-opensource_openstf&metric=bugs)](https://sonarcloud.io/dashboard?id=alliander-opensource_openstf)
-[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=alliander-opensource_openstf&metric=code_smells)](https://sonarcloud.io/dashboard?id=alliander-opensource_openstf)
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=alliander-opensource_openstf&metric=coverage)](https://sonarcloud.io/dashboard?id=alliander-opensource_openstf)
-[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=alliander-opensource_openstf&metric=duplicated_lines_density)](https://sonarcloud.io/dashboard?id=alliander-opensource_openstf)
-[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=alliander-opensource_openstf&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=alliander-opensource_openstf)
-[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=alliander-opensource_openstf&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=alliander-opensource_openstf)
-[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=alliander-opensource_openstf&metric=security_rating)](https://sonarcloud.io/dashboard?id=alliander-opensource_openstf)
-[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=alliander-opensource_openstf&metric=sqale_index)](https://sonarcloud.io/dashboard?id=alliander-opensource_openstf)
-[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=alliander-opensource_openstf&metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=alliander-opensource_openstf)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=OpenSTEF_openstef&metric=alert_status)](https://sonarcloud.io/dashboard?id=OpenSTEF_openstef)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=OpenSTEF_openstef&metric=bugs)](https://sonarcloud.io/dashboard?id=OpenSTEF_openstef)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=OpenSTEF_openstef&metric=code_smells)](https://sonarcloud.io/dashboard?id=OpenSTEF_openstef)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=OpenSTEF_openstef&metric=coverage)](https://sonarcloud.io/dashboard?id=OpenSTEF_openstef)
+[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=aOpenSTEF_openstef&metric=duplicated_lines_density)](https://sonarcloud.io/dashboard?id=OpenSTEF_openstef)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=OpenSTEF_openstef&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=OpenSTEF_openstef)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=OpenSTEF_openstef&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=OpenSTEF_openstef)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=OpenSTEF_openstef&metric=security_rating)](https://sonarcloud.io/dashboard?id=OpenSTEF_openstef)
+[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=OpenSTEF_openstef&metric=sqale_index)](https://sonarcloud.io/dashboard?id=OpenSTEF_openstef)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=OpenSTEF_openstef&metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=OpenSTEF_openstef)
 
-# Openstf
+# Openstef
 
-Openstf is a Python package which is used to make short term forecasts for the energy sector. This repository contains all components for the machine learning pipeline required to make a forecast. In order to use the package you need to provide your own data storage and retrieval interface. `openstf` is available at: https://pypi.org/project/openstf/
+Openstf is a Python package which is used to make short term forecasts for the energy sector. This repository contains all components for the machine learning pipeline required to make a forecast. In order to use the package you need to provide your own data storage and retrieval interface. `openstef` is available at: https://pypi.org/project/openstef/
 
 # Installation
 
-## Install the openstf package
+## Install the openstef package
 
 ```shell
-pip install openstf
+pip install openstef
+```
+
+_**Optional**_: if you would like to use the proloaf model with openSTF install the proloaf dependencies by running:
+```shell
+pip install openstef[proloaf]
 ```
 
 # Usage
@@ -36,11 +41,11 @@ pip install openstf
 To run a task use:
 
 ```shell
-python -m openstf task <task_name>
+python -m openstef task <task_name>
 ```
 
 ## Reference Implementation
-A complete implementation including databases, user interface, example data, etc. is available at: https://github.com/alliander-opensource/openstf-reference
+A complete implementation including databases, user interface, example data, etc. is available at: https://github.com/OpenSTEF/openstef-reference
 ![image](https://user-images.githubusercontent.com/18208480/127109029-77e09c97-8d06-4158-8789-4c1d5ecede61.png)
 
 ## License
@@ -50,9 +55,7 @@ This project is licensed under the Mozilla Public License, version 2.0 - see LIC
 This project includes third-party libraries, which are licensed under their own respective Open-Source licenses. SPDX-License-Identifier headers are used to show which license is applicable. The concerning license files can be found in the LICENSES directory.
 
 ## Contributing
-
-Please read [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) and [CONTRIBUTING.md](CONTRIBUTING.md) for details on the process for submitting pull requests to us.
+Please read [CODE_OF_CONDUCT.md](https://github.com/OpenSTEF/.github/blob/main/CODE_OF_CONDUCT.md) and [CONTRIBUTING.md](https://github.com/OpenSTEF/.github/blob/main/CONTRIBUTING.md) for details on the process for submitting pull requests to us.
 
 ## Contact
-
-N.V. Alliander - Team Korte Termijn Prognoses (Short Term Forecasting) <korte.termijn.prognoses@alliander.com>
+Please read [SUPPORT.md](https://github.com/OpenSTEF/.github/blob/main/SUPPORT.md) for how to connect and get into contact with the OpenSTF project

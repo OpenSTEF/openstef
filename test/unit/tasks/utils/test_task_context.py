@@ -1,30 +1,30 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
 # import builtins
 import unittest
 from datetime import datetime, timedelta
+from test.unit.utils.base import BaseTestCase
+from test.unit.utils.data import TestData
 from unittest.mock import MagicMock, Mock, patch
 
-from openstf.exceptions import NoPredictedLoadError, NoRealisedLoadError
-from openstf.tasks.utils.predictionjobloop import (
-    PredictionJobLoop,
+from openstef.exceptions import NoPredictedLoadError, NoRealisedLoadError
+from openstef.tasks.utils.predictionjobloop import (
     PredictionJobException,
+    PredictionJobLoop,
 )
 
 # import project modules
-from openstf.tasks.utils.taskcontext import TaskContext
-from test.utils import BaseTestCase
-from test.utils import TestData
+from openstef.tasks.utils.taskcontext import TaskContext
 
 # define constants
 PREDICTION_JOBS = TestData.get_prediction_jobs()
 NUM_PREDICTION_JOBS = len(PREDICTION_JOBS)
 
 
-@patch("openstf.tasks.utils.taskcontext.ConfigManager", MagicMock())
-@patch("openstf.tasks.utils.taskcontext.DataBase")
+@patch("openstef.tasks.utils.taskcontext.ConfigManager", MagicMock())
+@patch("openstef.tasks.utils.taskcontext.DataBase")
 class TestTaskContext(BaseTestCase):
     def test_task_context_database(self, db_mock):
         db_mock.return_value = 1234
@@ -78,7 +78,7 @@ class TestTaskContext(BaseTestCase):
         with TaskContext("unit_test_supposed_to_fail", True, False) as context:
             PredictionJobLoop(context, prediction_jobs=PREDICTION_JOBS).map(func_fail)
 
-    @patch("openstf.tasks.utils.taskcontext.post_teams")
+    @patch("openstef.tasks.utils.taskcontext.post_teams")
     def test_task_context_teams_message(self, postteamsmock, dbmock):
         """Test to check that:
         if multiple exceptions are raised,

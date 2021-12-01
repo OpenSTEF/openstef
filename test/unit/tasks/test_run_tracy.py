@@ -1,11 +1,11 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+from test.unit.utils.data import TestData
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
 
-from openstf.tasks.run_tracy import run_tracy
-from test.utils import TestData
+from openstef.tasks.run_tracy import run_tracy
 
 
 def build_context_mock():
@@ -16,9 +16,9 @@ def build_context_mock():
     return context
 
 
-@patch("openstf.tasks.run_tracy.teams")
-@patch("openstf.tasks.run_tracy.train_model_task")
-@patch("openstf.tasks.run_tracy.optimize_hyperparameters_task")
+@patch("openstef.tasks.run_tracy.teams")
+@patch("openstef.tasks.run_tracy.train_model_task")
+@patch("openstef.tasks.run_tracy.optimize_hyperparameters_task")
 class TestRunTracyTask(TestCase):
     def setUp(self) -> None:
         pass

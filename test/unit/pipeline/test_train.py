@@ -1,14 +1,14 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 import unittest
 from datetime import datetime, timedelta
+from test.unit.utils.base import BaseTestCase
+from test.unit.utils.data import TestData
 
 import pandas as pd
 
-from openstf.pipeline.train_model import split_data_train_validation_test
-from test.utils.base import BaseTestCase
-from test.utils.data import TestData
+from openstef.pipeline.train_model import split_data_train_validation_test
 
 # define constants
 SPLIT_PARAMS = {

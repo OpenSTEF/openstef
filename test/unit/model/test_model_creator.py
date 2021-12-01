@@ -1,13 +1,13 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
 from unittest import TestCase
 
-from openstf.enums import MLModelType
-from openstf.model.model_creator import ModelCreator
-from openstf.model.regressors.regressor_interface import OpenstfRegressorInterface
-from openstf.model.regressors.xgb_quantile import XGBQuantileOpenstfRegressor
+from openstef.enums import MLModelType
+from openstef.model.model_creator import ModelCreator
+from openstef.model.regressors.regressor_interface import OpenstfRegressorInterface
+from openstef.model.regressors.xgb_quantile import XGBQuantileOpenstfRegressor
 
 
 class TestModelCreator(TestCase):
@@ -32,6 +32,5 @@ class TestModelCreator(TestCase):
     def test_create_model_unknown_model(self):
         # Test if NotImplementedError is raised when model type is unknown
         model_type = "Unknown"
-
         with self.assertRaises(NotImplementedError):
             ModelCreator.create_model(model_type)

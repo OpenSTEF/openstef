@@ -1,12 +1,14 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+import pickle
+from test.unit.utils.data import TestData
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
 
-import openstf.tasks.create_forecast as task
-from openstf.tasks.create_forecast import create_forecast_task
-from test.utils import TestData
+import openstef.tasks.create_forecast as task
+from openstef.tasks.create_forecast import create_forecast_task
+from openstef.model.serializer import MLflowSerializer
 
 FORECAST_MOCK = "forecast_mock"
 
@@ -14,9 +16,14 @@ FORECAST_MOCK = "forecast_mock"
 class TestCreateForeCastTask(TestCase):
     def setUp(self) -> None:
         self.pj, self.modelspecs = TestData.get_prediction_job_and_modelspecs(pid=307)
+        self.serializer = MLflowSerializer(
+            trained_models_folder="./test/unit/trained_models"
+        )
+        # Use MLflowSerializer to load a model
+        self.model, _ = self.serializer.load_model(pid=307)
 
     @patch(
-        "openstf.tasks.create_forecast.create_forecast_pipeline",
+        "openstef.tasks.create_forecast.create_forecast_pipeline",
         MagicMock(return_value=FORECAST_MOCK),
     )
     def test_create_forecast_task_happy_flow(self):
@@ -25,13 +32,15 @@ class TestCreateForeCastTask(TestCase):
         create_forecast_task(self.pj, context)
         self.assertEqual(context.mock_calls[1].args[0], FORECAST_MOCK)
 
-    @patch("openstf.model.serializer.PersistentStorageSerializer")
-    @patch("openstf.tasks.utils.taskcontext.DataBase")
-    @patch("openstf.tasks.utils.taskcontext.ConfigManager")
+    @patch("mlflow.sklearn.load_model")
+    @patch("openstef.model.serializer.MLflowSerializer")
+    @patch("openstef.tasks.utils.taskcontext.DataBase")
+    @patch("openstef.tasks.utils.taskcontext.ConfigManager")
     def test_create_forecast_task_with_context(
-        self, configmock_taskcontext, dbmock, serializer_mock
+        self, configmock_taskcontext, dbmock, serializer_mock, load_mock
     ):
         """Test create forecast task with context."""
+        load_mock.return_value = self.model
         dbmock().get_prediction_jobs.return_value = [
             self.pj,
             self.pj,
@@ -45,7 +54,7 @@ class TestCreateForeCastTask(TestCase):
         dbmock().get_model_input.return_value = forecast_data
 
         configmock_taskcontext.get_instance.return_value.paths.trained_models_folder = (
-            "test/trained_models/"
+            "./test/unit/trained_models/"
         )
         configmock_taskcontext.get_instance.return_value.paths.webroot = "test_webroot"
 

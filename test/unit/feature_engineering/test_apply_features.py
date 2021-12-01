@@ -1,17 +1,20 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
 import unittest
+from test.unit.utils.base import BaseTestCase
+from test.unit.utils.data import TestData
 
 import numpy as np
 import pandas as pd
 
-from openstf.feature_engineering import apply_features, weather_features
-from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
-from openstf.feature_engineering.lag_features import generate_lag_feature_functions
-from openstf.feature_engineering.lag_features import generate_non_trivial_lag_times
-from test.utils import BaseTestCase, TestData
+from openstef.feature_engineering import apply_features, weather_features
+from openstef.feature_engineering.feature_applicator import TrainFeatureApplicator
+from openstef.feature_engineering.lag_features import (
+    generate_lag_feature_functions,
+    generate_non_trivial_lag_times,
+)
 
 
 class TestApplyFeaturesModule(BaseTestCase):
@@ -19,7 +22,7 @@ class TestApplyFeaturesModule(BaseTestCase):
         """Test generate lag functions.
 
             Test the `generate_lag_functions` function and compare the keys of the
-            returned dictionairy (the lag function names) with a previously saved set
+            returned dictionary (the lag function names) with a previously saved set
             of lag functions names
 
         Raises:

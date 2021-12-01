@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 from unittest import TestCase
@@ -6,7 +6,7 @@ from unittest import TestCase
 import numpy as np
 import pandas as pd
 
-from openstf.feature_engineering.general import enforce_feature_order
+from openstef.feature_engineering.general import enforce_feature_order
 
 
 class TestGeneral(TestCase):

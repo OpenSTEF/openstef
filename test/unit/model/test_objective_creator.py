@@ -1,10 +1,10 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 import unittest
+from test.unit.utils.base import BaseTestCase
 
-from openstf.model.objective_creator import ObjectiveCreator
-from test.utils.base import BaseTestCase
+from openstef.model.objective_creator import ObjectiveCreator
 
 
 class TestObjectiveCreator(BaseTestCase):

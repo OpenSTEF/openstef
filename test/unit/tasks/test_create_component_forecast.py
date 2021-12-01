@@ -1,11 +1,11 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+from test.unit.utils.data import TestData
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
 
-from openstf.tasks.create_components_forecast import create_components_forecast_task
-from test.utils import TestData
+from openstef.tasks.create_components_forecast import create_components_forecast_task
 
 FORECAST_MOCK = "forecast_mock"
 
@@ -15,7 +15,7 @@ class TestCreateComponentForecastTask(TestCase):
         self.pj = TestData.get_prediction_job(pid=307)
 
     @patch(
-        "openstf.tasks.create_components_forecast.create_components_forecast_pipeline",
+        "openstef.tasks.create_components_forecast.create_components_forecast_pipeline",
         MagicMock(return_value=FORECAST_MOCK),
     )
     def test_create_basecase_forecast_task_happy_flow(self):
@@ -28,7 +28,7 @@ class TestCreateComponentForecastTask(TestCase):
         self.assertEqual(context.mock_calls[3].args[0], FORECAST_MOCK)
 
     @patch(
-        "openstf.tasks.create_components_forecast.create_components_forecast_pipeline"
+        "openstef.tasks.create_components_forecast.create_components_forecast_pipeline"
     )
     def test_create_basecase_forecast_task_no_input(self, pipeline_mock):
         # Test pipeline is not called when no input data is available
@@ -41,7 +41,7 @@ class TestCreateComponentForecastTask(TestCase):
         self.assertFalse(pipeline_mock.called)
 
     @patch(
-        "openstf.tasks.create_components_forecast.create_components_forecast_pipeline"
+        "openstef.tasks.create_components_forecast.create_components_forecast_pipeline"
     )
     def test_create_basecase_forecast_task_no_coefs(self, pipeline_mock):
         # Test pipeline is not called when no coeficients are available
@@ -54,7 +54,7 @@ class TestCreateComponentForecastTask(TestCase):
         self.assertFalse(pipeline_mock.called)
 
     @patch(
-        "openstf.tasks.create_components_forecast.create_components_forecast_pipeline"
+        "openstef.tasks.create_components_forecast.create_components_forecast_pipeline"
     )
     def test_create_basecase_forecast_task_no_train_components(self, pipeline_mock):
         # Test pipeline is not called when the component foecasts are disabled in the prediciton job

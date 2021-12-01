@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V.
+# SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project
 #
 # SPDX-License-Identifier: MPL-2.0
 name: Docs Check
@@ -28,5 +28,5 @@ jobs:
         pre-build-command: |
           cp requirements.txt docs/requirements.txt &&\
           printf "\nsphinx_rtd_theme\n" >> docs/requirements.txt &&\
-          sphinx-apidoc -o docs openstf
+          sphinx-apidoc -o docs openstef
         docs-folder: "docs/"

@@ -1,5 +1,5 @@
 <!--
-SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com>
+SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com>
 
 SPDX-License-Identifier: MPL-2.0
 -->
@@ -27,6 +27,6 @@ Important files:
 Running locally, documentation html files are generated but not added to gh-pages:
 ```
 pip install requirements.txt
-sphinx-apidoc -o docs openstf
+sphinx-apidoc -o docs openstef
 sphinx-build docs output
 ```
