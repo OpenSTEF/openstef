@@ -190,9 +190,12 @@ class MLflowSerializer(AbstractSerializer):
                     f"Model couldn't be found for pid {pid}. First train a model!"
                 )
 
-            loaded_model = mlflow.sklearn.load_model(
-                os.path.join(latest_run.artifact_uri, "model/")
-            )
+            # Fix artifact_uri to also work when unit testing remote
+            model_uri_orig = os.path.join(latest_run.artifact_uri, "model/")
+            # replace first part so locally loaded models also work remote
+            model_uri = f"{self.mlflow_folder}{model_uri_orig.split('test/unit/trained_models/mlruns')[-1]}"
+
+            loaded_model = mlflow.sklearn.load_model(model_uri)
 
             # Add model age to model object
             loaded_model.age = self._determine_model_age_from_mlflow_run(latest_run)
