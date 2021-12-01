@@ -270,7 +270,10 @@ def train_pipeline_common(
         )
 
     # Create relevant model
-    model = ModelCreator.create_model(pj["model"], quantiles=pj["quantiles"])
+    model = ModelCreator.create_model(
+        pj["model"],
+        quantiles=pj["quantiles"],
+    )
 
     # split x and y data
     train_x, train_y = train_data.iloc[:, 1:-1], train_data.iloc[:, 0]

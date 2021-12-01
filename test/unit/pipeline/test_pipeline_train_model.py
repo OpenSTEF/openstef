@@ -20,6 +20,49 @@ from openstf.metrics.reporter import Report
 from openstf.model_selection.model_selection import split_data_train_validation_test
 from openstf.pipeline.train_model import train_model_pipeline, train_model_pipeline_core
 from openstf.validation import validation
+from openstf.model.regressors.custom_regressor import CustomOpenstfRegressor
+from openstf.model.objective import RegressorObjective
+
+# define constants
+
+
+class DummyObjective(RegressorObjective):
+    ...
+
+
+class DummyRegressor(CustomOpenstfRegressor):
+    @staticmethod
+    def valid_kwargs():
+        return []
+
+    @property
+    def objective(self):
+        return DummyObjective
+
+    @property
+    def feature_names(self):
+        return self._feature_names
+
+    def fit(self, X, y, **fit_params):
+        self._feature_names = list(X.columns)
+        return self
+
+    def predict(self, X, **kwargs):
+        import numpy as np
+
+        return np.zeros(len(X))
+
+    def set_feature_importance(self):
+        return pd.DataFrame(
+            {
+                "weight": [0] * len(self.feature_names),
+                "gain": [0] * len(self.feature_names),
+            },
+            index=self.feature_names,
+        )
+
+
+PJ = TestData.get_prediction_job(pid=307)
 
 XGB_HYPER_PARAMS = {
     "subsample": 0.9,
@@ -66,11 +109,16 @@ class TestTrainModelPipeline(BaseTestCase):
         but it can/should include predictors (e.g. weather data)
 
         """
-        for model_type in MLModelType:
+        # Select 50 data points to speedup test
+        train_input = self.train_input.iloc[::50, :]
+        for model_type in list(MLModelType) + [__name__ + ".DummyRegressor"]:
             with self.subTest(model_type=model_type):
                 pj = self.pj
-                pj["model"] = model_type.value
 
+                pj["model"] = (
+                    model_type.value if hasattr(model_type, "value") else model_type
+                )
+                modelspecs = self.modelspecs
                 train_input = self.train_input
 
                 # Use default parameters

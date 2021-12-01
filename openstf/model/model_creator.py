@@ -10,6 +10,7 @@ from openstf.model.regressors.regressor import OpenstfRegressor
 from openstf.model.regressors.xgb import XGBOpenstfRegressor
 from openstf.model.regressors.xgb_quantile import XGBQuantileOpenstfRegressor
 from openstf.model.regressors.linear import LinearOpenstfRegressor
+from openstf.model.regressors.custom_regressor import load_custom_model, is_custom_type
 
 logger = structlog.get_logger(__name__)
 try:
@@ -138,18 +139,24 @@ class ModelCreator:
         try:
             # This will raise a ValueError when an invalid model_type str is used
             # and nothing when a MLModelType enum is used.
-            model_type = MLModelType(model_type)
+            if is_custom_type(model_type):
+                model_class = load_custom_model(model_type)
+                valid_kwargs = model_class.valid_kwargs()
+            else:
+                model_type = MLModelType(model_type)
+                model_class = ModelCreator.MODEL_CONSTRUCTORS[model_type]
+                valid_kwargs = valid_model_kwargs[model_type]
         except ValueError as e:
             valid_types = [t.value for t in MLModelType]
             raise NotImplementedError(
                 f"No constructor for '{model_type}', "
                 f"valid model_types are: {valid_types}"
+                f"or import a custom model"
             ) from e
 
         # only pass relevant arguments to model constructor to prevent warnings
         model_kwargs = {
-            key: value
-            for key, value in kwargs.items()
-            if key in valid_model_kwargs[model_type]
+            key: value for key, value in kwargs.items() if key in valid_kwargs
         }
-        return ModelCreator.MODEL_CONSTRUCTORS[model_type](**model_kwargs)
+
+        return model_class(**model_kwargs)
