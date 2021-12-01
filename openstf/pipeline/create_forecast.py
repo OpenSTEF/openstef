@@ -7,6 +7,7 @@ from typing import Union
 import pandas as pd
 import structlog
 from openstf_dbc.services.prediction_job import PredictionJobDataClass
+from openstf.data_classes.model_specifications import ModelSpecificationDataClass
 
 from openstf.feature_engineering.feature_applicator import (
     OperationalPredictFeatureApplicator,
@@ -49,13 +50,14 @@ def create_forecast_pipeline(
         trained_models_folder=trained_models_folder
     ).load_model(pj["id"])
 
-    return create_forecast_pipeline_core(pj, input_data, model)
+    return create_forecast_pipeline_core(pj, input_data, model, modelspecs)
 
 
 def create_forecast_pipeline_core(
     pj: PredictionJobDataClass,
     input_data: pd.DataFrame,
     model: OpenstfRegressor,
+    modelspecs: ModelSpecificationDataClass,
 ) -> pd.DataFrame:
     """Create forecast pipeline (core)
 
@@ -85,6 +87,7 @@ def create_forecast_pipeline_core(
         # TODO use saved feature_names (should be saved while training the model)
         horizons=[0.25],
         feature_names=model.feature_names,
+        feature_modules=modelspecs.feature_modules,
     ).add_features(validated_data)
 
     # Prep forecast input by selecting only the forecast datetime interval (this is much smaller than the input range)

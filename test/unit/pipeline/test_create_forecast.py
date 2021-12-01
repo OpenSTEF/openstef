@@ -91,7 +91,7 @@ class TestCreateForecastPipeline(BaseTestCase):
 
         # Forecast
         forecast = create_forecast.create_forecast_pipeline_core(
-            pj=self.pj, input_data=forecast_data, model=model
+            pj=self.pj, input_data=forecast_data, model=model, modelspecs=modelspecs
         )
 
         # Verify backtest was performed
@@ -115,7 +115,7 @@ class TestCreateForecastPipeline(BaseTestCase):
 
         # Forecast
         forecast = create_forecast.create_forecast_pipeline_core(
-            self.pj, forecast_data, model
+            self.pj, forecast_data, model, modelspecs
         )
 
         # Verify forecast works correctly
@@ -142,7 +142,7 @@ class TestCreateForecastPipeline(BaseTestCase):
 
         # Forecast
         forecast = create_forecast.create_forecast_pipeline_core(
-            pj=self.pj, input_data=forecast_data, model=model
+            pj=self.pj, input_data=forecast_data, model=model, modelspecs=modelspecs
         )
 
         # Verify forecast works correctly
@@ -169,7 +169,7 @@ class TestCreateForecastPipeline(BaseTestCase):
 
         # Forecast
         forecast = create_forecast.create_forecast_pipeline_core(
-            pj=self.pj, input_data=forecast_data, model=model
+            pj=self.pj, input_data=forecast_data, model=model, modelspecs=modelspecs
         )
 
         # Verify forecast works correctly

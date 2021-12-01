@@ -11,6 +11,7 @@ class ModelSpecificationDataClass(BaseModel):
     id: Union[int, str]
     hyper_params: Optional[dict] = {}
     feature_names: Optional[list] = None
+    feature_modules: Optional[list] = []
 
     def __getitem__(self, item):
         """Allows us to use subscription to get the items from the object"""

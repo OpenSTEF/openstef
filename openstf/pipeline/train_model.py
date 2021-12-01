@@ -231,7 +231,9 @@ def train_pipeline_common(
             "Input data is insufficient, after validation and cleaning"
         )
     data_with_features = TrainFeatureApplicator(
-        horizons=horizons, feature_names=modelspecs.feature_names
+        horizons=horizons,
+        feature_names=modelspecs.feature_names,
+        feature_modules=modelspecs.feature_modules,
     ).add_features(validated_data)
 
     # Split data

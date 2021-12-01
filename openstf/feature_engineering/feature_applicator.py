@@ -13,13 +13,20 @@ from openstf.feature_engineering.general import (
     remove_non_requested_feature_columns,
     enforce_feature_order,
 )
+from openstf.feature_engineering.feature_adder import (
+    adders_from_modules,
+    FeatureDispatcher,
+)
 
 LATENCY_CONFIG = {"APX": 24}  # A specific latency is part of a specific feature.
 
 
 class AbstractFeatureApplicator(ABC):
     def __init__(
-        self, horizons: List[float], feature_names: Optional[List[str]] = None
+        self,
+        horizons: List[float],
+        feature_names: Optional[List[str]] = None,
+        feature_modules: Optional[List[str]] = [],
     ) -> None:
         """Initialize abstract feature applicator.
 
@@ -32,6 +39,8 @@ class AbstractFeatureApplicator(ABC):
 
         self.feature_names = feature_names
         self.horizons = horizons
+        self.features_adder = adders_from_modules(feature_modules)
+        self.features_dispatcher = FeatureDispatcher(self.features_adder)
 
     @abstractmethod
     def add_features(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -84,6 +93,9 @@ class TrainFeatureApplicator(AbstractFeatureApplicator):
             )
             res["horizon"] = horizon
             result = result.append(res)
+            result = self.features_dispatcher.apply_features(
+                result, feature_names=self.feature_names
+            )
 
         # IMPORTANT: sort index to prevent errors when slicing on the (datetime) index
         # if we don't sort, the duplicated indexes (one per horizon) have large gaps
@@ -125,6 +137,9 @@ class OperationalPredictFeatureApplicator(AbstractFeatureApplicator):
 
         df = apply_features(
             df, feature_names=self.feature_names, horizon=self.horizons[0]
+        )
+        df = self.features_dispatcher.apply_features(
+            df, feature_names=self.feature_names
         )
         df = add_missing_feature_columns(df, self.feature_names)
         # NOTE this is required since apply_features could add additional features
