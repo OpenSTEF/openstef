@@ -21,10 +21,8 @@ class TestCreateForecastPipeline(BaseTestCase):
         )
         self.data = TestData.load("reference_sets/307-test-data.csv")
         self.train_input = TestData.load("reference_sets/307-train-data.csv")
-        pickle_model = "./test/unit/trained_models/mlruns/1/ef5808eaa1c647cdaf88cd959f918fea/artifacts/model/model.pkl"
-        # load model
-        with open(pickle_model, "rb") as f:
-            self.model = pickle.load(f)
+        # Use MLflowSerializer to load a model
+        self.model, _ = self.serializer.load_model(pid=307)
 
     def test_generate_forecast_datetime_range_single_null_values_target_column(self):
         """Test if correct forecast window is made with single range of nulls."""
