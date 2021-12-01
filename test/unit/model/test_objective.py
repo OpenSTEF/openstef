@@ -7,9 +7,9 @@ from test.unit.utils.data import TestData
 
 import optuna
 
-from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
-from openstf.model.model_creator import ModelCreator
-from openstf.model.objective import (
+from openstef.feature_engineering.feature_applicator import TrainFeatureApplicator
+from openstef.model.model_creator import ModelCreator
+from openstef.model.objective import (
     LinearRegressorObjective,
     LGBRegressorObjective,
     ProLoafRegressorObjective,

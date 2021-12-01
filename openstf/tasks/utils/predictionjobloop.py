@@ -30,7 +30,7 @@ class PredictionJobLoop:
         Tip: For debugging a specific PID, use debug_pid=specific_pid
 
         Args:
-            context (openstf.tasks.util.taskcontext.TaskContext): The
+            context (openstef.tasks.util.taskcontext.TaskContext): The
                 context to run this loop in.
             stop_on_exception (bool, optional): Whether to break out of the
                 loop when an exception is raised. Defaults to False.

@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 import structlog
 
-from openstf.preprocessing.preprocessing import (
+from openstef.preprocessing.preprocessing import (
     replace_invalid_data,
     replace_repeated_values_with_nan,
 )

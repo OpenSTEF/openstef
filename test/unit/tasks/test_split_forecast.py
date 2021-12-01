@@ -9,7 +9,7 @@ from test.unit.utils.data import TestData
 import numpy as np
 import pandas as pd
 
-from openstf.tasks import split_forecast
+from openstef.tasks import split_forecast
 
 # Get test data
 input_data = TestData.load("find_components_input.csv")

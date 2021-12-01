@@ -7,12 +7,12 @@ from datetime import datetime
 import optuna
 import pandas as pd
 
-from openstf.enums import MLModelType
-from openstf.metrics import metrics
-from openstf.metrics.reporter import Report, Reporter
-from openstf.model.regressors.regressor import OpenstfRegressor
-from openstf.model.standard_deviation_generator import StandardDeviationGenerator
-from openstf.model_selection.model_selection import split_data_train_validation_test
+from openstef.enums import MLModelType
+from openstef.metrics import metrics
+from openstef.metrics.reporter import Report, Reporter
+from openstef.model.regressors.regressor import OpenstfRegressor
+from openstef.model.standard_deviation_generator import StandardDeviationGenerator
+from openstef.model_selection.model_selection import split_data_train_validation_test
 
 EARLY_STOPPING_ROUNDS: int = 10
 TEST_FRACTION: float = 0.15

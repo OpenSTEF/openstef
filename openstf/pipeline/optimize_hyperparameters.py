@@ -7,23 +7,23 @@ from typing import List, Tuple, Union
 import optuna
 import pandas as pd
 import structlog
-from openstf_dbc.services.prediction_job import PredictionJobDataClass
+from openstef_dbc.services.prediction_job import PredictionJobDataClass
 
-from openstf.data_classes.model_specifications import ModelSpecificationDataClass
-from openstf.exceptions import (
+from openstef.data_classes.model_specifications import ModelSpecificationDataClass
+from openstef.exceptions import (
     InputDataInsufficientError,
     InputDataWrongColumnOrderError,
 )
-from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
-from openstf.model.model_creator import ModelCreator
-from openstf.model.objective import RegressorObjective
-from openstf.model.objective_creator import ObjectiveCreator
+from openstef.feature_engineering.feature_applicator import TrainFeatureApplicator
+from openstef.model.model_creator import ModelCreator
+from openstef.model.objective import RegressorObjective
+from openstef.model.objective_creator import ObjectiveCreator
 
 # This is required to disable the default optuna logger and pass the logs to our own
 # structlog logger
-from openstf.model.regressors.regressor import OpenstfRegressor
-from openstf.model.serializer import MLflowSerializer
-from openstf.validation import validation
+from openstef.model.regressors.regressor import OpenstfRegressor
+from openstef.model.serializer import MLflowSerializer
+from openstef.validation import validation
 
 optuna.logging.enable_propagation()  # Propagate logs to the root logger.
 optuna.logging.disable_default_handler()  # Stop showing logs in sys.stderr.

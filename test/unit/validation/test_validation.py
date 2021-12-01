@@ -6,7 +6,7 @@ from test.unit.utils.base import BaseTestCase
 from test.unit.utils.data import TestData
 from unittest.mock import MagicMock, patch
 
-from openstf.validation import validation
+from openstef.validation import validation
 
 
 class TestDataValidation(BaseTestCase):
@@ -28,8 +28,8 @@ class TestDataValidation(BaseTestCase):
         validated_data = validation.validate(self.pj["id"], self.data_predict)
         self.assertEqual(len(validated_data[validated_data["load"].isna()]), 26)
 
-    @patch("openstf.validation.validation.find_nonzero_flatliner")
-    @patch("openstf.validation.validation.replace_invalid_data")
+    @patch("openstef.validation.validation.find_nonzero_flatliner")
+    @patch("openstef.validation.validation.replace_invalid_data")
     def test_pre_process_input_data(
         self, replace_invalid_data_mock, nonzero_flatliner_mock
     ):

@@ -17,9 +17,9 @@ Attributes:
 """
 from pathlib import Path
 
-from openstf.feature_engineering import weather_features
-from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
-from openstf.tasks.utils.taskcontext import TaskContext
+from openstef.feature_engineering import weather_features
+from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
+from openstef.tasks.utils.taskcontext import TaskContext
 
 
 def make_wind_forecast_pj(pj, context):

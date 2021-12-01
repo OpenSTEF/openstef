@@ -7,10 +7,10 @@ from test.unit.utils.data import TestData
 
 import pandas as pd
 
-from openstf.metrics.figure import plot_data_series, plot_feature_importance
+from openstef.metrics.figure import plot_data_series, plot_feature_importance
 
 
-class Teopenstfigure(BaseTestCase):
+class Teopenstefigure(BaseTestCase):
     def setUp(self):
         super().setUp()
         self.data = TestData.load("input_data.pickle").rename(

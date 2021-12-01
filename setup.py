@@ -28,13 +28,13 @@ def read_long_description_from_readme():
 
 
 setup(
-    name="openstf",
+    name="openstef",
     version="2.6.4",
-    packages=find_packages(include=["openstf", "openstf.*"]),
+    packages=find_packages(include=["openstef", "openstef.*"]),
     description="Open short term forcasting",
     long_description=read_long_description_from_readme(),
     long_description_content_type="text/markdown",
-    url="https://github.com/alliander-opensource/openstf",
+    url="https://github.com/alliander-opensource/openstef",
     author="Alliander N.V",
     author_email="korte.termijn.prognoses@alliander.com",
     license="MPL-2.0",
@@ -43,7 +43,7 @@ setup(
     # for more information
     package_data={
         # Include anything in the data directory
-        "openstf": ["data/*", "*.license"]
+        "openstef": ["data/*", "*.license"]
     },
     python_requires=">=3.7.0",
     install_requires=read_requirements_from_file(),

@@ -40,11 +40,11 @@ Attributes:
 
 from pathlib import Path
 
-from openstf.enums import TracyJobResult
-from openstf.monitoring import teams
-from openstf.tasks.optimize_hyperparameters import optimize_hyperparameters_task
-from openstf.tasks.train_model import train_model_task
-from openstf.tasks.utils.taskcontext import TaskContext
+from openstef.enums import TracyJobResult
+from openstef.monitoring import teams
+from openstef.tasks.optimize_hyperparameters import optimize_hyperparameters_task
+from openstef.tasks.train_model import train_model_task
+from openstef.tasks.utils.taskcontext import TaskContext
 
 
 def run_tracy(context):

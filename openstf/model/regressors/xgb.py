@@ -4,7 +4,7 @@
 
 from xgboost import XGBRegressor
 
-from openstf.model.regressors.regressor import OpenstfRegressor
+from openstef.model.regressors.regressor import OpenstfRegressor
 
 
 class XGBOpenstfRegressor(XGBRegressor, OpenstfRegressor):

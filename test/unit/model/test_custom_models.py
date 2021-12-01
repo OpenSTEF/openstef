@@ -5,15 +5,15 @@ from typing import List, Type
 import numpy as np
 import unittest
 
-from openstf.model.regressors.custom_regressor import (
+from openstef.model.regressors.custom_regressor import (
     CustomOpenstfRegressor,
     load_custom_model,
     create_custom_objective,
 )
-from openstf.model.objective import RegressorObjective
-from openstf.model.objective_creator import ObjectiveCreator
-from openstf.model.model_creator import ModelCreator
-from openstf.enums import MLModelType
+from openstef.model.objective import RegressorObjective
+from openstef.model.objective_creator import ObjectiveCreator
+from openstef.model.model_creator import ModelCreator
+from openstef.enums import MLModelType
 
 
 class DummyObjective(RegressorObjective):

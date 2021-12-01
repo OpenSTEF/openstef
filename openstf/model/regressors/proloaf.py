@@ -6,7 +6,7 @@ from typing import List, Dict, Any, Tuple, Union
 import numpy as np
 import pandas as pd
 
-from openstf.model.regressors.regressor import OpenstfRegressor
+from openstef.model.regressors.regressor import OpenstfRegressor
 
 # These imports will require the proloaf optional dependencies to be installed
 import proloaf.datahandler as dh

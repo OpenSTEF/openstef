@@ -5,8 +5,8 @@ from pathlib import Path
 
 import pymsteams
 import structlog
-from openstf_dbc.config.config import ConfigManager
-from openstf_dbc.services.prediction_job import PredictionJobDataClass
+from openstef_dbc.config.config import ConfigManager
+from openstef_dbc.services.prediction_job import PredictionJobDataClass
 
 
 def post_teams(msg, invalid_coefs=None, coefsdf=None, url=None):

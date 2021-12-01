@@ -4,10 +4,10 @@
 
 from unittest import TestCase
 
-from openstf.enums import MLModelType
-from openstf.model.model_creator import ModelCreator
-from openstf.model.regressors.regressor_interface import OpenstfRegressorInterface
-from openstf.model.regressors.xgb_quantile import XGBQuantileOpenstfRegressor
+from openstef.enums import MLModelType
+from openstef.model.model_creator import ModelCreator
+from openstef.model.regressors.regressor_interface import OpenstfRegressorInterface
+from openstef.model.regressors.xgb_quantile import XGBQuantileOpenstfRegressor
 
 
 class TestModelCreator(TestCase):

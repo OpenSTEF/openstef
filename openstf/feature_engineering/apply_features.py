@@ -17,18 +17,18 @@ from typing import List
 
 import pandas as pd
 
-from openstf.feature_engineering.holiday_features import (
+from openstef.feature_engineering.holiday_features import (
     generate_holiday_feature_functions,
 )
-from openstf.feature_engineering.lag_features import generate_lag_feature_functions
-from openstf.feature_engineering.weather_features import (
+from openstef.feature_engineering.lag_features import generate_lag_feature_functions
+from openstef.feature_engineering.weather_features import (
     add_additional_wind_features,
     add_humidity_features,
 )
-from openstf.feature_engineering.historic_features import (
+from openstef.feature_engineering.historic_features import (
     add_historic_load_as_a_feature,
 )
-from openstf_dbc.services.prediction_job import PredictionJobDataClass
+from openstef_dbc.services.prediction_job import PredictionJobDataClass
 
 
 def apply_features(

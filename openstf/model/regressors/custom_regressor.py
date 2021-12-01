@@ -7,8 +7,8 @@ from abc import abstractmethod
 from importlib import import_module
 import pandas as pd
 import inspect
-from openstf.model.regressors.regressor import OpenstfRegressor
-from openstf.model.objective import (
+from openstef.model.regressors.regressor import OpenstfRegressor
+from openstef.model.objective import (
     RegressorObjective,
     TEST_FRACTION,
     VALIDATION_FRACTION,

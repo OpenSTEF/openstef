@@ -12,9 +12,9 @@ from sklearn.base import BaseEstimator, RegressorMixin
 class OpenstfRegressorInterface(BaseEstimator, RegressorMixin, ABC):
     """
     This class defines an abstract ML model,
-    of which concrete implementation can be used as a workhorse throughout openstf
+    of which concrete implementation can be used as a workhorse throughout openstef
 
-    If you want to include a new ML model in openstf, it should adhere to the interface
+    If you want to include a new ML model in openstef, it should adhere to the interface
     defined here
     """
 

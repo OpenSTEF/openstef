@@ -26,14 +26,14 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import structlog
-from openstf_dbc.database import DataBase
+from openstef_dbc.database import DataBase
 
-from openstf.enums import MLModelType
-from openstf.exceptions import NoPredictedLoadError, NoRealisedLoadError
-from openstf.metrics import metrics
-from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
-from openstf.tasks.utils.taskcontext import TaskContext
-from openstf.validation import validation
+from openstef.enums import MLModelType
+from openstef.exceptions import NoPredictedLoadError, NoRealisedLoadError
+from openstef.metrics import metrics
+from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
+from openstef.tasks.utils.taskcontext import TaskContext
+from openstef.validation import validation
 
 # Thresholds for retraining and optimizing
 THRESHOLD_RETRAINING = 0.25

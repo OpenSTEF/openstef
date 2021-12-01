@@ -7,7 +7,7 @@ from test.unit.utils.base import BaseTestCase
 
 import pandas as pd
 
-from openstf.feature_engineering import weather_features
+from openstef.feature_engineering import weather_features
 
 
 class HumidityCalculationsTest(BaseTestCase):

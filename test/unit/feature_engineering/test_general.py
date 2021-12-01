@@ -6,7 +6,7 @@ from unittest import TestCase
 import numpy as np
 import pandas as pd
 
-from openstf.feature_engineering.general import enforce_feature_order
+from openstef.feature_engineering.general import enforce_feature_order
 
 
 class TestGeneral(TestCase):

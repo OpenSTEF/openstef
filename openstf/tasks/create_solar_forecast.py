@@ -21,12 +21,12 @@ import numpy as np
 import pandas as pd
 from scipy import optimize
 
-from openstf import PROJECT_ROOT
-from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
-from openstf.tasks.utils.taskcontext import TaskContext
+from openstef import PROJECT_ROOT
+from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
+from openstef.tasks.utils.taskcontext import TaskContext
 
 # TODO move to config
-PV_COEFS_FILEPATH = PROJECT_ROOT / "openstf" / "data" / "pv_single_coefs.csv"
+PV_COEFS_FILEPATH = PROJECT_ROOT / "openstef" / "data" / "pv_single_coefs.csv"
 
 
 def make_solar_predicion_pj(pj, context):
@@ -200,7 +200,7 @@ def fides(data, all_forecasts=False):
     # Apply combination coefs
     df["created"] = df.loc[df.load.isnull()].index.min()
     forecast = combine_forecasts(
-        df.loc[df.load.isnull(), ["forecaopenstfitInsol", "persistence", "created"]]
+        df.loc[df.load.isnull(), ["forecaopenstefitInsol", "persistence", "created"]]
         .reset_index()
         .rename(columns=dict(index="datetime")),
         coefs,
@@ -208,7 +208,7 @@ def fides(data, all_forecasts=False):
 
     if all_forecasts:
         forecast = forecast.merge(
-            df[["persistence", "forecaopenstfitInsol"]],
+            df[["persistence", "forecaopenstefitInsol"]],
             left_index=True,
             right_index=True,
             how="left",
@@ -339,7 +339,7 @@ def apply_fit_insol(data, add_to_df=True, hours_delta=None, polynomial=False):
         - addToDF: Bool, add the norm to the data
 
     Output:
-        - pd.DataFrame(index = datetime, columns = [(load), forecaopenstfitInsol])
+        - pd.DataFrame(index = datetime, columns = [(load), forecaopenstefitInsol])
     NB: range of datetime of input is equal to range of datetime of output
 
     Example
@@ -384,7 +384,7 @@ def apply_fit_insol(data, add_to_df=True, hours_delta=None, polynomial=False):
         res = optimize.minimize(fun, x0)
         # Apply fit
         df = second_order_poly(res.x, data[["insolation"]]).rename(
-            columns=dict(insolation="forecaopenstfitInsol")
+            columns=dict(insolation="forecaopenstefitInsol")
         )
 
     else:
@@ -394,7 +394,7 @@ def apply_fit_insol(data, add_to_df=True, hours_delta=None, polynomial=False):
         )
         res = optimize.minimize(fun, x0)
         df = linear_fun(res.x, data[["insolation"]]).rename(
-            columns=dict(insolation="forecaopenstfitInsol")
+            columns=dict(insolation="forecaopenstefitInsol")
         )
 
     # Merge to dataframe if addToDF == True

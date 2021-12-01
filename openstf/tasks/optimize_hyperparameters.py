@@ -19,14 +19,14 @@ Example:
 from datetime import datetime, timedelta
 from pathlib import Path
 
-from openstf_dbc.services.prediction_job import PredictionJobDataClass
+from openstef_dbc.services.prediction_job import PredictionJobDataClass
 
-from openstf.enums import MLModelType
-from openstf.model.serializer import MLflowSerializer
-from openstf.monitoring import teams
-from openstf.pipeline.optimize_hyperparameters import optimize_hyperparameters_pipeline
-from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
-from openstf.tasks.utils.taskcontext import TaskContext
+from openstef.enums import MLModelType
+from openstef.model.serializer import MLflowSerializer
+from openstef.monitoring import teams
+from openstef.pipeline.optimize_hyperparameters import optimize_hyperparameters_pipeline
+from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
+from openstef.tasks.utils.taskcontext import TaskContext
 
 MAX_AGE_HYPER_PARAMS_DAYS = 31
 DEFAULT_TRAINING_PERIOD_DAYS = 121

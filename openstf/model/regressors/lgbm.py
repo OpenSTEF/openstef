@@ -4,7 +4,7 @@
 
 from lightgbm import LGBMRegressor
 
-from openstf.model.regressors.regressor import OpenstfRegressor
+from openstef.model.regressors.regressor import OpenstfRegressor
 
 
 class LGBMOpenstfRegressor(LGBMRegressor, OpenstfRegressor):

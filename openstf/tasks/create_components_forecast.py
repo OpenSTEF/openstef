@@ -33,14 +33,14 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 import structlog
-from openstf_dbc.services.prediction_job import PredictionJobDataClass
+from openstef_dbc.services.prediction_job import PredictionJobDataClass
 
-from openstf.enums import MLModelType
-from openstf.pipeline.create_component_forecast import (
+from openstef.enums import MLModelType
+from openstef.pipeline.create_component_forecast import (
     create_components_forecast_pipeline,
 )
-from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
-from openstf.tasks.utils.taskcontext import TaskContext
+from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
+from openstef.tasks.utils.taskcontext import TaskContext
 
 T_BEHIND_DAYS = 0
 T_AHEAD_DAYS = 3
@@ -79,7 +79,7 @@ def create_components_forecast_task(pj: PredictionJobDataClass, context: TaskCon
         return
 
     logger.info("retrieving weather data")
-    # TODO make openstf_dbc function to retrieve inputdata for component forecast in one call,
+    # TODO make openstef_dbc function to retrieve inputdata for component forecast in one call,
     #  this will make this function much shorter
     # Get required weather data
     weather_data = context.database.get_weather_data(

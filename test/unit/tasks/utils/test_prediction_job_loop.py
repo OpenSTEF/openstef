@@ -9,7 +9,7 @@ from test.unit.utils.data import TestData
 from unittest.mock import MagicMock, Mock
 
 # import project modules
-from openstf.tasks.utils.predictionjobloop import (
+from openstef.tasks.utils.predictionjobloop import (
     PredictionJobException,
     PredictionJobLoop,
 )

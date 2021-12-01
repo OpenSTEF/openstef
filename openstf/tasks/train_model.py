@@ -25,12 +25,12 @@ Example:
 from datetime import datetime, timedelta
 from pathlib import Path
 
-from openstf_dbc.services.prediction_job import PredictionJobDataClass
+from openstef_dbc.services.prediction_job import PredictionJobDataClass
 
-from openstf.enums import MLModelType
-from openstf.pipeline.train_model import train_model_pipeline
-from openstf.tasks.utils.predictionjobloop import PredictionJobLoop
-from openstf.tasks.utils.taskcontext import TaskContext
+from openstef.enums import MLModelType
+from openstef.pipeline.train_model import train_model_pipeline
+from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
+from openstef.tasks.utils.taskcontext import TaskContext
 
 TRAINING_PERIOD_DAYS: int = 120
 DEFAULT_CHECK_MODEL_AGE: bool = True

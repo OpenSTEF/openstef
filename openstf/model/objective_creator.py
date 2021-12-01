@@ -4,8 +4,8 @@
 
 from typing import Union
 
-from openstf.enums import MLModelType
-from openstf.model.objective import (
+from openstef.enums import MLModelType
+from openstef.model.objective import (
     LinearRegressorObjective,
     LGBRegressorObjective,
     ProLoafRegressorObjective,
@@ -13,7 +13,7 @@ from openstf.model.objective import (
     XGBQuantileRegressorObjective,
     XGBRegressorObjective,
 )
-from openstf.model.regressors.custom_regressor import (
+from openstef.model.regressors.custom_regressor import (
     create_custom_objective,
     is_custom_type,
 )

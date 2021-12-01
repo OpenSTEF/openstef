@@ -8,7 +8,7 @@ from test.unit.utils.data import TestData
 import pandas as pd
 import pytz
 
-from openstf.pipeline.create_component_forecast import (
+from openstef.pipeline.create_component_forecast import (
     create_components_forecast_pipeline,
 )
 

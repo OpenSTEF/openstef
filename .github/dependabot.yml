@@ -15,7 +15,7 @@ updates:
     schedule:
       interval: "daily"
     allow:
-      - dependency-name: "openstf_dbc"
+      - dependency-name: "openstef_dbc"
     reviewers:
       - "FrankKr"
       - "wfstoel"

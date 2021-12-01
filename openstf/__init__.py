@@ -8,7 +8,7 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).parent.parent.absolute()
 
 try:
-    __version__ = version("openstf")
+    __version__ = version("openstef")
 except PackageNotFoundError:
     # package is not installed
     pass

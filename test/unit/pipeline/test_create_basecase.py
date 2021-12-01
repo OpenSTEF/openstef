@@ -8,7 +8,7 @@ from test.unit.utils.data import TestData
 import numpy as np
 import pandas as pd
 
-from openstf.pipeline.create_basecase_forecast import create_basecase_forecast_pipeline
+from openstef.pipeline.create_basecase_forecast import create_basecase_forecast_pipeline
 
 
 class TestBaseCaseForecast(BaseTestCase):

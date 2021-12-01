@@ -6,20 +6,20 @@ from typing import Union
 
 import pandas as pd
 import structlog
-from openstf_dbc.services.prediction_job import PredictionJobDataClass
+from openstef_dbc.services.prediction_job import PredictionJobDataClass
 
-from openstf.feature_engineering.feature_applicator import (
+from openstef.feature_engineering.feature_applicator import (
     OperationalPredictFeatureApplicator,
 )
-from openstf.model.confidence_interval_applicator import ConfidenceIntervalApplicator
-from openstf.model.fallback import generate_fallback
-from openstf.model.regressors.regressor import OpenstfRegressor
-from openstf.model.serializer import MLflowSerializer
-from openstf.pipeline.utils import generate_forecast_datetime_range
-from openstf.postprocessing.postprocessing import (
+from openstef.model.confidence_interval_applicator import ConfidenceIntervalApplicator
+from openstef.model.fallback import generate_fallback
+from openstef.model.regressors.regressor import OpenstfRegressor
+from openstef.model.serializer import MLflowSerializer
+from openstef.pipeline.utils import generate_forecast_datetime_range
+from openstef.postprocessing.postprocessing import (
     add_prediction_job_properties_to_forecast,
 )
-from openstf.validation import validation
+from openstef.validation import validation
 
 
 def create_forecast_pipeline(

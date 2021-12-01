@@ -4,17 +4,17 @@
 from typing import Union
 import structlog
 
-from openstf.enums import MLModelType
-from openstf.model.regressors.lgbm import LGBMOpenstfRegressor
-from openstf.model.regressors.regressor import OpenstfRegressor
-from openstf.model.regressors.xgb import XGBOpenstfRegressor
-from openstf.model.regressors.xgb_quantile import XGBQuantileOpenstfRegressor
-from openstf.model.regressors.linear import LinearOpenstfRegressor
-from openstf.model.regressors.custom_regressor import load_custom_model, is_custom_type
+from openstef.enums import MLModelType
+from openstef.model.regressors.lgbm import LGBMOpenstfRegressor
+from openstef.model.regressors.regressor import OpenstfRegressor
+from openstef.model.regressors.xgb import XGBOpenstfRegressor
+from openstef.model.regressors.xgb_quantile import XGBQuantileOpenstfRegressor
+from openstef.model.regressors.linear import LinearOpenstfRegressor
+from openstef.model.regressors.custom_regressor import load_custom_model, is_custom_type
 
 logger = structlog.get_logger(__name__)
 try:
-    from openstf.model.regressors.proloaf import OpenstfProloafRegressor
+    from openstef.model.regressors.proloaf import OpenstfProloafRegressor
 except ImportError:
     logger.warning(
         "Proloaf not available, switching to xgboost! See Readme how to install proloaf dependencies"

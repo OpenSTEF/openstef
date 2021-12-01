@@ -1,5 +1,5 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
-Upstream-Name: openstf
+Upstream-Name: openstef
 
 Files: test/unit/trained_models/*
 Copyright: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com>

@@ -6,11 +6,11 @@ import unittest
 
 logger = structlog.get_logger(__name__)
 
-from openstf.model.regressors.xgb import XGBOpenstfRegressor
+from openstef.model.regressors.xgb import XGBOpenstfRegressor
 
 try:
     from test.unit.utils.base import BaseTestCase
-    from openstf.model.regressors.proloaf import OpenstfProloafRegressor
+    from openstef.model.regressors.proloaf import OpenstfProloafRegressor
 except ImportError:
     logger.warning(
         "Proloaf not available, switching to xgboost! See Readme how to install proloaf dependencies"

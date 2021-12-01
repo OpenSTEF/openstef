@@ -8,8 +8,8 @@ from test.unit.utils.base import BaseTestCase
 from test.unit.utils.data import TestData
 from unittest.mock import patch
 
-from openstf.model.serializer import MLflowSerializer
-from openstf.pipeline import create_forecast, utils
+from openstef.model.serializer import MLflowSerializer
+from openstef.pipeline import create_forecast, utils
 
 
 class TestCreateForecastPipeline(BaseTestCase):
@@ -81,7 +81,7 @@ class TestCreateForecastPipeline(BaseTestCase):
         self.assertEqual(forecast_end, forecast_end_expected)
 
     @patch("mlflow.sklearn.load_model")
-    @patch("openstf.validation.validation.is_data_sufficient")
+    @patch("openstef.validation.validation.is_data_sufficient")
     def test_create_forecast_pipeline_incomplete_inputdata(
         self, is_data_sufficient_mock, load_mock
     ):

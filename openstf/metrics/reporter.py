@@ -13,9 +13,9 @@ import sklearn
 from mlflow.models import ModelSignature, infer_signature
 from plotly.graph_objects import Figure
 
-from openstf.metrics import figure
-from openstf.metrics.metrics import bias, mae, nsme, r_mae, rmse
-from openstf.model.regressors.regressor import OpenstfRegressor
+from openstef.metrics import figure
+from openstef.metrics.metrics import bias, mae, nsme, r_mae, rmse
+from openstef.model.regressors.regressor import OpenstfRegressor
 
 
 @dataclass

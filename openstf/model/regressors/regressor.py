@@ -6,7 +6,7 @@ from typing import Optional
 import numpy as np
 import pandas as pd
 
-from openstf.model.regressors.regressor_interface import OpenstfRegressorInterface
+from openstef.model.regressors.regressor_interface import OpenstfRegressorInterface
 
 
 class OpenstfRegressor(OpenstfRegressorInterface):

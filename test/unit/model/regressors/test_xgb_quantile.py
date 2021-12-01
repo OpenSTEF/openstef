@@ -10,7 +10,7 @@ import pandas as pd
 import sklearn
 from sklearn.utils.estimator_checks import check_estimator
 
-from openstf.model.regressors.xgb_quantile import XGBQuantileOpenstfRegressor
+from openstef.model.regressors.xgb_quantile import XGBQuantileOpenstfRegressor
 
 
 class MockModel:

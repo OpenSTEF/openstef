@@ -5,7 +5,7 @@ import argparse
 import importlib
 import pkgutil
 
-from openstf import PROJECT_ROOT
+from openstef import PROJECT_ROOT
 
 
 def parse_cli_arguments():
@@ -25,7 +25,7 @@ def parse_cli_arguments():
 
 
 def validate_task_name(task_name):
-    task_pkg_dir = PROJECT_ROOT / "openstf" / "tasks"
+    task_pkg_dir = PROJECT_ROOT / "openstef" / "tasks"
     task_modules = [m for _, m, _ in pkgutil.iter_modules([str(task_pkg_dir)])]
 
     if task_name not in task_modules:
@@ -42,7 +42,7 @@ def main():
     validate_task_name(task_name)
 
     # get task
-    task = importlib.import_module(f"openstf.tasks.{task_name}")
+    task = importlib.import_module(f"openstef.tasks.{task_name}")
     # run task
     task.main()
 

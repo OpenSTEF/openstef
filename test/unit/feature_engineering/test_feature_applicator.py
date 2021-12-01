@@ -6,7 +6,7 @@ from unittest import TestCase
 
 import numpy as np
 
-from openstf.feature_engineering.feature_applicator import (
+from openstef.feature_engineering.feature_applicator import (
     OperationalPredictFeatureApplicator,
     TrainFeatureApplicator,
 )

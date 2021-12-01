@@ -7,22 +7,22 @@ from typing import List, Tuple, Union
 
 import pandas as pd
 import structlog
-from openstf_dbc.services.prediction_job import PredictionJobDataClass
+from openstef_dbc.services.prediction_job import PredictionJobDataClass
 
-from openstf.data_classes.model_specifications import ModelSpecificationDataClass
-from openstf.exceptions import (
+from openstef.data_classes.model_specifications import ModelSpecificationDataClass
+from openstef.exceptions import (
     InputDataInsufficientError,
     InputDataWrongColumnOrderError,
     OldModelHigherScoreError,
 )
-from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
-from openstf.metrics.reporter import Report, Reporter
-from openstf.model.model_creator import ModelCreator
-from openstf.model.regressors.regressor import OpenstfRegressor
-from openstf.model.serializer import MLflowSerializer
-from openstf.model.standard_deviation_generator import StandardDeviationGenerator
-from openstf.model_selection.model_selection import split_data_train_validation_test
-from openstf.validation import validation
+from openstef.feature_engineering.feature_applicator import TrainFeatureApplicator
+from openstef.metrics.reporter import Report, Reporter
+from openstef.model.model_creator import ModelCreator
+from openstef.model.regressors.regressor import OpenstfRegressor
+from openstef.model.serializer import MLflowSerializer
+from openstef.model.standard_deviation_generator import StandardDeviationGenerator
+from openstef.model_selection.model_selection import split_data_train_validation_test
+from openstef.validation import validation
 
 DEFAULT_TRAIN_HORIZONS: List[float] = [0.25, 47.0]
 MAXIMUM_MODEL_AGE: int = 7
@@ -61,7 +61,7 @@ def train_model_pipeline(
         old_model, modelspecs = serializer.load_model(pj["id"])
         old_model_age = (
             old_model.age
-        )  # Age attribute is openstf specific and is added by the serializer
+        )  # Age attribute is openstef specific and is added by the serializer
     except (AttributeError, FileNotFoundError, LookupError):
         old_model = None
         old_model_age = float("inf")

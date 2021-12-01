@@ -7,7 +7,7 @@ from test.unit.utils.base import BaseTestCase
 
 import pandas as pd
 
-from openstf.validation.validation import check_data_for_each_trafo
+from openstef.validation.validation import check_data_for_each_trafo
 
 now = datetime.utcnow()
 date_rng = pd.date_range(start=now - timedelta(minutes=30), end=now, freq="0.25H")

@@ -5,19 +5,19 @@ from pathlib import Path
 
 import pandas as pd
 import structlog
-from openstf_dbc.services.prediction_job import PredictionJobDataClass
+from openstef_dbc.services.prediction_job import PredictionJobDataClass
 
-from openstf.feature_engineering.feature_applicator import (
+from openstef.feature_engineering.feature_applicator import (
     OperationalPredictFeatureApplicator,
 )
-from openstf.model.basecase import BaseCaseModel
-from openstf.model.confidence_interval_applicator import ConfidenceIntervalApplicator
-from openstf.pipeline.utils import generate_forecast_datetime_range
-from openstf.postprocessing.postprocessing import (
+from openstef.model.basecase import BaseCaseModel
+from openstef.model.confidence_interval_applicator import ConfidenceIntervalApplicator
+from openstef.pipeline.utils import generate_forecast_datetime_range
+from openstef.postprocessing.postprocessing import (
     add_components_base_case_forecast,
     add_prediction_job_properties_to_forecast,
 )
-from openstf.validation import validation
+from openstef.validation import validation
 
 MODEL_LOCATION = Path(".")
 BASECASE_HORIZON_MINUTES = 60 * 24 * 14  # 14 days ahead
@@ -58,7 +58,7 @@ def create_basecase_forecast_pipeline(
 
     # Similarly to the forecast pipeline, only try to make a forecast for moments in the future
     # TODO, do we want to be this strict on time window of forecast in this place?
-    # see issue https://github.com/alliander-opensource/openstf/issues/121
+    # see issue https://github.com/alliander-opensource/openstef/issues/121
     forecast_start, forecast_end = generate_forecast_datetime_range(data_with_features)
     forecast_input = data_with_features[forecast_start:forecast_end]
 

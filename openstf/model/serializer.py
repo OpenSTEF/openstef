@@ -17,12 +17,12 @@ import pandas as pd
 import structlog
 from matplotlib import figure
 from mlflow.exceptions import MlflowException
-from openstf_dbc.services.prediction_job import PredictionJobDataClass
+from openstef_dbc.services.prediction_job import PredictionJobDataClass
 from plotly import graph_objects
 
-from openstf.data_classes.model_specifications import ModelSpecificationDataClass
-from openstf.metrics.reporter import Report, Reporter
-from openstf.model.regressors.regressor import OpenstfRegressor
+from openstef.data_classes.model_specifications import ModelSpecificationDataClass
+from openstef.metrics.reporter import Report, Reporter
+from openstef.model.regressors.regressor import OpenstfRegressor
 
 MODEL_FILENAME = "model.joblib"
 FOLDER_DATETIME_FORMAT = "%Y%m%d%H%M%S"

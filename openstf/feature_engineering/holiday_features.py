@@ -9,10 +9,10 @@ import holidays
 import numpy as np
 import pandas as pd
 
-from openstf import PROJECT_ROOT
+from openstef import PROJECT_ROOT
 
 HOLIDAY_CSV_PATH: str = (
-    PROJECT_ROOT / "openstf" / "data" / "dutch_holidays_2020-2022.csv"
+    PROJECT_ROOT / "openstef" / "data" / "dutch_holidays_2020-2022.csv"
 )
 
 

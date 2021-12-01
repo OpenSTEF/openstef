@@ -1,12 +1,12 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-from openstf.model.metamodels.missing_values_handler import MissingValuesHandler
+from openstef.model.metamodels.missing_values_handler import MissingValuesHandler
 import numpy as np
 from sklearn.linear_model import LinearRegression
 from sklearn.utils.validation import check_is_fitted
 
-from openstf.model.regressors.regressor import OpenstfRegressor
+from openstef.model.regressors.regressor import OpenstfRegressor
 
 
 class LinearRegressor(MissingValuesHandler):

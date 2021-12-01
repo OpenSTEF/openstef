@@ -4,7 +4,7 @@
 import unittest
 from test.unit.utils.base import BaseTestCase
 
-from openstf.feature_engineering.holiday_features import (
+from openstef.feature_engineering.holiday_features import (
     generate_holiday_feature_functions,
 )
 
