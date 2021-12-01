@@ -12,6 +12,11 @@ ParsedFeature = namedtuple("ParsedFeature", ["name", "params"])
 
 
 class FeatureAdder(ABC):
+    """Abstract class that implement the FeatureAdder interface.
+    It is the basic block that handles the logic for computing the specific feature
+    and the syntactic sugar to load properly the feature adder according to the feature name.
+    """
+
     @property
     @abstractmethod
     def _regex(self) -> str:
@@ -64,6 +69,11 @@ class FeatureAdder(ABC):
 
 
 class FeatureDispatcher:
+    """Orchestrator of the feature adders.
+    It scans the feature_names to assign to each feature the proper feature adder
+    and launch the effective computing of the features.
+    """
+
     def __init__(self, feature_adders: Sequence[FeatureAdder]):
         self.feature_adders = list(feature_adders)
         self._check_feature_adder_names_unicity()
