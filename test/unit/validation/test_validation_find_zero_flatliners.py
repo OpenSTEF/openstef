@@ -10,7 +10,7 @@ from test.unit.utils.base import BaseTestCase
 
 import pandas as pd
 
-from openstf.validation.validation import find_zero_flatliner
+from openstef.validation.validation import find_zero_flatliner
 
 now = datetime.utcnow()
 date_rng = pd.date_range(start=now - timedelta(minutes=30), end=now, freq="0.25H")

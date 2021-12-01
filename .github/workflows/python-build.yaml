@@ -54,12 +54,12 @@ jobs:
     - name: Test with pytest
       run: |
         pip install pytest pytest-cov
-        pytest --cov-report=xml --cov=openstf/ test/unit/ --junitxml=pytest-report.xml
+        pytest --cov-report=xml --cov=openstef/ test/unit/ --junitxml=pytest-report.xml
     # Fix relative paths in coverage file
     # Known bug: https://community.sonarsource.com/t/sonar-on-github-actions-with-python-coverage-source-issue/36057
     - name: fix code coverage paths
       run: |
-        sed -i 's/\/home\/runner\/work\/openstf\/openstf\//\/github\/workspace\//g' coverage.xml
+        sed -i 's/\/home\/runner\/work\/openstef\/openstef\//\/github\/workspace\//g' coverage.xml
     # Sonar cloud scan
     - name: SonarCloud Scan
       uses: sonarsource/sonarcloud-github-action@master

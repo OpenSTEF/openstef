@@ -4,11 +4,11 @@
 from test.unit.utils.base import BaseTestCase
 from test.unit.utils.data import TestData
 
-from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
-from openstf.pipeline.train_create_forecast_backtest import (
+from openstef.feature_engineering.feature_applicator import TrainFeatureApplicator
+from openstef.pipeline.train_create_forecast_backtest import (
     train_model_and_forecast_back_test,
 )
-from openstf.validation import validation
+from openstef.validation import validation
 
 
 class TestTrainBackTestPipeline(BaseTestCase):

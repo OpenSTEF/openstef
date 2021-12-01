@@ -7,7 +7,7 @@ from unittest.mock import patch
 
 import pandas as pd
 
-from openstf.model.confidence_interval_applicator import ConfidenceIntervalApplicator
+from openstef.model.confidence_interval_applicator import ConfidenceIntervalApplicator
 
 
 class MockModel:
@@ -39,10 +39,10 @@ class TestConfidenceIntervalApplicator(TestCase):
         )
 
     @patch(
-        "openstf.model.confidence_interval_applicator.ConfidenceIntervalApplicator._add_quantiles_to_forecast_quantile_regression"
+        "openstef.model.confidence_interval_applicator.ConfidenceIntervalApplicator._add_quantiles_to_forecast_quantile_regression"
     )
     @patch(
-        "openstf.model.confidence_interval_applicator.ConfidenceIntervalApplicator._add_standard_deviation_to_forecast"
+        "openstef.model.confidence_interval_applicator.ConfidenceIntervalApplicator._add_standard_deviation_to_forecast"
     )
     def test_add_confidence_interval_happy_flow_(
         self, mock_stdev_to_forecast, mock_add_quantiles

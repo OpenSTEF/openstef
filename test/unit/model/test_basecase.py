@@ -9,7 +9,7 @@ from test.unit.utils.data import TestData
 import pandas as pd
 import pytz
 
-from openstf.model.basecase import BaseCaseModel
+from openstef.model.basecase import BaseCaseModel
 
 NOW = datetime.now(timezone.utc)
 

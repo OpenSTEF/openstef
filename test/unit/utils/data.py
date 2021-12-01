@@ -9,9 +9,9 @@ from pathlib import Path
 from typing import Union
 
 import pandas as pd
-from openstf_dbc.services.prediction_job import PredictionJobDataClass
+from openstef_dbc.services.prediction_job import PredictionJobDataClass
 
-from openstf.data_classes.model_specifications import ModelSpecificationDataClass
+from openstef.data_classes.model_specifications import ModelSpecificationDataClass
 
 
 class TestData:

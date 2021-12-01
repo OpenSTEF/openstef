@@ -8,7 +8,7 @@ from test.unit.utils.data import TestData
 
 import pandas as pd
 
-from openstf.pipeline.train_model import split_data_train_validation_test
+from openstef.pipeline.train_model import split_data_train_validation_test
 
 # define constants
 SPLIT_PARAMS = {

@@ -8,10 +8,10 @@ from unittest.mock import MagicMock, patch
 
 import pandas as pd
 
-from openstf.monitoring import teams
+from openstef.monitoring import teams
 
 
-@patch("openstf.monitoring.teams.pymsteams")
+@patch("openstef.monitoring.teams.pymsteams")
 class TestTeams(BaseTestCase):
     def setUp(self):
         super().setUp()
@@ -66,7 +66,7 @@ class TestTeams(BaseTestCase):
         card_mock = teamsmock.connectorcard.return_value
         self.assertTrue(card_mock.send.called)
 
-    @patch("openstf.monitoring.teams.open", MagicMock())
+    @patch("openstef.monitoring.teams.open", MagicMock())
     def test_post_teams_worse(self, teamsmock):
 
         teams.send_report_teams_worse(self.pj)

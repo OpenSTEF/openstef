@@ -9,9 +9,9 @@ from test.unit.utils.data import TestData
 import numpy as np
 import pandas as pd
 
-from openstf.feature_engineering import apply_features, weather_features
-from openstf.feature_engineering.feature_applicator import TrainFeatureApplicator
-from openstf.feature_engineering.lag_features import (
+from openstef.feature_engineering import apply_features, weather_features
+from openstef.feature_engineering.feature_applicator import TrainFeatureApplicator
+from openstef.feature_engineering.lag_features import (
     generate_lag_feature_functions,
     generate_non_trivial_lag_times,
 )
