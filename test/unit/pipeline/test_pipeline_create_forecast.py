@@ -92,7 +92,7 @@ class TestCreateForecastPipeline(BaseTestCase):
         col_name = forecast_data.columns[0]
         forecast_data.loc["2020-11-28 00:00:00":"2020-12-01", col_name] = None
 
-        model, modelspecs = self.serializer.load_model(self.pj["id"])
+        model, _ = self.serializer.load_model(self.pj["id"])
         if not hasattr(model, "standard_deviation"):  # Renamed the attribute
             model.standard_deviation = model.confidence_interval
 
