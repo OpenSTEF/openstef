@@ -4,18 +4,40 @@
 from abc import ABC, abstractmethod
 from typing import List, Dict, Tuple, Sequence, Optional
 from collections import namedtuple, Counter
+from importlib import import_module
 import pandas as pd
 import re
+import inspect
 
 
 ParsedFeature = namedtuple("ParsedFeature", ["name", "params"])
 
 
+def adders_from_module(module_name):
+    """Load all FeatureAdders classes on the fly from the module"""
+    module = import_module(module_name)
+    feature_adders = []
+
+    for element_name in dir(module):
+        element = getattr(module, element_name)
+        if (
+            isinstance(element, type)
+            and issubclass(element, FeatureAdder)
+            and not inspect.isabstract(element)
+        ):
+            feature_adders.append(element())
+
+    return feature_adders
+
+
+def adders_from_modules(module_names):
+    return sum((adders_from_module(module_name) for module_name in module_names), [])
+
+
 class FeatureAdder(ABC):
     """Abstract class that implement the FeatureAdder interface.
     It is the basic block that handles the logic for computing the specific feature
-    and the syntactic sugar to load properly the feature adder according to the feature name.
-    """
+    and the syntactic sugar to load properly the feature adder according to the feature name."""
 
     @property
     @abstractmethod
@@ -114,6 +136,8 @@ class FeatureDispatcher:
         return dispatched_features
 
     def apply_features(self, df, feature_names):
+        if feature_names is None:
+            return df
         dispatched_features = self.dispatch_features(feature_names)
 
         applied_features = set()

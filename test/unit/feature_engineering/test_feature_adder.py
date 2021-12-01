@@ -7,8 +7,13 @@ import unittest
 import numpy as np
 import pandas as pd
 import re
+import os
 
-from openstf.feature_engineering.feature_adder import FeatureAdder, FeatureDispatcher
+from openstf.feature_engineering.feature_adder import (
+    FeatureAdder,
+    FeatureDispatcher,
+    adders_from_modules,
+)
 from test.utils import BaseTestCase, TestData
 
 
@@ -38,7 +43,7 @@ class DummyIntFeature(FeatureAdder):
 
     @property
     def _regex(self):
-        return r"dummy_(?P<value>[+-]?([0-9]*))"
+        return r"dummy_(?P<value>[+-]?([0-9]*))$"
 
     def required_features(self, feature_names):
         return []
@@ -80,3 +85,12 @@ class TestFeatureAdder(BaseTestCase):
         self.assertTrue((df_out["dummy_-1"] == -1).all())
         self.assertTrue((df_out["dummy_0.5"] == 0.5).all())
         self.assertTrue((df_out["dummy_42"] == 42).all())
+
+    def test_load_modules(self):
+        adders = adders_from_modules(
+            ["test.unit.feature_engineering.test_feature_adder"]
+        )
+        adders_type = [type(adder) for adder in adders]
+        self.assertTrue(len(adders) == 2)
+        self.assertTrue(DummyFeature in adders_type)
+        self.assertTrue(DummyIntFeature in adders_type)
