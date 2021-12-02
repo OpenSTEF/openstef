@@ -21,7 +21,7 @@ SPDX-License-Identifier: MPL-2.0
 
 # Openstef
 
-Openstf is a Python package which is used to make short term forecasts for the energy sector. This repository contains all components for the machine learning pipeline required to make a forecast. In order to use the package you need to provide your own data storage and retrieval interface. `openstef` is available at: https://pypi.org/project/openstef/
+OpenSTEF is a Python package which is used to make short term forecasts for the energy sector. This repository contains all components for the machine learning pipeline required to make a forecast. In order to use the package you need to provide your own data storage and retrieval interface. `openstef` is available at: https://pypi.org/project/openstef/
 
 # Installation
 
@@ -58,4 +58,4 @@ This project includes third-party libraries, which are licensed under their own 
 Please read [CODE_OF_CONDUCT.md](https://github.com/OpenSTEF/.github/blob/main/CODE_OF_CONDUCT.md) and [CONTRIBUTING.md](https://github.com/OpenSTEF/.github/blob/main/CONTRIBUTING.md) for details on the process for submitting pull requests to us.
 
 ## Contact
-Please read [SUPPORT.md](https://github.com/OpenSTEF/.github/blob/main/SUPPORT.md) for how to connect and get into contact with the OpenSTF project
+Please read [SUPPORT.md](https://github.com/OpenSTEF/.github/blob/main/SUPPORT.md) for how to connect and get into contact with the OpenSTEF project
