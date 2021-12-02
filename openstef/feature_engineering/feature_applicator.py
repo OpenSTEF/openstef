@@ -105,6 +105,7 @@ class TrainFeatureApplicator(AbstractFeatureApplicator):
             )
             res["horizon"] = horizon
             result = result.append(res)
+            # Add custom features with the dispatcher
             result = self.features_dispatcher.apply_features(
                 result, feature_names=self.feature_names
             )
@@ -150,6 +151,11 @@ class OperationalPredictFeatureApplicator(AbstractFeatureApplicator):
         if num_horizons != 1:
             raise ValueError(f"Expected one horizon, got {num_horizons}")
 
+        # Add core features
+        df = apply_features(
+            df, feature_names=self.feature_names, horizon=self.horizons[0]
+        )
+        # Add custom features with the dispatcher
         df = self.features_dispatcher.apply_features(
             df, feature_names=self.feature_names
         )
