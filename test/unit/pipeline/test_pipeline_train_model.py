@@ -200,9 +200,9 @@ class TestTrainModelPipeline(BaseTestCase):
         # check if report is a Report
         self.assertTrue(isinstance(report, Report))
 
-    @patch("openstf.model.serializer.PersistentStorageSerializer.save_model")
-    @patch("openstf.pipeline.train_model.train_model_pipeline_core")
-    @patch("openstf.pipeline.train_model.PersistentStorageSerializer")
+    @patch("openstef.model.serializer.MLflowSerializer.save_model")
+    @patch("openstef.pipeline.train_model.train_model_pipeline_core")
+    @patch("openstef.pipeline.train_model.MLflowSerializer")
     def test_train_model_pipeline_happy_flow(
         self, serializer_mock, pipeline_mock, save_model_mock
     ):
