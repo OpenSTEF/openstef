@@ -58,7 +58,7 @@ def create_basecase_forecast_pipeline(
 
     # Similarly to the forecast pipeline, only try to make a forecast for moments in the future
     # TODO, do we want to be this strict on time window of forecast in this place?
-    # see issue https://github.com/alliander-opensource/openstef/issues/121
+    # see issue https://github.com/OpenSTEF/openstef/issues/121
     forecast_start, forecast_end = generate_forecast_datetime_range(data_with_features)
     forecast_input = data_with_features[forecast_start:forecast_end]
 
