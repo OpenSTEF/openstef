@@ -31,7 +31,7 @@ setup(
     name="openstef",
     version="3.0.2",
     packages=find_packages(include=["openstef", "openstef.*"]),
-    description="Open short term forcasting",
+    description="Open short term energy forecaster",
     long_description=read_long_description_from_readme(),
     long_description_content_type="text/markdown",
     url="https://github.com/OpenSTEF/openstef",
