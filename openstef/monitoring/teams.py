@@ -99,8 +99,8 @@ def post_teams(msg, invalid_coefs=None, coefsdf=None, url=None):
     link_dicts = msg.get("links", [])  # link_dicts can be single dict or list of dicts
     if isinstance(link_dicts, dict):  # if single dict
         card.addLinkButton(link_dicts["buttontext"], link_dicts["buttonurl"])
-    elif isinstance(link_dicts, list):
-        for link_dict in link_dicts:  # if list of dicts
+    elif isinstance(link_dicts, list):  # if list of dicts
+        for link_dict in link_dicts:
             card.addLinkButton(link_dict["buttontext"], link_dict["buttonurl"])
 
     # Add sections
