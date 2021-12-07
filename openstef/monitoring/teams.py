@@ -54,19 +54,9 @@ def post_teams(msg, invalid_coefs=None, coefsdf=None, url=None):
             "title": "Invalid energy splitting coefficients",
             "text": msg,
             "sections": [
-                {
-                    "text": invalid_coefs_text,
-                    "markdown": True,
-                },
-                {
-                    "title": "Manual query",
-                    "text": query_text,
-                    "markdown": True,
-                },
-                {
-                    "text": query,
-                    "markdown": True,
-                },
+                {"text": invalid_coefs_text, "markdown": True,},
+                {"title": "Manual query", "text": query_text, "markdown": True,},
+                {"text": query, "markdown": True,},
             ],
         }
 
@@ -96,8 +86,12 @@ def post_teams(msg, invalid_coefs=None, coefsdf=None, url=None):
     card.color(msg.get("color", "white"))
     card.title(msg.get("title"))
 
-    for link_dict in msg.get("links", []):
-        card.addLinkButton(link_dict["buttontext"], link_dict["buttonurl"])
+    link_dicts = msg.get("links", [])  # link_dicts can be single dict or list of dicts
+    if isinstance(link_dicts, dict):  # if single dict
+        card.addLinkButton(link_dicts["buttontext"], link_dicts["buttonurl"])
+    elif isinstance(link_dicts, list):
+        for link_dict in link_dicts:  # if list of dicts
+            card.addLinkButton(link_dict["buttontext"], link_dict["buttonurl"])
 
     # Add sections
     for section_dict in msg.get("sections", []):
@@ -299,10 +293,7 @@ def send_report_teams_worse(pj: PredictionJobDataClass):
                 ],
                 "markdown": False,
             },
-            {
-                "title": "New Model Performance",
-                "images": [graph],
-            },
+            {"title": "New Model Performance", "images": [graph],},
         ],
         "links": [
             {
