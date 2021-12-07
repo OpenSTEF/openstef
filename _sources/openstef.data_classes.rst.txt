@@ -1,0 +1,22 @@
+openstef.data\_classes package
+==============================
+
+Submodules
+----------
+
+openstef.data\_classes.model\_specifications module
+---------------------------------------------------
+
+.. automodule:: openstef.data_classes.model_specifications
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: openstef.data_classes
+   :members:
+   :undoc-members:
+   :show-inheritance:

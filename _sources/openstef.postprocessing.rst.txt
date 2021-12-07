@@ -1,0 +1,22 @@
+openstef.postprocessing package
+===============================
+
+Submodules
+----------
+
+openstef.postprocessing.postprocessing module
+---------------------------------------------
+
+.. automodule:: openstef.postprocessing.postprocessing
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: openstef.postprocessing
+   :members:
+   :undoc-members:
+   :show-inheritance:

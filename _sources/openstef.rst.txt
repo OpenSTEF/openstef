@@ -1,0 +1,47 @@
+openstef package
+================
+
+Subpackages
+-----------
+
+.. toctree::
+
+   openstef.data_classes
+   openstef.feature_engineering
+   openstef.metrics
+   openstef.model
+   openstef.model_selection
+   openstef.monitoring
+   openstef.pipeline
+   openstef.postprocessing
+   openstef.preprocessing
+   openstef.tasks
+   openstef.validation
+
+Submodules
+----------
+
+openstef.enums module
+---------------------
+
+.. automodule:: openstef.enums
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+openstef.exceptions module
+--------------------------
+
+.. automodule:: openstef.exceptions
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: openstef
+   :members:
+   :undoc-members:
+   :show-inheritance:

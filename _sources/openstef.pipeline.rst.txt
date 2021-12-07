@@ -1,0 +1,70 @@
+openstef.pipeline package
+=========================
+
+Submodules
+----------
+
+openstef.pipeline.create\_basecase\_forecast module
+---------------------------------------------------
+
+.. automodule:: openstef.pipeline.create_basecase_forecast
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+openstef.pipeline.create\_component\_forecast module
+----------------------------------------------------
+
+.. automodule:: openstef.pipeline.create_component_forecast
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+openstef.pipeline.create\_forecast module
+-----------------------------------------
+
+.. automodule:: openstef.pipeline.create_forecast
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+openstef.pipeline.optimize\_hyperparameters module
+--------------------------------------------------
+
+.. automodule:: openstef.pipeline.optimize_hyperparameters
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+openstef.pipeline.train\_create\_forecast\_backtest module
+----------------------------------------------------------
+
+.. automodule:: openstef.pipeline.train_create_forecast_backtest
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+openstef.pipeline.train\_model module
+-------------------------------------
+
+.. automodule:: openstef.pipeline.train_model
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+openstef.pipeline.utils module
+------------------------------
+
+.. automodule:: openstef.pipeline.utils
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: openstef.pipeline
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,101 @@
+openstef.tasks package
+======================
+
+Subpackages
+-----------
+
+.. toctree::
+
+   openstef.tasks.utils
+
+Submodules
+----------
+
+openstef.tasks.calculate\_kpi module
+------------------------------------
+
+.. automodule:: openstef.tasks.calculate_kpi
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+openstef.tasks.create\_basecase\_forecast module
+------------------------------------------------
+
+.. automodule:: openstef.tasks.create_basecase_forecast
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+openstef.tasks.create\_components\_forecast module
+--------------------------------------------------
+
+.. automodule:: openstef.tasks.create_components_forecast
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+openstef.tasks.create\_forecast module
+--------------------------------------
+
+.. automodule:: openstef.tasks.create_forecast
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+openstef.tasks.create\_solar\_forecast module
+---------------------------------------------
+
+.. automodule:: openstef.tasks.create_solar_forecast
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+openstef.tasks.create\_wind\_forecast module
+--------------------------------------------
+
+.. automodule:: openstef.tasks.create_wind_forecast
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+openstef.tasks.optimize\_hyperparameters module
+-----------------------------------------------
+
+.. automodule:: openstef.tasks.optimize_hyperparameters
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+openstef.tasks.run\_tracy module
+--------------------------------
+
+.. automodule:: openstef.tasks.run_tracy
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+openstef.tasks.split\_forecast module
+-------------------------------------
+
+.. automodule:: openstef.tasks.split_forecast
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+openstef.tasks.train\_model module
+----------------------------------
+
+.. automodule:: openstef.tasks.train_model
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: openstef.tasks
+   :members:
+   :undoc-members:
+   :show-inheritance:

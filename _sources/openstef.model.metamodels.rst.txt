@@ -1,0 +1,22 @@
+openstef.model.metamodels package
+=================================
+
+Submodules
+----------
+
+openstef.model.metamodels.missing\_values\_handler module
+---------------------------------------------------------
+
+.. automodule:: openstef.model.metamodels.missing_values_handler
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: openstef.model.metamodels
+   :members:
+   :undoc-members:
+   :show-inheritance:

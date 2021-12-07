@@ -1,0 +1,22 @@
+openstef.preprocessing package
+==============================
+
+Submodules
+----------
+
+openstef.preprocessing.preprocessing module
+-------------------------------------------
+
+.. automodule:: openstef.preprocessing.preprocessing
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: openstef.preprocessing
+   :members:
+   :undoc-members:
+   :show-inheritance:

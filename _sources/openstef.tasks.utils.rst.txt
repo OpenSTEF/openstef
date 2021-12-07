@@ -1,0 +1,30 @@
+openstef.tasks.utils package
+============================
+
+Submodules
+----------
+
+openstef.tasks.utils.predictionjobloop module
+---------------------------------------------
+
+.. automodule:: openstef.tasks.utils.predictionjobloop
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+openstef.tasks.utils.taskcontext module
+---------------------------------------
+
+.. automodule:: openstef.tasks.utils.taskcontext
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: openstef.tasks.utils
+   :members:
+   :undoc-members:
+   :show-inheritance:

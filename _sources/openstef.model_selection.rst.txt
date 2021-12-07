@@ -1,0 +1,22 @@
+openstef.model\_selection package
+=================================
+
+Submodules
+----------
+
+openstef.model\_selection.model\_selection module
+-------------------------------------------------
+
+.. automodule:: openstef.model_selection.model_selection
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: openstef.model_selection
+   :members:
+   :undoc-members:
+   :show-inheritance:

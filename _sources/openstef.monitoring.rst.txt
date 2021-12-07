@@ -1,0 +1,30 @@
+openstef.monitoring package
+===========================
+
+Submodules
+----------
+
+openstef.monitoring.performance\_meter module
+---------------------------------------------
+
+.. automodule:: openstef.monitoring.performance_meter
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+openstef.monitoring.teams module
+--------------------------------
+
+.. automodule:: openstef.monitoring.teams
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: openstef.monitoring
+   :members:
+   :undoc-members:
+   :show-inheritance:

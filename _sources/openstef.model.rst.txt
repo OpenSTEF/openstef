@@ -1,0 +1,86 @@
+openstef.model package
+======================
+
+Subpackages
+-----------
+
+.. toctree::
+
+   openstef.model.metamodels
+   openstef.model.regressors
+
+Submodules
+----------
+
+openstef.model.basecase module
+------------------------------
+
+.. automodule:: openstef.model.basecase
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+openstef.model.confidence\_interval\_applicator module
+------------------------------------------------------
+
+.. automodule:: openstef.model.confidence_interval_applicator
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+openstef.model.fallback module
+------------------------------
+
+.. automodule:: openstef.model.fallback
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+openstef.model.model\_creator module
+------------------------------------
+
+.. automodule:: openstef.model.model_creator
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+openstef.model.objective module
+-------------------------------
+
+.. automodule:: openstef.model.objective
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+openstef.model.objective\_creator module
+----------------------------------------
+
+.. automodule:: openstef.model.objective_creator
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+openstef.model.serializer module
+--------------------------------
+
+.. automodule:: openstef.model.serializer
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+openstef.model.standard\_deviation\_generator module
+----------------------------------------------------
+
+.. automodule:: openstef.model.standard_deviation_generator
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: openstef.model
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,38 @@
+openstef.metrics package
+========================
+
+Submodules
+----------
+
+openstef.metrics.figure module
+------------------------------
+
+.. automodule:: openstef.metrics.figure
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+openstef.metrics.metrics module
+-------------------------------
+
+.. automodule:: openstef.metrics.metrics
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+openstef.metrics.reporter module
+--------------------------------
+
+.. automodule:: openstef.metrics.reporter
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: openstef.metrics
+   :members:
+   :undoc-members:
+   :show-inheritance:

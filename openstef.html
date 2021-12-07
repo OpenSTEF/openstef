@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>openstef package &mdash; Short Term Forecasting  documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> Short Term Forecasting
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">openstef package</a><ul>
+<li><a class="reference internal" href="#subpackages">Subpackages</a></li>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-openstef.enums">openstef.enums module</a></li>
+<li><a class="reference internal" href="#module-openstef.exceptions">openstef.exceptions module</a></li>
+<li><a class="reference internal" href="#module-openstef">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Short Term Forecasting</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>openstef package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/openstef.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="openstef-package">
+<h1>openstef package<a class="headerlink" href="#openstef-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="openstef.data_classes.html">openstef.data_classes package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="openstef.data_classes.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.data_classes.html#module-openstef.data_classes.model_specifications">openstef.data_classes.model_specifications module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.data_classes.html#module-openstef.data_classes">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="openstef.feature_engineering.html">openstef.feature_engineering package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="openstef.feature_engineering.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.feature_engineering.html#module-openstef.feature_engineering.apply_features">openstef.feature_engineering.apply_features module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.feature_engineering.html#module-openstef.feature_engineering.feature_applicator">openstef.feature_engineering.feature_applicator module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.feature_engineering.html#module-openstef.feature_engineering.general">openstef.feature_engineering.general module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.feature_engineering.html#module-openstef.feature_engineering.historic_features">openstef.feature_engineering.historic_features module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.feature_engineering.html#module-openstef.feature_engineering.holiday_features">openstef.feature_engineering.holiday_features module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.feature_engineering.html#module-openstef.feature_engineering.lag_features">openstef.feature_engineering.lag_features module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.feature_engineering.html#module-openstef.feature_engineering.weather_features">openstef.feature_engineering.weather_features module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.feature_engineering.html#module-openstef.feature_engineering">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="openstef.metrics.html">openstef.metrics package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="openstef.metrics.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.metrics.html#module-openstef.metrics.figure">openstef.metrics.figure module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.metrics.html#module-openstef.metrics.metrics">openstef.metrics.metrics module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.metrics.html#module-openstef.metrics.reporter">openstef.metrics.reporter module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.metrics.html#module-openstef.metrics">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="openstef.model.html">openstef.model package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="openstef.model.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="openstef.model.metamodels.html">openstef.model.metamodels package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef.model.metamodels.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef.model.metamodels.html#module-openstef.model.metamodels.missing_values_handler">openstef.model.metamodels.missing_values_handler module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef.model.metamodels.html#module-openstef.model.metamodels">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="openstef.model.regressors.html">openstef.model.regressors package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#module-openstef.model.regressors.custom_regressor">openstef.model.regressors.custom_regressor module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#module-openstef.model.regressors.lgbm">openstef.model.regressors.lgbm module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#module-openstef.model.regressors.linear">openstef.model.regressors.linear module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#openstef-model-regressors-proloaf-module">openstef.model.regressors.proloaf module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#module-openstef.model.regressors.regressor">openstef.model.regressors.regressor module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#module-openstef.model.regressors.regressor_interface">openstef.model.regressors.regressor_interface module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#module-openstef.model.regressors.xgb">openstef.model.regressors.xgb module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#module-openstef.model.regressors.xgb_quantile">openstef.model.regressors.xgb_quantile module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#module-openstef.model.regressors">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.model.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.model.html#module-openstef.model.basecase">openstef.model.basecase module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.model.html#module-openstef.model.confidence_interval_applicator">openstef.model.confidence_interval_applicator module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.model.html#module-openstef.model.fallback">openstef.model.fallback module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.model.html#module-openstef.model.model_creator">openstef.model.model_creator module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.model.html#module-openstef.model.objective">openstef.model.objective module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.model.html#module-openstef.model.objective_creator">openstef.model.objective_creator module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.model.html#module-openstef.model.serializer">openstef.model.serializer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.model.html#module-openstef.model.standard_deviation_generator">openstef.model.standard_deviation_generator module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.model.html#module-openstef.model">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="openstef.model_selection.html">openstef.model_selection package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="openstef.model_selection.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.model_selection.html#module-openstef.model_selection.model_selection">openstef.model_selection.model_selection module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.model_selection.html#module-openstef.model_selection">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="openstef.monitoring.html">openstef.monitoring package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="openstef.monitoring.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.monitoring.html#module-openstef.monitoring.performance_meter">openstef.monitoring.performance_meter module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.monitoring.html#module-openstef.monitoring.teams">openstef.monitoring.teams module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.monitoring.html#module-openstef.monitoring">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="openstef.pipeline.html">openstef.pipeline package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="openstef.pipeline.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.pipeline.html#module-openstef.pipeline.create_basecase_forecast">openstef.pipeline.create_basecase_forecast module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.pipeline.html#module-openstef.pipeline.create_component_forecast">openstef.pipeline.create_component_forecast module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.pipeline.html#module-openstef.pipeline.create_forecast">openstef.pipeline.create_forecast module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.pipeline.html#module-openstef.pipeline.optimize_hyperparameters">openstef.pipeline.optimize_hyperparameters module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.pipeline.html#module-openstef.pipeline.train_create_forecast_backtest">openstef.pipeline.train_create_forecast_backtest module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.pipeline.html#module-openstef.pipeline.train_model">openstef.pipeline.train_model module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.pipeline.html#module-openstef.pipeline.utils">openstef.pipeline.utils module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.pipeline.html#module-openstef.pipeline">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="openstef.postprocessing.html">openstef.postprocessing package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="openstef.postprocessing.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.postprocessing.html#module-openstef.postprocessing.postprocessing">openstef.postprocessing.postprocessing module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.postprocessing.html#module-openstef.postprocessing">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="openstef.preprocessing.html">openstef.preprocessing package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="openstef.preprocessing.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.preprocessing.html#module-openstef.preprocessing.preprocessing">openstef.preprocessing.preprocessing module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.preprocessing.html#module-openstef.preprocessing">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="openstef.tasks.html">openstef.tasks package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="openstef.tasks.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="openstef.tasks.utils.html">openstef.tasks.utils package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef.tasks.utils.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef.tasks.utils.html#module-openstef.tasks.utils.predictionjobloop">openstef.tasks.utils.predictionjobloop module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef.tasks.utils.html#module-openstef.tasks.utils.taskcontext">openstef.tasks.utils.taskcontext module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef.tasks.utils.html#module-openstef.tasks.utils">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.tasks.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.tasks.html#module-openstef.tasks.calculate_kpi">openstef.tasks.calculate_kpi module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.tasks.html#module-openstef.tasks.create_basecase_forecast">openstef.tasks.create_basecase_forecast module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.tasks.html#module-openstef.tasks.create_components_forecast">openstef.tasks.create_components_forecast module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.tasks.html#module-openstef.tasks.create_forecast">openstef.tasks.create_forecast module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.tasks.html#module-openstef.tasks.create_solar_forecast">openstef.tasks.create_solar_forecast module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.tasks.html#module-openstef.tasks.create_wind_forecast">openstef.tasks.create_wind_forecast module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.tasks.html#module-openstef.tasks.optimize_hyperparameters">openstef.tasks.optimize_hyperparameters module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.tasks.html#module-openstef.tasks.run_tracy">openstef.tasks.run_tracy module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.tasks.html#module-openstef.tasks.split_forecast">openstef.tasks.split_forecast module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.tasks.html#module-openstef.tasks.train_model">openstef.tasks.train_model module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.tasks.html#module-openstef.tasks">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="openstef.validation.html">openstef.validation package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="openstef.validation.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.validation.html#module-openstef.validation.validation">openstef.validation.validation module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.validation.html#module-openstef.validation">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-openstef.enums">
+<span id="openstef-enums-module"></span><h2>openstef.enums module<a class="headerlink" href="#module-openstef.enums" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="openstef.enums.ForecastType">
+<em class="property">class </em><code class="sig-prename descclassname">openstef.enums.</code><code class="sig-name descname">ForecastType</code><a class="headerlink" href="#openstef.enums.ForecastType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
+<p>An enumeration.</p>
+<dl class="attribute">
+<dt id="openstef.enums.ForecastType.BASECASE">
+<code class="sig-name descname">BASECASE</code><em class="property"> = 'basecase'</em><a class="headerlink" href="#openstef.enums.ForecastType.BASECASE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="openstef.enums.ForecastType.DEMAND">
+<code class="sig-name descname">DEMAND</code><em class="property"> = 'demand'</em><a class="headerlink" href="#openstef.enums.ForecastType.DEMAND" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="openstef.enums.ForecastType.SOLAR">
+<code class="sig-name descname">SOLAR</code><em class="property"> = 'solar'</em><a class="headerlink" href="#openstef.enums.ForecastType.SOLAR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="openstef.enums.ForecastType.WIND">
+<code class="sig-name descname">WIND</code><em class="property"> = 'wind'</em><a class="headerlink" href="#openstef.enums.ForecastType.WIND" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="openstef.enums.MLModelType">
+<em class="property">class </em><code class="sig-prename descclassname">openstef.enums.</code><code class="sig-name descname">MLModelType</code><a class="headerlink" href="#openstef.enums.MLModelType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
+<p>An enumeration.</p>
+<dl class="attribute">
+<dt id="openstef.enums.MLModelType.LGB">
+<code class="sig-name descname">LGB</code><em class="property"> = 'lgb'</em><a class="headerlink" href="#openstef.enums.MLModelType.LGB" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="openstef.enums.MLModelType.LINEAR">
+<code class="sig-name descname">LINEAR</code><em class="property"> = 'linear'</em><a class="headerlink" href="#openstef.enums.MLModelType.LINEAR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="openstef.enums.MLModelType.ProLoaf">
+<code class="sig-name descname">ProLoaf</code><em class="property"> = 'proloaf'</em><a class="headerlink" href="#openstef.enums.MLModelType.ProLoaf" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="openstef.enums.MLModelType.XGB">
+<code class="sig-name descname">XGB</code><em class="property"> = 'xgb'</em><a class="headerlink" href="#openstef.enums.MLModelType.XGB" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="openstef.enums.MLModelType.XGB_QUANTILE">
+<code class="sig-name descname">XGB_QUANTILE</code><em class="property"> = 'xgb_quantile'</em><a class="headerlink" href="#openstef.enums.MLModelType.XGB_QUANTILE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="openstef.enums.TracyJobResult">
+<em class="property">class </em><code class="sig-prename descclassname">openstef.enums.</code><code class="sig-name descname">TracyJobResult</code><a class="headerlink" href="#openstef.enums.TracyJobResult" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
+<p>An enumeration.</p>
+<dl class="attribute">
+<dt id="openstef.enums.TracyJobResult.FAILED">
+<code class="sig-name descname">FAILED</code><em class="property"> = 'failed'</em><a class="headerlink" href="#openstef.enums.TracyJobResult.FAILED" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="openstef.enums.TracyJobResult.SUCCESS">
+<code class="sig-name descname">SUCCESS</code><em class="property"> = 'success'</em><a class="headerlink" href="#openstef.enums.TracyJobResult.SUCCESS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="openstef.enums.TracyJobResult.UNKNOWN">
+<code class="sig-name descname">UNKNOWN</code><em class="property"> = 'unknown'</em><a class="headerlink" href="#openstef.enums.TracyJobResult.UNKNOWN" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-openstef.exceptions">
+<span id="openstef-exceptions-module"></span><h2>openstef.exceptions module<a class="headerlink" href="#module-openstef.exceptions" title="Permalink to this headline">¶</a></h2>
+<p>openstef custom exceptions</p>
+<dl class="exception">
+<dt id="openstef.exceptions.InputDataInsufficientError">
+<em class="property">exception </em><code class="sig-prename descclassname">openstef.exceptions.</code><code class="sig-name descname">InputDataInsufficientError</code><a class="headerlink" href="#openstef.exceptions.InputDataInsufficientError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#openstef.exceptions.InputDataInvalidError" title="openstef.exceptions.InputDataInvalidError"><code class="xref py py-class docutils literal notranslate"><span class="pre">openstef.exceptions.InputDataInvalidError</span></code></a></p>
+<p>Insufficient input data</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="openstef.exceptions.InputDataInvalidError">
+<em class="property">exception </em><code class="sig-prename descclassname">openstef.exceptions.</code><code class="sig-name descname">InputDataInvalidError</code><a class="headerlink" href="#openstef.exceptions.InputDataInvalidError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Invalid input data</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="openstef.exceptions.InputDataWrongColumnOrderError">
+<em class="property">exception </em><code class="sig-prename descclassname">openstef.exceptions.</code><code class="sig-name descname">InputDataWrongColumnOrderError</code><a class="headerlink" href="#openstef.exceptions.InputDataWrongColumnOrderError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#openstef.exceptions.InputDataInvalidError" title="openstef.exceptions.InputDataInvalidError"><code class="xref py py-class docutils literal notranslate"><span class="pre">openstef.exceptions.InputDataInvalidError</span></code></a></p>
+<p>Wrong column order input data</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="openstef.exceptions.ModelWithoutStDev">
+<em class="property">exception </em><code class="sig-prename descclassname">openstef.exceptions.</code><code class="sig-name descname">ModelWithoutStDev</code><a class="headerlink" href="#openstef.exceptions.ModelWithoutStDev" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>A machine learning model should have a valid standard deviation</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="openstef.exceptions.NoPredictedLoadError">
+<em class="property">exception </em><code class="sig-prename descclassname">openstef.exceptions.</code><code class="sig-name descname">NoPredictedLoadError</code><span class="sig-paren">(</span><em class="sig-param">pid: int</em>, <em class="sig-param">start_time: datetime.datetime</em>, <em class="sig-param">end_time: datetime.datetime</em>, <em class="sig-param">message: str = 'No predicted load found'</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.exceptions.NoPredictedLoadError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>No predicted load for given datatime range</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="openstef.exceptions.NoRealisedLoadError">
+<em class="property">exception </em><code class="sig-prename descclassname">openstef.exceptions.</code><code class="sig-name descname">NoRealisedLoadError</code><span class="sig-paren">(</span><em class="sig-param">pid: int</em>, <em class="sig-param">start_time: datetime.datetime</em>, <em class="sig-param">end_time: datetime.datetime</em>, <em class="sig-param">message: str = 'No realised load found'</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.exceptions.NoRealisedLoadError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>No realised load for given datetime range</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="openstef.exceptions.OldModelHigherScoreError">
+<em class="property">exception </em><code class="sig-prename descclassname">openstef.exceptions.</code><code class="sig-name descname">OldModelHigherScoreError</code><a class="headerlink" href="#openstef.exceptions.OldModelHigherScoreError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Old model has a higher score then new model</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-openstef">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-openstef" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017-2021 Contributors to the OpenSTF project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
