@@ -29,12 +29,12 @@ def read_long_description_from_readme():
 
 setup(
     name="openstef",
-    version="3.0.1",
+    version="3.0.2",
     packages=find_packages(include=["openstef", "openstef.*"]),
-    description="Open short term forcasting",
+    description="Open short term energy forecaster",
     long_description=read_long_description_from_readme(),
     long_description_content_type="text/markdown",
-    url="https://github.com/alliander-opensource/openstef",
+    url="https://github.com/OpenSTEF/openstef",
     author="Alliander N.V",
     author_email="korte.termijn.prognoses@alliander.com",
     license="MPL-2.0",
