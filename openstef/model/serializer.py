@@ -200,10 +200,8 @@ class MLflowSerializer(AbstractSerializer):
             # get model specifications
             modelspecs = self._get_model_specs(pid, loaded_model, latest_run)
 
-            # URI containing file:/// before the path
-            uri = os.path.join(latest_run.artifact_uri, "model/")
             # Path without file:///
-            loaded_model.path = unquote(urlparse(uri).path)
+            loaded_model.path = unquote(urlparse(model_uri).path)
             self.logger.info("Model successfully loaded with MLflow")
             return loaded_model, modelspecs
         # Catch possible errors

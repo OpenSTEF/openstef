@@ -7,13 +7,15 @@ from datetime import datetime as dt
 from test.unit.utils.base import BaseTestCase
 from test.unit.utils.data import TestData
 from unittest.mock import patch
+from pathlib import Path
 
 from openstef.model.serializer import MLflowSerializer
 from openstef.pipeline import create_forecast, utils
 
 
 class TestCreateForecastPipeline(BaseTestCase):
-    def setUp(self) -> None:
+    @patch("openstef.model.serializer._get_model_uri")
+    def setUp(self, _get_model_uri_mock) -> None:
         super().setUp()
         self.pj = TestData.get_prediction_job(pid=307)
         self.serializer = MLflowSerializer(
@@ -21,6 +23,13 @@ class TestCreateForecastPipeline(BaseTestCase):
         )
         self.data = TestData.load("reference_sets/307-test-data.csv")
         self.train_input = TestData.load("reference_sets/307-train-data.csv")
+
+        # mock model location
+        # Determine absolute location where already stored model is, based on relative path.
+        # This is needed so the model stored in the repo can be found when running remote
+        rel_path = "test/unit/trained_models/mlruns/0/d7719d5d316d4416a947e4f7ea7e73a8/artifacts/model"
+        _get_model_uri_mock.return_value = Path(rel_path).absolute().as_uri()
+
         # Use MLflowSerializer to load a model
         self.model, _ = self.serializer.load_model(pid=307)
 
@@ -108,6 +117,7 @@ class TestCreateForecastPipeline(BaseTestCase):
     def test_create_forecast_pipeline_happy_flow_2_days(self, load_mock):
         """Test the happy flow of the forecast pipeline with a trained model."""
         load_mock.return_value = self.model
+
         # Load prediction job and forecast data
         forecast_data = self.data
         col_name = forecast_data.columns[0]
