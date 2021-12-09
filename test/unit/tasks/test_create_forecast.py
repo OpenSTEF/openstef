@@ -30,6 +30,13 @@ class TestCreateForeCastTask(TestCase):
         # Use MLflowSerializer to load a model
         self.model, _ = self.serializer.load_model(pid=307)
 
+    def test_mocked_model_path(self):
+        """This test explicitely tests if the model path is mocked correctly"""
+        assert (
+            "/test/unit/trained_models/mlruns/0/d7719d5d316d4416a947e4f7ea7e73a8/artifacts/model"
+            in self.model.path
+        )
+
     @patch(
         "openstef.tasks.create_forecast.create_forecast_pipeline",
         MagicMock(return_value=FORECAST_MOCK),
