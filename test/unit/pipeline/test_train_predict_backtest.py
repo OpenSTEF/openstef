@@ -36,7 +36,7 @@ class TestTrainBackTestPipeline(BaseTestCase):
         self.assertTrue("forecast" in forecast.columns)
         self.assertTrue("realised" in forecast.columns)
         self.assertTrue("horizon" in forecast.columns)
-        self.assertEqual(list(forecast.horizon.unique()), [0.25, 24.0])
+        self.assertEqual(set(forecast.horizon.unique()), {0.25, 24.0})
 
     def test_train_model_pipeline_core_happy_flow_nfold(self):
         """Test happy flow of the train model pipeline, using cross validation to forecast the entire input range"""
