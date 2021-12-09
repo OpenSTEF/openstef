@@ -145,7 +145,6 @@ def train_model_pipeline_core(
         pj, modelspecs, input_data, horizons
     )
     modelspecs.feature_names = list(train_data.columns)
-    logging.info("Fitted a new model, not yet stored")
 
     # Check if new model is better than old model
     if old_model:
