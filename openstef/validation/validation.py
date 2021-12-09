@@ -70,7 +70,6 @@ def validate(
 
 def clean(data: pd.DataFrame) -> pd.DataFrame:
     logger = structlog.get_logger(__name__)
-    data = data[data.index.min() + timedelta(weeks=2) :]
     len_original = len(data)
     # TODO Look into this
     # Remove where load is NA # # df.dropna?
