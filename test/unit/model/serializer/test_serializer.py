@@ -25,12 +25,10 @@ class TestMLflowSerializer(BaseTestCase):
         super().setUp()
         self.pj, self.modelspecs = TestData.get_prediction_job_and_modelspecs(pid=307)
 
-    # @patch("mlflow.search_runs")
     @patch("mlflow.sklearn.load_model")
     def test_serializer_load_model_artifact_uri_construct(
         self,
         mock_load,
-        # mock_search_runs
     ):
         """Explicitly check if the artifact uri is constructed correctly
         when existing model is loaded based on meta.yaml
