@@ -39,8 +39,8 @@ class TestMLflowSerializer(BaseTestCase):
         ).load_model(307)
         # Check model path
         assert (
-            loaded_model.path
-            == "/C:/repos/short-term-forecasting/test/unit/trained_models/mlruns/0/d7719d5d316d4416a947e4f7ea7e73a8/artifacts\\model/"
+            loaded_model.path.replace("\\", "/")
+            == "/C:/repos/short-term-forecasting/test/unit/trained_models/mlruns/0/d7719d5d316d4416a947e4f7ea7e73a8/artifacts/model/"
         )
 
     @patch("openstef.data_classes.model_specifications.ModelSpecificationDataClass")
