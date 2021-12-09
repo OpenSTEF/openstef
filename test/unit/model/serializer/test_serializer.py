@@ -25,6 +25,24 @@ class TestMLflowSerializer(BaseTestCase):
         super().setUp()
         self.pj, self.modelspecs = TestData.get_prediction_job_and_modelspecs(pid=307)
 
+    @patch("mlflow.sklearn.load_model")
+    def test_serializer_load_model_artifact_uri_construct(
+        self,
+        mock_load,
+    ):
+        """Explicitly check if the artifact uri is constructed correctly
+        when existing model is loaded based on meta.yaml
+        This has led to some bugs in the past"""
+
+        loaded_model, _ = MLflowSerializer(
+            trained_models_folder="./test/unit/trained_models"
+        ).load_model(307)
+        # Check model path
+        assert (
+            loaded_model.path.replace("\\", "/")
+            == "/C:/repos/short-term-forecasting/test/unit/trained_models/mlruns/0/d7719d5d316d4416a947e4f7ea7e73a8/artifacts/model/"
+        )
+
     @patch("openstef.data_classes.model_specifications.ModelSpecificationDataClass")
     @patch("mlflow.search_runs")
     @patch("mlflow.sklearn.load_model")
