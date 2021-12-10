@@ -210,6 +210,8 @@ def split_data_train_validation_test(
     # Sample periods in the training part as the validation set using stratification (peaks).
     if stratification_min_max:
         split_val = int((peak_n_days * validation_fraction) / PERIOD_TIMEDELTA)
+        # Always have at least one validation split
+        split_val = max(split_val, 1)
         peaks_val, idx_val_split = sample_indices_train_val(
             data_,
             random_sample(np.array(min_max_dates.index.date), k=split_val),

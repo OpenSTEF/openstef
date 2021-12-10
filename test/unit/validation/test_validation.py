@@ -6,6 +6,8 @@ from test.unit.utils.base import BaseTestCase
 from test.unit.utils.data import TestData
 from unittest.mock import MagicMock, patch
 
+import numpy as np
+
 from openstef.validation import validation
 
 
@@ -17,10 +19,16 @@ class TestDataValidation(BaseTestCase):
         self.pj = TestData.get_prediction_job(pid=307)
 
     def test_clean(self):
-
+        # No data should be removed
+        original_length = len(self.data_train)
         cleaned_data = validation.clean(self.data_train)
+        self.assertEqual(len(cleaned_data), original_length)
 
-        self.assertEqual(len(cleaned_data), 11526)
+        # Data should be removed, since all rows have NaN load except the first 1000 rows
+        temp_data = self.data_train.copy()
+        temp_data.iloc[1000:, 0] = np.nan
+        cleaned_data = validation.clean(temp_data)
+        self.assertEqual(len(cleaned_data), 1000)
 
     def test_validate(self):
 
