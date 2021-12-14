@@ -290,7 +290,7 @@ def train_pipeline_common(
     valid_hyper_parameters = {
         key: value
         for key, value in modelspecs.hyper_params.items()
-        if key in model.get_params().keys() and key not in protected_hyperparams
+        if key in model.get_params().keys()  # and key not in protected_hyperparams
     }
 
     model.set_params(**valid_hyper_parameters)
