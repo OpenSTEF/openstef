@@ -1,8 +1,11 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+from ctypes import Union
+from typing import Callable, Dict, List, Tuple, Any
 import joblib
 import pandas as pd
+import numpy as np
 from sklearn.base import BaseEstimator, RegressorMixin, MetaEstimatorMixin, clone
 from sklearn.utils.validation import check_is_fitted
 
@@ -48,13 +51,18 @@ class GroupedRegressor(BaseEstimator, RegressorMixin, MetaEstimatorMixin):
             The keys are the keys of grouping and the values are the regressors fitted on the grouped data.
     """
 
-    def __init__(self, base_estimator, group_columns, n_jobs=1):
+    def __init__(
+        self,
+        base_estimator: BaseEstimator,
+        group_columns: Union[str, int, List[str], List[int]],
+        n_jobs: int = 1,
+    ):
         self.base_estimator = base_estimator
         if type(group_columns) in [int, str]:
             self.group_columns = [group_columns]
         else:
             self.group_columns = group_columns
-        self.n_jobs = 1
+        self.n_jobs = n_jobs
 
     def _get_tags(self):
         return self.base_estimator._get_tags()
@@ -70,7 +78,9 @@ class GroupedRegressor(BaseEstimator, RegressorMixin, MetaEstimatorMixin):
             if c not in list(df.columns):
                 raise ValueError("The group column {} is missing!".format(c))
 
-    def _partial_fit(self, group, df_group):
+    def _partial_fit(
+        self, group: Any, df_group: pd.DataFrame
+    ) -> Tuple[Any, BaseEstimator]:
         estimator = clone(self.base_estimator)
         X = df_group.loc[:, self.feature_names_]
         y = df_group.loc[:, "__target__"]
@@ -80,7 +90,30 @@ class GroupedRegressor(BaseEstimator, RegressorMixin, MetaEstimatorMixin):
         return self.estimators_[group].predict(df_group)
 
     @classmethod
-    def grouped_compute(cls, df, group_columns, func, n_jobs=1):
+    def grouped_compute(
+        cls,
+        df: pd.DataFrame,
+        group_columns: Union[List[str], List[int]],
+        func: Callable[[Tuple, pd.DataFrame], np.array],
+        n_jobs: int = 1,
+    ) -> Tuple[Tuple[np.array, ...], pd.DataFrameGroupBy, pd.pd.DataFrame]:
+        """Computes the specified function on each group defined by the grouping columns.
+        It is an utility function used to perform fit and predict on each group.
+        The df_res is the final dataframe that aggregate the results for each group.
+        The group_res is a tuple where each field is corresponding to a results for a group.
+        The gb is the grouping object.
+
+        Args:
+            df: (pd.DataFrame) data frame containing the input data necessary for the computation .
+            group_columns: (list) list of the columns used for the groupby operation
+            func: (Callable) function that take the group key and the conrresponding data of this group
+             and perform the computation on this group.
+            n_jobs: (int) The maximum number of concurrently running jobs,
+
+        Returns:
+            results (tuple): the tuple of the results of each group, the grouping dataframe and the global dataframe of results.
+        """
+
         index_name = df.index.name or "index"
         df_reset = df.reset_index()
 
@@ -102,7 +135,7 @@ class GroupedRegressor(BaseEstimator, RegressorMixin, MetaEstimatorMixin):
             )
         return group_res, gb, df_res
 
-    def _grouped_predict(self, df, n_jobs=1):
+    def _grouped_predict(self, df: pd.DataFrame, n_jobs: int = 1) -> np.array:
         group_res, gb, df_res = self.grouped_compute(
             df,
             self.group_columns,
@@ -115,7 +148,9 @@ class GroupedRegressor(BaseEstimator, RegressorMixin, MetaEstimatorMixin):
 
         return df_res["__result__"].to_numpy()
 
-    def _grouped_fit(self, df, n_jobs=1):
+    def _grouped_fit(
+        self, df: pd.DataFrame, n_jobs: int = 1
+    ) -> Dict[Any, BaseEstimator]:
         group_res, _, _ = self.grouped_compute(
             df,
             self.group_columns,
