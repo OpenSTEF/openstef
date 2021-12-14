@@ -402,7 +402,10 @@ class TestTrainModelPipeline(BaseTestCase):
     def test_train_pipeline_common_different_quantiles_with_quantile_regressor(self):
         """Incorporated after a bug.
         Test if PJ has different quantiles compared to old model, for quantile regressor
-        those in the PJ should be used"""
+        those in the PJ should be used.
+
+        NB: notice how we don't need to mock anything for testing this function!"""
+
         old_quantiles = (0.4, 0.5, 0.6)
         desired_quantiles = (0.01, 0.5, 0.74)
 
@@ -422,7 +425,7 @@ class TestTrainModelPipeline(BaseTestCase):
         )
 
         # check quantiles
-        self.assertListEqual(list(model.estimators_.keys()), desired_quantiles)
+        self.assertListEqual(list(model.estimators_.keys()), list(desired_quantiles))
 
 
 if __name__ == "__main__":
