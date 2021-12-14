@@ -12,7 +12,7 @@ from xgboost import Booster
 import openstef.metrics.metrics as metrics
 from openstef.model.regressors.regressor import OpenstfRegressor
 
-DEFAULT_QUANTILES: Tuple[float, ...] = (0.9, 0.5, 0.1)
+DEFAULT_QUANTILES: Tuple[float, ...] = (0.05, 0.1, 0.3, 0.5, 0.7, 0.9, 0.95)
 
 
 class XGBQuantileOpenstfRegressor(OpenstfRegressor):
