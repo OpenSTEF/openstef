@@ -23,10 +23,20 @@ class TestOptimizeHyperParametersPipeline(BaseTestCase):
 
     @patch("openstef.model.serializer.MLflowSerializer.save_model")
     def test_optimize_hyperparameters_pipeline(self, save_model_mock):
+        """Also check if non-default quantiles are processed correctly"""
+        pj = self.pj
+        predefined_quantiles = (0.001, 0.5)
+        pj["quantiles"] = predefined_quantiles
+
         parameters = optimize_hyperparameters_pipeline(
-            self.pj, self.input_data, "./test/unit/trained_models", n_trials=2
+            pj, self.input_data, "./test/unit/trained_models", n_trials=2
         )
         self.assertIsInstance(parameters, dict)
+        # Assert stored quantiles are the same as the predefined_quantiles
+        stored_quantiles = save_model_mock.call_args[1]["modelspecs"]["hyper_params"][
+            "quantiles"
+        ]
+        self.assertTupleEqual(stored_quantiles, predefined_quantiles)
 
     @patch("openstef.validation.validation.is_data_sufficient", return_value=False)
     def test_optimize_hyperparameters_pipeline_insufficient_data(self, mock):

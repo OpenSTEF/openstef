@@ -103,16 +103,23 @@ def optimize_hyperparameters_pipeline(
         pj, objective, validated_data_with_features, n_trials
     )
 
+    best_hyperparams = study.best_params
+
     logger.info(
         f"Finished hyperparameter optimization, error objective {study.best_value} "
-        f"and params {study.best_params}"
+        f"and params {best_hyperparams}"
     )
 
-    # model specification
-    modelspecs = ModelSpecificationDataClass(id=pj["id"])
-    # model data columns
-    modelspecs.feature_names = list(validated_data_with_features.columns)
+    # Add quantiles to hyperparams so they are stored with the model info
+    if pj["quantiles"]:
+        best_hyperparams.update(quantiles=pj["quantiles"])
 
+    # model specification
+    modelspecs = ModelSpecificationDataClass(
+        id=pj["id"],
+        feature_names=list(validated_data_with_features.columns),
+        hyper_params=best_hyperparams,
+    )
     # Save model
     serializer.save_model(
         study.user_attrs["best_model"],
