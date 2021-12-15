@@ -18,6 +18,7 @@ from openstef.feature_engineering.feature_applicator import TrainFeatureApplicat
 from openstef.model.model_creator import ModelCreator
 from openstef.model.objective import RegressorObjective
 from openstef.model.objective_creator import ObjectiveCreator
+from openstef.pipeline.train_model import DEFAULT_TRAIN_HORIZONS
 
 # This is required to disable the default optuna logger and pass the logs to our own
 # structlog logger
@@ -33,14 +34,13 @@ logger = structlog.get_logger(__name__)
 # See https://optuna.readthedocs.io/en/stable/reference/generated/optuna.study.Study.html#optuna.study.Study.optimize
 N_TRIALS: int = 100  # The number of trials.
 TIMEOUT: int = 600  # Stop study after the given number of second(s).
-TRAIN_HORIZONS: List[float] = [0.25, 24.0]
 
 
 def optimize_hyperparameters_pipeline(
     pj: PredictionJobDataClass,
     input_data: pd.DataFrame,
     trained_models_folder: Union[str, Path],
-    horizons: List[float] = TRAIN_HORIZONS,
+    horizons: List[float] = DEFAULT_TRAIN_HORIZONS,
     n_trials: int = N_TRIALS,
 ) -> dict:
     """Optimize hyperparameters pipeline.
@@ -103,16 +103,23 @@ def optimize_hyperparameters_pipeline(
         pj, objective, validated_data_with_features, n_trials
     )
 
+    best_hyperparams = study.best_params
+
     logger.info(
         f"Finished hyperparameter optimization, error objective {study.best_value} "
-        f"and params {study.best_params}"
+        f"and params {best_hyperparams}"
     )
 
-    # model specification
-    modelspecs = ModelSpecificationDataClass(id=pj["id"])
-    # model data columns
-    modelspecs.feature_names = list(validated_data_with_features.columns)
+    # Add quantiles to hyperparams so they are stored with the model info
+    if pj["quantiles"]:
+        best_hyperparams.update(quantiles=pj["quantiles"])
 
+    # model specification
+    modelspecs = ModelSpecificationDataClass(
+        id=pj["id"],
+        feature_names=list(validated_data_with_features.columns),
+        hyper_params=best_hyperparams,
+    )
     # Save model
     serializer.save_model(
         study.user_attrs["best_model"],

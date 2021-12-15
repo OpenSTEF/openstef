@@ -285,10 +285,12 @@ def train_pipeline_common(
     eval_set = [(train_x, train_y), (validation_x, validation_y)]
 
     # Set relevant hyperparameters
+    # define protected hyperparams which are derived from prediction_job
+    protected_hyperparams = ["quantiles"]
     valid_hyper_parameters = {
         key: value
         for key, value in modelspecs.hyper_params.items()
-        if key in model.get_params().keys()
+        if key in model.get_params().keys() and key not in protected_hyperparams
     }
 
     model.set_params(**valid_hyper_parameters)

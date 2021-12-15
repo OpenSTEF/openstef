@@ -21,6 +21,7 @@ from openstef.model_selection.model_selection import split_data_train_validation
 from openstef.pipeline.train_model import (
     train_model_pipeline,
     train_model_pipeline_core,
+    train_pipeline_common,
 )
 from openstef.validation import validation
 from openstef.model.regressors.custom_regressor import CustomOpenstfRegressor
@@ -397,6 +398,34 @@ class TestTrainModelPipeline(BaseTestCase):
 
         # search for the old model is better log
         self.assertRegex(captured.records[0].getMessage(), "No old model found")
+
+    def test_train_pipeline_common_different_quantiles_with_quantile_regressor(self):
+        """Incorporated after a bug.
+        Test if PJ has different quantiles compared to old model, for quantile regressor
+        those in the PJ should be used.
+
+        NB: notice how we don't need to mock anything for testing this function!"""
+
+        old_quantiles = (0.4, 0.5, 0.6)
+        desired_quantiles = (0.01, 0.5, 0.74)
+
+        # use a quantile prediction_job
+        pj = self.pj
+        pj["id"] = 460
+        pj["model"] = "xgb_quantile"
+        pj["quantiles"] = desired_quantiles
+
+        # Change 'old' modelspecs
+        modified_modelspecs = self.modelspecs
+        modified_modelspecs["hyper_params"].update(dict(quantiles=old_quantiles))
+
+        # train model
+        model, report, train_data, validation_data, test_data = train_pipeline_common(
+            pj, modified_modelspecs, self.train_input, horizons=[0.25, 47.0]
+        )
+
+        # check quantiles
+        self.assertListEqual(list(model.estimators_.keys()), list(desired_quantiles))
 
 
 if __name__ == "__main__":
