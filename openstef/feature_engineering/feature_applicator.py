@@ -25,7 +25,7 @@ class AbstractFeatureApplicator(ABC):
         """Initialize abstract feature applicator.
 
         Args:
-            horizons (list): list of horizons
+            horizons (list): list of horizons in hours
             feature_names (List[str]):  List of requested features
         """
         if type(horizons) is not list and not None:
