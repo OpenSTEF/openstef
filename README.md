@@ -47,6 +47,7 @@ python -m openstef task <task_name>
 ## Reference Implementation
 A complete implementation including databases, user interface, example data, etc. is available at: https://github.com/OpenSTEF/openstef-reference
 ![image](https://user-images.githubusercontent.com/18208480/127109029-77e09c97-8d06-4158-8789-4c1d5ecede61.png)
+Dashboard documentation can be found [here](html/html_dashboard_openstef.htm)
 
 ## License
 This project is licensed under the Mozilla Public License, version 2.0 - see LICENSE for details.

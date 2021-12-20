@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Description of OpenSTEF dashboard</title>
+<script src="https://code.jquery.com/jquery-1.7.1.js"></script>
+<script src="http://www.outsharked.com/scripts/jquery.imagemapster.js"></script>
+
+<style type="text/css">
+/* set up the font to be used for the page */
+body {font-family: tahoma; arial, sans-serif;}
+
+/* add the style for the link span text - first line */
+#imap a span:first-line {font-weight:bold; font-style:italic;}
+</style>
+
+</head>
+
+<body>
+
+<img id="OPENSTEF" src="https://user-images.githubusercontent.com/60883372/146760483-29af3ac7-62af-4f13-98c7-982a79c517d1.jpg" 
+ usemap="#OPENSTEF-map">
+<map name="OPENSTEF-map">
+    <area shape="rect" data-name="total_load,all" coords="54,75,840,269" href="#" />
+    <area shape="rect" data-name="forecast_realised,all" coords="54,277,840,469" href="#" />
+    <area shape="rect" data-name="predictor_split,all" coords="54,485,1133,673" href="#" />
+    <area shape="rect" data-name="energy_split_tab,all" coords="50,689,769,907" href="#" />
+    <area shape="rect" data-name="energy_split_plot,all" coords="789,686,1129,907" href="#" />
+    <area shape="rect" data-name="flatliners,all" coords="1145,692,1786,901" href="#" />
+    <area shape="rect" data-name="capacity_prog,all" coords="1147,487,1787,673" href="#" />
+    <area shape="rect" data-name="feature_importance,all" coords="1148,278,1786,474" href="#" />
+    <area shape="rect" data-name="location,all" coords="1145,70,1791,267" href="#" />
+    <area shape="rect" data-name="information,all" coords="850,70,1133,469" href="#" />
+    <area shape="rect" data-name="parameters,all" coords="52,38,843,62" href="#" />
+</map>
+
+<div id="OPENSTEF-caption" style="clear:both;border: 1px solid black; width: 400px; padding: 6px; display:none;">
+     <div id="OPENSTEF-caption-header" style="font-style: italic; font-weight: bold; margin-bottom: 12px;"></div>
+     <div id="OPENSTEF-caption-text"></div>
+</div>
+
+
+<script type="text/javascript" src="js_map_image.js"></script>
+
+</body>
+
+</html>
