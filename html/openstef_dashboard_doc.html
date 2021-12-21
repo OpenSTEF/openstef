@@ -41,7 +41,6 @@ body {font-family: tahoma; arial, sans-serif;}
 </div>
 
 <script type="text/javascript">
-    var inArea;
 var map = $('#OPENSTEF')
 var captions = {
         total_load: ["Total Load",
@@ -108,13 +107,13 @@ var initial_opts = {
                 mapKey: 'data-name',
                 isSelectable: false,
                 onMouseover: function (data) {
-                    inArea = true;
+                    var inArea = true;
                     $('#OPENSTEF-caption-header').text(captions[data.key][0]);
                     $('#OPENSTEF-caption-text').text(captions[data.key][1]);
                     $('#OPENSTEF-caption').show();
                 },
                 onMouseout: function (data) {
-                    inArea = false;
+                    var inArea = false;
                     $('#OPENSTEF-caption').hide();
                 }
             };
