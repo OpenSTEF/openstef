@@ -1,8 +1,7 @@
-// javascript
-var inArea,
-            map = $('#OPENSTEF'),
-            captions = {
-                total_load: ["Total Load",
+var inArea;
+var map = $('#OPENSTEF')
+var captions = {
+        total_load: ["Total Load",
                       "Total load for a specific substation which can be set above. "
                       + "Last part of the time series in the prognose (part with green area "
                       + "under the curve)"],
@@ -47,22 +46,22 @@ var inArea,
                       + "coefficients must be specified. In the table the coefficients "
                       + "are fiven for each component (wind solar and energy profiles). "
                       + "The time when coefficients were calculate, is specified"],
-            },
-            single_opts = {
+            }
+var single_opts = {
                 fillColor: '000000',
                 fillOpacity: 0.1,
                 stroke: true,
                 strokeColor: 'ff0100',
                 strokeWidth: 1
-            },
-            all_opts = {
+            }
+var all_opts = {
                 fillColor: 'ffffff',
                 fillOpacity: 0.1,
                 stroke: true,
                 strokeWidth: 2,
                 strokeColor: 'ffffff'
-            },
-            initial_opts = {
+            }
+var initial_opts = {
                 mapKey: 'data-name',
                 isSelectable: false,
                 onMouseover: function (data) {
@@ -76,9 +75,9 @@ var inArea,
                     $('#OPENSTEF-caption').hide();
                 }
             };
-        opts = $.extend({}, all_opts, initial_opts, single_opts);
+var opts = $.extend({}, all_opts, initial_opts, single_opts);
 
-        map.mapster('unbind')
+map.mapster('unbind')
             .mapster(opts)
             .bind('mouseover', function () {
                 if (!inArea) {
