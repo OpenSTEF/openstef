@@ -1,28 +1,68 @@
 <!--
 SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com>
-
 SPDX-License-Identifier: MPL-2.0
 -->
+
+<!-- Image map with corresponding coordinates is created using:  https://www.image-map.net/
+When updating the java script file, make sure to create a new href for .js file (imagemap_openstef.js),
+see https://www.jsdelivr.com/github -->
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 
 <head>
-    <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Description of OpenSTEF dashboard</title>
 <script src="https://code.jquery.com/jquery-1.7.1.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/imagemapster/1.5.4/jquery.imagemapster.min.js"></script>
+
 <style type="text/css">
 /* set up the font to be used for the page */
-body {font-family: tahoma; arial, sans-serif;}
-
+body{
+    font-family: tahoma;
+    color:#696969FF;
+    transform: scale(0.85);
+    transform-origin: 0 0;
+    arial, sans-serif;
+}
 /* add the style for the link span text - first line */
-#imap a span:first-line {font-weight:bold; font-style:italic;}
+#imap a span:first-line {font-weight:bold}
+/* alert message box */
+.alert {
+  padding: 20px;
+  background-color: lightblue;
+  color: white;
+  margin-bottom: 15px;
+}
+/* close button */
+.closebtn {
+  margin-left: 15px;
+  color: white;
+  font-weight: bold;
+  float: right;
+  font-size: 22px;
+  line-height: 20px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+/* moving the mouse over the close button */
+.closebtn:hover {
+  color: black;
+}
 </style>
 
 </head>
 
 <body>
+
+<h1>Description about different parts in the OpenSTEF dashboard </h1>
+
+<div class="alert alert-info">
+  <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+  <strong>Info!</strong> Information about different parts of the dashboard is shown by hoovering your mouse over the area of interest.
+</div>
+
 
 <img id="OPENSTEF" src="https://user-images.githubusercontent.com/60883372/146760483-29af3ac7-62af-4f13-98c7-982a79c517d1.jpg"
  usemap="#OPENSTEF-map">
@@ -40,14 +80,13 @@ body {font-family: tahoma; arial, sans-serif;}
     <area shape="rect" data-name="parameters,all" coords="52,38,843,62" href="#" />
 </map>
 
-<div id="OPENSTEF-caption" style="clear:both;border: 1px solid black; width: 400px; padding: 6px; display:none;">
-     <div id="OPENSTEF-caption-header" style="font-style: italic; font-weight: bold; margin-bottom: 12px;"></div>
+<div id="OPENSTEF-caption" style="clear:both; width: 400px; padding: 20px; display:none;">
+     <div id="OPENSTEF-caption-header" style="font-style: normal; font-weight: bold; margin-bottom: 12px;"></div>
      <div id="OPENSTEF-caption-text"></div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/gh/OpenSTEF/openstef@feature-KTPS-1832-dashboard_doc/html/imagemap_openstef.js"></script>
 <script src="https://cdn.jsdelivr.net/gh/OpenSTEF/openstef@main/html/imagemap_openstef.js"></script>
-
 </body>
 
 </html>
