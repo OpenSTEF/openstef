@@ -14,7 +14,7 @@ jobs:
     steps:
     # Checkout
     - name: Checkout code
-      uses: actions/checkout@v1
+      uses: actions/checkout@v2
     # Run Apidoc and subsequently build documentation (implicit in action).
     - name: Build documentation
       uses: ammaraskar/sphinx-action@master
