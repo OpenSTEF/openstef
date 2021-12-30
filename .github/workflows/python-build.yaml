@@ -51,10 +51,14 @@ jobs:
         # Only print warnings on all other errors
         flake8 . --count --exit-zero --show-source --statistics
     # Test
-    - name: Test with pytest
+    - name: Unit test with pytest
       run: |
         pip install pytest pytest-cov
         pytest --cov-report=xml --cov=openstef/ test/unit/ --junitxml=pytest-report.xml
+    - name: Integration test with pytest
+        run: |
+          pip install pytest pytest-cov
+          pytest --cov-report=xml --cov=openstef/ test/integration/ --junitxml=pytest-report_integration.xml
     # Fix relative paths in coverage file
     # Known bug: https://community.sonarsource.com/t/sonar-on-github-actions-with-python-coverage-source-issue/36057
     - name: fix code coverage paths
