@@ -56,7 +56,7 @@ jobs:
         pip install pytest pytest-cov
         pytest --cov-report=xml --cov=openstef/ test/unit/ --junitxml=pytest-report.xml
     - name: Integration test with pytest
-        run: |
+      run: |
           pip install pytest pytest-cov
           pytest --cov-report=xml --cov=openstef/ test/integration/ --junitxml=pytest-report_integration.xml
     # Fix relative paths in coverage file
