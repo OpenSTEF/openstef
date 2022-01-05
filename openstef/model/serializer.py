@@ -457,7 +457,8 @@ class MLflowSerializer(AbstractSerializer):
             ]
             for _, run in runs_to_remove.iterrows():
                 artifact_location = os.path.join(
-                    self.trained_models_folder, f"mlruns/1/{run.run_id}"
+                    self.trained_models_folder,
+                    f"mlruns/{run.experiment_id}/{run.run_id}",
                 )
                 self.logger.debug(
                     f"Going to remove run {run.run_id}, from {run.end_time}."
