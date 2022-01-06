@@ -93,7 +93,7 @@ class TestApplyFeaturesModule(BaseTestCase):
 
         self.assertDataframeEqual(
             input_data_with_features,
-            TestData.load("input_data_with_features.csv"),
+            TestData.load("input_data_with_features.csv").drop(columns=['is_bevrijdingsdag', 'is_bridgedaybevrijdingsdag']),
             check_like=True,  # ignore the order of index & columns
         )
 
@@ -105,7 +105,7 @@ class TestApplyFeaturesModule(BaseTestCase):
 
         self.assertDataframeEqual(
             input_data_with_features,
-            TestData.load("input_data_multi_horizon_features.csv"),
+            TestData.load("input_data_multi_horizon_features.csv").drop(columns=['is_bevrijdingsdag', 'is_bridgedaybevrijdingsdag']),
             check_like=True,  # ignore the order of index & columns
         )
 
@@ -165,7 +165,7 @@ class TestApplyFeaturesModule(BaseTestCase):
             data={
                 "load": [10, 15, 20, 15],
                 "temp": [9, 9, 9, 9],
-                "humidity": [1, 2, 3, 4],
+                "humidity": [1, 2, 3.0, 4.0],
                 "pressure": [3, 4, 5, 6],
             },
         )
@@ -175,7 +175,7 @@ class TestApplyFeaturesModule(BaseTestCase):
 
         self.assertDataframeEqual(
             input_data_with_features,
-            TestData.load("input_data_with_holiday_features.csv"),
+            TestData.load("../data/input_data_with_holiday_features.csv"),
             check_like=True,  # ignore the order of index & columns
         )
 
