@@ -15,8 +15,6 @@ expected_keys = [
     "is_eerste_paasdag",
     "is_tweede_paasdag",
     "is_koningsdag",
-    "is_bevrijdingsdag",
-    "is_bridgedaybevrijdingsdag",
     "is_hemelvaart",
     "is_bridgedayhemelvaart",
     "is_eerste_pinksterdag",
