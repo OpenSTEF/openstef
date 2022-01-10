@@ -4,7 +4,6 @@
 import json
 import os
 import shutil
-from abc import ABC, abstractmethod
 from datetime import datetime
 from json import JSONDecodeError
 from pathlib import Path
@@ -14,7 +13,6 @@ from urllib.parse import unquote, urlparse
 import mlflow
 import numpy as np
 import pandas as pd
-import structlog
 from matplotlib import figure
 from mlflow.exceptions import MlflowException
 from openstef_dbc.services.prediction_job import PredictionJobDataClass
@@ -31,87 +29,17 @@ MAX_N_MODELS = 10  # Number of models per experiment allowed in model registry
 E_MSG = "feature_names couldn't be loaded, using None"
 
 
-class AbstractSerializer(ABC):
-    def __init__(self, trained_models_folder: Union[Path, str]) -> None:
-        """
-
-        Args:
-            trained_models_folder (Path): path to save models to
-        """
-        self.logger = structlog.get_logger(self.__class__.__name__)
-        self.trained_models_folder = trained_models_folder
-
-    @abstractmethod
-    def save_model(
-        self,
-        model: OpenstfRegressor,
-        pj: PredictionJobDataClass,
-        modelspecs: ModelSpecificationDataClass,
-        report: Report,
-        **kwargs,
-    ) -> None:
-        """Save a trained model
-
-        Args:
-            model (OpenstfRegressor): trained model
-            pj (PredictionJobDataClass): prediction job
-            modelspecs (ModelSpecificationDataClass): model specifications.
-            report (report): report containing information about the model
-            **kwargs: extra key word arguments
-
-        Returns:
-            None
-        """
-        self.logger.error("This is an abstract method!")
-
-    @abstractmethod
-    def load_model(
-        self, pid: Union[str, int]
-    ) -> Tuple[OpenstfRegressor, ModelSpecificationDataClass]:
-        """Loads model that has been trained earlier
-
-        Returns: Trained sklearn compatible model object
-
-        """
-        self.logger.error("This is an abstract method!")
-
-    @abstractmethod
-    def get_model_age(self, pid: Union[int, str]) -> int:
-        """Retrieve model age from latest model
-
-        Args:
-            pid (int): prediction job id
-
-        Returns:
-            int: age of the model in days
-        """
-        self.logger.error("This is an abstract method!")
-
-    @abstractmethod
-    def remove_old_models(
-        self, pj: PredictionJobDataClass, max_n_models: int = MAX_N_MODELS
-    ):
-        """Remove old models for the experiment defined by PJ.
-        A maximum of 'max_n_models' is
-
-        Args:
-            pj: prediction job
-            max_n_models: maximum number of models to save
-
-        """
-        self.logger.error("This is an abstract method!")
-
-
-class MLflowSerializer(AbstractSerializer):
+class MLflowSerializer:
     def __init__(self, trained_models_folder: Union[Path, str]):
         super().__init__(trained_models_folder)
-
-        path = os.path.abspath(f"{trained_models_folder}/mlruns/")
-        self.mlflow_folder = Path(path).as_uri()
+        if "MLFLOW_TRACKING_URI" in os.environ:  # setup distributed mlflow via URI
+            self.mlflow_folder = os.environ["MLFLOW_TRACKING_URI"]
+        else:  # setup local mlflow
+            path = os.path.abspath(f"{trained_models_folder}/mlruns/")
+            self.mlflow_folder = Path(path).as_uri()
+        mlflow.set_tracking_uri(self.mlflow_folder)
         self.web_volume = Path(f"{trained_models_folder}")
-
         self.logger.debug(f"MLflow path at init= {self.mlflow_folder}")
-
         self.experiment_id = None
 
     def save_model(
@@ -158,8 +86,7 @@ class MLflowSerializer(AbstractSerializer):
         self.logger.info(f"Stored report to disk: {location}")
 
     def load_model(
-        self,
-        pid: Union[str, int],
+        self, pid: Union[str, int],
     ) -> Tuple[OpenstfRegressor, ModelSpecificationDataClass]:
         """Load sklearn compatible model from persistent storage.
 
@@ -207,9 +134,7 @@ class MLflowSerializer(AbstractSerializer):
         # Catch possible errors
         except (AttributeError, MlflowException, OSError) as e:
             self.logger.error(
-                "Couldn't load model",
-                pid=pid,
-                error=e,
+                "Couldn't load model", pid=pid, error=e,
             )
             raise AttributeError(
                 "Model couldn't be found or doesn't exist. First train a model!"
@@ -276,16 +201,12 @@ class MLflowSerializer(AbstractSerializer):
         # set experiment only if not done already
         if self.experiment_id is None:
             # Set a folder where MLflow will write to
-            mlflow.set_tracking_uri(self.mlflow_folder)
             mlflow.set_experiment(str(pid))
         self.logger.debug(f"MLflow path during setup= {self.mlflow_folder}")
         return mlflow.get_experiment_by_name(str(pid)).experiment_id
 
     def _find_models(
-        self,
-        pid: Union[int, str],
-        n: Optional[int] = None,
-        filter_string: str = None,
+        self, pid: Union[int, str], n: Optional[int] = None, filter_string: str = None,
     ) -> pd.DataFrame:
         """
         Finds trained models for specific pid sorted by age in descending order.
@@ -306,17 +227,14 @@ class MLflowSerializer(AbstractSerializer):
 
         if isinstance(n, int):
             models_df = mlflow.search_runs(
-                self.experiment_id,
-                filter_string=filter_string,
-                max_results=n,
+                self.experiment_id, filter_string=filter_string, max_results=n,
             )
 
             if n == 1 and len(models_df) > 0:
                 models_df = models_df.iloc[:1]  # filter on first row of dataframe
         else:
             models_df = mlflow.search_runs(
-                self.experiment_id,
-                filter_string=filter_string,
+                self.experiment_id, filter_string=filter_string,
             )
         return models_df
 
@@ -398,9 +316,7 @@ class MLflowSerializer(AbstractSerializer):
 
         # Log the model to the run
         mlflow.sklearn.log_model(
-            sk_model=model,
-            artifact_path="model",
-            signature=report.signature,
+            sk_model=model, artifact_path="model", signature=report.signature,
         )
         self.logger.info("Model saved with MLflow", pid=pj["id"])
 
@@ -499,15 +415,11 @@ class MLflowSerializer(AbstractSerializer):
 
         except KeyError:
             self.logger.warning(
-                E_MSG,
-                pid=pid,
-                error="tags.feature_names, doesn't exist in run",
+                E_MSG, pid=pid, error="tags.feature_names, doesn't exist in run",
             )
         except AttributeError:
             self.logger.warning(
-                E_MSG,
-                pid=pid,
-                error="tags.feature_names, needs to be a string",
+                E_MSG, pid=pid, error="tags.feature_names, needs to be a string",
             )
         except JSONDecodeError:
             self.logger.warning(
