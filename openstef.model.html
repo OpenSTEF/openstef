@@ -545,90 +545,13 @@ with objective specific parameters.</p>
 <div class="section" id="module-openstef.model.serializer">
 <span id="openstef-model-serializer-module"></span><h2>openstef.model.serializer module<a class="headerlink" href="#module-openstef.model.serializer" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
-<dt id="openstef.model.serializer.AbstractSerializer">
-<em class="property">class </em><code class="sig-prename descclassname">openstef.model.serializer.</code><code class="sig-name descname">AbstractSerializer</code><span class="sig-paren">(</span><em class="sig-param">trained_models_folder: Union[pathlib.Path, str]</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.serializer.AbstractSerializer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
-<dl class="method">
-<dt id="openstef.model.serializer.AbstractSerializer.get_model_age">
-<em class="property">abstract </em><code class="sig-name descname">get_model_age</code><span class="sig-paren">(</span><em class="sig-param">pid: Union[int, str]</em><span class="sig-paren">)</span> &#x2192; int<a class="headerlink" href="#openstef.model.serializer.AbstractSerializer.get_model_age" title="Permalink to this definition">¶</a></dt>
-<dd><p>Retrieve model age from latest model</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>pid</strong> (<em>int</em>) – prediction job id</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>age of the model in days</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>int</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="openstef.model.serializer.AbstractSerializer.load_model">
-<em class="property">abstract </em><code class="sig-name descname">load_model</code><span class="sig-paren">(</span><em class="sig-param">pid: Union[str, int]</em><span class="sig-paren">)</span> &#x2192; Tuple[openstef.model.regressors.regressor.OpenstfRegressor, openstef.data_classes.model_specifications.ModelSpecificationDataClass]<a class="headerlink" href="#openstef.model.serializer.AbstractSerializer.load_model" title="Permalink to this definition">¶</a></dt>
-<dd><p>Loads model that has been trained earlier</p>
-<p>Returns: Trained sklearn compatible model object</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="openstef.model.serializer.AbstractSerializer.remove_old_models">
-<em class="property">abstract </em><code class="sig-name descname">remove_old_models</code><span class="sig-paren">(</span><em class="sig-param">pj: openstef_dbc.services.prediction_job.PredictionJobDataClass</em>, <em class="sig-param">max_n_models: int = 10</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.serializer.AbstractSerializer.remove_old_models" title="Permalink to this definition">¶</a></dt>
-<dd><p>Remove old models for the experiment defined by PJ.
-A maximum of ‘max_n_models’ is</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>pj</strong> – prediction job</p></li>
-<li><p><strong>max_n_models</strong> – maximum number of models to save</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="openstef.model.serializer.AbstractSerializer.save_model">
-<em class="property">abstract </em><code class="sig-name descname">save_model</code><span class="sig-paren">(</span><em class="sig-param">model: openstef.model.regressors.regressor.OpenstfRegressor</em>, <em class="sig-param">pj: openstef_dbc.services.prediction_job.PredictionJobDataClass</em>, <em class="sig-param">modelspecs: openstef.data_classes.model_specifications.ModelSpecificationDataClass</em>, <em class="sig-param">report: openstef.metrics.reporter.Report</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#openstef.model.serializer.AbstractSerializer.save_model" title="Permalink to this definition">¶</a></dt>
-<dd><p>Save a trained model</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> (<a class="reference internal" href="openstef.model.regressors.html#openstef.model.regressors.regressor.OpenstfRegressor" title="openstef.model.regressors.regressor.OpenstfRegressor"><em>OpenstfRegressor</em></a>) – trained model</p></li>
-<li><p><strong>pj</strong> (<em>PredictionJobDataClass</em>) – prediction job</p></li>
-<li><p><strong>modelspecs</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.model_specifications.ModelSpecificationDataClass" title="openstef.data_classes.model_specifications.ModelSpecificationDataClass"><em>ModelSpecificationDataClass</em></a>) – model specifications.</p></li>
-<li><p><strong>report</strong> (<em>report</em>) – report containing information about the model</p></li>
-<li><p><strong>**kwargs</strong> – extra key word arguments</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>None</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
 <dt id="openstef.model.serializer.MLflowSerializer">
 <em class="property">class </em><code class="sig-prename descclassname">openstef.model.serializer.</code><code class="sig-name descname">MLflowSerializer</code><span class="sig-paren">(</span><em class="sig-param">trained_models_folder: Union[pathlib.Path, str]</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.serializer.MLflowSerializer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#openstef.model.serializer.AbstractSerializer" title="openstef.model.serializer.AbstractSerializer"><code class="xref py py-class docutils literal notranslate"><span class="pre">openstef.model.serializer.AbstractSerializer</span></code></a></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="method">
 <dt id="openstef.model.serializer.MLflowSerializer.get_model_age">
 <code class="sig-name descname">get_model_age</code><span class="sig-paren">(</span><em class="sig-param">pid: Union[int, str], hyperparameter_optimization_only: bool = False</em><span class="sig-paren">)</span> &#x2192; int<a class="headerlink" href="#openstef.model.serializer.MLflowSerializer.get_model_age" title="Permalink to this definition">¶</a></dt>
-<dd><p>Retrieve model age from latest model</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>pid</strong> (<em>int</em>) – prediction job id</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>age of the model in days</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>int</p>
-</dd>
-</dl>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="openstef.model.serializer.MLflowSerializer.load_model">
