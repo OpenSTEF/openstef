@@ -4,6 +4,7 @@
 import json
 import os
 import shutil
+import structlog
 from datetime import datetime
 from json import JSONDecodeError
 from pathlib import Path
@@ -31,7 +32,8 @@ E_MSG = "feature_names couldn't be loaded, using None"
 
 class MLflowSerializer:
     def __init__(self, trained_models_folder: Union[Path, str]):
-        super().__init__(trained_models_folder)
+        self.logger = structlog.get_logger(self.__class__.__name__)
+        self.trained_models_folder = trained_models_folder
         if "MLFLOW_TRACKING_URI" in os.environ:  # setup distributed mlflow via URI
             self.mlflow_folder = os.environ["MLFLOW_TRACKING_URI"]
         else:  # setup local mlflow
