@@ -190,8 +190,8 @@ class MLflowSerializer:
 
         return modelspecs
 
-    def _setup_mlflow(self, pid: Union[int, str]) -> str:
-        """Setup MLflow with a tracking uri and create a client
+    def _set_experiment(self, pid: Union[int, str]) -> str:
+        """Setup experiment for MLFLow
 
         Args:
             pid (int): Prediction job id
@@ -200,11 +200,7 @@ class MLflowSerializer:
             int: The experiment id of the prediction job
 
         """
-        # set experiment only if not done already
-        if self.experiment_id is None:
-            # Set a folder where MLflow will write to
-            mlflow.set_experiment(str(pid))
-        self.logger.debug(f"MLflow path during setup= {self.mlflow_folder}")
+        mlflow.set_experiment(str(pid))
         return mlflow.get_experiment_by_name(str(pid)).experiment_id
 
     def _find_models(
@@ -222,7 +218,7 @@ class MLflowSerializer:
         Returns:
             pd.DataFrame: models_df (this dataframe can have 0, 1 or multiple rows)
         """
-        self.experiment_id = self._setup_mlflow(pid)
+        self.experiment_id = self._set_experiment(pid)
 
         if filter_string is None:
             filter_string = "attribute.status = 'FINISHED'"
@@ -341,7 +337,7 @@ class MLflowSerializer:
         self.logger.info(f"logged figures to MLflow")
 
     def _find_all_models(self, pj: PredictionJobDataClass):
-        experiment_id = self._setup_mlflow(pj["id"])
+        experiment_id = self._set_experiment(pj["id"])
         prev_runs = mlflow.search_runs(
             experiment_id,
             filter_string=" attribute.status = 'FINISHED' AND tags.mlflow.runName = '{}'".format(

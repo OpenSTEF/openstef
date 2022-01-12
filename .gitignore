@@ -14,6 +14,8 @@ ktprognoses.egg-info/
 .idea/
 .vscode/
 test/unit/trained_models/models_for_serializertest/mlruns/
+trained_models/
+test/unit/trained_models/mlruns/1/
 
 # Ignore these files
 .DS_Store
