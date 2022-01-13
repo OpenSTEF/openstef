@@ -63,7 +63,7 @@ def apply_scaling(
         feature_groups=[
             {
                 "name": "main",
-                "scaler": ["robust", 15, 85],
+                "scaler": ["minmax", -1.0, 1.0],#["robust", 15, 85],
                 "features": scaler_features[0],
             },
             {
@@ -100,7 +100,7 @@ class OpenstfProloafRegressor(OpenstfRegressor, ModelWrapper):
     def __init__(
         self,
     name: str = "model",
-    core_net: str = "torch.nn.GRU",
+    core_net: str = "torch.nn.LSTM", #"torch.nn.GRU",
     relu_leak: float = 0.1,
     encoder_features: List[str] = [
         "historic_load",
@@ -120,7 +120,7 @@ class OpenstfProloafRegressor(OpenstfRegressor, ModelWrapper):
     early_stopping_margin: float = 0.9,
     learning_rate: float = 1e-04,
     max_epochs: int = 100,
-    device: Union[str, int] = "cpu",
+    device: Union[str, int] = "cpu", # cuda or cpu
     batch_size: int = 1,
     history_horizon: int = 1,
     horizon_minutes: int = 1440,
