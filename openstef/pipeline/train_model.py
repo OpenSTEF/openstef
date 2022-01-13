@@ -302,17 +302,20 @@ def train_pipeline_common(
         verbose=False,
     )
     # Gets the feature importance df or None if we don't have feature importance
-    model.feature_importance_dataframe = model.set_feature_importance()
+    if pj["model"] != "proloaf":
+        model.feature_importance_dataframe = model.set_feature_importance()
 
     logging.info("Fitted a new model, not yet stored")
 
-    # Do confidence interval determination
+    # Do confidence interval determination-
     model = StandardDeviationGenerator(
         validation_data
     ).generate_standard_deviation_data(model)
 
     # Report about the training process
-    reporter = Reporter(train_data, validation_data, test_data)
-    report = reporter.generate_report(model)
-
+    if pj["model"] != "proloaf":
+        reporter = Reporter(train_data, validation_data, test_data)
+        report = reporter.generate_report(model)
+    else:
+        report = None
     return model, report, train_data, validation_data, test_data

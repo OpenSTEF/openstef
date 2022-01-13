@@ -1,18 +1,15 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-from typing import List, Dict, Any, Tuple, Union
 
 import numpy as np
 import pandas as pd
-
-from openstef.model.regressors.regressor import OpenstfRegressor
-
-# These imports will require the proloaf optional dependencies to be installed
-import proloaf.datahandler as dh
-from proloaf.modelhandler import ModelWrapper
 import torch
-
+import proloaf.datahandler as dh
+from openstf.model.regressors.regressor import OpenstfRegressor
+from modelhandler import ModelWrapper #proloaf.modelhandler import ModelWrapper
+from typing import List, Dict, Any, Tuple, Union
+from torch.utils.tensorboard import SummaryWriter
 
 # TODO: implement the hyperparameter optimalisation via optuna
 # TODO: set the default for hyperparameters in the init of OpenstfProloafRegressor
@@ -66,10 +63,14 @@ def apply_scaling(
         feature_groups=[
             {
                 "name": "main",
-                "scaler": ["minmax", -1.0, 1.0],
+                "scaler": ["robust", 15, 85],
                 "features": scaler_features[0],
             },
-            {"name": "aux", "scaler": None, "features": scaler_features[2]},
+            {
+                "name": "aux", 
+                "scaler": None, 
+                "features": scaler_features[2],
+            },
         ],
     )
 
@@ -98,31 +99,31 @@ def apply_scaling(
 class OpenstfProloafRegressor(OpenstfRegressor, ModelWrapper):
     def __init__(
         self,
-        name: str = "model",
-        core_net: str = "torch.nn.LSTM",
-        relu_leak: float = 0.1,
-        encoder_features: List[str] = [
-            "historic_load",
-        ],  # make sure historic load is present, TODO: implement so you can use None
-        decoder_features: List[str] = [
-            "air_density"
-        ],  # TODO: implement so you can use None
-        core_layers: int = 1,
-        rel_linear_hidden_size: float = 1.0,
-        rel_core_hidden_size: float = 1.0,
-        dropout_fc: float = 0.4,
-        dropout_core: float = 0.3,
-        training_metric: str = "nllgauss",
-        metric_options: Dict[str, Any] = {},
-        optimizer_name: str = "adam",
-        early_stopping_patience: int = 7,
-        early_stopping_margin: float = 0,
-        learning_rate: float = 1e-3,
-        max_epochs: int = 100,
-        device: Union[str, int] = "cpu",  # "cuda" or "cpu"
-        batch_size: int = 6,
-        history_horizon: int = 24,
-        horizon_minutes: int = 2880,  # 2 days in minutes,
+    name: str = "model",
+    core_net: str = "torch.nn.GRU",
+    relu_leak: float = 0.1,
+    encoder_features: List[str] = [
+        "historic_load",
+    ],  # make sure historic load is present, TODO: implement so you can use None
+    decoder_features: List[str] = [
+        "air_density"
+    ],  # TODO: implement so you can use None
+    core_layers: int = 1,
+    rel_linear_hidden_size: float = 1.0,
+    rel_core_hidden_size: float = 1.0,
+    dropout_fc: float = 0.2,
+    dropout_core: float = 0.2,
+    training_metric: str = "nllgauss",
+    metric_options: Dict[str, Any] = {},
+    optimizer_name: str = "adam",
+    early_stopping_patience: int = 7,
+    early_stopping_margin: float = 0.9,
+    learning_rate: float = 1e-04,
+    max_epochs: int = 100,
+    device: Union[str, int] = "cpu",
+    batch_size: int = 1,
+    history_horizon: int = 1,
+    horizon_minutes: int = 1440,
     ):
         self.device = device
         self.batch_size = batch_size
@@ -260,7 +261,10 @@ class OpenstfProloafRegressor(OpenstfRegressor, ModelWrapper):
         self.to(self.device)
         self.init_model()
         self.is_fitted_ = True
-
+        print("Training Set: input1-size: ",train_dl[0][0].shape,"inputs2-size: ",
+              train_dl[0][1].shape, "targets-size: ",train_dl[0][2].shape)
+        print("Validation Set: input1-size: ",validation_dl[0][0].shape,"inputs2-size: ",
+              validation_dl[0][1].shape, "targets-size: ",validation_dl[0][2].shape)
         return self.run_training(train_dl, validation_dl)
 
     def get_params(self, deep=True):
