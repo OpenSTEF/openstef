@@ -31,11 +31,14 @@ E_MSG = "feature_names couldn't be loaded, using None"
 
 
 class MLflowSerializer:
-    def __init__(self, trained_models_folder: Union[Path, str]):
+    def __init__(
+        self, trained_models_folder: Union[Path, str], mlflow_tracking_uri: str = None
+    ):
+        # TODO: remove trained_models_folder once users have gone to mlflow_tracking_uri
         self.logger = structlog.get_logger(self.__class__.__name__)
         self.trained_models_folder = trained_models_folder
-        if "MLFLOW_TRACKING_URI" in os.environ:  # setup distributed mlflow via URI
-            self.mlflow_folder = os.environ["MLFLOW_TRACKING_URI"]
+        if mlflow_tracking_uri:  # setup distributed mlflow from uri
+            self.mlflow_folder = mlflow_tracking_uri
         else:  # setup local mlflow
             path = os.path.abspath(f"{trained_models_folder}/mlruns/")
             self.mlflow_folder = Path(path).as_uri()
@@ -51,6 +54,7 @@ class MLflowSerializer:
         modelspecs: ModelSpecificationDataClass,
         report: Report,
         phase: str = "training",
+        save_report_to_disk: bool = True,
         **kwargs,
     ) -> None:
         """Save sklearn compatible model to persistent storage with MLflow.
@@ -64,6 +68,7 @@ class MLflowSerializer:
             modelspecs (ModelSpecificationDataClass): Dataclass containing model specifications
             report (Report): Report object.
             phase (str): Where does the model come from, default is "training"
+            save_report_to_disk (bool): Do we want to save report to disk besides saving reports on MLFlow.
             **kwargs: Extra information to be logged with mlflow, this can add the extra modelspecs
 
         """
@@ -81,14 +86,17 @@ class MLflowSerializer:
             self._log_figure_with_mlflow(report)
         self.logger.debug(f"MLflow path after saving= {self.mlflow_folder}")
 
-        # Also store report files in easy-to-find location, which are updated on each new model
-        # Easy for web visualisation, e.g. through grafana
-        location = os.path.join(self.web_volume, f'{pj["id"]}')
-        Reporter.write_report_to_disk(report, location=location)
-        self.logger.info(f"Stored report to disk: {location}")
+        if save_report_to_disk:
+            # Report is already stored in MLFlow.
+            # This part also optionally stores report files per model on disk.
+            # Easy for web visualisation, e.g. through grafana
+            location = os.path.join(self.web_volume, f'{pj["id"]}')
+            Reporter.write_report_to_disk(report, location=location)
+            self.logger.info(f"Stored report to disk: {location}")
 
     def load_model(
-        self, pid: Union[str, int],
+        self,
+        pid: Union[str, int],
     ) -> Tuple[OpenstfRegressor, ModelSpecificationDataClass]:
         """Load sklearn compatible model from persistent storage.
 
@@ -136,7 +144,9 @@ class MLflowSerializer:
         # Catch possible errors
         except (AttributeError, MlflowException, OSError) as e:
             self.logger.error(
-                "Couldn't load model", pid=pid, error=e,
+                "Couldn't load model",
+                pid=pid,
+                error=e,
             )
             raise AttributeError(
                 "Model couldn't be found or doesn't exist. First train a model!"
@@ -204,7 +214,10 @@ class MLflowSerializer:
         return mlflow.get_experiment_by_name(str(pid)).experiment_id
 
     def _find_models(
-        self, pid: Union[int, str], n: Optional[int] = None, filter_string: str = None,
+        self,
+        pid: Union[int, str],
+        n: Optional[int] = None,
+        filter_string: str = None,
     ) -> pd.DataFrame:
         """
         Finds trained models for specific pid sorted by age in descending order.
@@ -225,14 +238,17 @@ class MLflowSerializer:
 
         if isinstance(n, int):
             models_df = mlflow.search_runs(
-                self.experiment_id, filter_string=filter_string, max_results=n,
+                self.experiment_id,
+                filter_string=filter_string,
+                max_results=n,
             )
 
             if n == 1 and len(models_df) > 0:
                 models_df = models_df.iloc[:1]  # filter on first row of dataframe
         else:
             models_df = mlflow.search_runs(
-                self.experiment_id, filter_string=filter_string,
+                self.experiment_id,
+                filter_string=filter_string,
             )
         return models_df
 
@@ -314,7 +330,9 @@ class MLflowSerializer:
 
         # Log the model to the run
         mlflow.sklearn.log_model(
-            sk_model=model, artifact_path="model", signature=report.signature,
+            sk_model=model,
+            artifact_path="model",
+            signature=report.signature,
         )
         self.logger.info("Model saved with MLflow", pid=pj["id"])
 
@@ -413,11 +431,15 @@ class MLflowSerializer:
 
         except KeyError:
             self.logger.warning(
-                E_MSG, pid=pid, error="tags.feature_names, doesn't exist in run",
+                E_MSG,
+                pid=pid,
+                error="tags.feature_names, doesn't exist in run",
             )
         except AttributeError:
             self.logger.warning(
-                E_MSG, pid=pid, error="tags.feature_names, needs to be a string",
+                E_MSG,
+                pid=pid,
+                error="tags.feature_names, needs to be a string",
             )
         except JSONDecodeError:
             self.logger.warning(
