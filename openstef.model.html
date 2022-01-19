@@ -546,7 +546,7 @@ with objective specific parameters.</p>
 <span id="openstef-model-serializer-module"></span><h2>openstef.model.serializer module<a class="headerlink" href="#module-openstef.model.serializer" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="openstef.model.serializer.MLflowSerializer">
-<em class="property">class </em><code class="sig-prename descclassname">openstef.model.serializer.</code><code class="sig-name descname">MLflowSerializer</code><span class="sig-paren">(</span><em class="sig-param">trained_models_folder: Union[pathlib.Path, str], mlflow_tracking_uri: str = None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.serializer.MLflowSerializer" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">openstef.model.serializer.</code><code class="sig-name descname">MLflowSerializer</code><span class="sig-paren">(</span><em class="sig-param">trained_models_folder: Union[pathlib.Path, str]</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.serializer.MLflowSerializer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="method">
 <dt id="openstef.model.serializer.MLflowSerializer.get_model_age">
@@ -594,7 +594,7 @@ See also: <a class="reference external" href="https://github.com/mlflow/mlflow/i
 
 <dl class="method">
 <dt id="openstef.model.serializer.MLflowSerializer.save_model">
-<code class="sig-name descname">save_model</code><span class="sig-paren">(</span><em class="sig-param">model: openstef.model.regressors.regressor.OpenstfRegressor</em>, <em class="sig-param">pj: openstef_dbc.services.prediction_job.PredictionJobDataClass</em>, <em class="sig-param">modelspecs: openstef.data_classes.model_specifications.ModelSpecificationDataClass</em>, <em class="sig-param">report: openstef.metrics.reporter.Report</em>, <em class="sig-param">phase: str = 'training'</em>, <em class="sig-param">save_report_to_disk: bool = True</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#openstef.model.serializer.MLflowSerializer.save_model" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">save_model</code><span class="sig-paren">(</span><em class="sig-param">model: openstef.model.regressors.regressor.OpenstfRegressor</em>, <em class="sig-param">pj: openstef_dbc.services.prediction_job.PredictionJobDataClass</em>, <em class="sig-param">modelspecs: openstef.data_classes.model_specifications.ModelSpecificationDataClass</em>, <em class="sig-param">report: openstef.metrics.reporter.Report</em>, <em class="sig-param">phase: str = 'training'</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#openstef.model.serializer.MLflowSerializer.save_model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save sklearn compatible model to persistent storage with MLflow.</p>
 <blockquote>
 <div><p>Either a pid or a model_id should be given. If a pid is given the model_id
@@ -608,7 +608,6 @@ will be generated.</p>
 <li><p><strong>modelspecs</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.model_specifications.ModelSpecificationDataClass" title="openstef.data_classes.model_specifications.ModelSpecificationDataClass"><em>ModelSpecificationDataClass</em></a>) – Dataclass containing model specifications</p></li>
 <li><p><strong>report</strong> (<a class="reference internal" href="openstef.metrics.html#openstef.metrics.reporter.Report" title="openstef.metrics.reporter.Report"><em>Report</em></a>) – Report object.</p></li>
 <li><p><strong>phase</strong> (<em>str</em>) – Where does the model come from, default is “training”</p></li>
-<li><p><strong>save_report_to_disk</strong> (<em>bool</em>) – Do we want to save report to disk besides saving reports on MLFlow.</p></li>
 <li><p><strong>**kwargs</strong> – Extra information to be logged with mlflow, this can add the extra modelspecs</p></li>
 </ul>
 </dd>
