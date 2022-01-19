@@ -67,7 +67,7 @@ def create_forecast_pipeline_core(
 
     Args:
         pj (PredictionJobDataClass): Prediction job.
-        input_data (pandas.DataFrame): Iput data for the prediction.
+        input_data (pandas.DataFrame): Input data for the prediction.
         model (OpenstfRegressor): Model to use for this prediction.
 
     Returns:
