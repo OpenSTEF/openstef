@@ -4,7 +4,7 @@
 import json
 import os
 import shutil
-from abc import ABC, abstractmethod
+import structlog
 from datetime import datetime
 from json import JSONDecodeError
 from pathlib import Path
@@ -14,7 +14,6 @@ from urllib.parse import unquote, urlparse
 import mlflow
 import numpy as np
 import pandas as pd
-import structlog
 from matplotlib import figure
 from mlflow.exceptions import MlflowException
 from openstef_dbc.services.prediction_job import PredictionJobDataClass
@@ -31,87 +30,21 @@ MAX_N_MODELS = 10  # Number of models per experiment allowed in model registry
 E_MSG = "feature_names couldn't be loaded, using None"
 
 
-class AbstractSerializer(ABC):
-    def __init__(self, trained_models_folder: Union[Path, str]) -> None:
-        """
-
-        Args:
-            trained_models_folder (Path): path to save models to
-        """
+class MLflowSerializer:
+    def __init__(
+        self, trained_models_folder: Union[Path, str], mlflow_tracking_uri: str = None
+    ):
+        # TODO: remove trained_models_folder once users have gone to mlflow_tracking_uri
         self.logger = structlog.get_logger(self.__class__.__name__)
         self.trained_models_folder = trained_models_folder
-
-    @abstractmethod
-    def save_model(
-        self,
-        model: OpenstfRegressor,
-        pj: PredictionJobDataClass,
-        modelspecs: ModelSpecificationDataClass,
-        report: Report,
-        **kwargs,
-    ) -> None:
-        """Save a trained model
-
-        Args:
-            model (OpenstfRegressor): trained model
-            pj (PredictionJobDataClass): prediction job
-            modelspecs (ModelSpecificationDataClass): model specifications.
-            report (report): report containing information about the model
-            **kwargs: extra key word arguments
-
-        Returns:
-            None
-        """
-        self.logger.error("This is an abstract method!")
-
-    @abstractmethod
-    def load_model(
-        self, pid: Union[str, int]
-    ) -> Tuple[OpenstfRegressor, ModelSpecificationDataClass]:
-        """Loads model that has been trained earlier
-
-        Returns: Trained sklearn compatible model object
-
-        """
-        self.logger.error("This is an abstract method!")
-
-    @abstractmethod
-    def get_model_age(self, pid: Union[int, str]) -> int:
-        """Retrieve model age from latest model
-
-        Args:
-            pid (int): prediction job id
-
-        Returns:
-            int: age of the model in days
-        """
-        self.logger.error("This is an abstract method!")
-
-    @abstractmethod
-    def remove_old_models(
-        self, pj: PredictionJobDataClass, max_n_models: int = MAX_N_MODELS
-    ):
-        """Remove old models for the experiment defined by PJ.
-        A maximum of 'max_n_models' is
-
-        Args:
-            pj: prediction job
-            max_n_models: maximum number of models to save
-
-        """
-        self.logger.error("This is an abstract method!")
-
-
-class MLflowSerializer(AbstractSerializer):
-    def __init__(self, trained_models_folder: Union[Path, str]):
-        super().__init__(trained_models_folder)
-
-        path = os.path.abspath(f"{trained_models_folder}/mlruns/")
-        self.mlflow_folder = Path(path).as_uri()
+        if mlflow_tracking_uri:  # setup distributed mlflow from uri
+            self.mlflow_folder = mlflow_tracking_uri
+        else:  # setup local mlflow
+            path = os.path.abspath(f"{trained_models_folder}/mlruns/")
+            self.mlflow_folder = Path(path).as_uri()
+        mlflow.set_tracking_uri(self.mlflow_folder)
         self.web_volume = Path(f"{trained_models_folder}")
-
         self.logger.debug(f"MLflow path at init= {self.mlflow_folder}")
-
         self.experiment_id = None
 
     def save_model(
@@ -121,6 +54,7 @@ class MLflowSerializer(AbstractSerializer):
         modelspecs: ModelSpecificationDataClass,
         report: Report,
         phase: str = "training",
+        save_report_to_disk: bool = True,
         **kwargs,
     ) -> None:
         """Save sklearn compatible model to persistent storage with MLflow.
@@ -134,6 +68,7 @@ class MLflowSerializer(AbstractSerializer):
             modelspecs (ModelSpecificationDataClass): Dataclass containing model specifications
             report (Report): Report object.
             phase (str): Where does the model come from, default is "training"
+            save_report_to_disk (bool): Do we want to save report to disk besides saving reports on MLFlow.
             **kwargs: Extra information to be logged with mlflow, this can add the extra modelspecs
 
         """
@@ -151,11 +86,13 @@ class MLflowSerializer(AbstractSerializer):
             self._log_figure_with_mlflow(report)
         self.logger.debug(f"MLflow path after saving= {self.mlflow_folder}")
 
-        # Also store report files in easy-to-find location, which are updated on each new model
-        # Easy for web visualisation, e.g. through grafana
-        location = os.path.join(self.web_volume, f'{pj["id"]}')
-        Reporter.write_report_to_disk(report, location=location)
-        self.logger.info(f"Stored report to disk: {location}")
+        if save_report_to_disk:
+            # Report is already stored in MLFlow.
+            # This part also optionally stores report files per model on disk.
+            # Easy for web visualisation, e.g. through grafana
+            location = os.path.join(self.web_volume, f'{pj["id"]}')
+            Reporter.write_report_to_disk(report, location=location)
+            self.logger.info(f"Stored report to disk: {location}")
 
     def load_model(
         self,
@@ -263,8 +200,8 @@ class MLflowSerializer(AbstractSerializer):
 
         return modelspecs
 
-    def _setup_mlflow(self, pid: Union[int, str]) -> str:
-        """Setup MLflow with a tracking uri and create a client
+    def _set_experiment(self, pid: Union[int, str]) -> str:
+        """Setup experiment for MLFLow
 
         Args:
             pid (int): Prediction job id
@@ -273,12 +210,7 @@ class MLflowSerializer(AbstractSerializer):
             int: The experiment id of the prediction job
 
         """
-        # set experiment only if not done already
-        if self.experiment_id is None:
-            # Set a folder where MLflow will write to
-            mlflow.set_tracking_uri(self.mlflow_folder)
-            mlflow.set_experiment(str(pid))
-        self.logger.debug(f"MLflow path during setup= {self.mlflow_folder}")
+        mlflow.set_experiment(str(pid))
         return mlflow.get_experiment_by_name(str(pid)).experiment_id
 
     def _find_models(
@@ -299,7 +231,7 @@ class MLflowSerializer(AbstractSerializer):
         Returns:
             pd.DataFrame: models_df (this dataframe can have 0, 1 or multiple rows)
         """
-        self.experiment_id = self._setup_mlflow(pid)
+        self.experiment_id = self._set_experiment(pid)
 
         if filter_string is None:
             filter_string = "attribute.status = 'FINISHED'"
@@ -423,7 +355,7 @@ class MLflowSerializer(AbstractSerializer):
         self.logger.info(f"logged figures to MLflow")
 
     def _find_all_models(self, pj: PredictionJobDataClass):
-        experiment_id = self._setup_mlflow(pj["id"])
+        experiment_id = self._set_experiment(pj["id"])
         prev_runs = mlflow.search_runs(
             experiment_id,
             filter_string=" attribute.status = 'FINISHED' AND tags.mlflow.runName = '{}'".format(
