@@ -161,8 +161,6 @@ class TestTrainModelPipeline(BaseTestCase):
 
                 # Split data
                 (
-                    _,
-                    _,
                     train_data,
                     validation_data,
                     test_data,

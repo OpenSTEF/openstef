@@ -39,13 +39,7 @@ class TestTrain(BaseTestCase):
 
         """
 
-        (
-            peaks,
-            peaks_val_train,
-            train_set,
-            valid_set,
-            test_set,
-        ) = split_data_train_validation_test(
+        (train_set, valid_set, test_set,) = split_data_train_validation_test(
             self.data_table,
             test_fraction=SPLIT_PARAMS["test_fraction"],
             validation_fraction=SPLIT_PARAMS["validation_fraction"],
@@ -57,14 +51,9 @@ class TestTrain(BaseTestCase):
         # delta = 4, when looking at the test data, can differ 1 hr (4x15min)
 
         self.assertAlmostEqual(
-            len(peaks_val_train[0][0]),
-            len(peaks) * SPLIT_PARAMS["validation_fraction"],
-            delta=1,
-        )
-        self.assertAlmostEqual(
-            len(peaks_val_train[1][0]),
-            len(peaks) * (1 - SPLIT_PARAMS["validation_fraction"]),
-            delta=1,
+            len(valid_set),
+            len(self.data_table) * SPLIT_PARAMS["validation_fraction"],
+            delta=2 * 96,
         )
 
         self.assertAlmostEqual(
@@ -83,13 +72,7 @@ class TestTrain(BaseTestCase):
 
         """
 
-        (
-            peaks,
-            peaks_val_train,
-            train_set,
-            valid_set,
-            test_set,
-        ) = split_data_train_validation_test(
+        (train_set, valid_set, test_set,) = split_data_train_validation_test(
             self.data_table,
             test_fraction=SPLIT_PARAMS["test_fraction"],
             validation_fraction=SPLIT_PARAMS["validation_fraction"],
@@ -101,14 +84,9 @@ class TestTrain(BaseTestCase):
         # delta = 4, when looking at the test data, can differ 1 hr (4x15min)
 
         self.assertAlmostEqual(
-            len(peaks_val_train[0][0]),
-            len(peaks) * SPLIT_PARAMS["validation_fraction"],
-            delta=1,
-        )
-        self.assertAlmostEqual(
-            len(peaks_val_train[1][0]),
-            len(peaks) * (1 - SPLIT_PARAMS["validation_fraction"]),
-            delta=1,
+            len(valid_set),
+            len(self.data_table) * SPLIT_PARAMS["validation_fraction"],
+            delta=2 * 96,
         )
 
         self.assertAlmostEqual(
@@ -131,13 +109,7 @@ class TestTrain(BaseTestCase):
             SPLIT_PARAMS["test_fraction"] + SPLIT_PARAMS["validation_fraction"]
         )
 
-        (
-            peaks,
-            peaks_val_train,
-            train_set,
-            valid_set,
-            test_set,
-        ) = split_data_train_validation_test(
+        (train_set, valid_set, test_set,) = split_data_train_validation_test(
             self.data_table,
             test_fraction=SPLIT_PARAMS["test_fraction"],
             validation_fraction=SPLIT_PARAMS["validation_fraction"],
@@ -177,13 +149,7 @@ class TestTrain(BaseTestCase):
             SPLIT_PARAMS["test_fraction"] + SPLIT_PARAMS["validation_fraction"]
         )
 
-        (
-            peaks,
-            peaks_val_train,
-            train_set,
-            valid_set,
-            test_set,
-        ) = split_data_train_validation_test(
+        (train_set, valid_set, test_set,) = split_data_train_validation_test(
             self.data_table,
             test_fraction=SPLIT_PARAMS["test_fraction"],
             validation_fraction=SPLIT_PARAMS["validation_fraction"],

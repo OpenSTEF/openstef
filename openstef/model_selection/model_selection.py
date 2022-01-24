@@ -139,9 +139,6 @@ def split_data_train_validation_test(
             ensuring the validation set to be representative of the train set.
 
     Returns:
-        min_max_dates (List[pd.DatetimeIndex]),
-        peaks_val_train (List[List: 'peak dates in validation',
-                              List: 'peak dates in train'])
         train_data (pandas.DataFrame): Train data.
         validation_data (pandas.DataFrame): Validation data.
         test_data (pandas.DataFrame): Test data.
@@ -243,8 +240,6 @@ def split_data_train_validation_test(
     test_data = test_data.sort_index()
 
     return (
-        None,  # min_max_dates, TODO: check if this is required or we can remove this
-        None,  # peaks_val_train,
         train_data,
         validation_data,
         test_data,

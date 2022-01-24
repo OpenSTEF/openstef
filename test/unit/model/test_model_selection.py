@@ -65,8 +65,6 @@ class TestTrain(BaseTestCase):
         data = TestData.load("input_data_train.pickle")
 
         (
-            peaks,
-            peaks_val_train,
             train_set,
             valid_set,
             test_set,
@@ -121,13 +119,7 @@ class TestTrain(BaseTestCase):
             df.loc[df.index.day == day, "load"] -= 5
 
         # Split using default arguments. Should result in stratified split
-        (
-            peaks,
-            peaks_val_train,
-            train,
-            val,
-            test,
-        ) = model_selection.split_data_train_validation_test(
+        (train, val, test,) = model_selection.split_data_train_validation_test(
             df, test_fraction=0, stratification_min_max=True
         )
         # test that max and min days are both in train and val sets

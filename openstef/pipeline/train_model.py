@@ -244,13 +244,7 @@ def train_pipeline_common(
         ].sort_index()
 
     # Split data
-    (
-        peaks,
-        peaks_val_train,
-        train_data,
-        validation_data,
-        test_data,
-    ) = split_data_train_validation_test(
+    (train_data, validation_data, test_data,) = split_data_train_validation_test(
         data_with_features,
         test_fraction=test_fraction,
         stratification_min_max=stratification_min_max,
