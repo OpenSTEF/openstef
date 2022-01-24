@@ -7,6 +7,7 @@ from test.unit.utils.base import BaseTestCase
 from test.unit.utils.data import TestData
 
 import pandas as pd
+import numpy as np
 
 from openstef.pipeline.train_model import split_data_train_validation_test
 
@@ -50,10 +51,14 @@ class TestTrain(BaseTestCase):
         # delta = 1, number of the peaks the two amounts may differ for the train and validation data
         # delta = 4, when looking at the test data, can differ 1 hr (4x15min)
 
+        # Add checkpoint, useful for debugging when things go wrong
+        # if np.abs(len(valid_set) - (len(self.data_table)*SPLIT_PARAMS['validation_fraction'])) >192:
+        #     print("Investigate this!")
+
         self.assertAlmostEqual(
-            len(valid_set),
-            len(self.data_table) * SPLIT_PARAMS["validation_fraction"],
-            delta=2 * 96,
+            len(set(valid_set.index.date)),
+            len(set(self.data_table.index.date)) * SPLIT_PARAMS["validation_fraction"],
+            delta=2,
         )
 
         self.assertAlmostEqual(
@@ -84,9 +89,9 @@ class TestTrain(BaseTestCase):
         # delta = 4, when looking at the test data, can differ 1 hr (4x15min)
 
         self.assertAlmostEqual(
-            len(valid_set),
-            len(self.data_table) * SPLIT_PARAMS["validation_fraction"],
-            delta=2 * 96,
+            len(set(valid_set.index.date)),
+            len(set(self.data_table.index.date)) * SPLIT_PARAMS["validation_fraction"],
+            delta=2,
         )
 
         self.assertAlmostEqual(
@@ -125,9 +130,9 @@ class TestTrain(BaseTestCase):
             delta=4,
         )
         self.assertAlmostEqual(
-            len(valid_set),
-            len(self.data_table.index) * SPLIT_PARAMS["validation_fraction"],
-            delta=4,
+            len(set(valid_set.index.date)),
+            len(set(self.data_table.index.date)) * SPLIT_PARAMS["validation_fraction"],
+            delta=2,
         )
         self.assertAlmostEqual(
             len(train_set),
@@ -165,9 +170,9 @@ class TestTrain(BaseTestCase):
             delta=4,
         )
         self.assertAlmostEqual(
-            len(valid_set),
-            len(self.data_table.index) * SPLIT_PARAMS["validation_fraction"],
-            delta=4,
+            len(set(valid_set.index.date)),
+            len(set(self.data_table.index.date)) * SPLIT_PARAMS["validation_fraction"],
+            delta=2,
         )
         self.assertAlmostEqual(
             len(train_set),

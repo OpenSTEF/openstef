@@ -179,7 +179,7 @@ def split_data_train_validation_test(
         # Let's consider the 15% lowest or highest days, with a minimum
         # of two dates in the min and max list
         train_val_dates = list(set(train_val_data.index.date))
-        n_days_per_subset = int(max(0.15 * len(train_val_dates), 2))
+        n_days_per_subset = int(max(0.15 * len(set(data_.index.date)), 2))
         # Find max_dates
         max_dates = (
             train_val_data[["load"]]
