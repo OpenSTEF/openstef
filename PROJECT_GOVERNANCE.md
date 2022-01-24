@@ -19,9 +19,10 @@ The Technical Steering Committee (TSC) is responsible for:
 
 The community council consists of the following members:
 1. Frank Kreuwel
-1. Bram Harmsen
 1. Jan Maarten van Doorn
 1. Jonas van den Bogaard
+2. David Swinkels
+3. Frederik Stoel
 
 Frank Kreuwel will chair the TSC.
 
