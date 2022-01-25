@@ -50,11 +50,6 @@ class TestTrain(BaseTestCase):
 
         # delta = 1, number of the peaks the two amounts may differ for the train and validation data
         # delta = 4, when looking at the test data, can differ 1 hr (4x15min)
-
-        # Add checkpoint, useful for debugging when things go wrong
-        # if np.abs(len(valid_set) - (len(self.data_table)*SPLIT_PARAMS['validation_fraction'])) >192:
-        #     print("Investigate this!")
-
         self.assertAlmostEqual(
             len(set(valid_set.index.date)),
             len(set(self.data_table.index.date)) * SPLIT_PARAMS["validation_fraction"],
