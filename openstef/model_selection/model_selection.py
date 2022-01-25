@@ -180,7 +180,9 @@ def split_data_train_validation_test(
         test_data = data_[:start_date_val]
         train_val_data = data_[start_date_val:]
 
-    if stratification_min_max and (len(set(train_val_data.index.date)) >= 4):
+    if stratification_min_max and (
+        len(set(train_val_data.index.date)) >= min_days_for_stratification
+    ):
         # First how many dates are considers min or max.
         # Note that this should be at least to, so one can go to the train set
         # and another to the testset
