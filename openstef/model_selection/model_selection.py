@@ -1,8 +1,8 @@
 # SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-import random
 import secrets
+import random
 from datetime import timedelta
 from itertools import accumulate
 from typing import List, Tuple
@@ -151,6 +151,12 @@ def split_data_train_validation_test(
             "Test ({test_fraction}) and validation fraction ({validation_fraction}) too high."
         )
 
+    # Define constants
+    min_days_for_stratification = 4
+    extreme_values_fraction = (
+        0.15  # 15percent of highest and lowest values are considered extremes
+    )
+
     # Get start date from the index
     start_date = data_.index.min().to_pydatetime()
     end_date = data_.index.max().to_pydatetime()
@@ -175,11 +181,13 @@ def split_data_train_validation_test(
         train_val_data = data_[start_date_val:]
 
     if stratification_min_max and (len(set(train_val_data.index.date)) >= 4):
-        # First determine the dates with min and max values
-        # Let's consider the 15% lowest or highest days, with a minimum
-        # of two dates in the min and max list
+        # First how many dates are considers min or max.
+        # Note that this should be at least to, so one can go to the train set
+        # and another to the testset
         train_val_dates = list(set(train_val_data.index.date))
-        n_days_per_subset = int(max(0.15 * len(set(data_.index.date)), 2))
+        n_days_per_min_max_subset = int(
+            max(extreme_values_fraction * len(set(data_.index.date)), 2)
+        )
         # Find max_dates
         max_dates = (
             train_val_data[["load"]]
@@ -187,7 +195,7 @@ def split_data_train_validation_test(
             .max()
             .sort_values(by="load", ascending=False)
             .dropna()
-            .index[:n_days_per_subset]
+            .index[:n_days_per_min_max_subset]
         )
         # Find min_dates, but do not consider the max_dates
         min_dates_subset = train_val_data.loc[
@@ -199,7 +207,7 @@ def split_data_train_validation_test(
             .min()
             .sort_values(by="load", ascending=True)
             .dropna()
-            .index[:n_days_per_subset]
+            .index[:n_days_per_min_max_subset]
         )
         other_dates = [
             x for x in train_val_dates if x not in min_dates and x not in max_dates
@@ -210,7 +218,7 @@ def split_data_train_validation_test(
         train_dates = []
         for date_set in [max_dates, min_dates, other_dates]:
             n_days_val = max(1, int(validation_fraction * len(date_set)))
-            val_dates += random.sample(list(date_set), n_days_val)
+            val_dates += np.random.choice(list(date_set), n_days_val)
             train_dates += [x for x in date_set if x not in val_dates]
 
         validation_data = train_val_data[np.isin(train_val_data.index.date, val_dates)]

@@ -94,6 +94,7 @@ class TestTrain(BaseTestCase):
         Test that the train/validation split is stratified,
         meaning min/max days are equally distributed in train and validation set
         """
+        # Arrange: prep inputs
         df = pd.DataFrame(
             index=pd.date_range(
                 start="2021-01-01 00:00:00Z", freq="15T", periods=20 * 96
@@ -104,7 +105,6 @@ class TestTrain(BaseTestCase):
         # the test results are not clearly defined (other dates can be recognized as min/max dates)
         n_days_high = 3
         n_days_low = 3
-
         # Specify load profile (each day is identical)
         df["load"] = np.sin(df.reset_index().index / 96 / 2 / np.pi * 20 * 2)
         # Randomly set max and min days
@@ -118,11 +118,12 @@ class TestTrain(BaseTestCase):
         for day in min_days:
             df.loc[df.index.day == day, "load"] -= 5
 
-        # Split using default arguments. Should result in stratified split
+        # Act: Split using default arguments. Should result in stratified split
         (train, val, test,) = model_selection.split_data_train_validation_test(
             df, test_fraction=0, stratification_min_max=True
         )
-        # test that max and min days are both in train and val sets
+
+        # Assert: test that max and min days are both in train and val sets
         for dayset in [max_days, min_days]:
             for d in [train, val]:
                 n_days_in = len([date for date in set(d.index.day) if date in dayset])
