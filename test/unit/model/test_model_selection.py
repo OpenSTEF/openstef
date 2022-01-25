@@ -21,6 +21,10 @@ SPLIT_PARAMS = {
 
 
 class TestTrain(BaseTestCase):
+    def setUp(self) -> None:
+        # seed random number generator so repeated tests yield same results
+        np.random.seed(0)
+
     def test_sample_indices_train_val(self):
         """
         Test for sampling indices from a dataset.

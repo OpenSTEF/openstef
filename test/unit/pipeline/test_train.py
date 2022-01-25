@@ -29,6 +29,8 @@ class TestTrain(BaseTestCase):
         self.data = pd.DataFrame(
             index=pd.date_range(datetime_start, datetime_end, freq="15T")
         )
+        # seed random number generator so repeated tests yield same results
+        np.random.seed(0)
 
     def test_split_data_train_validation_test_stratification_no_backtest(self):
         """Test spliting data with stratification.
