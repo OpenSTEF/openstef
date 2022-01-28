@@ -252,7 +252,7 @@ def calc_kpi_for_specific_pid(pid, start_time=None, end_time=None):
             set_incomplete_kpi_to_nan(kpis, t_ahead_h)
         if completeness_predicted_load_specific_hor < COMPLETENESS_PREDICTED_LOAD_THRESHOLD:
             log.warning(
-                "Completeness predicted load too low",
+                "Completeness predicted load of specific horizon too low",
                 prediction_id=pj["id"],
                 horizon=t_ahead_h,
                 start_time=start_time,
