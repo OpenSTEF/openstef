@@ -250,7 +250,10 @@ def calc_kpi_for_specific_pid(pid, start_time=None, end_time=None):
                 completeness_threshold=COMPLETENESS_REALISED_THRESHOLDS,
             )
             set_incomplete_kpi_to_nan(kpis, t_ahead_h)
-        if completeness_predicted_load_specific_hor < COMPLETENESS_PREDICTED_LOAD_THRESHOLD:
+        if (
+            completeness_predicted_load_specific_hor
+            < COMPLETENESS_PREDICTED_LOAD_THRESHOLD
+        ):
             log.warning(
                 "Completeness predicted load of specific horizon too low",
                 prediction_id=pj["id"],
@@ -277,8 +280,12 @@ def set_incomplete_kpi_to_nan(kpis, t_ahead_h):
     kpi_metrics = list(kpis[t_ahead_h].keys())
     # Set to nan
     for kpi in kpi_metrics:
-        if kpi not in ["completeness_realised", "completeness_predicted", "date",
-                       "window_days"]:
+        if kpi not in [
+            "completeness_realised",
+            "completeness_predicted",
+            "date",
+            "window_days",
+        ]:
             kpis[t_ahead_h].update({kpi: np.nan})
 
 
