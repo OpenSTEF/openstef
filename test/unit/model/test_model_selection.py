@@ -6,6 +6,9 @@ from test.unit.utils.base import BaseTestCase
 from test.unit.utils.data import TestData
 
 import numpy as np
+import pandas as pd
+import random
+
 
 from openstef.model_selection import model_selection
 
@@ -18,6 +21,10 @@ SPLIT_PARAMS = {
 
 
 class TestTrain(BaseTestCase):
+    def setUp(self) -> None:
+        # seed random number generator so repeated tests yield same results
+        np.random.seed(0)
+
     def test_sample_indices_train_val(self):
         """
         Test for sampling indices from a dataset.
@@ -50,22 +57,18 @@ class TestTrain(BaseTestCase):
         sampled_random = model_selection.random_sample(complete_list, n_random_samples)
         self.assertEqual(len(sampled_random), n_random_samples)
 
-    def test_split_data_train_validation_test_stratification(self):
-
-        """Test spliting data with stratification.
+    def test_split_data_train_validation(self):
+        """Test spliting data
             Test the `split_data_stratification` function and compare the proportion of the split
             of data into training, test, and validation subsets with the fractions.
 
         Raises:
             AssertionError: -
-
         """
 
         data = TestData.load("input_data_train.pickle")
 
         (
-            peaks,
-            peaks_val_train,
             train_set,
             valid_set,
             test_set,
@@ -79,21 +82,67 @@ class TestTrain(BaseTestCase):
         # delta = 4, when looking at the test data, can differ 1 hr (4x15min)
 
         self.assertAlmostEqual(
-            len(peaks_val_train[0][0]),
-            len(peaks) * SPLIT_PARAMS["validation_fraction"],
-            delta=1,
-        )
-        self.assertAlmostEqual(
-            len(peaks_val_train[1][0]),
-            len(peaks) * (1 - SPLIT_PARAMS["validation_fraction"]),
-            delta=1,
-        )
+            len(valid_set),
+            len(data) * SPLIT_PARAMS["validation_fraction"],
+            delta=2 * 96,
+        )  # two days is allowed
 
         self.assertAlmostEqual(
             len(test_set),
             len(data.index) * SPLIT_PARAMS["test_fraction"],
             delta=4,
         )
+
+    def test_split_data_train_validation_test_stratification(self):
+        """
+        Test that the train/validation split is stratified,
+        meaning min/max days are equally distributed in train and validation set
+        """
+        # Arrange: prep inputs
+        df = pd.DataFrame(
+            index=pd.date_range(
+                start="2021-01-01 00:00:00Z", freq="15T", periods=20 * 96
+            )
+        )
+        # Make dates high/low
+        # note that if this number does not match the validation_fraction,
+        # the test results are not clearly defined (other dates can be recognized as min/max dates)
+        n_days_high = 3
+        n_days_low = 3
+        # Specify load profile (each day is identical)
+        df["load"] = np.sin(df.reset_index().index / 96 / 2 / np.pi * 20 * 2)
+        # Randomly set max and min days
+        max_days = random.sample(list(df.index.day.unique()), n_days_high)
+        min_days = random.sample(
+            [x for x in set(df.index.day) if x not in max_days], n_days_low
+        )
+        # Either increase or decrease load on those days
+        for day in max_days:
+            df.loc[df.index.day == day, "load"] += 5
+        for day in min_days:
+            df.loc[df.index.day == day, "load"] -= 5
+
+        # Act: Split using default arguments. Should result in stratified split
+        (train, val, test,) = model_selection.split_data_train_validation_test(
+            df, test_fraction=0, stratification_min_max=True
+        )
+
+        # Assert: test that max and min days are both in train and val sets
+        for dayset in [max_days, min_days]:
+            for d in [train, val]:
+                n_days_in = len([date for date in set(d.index.day) if date in dayset])
+
+                # Add checkpoint, useful for debugging when things go wrong
+                if n_days_in == 0:
+                    print("Investigate this!")
+
+                assert n_days_in >= 1
+
+    def test_split_data_train_validation_test_stratification_repeat_20_times(self):
+        """Repeat the stratification test 20 times,
+        since the test using random selection and should work every time"""
+        for _ in range(20):
+            self.test_split_data_train_validation_test_stratification()
 
 
 if __name__ == "__main__":

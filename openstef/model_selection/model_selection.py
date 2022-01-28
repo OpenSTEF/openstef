@@ -1,8 +1,8 @@
 # SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-import random
 import secrets
+import random
 from datetime import timedelta
 from itertools import accumulate
 from typing import List, Tuple
@@ -139,7 +139,6 @@ def split_data_train_validation_test(
             ensuring the validation set to be representative of the train set.
 
     Returns:
-        peak_all_days (lint:int):
         train_data (pandas.DataFrame): Train data.
         validation_data (pandas.DataFrame): Validation data.
         test_data (pandas.DataFrame): Test data.
@@ -151,6 +150,12 @@ def split_data_train_validation_test(
         raise ValueError(
             "Test ({test_fraction}) and validation fraction ({validation_fraction}) too high."
         )
+
+    # Define constants
+    min_days_for_stratification = 4
+    extreme_values_fraction = (
+        0.15  # 15percent of highest and lowest values are considered extremes
+    )
 
     # Get start date from the index
     start_date = data_.index.min().to_pydatetime()
@@ -175,54 +180,53 @@ def split_data_train_validation_test(
         test_data = data_[:start_date_val]
         train_val_data = data_[start_date_val:]
 
-    # For determining the min and max values for the validation and train data
-    max_per_day = (
-        train_val_data[["load"]]
-        .resample("1D")
-        .max()
-        .sort_values(by="load", ascending=True)
-        .dropna()
-    )
-    min_per_day = (
-        train_val_data[["load"]]
-        .resample("1D")
-        .min()
-        .sort_values(by="load", ascending=True)
-        .dropna()
-    )
-    # Keep the top PEAK_FRACTION (upper and lower 15%)
-    max_dates = max_per_day.iloc[int((1 - PEAK_FRACTION) * len(max_per_day)) :, :]
-    min_dates = min_per_day.iloc[: int(PEAK_FRACTION * len(min_per_day)), :]
-    # Combine the max_dates and min_dates, and make sure no duplicate indices are present
-    min_max_dates = max_dates.append(
-        min_dates[min_dates.index.isin(max_dates.index) == False]
-    )
-
-    peak_n_days = len(min_max_dates)
-
-    if peak_n_days < 3:
-        stratification_min_max = (
-            False  # stratification is not adding value in this case
+    if stratification_min_max and (
+        len(set(train_val_data.index.date)) >= min_days_for_stratification
+    ):
+        # First how many dates are considers min or max.
+        # Note that this should be at least to, so one can go to the train set
+        # and another to the testset
+        train_val_dates = list(set(train_val_data.index.date))
+        n_days_per_min_max_subset = int(
+            max(extreme_values_fraction * len(set(data_.index.date)), 2)
         )
-
-    peaks_val_train = [[], []]
-
-    # Sample periods in the training part as the validation set using stratification (peaks).
-    if stratification_min_max:
-        split_val = int((peak_n_days * validation_fraction) / PERIOD_TIMEDELTA)
-        # Always have at least one validation split
-        split_val = max(split_val, 1)
-        peaks_val, idx_val_split = sample_indices_train_val(
-            data_,
-            random_sample(np.array(min_max_dates.index.date), k=split_val),
+        # Find max_dates
+        max_dates = (
+            train_val_data[["load"]]
+            .resample("1D")
+            .max()
+            .sort_values(by="load", ascending=False)
+            .dropna()
+            .index[:n_days_per_min_max_subset]
         )
-        peaks_train = list(set(min_max_dates.index.date) - set(peaks_val))
-        peaks_val_train[0].append(peaks_val)
-        peaks_val_train[1].append(peaks_train)
+        # Find min_dates, but do not consider the max_dates
+        min_dates_subset = train_val_data.loc[
+            ~np.isin(train_val_data.index.date, max_dates), ["load"]
+        ]
+        min_dates = (
+            min_dates_subset[["load"]]
+            .resample("1D")
+            .min()
+            .sort_values(by="load", ascending=True)
+            .dropna()
+            .index[:n_days_per_min_max_subset]
+        )
+        other_dates = [
+            x for x in train_val_dates if x not in min_dates and x not in max_dates
+        ]
 
-        idx_train_split = list(set(train_val_data.index) - set(idx_val_split))
-        validation_data = data_[data_.index.isin(idx_val_split)]
-        train_data = data_[data_.index.isin(idx_train_split)]
+        # Divide min, max and other dates fairly over validation and train set, with at least 1 min and max in train and validation
+        val_dates = []
+        train_dates = []
+        for date_set in [max_dates, min_dates, other_dates]:
+            n_days_val = max(1, int(validation_fraction * len(date_set)))
+            val_dates += list(
+                np.random.choice(list(date_set), n_days_val, replace=False)
+            )
+            train_dates += [x for x in date_set if x not in val_dates]
+
+        validation_data = train_val_data[np.isin(train_val_data.index.date, val_dates)]
+        train_data = train_val_data[np.isin(train_val_data.index.date, train_dates)]
 
     # Default sampling, take a one single validation set.
     else:
@@ -248,8 +252,6 @@ def split_data_train_validation_test(
     test_data = test_data.sort_index()
 
     return (
-        min_max_dates,
-        peaks_val_train,
         train_data,
         validation_data,
         test_data,

@@ -79,8 +79,6 @@ class RegressorObjective:
         else:
             stratification_min_max = True
         (
-            peaks,
-            peaks_val_train,
             self.train_data,
             self.validation_data,
             self.test_data,
