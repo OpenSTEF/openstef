@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project
+# SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -25,7 +25,7 @@ sys.path.insert(0, os.path.abspath("../"))
 # -- Project information -----------------------------------------------------
 
 project = "Short Term Forecasting"
-copyright = "2017-2021 Contributors to the OpenSTF project"
+copyright = "2017-2022 Contributors to the OpenSTEF project"
 author = "Frank Kreuwel"
 
 
