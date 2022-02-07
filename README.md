@@ -1,5 +1,5 @@
 <!--
-SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com>
+SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com>
 
 SPDX-License-Identifier: MPL-2.0
 -->
@@ -31,7 +31,7 @@ OpenSTEF is a Python package which is used to make short term forecasts for the 
 pip install openstef
 ```
 
-_**Optional**_: if you would like to use the proloaf model with openSTF install the proloaf dependencies by running:
+_**Optional**_: if you would like to use the proloaf model with OpenSTEF install the proloaf dependencies by running:
 ```shell
 pip install openstef[proloaf]
 ```
