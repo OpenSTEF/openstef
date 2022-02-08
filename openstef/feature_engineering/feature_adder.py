@@ -13,7 +13,7 @@ import inspect
 ParsedFeature = namedtuple("ParsedFeature", ["name", "params"])
 
 
-def adders_from_module(module_name):
+def adders_from_module(module_name: str):
     """Load all FeatureAdders classes on the fly from the module"""
     module = import_module(module_name)
     feature_adders = []
@@ -30,7 +30,7 @@ def adders_from_module(module_name):
     return feature_adders
 
 
-def adders_from_modules(module_names):
+def adders_from_modules(module_names: list[str]):
     return sum((adders_from_module(module_name) for module_name in module_names), [])
 
 
@@ -114,7 +114,7 @@ class FeatureDispatcher:
             )
 
     def dispatch_features(
-        self, feature_names
+        self, feature_names: List[str]
     ) -> Dict[FeatureAdder, List[ParsedFeature]]:
         recognized_features = set()
         dispatched_features = {}
@@ -135,7 +135,7 @@ class FeatureDispatcher:
 
         return dispatched_features
 
-    def apply_features(self, df, feature_names):
+    def apply_features(self, df: pd.DataFrame, feature_names: List[str]):
         if feature_names is None:
             return df
         dispatched_features = self.dispatch_features(feature_names)
