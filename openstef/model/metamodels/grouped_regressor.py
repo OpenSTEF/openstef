@@ -1,10 +1,10 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-from ctypes import Union
-from typing import Callable, Dict, List, Tuple, Any
+from typing import Union, Callable, Dict, List, Tuple, Any
 import joblib
 import pandas as pd
+from pandas.core.groupby.generic import DataFrameGroupBy
 import numpy as np
 from sklearn.base import BaseEstimator, RegressorMixin, MetaEstimatorMixin, clone
 from sklearn.utils.validation import check_is_fitted
@@ -96,7 +96,7 @@ class GroupedRegressor(BaseEstimator, RegressorMixin, MetaEstimatorMixin):
         group_columns: Union[List[str], List[int]],
         func: Callable[[Tuple, pd.DataFrame], np.array],
         n_jobs: int = 1,
-    ) -> Tuple[Tuple[np.array, ...], pd.DataFrameGroupBy, pd.pd.DataFrame]:
+    ) -> Tuple[Tuple[np.array, ...], DataFrameGroupBy, pd.DataFrame]:
         """Computes the specified function on each group defined by the grouping columns.
         It is an utility function used to perform fit and predict on each group.
         The df_res is the final dataframe that aggregate the results for each group.
