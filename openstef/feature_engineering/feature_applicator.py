@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 from abc import ABC, abstractmethod
@@ -34,7 +34,7 @@ class AbstractFeatureApplicator(ABC):
         """Initialize abstract feature applicator.
 
         Args:
-            horizons (list): list of horizons
+            horizons (list): list of horizons in hours
             feature_names (List[str]):  List of requested features
         """
         if type(horizons) is not list and not None:

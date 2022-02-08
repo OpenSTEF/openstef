@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 import logging
@@ -145,7 +145,6 @@ def train_model_pipeline_core(
         pj, modelspecs, input_data, horizons
     )
     modelspecs.feature_names = list(train_data.columns)
-    logging.info("Fitted a new model, not yet stored")
 
     # Check if new model is better than old model
     if old_model:
@@ -247,13 +246,7 @@ def train_pipeline_common(
         ].sort_index()
 
     # Split data
-    (
-        peaks,
-        peaks_val_train,
-        train_data,
-        validation_data,
-        test_data,
-    ) = split_data_train_validation_test(
+    (train_data, validation_data, test_data,) = split_data_train_validation_test(
         data_with_features,
         test_fraction=test_fraction,
         stratification_min_max=stratification_min_max,
@@ -288,10 +281,12 @@ def train_pipeline_common(
     eval_set = [(train_x, train_y), (validation_x, validation_y)]
 
     # Set relevant hyperparameters
+    # define protected hyperparams which are derived from prediction_job
+    protected_hyperparams = ["quantiles"]
     valid_hyper_parameters = {
         key: value
         for key, value in modelspecs.hyper_params.items()
-        if key in model.get_params().keys()
+        if key in model.get_params().keys() and key not in protected_hyperparams
     }
 
     model.set_params(**valid_hyper_parameters)

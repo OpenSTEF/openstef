@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 import unittest
@@ -15,8 +15,6 @@ expected_keys = [
     "is_eerste_paasdag",
     "is_tweede_paasdag",
     "is_koningsdag",
-    "is_bevrijdingsdag",
-    "is_bridgedaybevrijdingsdag",
     "is_hemelvaart",
     "is_bridgedayhemelvaart",
     "is_eerste_pinksterdag",
