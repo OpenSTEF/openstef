@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -369,7 +369,7 @@ def apply_fit_insol(data, add_to_df=True, hours_delta=None, polynomial=False):
         return coefs[0] * values + coefs[1]
 
     def second_order_poly(coefs, values):
-        return coefs[0] * values ** 2 + coefs[1] * values + coefs[2]
+        return coefs[0] * values**2 + coefs[1] * values + coefs[2]
 
     # Define function to be minimized and subsequently minimize this function
     if polynomial:

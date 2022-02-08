@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project
+# SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project
 #
 # SPDX-License-Identifier: MPL-2.0
 name: Docs Check
@@ -20,7 +20,7 @@ jobs:
     steps:
     # Checkout
     - name: Checkout code
-      uses: actions/checkout@v1
+      uses: actions/checkout@v2
     # Build documentation
     - name: Build documentation
       uses: ammaraskar/sphinx-action@master

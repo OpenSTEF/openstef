@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 from pathlib import Path
@@ -67,7 +67,7 @@ def create_forecast_pipeline_core(
 
     Args:
         pj (PredictionJobDataClass): Prediction job.
-        input_data (pandas.DataFrame): Iput data for the prediction.
+        input_data (pandas.DataFrame): Input data for the prediction.
         model (OpenstfRegressor): Model to use for this prediction.
 
     Returns:
@@ -83,7 +83,7 @@ def create_forecast_pipeline_core(
     # Add features
     data_with_features = OperationalPredictFeatureApplicator(
         # TODO use saved feature_names (should be saved while training the model)
-        horizons=[0.25],
+        horizons=[pj["resolution_minutes"] / 60.0],
         feature_names=model.feature_names,
     ).add_features(validated_data)
 

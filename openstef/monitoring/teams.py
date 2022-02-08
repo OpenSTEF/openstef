@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Contributors to the OpenSTF project <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 from pathlib import Path
@@ -96,8 +96,12 @@ def post_teams(msg, invalid_coefs=None, coefsdf=None, url=None):
     card.color(msg.get("color", "white"))
     card.title(msg.get("title"))
 
-    for link_dict in msg.get("links", []):
-        card.addLinkButton(link_dict["buttontext"], link_dict["buttonurl"])
+    link_dicts = msg.get("links", [])  # link_dicts can be single dict or list of dicts
+    if isinstance(link_dicts, dict):  # if single dict
+        card.addLinkButton(link_dicts["buttontext"], link_dicts["buttonurl"])
+    elif isinstance(link_dicts, list):  # if list of dicts
+        for link_dict in link_dicts:
+            card.addLinkButton(link_dict["buttontext"], link_dict["buttonurl"])
 
     # Add sections
     for section_dict in msg.get("sections", []):
