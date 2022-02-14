@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pandas as pd
 import structlog
+import numpy as np
 from openstef_dbc.services.prediction_job import PredictionJobDataClass
 
 from openstef.feature_engineering.feature_applicator import (
@@ -41,10 +42,10 @@ def create_basecase_forecast_pipeline(
     logger = structlog.get_logger(__name__)
 
     logger.info("Preprocessing data for basecase forecast")
-    # Validate and clean data - use a very long flatliner threshold.
-    # If a measurement was constant for a long period, a basecase should still be made.
+    # Validate data
+    # Currently effectively disabled by giving np.inf
     validated_data = validation.validate(
-        pj["id"], input_data, flatliner_threshold=4 * 24 * 14 + 1
+        pj["id"], input_data, flatliner_threshold=np.inf
     )
 
     # Add features
