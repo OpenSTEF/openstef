@@ -40,7 +40,7 @@ THRESHOLD_RETRAINING = 0.25
 THRESHOLD_OPTIMIZING = 0.50
 
 
-def main(model_type:MLModelType = None) -> None:
+def main(model_type: MLModelType = None) -> None:
     taskname = Path(__file__).name.replace(".py", "")
     if model_type is None:
         model_type = [ml.value for ml in MLModelType]
@@ -283,7 +283,7 @@ def calc_kpi_for_specific_pj(
     return kpis
 
 
-def set_incomplete_kpi_to_nan(kpis: dict, t_ahead_h: str)-> None:
+def set_incomplete_kpi_to_nan(kpis: dict, t_ahead_h: str) -> None:
     """
     Checks the given kpis for completeness and sets to nan if this not true
 

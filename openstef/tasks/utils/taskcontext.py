@@ -16,12 +16,14 @@ from openstef.tasks.utils.predictionjobloop import PredictionJobException
 class TaskContext:
     def __init__(
         self,
-        name,
-        suppress_exceptions=False,
-        post_teams_on_exception=True,
-        on_exception=None,
-        on_successful=None,
-        on_end=None,
+        name: str,
+        config,
+        database,
+        suppress_exceptions: bool = False,
+        post_teams_on_exception: bool = True,
+        on_exception: callable = None,
+        on_successful: callable = None,
+        on_end: callable = None,
     ):
         """A context manager that can be used to run tasks with.
 
@@ -50,13 +52,11 @@ class TaskContext:
         self.on_exception = on_exception
         self.on_successful = on_successful
         self.on_end = on_end
+        self.config = config
+        self.database = database
 
     def __enter__(self):
-        self.config = ConfigManager.get_instance()
-
         self.logger = structlog.get_logger(__name__).bind(task=self.name)
-
-        self.database = DataBase(self.config)
 
         self.perf_meter = PerformanceMeter(self.logger)
 
@@ -64,7 +64,7 @@ class TaskContext:
 
         return self
 
-    def __exit__(self, exc_type, exc_info, stack_info):
+    def __exit__(self, exc_type: type, exc_info: str, stack_info: str) -> bool:
         self.successful = exc_type is None
 
         if self.successful:
@@ -90,7 +90,9 @@ class TaskContext:
         # Returning true stops the propagation of the exception
         return self.suppress_exceptions
 
-    def _send_teams_message(self, exc_type, exc_info, stack_info):
+    def _send_teams_message(
+        self, exc_type: type, exc_info: str, stack_info: str
+    ) -> None:
         stack_text = "".join(traceback.format_exception(exc_type, exc_info, stack_info))
         # The teams webhook behaves weird. Using the correct order \r\n does NOT work
         # The 4 spaces forces teams to format a monospaced message for some reason
@@ -140,4 +142,4 @@ class TaskContext:
             }
         )
 
-        post_teams(msg)
+        post_teams(msg, url=self.config.teams.url)

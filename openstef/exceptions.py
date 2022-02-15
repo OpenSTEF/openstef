@@ -14,8 +14,6 @@ class NoPredictedLoadError(Exception):
     def __init__(
         self,
         pid: int,
-        start_time: datetime,
-        end_time: datetime,
         message: str = "No predicted load found",
     ) -> Exception:
         self.pid = pid
@@ -29,8 +27,6 @@ class NoRealisedLoadError(Exception):
     def __init__(
         self,
         pid: int,
-        start_time: datetime,
-        end_time: datetime,
         message: str = "No realised load found",
     ) -> Exception:
         self.pid = pid
