@@ -40,12 +40,18 @@ THRESHOLD_RETRAINING = 0.25
 THRESHOLD_OPTIMIZING = 0.50
 
 
-def main(model_type: MLModelType = None) -> None:
+def main(model_type: MLModelType = None, config=None, database=None) -> None:
     taskname = Path(__file__).name.replace(".py", "")
+
+    if database is None or config is None:
+        raise RuntimeError(
+            "Please specifiy a configmanager and/or database connection object. These can be found in the openstef-dbc package."
+        )
+
     if model_type is None:
         model_type = [ml.value for ml in MLModelType]
 
-    with TaskContext(taskname) as context:
+    with TaskContext(taskname, config, database) as context:
         # Set start and end time
         start_time = datetime.utcnow() - timedelta(days=1)
         end_time = datetime.utcnow()

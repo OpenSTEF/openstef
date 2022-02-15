@@ -88,10 +88,15 @@ def optimize_hyperparameters_task(
     teams.post_teams(teams.format_message(title=title, params=hyperparameters))
 
 
-def main():
+def main(config=None, database=None):
     taskname = Path(__file__).name.replace(".py", "")
 
-    with TaskContext(taskname) as context:
+    if database is None or config is None:
+        raise RuntimeError(
+            "Please specifiy a configmanager and/or database connection object. These can be found in the openstef-dbc package."
+        )
+
+    with TaskContext(taskname, config, database) as context:
         model_type = [ml.value for ml in MLModelType]
 
         PredictionJobLoop(context, model_type=model_type).map(

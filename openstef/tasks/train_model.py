@@ -86,12 +86,18 @@ def train_model_task(
     context.perf_meter.checkpoint("Model trained")
 
 
-def main(model_type=None):
+def main(model_type=None, config=None, database=None):
+
+    if database is None or config is None:
+        raise RuntimeError(
+            "Please specifiy a configmanager and/or database connection object. These can be found in the openstef-dbc package."
+        )
+
     if model_type is None:
         model_type = [ml.value for ml in MLModelType]
 
     taskname = Path(__file__).name.replace(".py", "")
-    with TaskContext(taskname) as context:
+    with TaskContext(taskname, config, database) as context:
         PredictionJobLoop(context, model_type=model_type).map(train_model_task, context)
 
 

@@ -23,16 +23,22 @@ PREDICTION_JOBS = TestData.get_prediction_jobs()
 NUM_PREDICTION_JOBS = len(PREDICTION_JOBS)
 
 
-@patch("openstef.tasks.utils.taskcontext.ConfigManager", MagicMock())
-@patch("openstef.tasks.utils.taskcontext.DataBase")
 class TestTaskContext(BaseTestCase):
-    def test_task_context_database(self, db_mock):
-        db_mock.return_value = 1234
+    def test_task_context_database(self):
+        dbmock = MagicMock()
+        config_mock = MagicMock()
 
-        with TaskContext("unit_test", post_teams_on_exception=False) as context:
-            self.assertEqual(context.database, 1234)
+        with TaskContext(
+            "unit_test",
+            config=config_mock,
+            database=dbmock,
+            post_teams_on_exception=False,
+        ) as context:
+            self.assertEqual(context.database, dbmock)
 
-    def test_task_context_callbacks(self, db_mock):
+    def test_task_context_callbacks(self):
+        dbmock = MagicMock()
+        config_mock = MagicMock()
         on_exception = Mock()
         on_successful = Mock()
         on_end = Mock()
@@ -40,6 +46,8 @@ class TestTaskContext(BaseTestCase):
         # Test with successful run
         with TaskContext(
             "unit_test_supposed_to_succeed",
+            dbmock,
+            config_mock,
             True,
             False,
             on_exception,
@@ -59,6 +67,8 @@ class TestTaskContext(BaseTestCase):
 
         with TaskContext(
             "unit_test_supposed_to_fail",
+            dbmock,
+            config_mock,
             True,
             False,
             on_exception,
@@ -71,18 +81,26 @@ class TestTaskContext(BaseTestCase):
         on_successful.assert_not_called()
         on_end.assert_called_with(False)
 
-    def test_task_context_with_prediction_loop(self, db_mock):
+    def test_task_context_with_prediction_loop(self):
+        dbmock = MagicMock()
+        config_mock = MagicMock()
         func_fail = Mock()
         func_fail.side_effect = ValueError("Forced error")
 
-        with TaskContext("unit_test_supposed_to_fail", True, False) as context:
+        with TaskContext(
+            "unit_test_supposed_to_fail", dbmock, config_mock, True, False
+        ) as context:
             PredictionJobLoop(context, prediction_jobs=PREDICTION_JOBS).map(func_fail)
 
     @patch("openstef.tasks.utils.taskcontext.post_teams")
-    def test_task_context_teams_message(self, postteamsmock, dbmock):
+    def test_task_context_teams_message(self, postteamsmock):
         """Test to check that:
         if multiple exceptions are raised,
         pids they are nicely grouped per exception type."""
+
+        dbmock = MagicMock()
+        config_mock = MagicMock()
+
         # Specify which types of exceptions are raised
         func_fail = Mock()
         # the int/pid is arbitrary, unused currently.
@@ -90,8 +108,8 @@ class TestTaskContext(BaseTestCase):
         end_time = datetime.utcnow() - timedelta(days=1)
         func_fail.side_effect = [
             None,
-            NoPredictedLoadError(60, start_time, end_time),
-            NoRealisedLoadError(307, start_time, end_time),
+            NoPredictedLoadError(60),
+            NoRealisedLoadError(307),
             None,
         ]
 
@@ -106,7 +124,9 @@ class TestTaskContext(BaseTestCase):
         ]
 
         with self.assertRaises(PredictionJobException):
-            with TaskContext("test_with_teams_message", False, True) as context:
+            with TaskContext(
+                "test_with_teams_message", dbmock, config_mock, False, True
+            ) as context:
                 PredictionJobLoop(
                     context, prediction_jobs=test_prediction_jobs, random_order=False
                 ).map(func_fail)

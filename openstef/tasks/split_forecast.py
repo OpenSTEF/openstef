@@ -43,10 +43,15 @@ from openstef.tasks.utils.taskcontext import TaskContext
 COEF_MAX_FRACTION_DIFF = 0.3
 
 
-def main():
+def main(config=None, database=None):
     taskname = Path(__file__).name.replace(".py", "")
 
-    with TaskContext(taskname) as context:
+    if database is None or config is None:
+        raise RuntimeError(
+            "Please specifiy a configmanager and/or database connection object. These can be found in the openstef-dbc package."
+        )
+
+    with TaskContext(taskname, config, database) as context:
         model_type = [ml.value for ml in MLModelType]
 
         PredictionJobLoop(
@@ -95,7 +100,7 @@ def split_forecast_task(
         monitoring.post_teams(
             f"New splitting coefficient(s) for pid **{pj['id']}** deviate strongly "
             f"from previously stored coefficients.",
-            url=context.config.teams.url,
+            url=context.config.teams.monitoring_url,
             invalid_coefs=invalid_coefs,
             coefsdf=coefsdf,
         )

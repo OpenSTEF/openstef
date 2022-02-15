@@ -109,10 +109,15 @@ def create_components_forecast_task(pj: PredictionJobDataClass, context: TaskCon
     logger.debug("Written forecast to database")
 
 
-def main():
+def main(config=None, database=None):
     taskname = Path(__file__).name.replace(".py", "")
 
-    with TaskContext(taskname) as context:
+    if database is None or config is None:
+        raise RuntimeError(
+            "Please specifiy a configmanager and/or database connection object. These can be found in the openstef-dbc package."
+        )
+
+    with TaskContext(taskname, config, database) as context:
 
         model_type = [ml.value for ml in MLModelType]
 
