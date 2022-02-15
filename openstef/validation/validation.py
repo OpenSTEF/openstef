@@ -27,8 +27,22 @@ def validate(
     data: pd.DataFrame,
     flatliner_threshold: int = FLATLINER_TRESHOLD,
 ) -> pd.DataFrame:
-    """Validate prediction job and timeseries data."""
+    """Validate prediction job and timeseries data.
+    Args:
+        - pj_id: ind/str, used to identify log statements
+        - data: pd.DataFrame where the first column should be the target. index=datetimeIndex
+        - flatliner_threshold: int of max repetitions considered a flatline.
+            if None, the validation is effectively skipped
+
+    Returns:
+        Cleaned Dataframe"""
+
     logger = structlog.get_logger(__name__)
+
+    if flatliner_threshold is None:
+        logger.info("Skipping validation of input data", pj_id=pj_id)
+        return data
+
     # Drop 'false' measurements. e.g. where load appears to be constant.
     data = replace_repeated_values_with_nan(
         data, max_length=flatliner_threshold, column_name=data.columns[0]
@@ -189,13 +203,14 @@ def calc_completeness(
     return completeness
 
 
-def find_nonzero_flatliner(df: pd.DataFrame, threshold: int) -> pd.DataFrame:
+def find_nonzero_flatliner(df: pd.DataFrame, threshold: int = None) -> pd.DataFrame:
     """Function that detects a stationflatliner and returns a list of datetimes.
 
     Args:
         df: pd.dataFrame(index=DatetimeIndex, columns = [load1, ..., loadN]).
             Load_corrections should be indicated by 'LC_'
         threshold: after how many timesteps should the function detect a flatliner.
+            If None, the check is not executed
 
     Returns:
     # TODO: function returns None or a DataFrame

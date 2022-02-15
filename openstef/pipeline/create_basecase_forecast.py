@@ -5,7 +5,6 @@ from pathlib import Path
 
 import pandas as pd
 import structlog
-import numpy as np
 from openstef_dbc.services.prediction_job import PredictionJobDataClass
 
 from openstef.feature_engineering.feature_applicator import (
@@ -43,10 +42,9 @@ def create_basecase_forecast_pipeline(
 
     logger.info("Preprocessing data for basecase forecast")
     # Validate data
-    # Currently effectively disabled by giving np.inf
-    validated_data = validation.validate(
-        pj["id"], input_data, flatliner_threshold=np.inf
-    )
+    # Currently effectively disabled by giving None.
+    # We keep this step so it later can be filled using arguments defined in PJ
+    validated_data = validation.validate(pj["id"], input_data, flatliner_threshold=None)
 
     # Add features
     data_with_features = OperationalPredictFeatureApplicator(
