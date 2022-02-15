@@ -10,7 +10,6 @@ import pandas as pd
 import structlog
 
 from openstef.preprocessing.preprocessing import (
-    replace_invalid_data,
     replace_repeated_values_with_nan,
 )
 
@@ -28,6 +27,11 @@ def validate(
     flatliner_threshold: int = FLATLINER_TRESHOLD,
 ) -> pd.DataFrame:
     """Validate prediction job and timeseries data.
+    Steps:
+    1. Replace repeated values for longer than flatliner_threshold with NaN
+    # TODO: The function description suggests it
+    'validates' the PJ and Data, but is appears to 'just' replace repeated observations with NaN.
+
     Args:
         - pj_id: ind/str, used to identify log statements
         - data: pd.DataFrame where the first column should be the target. index=datetimeIndex
@@ -35,7 +39,7 @@ def validate(
             if None, the validation is effectively skipped
 
     Returns:
-        Cleaned Dataframe"""
+        Dataframe where repeated values are set to None"""
 
     logger = structlog.get_logger(__name__)
 
@@ -57,24 +61,6 @@ def validate(
             pj_id=pj_id,
             num_values=num_repeated_values,
             frac_values=frac_const_load_values,
-        )
-
-    # Check for repeated load observations due to invalid measurements
-    nonzero_flatliners = find_nonzero_flatliner(data, threshold=flatliner_threshold)
-    if nonzero_flatliners is not None:
-        # Covert repeated load observations to NaN values
-        data = replace_invalid_data(data, nonzero_flatliners)
-        # Calculate number of NaN values
-        # TODO should this not be part of the replace_invalid_data function?
-        num_nan_values = sum([True for i, row in data.iterrows() if all(row.isnull())])
-        frac_nan_values = num_nan_values / len(data.index)
-
-        logger.info(
-            f"Found {num_nan_values} nonzero flatliner data points, converted to NaN value.",
-            cleansing_step="nonzero_flatliner_data_points",
-            pj_id=pj_id,
-            num_values=num_nan_values,
-            frac_values=frac_nan_values,
         )
 
     return data

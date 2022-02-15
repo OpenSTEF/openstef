@@ -96,4 +96,4 @@ class TestBaseCaseForecast(BaseTestCase):
         forecast_input.load = 0 * forecast_input.load
 
         base_case_forecast = create_basecase_forecast_pipeline(self.PJ, forecast_input)
-        self.assertEqual(len(base_case_forecast.dropna(), 673))
+        self.assertEqual(len(base_case_forecast.dropna()), 673)
