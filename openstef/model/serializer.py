@@ -267,7 +267,7 @@ class MLflowSerializer:
             model_age_days = (datetime.utcnow() - model_datetime).days
         except Exception as e:
             self.logger.warning(
-                "Could not get model age. Returning infinite age!", exception=e
+                "Could not get model age. Returning infinite age!", exception=str(e)
             )
             return np.inf  # Return fallback age
         return model_age_days
