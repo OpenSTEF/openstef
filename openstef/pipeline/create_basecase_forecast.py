@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pandas as pd
 import structlog
-from openstef_dbc.services.prediction_job import PredictionJobDataClass
+from openstef.data_classes.prediction_job import PredictionJobDataClass
 
 from openstef.feature_engineering.feature_applicator import (
     OperationalPredictFeatureApplicator,

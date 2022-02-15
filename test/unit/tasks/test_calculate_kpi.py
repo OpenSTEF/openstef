@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 
 from openstef.exceptions import NoPredictedLoadError, NoRealisedLoadError
-from openstef.tasks.calculate_kpi import calc_kpi_for_specific_pid
+from openstef.tasks.calculate_kpi import calc_kpi_for_specific_pj
 
 # Get test data
 predicted_load = TestData.load("calculate_kpi_predicted_load.csv")
@@ -81,7 +81,7 @@ class TestPerformanceCalcKpiForSpecificPid(BaseTestCase):
     # Test whether correct kpis are calculated for specific test data
     @patch("openstef.tasks.calculate_kpi.DataBase", get_database_mock)
     def test_calc_kpi_for_specific_pid(self):
-        kpis = calc_kpi_for_specific_pid(307)
+        kpis = calc_kpi_for_specific_pj(307)
         # use this to store new kpis
         # json.dump(kpis, open(filename, "w"), default=str)
         kpis_ref = TestData.load("calculate_kpi_kpi.json")
@@ -96,14 +96,14 @@ class TestPerformanceCalcKpiForSpecificPid(BaseTestCase):
     # Test whether none is returned in case of poor completeness for realised data
     @patch("openstef.tasks.calculate_kpi.DataBase", get_database_mock_realised_nan)
     def test_calc_kpi_for_specific_pid_poor_completeness_realized(self):
-        kpis = calc_kpi_for_specific_pid(307)
+        kpis = calc_kpi_for_specific_pj(307)
         t_ahead_keys = kpis.keys()
         self.assertIs(kpis[list(t_ahead_keys)[0]]["rMAE"], np.NaN)
 
     # Test whether none is returned in case of poor completeness for predicted data
     @patch("openstef.tasks.calculate_kpi.DataBase", get_database_mock_predicted_nan)
     def test_calc_kpi_for_specific_pid_poor_completeness_predicted(self):
-        kpis = calc_kpi_for_specific_pid(307)
+        kpis = calc_kpi_for_specific_pj(307)
 
         t_ahead_keys = kpis.keys()
         self.assertIs(kpis[list(t_ahead_keys)[0]]["rMAE"], np.NaN)
@@ -112,7 +112,7 @@ class TestPerformanceCalcKpiForSpecificPid(BaseTestCase):
     def test_calc_kpi_for_specific_pid_constant_load(self):
         """If load is constant, a warning should be raised, but kpi's should still be calculated"""
 
-        kpis = calc_kpi_for_specific_pid(307)
+        kpis = calc_kpi_for_specific_pj(307)
         self.assertIsNAN(kpis["4.0h"]["MAE"])  # arbitrary time horizon tested
         self.assertAlmostEqual(kpis["4.0h"]["MAE"], 2.9145, places=3)
 
@@ -122,7 +122,7 @@ class TestPerformanceCalcKpiForSpecificPid(BaseTestCase):
         empty load"""
 
         with self.assertRaises(NoRealisedLoadError):
-            calc_kpi_for_specific_pid(307)
+            calc_kpi_for_specific_pj(307)
 
     @patch("openstef.tasks.calculate_kpi.DataBase", get_database_mock_predicted_empty)
     def test_calc_kpi_no_prediction_exception(self):
@@ -130,7 +130,7 @@ class TestPerformanceCalcKpiForSpecificPid(BaseTestCase):
         empty prediction"""
 
         with self.assertRaises(NoPredictedLoadError):
-            calc_kpi_for_specific_pid(307)
+            calc_kpi_for_specific_pj(307)
 
 
 # Run all tests

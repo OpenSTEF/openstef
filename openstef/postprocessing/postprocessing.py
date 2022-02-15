@@ -7,7 +7,7 @@ from enum import Enum
 import numpy as np
 import pandas as pd
 import structlog
-from openstef_dbc.services.prediction_job import PredictionJobDataClass
+from openstef.data_classes.prediction_job import PredictionJobDataClass
 
 from openstef.enums import ForecastType
 from openstef.feature_engineering import weather_features

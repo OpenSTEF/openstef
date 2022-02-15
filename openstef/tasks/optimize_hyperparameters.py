@@ -19,7 +19,7 @@ Example:
 from datetime import datetime, timedelta
 from pathlib import Path
 
-from openstef_dbc.services.prediction_job import PredictionJobDataClass
+from openstef.data_classes.prediction_job import PredictionJobDataClass
 
 from openstef.enums import MLModelType
 from openstef.model.serializer import MLflowSerializer

@@ -7,7 +7,7 @@ from typing import List
 import numpy as np
 import pandas as pd
 import structlog
-from openstef_dbc.services.prediction_job import PredictionJobDataClass
+from openstef.data_classes.prediction_job import PredictionJobDataClass
 from scipy import stats
 from sklearn.base import RegressorMixin
 

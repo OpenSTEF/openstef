@@ -8,7 +8,7 @@
 from typing import List
 import pandas as pd
 import structlog
-from openstef_dbc.services.prediction_job import PredictionJobDataClass
+from openstef.data_classes.prediction_job import PredictionJobDataClass
 
 
 def add_historic_load_as_a_feature(
