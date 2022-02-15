@@ -104,8 +104,6 @@ class TestTaskContext(BaseTestCase):
         # Specify which types of exceptions are raised
         func_fail = Mock()
         # the int/pid is arbitrary, unused currently.
-        start_time = datetime.utcnow()
-        end_time = datetime.utcnow() - timedelta(days=1)
         func_fail.side_effect = [
             None,
             NoPredictedLoadError(60),
