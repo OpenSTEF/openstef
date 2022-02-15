@@ -35,3 +35,9 @@ class TestDataValidation(BaseTestCase):
         self.data_predict["load"][0:50] = 10.0
         validated_data = validation.validate(self.pj["id"], self.data_predict)
         self.assertEqual(len(validated_data[validated_data["load"].isna()]), 26)
+
+    def test_validate_none_threshold(self):
+        """return the input if flatliner_threshold is None"""
+        input = self.data_train
+        res = validation.validate(self.pj["id"], input, flatliner_threshold=None)
+        self.assertDataframeEqual(res, input)
