@@ -5,8 +5,6 @@
 import traceback
 
 import structlog
-from openstef_dbc.config.config import ConfigManager
-from openstef_dbc.database import DataBase
 
 from openstef.monitoring.performance_meter import PerformanceMeter
 from openstef.monitoring.teams import post_teams
