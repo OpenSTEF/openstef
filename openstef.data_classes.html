@@ -38,6 +38,7 @@
 <li><a class="reference internal" href="#">openstef.data_classes package</a><ul>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
 <li><a class="reference internal" href="#module-openstef.data_classes.model_specifications">openstef.data_classes.model_specifications module</a></li>
+<li><a class="reference internal" href="#module-openstef.data_classes.prediction_job">openstef.data_classes.prediction_job module</a></li>
 <li><a class="reference internal" href="#module-openstef.data_classes">Module contents</a></li>
 </ul>
 </li>
@@ -96,6 +97,70 @@
 </dd></dl>
 
 </div>
+<div class="section" id="module-openstef.data_classes.prediction_job">
+<span id="openstef-data-classes-prediction-job-module"></span><h2>openstef.data_classes.prediction_job module<a class="headerlink" href="#module-openstef.data_classes.prediction_job" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="openstef.data_classes.prediction_job.PredictionJobDataClass">
+<em class="property">class </em><code class="sig-prename descclassname">openstef.data_classes.prediction_job.</code><code class="sig-name descname">PredictionJobDataClass</code><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pydantic.main.BaseModel</span></code></p>
+<dl class="attribute">
+<dt id="openstef.data_classes.prediction_job.PredictionJobDataClass.description">
+<code class="sig-name descname">description</code><em class="property">: Optional[str]</em><em class="property"> = None</em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="openstef.data_classes.prediction_job.PredictionJobDataClass.forecast_type">
+<code class="sig-name descname">forecast_type</code><em class="property">: str</em><em class="property"> = None</em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.forecast_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="openstef.data_classes.prediction_job.PredictionJobDataClass.horizon_minutes">
+<code class="sig-name descname">horizon_minutes</code><em class="property">: int</em><em class="property"> = None</em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.horizon_minutes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="openstef.data_classes.prediction_job.PredictionJobDataClass.id">
+<code class="sig-name descname">id</code><em class="property">: Union[int, str]</em><em class="property"> = None</em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="openstef.data_classes.prediction_job.PredictionJobDataClass.lat">
+<code class="sig-name descname">lat</code><em class="property">: float</em><em class="property"> = None</em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.lat" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="openstef.data_classes.prediction_job.PredictionJobDataClass.lon">
+<code class="sig-name descname">lon</code><em class="property">: float</em><em class="property"> = None</em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.lon" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="openstef.data_classes.prediction_job.PredictionJobDataClass.model">
+<code class="sig-name descname">model</code><em class="property">: str</em><em class="property"> = None</em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.model" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="openstef.data_classes.prediction_job.PredictionJobDataClass.name">
+<code class="sig-name descname">name</code><em class="property">: str</em><em class="property"> = None</em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="openstef.data_classes.prediction_job.PredictionJobDataClass.quantiles">
+<code class="sig-name descname">quantiles</code><em class="property">: Optional[List[float]]</em><em class="property"> = None</em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.quantiles" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="openstef.data_classes.prediction_job.PredictionJobDataClass.resolution_minutes">
+<code class="sig-name descname">resolution_minutes</code><em class="property">: int</em><em class="property"> = None</em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.resolution_minutes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="openstef.data_classes.prediction_job.PredictionJobDataClass.train_components">
+<code class="sig-name descname">train_components</code><em class="property">: bool</em><em class="property"> = None</em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.train_components" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
 <div class="section" id="module-openstef.data_classes">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-openstef.data_classes" title="Permalink to this headline">¶</a></h2>
 </div>
@@ -109,7 +174,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2017-2021 Contributors to the OpenSTF project.</p>
+    <p>&#169; Copyright 2017-2022 Contributors to the OpenSTEF project.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

@@ -173,7 +173,7 @@ However a fit method is still included to be fully comatible with sklearn.</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="method">
 <dt id="openstef.model.confidence_interval_applicator.ConfidenceIntervalApplicator.add_confidence_interval">
-<code class="sig-name descname">add_confidence_interval</code><span class="sig-paren">(</span><em class="sig-param">forecast: pandas.core.frame.DataFrame</em>, <em class="sig-param">pj: openstef_dbc.services.prediction_job.PredictionJobDataClass</em>, <em class="sig-param">quantile_confidence_interval: bool = True</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstef.model.confidence_interval_applicator.ConfidenceIntervalApplicator.add_confidence_interval" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_confidence_interval</code><span class="sig-paren">(</span><em class="sig-param">forecast: pandas.core.frame.DataFrame</em>, <em class="sig-param">pj: openstef.data_classes.prediction_job.PredictionJobDataClass</em>, <em class="sig-param">quantile_confidence_interval: bool = True</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstef.model.confidence_interval_applicator.ConfidenceIntervalApplicator.add_confidence_interval" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a confidence interval to a forecast.</p>
 <dl>
 <dt>Adds a confidence interval to a forecast in two ways:</dt><dd><ol class="arabic">
@@ -213,7 +213,7 @@ regression or the default method.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>forecast</strong> (<em>pd.DataFrame</em>) – Forecast DataFrame with columns: “forecast”</p></li>
-<li><p><strong>pj</strong> (<em>PredictionJobDataClass</em>) – Prediction job</p></li>
+<li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><em>PredictionJobDataClass</em></a>) – Prediction job</p></li>
 <li><p><strong>quantile_confidence_interval</strong> (<em>bool</em>) – switch to false to skip quantile regression forecasting,
 mostly used for a basecase forecast</p></li>
 </ul>
@@ -584,7 +584,7 @@ ModelSpecificationDataClass: model specifications</p>
 
 <dl class="method">
 <dt id="openstef.model.serializer.MLflowSerializer.remove_old_models">
-<code class="sig-name descname">remove_old_models</code><span class="sig-paren">(</span><em class="sig-param">pj: openstef_dbc.services.prediction_job.PredictionJobDataClass</em>, <em class="sig-param">max_n_models: int = 10</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.serializer.MLflowSerializer.remove_old_models" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">remove_old_models</code><span class="sig-paren">(</span><em class="sig-param">pj: openstef.data_classes.prediction_job.PredictionJobDataClass</em>, <em class="sig-param">max_n_models: int = 10</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.serializer.MLflowSerializer.remove_old_models" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove old models for the experiment defined by PJ.
 A maximum of ‘max_n_models’ is allowed.
 Note that the current implementation only works if the Storage backend is used
@@ -594,7 +594,7 @@ See also: <a class="reference external" href="https://github.com/mlflow/mlflow/i
 
 <dl class="method">
 <dt id="openstef.model.serializer.MLflowSerializer.save_model">
-<code class="sig-name descname">save_model</code><span class="sig-paren">(</span><em class="sig-param">model: openstef.model.regressors.regressor.OpenstfRegressor</em>, <em class="sig-param">pj: openstef_dbc.services.prediction_job.PredictionJobDataClass</em>, <em class="sig-param">modelspecs: openstef.data_classes.model_specifications.ModelSpecificationDataClass</em>, <em class="sig-param">report: openstef.metrics.reporter.Report</em>, <em class="sig-param">phase: str = 'training'</em>, <em class="sig-param">save_report_to_disk: bool = True</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#openstef.model.serializer.MLflowSerializer.save_model" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">save_model</code><span class="sig-paren">(</span><em class="sig-param">model: openstef.model.regressors.regressor.OpenstfRegressor</em>, <em class="sig-param">pj: openstef.data_classes.prediction_job.PredictionJobDataClass</em>, <em class="sig-param">modelspecs: openstef.data_classes.model_specifications.ModelSpecificationDataClass</em>, <em class="sig-param">report: openstef.metrics.reporter.Report</em>, <em class="sig-param">phase: str = 'training'</em>, <em class="sig-param">save_report_to_disk: bool = True</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#openstef.model.serializer.MLflowSerializer.save_model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save sklearn compatible model to persistent storage with MLflow.</p>
 <blockquote>
 <div><p>Either a pid or a model_id should be given. If a pid is given the model_id
@@ -604,7 +604,7 @@ will be generated.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>model</strong> (<a class="reference internal" href="openstef.model.regressors.html#openstef.model.regressors.regressor.OpenstfRegressor" title="openstef.model.regressors.regressor.OpenstfRegressor"><em>OpenstfRegressor</em></a>) – Trained sklearn compatible model object.</p></li>
-<li><p><strong>pj</strong> (<em>PredictionJobDataClass</em>) – Prediction job.</p></li>
+<li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><em>PredictionJobDataClass</em></a>) – Prediction job.</p></li>
 <li><p><strong>modelspecs</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.model_specifications.ModelSpecificationDataClass" title="openstef.data_classes.model_specifications.ModelSpecificationDataClass"><em>ModelSpecificationDataClass</em></a>) – Dataclass containing model specifications</p></li>
 <li><p><strong>report</strong> (<a class="reference internal" href="openstef.metrics.html#openstef.metrics.reporter.Report" title="openstef.metrics.reporter.Report"><em>Report</em></a>) – Report object.</p></li>
 <li><p><strong>phase</strong> (<em>str</em>) – Where does the model come from, default is “training”</p></li>
@@ -645,7 +645,7 @@ will be generated.</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2017-2021 Contributors to the OpenSTF project.</p>
+    <p>&#169; Copyright 2017-2022 Contributors to the OpenSTEF project.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

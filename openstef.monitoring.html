@@ -162,12 +162,12 @@ True.</p></li>
 
 <dl class="function">
 <dt id="openstef.monitoring.teams.format_message">
-<code class="sig-prename descclassname">openstef.monitoring.teams.</code><code class="sig-name descname">format_message</code><span class="sig-paren">(</span><em class="sig-param">title</em>, <em class="sig-param">params</em>, <em class="sig-param">fallback=None</em>, <em class="sig-param">color=None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.monitoring.teams.format_message" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstef.monitoring.teams.</code><code class="sig-name descname">format_message</code><span class="sig-paren">(</span><em class="sig-param">title: str</em>, <em class="sig-param">params: dict</em>, <em class="sig-param">fallback=None</em>, <em class="sig-param">color=None</em><span class="sig-paren">)</span> &#x2192; dict<a class="headerlink" href="#openstef.monitoring.teams.format_message" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="openstef.monitoring.teams.post_teams">
-<code class="sig-prename descclassname">openstef.monitoring.teams.</code><code class="sig-name descname">post_teams</code><span class="sig-paren">(</span><em class="sig-param">msg</em>, <em class="sig-param">invalid_coefs=None</em>, <em class="sig-param">coefsdf=None</em>, <em class="sig-param">url=None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.monitoring.teams.post_teams" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstef.monitoring.teams.</code><code class="sig-name descname">post_teams</code><span class="sig-paren">(</span><em class="sig-param">msg: str</em>, <em class="sig-param">invalid_coefs: pandas.core.frame.DataFrame = None</em>, <em class="sig-param">coefsdf: pandas.core.frame.DataFrame = None</em>, <em class="sig-param">url: str = None</em>, <em class="sig-param">proxies: dict = None</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#openstef.monitoring.teams.post_teams" title="Permalink to this definition">¶</a></dt>
 <dd><p>Post a message to Teams - KTP</p>
 <p>Note that currently no authentication occurs.
 Security is given by keeping the URL secret.
@@ -194,97 +194,6 @@ coefficients. Defaults to None.</p></li>
 </div>
 </dd></dl>
 
-<dl class="function">
-<dt id="openstef.monitoring.teams.post_teams_alert">
-<code class="sig-prename descclassname">openstef.monitoring.teams.</code><code class="sig-name descname">post_teams_alert</code><span class="sig-paren">(</span><em class="sig-param">msg</em>, <em class="sig-param">url=None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.monitoring.teams.post_teams_alert" title="Permalink to this definition">¶</a></dt>
-<dd><p>Same as post_teams, but posts to alert channel.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>msg</strong> (<em>mixed</em>) – For simple messages a string can be passed. For more
-complex messages pass a dict. The following keys are supported:
-text, links, sections. Each section is a dict and can contain the
-following keys: text, title, images, facts, markdown. Also see:
-<a class="reference external" href="https://docs.microsoft.com/en-us/outlook/actionable-messages/send-via-connectors">https://docs.microsoft.com/en-us/outlook/actionable-messages/send-via-connectors</a></p>
-</dd>
-</dl>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This function is namespace-specific.</p>
-</div>
-</dd></dl>
-
-<dl class="function">
-<dt id="openstef.monitoring.teams.send_report_teams_better">
-<code class="sig-prename descclassname">openstef.monitoring.teams.</code><code class="sig-name descname">send_report_teams_better</code><span class="sig-paren">(</span><em class="sig-param">pj: openstef_dbc.services.prediction_job.PredictionJobDataClass</em>, <em class="sig-param">feature_importance</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.monitoring.teams.send_report_teams_better" title="Permalink to this definition">¶</a></dt>
-<dd><p>Send a report to teams for monitoring input for an improved model.</p>
-<p>Post includes information (performance, figures, etc.) about the trained
-model. Use when the new trained model is better than the old model.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>pj</strong> (<em>PredictionJobDataClass</em>) – <p>A dictionarry specifying the prediction job. This dict should
-at least contain the following keys: {</p>
-<blockquote>
-<div><p>’id’: (int),
-‘sid’: (str),
-‘name’: (str),
-‘horizon_minutes’: (int),
-‘resolution_minutes’: (int),
-‘lat’: (float),
-‘lon’: (float),
-‘description’: (str)</p>
-</div></blockquote>
-<p>}.
-Usually this dictionary results from querrying the ‘predictions’
-table in the SQL database.</p>
-</p></li>
-<li><p><strong>feature_importance</strong> (<em>pandas.DataFrame</em>) – A DataFrame describing the
-feature importances and weights of the trained model.</p></li>
-</ul>
-</dd>
-</dl>
-<p>model: XGBoost model object of the newly trained model</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>None</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="openstef.monitoring.teams.send_report_teams_worse">
-<code class="sig-prename descclassname">openstef.monitoring.teams.</code><code class="sig-name descname">send_report_teams_worse</code><span class="sig-paren">(</span><em class="sig-param">pj: openstef_dbc.services.prediction_job.PredictionJobDataClass</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.monitoring.teams.send_report_teams_worse" title="Permalink to this definition">¶</a></dt>
-<dd><p>Send a report to teams for monitoring input for a worsened model.</p>
-<p>Post includes information (performance, figures, etc.) about the trained
-model. Use when the new trained model is worse than the old model.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>pj</strong> (<em>PredictionJobDataClass</em>) – <p>A dictionarry specifying the prediction job. This dict should
-at least contain the following keys: {</p>
-<blockquote>
-<div><p>’id’: (int),
-‘sid’: (str),
-‘name’: (str),
-‘horizon_minutes’: (int),
-‘resolution_minutes’: (int),
-‘lat’: (float),
-‘lon’: (float),
-‘description’: (str)</p>
-</div></blockquote>
-<p>}.
-Usually this dictionary results from querrying the ‘predictions’
-table in the SQL database.</p>
-</p>
-</dd>
-</dl>
-<p>model: XGBoost model object of the newly trained model</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>None</p>
-</dd>
-</dl>
-</dd></dl>
-
 </div>
 <div class="section" id="module-openstef.monitoring">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-openstef.monitoring" title="Permalink to this headline">¶</a></h2>
@@ -299,7 +208,7 @@ table in the SQL database.</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2017-2021 Contributors to the OpenSTF project.</p>
+    <p>&#169; Copyright 2017-2022 Contributors to the OpenSTEF project.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

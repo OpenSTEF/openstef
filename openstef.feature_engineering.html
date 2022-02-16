@@ -91,7 +91,7 @@ The normalised wind power according to the turbine-specific power curve</p>
 </div></blockquote>
 <dl class="function">
 <dt id="openstef.feature_engineering.apply_features.apply_features">
-<code class="sig-prename descclassname">openstef.feature_engineering.apply_features.</code><code class="sig-name descname">apply_features</code><span class="sig-paren">(</span><em class="sig-param">data: pandas.core.frame.DataFrame</em>, <em class="sig-param">pj: openstef_dbc.services.prediction_job.PredictionJobDataClass = None</em>, <em class="sig-param">feature_names: List[str] = None</em>, <em class="sig-param">horizon: float = 24.0</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstef.feature_engineering.apply_features.apply_features" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstef.feature_engineering.apply_features.</code><code class="sig-name descname">apply_features</code><span class="sig-paren">(</span><em class="sig-param">data: pandas.core.frame.DataFrame</em>, <em class="sig-param">pj: openstef.data_classes.prediction_job.PredictionJobDataClass = None</em>, <em class="sig-param">feature_names: List[str] = None</em>, <em class="sig-param">horizon: float = 24.0</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstef.feature_engineering.apply_features.apply_features" title="Permalink to this definition">¶</a></dt>
 <dd><dl>
 <dt>This script applies the feature functions defined in</dt><dd><p>feature_functions.py and returns the complete dataframe. Features requiring
 more recent label-data are omitted.</p>
@@ -111,7 +111,7 @@ columns=[label, predictor_1,…, predictor_n]</p>
 </div></blockquote>
 <p>)</p>
 </p></li>
-<li><p><strong>pj</strong> (<em>PredictionJobDataClass</em>) – Prediction job.</p></li>
+<li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><em>PredictionJobDataClass</em></a>) – Prediction job.</p></li>
 <li><p><strong>feature_names</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – list of reuqested features</p></li>
 <li><p><strong>horizon</strong> (<em>float</em>) – Forecast horizon limit in hours.</p></li>
 </ul>
@@ -146,13 +146,13 @@ np.random.uniform(0.7,1.7, 200)))</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
 <dl class="method">
 <dt id="openstef.feature_engineering.feature_applicator.AbstractFeatureApplicator.add_features">
-<em class="property">abstract </em><code class="sig-name descname">add_features</code><span class="sig-paren">(</span><em class="sig-param">df: pandas.core.frame.DataFrame</em>, <em class="sig-param">pj: openstef_dbc.services.prediction_job.PredictionJobDataClass</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstef.feature_engineering.feature_applicator.AbstractFeatureApplicator.add_features" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract </em><code class="sig-name descname">add_features</code><span class="sig-paren">(</span><em class="sig-param">df: pandas.core.frame.DataFrame</em>, <em class="sig-param">pj: openstef.data_classes.prediction_job.PredictionJobDataClass</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstef.feature_engineering.feature_applicator.AbstractFeatureApplicator.add_features" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds features to an input DataFrame</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>df</strong> – pd.DataFrame with input data to which the features have to be added</p></li>
-<li><p><strong>pj</strong> (<em>PredictionJobDataClass</em>) – Prediction job.</p></li>
+<li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><em>PredictionJobDataClass</em></a>) – Prediction job.</p></li>
 </ul>
 </dd>
 </dl>
@@ -193,7 +193,7 @@ np.random.uniform(0.7,1.7, 200)))</p>
 <dd><p>Bases: <a class="reference internal" href="#openstef.feature_engineering.feature_applicator.AbstractFeatureApplicator" title="openstef.feature_engineering.feature_applicator.AbstractFeatureApplicator"><code class="xref py py-class docutils literal notranslate"><span class="pre">openstef.feature_engineering.feature_applicator.AbstractFeatureApplicator</span></code></a></p>
 <dl class="method">
 <dt id="openstef.feature_engineering.feature_applicator.TrainFeatureApplicator.add_features">
-<code class="sig-name descname">add_features</code><span class="sig-paren">(</span><em class="sig-param">df: pandas.core.frame.DataFrame</em>, <em class="sig-param">pj: openstef_dbc.services.prediction_job.PredictionJobDataClass = None</em>, <em class="sig-param">latency_config=None</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstef.feature_engineering.feature_applicator.TrainFeatureApplicator.add_features" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_features</code><span class="sig-paren">(</span><em class="sig-param">df: pandas.core.frame.DataFrame</em>, <em class="sig-param">pj: openstef.data_classes.prediction_job.PredictionJobDataClass = None</em>, <em class="sig-param">latency_config=None</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstef.feature_engineering.feature_applicator.TrainFeatureApplicator.add_features" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds features to an input DataFrame.</p>
 <p>This method is implemented specifically for a model train pipeline. For larger
 horzions data is invalidated as when they are not available.</p>
@@ -207,7 +207,7 @@ horzions data is invalidated as when they are not available.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>df</strong> (<em>pd.DataFrame</em>) – Input data to which the features will be added.</p></li>
-<li><p><strong>pj</strong> (<em>PredictionJobDataClass</em>) – Prediction job.</p></li>
+<li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><em>PredictionJobDataClass</em></a>) – Prediction job.</p></li>
 <li><p><strong>latency_config</strong> (<em>dict</em>) – Optional. Invalidate certain features that are not
 available for a specific horizon due to data latency. Default to
 {“APX”: 24}</p></li>
@@ -306,13 +306,13 @@ Furthermore the “horizon” is moved to the last position if it is pressent.</
 <p>This module contains historic load related functions used for feature engineering.</p>
 <dl class="function">
 <dt id="openstef.feature_engineering.historic_features.add_historic_load_as_a_feature">
-<code class="sig-prename descclassname">openstef.feature_engineering.historic_features.</code><code class="sig-name descname">add_historic_load_as_a_feature</code><span class="sig-paren">(</span><em class="sig-param">data: pandas.core.frame.DataFrame</em>, <em class="sig-param">pj: openstef_dbc.services.prediction_job.PredictionJobDataClass = None</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstef.feature_engineering.historic_features.add_historic_load_as_a_feature" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstef.feature_engineering.historic_features.</code><code class="sig-name descname">add_historic_load_as_a_feature</code><span class="sig-paren">(</span><em class="sig-param">data: pandas.core.frame.DataFrame</em>, <em class="sig-param">pj: openstef.data_classes.prediction_job.PredictionJobDataClass = None</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstef.feature_engineering.historic_features.add_historic_load_as_a_feature" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds additional proloaf features to the input data, historic_load (equal to the load)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>data</strong> (<em>pd.DataFrame</em>) – Dataframe to which the wind features have to be added</p></li>
-<li><p><strong>pj</strong> (<em>PredictionJobDataClass</em>) – Prediction job.</p></li>
+<li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><em>PredictionJobDataClass</em></a>) – Prediction job.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -681,7 +681,7 @@ if the input is numeric: a dict with the calculated moisture indices</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2017-2021 Contributors to the OpenSTF project.</p>
+    <p>&#169; Copyright 2017-2022 Contributors to the OpenSTEF project.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

@@ -117,8 +117,8 @@ Alternatively this code can be run directly by running:</p>
 </div>
 <p>Attributes:</p>
 <dl class="function">
-<dt id="openstef.tasks.calculate_kpi.calc_kpi_for_specific_pid">
-<code class="sig-prename descclassname">openstef.tasks.calculate_kpi.</code><code class="sig-name descname">calc_kpi_for_specific_pid</code><span class="sig-paren">(</span><em class="sig-param">pid</em>, <em class="sig-param">start_time=None</em>, <em class="sig-param">end_time=None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.calculate_kpi.calc_kpi_for_specific_pid" title="Permalink to this definition">¶</a></dt>
+<dt id="openstef.tasks.calculate_kpi.calc_kpi_for_specific_pj">
+<code class="sig-prename descclassname">openstef.tasks.calculate_kpi.</code><code class="sig-name descname">calc_kpi_for_specific_pj</code><span class="sig-paren">(</span><em class="sig-param">pj: openstef.data_classes.prediction_job.PredictionJobDataClass</em>, <em class="sig-param">realised: pandas.core.frame.DataFrame</em>, <em class="sig-param">predicted_load: pandas.core.frame.DataFrame</em>, <em class="sig-param">basecase: pandas.core.frame.DataFrame</em><span class="sig-paren">)</span> &#x2192; dict<a class="headerlink" href="#openstef.tasks.calculate_kpi.calc_kpi_for_specific_pj" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function that checks the model performance based on a pid. This function
 - loads and combines forecast and realised data
 - calculated several key performance indicators (KPIs)
@@ -134,7 +134,7 @@ These metric include:</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>pid</strong> (<em>int</em>) – Prediction ID for a given prediction job</p></li>
+<li><p><strong>pj</strong> (<em>PredictionJobDataclass</em>) – Prediction ID for a given prediction job</p></li>
 <li><p><strong>start_time</strong> (<em>datetime</em>) – Start time from when to retrieve the historic load prediction.</p></li>
 <li><p><strong>end_time</strong> (<em>datetime</em>) – Start time till when to retrieve the historic load prediction.</p></li>
 </ul>
@@ -155,18 +155,18 @@ Dict includes enddate en window (in days) for clarification</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="openstef.tasks.calculate_kpi.check_kpi_pj">
-<code class="sig-prename descclassname">openstef.tasks.calculate_kpi.</code><code class="sig-name descname">check_kpi_pj</code><span class="sig-paren">(</span><em class="sig-param">pj</em>, <em class="sig-param">context</em>, <em class="sig-param">start_time</em>, <em class="sig-param">end_time</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.calculate_kpi.check_kpi_pj" title="Permalink to this definition">¶</a></dt>
+<dt id="openstef.tasks.calculate_kpi.check_kpi_task">
+<code class="sig-prename descclassname">openstef.tasks.calculate_kpi.</code><code class="sig-name descname">check_kpi_task</code><span class="sig-paren">(</span><em class="sig-param">pj: openstef.data_classes.prediction_job.PredictionJobDataClass</em>, <em class="sig-param">context: openstef.tasks.utils.taskcontext.TaskContext</em>, <em class="sig-param">start_time: datetime.datetime</em>, <em class="sig-param">end_time: datetime.datetime</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#openstef.tasks.calculate_kpi.check_kpi_task" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="openstef.tasks.calculate_kpi.main">
-<code class="sig-prename descclassname">openstef.tasks.calculate_kpi.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><em class="sig-param">model_type=None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.calculate_kpi.main" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstef.tasks.calculate_kpi.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><em class="sig-param">model_type: openstef.enums.MLModelType = None</em>, <em class="sig-param">config=None</em>, <em class="sig-param">database=None</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#openstef.tasks.calculate_kpi.main" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="openstef.tasks.calculate_kpi.set_incomplete_kpi_to_nan">
-<code class="sig-prename descclassname">openstef.tasks.calculate_kpi.</code><code class="sig-name descname">set_incomplete_kpi_to_nan</code><span class="sig-paren">(</span><em class="sig-param">kpis</em>, <em class="sig-param">t_ahead_h</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.calculate_kpi.set_incomplete_kpi_to_nan" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstef.tasks.calculate_kpi.</code><code class="sig-name descname">set_incomplete_kpi_to_nan</code><span class="sig-paren">(</span><em class="sig-param">kpis: dict</em>, <em class="sig-param">t_ahead_h: str</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#openstef.tasks.calculate_kpi.set_incomplete_kpi_to_nan" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks the given kpis for completeness and sets to nan if this not true</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -201,13 +201,13 @@ CRON job can be found in the /k8s/CronJobs folder.</p>
 </div></blockquote>
 <dl class="function">
 <dt id="openstef.tasks.create_basecase_forecast.create_basecase_forecast_task">
-<code class="sig-prename descclassname">openstef.tasks.create_basecase_forecast.</code><code class="sig-name descname">create_basecase_forecast_task</code><span class="sig-paren">(</span><em class="sig-param">pj: openstef_dbc.services.prediction_job.PredictionJobDataClass</em>, <em class="sig-param">context: openstef.tasks.utils.taskcontext.TaskContext</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#openstef.tasks.create_basecase_forecast.create_basecase_forecast_task" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstef.tasks.create_basecase_forecast.</code><code class="sig-name descname">create_basecase_forecast_task</code><span class="sig-paren">(</span><em class="sig-param">pj: openstef.data_classes.prediction_job.PredictionJobDataClass</em>, <em class="sig-param">context: openstef.tasks.utils.taskcontext.TaskContext</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#openstef.tasks.create_basecase_forecast.create_basecase_forecast_task" title="Permalink to this definition">¶</a></dt>
 <dd><p>Top level task that creates a basecase forecast.
 On this task level all database and context manager dependencies are resolved.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>pj</strong> (<em>PredictionJobDataClass</em>) – Prediction job</p></li>
+<li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><em>PredictionJobDataClass</em></a>) – Prediction job</p></li>
 <li><p><strong>context</strong> (<a class="reference internal" href="openstef.tasks.utils.html#openstef.tasks.utils.taskcontext.TaskContext" title="openstef.tasks.utils.taskcontext.TaskContext"><em>TaskContext</em></a>) – Contect object that holds a config manager and a database connection</p></li>
 </ul>
 </dd>
@@ -216,7 +216,7 @@ On this task level all database and context manager dependencies are resolved.</
 
 <dl class="function">
 <dt id="openstef.tasks.create_basecase_forecast.main">
-<code class="sig-prename descclassname">openstef.tasks.create_basecase_forecast.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.create_basecase_forecast.main" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstef.tasks.create_basecase_forecast.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><em class="sig-param">config=None</em>, <em class="sig-param">database=None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.create_basecase_forecast.main" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
@@ -248,13 +248,13 @@ Alternatively this code can be run directly by running:</p>
 <p>Attributes:</p>
 <dl class="function">
 <dt id="openstef.tasks.create_components_forecast.create_components_forecast_task">
-<code class="sig-prename descclassname">openstef.tasks.create_components_forecast.</code><code class="sig-name descname">create_components_forecast_task</code><span class="sig-paren">(</span><em class="sig-param">pj: openstef_dbc.services.prediction_job.PredictionJobDataClass</em>, <em class="sig-param">context: openstef.tasks.utils.taskcontext.TaskContext</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.create_components_forecast.create_components_forecast_task" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstef.tasks.create_components_forecast.</code><code class="sig-name descname">create_components_forecast_task</code><span class="sig-paren">(</span><em class="sig-param">pj: openstef.data_classes.prediction_job.PredictionJobDataClass</em>, <em class="sig-param">context: openstef.tasks.utils.taskcontext.TaskContext</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.create_components_forecast.create_components_forecast_task" title="Permalink to this definition">¶</a></dt>
 <dd><p>Top level task that creates a components forecast.
 On this task level all database and context manager dependencies are resolved.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>pj</strong> (<em>PredictionJobDataClass</em>) – Prediction job</p></li>
+<li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><em>PredictionJobDataClass</em></a>) – Prediction job</p></li>
 <li><p><strong>context</strong> (<a class="reference internal" href="openstef.tasks.utils.html#openstef.tasks.utils.taskcontext.TaskContext" title="openstef.tasks.utils.taskcontext.TaskContext"><em>TaskContext</em></a>) – Contect object that holds a config manager and a database connection</p></li>
 </ul>
 </dd>
@@ -263,7 +263,7 @@ On this task level all database and context manager dependencies are resolved.</
 
 <dl class="function">
 <dt id="openstef.tasks.create_components_forecast.main">
-<code class="sig-prename descclassname">openstef.tasks.create_components_forecast.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.create_components_forecast.main" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstef.tasks.create_components_forecast.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><em class="sig-param">config=None</em>, <em class="sig-param">database=None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.create_components_forecast.main" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
@@ -294,7 +294,7 @@ Alternatively this code can be run directly by running:</p>
 <p>Attributes:</p>
 <dl class="function">
 <dt id="openstef.tasks.create_forecast.create_forecast_task">
-<code class="sig-prename descclassname">openstef.tasks.create_forecast.</code><code class="sig-name descname">create_forecast_task</code><span class="sig-paren">(</span><em class="sig-param">pj: openstef_dbc.services.prediction_job.PredictionJobDataClass</em>, <em class="sig-param">context: openstef.tasks.utils.taskcontext.TaskContext</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#openstef.tasks.create_forecast.create_forecast_task" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstef.tasks.create_forecast.</code><code class="sig-name descname">create_forecast_task</code><span class="sig-paren">(</span><em class="sig-param">pj: openstef.data_classes.prediction_job.PredictionJobDataClass</em>, <em class="sig-param">context: openstef.tasks.utils.taskcontext.TaskContext</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#openstef.tasks.create_forecast.create_forecast_task" title="Permalink to this definition">¶</a></dt>
 <dd><p>Top level task that creates a forecast.</p>
 <p>On this task level all database and context manager dependencies are resolved.</p>
 <dl class="simple">
@@ -304,7 +304,7 @@ Alternatively this code can be run directly by running:</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>pj</strong> (<em>PredictionJobDataClass</em>) – Prediction job</p></li>
+<li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><em>PredictionJobDataClass</em></a>) – Prediction job</p></li>
 <li><p><strong>context</strong> (<a class="reference internal" href="openstef.tasks.utils.html#openstef.tasks.utils.taskcontext.TaskContext" title="openstef.tasks.utils.taskcontext.TaskContext"><em>TaskContext</em></a>) – Contect object that holds a config manager and a database connection</p></li>
 </ul>
 </dd>
@@ -313,7 +313,7 @@ Alternatively this code can be run directly by running:</p>
 
 <dl class="function">
 <dt id="openstef.tasks.create_forecast.main">
-<code class="sig-prename descclassname">openstef.tasks.create_forecast.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><em class="sig-param">model_type=None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.create_forecast.main" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstef.tasks.create_forecast.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><em class="sig-param">model_type=None</em>, <em class="sig-param">config=None</em>, <em class="sig-param">database=None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.create_forecast.main" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
@@ -468,7 +468,7 @@ data.loc[int(len(index)/3*2):,”load”] = np.NaN</p>
 
 <dl class="function">
 <dt id="openstef.tasks.create_solar_forecast.main">
-<code class="sig-prename descclassname">openstef.tasks.create_solar_forecast.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.create_solar_forecast.main" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstef.tasks.create_solar_forecast.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><em class="sig-param">config=None</em>, <em class="sig-param">database=None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.create_solar_forecast.main" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
@@ -500,7 +500,7 @@ Alternatively this code can be run directly by running:</p>
 <p>Attributes:</p>
 <dl class="function">
 <dt id="openstef.tasks.create_wind_forecast.main">
-<code class="sig-prename descclassname">openstef.tasks.create_wind_forecast.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.create_wind_forecast.main" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstef.tasks.create_wind_forecast.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><em class="sig-param">config=None</em>, <em class="sig-param">database=None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.create_wind_forecast.main" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
@@ -529,19 +529,19 @@ Alternatively this code can be run directly by running:</p>
 </div>
 <dl class="function">
 <dt id="openstef.tasks.optimize_hyperparameters.main">
-<code class="sig-prename descclassname">openstef.tasks.optimize_hyperparameters.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.optimize_hyperparameters.main" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstef.tasks.optimize_hyperparameters.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><em class="sig-param">config=None</em>, <em class="sig-param">database=None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.optimize_hyperparameters.main" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="openstef.tasks.optimize_hyperparameters.optimize_hyperparameters_task">
-<code class="sig-prename descclassname">openstef.tasks.optimize_hyperparameters.</code><code class="sig-name descname">optimize_hyperparameters_task</code><span class="sig-paren">(</span><em class="sig-param">pj: openstef_dbc.services.prediction_job.PredictionJobDataClass</em>, <em class="sig-param">context: openstef.tasks.utils.taskcontext.TaskContext</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#openstef.tasks.optimize_hyperparameters.optimize_hyperparameters_task" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstef.tasks.optimize_hyperparameters.</code><code class="sig-name descname">optimize_hyperparameters_task</code><span class="sig-paren">(</span><em class="sig-param">pj: openstef.data_classes.prediction_job.PredictionJobDataClass</em>, <em class="sig-param">context: openstef.tasks.utils.taskcontext.TaskContext</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#openstef.tasks.optimize_hyperparameters.optimize_hyperparameters_task" title="Permalink to this definition">¶</a></dt>
 <dd><p>Optimize hyperparameters task.</p>
 <p>Expected prediction job keys: “id”, “model”, “lat”, “lon”, “name”, “description”
 Only used for logging: “name”, “description”</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>pj</strong> (<em>PredictionJobDataClass</em>) – Prediction job</p></li>
+<li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><em>PredictionJobDataClass</em></a>) – Prediction job</p></li>
 <li><p><strong>context</strong> (<a class="reference internal" href="openstef.tasks.utils.html#openstef.tasks.utils.taskcontext.TaskContext" title="openstef.tasks.utils.taskcontext.TaskContext"><em>TaskContext</em></a>) – Task context</p></li>
 </ul>
 </dd>
@@ -588,7 +588,7 @@ available_functions.</p>
 <p>Attributes:</p>
 <dl class="function">
 <dt id="openstef.tasks.run_tracy.main">
-<code class="sig-prename descclassname">openstef.tasks.run_tracy.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.run_tracy.main" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstef.tasks.run_tracy.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><em class="sig-param">config=None</em>, <em class="sig-param">database=None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.run_tracy.main" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
@@ -635,7 +635,7 @@ storage.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>pj</strong> (<em>PredictionJobDataClass</em>) – prediction job</p></li>
+<li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><em>PredictionJobDataClass</em></a>) – prediction job</p></li>
 <li><p><strong>input_split_function</strong> (<em>pd.DataFrame</em>) – df of columns of standard load profiles,
 i.e. wind, solar, household</p></li>
 <li><p><strong>coefdict</strong> (<em>dict</em>) – dict of coefficient per standard load profile</p></li>
@@ -696,12 +696,12 @@ in exactly this order: [load, wind_ref, pv_ref, mulitple tdcv colums]</p></li>
 
 <dl class="function">
 <dt id="openstef.tasks.split_forecast.main">
-<code class="sig-prename descclassname">openstef.tasks.split_forecast.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.split_forecast.main" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstef.tasks.split_forecast.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><em class="sig-param">config=None</em>, <em class="sig-param">database=None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.split_forecast.main" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
-<dt id="openstef.tasks.split_forecast.split_forecast">
-<code class="sig-prename descclassname">openstef.tasks.split_forecast.</code><code class="sig-name descname">split_forecast</code><span class="sig-paren">(</span><em class="sig-param">pid</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.split_forecast.split_forecast" title="Permalink to this definition">¶</a></dt>
+<dt id="openstef.tasks.split_forecast.split_forecast_task">
+<code class="sig-prename descclassname">openstef.tasks.split_forecast.</code><code class="sig-name descname">split_forecast_task</code><span class="sig-paren">(</span><em class="sig-param">pj: openstef.data_classes.prediction_job.PredictionJobDataClass</em>, <em class="sig-param">context: openstef.tasks.utils.taskcontext.TaskContext</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.split_forecast.split_forecast_task" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function that caries out the energy splitting for a specific prediction job with
 id pid.</p>
 <dl class="field-list simple">
@@ -742,12 +742,12 @@ Alternatively this code can be run directly by running:</p>
 </div>
 <dl class="function">
 <dt id="openstef.tasks.train_model.main">
-<code class="sig-prename descclassname">openstef.tasks.train_model.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><em class="sig-param">model_type=None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.train_model.main" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstef.tasks.train_model.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><em class="sig-param">model_type=None</em>, <em class="sig-param">config=None</em>, <em class="sig-param">database=None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.train_model.main" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="openstef.tasks.train_model.train_model_task">
-<code class="sig-prename descclassname">openstef.tasks.train_model.</code><code class="sig-name descname">train_model_task</code><span class="sig-paren">(</span><em class="sig-param">pj: openstef_dbc.services.prediction_job.PredictionJobDataClass</em>, <em class="sig-param">context: openstef.tasks.utils.taskcontext.TaskContext</em>, <em class="sig-param">check_old_model_age: bool = True</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#openstef.tasks.train_model.train_model_task" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstef.tasks.train_model.</code><code class="sig-name descname">train_model_task</code><span class="sig-paren">(</span><em class="sig-param">pj: openstef.data_classes.prediction_job.PredictionJobDataClass</em>, <em class="sig-param">context: openstef.tasks.utils.taskcontext.TaskContext</em>, <em class="sig-param">check_old_model_age: bool = True</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#openstef.tasks.train_model.train_model_task" title="Permalink to this definition">¶</a></dt>
 <dd><p>Train model task.</p>
 <p>Top level task that trains a new model and makes sure the beast available model is
 stored. On this task level all database and context manager dependencies are resolved.</p>
@@ -755,7 +755,7 @@ stored. On this task level all database and context manager dependencies are res
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>pj</strong> (<em>PredictionJobDataClass</em>) – Prediction job</p></li>
+<li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><em>PredictionJobDataClass</em></a>) – Prediction job</p></li>
 <li><p><strong>context</strong> (<a class="reference internal" href="openstef.tasks.utils.html#openstef.tasks.utils.taskcontext.TaskContext" title="openstef.tasks.utils.taskcontext.TaskContext"><em>TaskContext</em></a>) – Contect object that holds a config manager and a
 database connection.</p></li>
 <li><p><strong>check_old_model_age</strong> (<em>bool</em>) – check if model is too young to be retrained</p></li>
@@ -778,7 +778,7 @@ database connection.</p></li>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2017-2021 Contributors to the OpenSTF project.</p>
+    <p>&#169; Copyright 2017-2022 Contributors to the OpenSTEF project.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

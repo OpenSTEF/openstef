@@ -82,7 +82,7 @@
 <span id="openstef-pipeline-create-basecase-forecast-module"></span><h2>openstef.pipeline.create_basecase_forecast module<a class="headerlink" href="#module-openstef.pipeline.create_basecase_forecast" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="openstef.pipeline.create_basecase_forecast.create_basecase_forecast_pipeline">
-<code class="sig-prename descclassname">openstef.pipeline.create_basecase_forecast.</code><code class="sig-name descname">create_basecase_forecast_pipeline</code><span class="sig-paren">(</span><em class="sig-param">pj: openstef_dbc.services.prediction_job.PredictionJobDataClass</em>, <em class="sig-param">input_data: pandas.core.frame.DataFrame</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstef.pipeline.create_basecase_forecast.create_basecase_forecast_pipeline" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstef.pipeline.create_basecase_forecast.</code><code class="sig-name descname">create_basecase_forecast_pipeline</code><span class="sig-paren">(</span><em class="sig-param">pj: openstef.data_classes.prediction_job.PredictionJobDataClass</em>, <em class="sig-param">input_data: pandas.core.frame.DataFrame</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstef.pipeline.create_basecase_forecast.create_basecase_forecast_pipeline" title="Permalink to this definition">¶</a></dt>
 <dd><p>Computes the base case forecast and confidence intervals for a given prediction job and input data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -107,12 +107,12 @@
 <span id="openstef-pipeline-create-component-forecast-module"></span><h2>openstef.pipeline.create_component_forecast module<a class="headerlink" href="#module-openstef.pipeline.create_component_forecast" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="openstef.pipeline.create_component_forecast.create_components_forecast_pipeline">
-<code class="sig-prename descclassname">openstef.pipeline.create_component_forecast.</code><code class="sig-name descname">create_components_forecast_pipeline</code><span class="sig-paren">(</span><em class="sig-param">pj: openstef_dbc.services.prediction_job.PredictionJobDataClass</em>, <em class="sig-param">input_data</em>, <em class="sig-param">weather_data</em>, <em class="sig-param">split_coefs</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.pipeline.create_component_forecast.create_components_forecast_pipeline" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstef.pipeline.create_component_forecast.</code><code class="sig-name descname">create_components_forecast_pipeline</code><span class="sig-paren">(</span><em class="sig-param">pj: openstef.data_classes.prediction_job.PredictionJobDataClass</em>, <em class="sig-param">input_data</em>, <em class="sig-param">weather_data</em>, <em class="sig-param">split_coefs</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.pipeline.create_component_forecast.create_components_forecast_pipeline" title="Permalink to this definition">¶</a></dt>
 <dd><p>Pipeline for creating a component forecast</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>pj</strong> (<em>PredictionJobDataClass</em>) – Prediction job</p></li>
+<li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><em>PredictionJobDataClass</em></a>) – Prediction job</p></li>
 <li><p><strong>input_data</strong> (<em>pd.DataFrame</em>) – Input forecast for the components forecast.</p></li>
 <li><p><strong>weather_data</strong> (<em>pd.DataFrame</em>) – Weather data with ‘radiation’ and ‘windspeed_100m’ columns</p></li>
 <li><p><strong>split_coefs</strong> (<em>dict</em>) – coefieicnts for the splitting that are determined earlier</p></li>
@@ -142,7 +142,7 @@
 <span id="openstef-pipeline-create-forecast-module"></span><h2>openstef.pipeline.create_forecast module<a class="headerlink" href="#module-openstef.pipeline.create_forecast" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="openstef.pipeline.create_forecast.create_forecast_pipeline">
-<code class="sig-prename descclassname">openstef.pipeline.create_forecast.</code><code class="sig-name descname">create_forecast_pipeline</code><span class="sig-paren">(</span><em class="sig-param">pj: openstef_dbc.services.prediction_job.PredictionJobDataClass, input_data: pandas.core.frame.DataFrame, trained_models_folder: Union[str, pathlib.Path]</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstef.pipeline.create_forecast.create_forecast_pipeline" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstef.pipeline.create_forecast.</code><code class="sig-name descname">create_forecast_pipeline</code><span class="sig-paren">(</span><em class="sig-param">pj: openstef.data_classes.prediction_job.PredictionJobDataClass, input_data: pandas.core.frame.DataFrame, trained_models_folder: Union[str, pathlib.Path]</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstef.pipeline.create_forecast.create_forecast_pipeline" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create forecast pipeline</p>
 <p>This is the top-level pipeline which included loading the most recent model for
 the given prediction job.</p>
@@ -150,7 +150,7 @@ the given prediction job.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>pj</strong> (<em>PredictionJobDataClass</em>) – Prediction job</p></li>
+<li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><em>PredictionJobDataClass</em></a>) – Prediction job</p></li>
 <li><p><strong>input_data</strong> (<em>pd.DataFrame</em>) – Training input data (without features)</p></li>
 <li><p><strong>trained_models_folder</strong> (<em>Path</em>) – Path where trained models are stored</p></li>
 </ul>
@@ -163,7 +163,7 @@ the given prediction job.</p>
 
 <dl class="function">
 <dt id="openstef.pipeline.create_forecast.create_forecast_pipeline_core">
-<code class="sig-prename descclassname">openstef.pipeline.create_forecast.</code><code class="sig-name descname">create_forecast_pipeline_core</code><span class="sig-paren">(</span><em class="sig-param">pj: openstef_dbc.services.prediction_job.PredictionJobDataClass</em>, <em class="sig-param">input_data: pandas.core.frame.DataFrame</em>, <em class="sig-param">model: openstef.model.regressors.regressor.OpenstfRegressor</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstef.pipeline.create_forecast.create_forecast_pipeline_core" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstef.pipeline.create_forecast.</code><code class="sig-name descname">create_forecast_pipeline_core</code><span class="sig-paren">(</span><em class="sig-param">pj: openstef.data_classes.prediction_job.PredictionJobDataClass</em>, <em class="sig-param">input_data: pandas.core.frame.DataFrame</em>, <em class="sig-param">model: openstef.model.regressors.regressor.OpenstfRegressor</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstef.pipeline.create_forecast.create_forecast_pipeline_core" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create forecast pipeline (core)</p>
 <p>Computes the forecasts and confidence intervals given a prediction job and input data.
 This pipeline has no database or persisitent storage dependencies.</p>
@@ -174,8 +174,8 @@ This pipeline has no database or persisitent storage dependencies.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>pj</strong> (<em>PredictionJobDataClass</em>) – Prediction job.</p></li>
-<li><p><strong>input_data</strong> (<em>pandas.DataFrame</em>) – Iput data for the prediction.</p></li>
+<li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><em>PredictionJobDataClass</em></a>) – Prediction job.</p></li>
+<li><p><strong>input_data</strong> (<em>pandas.DataFrame</em>) – Input data for the prediction.</p></li>
 <li><p><strong>model</strong> (<a class="reference internal" href="openstef.model.regressors.html#openstef.model.regressors.regressor.OpenstfRegressor" title="openstef.model.regressors.regressor.OpenstfRegressor"><em>OpenstfRegressor</em></a>) – Model to use for this prediction.</p></li>
 </ul>
 </dd>
@@ -190,13 +190,13 @@ This pipeline has no database or persisitent storage dependencies.</p>
 <span id="openstef-pipeline-optimize-hyperparameters-module"></span><h2>openstef.pipeline.optimize_hyperparameters module<a class="headerlink" href="#module-openstef.pipeline.optimize_hyperparameters" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="openstef.pipeline.optimize_hyperparameters.optimize_hyperparameters_pipeline">
-<code class="sig-prename descclassname">openstef.pipeline.optimize_hyperparameters.</code><code class="sig-name descname">optimize_hyperparameters_pipeline</code><span class="sig-paren">(</span><em class="sig-param">pj: openstef_dbc.services.prediction_job.PredictionJobDataClass, input_data: pandas.core.frame.DataFrame, trained_models_folder: Union[str, pathlib.Path], horizons: List[float] = [0.25, 47.0], n_trials: int = 100</em><span class="sig-paren">)</span> &#x2192; dict<a class="headerlink" href="#openstef.pipeline.optimize_hyperparameters.optimize_hyperparameters_pipeline" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstef.pipeline.optimize_hyperparameters.</code><code class="sig-name descname">optimize_hyperparameters_pipeline</code><span class="sig-paren">(</span><em class="sig-param">pj: openstef.data_classes.prediction_job.PredictionJobDataClass, input_data: pandas.core.frame.DataFrame, trained_models_folder: Union[str, pathlib.Path], horizons: List[float] = [0.25, 47.0], n_trials: int = 100</em><span class="sig-paren">)</span> &#x2192; dict<a class="headerlink" href="#openstef.pipeline.optimize_hyperparameters.optimize_hyperparameters_pipeline" title="Permalink to this definition">¶</a></dt>
 <dd><p>Optimize hyperparameters pipeline.</p>
 <p>Expected prediction job key’s: “name”, “model”</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>pj</strong> (<em>PredictionJobDataClass</em>) – Prediction job</p></li>
+<li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><em>PredictionJobDataClass</em></a>) – Prediction job</p></li>
 <li><p><strong>input_data</strong> (<em>pd.DataFrame</em>) – Raw training input data</p></li>
 <li><p><strong>trained_models_folder</strong> (<em>Path</em>) – Path where trained models are stored</p></li>
 <li><p><strong>horizons</strong> (<em>List</em><em>[</em><em>float</em><em>]</em>) – horizons for feature engineering.</p></li>
@@ -217,7 +217,7 @@ This pipeline has no database or persisitent storage dependencies.</p>
 
 <dl class="function">
 <dt id="openstef.pipeline.optimize_hyperparameters.optuna_optimization">
-<code class="sig-prename descclassname">openstef.pipeline.optimize_hyperparameters.</code><code class="sig-name descname">optuna_optimization</code><span class="sig-paren">(</span><em class="sig-param">pj: openstef_dbc.services.prediction_job.PredictionJobDataClass</em>, <em class="sig-param">objective: openstef.model.objective.RegressorObjective</em>, <em class="sig-param">validated_data_with_features: pandas.core.frame.DataFrame</em>, <em class="sig-param">n_trials: int</em><span class="sig-paren">)</span> &#x2192; Tuple[optuna.study.Study, openstef.model.objective.RegressorObjective]<a class="headerlink" href="#openstef.pipeline.optimize_hyperparameters.optuna_optimization" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstef.pipeline.optimize_hyperparameters.</code><code class="sig-name descname">optuna_optimization</code><span class="sig-paren">(</span><em class="sig-param">pj: openstef.data_classes.prediction_job.PredictionJobDataClass</em>, <em class="sig-param">objective: openstef.model.objective.RegressorObjective</em>, <em class="sig-param">validated_data_with_features: pandas.core.frame.DataFrame</em>, <em class="sig-param">n_trials: int</em><span class="sig-paren">)</span> &#x2192; Tuple[optuna.study.Study, openstef.model.objective.RegressorObjective]<a class="headerlink" href="#openstef.pipeline.optimize_hyperparameters.optuna_optimization" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform hyperparameter optimization with optuna</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -244,7 +244,7 @@ objective : The objective object used by optuna</p>
 <span id="openstef-pipeline-train-create-forecast-backtest-module"></span><h2>openstef.pipeline.train_create_forecast_backtest module<a class="headerlink" href="#module-openstef.pipeline.train_create_forecast_backtest" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="openstef.pipeline.train_create_forecast_backtest.train_model_and_forecast_back_test">
-<code class="sig-prename descclassname">openstef.pipeline.train_create_forecast_backtest.</code><code class="sig-name descname">train_model_and_forecast_back_test</code><span class="sig-paren">(</span><em class="sig-param">pj: openstef_dbc.services.prediction_job.PredictionJobDataClass</em>, <em class="sig-param">modelspecs: openstef.data_classes.model_specifications.ModelSpecificationDataClass</em>, <em class="sig-param">input_data: pandas.core.frame.DataFrame</em>, <em class="sig-param">training_horizons: List[float] = None</em>, <em class="sig-param">n_folds: int = 1</em><span class="sig-paren">)</span> &#x2192; Tuple[pandas.core.frame.DataFrame, List[openstef.model.regressors.regressor.OpenstfRegressor], List[pandas.core.frame.DataFrame], List[pandas.core.frame.DataFrame], List[pandas.core.frame.DataFrame]]<a class="headerlink" href="#openstef.pipeline.train_create_forecast_backtest.train_model_and_forecast_back_test" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstef.pipeline.train_create_forecast_backtest.</code><code class="sig-name descname">train_model_and_forecast_back_test</code><span class="sig-paren">(</span><em class="sig-param">pj: openstef.data_classes.prediction_job.PredictionJobDataClass</em>, <em class="sig-param">modelspecs: openstef.data_classes.model_specifications.ModelSpecificationDataClass</em>, <em class="sig-param">input_data: pandas.core.frame.DataFrame</em>, <em class="sig-param">training_horizons: List[float] = None</em>, <em class="sig-param">n_folds: int = 1</em><span class="sig-paren">)</span> &#x2192; Tuple[pandas.core.frame.DataFrame, List[openstef.model.regressors.regressor.OpenstfRegressor], List[pandas.core.frame.DataFrame], List[pandas.core.frame.DataFrame], List[pandas.core.frame.DataFrame]]<a class="headerlink" href="#openstef.pipeline.train_create_forecast_backtest.train_model_and_forecast_back_test" title="Permalink to this definition">¶</a></dt>
 <dd><p>Pipeline for a back test.</p>
 <blockquote>
 <div><p>When number of folds is larger than 1: apply pipeline for a back test when forecasting the entire input range.
@@ -256,7 +256,7 @@ objective : The objective object used by optuna</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>pj</strong> (<em>PredictionJobDataClass</em>) – Prediction job.</p></li>
+<li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><em>PredictionJobDataClass</em></a>) – Prediction job.</p></li>
 <li><p><strong>modelspecs</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.model_specifications.ModelSpecificationDataClass" title="openstef.data_classes.model_specifications.ModelSpecificationDataClass"><em>ModelSpecificationDataClass</em></a>) – Dataclass containing model specifications</p></li>
 <li><p><strong>input_data</strong> (<em>pd.DataFrame</em>) – Input data</p></li>
 <li><p><strong>training_horizons</strong> (<em>list</em>) – horizons to train on in hours.
@@ -272,12 +272,12 @@ These horizons are also used to make predictions (one for every horizon)</p></li
 
 <dl class="function">
 <dt id="openstef.pipeline.train_create_forecast_backtest.train_model_and_forecast_test_core">
-<code class="sig-prename descclassname">openstef.pipeline.train_create_forecast_backtest.</code><code class="sig-name descname">train_model_and_forecast_test_core</code><span class="sig-paren">(</span><em class="sig-param">pj: openstef_dbc.services.prediction_job.PredictionJobDataClass</em>, <em class="sig-param">modelspecs: openstef.data_classes.model_specifications.ModelSpecificationDataClass</em>, <em class="sig-param">input_data: pandas.core.frame.DataFrame</em>, <em class="sig-param">training_horizons: List[float] = None</em>, <em class="sig-param">test_data: pandas.core.frame.DataFrame = Empty DataFrame Columns: [] Index: []</em>, <em class="sig-param">test_fraction: float = 0.15</em><span class="sig-paren">)</span> &#x2192; Tuple[pandas.core.frame.DataFrame, openstef.model.regressors.regressor.OpenstfRegressor]<a class="headerlink" href="#openstef.pipeline.train_create_forecast_backtest.train_model_and_forecast_test_core" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstef.pipeline.train_create_forecast_backtest.</code><code class="sig-name descname">train_model_and_forecast_test_core</code><span class="sig-paren">(</span><em class="sig-param">pj: openstef.data_classes.prediction_job.PredictionJobDataClass</em>, <em class="sig-param">modelspecs: openstef.data_classes.model_specifications.ModelSpecificationDataClass</em>, <em class="sig-param">input_data: pandas.core.frame.DataFrame</em>, <em class="sig-param">training_horizons: List[float] = None</em>, <em class="sig-param">test_data: pandas.core.frame.DataFrame = Empty DataFrame Columns: [] Index: []</em>, <em class="sig-param">test_fraction: float = 0.15</em><span class="sig-paren">)</span> &#x2192; Tuple[pandas.core.frame.DataFrame, openstef.model.regressors.regressor.OpenstfRegressor]<a class="headerlink" href="#openstef.pipeline.train_create_forecast_backtest.train_model_and_forecast_test_core" title="Permalink to this definition">¶</a></dt>
 <dd><p>Core part of the backtest pipeline, in order to create a model and forecast from input data</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>pj</strong> (<em>PredictionJobDataClass</em>) – Prediction job.</p></li>
+<li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><em>PredictionJobDataClass</em></a>) – Prediction job.</p></li>
 <li><p><strong>modelspecs</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.model_specifications.ModelSpecificationDataClass" title="openstef.data_classes.model_specifications.ModelSpecificationDataClass"><em>ModelSpecificationDataClass</em></a>) – Dataclass containing model specifications</p></li>
 <li><p><strong>input_data</strong> (<em>pd.DataFrame</em>) – Input data</p></li>
 <li><p><strong>training_horizons</strong> (<em>list</em>) – horizons to train on in hours.
@@ -295,7 +295,7 @@ These horizons are also used to make predictions (one for every horizon)</p></li
 <span id="openstef-pipeline-train-model-module"></span><h2>openstef.pipeline.train_model module<a class="headerlink" href="#module-openstef.pipeline.train_model" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="openstef.pipeline.train_model.train_model_pipeline">
-<code class="sig-prename descclassname">openstef.pipeline.train_model.</code><code class="sig-name descname">train_model_pipeline</code><span class="sig-paren">(</span><em class="sig-param">pj: openstef_dbc.services.prediction_job.PredictionJobDataClass, input_data: pandas.core.frame.DataFrame, check_old_model_age: bool, trained_models_folder: Union[str, pathlib.Path]</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#openstef.pipeline.train_model.train_model_pipeline" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstef.pipeline.train_model.</code><code class="sig-name descname">train_model_pipeline</code><span class="sig-paren">(</span><em class="sig-param">pj: openstef.data_classes.prediction_job.PredictionJobDataClass, input_data: pandas.core.frame.DataFrame, check_old_model_age: bool, trained_models_folder: Union[str, pathlib.Path]</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#openstef.pipeline.train_model.train_model_pipeline" title="Permalink to this definition">¶</a></dt>
 <dd><p>Midle level pipeline that takes care of all persistent storage dependencies</p>
 <dl class="simple">
 <dt>Expected prediction jobs keys: “id”, “model”, “hyper_params”,</dt><dd><p>“feature_names”</p>
@@ -304,7 +304,7 @@ These horizons are also used to make predictions (one for every horizon)</p></li
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>pj</strong> (<em>PredictionJobDataClass</em>) – Prediction job</p></li>
+<li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><em>PredictionJobDataClass</em></a>) – Prediction job</p></li>
 <li><p><strong>input_data</strong> (<em>pd.DataFrame</em>) – Raw training input data</p></li>
 <li><p><strong>check_old_model_age</strong> (<em>bool</em>) – Check if training should be skipped because the model is too young</p></li>
 <li><p><strong>trained_models_folder</strong> (<em>Path</em>) – Path where trained models are stored</p></li>
@@ -318,14 +318,14 @@ These horizons are also used to make predictions (one for every horizon)</p></li
 
 <dl class="function">
 <dt id="openstef.pipeline.train_model.train_model_pipeline_core">
-<code class="sig-prename descclassname">openstef.pipeline.train_model.</code><code class="sig-name descname">train_model_pipeline_core</code><span class="sig-paren">(</span><em class="sig-param">pj: openstef_dbc.services.prediction_job.PredictionJobDataClass</em>, <em class="sig-param">modelspecs: openstef.data_classes.model_specifications.ModelSpecificationDataClass</em>, <em class="sig-param">input_data: pandas.core.frame.DataFrame</em>, <em class="sig-param">old_model: openstef.model.regressors.regressor.OpenstfRegressor = None</em>, <em class="sig-param">horizons: List[float] = None</em><span class="sig-paren">)</span> &#x2192; Tuple[openstef.model.regressors.regressor.OpenstfRegressor, openstef.metrics.reporter.Report, openstef.data_classes.model_specifications.ModelSpecificationDataClass]<a class="headerlink" href="#openstef.pipeline.train_model.train_model_pipeline_core" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstef.pipeline.train_model.</code><code class="sig-name descname">train_model_pipeline_core</code><span class="sig-paren">(</span><em class="sig-param">pj: openstef.data_classes.prediction_job.PredictionJobDataClass</em>, <em class="sig-param">modelspecs: openstef.data_classes.model_specifications.ModelSpecificationDataClass</em>, <em class="sig-param">input_data: pandas.core.frame.DataFrame</em>, <em class="sig-param">old_model: openstef.model.regressors.regressor.OpenstfRegressor = None</em>, <em class="sig-param">horizons: List[float] = None</em><span class="sig-paren">)</span> &#x2192; Tuple[openstef.model.regressors.regressor.OpenstfRegressor, openstef.metrics.reporter.Report, openstef.data_classes.model_specifications.ModelSpecificationDataClass]<a class="headerlink" href="#openstef.pipeline.train_model.train_model_pipeline_core" title="Permalink to this definition">¶</a></dt>
 <dd><p>Train model core pipeline.
 Trains a new model given a prediction job, input data and compares it to an old model.
 This pipeline has no database or persistent storage dependencies.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>pj</strong> (<em>PredictionJobDataClass</em>) – Prediction job</p></li>
+<li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><em>PredictionJobDataClass</em></a>) – Prediction job</p></li>
 <li><p><strong>modelspecs</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.model_specifications.ModelSpecificationDataClass" title="openstef.data_classes.model_specifications.ModelSpecificationDataClass"><em>ModelSpecificationDataClass</em></a>) – Dataclass containing model specifications</p></li>
 <li><p><strong>input_data</strong> (<em>pd.DataFrame</em>) – Input data</p></li>
 <li><p><strong>old_model</strong> (<a class="reference internal" href="openstef.model.regressors.html#openstef.model.regressors.regressor.OpenstfRegressor" title="openstef.model.regressors.regressor.OpenstfRegressor"><em>OpenstfRegressor</em></a><em>, </em><em>optional</em>) – Old model to compare to. Defaults to None.</p></li>
@@ -350,12 +350,12 @@ This pipeline has no database or persistent storage dependencies.</p>
 
 <dl class="function">
 <dt id="openstef.pipeline.train_model.train_pipeline_common">
-<code class="sig-prename descclassname">openstef.pipeline.train_model.</code><code class="sig-name descname">train_pipeline_common</code><span class="sig-paren">(</span><em class="sig-param">pj: openstef_dbc.services.prediction_job.PredictionJobDataClass, modelspecs: openstef.data_classes.model_specifications.ModelSpecificationDataClass, input_data: pandas.core.frame.DataFrame, horizons: List[float], test_fraction: float = 0.0, backtest: bool = False, test_data_predefined: pandas.core.frame.DataFrame = Empty DataFrame Columns: [] Index: []</em><span class="sig-paren">)</span> &#x2192; Tuple[openstef.model.regressors.regressor.OpenstfRegressor, pandas.core.frame.DataFrame, pandas.core.frame.DataFrame, pandas.core.frame.DataFrame]<a class="headerlink" href="#openstef.pipeline.train_model.train_pipeline_common" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstef.pipeline.train_model.</code><code class="sig-name descname">train_pipeline_common</code><span class="sig-paren">(</span><em class="sig-param">pj: openstef.data_classes.prediction_job.PredictionJobDataClass, modelspecs: openstef.data_classes.model_specifications.ModelSpecificationDataClass, input_data: pandas.core.frame.DataFrame, horizons: List[float], test_fraction: float = 0.0, backtest: bool = False, test_data_predefined: pandas.core.frame.DataFrame = Empty DataFrame Columns: [] Index: []</em><span class="sig-paren">)</span> &#x2192; Tuple[openstef.model.regressors.regressor.OpenstfRegressor, pandas.core.frame.DataFrame, pandas.core.frame.DataFrame, pandas.core.frame.DataFrame]<a class="headerlink" href="#openstef.pipeline.train_model.train_pipeline_common" title="Permalink to this definition">¶</a></dt>
 <dd><p>Common pipeline shared with operational training and backtest training</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>pj</strong> (<em>PredictionJobDataClass</em>) – Prediction job</p></li>
+<li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><em>PredictionJobDataClass</em></a>) – Prediction job</p></li>
 <li><p><strong>modelspecs</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.model_specifications.ModelSpecificationDataClass" title="openstef.data_classes.model_specifications.ModelSpecificationDataClass"><em>ModelSpecificationDataClass</em></a>) – Dataclass containing model specifications</p></li>
 <li><p><strong>input_data</strong> (<em>pd.DataFrame</em>) – Input data</p></li>
 <li><p><strong>horizons</strong> (<em>List</em><em>[</em><em>float</em><em>]</em>) – horizons to train on in hours.</p></li>
@@ -416,7 +416,7 @@ end time of forecasts as 2021-11-19 05:00:00.</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2017-2021 Contributors to the OpenSTF project.</p>
+    <p>&#169; Copyright 2017-2022 Contributors to the OpenSTEF project.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

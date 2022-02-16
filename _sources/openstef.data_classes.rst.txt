@@ -12,6 +12,14 @@ openstef.data\_classes.model\_specifications module
    :undoc-members:
    :show-inheritance:
 
+openstef.data\_classes.prediction\_job module
+---------------------------------------------
+
+.. automodule:: openstef.data_classes.prediction_job
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 
 Module contents
 ---------------
