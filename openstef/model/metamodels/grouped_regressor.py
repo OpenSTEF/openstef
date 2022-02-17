@@ -79,15 +79,15 @@ class GroupedRegressor(BaseEstimator, RegressorMixin, MetaEstimatorMixin):
                 raise ValueError("The group column {} is missing!".format(c))
 
     def _partial_fit(
-        self, group: Any, df_group: pd.DataFrame
+        self, group: Any, df_group: pd.DataFrame, **kwargs
     ) -> Tuple[Any, BaseEstimator]:
         estimator = clone(self.base_estimator)
         X = df_group.loc[:, self.feature_names_]
         y = df_group.loc[:, "__target__"]
-        return (group, estimator.fit(X, y))
+        return (group, estimator.fit(X, y, **kwargs))
 
-    def _partial_predict(self, group, df_group):
-        return self.estimators_[group].predict(df_group)
+    def _partial_predict(self, group, df_group, **kwargs):
+        return self.estimators_[group].predict(df_group, **kwargs)
 
     @classmethod
     def grouped_compute(
@@ -135,11 +135,11 @@ class GroupedRegressor(BaseEstimator, RegressorMixin, MetaEstimatorMixin):
             )
         return group_res, gb, df_res
 
-    def _grouped_predict(self, df: pd.DataFrame, n_jobs: int = 1) -> np.array:
+    def _grouped_predict(self, df: pd.DataFrame, n_jobs: int = 1, **kwargs) -> np.array:
         group_res, gb, df_res = self.grouped_compute(
             df,
             self.group_columns,
-            lambda group, df_group: self._partial_predict(group, df_group),
+            lambda group, df_group: self._partial_predict(group, df_group, **kwargs),
             n_jobs,
         )
 
@@ -149,28 +149,28 @@ class GroupedRegressor(BaseEstimator, RegressorMixin, MetaEstimatorMixin):
         return df_res["__result__"].to_numpy()
 
     def _grouped_fit(
-        self, df: pd.DataFrame, n_jobs: int = 1
+        self, df: pd.DataFrame, n_jobs: int = 1, **kwargs
     ) -> Dict[Any, BaseEstimator]:
         group_res, _, _ = self.grouped_compute(
             df,
             self.group_columns,
-            lambda group, df_group: self._partial_fit(group, df_group),
+            lambda group, df_group: self._partial_fit(group, df_group, **kwargs),
             n_jobs,
         )
         return dict(group_res)
 
-    def fit(self, x, y):
+    def fit(self, x, y, **kwargs):
         df = pd.DataFrame(x).copy(deep=True)
         self._check_group_columns(df)
         self.feature_names_ = [
             c for c in list(df.columns) if c not in self.group_columns
         ]
         df.loc[:, "__target__"] = y
-        self.estimators_ = self._grouped_fit(df, self.n_jobs)
+        self.estimators_ = self._grouped_fit(df, self.n_jobs, **kwargs)
         return self
 
-    def predict(self, x):
+    def predict(self, x, **kwargs):
         check_is_fitted(self)
         df = pd.DataFrame(x)
         self._check_group_columns(df)
-        return self._grouped_predict(df, self.n_jobs)
+        return self._grouped_predict(df, self.n_jobs, **kwargs)

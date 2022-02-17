@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 import sklearn
 from sklearn.utils.estimator_checks import check_estimator
+from lightgbm import LGBMRegressor
 
 from openstef.model.regressors.linear import LinearOpenstfRegressor, LinearRegressor
 from openstef.model.metamodels.grouped_regressor import GroupedRegressor
@@ -115,30 +116,48 @@ class TestLinearOpenstfRegressor(BaseTestCase):
         train_with_time = self.train_input.copy(deep=True)
         train_with_time["time"] = train_with_time.index.time
 
+        train_x = train_with_time.iloc[:, 1:]
+        train_y = train_with_time.iloc[:, 0]
+        val_x = self.train_input.iloc[:, 1:]
+        val_y = self.train_input.iloc[:, 0]
+
         # test handling of group columns
         with self.assertRaises(ValueError):
-            model_without_group.fit(
-                train_with_time.iloc[:, 1:], train_with_time.iloc[:, 0]
-            )
+            model_without_group.fit(train_x, train_y)
 
         with self.assertRaises(ValueError):
-            model.fit(self.train_input.iloc[:, 1:], self.train_input.iloc[:, 0])
+            model.fit(val_x, val_y)
 
         # test fitting metamodel
-        model.fit(train_with_time.iloc[:, 1:], train_with_time.iloc[:, 0])
+        model.fit(train_x, train_y)
         self.assertIsNone(sklearn.utils.validation.check_is_fitted(model))
 
         # test parallel fitting
-        model_parallel.fit(train_with_time.iloc[:, 1:], train_with_time.iloc[:, 0])
+        model_parallel.fit(train_x, train_y)
         self.assertIsNone(sklearn.utils.validation.check_is_fitted(model_parallel))
 
         # test prediction
-        res = model.predict(train_with_time.iloc[:, 1:])
+        res = model.predict(train_x)
         group = train_with_time.iloc[:, -1]
         for k, estimator in model.estimators_.items():
             self.assertTrue(
                 (
                     res[group == k]
                     == estimator.predict(train_with_time.loc[group == k].iloc[:, 1:-1])
+                ).all()
+            )
+
+        # test kwargs in fit and predict methods
+        model_lgb = GroupedRegressor(LGBMRegressor(), group_columns=["time"])
+        model_lgb.fit(train_x, train_y, eval_set=[(val_x, val_y)], verbose=False)
+        self.assertIsNone(sklearn.utils.validation.check_is_fitted(model_lgb))
+        res = model_lgb.predict(train_x, raw_score=True)
+        for k, estimator in model_lgb.estimators_.items():
+            self.assertTrue(
+                (
+                    res[group == k]
+                    == estimator.predict(
+                        train_with_time.loc[group == k].iloc[:, 1:-1], raw_score=True
+                    )
                 ).all()
             )
