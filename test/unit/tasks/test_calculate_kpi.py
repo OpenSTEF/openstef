@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 
 from openstef.exceptions import NoPredictedLoadError, NoRealisedLoadError
-from openstef.tasks.calculate_kpi import calc_kpi_for_specific_pj
+from openstef.tasks.calculate_kpi import calc_kpi_for_specific_pid
 
 # Get test data
 predicted_load = TestData.load("calculate_kpi_predicted_load.csv")
@@ -80,7 +80,7 @@ class TestPerformanceCalcKpiForSpecificPid(BaseTestCase):
 
     # Test whether correct kpis are calculated for specific test data
     def test_calc_kpi_for_specific_pid(self):
-        kpis = calc_kpi_for_specific_pj(
+        kpis = calc_kpi_for_specific_pid(
             prediction_job, realised_load, predicted_load, realised_load
         )
         # use this to store new kpis
@@ -100,7 +100,7 @@ class TestPerformanceCalcKpiForSpecificPid(BaseTestCase):
 
     # Test whether none is returned in case of poor completeness for realised data
     def test_calc_kpi_for_specific_pid_poor_completeness_realized(self):
-        kpis = calc_kpi_for_specific_pj(
+        kpis = calc_kpi_for_specific_pid(
             prediction_job, realised_load_nan, predicted_load, realised_load_nan
         )
         t_ahead_keys = kpis.keys()
@@ -108,7 +108,7 @@ class TestPerformanceCalcKpiForSpecificPid(BaseTestCase):
 
     # Test whether none is returned in case of poor completeness for predicted data
     def test_calc_kpi_for_specific_pid_poor_completeness_predicted(self):
-        kpis = calc_kpi_for_specific_pj(
+        kpis = calc_kpi_for_specific_pid(
             prediction_job, realised_load, predicted_load_nan, realised_load
         )
 
@@ -119,7 +119,7 @@ class TestPerformanceCalcKpiForSpecificPid(BaseTestCase):
         """If load is constant, a warning should be raised, but kpi's should still be calculated"""
         realised_load_constant = realised_load.copy()
         realised_load_constant.iloc[1:, :] = realised_load_constant.iloc[0, :]
-        kpis = calc_kpi_for_specific_pj(
+        kpis = calc_kpi_for_specific_pid(
             prediction_job, realised_load_constant, predicted_load, realised_load
         )
         self.assertIsNAN(kpis["4.0h"]["MAE"])  # arbitrary time horizon tested
@@ -130,7 +130,7 @@ class TestPerformanceCalcKpiForSpecificPid(BaseTestCase):
         empty load"""
 
         with self.assertRaises(NoRealisedLoadError):
-            calc_kpi_for_specific_pj(
+            calc_kpi_for_specific_pid(
                 prediction_job, pd.DataFrame(), predicted_load, pd.DataFrame()
             )
 
@@ -139,7 +139,7 @@ class TestPerformanceCalcKpiForSpecificPid(BaseTestCase):
         empty prediction"""
 
         with self.assertRaises(NoPredictedLoadError):
-            calc_kpi_for_specific_pj(
+            calc_kpi_for_specific_pid(
                 prediction_job, realised_load, pd.DataFrame(), realised_load
             )
 

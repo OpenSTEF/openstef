@@ -89,7 +89,7 @@ def check_kpi_task(
         pj["id"], start_time - timedelta(days=7), end_time - timedelta(days=7), "15T"
     ).shift(periods=7, freq="d")
 
-    kpis = calc_kpi_for_specific_pj(pj["id"], realised, predicted_load, basecase)
+    kpis = calc_kpi_for_specific_pid(pj["id"], realised, predicted_load, basecase)
     # Write KPI's to database
     context.database.write_kpi(pj, kpis)
 
@@ -119,8 +119,8 @@ def check_kpi_task(
         context.database.ktp_api.add_tracy_job(pj["id"], function=function_name)
 
 
-def calc_kpi_for_specific_pj(
-    pj: PredictionJobDataClass,
+def calc_kpi_for_specific_pid(
+    pid: int,
     realised: pd.DataFrame,
     predicted_load: pd.DataFrame,
     basecase: pd.DataFrame,
@@ -157,11 +157,11 @@ def calc_kpi_for_specific_pj(
 
     # If predicted is empty
     if len(predicted_load) == 0:
-        raise NoPredictedLoadError(pj["id"])
+        raise NoPredictedLoadError(pid)
 
     # If realised is empty
     if len(realised) == 0:
-        raise NoRealisedLoadError(pj["id"])
+        raise NoRealisedLoadError(pid)
 
     # Define start and end time
     start_time = realised.index.min().to_pydatetime()
@@ -263,7 +263,7 @@ def calc_kpi_for_specific_pj(
         if completeness_realised < COMPLETENESS_REALISED_THRESHOLDS:
             log.warning(
                 "Completeness realised load too low",
-                prediction_id=pj["id"],
+                prediction_id=pid,
                 start_time=start_time,
                 end_time=end_time,
                 completeness=completeness_realised,
@@ -276,7 +276,7 @@ def calc_kpi_for_specific_pj(
         ):
             log.warning(
                 "Completeness predicted load of specific horizon too low",
-                prediction_id=pj["id"],
+                prediction_id=pid,
                 horizon=t_ahead_h,
                 start_time=start_time,
                 end_time=end_time,
