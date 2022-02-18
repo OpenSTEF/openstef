@@ -130,14 +130,15 @@ Load_corrections should be indicated by ‘<a href="#id1"><span class="problemat
 
 <dl class="function">
 <dt id="openstef.validation.validation.find_nonzero_flatliner">
-<code class="sig-prename descclassname">openstef.validation.validation.</code><code class="sig-name descname">find_nonzero_flatliner</code><span class="sig-paren">(</span><em class="sig-param">df: pandas.core.frame.DataFrame</em>, <em class="sig-param">threshold: int</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstef.validation.validation.find_nonzero_flatliner" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstef.validation.validation.</code><code class="sig-name descname">find_nonzero_flatliner</code><span class="sig-paren">(</span><em class="sig-param">df: pandas.core.frame.DataFrame</em>, <em class="sig-param">threshold: int = None</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstef.validation.validation.find_nonzero_flatliner" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function that detects a stationflatliner and returns a list of datetimes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>df</strong> – pd.dataFrame(index=DatetimeIndex, columns = [load1, …, loadN]).
 Load_corrections should be indicated by ‘<a href="#id3"><span class="problematic" id="id4">LC_</span></a>’</p></li>
-<li><p><strong>threshold</strong> – after how many timesteps should the function detect a flatliner.</p></li>
+<li><p><strong>threshold</strong> – after how many timesteps should the function detect a flatliner.
+If None, the check is not executed</p></li>
 </ul>
 </dd>
 </dl>
@@ -196,7 +197,24 @@ before and during the zero-value(s).</p>
 <dl class="function">
 <dt id="openstef.validation.validation.validate">
 <code class="sig-prename descclassname">openstef.validation.validation.</code><code class="sig-name descname">validate</code><span class="sig-paren">(</span><em class="sig-param">pj_id: Union[int, str], data: pandas.core.frame.DataFrame, flatliner_threshold: int = 24</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstef.validation.validation.validate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Validate prediction job and timeseries data.</p>
+<dd><p>Validate prediction job and timeseries data.
+Steps:
+1. Replace repeated values for longer than flatliner_threshold with NaN
+# TODO: The function description suggests it
+‘validates’ the PJ and Data, but is appears to ‘just’ replace repeated observations with NaN.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pj_id</strong> (<em>-</em>) – ind/str, used to identify log statements</p></li>
+<li><p><strong>data</strong> (<em>-</em>) – pd.DataFrame where the first column should be the target. index=datetimeIndex</p></li>
+<li><p><strong>flatliner_threshold</strong> (<em>-</em>) – int of max repetitions considered a flatline.
+if None, the validation is effectively skipped</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dataframe where repeated values are set to None</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>

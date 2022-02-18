@@ -117,8 +117,8 @@ Alternatively this code can be run directly by running:</p>
 </div>
 <p>Attributes:</p>
 <dl class="function">
-<dt id="openstef.tasks.calculate_kpi.calc_kpi_for_specific_pj">
-<code class="sig-prename descclassname">openstef.tasks.calculate_kpi.</code><code class="sig-name descname">calc_kpi_for_specific_pj</code><span class="sig-paren">(</span><em class="sig-param">pj: openstef.data_classes.prediction_job.PredictionJobDataClass</em>, <em class="sig-param">realised: pandas.core.frame.DataFrame</em>, <em class="sig-param">predicted_load: pandas.core.frame.DataFrame</em>, <em class="sig-param">basecase: pandas.core.frame.DataFrame</em><span class="sig-paren">)</span> &#x2192; dict<a class="headerlink" href="#openstef.tasks.calculate_kpi.calc_kpi_for_specific_pj" title="Permalink to this definition">¶</a></dt>
+<dt id="openstef.tasks.calculate_kpi.calc_kpi_for_specific_pid">
+<code class="sig-prename descclassname">openstef.tasks.calculate_kpi.</code><code class="sig-name descname">calc_kpi_for_specific_pid</code><span class="sig-paren">(</span><em class="sig-param">pid: int</em>, <em class="sig-param">realised: pandas.core.frame.DataFrame</em>, <em class="sig-param">predicted_load: pandas.core.frame.DataFrame</em>, <em class="sig-param">basecase: pandas.core.frame.DataFrame</em><span class="sig-paren">)</span> &#x2192; dict<a class="headerlink" href="#openstef.tasks.calculate_kpi.calc_kpi_for_specific_pid" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function that checks the model performance based on a pid. This function
 - loads and combines forecast and realised data
 - calculated several key performance indicators (KPIs)
