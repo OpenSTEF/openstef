@@ -26,9 +26,9 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import structlog
-from openstef_dbc.database import DataBase
 
 from openstef.enums import MLModelType
+from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.exceptions import NoPredictedLoadError, NoRealisedLoadError
 from openstef.metrics import metrics
 from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
@@ -40,26 +40,56 @@ THRESHOLD_RETRAINING = 0.25
 THRESHOLD_OPTIMIZING = 0.50
 
 
-def main(model_type=None):
+def main(model_type: MLModelType = None, config=None, database=None) -> None:
     taskname = Path(__file__).name.replace(".py", "")
+
+    if database is None or config is None:
+        raise RuntimeError(
+            "Please specifiy a configmanager and/or database connection object. These can be found in the openstef-dbc package."
+        )
+
     if model_type is None:
         model_type = [ml.value for ml in MLModelType]
 
-    with TaskContext(taskname) as context:
+    with TaskContext(taskname, config, database) as context:
         # Set start and end time
         start_time = datetime.utcnow() - timedelta(days=1)
         end_time = datetime.utcnow()
 
         PredictionJobLoop(context, model_type=model_type).map(
-            check_kpi_pj,
+            check_kpi_task,
             context,
             start_time=start_time,
             end_time=end_time,
         )
 
 
-def check_kpi_pj(pj, context, start_time, end_time):
-    kpis = calc_kpi_for_specific_pid(pj["id"], start_time=start_time, end_time=end_time)
+def check_kpi_task(
+    pj: PredictionJobDataClass,
+    context: TaskContext,
+    start_time: datetime,
+    end_time: datetime,
+) -> None:
+    # Apply default parameters if none are provided
+    if start_time is None:
+        start_time = datetime.utcnow() - timedelta(days=1)
+    if end_time is None:
+        end_time = datetime.utcnow()
+
+    # Get realised load data
+    realised = context.database.get_load_pid(pj["id"], start_time, end_time, "15T")
+
+    # Get predicted load
+    predicted_load = context.database.get_predicted_load_tahead(
+        pj, start_time, end_time
+    )
+
+    # Get basecase prediction
+    basecase = context.database.get_load_pid(
+        pj["id"], start_time - timedelta(days=7), end_time - timedelta(days=7), "15T"
+    ).shift(periods=7, freq="d")
+
+    kpis = calc_kpi_for_specific_pid(pj["id"], realised, predicted_load, basecase)
     # Write KPI's to database
     context.database.write_kpi(pj, kpis)
 
@@ -89,7 +119,12 @@ def check_kpi_pj(pj, context, start_time, end_time):
         context.database.ktp_api.add_tracy_job(pj["id"], function=function_name)
 
 
-def calc_kpi_for_specific_pid(pid, start_time=None, end_time=None):
+def calc_kpi_for_specific_pid(
+    pid: int,
+    realised: pd.DataFrame,
+    predicted_load: pd.DataFrame,
+    basecase: pd.DataFrame,
+) -> dict:
     """Function that checks the model performance based on a pid. This function
     - loads and combines forecast and realised data
     - calculated several key performance indicators (KPIs)
@@ -100,7 +135,7 @@ def calc_kpi_for_specific_pid(pid, start_time=None, end_time=None):
         - Mean absolute Error
 
     Args:
-        pid (int): Prediction ID for a given prediction job
+        pj (PredictionJobDataclass): Prediction ID for a given prediction job
         start_time (datetime): Start time from when to retrieve the historic load prediction.
         end_time (datetime): Start time till when to retrieve the historic load prediction.
 
@@ -118,31 +153,19 @@ def calc_kpi_for_specific_pid(pid, start_time=None, end_time=None):
     COMPLETENESS_REALISED_THRESHOLDS = 0.7
     COMPLETENESS_PREDICTED_LOAD_THRESHOLD = 0.7
 
-    # Make database connection
-    db = DataBase()
     log = structlog.get_logger(__name__)
-
-    pj = db.get_prediction_job(pid)
-
-    # Apply default parameters if none are provided
-    if start_time is None:
-        start_time = datetime.utcnow() - timedelta(days=1)
-    if end_time is None:
-        end_time = datetime.utcnow()
-
-    # Get realised load data
-    realised = db.get_load_pid(pj["id"], start_time, end_time, "15T")
-
-    # Get predicted load
-    predicted_load = db.get_predicted_load_tahead(pj, start_time, end_time)
 
     # If predicted is empty
     if len(predicted_load) == 0:
-        raise NoPredictedLoadError(pid, start_time, end_time)
+        raise NoPredictedLoadError(pid)
 
     # If realised is empty
     if len(realised) == 0:
-        raise NoRealisedLoadError(pid, start_time, end_time)
+        raise NoRealisedLoadError(pid)
+
+    # Define start and end time
+    start_time = realised.index.min().to_pydatetime()
+    end_time = realised.index.max().to_pydatetime()
 
     completeness_realised = validation.calc_completeness(realised)
 
@@ -156,9 +179,6 @@ def calc_kpi_for_specific_pid(pid, start_time=None, end_time=None):
 
     # TODO: make basecase calculation optional only if there was data available 7 days before
     # Add basecase (load in same time period 7 days ago)
-    basecase = db.get_load_pid(
-        pj["id"], start_time - timedelta(days=7), end_time - timedelta(days=7), "15T"
-    ).shift(periods=7, freq="d")
     basecase = basecase.rename(columns=dict(load="basecase"))
 
     combined = combined.merge(basecase, how="left", left_index=True, right_index=True)
@@ -243,7 +263,7 @@ def calc_kpi_for_specific_pid(pid, start_time=None, end_time=None):
         if completeness_realised < COMPLETENESS_REALISED_THRESHOLDS:
             log.warning(
                 "Completeness realised load too low",
-                prediction_id=pj["id"],
+                prediction_id=pid,
                 start_time=start_time,
                 end_time=end_time,
                 completeness=completeness_realised,
@@ -256,7 +276,7 @@ def calc_kpi_for_specific_pid(pid, start_time=None, end_time=None):
         ):
             log.warning(
                 "Completeness predicted load of specific horizon too low",
-                prediction_id=pj["id"],
+                prediction_id=pid,
                 horizon=t_ahead_h,
                 start_time=start_time,
                 end_time=end_time,
@@ -269,7 +289,7 @@ def calc_kpi_for_specific_pid(pid, start_time=None, end_time=None):
     return kpis
 
 
-def set_incomplete_kpi_to_nan(kpis, t_ahead_h):
+def set_incomplete_kpi_to_nan(kpis: dict, t_ahead_h: str) -> None:
     """
     Checks the given kpis for completeness and sets to nan if this not true
 

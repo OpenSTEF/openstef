@@ -217,10 +217,15 @@ def fides(data, all_forecasts=False):
     return forecast
 
 
-def main():
+def main(config=None, database=None):
     taskname = Path(__file__).name.replace(".py", "")
 
-    with TaskContext(taskname) as context:
+    if database is None or config is None:
+        raise RuntimeError(
+            "Please specifiy a configmanager and/or database connection object. These can be found in the openstef-dbc package."
+        )
+
+    with TaskContext(taskname, config, database) as context:
         context.logger.info("Querying wind prediction jobs from database")
         prediction_jobs = context.database.get_prediction_jobs_solar()
         num_prediction_jobs = len(prediction_jobs)

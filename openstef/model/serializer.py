@@ -16,7 +16,7 @@ import numpy as np
 import pandas as pd
 from matplotlib import figure
 from mlflow.exceptions import MlflowException
-from openstef_dbc.services.prediction_job import PredictionJobDataClass
+from openstef.data_classes.prediction_job import PredictionJobDataClass
 from plotly import graph_objects
 
 from openstef.data_classes.model_specifications import ModelSpecificationDataClass
@@ -267,7 +267,7 @@ class MLflowSerializer:
             model_age_days = (datetime.utcnow() - model_datetime).days
         except Exception as e:
             self.logger.warning(
-                "Could not get model age. Returning infinite age!", exception=e
+                "Could not get model age. Returning infinite age!", exception=str(e)
             )
             return np.inf  # Return fallback age
         return model_age_days

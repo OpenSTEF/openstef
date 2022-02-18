@@ -33,29 +33,37 @@ import numpy as np
 import pandas as pd
 import scipy.optimize
 import structlog
-from openstef_dbc.database import DataBase
 
 import openstef.monitoring.teams as monitoring
 from openstef.enums import MLModelType
+from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstef.tasks.utils.taskcontext import TaskContext
 
 COEF_MAX_FRACTION_DIFF = 0.3
 
 
-def main():
+def main(config=None, database=None):
     taskname = Path(__file__).name.replace(".py", "")
 
-    with TaskContext(taskname) as context:
+    if database is None or config is None:
+        raise RuntimeError(
+            "Please specifiy a configmanager and/or database connection object. These can be found in the openstef-dbc package."
+        )
+
+    with TaskContext(taskname, config, database) as context:
         model_type = [ml.value for ml in MLModelType]
 
         PredictionJobLoop(
             context,
             model_type=model_type,
-        ).map(lambda pj: split_forecast(pj["id"]))
+        ).map(split_forecast_task, context)
 
 
-def split_forecast(pid):
+def split_forecast_task(
+    pj: PredictionJobDataClass,
+    context: TaskContext,
+):
     """Function that caries out the energy splitting for a specific prediction job with
     id pid.
 
@@ -65,17 +73,12 @@ def split_forecast(pid):
     Returns:
         pandas.DataFrame: Energy splitting coefficients.
     """
-    # Make database connection
-    db = DataBase()
     logger = structlog.get_logger(__name__)
-
-    # Get Prediction job
-    pj = db.get_prediction_job(pid)
 
     logger.info("Start splitting energy", pid=pj["id"])
 
     # Get input for splitting
-    input_split_function = db.get_input_energy_splitting(pj)
+    input_split_function = context.database.get_input_energy_splitting(pj)
 
     # Carry out the splitting
     components, coefdict = find_components(input_split_function)
@@ -88,7 +91,7 @@ def split_forecast(pid):
     coefsdf = convert_coefdict_to_coefsdf(pj, input_split_function, coefdict)
 
     # Get the coefs of previous runs and check if new coefs are valid
-    last_coefsdict = db.get_energy_split_coefs(pj)
+    last_coefsdict = context.database.get_energy_split_coefs(pj)
     last_coefsdf = convert_coefdict_to_coefsdf(pj, input_split_function, last_coefsdict)
     invalid_coefs = determine_invalid_coefs(coefsdf, last_coefsdf)
     if not invalid_coefs.empty:
@@ -97,6 +100,7 @@ def split_forecast(pid):
         monitoring.post_teams(
             f"New splitting coefficient(s) for pid **{pj['id']}** deviate strongly "
             f"from previously stored coefficients.",
+            url=context.config.teams.monitoring_url,
             invalid_coefs=invalid_coefs,
             coefsdf=coefsdf,
         )
@@ -104,7 +108,9 @@ def split_forecast(pid):
         return last_coefsdf
     else:
         # Save Results
-        db.write_energy_splitting_coefficients(coefsdf, if_exists="append")
+        context.database.write_energy_splitting_coefficients(
+            coefsdf, if_exists="append"
+        )
         logger.info(
             "Succesfully wrote energy split coefficients to database", pid=pj["id"]
         )

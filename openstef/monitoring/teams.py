@@ -3,13 +3,18 @@
 # SPDX-License-Identifier: MPL-2.0
 from pathlib import Path
 
+import pandas as pd
 import pymsteams
 import structlog
-from openstef_dbc.config.config import ConfigManager
-from openstef_dbc.services.prediction_job import PredictionJobDataClass
 
 
-def post_teams(msg, invalid_coefs=None, coefsdf=None, url=None):
+def post_teams(
+    msg: str,
+    invalid_coefs: pd.DataFrame = None,
+    coefsdf: pd.DataFrame = None,
+    url: str = None,
+    proxies: dict = None,
+) -> None:
     """Post a message to Teams - KTP
 
     Note that currently no authentication occurs.
@@ -31,7 +36,6 @@ def post_teams(msg, invalid_coefs=None, coefsdf=None, url=None):
     Note:
         This function is namespace-specific.
     """
-    config = ConfigManager.get_instance()
     logger = structlog.get_logger(__name__)
 
     # Add invalid coefficients and manual coefficients-query to message
@@ -72,19 +76,16 @@ def post_teams(msg, invalid_coefs=None, coefsdf=None, url=None):
 
     # If no url is passed fall back to default
     if url is None:
-        # if Teams url is not configured just return
-        if hasattr(config, "teams") is False or config.teams.monitoring_url is None:
+        # if Teams url is not context.configured just return
+        if url == None:
             logger.warning("Can't post Teams message, no url given")
             return
-        else:
-            logger.info("No url given, using default from config")
-            url = config.teams.monitoring_url
 
     card = pymsteams.connectorcard(url)
 
     # add proxies
     # NOTE the connectorcard.proxy is passed to the requests library under the hood
-    card.proxies = config.proxies
+    card.proxies = proxies
 
     # if msg is string, convert to dict
     if type(msg) is str:
@@ -126,27 +127,6 @@ def post_teams(msg, invalid_coefs=None, coefsdf=None, url=None):
     card.send()
 
 
-def post_teams_alert(msg, url=None):
-    """Same as post_teams, but posts to alert channel.
-
-    Args:
-        msg (mixed): For simple messages a string can be passed. For more
-            complex messages pass a dict. The following keys are supported:
-            text, links, sections. Each section is a dict and can contain the
-            following keys: text, title, images, facts, markdown. Also see:
-            https://docs.microsoft.com/en-us/outlook/actionable-messages/send-via-connectors
-
-    Note:
-        This function is namespace-specific.
-    """
-    config = ConfigManager.get_instance()
-    if url is None:
-        if hasattr(config, "teams") is True:
-            url = config.teams.alert_url
-
-    return post_teams(msg, url=url)
-
-
 def build_sql_query_string(df, table):
     """Build sql insert query string for Teams message output from df.
 
@@ -182,157 +162,7 @@ def build_sql_query_string(df, table):
     return query
 
 
-def send_report_teams_better(pj: PredictionJobDataClass, feature_importance):
-    """Send a report to teams for monitoring input for an improved model.
-
-    Post includes information (performance, figures, etc.) about the trained
-    model. Use when the new trained model is better than the old model.
-
-    Args:
-        pj (PredictionJobDataClass): A dictionarry specifying the prediction job. This dict should
-            at least contain the following keys: {
-                'id': (int),
-                'sid': (str),
-                'name': (str),
-                'horizon_minutes': (int),
-                'resolution_minutes': (int),
-                'lat': (float),
-                'lon': (float),
-                'description': (str)
-            }.
-            Usually this dictionary results from querrying the 'predictions'
-            table in the SQL database.
-        feature_importance (pandas.DataFrame): A DataFrame describing the
-            feature importances and weights of the trained model.
-    model: XGBoost model object of the newly trained model
-
-    Returns:
-        None
-
-    """
-    config = ConfigManager.get_instance()
-    web_link = f'{config.dashboard.trained_models_url}/{pj["id"]}'
-
-    msg = {
-        "fallback": f'Trained better model: {pj["name"]}',
-        "title": "Trained better model",
-        "sections": [
-            {
-                "facts": [
-                    ("Name", pj["name"]),
-                    ("Desc", pj["description"]),
-                    ("pid", pj["id"]),
-                ],
-                "markdown": False,
-            },
-            {
-                "title": "Dominant features",
-                "facts": [
-                    (
-                        feature_importance.index[0],
-                        f'{feature_importance["gain"][0]:.1%}',
-                    ),
-                    (
-                        feature_importance.index[1],
-                        f'{feature_importance["gain"][1]:.1%}',
-                    ),
-                ],
-            },
-        ],
-        "links": [
-            {
-                "buttontext": "Train Performance",
-                "buttonurl": f"{web_link}/Predictor47.0.html",
-            },
-            {
-                "buttontext": "Model Weights",
-                "buttonurl": f"{web_link}/weight_plot.html",
-            },
-        ],
-        "color": "#764FA5",
-    }
-
-    post_teams(msg)
-
-
-def send_report_teams_worse(pj: PredictionJobDataClass):
-    """Send a report to teams for monitoring input for a worsened model.
-
-    Post includes information (performance, figures, etc.) about the trained
-    model. Use when the new trained model is worse than the old model.
-
-    Args:
-        pj (PredictionJobDataClass): A dictionarry specifying the prediction job. This dict should
-            at least contain the following keys: {
-                'id': (int),
-                'sid': (str),
-                'name': (str),
-                'horizon_minutes': (int),
-                'resolution_minutes': (int),
-                'lat': (float),
-                'lon': (float),
-                'description': (str)
-            }.
-            Usually this dictionary results from querrying the 'predictions'
-            table in the SQL database.
-    model: XGBoost model object of the newly trained model
-
-    Returns:
-        None
-
-    """
-    config = ConfigManager.get_instance()
-    web_link_old = f'{config.dashboard.trained_models_url}/{pj["id"]}'
-    web_link_new = f'{config.dashboard.trained_models_url}/{pj["id"]}/worse_model'
-
-    image_save_location = Path(config.paths.trained_models) / f'{pj["id"]}'
-
-    with open(image_save_location / "worse_model" / "Predictor47.0.datauri", "rt") as f:
-        graph = f.read()
-
-    msg = {
-        "fallback": f'Trained worse model: {pj["name"]}',
-        "title": "Warning",
-        "text": "Old model is better. Please check and retrain using tracy if necessary.",
-        "sections": [
-            {
-                "facts": [
-                    ("Name", pj["name"]),
-                    ("Desc", pj["description"]),
-                    ("pid", pj["id"]),
-                ],
-                "markdown": False,
-            },
-            {
-                "title": "New Model Performance",
-                "images": [graph],
-            },
-        ],
-        "links": [
-            {
-                "buttontext": "Old Model Performance",
-                "buttonurl": f"{web_link_old}/Predictor47.0.html",
-            },
-            {
-                "buttontext": "New Model Performance",
-                "buttonurl": f"{web_link_new}/Predictor47.0.html",
-            },
-            {
-                "buttontext": "Old Model Weights",
-                "buttonurl": f"{web_link_old}/weight_plot.html",
-            },
-            {
-                "buttontext": "New Model Weights",
-                "buttonurl": f"{web_link_new}/weight_plot.html",
-            },
-        ],
-        "color": "#a5764f",
-    }
-
-    post_teams(msg)
-
-
-def format_message(title, params, fallback=None, color=None):
+def format_message(title: str, params: dict, fallback=None, color=None) -> dict:
     if color is None:
         color = "#046b00"  # green
     if fallback is None:

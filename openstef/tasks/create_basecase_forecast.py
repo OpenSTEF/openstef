@@ -22,7 +22,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 import pandas as pd
-from openstef_dbc.services.prediction_job import PredictionJobDataClass
+from openstef.data_classes.prediction_job import PredictionJobDataClass
 
 from openstef.pipeline.create_basecase_forecast import create_basecase_forecast_pipeline
 from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
@@ -69,10 +69,15 @@ def create_basecase_forecast_task(
     context.database.write_forecast(basecase_forecast, t_ahead_series=True)
 
 
-def main():
+def main(config=None, database=None):
     taskname = Path(__file__).name.replace(".py", "")
 
-    with TaskContext(taskname) as context:
+    if database is None or config is None:
+        raise RuntimeError(
+            "Please specifiy a configmanager and/or database connection object. These can be found in the openstef-dbc package."
+        )
+
+    with TaskContext(taskname, config, database) as context:
         model_type = ["xgb", "xgb_quantile", "lgb"]
 
         PredictionJobLoop(context, model_type=model_type).map(

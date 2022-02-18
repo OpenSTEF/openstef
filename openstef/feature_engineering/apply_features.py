@@ -28,7 +28,7 @@ from openstef.feature_engineering.weather_features import (
 from openstef.feature_engineering.historic_features import (
     add_historic_load_as_a_feature,
 )
-from openstef_dbc.services.prediction_job import PredictionJobDataClass
+from openstef.data_classes.prediction_job import PredictionJobDataClass
 
 
 def apply_features(
