@@ -6,10 +6,9 @@ from typing import Union
 
 import pandas as pd
 import structlog
-from openstef_dbc.services.prediction_job import PredictionJobDataClass
+
+from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.data_classes.model_specifications import ModelSpecificationDataClass
-
-
 from openstef.feature_engineering.feature_applicator import (
     OperationalPredictFeatureApplicator,
 )

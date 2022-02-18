@@ -55,10 +55,15 @@ def make_wind_forecast_pj(pj, context):
     context.database.write_forecast(power, t_ahead_series=True)
 
 
-def main():
+def main(config=None, database=None):
     taskname = Path(__file__).name.replace(".py", "")
 
-    with TaskContext(taskname) as context:
+    if database is None or config is None:
+        raise RuntimeError(
+            "Please specifiy a configmanager and/or database connection object. These can be found in the openstef-dbc package."
+        )
+
+    with TaskContext(taskname, config, database) as context:
         context.logger.info("Querying wind prediction jobs from database")
         prediction_jobs = context.database.get_prediction_jobs_wind()
         prediction_jobs = [x for x in prediction_jobs if x["model"] == "latest"]

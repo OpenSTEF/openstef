@@ -6,7 +6,6 @@ import unittest
 from unittest.mock import patch
 
 import numpy as np
-import openstef_dbc
 import pandas as pd
 
 
@@ -21,24 +20,9 @@ class dotdict(dict):
 class BaseTestCase(unittest.TestCase):
     def setUp(self) -> None:
         super().setUp()
-        self.patchers = []
-        self.patchers.append(
-            patch("openstef_dbc.config.config.ConfigManager.get_instance", create=True)
-        )
-        for patcher in self.patchers:
-            patcher.start()
-
-        # add trained model path
-        conf = openstef_dbc.config.config.ConfigManager.get_instance()
-        conf.paths = dotdict(
-            dict(trained_models="/trained_models/", webroot="/reports/")
-        )
 
     def tearDown(self) -> None:
         super().tearDown()
-        if hasattr(self, "patchers"):
-            for patcher in self.patchers:
-                patcher.stop()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

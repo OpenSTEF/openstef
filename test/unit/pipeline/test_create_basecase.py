@@ -88,3 +88,12 @@ class TestBaseCaseForecast(BaseTestCase):
         # Check for length
         self.assertEqual(len(base_case_forecast), 673)
         self.assertEqual(len(base_case_forecast.dropna()), 673)
+
+    def test_create_basecase_forecast_pipeline_zero_values(self):
+        """The basecase forecast should also be made if load is constantly zero"""
+
+        forecast_input = self.forecast_input.copy()
+        forecast_input.load = 0 * forecast_input.load
+
+        base_case_forecast = create_basecase_forecast_pipeline(self.PJ, forecast_input)
+        self.assertEqual(len(base_case_forecast.dropna()), 673)

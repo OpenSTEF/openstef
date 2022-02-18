@@ -262,48 +262,27 @@ class TestTrainModelPipeline(BaseTestCase):
         self, validation_is_data_sufficient_mock, save_model_mock
     ):
         # This error is caught and then raised again and logged
-        with self.assertLogs(
-            "openstef.pipeline.train_model", level="ERROR"
-        ) as captured:
-            with self.assertRaises(InputDataInsufficientError):
-                train_model_pipeline(
-                    pj=self.pj,
-                    input_data=self.train_input,
-                    check_old_model_age=False,
-                    trained_models_folder="./test/unit/trained_models",
-                )
 
-        self.assertEqual(
-            len(captured.records), 1
-        )  # check that there is only one error log message
-        # search for log
-        self.assertRegex(
-            captured.records[0].getMessage(),
-            "Input data is insufficient after validation and cleaning",
-        )
+        with self.assertRaises(InputDataInsufficientError):
+            train_model_pipeline(
+                pj=self.pj,
+                input_data=self.train_input,
+                check_old_model_age=False,
+                trained_models_folder="./test/unit/trained_models",
+            )
 
     @patch("openstef.model.serializer.MLflowSerializer.save_model")
     def test_train_model_InputDataWrongColumnOrderError(self, save_model_mock):
         # change the column order
         input_data = self.train_input.iloc[:, ::-1]
 
-        # This error is caught and then raised again and logged
-        with self.assertLogs(
-            "openstef.pipeline.train_model", level="ERROR"
-        ) as captured:
-            with self.assertRaises(InputDataWrongColumnOrderError):
-                train_model_pipeline(
-                    pj=self.pj,
-                    input_data=input_data,
-                    check_old_model_age=False,
-                    trained_models_folder="./test/unit/trained_models",
-                )
-
-        self.assertEqual(
-            len(captured.records), 1
-        )  # check that there is only one error log message
-        # search for log
-        self.assertRegex(captured.records[0].getMessage(), "Wrong column order")
+        with self.assertRaises(InputDataWrongColumnOrderError):
+            train_model_pipeline(
+                pj=self.pj,
+                input_data=input_data,
+                check_old_model_age=False,
+                trained_models_folder="./test/unit/trained_models",
+            )
 
     @patch("openstef.model.serializer.MLflowSerializer.save_model")
     @patch("openstef.pipeline.train_model.MLflowSerializer")
@@ -322,24 +301,14 @@ class TestTrainModelPipeline(BaseTestCase):
         serializer_mock.return_value = serializer_mock_instance
         old_model_mock.score.return_value = 5
 
-        # This error is caught so we check if logging contains the error.
-        with self.assertLogs(
-            "openstef.pipeline.train_model", level="ERROR"
-        ) as captured:
-            train_model_pipeline(
-                pj=self.pj,
-                input_data=self.train_input,
-                check_old_model_age=True,
-                trained_models_folder="./test/unit/trained_models",
-            )
-
-        self.assertEqual(
-            len(captured.records), 1
-        )  # check that there is only one error log message
-        # search for the old model is better log
-        self.assertRegex(
-            captured.records[0].getMessage(), "Old model is better than new model"
+        result = train_model_pipeline(
+            pj=self.pj,
+            input_data=self.train_input,
+            check_old_model_age=True,
+            trained_models_folder="./test/unit/trained_models",
         )
+        self.assertIs(None, result)
+        self.assertEqual(len(serializer_mock_instance.method_calls), 1)
 
     @patch("openstef.model.serializer.MLflowSerializer.save_model")
     @patch("openstef.pipeline.train_model.MLflowSerializer")
@@ -356,18 +325,14 @@ class TestTrainModelPipeline(BaseTestCase):
         serializer_mock.return_value = serializer_mock_instance
         old_model_mock.score.return_value = 0.1
 
-        with self.assertLogs("openstef.pipeline.train_model", level="INFO") as captured:
-            train_model_pipeline(
-                pj=self.pj,
-                input_data=self.train_input,
-                check_old_model_age=True,
-                trained_models_folder="./test/unit/trained_models",
-            )
-
-        # search for the old model is better log
-        self.assertRegex(
-            captured.records[0].getMessage(), "New model is better than old model"
+        result = train_model_pipeline(
+            pj=self.pj,
+            input_data=self.train_input,
+            check_old_model_age=True,
+            trained_models_folder="./test/unit/trained_models",
         )
+        self.assertIs(None, result)
+        self.assertEqual(len(serializer_mock_instance.method_calls), 3)
 
     @patch("openstef.model.serializer.MLflowSerializer.save_model")
     @patch("openstef.pipeline.train_model.MLflowSerializer")
@@ -384,18 +349,14 @@ class TestTrainModelPipeline(BaseTestCase):
         serializer_mock.return_value = serializer_mock_instance
         old_model_mock.score.side_effect = ValueError()
 
-        with self.assertLogs("openstef.pipeline.train_model", level="INFO") as captured:
-            train_model_pipeline(
-                pj=self.pj,
-                input_data=self.train_input,
-                check_old_model_age=True,
-                trained_models_folder="./test/unit/trained_models",
-            )
-
-        # search for the old model is better log
-        self.assertRegex(
-            captured.records[0].getMessage(), "Could not compare to old model"
+        result = train_model_pipeline(
+            pj=self.pj,
+            input_data=self.train_input,
+            check_old_model_age=True,
+            trained_models_folder="./test/unit/trained_models",
         )
+        self.assertIs(None, result)
+        self.assertEqual(len(serializer_mock_instance.method_calls), 3)
 
     @patch("openstef.model.serializer.MLflowSerializer.save_model")
     @patch("openstef.pipeline.train_model.MLflowSerializer")
@@ -412,18 +373,13 @@ class TestTrainModelPipeline(BaseTestCase):
         serializer_mock_instance.load_model.side_effect = FileNotFoundError()
         serializer_mock.return_value = serializer_mock_instance
 
-        with self.assertLogs(
-            "openstef.pipeline.train_model", level="WARNING"
-        ) as captured:
-            train_model_pipeline(
-                pj=self.pj,
-                input_data=self.train_input,
-                check_old_model_age=True,
-                trained_models_folder="./test/unit/trained_models",
-            )
-
-        # search for the old model is better log
-        self.assertRegex(captured.records[0].getMessage(), "No old model found")
+        train_model_pipeline(
+            pj=self.pj,
+            input_data=self.train_input,
+            check_old_model_age=True,
+            trained_models_folder="./test/unit/trained_models",
+        )
+        self.assertEqual(len(serializer_mock_instance.method_calls), 3)
 
     def test_train_pipeline_common_different_quantiles_with_quantile_regressor(self):
         """Incorporated after a bug.

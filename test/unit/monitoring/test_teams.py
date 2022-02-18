@@ -21,15 +21,7 @@ class TestTeams(BaseTestCase):
 
         msg = "test"
 
-        teams.post_teams(msg)
-        card_mock = teamsmock.connectorcard.return_value
-        self.assertTrue(card_mock.send.called)
-
-    def test_post_teams_alert(self, teamsmock):
-
-        msg = "test"
-
-        teams.post_teams_alert(msg)
+        teams.post_teams(msg, url="MOCK_URL")
         card_mock = teamsmock.connectorcard.return_value
         self.assertTrue(card_mock.send.called)
 
@@ -45,7 +37,9 @@ class TestTeams(BaseTestCase):
         )
         coefsdf = pd.DataFrame()
 
-        teams.post_teams(msg, invalid_coefs=invalid_coefs, coefsdf=coefsdf)
+        teams.post_teams(
+            msg, url="MOCK_URL", invalid_coefs=invalid_coefs, coefsdf=coefsdf
+        )
         card_mock = teamsmock.connectorcard.return_value
         self.assertTrue(card_mock.send.called)
 
@@ -57,18 +51,3 @@ class TestTeams(BaseTestCase):
 
         query_result = teams.build_sql_query_string(query_df, table)
         self.assertEqual(query_result, query_expected)
-
-    def test_post_teams_better(self, teamsmock):
-
-        test_feature_weights = pd.DataFrame(data={"gain": [1, 2]})
-
-        teams.send_report_teams_better(self.pj, test_feature_weights)
-        card_mock = teamsmock.connectorcard.return_value
-        self.assertTrue(card_mock.send.called)
-
-    @patch("openstef.monitoring.teams.open", MagicMock())
-    def test_post_teams_worse(self, teamsmock):
-
-        teams.send_report_teams_worse(self.pj)
-        card_mock = teamsmock.connectorcard.return_value
-        self.assertTrue(card_mock.send.called)

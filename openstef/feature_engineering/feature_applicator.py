@@ -13,13 +13,11 @@ from openstef.feature_engineering.general import (
     enforce_feature_order,
     remove_non_requested_feature_columns,
 )
-
 from openstef.feature_engineering.feature_adder import (
     adders_from_modules,
     FeatureDispatcher,
 )
-from openstef_dbc.services.prediction_job import PredictionJobDataClass
-
+from openstef.data_classes.prediction_job import PredictionJobDataClass
 
 LATENCY_CONFIG = {"APX": 24}  # A specific latency is part of a specific feature.
 
