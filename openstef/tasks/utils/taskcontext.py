@@ -140,4 +140,4 @@ class TaskContext:
             }
         )
 
-        post_teams(msg, url=self.config.teams.monitoring_url)
+        post_teams(msg, url=self.config.teams.monitoring_url, proxies=self.config.proxies)

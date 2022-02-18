@@ -81,7 +81,7 @@ class TestPerformanceCalcKpiForSpecificPid(BaseTestCase):
     # Test whether correct kpis are calculated for specific test data
     def test_calc_kpi_for_specific_pid(self):
         kpis = calc_kpi_for_specific_pid(
-            prediction_job, realised_load, predicted_load, realised_load
+            prediction_job["id"], realised_load, predicted_load, realised_load
         )
         # use this to store new kpis
         # json.dump(kpis, open(filename, "w"), default=str)
@@ -101,7 +101,7 @@ class TestPerformanceCalcKpiForSpecificPid(BaseTestCase):
     # Test whether none is returned in case of poor completeness for realised data
     def test_calc_kpi_for_specific_pid_poor_completeness_realized(self):
         kpis = calc_kpi_for_specific_pid(
-            prediction_job, realised_load_nan, predicted_load, realised_load_nan
+            prediction_job["id"], realised_load_nan, predicted_load, realised_load_nan
         )
         t_ahead_keys = kpis.keys()
         self.assertIs(kpis[list(t_ahead_keys)[0]]["rMAE"], np.NaN)
@@ -120,7 +120,7 @@ class TestPerformanceCalcKpiForSpecificPid(BaseTestCase):
         realised_load_constant = realised_load.copy()
         realised_load_constant.iloc[1:, :] = realised_load_constant.iloc[0, :]
         kpis = calc_kpi_for_specific_pid(
-            prediction_job, realised_load_constant, predicted_load, realised_load
+            prediction_job["id"], realised_load_constant, predicted_load, realised_load
         )
         self.assertIsNAN(kpis["4.0h"]["MAE"])  # arbitrary time horizon tested
         self.assertAlmostEqual(kpis["4.0h"]["MAE"], 2.9145, places=3)
@@ -131,7 +131,7 @@ class TestPerformanceCalcKpiForSpecificPid(BaseTestCase):
 
         with self.assertRaises(NoRealisedLoadError):
             calc_kpi_for_specific_pid(
-                prediction_job, pd.DataFrame(), predicted_load, pd.DataFrame()
+                prediction_job["id"], pd.DataFrame(), predicted_load, pd.DataFrame()
             )
 
     def test_calc_kpi_no_prediction_exception(self):
@@ -140,7 +140,7 @@ class TestPerformanceCalcKpiForSpecificPid(BaseTestCase):
 
         with self.assertRaises(NoPredictedLoadError):
             calc_kpi_for_specific_pid(
-                prediction_job, realised_load, pd.DataFrame(), realised_load
+                prediction_job["id"], realised_load, pd.DataFrame(), realised_load
             )
 
 
