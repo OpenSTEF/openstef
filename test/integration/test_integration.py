@@ -61,7 +61,9 @@ class TestIntegration(unittest.TestCase):
             print("Trained model could not be found in the trained_models folder")
 
         try:
-            forecast = create_forecast_pipeline_core(self.pj, forecast_data, model)
+            forecast = create_forecast_pipeline_core(
+                self.pj, forecast_data, model, self.modelspecs
+            )
             forecast["realised"] = forecast_data.iloc[:, 0]
             forecast["horizon"] = forecast_data.iloc[:, -1]
         except:

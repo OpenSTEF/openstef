@@ -231,7 +231,9 @@ def train_pipeline_common(
         stratification_min_max = True
 
     data_with_features = TrainFeatureApplicator(
-        horizons=horizons, feature_names=modelspecs.feature_names
+        horizons=horizons,
+        feature_names=modelspecs.feature_names,
+        feature_modules=modelspecs.feature_modules,
     ).add_features(validated_data, pj=pj)
 
     # if test_data is predefined, apply the pipeline only on the remaining data

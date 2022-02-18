@@ -171,6 +171,34 @@ class TestTrainModelPipeline(BaseTestCase):
                     importance = model.set_feature_importance()
                     self.assertIsInstance(importance, pd.DataFrame)
 
+    def test_train_model_pipeline_with_featureAdders(self):
+        pj = self.pj
+        modelspecs = self.modelspecs
+        modelspecs.hyper_params = {}
+        modelspecs.feature_modules = [
+            "test.unit.feature_engineering.test_feature_adder"
+        ]
+        dummy_feature = "dummy_0.5"
+        modelspecs.feature_names.append(dummy_feature)
+
+        train_input = self.train_input.iloc[::50, :]
+        model, report, modelspecs = train_model_pipeline_core(
+            pj=pj, modelspecs=modelspecs, input_data=train_input
+        )
+
+        # check if the model was fitted (raises NotFittedError when not fitted)
+        self.assertIsNone(sklearn.utils.validation.check_is_fitted(model))
+
+        # check if the model has a feature_names property
+        self.assertIsNotNone(model.feature_names)
+        self.assertTrue(dummy_feature in model.feature_names)
+
+        # check if model is sklearn compatible
+        self.assertTrue(isinstance(model, sklearn.base.BaseEstimator))
+
+        # check if report is a Report
+        self.assertTrue(isinstance(report, Report))
+
     @patch("openstef.model.serializer.MLflowSerializer.save_model")
     @patch("openstef.pipeline.train_model.train_model_pipeline_core")
     @patch("openstef.pipeline.train_model.MLflowSerializer")
