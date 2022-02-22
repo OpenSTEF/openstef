@@ -147,9 +147,16 @@ class TestLinearOpenstfRegressor(BaseTestCase):
                 ).all()
             )
 
+        print(train_x.reset_index(drop=True).sample(20).index)
+        print(model.predict(train_x.reset_index(drop=True).sample(20)))
+        self.assertFalse((model.predict(train_x.sample(20)) == np.nan).any())
+
         # test kwargs in fit and predict methods
-        model_lgb = GroupedRegressor(LGBMRegressor(), group_columns=["time"])
-        model_lgb.fit(train_x, train_y, eval_set=[(val_x, val_y)], verbose=False)
+        model_lgb = GroupedRegressor(LGBMRegressor(), group_columns="time")
+        with self.assertRaises(ValueError):
+            model_lgb.fit(train_x, train_y, eval_set=[(val_x, val_y)])
+
+        model_lgb.fit(train_x, train_y, eval_set=[(train_x, train_y)], verbose=False)
         self.assertIsNone(sklearn.utils.validation.check_is_fitted(model_lgb))
         res = model_lgb.predict(train_x, raw_score=True)
         for k, estimator in model_lgb.estimators_.items():

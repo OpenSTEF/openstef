@@ -79,12 +79,35 @@ class GroupedRegressor(BaseEstimator, RegressorMixin, MetaEstimatorMixin):
                 raise ValueError("The group column {} is missing!".format(c))
 
     def _partial_fit(
-        self, group: Any, df_group: pd.DataFrame, **kwargs
+        self, group: Any, df_group: pd.DataFrame, eval_set=None, **kwargs
     ) -> Tuple[Any, BaseEstimator]:
         estimator = clone(self.base_estimator)
         X = df_group.loc[:, self.feature_names_]
         y = df_group.loc[:, "__target__"]
-        return (group, estimator.fit(X, y, **kwargs))
+
+        if eval_set is None:
+            estimator_fitted = estimator.fit(X, y, **kwargs)
+        else:
+            estimator_fitted = estimator.fit(
+                X,
+                y,
+                eval_set=[
+                    (
+                        df.loc[
+                            (df[self.group_columns] == group).to_numpy().flatten(),
+                            self.feature_names_,
+                        ],
+                        df.loc[
+                            (df[self.group_columns] == group).to_numpy().flatten(),
+                            "__target__",
+                        ],
+                    )
+                    for df in eval_set
+                ],
+                **kwargs
+            )
+
+        return (group, estimator_fitted)
 
     def _partial_predict(self, group, df_group, **kwargs):
         return self.estimators_[group].predict(df_group, **kwargs)
@@ -96,6 +119,7 @@ class GroupedRegressor(BaseEstimator, RegressorMixin, MetaEstimatorMixin):
         group_columns: Union[List[str], List[int]],
         func: Callable[[Tuple, pd.DataFrame], np.array],
         n_jobs: int = 1,
+        eval_set=None,
     ) -> Tuple[Tuple[np.array, ...], DataFrameGroupBy, pd.DataFrame]:
         """Computes the specified function on each group defined by the grouping columns.
         It is an utility function used to perform fit and predict on each group.
@@ -149,24 +173,38 @@ class GroupedRegressor(BaseEstimator, RegressorMixin, MetaEstimatorMixin):
         return df_res["__result__"].to_numpy()
 
     def _grouped_fit(
-        self, df: pd.DataFrame, n_jobs: int = 1, **kwargs
+        self, df: pd.DataFrame, n_jobs: int = 1, eval_set=None, **kwargs
     ) -> Dict[Any, BaseEstimator]:
         group_res, _, _ = self.grouped_compute(
             df,
             self.group_columns,
-            lambda group, df_group: self._partial_fit(group, df_group, **kwargs),
+            lambda group, df_group: self._partial_fit(
+                group, df_group, eval_set=eval_set, **kwargs
+            ),
             n_jobs,
         )
         return dict(group_res)
 
-    def fit(self, x, y, **kwargs):
+    def fit(self, x, y, eval_set=None, **kwargs):
         df = pd.DataFrame(x).copy(deep=True)
         self._check_group_columns(df)
+
+        eval_df = None
+        if eval_set is not None:
+            eval_df = []
+            for X_set, y_set in eval_set:
+                self._check_group_columns(X_set)
+                df_set = pd.DataFrame(X_set).copy(deep=True)
+                df_set["__target__"] = y_set
+                eval_df.append(df_set)
+
         self.feature_names_ = [
             c for c in list(df.columns) if c not in self.group_columns
         ]
         df.loc[:, "__target__"] = y
-        self.estimators_ = self._grouped_fit(df, self.n_jobs, **kwargs)
+        self.estimators_ = self._grouped_fit(
+            df, self.n_jobs, eval_set=eval_df, **kwargs
+        )
         return self
 
     def predict(self, x, **kwargs):
