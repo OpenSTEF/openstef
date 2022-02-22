@@ -54,6 +54,11 @@ class OpenstfRegressorInterface(BaseEstimator, RegressorMixin, ABC):
         """
         pass
 
+    @property
+    @abstractmethod
+    def can_predict_quantiles(self):
+        pass
+
 
 # In the future, expand this class with:
 # - calculate_feature_importance()

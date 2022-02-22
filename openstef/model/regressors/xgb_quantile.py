@@ -200,3 +200,7 @@ class XGBQuantileOpenstfRegressor(OpenstfRegressor):
     @property
     def feature_names(self):
         return self._Booster.feature_names
+
+    @property
+    def can_predict_quantiles(self):
+        return True

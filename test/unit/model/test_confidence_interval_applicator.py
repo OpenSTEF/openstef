@@ -30,6 +30,10 @@ class MockModel:
         stdev_forecast = pd.DataFrame({"forecast": [5, 6, 7], "stdev": [0.5, 0.6, 0.7]})
         return stdev_forecast["stdev"].rename(quantile)
 
+    @property
+    def can_predict_quantiles(self):
+        return True
+
 
 class TestConfidenceIntervalApplicator(TestCase):
     def setUp(self) -> None:
