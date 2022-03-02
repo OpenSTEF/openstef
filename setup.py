@@ -29,7 +29,7 @@ def read_long_description_from_readme():
 
 setup(
     name="openstef",
-    version="3.1.0",
+    version="3.1.1",
     packages=find_packages(include=["openstef", "openstef.*"]),
     description="Open short term energy forecaster",
     long_description=read_long_description_from_readme(),
@@ -59,5 +59,6 @@ setup(
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
     ],
 )

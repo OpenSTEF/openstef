@@ -55,10 +55,10 @@ jobs:
       run: |
         pip install pytest pytest-cov
         pytest --cov-report=xml --cov=openstef/ test/unit/ --junitxml=pytest-report.xml
-    - name: Integration test with pytest
+    - name: Component test with pytest
       run: |
           pip install pytest pytest-cov
-          pytest --cov-report=xml --cov=openstef/ test/integration/ --junitxml=pytest-report_integration.xml
+          pytest --cov-report=xml --cov=openstef/ test/component/ --junitxml=pytest-report_component.xml
     # Fix relative paths in coverage file
     # Known bug: https://community.sonarsource.com/t/sonar-on-github-actions-with-python-coverage-source-issue/36057
     - name: fix code coverage paths
