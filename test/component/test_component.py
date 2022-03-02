@@ -9,16 +9,16 @@ from openstef.pipeline.train_model import train_pipeline_common
 from openstef.pipeline.create_forecast import create_forecast_pipeline_core
 
 
-class TestIntegration(unittest.TestCase):
+class TestComponent(unittest.TestCase):
     def setUp(self) -> None:
         super().setUp()
         self.input_data = TestData.load("reference_sets/307-train-data.csv")
         self.forecast_data = TestData.load("reference_sets/307-test-data.csv")
         self.pj, self.modelspecs = TestData.get_prediction_job_and_modelspecs(pid=307)
 
-    def test_integration_happyflow(self):
+    def test_component_training_prediction_happyflow(self):
         """
-        Performs the integration test for the pipeline
+        Performs the component test for the pipeline
         1) optimize hyperparameters
         2) train model
         3) make prognoses
@@ -33,7 +33,7 @@ class TestIntegration(unittest.TestCase):
             )
             self.modelspecs.hyper_params = parameters
         except:
-            print("Optimization of hyperparameters failed during the integration test")
+            print("Optimization of hyperparameters failed during the component test")
 
         # 2) train model, using the optimized hyperparameters
         try:
@@ -47,7 +47,7 @@ class TestIntegration(unittest.TestCase):
                 self.pj, self.modelspecs, self.input_data, [0.25, 47.0]
             )
         except:
-            print("Training of the model failed during the integration test")
+            print("Training of the model failed during the component test")
 
         # 3) create forecast, using the trained model
         forecast_data = self.forecast_data
@@ -67,7 +67,7 @@ class TestIntegration(unittest.TestCase):
             forecast["realised"] = forecast_data.iloc[:, 0]
             forecast["horizon"] = forecast_data.iloc[:, -1]
         except:
-            print("Creating a forecast failed during the integration test")
+            print("Creating a forecast failed during the component test")
 
         # Verify forecast works correctly
         self.assertTrue("forecast" in forecast.columns)
