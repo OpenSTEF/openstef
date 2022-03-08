@@ -28,6 +28,7 @@ class TestModelCreator(TestCase):
         self.assertIsInstance(model, OpenstfRegressorInterface)
         self.assertIsInstance(model, XGBQuantileOpenstfRegressor)
         self.assertEqual(model.quantiles, quantiles)
+        assert hasattr(model, 'can_predict_quantiles')
 
     def test_create_model_unknown_model(self):
         # Test if NotImplementedError is raised when model type is unknown
