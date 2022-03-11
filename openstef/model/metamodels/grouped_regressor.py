@@ -168,7 +168,7 @@ class GroupedRegressor(BaseEstimator, RegressorMixin, MetaEstimatorMixin):
         )
 
         for (group, group_index), result in zip(gb.groups.items(), group_res):
-            df_res.loc[group_index, "__result__"] = result
+            df_res.loc[group_index, "__result__"] = np.array(result)
 
         return df_res["__result__"].to_numpy()
 

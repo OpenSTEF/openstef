@@ -63,10 +63,6 @@ class TestGroupedRegressor(BaseTestCase):
                 ).all()
             )
 
-        # print(self.train_x.reset_index(drop=True).sample(20).index)
-        # print(model.predict(self.train_x.reset_index(drop=True).sample(20)))
-        # self.assertFalse((model.predict(self.train_x.sample(20)) == np.nan).any())
-
     def test_kwargs_handling(self):
         # test kwargs in fit and predict methods
         model_lgb = GroupedRegressor(LGBMRegressor(), group_columns="time")
