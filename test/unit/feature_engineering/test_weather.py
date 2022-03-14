@@ -27,7 +27,6 @@ class HumidityCalculationsTest(BaseTestCase):
         self.assertEqual(result.keys(), expected.keys())
         np.testing.assert_allclose(list(result.values()), list(expected.values()))
 
-
     def test_good_input_high_RH(self):
         temp = 40
         rh = 50
