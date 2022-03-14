@@ -5,6 +5,7 @@
 import unittest
 from test.unit.utils.base import BaseTestCase
 
+import numpy as np
 import pandas as pd
 
 from openstef.feature_engineering import weather_features
@@ -22,7 +23,10 @@ class HumidityCalculationsTest(BaseTestCase):
             "air_density": 1.0184141379792693,
         }
         result = weather_features.humidity_calculations(temp, rh, pressure)
-        self.assertDictEqual(result, expected)
+
+        self.assertEqual(result.keys(), expected.keys())
+        np.testing.assert_allclose(list(result.values()), list(expected.values()))
+
 
     def test_good_input_high_RH(self):
         temp = 40
@@ -35,7 +39,9 @@ class HumidityCalculationsTest(BaseTestCase):
             "air_density": 1.0184141379792693,
         }
         result = weather_features.humidity_calculations(temp, rh, pressure)
-        self.assertDictEqual(result, expected)
+
+        self.assertEqual(result.keys(), expected.keys())
+        np.testing.assert_allclose(list(result.values()), list(expected.values()))
 
     def test_str_input(self):
         temp = "40"
