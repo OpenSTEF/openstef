@@ -47,7 +47,7 @@ setup(
     },
     python_requires=">=3.7.0",
     install_requires=read_requirements_from_file(),
-    setup_requires=["wheel", "Cython"],
+    setup_requires=["wheel"],
     tests_require=["pytest", "pytest-cov", "flake8"],
     extras_require={
         "proloaf": ["proloaf==0.2.0", "torch==1.10.0", "pytorch-lightning==1.5.1"]
