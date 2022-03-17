@@ -26,11 +26,11 @@ class XGBQuantileOpenstfRegressor(OpenstfRegressor):
     def __init__(
         self,
         quantiles: Tuple[float, ...] = DEFAULT_QUANTILES,
-        gamma: float = 0.37879654,
-        colsample_bytree: float = 0.78203051,
-        subsample: float = 0.9,
-        min_child_weight: int = 4,
-        max_depth: int = 4,
+        gamma: float = 0.0,
+        colsample_bytree: float = 1.0,
+        subsample: float = 1.0,
+        min_child_weight: int = 1,
+        max_depth: int = 6,
     ):
         """Initialize XGBQuantileRegressor
 
