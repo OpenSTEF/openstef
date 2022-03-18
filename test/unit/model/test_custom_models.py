@@ -33,6 +33,10 @@ class DummyRegressor(CustomOpenstfRegressor):
     def feature_names(self):
         return self._feature_names
 
+    @property
+    def can_predict_quantiles(self):
+        return False
+
     def fit(self, X, y, **fit_params):
         self._feature_names = list(X.columns)
         return self
