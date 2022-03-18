@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: MPL-2.0
 
 from typing import Union, Optional, List
-
 from pydantic import BaseModel
 
 
@@ -19,6 +18,7 @@ class PredictionJobDataClass(BaseModel):
     name: str
     description: Optional[str]
     quantiles: Optional[List[float]]
+    depends_on: Optional[List[Union[str, int]]]
 
     def __getitem__(self, item):
         """Allows us to use subscription to get the items from the object"""
