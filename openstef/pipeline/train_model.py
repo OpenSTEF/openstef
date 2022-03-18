@@ -79,7 +79,7 @@ def train_model_pipeline(
     # Train model with core pipeline
     try:
         model, report, modelspecs_updated = train_model_pipeline_core(
-            pj, modelspecs, input_data, old_model
+            pj, modelspecs, input_data, old_model, horizons=pj.train_horizons_minutes
         )
     except OldModelHigherScoreError as OMHSE:
         logger.error("Old model is better than new model", pid=pj["id"], exc_info=OMHSE)
@@ -136,7 +136,10 @@ def train_model_pipeline_core(
     """
 
     if horizons is None:
-        horizons = DEFAULT_TRAIN_HORIZONS
+        if pj.train_horizons_minutes is None:
+            horizons = DEFAULT_TRAIN_HORIZONS
+        else:
+            horizons = pj.train_horizons_minutes
 
     logger = structlog.get_logger(__name__)
 

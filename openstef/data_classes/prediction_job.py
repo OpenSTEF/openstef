@@ -19,6 +19,7 @@ class PredictionJobDataClass(BaseModel):
     name: str
     description: Optional[str]
     quantiles: Optional[List[float]]
+    train_horizons_minutes: Optional[List[int]]
 
     def __getitem__(self, item):
         """Allows us to use subscription to get the items from the object"""
