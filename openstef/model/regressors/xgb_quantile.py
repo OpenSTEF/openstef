@@ -26,11 +26,14 @@ class XGBQuantileOpenstfRegressor(OpenstfRegressor):
     def __init__(
         self,
         quantiles: Tuple[float, ...] = DEFAULT_QUANTILES,
-        gamma: float = 0.37879654,
-        colsample_bytree: float = 0.78203051,
-        subsample: float = 0.9,
-        min_child_weight: int = 4,
-        max_depth: int = 4,
+        gamma: float = 0.0,
+        colsample_bytree: float = 1.0,
+        subsample: float = 1.0,
+        min_child_weight: int = 1,
+        max_depth: int = 6,
+        learning_rate: float = 0.3,
+        alpha: float = 0.0,
+        max_delta_step: int = 0,
     ):
         """Initialize XGBQuantileRegressor
 
@@ -56,7 +59,10 @@ class XGBQuantileOpenstfRegressor(OpenstfRegressor):
         self.min_child_weight = min_child_weight
         self.max_depth = max_depth
         self.gamma = gamma
+        self.alpha = alpha
+        self.max_delta_step = max_delta_step
         self.colsample_bytree = colsample_bytree
+        self.learning_rate = learning_rate
 
     def fit(self, x: np.array, y: np.array, **kwargs) -> OpenstfRegressor:
         """Fits xgb quantile model
