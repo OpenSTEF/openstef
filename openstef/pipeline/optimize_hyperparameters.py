@@ -8,7 +8,7 @@ import optuna
 import pandas as pd
 import structlog
 from openstef.data_classes.prediction_job import PredictionJobDataClass
-from openstef.enums import MLModelType
+
 from openstef.data_classes.model_specifications import ModelSpecificationDataClass
 from openstef.exceptions import (
     InputDataInsufficientError,
@@ -25,7 +25,6 @@ from openstef.pipeline.train_model import (
 
 # This is required to disable the default optuna logger and pass the logs to our own
 # structlog logger
-from openstef.model.regressors.regressor import OpenstfRegressor
 from openstef.model.serializer import MLflowSerializer
 from openstef.validation import validation
 
