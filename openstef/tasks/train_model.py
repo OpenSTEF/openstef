@@ -76,12 +76,15 @@ def train_model_task(
     context.perf_meter.checkpoint("Retrieved timeseries input")
 
     # Excecute the model training pipeline
-    train_model_pipeline(
+    report = train_model_pipeline(
         pj,
         input_data,
         check_old_model_age=check_old_model_age,
         trained_models_folder=trained_models_folder,
     )
+
+    if pj.save_train_forecasts and hasattr(context.database, "write_train_forecasts"):
+        context.database.write_train_forecasts(pj, report)
 
     context.perf_meter.checkpoint("Model trained")
 
