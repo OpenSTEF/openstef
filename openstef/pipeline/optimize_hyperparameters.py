@@ -124,9 +124,12 @@ def optimize_hyperparameters_pipeline(
         hyper_params=best_hyperparams,
     )
 
-    # If the model type is quantile train a model with best parameters for all quantiles (optimitzation is only done for quantile 0.5)
-    if objective.model.can_predict_quantiles == True:
-        study.user_attrs["best_model"], report, modelspecs = train_model_pipeline_core(pj=pj, input_data=input_data, modelspecs=modelspecs)
+    # If the model type is quantile, train a model with the best parameters for all quantiles
+    # (optimization is only done for quantile 0.5)
+    if objective.model.can_predict_quantiles:
+        study.user_attrs["best_model"], report, modelspecs = train_model_pipeline_core(
+            pj=pj, input_data=input_data, modelspecs=modelspecs
+        )
 
     # Save model
     serializer.save_model(
