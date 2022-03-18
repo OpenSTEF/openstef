@@ -8,7 +8,7 @@ import optuna
 import pandas as pd
 import structlog
 from openstef.data_classes.prediction_job import PredictionJobDataClass
-
+from openstef.enums import MLModelType
 from openstef.data_classes.model_specifications import ModelSpecificationDataClass
 from openstef.exceptions import (
     InputDataInsufficientError,
@@ -18,7 +18,10 @@ from openstef.feature_engineering.feature_applicator import TrainFeatureApplicat
 from openstef.model.model_creator import ModelCreator
 from openstef.model.objective import RegressorObjective
 from openstef.model.objective_creator import ObjectiveCreator
-from openstef.pipeline.train_model import DEFAULT_TRAIN_HORIZONS
+from openstef.pipeline.train_model import (
+    DEFAULT_TRAIN_HORIZONS,
+    train_model_pipeline_core,
+)
 
 # This is required to disable the default optuna logger and pass the logs to our own
 # structlog logger
@@ -120,6 +123,11 @@ def optimize_hyperparameters_pipeline(
         feature_names=list(validated_data_with_features.columns),
         hyper_params=best_hyperparams,
     )
+
+    # If the model type is quantile train a model with best parameters for all quantiles (optimitzation is only done for quantile 0.5)
+    if objective.model.can_predict_quantiles == True:
+        study.user_attrs["best_model"], report, modelspecs = train_model_pipeline_core(pj=pj, input_data=input_data, modelspecs=modelspecs)
+
     # Save model
     serializer.save_model(
         study.user_attrs["best_model"],
