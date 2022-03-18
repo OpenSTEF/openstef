@@ -17,6 +17,11 @@ class TestModelCreator(TestCase):
         for model_type in valid_types:
             model = ModelCreator.create_model(model_type)
             self.assertIsInstance(model, OpenstfRegressorInterface)
+            self.assertTrue(hasattr(model, "can_predict_quantiles"))
+            if model_type in ["xgb_quantile", MLModelType("xgb_quantile")]:
+                self.assertTrue(model.can_predict_quantiles)
+            else:
+                self.assertFalse(model.can_predict_quantiles)
 
     def test_create_model_quantile_model(self):
         # Test if quantile model is properly returned
