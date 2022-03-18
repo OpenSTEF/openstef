@@ -65,8 +65,11 @@ def train_model_pipeline(
     except (AttributeError, FileNotFoundError, LookupError):
         old_model = None
         old_model_age = float("inf")
-        # create basic modelspecs
-        modelspecs = ModelSpecificationDataClass(id=pj["id"])
+        if pj["default_modelspecs"] is not None:
+            modelspecs = pj["default_modelspecs"]
+        else:
+            # create basic modelspecs
+            modelspecs = ModelSpecificationDataClass(id=pj["id"])
         logger.warning("No old model found, training new model", pid=pj["id"])
 
     # Check old model age and continue yes/no

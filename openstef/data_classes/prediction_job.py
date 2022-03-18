@@ -5,6 +5,7 @@
 from typing import Union, Optional, List
 
 from pydantic import BaseModel
+from .model_specifications import ModelSpecificationDataClass
 
 
 class PredictionJobDataClass(BaseModel):
@@ -19,6 +20,7 @@ class PredictionJobDataClass(BaseModel):
     name: str
     description: Optional[str]
     quantiles: Optional[List[float]]
+    default_modelspecs: Optional[ModelSpecificationDataClass]
 
     def __getitem__(self, item):
         """Allows us to use subscription to get the items from the object"""
