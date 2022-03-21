@@ -40,8 +40,8 @@ def train_model_task(
     pj: PredictionJobDataClass,
     context: TaskContext,
     check_old_model_age: bool = DEFAULT_CHECK_MODEL_AGE,
-    datetime_start: datetime=None,
-    datetime_end: datetime=None
+    datetime_start: datetime = None,
+    datetime_end: datetime = None,
 ) -> None:
     """Train model task.
 
@@ -103,7 +103,9 @@ def main(model_type=None, config=None, database=None):
     taskname = Path(__file__).name.replace(".py", "")
     datetime_now = datetime.utcnow()
     with TaskContext(taskname, config, database) as context:
-        PredictionJobLoop(context, model_type=model_type).map(train_model_task, context, timedate_end=datetime_now)
+        PredictionJobLoop(context, model_type=model_type).map(
+            train_model_task, context, timedate_end=datetime_now
+        )
 
 
 if __name__ == "__main__":
