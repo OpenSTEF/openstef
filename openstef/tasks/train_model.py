@@ -104,7 +104,7 @@ def main(model_type=None, config=None, database=None):
     datetime_now = datetime.utcnow()
     with TaskContext(taskname, config, database) as context:
         PredictionJobLoop(context, model_type=model_type).map(
-            train_model_task, context, timedate_end=datetime_now
+            train_model_task, context, datetime_end=datetime_now
         )
 
 
