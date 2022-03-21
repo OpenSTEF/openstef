@@ -38,8 +38,8 @@
 <li><a class="reference internal" href="#">openstef.feature_engineering package</a><ul>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
 <li><a class="reference internal" href="#module-openstef.feature_engineering.apply_features">openstef.feature_engineering.apply_features module</a></li>
-<li><a class="reference internal" href="#openstef-feature-engineering-feature-adder-module">openstef.feature_engineering.feature_adder module</a></li>
-<li><a class="reference internal" href="#openstef-feature-engineering-feature-applicator-module">openstef.feature_engineering.feature_applicator module</a></li>
+<li><a class="reference internal" href="#module-openstef.feature_engineering.feature_adder">openstef.feature_engineering.feature_adder module</a></li>
+<li><a class="reference internal" href="#module-openstef.feature_engineering.feature_applicator">openstef.feature_engineering.feature_applicator module</a></li>
 <li><a class="reference internal" href="#module-openstef.feature_engineering.general">openstef.feature_engineering.general module</a></li>
 <li><a class="reference internal" href="#module-openstef.feature_engineering.historic_features">openstef.feature_engineering.historic_features module</a></li>
 <li><a class="reference internal" href="#module-openstef.feature_engineering.holiday_features">openstef.feature_engineering.holiday_features module</a></li>
@@ -139,11 +139,194 @@ np.random.uniform(0.7,1.7, 200)))</p>
 </dd></dl>
 
 </div>
-<div class="section" id="openstef-feature-engineering-feature-adder-module">
-<h2>openstef.feature_engineering.feature_adder module<a class="headerlink" href="#openstef-feature-engineering-feature-adder-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-openstef.feature_engineering.feature_adder">
+<span id="openstef-feature-engineering-feature-adder-module"></span><h2>openstef.feature_engineering.feature_adder module<a class="headerlink" href="#module-openstef.feature_engineering.feature_adder" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="openstef.feature_engineering.feature_adder.FeatureAdder">
+<em class="property">class </em><code class="sig-prename descclassname">openstef.feature_engineering.feature_adder.</code><code class="sig-name descname">FeatureAdder</code><a class="headerlink" href="#openstef.feature_engineering.feature_adder.FeatureAdder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
+<p>Abstract class that implement the FeatureAdder interface.
+It is the basic block that handles the logic for computing the specific feature
+and the syntactic sugar to load properly the feature adder according to the feature name.</p>
+<dl class="method">
+<dt id="openstef.feature_engineering.feature_adder.FeatureAdder.apply_features">
+<em class="property">abstract </em><code class="sig-name descname">apply_features</code><span class="sig-paren">(</span><em class="sig-param">df: pandas.core.frame.DataFrame, parsed_feature_names: Sequence[openstef.feature_engineering.feature_adder.ParsedFeature]</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstef.feature_engineering.feature_adder.FeatureAdder.apply_features" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="openstef.feature_engineering.feature_adder.FeatureAdder.name">
+<em class="property">abstract property </em><code class="sig-name descname">name</code><a class="headerlink" href="#openstef.feature_engineering.feature_adder.FeatureAdder.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="openstef.feature_engineering.feature_adder.FeatureAdder.parse_feature_name">
+<code class="sig-name descname">parse_feature_name</code><span class="sig-paren">(</span><em class="sig-param">feature_name: str</em><span class="sig-paren">)</span> &#x2192; Optional[Dict[str, str]]<a class="headerlink" href="#openstef.feature_engineering.feature_adder.FeatureAdder.parse_feature_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse a feature name</p>
+<p>If the feature name is taken in charge by the feature adder, the method returns
+a dictionnary with the potentially parsed parameters contained the feature name. In the
+case the feature name does not contain parameters an empty dictionary is returned.
+Otherwise the method returns None.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>feature_name</strong> (<em>str</em>) – The feature name. The feature name may contain parameter informations</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>parameters</strong> – The parsed parameters. If the feature name is recognized but has no parameters
+an empty dictionnary is returned. If the feature name is not recognized, None is
+returned.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Optional[Dict[str, Any]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="openstef.feature_engineering.feature_adder.FeatureAdder.required_features">
+<em class="property">abstract </em><code class="sig-name descname">required_features</code><span class="sig-paren">(</span><em class="sig-param">feature_names</em><span class="sig-paren">)</span> &#x2192; List[str]<a class="headerlink" href="#openstef.feature_engineering.feature_adder.FeatureAdder.required_features" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="openstef.feature_engineering.feature_adder.FeatureDispatcher">
+<em class="property">class </em><code class="sig-prename descclassname">openstef.feature_engineering.feature_adder.</code><code class="sig-name descname">FeatureDispatcher</code><span class="sig-paren">(</span><em class="sig-param">feature_adders: Sequence[openstef.feature_engineering.feature_adder.FeatureAdder]</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.feature_adder.FeatureDispatcher" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Orchestrator of the feature adders.
+It scans the feature_names to assign to each feature the proper feature adder
+and launch the effective computing of the features.</p>
+<dl class="method">
+<dt id="openstef.feature_engineering.feature_adder.FeatureDispatcher.apply_features">
+<code class="sig-name descname">apply_features</code><span class="sig-paren">(</span><em class="sig-param">df: pandas.core.frame.DataFrame, feature_names: List[str]</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.feature_adder.FeatureDispatcher.apply_features" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="openstef.feature_engineering.feature_adder.FeatureDispatcher.dispatch_features">
+<code class="sig-name descname">dispatch_features</code><span class="sig-paren">(</span><em class="sig-param">feature_names: List[str]</em><span class="sig-paren">)</span> &#x2192; Dict[openstef.feature_engineering.feature_adder.FeatureAdder, List[openstef.feature_engineering.feature_adder.ParsedFeature]]<a class="headerlink" href="#openstef.feature_engineering.feature_adder.FeatureDispatcher.dispatch_features" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="openstef.feature_engineering.feature_adder.ParsedFeature">
+<em class="property">class </em><code class="sig-prename descclassname">openstef.feature_engineering.feature_adder.</code><code class="sig-name descname">ParsedFeature</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">params</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.feature_adder.ParsedFeature" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
+<dl class="attribute">
+<dt id="openstef.feature_engineering.feature_adder.ParsedFeature.name">
+<code class="sig-name descname">name</code><a class="headerlink" href="#openstef.feature_engineering.feature_adder.ParsedFeature.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 0</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="openstef.feature_engineering.feature_adder.ParsedFeature.params">
+<code class="sig-name descname">params</code><a class="headerlink" href="#openstef.feature_engineering.feature_adder.ParsedFeature.params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 1</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="openstef.feature_engineering.feature_adder.adders_from_module">
+<code class="sig-prename descclassname">openstef.feature_engineering.feature_adder.</code><code class="sig-name descname">adders_from_module</code><span class="sig-paren">(</span><em class="sig-param">module_name: str</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.feature_adder.adders_from_module" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load all FeatureAdders classes on the fly from the module</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="openstef.feature_engineering.feature_adder.adders_from_modules">
+<code class="sig-prename descclassname">openstef.feature_engineering.feature_adder.</code><code class="sig-name descname">adders_from_modules</code><span class="sig-paren">(</span><em class="sig-param">module_names: List[str]</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.feature_adder.adders_from_modules" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </div>
-<div class="section" id="openstef-feature-engineering-feature-applicator-module">
-<h2>openstef.feature_engineering.feature_applicator module<a class="headerlink" href="#openstef-feature-engineering-feature-applicator-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-openstef.feature_engineering.feature_applicator">
+<span id="openstef-feature-engineering-feature-applicator-module"></span><h2>openstef.feature_engineering.feature_applicator module<a class="headerlink" href="#module-openstef.feature_engineering.feature_applicator" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="openstef.feature_engineering.feature_applicator.AbstractFeatureApplicator">
+<em class="property">class </em><code class="sig-prename descclassname">openstef.feature_engineering.feature_applicator.</code><code class="sig-name descname">AbstractFeatureApplicator</code><span class="sig-paren">(</span><em class="sig-param">horizons: List[float], feature_names: Optional[List[str]] = None, feature_modules: Optional[List[str]] = []</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.feature_applicator.AbstractFeatureApplicator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
+<dl class="method">
+<dt id="openstef.feature_engineering.feature_applicator.AbstractFeatureApplicator.add_features">
+<em class="property">abstract </em><code class="sig-name descname">add_features</code><span class="sig-paren">(</span><em class="sig-param">df: pandas.core.frame.DataFrame</em>, <em class="sig-param">pj: openstef.data_classes.prediction_job.PredictionJobDataClass</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstef.feature_engineering.feature_applicator.AbstractFeatureApplicator.add_features" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds features to an input DataFrame</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> – pd.DataFrame with input data to which the features have to be added</p></li>
+<li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><em>PredictionJobDataClass</em></a>) – Prediction job.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="openstef.feature_engineering.feature_applicator.OperationalPredictFeatureApplicator">
+<em class="property">class </em><code class="sig-prename descclassname">openstef.feature_engineering.feature_applicator.</code><code class="sig-name descname">OperationalPredictFeatureApplicator</code><span class="sig-paren">(</span><em class="sig-param">horizons: List[float], feature_names: Optional[List[str]] = None, feature_modules: Optional[List[str]] = []</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.feature_applicator.OperationalPredictFeatureApplicator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#openstef.feature_engineering.feature_applicator.AbstractFeatureApplicator" title="openstef.feature_engineering.feature_applicator.AbstractFeatureApplicator"><code class="xref py py-class docutils literal notranslate"><span class="pre">openstef.feature_engineering.feature_applicator.AbstractFeatureApplicator</span></code></a></p>
+<dl class="method">
+<dt id="openstef.feature_engineering.feature_applicator.OperationalPredictFeatureApplicator.add_features">
+<code class="sig-name descname">add_features</code><span class="sig-paren">(</span><em class="sig-param">df: pandas.core.frame.DataFrame</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstef.feature_engineering.feature_applicator.OperationalPredictFeatureApplicator.add_features" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds features to an input DataFrame.</p>
+<dl class="simple">
+<dt>This method is implemented specifically for an operational prediction pipeline</dt><dd><p>and will add every available feature.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>df</strong> – pd.DataFrame with input data to which the features have to be added</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Input DataFrame with an extra column for every added feature.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="openstef.feature_engineering.feature_applicator.TrainFeatureApplicator">
+<em class="property">class </em><code class="sig-prename descclassname">openstef.feature_engineering.feature_applicator.</code><code class="sig-name descname">TrainFeatureApplicator</code><span class="sig-paren">(</span><em class="sig-param">horizons: List[float], feature_names: Optional[List[str]] = None, feature_modules: Optional[List[str]] = []</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.feature_applicator.TrainFeatureApplicator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#openstef.feature_engineering.feature_applicator.AbstractFeatureApplicator" title="openstef.feature_engineering.feature_applicator.AbstractFeatureApplicator"><code class="xref py py-class docutils literal notranslate"><span class="pre">openstef.feature_engineering.feature_applicator.AbstractFeatureApplicator</span></code></a></p>
+<dl class="method">
+<dt id="openstef.feature_engineering.feature_applicator.TrainFeatureApplicator.add_features">
+<code class="sig-name descname">add_features</code><span class="sig-paren">(</span><em class="sig-param">df: pandas.core.frame.DataFrame</em>, <em class="sig-param">pj: openstef.data_classes.prediction_job.PredictionJobDataClass = None</em>, <em class="sig-param">latency_config=None</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstef.feature_engineering.feature_applicator.TrainFeatureApplicator.add_features" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds features to an input DataFrame.</p>
+<p>This method is implemented specifically for a model train pipeline. For larger
+horzions data is invalidated as when they are not available.</p>
+<dl class="simple">
+<dt>For example:</dt><dd><p>For horzion 24 hours the feature T-720min is not added as the load
+720 minutes ago is not available 24 hours in advance. In case of a horizon
+0.25 hours this feature is added as in this case the feature is available.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – Input data to which the features will be added.</p></li>
+<li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><em>PredictionJobDataClass</em></a>) – Prediction job.</p></li>
+<li><p><strong>latency_config</strong> (<em>dict</em>) – Optional. Invalidate certain features that are not
+available for a specific horizon due to data latency. Default to
+{“APX”: 24}</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>Input DataFrame with an extra column for every added feature</dt><dd><p>and sorted on the datetime index.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 <div class="section" id="module-openstef.feature_engineering.general">
 <span id="openstef-feature-engineering-general-module"></span><h2>openstef.feature_engineering.general module<a class="headerlink" href="#module-openstef.feature_engineering.general" title="Permalink to this headline">¶</a></h2>

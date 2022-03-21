@@ -121,6 +121,11 @@
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">lightgbm.sklearn.LGBMRegressor</span></code>, <a class="reference internal" href="#openstef.model.regressors.regressor.OpenstfRegressor" title="openstef.model.regressors.regressor.OpenstfRegressor"><code class="xref py py-class docutils literal notranslate"><span class="pre">openstef.model.regressors.regressor.OpenstfRegressor</span></code></a></p>
 <p>LGBM Regressor which implements the Openstf regressor API.</p>
 <dl class="method">
+<dt id="openstef.model.regressors.lgbm.LGBMOpenstfRegressor.can_predict_quantiles">
+<em class="property">property </em><code class="sig-name descname">can_predict_quantiles</code><a class="headerlink" href="#openstef.model.regressors.lgbm.LGBMOpenstfRegressor.can_predict_quantiles" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
 <dt id="openstef.model.regressors.lgbm.LGBMOpenstfRegressor.feature_names">
 <em class="property">property </em><code class="sig-name descname">feature_names</code><a class="headerlink" href="#openstef.model.regressors.lgbm.LGBMOpenstfRegressor.feature_names" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieve the model input feature names</p>
@@ -151,6 +156,11 @@
 <em class="property">class </em><code class="sig-prename descclassname">openstef.model.regressors.linear.</code><code class="sig-name descname">LinearOpenstfRegressor</code><span class="sig-paren">(</span><em class="sig-param">missing_values=nan</em>, <em class="sig-param">imputation_strategy=None</em>, <em class="sig-param">fill_value=0</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.regressors.linear.LinearOpenstfRegressor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#openstef.model.regressors.linear.LinearRegressor" title="openstef.model.regressors.linear.LinearRegressor"><code class="xref py py-class docutils literal notranslate"><span class="pre">openstef.model.regressors.linear.LinearRegressor</span></code></a>, <a class="reference internal" href="#openstef.model.regressors.regressor.OpenstfRegressor" title="openstef.model.regressors.regressor.OpenstfRegressor"><code class="xref py py-class docutils literal notranslate"><span class="pre">openstef.model.regressors.regressor.OpenstfRegressor</span></code></a></p>
 <p>Linear Regressor which implements the Openstf regressor API.</p>
+<dl class="method">
+<dt id="openstef.model.regressors.linear.LinearOpenstfRegressor.can_predict_quantiles">
+<em class="property">property </em><code class="sig-name descname">can_predict_quantiles</code><a class="headerlink" href="#openstef.model.regressors.linear.LinearOpenstfRegressor.can_predict_quantiles" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
 <dt id="openstef.model.regressors.linear.LinearOpenstfRegressor.feature_names">
 <em class="property">property </em><code class="sig-name descname">feature_names</code><a class="headerlink" href="#openstef.model.regressors.linear.LinearOpenstfRegressor.feature_names" title="Permalink to this definition">¶</a></dt>
@@ -255,6 +265,11 @@ of which concrete implementation can be used as a workhorse throughout openstef<
 <p>If you want to include a new ML model in openstef, it should adhere to the interface
 defined here</p>
 <dl class="method">
+<dt id="openstef.model.regressors.regressor_interface.OpenstfRegressorInterface.can_predict_quantiles">
+<em class="property">abstract property </em><code class="sig-name descname">can_predict_quantiles</code><a class="headerlink" href="#openstef.model.regressors.regressor_interface.OpenstfRegressorInterface.can_predict_quantiles" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
 <dt id="openstef.model.regressors.regressor_interface.OpenstfRegressorInterface.feature_names">
 <em class="property">abstract property </em><code class="sig-name descname">feature_names</code><a class="headerlink" href="#openstef.model.regressors.regressor_interface.OpenstfRegressorInterface.feature_names" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieve the model input feature names</p>
@@ -311,6 +326,11 @@ defined here</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">xgboost.sklearn.XGBRegressor</span></code>, <a class="reference internal" href="#openstef.model.regressors.regressor.OpenstfRegressor" title="openstef.model.regressors.regressor.OpenstfRegressor"><code class="xref py py-class docutils literal notranslate"><span class="pre">openstef.model.regressors.regressor.OpenstfRegressor</span></code></a></p>
 <p>XGB Regressor which implements the Openstf regressor API.</p>
 <dl class="method">
+<dt id="openstef.model.regressors.xgb.XGBOpenstfRegressor.can_predict_quantiles">
+<em class="property">property </em><code class="sig-name descname">can_predict_quantiles</code><a class="headerlink" href="#openstef.model.regressors.xgb.XGBOpenstfRegressor.can_predict_quantiles" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
 <dt id="openstef.model.regressors.xgb.XGBOpenstfRegressor.feature_names">
 <em class="property">property </em><code class="sig-name descname">feature_names</code><a class="headerlink" href="#openstef.model.regressors.xgb.XGBOpenstfRegressor.feature_names" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieve the model input feature names</p>
@@ -340,6 +360,11 @@ defined here</p>
 <dt id="openstef.model.regressors.xgb_quantile.XGBQuantileOpenstfRegressor">
 <em class="property">class </em><code class="sig-prename descclassname">openstef.model.regressors.xgb_quantile.</code><code class="sig-name descname">XGBQuantileOpenstfRegressor</code><span class="sig-paren">(</span><em class="sig-param">quantiles: Tuple[float</em>, <em class="sig-param">...] = (0.9</em>, <em class="sig-param">0.5</em>, <em class="sig-param">0.1)</em>, <em class="sig-param">gamma: float = 0.0</em>, <em class="sig-param">colsample_bytree: float = 1.0</em>, <em class="sig-param">subsample: float = 1.0</em>, <em class="sig-param">min_child_weight: int = 1</em>, <em class="sig-param">max_depth: int = 6</em>, <em class="sig-param">learning_rate: float = 0.3</em>, <em class="sig-param">alpha: float = 0.0</em>, <em class="sig-param">max_delta_step: int = 0</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.regressors.xgb_quantile.XGBQuantileOpenstfRegressor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#openstef.model.regressors.regressor.OpenstfRegressor" title="openstef.model.regressors.regressor.OpenstfRegressor"><code class="xref py py-class docutils literal notranslate"><span class="pre">openstef.model.regressors.regressor.OpenstfRegressor</span></code></a></p>
+<dl class="method">
+<dt id="openstef.model.regressors.xgb_quantile.XGBQuantileOpenstfRegressor.can_predict_quantiles">
+<em class="property">property </em><code class="sig-name descname">can_predict_quantiles</code><a class="headerlink" href="#openstef.model.regressors.xgb_quantile.XGBQuantileOpenstfRegressor.can_predict_quantiles" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
 <dt id="openstef.model.regressors.xgb_quantile.XGBQuantileOpenstfRegressor.feature_names">
 <em class="property">property </em><code class="sig-name descname">feature_names</code><a class="headerlink" href="#openstef.model.regressors.xgb_quantile.XGBQuantileOpenstfRegressor.feature_names" title="Permalink to this definition">¶</a></dt>
