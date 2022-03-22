@@ -77,7 +77,7 @@ def optimize_hyperparameters_pipeline(
             f"after validation and cleaning"
         )
 
-    if pj.default_modelspecs is None:
+    if pj.default_modelspecs is not None:
         feature_names = (pj.default_modelspecs.feature_names,)
         feature_modules = pj.default_modelspecs.feature_modules
     else:
