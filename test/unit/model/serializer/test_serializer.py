@@ -35,7 +35,8 @@ class TestMLflowSerializer(BaseTestCase):
         This has led to some bugs in the past"""
 
         loaded_model, _ = MLflowSerializer(
-            trained_models_folder="./test/unit/trained_models"
+            trained_models_folder="./test/unit/trained_models",
+            mlflow_tracking_uri=None
         ).load_model(307)
         # Check model path
         assert (
@@ -303,7 +304,7 @@ class TestMLflowSerializer(BaseTestCase):
                 metrics={},
                 signature=None,
             )
-            serializer = MLflowSerializer(local_model_dir)
+            serializer = MLflowSerializer(local_model_dir, mlflow_tracking_uri=None)
             for _ in range(4):
                 serializer.save_model(
                     model, self.pj, self.modelspecs, report=dummy_report
@@ -328,7 +329,7 @@ class TestMLflowSerializer(BaseTestCase):
                 len(all_stored_models),
                 4,
                 f"we expect 4 models at the start- (now {len(all_stored_models)}), "
-                f"please remove runs (manually) or add runs with MAKE_RUNS == TRUE ",
+                "please remove runs (manually) or add runs with MAKE_RUNS == TRUE ",
             )
             self.assertEqual(len(final_stored_models), 2)
             # Check if the runs match to the oldest two runs

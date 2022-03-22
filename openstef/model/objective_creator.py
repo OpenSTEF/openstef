@@ -51,7 +51,7 @@ class ObjectiveCreator:
             raise NotImplementedError(
                 f"No objective for '{model_type}', "
                 f"valid model_types are: {valid_types}"
-                f"or import a custom model"
+                "or import a custom model"
             ) from e
 
         return objective

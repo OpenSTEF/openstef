@@ -50,7 +50,8 @@ class BaseCaseModel(BaseEstimator, RegressorMixin):
             item in forecast_input_data.columns.to_list() for item in ["T-14d", "T-7d"]
         ):
             raise ValueError(
-                "Could not make basecase, features T-7d and T-14d are required! Tip: Generate these features with a FeatureApplicator object."
+                "Could not make basecase, features T-7d and T-14d are required! Tip:"
+                " Generate these features with a FeatureApplicator object."
             )
 
         # Make basecase forecast: Use load of last week

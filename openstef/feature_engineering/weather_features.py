@@ -229,10 +229,8 @@ def calculate_windspeed_at_hubheight(
 
     if not isinstance(windspeed, (np.ndarray, float, int, pd.Series)):
         raise TypeError(
-            "The windspeed is not of the expected type!\n\
-                        Got {}, expected np.ndarray, pd series or numeric".format(
-                type(windspeed)
-            )
+            "The windspeed is not of the expected type!\n                        Got"
+            " {}, expected np.ndarray, pd series or numeric".format(type(windspeed))
         )
 
     try:

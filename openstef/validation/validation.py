@@ -56,7 +56,8 @@ def validate(
         frac_const_load_values = num_repeated_values / len(data.index)
 
         logger.info(
-            f"Found {num_repeated_values} values of constant load (repeated values), converted to NaN value.",
+            f"Found {num_repeated_values} values of constant load (repeated values),"
+            " converted to NaN value.",
             cleansing_step="repeated_values",
             pj_id=pj_id,
             num_values=num_repeated_values,

@@ -41,7 +41,8 @@ def load_custom_model(custom_model_path) -> CustomOpenstfRegressor:
         or not issubclass(model_class, CustomOpenstfRegressor)
     ):
         raise ValueError(
-            f"The path {custom_model_path!r} does not correspond to a concrete CustomOpenstfRegressor subclass"
+            f"The path {custom_model_path!r} does not correspond to a concrete"
+            " CustomOpenstfRegressor subclass"
         )
 
     return model_class

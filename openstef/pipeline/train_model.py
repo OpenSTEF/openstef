@@ -35,7 +35,7 @@ def train_model_pipeline(
     pj: PredictionJobDataClass,
     input_data: pd.DataFrame,
     check_old_model_age: bool,
-    trained_models_folder: Union[str, Path],
+    trained_models_folder: Union[str, Path]
 ) -> None:
     """Midle level pipeline that takes care of all persistent storage dependencies
 
@@ -54,7 +54,10 @@ def train_model_pipeline(
     """
     # Intitialize logger and serializer
     logger = structlog.get_logger(__name__)
-    serializer = MLflowSerializer(trained_models_folder)
+    serializer = MLflowSerializer(
+        trained_models_folder=trained_models_folder,
+        mlflow_tracking_uri="sqlite:///mlflow_db.sqlite",
+    )
 
     # Get old model and age
     try:
@@ -95,7 +98,8 @@ def train_model_pipeline(
 
     except InputDataWrongColumnOrderError as IDWCOE:
         logger.error(
-            "Wrong column order, 'load' column should be first and 'horizon' column last.",
+            "Wrong column order, 'load' column should be first and 'horizon' column"
+            " last.",
             pid=pj["id"],
             exc_info=IDWCOE,
         )
