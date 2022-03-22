@@ -19,7 +19,7 @@ class PredictionJobDataClass(BaseModel):
     name: str
     description: Optional[str]
     quantiles: Optional[List[float]]
-    save_train_forecasts: False
+    save_train_forecasts: bool = False
 
     def __getitem__(self, item):
         """Allows us to use subscription to get the items from the object"""

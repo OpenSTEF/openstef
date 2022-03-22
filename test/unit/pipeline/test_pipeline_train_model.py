@@ -331,7 +331,7 @@ class TestTrainModelPipeline(BaseTestCase):
             check_old_model_age=True,
             trained_models_folder="./test/unit/trained_models",
         )
-        self.assertIs(None, result)
+        self.assertIsInstance(result, Report)
         self.assertEqual(len(serializer_mock_instance.method_calls), 3)
 
     @patch("openstef.model.serializer.MLflowSerializer.save_model")
@@ -355,7 +355,7 @@ class TestTrainModelPipeline(BaseTestCase):
             check_old_model_age=True,
             trained_models_folder="./test/unit/trained_models",
         )
-        self.assertIs(None, result)
+        self.assertIsInstance(result, Report)
         self.assertEqual(len(serializer_mock_instance.method_calls), 3)
 
     @patch("openstef.model.serializer.MLflowSerializer.save_model")
