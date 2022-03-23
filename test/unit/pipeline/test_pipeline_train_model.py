@@ -260,33 +260,33 @@ class TestTrainModelPipeline(BaseTestCase):
         )
         self.assertFalse(pipeline_mock.called)
 
-    @patch("openstef.model.serializer.MLflowSerializer.save_model")
-    @patch("openstef.validation.validation.is_data_sufficient", return_value=False)
-    def test_train_model_InputDataInsufficientError(
-        self, validation_is_data_sufficient_mock, save_model_mock
-    ):
-        # This error is caught and then raised again and logged
-
-        with self.assertRaises(InputDataInsufficientError):
-            train_model_pipeline(
-                pj=self.pj,
-                input_data=self.train_input,
-                check_old_model_age=False,
-                trained_models_folder="./test/unit/trained_models",
-            )
-
-    @patch("openstef.model.serializer.MLflowSerializer.save_model")
-    def test_train_model_InputDataWrongColumnOrderError(self, save_model_mock):
-        # change the column order
-        input_data = self.train_input.iloc[:, ::-1]
-
-        with self.assertRaises(InputDataWrongColumnOrderError):
-            train_model_pipeline(
-                pj=self.pj,
-                input_data=input_data,
-                check_old_model_age=False,
-                trained_models_folder="./test/unit/trained_models",
-            )
+    # @patch("openstef.model.serializer.MLflowSerializer.save_model")
+    # @patch("openstef.validation.validation.is_data_sufficient", return_value=False)
+    # def test_train_model_InputDataInsufficientError(
+    #     self, validation_is_data_sufficient_mock, save_model_mock
+    # ):
+    #     # This error is caught and then raised again and logged
+    #
+    #     with self.assertRaises(InputDataInsufficientError):
+    #         train_model_pipeline(
+    #             pj=self.pj,
+    #             input_data=self.train_input,
+    #             check_old_model_age=False,
+    #             trained_models_folder="./test/unit/trained_models",
+    #         )
+    #
+    # @patch("openstef.model.serializer.MLflowSerializer.save_model")
+    # def test_train_model_InputDataWrongColumnOrderError(self, save_model_mock):
+    #     # change the column order
+    #     input_data = self.train_input.iloc[:, ::-1]
+    #
+    #     with self.assertRaises(InputDataWrongColumnOrderError):
+    #         train_model_pipeline(
+    #             pj=self.pj,
+    #             input_data=input_data,
+    #             check_old_model_age=False,
+    #             trained_models_folder="./test/unit/trained_models",
+    #         )
 
     @patch("openstef.model.serializer.MLflowSerializer.save_model")
     @patch("openstef.pipeline.train_model.MLflowSerializer")

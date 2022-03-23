@@ -56,7 +56,7 @@ def train_model_pipeline(
     logger = structlog.get_logger(__name__)
     serializer = MLflowSerializer(
         trained_models_folder=trained_models_folder,
-        mlflow_tracking_uri="sqlite:///mlflow_db.sqlite",
+        mlflow_tracking_uri="sqlite:///data/icarus/visuals/mlflow_db.sqlite",
     )
 
     # Get old model and age
