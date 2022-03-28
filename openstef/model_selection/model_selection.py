@@ -223,7 +223,7 @@ def split_data_train_validation_test(
             val_dates += list(
                 np.random.choice(list(date_set), n_days_val, replace=False)
             )
-            train_dates += [x for x in date_set if x not in val_dates]
+            train_dates += [x for x in date_set if x.date() not in val_dates]
 
         validation_data = train_val_data[np.isin(train_val_data.index.date, val_dates)]
         train_data = train_val_data[np.isin(train_val_data.index.date, train_dates)]
