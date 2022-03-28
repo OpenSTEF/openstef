@@ -225,8 +225,8 @@ def split_data_train_validation_test(
             )
             train_dates += [x for x in date_set if x not in val_dates]
 
-        validation_data = train_val_data[np.isin(train_val_data.index.date, val_dates)]
-        train_data = train_val_data[np.isin(train_val_data.index.date, train_dates)]
+        validation_data = train_val_data[np.isin(train_val_data.index, val_dates)]
+        train_data = train_val_data[np.isin(train_val_data.index, train_dates)]
 
     # Default sampling, take a one single validation set.
     else:
