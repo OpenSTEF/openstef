@@ -106,6 +106,7 @@ def optimize_hyperparameters_pipeline(
     )
 
     best_hyperparams = study.best_params
+    best_model = study.user_attrs["best_model"]
 
     logger.info(
         f"Finished hyperparameter optimization, error objective {study.best_value} "
@@ -126,16 +127,16 @@ def optimize_hyperparameters_pipeline(
     # If the model type is quantile, train a model with the best parameters for all quantiles
     # (optimization is only done for quantile 0.5)
     if objective.model.can_predict_quantiles:
-        study.user_attrs["best_model"], report, modelspecs = train_model_pipeline_core(
+        best_model, report, modelspecs = train_model_pipeline_core(
             pj=pj, input_data=input_data, modelspecs=modelspecs
         )
 
     # Save model
     serializer.save_model(
-        study.user_attrs["best_model"],
+        best_model,
         pj=pj,
         modelspecs=modelspecs,
-        report=objective.create_report(model=study.user_attrs["best_model"]),
+        report=objective.create_report(model=best_model),
         phase="Hyperparameter_opt",
         trials=objective.get_trial_track(),
         trial_number=study.best_trial.number,
