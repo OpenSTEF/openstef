@@ -80,7 +80,7 @@ class TestOptimizeHyperParametersPipeline(BaseTestCase):
         pj["model"] = "xgb_quantile"
 
         parameters = optimize_hyperparameters_pipeline(
-            pj, self.input_data, "./test/unit/trained_models", n_trials=2
+            pj, self.input_data, "./test/unit/trained_models", n_trials=1
         )
         self.assertIsInstance(parameters, dict)
         # Assert stored quantiles are the same as the predefined_quantiles
