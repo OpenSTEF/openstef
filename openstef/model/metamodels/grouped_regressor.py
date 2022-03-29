@@ -192,9 +192,9 @@ class GroupedRegressor(BaseEstimator, RegressorMixin, MetaEstimatorMixin):
         eval_df = None
         if eval_set is not None:
             eval_df = []
-            for X_set, y_set in eval_set:
-                self._check_group_columns(X_set)
-                df_set = pd.DataFrame(X_set).copy(deep=True)
+            for x_set, y_set in eval_set:
+                self._check_group_columns(x_set)
+                df_set = pd.DataFrame(x_set).copy(deep=True)
                 df_set["__target__"] = y_set
                 eval_df.append(df_set)
 
