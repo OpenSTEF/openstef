@@ -37,9 +37,6 @@ class TestOptimizeHyperParametersPipeline(BaseTestCase):
             "quantiles"
         ]
         self.assertTupleEqual(stored_quantiles, predefined_quantiles)
-        # And Assert that the quantile attribute of the stored model is also correct
-        quantile_attribute = save_model_mock.call_args[0][0].quantiles
-        self.assertTupleEqual(quantile_attribute, predefined_quantiles)
 
     @patch("openstef.validation.validation.is_data_sufficient", return_value=False)
     def test_optimize_hyperparameters_pipeline_insufficient_data(self, mock):
