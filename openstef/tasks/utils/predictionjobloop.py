@@ -75,9 +75,9 @@ class PredictionJobLoop:
         if has_dependencies(self.prediction_jobs):
             # Groups so that prediction jobs in each group
             # depend only on the pj in the previous groups
-            pj_groups = find_groups(self.prediction_jobs, self.random_order)
+            _, pj_groups = find_groups(self.prediction_jobs, self.random_order)
             # Concatenate groups
-            self.prediction_jobs = list(chain(pj_groups))
+            self.prediction_jobs = list(chain(*pj_groups))
         else:
             if self.random_order:
                 random.shuffle(self.prediction_jobs)
