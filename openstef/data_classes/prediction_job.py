@@ -18,7 +18,7 @@ class PredictionJobDataClass(BaseModel):
     name: str
     description: Optional[str]
     quantiles: Optional[List[float]]
-    depends_on: Optional[List[Union[str, int]]]
+    depends_on: Optional[List[Union[int, str]]]
 
     def __getitem__(self, item):
         """Allows us to use subscription to get the items from the object"""
@@ -30,3 +30,8 @@ class PredictionJobDataClass(BaseModel):
             self.__dict__[key] = value
         else:
             raise AttributeError(f"{key} not an attribute of prediction job.")
+
+    # The following configuration is needed to prevent ids in "depends_on"
+    # to be converted from int to str when we use integer ids
+    class Config:
+        smart_union = True
