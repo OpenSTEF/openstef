@@ -26,9 +26,11 @@ def has_dependencies(pjs: Iterable[PredictionJobDataClass]) -> bool:
     return False
 
 
-def build_graph_structure(pjs: Iterable[PredictionJobDataClass]) -> Tuple[Set[NodeIdType], Set[EdgeType]]:
+def build_graph_structure(
+    pjs: Iterable[PredictionJobDataClass],
+) -> Tuple[Set[NodeIdType], Set[EdgeType]]:
     """Build the graph of dependencies between prediction jobs
-    
+
     Args:
         pjs (Iterable[PredictionJobDataClass])): The Iterable of prediction jobs
 
@@ -48,9 +50,11 @@ def build_graph_structure(pjs: Iterable[PredictionJobDataClass]) -> Tuple[Set[No
     return nodes, edges
 
 
-def build_nx_graph(nodes: Iterable[NodeIdType], edges: Iterable[EdgeType]) -> nx.DiGraph:
+def build_nx_graph(
+    nodes: Iterable[NodeIdType], edges: Iterable[EdgeType]
+) -> nx.DiGraph:
     """Build a networkx Directed Graph
-    
+
     Args:
         nodes (Iterable[NodeIdType]): The sequence of node ids
         edges: (Iterable[EdgeType]): The sequence of edges
@@ -64,8 +68,9 @@ def build_nx_graph(nodes: Iterable[NodeIdType], edges: Iterable[EdgeType]) -> nx
     return graph
 
 
-def find_groups(pjs: Iterable[PredictionJobDataClass], randomize_groups: bool = False) \
-        -> Tuple[nx.DiGraph, List[List[PredictionJobDataClass]]]:
+def find_groups(
+    pjs: Iterable[PredictionJobDataClass], randomize_groups: bool = False
+) -> Tuple[nx.DiGraph, List[List[PredictionJobDataClass]]]:
     """Find a sequence of prediction job groups respecting dependencies.
 
     Compute groups of prediction jobs such that the prediction jobs in a group
@@ -93,7 +98,5 @@ def find_groups(pjs: Iterable[PredictionJobDataClass], randomize_groups: bool = 
 
     # Convert groups of pj ids to groups of pjs
     pj_id_map = {pj["id"]: i for i, pj in enumerate(pjs)}
-    pj_groups = [
-        [pjs[pj_id_map[pj_id]] for pj_id in group] for group in groups
-    ]
+    pj_groups = [[pjs[pj_id_map[pj_id]] for pj_id in group] for group in groups]
     return graph, pj_groups

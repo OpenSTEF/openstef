@@ -116,7 +116,7 @@ class TestPredictionJob(BaseTestCase):
                 lat=0,
                 lon=0,
                 resolution_minutes=0,
-                horizon_minutes=0
+                horizon_minutes=0,
             )
 
         pjs = [
