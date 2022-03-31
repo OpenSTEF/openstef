@@ -67,6 +67,7 @@ class TestTrain(BaseTestCase):
         """
 
         data = TestData.load("input_data_train.pickle")
+        print(f"test_split_data_train_validation input data shape {data.shape}")
 
         (
             train_set,
