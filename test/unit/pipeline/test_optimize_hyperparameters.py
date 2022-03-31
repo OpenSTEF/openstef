@@ -65,6 +65,25 @@ class TestOptimizeHyperParametersPipeline(BaseTestCase):
                 self.pj, input_data, "./test/unit/trained_models", n_trials=2
             )
 
+    @patch("openstef.model.serializer.MLflowSerializer.save_model")
+    def test_optimize_hyperparameters_pipeline_quantile_regressor(
+        self, save_model_mock
+    ):
+        """If the regressor can predict quantiles explicitely,
+        the model should be retrained for the desired quantiles"""
+        pj = self.pj
+        predefined_quantiles = (0.001, 0.5)
+        pj["quantiles"] = predefined_quantiles
+        pj["model"] = "xgb_quantile"
+
+        parameters = optimize_hyperparameters_pipeline(
+            pj, self.input_data, "./test/unit/trained_models", n_trials=1
+        )
+        self.assertIsInstance(parameters, dict)
+        # Assert stored quantiles are the same as the predefined_quantiles
+        stored_quantiles = save_model_mock.call_args[0][0].quantiles
+        self.assertTupleEqual(stored_quantiles, predefined_quantiles)
+
 
 if __name__ == "__main__":
     unittest.main()

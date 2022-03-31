@@ -70,3 +70,7 @@ class BaseCaseModel(BaseEstimator, RegressorMixin):
         ]
 
         return basecase_forecast.sort_index()
+
+    @property
+    def can_predict_quantiles(self):
+        return False
