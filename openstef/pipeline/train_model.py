@@ -113,7 +113,7 @@ def train_model_pipeline_core(
     modelspecs: ModelSpecificationDataClass,
     input_data: pd.DataFrame,
     old_model: OpenstfRegressor = None,
-    horizons: List[float] = None,
+    horizons: Union[List[float], str] = None,
 ) -> Tuple[OpenstfRegressor, Report, ModelSpecificationDataClass]:
     """Train model core pipeline.
     Trains a new model given a prediction job, input data and compares it to an old model.
@@ -185,7 +185,7 @@ def train_pipeline_common(
     pj: PredictionJobDataClass,
     modelspecs: ModelSpecificationDataClass,
     input_data: pd.DataFrame,
-    horizons: List[float],
+    horizons: Union[List[float], str],
     test_fraction: float = 0.0,
     backtest: bool = False,
     test_data_predefined: pd.DataFrame = pd.DataFrame(),
@@ -218,6 +218,12 @@ def train_pipeline_common(
             "Missing the load column in the input dataframe"
         )
 
+    if isinstance(horizons, str):
+        if not(horizons in set(input_data.columns)):
+            raise ValueError(f'The horizon parameter specifies a column name ({horizons}) missing in the input data.')
+        else:
+            # sort data to avoid same date repeated multiple time
+            input_data = input_data.sort_values(horizons)
     # Validate and clean data
     validated_data = validation.clean(validation.validate(pj["id"], input_data))
     # Check if sufficient data is left after cleaning
@@ -232,6 +238,7 @@ def train_pipeline_common(
         horizons = [horizons[0]]
     else:
         stratification_min_max = True
+
 
     data_with_features = TrainFeatureApplicator(
         horizons=horizons,
