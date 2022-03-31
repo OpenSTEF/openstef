@@ -76,6 +76,7 @@ class TestTrain(BaseTestCase):
             data,
             test_fraction=SPLIT_PARAMS["test_fraction"],
             validation_fraction=SPLIT_PARAMS["validation_fraction"],
+            stratification_min_max=False,
         )
 
         # delta = 1, number of the peaks the two amounts may differ for the train and validation data
