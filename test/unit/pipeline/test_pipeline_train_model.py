@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+import copy
 import unittest
 from datetime import datetime, timedelta
 from test.unit.utils.base import BaseTestCase
@@ -180,6 +181,7 @@ class TestTrainModelPipeline(BaseTestCase):
         ]
         dummy_feature = "dummy_0.5"
         modelspecs.feature_names.append(dummy_feature)
+        pj.default_modelspecs = modelspecs
 
         train_input = self.train_input.iloc[::50, :]
         model, report, modelspecs = train_model_pipeline_core(
@@ -198,6 +200,48 @@ class TestTrainModelPipeline(BaseTestCase):
 
         # check if report is a Report
         self.assertTrue(isinstance(report, Report))
+
+    @patch("openstef.pipeline.train_model.MLflowSerializer")
+    def test_train_model_pipeline_with_default_modelspecs(self, mock_serializer):
+        """We check that the modelspecs object given as default in the prediction job
+        is the one given to save_model when there is no previous model saved for the
+        prediction job.
+        """
+
+        mock_serializer_instance = MagicMock()
+        # Mimick the absence of older model.
+        mock_serializer_instance.load_model.side_effect = FileNotFoundError()
+        mock_serializer.return_value = mock_serializer_instance
+
+        pj = copy.deepcopy(self.pj)
+        # hyper params that are different from the defaults.
+        new_hyper_params = {
+            key: (value + 0.01) if isinstance(value, float) else value + 1
+            for key, value in XGB_HYPER_PARAMS.items()
+        }
+
+        modelspecs = copy.deepcopy(self.modelspecs)
+        modelspecs.hyper_params = new_hyper_params
+
+        # Custom features
+        modelspecs.feature_modules = [
+            "test.unit.feature_engineering.test_feature_adder"
+        ]
+        modelspecs.feature_names.append("dummy_0.5")
+
+        pj.default_modelspecs = modelspecs
+
+        train_model_pipeline(
+            pj=pj,
+            input_data=self.train_input,
+            check_old_model_age=True,
+            trained_models_folder="./test/unit/trained_models",
+        )
+
+        saved_modelspecs = mock_serializer_instance.save_model.call_args.kwargs[
+            "modelspecs"
+        ]
+        self.assertEqual(saved_modelspecs, modelspecs)
 
     @patch("openstef.model.serializer.MLflowSerializer.save_model")
     @patch("openstef.pipeline.train_model.train_model_pipeline_core")
