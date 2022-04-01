@@ -36,7 +36,7 @@ def train_model_pipeline(
     input_data: pd.DataFrame,
     check_old_model_age: bool,
     trained_models_folder: Union[str, Path],
-) -> None:
+) -> Report:
     """Midle level pipeline that takes care of all persistent storage dependencies
 
     Expected prediction jobs keys: "id", "model", "hyper_params",
@@ -49,8 +49,7 @@ def train_model_pipeline(
         trained_models_folder (Path): Path where trained models are stored
 
     Returns:
-        None
-
+        report (Report): The report containing train/val/test datasets and corresponding forecasts if requested
     """
     # Intitialize logger and serializer
     logger = structlog.get_logger(__name__)
@@ -106,6 +105,7 @@ def train_model_pipeline(
 
     # Clean up older models
     serializer.remove_old_models(pj=pj)
+    return report
 
 
 def train_model_pipeline_core(
@@ -316,6 +316,11 @@ def train_pipeline_common(
     model = StandardDeviationGenerator(
         validation_data
     ).generate_standard_deviation_data(model)
+
+    if pj.save_train_forecasts:
+        train_data["forecast"] = model.predict(train_data).values
+        validation_data["forecast"] = model.predict(validation_data).values
+        test_data["forecast"] = model.predict(test_data).values
 
     # Report about the training process
     reporter = Reporter(train_data, validation_data, test_data)

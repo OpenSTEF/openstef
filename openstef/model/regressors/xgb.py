@@ -17,6 +17,10 @@ class XGBOpenstfRegressor(XGBRegressor, OpenstfRegressor):
     def feature_names(self):
         return self._Booster.feature_names
 
+    @property
+    def can_predict_quantiles(self):
+        return False
+
     @staticmethod
     def _get_importance_names():
         return {
