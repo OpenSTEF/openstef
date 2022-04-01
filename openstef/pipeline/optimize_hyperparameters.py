@@ -18,11 +18,13 @@ from openstef.feature_engineering.feature_applicator import TrainFeatureApplicat
 from openstef.model.model_creator import ModelCreator
 from openstef.model.objective import RegressorObjective
 from openstef.model.objective_creator import ObjectiveCreator
-from openstef.pipeline.train_model import DEFAULT_TRAIN_HORIZONS
+from openstef.pipeline.train_model import (
+    DEFAULT_TRAIN_HORIZONS,
+    train_model_pipeline_core,
+)
 
 # This is required to disable the default optuna logger and pass the logs to our own
 # structlog logger
-from openstef.model.regressors.regressor import OpenstfRegressor
 from openstef.model.serializer import MLflowSerializer
 from openstef.validation import validation
 
@@ -111,6 +113,7 @@ def optimize_hyperparameters_pipeline(
     )
 
     best_hyperparams = study.best_params
+    best_model = study.user_attrs["best_model"]
 
     logger.info(
         f"Finished hyperparameter optimization, error objective {study.best_value} "
@@ -127,12 +130,20 @@ def optimize_hyperparameters_pipeline(
         feature_names=list(validated_data_with_features.columns),
         hyper_params=best_hyperparams,
     )
+
+    # If the model type is quantile, train a model with the best parameters for all quantiles
+    # (optimization is only done for quantile 0.5)
+    if objective.model.can_predict_quantiles:
+        best_model, report, modelspecs = train_model_pipeline_core(
+            pj=pj, input_data=input_data, modelspecs=modelspecs
+        )
+
     # Save model
     serializer.save_model(
-        study.user_attrs["best_model"],
+        best_model,
         pj=pj,
         modelspecs=modelspecs,
-        report=objective.create_report(model=study.user_attrs["best_model"]),
+        report=objective.create_report(model=best_model),
         phase="Hyperparameter_opt",
         trials=objective.get_trial_track(),
         trial_number=study.best_trial.number,

@@ -362,7 +362,10 @@ def xgb_quantile_obj(preds, dmatrix, quantile=0.2):
     left_mask = errors < 0
     right_mask = errors > 0
 
-    grad = -quantile * left_mask + (1 - quantile) * right_mask
+    # The factor `* errors` is different from the original implementation, however
+    # this addition makes the objective function scalable with the size of the error.
+    # This solves issues with regression on large (>100) input data.
+    grad = (quantile * left_mask + (1 - quantile) * right_mask) * errors
     hess = np.ones_like(preds)
 
     return grad, hess

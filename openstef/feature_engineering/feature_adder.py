@@ -1,8 +1,8 @@
-# SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2022 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 from abc import ABC, abstractmethod
-from typing import List, Dict, Tuple, Sequence, Optional
+from typing import List, Dict, Sequence, Optional
 from collections import namedtuple, Counter
 from importlib import import_module
 import pandas as pd
@@ -30,7 +30,7 @@ def adders_from_module(module_name: str):
     return feature_adders
 
 
-def adders_from_modules(module_names: list[str]):
+def adders_from_modules(module_names: List[str]):
     return sum((adders_from_module(module_name) for module_name in module_names), [])
 
 
