@@ -102,11 +102,11 @@ class TestValidationFindZeroFlatliners(BaseTestCase):
         result = find_zero_flatliner(df, threshold)
         expected = pd.DataFrame(
             {
-                "from_time": [now - timedelta(minutes=45)],
-                "to_time": [now - timedelta(minutes=15)],
                 "duration_h": [
                     (now - timedelta(minutes=15)) - (now - timedelta(minutes=45))
                 ],
+                "from_time": [now - timedelta(minutes=45)],
+                "to_time": [now - timedelta(minutes=15)],
             }
         )
         self.assertDataframeEqual(
@@ -123,11 +123,11 @@ class TestValidationFindZeroFlatliners(BaseTestCase):
         result = find_zero_flatliner(df, threshold)
         expected = pd.DataFrame(
             {
-                "from_time": [now - timedelta(minutes=45)],
-                "to_time": [now - timedelta(minutes=15)],
                 "duration_h": [
                     (now - timedelta(minutes=15)) - (now - timedelta(minutes=45))
                 ],
+                "from_time": [now - timedelta(minutes=45)],
+                "to_time": [now - timedelta(minutes=15)],
             }
         )
         self.assertDataframeEqual(
