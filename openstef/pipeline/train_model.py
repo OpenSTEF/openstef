@@ -259,8 +259,6 @@ def train_pipeline_compute_features(
     if pj["model"] == "proloaf":
         # proloaf is only able to train with one horizon
         horizons = [horizons[0]]
-    else:
-        stratification_min_max = True
 
     if input_data.empty:
         raise InputDataInsufficientError("Input dataframe is empty")
