@@ -79,3 +79,7 @@ class LinearOpenstfRegressor(LinearRegressor, OpenstfRegressor):
     @property
     def feature_names(self):
         return self.feature_in_names_
+
+    @property
+    def can_predict_quantiles(self):
+        return False
