@@ -79,8 +79,15 @@ def optimize_hyperparameters_pipeline(
             f"after validation and cleaning"
         )
 
+    if pj.default_modelspecs is not None:
+        feature_names = (pj.default_modelspecs.feature_names,)
+        feature_modules = pj.default_modelspecs.feature_modules
+    else:
+        feature_names = None
+        feature_modules = []
+
     validated_data_with_features = TrainFeatureApplicator(
-        horizons=horizons
+        horizons=horizons, feature_names=feature_names, feature_modules=feature_modules
     ).add_features(validated_data, pj=pj)
 
     # Adds additional proloaf features to the input data, historic_load (equal to the load, first column)

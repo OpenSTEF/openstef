@@ -5,6 +5,7 @@
 from typing import Union, Optional, List
 
 from pydantic import BaseModel
+from .model_specifications import ModelSpecificationDataClass
 
 
 class PredictionJobDataClass(BaseModel):
@@ -19,6 +20,7 @@ class PredictionJobDataClass(BaseModel):
     name: str
     description: Optional[str]
     quantiles: Optional[List[float]]
+    default_modelspecs: Optional[ModelSpecificationDataClass]
     save_train_forecasts: bool = False
 
     def __getitem__(self, item):
