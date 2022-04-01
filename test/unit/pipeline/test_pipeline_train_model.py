@@ -415,10 +415,16 @@ class TestTrainModelPipeline(BaseTestCase):
 
     def test_train_pipeline_common_with_missing_custom_horizon(self):
         with self.assertRaises(ValueError):
-            model, report, train_data, validation_data, test_data = train_pipeline_common(
+            (
+                model,
+                report,
+                train_data,
+                validation_data,
+                test_data,
+            ) = train_pipeline_common(
                 self.pj, self.modelspecs, self.train_input, horizons="custom_horizon"
             )
-            
+
 
 if __name__ == "__main__":
     unittest.main()

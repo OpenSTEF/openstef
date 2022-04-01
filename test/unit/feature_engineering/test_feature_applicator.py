@@ -37,16 +37,18 @@ class TestFeatureApplicator(TestCase):
             list(np.sort(features + ["horizon"])),
             list(np.sort(data_with_features.columns.to_list())),
         )
-    
+
     def test_train_feature_applicator_custom_horizon(self):
         input_data = self.input_data.copy(deep=True)
-        input_data['custom_horizon'] = 0
-        data_with_features = TrainFeatureApplicator(horizons='custom_horizon').add_features(
-            input_data
-        )
+        input_data["custom_horizon"] = 0
+        data_with_features = TrainFeatureApplicator(
+            horizons="custom_horizon"
+        ).add_features(input_data)
         self.assertEqual(data_with_features.columns.to_list()[0], "load")
         self.assertEqual(data_with_features.columns.to_list()[-1], "horizon")
-        self.assertTrue((data_with_features["horizon"] == input_data["custom_horizon"]).all())
+        self.assertTrue(
+            (data_with_features["horizon"] == input_data["custom_horizon"]).all()
+        )
 
     def test_operational_feature_applicator_correct_order(self):
         # Test for expected column order of the output

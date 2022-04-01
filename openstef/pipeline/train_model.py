@@ -219,8 +219,10 @@ def train_pipeline_common(
         )
 
     if isinstance(horizons, str):
-        if not(horizons in set(input_data.columns)):
-            raise ValueError(f'The horizon parameter specifies a column name ({horizons}) missing in the input data.')
+        if not (horizons in set(input_data.columns)):
+            raise ValueError(
+                f"The horizon parameter specifies a column name ({horizons}) missing in the input data."
+            )
         else:
             # sort data to avoid same date repeated multiple time
             input_data = input_data.sort_values(horizons)
@@ -238,7 +240,6 @@ def train_pipeline_common(
         horizons = [horizons[0]]
     else:
         stratification_min_max = True
-
 
     data_with_features = TrainFeatureApplicator(
         horizons=horizons,
