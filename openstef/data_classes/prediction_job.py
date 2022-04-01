@@ -2,9 +2,10 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-from typing import Union, Optional, List
+from typing import Union, Optional, List, Dict, Any
 
 from pydantic import BaseModel
+from .split_function import SplitFuncDataClass
 
 
 class PredictionJobDataClass(BaseModel):
@@ -19,6 +20,8 @@ class PredictionJobDataClass(BaseModel):
     name: str
     description: Optional[str]
     quantiles: Optional[List[float]]
+    train_split_func: Optional[SplitFuncDataClass]
+    backtest_split_func: Optional[SplitFuncDataClass]
 
     def __getitem__(self, item):
         """Allows us to use subscription to get the items from the object"""
