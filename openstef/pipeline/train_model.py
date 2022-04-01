@@ -67,7 +67,9 @@ def train_model_pipeline(
         if pj["default_modelspecs"] is not None:
             modelspecs = pj["default_modelspecs"]
             if modelspecs.id != pj.id:
-                raise RuntimeError("The id of the prediction job and its default modelspecs do not match.")
+                raise RuntimeError(
+                    "The id of the prediction job and its default modelspecs do not match."
+                )
         else:
             # create basic modelspecs
             modelspecs = ModelSpecificationDataClass(id=pj["id"])
