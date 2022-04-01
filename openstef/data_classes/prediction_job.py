@@ -20,6 +20,7 @@ class PredictionJobDataClass(BaseModel):
     name: str
     description: Optional[str]
     quantiles: Optional[List[float]]
+    train_horizons_minutes: Optional[List[int]]
     default_modelspecs: Optional[ModelSpecificationDataClass]
     save_train_forecasts: bool = False
 

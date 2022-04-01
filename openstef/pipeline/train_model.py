@@ -85,7 +85,7 @@ def train_model_pipeline(
     # Train model with core pipeline
     try:
         model, report, modelspecs_updated = train_model_pipeline_core(
-            pj, modelspecs, input_data, old_model
+            pj, modelspecs, input_data, old_model, horizons=pj.train_horizons_minutes
         )
     except OldModelHigherScoreError as OMHSE:
         logger.error("Old model is better than new model", pid=pj["id"], exc_info=OMHSE)
@@ -120,7 +120,7 @@ def train_model_pipeline_core(
     modelspecs: ModelSpecificationDataClass,
     input_data: pd.DataFrame,
     old_model: OpenstfRegressor = None,
-    horizons: List[float] = None,
+    horizons: Union[List[float], str] = None,
 ) -> Tuple[OpenstfRegressor, Report, ModelSpecificationDataClass]:
     """Train model core pipeline.
     Trains a new model given a prediction job, input data and compares it to an old model.
@@ -143,7 +143,10 @@ def train_model_pipeline_core(
     """
 
     if horizons is None:
-        horizons = DEFAULT_TRAIN_HORIZONS
+        if pj.train_horizons_minutes is None:
+            horizons = DEFAULT_TRAIN_HORIZONS
+        else:
+            horizons = pj.train_horizons_minutes
 
     logger = structlog.get_logger(__name__)
 
@@ -189,7 +192,7 @@ def train_pipeline_common(
     pj: PredictionJobDataClass,
     modelspecs: ModelSpecificationDataClass,
     input_data: pd.DataFrame,
-    horizons: List[float],
+    horizons: Union[List[float], str],
     test_fraction: float = 0.0,
     backtest: bool = False,
     test_data_predefined: pd.DataFrame = pd.DataFrame(),
@@ -222,6 +225,14 @@ def train_pipeline_common(
             "Missing the load column in the input dataframe"
         )
 
+    if isinstance(horizons, str):
+        if not (horizons in set(input_data.columns)):
+            raise ValueError(
+                f"The horizon parameter specifies a column name ({horizons}) missing in the input data."
+            )
+        else:
+            # sort data to avoid same date repeated multiple time
+            input_data = input_data.sort_values(horizons)
     # Validate and clean data
     validated_data = validation.clean(validation.validate(pj["id"], input_data))
     # Check if sufficient data is left after cleaning
