@@ -9,7 +9,10 @@ from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.data_classes.model_specifications import ModelSpecificationDataClass
 from openstef.model.confidence_interval_applicator import ConfidenceIntervalApplicator
 from openstef.model.regressors.regressor import OpenstfRegressor
-from openstef.model_selection.model_selection import group_kfold
+from openstef.model_selection.model_selection import (
+    group_kfold,
+    split_data_train_validation_test,
+)
 from openstef.pipeline import train_model
 from openstef.postprocessing.postprocessing import (
     add_prediction_job_properties_to_forecast,
@@ -34,10 +37,12 @@ def train_model_and_forecast_back_test(
 ]:
 
     if pj.backtest_split_func is None:
-        backtest_split_func = default_backtest_split
-        backtest_split_args = {}
+        backtest_split_func = backtest_split_default
+        backtest_split_args = {"stratification_min_max": pj["model"] != "proloaf"}
     else:
-        backtest_split_func, backtest_split_args = pj.backtest_split_func.load()
+        backtest_split_func, backtest_split_args = pj.backtest_split_func.load(
+            required_arguments=["data", "n_folds"]
+        )
 
     data_with_features = train_model.train_pipeline_compute_features(
         input_data=input_data, pj=pj, modelspecs=modelspecs, horizons=training_horizons
@@ -56,7 +61,7 @@ def train_model_and_forecast_back_test(
             )
             + (train_data, validation_data, test_data)
             for train_data, validation_data, test_data in backtest_split_func(
-                data_with_features, n_folds, pj, **backtest_split_args
+                data_with_features, n_folds, **backtest_split_args
             )
         )
     )
@@ -101,7 +106,9 @@ def train_model_and_forecast_test_core(
     return model, forecast
 
 
-def default_backtest_split(input_data, n_folds, pj, test_fraction=0.15):
+def backtest_split_default(
+    input_data, n_folds, test_fraction=0.15, stratification_min_max=True
+):
     if n_folds > 1:
         input_data.index = pd.to_datetime(input_data.index)
         input_data["dates"] = input_data.index
@@ -110,20 +117,18 @@ def default_backtest_split(input_data, n_folds, pj, test_fraction=0.15):
         for ifold in range(n_folds):
             test_data = input_data[input_data["random_fold"] == ifold].sort_index()
 
-            (
-                train_data,
-                validation_data,
-                test_data,
-            ) = train_model.train_data_split_default(
-                input_data.iloc[:, :-2],
-                pj,
+            (train_data, validation_data, _,) = split_data_train_validation_test(
+                input_data[input_data["random_fold"] != ifold].iloc[:, :-2],
                 test_fraction=0,
-                backtest=True,
-                test_data_predefined=test_data,
+                back_test=True,
+                stratification_min_max=stratification_min_max,
             )
 
-            yield train_data, validation_data, test_data
+            yield train_data, validation_data, test_data.iloc[:, :-2]
     else:
-        yield train_model.train_data_split_default(
-            input_data, pj, backtest=True, test_fraction=test_fraction
+        yield split_data_train_validation_test(
+            input_data,
+            back_test=True,
+            test_fraction=test_fraction,
+            stratification_min_max=stratification_min_max,
         )
