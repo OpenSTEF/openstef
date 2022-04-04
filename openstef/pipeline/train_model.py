@@ -220,11 +220,14 @@ def train_pipeline_common(
         pj=pj,
         test_fraction=test_fraction,
         backtest=backtest,
-        test_data_predefined=test_data_predefined
+        test_data_predefined=test_data_predefined,
     )
 
     model = train_pipeline_train_model(
-        pj=pj, modelspecs=modelspecs, train_data=train_data, validation_data=validation_data
+        pj=pj,
+        modelspecs=modelspecs,
+        train_data=train_data,
+        validation_data=validation_data,
     )
 
     # Report about the training process
@@ -359,7 +362,7 @@ def train_data_split_default(
     test_fraction: float,
     backtest: bool = False,
     test_data_predefined: pd.DataFrame = pd.DataFrame(),
-) -> (pd.DataFrame, pd.DataFrame, pd.DataFrame):
+) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """The default way to perform train, val, test split
 
     Args:
@@ -385,24 +388,19 @@ def train_data_split_default(
 
     # Split data
     if pj.train_split_func is None:
-        if pj["model"] == "proloaf":
-            stratification_min_max = False
-        else:
-            stratification_min_max = True
-
-        (train_data, validation_data, test_data) = split_data_train_validation_test(
-            data_with_features,
-            test_fraction=test_fraction,
-            stratification_min_max=stratification_min_max,
-            back_test=backtest,
-        )
+        split_func = split_data_train_validation_test
+        split_args = {
+            "stratification_min_max": pj["model"] != "proloaf",
+            "back_test": backtest,
+        }
     else:
         split_func, split_args = pj.train_split_func.load(
             required_arguments=["data", "test_fraction"]
         )
-        train_data, validation_data, test_data = split_func(
-            data_with_features, test_fraction, **split_args
-        )
+
+    train_data, validation_data, test_data = split_func(
+        data_with_features, test_fraction, **split_args
+    )
 
     # if test_data is predefined, use this over the returned test_data of split function
     if not test_data_predefined.empty:
