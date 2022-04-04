@@ -200,9 +200,6 @@ class TestTrain(BaseTestCase):
             self.pj,
             test_fraction=SPLIT_PARAMS["test_fraction"],
         )
-        train_fraction = 1 - (
-            SPLIT_PARAMS["test_fraction"] + SPLIT_PARAMS["validation_fraction"]
-        )
 
         # delta = 4, when looking at the test data, can differ 1 hr (4x15min)
         self.assertAlmostEqual(

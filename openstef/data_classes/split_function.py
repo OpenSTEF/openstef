@@ -12,7 +12,9 @@ from pydantic import BaseModel
 
 class SplitFuncDataClass(BaseModel):
     function: Union[str, Callable]
-    arguments: Union[str, Dict[str, Any]]  # JSON string holding the function parameters or dict
+    arguments: Union[
+        str, Dict[str, Any]
+    ]  # JSON string holding the function parameters or dict
 
     def __getitem__(self, item):
         """Allows us to use subscription to get the items from the object"""
@@ -26,7 +28,7 @@ class SplitFuncDataClass(BaseModel):
             raise AttributeError(f"{key} not an attribute of prediction job.")
 
     def _load_split_function(self, required_arguments=None):
-        """ Load split function from path
+        """Load split function from path
 
         Args:
             func_path (str): The path to the split function
@@ -51,7 +53,9 @@ class SplitFuncDataClass(BaseModel):
             func_params = set(inspect.signature(split_func).parameters)
 
             if len(set(required_arguments) - func_params) > 0:
-                raise ValueError("The loaded split function does not have the required arguments")
+                raise ValueError(
+                    "The loaded split function does not have the required arguments"
+                )
 
             return split_func
 
@@ -62,7 +66,4 @@ class SplitFuncDataClass(BaseModel):
             return self.arguments
 
     def load(self, required_arguments=None):
-        return (
-            self._load_split_function(required_arguments),
-            self._load_arguments()
-        )
+        return (self._load_split_function(required_arguments), self._load_arguments())
