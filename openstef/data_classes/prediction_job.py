@@ -6,6 +6,7 @@ from typing import Union, Optional, List, Dict, Any
 
 from pydantic import BaseModel
 from .split_function import SplitFuncDataClass
+from .model_specifications import ModelSpecificationDataClass
 
 
 class PredictionJobDataClass(BaseModel):
@@ -22,6 +23,9 @@ class PredictionJobDataClass(BaseModel):
     quantiles: Optional[List[float]]
     train_split_func: Optional[SplitFuncDataClass]
     backtest_split_func: Optional[SplitFuncDataClass]
+    train_horizons_minutes: Optional[List[int]]
+    default_modelspecs: Optional[ModelSpecificationDataClass]
+    save_train_forecasts: bool = False
 
     def __getitem__(self, item):
         """Allows us to use subscription to get the items from the object"""

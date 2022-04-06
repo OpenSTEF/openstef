@@ -36,7 +36,7 @@ def train_model_pipeline(
     input_data: pd.DataFrame,
     check_old_model_age: bool,
     trained_models_folder: Union[str, Path],
-) -> None:
+) -> Report:
     """Midle level pipeline that takes care of all persistent storage dependencies
 
     Expected prediction jobs keys: "id", "model", "hyper_params",
@@ -49,8 +49,7 @@ def train_model_pipeline(
         trained_models_folder (Path): Path where trained models are stored
 
     Returns:
-        None
-
+        report (Report): The report containing train/val/test datasets and corresponding forecasts if requested
     """
     # Intitialize logger and serializer
     logger = structlog.get_logger(__name__)
@@ -65,8 +64,15 @@ def train_model_pipeline(
     except (AttributeError, FileNotFoundError, LookupError):
         old_model = None
         old_model_age = float("inf")
-        # create basic modelspecs
-        modelspecs = ModelSpecificationDataClass(id=pj["id"])
+        if pj["default_modelspecs"] is not None:
+            modelspecs = pj["default_modelspecs"]
+            if modelspecs.id != pj.id:
+                raise RuntimeError(
+                    "The id of the prediction job and its default modelspecs do not match."
+                )
+        else:
+            # create basic modelspecs
+            modelspecs = ModelSpecificationDataClass(id=pj["id"])
         logger.warning("No old model found, training new model", pid=pj["id"])
 
     # Check old model age and continue yes/no
@@ -79,7 +85,7 @@ def train_model_pipeline(
     # Train model with core pipeline
     try:
         model, report, modelspecs_updated = train_model_pipeline_core(
-            pj, modelspecs, input_data, old_model
+            pj, modelspecs, input_data, old_model, horizons=pj.train_horizons_minutes
         )
     except OldModelHigherScoreError as OMHSE:
         logger.error("Old model is better than new model", pid=pj["id"], exc_info=OMHSE)
@@ -106,6 +112,7 @@ def train_model_pipeline(
 
     # Clean up older models
     serializer.remove_old_models(pj=pj)
+    return report
 
 
 def train_model_pipeline_core(
@@ -113,7 +120,7 @@ def train_model_pipeline_core(
     modelspecs: ModelSpecificationDataClass,
     input_data: pd.DataFrame,
     old_model: OpenstfRegressor = None,
-    horizons: List[float] = None,
+    horizons: Union[List[float], str] = None,
 ) -> Tuple[OpenstfRegressor, Report, ModelSpecificationDataClass]:
     """Train model core pipeline.
     Trains a new model given a prediction job, input data and compares it to an old model.
@@ -136,7 +143,10 @@ def train_model_pipeline_core(
     """
 
     if horizons is None:
-        horizons = DEFAULT_TRAIN_HORIZONS
+        if pj.train_horizons_minutes is None:
+            horizons = DEFAULT_TRAIN_HORIZONS
+        else:
+            horizons = pj.train_horizons_minutes
 
     logger = structlog.get_logger(__name__)
 
@@ -182,7 +192,7 @@ def train_pipeline_common(
     pj: PredictionJobDataClass,
     modelspecs: ModelSpecificationDataClass,
     input_data: pd.DataFrame,
-    horizons: List[float],
+    horizons: Union[List[float], str],
     test_fraction: float = 0.0,
     backtest: bool = False,
     test_data_predefined: pd.DataFrame = pd.DataFrame(),
@@ -229,6 +239,11 @@ def train_pipeline_common(
         train_data=train_data,
         validation_data=validation_data,
     )
+    
+    if pj.save_train_forecasts:
+        train_data["forecast"] = model.predict(train_data).values
+        validation_data["forecast"] = model.predict(validation_data).values
+        test_data["forecast"] = model.predict(test_data).values
 
     # Report about the training process
     reporter = Reporter(train_data, validation_data, test_data)
@@ -270,6 +285,14 @@ def train_pipeline_compute_features(
             "Missing the load column in the input dataframe"
         )
 
+    if isinstance(horizons, str):
+        if not (horizons in set(input_data.columns)):
+            raise ValueError(
+                f"The horizon parameter specifies a column name ({horizons}) missing in the input data."
+            )
+        else:
+            # sort data to avoid same date repeated multiple time
+            input_data = input_data.sort_values(horizons)
     # Validate and clean data
     validated_data = validation.clean(validation.validate(pj["id"], input_data))
     # Check if sufficient data is left after cleaning
