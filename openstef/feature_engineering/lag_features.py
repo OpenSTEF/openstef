@@ -26,8 +26,7 @@ def generate_lag_feature_functions(
     Example:
         lag_functions = generate_lag_functions(data,minute_list,h_ahead)
     """
-
-    # used extracted lag features if provided.
+    # Use extracted lag features if provided.
     if feature_names is not None:
         lag_times_minutes, lag_time_days_list = extract_lag_features(
             feature_names, horizon
@@ -38,9 +37,7 @@ def generate_lag_feature_functions(
 
     # Empty dict to store all generated lag functions
     lag_functions = {}
-
-    # Add intraday-lag functions (lags in minutes)
-    for minutes in lag_times_minutes:
+    for minutes in lag_times_minutes:  # Add intraday-lag functions (lags in minutes)
 
         def func(x, shift=minutes):
             return x.shift(freq="T", periods=1 * shift)
