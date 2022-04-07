@@ -7,7 +7,7 @@ import sys
 from collections import defaultdict
 from itertools import chain
 
-from .dependencies import has_dependencies, find_groups
+from openstef.tasks.utils.dependencies import has_dependencies, find_groups
 
 
 class PredictionJobLoop:

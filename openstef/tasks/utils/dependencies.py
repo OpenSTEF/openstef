@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 import random
 from typing import Iterable, Union, Tuple, Set, List
-from ...data_classes.prediction_job import PredictionJobDataClass
+from openstef.data_classes.prediction_job import PredictionJobDataClass
 import networkx as nx
 
 
