@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 import random
-from typing import Iterable, Union, Tuple, Set, List
+from typing import Sequence, Union, Tuple, Set, List
 from openstef.data_classes.prediction_job import PredictionJobDataClass
 import networkx as nx
 
@@ -69,7 +69,7 @@ def build_nx_graph(
 
 
 def find_groups(
-    pjs: Iterable[PredictionJobDataClass], randomize_groups: bool = False
+    pjs: Sequence[PredictionJobDataClass], randomize_groups: bool = False
 ) -> Tuple[nx.DiGraph, List[List[PredictionJobDataClass]]]:
     """Find a sequence of prediction job groups respecting dependencies.
 
