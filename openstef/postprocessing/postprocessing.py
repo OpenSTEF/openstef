@@ -152,7 +152,8 @@ def post_process_wind_solar(forecast: pd.Series, forecast_type):
         forecast.loc[forecast > 0] = 0
     else:
         logger.warning(
-            f"Could not determine sign of the forecast, skip post-processing. Sum was {forecast_data_sum}"
+            "Could not determine sign of the forecast, skip post-processing. Sum was"
+            f" {forecast_data_sum}"
         )
 
     # write changed back to forecast

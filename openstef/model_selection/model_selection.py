@@ -148,7 +148,8 @@ def split_data_train_validation_test(
     train_fraction = 1 - (test_fraction + validation_fraction)
     if train_fraction < 0:
         raise ValueError(
-            "Test ({test_fraction}) and validation fraction ({validation_fraction}) too high."
+            "Test ({test_fraction}) and validation fraction ({validation_fraction}) too"
+            " high."
         )
 
     # Define constants

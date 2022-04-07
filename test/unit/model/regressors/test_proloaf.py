@@ -13,7 +13,8 @@ try:
     from openstef.model.regressors.proloaf import OpenstfProloafRegressor
 except ImportError:
     logger.warning(
-        "Proloaf not available, switching to xgboost! See Readme how to install proloaf dependencies"
+        "Proloaf not available, switching to xgboost! See Readme how to install proloaf"
+        " dependencies"
     )
     OpenstfProloafRegressor = XGBOpenstfRegressor
 
