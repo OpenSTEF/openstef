@@ -163,16 +163,10 @@ class TestMLflowSerializer(BaseTestCase):
 
         # Use tempdir structure to test if model reports are stored correctly
         with tempfile.TemporaryDirectory() as trained_models_folder:
-            with self.assertLogs("MLflowSerializer", level="INFO") as captured:
-                MLflowSerializer(
-                    trained_models_folder=trained_models_folder
-                ).save_model(
-                    model=model, pj=pj, modelspecs=self.modelspecs, report=report_mock
-                )
-                # The index shifts if logging is added
-                self.assertEqual(
-                    captured.records[1].msg["event"], "Model saved with MLflow"
-                )
+            MLflowSerializer(trained_models_folder=trained_models_folder).save_model(
+                model=model, pj=pj, modelspecs=self.modelspecs, report=report_mock
+            )
+
             # Check if reports are stored in correct place
             report_files = glob.glob(f"{trained_models_folder}/{self.pj['id']}/*.html")
             self.assertEqual(len(report_files), 3)
@@ -201,16 +195,11 @@ class TestMLflowSerializer(BaseTestCase):
         report_mock = MagicMock()
         report_mock.get_metrics.return_value = {"mae", 0.2}
         mock_search.return_value = pd.DataFrame(columns=["run_id"])
-        with self.assertLogs("MLflowSerializer", level="INFO") as captured:
-            MLflowSerializer(
-                trained_models_folder="./test/unit/trained_models"
-            ).save_model(
-                model=model, pj=pj, modelspecs=self.modelspecs, report=report_mock
-            )
-            # The index shifts if logging is added
-            self.assertRegex(
-                captured.records[0].getMessage(), "No previous model found in MLflow"
-            )
+
+        MLflowSerializer(trained_models_folder="./test/unit/trained_models").save_model(
+            model=model, pj=pj, modelspecs=self.modelspecs, report=report_mock
+        )
+        self.assertEqual(mock_log_model.call_args.kwargs["artifact_path"], "model")
 
     @patch("openstef.model.serializer.MLflowSerializer._find_models")
     def test_serializer_get_model_age_no_hyperparameter_optimization(
@@ -287,15 +276,11 @@ class TestMLflowSerializer(BaseTestCase):
                 ],
             }
         )
-        with self.assertLogs("MLflowSerializer", level="WARNING") as captured:
-            days = MLflowSerializer(
-                trained_models_folder="./test/unit/trained_models"
-            )._determine_model_age_from_mlflow_run(run)
-        # The index shifts if logging is added
-        self.assertRegex(
-            captured.records[0].getMessage(),
-            "Could not get model age. Returning infinite age!",
-        )
+
+        days = MLflowSerializer(
+            trained_models_folder="./test/unit/trained_models"
+        )._determine_model_age_from_mlflow_run(run)
+
         self.assertEqual(days, float("inf"))
 
     def test_serializer_remove_old_models(self):

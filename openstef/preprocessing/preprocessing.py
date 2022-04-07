@@ -31,7 +31,7 @@ def replace_repeated_values_with_nan(df, max_length, column_name):
             indices.append(index)
         elif (value != old_value) & (len(indices) > max_length):
             indices = indices[max_length:]
-            data.at[indices, column_name] = np.nan
+            data.loc[indices, column_name] = np.nan
             indices = []
             indices.append(index)
         elif (value != old_value) & (len(indices) <= max_length):
@@ -39,7 +39,7 @@ def replace_repeated_values_with_nan(df, max_length, column_name):
             indices.append(index)
         old_value = value
     if len(indices) > max_length:
-        data.at[indices, column_name] = np.nan
+        data.loc[indices, column_name] = np.nan
     return data
 
 

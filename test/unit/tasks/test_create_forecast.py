@@ -49,34 +49,36 @@ class TestCreateForeCastTask(TestCase):
 
     @patch("mlflow.sklearn.load_model")
     @patch("openstef.model.serializer.MLflowSerializer")
-    @patch("openstef.tasks.utils.taskcontext.DataBase")
-    @patch("openstef.tasks.utils.taskcontext.ConfigManager")
+    @patch("openstef.tasks.utils.taskcontext.post_teams")
     def test_create_forecast_task_with_context(
-        self, configmock_taskcontext, dbmock, serializer_mock, load_mock
+        self, post_teams_mock, serializer_mock, load_mock
     ):
         """Test create forecast task with context."""
+        configmock_taskcontext = MagicMock()
+        dbmock = MagicMock()
+
         load_mock.return_value = self.model
-        dbmock().get_prediction_jobs.return_value = [
+        dbmock.get_prediction_jobs.return_value = [
             self.pj,
             self.pj,
         ]
 
-        dbmock().get_modelspecs.return_value = self.modelspecs
+        dbmock.get_modelspecs.return_value = self.modelspecs
 
         forecast_data = TestData.load("reference_sets/307-test-data.csv")
         col_name = forecast_data.columns[0]
         forecast_data.loc["2020-11-28 00:00:00":"2020-12-01", col_name] = None
-        dbmock().get_model_input.return_value = forecast_data
+        dbmock.get_model_input.return_value = forecast_data
 
-        configmock_taskcontext.get_instance.return_value.paths.trained_models_folder = (
+        configmock_taskcontext.return_value.paths.trained_models_folder = (
             "./test/unit/trained_models/"
         )
-        configmock_taskcontext.get_instance.return_value.paths.webroot = "test_webroot"
+        configmock_taskcontext.return_value.paths.webroot = "test_webroot"
 
-        task.main()
+        task.main(config=configmock_taskcontext(), database=dbmock)
 
         # assert if results forecast has been made
-        written_forecast = dbmock().write_forecast.call_args.args[0]
+        written_forecast = dbmock.write_forecast.call_args.args[0]
         self.assertEqual(len(written_forecast), 193)
         self.assertListEqual(
             list(written_forecast.columns),

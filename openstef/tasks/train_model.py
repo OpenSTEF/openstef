@@ -25,7 +25,7 @@ Example:
 from datetime import datetime, timedelta
 from pathlib import Path
 
-from openstef_dbc.services.prediction_job import PredictionJobDataClass
+from openstef.data_classes.prediction_job import PredictionJobDataClass
 
 from openstef.enums import MLModelType
 from openstef.pipeline.train_model import train_model_pipeline
@@ -40,6 +40,8 @@ def train_model_task(
     pj: PredictionJobDataClass,
     context: TaskContext,
     check_old_model_age: bool = DEFAULT_CHECK_MODEL_AGE,
+    datetime_start: datetime = None,
+    datetime_end: datetime = None,
 ) -> None:
     """Train model task.
 
@@ -61,8 +63,10 @@ def train_model_task(
     context.perf_meter.checkpoint("Added metadata to PredictionJob")
 
     # Define start and end of the training input data
-    datetime_start = datetime.utcnow() - timedelta(days=TRAINING_PERIOD_DAYS)
-    datetime_end = datetime.utcnow()
+    if datetime_end is None:
+        datetime_end = datetime.utcnow()
+    if datetime_start is None:
+        datetime_start = datetime_end - timedelta(days=TRAINING_PERIOD_DAYS)
 
     # todo: See if we can check model age before getting the data
     # Get training input data from database
@@ -76,23 +80,35 @@ def train_model_task(
     context.perf_meter.checkpoint("Retrieved timeseries input")
 
     # Excecute the model training pipeline
-    train_model_pipeline(
+    report = train_model_pipeline(
         pj,
         input_data,
         check_old_model_age=check_old_model_age,
         trained_models_folder=trained_models_folder,
     )
 
+    if pj.save_train_forecasts and hasattr(context.database, "write_train_forecasts"):
+        context.database.write_train_forecasts(pj, report)
+
     context.perf_meter.checkpoint("Model trained")
 
 
-def main(model_type=None):
+def main(model_type=None, config=None, database=None):
+
+    if database is None or config is None:
+        raise RuntimeError(
+            "Please specifiy a configmanager and/or database connection object. These can be found in the openstef-dbc package."
+        )
+
     if model_type is None:
         model_type = [ml.value for ml in MLModelType]
 
     taskname = Path(__file__).name.replace(".py", "")
-    with TaskContext(taskname) as context:
-        PredictionJobLoop(context, model_type=model_type).map(train_model_task, context)
+    datetime_now = datetime.utcnow()
+    with TaskContext(taskname, config, database) as context:
+        PredictionJobLoop(context, model_type=model_type).map(
+            train_model_task, context, datetime_end=datetime_now
+        )
 
 
 if __name__ == "__main__":

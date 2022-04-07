@@ -7,7 +7,7 @@ from typing import List
 import numpy as np
 import pandas as pd
 import structlog
-from openstef_dbc.services.prediction_job import PredictionJobDataClass
+from openstef.data_classes.prediction_job import PredictionJobDataClass
 from scipy import stats
 from sklearn.base import RegressorMixin
 
@@ -59,7 +59,7 @@ class ConfidenceIntervalApplicator:
         """
         temp_forecast = self._add_standard_deviation_to_forecast(forecast)
 
-        if "quantile" in pj["model"] and quantile_confidence_interval:
+        if self.model.can_predict_quantiles:
             return self._add_quantiles_to_forecast_quantile_regression(
                 temp_forecast, pj["quantiles"]
             )

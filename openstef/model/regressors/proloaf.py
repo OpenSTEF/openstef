@@ -156,6 +156,10 @@ class OpenstfProloafRegressor(OpenstfRegressor, ModelWrapper):
             ["load"] + self.encoder_features + self.decoder_features
         )  # TODO: gehele range, of een enkele feature
 
+    @property
+    def can_predict_quantiles(self):
+        return False
+
     def predict(self, x: pd.DataFrame) -> np.ndarray:
         x = x[list(self.feature_names)[1:]]
         # Apply scaling and interpolation for NaN values

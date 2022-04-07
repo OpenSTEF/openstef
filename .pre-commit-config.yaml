@@ -14,7 +14,8 @@
 
 repos:
 -   repo: https://github.com/ambv/black
-    rev: 21.7b0
+    rev: 22.1.0
     hooks:
     - id: black
       language_version: python3.9
+      additional_dependencies: ['click==8.0.4']

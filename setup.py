@@ -29,7 +29,7 @@ def read_long_description_from_readme():
 
 setup(
     name="openstef",
-    version="3.0.5",
+    version="3.1.7",
     packages=find_packages(include=["openstef", "openstef.*"]),
     description="Open short term energy forecaster",
     long_description=read_long_description_from_readme(),
@@ -47,7 +47,7 @@ setup(
     },
     python_requires=">=3.7.0",
     install_requires=read_requirements_from_file(),
-    setup_requires=["wheel", "Cython"],
+    setup_requires=["wheel"],
     tests_require=["pytest", "pytest-cov", "flake8"],
     extras_require={
         "proloaf": ["proloaf==0.2.0", "torch==1.10.0", "pytorch-lightning==1.5.1"]
@@ -59,5 +59,6 @@ setup(
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
     ],
 )

@@ -30,7 +30,7 @@ Attributes:
 from datetime import datetime, timedelta
 from pathlib import Path
 
-from openstef_dbc.services.prediction_job import PredictionJobDataClass
+from openstef.data_classes.prediction_job import PredictionJobDataClass
 
 from openstef.enums import MLModelType
 from openstef.pipeline.create_forecast import create_forecast_pipeline
@@ -74,11 +74,16 @@ def create_forecast_task(pj: PredictionJobDataClass, context: TaskContext) -> No
     context.database.write_forecast(forecast, t_ahead_series=True)
 
 
-def main(model_type=None):
+def main(model_type=None, config=None, database=None):
 
     taskname = Path(__file__).name.replace(".py", "")
 
-    with TaskContext(taskname) as context:
+    if database is None or config is None:
+        raise RuntimeError(
+            "Please specifiy a configmanager and/or database connection object. These can be found in the openstef-dbc package."
+        )
+
+    with TaskContext(taskname, config, database) as context:
 
         if model_type is None:
             model_type = [ml.value for ml in MLModelType]

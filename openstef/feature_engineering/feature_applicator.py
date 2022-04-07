@@ -2,7 +2,8 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 from abc import ABC, abstractmethod
-from typing import List, Optional
+from turtle import st
+from typing import List, Optional, Union
 
 import numpy as np
 import pandas as pd
@@ -13,14 +14,21 @@ from openstef.feature_engineering.general import (
     enforce_feature_order,
     remove_non_requested_feature_columns,
 )
-from openstef_dbc.services.prediction_job import PredictionJobDataClass
+from openstef.feature_engineering.feature_adder import (
+    adders_from_modules,
+    FeatureDispatcher,
+)
+from openstef.data_classes.prediction_job import PredictionJobDataClass
 
 LATENCY_CONFIG = {"APX": 24}  # A specific latency is part of a specific feature.
 
 
 class AbstractFeatureApplicator(ABC):
     def __init__(
-        self, horizons: List[float], feature_names: Optional[List[str]] = None
+        self,
+        horizons: Union[List[float], str],
+        feature_names: Optional[List[str]] = None,
+        feature_modules: Optional[List[str]] = [],
     ) -> None:
         """Initialize abstract feature applicator.
 
@@ -28,11 +36,13 @@ class AbstractFeatureApplicator(ABC):
             horizons (list): list of horizons in hours
             feature_names (List[str]):  List of requested features
         """
-        if type(horizons) is not list and not None:
+        if not isinstance(horizons, str) and type(horizons) is not list and not None:
             raise ValueError("horizons must be added as a list")
 
         self.feature_names = feature_names
         self.horizons = horizons
+        self.features_adder = adders_from_modules(feature_modules)
+        self.features_dispatcher = FeatureDispatcher(self.features_adder)
 
     @abstractmethod
     def add_features(
@@ -83,17 +93,28 @@ class TrainFeatureApplicator(AbstractFeatureApplicator):
         # Pre define output variables
         result = pd.DataFrame()
 
-        # Loop over horizons and add corresponding features
-        for horizon in self.horizons:
-            # Deep copy of df is important, because we want a fresh start every iteration!
-            res = apply_features(
-                df.copy(deep=True),
-                horizon=horizon,
-                pj=pj,
-                feature_names=self.feature_names,
-            )
-            res["horizon"] = horizon
+        if isinstance(self.horizons, str):
+            # copy the custom horizon into the horizon column
+            res = df.copy(deep=True)
+            res["horizon"] = res[self.horizons]
             result = result.append(res)
+        else:
+            # Loop over horizons and add corresponding features
+            for horizon in self.horizons:
+                # Deep copy of df is important, because we want a fresh start every iteration!
+                res = apply_features(
+                    df.copy(deep=True),
+                    horizon=horizon,
+                    pj=pj,
+                    feature_names=self.feature_names,
+                )
+                res["horizon"] = horizon
+                result = result.append(res)
+
+        # Add custom features with the dispatcher
+        result = self.features_dispatcher.apply_features(
+            result, feature_names=self.feature_names
+        )
 
         # IMPORTANT: sort index to prevent errors when slicing on the (datetime) index
         # if we don't sort, the duplicated indexes (one per horizon) have large gaps
@@ -136,8 +157,13 @@ class OperationalPredictFeatureApplicator(AbstractFeatureApplicator):
         if num_horizons != 1:
             raise ValueError(f"Expected one horizon, got {num_horizons}")
 
+        # Add core features
         df = apply_features(
             df, feature_names=self.feature_names, horizon=self.horizons[0]
+        )
+        # Add custom features with the dispatcher
+        df = self.features_dispatcher.apply_features(
+            df, feature_names=self.feature_names
         )
 
         df = add_missing_feature_columns(df, self.feature_names)

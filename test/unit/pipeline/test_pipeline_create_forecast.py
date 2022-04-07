@@ -101,13 +101,13 @@ class TestCreateForecastPipeline(BaseTestCase):
         col_name = forecast_data.columns[0]
         forecast_data.loc["2020-11-28 00:00:00":"2020-12-01", col_name] = None
 
-        model, _ = self.serializer.load_model(self.pj["id"])
+        model, modelspecs = self.serializer.load_model(self.pj["id"])
         if not hasattr(model, "standard_deviation"):  # Renamed the attribute
             model.standard_deviation = model.confidence_interval
 
         # Forecast
         forecast = create_forecast.create_forecast_pipeline_core(
-            pj=self.pj, input_data=forecast_data, model=model
+            pj=self.pj, input_data=forecast_data, model=model, modelspecs=modelspecs
         )
 
         # Verify backtest was performed
@@ -132,7 +132,7 @@ class TestCreateForecastPipeline(BaseTestCase):
 
         # Forecast
         forecast = create_forecast.create_forecast_pipeline_core(
-            self.pj, forecast_data, model
+            self.pj, forecast_data, model, modelspecs
         )
 
         # Verify forecast works correctly
@@ -159,7 +159,7 @@ class TestCreateForecastPipeline(BaseTestCase):
 
         # Forecast
         forecast = create_forecast.create_forecast_pipeline_core(
-            pj=self.pj, input_data=forecast_data, model=model
+            pj=self.pj, input_data=forecast_data, model=model, modelspecs=modelspecs
         )
 
         # Verify forecast works correctly
@@ -186,7 +186,7 @@ class TestCreateForecastPipeline(BaseTestCase):
 
         # Forecast
         forecast = create_forecast.create_forecast_pipeline_core(
-            pj=self.pj, input_data=forecast_data, model=model
+            pj=self.pj, input_data=forecast_data, model=model, modelspecs=modelspecs
         )
 
         # Verify forecast works correctly
