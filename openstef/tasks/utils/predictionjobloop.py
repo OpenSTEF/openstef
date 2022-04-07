@@ -193,8 +193,8 @@ class PredictionJobLoop:
             except Exception:
                 _, exc_info, stack_info = sys.exc_info()
                 self.context.logger.error(
-                    "An exception occured when executing the on_successful_callback\
-                        callback function for this iteration",
+                    "An exception occured when executing the on_successful_callback    "
+                    "                    callback function for this iteration",
                     exc_info=exc_info,
                     stack_info=stack_info,
                 )
@@ -231,8 +231,8 @@ class PredictionJobLoop:
             except Exception:
                 _, exc_info, stack_info = sys.exc_info()
                 self.context.logger.error(
-                    "An exception occured when executing the on_end_callback callback\
-                    function for this iteration",
+                    "An exception occured when executing the on_end_callback callback  "
+                    "                  function for this iteration",
                     exc_info=exc_info,
                     stack_info=stack_info,
                 )

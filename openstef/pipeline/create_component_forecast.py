@@ -41,7 +41,8 @@ def create_components_forecast_pipeline(
     except Exception as e:
         # In case something goes wrong we fall back on aan empty dataframe
         logger.warning(
-            f"Could not make component forecasts: {e}, falling back on series of zeros!",
+            f"Could not make component forecasts: {e}, falling back on series of"
+            " zeros!",
             exc_info=e,
         )
         forecasts = pd.DataFrame()

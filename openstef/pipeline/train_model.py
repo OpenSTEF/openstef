@@ -68,7 +68,8 @@ def train_model_pipeline(
             modelspecs = pj["default_modelspecs"]
             if modelspecs.id != pj.id:
                 raise RuntimeError(
-                    "The id of the prediction job and its default modelspecs do not match."
+                    "The id of the prediction job and its default modelspecs do not"
+                    " match."
                 )
         else:
             # create basic modelspecs
@@ -101,7 +102,8 @@ def train_model_pipeline(
 
     except InputDataWrongColumnOrderError as IDWCOE:
         logger.error(
-            "Wrong column order, 'load' column should be first and 'horizon' column last.",
+            "Wrong column order, 'load' column should be first and 'horizon' column"
+            " last.",
             pid=pj["id"],
             exc_info=IDWCOE,
         )

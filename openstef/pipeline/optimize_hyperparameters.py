@@ -75,8 +75,7 @@ def optimize_hyperparameters_pipeline(
     # Check if sufficient data is left after cleaning
     if not validation.is_data_sufficient(validated_data):
         raise InputDataInsufficientError(
-            f"Input data is insufficient for {pj['name']} "
-            f"after validation and cleaning"
+            f"Input data is insufficient for {pj['name']} after validation and cleaning"
         )
 
     if pj.default_modelspecs is not None:
