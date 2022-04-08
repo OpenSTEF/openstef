@@ -17,7 +17,8 @@ try:
     from openstef.model.regressors.proloaf import OpenstfProloafRegressor
 except ImportError:
     logger.warning(
-        "Proloaf not available, switching to xgboost! See Readme how to install proloaf dependencies"
+        "Proloaf not available, switching to xgboost! See Readme how to install proloaf"
+        " dependencies"
     )
     OpenstfProloafRegressor = XGBOpenstfRegressor
 
@@ -151,7 +152,7 @@ class ModelCreator:
             raise NotImplementedError(
                 f"No constructor for '{model_type}', "
                 f"valid model_types are: {valid_types}"
-                f"or import a custom model"
+                "or import a custom model"
             ) from e
 
         # only pass relevant arguments to model constructor to prevent warnings

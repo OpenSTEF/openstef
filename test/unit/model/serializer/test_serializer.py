@@ -328,7 +328,7 @@ class TestMLflowSerializer(BaseTestCase):
                 len(all_stored_models),
                 4,
                 f"we expect 4 models at the start- (now {len(all_stored_models)}), "
-                f"please remove runs (manually) or add runs with MAKE_RUNS == TRUE ",
+                "please remove runs (manually) or add runs with MAKE_RUNS == TRUE ",
             )
             self.assertEqual(len(final_stored_models), 2)
             # Check if the runs match to the oldest two runs
