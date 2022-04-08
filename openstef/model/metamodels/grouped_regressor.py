@@ -146,6 +146,7 @@ class GroupedRegressor(BaseEstimator, RegressorMixin, MetaEstimatorMixin):
         gb = df_reset.groupby(group_columns)
 
         if n_jobs > 1:
+            # Preferred scaling is at cluster level (e.g. k8s/serverless) instead of process level
             group_res = joblib.Parallel(n_jobs=n_jobs)(
                 joblib.delayed(func)(
                     group, df_group.set_index(index_name).drop(group_columns, axis=1)
