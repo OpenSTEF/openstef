@@ -241,7 +241,7 @@ def train_pipeline_common(
         train_data=train_data,
         validation_data=validation_data,
     )
-    
+
     if pj.save_train_forecasts:
         train_data["forecast"] = model.predict(train_data).values
         validation_data["forecast"] = model.predict(validation_data).values
