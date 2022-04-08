@@ -45,7 +45,8 @@ def main(model_type: MLModelType = None, config=None, database=None) -> None:
 
     if database is None or config is None:
         raise RuntimeError(
-            "Please specifiy a configmanager and/or database connection object. These can be found in the openstef-dbc package."
+            "Please specifiy a configmanager and/or database connection object. These"
+            " can be found in the openstef-dbc package."
         )
 
     if model_type is None:
@@ -186,7 +187,8 @@ def calc_kpi_for_specific_pid(
     # Raise exception in case of constant load
     if combined.load.nunique() == 1:
         structlog.get_logger(__name__).warning(
-            "The load is constant! KPIs will still be calculated, but relative metrics will be nan"
+            "The load is constant! KPIs will still be calculated, but relative metrics"
+            " will be nan"
         )
 
     # Define output dictonary

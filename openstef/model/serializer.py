@@ -358,8 +358,10 @@ class MLflowSerializer:
         experiment_id = self._set_experiment(pj["id"])
         prev_runs = mlflow.search_runs(
             experiment_id,
-            filter_string=" attribute.status = 'FINISHED' AND tags.mlflow.runName = '{}'".format(
-                pj["model"]
+            filter_string=(
+                " attribute.status = 'FINISHED' AND tags.mlflow.runName = '{}'".format(
+                    pj["model"]
+                )
             ),
         )
         return prev_runs
