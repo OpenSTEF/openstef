@@ -70,7 +70,7 @@ def optimize_hyperparameters_pipeline(
         )
 
     # Validate and clean data
-    validated_data = validation.clean(
+    validated_data = validation.drop_target_na(
         validation.validate(pj["id"], input_data, pj["flatliner_treshold"])
     )
 

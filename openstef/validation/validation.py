@@ -60,7 +60,7 @@ def validate(
     return data
 
 
-def clean(data: pd.DataFrame) -> pd.DataFrame:
+def drop_target_na(data: pd.DataFrame) -> pd.DataFrame:
     logger = structlog.get_logger(__name__)
     len_original = len(data)
     # Remove where load is NA, NaN features are preserved
