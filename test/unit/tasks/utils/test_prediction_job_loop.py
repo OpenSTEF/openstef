@@ -14,6 +14,8 @@ from openstef.tasks.utils.predictionjobloop import (
     PredictionJobLoop,
 )
 
+from openstef.data_classes.prediction_job import PredictionJobDataClass
+
 # define constants
 PREDICTION_JOBS = TestData.get_prediction_jobs()
 NUM_PREDICTION_JOBS = len(PREDICTION_JOBS)
@@ -99,6 +101,58 @@ class TestPredictionJob(BaseTestCase):
         context_mock = MagicMock()
         pjl = PredictionJobLoop(context_mock, debug_pid=1)
         self.assertEqual(len(pjl.prediction_jobs), 1)
+
+    def test_prediction_job_loop_with_dependencies(self):
+        # We check that the prediction jobs are called in the
+        # correct order when dependencies are present.
+        def make_prediction_job(pj_id, depends_on=None):
+            return PredictionJobDataClass(
+                id=pj_id,
+                depends_on=depends_on,
+                model="",
+                forecast_type="",
+                train_components=False,
+                name="",
+                lat=0,
+                lon=0,
+                resolution_minutes=0,
+                horizon_minutes=0,
+            )
+
+        pjs = [
+            make_prediction_job(1),
+            make_prediction_job(2),
+            make_prediction_job(3),
+            make_prediction_job(4, depends_on=[1, 2]),
+            make_prediction_job(5, depends_on=[1, 3]),
+            make_prediction_job(6, depends_on=[4]),
+            make_prediction_job(7),
+        ]
+
+        context_mock = MagicMock()
+        context_mock.database.get_prediction_jobs.return_value = pjs
+
+        class MockFunction:
+            def __init__(self):
+                self.pjs = []
+
+            def __call__(self, pj, *args, **kwargs):
+                self.pjs.append(pj)
+
+        function_mock = MockFunction()
+
+        PredictionJobLoop(
+            context_mock,
+        ).map(function_mock)
+
+        found_pjs = function_mock.pjs
+        group1 = set(pj.id for pj in found_pjs[:4])
+        group2 = set(pj.id for pj in found_pjs[4:6])
+        group3 = set(pj.id for pj in found_pjs[6:])
+
+        assert group1 == {1, 2, 3, 7}
+        assert group2 == {4, 5}
+        assert group3 == {6}
 
 
 if __name__ == "__main__":
