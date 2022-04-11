@@ -126,12 +126,40 @@ class Reporter:
         return results
 
     @staticmethod
+    def write_report(report: Report, location: Path = None, mlflow_tracking_uri: str = None):
+        """Write report to disk or/and MLFlow."""
+        if not location:
+            write_report_to_disk(report, location)
+        if not mlflow_tracking_uri:
+            write_report_to_mlflow(report, mlflow_tracking_uri)
+
+    @staticmethod
     def write_report_to_disk(report: Report, location: Path):
         """Write report to disk,
         easy for e.g. viewing report of latest models using grafana"""
         # create path if does not exist
         if not os.path.exists(location):
             os.makedirs(location)
+        # write feature importance figure
+        report.feature_importance_figure.write_html(f"{location}/weight_plot.html")
+        # write predictors
+        for name, figure in report.data_series_figures.items():
+            figure.write_html(f"{location}/{name}.html")
+
+    @staticmethod
+    def write_report_to_mlflow(report: Report, mlflow_tracking_uri: str):
+        """Write report to mlflow. For tracking model quality in MLFlow"""
+        #TODO: setup how to log mlflow per run?
+
+        if report.feature_importance_figure is not None:
+            mlflow.log_figure(
+                report.feature_importance_figure, "figures/weight_plot.html"
+            )
+
+        for key, fig in report.data_series_figures.items():
+            mlflow.log_figure(fig, f"figures/{key}.html")
+        self.logger.info(f"logged figures to MLflow")
+
         # write feature importance figure
         report.feature_importance_figure.write_html(f"{location}/weight_plot.html")
         # write predictors
