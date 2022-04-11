@@ -33,7 +33,9 @@ class TestDataValidation(BaseTestCase):
     def test_validate(self):
 
         self.data_predict["load"][0:50] = 10.0
-        validated_data = validation.validate(self.pj["id"], self.data_predict)
+        validated_data = validation.validate(
+            self.pj["id"], self.data_predict, self.pj["flatliner_treshold"]
+        )
         self.assertEqual(len(validated_data[validated_data["load"].isna()]), 26)
 
     def test_validate_none_threshold(self):

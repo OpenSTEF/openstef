@@ -62,7 +62,9 @@ class TestTrainBackTestPipeline(BaseTestCase):
 
         # check if forecast is indeed of the entire range of the input data
         validated_data = validation.clean(
-            validation.validate(self.pj["id"], self.train_input)
+            validation.validate(
+                self.pj["id"], self.train_input, self.pj["flatliner_treshold"]
+            )
         )
         data_with_features = TrainFeatureApplicator(
             horizons=[0.25, 24.0], feature_names=self.modelspecs.feature_names
