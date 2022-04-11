@@ -156,7 +156,7 @@ class TestTrainModelPipeline(BaseTestCase):
 
                 # Validate and clean data
                 validated_data = validation.clean(
-                    validation.validate(pj["id"], train_input)
+                    validation.validate(pj["id"], train_input, flatliner_threshold=24)
                 )
 
                 # Add features

@@ -66,7 +66,7 @@ class TestValidationFindZeroFlatliners(BaseTestCase):
         df = df_no_flatliner
         threshold = 0.25
         expected = None
-        result = find_zero_flatliner(df, threshold)
+        result = find_zero_flatliner(df, threshold, timedelta(minutes=30), 0.3)
 
         self.assertEqual(expected, result)
 
@@ -77,7 +77,7 @@ class TestValidationFindZeroFlatliners(BaseTestCase):
         """
         df = df_all_zerovalues
         threshold = 0.25
-        result = find_zero_flatliner(df, threshold)
+        result = find_zero_flatliner(df, threshold, timedelta(minutes=30), 0.3)
         expected = None
         self.assertEqual(result, expected)
 
@@ -88,7 +88,7 @@ class TestValidationFindZeroFlatliners(BaseTestCase):
         """
         df = df_nan_value
         threshold = 0.25
-        result = find_zero_flatliner(df, threshold)
+        result = find_zero_flatliner(df, threshold, timedelta(minutes=30), 0.3)
         expected = None
         self.assertEqual(result, expected)
 
@@ -99,7 +99,7 @@ class TestValidationFindZeroFlatliners(BaseTestCase):
         """
         df = df_flatliner
         threshold = 0.25
-        result = find_zero_flatliner(df, threshold)
+        result = find_zero_flatliner(df, threshold, timedelta(minutes=30), 0.3)
         expected = pd.DataFrame(
             {
                 "from_time": [now - timedelta(minutes=45)],
@@ -120,7 +120,7 @@ class TestValidationFindZeroFlatliners(BaseTestCase):
         """
         df = df_some_nan
         threshold = 0.25
-        result = find_zero_flatliner(df, threshold)
+        result = find_zero_flatliner(df, threshold, timedelta(minutes=30), 0.3)
         expected = pd.DataFrame(
             {
                 "from_time": [now - timedelta(minutes=45)],
@@ -142,7 +142,7 @@ class TestValidationFindZeroFlatliners(BaseTestCase):
         """
         df = df_compensated_flatliner
         threshold = 0.25
-        result = find_zero_flatliner(df, threshold)
+        result = find_zero_flatliner(df, threshold, timedelta(minutes=30), 0.3)
         expected = None
         self.assertEqual(result, expected)
 
@@ -154,7 +154,7 @@ class TestValidationFindZeroFlatliners(BaseTestCase):
         df = df_zero_file
         threshold = 0.25
         expected = None
-        result = find_zero_flatliner(df, threshold)
+        result = find_zero_flatliner(df, threshold, timedelta(minutes=30), 0.3)
         self.assertEqual(result, expected)
 
         # Run all tests
@@ -163,14 +163,14 @@ class TestValidationFindZeroFlatliners(BaseTestCase):
         """Test ability to handle arrays of unequal length. Bug KTPS-1823"""
         df = df_flatline_at_end
         threshold = 0.25
-        result = find_zero_flatliner(df, threshold)
+        result = find_zero_flatliner(df, threshold, timedelta(minutes=30), 0.3)
         self.assertEqual(result, None)
 
     def test_flatline_at_start(self):
         """Test ability to handle arrays of unequal length. Bug KTPS-1823"""
         df = df_flatline_at_start
         threshold = 0.25
-        result = find_zero_flatliner(df, threshold)
+        result = find_zero_flatliner(df, threshold, timedelta(minutes=30), 0.3)
         self.assertEqual(result, None)
 
 
