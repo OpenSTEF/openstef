@@ -49,6 +49,14 @@ class TestData:
             with open(filepath, "wb") as fh:
                 pickle.dump(obj, fh)
 
+        elif ".json" in filename:
+            dumper = json.dump
+            with open(filepath, "w") as fp:
+                dumper(obj, fp)
+
+        else:
+            raise NotImplementedError("Extension not implemented")
+
     @classmethod
     def load(cls, filename):
         filepath = cls.DATA_FILES_FOLDER / filename
