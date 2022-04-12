@@ -208,7 +208,7 @@ def r_mae_lowest(realised, forecast, quantile=0.05):
     return r_mae_lowest
 
 
-def skill_score(realised, forecast, mean):
+def skill_score(realised, forecast):
     """Function that calculates the skill score.
 
     Thise indicates model performance relative to a reference, in this case the mean
@@ -216,9 +216,9 @@ def skill_score(realised, forecast, mean):
     two weeks
     """
     combined = pd.concat([realised, forecast], axis=1)
-    combined["mean"] = mean
+    mean = realised.mean()
 
-    skill_score = 1 - (mae(realised, forecast) / mae(realised, combined["mean"]))
+    skill_score = 1 - (mae(realised, forecast) / mae(realised, mean))
 
     if np.isnan(skill_score):
         return 0
@@ -226,7 +226,7 @@ def skill_score(realised, forecast, mean):
     return skill_score
 
 
-def skill_score_positive_peaks(realised, forecast, mean):
+def skill_score_positive_peaks(realised, forecast):
     # Combine series in one DataFrame
     combined = pd.concat([realised, forecast], axis=1)
 
@@ -237,7 +237,7 @@ def skill_score_positive_peaks(realised, forecast, mean):
     combined = combined[np.invert(np.isnan(combined["highest"]))]
 
     # Calculate rMAE for the selected points
-    skill_score_highest = skill_score(combined["load"], combined[forecast.name], mean)
+    skill_score_highest = skill_score(combined["load"], combined[forecast.name])
 
     if np.isnan(skill_score_highest):
         return 0
