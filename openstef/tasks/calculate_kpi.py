@@ -234,24 +234,24 @@ def calc_kpi_for_specific_pid(
                     "skill_score_basecase": metrics.skill_score(
                         combined["load"],
                         combined["basecase"],
-                        np.mean(combined["basecase"]),
+                        np.mean(combined["load"]),
                     ),
                     "skill_score": metrics.skill_score(
-                        combined["load"], fc, np.mean(combined["basecase"])
+                        combined["load"], fc, np.mean(combined["load"])
                     ),
                     "skill_score_positive_peaks": metrics.skill_score_positive_peaks(
-                        combined["load"], fc, np.mean(combined["basecase"])
+                        combined["load"], fc, np.mean(combined["load"])
                     ),
                     "skill_score_positive_peaks_basecase": metrics.skill_score_positive_peaks(
                         combined["load"],
                         combined["basecase"],
-                        np.mean(combined["basecase"]),
+                        np.mean(combined["load"]),
                     ),
                     "franks_skill_score": metrics.franks_skill_score(
-                        combined["load"], fc, combined["basecase"]
+                        combined["load"], fc, np.mean(combined["load"])
                     ),
                     "franks_skill_score_peaks": metrics.franks_skill_score_peaks(
-                        combined["load"], fc, combined["basecase"]
+                        combined["load"], fc, np.mean(combined["load"])
                     ),
                     "load_range": combined["load"].max() - combined["load"].min(),
                     "frac_in_1sdev": metrics.frac_in_stdev(combined["load"], fc, st),
