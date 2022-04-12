@@ -150,7 +150,7 @@ class TestPerformanceCalcKpiForSpecificPid(BaseTestCase):
             prediction_job["id"], realised_load, predicted_load, basecase=pd.DataFrame()
         )
         # Assert KPIs
-        kpis  # TODO improve
+        assert isinstance(kpis  , dict)# TODO improve
 
 
 # Run all tests
