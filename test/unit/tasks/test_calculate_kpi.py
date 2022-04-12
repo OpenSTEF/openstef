@@ -5,7 +5,7 @@
 import unittest
 from test.unit.utils.base import BaseTestCase
 from test.unit.utils.data import TestData
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import numpy as np
 import pandas as pd
@@ -19,7 +19,6 @@ realised_load = TestData.load("calculate_kpi_relealised_load.csv")
 
 # Prepare dataframe with nans to test low completeness
 realised_load_nan = realised_load.copy()
-# realised_load_nan.loc[:] = np.nan
 realised_load_nan.loc[realised_load_nan.sample(frac=0.5).index, :] = np.NaN
 
 # Prepare dataframe with nans to test low completeness
@@ -142,6 +141,16 @@ class TestPerformanceCalcKpiForSpecificPid(BaseTestCase):
             calc_kpi_for_specific_pid(
                 prediction_job["id"], realised_load, pd.DataFrame(), realised_load
             )
+
+    def test_calc_kpi_empty_basecase(self):
+        """An empty basecase should not return an exception
+        Instead, basecase metrics should be NaN"""
+
+        kpis = calc_kpi_for_specific_pid(
+            prediction_job["id"], realised_load, predicted_load, basecase=pd.DataFrame()
+        )
+        # Assert KPIs
+        kpis  # TODO improve
 
 
 # Run all tests
