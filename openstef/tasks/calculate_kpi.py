@@ -184,8 +184,8 @@ def calc_kpi_for_specific_pid(
 
     # Add basecase (load in same time period 7 days ago)
     # Check if basecase is not empty, else make a dummy dataframe
-    #    if len(basecase) == 0:
-    #        basecase = pd.DataFrame(columns=['load'])
+    if len(basecase) == 0:
+        basecase = pd.DataFrame(columns=["load"])
     basecase = basecase.rename(columns=dict(load="basecase"))
 
     combined = combined.merge(basecase, how="left", left_index=True, right_index=True)
