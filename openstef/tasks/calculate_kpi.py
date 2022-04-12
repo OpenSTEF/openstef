@@ -232,14 +232,20 @@ def calc_kpi_for_specific_pid(
                     "rMPE_highest": metrics.r_mpe_highest(combined["load"], fc),
                     "rMAE_lowest": metrics.r_mae_lowest(combined["load"], fc),
                     "skill_score_basecase": metrics.skill_score(
-                        combined["load"], combined["basecase"]
+                        combined["load"],
+                        combined["basecase"],
+                        np.mean(combined["basecase"]),
                     ),
-                    "skill_score": metrics.skill_score(combined["load"], fc),
+                    "skill_score": metrics.skill_score(
+                        combined["load"], fc, np.mean(combined["basecase"])
+                    ),
                     "skill_score_positive_peaks": metrics.skill_score_positive_peaks(
-                        combined["load"], fc
+                        combined["load"], fc, np.mean(combined["basecase"])
                     ),
                     "skill_score_positive_peaks_basecase": metrics.skill_score_positive_peaks(
-                        combined["load"], combined["basecase"]
+                        combined["load"],
+                        combined["basecase"],
+                        np.mean(combined["basecase"]),
                     ),
                     "franks_skill_score": metrics.franks_skill_score(
                         combined["load"], fc, combined["basecase"]
