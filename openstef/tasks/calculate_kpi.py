@@ -248,10 +248,10 @@ def calc_kpi_for_specific_pid(
                         np.mean(combined["load"]),
                     ),
                     "franks_skill_score": metrics.franks_skill_score(
-                        combined["load"], fc, np.mean(combined["load"])
+                        combined["load"], fc, combined["basecase"]
                     ),
                     "franks_skill_score_peaks": metrics.franks_skill_score_peaks(
-                        combined["load"], fc, np.mean(combined["load"])
+                        combined["load"], fc, combined["basecase"]
                     ),
                     "load_range": combined["load"].max() - combined["load"].min(),
                     "frac_in_1sdev": metrics.frac_in_stdev(combined["load"], fc, st),
