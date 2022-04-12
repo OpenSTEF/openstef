@@ -86,9 +86,13 @@ def check_kpi_task(
     )
 
     # Get basecase prediction
-    basecase = context.database.get_load_pid(
+    load_1_week_before = context.database.get_load_pid(
         pj["id"], start_time - timedelta(days=7), end_time - timedelta(days=7), "15T"
-    ).shift(periods=7, freq="d")
+    )
+    if len(load_1_week_before) > 0:
+        basecase = load_1_week_before.shift(periods=7, freq="d")
+    else:
+        basecase = pd.DataFrame()
 
     kpis = calc_kpi_for_specific_pid(pj["id"], realised, predicted_load, basecase)
     # Write KPI's to database
@@ -178,8 +182,10 @@ def calc_kpi_for_specific_pid(
     # Combine the forecast and the realised to make sure indices are matched nicely
     combined = pd.merge(realised, predicted_load, left_index=True, right_index=True)
 
-    # TODO: make basecase calculation optional only if there was data available 7 days before
     # Add basecase (load in same time period 7 days ago)
+    # Check if basecase is not empty, else make a dummy dataframe
+    #    if len(basecase) == 0:
+    #        basecase = pd.DataFrame(columns=['load'])
     basecase = basecase.rename(columns=dict(load="basecase"))
 
     combined = combined.merge(basecase, how="left", left_index=True, right_index=True)
