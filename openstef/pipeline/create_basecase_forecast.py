@@ -18,6 +18,7 @@ from openstef.postprocessing.postprocessing import (
     add_prediction_job_properties_to_forecast,
 )
 from openstef.validation import validation
+from openstef.exceptions import NoRealisedLoadError
 
 MODEL_LOCATION = Path(".")
 BASECASE_HORIZON_MINUTES = 60 * 24 * 14  # 14 days ahead
@@ -66,6 +67,10 @@ def create_basecase_forecast_pipeline(
     logger.info("Making basecase forecast")
     # Make basecase forecast
     basecase_forecast = BaseCaseModel().predict(forecast_input)
+
+    # Check if input data is available
+    if len(basecase_forecast) == 0:
+        raise NoRealisedLoadError(pj["id"])
 
     # Estimate the stdev by using the stdev of the hour for historic (T-14d) load
     model.standard_deviation = generate_basecase_confidence_interval(forecast_input)
