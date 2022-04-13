@@ -27,7 +27,7 @@ class SplitFuncDataClass(BaseModel):
         else:
             raise AttributeError(f"{key} not an attribute of prediction job.")
 
-    def _load_split_function(self, required_arguments=None):
+    def _load_split_function(self, required_arguments=None) -> Callable:
         """Load split function from path
 
         Args:
@@ -59,7 +59,7 @@ class SplitFuncDataClass(BaseModel):
 
             return split_func
 
-    def _load_arguments(self):
+    def _load_arguments(self) -> Dict[str, Any]:
         """Load the arguments.
 
         Convert the arguments from JSON if they are given as strings or simply return them otherwise.
@@ -72,7 +72,7 @@ class SplitFuncDataClass(BaseModel):
         else:
             return self.arguments
 
-    def load(self, required_arguments: Sequence[str] = None):
+    def load(self, required_arguments: Sequence[str] = None) -> (Callable, Dict[str, Any]):
         """Load the function and its arguments
 
         If the function and the arguments are given as strings in the instane attributes, load them as Python objects
