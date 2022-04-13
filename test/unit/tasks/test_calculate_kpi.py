@@ -159,7 +159,6 @@ class TestPerformanceCalcKpiForSpecificPid(BaseTestCase):
         # Assert KPIs
         assert isinstance(kpis, dict)
         arbitrary_tAhead = "47.0h"
-        self.assertNotEqual(kpis[arbitrary_tAhead]["skill_score"], 0)
         self.assertEqual(kpis[arbitrary_tAhead]["skill_score_basecase"], 0)
 
 
