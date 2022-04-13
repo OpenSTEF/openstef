@@ -9,14 +9,12 @@ from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.data_classes.model_specifications import ModelSpecificationDataClass
 from openstef.model.confidence_interval_applicator import ConfidenceIntervalApplicator
 from openstef.model.regressors.regressor import OpenstfRegressor
-from openstef.model_selection.model_selection import (
-    group_kfold,
-    split_data_train_validation_test,
-)
+from openstef.model_selection.model_selection import backtest_split_default
 from openstef.pipeline import train_model
 from openstef.postprocessing.postprocessing import (
     add_prediction_job_properties_to_forecast,
 )
+
 
 DEFAULT_TRAIN_HORIZONS: List[float] = [0.25, 24.0]
 DEFAULT_EARLY_STOPPING_ROUNDS: int = 10
@@ -28,14 +26,33 @@ def train_model_and_forecast_back_test(
     input_data: pd.DataFrame,
     training_horizons: List[float] = None,
     n_folds: int = 1,
-) -> Tuple[
+) -> (
     pd.DataFrame,
     List[OpenstfRegressor],
     List[pd.DataFrame],
     List[pd.DataFrame],
     List[pd.DataFrame],
-]:
-
+):
+    """Pipeline for a back test.
+        When number of folds is larger than 1: apply pipeline for a back test when forecasting the entire input range.
+        - Makes use of kfold cross validation in order to split data multiple times.
+        - Results of all the testsets are added together to obtain the forecast for the whole input range.
+        - Obtaining the days for each fold can be done either randomly or not
+        DO NOT USE THIS PIPELINE FOR OPERATIONAL FORECASTS
+    Args:
+        pj (PredictionJobDataClass): Prediction job.
+        modelspecs (ModelSpecificationDataClass): Dataclass containing model specifications
+        input_data (pd.DataFrame): Input data
+        training_horizons (list): horizons to train on in hours.
+            These horizons are also used to make predictions (one for every horizon)
+        n_folds (int): number of folds to apply (if 1, no cross validation will be applied)
+    Returns:
+        - forecast (pandas.DataFrame)
+        - fitted models (List[OpenStfRegressor])
+        - train data sets (list[pd.DataFrame])
+        - validation data sets (list[pd.DataFrame])
+        - test data sets (list[pd.DataFrame])
+    """
     if pj.backtest_split_func is None:
         backtest_split_func = backtest_split_default
         backtest_split_args = {"stratification_min_max": pj["model"] != "proloaf"}
@@ -44,10 +61,14 @@ def train_model_and_forecast_back_test(
             required_arguments=["data", "n_folds"]
         )
 
-    data_with_features = train_model.train_pipeline_compute_features(
+    data_with_features = train_model.train_pipeline_step_compute_features(
         input_data=input_data, pj=pj, modelspecs=modelspecs, horizons=training_horizons
     )
 
+    # The use of zip allows to take advantage of the lazy estimation mechanisms of Python, especially if the
+    # backtest_split_func returns a generator. This can avoid unwanted multiple data copies.
+    # 1. First we retrieve a generator (use of () comprehensive) on (model, forecast, train, val, test)
+    # 2. Then we unzip the result into generators separated by result type (models, forecasts, trains, vals, tests)
     (
         models_folds,
         forecast_folds,
@@ -76,9 +97,26 @@ def train_model_and_forecast_back_test(
 
 
 def train_model_and_forecast_test_core(
-    pj, modelspecs, train_data, validation_data, test_data
-):
-    model = train_model.train_pipeline_train_model(
+    pj: PredictionJobDataClass,
+    modelspecs: ModelSpecificationDataClass,
+    train_data: pd.DataFrame,
+    validation_data: pd.DataFrame,
+    test_data: pd.DataFrame,
+) -> (OpenstfRegressor, pd.DataFrame):
+    """Trains the model and forecast on the test set.
+
+    Args:
+        pj (PredictionJobDataClass): Prediction job.
+        modelspecs (ModelSpecificationDataClass): Dataclass containing model specifications
+        train_data (pd.DataFrame): Train data with computed features
+        validation_data (pd.DataFrame): Validation data with computed features
+        test_data (pd.DataFrame): Test data with computed features
+
+    Returns:
+        trained_model (OpenstfRegressor): The trained model
+        forecast (pd.DataFrame): The forecast on the test set.
+    """
+    model = train_model.train_pipeline_step_train_model(
         pj, modelspecs, train_data, validation_data
     )
 
@@ -104,31 +142,3 @@ def train_model_and_forecast_test_core(
     forecast["horizon"] = test_data.iloc[:, -1]
 
     return model, forecast
-
-
-def backtest_split_default(
-    input_data, n_folds, test_fraction=0.15, stratification_min_max=True
-):
-    if n_folds > 1:
-        input_data.index = pd.to_datetime(input_data.index)
-        input_data["dates"] = input_data.index
-        input_data = group_kfold(input_data, n_folds)
-
-        for ifold in range(n_folds):
-            test_data = input_data[input_data["random_fold"] == ifold].sort_index()
-
-            (train_data, validation_data, _,) = split_data_train_validation_test(
-                input_data[input_data["random_fold"] != ifold].iloc[:, :-2],
-                test_fraction=0,
-                back_test=True,
-                stratification_min_max=stratification_min_max,
-            )
-
-            yield train_data, validation_data, test_data.iloc[:, :-2]
-    else:
-        yield split_data_train_validation_test(
-            input_data,
-            back_test=True,
-            test_fraction=test_fraction,
-            stratification_min_max=stratification_min_max,
-        )

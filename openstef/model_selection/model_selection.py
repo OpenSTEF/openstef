@@ -5,7 +5,7 @@ import secrets
 import random
 from datetime import timedelta
 from itertools import accumulate
-from typing import List, Tuple
+from typing import List, Tuple, Iterable
 
 import numpy as np
 import pandas as pd
@@ -257,3 +257,48 @@ def split_data_train_validation_test(
         validation_data,
         test_data,
     )
+
+
+def backtest_split_default(
+    input_data: pd.DataFrame,
+    n_folds: int,
+    test_fraction: float = 0.15,
+    stratification_min_max: bool = True,
+) -> Iterable[(pd.DataFrame, pd.DataFrame, pd.DataFrame)]:
+    """Default cross validation strategy.
+    Args:
+        input_data:
+        n_folds:
+        test_fraction:
+        stratification_min_max:
+
+    Returns:
+        train_val_test_generator (Iterable[pd.DataFrame, pd.DataFrame, pd.DataFrame]):
+            Iterable on train, val, test splits
+
+    Notes:
+        We use a generator in order to have lazy estimation and avoid multiple copy of the data.
+    """
+    if n_folds > 1:
+        input_data.index = pd.to_datetime(input_data.index)
+        input_data["dates"] = input_data.index
+        input_data = group_kfold(input_data, n_folds)
+
+        for ifold in range(n_folds):
+            test_data = input_data[input_data["random_fold"] == ifold].sort_index()
+
+            (train_data, validation_data, _,) = split_data_train_validation_test(
+                input_data[input_data["random_fold"] != ifold].iloc[:, :-2],
+                test_fraction=0,
+                back_test=True,
+                stratification_min_max=stratification_min_max,
+            )
+
+            yield train_data, validation_data, test_data.iloc[:, :-2]
+    else:
+        yield split_data_train_validation_test(
+            input_data,
+            back_test=True,
+            test_fraction=test_fraction,
+            stratification_min_max=stratification_min_max,
+        )

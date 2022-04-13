@@ -4,7 +4,7 @@
 
 import json
 from importlib import import_module
-from typing import Union, Dict, Callable, Any
+from typing import Union, Dict, Callable, Any, Sequence
 
 import inspect
 from pydantic import BaseModel
@@ -16,9 +16,9 @@ class SplitFuncDataClass(BaseModel):
         str, Dict[str, Any]
     ]  # JSON string holding the function parameters or dict
 
-    def __getitem__(self, item):
+    def __getitem__(self, key: str):
         """Allows us to use subscription to get the items from the object"""
-        return getattr(self, item)
+        return getattr(self, key)
 
     def __setitem__(self, key: str, value: any):
         """Allows us to use subscription to set the items in the object"""
@@ -60,10 +60,29 @@ class SplitFuncDataClass(BaseModel):
             return split_func
 
     def _load_arguments(self):
+        """ Load the arguments.
+
+        Convert the arguments from JSON if they are given as strings or simply return them otherwise.
+
+        Returns:
+            arguments (Dict[str, Any]): The additional arguments to be passed to he function
+        """
         if isinstance(self.arguments, str):
             return json.loads(self.arguments)
         else:
             return self.arguments
 
-    def load(self, required_arguments=None):
-        return (self._load_split_function(required_arguments), self._load_arguments())
+    def load(self, required_arguments: Sequence[str] = None):
+        """ Load the function and its arguments
+
+        If the function and the arguments are given as strings in the instane attributes, load them as Python objects
+        otherwise just return them from the instance attributes.
+
+        Args:
+            required_arguments (List[str]): list of arguments the loaded function must have
+
+        Returns:
+            - function (Callable)
+            - arguments (Dict[str, Any])
+        """
+        return self._load_split_function(required_arguments), self._load_arguments()

@@ -223,11 +223,11 @@ def train_pipeline_common(
         InputDataWrongColumnOrderError: when input data has a invalid column order.
 
     """
-    data_with_features = train_pipeline_compute_features(
+    data_with_features = train_pipeline_step_compute_features(
         pj=pj, modelspecs=modelspecs, input_data=input_data, horizons=horizons
     )
 
-    train_data, validation_data, test_data = train_data_split_default(
+    train_data, validation_data, test_data = train_pipeline_step_split_data(
         data_with_features=data_with_features,
         pj=pj,
         test_fraction=test_fraction,
@@ -235,7 +235,7 @@ def train_pipeline_common(
         test_data_predefined=test_data_predefined,
     )
 
-    model = train_pipeline_train_model(
+    model = train_pipeline_step_train_model(
         pj=pj,
         modelspecs=modelspecs,
         train_data=train_data,
@@ -254,12 +254,12 @@ def train_pipeline_common(
     return model, report, train_data, validation_data, test_data
 
 
-def train_pipeline_compute_features(
+def train_pipeline_step_compute_features(
     pj: PredictionJobDataClass,
     modelspecs: ModelSpecificationDataClass,
     input_data: pd.DataFrame,
     horizons=List[float],
-):
+) -> pd.DataFrame:
     """Compute features and perform consistency checks
 
     Args:
@@ -313,7 +313,7 @@ def train_pipeline_compute_features(
     return data_with_features
 
 
-def train_pipeline_train_model(
+def train_pipeline_step_train_model(
     pj: PredictionJobDataClass,
     modelspecs: ModelSpecificationDataClass,
     train_data: pd.DataFrame,
@@ -382,13 +382,13 @@ def train_pipeline_train_model(
     return model
 
 
-def train_data_split_default(
+def train_pipeline_step_split_data(
     data_with_features: pd.DataFrame,
     pj: PredictionJobDataClass,
     test_fraction: float,
     backtest: bool = False,
     test_data_predefined: pd.DataFrame = pd.DataFrame(),
-) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+) -> (pd.DataFrame, pd.DataFrame, pd.DataFrame):
     """The default way to perform train, val, test split
 
     Args:
@@ -400,8 +400,6 @@ def train_data_split_default(
             (empty data frame by default)
     Returns:
         train_data, validation_data, test_data: The train, validation and test datasets.
-
-
     """
     # if test_data is predefined, apply the pipeline only on the remaining data
     if not test_data_predefined.empty:
