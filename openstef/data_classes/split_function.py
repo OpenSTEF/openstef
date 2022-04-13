@@ -72,7 +72,9 @@ class SplitFuncDataClass(BaseModel):
         else:
             return self.arguments
 
-    def load(self, required_arguments: Sequence[str] = None) -> (Callable, Dict[str, Any]):
+    def load(
+        self, required_arguments: Sequence[str] = None
+    ) -> (Callable, Dict[str, Any]):
         """Load the function and its arguments
 
         If the function and the arguments are given as strings in the instane attributes, load them as Python objects
