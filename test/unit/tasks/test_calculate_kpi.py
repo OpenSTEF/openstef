@@ -87,9 +87,10 @@ class TestPerformanceCalcKpiForSpecificPid(BaseTestCase):
         # Remove date
         # type(date)==datetime gave a LOT of errors
         kpis = {
-            key: [value for value in values if value != "date"]
-            for key, values in kpis.items()
+            t_ahead: {kpi: value for kpi, value in kpi_dict.items() if kpi != "date"}
+            for t_ahead, kpi_dict in kpis.items()
         }
+
         # Use line below to store new kpis
         # TestData.save(kpis, 'calculate_kpi_kpi.json')
         kpis_ref = TestData.load("calculate_kpi_kpi.json")
