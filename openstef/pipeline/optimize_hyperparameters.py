@@ -70,10 +70,14 @@ def optimize_hyperparameters_pipeline(
         )
 
     # Validate and clean data
-    validated_data = validation.clean(validation.validate(pj["id"], input_data))
+    validated_data = validation.drop_target_na(
+        validation.validate(pj["id"], input_data, pj["flatliner_treshold"])
+    )
 
     # Check if sufficient data is left after cleaning
-    if not validation.is_data_sufficient(validated_data):
+    if not validation.is_data_sufficient(
+        validated_data, pj["completeness_treshold"], pj["minimal_table_length"]
+    ):
         raise InputDataInsufficientError(
             f"Input data is insufficient for {pj['name']} after validation and cleaning"
         )

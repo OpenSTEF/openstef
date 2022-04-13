@@ -22,6 +22,9 @@ class PredictionJobDataClass(BaseModel):
     train_horizons_minutes: Optional[List[int]]
     default_modelspecs: Optional[ModelSpecificationDataClass]
     save_train_forecasts: bool = False
+    completeness_treshold: float = 0.5
+    minimal_table_length: int = 100
+    flatliner_treshold: int = 24
     depends_on: Optional[List[Union[int, str]]]
 
     def __getitem__(self, item):

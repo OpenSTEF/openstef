@@ -13,18 +13,11 @@ from openstef.preprocessing.preprocessing import (
     replace_repeated_values_with_nan,
 )
 
-# TODO make this config more central
-# Set thresholds
-COMPLETENESS_THRESHOLD = 0.5
-MINIMAL_TABLE_LENGTH = 100
-
-FLATLINER_TRESHOLD = 24
-
 
 def validate(
     pj_id: Union[int, str],
     data: pd.DataFrame,
-    flatliner_threshold: int = FLATLINER_TRESHOLD,
+    flatliner_threshold: Union[int, None],
 ) -> pd.DataFrame:
     """Validate prediction job and timeseries data.
     Steps:
@@ -67,7 +60,7 @@ def validate(
     return data
 
 
-def clean(data: pd.DataFrame) -> pd.DataFrame:
+def drop_target_na(data: pd.DataFrame) -> pd.DataFrame:
     logger = structlog.get_logger(__name__)
     len_original = len(data)
     # Remove where load is NA, NaN features are preserved
@@ -82,12 +75,17 @@ def clean(data: pd.DataFrame) -> pd.DataFrame:
     return data
 
 
-def is_data_sufficient(data: pd.DataFrame) -> bool:
+def is_data_sufficient(
+    data: pd.DataFrame, completeness_threshold: float, minimal_table_length: int
+) -> bool:
     """Check if enough data is left after validation and cleaning to continue
         with model training.
 
     Args:
         data: pd.DataFrame() with cleaned input data.
+        completeness_threshold: float with threshold for completeness:
+            1 for fully complete, 0 for anything could be missing.
+        minimal_table_length: int with minimal table length (in rows)
 
     Returns:
         (bool): True if amount of data is sufficient, False otherwise.
@@ -102,20 +100,20 @@ def is_data_sufficient(data: pd.DataFrame) -> bool:
     table_length = data.shape[0]
 
     # Check if completeness is up to the standards
-    if completeness < COMPLETENESS_THRESHOLD:
+    if completeness < completeness_threshold:
         logger.warning(
             "Input data is not sufficient, completeness too low",
             completeness=completeness,
-            completeness_threshold=COMPLETENESS_THRESHOLD,
+            completeness_threshold=completeness_threshold,
         )
         is_sufficient = False
 
     # Check if absolute amount of rows is sufficient
-    if table_length < MINIMAL_TABLE_LENGTH:
+    if table_length < minimal_table_length:
         logger.warning(
             "Input data is not sufficient, table length too short",
             table_length=table_length,
-            table_length_threshold=MINIMAL_TABLE_LENGTH,
+            table_length_threshold=minimal_table_length,
         )
         is_sufficient = False
 
@@ -260,8 +258,8 @@ def find_nonzero_flatliner(df: pd.DataFrame, threshold: int = None) -> pd.DataFr
 def find_zero_flatliner(
     df: pd.DataFrame,
     threshold: float,
-    window: timedelta = timedelta(minutes=30),
-    load_threshold: float = 0.3,
+    flatliner_window: timedelta,
+    flatliner_load_threshold: float,
 ) -> pd.DataFrame or None:
     """Function that detects a zero value where the load is not compensated by the other trafo's of the station.
     If zero value is at start or end, ignore that block.
@@ -269,8 +267,8 @@ def find_zero_flatliner(
     Input:
     - df: pd.dataFrame(index=DatetimeIndex, columns = [load1, ..., loadN]). Load_corrections should be indicated by 'LC_'
     - threshold (float): after how many hours should the function detect a flatliner.
-    - window (timedelta object): for how many hours before the zero-value should the mean load be calculated.
-    - load_threshold (fraction): how big may the difference be between the total station load
+    - flatliner_window (timedelta object): for how many hours before the zero-value should the mean load be calculated.
+    - flatliner_load_threshold (fraction): how big may the difference be between the total station load
     before and during the zero-value(s).
 
     return:
@@ -339,12 +337,12 @@ def find_zero_flatliner(
             for i, candidate in interval_df.iterrows():
                 # Calculate mean load before and after zero-moment
                 mean_load_before = (
-                    df[candidate.from_time - window : candidate.from_time]
+                    df[candidate.from_time - flatliner_window : candidate.from_time]
                     .sum(axis=1)
                     .mean()
                 )
                 mean_full_timespan = (
-                    df[candidate.from_time : candidate.from_time + window]
+                    df[candidate.from_time : candidate.from_time + flatliner_window]
                     .sum(axis=1)
                     .mean()
                 )
@@ -355,7 +353,7 @@ def find_zero_flatliner(
                         (mean_load_before - mean_full_timespan)
                         / np.max([np.abs(mean_load_before), np.abs(mean_full_timespan)])
                     )
-                    > load_threshold
+                    > flatliner_load_threshold
                 ):
                     non_compensated_df = non_compensated_df.append(candidate)
                     print(

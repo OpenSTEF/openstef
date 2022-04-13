@@ -237,9 +237,13 @@ def train_pipeline_common(
             # sort data to avoid same date repeated multiple time
             input_data = input_data.sort_values(horizons)
     # Validate and clean data
-    validated_data = validation.clean(validation.validate(pj["id"], input_data))
+    validated_data = validation.drop_target_na(
+        validation.validate(pj["id"], input_data, pj["flatliner_treshold"])
+    )
     # Check if sufficient data is left after cleaning
-    if not validation.is_data_sufficient(validated_data):
+    if not validation.is_data_sufficient(
+        validated_data, pj["completeness_treshold"], pj["minimal_table_length"]
+    ):
         raise InputDataInsufficientError(
             "Input data is insufficient, after validation and cleaning"
         )
