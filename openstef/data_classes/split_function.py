@@ -60,7 +60,7 @@ class SplitFuncDataClass(BaseModel):
             return split_func
 
     def _load_arguments(self):
-        """ Load the arguments.
+        """Load the arguments.
 
         Convert the arguments from JSON if they are given as strings or simply return them otherwise.
 
@@ -73,7 +73,7 @@ class SplitFuncDataClass(BaseModel):
             return self.arguments
 
     def load(self, required_arguments: Sequence[str] = None):
-        """ Load the function and its arguments
+        """Load the function and its arguments
 
         If the function and the arguments are given as strings in the instane attributes, load them as Python objects
         otherwise just return them from the instance attributes.
