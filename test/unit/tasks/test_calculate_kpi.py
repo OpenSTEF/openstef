@@ -10,6 +10,8 @@ from unittest.mock import MagicMock
 import numpy as np
 import pandas as pd
 
+import json
+
 from openstef.exceptions import NoPredictedLoadError, NoRealisedLoadError
 from openstef.tasks.calculate_kpi import calc_kpi_for_specific_pid
 
@@ -82,18 +84,23 @@ class TestPerformanceCalcKpiForSpecificPid(BaseTestCase):
         kpis = calc_kpi_for_specific_pid(
             prediction_job["id"], realised_load, predicted_load, realised_load
         )
-        # use this to store new kpis
-        # json.dump(kpis, open(filename, "w"), default=str)
+        # Remove date
+        # type(date)==datetime gave a LOT of errors
+        kpis = {
+            t_ahead: {kpi: value for kpi, value in kpi_dict.items() if kpi != "date"}
+            for t_ahead, kpi_dict in kpis.items()
+        }
+
+        # Use line below to store new kpis
+        # TestData.save(kpis, 'calculate_kpi_kpi.json')
         kpis_ref = TestData.load("calculate_kpi_kpi.json")
 
         # convert to dataframe to make comparison easier
         self.assertDataframeEqual(
-            pd.DataFrame(kpis)
-            .drop("date")
-            .reindex(sorted(pd.DataFrame(kpis).drop("date").columns), axis=1),
-            pd.DataFrame(kpis_ref)
-            .drop("date")
-            .reindex(sorted(pd.DataFrame(kpis_ref).drop("date").columns), axis=1),
+            pd.DataFrame(kpis).reindex(sorted(pd.DataFrame(kpis).columns), axis=1),
+            pd.DataFrame(kpis_ref).reindex(
+                sorted(pd.DataFrame(kpis_ref).columns), axis=1
+            ),
             check_like=True,
         )
 
@@ -149,8 +156,11 @@ class TestPerformanceCalcKpiForSpecificPid(BaseTestCase):
         kpis = calc_kpi_for_specific_pid(
             prediction_job["id"], realised_load, predicted_load, basecase=pd.DataFrame()
         )
+
         # Assert KPIs
-        assert isinstance(kpis, dict)  # TODO improve
+        assert isinstance(kpis, dict)
+        arbitrary_tAhead = "47.0h"
+        self.assertEqual(kpis[arbitrary_tAhead]["skill_score_basecase"], 0)
 
 
 # Run all tests
