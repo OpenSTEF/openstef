@@ -234,18 +234,18 @@ def calc_kpi_for_specific_pid(
                     "skill_score_basecase": metrics.skill_score(
                         combined["load"],
                         combined["basecase"],
-                        np.mean(combined["load"]),
+                        np.mean(combined["basecase"]),
                     ),
                     "skill_score": metrics.skill_score(
-                        combined["load"], fc, np.mean(combined["load"])
+                        combined["load"], fc, np.mean(combined["basecase"])
                     ),
                     "skill_score_positive_peaks": metrics.skill_score_positive_peaks(
-                        combined["load"], fc, np.mean(combined["load"])
+                        combined["load"], fc, np.mean(combined["basecase"])
                     ),
                     "skill_score_positive_peaks_basecase": metrics.skill_score_positive_peaks(
                         combined["load"],
                         combined["basecase"],
-                        np.mean(combined["load"]),
+                        np.mean(combined["basecase"]),
                     ),
                     "franks_skill_score": metrics.franks_skill_score(
                         combined["load"], fc, combined["basecase"]
