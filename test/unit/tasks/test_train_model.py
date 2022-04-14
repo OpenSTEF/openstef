@@ -86,6 +86,7 @@ class TestTrainModelTask(TestCase):
         # and save_train_forecasts is activated
         context = copy.deepcopy(self.context)
         del context.database.write_train_forecasts
+        pipeline_mock.return_value = MagicMock()  # Not None
         with self.assertRaises(RuntimeError):
             train_model_task(pj=pj, context=context)
 
@@ -100,6 +101,8 @@ class TestTrainModelTask(TestCase):
 
         with self.assertRaises(RuntimeError):
             task_main(None, not_none_object, None)
+
+        task_main(None, not_none_object, not_none_object)
 
 
 if __name__ == "__main__":
