@@ -264,7 +264,7 @@ def backtest_split_default(
     n_folds: int,
     test_fraction: float = 0.15,
     stratification_min_max: bool = True,
-) -> Iterable[(pd.DataFrame, pd.DataFrame, pd.DataFrame)]:
+) -> Iterable[Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]]:
     """Default cross validation strategy.
     Args:
         input_data:
