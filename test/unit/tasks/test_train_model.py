@@ -11,7 +11,7 @@ from unittest import TestCase
 from unittest.mock import MagicMock, patch
 
 
-from openstef.tasks.train_model import train_model_task
+from openstef.tasks.train_model import train_model_task, main as task_main
 
 
 class TestTrainModelTask(TestCase):
@@ -88,6 +88,18 @@ class TestTrainModelTask(TestCase):
         del context.database.write_train_forecasts
         with self.assertRaises(RuntimeError):
             train_model_task(pj=pj, context=context)
+
+    @patch("openstef.tasks.train_model.PredictionJobLoop")
+    def test_main_task(self, pjloop_mock):
+        """Test create forecast task with context."""
+
+        not_none_object = 1
+
+        with self.assertRaises(RuntimeError):
+            task_main(None, None, not_none_object)
+
+        with self.assertRaises(RuntimeError):
+            task_main(None, not_none_object, None)
 
 
 if __name__ == "__main__":
