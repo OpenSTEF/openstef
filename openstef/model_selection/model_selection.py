@@ -108,7 +108,7 @@ def split_data_train_validation_test(
     validation_fraction: float = 0.15,
     back_test: bool = False,
     stratification_min_max: bool = True,
-) -> (List[int], pd.DataFrame, pd.DataFrame, pd.DataFrame):
+) -> (pd.DataFrame, pd.DataFrame, pd.DataFrame):
     """
     Split input data into train, test and validation set.
 
