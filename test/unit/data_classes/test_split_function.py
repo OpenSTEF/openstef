@@ -4,10 +4,15 @@
 
 import unittest
 import json
+import copy
 from openstef.data_classes.split_function import SplitFuncDataClass
 
 
 def dummy_split_func(arg1, arg2, *args, **kwargs):
+    pass
+
+
+def dummy_split_func2(arg1, arg2, *args, **kwargs):
     pass
 
 
@@ -29,6 +34,15 @@ class TestSplitFuncDataClass(unittest.TestCase):
         )
 
         self.assertEqual(self.split_func_with_objects["arguments"], self.arguments)
+
+    def test_setattr(self):
+        split_func = copy.deepcopy(self.split_func_with_objects)
+        split_func["function"] = dummy_split_func2
+
+        self.assertIs(
+            split_func.function,
+            dummy_split_func2,
+        )
 
     def test_load_function(self):
         split_func, args = self.split_func_with_objects.load()
