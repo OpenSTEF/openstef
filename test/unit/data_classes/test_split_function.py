@@ -16,6 +16,9 @@ def dummy_split_func2(arg1, arg2, *args, **kwargs):
     pass
 
 
+dummy_not_func = None
+
+
 class TestSplitFuncDataClass(unittest.TestCase):
     def setUp(self) -> None:
         self.arguments = dict(arg1=1, arg2=2, arg3=3)
@@ -44,7 +47,10 @@ class TestSplitFuncDataClass(unittest.TestCase):
             dummy_split_func2,
         )
 
-    def test_load_function(self):
+        with self.assertRaises(AttributeError):
+            split_func["dummy"] = None
+
+    def test_load(self):
         split_func, args = self.split_func_with_objects.load()
         self.assertIs(split_func, dummy_split_func)
         self.assertEqual(args, self.arguments)
@@ -52,6 +58,14 @@ class TestSplitFuncDataClass(unittest.TestCase):
         split_func, args = self.split_func_with_strings.load()
         self.assertIs(split_func, dummy_split_func)
         self.assertEqual(args, self.arguments)
+
+        # Non Callable object
+        split_func_dc = copy.deepcopy(self.split_func_with_strings)
+        split_func_dc[
+            "function"
+        ] = "test.unit.data_classes.test_split_function.dummy_not_func"
+        with self.assertRaises(ValueError):
+            _ = split_func_dc.load()
 
     def test_check_arguments(self):
         # Should not raise exception
