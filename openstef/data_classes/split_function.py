@@ -57,7 +57,7 @@ class SplitFuncDataClass(BaseModel):
                     "The loaded split function does not have the required arguments"
                 )
 
-            return split_func
+        return split_func
 
     def _load_arguments(self) -> Dict[str, Any]:
         """Load the arguments.
