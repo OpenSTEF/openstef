@@ -9,10 +9,8 @@ from test.unit.utils.data import TestData
 import pandas as pd
 import numpy as np
 
-from openstef.pipeline.train_model import (
-    split_data_train_validation_test,
-    train_data_split_default,
-)
+from openstef.model_selection.model_selection import split_data_train_validation_test
+from openstef.pipeline.train_model import train_pipeline_step_split_data
 from openstef.data_classes.split_function import SplitFuncDataClass
 from sklearn.model_selection import TimeSeriesSplit
 
@@ -194,8 +192,8 @@ class TestTrain(BaseTestCase):
             delta=4,
         )
 
-    def test_train_data_split_default(self):
-        train_set, valid_set, test_set = train_data_split_default(
+    def test_train_pipeline_step_split_data(self):
+        train_set, valid_set, test_set = train_pipeline_step_split_data(
             self.data_table,
             self.pj,
             test_fraction=SPLIT_PARAMS["test_fraction"],
@@ -213,9 +211,9 @@ class TestTrain(BaseTestCase):
             delta=2,
         )
 
-    def test_train_data_split_default_test_data_predefined(self):
+    def test_train_pipeline_step_split_data_test_data_predefined(self):
         test_data_predefined = self.data_table.tail(15)
-        train_data, validation_data, test_data = train_data_split_default(
+        train_data, validation_data, test_data = train_pipeline_step_split_data(
             self.data_table,
             self.pj,
             test_fraction=0,
@@ -224,13 +222,13 @@ class TestTrain(BaseTestCase):
 
         self.assertTrue(test_data.equals(test_data_predefined))
 
-    def test_train_data_split_default_custom_split(self):
+    def test_train_pipeline_step_split_data_custom_split(self):
         pj = self.pj
 
         # Test wrong custom split
         pj.train_split_func = SplitFuncDataClass(function="unkown_split", arguments={})
         with self.assertRaises(ValueError):
-            train_data, validation_data, test_data = train_data_split_default(
+            train_data, validation_data, test_data = train_pipeline_step_split_data(
                 self.data_table,
                 pj,
                 test_fraction=0,
@@ -240,7 +238,7 @@ class TestTrain(BaseTestCase):
             function=lambda data: dummy_split(data, 0), arguments={}
         )
         with self.assertRaises(ValueError):
-            train_data, validation_data, test_data = train_data_split_default(
+            train_data, validation_data, test_data = train_pipeline_step_split_data(
                 self.data_table,
                 pj,
                 test_fraction=0,
@@ -248,7 +246,7 @@ class TestTrain(BaseTestCase):
 
         # Test dummy custom split
         pj.train_split_func = SplitFuncDataClass(function=dummy_split, arguments={})
-        train_data, validation_data, test_data = train_data_split_default(
+        train_data, validation_data, test_data = train_pipeline_step_split_data(
             self.data_table,
             pj,
             test_fraction=0,
@@ -261,7 +259,7 @@ class TestTrain(BaseTestCase):
         pj.train_split_func = SplitFuncDataClass(
             function="test.unit.pipeline.test_train.dummy_split", arguments="{}"
         )
-        train_data, validation_data, test_data = train_data_split_default(
+        train_data, validation_data, test_data = train_pipeline_step_split_data(
             self.data_table,
             pj,
             test_fraction=0,
@@ -274,7 +272,7 @@ class TestTrain(BaseTestCase):
         pj.train_split_func = SplitFuncDataClass(
             function=sk_split, arguments={"gap": 10}
         )
-        train_data, validation_data, test_data = train_data_split_default(
+        train_data, validation_data, test_data = train_pipeline_step_split_data(
             self.data_table,
             pj,
             test_fraction=SPLIT_PARAMS["test_fraction"],
