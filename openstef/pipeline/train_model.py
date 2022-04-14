@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 import logging
 from pathlib import Path
-from typing import List, Tuple, Union
+from typing import List, Tuple, Union, Optional
 
 import pandas as pd
 import structlog
@@ -36,7 +36,7 @@ def train_model_pipeline(
     input_data: pd.DataFrame,
     check_old_model_age: bool,
     trained_models_folder: Union[str, Path],
-) -> Report:
+) -> Optional[Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]]:
     """Midle level pipeline that takes care of all persistent storage dependencies
 
     Expected prediction jobs keys: "id", "model", "hyper_params",
@@ -49,7 +49,11 @@ def train_model_pipeline(
         trained_models_folder (Path): Path where trained models are stored
 
     Returns:
-        report (Report): The report containing train/val/test datasets and corresponding forecasts if requested
+        If pj.save_train_forecasts is False, None is returned
+        Otherwise:
+            train_data (pd.DataFrame): The train dataset with forecasts
+            validation_data (pd.DataFrame): The validation dataset with forecasts
+            test_data (pd.DataFrame): The test dataset with forecasts
     """
     # Intitialize logger and serializer
     logger = structlog.get_logger(__name__)
@@ -85,7 +89,7 @@ def train_model_pipeline(
 
     # Train model with core pipeline
     try:
-        model, report, modelspecs_updated = train_model_pipeline_core(
+        model, report, modelspecs_updated, data_sets = train_model_pipeline_core(
             pj, modelspecs, input_data, old_model, horizons=pj.train_horizons_minutes
         )
     except OldModelHigherScoreError as OMHSE:
@@ -114,7 +118,8 @@ def train_model_pipeline(
 
     # Clean up older models
     serializer.remove_old_models(pj=pj)
-    return report
+    if pj.save_train_forecasts:
+        return data_sets
 
 
 def train_model_pipeline_core(
@@ -123,7 +128,7 @@ def train_model_pipeline_core(
     input_data: pd.DataFrame,
     old_model: OpenstfRegressor = None,
     horizons: Union[List[float], str] = None,
-) -> Tuple[OpenstfRegressor, Report, ModelSpecificationDataClass]:
+) -> (OpenstfRegressor, Report, ModelSpecificationDataClass, Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]):
     """Train model core pipeline.
     Trains a new model given a prediction job, input data and compares it to an old model.
     This pipeline has no database or persistent storage dependencies.
@@ -141,7 +146,10 @@ def train_model_pipeline_core(
         OldModelHigherScoreError: When old model is better than new model.
 
     Returns:
-        Tuple[OpenstfRegressor, Report, ModelSpecificationDataClass]: Trained model and report (with figures)
+        fitted_model (OpenstfRegressor)
+        report (Report)
+        modelspecs (ModelSpecificationDataClass)
+        datasets (Tuple[pd.DataFrmae, pd.DataFrame, pd.Dataframe): The train, validation and test sets
     """
 
     if horizons is None:
@@ -187,7 +195,7 @@ def train_model_pipeline_core(
         except ValueError as e:
             logger.info("Could not compare to old model", pid=pj["id"], exc_info=e)
 
-    return model, report, modelspecs
+    return model, report, modelspecs, (train_data, validation_data, test_data)
 
 
 def train_pipeline_common(
@@ -198,7 +206,7 @@ def train_pipeline_common(
     test_fraction: float = 0.0,
     backtest: bool = False,
     test_data_predefined: pd.DataFrame = pd.DataFrame(),
-) -> Tuple[OpenstfRegressor, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+) -> Tuple[OpenstfRegressor, Report, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Common pipeline shared with operational training and backtest training
 
     Args:
@@ -212,12 +220,16 @@ def train_pipeline_common(
             (empty data frame by default)
 
     Returns:
-        Tuple[RegressorMixin, Report, pd.DataFrame, pd.DataFrame, pd.DataFrame]: Trained model, report
-         train_data, validation_data and test_data
+        fitted_model (OpenstfRegressor)
+        report (Report)
+        train_data (pd.DataFrame)
+        validation_data (pd.DataFrame)
+        test_data (pd.DataFrame)
 
     Raises:
         InputDataInsufficientError: when input data is insufficient.
         InputDataWrongColumnOrderError: when input data has a invalid column order.
+        ValueError: when the horizon is a string and the corresponding column in not in the input data
 
     """
     if input_data.empty:
@@ -332,13 +344,13 @@ def train_pipeline_common(
         validation_data
     ).generate_standard_deviation_data(model)
 
-    if pj.save_train_forecasts:
-        train_data["forecast"] = model.predict(train_data).values
-        validation_data["forecast"] = model.predict(validation_data).values
-        test_data["forecast"] = model.predict(test_data).values
-
     # Report about the training process
     reporter = Reporter(train_data, validation_data, test_data)
     report = reporter.generate_report(model)
+
+    if pj.save_train_forecasts:
+        train_data["forecast"] = model.predict(train_data.iloc[:, 1:-1])
+        validation_data["forecast"] = model.predict(validation_data.iloc[:, 1:-1])
+        test_data["forecast"] = model.predict(test_data.iloc[:, 1:-1])
 
     return model, report, train_data, validation_data, test_data

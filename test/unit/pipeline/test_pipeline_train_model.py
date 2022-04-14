@@ -138,7 +138,7 @@ class TestTrainModelPipeline(BaseTestCase):
                 if model_type == MLModelType.LINEAR:
                     self.modelspecs.hyper_params["imputation_strategy"] = "mean"
 
-                model, report, modelspecs = train_model_pipeline_core(
+                model, report, modelspecs, _ = train_model_pipeline_core(
                     pj=pj, modelspecs=self.modelspecs, input_data=train_input
                 )
 
@@ -188,7 +188,7 @@ class TestTrainModelPipeline(BaseTestCase):
         pj.default_modelspecs = modelspecs
 
         train_input = self.train_input.iloc[::50, :]
-        model, report, modelspecs = train_model_pipeline_core(
+        model, report, modelspecs, _ = train_model_pipeline_core(
             pj=pj, modelspecs=modelspecs, input_data=train_input
         )
 
@@ -266,7 +266,7 @@ class TestTrainModelPipeline(BaseTestCase):
         serializer_mock.return_value = serializer_mock_instance
 
         report_mock = MagicMock()
-        pipeline_mock.return_value = ("a", report_mock, self.modelspecs)
+        pipeline_mock.return_value = ("a", report_mock, self.modelspecs, (None, None, None))
 
         trained_models_folder = "./test/unit/trained_models"
         train_model_pipeline(
@@ -355,7 +355,7 @@ class TestTrainModelPipeline(BaseTestCase):
             check_old_model_age=True,
             trained_models_folder="./test/unit/trained_models",
         )
-        self.assertIs(None, result)
+        self.assertIsNone(result)
         self.assertEqual(len(serializer_mock_instance.method_calls), 1)
 
     @patch("openstef.model.serializer.MLflowSerializer.save_model")
@@ -379,7 +379,7 @@ class TestTrainModelPipeline(BaseTestCase):
             check_old_model_age=True,
             trained_models_folder="./test/unit/trained_models",
         )
-        self.assertIsInstance(result, Report)
+        self.assertIsNone(result)
         self.assertEqual(len(serializer_mock_instance.method_calls), 3)
 
     @patch("openstef.model.serializer.MLflowSerializer.save_model")
@@ -403,7 +403,7 @@ class TestTrainModelPipeline(BaseTestCase):
             check_old_model_age=True,
             trained_models_folder="./test/unit/trained_models",
         )
-        self.assertIsInstance(result, Report)
+        self.assertIsNone(result)
         self.assertEqual(len(serializer_mock_instance.method_calls), 3)
 
     @patch("openstef.model.serializer.MLflowSerializer.save_model")
@@ -468,6 +468,43 @@ class TestTrainModelPipeline(BaseTestCase):
             ) = train_pipeline_common(
                 self.pj, self.modelspecs, self.train_input, horizons="custom_horizon"
             )
+
+    @patch("openstef.pipeline.train_model.MLflowSerializer")
+    def test_train_model_pipeline_with_save_train_forecasts(self, mock_serializer):
+        """We check that the modelspecs object given as default in the prediction job
+        is the one given to save_model when there is no previous model saved for the
+        prediction job.
+        """
+
+        mock_serializer_instance = MagicMock()
+        # Mimick the absence of older model.
+        mock_serializer_instance.load_model.side_effect = FileNotFoundError()
+        mock_serializer.return_value = mock_serializer_instance
+
+        pj = copy.deepcopy(self.pj)
+        # hyper params that are different from the defaults.
+
+        datasets = train_model_pipeline(
+            pj=pj,
+            input_data=self.train_input,
+            check_old_model_age=True,
+            trained_models_folder="./test/unit/trained_models",
+        )
+
+        self.assertIsNone(datasets)
+
+        pj.save_train_forecasts = True
+
+        datasets = train_model_pipeline(
+            pj=pj,
+            input_data=self.train_input,
+            check_old_model_age=True,
+            trained_models_folder="./test/unit/trained_models",
+        )
+        self.assertIsNotNone(datasets)
+
+        for dataset in datasets:
+            self.assertIn("forecast", dataset.columns)
 
 
 if __name__ == "__main__":
