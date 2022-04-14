@@ -266,7 +266,12 @@ class TestTrainModelPipeline(BaseTestCase):
         serializer_mock.return_value = serializer_mock_instance
 
         report_mock = MagicMock()
-        pipeline_mock.return_value = ("a", report_mock, self.modelspecs, (None, None, None))
+        pipeline_mock.return_value = (
+            "a",
+            report_mock,
+            self.modelspecs,
+            (None, None, None),
+        )
 
         trained_models_folder = "./test/unit/trained_models"
         train_model_pipeline(

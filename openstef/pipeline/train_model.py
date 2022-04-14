@@ -128,7 +128,12 @@ def train_model_pipeline_core(
     input_data: pd.DataFrame,
     old_model: OpenstfRegressor = None,
     horizons: Union[List[float], str] = None,
-) -> (OpenstfRegressor, Report, ModelSpecificationDataClass, Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]):
+) -> (
+    OpenstfRegressor,
+    Report,
+    ModelSpecificationDataClass,
+    Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame],
+):
     """Train model core pipeline.
     Trains a new model given a prediction job, input data and compares it to an old model.
     This pipeline has no database or persistent storage dependencies.
