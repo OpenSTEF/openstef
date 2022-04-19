@@ -155,8 +155,8 @@ class TestTrainModelPipeline(BaseTestCase):
                 self.assertTrue(isinstance(report, Report))
 
                 # Validate and clean data
-                validated_data = validation.clean(
-                    validation.validate(pj["id"], train_input)
+                validated_data = validation.drop_target_na(
+                    validation.validate(pj["id"], train_input, flatliner_threshold=24)
                 )
 
                 # Add features

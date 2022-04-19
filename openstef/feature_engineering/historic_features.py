@@ -30,8 +30,9 @@ def add_historic_load_as_a_feature(
     if pj is not None and pj["model"] == "proloaf":
         data["historic_load"] = data["load"]
         logger.warning(
-            "The historic_load is added to the data, this is a copy of the load. "
-            "Adding this feature is in most of the cases not a good idea, it is designed for the proloaf model."
+            "The historic_load is added to the data, this is a copy of the load. Adding"
+            " this feature is in most of the cases not a good idea, it is designed for"
+            " the proloaf model."
         )
 
     return data

@@ -5,6 +5,9 @@
 import random
 import sys
 from collections import defaultdict
+from itertools import chain
+
+from openstef.tasks.utils.dependencies import has_dependencies, find_groups
 
 
 class PredictionJobLoop:
@@ -69,8 +72,15 @@ class PredictionJobLoop:
         else:
             self.prediction_jobs = prediction_jobs
 
-        if self.random_order:
-            random.shuffle(self.prediction_jobs)
+        if has_dependencies(self.prediction_jobs):
+            # Groups so that prediction jobs in each group
+            # depend only on the pj in the previous groups
+            _, pj_groups = find_groups(self.prediction_jobs, self.random_order)
+            # Concatenate groups
+            self.prediction_jobs = list(chain(*pj_groups))
+        else:
+            if self.random_order:
+                random.shuffle(self.prediction_jobs)
 
     def _get_prediction_jobs(self):
         """Fetches prediction jobs from database."""
@@ -183,8 +193,8 @@ class PredictionJobLoop:
             except Exception:
                 _, exc_info, stack_info = sys.exc_info()
                 self.context.logger.error(
-                    "An exception occured when executing the on_successful_callback\
-                        callback function for this iteration",
+                    "An exception occured when executing the on_successful_callback    "
+                    "                    callback function for this iteration",
                     exc_info=exc_info,
                     stack_info=stack_info,
                 )
@@ -221,8 +231,8 @@ class PredictionJobLoop:
             except Exception:
                 _, exc_info, stack_info = sys.exc_info()
                 self.context.logger.error(
-                    "An exception occured when executing the on_end_callback callback\
-                    function for this iteration",
+                    "An exception occured when executing the on_end_callback callback  "
+                    "                  function for this iteration",
                     exc_info=exc_info,
                     stack_info=stack_info,
                 )

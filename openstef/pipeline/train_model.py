@@ -66,7 +66,8 @@ def train_model_pipeline(
             modelspecs = pj["default_modelspecs"]
             if modelspecs.id != pj.id:
                 raise RuntimeError(
-                    "The id of the prediction job and its default modelspecs do not match."
+                    "The id of the prediction job and its default modelspecs do not"
+                    " match."
                 )
         else:
             # create basic modelspecs
@@ -99,7 +100,8 @@ def train_model_pipeline(
 
     except InputDataWrongColumnOrderError as IDWCOE:
         logger.error(
-            "Wrong column order, 'load' column should be first and 'horizon' column last.",
+            "Wrong column order, 'load' column should be first and 'horizon' column"
+            " last.",
             pid=pj["id"],
             exc_info=IDWCOE,
         )
@@ -228,15 +230,20 @@ def train_pipeline_common(
     if isinstance(horizons, str):
         if not (horizons in set(input_data.columns)):
             raise ValueError(
-                f"The horizon parameter specifies a column name ({horizons}) missing in the input data."
+                f"The horizon parameter specifies a column name ({horizons}) missing in"
+                " the input data."
             )
         else:
             # sort data to avoid same date repeated multiple time
             input_data = input_data.sort_values(horizons)
     # Validate and clean data
-    validated_data = validation.clean(validation.validate(pj["id"], input_data))
+    validated_data = validation.drop_target_na(
+        validation.validate(pj["id"], input_data, pj["flatliner_treshold"])
+    )
     # Check if sufficient data is left after cleaning
-    if not validation.is_data_sufficient(validated_data):
+    if not validation.is_data_sufficient(
+        validated_data, pj["completeness_treshold"], pj["minimal_table_length"]
+    ):
         raise InputDataInsufficientError(
             "Input data is insufficient, after validation and cleaning"
         )

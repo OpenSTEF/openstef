@@ -125,8 +125,8 @@ class FeatureDispatcher:
                 if parsed_params is not None:
                     if feature_name in recognized_features:
                         raise RuntimeError(
-                            "Ambiguous feature adder set detected. The feature name '%s'"
-                            " is recognised by more than 1 feature adder"
+                            "Ambiguous feature adder set detected. The feature name"
+                            " '%s' is recognised by more than 1 feature adder"
                             % feature_names
                         )
                     recognized_features.add(feature_name)

@@ -80,7 +80,7 @@ def create_forecast_pipeline_core(
     fallback_strategy = "extreme_day"  # this can later be expanded
 
     # Validate and clean data
-    validated_data = validation.validate(pj["id"], input_data)
+    validated_data = validation.validate(pj["id"], input_data, pj["flatliner_treshold"])
 
     # Add features
     data_with_features = OperationalPredictFeatureApplicator(
@@ -98,7 +98,9 @@ def create_forecast_pipeline_core(
     )
 
     # Check if sufficient data is left after cleaning
-    if not validation.is_data_sufficient(data_with_features):
+    if not validation.is_data_sufficient(
+        data_with_features, pj["completeness_treshold"], pj["minimal_table_length"]
+    ):
         logger.warning(
             "Using fallback forecast",
             forecast_type="fallback",

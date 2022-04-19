@@ -20,7 +20,6 @@
     "frac_in_2sdev": 0.6,
     "completeness_realised": 1.0,
     "completeness_predicted": 1.0,
-    "date": "2020-08-18 15:31:01.726114",
     "window_days": 1.0
   },
   "4.0h": {
@@ -44,7 +43,6 @@
     "frac_in_2sdev": 0.49,
     "completeness_realised": 1.0,
     "completeness_predicted": 1.0,
-    "date": "2020-08-18 15:31:01.726114",
     "window_days": 1.0
   },
   "8.0h": {
@@ -68,7 +66,6 @@
     "frac_in_2sdev": 0.62,
     "completeness_realised": 1.0,
     "completeness_predicted": 1.0,
-    "date": "2020-08-18 15:31:01.726114",
     "window_days": 1.0
   },
   "47.0h": {
@@ -92,7 +89,6 @@
     "frac_in_2sdev": 0.6,
     "completeness_realised": 1.0,
     "completeness_predicted": 1.0,
-    "date": "2020-08-18 15:31:01.726114",
     "window_days": 1.0
   },
   "1.0h": {
@@ -116,7 +112,6 @@
     "frac_in_2sdev": 0.45,
     "completeness_realised": 1.0,
     "completeness_predicted": 1.0,
-    "date": "2020-08-18 15:31:01.726114",
     "window_days": 1.0
   }
 }

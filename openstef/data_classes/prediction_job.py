@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: MPL-2.0
 
 from typing import Union, Optional, List
-
 from pydantic import BaseModel
 from openstef.data_classes.model_specifications import ModelSpecificationDataClass
 
@@ -23,6 +22,10 @@ class PredictionJobDataClass(BaseModel):
     train_horizons_minutes: Optional[List[int]]
     default_modelspecs: Optional[ModelSpecificationDataClass]
     save_train_forecasts: bool = False
+    completeness_treshold: float = 0.5
+    minimal_table_length: int = 100
+    flatliner_treshold: int = 24
+    depends_on: Optional[List[Union[int, str]]]
 
     def __getitem__(self, item):
         """Allows us to use subscription to get the items from the object"""
@@ -34,3 +37,8 @@ class PredictionJobDataClass(BaseModel):
             self.__dict__[key] = value
         else:
             raise AttributeError(f"{key} not an attribute of prediction job.")
+
+    # The following configuration is needed to prevent ids in "depends_on"
+    # to be converted from int to str when we use integer ids
+    class Config:
+        smart_union = True
