@@ -10,8 +10,8 @@ import optuna
 from openstef.feature_engineering.feature_applicator import TrainFeatureApplicator
 from openstef.model.model_creator import ModelCreator
 from openstef.model.objective import (
-    LinearRegressorObjective,
     LGBRegressorObjective,
+    LinearRegressorObjective,
     ProLoafRegressorObjective,
     RegressorObjective,
     XGBQuantileRegressorObjective,

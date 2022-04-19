@@ -2,8 +2,10 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-from typing import Union, Optional, List
+from typing import List, Optional, Union
+
 from pydantic import BaseModel
+
 from openstef.data_classes.model_specifications import ModelSpecificationDataClass
 
 

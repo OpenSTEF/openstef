@@ -2,20 +2,20 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+import os
+import re
 import unittest
+from test.unit.utils.base import BaseTestCase
+from test.unit.utils.data import TestData
 
 import numpy as np
 import pandas as pd
-import re
-import os
 
 from openstef.feature_engineering.feature_adder import (
     FeatureAdder,
     FeatureDispatcher,
     adders_from_modules,
 )
-from test.unit.utils.base import BaseTestCase
-from test.unit.utils.data import TestData
 
 
 class DummyFeature(FeatureAdder):

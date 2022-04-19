@@ -27,8 +27,8 @@ import numpy as np
 import pandas as pd
 import structlog
 
-from openstef.enums import MLModelType
 from openstef.data_classes.prediction_job import PredictionJobDataClass
+from openstef.enums import MLModelType
 from openstef.exceptions import NoPredictedLoadError, NoRealisedLoadError
 from openstef.metrics import metrics
 from openstef.tasks.utils.predictionjobloop import PredictionJobLoop

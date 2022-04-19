@@ -4,10 +4,10 @@
 import pickle
 import unittest
 from datetime import datetime as dt
+from pathlib import Path
 from test.unit.utils.base import BaseTestCase
 from test.unit.utils.data import TestData
 from unittest.mock import patch
-from pathlib import Path
 
 from openstef.model.serializer import MLflowSerializer
 from openstef.pipeline import create_forecast, utils

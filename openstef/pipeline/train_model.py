@@ -7,9 +7,9 @@ from typing import List, Tuple, Union
 
 import pandas as pd
 import structlog
-from openstef.data_classes.prediction_job import PredictionJobDataClass
 
 from openstef.data_classes.model_specifications import ModelSpecificationDataClass
+from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.exceptions import (
     InputDataInsufficientError,
     InputDataWrongColumnOrderError,
@@ -58,7 +58,7 @@ def train_model_pipeline(
     # Get old model and age
     try:
         old_model, modelspecs = serializer.load_model(experiment_id=pj["id"])
-        old_model_age = old_model.age # Age attribute is openstef specific
+        old_model_age = old_model.age  # Age attribute is openstef specific
     except (AttributeError, FileNotFoundError, LookupError):
         old_model = None
         old_model_age = float("inf")
@@ -109,8 +109,7 @@ def train_model_pipeline(
 
     # Save model and report
     serializer.save_model(model, pj=pj, modelspecs=modelspecs_updated, report=report)
-    Reporter.write_report_to_disk(report=report,
-                                  location=trained_models_folder)
+    Reporter.write_report_to_disk(report=report, location=trained_models_folder)
 
     # Clean up older models
     serializer.remove_old_models(pj=pj)

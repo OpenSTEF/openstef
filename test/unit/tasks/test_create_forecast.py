@@ -2,14 +2,14 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 import pickle
+from pathlib import Path
 from test.unit.utils.data import TestData
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
-from pathlib import Path
 
 import openstef.tasks.create_forecast as task
-from openstef.tasks.create_forecast import create_forecast_task
 from openstef.model.serializer import MLflowSerializer
+from openstef.tasks.create_forecast import create_forecast_task
 
 FORECAST_MOCK = "forecast_mock"
 

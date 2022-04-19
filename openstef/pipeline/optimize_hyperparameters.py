@@ -7,9 +7,9 @@ from typing import List, Tuple, Union
 import optuna
 import pandas as pd
 import structlog
-from openstef.data_classes.prediction_job import PredictionJobDataClass
 
 from openstef.data_classes.model_specifications import ModelSpecificationDataClass
+from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.exceptions import (
     InputDataInsufficientError,
     InputDataWrongColumnOrderError,
@@ -18,14 +18,14 @@ from openstef.feature_engineering.feature_applicator import TrainFeatureApplicat
 from openstef.model.model_creator import ModelCreator
 from openstef.model.objective import RegressorObjective
 from openstef.model.objective_creator import ObjectiveCreator
-from openstef.pipeline.train_model import (
-    DEFAULT_TRAIN_HORIZONS,
-    train_model_pipeline_core,
-)
 
 # This is required to disable the default optuna logger and pass the logs to our own
 # structlog logger
 from openstef.model.serializer import MLflowSerializer
+from openstef.pipeline.train_model import (
+    DEFAULT_TRAIN_HORIZONS,
+    train_model_pipeline_core,
+)
 from openstef.validation import validation
 
 optuna.logging.enable_propagation()  # Propagate logs to the root logger.

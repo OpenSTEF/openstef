@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+import json
 import unittest
 from test.unit.utils.base import BaseTestCase
 from test.unit.utils.data import TestData
@@ -9,8 +10,6 @@ from unittest.mock import MagicMock
 
 import numpy as np
 import pandas as pd
-
-import json
 
 from openstef.exceptions import NoPredictedLoadError, NoRealisedLoadError
 from openstef.tasks.calculate_kpi import calc_kpi_for_specific_pid

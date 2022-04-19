@@ -4,7 +4,6 @@
 import json
 import os
 import shutil
-import structlog
 from datetime import datetime
 from json import JSONDecodeError
 from typing import Optional, Tuple, Union
@@ -13,6 +12,7 @@ from urllib.parse import unquote, urlparse
 import mlflow
 import numpy as np
 import pandas as pd
+import structlog
 from mlflow.exceptions import MlflowException
 
 from openstef.data_classes.model_specifications import ModelSpecificationDataClass
@@ -39,14 +39,15 @@ class MLflowSerializer:
     ) -> None:
         """Save sklearn compatible model to MLFlow."""
         with mlflow.start_run(run_name=experiment_name):
-            self._log_model_with_mlflow(model=model,
-                                        experiment_type=experiment_name,
-                                        model_type=model_type,
-                                        model_specs=model_specs,
-                                        report=report,
-                                        phase=phase,
-                                        **kwargs
-                                        )
+            self._log_model_with_mlflow(
+                model=model,
+                experiment_type=experiment_name,
+                model_type=model_type,
+                model_specs=model_specs,
+                report=report,
+                phase=phase,
+                **kwargs,
+            )
             self._log_figures_with_mlflow(report)
 
     def _log_model_with_mlflow(
@@ -63,11 +64,17 @@ class MLflowSerializer:
         Note: **kwargs has extra information to be logged with mlflow
         """
         # Get previous run id
-        models_df = self._find_models(experiment_name, max_results=1)  # returns latest model
+        models_df = self._find_models(
+            experiment_name, max_results=1
+        )  # returns latest model
         if not models_df.empty:
-            previous_run_id = models_df["run_id"][0]  # Use [0] to only get latest run id
+            previous_run_id = models_df["run_id"][
+                0
+            ]  # Use [0] to only get latest run id
         else:
-            self.logger.info("No previous model found in MLflow", experiment_name=experiment_name)
+            self.logger.info(
+                "No previous model found in MLflow", experiment_name=experiment_name
+            )
             previous_run_id = None
 
         # Set tags to the run, can be used to filter on the UI
@@ -78,7 +85,9 @@ class MLflowSerializer:
         mlflow.set_tag("prediction_job", experiment_name)
 
         # Add feature names, target, metrics and params to the run
-        mlflow.set_tag("feature_names", model_specs.feature_names[1:])   # feature names are 1+ columns
+        mlflow.set_tag(
+            "feature_names", model_specs.feature_names[1:]
+        )  # feature names are 1+ columns
         mlflow.set_tag("target", model_specs.feature_names[0])  # target is first column
         mlflow.log_metrics(report.metrics)
         model_specs.hyper_params.update(model.get_params())
@@ -92,11 +101,14 @@ class MLflowSerializer:
                 mlflow.set_tag(key, value)
             else:
                 self.logger.warning(
-                    f"Couldn't log {key}, {type(key)} not supported", experiment_name=experiment_name
+                    f"Couldn't log {key}, {type(key)} not supported",
+                    experiment_name=experiment_name,
                 )
 
         # Log the model to the run. Signature describes model input and output scheme
-        mlflow.sklearn.log_model(sk_model=model, artifact_path="model", signature=report.signature)
+        mlflow.sklearn.log_model(
+            sk_model=model, artifact_path="model", signature=report.signature
+        )
         self.logger.info("Model saved with MLflow", experiment_name=experiment_name)
 
     def _log_figures_with_mlflow(self, report) -> None:
@@ -115,20 +127,30 @@ class MLflowSerializer:
     ) -> Tuple[OpenstfRegressor, ModelSpecificationDataClass]:
         """Load sklearn compatible model from MLFlow."""
         try:
-            models_df = self._find_models(experiment_name, max_results=1)  # return the latest finished run of the model
+            models_df = self._find_models(
+                experiment_name, max_results=1
+            )  # return the latest finished run of the model
             if not models_df.empty:
                 latest_run = models_df.iloc[0]  # Use .iloc[0] to only get latest run
             else:
-                raise LookupError(f"Model not found for experiment_name {experiment_name}. First train a model!")
+                raise LookupError(
+                    f"Model not found for experiment_name {experiment_name}. First train a model!"
+                )
             model_uri = self._get_model_uri(latest_run.artifact_uri)
             loaded_model = mlflow.sklearn.load_model(model_uri)
             loaded_model.age = self._determine_model_age_from_mlflow_run(latest_run)
-            model_specs = self._get_model_specs(experiment_name, loaded_model, latest_run)
-            loaded_model.path = unquote(urlparse(model_uri).path)  # Path without file:///
+            model_specs = self._get_model_specs(
+                experiment_name, loaded_model, latest_run
+            )
+            loaded_model.path = unquote(
+                urlparse(model_uri).path
+            )  # Path without file:///
             self.logger.info("Model successfully loaded with MLflow")
             return loaded_model, model_specs
         except (AttributeError, MlflowException, OSError) as e:
-            raise AttributeError(f"Model not found for experiment_name {experiment_name}. First train a model!") from e
+            raise AttributeError(
+                f"Model not found for experiment_name {experiment_name}. First train a model!"
+            ) from e
 
     def get_model_age(
         self, experiment_name: str, hyperparameter_optimization_only: bool = False
@@ -137,7 +159,9 @@ class MLflowSerializer:
         filter_string = "attribute.status = 'FINISHED'"
         if hyperparameter_optimization_only:
             filter_string += " AND tags.phase = 'Hyperparameter_opt'"
-        models_df = self._find_models(experiment_name, max_results=1, filter_string=filter_string)
+        models_df = self._find_models(
+            experiment_name, max_results=1, filter_string=filter_string
+        )
         if not models_df.empty:
             run = models_df.iloc[0]  # Use .iloc[0] to only get latest run
             return self._determine_model_age_from_mlflow_run(run)
@@ -153,9 +177,11 @@ class MLflowSerializer:
     ) -> pd.DataFrame:
         """Finds trained models for specific experiment_name sorted by age in descending order."""
         mlflow.set_experiment(experiment_name)
-        models_df = mlflow.search_runs(experiment_names=[experiment_name],
-                                       max_results=max_results,
-                                       filter_string=filter_string)
+        models_df = mlflow.search_runs(
+            experiment_names=[experiment_name],
+            max_results=max_results,
+            filter_string=filter_string,
+        )
         return models_df
 
     def _get_model_specs(
@@ -202,9 +228,9 @@ class MLflowSerializer:
                 f"Going to delete old models. {len(previous_runs)}>{max_n_models}"
             )
             # Find run_ids of oldest runs
-            runs_to_remove = previous_runs.sort_values(by="end_time", ascending=False).loc[
-                max_n_models:, :
-            ]
+            runs_to_remove = previous_runs.sort_values(
+                by="end_time", ascending=False
+            ).loc[max_n_models:, :]
             for _, run in runs_to_remove.iterrows():
                 artifact_location = os.path.join(
                     self.trained_models_folder,

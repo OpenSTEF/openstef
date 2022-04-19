@@ -18,6 +18,8 @@ from openstef.exceptions import (
 )
 from openstef.feature_engineering.feature_applicator import TrainFeatureApplicator
 from openstef.metrics.reporter import Report
+from openstef.model.objective import RegressorObjective
+from openstef.model.regressors.custom_regressor import CustomOpenstfRegressor
 from openstef.model_selection.model_selection import split_data_train_validation_test
 from openstef.pipeline.train_model import (
     train_model_pipeline,
@@ -25,8 +27,6 @@ from openstef.pipeline.train_model import (
     train_pipeline_common,
 )
 from openstef.validation import validation
-from openstef.model.regressors.custom_regressor import CustomOpenstfRegressor
-from openstef.model.objective import RegressorObjective
 
 # define constants
 

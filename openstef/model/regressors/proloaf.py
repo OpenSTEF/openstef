@@ -1,18 +1,17 @@
 # SPDX-FileCopyrightText: 2017-2022 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-from typing import List, Dict, Any, Tuple, Union
+from typing import Any, Dict, List, Tuple, Union
 
 import numpy as np
 import pandas as pd
 
-from openstef.model.regressors.regressor import OpenstfRegressor
-
 # These imports will require the proloaf optional dependencies to be installed
 import proloaf.datahandler as dh
-from proloaf.modelhandler import ModelWrapper
 import torch
+from proloaf.modelhandler import ModelWrapper
 
+from openstef.model.regressors.regressor import OpenstfRegressor
 
 # TODO: implement the hyperparameter optimalisation via optuna
 # TODO: set the default for hyperparameters in the init of OpenstfProloafRegressor
