@@ -57,6 +57,8 @@ def train_model_task(
         check_old_model_age (bool): check if model is too young to be retrained
     """
     # Get the paths for storing model and reports from the config manager
+    mlflow_tracking_uri = Path(context.config.paths.mlflow_tracking_uri)
+    context.logger.debug(f"MLflow tracking uri: {mlflow_tracking_uri}")
     trained_models_folder = Path(context.config.paths.trained_models_folder)
     context.logger.debug(f"trained_models_folder: {trained_models_folder}")
 
@@ -84,6 +86,7 @@ def train_model_task(
         pj,
         input_data,
         check_old_model_age=check_old_model_age,
+        mlflow_tracking_uri=mlflow_tracking_uri,
         trained_models_folder=trained_models_folder,
     )
 

@@ -35,12 +35,12 @@ def train_model_pipeline(
     pj: PredictionJobDataClass,
     input_data: pd.DataFrame,
     check_old_model_age: bool,
+    mlflow_tracking_uri: str,
     trained_models_folder: Union[str, Path],
 ) -> Report:
-    """Midle level pipeline that takes care of all persistent storage dependencies
+    """Middle level pipeline that takes care of all persistent storage dependencies
 
-    Expected prediction jobs keys: "id", "model", "hyper_params",
-        "feature_names"
+    Expected prediction jobs keys: "id", "model", "hyper_params", "feature_names"
 
     Args:
         pj (PredictionJobDataClass): Prediction job
@@ -51,16 +51,14 @@ def train_model_pipeline(
     Returns:
         report (Report): The report containing train/val/test datasets and corresponding forecasts if requested
     """
-    # Intitialize logger and serializer
+    # Initialize logger and serializer
     logger = structlog.get_logger(__name__)
-    serializer = MLflowSerializer(trained_models_folder)
+    serializer = MLflowSerializer(mlflow_tracking_uri, trained_models_folder)
 
     # Get old model and age
     try:
-        old_model, modelspecs = serializer.load_model(pj["id"])
-        old_model_age = (
-            old_model.age
-        )  # Age attribute is openstef specific and is added by the serializer
+        old_model, modelspecs = serializer.load_model(experiment_id=pj["id"])
+        old_model_age = old_model.age # Age attribute is openstef specific
     except (AttributeError, FileNotFoundError, LookupError):
         old_model = None
         old_model_age = float("inf")
@@ -107,8 +105,10 @@ def train_model_pipeline(
         )
         raise InputDataWrongColumnOrderError(IDWCOE)
 
-    # Save model
+    # Save model and report
     serializer.save_model(model, pj=pj, modelspecs=modelspecs_updated, report=report)
+    Reporter.write_report_to_disk(report=report,
+                                  location=trained_models_folder)
 
     # Clean up older models
     serializer.remove_old_models(pj=pj)

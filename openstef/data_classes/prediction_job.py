@@ -5,7 +5,7 @@
 from typing import Union, Optional, List
 
 from pydantic import BaseModel
-from .model_specifications import ModelSpecificationDataClass
+from openstef.data_classes.model_specifications import ModelSpecificationDataClass
 
 
 class PredictionJobDataClass(BaseModel):

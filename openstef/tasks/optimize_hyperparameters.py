@@ -48,7 +48,6 @@ def optimize_hyperparameters_task(
     trained_models_folder = Path(context.config.paths.trained_models_folder)
 
     # Determine if we need to optimize hyperparams
-
     # retrieve last model age where hyperparameters were optimized
     hyper_params_age = MLflowSerializer(trained_models_folder).get_model_age(
         pj["id"], hyperparameter_optimization_only=True
