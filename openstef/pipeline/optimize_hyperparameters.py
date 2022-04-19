@@ -15,6 +15,7 @@ from openstef.exceptions import (
     InputDataWrongColumnOrderError,
 )
 from openstef.feature_engineering.feature_applicator import TrainFeatureApplicator
+from openstef.metrics.reporter import Reporter
 from openstef.model.model_creator import ModelCreator
 from openstef.model.objective import RegressorObjective
 from openstef.model.objective_creator import ObjectiveCreator
@@ -41,6 +42,7 @@ TIMEOUT: int = 600  # Stop study after the given number of second(s).
 def optimize_hyperparameters_pipeline(
     pj: PredictionJobDataClass,
     input_data: pd.DataFrame,
+    mlflow_tracking_uri: str,
     trained_models_folder: Union[str, Path],
     horizons: List[float] = DEFAULT_TRAIN_HORIZONS,
     n_trials: int = N_TRIALS,
@@ -52,6 +54,7 @@ def optimize_hyperparameters_pipeline(
     Args:
         pj (PredictionJobDataClass): Prediction job
         input_data (pd.DataFrame): Raw training input data
+        mlflow_tracking_uri (str): Path/Uri to mlflow service
         trained_models_folder (Path): Path where trained models are stored
         horizons (List[float]): horizons for feature engineering.
         n_trials (int, optional): The number of trials. Defaults to N_TRIALS.
@@ -82,7 +85,7 @@ def optimize_hyperparameters_pipeline(
             f"Input data is insufficient for {pj['name']} after validation and cleaning"
         )
 
-    if pj.default_modelspecs is not None:
+    if pj.default_modelspecs:
         feature_names = (pj.default_modelspecs.feature_names,)
         feature_modules = pj.default_modelspecs.feature_modules
     else:
@@ -106,7 +109,9 @@ def optimize_hyperparameters_pipeline(
         validated_data_with_features = validated_data_with_features[new_cols]
 
     # Create serializer
-    serializer = MLflowSerializer(trained_models_folder)
+    serializer = MLflowSerializer(
+        mlflow_tracking_uri=mlflow_tracking_uri, artifact_root=trained_models_folder
+    )
 
     # Create objective (NOTE: this is a callable class)
     objective = ObjectiveCreator.create_objective(model_type=pj["model"])
@@ -128,7 +133,7 @@ def optimize_hyperparameters_pipeline(
         best_hyperparams.update(quantiles=pj["quantiles"])
 
     # model specification
-    modelspecs = ModelSpecificationDataClass(
+    model_specs = ModelSpecificationDataClass(
         id=pj["id"],
         feature_names=list(validated_data_with_features.columns),
         hyper_params=best_hyperparams,
@@ -138,20 +143,23 @@ def optimize_hyperparameters_pipeline(
     # (optimization is only done for quantile 0.5)
     if objective.model.can_predict_quantiles:
         best_model, report, modelspecs = train_model_pipeline_core(
-            pj=pj, input_data=input_data, modelspecs=modelspecs
+            pj=pj, input_data=input_data, modelspecs=model_specs
         )
 
-    # Save model
+    # Save model and report. Report is always saved to MLFlow and optionally to disk
+    report = objective.create_report(model=best_model)
     serializer.save_model(
-        best_model,
-        pj=pj,
-        modelspecs=modelspecs,
-        report=objective.create_report(model=best_model),
+        model=best_model,
+        experiment_name=pj["id"],
+        model_type=pj["model"],
+        model_specs=model_specs,
+        report=report,
         phase="Hyperparameter_opt",
         trials=objective.get_trial_track(),
         trial_number=study.best_trial.number,
     )
-
+    if trained_models_folder:
+        Reporter.write_report_to_disk(report=report, location=trained_models_folder)
     return study.best_params
 
 

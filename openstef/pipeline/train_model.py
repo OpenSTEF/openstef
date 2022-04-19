@@ -46,6 +46,7 @@ def train_model_pipeline(
         pj (PredictionJobDataClass): Prediction job
         input_data (pd.DataFrame): Raw training input data
         check_old_model_age (bool): Check if training should be skipped because the model is too young
+        mlflow_tracking_uri (str): Tracking URI for MLFlow
         trained_models_folder (Path): Path where trained models are stored
 
     Returns:
@@ -53,18 +54,20 @@ def train_model_pipeline(
     """
     # Initialize logger and serializer
     logger = structlog.get_logger(__name__)
-    serializer = MLflowSerializer(mlflow_tracking_uri, trained_models_folder)
+    serializer = MLflowSerializer(
+        mlflow_tracking_uri=mlflow_tracking_uri, artifact_root=trained_models_folder
+    )
 
     # Get old model and age
     try:
-        old_model, modelspecs = serializer.load_model(experiment_id=pj["id"])
+        old_model, model_specs = serializer.load_model(experiment_name=pj["id"])
         old_model_age = old_model.age  # Age attribute is openstef specific
     except (AttributeError, FileNotFoundError, LookupError):
         old_model = None
         old_model_age = float("inf")
         if pj["default_modelspecs"] is not None:
-            modelspecs = pj["default_modelspecs"]
-            if modelspecs.id != pj.id:
+            model_specs = pj["default_modelspecs"]
+            if model_specs.id != pj.id:
                 raise RuntimeError(
                     "The id of the prediction job and its default modelspecs do not"
                     " match."
@@ -83,8 +86,8 @@ def train_model_pipeline(
 
     # Train model with core pipeline
     try:
-        model, report, modelspecs_updated = train_model_pipeline_core(
-            pj, modelspecs, input_data, old_model, horizons=pj.train_horizons_minutes
+        model, report, model_specs_updated = train_model_pipeline_core(
+            pj, model_specs, input_data, old_model, horizons=pj.train_horizons_minutes
         )
     except OldModelHigherScoreError as OMHSE:
         logger.error("Old model is better than new model", pid=pj["id"], exc_info=OMHSE)
@@ -107,18 +110,25 @@ def train_model_pipeline(
         )
         raise InputDataWrongColumnOrderError(IDWCOE)
 
-    # Save model and report
-    serializer.save_model(model, pj=pj, modelspecs=modelspecs_updated, report=report)
-    Reporter.write_report_to_disk(report=report, location=trained_models_folder)
+    # Save model and report. Report is always saved to MLFlow and optionally to disk
+    serializer.save_model(
+        model=model,
+        experiment_name=pj["id"],
+        model_type=pj["model"],
+        model_specs=model_specs_updated,
+        report=report,
+    )
+    if trained_models_folder:
+        Reporter.write_report_to_disk(report=report, location=trained_models_folder)
 
     # Clean up older models
-    serializer.remove_old_models(pj=pj)
+    serializer.remove_old_models(experiment_name=pj["id"])
     return report
 
 
 def train_model_pipeline_core(
     pj: PredictionJobDataClass,
-    modelspecs: ModelSpecificationDataClass,
+    model_specs: ModelSpecificationDataClass,
     input_data: pd.DataFrame,
     old_model: OpenstfRegressor = None,
     horizons: Union[List[float], str] = None,
@@ -129,7 +139,7 @@ def train_model_pipeline_core(
 
     Args:
         pj (PredictionJobDataClass): Prediction job
-        modelspecs (ModelSpecificationDataClass): Dataclass containing model specifications
+        model_specs (ModelSpecificationDataClass): Dataclass containing model specifications
         input_data (pd.DataFrame): Input data
         old_model (OpenstfRegressor, optional): Old model to compare to. Defaults to None.
         horizons (List[float]): horizons to train on in hours.
@@ -153,9 +163,9 @@ def train_model_pipeline_core(
 
     # Call common pipeline
     model, report, train_data, validation_data, test_data = train_pipeline_common(
-        pj, modelspecs, input_data, horizons
+        pj, model_specs, input_data, horizons
     )
-    modelspecs.feature_names = list(train_data.columns)
+    model_specs.feature_names = list(train_data.columns)
 
     # Check if new model is better than old model
     if old_model:
@@ -186,7 +196,7 @@ def train_model_pipeline_core(
         except ValueError as e:
             logger.info("Could not compare to old model", pid=pj["id"], exc_info=e)
 
-    return model, report, modelspecs
+    return model, report, model_specs
 
 
 def train_pipeline_common(

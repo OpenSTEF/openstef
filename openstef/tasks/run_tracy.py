@@ -8,12 +8,12 @@ functions with desired inputs
 This scripts works as follows:
   1. Checks the mysql table 'todolist' for jobs (which are not already in progress and
     which are not already failed)
-  2. Set all newly aquired jobs to 'in progress'
+  2. Set all newly acquired jobs to 'in progress'
 For each job;
   3. Convert input arguments to a dict with 'args' and 'kwargs'
   4. Interpret the given function and arguments
   5. Execute the job
-  6. Post result to Slack
+  6. Post result to Teams
   7. Remove job from mysql table
 If job fails, set in progress to 2
 All functions that tracy is able to execute need to be imported and defined in the

@@ -43,14 +43,15 @@ def optimize_hyperparameters_task(
         pj (PredictionJobDataClass): Prediction job
         context (TaskContext): Task context
     """
-    # Folder where to store models
+    # Get the paths for storing model and reports from the config manager
+    mlflow_tracking_uri = Path(context.config.paths.mlflow_tracking_uri)
     trained_models_folder = Path(context.config.paths.trained_models_folder)
 
     # Determine if we need to optimize hyperparams
     # retrieve last model age where hyperparameters were optimized
-    hyper_params_age = MLflowSerializer(trained_models_folder).get_model_age(
-        pj["id"], hyperparameter_optimization_only=True
-    )
+    hyper_params_age = MLflowSerializer(
+        mlflow_tracking_uri=mlflow_tracking_uri, artifact_root=trained_models_folder
+    ).get_model_age(experiment_name=pj["id"], hyperparameter_optimization_only=True)
 
     if hyper_params_age < MAX_AGE_HYPER_PARAMS_DAYS:
         context.logger.warning(
@@ -75,6 +76,7 @@ def optimize_hyperparameters_task(
     hyperparameters = optimize_hyperparameters_pipeline(
         pj,
         input_data,
+        mlflow_tracking_uri=mlflow_tracking_uri,
         trained_models_folder=trained_models_folder,
     )
 
