@@ -29,11 +29,15 @@ class TestOptimizeHyperParametersPipeline(BaseTestCase):
         pj["quantiles"] = predefined_quantiles
 
         parameters = optimize_hyperparameters_pipeline(
-            pj, self.input_data, "./test/unit/trained_models", n_trials=2
+            pj,
+            self.input_data,
+            mlflow_tracking_uri="./unit/trained_models",
+            trained_models_folder="./unit/trained_models",
+            n_trials=2,
         )
         self.assertIsInstance(parameters, dict)
         # Assert stored quantiles are the same as the predefined_quantiles
-        stored_quantiles = save_model_mock.call_args[1]["modelspecs"]["hyper_params"][
+        stored_quantiles = save_model_mock.call_args[1]["model_specs"]["hyper_params"][
             "quantiles"
         ]
         self.assertTupleEqual(stored_quantiles, predefined_quantiles)
@@ -44,7 +48,11 @@ class TestOptimizeHyperParametersPipeline(BaseTestCase):
         # if data is not sufficient a InputDataInsufficientError should be raised
         with self.assertRaises(InputDataInsufficientError):
             optimize_hyperparameters_pipeline(
-                self.pj, self.input_data, "./test/unit/trained_models", n_trials=2
+                self.pj,
+                self.input_data,
+                mlflow_tracking_uri="./unit/trained_models",
+                trained_models_folder="./unit/trained_models",
+                n_trials=2,
             )
 
     def test_optimize_hyperparameters_pipeline_no_data(self):
@@ -53,7 +61,11 @@ class TestOptimizeHyperParametersPipeline(BaseTestCase):
         # if there is no data a InputDataInsufficientError should be raised
         with self.assertRaises(InputDataInsufficientError):
             optimize_hyperparameters_pipeline(
-                self.pj, input_data, "./test/unit/trained_models", n_trials=2
+                self.pj,
+                input_data,
+                mlflow_tracking_uri="./unit/trained_models",
+                trained_models_folder="./unit/trained_models",
+                n_trials=2,
             )
 
     def test_optimize_hyperparameters_pipeline_no_load_data(self):
@@ -62,14 +74,18 @@ class TestOptimizeHyperParametersPipeline(BaseTestCase):
         # if there is no data a InputDataWrongColumnOrderError should be raised
         with self.assertRaises(InputDataWrongColumnOrderError):
             optimize_hyperparameters_pipeline(
-                self.pj, input_data, "./test/unit/trained_models", n_trials=2
+                self.pj,
+                input_data,
+                mlflow_tracking_uri="./unit/trained_models",
+                trained_models_folder="./unit/trained_models",
+                n_trials=2,
             )
 
     @patch("openstef.model.serializer.MLflowSerializer.save_model")
     def test_optimize_hyperparameters_pipeline_quantile_regressor(
         self, save_model_mock
     ):
-        """If the regressor can predict quantiles explicitely,
+        """If the regressor can predict quantiles explicitly,
         the model should be retrained for the desired quantiles"""
         pj = self.pj
         predefined_quantiles = (0.001, 0.5)
@@ -77,13 +93,13 @@ class TestOptimizeHyperParametersPipeline(BaseTestCase):
         pj["model"] = "xgb_quantile"
 
         parameters = optimize_hyperparameters_pipeline(
-            pj, self.input_data, "./test/unit/trained_models", n_trials=1
+            pj,
+            self.input_data,
+            mlflow_tracking_uri="./unit/trained_models",
+            trained_models_folder="./unit/trained_models",
+            n_trials=1,
         )
         self.assertIsInstance(parameters, dict)
         # Assert stored quantiles are the same as the predefined_quantiles
-        stored_quantiles = save_model_mock.call_args[0][0].quantiles
+        stored_quantiles = save_model_mock.call_args[1]["model"].quantiles
         self.assertTupleEqual(stored_quantiles, predefined_quantiles)
-
-
-if __name__ == "__main__":
-    unittest.main()

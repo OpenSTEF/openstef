@@ -53,8 +53,8 @@ class TestComponent(unittest.TestCase):
         col_name = forecast_data.columns[0]
         forecast_data.loc["2020-11-28 00:00:00":"2020-12-01", col_name] = None
 
-        run_id_model = next(os.walk("./trained_models/mlruns/0/"))[1][0]
-        model.path = f"./trained_models/mlruns/0/{run_id_model}/artifacts/model/"
+        run_id_model = next(os.walk("./components/mlruns/0/"))[1][0]
+        model.path = f"./components/mlruns/0/{run_id_model}/artifacts/model/"
 
         forecast = create_forecast_pipeline_core(
             self.pj, forecast_data, model, self.model_specs

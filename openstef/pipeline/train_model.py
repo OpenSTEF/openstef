@@ -69,12 +69,12 @@ def train_model_pipeline(
             model_specs = pj["default_modelspecs"]
             if model_specs.id != pj.id:
                 raise RuntimeError(
-                    "The id of the prediction job and its default modelspecs do not"
+                    "The id of the prediction job and its default model_specs do not"
                     " match."
                 )
         else:
-            # create basic modelspecs
-            modelspecs = ModelSpecificationDataClass(id=pj["id"])
+            # create basic model_specs
+            model_specs = ModelSpecificationDataClass(id=pj["id"])
         logger.warning("No old model found, training new model", pid=pj["id"])
 
     # Check old model age and continue yes/no
@@ -201,7 +201,7 @@ def train_model_pipeline_core(
 
 def train_pipeline_common(
     pj: PredictionJobDataClass,
-    modelspecs: ModelSpecificationDataClass,
+    model_specs: ModelSpecificationDataClass,
     input_data: pd.DataFrame,
     horizons: Union[List[float], str],
     test_fraction: float = 0.0,
@@ -212,7 +212,7 @@ def train_pipeline_common(
 
     Args:
         pj (PredictionJobDataClass): Prediction job
-        modelspecs (ModelSpecificationDataClass): Dataclass containing model specifications
+        model_specs (ModelSpecificationDataClass): Dataclass containing model specifications
         input_data (pd.DataFrame): Input data
         horizons (List[float]): horizons to train on in hours.
         test_fraction (float): fraction of data to use for testing
@@ -266,8 +266,8 @@ def train_pipeline_common(
 
     data_with_features = TrainFeatureApplicator(
         horizons=horizons,
-        feature_names=modelspecs.feature_names,
-        feature_modules=modelspecs.feature_modules,
+        feature_names=model_specs.feature_names,
+        feature_modules=model_specs.feature_modules,
     ).add_features(validated_data, pj=pj)
 
     # if test_data is predefined, apply the pipeline only on the remaining data
@@ -319,7 +319,7 @@ def train_pipeline_common(
     protected_hyperparams = ["quantiles"]
     valid_hyper_parameters = {
         key: value
-        for key, value in modelspecs.hyper_params.items()
+        for key, value in model_specs.hyper_params.items()
         if key in model.get_params().keys() and key not in protected_hyperparams
     }
 
