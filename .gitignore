@@ -4,6 +4,7 @@
 
 # Optional local user config
 config.user.yaml
+git-template
 
 # Ignore these folders
 prof/
