@@ -279,7 +279,7 @@ class TestMLflowSerializer(BaseTestCase):
                 serializer.save_model(
                     model=model,
                     experiment_name=str(self.pj["id"]),
-                    model_type=pj["model"],
+                    model_type=self.pj["model"],
                     model_specs=self.modelspecs,
                     report=dummy_report,
                 )
