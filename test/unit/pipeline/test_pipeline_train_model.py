@@ -266,7 +266,6 @@ class TestTrainModelPipeline(BaseTestCase):
         report_mock = MagicMock()
         pipeline_mock.return_value = ("a", report_mock, self.model_specs)
 
-        trained_models_folder = "./test/unit/trained_models"
         train_model_pipeline(
             pj=self.pj,
             input_data=self.train_input,
