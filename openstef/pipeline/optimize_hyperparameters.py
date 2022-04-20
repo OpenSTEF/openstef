@@ -150,7 +150,7 @@ def optimize_hyperparameters_pipeline(
     report = objective.create_report(model=best_model)
     serializer.save_model(
         model=best_model,
-        experiment_name=pj["id"],
+        experiment_name=str(pj["id"]),
         model_type=pj["model"],
         model_specs=model_specs,
         report=report,

@@ -41,7 +41,7 @@ class MLflowSerializer:
         with mlflow.start_run(run_name=experiment_name):
             self._log_model_with_mlflow(
                 model=model,
-                experiment_type=experiment_name,
+                experiment_name=experiment_name,
                 model_type=model_type,
                 model_specs=model_specs,
                 report=report,
@@ -176,7 +176,7 @@ class MLflowSerializer:
         filter_string: str = "attribute.status = 'FINISHED'",
     ) -> pd.DataFrame:
         """Finds trained models for specific experiment_name sorted by age in descending order."""
-        mlflow.set_experiment(experiment_name)
+        # mlflow.set_experiment(experiment_name)
         models_df = mlflow.search_runs(
             experiment_names=[experiment_name],
             max_results=max_results,
@@ -232,9 +232,8 @@ class MLflowSerializer:
                 by="end_time", ascending=False
             ).loc[max_n_models:, :]
             for _, run in runs_to_remove.iterrows():
-                artifact_location = os.path.join(
-                    self.trained_models_folder,
-                    f"mlruns/{run.experiment_id}/{run.run_id}",
+                artifact_location = (
+                    f"{self.artifact_root}/{run.experiment_id}/{run.run_id}"
                 )
                 self.logger.debug(
                     f"Going to remove run {run.run_id}, from {run.end_time}."

@@ -113,7 +113,7 @@ def train_model_pipeline(
     # Save model and report. Report is always saved to MLFlow and optionally to disk
     serializer.save_model(
         model=model,
-        experiment_name=pj["id"],
+        experiment_name=str(pj["id"]),
         model_type=pj["model"],
         model_specs=model_specs_updated,
         report=report,
@@ -122,7 +122,7 @@ def train_model_pipeline(
         Reporter.write_report_to_disk(report=report, location=trained_models_folder)
 
     # Clean up older models
-    serializer.remove_old_models(experiment_name=pj["id"])
+    serializer.remove_old_models(experiment_name=str(pj["id"]))
     return report
 
 

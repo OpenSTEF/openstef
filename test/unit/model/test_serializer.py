@@ -35,8 +35,9 @@ class TestMLflowSerializer(BaseTestCase):
         This has led to some bugs in the past"""
 
         loaded_model, _ = MLflowSerializer(
-            trained_models_folder="./test/unit/trained_models"
-        ).load_model(307)
+            mlflow_tracking_uri="./unit/trained_models/mlruns",
+            artifact_root="./unit/trained_models/mlruns",
+        ).load_model("307")
         # Check model path
         assert (
             loaded_model.path.replace("\\", "/")
@@ -62,8 +63,9 @@ class TestMLflowSerializer(BaseTestCase):
         mock_modelspecs.return_value = self.modelspecs
         type(mock_load.return_value).feature_names = PropertyMock(return_value=None)
         loaded_model, modelspecs = MLflowSerializer(
-            trained_models_folder="./test/unit/trained_models"
-        ).load_model(307)
+            mlflow_tracking_uri="./unit/trained_models/mlruns",
+            artifact_root="./unit/trained_models/mlruns",
+        ).load_model("307")
         self.assertIsInstance(modelspecs, ModelSpecificationDataClass)
         self.assertEqual(modelspecs.feature_names, None)
 
@@ -88,8 +90,9 @@ class TestMLflowSerializer(BaseTestCase):
         mock_modelspecs.return_value = self.modelspecs
         type(mock_load.return_value).feature_names = PropertyMock(return_value=None)
         loaded_model, modelspecs = MLflowSerializer(
-            trained_models_folder="./test/unit/trained_models"
-        ).load_model(307)
+            mlflow_tracking_uri="./unit/trained_models/mlruns",
+            artifact_root="./unit/trained_models/mlruns",
+        ).load_model("307")
         self.assertIsInstance(modelspecs, ModelSpecificationDataClass)
         self.assertEqual(modelspecs.feature_names, None)
 
@@ -115,8 +118,9 @@ class TestMLflowSerializer(BaseTestCase):
         mock_modelspecs.return_value = self.modelspecs
         type(mock_load.return_value).feature_names = PropertyMock(return_value=None)
         loaded_model, modelspecs = MLflowSerializer(
-            trained_models_folder="./test/unit/trained_models"
-        ).load_model(307)
+            mlflow_tracking_uri="./unit/trained_models/mlruns",
+            artifact_root="./unit/trained_models/mlruns",
+        ).load_model("307")
         self.assertIsInstance(modelspecs, ModelSpecificationDataClass)
         self.assertEqual(modelspecs.feature_names, None)
 
@@ -124,52 +128,10 @@ class TestMLflowSerializer(BaseTestCase):
     def test_serializer_load_model_empty_df_raise_lookuperror(self, mock_find_models):
         mock_find_models.return_value = pd.DataFrame()
         self.assertRaises(
-            LookupError, MLflowSerializer(trained_models_folder="/").load_model, 307
+            LookupError,
+            MLflowSerializer(mlflow_tracking_uri="/", artifact_root="/").load_model,
+            "307",
         )
-
-    @patch("mlflow.sklearn.log_model")
-    @patch("mlflow.log_figure")
-    @patch("mlflow.log_params")
-    @patch("mlflow.log_metrics")
-    @patch("mlflow.set_tag")
-    @patch("mlflow.search_runs")
-    def test_serializer_save_model(
-        self,
-        mock_search_runs,
-        mock_set_tag,
-        mock_log_metrics,
-        mock_log_params,
-        mock_log_figure,
-        mock_log_model,
-    ):
-        model_type = "xgb"
-        model = ModelCreator.create_model(model_type)
-        pj = self.pj
-        # set ID to default, so MLflow saves it in a default folder
-        pj["id"] = "307"
-
-        # Build reporter mock, including html figures so we can test if they are stored correctly
-        report_mock = MagicMock()
-        report_mock.get_metrics.return_value = {"mae", 0.2}
-        # define dummy plot
-        dummy_fig = pd.DataFrame(index=[1, 2], data={"dummy": [1, 2]}).iplot(
-            asFigure=True
-        )
-        report_mock.feature_importance_figure = dummy_fig
-        report_mock.data_series_figures = {
-            "Predictor1": dummy_fig,
-            "Predictor2": dummy_fig,
-        }
-
-        # Use tempdir structure to test if model reports are stored correctly
-        with tempfile.TemporaryDirectory() as trained_models_folder:
-            MLflowSerializer(trained_models_folder=trained_models_folder).save_model(
-                model=model, pj=pj, modelspecs=self.modelspecs, report=report_mock
-            )
-
-            # Check if reports are stored in correct place
-            report_files = glob.glob(f"{trained_models_folder}/{self.pj['id']}/*.html")
-            self.assertEqual(len(report_files), 3)
 
     @patch("mlflow.sklearn.log_model")
     @patch("mlflow.log_figure")
@@ -196,8 +158,15 @@ class TestMLflowSerializer(BaseTestCase):
         report_mock.get_metrics.return_value = {"mae", 0.2}
         mock_search.return_value = pd.DataFrame(columns=["run_id"])
 
-        MLflowSerializer(trained_models_folder="./test/unit/trained_models").save_model(
-            model=model, pj=pj, modelspecs=self.modelspecs, report=report_mock
+        MLflowSerializer(
+            mlflow_tracking_uri="./unit/trained_models/mlruns",
+            artifact_root="./unit/trained_models/mlruns",
+        ).save_model(
+            model=model,
+            experiment_name=str(pj["id"]),
+            model_type=pj["model"],
+            model_specs=self.modelspecs,
+            report=report_mock,
         )
         self.assertEqual(mock_log_model.call_args.kwargs["artifact_path"], "model")
 
@@ -214,8 +183,9 @@ class TestMLflowSerializer(BaseTestCase):
         )
         mock_find_models.return_value = models_df
         days = MLflowSerializer(
-            trained_models_folder="./test/unit/trained_models"
-        ).get_model_age(307, hyperparameter_optimization_only=False)
+            mlflow_tracking_uri="./unit/trained_models/mlruns",
+            artifact_root="./unit/trained_models/mlruns",
+        ).get_model_age("307", hyperparameter_optimization_only=False)
         self.assertEqual(days, 2)
 
     @patch("openstef.model.serializer.MLflowSerializer._find_models")
@@ -231,8 +201,9 @@ class TestMLflowSerializer(BaseTestCase):
         )
         mock_find_models.return_value = models_df
         days = MLflowSerializer(
-            trained_models_folder="./test/unit/trained_models"
-        ).get_model_age(307, hyperparameter_optimization_only=True)
+            mlflow_tracking_uri="./unit/trained_models/mlruns",
+            artifact_root="./unit/trained_models/mlruns",
+        ).get_model_age("307", hyperparameter_optimization_only=True)
         self.assertGreater(days, 7)
         self.assertEqual(days, 8)
 
@@ -241,8 +212,9 @@ class TestMLflowSerializer(BaseTestCase):
         models_df = pd.DataFrame()
         mock_find_models.return_value = models_df
         days = MLflowSerializer(
-            trained_models_folder="./test/unit/trained_models"
-        ).get_model_age(307, hyperparameter_optimization_only=True)
+            mlflow_tracking_uri="./unit/trained_models/mlruns",
+            artifact_root="./unit/trained_models/mlruns",
+        ).get_model_age("307", hyperparameter_optimization_only=True)
         self.assertGreater(days, 7)
         self.assertEqual(days, np.inf)
 
@@ -259,7 +231,8 @@ class TestMLflowSerializer(BaseTestCase):
             }
         ).iloc[0]
         days = MLflowSerializer(
-            trained_models_folder="./test/unit/trained_models"
+            mlflow_tracking_uri="./unit/trained_models/mlruns",
+            artifact_root="./unit/trained_models/mlruns",
         )._determine_model_age_from_mlflow_run(run)
         self.assertGreater(days, 7)
 
@@ -278,7 +251,8 @@ class TestMLflowSerializer(BaseTestCase):
         )
 
         days = MLflowSerializer(
-            trained_models_folder="./test/unit/trained_models"
+            mlflow_tracking_uri="./unit/trained_models/mlruns",
+            artifact_root="./unit/trained_models/mlruns",
         )._determine_model_age_from_mlflow_run(run)
 
         self.assertEqual(days, float("inf"))
@@ -289,7 +263,7 @@ class TestMLflowSerializer(BaseTestCase):
         Test uses 5 previously stored models, then is allowed to keep 2.
         Check if it keeps the 2 most recent models"""
         # Set up
-        local_model_dir = "./test/unit/trained_models/models_for_serializertest"
+        local_model_dir = "./unit/trained_models/models_for_serializertest"
 
         # Run the code below once, to generate stored models
         # We want to test using pre-stored models, since it takes ~6s per save_model()
@@ -303,10 +277,16 @@ class TestMLflowSerializer(BaseTestCase):
                 metrics={},
                 signature=None,
             )
-            serializer = MLflowSerializer(local_model_dir)
+            serializer = MLflowSerializer(
+                mlflow_tracking_uri=local_model_dir, artifact_root=local_model_dir
+            )
             for _ in range(4):
                 serializer.save_model(
-                    model, self.pj, self.modelspecs, report=dummy_report
+                    model=model,
+                    experiment_name=str(self.pj["id"]),
+                    model_type=pj["model"],
+                    model_specs=self.modelspecs,
+                    report=dummy_report,
                 )
 
         # We copy the stored models to a temp dir and test the functionality from there
@@ -314,22 +294,25 @@ class TestMLflowSerializer(BaseTestCase):
             # Copy already stored models to temp dir
             copy_tree(local_model_dir, temp_model_dir)
 
-            serializer = MLflowSerializer(temp_model_dir)
+            serializer = MLflowSerializer(
+                mlflow_tracking_uri="file:" + temp_model_dir + "/mlruns",
+                artifact_root=temp_model_dir + "/mlruns",
+            )
             # Find all stored models
-            all_stored_models = serializer._find_models(self.pj["id"])
+            all_stored_models = serializer._find_models(str(self.pj["id"]))
 
             # Remove old models
-            serializer.remove_old_models(self.pj, max_n_models=2)
-
+            serializer.remove_old_models(str(self.pj["id"]), max_n_models=2)
             # Check which models are left
-            final_stored_models = serializer._find_models(self.pj["id"])
-            # Compare final_stored_models to all_stored_models
+            final_stored_models = serializer._find_models(str(self.pj["id"]))
+
             self.assertEqual(
                 len(all_stored_models),
                 4,
                 f"we expect 4 models at the start- (now {len(all_stored_models)}), "
                 "please remove runs (manually) or add runs with MAKE_RUNS == TRUE ",
             )
+
             self.assertEqual(len(final_stored_models), 2)
             # Check if the runs match to the oldest two runs
             self.assertDataframeEqual(
