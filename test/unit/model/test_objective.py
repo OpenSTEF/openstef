@@ -178,7 +178,3 @@ class ColumnOrderTest(BaseTestCase):
 
         with self.assertRaises(RuntimeError):
             study.optimize(objective, n_trials=N_TRIALS)
-
-
-if __name__ == "__main__":
-    unittest.main()
