@@ -49,7 +49,7 @@ def create_forecast_pipeline(
     # Load most recent model for the given pid
     model, model_specs = MLflowSerializer(
         mlflow_tracking_uri=mlflow_tracking_uri, artifact_root=trained_models_folder
-    ).load_model(experiment_name=pj["id"])
+    ).load_model(experiment_name=str(pj["id"]))
     return create_forecast_pipeline_core(pj, input_data, model, model_specs)
 
 
@@ -71,6 +71,7 @@ def create_forecast_pipeline_core(
         pj (PredictionJobDataClass): Prediction job.
         input_data (pandas.DataFrame): Input data for the prediction.
         model (OpenstfRegressor): Model to use for this prediction.
+        model_specs (ModelSpecificationDataClass): Model specifications.
 
     Returns:
         forecast (pandas.DataFrame)

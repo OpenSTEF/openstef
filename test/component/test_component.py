@@ -31,8 +31,8 @@ class TestComponent(unittest.TestCase):
         parameters = optimize_hyperparameters_pipeline(
             self.pj,
             self.input_data,
-            mlflow_tracking_uri="./components/mlruns",
-            trained_models_folder="./components/mlruns",
+            mlflow_tracking_uri="./test/components/mlruns",
+            trained_models_folder="./test/components/mlruns",
             n_trials=2,
         )
         self.model_specs.hyper_params = parameters
@@ -53,8 +53,8 @@ class TestComponent(unittest.TestCase):
         col_name = forecast_data.columns[0]
         forecast_data.loc["2020-11-28 00:00:00":"2020-12-01", col_name] = None
 
-        run_id_model = next(os.walk("./components/mlruns/0/"))[1][0]
-        model.path = f"./components/mlruns/0/{run_id_model}/artifacts/model/"
+        run_id_model = next(os.walk("./test/components/mlruns/0/"))[1][0]
+        model.path = f"./test/components/mlruns/0/{run_id_model}/artifacts/model/"
 
         forecast = create_forecast_pipeline_core(
             self.pj, forecast_data, model, self.model_specs

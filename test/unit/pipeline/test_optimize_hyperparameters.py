@@ -31,8 +31,8 @@ class TestOptimizeHyperParametersPipeline(BaseTestCase):
         parameters = optimize_hyperparameters_pipeline(
             pj,
             self.input_data,
-            mlflow_tracking_uri="./unit/trained_models",
-            trained_models_folder="./unit/trained_models",
+            mlflow_tracking_uri="./test/unit/trained_models/mlruns",
+            trained_models_folder="./test/unit/trained_models/mlruns",
             n_trials=2,
         )
         self.assertIsInstance(parameters, dict)
@@ -50,8 +50,8 @@ class TestOptimizeHyperParametersPipeline(BaseTestCase):
             optimize_hyperparameters_pipeline(
                 self.pj,
                 self.input_data,
-                mlflow_tracking_uri="./unit/trained_models",
-                trained_models_folder="./unit/trained_models",
+                mlflow_tracking_uri="./test/unit/trained_models/mlruns",
+                trained_models_folder="./test/unit/trained_models/mlruns",
                 n_trials=2,
             )
 
@@ -63,8 +63,8 @@ class TestOptimizeHyperParametersPipeline(BaseTestCase):
             optimize_hyperparameters_pipeline(
                 self.pj,
                 input_data,
-                mlflow_tracking_uri="./unit/trained_models",
-                trained_models_folder="./unit/trained_models",
+                mlflow_tracking_uri="./test/unit/trained_models/mlruns",
+                trained_models_folder="./test/unit/trained_models/mlruns",
                 n_trials=2,
             )
 
@@ -76,8 +76,8 @@ class TestOptimizeHyperParametersPipeline(BaseTestCase):
             optimize_hyperparameters_pipeline(
                 self.pj,
                 input_data,
-                mlflow_tracking_uri="./unit/trained_models",
-                trained_models_folder="./unit/trained_models",
+                mlflow_tracking_uri="./test/unit/trained_models/mlruns",
+                trained_models_folder="./test/unit/trained_models/mlruns",
                 n_trials=2,
             )
 
@@ -95,8 +95,8 @@ class TestOptimizeHyperParametersPipeline(BaseTestCase):
         parameters = optimize_hyperparameters_pipeline(
             pj,
             self.input_data,
-            mlflow_tracking_uri="./unit/trained_models",
-            trained_models_folder="./unit/trained_models",
+            mlflow_tracking_uri="./test/unit/trained_models/mlruns",
+            trained_models_folder="./test/unit/trained_models/mlruns",
             n_trials=1,
         )
         self.assertIsInstance(parameters, dict)

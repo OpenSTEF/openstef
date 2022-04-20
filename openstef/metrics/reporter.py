@@ -10,7 +10,6 @@ from typing import Dict
 import numpy as np
 import pandas as pd
 import sklearn
-import structlog
 from mlflow.models import ModelSignature, infer_signature
 from plotly.graph_objects import Figure
 
@@ -28,7 +27,6 @@ class Report:
         metrics: dict,
         signature: ModelSignature,
     ):
-        self.logger = structlog.get_logger(self.__class__.__name__)
         self.feature_importance_figure = feature_importance_figure
         self.data_series_figures = data_series_figures
         self.metrics = metrics
