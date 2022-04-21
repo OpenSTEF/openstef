@@ -176,7 +176,6 @@ class MLflowSerializer:
         filter_string: str = "attribute.status = 'FINISHED'",
     ) -> pd.DataFrame:
         """Finds trained models for specific experiment_name sorted by age in descending order."""
-        # mlflow.set_experiment(experiment_name)
         models_df = mlflow.search_runs(
             experiment_names=[experiment_name],
             max_results=max_results,
