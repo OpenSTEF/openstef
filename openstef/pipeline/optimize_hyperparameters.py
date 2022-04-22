@@ -52,7 +52,7 @@ def optimize_hyperparameters_pipeline(
         pj (PredictionJobDataClass): Prediction job
         input_data (pd.DataFrame): Raw training input data
         mlflow_tracking_uri (str): Path/Uri to mlflow service
-        artifact_folder (Path): Path where artifacts, such as trained models, are stored
+        artifact_folder (str): Path where artifacts, such as trained models, are stored
         horizons (List[float]): horizons for feature engineering.
         n_trials (int, optional): The number of trials. Defaults to N_TRIALS.
 

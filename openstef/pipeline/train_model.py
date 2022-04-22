@@ -47,7 +47,7 @@ def train_model_pipeline(
         input_data (pd.DataFrame): Raw training input data
         check_old_model_age (bool): Check if training should be skipped because the model is too young
         mlflow_tracking_uri (str): Tracking URI for MLFlow
-        artifact_folder (Path): Path where artifacts, such as trained models, are stored
+        artifact_folder (str): Path where artifacts, such as trained models, are stored
 
     Returns:
         report (Report): The report containing train/val/test datasets and corresponding forecasts if requested
