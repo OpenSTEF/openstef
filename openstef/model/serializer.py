@@ -37,6 +37,7 @@ class MLflowSerializer:
         **kwargs,
     ) -> None:
         """Save sklearn compatible model to MLFlow."""
+        mlflow.set_experiment(experiment_name=experiment_name)
         with mlflow.start_run(run_name=experiment_name):
             self._log_model_with_mlflow(
                 model=model,
