@@ -1,25 +1,24 @@
 # SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-import pickle
+from pathlib import Path
 from test.unit.utils.data import TestData
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
-from pathlib import Path
 
 import openstef.tasks.create_forecast as task
-from openstef.tasks.create_forecast import create_forecast_task
 from openstef.model.serializer import MLflowSerializer
+from openstef.tasks.create_forecast import create_forecast_task
 
 FORECAST_MOCK = "forecast_mock"
 
 
 class TestCreateForeCastTask(TestCase):
-    @patch("openstef.model.serializer._get_model_uri")
+    @patch("openstef.model.serializer.MLflowSerializer._get_model_uri")
     def setUp(self, _get_model_uri_mock) -> None:
         self.pj, self.modelspecs = TestData.get_prediction_job_and_modelspecs(pid=307)
         self.serializer = MLflowSerializer(
-            trained_models_folder="./test/unit/trained_models"
+            mlflow_tracking_uri="./test/unit/trained_models/mlruns"
         )
 
         # mock model location
@@ -28,7 +27,7 @@ class TestCreateForeCastTask(TestCase):
         rel_path = "test/unit/trained_models/mlruns/0/d7719d5d316d4416a947e4f7ea7e73a8/artifacts/model"
         _get_model_uri_mock.return_value = Path(rel_path).absolute().as_uri()
         # Use MLflowSerializer to load a model
-        self.model, _ = self.serializer.load_model(pid=307)
+        self.model, _ = self.serializer.load_model(experiment_name="307")
 
     def test_mocked_model_path(self):
         """This test explicitely tests if the model path is mocked correctly"""
@@ -70,10 +69,12 @@ class TestCreateForeCastTask(TestCase):
         forecast_data.loc["2020-11-28 00:00:00":"2020-12-01", col_name] = None
         dbmock.get_model_input.return_value = forecast_data
 
-        configmock_taskcontext.return_value.paths.trained_models_folder = (
-            "./test/unit/trained_models/"
+        configmock_taskcontext.return_value.paths.mlflow_tracking_uri = (
+            "./test/unit/trained_models/mlruns"
         )
-        configmock_taskcontext.return_value.paths.webroot = "test_webroot"
+        configmock_taskcontext.return_value.paths.artifact_folder = (
+            "./test/unit/trained_models"
+        )
 
         task.main(config=configmock_taskcontext(), database=dbmock)
 

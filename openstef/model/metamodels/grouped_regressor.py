@@ -1,12 +1,13 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-from typing import Union, Callable, Dict, List, Tuple, Any
+from typing import Any, Callable, Dict, List, Tuple, Union
+
 import joblib
+import numpy as np
 import pandas as pd
 from pandas.core.groupby.generic import DataFrameGroupBy
-import numpy as np
-from sklearn.base import BaseEstimator, RegressorMixin, MetaEstimatorMixin, clone
+from sklearn.base import BaseEstimator, MetaEstimatorMixin, RegressorMixin, clone
 from sklearn.utils.validation import check_is_fitted
 
 

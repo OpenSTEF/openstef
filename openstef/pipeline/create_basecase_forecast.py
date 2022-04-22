@@ -5,8 +5,9 @@ from pathlib import Path
 
 import pandas as pd
 import structlog
-from openstef.data_classes.prediction_job import PredictionJobDataClass
 
+from openstef.data_classes.prediction_job import PredictionJobDataClass
+from openstef.exceptions import NoRealisedLoadError
 from openstef.feature_engineering.feature_applicator import (
     OperationalPredictFeatureApplicator,
 )
@@ -18,7 +19,6 @@ from openstef.postprocessing.postprocessing import (
     add_prediction_job_properties_to_forecast,
 )
 from openstef.validation import validation
-from openstef.exceptions import NoRealisedLoadError
 
 MODEL_LOCATION = Path(".")
 BASECASE_HORIZON_MINUTES = 60 * 24 * 14  # 14 days ahead

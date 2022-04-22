@@ -31,7 +31,6 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
-
 from openstef.enums import MLModelType
 from openstef.pipeline.create_forecast import create_forecast_pipeline
 from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
@@ -53,8 +52,8 @@ def create_forecast_task(pj: PredictionJobDataClass, context: TaskContext) -> No
         pj (PredictionJobDataClass): Prediction job
         context (TaskContext): Contect object that holds a config manager and a database connection
     """
-    # Extract trained models folder
-    trained_models_folder = context.config.paths.trained_models_folder
+    # Extract mlflow tracking URI and trained models folder
+    mlflow_tracking_uri = context.config.paths.mlflow_tracking_uri
 
     # Define datetime range for input data
     datetime_start = datetime.utcnow() - timedelta(days=T_BEHIND_DAYS)
@@ -68,7 +67,9 @@ def create_forecast_task(pj: PredictionJobDataClass, context: TaskContext) -> No
         datetime_end=datetime_end,
     )
     # Make forecast with the forecast pipeline
-    forecast = create_forecast_pipeline(pj, input_data, trained_models_folder)
+    forecast = create_forecast_pipeline(
+        pj, input_data, mlflow_tracking_uri=mlflow_tracking_uri
+    )
 
     # Write forecast to the database
     context.database.write_forecast(forecast, t_ahead_series=True)
@@ -80,7 +81,7 @@ def main(model_type=None, config=None, database=None):
 
     if database is None or config is None:
         raise RuntimeError(
-            "Please specifiy a configmanager and/or database connection object. These"
+            "Please specify a configmanager and/or database connection object. These"
             " can be found in the openstef-dbc package."
         )
 

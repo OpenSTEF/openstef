@@ -4,22 +4,22 @@
 import pickle
 import unittest
 from datetime import datetime as dt
+from pathlib import Path
 from test.unit.utils.base import BaseTestCase
 from test.unit.utils.data import TestData
 from unittest.mock import patch
-from pathlib import Path
 
 from openstef.model.serializer import MLflowSerializer
 from openstef.pipeline import create_forecast, utils
 
 
 class TestCreateForecastPipeline(BaseTestCase):
-    @patch("openstef.model.serializer._get_model_uri")
+    @patch("openstef.model.serializer.MLflowSerializer._get_model_uri")
     def setUp(self, _get_model_uri_mock) -> None:
         super().setUp()
         self.pj = TestData.get_prediction_job(pid=307)
         self.serializer = MLflowSerializer(
-            trained_models_folder="./test/unit/trained_models"
+            mlflow_tracking_uri="./test/unit/trained_models/mlruns"
         )
         self.data = TestData.load("reference_sets/307-test-data.csv")
         self.train_input = TestData.load("reference_sets/307-train-data.csv")
@@ -31,7 +31,7 @@ class TestCreateForecastPipeline(BaseTestCase):
         _get_model_uri_mock.return_value = Path(rel_path).absolute().as_uri()
 
         # Use MLflowSerializer to load a model
-        self.model, _ = self.serializer.load_model(pid=307)
+        self.model, _ = self.serializer.load_model(experiment_name="307")
 
     def test_generate_forecast_datetime_range_single_null_values_target_column(self):
         """Test if correct forecast window is made with single range of nulls."""
@@ -101,13 +101,13 @@ class TestCreateForecastPipeline(BaseTestCase):
         col_name = forecast_data.columns[0]
         forecast_data.loc["2020-11-28 00:00:00":"2020-12-01", col_name] = None
 
-        model, modelspecs = self.serializer.load_model(self.pj["id"])
+        model, model_specs = self.serializer.load_model(str(self.pj["id"]))
         if not hasattr(model, "standard_deviation"):  # Renamed the attribute
             model.standard_deviation = model.confidence_interval
 
         # Forecast
         forecast = create_forecast.create_forecast_pipeline_core(
-            pj=self.pj, input_data=forecast_data, model=model, modelspecs=modelspecs
+            pj=self.pj, input_data=forecast_data, model=model, model_specs=model_specs
         )
 
         # Verify backtest was performed
@@ -124,15 +124,15 @@ class TestCreateForecastPipeline(BaseTestCase):
         forecast_data.loc["2020-11-28 00:00:00":"2020-12-01", col_name] = None
 
         # Load model
-        model, modelspecs = self.serializer.load_model(self.pj["id"])
-        modelspecs.feature_names = forecast_data.columns[1:]
+        model, model_specs = self.serializer.load_model(str(self.pj["id"]))
+        model_specs.feature_names = forecast_data.columns[1:]
 
         if not hasattr(model, "standard_deviation"):  # Renamed the attribute
             model.standard_deviation = model.confidence_interval
 
         # Forecast
         forecast = create_forecast.create_forecast_pipeline_core(
-            self.pj, forecast_data, model, modelspecs
+            self.pj, forecast_data, model, model_specs
         )
 
         # Verify forecast works correctly
@@ -151,15 +151,15 @@ class TestCreateForecastPipeline(BaseTestCase):
         forecast_data.loc["2020-11-26 00:00:00":"2020-12-01", col_name] = None
 
         # Load model
-        model, modelspecs = self.serializer.load_model(self.pj["id"])
-        modelspecs.feature_names = forecast_data.columns[1:]
+        model, model_specs = self.serializer.load_model(str(self.pj["id"]))
+        model_specs.feature_names = forecast_data.columns[1:]
 
         if not hasattr(model, "standard_deviation"):  # Renamed the attribute
             model.standard_deviation = model.confidence_interval
 
         # Forecast
         forecast = create_forecast.create_forecast_pipeline_core(
-            pj=self.pj, input_data=forecast_data, model=model, modelspecs=modelspecs
+            pj=self.pj, input_data=forecast_data, model=model, model_specs=model_specs
         )
 
         # Verify forecast works correctly
@@ -178,15 +178,15 @@ class TestCreateForecastPipeline(BaseTestCase):
         forecast_data.loc["2020-11-25 00:00:00":"2020-12-01", col_name] = None
 
         # Load model
-        model, modelspecs = self.serializer.load_model(self.pj["id"])
-        modelspecs.feature_names = forecast_data.columns[1:]
+        model, model_specs = self.serializer.load_model(str(self.pj["id"]))
+        model_specs.feature_names = forecast_data.columns[1:]
 
         if not hasattr(model, "standard_deviation"):  # Renamed the attribute
             model.standard_deviation = model.confidence_interval
 
         # Forecast
         forecast = create_forecast.create_forecast_pipeline_core(
-            pj=self.pj, input_data=forecast_data, model=model, modelspecs=modelspecs
+            pj=self.pj, input_data=forecast_data, model=model, model_specs=model_specs
         )
 
         # Verify forecast works correctly
@@ -194,7 +194,3 @@ class TestCreateForecastPipeline(BaseTestCase):
         self.assertEqual(len(forecast.columns), 15)
         self.assertGreater(forecast.forecast.min(), -5)
         self.assertLess(forecast.forecast.max(), 85)
-
-
-if __name__ == "__main__":
-    unittest.main()

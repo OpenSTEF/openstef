@@ -4,9 +4,9 @@
 from typing import List, Tuple
 
 import pandas as pd
-from openstef.data_classes.prediction_job import PredictionJobDataClass
 
 from openstef.data_classes.model_specifications import ModelSpecificationDataClass
+from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.model.confidence_interval_applicator import ConfidenceIntervalApplicator
 from openstef.model.regressors.regressor import OpenstfRegressor
 from openstef.model_selection.model_selection import group_kfold

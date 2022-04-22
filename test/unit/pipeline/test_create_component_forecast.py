@@ -12,8 +12,6 @@ from openstef.pipeline.create_component_forecast import (
     create_components_forecast_pipeline,
 )
 
-NOW = datetime.now(timezone.utc)
-
 
 class TestComponentForecast(BaseTestCase):
     def setUp(self) -> None:

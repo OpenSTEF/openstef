@@ -17,6 +17,10 @@ from typing import List
 
 import pandas as pd
 
+from openstef.data_classes.prediction_job import PredictionJobDataClass
+from openstef.feature_engineering.historic_features import (
+    add_historic_load_as_a_feature,
+)
 from openstef.feature_engineering.holiday_features import (
     generate_holiday_feature_functions,
 )
@@ -25,10 +29,6 @@ from openstef.feature_engineering.weather_features import (
     add_additional_wind_features,
     add_humidity_features,
 )
-from openstef.feature_engineering.historic_features import (
-    add_historic_load_as_a_feature,
-)
-from openstef.data_classes.prediction_job import PredictionJobDataClass
 
 
 def apply_features(

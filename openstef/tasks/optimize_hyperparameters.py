@@ -20,7 +20,6 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
-
 from openstef.enums import MLModelType
 from openstef.model.serializer import MLflowSerializer
 from openstef.monitoring import teams
@@ -44,14 +43,15 @@ def optimize_hyperparameters_task(
         pj (PredictionJobDataClass): Prediction job
         context (TaskContext): Task context
     """
-    # Folder where to store models
-    trained_models_folder = Path(context.config.paths.trained_models_folder)
+    # Get the paths for storing model and reports from the config manager
+    mlflow_tracking_uri = context.config.paths.mlflow_tracking_uri
+    artifact_folder = context.config.paths.artifact_folder
 
     # Determine if we need to optimize hyperparams
-
     # retrieve last model age where hyperparameters were optimized
-    hyper_params_age = MLflowSerializer(trained_models_folder).get_model_age(
-        pj["id"], hyperparameter_optimization_only=True
+    mlflow_serializer = MLflowSerializer(mlflow_tracking_uri=mlflow_tracking_uri)
+    hyper_params_age = mlflow_serializer.get_model_age(
+        experiment_name=str(pj["id"]), hyperparameter_optimization_only=True
     )
 
     if hyper_params_age < MAX_AGE_HYPER_PARAMS_DAYS:
@@ -77,7 +77,8 @@ def optimize_hyperparameters_task(
     hyperparameters = optimize_hyperparameters_pipeline(
         pj,
         input_data,
-        trained_models_folder=trained_models_folder,
+        mlflow_tracking_uri=mlflow_tracking_uri,
+        artifact_folder=artifact_folder,
     )
 
     # Sent message to Teams
@@ -93,7 +94,7 @@ def main(config=None, database=None):
 
     if database is None or config is None:
         raise RuntimeError(
-            "Please specifiy a configmanager and/or database connection object. These"
+            "Please specify a configmanager and/or database connection object. These"
             " can be found in the openstef-dbc package."
         )
 

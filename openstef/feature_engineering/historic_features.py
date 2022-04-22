@@ -6,8 +6,10 @@
 
 """
 from typing import List
+
 import pandas as pd
 import structlog
+
 from openstef.data_classes.prediction_job import PredictionJobDataClass
 
 

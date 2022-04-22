@@ -18,6 +18,8 @@ from openstef.exceptions import (
 )
 from openstef.feature_engineering.feature_applicator import TrainFeatureApplicator
 from openstef.metrics.reporter import Report
+from openstef.model.objective import RegressorObjective
+from openstef.model.regressors.custom_regressor import CustomOpenstfRegressor
 from openstef.model_selection.model_selection import split_data_train_validation_test
 from openstef.pipeline.train_model import (
     train_model_pipeline,
@@ -25,10 +27,6 @@ from openstef.pipeline.train_model import (
     train_pipeline_common,
 )
 from openstef.validation import validation
-from openstef.model.regressors.custom_regressor import CustomOpenstfRegressor
-from openstef.model.objective import RegressorObjective
-
-# define constants
 
 
 class DummyObjective(RegressorObjective):
@@ -71,25 +69,12 @@ class DummyRegressor(CustomOpenstfRegressor):
         )
 
 
-PJ = TestData.get_prediction_job(pid=307)
-
-XGB_HYPER_PARAMS = {
-    "subsample": 0.9,
-    "min_child_weight": 4,
-    "max_depth": 8,
-    "gamma": 0.5,
-    "colsample_bytree": 0.85,
-    "eta": 0.1,
-    "training_period_days": 90,
-}
-
-
 class TestTrainModelPipeline(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
-        self.pj, self.modelspecs = TestData.get_prediction_job_and_modelspecs(pid=307)
+        self.pj, self.model_specs = TestData.get_prediction_job_and_modelspecs(pid=307)
         # Set n_estimators to a small number to speed up training
-        self.modelspecs.hyper_params["n_estimators"] = 3
+        self.model_specs.hyper_params["n_estimators"] = 3
         datetime_start = datetime.utcnow() - timedelta(days=90)
         datetime_end = datetime.utcnow()
         self.data_table = TestData.load("input_data_train.pickle").head(8641)
@@ -107,7 +92,8 @@ class TestTrainModelPipeline(BaseTestCase):
             pj=self.pj,
             input_data=self.train_input,
             check_old_model_age=False,
-            trained_models_folder="./test/unit/trained_models",
+            mlflow_tracking_uri="./test/unit/trained_models/mlruns",
+            artifact_folder="./test/unit/trained_models",
         )
 
     def test_train_model_pipeline_core_happy_flow(self):
@@ -127,19 +113,19 @@ class TestTrainModelPipeline(BaseTestCase):
                 pj["model"] = (
                     model_type.value if hasattr(model_type, "value") else model_type
                 )
-                modelspecs = self.modelspecs
+                model_specs = self.model_specs
                 train_input = self.train_input
 
                 # Use default parameters
-                self.modelspecs.hyper_params = {}
-                self.modelspecs.hyper_params["max_epochs"] = 1
+                self.model_specs.hyper_params = {}
+                self.model_specs.hyper_params["max_epochs"] = 1
 
                 # For Linear model we need to choose an imputation strategy to handle missing value
                 if model_type == MLModelType.LINEAR:
-                    self.modelspecs.hyper_params["imputation_strategy"] = "mean"
+                    self.model_specs.hyper_params["imputation_strategy"] = "mean"
 
-                model, report, modelspecs = train_model_pipeline_core(
-                    pj=pj, modelspecs=self.modelspecs, input_data=train_input
+                model, report, model_specs = train_model_pipeline_core(
+                    pj=pj, model_specs=self.model_specs, input_data=train_input
                 )
 
                 # check if the model was fitted (raises NotFittedError when not fitted)
@@ -161,7 +147,7 @@ class TestTrainModelPipeline(BaseTestCase):
 
                 # Add features
                 data_with_features = TrainFeatureApplicator(
-                    horizons=[0.25, 47.0], feature_names=self.modelspecs.feature_names
+                    horizons=[0.25, 47.0], feature_names=self.model_specs.feature_names
                 ).add_features(validated_data, pj=pj)
 
                 # Split data
@@ -178,18 +164,18 @@ class TestTrainModelPipeline(BaseTestCase):
 
     def test_train_model_pipeline_with_featureAdders(self):
         pj = self.pj
-        modelspecs = self.modelspecs
-        modelspecs.hyper_params = {}
-        modelspecs.feature_modules = [
+        model_specs = self.model_specs
+        model_specs.hyper_params = {}
+        model_specs.feature_modules = [
             "test.unit.feature_engineering.test_feature_adder"
         ]
         dummy_feature = "dummy_0.5"
-        modelspecs.feature_names.append(dummy_feature)
-        pj.default_modelspecs = modelspecs
+        model_specs.feature_names.append(dummy_feature)
+        pj.default_modelspecs = model_specs
 
         train_input = self.train_input.iloc[::50, :]
-        model, report, modelspecs = train_model_pipeline_core(
-            pj=pj, modelspecs=modelspecs, input_data=train_input
+        model, report, model_specs = train_model_pipeline_core(
+            pj=pj, model_specs=model_specs, input_data=train_input
         )
 
         # check if the model was fitted (raises NotFittedError when not fitted)
@@ -211,41 +197,51 @@ class TestTrainModelPipeline(BaseTestCase):
         is the one given to save_model when there is no previous model saved for the
         prediction job.
         """
-
         mock_serializer_instance = MagicMock()
         # Mimick the absence of older model.
         mock_serializer_instance.load_model.side_effect = FileNotFoundError()
         mock_serializer.return_value = mock_serializer_instance
 
         pj = copy.deepcopy(self.pj)
+
         # hyper params that are different from the defaults.
+        xgb_hyper_params = {
+            "subsample": 0.9,
+            "min_child_weight": 4,
+            "max_depth": 8,
+            "gamma": 0.5,
+            "colsample_bytree": 0.85,
+            "eta": 0.1,
+            "training_period_days": 90,
+        }
         new_hyper_params = {
             key: (value + 0.01) if isinstance(value, float) else value + 1
-            for key, value in XGB_HYPER_PARAMS.items()
+            for key, value in xgb_hyper_params.items()
         }
 
-        modelspecs = copy.deepcopy(self.modelspecs)
-        modelspecs.hyper_params = new_hyper_params
+        model_specs = copy.deepcopy(self.model_specs)
+        model_specs.hyper_params = new_hyper_params
 
         # Custom features
-        modelspecs.feature_modules = [
+        model_specs.feature_modules = [
             "test.unit.feature_engineering.test_feature_adder"
         ]
-        modelspecs.feature_names.append("dummy_0.5")
+        model_specs.feature_names.append("dummy_0.5")
 
-        pj.default_modelspecs = modelspecs
+        pj.default_modelspecs = model_specs
 
         train_model_pipeline(
             pj=pj,
             input_data=self.train_input,
             check_old_model_age=True,
-            trained_models_folder="./test/unit/trained_models",
+            mlflow_tracking_uri="./test/unit/trained_models/mlruns",
+            artifact_folder="./test/unit/trained_models",
         )
 
-        saved_modelspecs = mock_serializer_instance.save_model.call_args.kwargs[
-            "modelspecs"
+        saved_model_specs = mock_serializer_instance.save_model.call_args.kwargs[
+            "model_specs"
         ]
-        self.assertEqual(saved_modelspecs, modelspecs)
+        self.assertEqual(saved_model_specs, model_specs)
 
     @patch("openstef.model.serializer.MLflowSerializer.save_model")
     @patch("openstef.pipeline.train_model.train_model_pipeline_core")
@@ -261,19 +257,19 @@ class TestTrainModelPipeline(BaseTestCase):
         serializer_mock_instance = MagicMock()
         serializer_mock_instance.load_model.return_value = (
             old_model_mock,
-            self.modelspecs,
+            self.model_specs,
         )
         serializer_mock.return_value = serializer_mock_instance
 
         report_mock = MagicMock()
-        pipeline_mock.return_value = ("a", report_mock, self.modelspecs)
+        pipeline_mock.return_value = ("a", report_mock, self.model_specs)
 
-        trained_models_folder = "./test/unit/trained_models"
         train_model_pipeline(
             pj=self.pj,
             input_data=self.train_input,
             check_old_model_age=False,
-            trained_models_folder=trained_models_folder,
+            mlflow_tracking_uri="./test/unit/trained_models/mlruns",
+            artifact_folder="./test/unit/trained_models",
         )
 
     @patch("openstef.model.serializer.MLflowSerializer.save_model")
@@ -289,7 +285,7 @@ class TestTrainModelPipeline(BaseTestCase):
         serializer_mock_instance = MagicMock()
         serializer_mock_instance.load_model.return_value = (
             old_model_mock,
-            self.modelspecs,
+            self.model_specs,
         )
         serializer_mock.return_value = serializer_mock_instance
 
@@ -300,7 +296,8 @@ class TestTrainModelPipeline(BaseTestCase):
             pj=self.pj,
             input_data=self.train_input,
             check_old_model_age=True,
-            trained_models_folder="./test/unit/trained_models",
+            mlflow_tracking_uri="./test/unit/trained_models/mlruns",
+            artifact_folder="./test/unit/trained_models",
         )
         self.assertFalse(pipeline_mock.called)
 
@@ -316,7 +313,8 @@ class TestTrainModelPipeline(BaseTestCase):
                 pj=self.pj,
                 input_data=self.train_input,
                 check_old_model_age=False,
-                trained_models_folder="./test/unit/trained_models",
+                mlflow_tracking_uri="./test/unit/trained_models/mlruns",
+                artifact_folder="./test/unit/trained_models",
             )
 
     @patch("openstef.model.serializer.MLflowSerializer.save_model")
@@ -329,7 +327,8 @@ class TestTrainModelPipeline(BaseTestCase):
                 pj=self.pj,
                 input_data=input_data,
                 check_old_model_age=False,
-                trained_models_folder="./test/unit/trained_models",
+                mlflow_tracking_uri="./test/unit/trained_models/mlruns",
+                artifact_folder="./test/unit/trained_models",
             )
 
     @patch("openstef.model.serializer.MLflowSerializer.save_model")
@@ -344,7 +343,7 @@ class TestTrainModelPipeline(BaseTestCase):
         serializer_mock_instance = MagicMock()
         serializer_mock_instance.load_model.return_value = (
             old_model_mock,
-            self.modelspecs,
+            self.model_specs,
         )
         serializer_mock.return_value = serializer_mock_instance
         old_model_mock.score.return_value = 5
@@ -353,7 +352,8 @@ class TestTrainModelPipeline(BaseTestCase):
             pj=self.pj,
             input_data=self.train_input,
             check_old_model_age=True,
-            trained_models_folder="./test/unit/trained_models",
+            mlflow_tracking_uri="./test/unit/trained_models/mlruns",
+            artifact_folder="./test/unit/trained_models",
         )
         self.assertIs(None, result)
         self.assertEqual(len(serializer_mock_instance.method_calls), 1)
@@ -368,7 +368,7 @@ class TestTrainModelPipeline(BaseTestCase):
         serializer_mock_instance = MagicMock()
         serializer_mock_instance.load_model.return_value = (
             old_model_mock,
-            self.modelspecs,
+            self.model_specs,
         )
         serializer_mock.return_value = serializer_mock_instance
         old_model_mock.score.return_value = 0.1
@@ -377,7 +377,8 @@ class TestTrainModelPipeline(BaseTestCase):
             pj=self.pj,
             input_data=self.train_input,
             check_old_model_age=True,
-            trained_models_folder="./test/unit/trained_models",
+            mlflow_tracking_uri="./test/unit/trained_models/mlruns",
+            artifact_folder="./test/unit/trained_models",
         )
         self.assertIsInstance(result, Report)
         self.assertEqual(len(serializer_mock_instance.method_calls), 3)
@@ -392,7 +393,7 @@ class TestTrainModelPipeline(BaseTestCase):
         serializer_mock_instance = MagicMock()
         serializer_mock_instance.load_model.return_value = (
             old_model_mock,
-            self.modelspecs,
+            self.model_specs,
         )
         serializer_mock.return_value = serializer_mock_instance
         old_model_mock.score.side_effect = ValueError()
@@ -401,7 +402,8 @@ class TestTrainModelPipeline(BaseTestCase):
             pj=self.pj,
             input_data=self.train_input,
             check_old_model_age=True,
-            trained_models_folder="./test/unit/trained_models",
+            mlflow_tracking_uri="./test/unit/trained_models/mlruns",
+            artifact_folder="./test/unit/trained_models",
         )
         self.assertIsInstance(result, Report)
         self.assertEqual(len(serializer_mock_instance.method_calls), 3)
@@ -416,7 +418,7 @@ class TestTrainModelPipeline(BaseTestCase):
         serializer_mock_instance = MagicMock()
         serializer_mock_instance.load_model.return_value = (
             old_model_mock,
-            self.modelspecs,
+            self.model_specs,
         )
         serializer_mock_instance.load_model.side_effect = FileNotFoundError()
         serializer_mock.return_value = serializer_mock_instance
@@ -425,7 +427,8 @@ class TestTrainModelPipeline(BaseTestCase):
             pj=self.pj,
             input_data=self.train_input,
             check_old_model_age=True,
-            trained_models_folder="./test/unit/trained_models",
+            mlflow_tracking_uri="./test/unit/trained_models/mlruns",
+            artifact_folder="./test/unit/trained_models",
         )
         self.assertEqual(len(serializer_mock_instance.method_calls), 3)
 
@@ -445,13 +448,13 @@ class TestTrainModelPipeline(BaseTestCase):
         pj["model"] = "xgb_quantile"
         pj["quantiles"] = desired_quantiles
 
-        # Change 'old' modelspecs
-        modified_modelspecs = self.modelspecs
-        modified_modelspecs["hyper_params"].update(dict(quantiles=old_quantiles))
+        # Change 'old' model_specs
+        modified_model_specs = self.model_specs
+        modified_model_specs["hyper_params"].update(dict(quantiles=old_quantiles))
 
         # train model
         model, report, train_data, validation_data, test_data = train_pipeline_common(
-            pj, modified_modelspecs, self.train_input, horizons=[0.25, 47.0]
+            pj, modified_model_specs, self.train_input, horizons=[0.25, 47.0]
         )
 
         # check quantiles
@@ -466,9 +469,5 @@ class TestTrainModelPipeline(BaseTestCase):
                 validation_data,
                 test_data,
             ) = train_pipeline_common(
-                self.pj, self.modelspecs, self.train_input, horizons="custom_horizon"
+                self.pj, self.model_specs, self.train_input, horizons="custom_horizon"
             )
-
-
-if __name__ == "__main__":
-    unittest.main()

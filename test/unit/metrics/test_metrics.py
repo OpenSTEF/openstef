@@ -13,7 +13,3 @@ class TestEvalMetricFunction(unittest.TestCase):
     def test_eval_metric_exception(self):
         with self.assertRaises(KeyError):
             get_eval_metric_function("non-existing")
-
-
-if __name__ == "__main__":
-    unittest.main()
