@@ -56,9 +56,9 @@ def train_model_task(
         check_old_model_age (bool): check if model is too young to be retrained
     """
     # Get the paths for storing model and reports from the config manager
-    mlflow_tracking_uri = Path(context.config.paths.mlflow_tracking_uri)
+    mlflow_tracking_uri = context.config.paths.mlflow_tracking_uri
     context.logger.debug(f"MLflow tracking uri: {mlflow_tracking_uri}")
-    artifact_folder = Path(context.config.paths.artifact_folder)
+    artifact_folder = context.config.paths.artifact_folder
     context.logger.debug(f"Artifact folder: {artifact_folder}")
 
     context.perf_meter.checkpoint("Added metadata to PredictionJob")
