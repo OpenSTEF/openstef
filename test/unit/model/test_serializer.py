@@ -35,7 +35,7 @@ class TestMLflowSerializer(BaseTestCase):
 
         loaded_model, _ = MLflowSerializer(
             mlflow_tracking_uri="./test/unit/trained_models/mlruns",
-            artifact_root="./test/unit/trained_models/mlruns",
+            artifact_root="./test/unit/trained_models",
         ).load_model("307")
         # Check model path
         assert (
@@ -63,7 +63,7 @@ class TestMLflowSerializer(BaseTestCase):
         type(mock_load.return_value).feature_names = PropertyMock(return_value=None)
         loaded_model, modelspecs = MLflowSerializer(
             mlflow_tracking_uri="./test/unit/trained_models/mlruns",
-            artifact_root="./test/unit/trained_models/mlruns",
+            artifact_root="./test/unit/trained_models",
         ).load_model("307")
         self.assertIsInstance(modelspecs, ModelSpecificationDataClass)
         self.assertEqual(modelspecs.feature_names, None)
@@ -90,7 +90,7 @@ class TestMLflowSerializer(BaseTestCase):
         type(mock_load.return_value).feature_names = PropertyMock(return_value=None)
         loaded_model, modelspecs = MLflowSerializer(
             mlflow_tracking_uri="./test/unit/trained_models/mlruns",
-            artifact_root="./test/unit/trained_models/mlruns",
+            artifact_root="./test/unit/trained_models",
         ).load_model("307")
         self.assertIsInstance(modelspecs, ModelSpecificationDataClass)
         self.assertEqual(modelspecs.feature_names, None)
@@ -118,7 +118,7 @@ class TestMLflowSerializer(BaseTestCase):
         type(mock_load.return_value).feature_names = PropertyMock(return_value=None)
         loaded_model, modelspecs = MLflowSerializer(
             mlflow_tracking_uri="./test/unit/trained_models/mlruns",
-            artifact_root="./test/unit/trained_models/mlruns",
+            artifact_root="./test/unit/trained_models",
         ).load_model("307")
         self.assertIsInstance(modelspecs, ModelSpecificationDataClass)
         self.assertEqual(modelspecs.feature_names, None)
@@ -155,7 +155,7 @@ class TestMLflowSerializer(BaseTestCase):
 
         MLflowSerializer(
             mlflow_tracking_uri="./test/unit/trained_models/mlruns",
-            artifact_root="./test/unit/trained_models/mlruns",
+            artifact_root="./test/unit/trained_models",
         ).save_model(
             model=model,
             experiment_name="Default",
@@ -179,7 +179,7 @@ class TestMLflowSerializer(BaseTestCase):
         mock_find_models.return_value = models_df
         days = MLflowSerializer(
             mlflow_tracking_uri="./test/unit/trained_models/mlruns",
-            artifact_root="./test/unit/trained_models/mlruns",
+            artifact_root="./test/unit/trained_models",
         ).get_model_age("307", hyperparameter_optimization_only=False)
         self.assertEqual(days, 2)
 
@@ -197,7 +197,7 @@ class TestMLflowSerializer(BaseTestCase):
         mock_find_models.return_value = models_df
         days = MLflowSerializer(
             mlflow_tracking_uri="./test/unit/trained_models/mlruns",
-            artifact_root="./test/unit/trained_models/mlruns",
+            artifact_root="./test/unit/trained_models",
         ).get_model_age("307", hyperparameter_optimization_only=True)
         self.assertGreater(days, 7)
         self.assertEqual(days, 8)
@@ -208,7 +208,7 @@ class TestMLflowSerializer(BaseTestCase):
         mock_find_models.return_value = models_df
         days = MLflowSerializer(
             mlflow_tracking_uri="./test/unit/trained_models/mlruns",
-            artifact_root="./test/unit/trained_models/mlruns",
+            artifact_root="./test/unit/trained_models",
         ).get_model_age("307", hyperparameter_optimization_only=True)
         self.assertGreater(days, 7)
         self.assertEqual(days, np.inf)
@@ -227,7 +227,7 @@ class TestMLflowSerializer(BaseTestCase):
         ).iloc[0]
         days = MLflowSerializer(
             mlflow_tracking_uri="./test/unit/trained_models/mlruns",
-            artifact_root="./test/unit/trained_models/mlruns",
+            artifact_root="./test/unit/trained_models",
         )._determine_model_age_from_mlflow_run(run)
         self.assertGreater(days, 7)
 
@@ -247,7 +247,7 @@ class TestMLflowSerializer(BaseTestCase):
 
         days = MLflowSerializer(
             mlflow_tracking_uri="./test/unit/trained_models/mlruns",
-            artifact_root="./test/unit/trained_models/mlruns",
+            artifact_root="./test/unit/trained_models",
         )._determine_model_age_from_mlflow_run(run)
 
         self.assertEqual(days, float("inf"))
@@ -291,7 +291,7 @@ class TestMLflowSerializer(BaseTestCase):
 
             serializer = MLflowSerializer(
                 mlflow_tracking_uri="file:" + temp_model_dir + "/mlruns",
-                artifact_root=temp_model_dir + "/mlruns",
+                artifact_root=temp_model_dir,
             )
             # Find all stored models
             all_stored_models = serializer._find_models(str(self.pj["id"]))

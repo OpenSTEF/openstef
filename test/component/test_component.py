@@ -31,8 +31,8 @@ class TestComponent(unittest.TestCase):
         parameters = optimize_hyperparameters_pipeline(
             self.pj,
             self.input_data,
-            mlflow_tracking_uri="./test/components/mlruns",
-            trained_models_folder="./test/components/mlruns",
+            mlflow_tracking_uri="./test/component/mlruns",
+            trained_models_folder="./test/component",
             n_trials=2,
         )
         self.model_specs.hyper_params = parameters

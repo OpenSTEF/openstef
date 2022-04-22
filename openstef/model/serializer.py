@@ -24,8 +24,11 @@ class MLflowSerializer:
     def __init__(self, mlflow_tracking_uri: str, artifact_root: str = None):
         self.logger = structlog.get_logger(self.__class__.__name__)
         mlflow.set_tracking_uri(mlflow_tracking_uri)
-        self.logger.debug(f"MLflow path at init= {mlflow_tracking_uri}")
-        self.artifact_root = artifact_root  # Required only for removing models
+        self.artifact_root = (
+            f"{artifact_root}/mlruns"  # Required only for removing models
+        )
+        self.logger.debug(f"MLflow tracking uri at init= {mlflow_tracking_uri}")
+        self.logger.debug(f"MLflow artifact root at init= {self.artifact_root}")
 
     def save_model(
         self,

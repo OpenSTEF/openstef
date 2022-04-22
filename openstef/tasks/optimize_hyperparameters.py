@@ -51,7 +51,9 @@ def optimize_hyperparameters_task(
     # retrieve last model age where hyperparameters were optimized
     hyper_params_age = MLflowSerializer(
         mlflow_tracking_uri=mlflow_tracking_uri, artifact_root=trained_models_folder
-    ).get_model_age(experiment_name=pj["id"], hyperparameter_optimization_only=True)
+    ).get_model_age(
+        experiment_name=str(pj["id"]), hyperparameter_optimization_only=True
+    )
 
     if hyper_params_age < MAX_AGE_HYPER_PARAMS_DAYS:
         context.logger.warning(

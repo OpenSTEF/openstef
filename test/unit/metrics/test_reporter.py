@@ -4,11 +4,11 @@
 import os
 import tempfile
 import unittest
-
 from unittest.mock import patch
-from openstef.metrics.reporter import Report, Reporter
 
 import plotly.graph_objects as go
+
+from openstef.metrics.reporter import Report, Reporter
 
 
 class TestReport(unittest.TestCase):
