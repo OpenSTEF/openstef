@@ -109,7 +109,7 @@ class TrainFeatureApplicator(AbstractFeatureApplicator):
                     feature_names=self.feature_names,
                 )
                 res["horizon"] = horizon
-                result = result.append(res)
+                result = pd.concat([result, res])
 
         # Add custom features with the dispatcher
         result = self.features_dispatcher.apply_features(
