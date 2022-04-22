@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 from pathlib import Path
-from typing import List, Tuple, Union
+from typing import List, Tuple
 
 import optuna
 import pandas as pd
@@ -19,9 +19,6 @@ from openstef.metrics.reporter import Reporter
 from openstef.model.model_creator import ModelCreator
 from openstef.model.objective import RegressorObjective
 from openstef.model.objective_creator import ObjectiveCreator
-
-# This is required to disable the default optuna logger and pass the logs to our own
-# structlog logger
 from openstef.model.serializer import MLflowSerializer
 from openstef.pipeline.train_model import (
     DEFAULT_TRAIN_HORIZONS,
@@ -43,7 +40,7 @@ def optimize_hyperparameters_pipeline(
     pj: PredictionJobDataClass,
     input_data: pd.DataFrame,
     mlflow_tracking_uri: str,
-    trained_models_folder: Union[str, Path],
+    artifact_folder: str,
     horizons: List[float] = DEFAULT_TRAIN_HORIZONS,
     n_trials: int = N_TRIALS,
 ) -> dict:
@@ -55,7 +52,7 @@ def optimize_hyperparameters_pipeline(
         pj (PredictionJobDataClass): Prediction job
         input_data (pd.DataFrame): Raw training input data
         mlflow_tracking_uri (str): Path/Uri to mlflow service
-        trained_models_folder (Path): Path where trained models are stored
+        artifact_folder (Path): Path where artifacts, such as trained models, are stored
         horizons (List[float]): horizons for feature engineering.
         n_trials (int, optional): The number of trials. Defaults to N_TRIALS.
 
@@ -109,9 +106,7 @@ def optimize_hyperparameters_pipeline(
         validated_data_with_features = validated_data_with_features[new_cols]
 
     # Create serializer
-    serializer = MLflowSerializer(
-        mlflow_tracking_uri=mlflow_tracking_uri, artifact_root=trained_models_folder
-    )
+    serializer = MLflowSerializer(mlflow_tracking_uri=mlflow_tracking_uri)
 
     # Create objective (NOTE: this is a callable class)
     objective = ObjectiveCreator.create_objective(model_type=pj["model"])
@@ -158,8 +153,8 @@ def optimize_hyperparameters_pipeline(
         trials=objective.get_trial_track(),
         trial_number=study.best_trial.number,
     )
-    if trained_models_folder:
-        Reporter.write_report_to_disk(report=report, location=trained_models_folder)
+    if artifact_folder:
+        Reporter.write_report_to_disk(report=report, artifact_folder=artifact_folder)
     return study.best_params
 
 

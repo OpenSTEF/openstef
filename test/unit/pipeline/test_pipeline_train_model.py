@@ -28,8 +28,6 @@ from openstef.pipeline.train_model import (
 )
 from openstef.validation import validation
 
-# define constants
-
 
 class DummyObjective(RegressorObjective):
     ...
@@ -95,7 +93,7 @@ class TestTrainModelPipeline(BaseTestCase):
             input_data=self.train_input,
             check_old_model_age=False,
             mlflow_tracking_uri="./test/unit/trained_models/mlruns",
-            trained_models_folder="./test/unit/trained_models/mlruns",
+            artifact_folder="./test/unit/trained_models",
         )
 
     def test_train_model_pipeline_core_happy_flow(self):
@@ -237,7 +235,7 @@ class TestTrainModelPipeline(BaseTestCase):
             input_data=self.train_input,
             check_old_model_age=True,
             mlflow_tracking_uri="./test/unit/trained_models/mlruns",
-            trained_models_folder="./test/unit/trained_models/mlruns",
+            artifact_folder="./test/unit/trained_models",
         )
 
         saved_model_specs = mock_serializer_instance.save_model.call_args.kwargs[
@@ -271,7 +269,7 @@ class TestTrainModelPipeline(BaseTestCase):
             input_data=self.train_input,
             check_old_model_age=False,
             mlflow_tracking_uri="./test/unit/trained_models/mlruns",
-            trained_models_folder="./test/unit/trained_models/mlruns",
+            artifact_folder="./test/unit/trained_models",
         )
 
     @patch("openstef.model.serializer.MLflowSerializer.save_model")
@@ -299,7 +297,7 @@ class TestTrainModelPipeline(BaseTestCase):
             input_data=self.train_input,
             check_old_model_age=True,
             mlflow_tracking_uri="./test/unit/trained_models/mlruns",
-            trained_models_folder="./test/unit/trained_models/mlruns",
+            artifact_folder="./test/unit/trained_models",
         )
         self.assertFalse(pipeline_mock.called)
 
@@ -316,7 +314,7 @@ class TestTrainModelPipeline(BaseTestCase):
                 input_data=self.train_input,
                 check_old_model_age=False,
                 mlflow_tracking_uri="./test/unit/trained_models/mlruns",
-                trained_models_folder="./test/unit/trained_models/mlruns",
+                artifact_folder="./test/unit/trained_models",
             )
 
     @patch("openstef.model.serializer.MLflowSerializer.save_model")
@@ -330,7 +328,7 @@ class TestTrainModelPipeline(BaseTestCase):
                 input_data=input_data,
                 check_old_model_age=False,
                 mlflow_tracking_uri="./test/unit/trained_models/mlruns",
-                trained_models_folder="./test/unit/trained_models/mlruns",
+                artifact_folder="./test/unit/trained_models",
             )
 
     @patch("openstef.model.serializer.MLflowSerializer.save_model")
@@ -355,7 +353,7 @@ class TestTrainModelPipeline(BaseTestCase):
             input_data=self.train_input,
             check_old_model_age=True,
             mlflow_tracking_uri="./test/unit/trained_models/mlruns",
-            trained_models_folder="./test/unit/trained_models/mlruns",
+            artifact_folder="./test/unit/trained_models",
         )
         self.assertIs(None, result)
         self.assertEqual(len(serializer_mock_instance.method_calls), 1)
@@ -380,7 +378,7 @@ class TestTrainModelPipeline(BaseTestCase):
             input_data=self.train_input,
             check_old_model_age=True,
             mlflow_tracking_uri="./test/unit/trained_models/mlruns",
-            trained_models_folder="./test/unit/trained_models/mlruns",
+            artifact_folder="./test/unit/trained_models",
         )
         self.assertIsInstance(result, Report)
         self.assertEqual(len(serializer_mock_instance.method_calls), 3)
@@ -405,7 +403,7 @@ class TestTrainModelPipeline(BaseTestCase):
             input_data=self.train_input,
             check_old_model_age=True,
             mlflow_tracking_uri="./test/unit/trained_models/mlruns",
-            trained_models_folder="./test/unit/trained_models/mlruns",
+            artifact_folder="./test/unit/trained_models",
         )
         self.assertIsInstance(result, Report)
         self.assertEqual(len(serializer_mock_instance.method_calls), 3)
@@ -430,7 +428,7 @@ class TestTrainModelPipeline(BaseTestCase):
             input_data=self.train_input,
             check_old_model_age=True,
             mlflow_tracking_uri="./test/unit/trained_models/mlruns",
-            trained_models_folder="./test/unit/trained_models/mlruns",
+            artifact_folder="./test/unit/trained_models",
         )
         self.assertEqual(len(serializer_mock_instance.method_calls), 3)
 

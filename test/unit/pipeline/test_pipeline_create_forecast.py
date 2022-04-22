@@ -19,8 +19,7 @@ class TestCreateForecastPipeline(BaseTestCase):
         super().setUp()
         self.pj = TestData.get_prediction_job(pid=307)
         self.serializer = MLflowSerializer(
-            mlflow_tracking_uri="./test/unit/trained_models/mlruns",
-            artifact_root="./test/unit/trained_models",
+            mlflow_tracking_uri="./test/unit/trained_models/mlruns"
         )
         self.data = TestData.load("reference_sets/307-test-data.csv")
         self.train_input = TestData.load("reference_sets/307-train-data.csv")

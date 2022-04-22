@@ -31,7 +31,7 @@ class TestOptimizeHyperParametersPipeline(BaseTestCase):
             pj,
             self.input_data,
             mlflow_tracking_uri="./test/unit/trained_models/mlruns",
-            trained_models_folder="./test/unit/trained_models/mlruns",
+            artifact_folder="./test/unit/trained_models",
             n_trials=2,
         )
         self.assertIsInstance(parameters, dict)
@@ -50,7 +50,7 @@ class TestOptimizeHyperParametersPipeline(BaseTestCase):
                 self.pj,
                 self.input_data,
                 mlflow_tracking_uri="./test/unit/trained_models/mlruns",
-                trained_models_folder="./test/unit/trained_models/mlruns",
+                artifact_folder="./test/unit/trained_models",
                 n_trials=2,
             )
 
@@ -63,7 +63,7 @@ class TestOptimizeHyperParametersPipeline(BaseTestCase):
                 self.pj,
                 input_data,
                 mlflow_tracking_uri="./test/unit/trained_models/mlruns",
-                trained_models_folder="./test/unit/trained_models/mlruns",
+                artifact_folder="./test/unit/trained_models",
                 n_trials=2,
             )
 
@@ -76,7 +76,7 @@ class TestOptimizeHyperParametersPipeline(BaseTestCase):
                 self.pj,
                 input_data,
                 mlflow_tracking_uri="./test/unit/trained_models/mlruns",
-                trained_models_folder="./test/unit/trained_models/mlruns",
+                artifact_folder="./test/unit/trained_models",
                 n_trials=2,
             )
 
@@ -95,7 +95,7 @@ class TestOptimizeHyperParametersPipeline(BaseTestCase):
             pj,
             self.input_data,
             mlflow_tracking_uri="./test/unit/trained_models/mlruns",
-            trained_models_folder="./test/unit/trained_models/mlruns",
+            artifact_folder="./test/unit/trained_models",
             n_trials=1,
         )
         self.assertIsInstance(parameters, dict)

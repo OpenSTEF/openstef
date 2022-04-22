@@ -1,9 +1,6 @@
 # SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-from pathlib import Path
-from typing import Union
-
 import pandas as pd
 import structlog
 
@@ -27,7 +24,6 @@ def create_forecast_pipeline(
     pj: PredictionJobDataClass,
     input_data: pd.DataFrame,
     mlflow_tracking_uri: str,
-    trained_models_folder: Union[str, Path],
 ) -> pd.DataFrame:
     """Create forecast pipeline
 
@@ -40,7 +36,6 @@ def create_forecast_pipeline(
         pj (PredictionJobDataClass): Prediction job
         input_data (pd.DataFrame): Training input data (without features)
         mlflow_tracking_uri (str): MlFlow tracking URI
-        trained_models_folder (Path): Path where trained models are stored
 
     Returns:
         pd.DataFrame with the forecast
@@ -48,7 +43,7 @@ def create_forecast_pipeline(
     """
     # Load most recent model for the given pid
     model, model_specs = MLflowSerializer(
-        mlflow_tracking_uri=mlflow_tracking_uri, artifact_root=trained_models_folder
+        mlflow_tracking_uri=mlflow_tracking_uri
     ).load_model(experiment_name=str(pj["id"]))
     return create_forecast_pipeline_core(pj, input_data, model, model_specs)
 

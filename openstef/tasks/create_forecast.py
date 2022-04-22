@@ -54,7 +54,6 @@ def create_forecast_task(pj: PredictionJobDataClass, context: TaskContext) -> No
     """
     # Extract mlflow tracking URI and trained models folder
     mlflow_tracking_uri = context.config.paths.mlflow_tracking_uri
-    trained_models_folder = context.config.paths.trained_models_folder
 
     # Define datetime range for input data
     datetime_start = datetime.utcnow() - timedelta(days=T_BEHIND_DAYS)
@@ -69,10 +68,7 @@ def create_forecast_task(pj: PredictionJobDataClass, context: TaskContext) -> No
     )
     # Make forecast with the forecast pipeline
     forecast = create_forecast_pipeline(
-        pj,
-        input_data,
-        mlflow_tracking_uri=mlflow_tracking_uri,
-        trained_models_folder=trained_models_folder,
+        pj, input_data, mlflow_tracking_uri=mlflow_tracking_uri
     )
 
     # Write forecast to the database

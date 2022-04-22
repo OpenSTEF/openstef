@@ -18,8 +18,7 @@ class TestCreateForeCastTask(TestCase):
     def setUp(self, _get_model_uri_mock) -> None:
         self.pj, self.modelspecs = TestData.get_prediction_job_and_modelspecs(pid=307)
         self.serializer = MLflowSerializer(
-            mlflow_tracking_uri="./test/unit/trained_models/mlruns",
-            artifact_root="./test/unit/trained_models",
+            mlflow_tracking_uri="./test/unit/trained_models/mlruns"
         )
 
         # mock model location
@@ -73,8 +72,8 @@ class TestCreateForeCastTask(TestCase):
         configmock_taskcontext.return_value.paths.mlflow_tracking_uri = (
             "./test/unit/trained_models/mlruns"
         )
-        configmock_taskcontext.return_value.paths.trained_models_folder = (
-            "./test/unit/trained_models/mlruns"
+        configmock_taskcontext.return_value.paths.artifact_folder = (
+            "./test/unit/trained_models"
         )
 
         task.main(config=configmock_taskcontext(), database=dbmock)

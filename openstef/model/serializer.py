@@ -21,14 +21,10 @@ from openstef.model.regressors.regressor import OpenstfRegressor
 
 
 class MLflowSerializer:
-    def __init__(self, mlflow_tracking_uri: str, artifact_root: str = None):
+    def __init__(self, mlflow_tracking_uri: str):
         self.logger = structlog.get_logger(self.__class__.__name__)
         mlflow.set_tracking_uri(mlflow_tracking_uri)
-        self.artifact_root = (
-            f"{artifact_root}/mlruns"  # Required only for removing models
-        )
         self.logger.debug(f"MLflow tracking uri at init= {mlflow_tracking_uri}")
-        self.logger.debug(f"MLflow artifact root at init= {self.artifact_root}")
 
     def save_model(
         self,
@@ -215,7 +211,9 @@ class MLflowSerializer:
             return np.inf  # Return fallback age
         return model_age_days
 
-    def remove_old_models(self, experiment_name: str, max_n_models: int = 10):
+    def remove_old_models(
+        self, experiment_name: str, max_n_models: int = 10, artifact_folder: str = None
+    ):
         """Remove old models per experiment.
 
         Note: This functionality is not incorporated in MLFlow natively
@@ -227,29 +225,30 @@ class MLflowSerializer:
         previous_runs = self._find_models(experiment_name=experiment_name)
         if len(previous_runs) > max_n_models:
             self.logger.debug(
-                f"Going to delete old models. {len(previous_runs)}>{max_n_models}"
+                f"Going to delete old models. {len(previous_runs)} > {max_n_models}"
             )
             # Find run_ids of oldest runs
             runs_to_remove = previous_runs.sort_values(
                 by="end_time", ascending=False
             ).loc[max_n_models:, :]
             for _, run in runs_to_remove.iterrows():
-                artifact_location = (
-                    f"{self.artifact_root}/{run.experiment_id}/{run.run_id}"
-                )
                 self.logger.debug(
                     f"Going to remove run {run.run_id}, from {run.end_time}."
-                    f" Artifact location: {artifact_location}"
                 )
                 mlflow.delete_run(run.run_id)
-                # Also remove artifact from disk.
-                # mlflow.delete_run only marks it as deleted but does not delete it by itself
-                try:
-                    shutil.rmtree(artifact_location)
-                except Exception as e:
-                    self.logger.info(f"Failed removing artifacts: {e}")
-
                 self.logger.debug("Removed run")
+
+                # mlflow.delete_run only marks it as deleted but does not delete it by itself
+                if artifact_folder:  # Also try to remove artifact from disk.
+                    artifact_filepath = (
+                        f"{artifact_folder}/mlruns/{run.experiment_id}/{run.run_id}"
+                    )
+                    self.logger.debug(f"Removing artifact: {artifact_filepath}")
+                    try:
+                        shutil.rmtree(artifact_filepath)
+                        self.logger.debug("Removed artifact")
+                    except Exception as e:
+                        self.logger.info(f"Failed removing artifacts: {e}")
 
     def _get_feature_names(
         self,

@@ -58,8 +58,8 @@ def train_model_task(
     # Get the paths for storing model and reports from the config manager
     mlflow_tracking_uri = Path(context.config.paths.mlflow_tracking_uri)
     context.logger.debug(f"MLflow tracking uri: {mlflow_tracking_uri}")
-    trained_models_folder = Path(context.config.paths.trained_models_folder)
-    context.logger.debug(f"trained_models_folder: {trained_models_folder}")
+    artifact_folder = Path(context.config.paths.artifact_folder)
+    context.logger.debug(f"Artifact folder: {artifact_folder}")
 
     context.perf_meter.checkpoint("Added metadata to PredictionJob")
 
@@ -80,13 +80,13 @@ def train_model_task(
 
     context.perf_meter.checkpoint("Retrieved timeseries input")
 
-    # Excecute the model training pipeline
+    # Execute the model training pipeline
     report = train_model_pipeline(
         pj,
         input_data,
         check_old_model_age=check_old_model_age,
         mlflow_tracking_uri=mlflow_tracking_uri,
-        trained_models_folder=trained_models_folder,
+        artifact_folder=artifact_folder,
     )
 
     if pj.save_train_forecasts and hasattr(context.database, "write_train_forecasts"):

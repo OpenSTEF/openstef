@@ -36,7 +36,7 @@ def train_model_pipeline(
     input_data: pd.DataFrame,
     check_old_model_age: bool,
     mlflow_tracking_uri: str,
-    trained_models_folder: Union[str, Path],
+    artifact_folder: str,
 ) -> Report:
     """Middle level pipeline that takes care of all persistent storage dependencies
 
@@ -47,20 +47,18 @@ def train_model_pipeline(
         input_data (pd.DataFrame): Raw training input data
         check_old_model_age (bool): Check if training should be skipped because the model is too young
         mlflow_tracking_uri (str): Tracking URI for MLFlow
-        trained_models_folder (Path): Path where trained models are stored
+        artifact_folder (Path): Path where artifacts, such as trained models, are stored
 
     Returns:
         report (Report): The report containing train/val/test datasets and corresponding forecasts if requested
     """
     # Initialize logger and serializer
     logger = structlog.get_logger(__name__)
-    serializer = MLflowSerializer(
-        mlflow_tracking_uri=mlflow_tracking_uri, artifact_root=trained_models_folder
-    )
+    serializer = MLflowSerializer(mlflow_tracking_uri=mlflow_tracking_uri)
 
     # Get old model and age
     try:
-        old_model, model_specs = serializer.load_model(experiment_name=pj["id"])
+        old_model, model_specs = serializer.load_model(experiment_name=str(pj["id"]))
         old_model_age = old_model.age  # Age attribute is openstef specific
     except (AttributeError, FileNotFoundError, LookupError):
         old_model = None
@@ -118,11 +116,13 @@ def train_model_pipeline(
         model_specs=model_specs_updated,
         report=report,
     )
-    if trained_models_folder:
-        Reporter.write_report_to_disk(report=report, location=trained_models_folder)
+    if artifact_folder:
+        Reporter.write_report_to_disk(report=report, artifact_folder=artifact_folder)
 
     # Clean up older models
-    serializer.remove_old_models(experiment_name=str(pj["id"]))
+    serializer.remove_old_models(
+        experiment_name=str(pj["id"]), artifact_folder=artifact_folder
+    )
     return report
 
 
