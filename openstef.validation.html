@@ -124,8 +124,8 @@ Load_corrections should be indicated by ‘<a href="#id1"><span class="problemat
 </dd></dl>
 
 <dl class="function">
-<dt id="openstef.validation.validation.clean">
-<code class="sig-prename descclassname">openstef.validation.validation.</code><code class="sig-name descname">clean</code><span class="sig-paren">(</span><em class="sig-param">data: pandas.core.frame.DataFrame</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstef.validation.validation.clean" title="Permalink to this definition">¶</a></dt>
+<dt id="openstef.validation.validation.drop_target_na">
+<code class="sig-prename descclassname">openstef.validation.validation.</code><code class="sig-name descname">drop_target_na</code><span class="sig-paren">(</span><em class="sig-param">data: pandas.core.frame.DataFrame</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstef.validation.validation.drop_target_na" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
@@ -156,14 +156,14 @@ If None, the check is not executed</p></li>
 
 <dl class="function">
 <dt id="openstef.validation.validation.find_zero_flatliner">
-<code class="sig-prename descclassname">openstef.validation.validation.</code><code class="sig-name descname">find_zero_flatliner</code><span class="sig-paren">(</span><em class="sig-param">df: pandas.core.frame.DataFrame</em>, <em class="sig-param">threshold: float</em>, <em class="sig-param">window: datetime.timedelta = datetime.timedelta(seconds=1800)</em>, <em class="sig-param">load_threshold: float = 0.3</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstef.validation.validation.find_zero_flatliner" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstef.validation.validation.</code><code class="sig-name descname">find_zero_flatliner</code><span class="sig-paren">(</span><em class="sig-param">df: pandas.core.frame.DataFrame</em>, <em class="sig-param">threshold: float</em>, <em class="sig-param">flatliner_window: datetime.timedelta</em>, <em class="sig-param">flatliner_load_threshold: float</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstef.validation.validation.find_zero_flatliner" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function that detects a zero value where the load is not compensated by the other trafo’s of the station.
 If zero value is at start or end, ignore that block.</p>
 <p>Input:
 - df: pd.dataFrame(index=DatetimeIndex, columns = [load1, …, loadN]). Load_corrections should be indicated by ‘<a href="#id5"><span class="problematic" id="id6">LC_</span></a>’
 - threshold (float): after how many hours should the function detect a flatliner.
-- window (timedelta object): for how many hours before the zero-value should the mean load be calculated.
-- load_threshold (fraction): how big may the difference be between the total station load
+- flatliner_window (timedelta object): for how many hours before the zero-value should the mean load be calculated.
+- flatliner_load_threshold (fraction): how big may the difference be between the total station load
 before and during the zero-value(s).</p>
 <p>return:
 - pd.DataFrame of timestamps, or None if none</p>
@@ -176,14 +176,19 @@ before and during the zero-value(s).</p>
 
 <dl class="function">
 <dt id="openstef.validation.validation.is_data_sufficient">
-<code class="sig-prename descclassname">openstef.validation.validation.</code><code class="sig-name descname">is_data_sufficient</code><span class="sig-paren">(</span><em class="sig-param">data: pandas.core.frame.DataFrame</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#openstef.validation.validation.is_data_sufficient" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstef.validation.validation.</code><code class="sig-name descname">is_data_sufficient</code><span class="sig-paren">(</span><em class="sig-param">data: pandas.core.frame.DataFrame</em>, <em class="sig-param">completeness_threshold: float</em>, <em class="sig-param">minimal_table_length: int</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#openstef.validation.validation.is_data_sufficient" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
 <dt>Check if enough data is left after validation and cleaning to continue</dt><dd><p>with model training.</p>
 </dd>
 </dl>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> – pd.DataFrame() with cleaned input data.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> – pd.DataFrame() with cleaned input data.</p></li>
+<li><p><strong>completeness_threshold</strong> – float with threshold for completeness:
+1 for fully complete, 0 for anything could be missing.</p></li>
+<li><p><strong>minimal_table_length</strong> – int with minimal table length (in rows)</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>True if amount of data is sufficient, False otherwise.</p>
@@ -196,7 +201,7 @@ before and during the zero-value(s).</p>
 
 <dl class="function">
 <dt id="openstef.validation.validation.validate">
-<code class="sig-prename descclassname">openstef.validation.validation.</code><code class="sig-name descname">validate</code><span class="sig-paren">(</span><em class="sig-param">pj_id: Union[int, str], data: pandas.core.frame.DataFrame, flatliner_threshold: int = 24</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstef.validation.validation.validate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstef.validation.validation.</code><code class="sig-name descname">validate</code><span class="sig-paren">(</span><em class="sig-param">pj_id: Union[int, str], data: pandas.core.frame.DataFrame, flatliner_threshold: Optional[int]</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstef.validation.validation.validate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Validate prediction job and timeseries data.
 Steps:
 1. Replace repeated values for longer than flatliner_threshold with NaN

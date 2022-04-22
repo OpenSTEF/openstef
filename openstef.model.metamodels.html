@@ -37,6 +37,7 @@
               <div class="local-toc"><ul>
 <li><a class="reference internal" href="#">openstef.model.metamodels package</a><ul>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-openstef.model.metamodels.grouped_regressor">openstef.model.metamodels.grouped_regressor module</a></li>
 <li><a class="reference internal" href="#module-openstef.model.metamodels.missing_values_handler">openstef.model.metamodels.missing_values_handler module</a></li>
 <li><a class="reference internal" href="#module-openstef.model.metamodels">Module contents</a></li>
 </ul>
@@ -71,6 +72,94 @@
 <h1>openstef.model.metamodels package<a class="headerlink" href="#openstef-model-metamodels-package" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-openstef.model.metamodels.grouped_regressor">
+<span id="openstef-model-metamodels-grouped-regressor-module"></span><h2>openstef.model.metamodels.grouped_regressor module<a class="headerlink" href="#module-openstef.model.metamodels.grouped_regressor" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="openstef.model.metamodels.grouped_regressor.GroupedRegressor">
+<em class="property">class </em><code class="sig-prename descclassname">openstef.model.metamodels.grouped_regressor.</code><code class="sig-name descname">GroupedRegressor</code><span class="sig-paren">(</span><em class="sig-param">base_estimator: sklearn.base.BaseEstimator, group_columns: Union[str, int, List[str], List[int]], n_jobs: int = 1</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.metamodels.grouped_regressor.GroupedRegressor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.base.BaseEstimator</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.base.RegressorMixin</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.base.MetaEstimatorMixin</span></code></p>
+<p>Meta-model that trains an instance of the base estimator for each key of a groupby operation applied on the data.
+The base estimator is a sklearn regressor, the groupby is performed on the columns specified in parameters.
+Moreover fit and predict methods can be performed in parallel for each group key thanks to joblib.
+Example:</p>
+<dl>
+<dt>data = | index | group | x0 | x1 | x3 | y |</dt><dd><div class="line-block">
+<div class="line">0   |   1   | .. | .. | .. | . |</div>
+<div class="line">1   |   2   | .. | .. | .. | . |</div>
+<div class="line">2   |   1   | .. | .. | .. | . |</div>
+<div class="line">3   |   2   | .. | .. | .. | . |</div>
+</div>
+<p>[              X              ][ Y ]</p>
+</dd>
+<dt>The GroupedRegressor on the data with the group_columns=’group’ fits 2 models :</dt><dd><p>the model 1 with the row 0 and 2, columns x0, x1 and x3 as the features and column y as the target.
+the model 2 with the row 1 and 3, columns x0, x1 and x3 as the features and column y as the target.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>base_estimator</strong> (<em>RegressorMixin</em>) – Regressor .</p></li>
+<li><p><strong>group_columns</strong> (<em>str</em><em>, </em><em>int</em><em>, </em><em>list</em>) – Name(s) of the column(s) used as the key for groupby operation.</p></li>
+<li><p><strong>n_jobs</strong> (<em>int default=1</em>) – <blockquote>
+<div><dl class="simple">
+<dt>The maximum number of concurrently running jobs,</dt><dd><p>such as the number of Python worker processes when backend=”multiprocessing”
+or the size of the thread-pool when backend=”threading</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>Attributes</p>
+</p></li>
+<li><p><strong>----------</strong> – <dl class="simple">
+<dt><a href="#id1"><span class="problematic" id="id2">feature_names_</span></a>: list(str)</dt><dd><p>All input feature (without group_columns).</p>
+</dd>
+<dt><a href="#id3"><span class="problematic" id="id4">estimators_</span></a>: dict(str, RegressorMixin)</dt><dd><p>Dictionnary that stocks fitted estimators for each group.
+The keys are the keys of grouping and the values are the regressors fitted on the grouped data.</p>
+</dd>
+</dl>
+</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="openstef.model.metamodels.grouped_regressor.GroupedRegressor.fit">
+<code class="sig-name descname">fit</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">y</em>, <em class="sig-param">eval_set=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.metamodels.grouped_regressor.GroupedRegressor.fit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="openstef.model.metamodels.grouped_regressor.GroupedRegressor.grouped_compute">
+<em class="property">classmethod </em><code class="sig-name descname">grouped_compute</code><span class="sig-paren">(</span><em class="sig-param">df: pandas.core.frame.DataFrame, group_columns: Union[List[str], List[int]], func: Callable[[Tuple, pandas.core.frame.DataFrame], numpy.array], n_jobs: int = 1, eval_set=None</em><span class="sig-paren">)</span> &#x2192; Tuple[Tuple[numpy.array, ...], pandas.core.groupby.generic.DataFrameGroupBy, pandas.core.frame.DataFrame]<a class="headerlink" href="#openstef.model.metamodels.grouped_regressor.GroupedRegressor.grouped_compute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the specified function on each group defined by the grouping columns.
+It is an utility function used to perform fit and predict on each group.
+The df_res is the final dataframe that aggregate the results for each group.
+The group_res is a tuple where each field is corresponding to a results for a group.
+The gb is the grouping object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> – (pd.DataFrame) data frame containing the input data necessary for the computation .</p></li>
+<li><p><strong>group_columns</strong> – (list) list of the columns used for the groupby operation</p></li>
+<li><p><strong>func</strong> – (Callable) function that take the group key and the conrresponding data of this group
+and perform the computation on this group.</p></li>
+<li><p><strong>n_jobs</strong> – (int) The maximum number of concurrently running jobs,</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the tuple of the results of each group, the grouping dataframe and the global dataframe of results.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>results (tuple)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="openstef.model.metamodels.grouped_regressor.GroupedRegressor.predict">
+<code class="sig-name descname">predict</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.metamodels.grouped_regressor.GroupedRegressor.predict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </div>
 <div class="section" id="module-openstef.model.metamodels.missing_values_handler">
 <span id="openstef-model-metamodels-missing-values-handler-module"></span><h2>openstef.model.metamodels.missing_values_handler module<a class="headerlink" href="#module-openstef.model.metamodels.missing_values_handler" title="Permalink to this headline">¶</a></h2>
@@ -121,17 +210,17 @@ data and “missing_value” for strings or object data types.</p>
 <li><p><strong>----------</strong> – <dl class="simple">
 <dt>feature_names: list(str)</dt><dd><p>All input feature.</p>
 </dd>
-<dt><a href="#id1"><span class="problematic" id="id2">non_null_columns_</span></a>: list(str)</dt><dd><p>Valid features used by the regressor.</p>
+<dt><a href="#id5"><span class="problematic" id="id6">non_null_columns_</span></a>: list(str)</dt><dd><p>Valid features used by the regressor.</p>
 </dd>
-<dt><a href="#id3"><span class="problematic" id="id4">n_features_in_</span></a>: int</dt><dd><p>Number of input features.</p>
+<dt><a href="#id7"><span class="problematic" id="id8">n_features_in_</span></a>: int</dt><dd><p>Number of input features.</p>
 </dd>
-<dt><a href="#id5"><span class="problematic" id="id6">regressor_</span></a>: RegressorMixin</dt><dd><p>Regressor fitted on valid columns.</p>
+<dt><a href="#id9"><span class="problematic" id="id10">regressor_</span></a>: RegressorMixin</dt><dd><p>Regressor fitted on valid columns.</p>
 </dd>
-<dt><a href="#id7"><span class="problematic" id="id8">imputer_</span></a>: SimpleImputer</dt><dd><p>Imputer for missig value fitted on valid columns.</p>
+<dt><a href="#id11"><span class="problematic" id="id12">imputer_</span></a>: SimpleImputer</dt><dd><p>Imputer for missig value fitted on valid columns.</p>
 </dd>
-<dt><a href="#id9"><span class="problematic" id="id10">pipeline_</span></a>: Pipeline</dt><dd><p>Pipeline that chains the imputer and the regressor.</p>
+<dt><a href="#id13"><span class="problematic" id="id14">pipeline_</span></a>: Pipeline</dt><dd><p>Pipeline that chains the imputer and the regressor.</p>
 </dd>
-<dt><a href="#id11"><span class="problematic" id="id12">feature_importances_</span></a>: ndarray (<a href="#id13"><span class="problematic" id="id14">n_features_in_</span></a>, )</dt><dd><p>The feature importances from the regressor for valid features and zero otherwise.</p>
+<dt><a href="#id15"><span class="problematic" id="id16">feature_importances_</span></a>: ndarray (<a href="#id17"><span class="problematic" id="id18">n_features_in_</span></a>, )</dt><dd><p>The feature importances from the regressor for valid features and zero otherwise.</p>
 </dd>
 </dl>
 </p></li>

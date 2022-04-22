@@ -83,6 +83,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="openstef.model.metamodels.html">openstef.model.metamodels package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="openstef.model.metamodels.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.model.metamodels.html#module-openstef.model.metamodels.grouped_regressor">openstef.model.metamodels.grouped_regressor module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef.model.metamodels.html#module-openstef.model.metamodels.missing_values_handler">openstef.model.metamodels.missing_values_handler module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef.model.metamodels.html#module-openstef.model.metamodels">Module contents</a></li>
 </ul>
@@ -551,73 +552,32 @@ with objective specific parameters.</p>
 <span id="openstef-model-serializer-module"></span><h2>openstef.model.serializer module<a class="headerlink" href="#module-openstef.model.serializer" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="openstef.model.serializer.MLflowSerializer">
-<em class="property">class </em><code class="sig-prename descclassname">openstef.model.serializer.</code><code class="sig-name descname">MLflowSerializer</code><span class="sig-paren">(</span><em class="sig-param">trained_models_folder: Union[pathlib.Path, str], mlflow_tracking_uri: str = None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.serializer.MLflowSerializer" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">openstef.model.serializer.</code><code class="sig-name descname">MLflowSerializer</code><span class="sig-paren">(</span><em class="sig-param">mlflow_tracking_uri: str</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.serializer.MLflowSerializer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="method">
 <dt id="openstef.model.serializer.MLflowSerializer.get_model_age">
-<code class="sig-name descname">get_model_age</code><span class="sig-paren">(</span><em class="sig-param">pid: Union[int, str], hyperparameter_optimization_only: bool = False</em><span class="sig-paren">)</span> &#x2192; int<a class="headerlink" href="#openstef.model.serializer.MLflowSerializer.get_model_age" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname">get_model_age</code><span class="sig-paren">(</span><em class="sig-param">experiment_name: str</em>, <em class="sig-param">hyperparameter_optimization_only: bool = False</em><span class="sig-paren">)</span> &#x2192; int<a class="headerlink" href="#openstef.model.serializer.MLflowSerializer.get_model_age" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get model age of most recent model.</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="openstef.model.serializer.MLflowSerializer.load_model">
-<code class="sig-name descname">load_model</code><span class="sig-paren">(</span><em class="sig-param">pid: Union[str, int]</em><span class="sig-paren">)</span> &#x2192; Tuple[openstef.model.regressors.regressor.OpenstfRegressor, openstef.data_classes.model_specifications.ModelSpecificationDataClass]<a class="headerlink" href="#openstef.model.serializer.MLflowSerializer.load_model" title="Permalink to this definition">¶</a></dt>
-<dd><p>Load sklearn compatible model from persistent storage.</p>
-<blockquote>
-<div><p>If a pid is given the most recent model for that pid will be loaded.</p>
-</div></blockquote>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>pid</strong> (<em>int</em>) – prediction job id</p>
-</dd>
-<dt class="field-even">Raises</dt>
-<dd class="field-even"><ul class="simple">
-<li><p><strong>AttributeError</strong> – when there is no experiment with pid in MLflow</p></li>
-<li><p><strong>LookupError</strong> – when there is no model in MLflow</p></li>
-<li><p><strong>OSError</strong> – When directory doesn’t exist</p></li>
-<li><p><strong>MlflowException</strong> – When MLflow is not able to log</p></li>
-</ul>
-</dd>
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Loaded model
-ModelSpecificationDataClass: model specifications</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference internal" href="openstef.model.regressors.html#openstef.model.regressors.regressor.OpenstfRegressor" title="openstef.model.regressors.regressor.OpenstfRegressor">OpenstfRegressor</a></p>
-</dd>
-</dl>
+<code class="sig-name descname">load_model</code><span class="sig-paren">(</span><em class="sig-param">experiment_name: str</em><span class="sig-paren">)</span> &#x2192; Tuple[openstef.model.regressors.regressor.OpenstfRegressor, openstef.data_classes.model_specifications.ModelSpecificationDataClass]<a class="headerlink" href="#openstef.model.serializer.MLflowSerializer.load_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load sklearn compatible model from MLFlow.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="openstef.model.serializer.MLflowSerializer.remove_old_models">
-<code class="sig-name descname">remove_old_models</code><span class="sig-paren">(</span><em class="sig-param">pj: openstef.data_classes.prediction_job.PredictionJobDataClass</em>, <em class="sig-param">max_n_models: int = 10</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.serializer.MLflowSerializer.remove_old_models" title="Permalink to this definition">¶</a></dt>
-<dd><p>Remove old models for the experiment defined by PJ.
-A maximum of ‘max_n_models’ is allowed.
-Note that the current implementation only works if the Storage backend is used
-This functionality is not incorporated in MLFlow natively
+<code class="sig-name descname">remove_old_models</code><span class="sig-paren">(</span><em class="sig-param">experiment_name: str</em>, <em class="sig-param">max_n_models: int = 10</em>, <em class="sig-param">artifact_folder: str = None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.serializer.MLflowSerializer.remove_old_models" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove old models per experiment.</p>
+<p>Note: This functionality is not incorporated in MLFlow natively
 See also: <a class="reference external" href="https://github.com/mlflow/mlflow/issues/2152">https://github.com/mlflow/mlflow/issues/2152</a></p>
 </dd></dl>
 
 <dl class="method">
 <dt id="openstef.model.serializer.MLflowSerializer.save_model">
-<code class="sig-name descname">save_model</code><span class="sig-paren">(</span><em class="sig-param">model: openstef.model.regressors.regressor.OpenstfRegressor</em>, <em class="sig-param">pj: openstef.data_classes.prediction_job.PredictionJobDataClass</em>, <em class="sig-param">modelspecs: openstef.data_classes.model_specifications.ModelSpecificationDataClass</em>, <em class="sig-param">report: openstef.metrics.reporter.Report</em>, <em class="sig-param">phase: str = 'training'</em>, <em class="sig-param">save_report_to_disk: bool = True</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#openstef.model.serializer.MLflowSerializer.save_model" title="Permalink to this definition">¶</a></dt>
-<dd><p>Save sklearn compatible model to persistent storage with MLflow.</p>
-<blockquote>
-<div><p>Either a pid or a model_id should be given. If a pid is given the model_id
-will be generated.</p>
-</div></blockquote>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> (<a class="reference internal" href="openstef.model.regressors.html#openstef.model.regressors.regressor.OpenstfRegressor" title="openstef.model.regressors.regressor.OpenstfRegressor"><em>OpenstfRegressor</em></a>) – Trained sklearn compatible model object.</p></li>
-<li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><em>PredictionJobDataClass</em></a>) – Prediction job.</p></li>
-<li><p><strong>modelspecs</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.model_specifications.ModelSpecificationDataClass" title="openstef.data_classes.model_specifications.ModelSpecificationDataClass"><em>ModelSpecificationDataClass</em></a>) – Dataclass containing model specifications</p></li>
-<li><p><strong>report</strong> (<a class="reference internal" href="openstef.metrics.html#openstef.metrics.reporter.Report" title="openstef.metrics.reporter.Report"><em>Report</em></a>) – Report object.</p></li>
-<li><p><strong>phase</strong> (<em>str</em>) – Where does the model come from, default is “training”</p></li>
-<li><p><strong>save_report_to_disk</strong> (<em>bool</em>) – Do we want to save report to disk besides saving reports on MLFlow.</p></li>
-<li><p><strong>**kwargs</strong> – Extra information to be logged with mlflow, this can add the extra modelspecs</p></li>
-</ul>
-</dd>
-</dl>
+<code class="sig-name descname">save_model</code><span class="sig-paren">(</span><em class="sig-param">model: openstef.model.regressors.regressor.OpenstfRegressor</em>, <em class="sig-param">experiment_name: str</em>, <em class="sig-param">model_type: str</em>, <em class="sig-param">model_specs: openstef.data_classes.model_specifications.ModelSpecificationDataClass</em>, <em class="sig-param">report: openstef.metrics.reporter.Report</em>, <em class="sig-param">phase: str = 'training'</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#openstef.model.serializer.MLflowSerializer.save_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save sklearn compatible model to MLFlow.</p>
 </dd></dl>
 
 </dd></dl>

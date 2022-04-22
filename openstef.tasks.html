@@ -39,15 +39,15 @@
 <li><a class="reference internal" href="#subpackages">Subpackages</a></li>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
 <li><a class="reference internal" href="#module-openstef.tasks.calculate_kpi">openstef.tasks.calculate_kpi module</a></li>
-<li><a class="reference internal" href="#module-openstef.tasks.create_basecase_forecast">openstef.tasks.create_basecase_forecast module</a></li>
+<li><a class="reference internal" href="#openstef-tasks-create-basecase-forecast-module">openstef.tasks.create_basecase_forecast module</a></li>
 <li><a class="reference internal" href="#module-openstef.tasks.create_components_forecast">openstef.tasks.create_components_forecast module</a></li>
-<li><a class="reference internal" href="#module-openstef.tasks.create_forecast">openstef.tasks.create_forecast module</a></li>
+<li><a class="reference internal" href="#openstef-tasks-create-forecast-module">openstef.tasks.create_forecast module</a></li>
 <li><a class="reference internal" href="#module-openstef.tasks.create_solar_forecast">openstef.tasks.create_solar_forecast module</a></li>
 <li><a class="reference internal" href="#module-openstef.tasks.create_wind_forecast">openstef.tasks.create_wind_forecast module</a></li>
-<li><a class="reference internal" href="#module-openstef.tasks.optimize_hyperparameters">openstef.tasks.optimize_hyperparameters module</a></li>
-<li><a class="reference internal" href="#module-openstef.tasks.run_tracy">openstef.tasks.run_tracy module</a></li>
+<li><a class="reference internal" href="#openstef-tasks-optimize-hyperparameters-module">openstef.tasks.optimize_hyperparameters module</a></li>
+<li><a class="reference internal" href="#openstef-tasks-run-tracy-module">openstef.tasks.run_tracy module</a></li>
 <li><a class="reference internal" href="#module-openstef.tasks.split_forecast">openstef.tasks.split_forecast module</a></li>
-<li><a class="reference internal" href="#module-openstef.tasks.train_model">openstef.tasks.train_model module</a></li>
+<li><a class="reference internal" href="#openstef-tasks-train-model-module">openstef.tasks.train_model module</a></li>
 <li><a class="reference internal" href="#module-openstef.tasks">Module contents</a></li>
 </ul>
 </li>
@@ -85,6 +85,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="openstef.tasks.utils.html">openstef.tasks.utils package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="openstef.tasks.utils.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.tasks.utils.html#module-openstef.tasks.utils.dependencies">openstef.tasks.utils.dependencies module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef.tasks.utils.html#module-openstef.tasks.utils.predictionjobloop">openstef.tasks.utils.predictionjobloop module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef.tasks.utils.html#module-openstef.tasks.utils.taskcontext">openstef.tasks.utils.taskcontext module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef.tasks.utils.html#module-openstef.tasks.utils">Module contents</a></li>
@@ -185,40 +186,8 @@ Dict includes enddate en window (in days) for clarification</p>
 </dd></dl>
 
 </div>
-<div class="section" id="module-openstef.tasks.create_basecase_forecast">
-<span id="openstef-tasks-create-basecase-forecast-module"></span><h2>openstef.tasks.create_basecase_forecast module<a class="headerlink" href="#module-openstef.tasks.create_basecase_forecast" title="Permalink to this headline">¶</a></h2>
-<p>create_basecase_forecast.py</p>
-<p>This module should be executed once every day. For all prediction_jobs, it will
-create a ‘basecase’ forecast which is less accurate, but (almost) always available.
-For now, it uses the load a week earlier.
-Missing datapoints are interpolated.</p>
-<p class="rubric">Example</p>
-<p>This module is meant to be called directly from a CRON job. A description of the
-CRON job can be found in the /k8s/CronJobs folder.</p>
-<p>Alternatively this code can be run directly by running:</p>
-<blockquote>
-<div><p>$ python create_basecase_forecast.py</p>
-</div></blockquote>
-<dl class="function">
-<dt id="openstef.tasks.create_basecase_forecast.create_basecase_forecast_task">
-<code class="sig-prename descclassname">openstef.tasks.create_basecase_forecast.</code><code class="sig-name descname">create_basecase_forecast_task</code><span class="sig-paren">(</span><em class="sig-param">pj: openstef.data_classes.prediction_job.PredictionJobDataClass</em>, <em class="sig-param">context: openstef.tasks.utils.taskcontext.TaskContext</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#openstef.tasks.create_basecase_forecast.create_basecase_forecast_task" title="Permalink to this definition">¶</a></dt>
-<dd><p>Top level task that creates a basecase forecast.
-On this task level all database and context manager dependencies are resolved.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><em>PredictionJobDataClass</em></a>) – Prediction job</p></li>
-<li><p><strong>context</strong> (<a class="reference internal" href="openstef.tasks.utils.html#openstef.tasks.utils.taskcontext.TaskContext" title="openstef.tasks.utils.taskcontext.TaskContext"><em>TaskContext</em></a>) – Contect object that holds a config manager and a database connection</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="openstef.tasks.create_basecase_forecast.main">
-<code class="sig-prename descclassname">openstef.tasks.create_basecase_forecast.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><em class="sig-param">config=None</em>, <em class="sig-param">database=None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.create_basecase_forecast.main" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
+<div class="section" id="openstef-tasks-create-basecase-forecast-module">
+<h2>openstef.tasks.create_basecase_forecast module<a class="headerlink" href="#openstef-tasks-create-basecase-forecast-module" title="Permalink to this headline">¶</a></h2>
 </div>
 <div class="section" id="module-openstef.tasks.create_components_forecast">
 <span id="openstef-tasks-create-components-forecast-module"></span><h2>openstef.tasks.create_components_forecast module<a class="headerlink" href="#module-openstef.tasks.create_components_forecast" title="Permalink to this headline">¶</a></h2>
@@ -267,55 +236,8 @@ On this task level all database and context manager dependencies are resolved.</
 <dd></dd></dl>
 
 </div>
-<div class="section" id="module-openstef.tasks.create_forecast">
-<span id="openstef-tasks-create-forecast-module"></span><h2>openstef.tasks.create_forecast module<a class="headerlink" href="#module-openstef.tasks.create_forecast" title="Permalink to this headline">¶</a></h2>
-<p>create_forecast.py</p>
-<p>This module contains the CRON job that is periodically executed to make prognoses and
-save them in to the database.
-This code assumes trained models are available from the persistent storage. If these
-are not available run model_train.py to train all models.
-To provide the prognoses the folowing steps are carried out:</p>
-<blockquote>
-<div><ol class="arabic simple">
-<li><p>Get historic training data (TDCV, Load, Weather and APX price data)</p></li>
-<li><p>Apply features</p></li>
-<li><p>Load model</p></li>
-<li><p>Make prediction</p></li>
-<li><p>Write prediction to the database</p></li>
-<li><p>Send Teams message if something goes wrong</p></li>
-</ol>
-</div></blockquote>
-<p class="rubric">Example</p>
-<p>This module is meant to be called directly from a CRON job.
-Alternatively this code can be run directly by running:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python create_forecast.py
-</pre></div>
-</div>
-<p>Attributes:</p>
-<dl class="function">
-<dt id="openstef.tasks.create_forecast.create_forecast_task">
-<code class="sig-prename descclassname">openstef.tasks.create_forecast.</code><code class="sig-name descname">create_forecast_task</code><span class="sig-paren">(</span><em class="sig-param">pj: openstef.data_classes.prediction_job.PredictionJobDataClass</em>, <em class="sig-param">context: openstef.tasks.utils.taskcontext.TaskContext</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#openstef.tasks.create_forecast.create_forecast_task" title="Permalink to this definition">¶</a></dt>
-<dd><p>Top level task that creates a forecast.</p>
-<p>On this task level all database and context manager dependencies are resolved.</p>
-<dl class="simple">
-<dt>Expected prediction job keys: “id”, “lat”, “lon”, “resolution_minutes”,</dt><dd><p>“horizon_minutes”, “type”, “name”, “quantiles”</p>
-</dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><em>PredictionJobDataClass</em></a>) – Prediction job</p></li>
-<li><p><strong>context</strong> (<a class="reference internal" href="openstef.tasks.utils.html#openstef.tasks.utils.taskcontext.TaskContext" title="openstef.tasks.utils.taskcontext.TaskContext"><em>TaskContext</em></a>) – Contect object that holds a config manager and a database connection</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="openstef.tasks.create_forecast.main">
-<code class="sig-prename descclassname">openstef.tasks.create_forecast.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><em class="sig-param">model_type=None</em>, <em class="sig-param">config=None</em>, <em class="sig-param">database=None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.create_forecast.main" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
+<div class="section" id="openstef-tasks-create-forecast-module">
+<h2>openstef.tasks.create_forecast module<a class="headerlink" href="#openstef-tasks-create-forecast-module" title="Permalink to this headline">¶</a></h2>
 </div>
 <div class="section" id="module-openstef.tasks.create_solar_forecast">
 <span id="openstef-tasks-create-solar-forecast-module"></span><h2>openstef.tasks.create_solar_forecast module<a class="headerlink" href="#module-openstef.tasks.create_solar_forecast" title="Permalink to this headline">¶</a></h2>
@@ -515,92 +437,11 @@ Alternatively this code can be run directly by running:</p>
 </dd></dl>
 
 </div>
-<div class="section" id="module-openstef.tasks.optimize_hyperparameters">
-<span id="openstef-tasks-optimize-hyperparameters-module"></span><h2>openstef.tasks.optimize_hyperparameters module<a class="headerlink" href="#module-openstef.tasks.optimize_hyperparameters" title="Permalink to this headline">¶</a></h2>
-<p>optimize_hyper_params.py</p>
-<p>This module contains the CRON job that is periodically executed to optimize the
-hyperparameters for the prognosis models.</p>
-<p class="rubric">Example</p>
-<p>This module is meant to be called directly from a CRON job. A description of
-the CRON job can be found in the /k8s/CronJobs folder.
-Alternatively this code can be run directly by running:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python optimize_hyperparameters.py
-</pre></div>
+<div class="section" id="openstef-tasks-optimize-hyperparameters-module">
+<h2>openstef.tasks.optimize_hyperparameters module<a class="headerlink" href="#openstef-tasks-optimize-hyperparameters-module" title="Permalink to this headline">¶</a></h2>
 </div>
-<dl class="function">
-<dt id="openstef.tasks.optimize_hyperparameters.main">
-<code class="sig-prename descclassname">openstef.tasks.optimize_hyperparameters.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><em class="sig-param">config=None</em>, <em class="sig-param">database=None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.optimize_hyperparameters.main" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="openstef.tasks.optimize_hyperparameters.optimize_hyperparameters_task">
-<code class="sig-prename descclassname">openstef.tasks.optimize_hyperparameters.</code><code class="sig-name descname">optimize_hyperparameters_task</code><span class="sig-paren">(</span><em class="sig-param">pj: openstef.data_classes.prediction_job.PredictionJobDataClass</em>, <em class="sig-param">context: openstef.tasks.utils.taskcontext.TaskContext</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#openstef.tasks.optimize_hyperparameters.optimize_hyperparameters_task" title="Permalink to this definition">¶</a></dt>
-<dd><p>Optimize hyperparameters task.</p>
-<p>Expected prediction job keys: “id”, “model”, “lat”, “lon”, “name”, “description”
-Only used for logging: “name”, “description”</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><em>PredictionJobDataClass</em></a>) – Prediction job</p></li>
-<li><p><strong>context</strong> (<a class="reference internal" href="openstef.tasks.utils.html#openstef.tasks.utils.taskcontext.TaskContext" title="openstef.tasks.utils.taskcontext.TaskContext"><em>TaskContext</em></a>) – Task context</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-</div>
-<div class="section" id="module-openstef.tasks.run_tracy">
-<span id="openstef-tasks-run-tracy-module"></span><h2>openstef.tasks.run_tracy module<a class="headerlink" href="#module-openstef.tasks.run_tracy" title="Permalink to this headline">¶</a></h2>
-<p>run_tracy.py
-Tracy checks the mysql todolist and tries her best to execute the
-functions with desired inputs
-This scripts works as follows:</p>
-<blockquote>
-<div><ol class="arabic simple">
-<li><p>Checks the mysql table ‘todolist’ for jobs (which are not already in progress and</p></li>
-</ol>
-<blockquote>
-<div><p>which are not already failed)</p>
-</div></blockquote>
-<ol class="arabic simple" start="2">
-<li><p>Set all newly aquired jobs to ‘in progress’</p></li>
-</ol>
-</div></blockquote>
-<dl class="simple">
-<dt>For each job;</dt><dd><ol class="arabic simple" start="3">
-<li><p>Convert input arguments to a dict with ‘args’ and ‘kwargs’</p></li>
-<li><p>Interpret the given function and arguments</p></li>
-<li><p>Execute the job</p></li>
-<li><p>Post result to Slack</p></li>
-<li><p>Remove job from mysql table</p></li>
-</ol>
-</dd>
-</dl>
-<p>If job fails, set in progress to 2
-All functions that tracy is able to execute need to be imported and defined in the
-available_functions.</p>
-<p class="rubric">Example</p>
-<p>This module is meant to be called directly from a CRON job.</p>
-<dl class="simple">
-<dt>Alternatively this code can be run directly by running::</dt><dd><p>$ python run_tracy.py</p>
-</dd>
-</dl>
-<p>Attributes:</p>
-<dl class="function">
-<dt id="openstef.tasks.run_tracy.main">
-<code class="sig-prename descclassname">openstef.tasks.run_tracy.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><em class="sig-param">config=None</em>, <em class="sig-param">database=None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.run_tracy.main" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="openstef.tasks.run_tracy.run_tracy">
-<code class="sig-prename descclassname">openstef.tasks.run_tracy.</code><code class="sig-name descname">run_tracy</code><span class="sig-paren">(</span><em class="sig-param">context</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.run_tracy.run_tracy" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="openstef.tasks.run_tracy.run_tracy_job">
-<code class="sig-prename descclassname">openstef.tasks.run_tracy.</code><code class="sig-name descname">run_tracy_job</code><span class="sig-paren">(</span><em class="sig-param">job</em>, <em class="sig-param">pj</em>, <em class="sig-param">context</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.run_tracy.run_tracy_job" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
+<div class="section" id="openstef-tasks-run-tracy-module">
+<h2>openstef.tasks.run_tracy module<a class="headerlink" href="#openstef-tasks-run-tracy-module" title="Permalink to this headline">¶</a></h2>
 </div>
 <div class="section" id="module-openstef.tasks.split_forecast">
 <span id="openstef-tasks-split-forecast-module"></span><h2>openstef.tasks.split_forecast module<a class="headerlink" href="#module-openstef.tasks.split_forecast" title="Permalink to this headline">¶</a></h2>
@@ -718,52 +559,8 @@ id pid.</p>
 </dd></dl>
 
 </div>
-<div class="section" id="module-openstef.tasks.train_model">
-<span id="openstef-tasks-train-model-module"></span><h2>openstef.tasks.train_model module<a class="headerlink" href="#module-openstef.tasks.train_model" title="Permalink to this headline">¶</a></h2>
-<p>model_train.py</p>
-<p>This module contains the CRON job that is periodically executed to retrain the
-prognosis models. For this the folowing steps are caried out:</p>
-<blockquote>
-<div><ol class="arabic simple">
-<li><p>Get historic training data (TDCV, Load, Weather and APX price data)</p></li>
-<li><p>Apply features</p></li>
-<li><p>Train and Test the new model</p></li>
-<li><p>Check if new model performs better than the old model</p></li>
-<li><p>Store the model if it performs better</p></li>
-<li><p>Send slack message to inform the users</p></li>
-</ol>
-</div></blockquote>
-<p class="rubric">Example</p>
-<p>This module is meant to be called directly from a CRON job. A description of
-the CRON job can be found in the /k8s/CronJobs folder.
-Alternatively this code can be run directly by running:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python model_train.py
-</pre></div>
-</div>
-<dl class="function">
-<dt id="openstef.tasks.train_model.main">
-<code class="sig-prename descclassname">openstef.tasks.train_model.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><em class="sig-param">model_type=None</em>, <em class="sig-param">config=None</em>, <em class="sig-param">database=None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.train_model.main" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="openstef.tasks.train_model.train_model_task">
-<code class="sig-prename descclassname">openstef.tasks.train_model.</code><code class="sig-name descname">train_model_task</code><span class="sig-paren">(</span><em class="sig-param">pj: openstef.data_classes.prediction_job.PredictionJobDataClass</em>, <em class="sig-param">context: openstef.tasks.utils.taskcontext.TaskContext</em>, <em class="sig-param">check_old_model_age: bool = True</em>, <em class="sig-param">datetime_start: datetime.datetime = None</em>, <em class="sig-param">datetime_end: datetime.datetime = None</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#openstef.tasks.train_model.train_model_task" title="Permalink to this definition">¶</a></dt>
-<dd><p>Train model task.</p>
-<p>Top level task that trains a new model and makes sure the beast available model is
-stored. On this task level all database and context manager dependencies are resolved.</p>
-<p>Expected prediction job keys:  “id”, “model”, “lat”, “lon”, “name”</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><em>PredictionJobDataClass</em></a>) – Prediction job</p></li>
-<li><p><strong>context</strong> (<a class="reference internal" href="openstef.tasks.utils.html#openstef.tasks.utils.taskcontext.TaskContext" title="openstef.tasks.utils.taskcontext.TaskContext"><em>TaskContext</em></a>) – Contect object that holds a config manager and a
-database connection.</p></li>
-<li><p><strong>check_old_model_age</strong> (<em>bool</em>) – check if model is too young to be retrained</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
+<div class="section" id="openstef-tasks-train-model-module">
+<h2>openstef.tasks.train_model module<a class="headerlink" href="#openstef-tasks-train-model-module" title="Permalink to this headline">¶</a></h2>
 </div>
 <div class="section" id="module-openstef.tasks">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-openstef.tasks" title="Permalink to this headline">¶</a></h2>

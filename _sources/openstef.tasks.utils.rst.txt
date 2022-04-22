@@ -4,6 +4,14 @@ openstef.tasks.utils package
 Submodules
 ----------
 
+openstef.tasks.utils.dependencies module
+----------------------------------------
+
+.. automodule:: openstef.tasks.utils.dependencies
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 openstef.tasks.utils.predictionjobloop module
 ---------------------------------------------
 

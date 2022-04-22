@@ -37,6 +37,7 @@
               <div class="local-toc"><ul>
 <li><a class="reference internal" href="#">openstef.tasks.utils package</a><ul>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-openstef.tasks.utils.dependencies">openstef.tasks.utils.dependencies module</a></li>
 <li><a class="reference internal" href="#module-openstef.tasks.utils.predictionjobloop">openstef.tasks.utils.predictionjobloop module</a></li>
 <li><a class="reference internal" href="#module-openstef.tasks.utils.taskcontext">openstef.tasks.utils.taskcontext module</a></li>
 <li><a class="reference internal" href="#module-openstef.tasks.utils">Module contents</a></li>
@@ -72,6 +73,91 @@
 <h1>openstef.tasks.utils package<a class="headerlink" href="#openstef-tasks-utils-package" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-openstef.tasks.utils.dependencies">
+<span id="openstef-tasks-utils-dependencies-module"></span><h2>openstef.tasks.utils.dependencies module<a class="headerlink" href="#module-openstef.tasks.utils.dependencies" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="openstef.tasks.utils.dependencies.build_graph_structure">
+<code class="sig-prename descclassname">openstef.tasks.utils.dependencies.</code><code class="sig-name descname">build_graph_structure</code><span class="sig-paren">(</span><em class="sig-param">pjs: Iterable[openstef.data_classes.prediction_job.PredictionJobDataClass]</em><span class="sig-paren">)</span> &#x2192; Tuple[Set[Union[str, int]], Set[Tuple[Union[str, int], Union[str, int]]]]<a class="headerlink" href="#openstef.tasks.utils.dependencies.build_graph_structure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the graph of dependencies between prediction jobs</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>pjs</strong> (<em>Iterable</em><em>[</em><a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><em>PredictionJobDataClass</em></a><em>]</em><em>)</em>) – The Iterable of prediction jobs</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The set of node ids of the graph
+Set[EdgeType]]: The set of edges in the graph</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Set[NodeIdType]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="openstef.tasks.utils.dependencies.build_nx_graph">
+<code class="sig-prename descclassname">openstef.tasks.utils.dependencies.</code><code class="sig-name descname">build_nx_graph</code><span class="sig-paren">(</span><em class="sig-param">nodes: Iterable[Union[str, int]], edges: Iterable[Tuple[Union[str, int], Union[str, int]]]</em><span class="sig-paren">)</span> &#x2192; networkx.classes.digraph.DiGraph<a class="headerlink" href="#openstef.tasks.utils.dependencies.build_nx_graph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build a networkx Directed Graph</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>nodes</strong> (<em>Iterable</em><em>[</em><em>NodeIdType</em><em>]</em>) – The sequence of node ids</p></li>
+<li><p><strong>edges</strong> – (Iterable[EdgeType]): The sequence of edges</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The dependency graph</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>nx.DiGraph</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="openstef.tasks.utils.dependencies.find_groups">
+<code class="sig-prename descclassname">openstef.tasks.utils.dependencies.</code><code class="sig-name descname">find_groups</code><span class="sig-paren">(</span><em class="sig-param">pjs: Sequence[openstef.data_classes.prediction_job.PredictionJobDataClass], randomize_groups: bool = False</em><span class="sig-paren">)</span> &#x2192; Tuple[networkx.classes.digraph.DiGraph, List[List[openstef.data_classes.prediction_job.PredictionJobDataClass]]]<a class="headerlink" href="#openstef.tasks.utils.dependencies.find_groups" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find a sequence of prediction job groups respecting dependencies.</p>
+<p>Compute groups of prediction jobs such that the prediction jobs in a group
+depend of at least one prediction job in the previous group and does not depend
+on a prediction job in the following groups.
+This means that all the prediction jobs in a group can be run in parallel and that
+if groups are treated in the given order, the dependencies of a prediction job have
+already been treated when the prediction job is run.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pjs</strong> (<em>Iterable</em><em>[</em><a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><em>PredictionJobDataClass</em></a><em>]</em>) – The sequence of prediction jobs</p></li>
+<li><p><strong>randomize_groups</strong> (<em>bool</em><em>, </em><em>optional</em>) – whether subgroups should be randomized.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the dependency graph
+List[List[PredictionJobDataClass]]: The list of prediction job groups</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>nx.Digraph</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="openstef.tasks.utils.dependencies.has_dependencies">
+<code class="sig-prename descclassname">openstef.tasks.utils.dependencies.</code><code class="sig-name descname">has_dependencies</code><span class="sig-paren">(</span><em class="sig-param">pjs: Iterable[openstef.data_classes.prediction_job.PredictionJobDataClass]</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#openstef.tasks.utils.dependencies.has_dependencies" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test whether some prediction jobs have dependencies information.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>pjs</strong> (<em>Iterable</em><em>[</em><a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><em>PredictionJobDataClass</em></a><em>]</em>) – The list of prediction jobs</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if some dependency information was found.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
 <div class="section" id="module-openstef.tasks.utils.predictionjobloop">
 <span id="openstef-tasks-utils-predictionjobloop-module"></span><h2>openstef.tasks.utils.predictionjobloop module<a class="headerlink" href="#module-openstef.tasks.utils.predictionjobloop" title="Permalink to this headline">¶</a></h2>

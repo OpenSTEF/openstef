@@ -108,9 +108,40 @@
 <dt id="openstef.data_classes.prediction_job.PredictionJobDataClass">
 <em class="property">class </em><code class="sig-prename descclassname">openstef.data_classes.prediction_job.</code><code class="sig-name descname">PredictionJobDataClass</code><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pydantic.main.BaseModel</span></code></p>
+<dl class="class">
+<dt id="openstef.data_classes.prediction_job.PredictionJobDataClass.Config">
+<em class="property">class </em><code class="sig-name descname">Config</code><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.Config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="attribute">
+<dt id="openstef.data_classes.prediction_job.PredictionJobDataClass.Config.smart_union">
+<code class="sig-name descname">smart_union</code><em class="property"> = True</em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.Config.smart_union" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="attribute">
+<dt id="openstef.data_classes.prediction_job.PredictionJobDataClass.completeness_treshold">
+<code class="sig-name descname">completeness_treshold</code><em class="property">: float</em><em class="property"> = None</em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.completeness_treshold" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="openstef.data_classes.prediction_job.PredictionJobDataClass.default_modelspecs">
+<code class="sig-name descname">default_modelspecs</code><em class="property">: Optional[ModelSpecificationDataClass]</em><em class="property"> = None</em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.default_modelspecs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="openstef.data_classes.prediction_job.PredictionJobDataClass.depends_on">
+<code class="sig-name descname">depends_on</code><em class="property">: Optional[List[Union[int, str]]]</em><em class="property"> = None</em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.depends_on" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="attribute">
 <dt id="openstef.data_classes.prediction_job.PredictionJobDataClass.description">
 <code class="sig-name descname">description</code><em class="property">: Optional[str]</em><em class="property"> = None</em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="openstef.data_classes.prediction_job.PredictionJobDataClass.flatliner_treshold">
+<code class="sig-name descname">flatliner_treshold</code><em class="property">: int</em><em class="property"> = None</em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.flatliner_treshold" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -139,6 +170,11 @@
 <dd></dd></dl>
 
 <dl class="attribute">
+<dt id="openstef.data_classes.prediction_job.PredictionJobDataClass.minimal_table_length">
+<code class="sig-name descname">minimal_table_length</code><em class="property">: int</em><em class="property"> = None</em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.minimal_table_length" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
 <dt id="openstef.data_classes.prediction_job.PredictionJobDataClass.model">
 <code class="sig-name descname">model</code><em class="property">: str</em><em class="property"> = None</em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.model" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -159,8 +195,18 @@
 <dd></dd></dl>
 
 <dl class="attribute">
+<dt id="openstef.data_classes.prediction_job.PredictionJobDataClass.save_train_forecasts">
+<code class="sig-name descname">save_train_forecasts</code><em class="property">: bool</em><em class="property"> = None</em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.save_train_forecasts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
 <dt id="openstef.data_classes.prediction_job.PredictionJobDataClass.train_components">
 <code class="sig-name descname">train_components</code><em class="property">: bool</em><em class="property"> = None</em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.train_components" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="openstef.data_classes.prediction_job.PredictionJobDataClass.train_horizons_minutes">
+<code class="sig-name descname">train_horizons_minutes</code><em class="property">: Optional[List[int]]</em><em class="property"> = None</em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.train_horizons_minutes" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
