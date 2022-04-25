@@ -72,8 +72,7 @@ class TestReporter(unittest.TestCase):
         # Assert
         assert write_html_mock.call_count == 0
 
-    @patch("plotly.graph_objects.Figure.write_html")
-    def test_reporter_write_to_disk_without_figures(self, write_html_mock):
+    def test_reporter_write_to_disk_no_write_without_figures(self):
         # Arrange
         report = Report(
             feature_importance_figure=None,
