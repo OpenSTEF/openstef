@@ -71,3 +71,20 @@ class TestReporter(unittest.TestCase):
 
         # Assert
         assert write_html_mock.call_count == 0
+
+    @patch("plotly.graph_objects.Figure.write_html")
+    def test_reporter_write_to_disk_without_figures(self, write_html_mock):
+        # Arrange
+        report = Report(
+            feature_importance_figure=None,
+            data_series_figures={"Predictor0.25": None, "Predictor47.0": None},
+            metrics={},
+            signature=None,
+        )
+
+        # Act
+        with tempfile.TemporaryDirectory() as temp_model_dir:
+            Reporter.write_report_to_disk(report, temp_model_dir)
+            figure_files = os.listdir(temp_model_dir)
+            # Assert
+            assert len(figure_files) == 0
