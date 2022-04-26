@@ -35,8 +35,8 @@ import scipy.optimize
 import structlog
 
 import openstef.monitoring.teams as monitoring
-from openstef.enums import MLModelType
 from openstef.data_classes.prediction_job import PredictionJobDataClass
+from openstef.enums import MLModelType
 from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstef.tasks.utils.taskcontext import TaskContext
 

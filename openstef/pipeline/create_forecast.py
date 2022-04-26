@@ -1,14 +1,11 @@
 # SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-from pathlib import Path
-from typing import Union
-
 import pandas as pd
 import structlog
 
-from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.data_classes.model_specifications import ModelSpecificationDataClass
+from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.feature_engineering.feature_applicator import (
     OperationalPredictFeatureApplicator,
 )
@@ -26,7 +23,7 @@ from openstef.validation import validation
 def create_forecast_pipeline(
     pj: PredictionJobDataClass,
     input_data: pd.DataFrame,
-    trained_models_folder: Union[str, Path],
+    mlflow_tracking_uri: str,
 ) -> pd.DataFrame:
     """Create forecast pipeline
 
@@ -38,26 +35,24 @@ def create_forecast_pipeline(
     Args:
         pj (PredictionJobDataClass): Prediction job
         input_data (pd.DataFrame): Training input data (without features)
-        trained_models_folder (Path): Path where trained models are stored
-
+        mlflow_tracking_uri (str): MlFlow tracking URI
 
     Returns:
         pd.DataFrame with the forecast
 
     """
     # Load most recent model for the given pid
-    model, modelspecs = MLflowSerializer(
-        trained_models_folder=trained_models_folder
-    ).load_model(pj["id"])
-
-    return create_forecast_pipeline_core(pj, input_data, model, modelspecs)
+    model, model_specs = MLflowSerializer(
+        mlflow_tracking_uri=mlflow_tracking_uri
+    ).load_model(experiment_name=str(pj["id"]))
+    return create_forecast_pipeline_core(pj, input_data, model, model_specs)
 
 
 def create_forecast_pipeline_core(
     pj: PredictionJobDataClass,
     input_data: pd.DataFrame,
     model: OpenstfRegressor,
-    modelspecs: ModelSpecificationDataClass,
+    model_specs: ModelSpecificationDataClass,
 ) -> pd.DataFrame:
     """Create forecast pipeline (core)
 
@@ -71,6 +66,7 @@ def create_forecast_pipeline_core(
         pj (PredictionJobDataClass): Prediction job.
         input_data (pandas.DataFrame): Input data for the prediction.
         model (OpenstfRegressor): Model to use for this prediction.
+        model_specs (ModelSpecificationDataClass): Model specifications.
 
     Returns:
         forecast (pandas.DataFrame)
@@ -87,7 +83,7 @@ def create_forecast_pipeline_core(
         # TODO use saved feature_names (should be saved while training the model)
         horizons=[pj["resolution_minutes"] / 60.0],
         feature_names=model.feature_names,
-        feature_modules=modelspecs.feature_modules,
+        feature_modules=model_specs.feature_modules,
     ).add_features(validated_data)
 
     # Prep forecast input by selecting only the forecast datetime interval (this is much smaller than the input range)

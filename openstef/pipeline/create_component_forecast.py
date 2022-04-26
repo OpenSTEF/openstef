@@ -4,9 +4,9 @@
 
 import pandas as pd
 import structlog
-from openstef.data_classes.prediction_job import PredictionJobDataClass
 
 import openstef.postprocessing.postprocessing as postprocessing
+from openstef.data_classes.prediction_job import PredictionJobDataClass
 
 
 def create_components_forecast_pipeline(

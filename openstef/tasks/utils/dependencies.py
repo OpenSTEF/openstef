@@ -2,10 +2,11 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 import random
-from typing import Iterable, Sequence, Union, Tuple, Set, List
-from openstef.data_classes.prediction_job import PredictionJobDataClass
+from typing import Iterable, List, Sequence, Set, Tuple, Union
+
 import networkx as nx
 
+from openstef.data_classes.prediction_job import PredictionJobDataClass
 
 NodeIdType = Union[str, int]
 EdgeType = Tuple[NodeIdType, NodeIdType]

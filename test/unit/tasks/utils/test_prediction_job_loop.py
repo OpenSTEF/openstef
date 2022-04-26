@@ -8,13 +8,13 @@ from test.unit.utils.base import BaseTestCase
 from test.unit.utils.data import TestData
 from unittest.mock import MagicMock, Mock
 
+from openstef.data_classes.prediction_job import PredictionJobDataClass
+
 # import project modules
 from openstef.tasks.utils.predictionjobloop import (
     PredictionJobException,
     PredictionJobLoop,
 )
-
-from openstef.data_classes.prediction_job import PredictionJobDataClass
 
 # define constants
 PREDICTION_JOBS = TestData.get_prediction_jobs()

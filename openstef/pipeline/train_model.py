@@ -7,9 +7,9 @@ from typing import List, Tuple, Union, Optional
 
 import pandas as pd
 import structlog
-from openstef.data_classes.prediction_job import PredictionJobDataClass
 
 from openstef.data_classes.model_specifications import ModelSpecificationDataClass
+from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.exceptions import (
     InputDataInsufficientError,
     InputDataWrongColumnOrderError,
@@ -35,18 +35,18 @@ def train_model_pipeline(
     pj: PredictionJobDataClass,
     input_data: pd.DataFrame,
     check_old_model_age: bool,
-    trained_models_folder: Union[str, Path],
+    mlflow_tracking_uri: str,
+    artifact_folder: str,
 ) -> Optional[Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]]:
     """Midle level pipeline that takes care of all persistent storage dependencies
-
-    Expected prediction jobs keys: "id", "model", "hyper_params",
-        "feature_names"
+    Expected prediction jobs keys: "id", "model", "hyper_params", "feature_names"
 
     Args:
         pj (PredictionJobDataClass): Prediction job
         input_data (pd.DataFrame): Raw training input data
         check_old_model_age (bool): Check if training should be skipped because the model is too young
-        trained_models_folder (Path): Path where trained models are stored
+        mlflow_tracking_uri (str): Tracking URI for MLFlow
+        artifact_folder (str): Path where artifacts, such as trained models, are stored
 
     Returns:
         If pj.save_train_forecasts is False, None is returned
@@ -55,29 +55,27 @@ def train_model_pipeline(
             validation_data (pd.DataFrame): The validation dataset with forecasts
             test_data (pd.DataFrame): The test dataset with forecasts
     """
-    # Intitialize logger and serializer
+    # Initialize logger and serializer
     logger = structlog.get_logger(__name__)
-    serializer = MLflowSerializer(trained_models_folder)
+    serializer = MLflowSerializer(mlflow_tracking_uri=mlflow_tracking_uri)
 
     # Get old model and age
     try:
-        old_model, modelspecs = serializer.load_model(pj["id"])
-        old_model_age = (
-            old_model.age
-        )  # Age attribute is openstef specific and is added by the serializer
+        old_model, model_specs = serializer.load_model(experiment_name=str(pj["id"]))
+        old_model_age = old_model.age  # Age attribute is openstef specific
     except (AttributeError, FileNotFoundError, LookupError):
         old_model = None
         old_model_age = float("inf")
         if pj["default_modelspecs"] is not None:
-            modelspecs = pj["default_modelspecs"]
-            if modelspecs.id != pj.id:
+            model_specs = pj["default_modelspecs"]
+            if model_specs.id != pj.id:
                 raise RuntimeError(
-                    "The id of the prediction job and its default modelspecs do not"
+                    "The id of the prediction job and its default model_specs do not"
                     " match."
                 )
         else:
-            # create basic modelspecs
-            modelspecs = ModelSpecificationDataClass(id=pj["id"])
+            # create basic model_specs
+            model_specs = ModelSpecificationDataClass(id=pj["id"])
         logger.warning("No old model found, training new model", pid=pj["id"])
 
     # Check old model age and continue yes/no
@@ -113,18 +111,29 @@ def train_model_pipeline(
         )
         raise InputDataWrongColumnOrderError(IDWCOE)
 
-    # Save model
-    serializer.save_model(model, pj=pj, modelspecs=modelspecs_updated, report=report)
+    # Save model and report. Report is always saved to MLFlow and optionally to disk
+    serializer.save_model(
+        model=model,
+        experiment_name=str(pj["id"]),
+        model_type=pj["model"],
+        model_specs=model_specs_updated,
+        report=report,
+    )
+    if artifact_folder:
+        Reporter.write_report_to_disk(report=report, artifact_folder=artifact_folder)
 
     # Clean up older models
-    serializer.remove_old_models(pj=pj)
+    serializer.remove_old_models(
+        experiment_name=str(pj["id"]), artifact_folder=artifact_folder
+    )
+    
     if pj.save_train_forecasts:
         return data_sets
 
 
 def train_model_pipeline_core(
     pj: PredictionJobDataClass,
-    modelspecs: ModelSpecificationDataClass,
+    model_specs: ModelSpecificationDataClass,
     input_data: pd.DataFrame,
     old_model: OpenstfRegressor = None,
     horizons: Union[List[float], str] = None,
@@ -140,7 +149,7 @@ def train_model_pipeline_core(
 
     Args:
         pj (PredictionJobDataClass): Prediction job
-        modelspecs (ModelSpecificationDataClass): Dataclass containing model specifications
+        model_specs (ModelSpecificationDataClass): Dataclass containing model specifications
         input_data (pd.DataFrame): Input data
         old_model (OpenstfRegressor, optional): Old model to compare to. Defaults to None.
         horizons (List[float]): horizons to train on in hours.
@@ -167,9 +176,9 @@ def train_model_pipeline_core(
 
     # Call common pipeline
     model, report, train_data, validation_data, test_data = train_pipeline_common(
-        pj, modelspecs, input_data, horizons
+        pj, model_specs, input_data, horizons
     )
-    modelspecs.feature_names = list(train_data.columns)
+    model_specs.feature_names = list(train_data.columns)
 
     # Check if new model is better than old model
     if old_model:
@@ -205,7 +214,7 @@ def train_model_pipeline_core(
 
 def train_pipeline_common(
     pj: PredictionJobDataClass,
-    modelspecs: ModelSpecificationDataClass,
+    model_specs: ModelSpecificationDataClass,
     input_data: pd.DataFrame,
     horizons: Union[List[float], str],
     test_fraction: float = 0.0,
@@ -216,7 +225,7 @@ def train_pipeline_common(
 
     Args:
         pj (PredictionJobDataClass): Prediction job
-        modelspecs (ModelSpecificationDataClass): Dataclass containing model specifications
+        model_specs (ModelSpecificationDataClass): Dataclass containing model specifications
         input_data (pd.DataFrame): Input data
         horizons (List[float]): horizons to train on in hours.
         test_fraction (float): fraction of data to use for testing
@@ -274,8 +283,8 @@ def train_pipeline_common(
 
     data_with_features = TrainFeatureApplicator(
         horizons=horizons,
-        feature_names=modelspecs.feature_names,
-        feature_modules=modelspecs.feature_modules,
+        feature_names=model_specs.feature_names,
+        feature_modules=model_specs.feature_modules,
     ).add_features(validated_data, pj=pj)
 
     # if test_data is predefined, apply the pipeline only on the remaining data
@@ -327,7 +336,7 @@ def train_pipeline_common(
     protected_hyperparams = ["quantiles"]
     valid_hyper_parameters = {
         key: value
-        for key, value in modelspecs.hyper_params.items()
+        for key, value in model_specs.hyper_params.items()
         if key in model.get_params().keys() and key not in protected_hyperparams
     }
 

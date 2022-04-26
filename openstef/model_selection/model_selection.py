@@ -1,8 +1,8 @@
 # SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-import secrets
 import random
+import secrets
 from datetime import timedelta
 from itertools import accumulate
 from typing import List, Tuple
@@ -199,7 +199,7 @@ def split_data_train_validation_test(
             .sort_values(by="load", ascending=False)
             .dropna()
             .index[:n_days_per_min_max_subset]
-        )
+        ).date
         # Find min_dates, but do not consider the max_dates
         min_dates_subset = train_val_data.loc[
             ~np.isin(train_val_data.index.date, max_dates), ["load"]
@@ -211,7 +211,7 @@ def split_data_train_validation_test(
             .sort_values(by="load", ascending=True)
             .dropna()
             .index[:n_days_per_min_max_subset]
-        )
+        ).date
         other_dates = [
             x for x in train_val_dates if x not in min_dates and x not in max_dates
         ]

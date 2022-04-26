@@ -126,19 +126,24 @@ class Reporter:
         return results
 
     @staticmethod
-    def write_report_to_disk(report: Report, location: Path):
-        """Write report to disk,
-        easy for e.g. viewing report of latest models using grafana"""
-        # create path if does not exist
-        if not os.path.exists(location):
-            os.makedirs(location)
-        # write feature importance figure
-        report.feature_importance_figure.write_html(f"{location}/weight_plot.html")
-        # write predictors
-        for name, figure in report.data_series_figures.items():
-            figure.write_html(f"{location}/{name}.html")
+    def write_report_to_disk(report: Report, artifact_folder: str):
+        """Write report to disk; e.g. for viewing report of latest models using grafana."""
+        if artifact_folder:
+            # create path if does not exist
+            if not os.path.exists(artifact_folder):
+                os.makedirs(artifact_folder)
+            # write feature importance figure
+            if report.feature_importance_figure:  # only write if figure is not none
+                report.feature_importance_figure.write_html(
+                    f"{artifact_folder}/weight_plot.html"
+                )
+            # write predictors
+            for name, figure in report.data_series_figures.items():
+                if figure:  # only write if figure is not none
+                    figure.write_html(f"{artifact_folder}/{name}.html")
 
     def _make_data_series_figures(self, model: OpenstfRegressor) -> dict:
+        """Make data series figures."""
         # Make model predictions
         for data_set in self.input_data_list:
             # First ("load") and last ("horizon") are removed here

@@ -9,9 +9,7 @@ import numpy as np
 import pandas as pd
 import structlog
 
-from openstef.preprocessing.preprocessing import (
-    replace_repeated_values_with_nan,
-)
+from openstef.preprocessing.preprocessing import replace_repeated_values_with_nan
 
 
 def validate(

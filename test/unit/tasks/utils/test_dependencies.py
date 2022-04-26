@@ -3,8 +3,9 @@
 # SPDX-License-Identifier: MPL-2.0
 
 import unittest
-from openstef.tasks.utils import dependencies as deps
+
 from openstef.data_classes.prediction_job import PredictionJobDataClass
+from openstef.tasks.utils import dependencies as deps
 
 
 class TestDependencies(unittest.TestCase):

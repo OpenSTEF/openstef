@@ -4,6 +4,7 @@
 
 # Optional local user config
 config.user.yaml
+git-template
 
 # Ignore these folders
 prof/
@@ -16,10 +17,14 @@ ktprognoses.egg-info/
 test/unit/trained_models/models_for_serializertest/mlruns/
 trained_models/
 test/unit/trained_models/mlruns/1/
+test/component/mlruns/
 
 # Ignore these files
 .DS_Store
 tmp
+test/component/Predictor0.25.html
+test/component/Predictor47.0.html
+test/component/weight_plot.html
 
 
 # default Python .gitignore template: https://raw.githubusercontent.com/github/gitignore/master/Python.gitignore

@@ -8,17 +8,17 @@ from typing import List, Optional, Union
 import numpy as np
 import pandas as pd
 
+from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.feature_engineering.apply_features import apply_features
+from openstef.feature_engineering.feature_adder import (
+    FeatureDispatcher,
+    adders_from_modules,
+)
 from openstef.feature_engineering.general import (
     add_missing_feature_columns,
     enforce_feature_order,
     remove_non_requested_feature_columns,
 )
-from openstef.feature_engineering.feature_adder import (
-    adders_from_modules,
-    FeatureDispatcher,
-)
-from openstef.data_classes.prediction_job import PredictionJobDataClass
 
 LATENCY_CONFIG = {"APX": 24}  # A specific latency is part of a specific feature.
 
@@ -109,7 +109,7 @@ class TrainFeatureApplicator(AbstractFeatureApplicator):
                     feature_names=self.feature_names,
                 )
                 res["horizon"] = horizon
-                result = result.append(res)
+                result = pd.concat([result, res])
 
         # Add custom features with the dispatcher
         result = self.features_dispatcher.apply_features(

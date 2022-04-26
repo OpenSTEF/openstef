@@ -1,19 +1,20 @@
 # SPDX-FileCopyrightText: 2017-2022 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-from typing import List, Type
-import numpy as np
 import unittest
+from typing import List, Type
 
-from openstef.model.regressors.custom_regressor import (
-    CustomOpenstfRegressor,
-    load_custom_model,
-    create_custom_objective,
-)
+import numpy as np
+
+from openstef.enums import MLModelType
+from openstef.model.model_creator import ModelCreator
 from openstef.model.objective import RegressorObjective
 from openstef.model.objective_creator import ObjectiveCreator
-from openstef.model.model_creator import ModelCreator
-from openstef.enums import MLModelType
+from openstef.model.regressors.custom_regressor import (
+    CustomOpenstfRegressor,
+    create_custom_objective,
+    load_custom_model,
+)
 
 
 class DummyObjective(RegressorObjective):
