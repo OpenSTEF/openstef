@@ -117,15 +117,15 @@ class TestTrainModelPipeline(BaseTestCase):
                 train_input = self.train_input
 
                 # Use default parameters
-                self.model_specs.hyper_params = {}
-                self.model_specs.hyper_params["max_epochs"] = 1
+                model_specs.hyper_params = {}
+                model_specs.hyper_params["max_epochs"] = 1
 
                 # For Linear model we need to choose an imputation strategy to handle missing value
                 if model_type == MLModelType.LINEAR:
-                    self.model_specs.hyper_params["imputation_strategy"] = "mean"
+                    model_specs.hyper_params["imputation_strategy"] = "mean"
 
                 model, report, modelspecs, _ = train_model_pipeline_core(
-                    pj=pj, modelspecs=self.modelspecs, input_data=train_input
+                    pj=pj, modelspecs=model_specs, input_data=train_input
                 )
 
                 # check if the model was fitted (raises NotFittedError when not fitted)
@@ -147,7 +147,7 @@ class TestTrainModelPipeline(BaseTestCase):
 
                 # Add features
                 data_with_features = TrainFeatureApplicator(
-                    horizons=[0.25, 47.0], feature_names=self.model_specs.feature_names
+                    horizons=[0.25, 47.0], feature_names=model_specs.feature_names
                 ).add_features(validated_data, pj=pj)
 
                 # Split data
