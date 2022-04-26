@@ -125,7 +125,7 @@ class TestTrainModelPipeline(BaseTestCase):
                     model_specs.hyper_params["imputation_strategy"] = "mean"
 
                 model, report, modelspecs, _ = train_model_pipeline_core(
-                    pj=pj, modelspecs=model_specs, input_data=train_input
+                    pj=pj, model_specs=model_specs, input_data=train_input
                 )
 
                 # check if the model was fitted (raises NotFittedError when not fitted)
@@ -175,7 +175,7 @@ class TestTrainModelPipeline(BaseTestCase):
 
         train_input = self.train_input.iloc[::50, :]
         model, report, modelspecs, _ = train_model_pipeline_core(
-            pj=pj, modelspecs=model_specs, input_data=train_input
+            pj=pj, model_specs=model_specs, input_data=train_input
         )
 
         # check if the model was fitted (raises NotFittedError when not fitted)
@@ -265,7 +265,7 @@ class TestTrainModelPipeline(BaseTestCase):
         pipeline_mock.return_value = (
             "a",
             report_mock,
-            self.modelspecs,
+            self.model_specs,
             (None, None, None),
         )
 

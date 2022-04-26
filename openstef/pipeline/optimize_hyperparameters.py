@@ -138,7 +138,7 @@ def optimize_hyperparameters_pipeline(
     # (optimization is only done for quantile 0.5)
     if objective.model.can_predict_quantiles:
         best_model, report, modelspecs, _ = train_model_pipeline_core(
-            pj=pj, input_data=input_data, modelspecs=model_specs
+            pj=pj, input_data=input_data, model_specs=model_specs
         )
 
     # Save model and report. Report is always saved to MLFlow and optionally to disk
