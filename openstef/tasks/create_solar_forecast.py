@@ -29,8 +29,8 @@ from openstef.tasks.utils.taskcontext import TaskContext
 PV_COEFS_FILEPATH = PROJECT_ROOT / "openstef" / "data" / "pv_single_coefs.csv"
 
 
-def make_solar_predicion_pj(pj, context):
-    """Make a solar prediction for a spcecific prediction job.
+def make_solar_prediction_pj(pj, context):
+    """Make a solar prediction for a specific prediction job.
 
     Args:
         pj: (dict) prediction job
@@ -84,7 +84,7 @@ def combine_forecasts(forecasts, combination_coefs):
 
     # Add subset parameters to df
     # Identify which parameters should be used to define subsets based on the
-    # combinationcoefs
+    # combination coefs
     subset_columns = [
         "tAhead",
         "hForecasted",
@@ -222,12 +222,12 @@ def main(config=None, database=None):
 
     if database is None or config is None:
         raise RuntimeError(
-            "Please specifiy a configmanager and/or database connection object. These"
+            "Please specify a configmanager and/or database connection object. These"
             " can be found in the openstef-dbc package."
         )
 
     with TaskContext(taskname, config, database) as context:
-        context.logger.info("Querying wind prediction jobs from database")
+        context.logger.info("Querying solar prediction jobs from database")
         prediction_jobs = context.database.get_prediction_jobs_solar()
         num_prediction_jobs = len(prediction_jobs)
 
@@ -246,7 +246,7 @@ def main(config=None, database=None):
             )
 
         PredictionJobLoop(context, prediction_jobs=prediction_jobs).map(
-            make_solar_predicion_pj, context
+            make_solar_prediction_pj, context
         )
 
 
