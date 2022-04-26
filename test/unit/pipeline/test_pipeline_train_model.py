@@ -175,7 +175,7 @@ class TestTrainModelPipeline(BaseTestCase):
 
         train_input = self.train_input.iloc[::50, :]
         model, report, modelspecs, _ = train_model_pipeline_core(
-            pj=pj, modelspecs=modelspecs, input_data=train_input
+            pj=pj, modelspecs=model_specs, input_data=train_input
         )
 
         # check if the model was fitted (raises NotFittedError when not fitted)
@@ -519,4 +519,3 @@ class TestTrainModelPipeline(BaseTestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

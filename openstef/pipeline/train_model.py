@@ -87,8 +87,8 @@ def train_model_pipeline(
 
     # Train model with core pipeline
     try:
-        model, report, modelspecs_updated, data_sets = train_model_pipeline_core(
-            pj, modelspecs, input_data, old_model, horizons=pj.train_horizons_minutes
+        model, report, model_specs_updated, data_sets = train_model_pipeline_core(
+            pj, model_specs, input_data, old_model, horizons=pj.train_horizons_minutes
         )
     except OldModelHigherScoreError as OMHSE:
         logger.error("Old model is better than new model", pid=pj["id"], exc_info=OMHSE)
@@ -126,7 +126,7 @@ def train_model_pipeline(
     serializer.remove_old_models(
         experiment_name=str(pj["id"]), artifact_folder=artifact_folder
     )
-    
+
     if pj.save_train_forecasts:
         return data_sets
 
@@ -209,7 +209,7 @@ def train_model_pipeline_core(
         except ValueError as e:
             logger.info("Could not compare to old model", pid=pj["id"], exc_info=e)
 
-    return model, report, modelspecs, (train_data, validation_data, test_data)
+    return model, report, model_specs, (train_data, validation_data, test_data)
 
 
 def train_pipeline_common(
