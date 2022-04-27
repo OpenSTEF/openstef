@@ -3,11 +3,11 @@
 # SPDX-License-Identifier: MPL-2.0
 import numpy as np
 import pandas as pd
-from sklearn.base import BaseEstimator, RegressorMixin, MetaEstimatorMixin, clone
-from sklearn.pipeline import Pipeline
+from sklearn.base import BaseEstimator, MetaEstimatorMixin, RegressorMixin, clone
 from sklearn.impute import SimpleImputer
+from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import FunctionTransformer
-from sklearn.utils.validation import check_is_fitted, check_X_y, check_array
+from sklearn.utils.validation import check_array, check_is_fitted, check_X_y
 
 
 class MissingValuesHandler(BaseEstimator, RegressorMixin, MetaEstimatorMixin):

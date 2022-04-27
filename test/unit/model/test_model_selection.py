@@ -1,14 +1,13 @@
 # SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+import random
 import unittest
 from test.unit.utils.base import BaseTestCase
 from test.unit.utils.data import TestData
 
 import numpy as np
 import pandas as pd
-import random
-
 
 from openstef.model_selection import model_selection
 

@@ -6,8 +6,8 @@ from typing import Union
 
 from openstef.enums import MLModelType
 from openstef.model.objective import (
-    LinearRegressorObjective,
     LGBRegressorObjective,
+    LinearRegressorObjective,
     ProLoafRegressorObjective,
     RegressorObjective,
     XGBQuantileRegressorObjective,

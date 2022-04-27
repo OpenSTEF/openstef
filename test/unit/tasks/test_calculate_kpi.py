@@ -2,10 +2,11 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+import json
 import unittest
 from test.unit.utils.base import BaseTestCase
 from test.unit.utils.data import TestData
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import numpy as np
 import pandas as pd
@@ -19,7 +20,6 @@ realised_load = TestData.load("calculate_kpi_relealised_load.csv")
 
 # Prepare dataframe with nans to test low completeness
 realised_load_nan = realised_load.copy()
-# realised_load_nan.loc[:] = np.nan
 realised_load_nan.loc[realised_load_nan.sample(frac=0.5).index, :] = np.NaN
 
 # Prepare dataframe with nans to test low completeness
@@ -83,18 +83,23 @@ class TestPerformanceCalcKpiForSpecificPid(BaseTestCase):
         kpis = calc_kpi_for_specific_pid(
             prediction_job["id"], realised_load, predicted_load, realised_load
         )
-        # use this to store new kpis
-        # json.dump(kpis, open(filename, "w"), default=str)
+        # Remove date
+        # type(date)==datetime gave a LOT of errors
+        kpis = {
+            t_ahead: {kpi: value for kpi, value in kpi_dict.items() if kpi != "date"}
+            for t_ahead, kpi_dict in kpis.items()
+        }
+
+        # Use line below to store new kpis
+        # TestData.save(kpis, 'calculate_kpi_kpi.json')
         kpis_ref = TestData.load("calculate_kpi_kpi.json")
 
         # convert to dataframe to make comparison easier
         self.assertDataframeEqual(
-            pd.DataFrame(kpis)
-            .drop("date")
-            .reindex(sorted(pd.DataFrame(kpis).drop("date").columns), axis=1),
-            pd.DataFrame(kpis_ref)
-            .drop("date")
-            .reindex(sorted(pd.DataFrame(kpis_ref).drop("date").columns), axis=1),
+            pd.DataFrame(kpis).reindex(sorted(pd.DataFrame(kpis).columns), axis=1),
+            pd.DataFrame(kpis_ref).reindex(
+                sorted(pd.DataFrame(kpis_ref).columns), axis=1
+            ),
             check_like=True,
         )
 
@@ -142,6 +147,19 @@ class TestPerformanceCalcKpiForSpecificPid(BaseTestCase):
             calc_kpi_for_specific_pid(
                 prediction_job["id"], realised_load, pd.DataFrame(), realised_load
             )
+
+    def test_calc_kpi_empty_basecase(self):
+        """An empty basecase should not return an exception
+        Instead, basecase metrics should be NaN"""
+
+        kpis = calc_kpi_for_specific_pid(
+            prediction_job["id"], realised_load, predicted_load, basecase=pd.DataFrame()
+        )
+
+        # Assert KPIs
+        assert isinstance(kpis, dict)
+        arbitrary_tAhead = "47.0h"
+        self.assertEqual(kpis[arbitrary_tAhead]["skill_score_basecase"], 0)
 
 
 # Run all tests

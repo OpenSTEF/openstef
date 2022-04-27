@@ -8,6 +8,7 @@ from test.unit.utils.data import TestData
 import numpy as np
 import pandas as pd
 
+from openstef.exceptions import NoRealisedLoadError
 from openstef.pipeline.create_basecase_forecast import create_basecase_forecast_pipeline
 
 
@@ -97,3 +98,9 @@ class TestBaseCaseForecast(BaseTestCase):
 
         base_case_forecast = create_basecase_forecast_pipeline(self.PJ, forecast_input)
         self.assertEqual(len(base_case_forecast.dropna()), 673)
+
+    def test_create_basecase_forecast_pipeline_no_historic_load(self):
+        """If (almost) no historic load is available, a clear exception should be raised"""
+        forecast_input = self.forecast_input.copy().iloc[[-1], :]
+        with self.assertRaises(NoRealisedLoadError):
+            create_basecase_forecast_pipeline(self.PJ, input_data=forecast_input)

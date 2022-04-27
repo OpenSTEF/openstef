@@ -5,8 +5,9 @@ from pathlib import Path
 
 import pandas as pd
 import structlog
-from openstef.data_classes.prediction_job import PredictionJobDataClass
 
+from openstef.data_classes.prediction_job import PredictionJobDataClass
+from openstef.exceptions import NoRealisedLoadError
 from openstef.feature_engineering.feature_applicator import (
     OperationalPredictFeatureApplicator,
 )
@@ -66,6 +67,10 @@ def create_basecase_forecast_pipeline(
     logger.info("Making basecase forecast")
     # Make basecase forecast
     basecase_forecast = BaseCaseModel().predict(forecast_input)
+
+    # Check if input data is available
+    if len(basecase_forecast) == 0:
+        raise NoRealisedLoadError(pj["id"])
 
     # Estimate the stdev by using the stdev of the hour for historic (T-14d) load
     model.standard_deviation = generate_basecase_confidence_interval(forecast_input)

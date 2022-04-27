@@ -7,7 +7,7 @@ from test.unit.utils.base import BaseTestCase
 from test.unit.utils.data import TestData
 from unittest.mock import MagicMock
 
-from openstef.tasks.create_solar_forecast import make_solar_predicion_pj
+from openstef.tasks.create_solar_forecast import make_solar_prediction_pj
 
 
 class TestSolar(BaseTestCase):
@@ -35,7 +35,7 @@ class TestSolar(BaseTestCase):
         context = MagicMock()
         context.database.get_solar_input = MagicMock(return_value=self.test_solar_input)
 
-        make_solar_predicion_pj(self.pj, context)
+        make_solar_prediction_pj(self.pj, context)
 
         self.assertTrue(context.logger.info.called)
         self.assertTrue(context.database.write_forecast.called)

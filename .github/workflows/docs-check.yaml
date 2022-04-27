@@ -28,6 +28,7 @@ jobs:
         pre-build-command: |
           cp requirements.txt docs/requirements.txt &&\
           printf "\nsphinx_rtd_theme\n" >> docs/requirements.txt &&\
-          printf "\nJinja2<3.1\n" >> docs/requirements.txt &&\
+          printf "\njinja2==3.0.0\n" >> docs/requirements.txt &&\
+          printf "\nmkdocs==1.2.3\n" >> docs/requirements.txt &&\
           sphinx-apidoc -o docs openstef
         docs-folder: "docs/"

@@ -6,8 +6,8 @@ from datetime import datetime, timedelta
 from test.unit.utils.base import BaseTestCase
 from test.unit.utils.data import TestData
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 
 from openstef.model_selection.model_selection import split_data_train_validation_test
 from openstef.pipeline.train_model import train_pipeline_step_split_data

@@ -1,13 +1,14 @@
 # SPDX-FileCopyrightText: 2017-2022 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+from test.unit.utils.base import BaseTestCase
+from test.unit.utils.data import TestData
+
 import sklearn
 from lightgbm import LGBMRegressor
 
-from openstef.model.regressors.linear import LinearRegressor
 from openstef.model.metamodels.grouped_regressor import GroupedRegressor
-from test.unit.utils.base import BaseTestCase
-from test.unit.utils.data import TestData
+from openstef.model.regressors.linear import LinearRegressor
 
 
 class TestGroupedRegressor(BaseTestCase):

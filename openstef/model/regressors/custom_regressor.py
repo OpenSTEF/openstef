@@ -2,18 +2,20 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-from typing import List, Type
+import inspect
 from abc import abstractmethod
 from importlib import import_module
+from typing import List, Type
+
 import pandas as pd
-import inspect
-from openstef.model.regressors.regressor import OpenstfRegressor
+
 from openstef.model.objective import (
-    RegressorObjective,
+    EVAL_METRIC,
     TEST_FRACTION,
     VALIDATION_FRACTION,
-    EVAL_METRIC,
+    RegressorObjective,
 )
+from openstef.model.regressors.regressor import OpenstfRegressor
 
 
 class CustomOpenstfRegressor(OpenstfRegressor):

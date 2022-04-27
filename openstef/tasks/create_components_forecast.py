@@ -33,8 +33,8 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 import structlog
-from openstef.data_classes.prediction_job import PredictionJobDataClass
 
+from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.enums import MLModelType
 from openstef.pipeline.create_component_forecast import (
     create_components_forecast_pipeline,

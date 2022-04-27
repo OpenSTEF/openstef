@@ -9,9 +9,9 @@ from pathlib import Path
 from typing import Union
 
 import pandas as pd
-from openstef.data_classes.prediction_job import PredictionJobDataClass
 
 from openstef.data_classes.model_specifications import ModelSpecificationDataClass
+from openstef.data_classes.prediction_job import PredictionJobDataClass
 
 
 class TestData:
@@ -48,6 +48,14 @@ class TestData:
         if ".pickle" in filename:
             with open(filepath, "wb") as fh:
                 pickle.dump(obj, fh)
+
+        elif ".json" in filename:
+            dumper = json.dump
+            with open(filepath, "w") as fp:
+                dumper(obj, fp)
+
+        else:
+            raise NotImplementedError("Extension not implemented")
 
     @classmethod
     def load(cls, filename):

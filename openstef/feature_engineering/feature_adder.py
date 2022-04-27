@@ -1,14 +1,14 @@
 # SPDX-FileCopyrightText: 2017-2022 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-from abc import ABC, abstractmethod
-from typing import List, Dict, Sequence, Optional
-from collections import namedtuple, Counter
-from importlib import import_module
-import pandas as pd
-import re
 import inspect
+import re
+from abc import ABC, abstractmethod
+from collections import Counter, namedtuple
+from importlib import import_module
+from typing import Dict, List, Optional, Sequence
 
+import pandas as pd
 
 ParsedFeature = namedtuple("ParsedFeature", ["name", "params"])
 
