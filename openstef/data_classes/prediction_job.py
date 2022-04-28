@@ -17,8 +17,8 @@ class PredictionJobDataClass(BaseModel):
     resolution_minutes: int
     lat: float
     lon: float
-    train_components: bool
     name: str
+    train_components: Optional[bool]
     description: Optional[str]
     quantiles: Optional[List[float]]
     train_horizons_minutes: Optional[List[int]]
