@@ -80,8 +80,8 @@ def train_model_task(
 
     context.perf_meter.checkpoint("Retrieved timeseries input")
 
-    # Execute the model training pipeline
-    report = train_model_pipeline(
+    # Excecute the model training pipeline
+    data_sets = train_model_pipeline(
         pj,
         input_data,
         check_old_model_age=check_old_model_age,
@@ -89,8 +89,15 @@ def train_model_task(
         artifact_folder=artifact_folder,
     )
 
-    if pj.save_train_forecasts and hasattr(context.database, "write_train_forecasts"):
-        context.database.write_train_forecasts(pj, report)
+    if pj.save_train_forecasts:
+        if data_sets is None:
+            raise RuntimeError("Forecasts were not retrieved")
+        if not hasattr(context.database, "write_train_forecasts"):
+            raise RuntimeError(
+                "Database connector does dot support 'write_train_forecasts' while "
+                "'save_train_forecasts option was activated.'"
+            )
+        context.database.write_train_forecasts(pj, data_sets)
 
     context.perf_meter.checkpoint("Model trained")
 
