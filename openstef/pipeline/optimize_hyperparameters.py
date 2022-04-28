@@ -137,7 +137,7 @@ def optimize_hyperparameters_pipeline(
     # If the model type is quantile, train a model with the best parameters for all quantiles
     # (optimization is only done for quantile 0.5)
     if objective.model.can_predict_quantiles:
-        best_model, report, modelspecs = train_model_pipeline_core(
+        best_model, report, modelspecs, _ = train_model_pipeline_core(
             pj=pj, input_data=input_data, model_specs=model_specs
         )
 

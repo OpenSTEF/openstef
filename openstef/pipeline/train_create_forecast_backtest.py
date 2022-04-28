@@ -62,7 +62,7 @@ def train_model_and_forecast_back_test(
         )
 
     data_with_features = train_model.train_pipeline_step_compute_features(
-        input_data=input_data, pj=pj, modelspecs=modelspecs, horizons=training_horizons
+        input_data=input_data, pj=pj, model_specs=modelspecs, horizons=training_horizons
     )
 
     # The use of zip allows to take advantage of the lazy estimation mechanisms of Python, especially if the

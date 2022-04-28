@@ -152,8 +152,10 @@ class TestTrainBackTestPipeline(BaseTestCase):
         # check if forecast is indeed of the entire range of the input data
         test_fraction = 0.15
         nb_test = int(np.round(test_fraction * len(self.train_input)))
-        validated_data = validation.clean(
-            validation.validate(self.pj["id"], self.train_input.iloc[-nb_test:])
+        validated_data = validation.drop_target_na(
+            validation.validate(
+                self.pj["id"], self.train_input[-nb_test:], self.pj["flatliner_treshold"]
+            )
         )
         data_with_features = TrainFeatureApplicator(
             horizons=[0.25, 24.0], feature_names=self.modelspecs.feature_names

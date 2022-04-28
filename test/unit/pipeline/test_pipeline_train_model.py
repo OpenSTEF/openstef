@@ -117,15 +117,15 @@ class TestTrainModelPipeline(BaseTestCase):
                 train_input = self.train_input
 
                 # Use default parameters
-                self.model_specs.hyper_params = {}
-                self.model_specs.hyper_params["max_epochs"] = 1
+                model_specs.hyper_params = {}
+                model_specs.hyper_params["max_epochs"] = 1
 
                 # For Linear model we need to choose an imputation strategy to handle missing value
                 if model_type == MLModelType.LINEAR:
-                    self.model_specs.hyper_params["imputation_strategy"] = "mean"
+                    model_specs.hyper_params["imputation_strategy"] = "mean"
 
-                model, report, model_specs = train_model_pipeline_core(
-                    pj=pj, model_specs=self.model_specs, input_data=train_input
+                model, report, modelspecs, _ = train_model_pipeline_core(
+                    pj=pj, model_specs=model_specs, input_data=train_input
                 )
 
                 # check if the model was fitted (raises NotFittedError when not fitted)
@@ -147,7 +147,7 @@ class TestTrainModelPipeline(BaseTestCase):
 
                 # Add features
                 data_with_features = TrainFeatureApplicator(
-                    horizons=[0.25, 47.0], feature_names=self.model_specs.feature_names
+                    horizons=[0.25, 47.0], feature_names=model_specs.feature_names
                 ).add_features(validated_data, pj=pj)
 
                 # Split data
@@ -174,7 +174,7 @@ class TestTrainModelPipeline(BaseTestCase):
         pj.default_modelspecs = model_specs
 
         train_input = self.train_input.iloc[::50, :]
-        model, report, model_specs = train_model_pipeline_core(
+        model, report, modelspecs, _ = train_model_pipeline_core(
             pj=pj, model_specs=model_specs, input_data=train_input
         )
 
@@ -262,7 +262,12 @@ class TestTrainModelPipeline(BaseTestCase):
         serializer_mock.return_value = serializer_mock_instance
 
         report_mock = MagicMock()
-        pipeline_mock.return_value = ("a", report_mock, self.model_specs)
+        pipeline_mock.return_value = (
+            "a",
+            report_mock,
+            self.model_specs,
+            (None, None, None),
+        )
 
         train_model_pipeline(
             pj=self.pj,
@@ -355,7 +360,7 @@ class TestTrainModelPipeline(BaseTestCase):
             mlflow_tracking_uri="./test/unit/trained_models/mlruns",
             artifact_folder="./test/unit/trained_models",
         )
-        self.assertIs(None, result)
+        self.assertIsNone(result)
         self.assertEqual(len(serializer_mock_instance.method_calls), 1)
 
     @patch("openstef.model.serializer.MLflowSerializer.save_model")
@@ -380,7 +385,7 @@ class TestTrainModelPipeline(BaseTestCase):
             mlflow_tracking_uri="./test/unit/trained_models/mlruns",
             artifact_folder="./test/unit/trained_models",
         )
-        self.assertIsInstance(result, Report)
+        self.assertIsNone(result)
         self.assertEqual(len(serializer_mock_instance.method_calls), 3)
 
     @patch("openstef.model.serializer.MLflowSerializer.save_model")
@@ -405,7 +410,7 @@ class TestTrainModelPipeline(BaseTestCase):
             mlflow_tracking_uri="./test/unit/trained_models/mlruns",
             artifact_folder="./test/unit/trained_models",
         )
-        self.assertIsInstance(result, Report)
+        self.assertIsNone(result)
         self.assertEqual(len(serializer_mock_instance.method_calls), 3)
 
     @patch("openstef.model.serializer.MLflowSerializer.save_model")
@@ -471,3 +476,46 @@ class TestTrainModelPipeline(BaseTestCase):
             ) = train_pipeline_common(
                 self.pj, self.model_specs, self.train_input, horizons="custom_horizon"
             )
+
+    @patch("openstef.pipeline.train_model.MLflowSerializer")
+    def test_train_model_pipeline_with_save_train_forecasts(self, mock_serializer):
+        """We check that the modelspecs object given as default in the prediction job
+        is the one given to save_model when there is no previous model saved for the
+        prediction job.
+        """
+
+        mock_serializer_instance = MagicMock()
+        # Mimick the absence of older model.
+        mock_serializer_instance.load_model.side_effect = FileNotFoundError()
+        mock_serializer.return_value = mock_serializer_instance
+
+        pj = copy.deepcopy(self.pj)
+        # hyper params that are different from the defaults.
+
+        datasets = train_model_pipeline(
+            pj=pj,
+            input_data=self.train_input,
+            check_old_model_age=True,
+            mlflow_tracking_uri="./test/unit/trained_models/mlruns",
+            artifact_folder="./test/unit/trained_models",
+        )
+
+        self.assertIsNone(datasets)
+
+        pj.save_train_forecasts = True
+
+        datasets = train_model_pipeline(
+            pj=pj,
+            input_data=self.train_input,
+            check_old_model_age=True,
+            mlflow_tracking_uri="./test/unit/trained_models/mlruns",
+            artifact_folder="./test/unit/trained_models",
+        )
+        self.assertIsNotNone(datasets)
+
+        for dataset in datasets:
+            self.assertIn("forecast", dataset.columns)
+
+
+if __name__ == "__main__":
+    unittest.main()
