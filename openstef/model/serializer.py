@@ -339,9 +339,9 @@ class MLflowSerializer:
             )
 
         # if feature modules is none, see if we can retrieve them from the old model
-        if model_specs.feature_modules is None:
+        if not model_specs.feature_modules:
             try:
-                if loaded_model.feature_modules is not None:
+                if loaded_model.feature_modules:
                     model_specs.feature_modules = loaded_model.feature_modules
                     self.logger.info(
                         "feature_modules retrieved from old model with an attribute",

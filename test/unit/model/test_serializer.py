@@ -23,6 +23,7 @@ class TestMLflowSerializer(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
         self.pj, self.modelspecs = TestData.get_prediction_job_and_modelspecs(pid=307)
+        self.modelspecs.feature_modules = ["feature_module1", "feature_module2"]
 
     @patch("mlflow.sklearn.load_model")
     def test_serializer_load_model_artifact_uri_construct(
@@ -118,6 +119,59 @@ class TestMLflowSerializer(BaseTestCase):
         ).load_model("307")
         self.assertIsInstance(modelspecs, ModelSpecificationDataClass)
         self.assertEqual(modelspecs.feature_names, None)
+
+    @patch("openstef.data_classes.model_specifications.ModelSpecificationDataClass")
+    @patch("mlflow.search_runs")
+    @patch("mlflow.sklearn.load_model")
+    def test_serializer_load_model_feature_modules_attributeerror(
+        self, mock_load, mock_search_runs, mock_modelspecs
+    ):
+        mock_search_runs.return_value = pd.DataFrame(
+            data={
+                "run_id": [1, 2],
+                "artifact_uri": ["path1", "path2"],
+                # give wrong feature_module type, something else than a str of a list or dict
+                "tags.feature_modules": [1, 2],
+                "end_time": [
+                    datetime.utcnow() - timedelta(days=2),
+                    datetime.utcnow() - timedelta(days=3),
+                ],
+            }
+        )
+        mock_modelspecs.return_value = self.modelspecs
+        type(mock_load.return_value).feature_modules = PropertyMock(return_value=[])
+        loaded_model, modelspecs = MLflowSerializer(
+            mlflow_tracking_uri="./test/unit/trained_models/mlruns"
+        ).load_model("307")
+        self.assertIsInstance(modelspecs, ModelSpecificationDataClass)
+        self.assertFalse(modelspecs.feature_modules)
+
+    @patch("openstef.data_classes.model_specifications.ModelSpecificationDataClass")
+    @patch("mlflow.search_runs")
+    @patch("mlflow.sklearn.load_model")
+    def test_serializer_load_model_feature_modules_jsonerror(
+        self, mock_load, mock_search_runs, mock_modelspecs
+    ):
+        mock_search_runs.return_value = pd.DataFrame(
+            data={
+                "run_id": [1, 2],
+                "artifact_uri": ["path1", "path2"],
+                # give wrong feature_module type, something else than a str of a list or dict
+                "tags.feature_modules": ["feature_module1", "feature_module1"],
+                "end_time": [
+                    datetime.utcnow() - timedelta(days=2),
+                    datetime.utcnow() - timedelta(days=3),
+                ],
+            }
+        )
+
+        mock_modelspecs.return_value = self.modelspecs
+        type(mock_load.return_value).feature_modules = PropertyMock(return_value=[])
+        loaded_model, modelspecs = MLflowSerializer(
+            mlflow_tracking_uri="./test/unit/trained_models/mlruns"
+        ).load_model("307")
+        self.assertIsInstance(modelspecs, ModelSpecificationDataClass)
+        self.assertFalse(modelspecs.feature_modules)
 
     @patch("openstef.model.serializer.MLflowSerializer._find_models")
     def test_serializer_load_model_empty_df_raise_lookuperror(self, mock_find_models):
