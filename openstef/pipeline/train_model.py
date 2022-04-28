@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 import logging
 from pathlib import Path
-from typing import List, Tuple, Union, Optional
+from typing import List, Optional, Tuple, Union
 
 import pandas as pd
 import structlog
