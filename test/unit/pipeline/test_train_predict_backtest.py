@@ -154,7 +154,9 @@ class TestTrainBackTestPipeline(BaseTestCase):
         nb_test = int(np.round(test_fraction * len(self.train_input)))
         validated_data = validation.drop_target_na(
             validation.validate(
-                self.pj["id"], self.train_input[-nb_test:], self.pj["flatliner_treshold"]
+                self.pj["id"],
+                self.train_input[-nb_test:],
+                self.pj["flatliner_treshold"],
             )
         )
         data_with_features = TrainFeatureApplicator(
