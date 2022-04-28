@@ -28,9 +28,7 @@ class PredictionJobDataClass(BaseModel):
     minimal_table_length: int = 100
     flatliner_treshold: int = 24
     depends_on: Optional[List[Union[int, str]]]
-    sid: Optional[
-        str
-    ]  # Only required for create_solar_forecast task  TODO: remove these or make subclass
+    sid: Optional[str]  # Only required for create_solar_forecast task
     turbine_type: Optional[str]  # Only required for create_wind_forecast task
     n_turbines: Optional[int]  # Only required for create_wind_forecast task
     hub_height: Optional[int]  # Only required for create_wind_forecast task
