@@ -84,11 +84,12 @@ class MLflowSerializer:
         mlflow.set_tag("model_type", model_type)
         mlflow.set_tag("prediction_job", experiment_name)
 
-        # Add feature names, target, metrics and params to the run
+        # Add feature names, target, feature modules, metrics and params to the run
         mlflow.set_tag(
             "feature_names", model_specs.feature_names[1:]
         )  # feature names are 1+ columns
         mlflow.set_tag("target", model_specs.feature_names[0])  # target is first column
+        mlflow.set_tag("feature_modules", model_specs.feature_modules)
         mlflow.log_metrics(report.metrics)
         model_specs.hyper_params.update(model.get_params())
         mlflow.log_params(model_specs.hyper_params)
@@ -197,6 +198,10 @@ class MLflowSerializer:
         model_specs.feature_names = self._get_feature_names(
             experiment_name, latest_run, model_specs, loaded_model
         )
+        # get feature_modules
+        model_specs.feature_modules = self._get_feature_modules(
+            experiment_name, latest_run, model_specs, loaded_model
+        )
         return model_specs
 
     def _determine_model_age_from_mlflow_run(self, run: pd.Series) -> Union[int, float]:
@@ -299,6 +304,55 @@ class MLflowSerializer:
                     experiment_name=experiment_name,
                 )
         return model_specs.feature_names
+
+    def _get_feature_modules(
+        self,
+        experiment_name: str,
+        latest_run: pd.Series,
+        model_specs: ModelSpecificationDataClass,
+        loaded_model: OpenstfRegressor,
+    ) -> list:
+        """Get the feature_modules from MLflow or the old model."""
+        error_message = "feature_modules couldn't be loaded, using None"
+        try:
+            model_specs.feature_modules = json.loads(
+                latest_run["tags.feature_modules"].replace("'", '"')
+            )
+
+        except KeyError:
+            self.logger.warning(
+                error_message,
+                experiment_name=experiment_name,
+                error="tags.feature_modules, doesn't exist in run",
+            )
+        except AttributeError:
+            self.logger.warning(
+                error_message,
+                experiment_name=experiment_name,
+                error="tags.feature_modules, needs to be a string",
+            )
+        except JSONDecodeError:
+            self.logger.warning(
+                error_message,
+                experiment_name=experiment_name,
+                error="tags.feature_modules, needs to be a string of a list",
+            )
+
+        # if feature modules is none, see if we can retrieve them from the old model
+        if not model_specs.feature_modules:
+            try:
+                if loaded_model.feature_modules:
+                    model_specs.feature_modules = loaded_model.feature_modules
+                    self.logger.info(
+                        "feature_modules retrieved from old model with an attribute",
+                        experiment_name=experiment_name,
+                    )
+            except AttributeError:
+                self.logger.warning(
+                    "feature_modules not an attribute of the old model, using None ",
+                    experiment_name=experiment_name,
+                )
+        return model_specs.feature_modules
 
     def _get_model_uri(self, artifact_uri: str) -> str:
         """Set model uri based on latest run.
