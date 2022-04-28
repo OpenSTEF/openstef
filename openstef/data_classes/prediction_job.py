@@ -2,11 +2,10 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-from typing import List, Optional, Union
-
+from typing import Union, Optional, List, Dict, Any
 from pydantic import BaseModel
-
-from openstef.data_classes.model_specifications import ModelSpecificationDataClass
+from .split_function import SplitFuncDataClass
+from .model_specifications import ModelSpecificationDataClass
 
 
 class PredictionJobDataClass(BaseModel):
@@ -21,6 +20,8 @@ class PredictionJobDataClass(BaseModel):
     train_components: Optional[bool]
     description: Optional[str]
     quantiles: Optional[List[float]]
+    train_split_func: Optional[SplitFuncDataClass]
+    backtest_split_func: Optional[SplitFuncDataClass]
     train_horizons_minutes: Optional[List[int]]
     default_modelspecs: Optional[ModelSpecificationDataClass]
     save_train_forecasts: bool = False

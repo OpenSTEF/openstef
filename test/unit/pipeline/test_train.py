@@ -9,7 +9,10 @@ from test.unit.utils.data import TestData
 import numpy as np
 import pandas as pd
 
-from openstef.pipeline.train_model import split_data_train_validation_test
+from openstef.model_selection.model_selection import split_data_train_validation_test
+from openstef.pipeline.train_model import train_pipeline_step_split_data
+from openstef.data_classes.split_function import SplitFuncDataClass
+from sklearn.model_selection import TimeSeriesSplit
 
 # define constants
 SPLIT_PARAMS = {
@@ -17,6 +20,18 @@ SPLIT_PARAMS = {
     "validation_fraction": 0.15,
     "amount_day": 96,
 }
+
+
+def dummy_split(data, test_fraction):
+    return data.iloc[:100], data.iloc[100:110], data.iloc[110:120]
+
+
+def sk_split(data, test_fraction, gap):
+    tscv = TimeSeriesSplit(
+        n_splits=2, test_size=int(np.round(test_fraction * len(data))), gap=gap
+    )
+    splits = list(tscv.split(data))
+    return data.iloc[splits[0][0]], data.iloc[splits[0][1]], data.iloc[splits[1][1]]
 
 
 class TestTrain(BaseTestCase):
@@ -174,6 +189,97 @@ class TestTrain(BaseTestCase):
         self.assertAlmostEqual(
             len(train_set),
             len(self.data_table.index) * train_fraction,
+            delta=4,
+        )
+
+    def test_train_pipeline_step_split_data(self):
+        train_set, valid_set, test_set = train_pipeline_step_split_data(
+            self.data_table,
+            self.pj,
+            test_fraction=SPLIT_PARAMS["test_fraction"],
+        )
+
+        # delta = 4, when looking at the test data, can differ 1 hr (4x15min)
+        self.assertAlmostEqual(
+            len(test_set),
+            len(self.data_table.index) * SPLIT_PARAMS["test_fraction"],
+            delta=4,
+        )
+        self.assertAlmostEqual(
+            len(set(valid_set.index.date)),
+            len(set(self.data_table.index.date)) * SPLIT_PARAMS["validation_fraction"],
+            delta=2,
+        )
+
+    def test_train_pipeline_step_split_data_test_data_predefined(self):
+        test_data_predefined = self.data_table.tail(15)
+        train_data, validation_data, test_data = train_pipeline_step_split_data(
+            self.data_table,
+            self.pj,
+            test_fraction=0,
+            test_data_predefined=test_data_predefined,
+        )
+
+        self.assertTrue(test_data.equals(test_data_predefined))
+
+    def test_train_pipeline_step_split_data_custom_split(self):
+        pj = self.pj
+
+        # Test wrong custom split
+        pj.train_split_func = SplitFuncDataClass(function="unkown_split", arguments={})
+        with self.assertRaises(ValueError):
+            train_data, validation_data, test_data = train_pipeline_step_split_data(
+                self.data_table,
+                pj,
+                test_fraction=0,
+            )
+
+        pj.train_split_func = SplitFuncDataClass(
+            function=lambda data: dummy_split(data, 0), arguments={}
+        )
+        with self.assertRaises(ValueError):
+            train_data, validation_data, test_data = train_pipeline_step_split_data(
+                self.data_table,
+                pj,
+                test_fraction=0,
+            )
+
+        # Test dummy custom split
+        pj.train_split_func = SplitFuncDataClass(function=dummy_split, arguments={})
+        train_data, validation_data, test_data = train_pipeline_step_split_data(
+            self.data_table,
+            pj,
+            test_fraction=0,
+        )
+        self.assertTrue(train_data.equals(self.data_table.iloc[:100]))
+        self.assertTrue(validation_data.equals(self.data_table.iloc[100:110]))
+        self.assertTrue(test_data.equals(self.data_table.iloc[110:120]))
+
+        # Test dummy custom split as json
+        pj.train_split_func = SplitFuncDataClass(
+            function="test.unit.pipeline.test_train.dummy_split", arguments="{}"
+        )
+        train_data, validation_data, test_data = train_pipeline_step_split_data(
+            self.data_table,
+            pj,
+            test_fraction=0,
+        )
+        self.assertTrue(train_data.equals(self.data_table.iloc[:100]))
+        self.assertTrue(validation_data.equals(self.data_table.iloc[100:110]))
+        self.assertTrue(test_data.equals(self.data_table.iloc[110:120]))
+
+        # Test sklearn custom split with argument
+        pj.train_split_func = SplitFuncDataClass(
+            function=sk_split, arguments={"gap": 10}
+        )
+        train_data, validation_data, test_data = train_pipeline_step_split_data(
+            self.data_table,
+            pj,
+            test_fraction=SPLIT_PARAMS["test_fraction"],
+        )
+        self.assertAlmostEqual(
+            len(test_data),
+            len(self.data_table.index) * SPLIT_PARAMS["test_fraction"],
             delta=4,
         )
 

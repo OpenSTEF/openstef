@@ -234,11 +234,64 @@ def train_pipeline_common(
             (empty data frame by default)
 
     Returns:
-        fitted_model (OpenstfRegressor)
-        report (Report)
-        train_data (pd.DataFrame)
-        validation_data (pd.DataFrame)
-        test_data (pd.DataFrame)
+        trained_model (RegressorMixin): the trained model
+        report (Report): Report
+        train_data (pd.DataFrame): The train data
+        validation_data (pd.DataFrame): The validation data
+        test_data (pd.DataFrame): The test data
+
+    Raises:
+        InputDataInsufficientError: when input data is insufficient.
+        InputDataWrongColumnOrderError: when input data has a invalid column order.
+
+    """
+    data_with_features = train_pipeline_step_compute_features(
+        pj=pj, model_specs=model_specs, input_data=input_data, horizons=horizons
+    )
+
+    train_data, validation_data, test_data = train_pipeline_step_split_data(
+        data_with_features=data_with_features,
+        pj=pj,
+        test_fraction=test_fraction,
+        backtest=backtest,
+        test_data_predefined=test_data_predefined,
+    )
+
+    model = train_pipeline_step_train_model(
+        pj=pj,
+        model_specs=model_specs,
+        train_data=train_data,
+        validation_data=validation_data,
+    )
+
+    # Report about the training process
+    reporter = Reporter(train_data, validation_data, test_data)
+    report = reporter.generate_report(model)
+
+    if pj.save_train_forecasts:
+        train_data["forecast"] = model.predict(train_data.iloc[:, 1:-1])
+        validation_data["forecast"] = model.predict(validation_data.iloc[:, 1:-1])
+        test_data["forecast"] = model.predict(test_data.iloc[:, 1:-1])
+
+    return model, report, train_data, validation_data, test_data
+
+
+def train_pipeline_step_compute_features(
+    pj: PredictionJobDataClass,
+    model_specs: ModelSpecificationDataClass,
+    input_data: pd.DataFrame,
+    horizons=List[float],
+) -> pd.DataFrame:
+    """Compute features and perform consistency checks
+
+    Args:
+        pj (PredictionJobDataClass): Prediction job
+        model_specs (ModelSpecificationDataClass): Dataclass containing model specifications
+        input_data (pd.DataFrame): Input data
+        horizons (List[float]): horizons to train on in hours.
+
+    Returns:
+        data_with_features (pd.DataFrame): The dataframe with features need to train the model
 
     Raises:
         InputDataInsufficientError: when input data is insufficient.
@@ -246,6 +299,10 @@ def train_pipeline_common(
         ValueError: when the horizon is a string and the corresponding column in not in the input data
 
     """
+    if pj["model"] == "proloaf":
+        # proloaf is only able to train with one horizon
+        horizons = [horizons[0]]
+
     if input_data.empty:
         raise InputDataInsufficientError("Input dataframe is empty")
     elif "load" not in input_data.columns:
@@ -274,40 +331,31 @@ def train_pipeline_common(
             "Input data is insufficient, after validation and cleaning"
         )
 
-    if pj["model"] == "proloaf":
-        stratification_min_max = False
-        # proloaf is only able to train with one horizon
-        horizons = [horizons[0]]
-    else:
-        stratification_min_max = True
-
     data_with_features = TrainFeatureApplicator(
         horizons=horizons,
         feature_names=model_specs.feature_names,
         feature_modules=model_specs.feature_modules,
     ).add_features(validated_data, pj=pj)
 
-    # if test_data is predefined, apply the pipeline only on the remaining data
-    if not test_data_predefined.empty:
-        test_data_predefined = data_with_features[
-            data_with_features.index.isin(test_data_predefined.index)
-        ].sort_index()
-        data_with_features = data_with_features[
-            ~data_with_features.index.isin(test_data_predefined.index)
-        ].sort_index()
+    return data_with_features
 
-    # Split data
-    (train_data, validation_data, test_data,) = split_data_train_validation_test(
-        data_with_features,
-        test_fraction=test_fraction,
-        stratification_min_max=stratification_min_max,
-        back_test=backtest,
-    )
 
-    # if test_data is predefined, use this over the returned test_data of split function
-    if not test_data_predefined.empty:
-        test_data = test_data_predefined
+def train_pipeline_step_train_model(
+    pj: PredictionJobDataClass,
+    model_specs: ModelSpecificationDataClass,
+    train_data: pd.DataFrame,
+    validation_data: pd.DataFrame,
+) -> OpenstfRegressor:
+    """Train the model
+    Args:
+        pj (PredictionJobDataClass): Prediction job
+        model_specs (ModelSpecificationDataClass): Dataclass containing model specifications
+        train_data (pd.DataFrame): The training data
+        validation_data (pd.DataFrame): The test data
 
+    Returns:
+        trained_model (OpenstfRegressor): The trained model
+    """
     # Test if first column is "load" and last column is "horizon"
     if train_data.columns[0] != "load" or train_data.columns[-1] != "horizon":
         raise InputDataWrongColumnOrderError(
@@ -358,9 +406,17 @@ def train_pipeline_common(
         validation_data
     ).generate_standard_deviation_data(model)
 
-    # Report about the training process
-    reporter = Reporter(train_data, validation_data, test_data)
-    report = reporter.generate_report(model)
+    return model
+
+
+def train_pipeline_step_split_data(
+    data_with_features: pd.DataFrame,
+    pj: PredictionJobDataClass,
+    test_fraction: float,
+    backtest: bool = False,
+    test_data_predefined: pd.DataFrame = pd.DataFrame(),
+) -> (pd.DataFrame, pd.DataFrame, pd.DataFrame):
+    """The default way to perform train, val, test split
 
     if pj.save_train_forecasts:
         train_data["forecast"] = model.predict(train_data.iloc[:, 1:-1])
@@ -368,3 +424,43 @@ def train_pipeline_common(
         test_data["forecast"] = model.predict(test_data.iloc[:, 1:-1])
 
     return model, report, train_data, validation_data, test_data
+    Args:
+        data_with_features (pd.DataFrame): Input data
+        pj (PredictionJobDataClass): Prediction job
+        test_fraction (float): fraction of data to use for testing
+        backtest (bool): boolean if we need to do a backtest
+        test_data_predefined (pd.DataFrame): Predefined test data frame to be used in the pipeline
+            (empty data frame by default)
+    Returns:
+        train_data, validation_data, test_data: The train, validation and test datasets.
+    """
+    # if test_data is predefined, apply the pipeline only on the remaining data
+    if not test_data_predefined.empty:
+        test_data_predefined = data_with_features[
+            data_with_features.index.isin(test_data_predefined.index)
+        ].sort_index()
+        data_with_features = data_with_features[
+            ~data_with_features.index.isin(test_data_predefined.index)
+        ].sort_index()
+
+    # Split data
+    if pj.train_split_func is None:
+        split_func = split_data_train_validation_test
+        split_args = {
+            "stratification_min_max": pj["model"] != "proloaf",
+            "back_test": backtest,
+        }
+    else:
+        split_func, split_args = pj.train_split_func.load(
+            required_arguments=["data", "test_fraction"]
+        )
+
+    train_data, validation_data, test_data = split_func(
+        data_with_features, test_fraction, **split_args
+    )
+
+    # if test_data is predefined, use this over the returned test_data of split function
+    if not test_data_predefined.empty:
+        test_data = test_data_predefined
+
+    return train_data, validation_data, test_data
