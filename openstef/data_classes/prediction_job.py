@@ -30,8 +30,8 @@ class PredictionJobDataClass(BaseModel):
     depends_on: Optional[List[Union[int, str]]]
     sid: Optional[str]  # Only required for create_solar_forecast task
     turbine_type: Optional[str]  # Only required for create_wind_forecast task
-    n_turbines: Optional[int]  # Only required for create_wind_forecast task
-    hub_height: Optional[int]  # Only required for create_wind_forecast task
+    n_turbines: Optional[float]  # Only required for create_wind_forecast task
+    hub_height: Optional[float]  # Only required for create_wind_forecast task
 
     def __getitem__(self, item):
         """Allows us to use subscription to get the items from the object"""

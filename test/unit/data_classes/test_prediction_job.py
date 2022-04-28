@@ -103,8 +103,8 @@ class TestPredictionJobs(unittest.TestCase):
         pj_dict = {
             "id": 307,
             "turbine_type": "test",
-            "n_turbines": 3,
-            "hub_height": 20,
+            "n_turbines": 3.0,
+            "hub_height": 20.0,
             "model": "xgb",
             "model_type_group": "xgb",
             "horizon_minutes": 2880,
@@ -142,5 +142,5 @@ class TestPredictionJobs(unittest.TestCase):
         self.assertIsInstance(pj, PredictionJobDataClass)
         self.assertEqual(pj["id"], 307)
         self.assertEqual(pj["turbine_type"], "test")
-        self.assertEqual(pj["n_turbines"], 3)
-        self.assertEqual(pj["hub_height"], 20)
+        self.assertEqual(pj["n_turbines"], 3.0)
+        self.assertEqual(pj["hub_height"], 20.0)
