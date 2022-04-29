@@ -4,7 +4,7 @@
 
 """create_solar_forecast
 This module contains the CRON job that is periodically executed to make
-prognoses of solar features that are usefull for splitting the load in solar and
+prognoses of solar features that are useful for splitting the load in solar and
 wind contributions.
 Example:
     This module is meant to be called directly from a CRON job. A description of
@@ -29,21 +29,19 @@ from openstef.tasks.utils.taskcontext import TaskContext
 PV_COEFS_FILEPATH = PROJECT_ROOT / "openstef" / "data" / "pv_single_coefs.csv"
 
 
-def make_solar_prediction_pj(pj, context):
+def make_solar_prediction_pj(pj, context, radius=30, peak_power=180961000.0):
     """Make a solar prediction for a specific prediction job.
 
     Args:
         pj: (dict) prediction job
     """
-    pj["radius"] = 30
-    pj["peak_power"] = 180961000.0
     context.logger.info("Get solar input data from database")
     # pvdata is only stored in the prd database
     solar_input = context.database.get_solar_input(
         (pj["lat"], pj["lon"]),
         pj["horizon_minutes"],
         pj["resolution_minutes"],
-        radius=pj["radius"],
+        radius=radius,
         sid=pj["sid"],
     )
 
@@ -58,8 +56,8 @@ def make_solar_prediction_pj(pj, context):
     )
 
     # if the forecast is for a region, output should be scaled to peak power
-    if (pj["radius"] != 0) and (not np.isnan(pj["peak_power"])):
-        power = pj["peak_power"] / max(solar_input.aggregated) * power
+    if (radius != 0) and (not np.isnan(peak_power)):
+        power = peak_power / max(solar_input.aggregated) * power
     context.logger.info("Store solar prediction in database")
     power["pid"] = pj["id"]
     power["type"] = "solar"

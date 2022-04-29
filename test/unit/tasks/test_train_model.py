@@ -2,16 +2,15 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 import copy
-
-import pandas as pd
-
-from test.unit.utils.data import TestData
 import unittest
+from test.unit.utils.data import TestData
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
 
+import pandas as pd
 
-from openstef.tasks.train_model import train_model_task, main as task_main
+from openstef.tasks.train_model import main as task_main
+from openstef.tasks.train_model import train_model_task
 
 
 class TestTrainModelTask(TestCase):
