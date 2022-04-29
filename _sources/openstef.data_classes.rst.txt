@@ -20,6 +20,14 @@ openstef.data\_classes.prediction\_job module
    :undoc-members:
    :show-inheritance:
 
+openstef.data\_classes.split\_function module
+---------------------------------------------
+
+.. automodule:: openstef.data_classes.split_function
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 
 Module contents
 ---------------

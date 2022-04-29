@@ -75,6 +75,26 @@
 <div class="section" id="module-openstef.model_selection.model_selection">
 <span id="openstef-model-selection-model-selection-module"></span><h2>openstef.model_selection.model_selection module<a class="headerlink" href="#module-openstef.model_selection.model_selection" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
+<dt id="openstef.model_selection.model_selection.backtest_split_default">
+<code class="sig-prename descclassname">openstef.model_selection.model_selection.</code><code class="sig-name descname">backtest_split_default</code><span class="sig-paren">(</span><em class="sig-param">input_data: pandas.core.frame.DataFrame</em>, <em class="sig-param">n_folds: int</em>, <em class="sig-param">test_fraction: float = 0.15</em>, <em class="sig-param">stratification_min_max: bool = True</em><span class="sig-paren">)</span> &#x2192; Iterable[Tuple[pandas.core.frame.DataFrame, pandas.core.frame.DataFrame, pandas.core.frame.DataFrame]]<a class="headerlink" href="#openstef.model_selection.model_selection.backtest_split_default" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default cross validation strategy.
+:param input_data:
+:param n_folds:
+:param test_fraction:
+:param stratification_min_max:</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Iterable on train, val, test splits</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>train_val_test_generator (Iterable[pd.DataFrame, pd.DataFrame, pd.DataFrame])</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>We use a generator in order to have lazy estimation and avoid multiple copy of the data.</p>
+</dd></dl>
+
+<dl class="function">
 <dt id="openstef.model_selection.model_selection.group_kfold">
 <code class="sig-prename descclassname">openstef.model_selection.model_selection.</code><code class="sig-name descname">group_kfold</code><span class="sig-paren">(</span><em class="sig-param">input_data: pandas.core.frame.DataFrame</em>, <em class="sig-param">n_folds: int</em>, <em class="sig-param">random_split: bool = True</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstef.model_selection.model_selection.group_kfold" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">

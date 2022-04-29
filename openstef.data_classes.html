@@ -39,6 +39,7 @@
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
 <li><a class="reference internal" href="#module-openstef.data_classes.model_specifications">openstef.data_classes.model_specifications module</a></li>
 <li><a class="reference internal" href="#module-openstef.data_classes.prediction_job">openstef.data_classes.prediction_job module</a></li>
+<li><a class="reference internal" href="#module-openstef.data_classes.split_function">openstef.data_classes.split_function module</a></li>
 <li><a class="reference internal" href="#module-openstef.data_classes">Module contents</a></li>
 </ul>
 </li>
@@ -120,6 +121,11 @@
 </dd></dl>
 
 <dl class="attribute">
+<dt id="openstef.data_classes.prediction_job.PredictionJobDataClass.backtest_split_func">
+<code class="sig-name descname">backtest_split_func</code><em class="property">: Optional[SplitFuncDataClass]</em><em class="property"> = None</em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.backtest_split_func" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
 <dt id="openstef.data_classes.prediction_job.PredictionJobDataClass.completeness_treshold">
 <code class="sig-name descname">completeness_treshold</code><em class="property">: float</em><em class="property"> = None</em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.completeness_treshold" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -155,6 +161,11 @@
 <dd></dd></dl>
 
 <dl class="attribute">
+<dt id="openstef.data_classes.prediction_job.PredictionJobDataClass.hub_height">
+<code class="sig-name descname">hub_height</code><em class="property">: Optional[float]</em><em class="property"> = None</em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.hub_height" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
 <dt id="openstef.data_classes.prediction_job.PredictionJobDataClass.id">
 <code class="sig-name descname">id</code><em class="property">: Union[int, str]</em><em class="property"> = None</em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.id" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -180,6 +191,11 @@
 <dd></dd></dl>
 
 <dl class="attribute">
+<dt id="openstef.data_classes.prediction_job.PredictionJobDataClass.n_turbines">
+<code class="sig-name descname">n_turbines</code><em class="property">: Optional[float]</em><em class="property"> = None</em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.n_turbines" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
 <dt id="openstef.data_classes.prediction_job.PredictionJobDataClass.name">
 <code class="sig-name descname">name</code><em class="property">: str</em><em class="property"> = None</em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.name" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -200,6 +216,11 @@
 <dd></dd></dl>
 
 <dl class="attribute">
+<dt id="openstef.data_classes.prediction_job.PredictionJobDataClass.sid">
+<code class="sig-name descname">sid</code><em class="property">: Optional[str]</em><em class="property"> = None</em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.sid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
 <dt id="openstef.data_classes.prediction_job.PredictionJobDataClass.train_components">
 <code class="sig-name descname">train_components</code><em class="property">: Optional[bool]</em><em class="property"> = None</em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.train_components" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -208,6 +229,55 @@
 <dt id="openstef.data_classes.prediction_job.PredictionJobDataClass.train_horizons_minutes">
 <code class="sig-name descname">train_horizons_minutes</code><em class="property">: Optional[List[int]]</em><em class="property"> = None</em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.train_horizons_minutes" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="attribute">
+<dt id="openstef.data_classes.prediction_job.PredictionJobDataClass.train_split_func">
+<code class="sig-name descname">train_split_func</code><em class="property">: Optional[SplitFuncDataClass]</em><em class="property"> = None</em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.train_split_func" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="openstef.data_classes.prediction_job.PredictionJobDataClass.turbine_type">
+<code class="sig-name descname">turbine_type</code><em class="property">: Optional[str]</em><em class="property"> = None</em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.turbine_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-openstef.data_classes.split_function">
+<span id="openstef-data-classes-split-function-module"></span><h2>openstef.data_classes.split_function module<a class="headerlink" href="#module-openstef.data_classes.split_function" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="openstef.data_classes.split_function.SplitFuncDataClass">
+<em class="property">class </em><code class="sig-prename descclassname">openstef.data_classes.split_function.</code><code class="sig-name descname">SplitFuncDataClass</code><a class="headerlink" href="#openstef.data_classes.split_function.SplitFuncDataClass" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pydantic.main.BaseModel</span></code></p>
+<dl class="attribute">
+<dt id="openstef.data_classes.split_function.SplitFuncDataClass.arguments">
+<code class="sig-name descname">arguments</code><em class="property">: Union[str, Dict[str, Any]]</em><em class="property"> = None</em><a class="headerlink" href="#openstef.data_classes.split_function.SplitFuncDataClass.arguments" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="openstef.data_classes.split_function.SplitFuncDataClass.function">
+<code class="sig-name descname">function</code><em class="property">: Union[str, Callable]</em><em class="property"> = None</em><a class="headerlink" href="#openstef.data_classes.split_function.SplitFuncDataClass.function" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="openstef.data_classes.split_function.SplitFuncDataClass.load">
+<code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param">required_arguments: Sequence[str] = None) -&gt; (typing.Callable, typing.Dict[str, typing.Any]</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.data_classes.split_function.SplitFuncDataClass.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load the function and its arguments</p>
+<p>If the function and the arguments are given as strings in the instane attributes, load them as Python objects
+otherwise just return them from the instance attributes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>required_arguments</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – list of arguments the loaded function must have</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p>function (Callable)</p></li>
+<li><p>arguments (Dict[str, Any])</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 

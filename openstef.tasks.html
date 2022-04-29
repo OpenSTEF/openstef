@@ -243,7 +243,7 @@ On this task level all database and context manager dependencies are resolved.</
 <span id="openstef-tasks-create-solar-forecast-module"></span><h2>openstef.tasks.create_solar_forecast module<a class="headerlink" href="#module-openstef.tasks.create_solar_forecast" title="Permalink to this headline">¶</a></h2>
 <p>create_solar_forecast
 This module contains the CRON job that is periodically executed to make
-prognoses of solar features that are usefull for splitting the load in solar and
+prognoses of solar features that are useful for splitting the load in solar and
 wind contributions.
 .. rubric:: Example</p>
 <p>This module is meant to be called directly from a CRON job. A description of
@@ -395,7 +395,7 @@ data.loc[int(len(index)/3*2):,”load”] = np.NaN</p>
 
 <dl class="function">
 <dt id="openstef.tasks.create_solar_forecast.make_solar_prediction_pj">
-<code class="sig-prename descclassname">openstef.tasks.create_solar_forecast.</code><code class="sig-name descname">make_solar_prediction_pj</code><span class="sig-paren">(</span><em class="sig-param">pj</em>, <em class="sig-param">context</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.create_solar_forecast.make_solar_prediction_pj" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstef.tasks.create_solar_forecast.</code><code class="sig-name descname">make_solar_prediction_pj</code><span class="sig-paren">(</span><em class="sig-param">pj</em>, <em class="sig-param">context</em>, <em class="sig-param">radius=30</em>, <em class="sig-param">peak_power=180961000.0</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.create_solar_forecast.make_solar_prediction_pj" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make a solar prediction for a specific prediction job.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
