@@ -56,7 +56,8 @@ def make_solar_prediction_pj(pj, context, radius=30, peak_power=180961000.0):
     )
 
     # if the forecast is for a region, output should be scaled to peak power
-    power = peak_power / max(solar_input.aggregated) * power
+    if (radius != 0) and (not np.isnan(peak_power)):
+        power = peak_power / max(solar_input.aggregated) * power
     context.logger.info("Store solar prediction in database")
     power["pid"] = pj["id"]
     power["type"] = "solar"
