@@ -61,9 +61,14 @@ class BaseCaseModel(BaseEstimator, RegressorMixin):
 
         # Maybe there is still missing data, for example if the cdb has been down for a
         # while in this case, use the load of 2 weeks before
-        basecase_forecast = pd.concat([basecase_forecast, forecast_input_data[["T-14d"]]
-            .dropna()
-            .rename(columns={"T-14d": "forecast"})])
+        basecase_forecast = pd.concat(
+            [
+                basecase_forecast,
+                forecast_input_data[["T-14d"]]
+                .dropna()
+                .rename(columns={"T-14d": "forecast"}),
+            ]
+        )
         basecase_forecast = basecase_forecast[
             np.invert(basecase_forecast.index.duplicated())
         ]
