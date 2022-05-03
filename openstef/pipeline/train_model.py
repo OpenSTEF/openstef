@@ -182,7 +182,7 @@ def train_model_pipeline_core(
 
     # Check if new model is better than old model
     if old_model:
-        combined = train_data.append(validation_data).reset_index(drop=True)
+        combined = pd.concat([train_data, validation_data]).reset_index(drop=True)
         x_data, y_data = (
             combined.iloc[:, 1:-1],
             combined.iloc[:, 0],

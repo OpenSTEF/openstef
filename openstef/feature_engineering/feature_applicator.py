@@ -97,7 +97,7 @@ class TrainFeatureApplicator(AbstractFeatureApplicator):
             # copy the custom horizon into the horizon column
             res = df.copy(deep=True)
             res["horizon"] = res[self.horizons]
-            result = result.append(res)
+            result = pd.concat([result, res])
         else:
             # Loop over horizons and add corresponding features
             for horizon in self.horizons:
