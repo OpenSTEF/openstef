@@ -45,5 +45,5 @@ jobs:
           git config --global user.email 'action@github.com'
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY
           git checkout ${{ github.head_ref }}
-          git commit -am "Format Python code with Black"
+          git commit -am "Format Python code with Black  Signed-off-by: OpenSTEF <korte.termijn.prognoses@alliander.com>"
           git push
