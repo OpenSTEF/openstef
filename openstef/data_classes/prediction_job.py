@@ -17,7 +17,6 @@ class PredictionJobDataClass(BaseModel):
     lat: float
     lon: float
     name: str
-
     train_components: Optional[bool]
     description: Optional[str]
     quantiles: Optional[List[float]]
@@ -38,6 +37,7 @@ class PredictionJobDataClass(BaseModel):
     def __getitem__(self, item):
         """Allows us to use subscription to get the items from the object"""
         return getattr(self, item)
+
 
     def __setitem__(self, key: str, value: any):
         """Allows us to use subscription to set the items in the object"""
