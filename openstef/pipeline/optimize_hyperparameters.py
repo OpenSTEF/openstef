@@ -62,6 +62,41 @@ def optimize_hyperparameters_pipeline(
     Returns:
         dict: Optimized hyperparameters.
     """
+
+    (
+        best_model,
+        model_specs,
+        report,
+        trials,
+        best_trial_number,
+        best_params,
+    ) = optimize_hyperparameters_pipeline_core(pj, input_data, horizons, n_trials)
+
+    # Create serializer
+    serializer = MLflowSerializer(mlflow_tracking_uri=mlflow_tracking_uri)
+
+    # Save model, optimization results and report
+    serializer.save_model(
+        model=best_model,
+        experiment_name=str(pj["id"]),
+        model_type=pj["model"],
+        model_specs=model_specs,
+        report=report,
+        phase="Hyperparameter_opt",
+        trials=trials,
+        trial_number=best_trial_number,
+    )
+    if artifact_folder:
+        Reporter.write_report_to_disk(report=report, artifact_folder=artifact_folder)
+    return best_params
+
+
+def optimize_hyperparameters_pipeline_core(
+    pj: PredictionJobDataClass,
+    input_data: pd.DataFrame,
+    horizons: List[float] = DEFAULT_TRAIN_HORIZONS,
+    n_trials: int = N_TRIALS,
+):
     if input_data.empty:
         raise InputDataInsufficientError("Input dataframe is empty")
     elif "load" not in input_data.columns:
@@ -105,9 +140,6 @@ def optimize_hyperparameters_pipeline(
         new_cols = temp_cols[:-2] + [temp_cols[-1]] + [temp_cols[-2]]
         validated_data_with_features = validated_data_with_features[new_cols]
 
-    # Create serializer
-    serializer = MLflowSerializer(mlflow_tracking_uri=mlflow_tracking_uri)
-
     # Create objective (NOTE: this is a callable class)
     objective = ObjectiveCreator.create_objective(model_type=pj["model"])
 
@@ -143,19 +175,11 @@ def optimize_hyperparameters_pipeline(
 
     # Save model and report. Report is always saved to MLFlow and optionally to disk
     report = objective.create_report(model=best_model)
-    serializer.save_model(
-        model=best_model,
-        experiment_name=str(pj["id"]),
-        model_type=pj["model"],
-        model_specs=model_specs,
-        report=report,
-        phase="Hyperparameter_opt",
-        trials=objective.get_trial_track(),
-        trial_number=study.best_trial.number,
-    )
-    if artifact_folder:
-        Reporter.write_report_to_disk(report=report, artifact_folder=artifact_folder)
-    return study.best_params
+
+    trials = objective.get_trial_track()
+    best_trial_number = study.best_trial.number
+
+    return best_model, model_specs, report, trials, best_trial_number, study.best_params
 
 
 def optuna_optimization(
