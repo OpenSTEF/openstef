@@ -11,7 +11,15 @@ from openstef.exceptions import (
     InputDataInsufficientError,
     InputDataWrongColumnOrderError,
 )
-from openstef.pipeline.optimize_hyperparameters import optimize_hyperparameters_pipeline
+
+from openstef.metrics.reporter import Report
+from openstef.model.regressors.regressor import OpenstfRegressor
+from openstef.data_classes.model_specifications import ModelSpecificationDataClass
+
+from openstef.pipeline.optimize_hyperparameters import (
+    optimize_hyperparameters_pipeline,
+    optimize_hyperparameters_pipeline_core,
+)
 
 
 class TestOptimizeHyperParametersPipeline(BaseTestCase):
@@ -41,16 +49,32 @@ class TestOptimizeHyperParametersPipeline(BaseTestCase):
         ]
         self.assertTupleEqual(stored_quantiles, predefined_quantiles)
 
+    def test_optimize_hyperparameters_pipeline_core(self):
+        """Also check if non-default quantiles are processed correctly"""
+        pj = self.pj
+        predefined_quantiles = (0.001, 0.5)
+        pj["quantiles"] = predefined_quantiles
+
+        result = optimize_hyperparameters_pipeline_core(
+            pj,
+            self.input_data,
+            n_trials=2,
+        )
+        self.assertIsInstance(result[0], OpenstfRegressor)
+        self.assertIsInstance(result[1], ModelSpecificationDataClass)
+        self.assertIsInstance(result[2], Report)
+        self.assertIsInstance(result[3], dict)
+        self.assertIsInstance(result[4], int)
+        self.assertIsInstance(result[5], dict)
+
     @patch("openstef.validation.validation.is_data_sufficient", return_value=False)
     def test_optimize_hyperparameters_pipeline_insufficient_data(self, mock):
 
         # if data is not sufficient a InputDataInsufficientError should be raised
         with self.assertRaises(InputDataInsufficientError):
-            optimize_hyperparameters_pipeline(
+            optimize_hyperparameters_pipeline_core(
                 self.pj,
                 self.input_data,
-                mlflow_tracking_uri="./test/unit/trained_models/mlruns",
-                artifact_folder="./test/unit/trained_models",
                 n_trials=2,
             )
 
@@ -59,11 +83,9 @@ class TestOptimizeHyperParametersPipeline(BaseTestCase):
 
         # if there is no data a InputDataInsufficientError should be raised
         with self.assertRaises(InputDataInsufficientError):
-            optimize_hyperparameters_pipeline(
+            optimize_hyperparameters_pipeline_core(
                 self.pj,
                 input_data,
-                mlflow_tracking_uri="./test/unit/trained_models/mlruns",
-                artifact_folder="./test/unit/trained_models",
                 n_trials=2,
             )
 
@@ -72,11 +94,9 @@ class TestOptimizeHyperParametersPipeline(BaseTestCase):
         input_data = self.input_data.drop("load", axis=1)
         # if there is no data a InputDataWrongColumnOrderError should be raised
         with self.assertRaises(InputDataWrongColumnOrderError):
-            optimize_hyperparameters_pipeline(
+            optimize_hyperparameters_pipeline_core(
                 self.pj,
                 input_data,
-                mlflow_tracking_uri="./test/unit/trained_models/mlruns",
-                artifact_folder="./test/unit/trained_models",
                 n_trials=2,
             )
 
