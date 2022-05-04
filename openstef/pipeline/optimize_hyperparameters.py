@@ -1,8 +1,7 @@
 # SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-from pathlib import Path
-from typing import List, Tuple
+from typing import List, Tuple, Any
 
 import optuna
 import pandas as pd
@@ -15,8 +14,10 @@ from openstef.exceptions import (
     InputDataWrongColumnOrderError,
 )
 from openstef.feature_engineering.feature_applicator import TrainFeatureApplicator
-from openstef.metrics.reporter import Reporter
+from openstef.metrics.reporter import Reporter, Report
 from openstef.model.model_creator import ModelCreator
+from openstef.model.regressors.regressor import OpenstfRegressor
+
 from openstef.model.objective import RegressorObjective
 from openstef.model.objective_creator import ObjectiveCreator
 from openstef.model.serializer import MLflowSerializer
@@ -96,7 +97,30 @@ def optimize_hyperparameters_pipeline_core(
     input_data: pd.DataFrame,
     horizons: List[float] = DEFAULT_TRAIN_HORIZONS,
     n_trials: int = N_TRIALS,
-):
+) -> Tuple[
+    OpenstfRegressor, ModelSpecificationDataClass, Report, dict, int, dict[str, Any]
+]:
+    """Optimize hyperparameters pipeline core.
+
+    Expected prediction job key's: "name", "model"
+
+    Args:
+        pj (PredictionJobDataClass): Prediction job
+        input_data (pd.DataFrame): Raw training input data
+        horizons (List[float]): horizons for feature engineering.
+        n_trials (int, optional): The number of trials. Defaults to N_TRIALS.
+
+    Raises:
+        ValueError: If the input_date is insufficient.
+
+    Returns:
+        OpenstfRegressor: Best model,
+        ModelSpecificationDataClass: Model specifications of the best model,
+        Report: Report of the best training round,
+        dict: Trials,
+        int: Best trial number,
+        dict: Optimized hyperparameters.
+    """
     if input_data.empty:
         raise InputDataInsufficientError("Input dataframe is empty")
     elif "load" not in input_data.columns:
