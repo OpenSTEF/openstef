@@ -146,7 +146,9 @@ class RegressorObjective:
         score = self.eval_metric_function(test_y, forecast_y)
 
         self.track_trials[f" trial: {trial.number}"] = {
-            "score": score,
+            "score": float(
+                score
+            ),  # Convert float32 score to float because float32 is not JSON serializable
             "params": hyper_params,
         }
         trial.set_user_attr(key="model", value=copy.deepcopy(self.model))
@@ -189,15 +191,6 @@ class RegressorObjective:
             dict: dict with al trials and it's parameters
 
         """
-
-        # Convert float32 score to float because float32 is not JSON serializable
-        for trial_key in self.track_trials.keys():
-            try:
-                self.track_trials[trial_key]["score"] = float(
-                    self.track_trials[trial_key]["score"]
-                )
-            except KeyError:
-                continue
 
         return self.track_trials
 
