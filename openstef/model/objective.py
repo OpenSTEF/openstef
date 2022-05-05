@@ -189,6 +189,16 @@ class RegressorObjective:
             dict: dict with al trials and it's parameters
 
         """
+
+        # Convert float32 score to float because float32 is not JSON serializable
+        for trial_key in self.track_trials.keys():
+            try:
+                self.track_trials[trial_key]["score"] = float(
+                    self.track_trials[trial_key]["score"]
+                )
+            except KeyError:
+                continue
+
         return self.track_trials
 
     def create_report(self, model: OpenstfRegressor) -> Report:
