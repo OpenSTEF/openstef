@@ -191,7 +191,6 @@ class RegressorObjective:
             dict: dict with al trials and it's parameters
 
         """
-
         return self.track_trials
 
     def create_report(self, model: OpenstfRegressor) -> Report:

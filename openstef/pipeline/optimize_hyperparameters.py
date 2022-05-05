@@ -201,7 +201,6 @@ def optimize_hyperparameters_pipeline_core(
     report = objective.create_report(model=best_model)
 
     trials = objective.get_trial_track()
-
     best_trial_number = study.best_trial.number
 
     return best_model, model_specs, report, trials, best_trial_number, study.best_params
