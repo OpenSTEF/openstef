@@ -201,6 +201,11 @@ def optimize_hyperparameters_pipeline_core(
     report = objective.create_report(model=best_model)
 
     trials = objective.get_trial_track()
+
+    # Convert float32 score to float as float32 is not JSON serializable
+    for trial in trials.keys():
+        trials[trial]["score"] = float(trials[trial]["score"])
+
     best_trial_number = study.best_trial.number
 
     return best_model, model_specs, report, trials, best_trial_number, study.best_params
