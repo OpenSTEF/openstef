@@ -1,0 +1,50 @@
+# SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501
+#
+# SPDX-License-Identifier: MPL-2.0
+
+name: Release
+
+on:
+  push:
+    paths:
+      - 'blub.py'
+
+#on:
+#  push:
+#    branches:
+#      - main
+#  # pull_request event is required only for autolabeler
+#  pull_request:
+#    # Only following types are handled by the action, but one can default to all as well
+#    types: [opened, reopened, synchronize]
+
+jobs:
+  # Releases new Python version when Pull Requests are merged into "main"
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout
+      - name: Checkout
+        uses: actions/checkout@v2
+      # Setup
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      # Bump and commit version
+      - name: Bump version and commit bumped version back to branch
+        run: |
+          python .github/bump_version.py
+          git config --global user.name 'bump_version'
+          git config --global user.email 'action@github.com'
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY
+          git fetch
+          git checkout ${{ github.head_ref }}
+          git commit --signoff -am "Bumped minor version"
+          git push
+
+      # Drafts your next Release notes a
+      # config in ../release-drafter.yml
+#      - uses: release-drafter/release-drafter@v5
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

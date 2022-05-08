@@ -8,9 +8,7 @@ on:
 
 jobs:
   docs:
-
     runs-on: ubuntu-latest
-
     steps:
     # Checkout
     - name: Checkout code
@@ -42,7 +40,7 @@ jobs:
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
         git add .
-        git commit -m "Update documentation" -a || true
+        git commit --signoff -m "Update documentation" -a || true
         # The above command will fail if no changes were present, so we ignore
         # that.
     # Push changes (will publish documentation)
