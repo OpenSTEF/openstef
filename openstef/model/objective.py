@@ -146,7 +146,9 @@ class RegressorObjective:
         score = self.eval_metric_function(test_y, forecast_y)
 
         self.track_trials[f" trial: {trial.number}"] = {
-            "score": score,
+            "score": float(
+                score
+            ),  # Convert float32 score to float because float32 is not JSON serializable
             "params": hyper_params,
         }
         trial.set_user_attr(key="model", value=copy.deepcopy(self.model))
