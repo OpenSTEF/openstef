@@ -45,6 +45,7 @@ jobs:
           git push
           echo $version
           echo "v$version"
+          echo "BUMPED_VERSION=$(echo v$version)" >> $GITHUB_ENV
 #      - name: release
 #        uses: actions/create-release@v1
 #        id: create_release
@@ -58,6 +59,6 @@ jobs:
 #      # Drafts your next Release notes a
 #      # config in ../release-drafter.yml
       - name: Create Release
-        run: gh release create ${{ steps.version.outputs.version }} --generate-notes
+        run: gh release create ${{ env.BUMPED_VERSION }} --generate-notes
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
