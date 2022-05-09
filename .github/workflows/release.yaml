@@ -4,14 +4,15 @@
 
 name: Release
 
+# Trigger when a python file is changed on main branch either from pull request or push
+# but not when only setup.py is changed due to version bump
 on:
   push:
     branches:
       - main
-  # pull_request event is required only for autolabeler
-  pull_request:
-    # Only following types are handled by the action, but one can default to all as well
-    types: [opened, reopened, synchronize]
+    paths:
+      - '*.py'
+      - '!setup.py'
 
 jobs:
   # Releases new Python version when Pull Requests are merged into "main"
@@ -37,7 +38,7 @@ jobs:
           git fetch
           git checkout main
           git commit --signoff -am "Bumped minor version"
-          git push
+          git push origin main --force-with-lease
           echo "BUMPED_VERSION=$(echo v$version)" >> $GITHUB_ENV
           echo "New version: $version"
       # Create new release
