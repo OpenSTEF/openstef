@@ -20,4 +20,4 @@ bumped_version_content = re.sub(
 )
 with open("setup.py", "w") as file:
     file.write(bumped_version_content)
-print(new_semantic_version)
+print(new_semantic_version)  # Print is required for release in github action
