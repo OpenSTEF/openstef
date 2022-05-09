@@ -353,7 +353,8 @@ def find_zero_flatliner(
                     )
                     > flatliner_load_threshold
                 ):
-                    non_compensated_df = pd.concat([non_compensated_df, candidate])
+                    transposed_candidate = candidate.to_frame().T
+                    non_compensated_df = pd.concat([non_compensated_df, transposed_candidate])
                     print(
                         "Found a non-compensated zero value:",
                         candidate.to_string(index=False),
