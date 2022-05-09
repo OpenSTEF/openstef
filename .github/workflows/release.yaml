@@ -33,8 +33,9 @@ jobs:
           python-version: ${{ matrix.python-version }}
       # Bump and commit version
       - name: Bump version and commit bumped version back to branch
+        id: version
         run: |
-          python .github/bump_version.py
+          version=$(python .github/bump_version.py)
           git config --global user.name 'bump_version'
           git config --global user.email 'action@github.com'
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY
@@ -42,9 +43,20 @@ jobs:
           git checkout ${{ github.head_ref }}
           git commit --signoff -am "Bumped minor version"
           git push
+          echo "v$(version)"
+#      - name: release
+#        uses: actions/create-release@v1
+#        id: create_release
+#        with:
+#          draft: false
+#          prerelease: false
+#          release_name: ${{ steps.version.outputs.version }}
+#          tag_name: ${{ github.ref }}
+#          body_path: CHANGELOG.md
 
-      # Drafts your next Release notes a
-      # config in ../release-drafter.yml
-#      - uses: release-drafter/release-drafter@v5
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#      # Drafts your next Release notes a
+#      # config in ../release-drafter.yml
+      - name: Create Release
+        run: gh release create ${{ steps.version.outputs.version }} --generate-notes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

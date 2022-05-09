@@ -44,9 +44,9 @@ jobs:
         # The above command will fail if no changes were present, so we ignore
         # that.
     # Push changes (will publish documentation)
-    - name: Push changes
-      uses: ad-m/github-push-action@master
-      with:
-        branch: gh-pages
-        directory: gh-pages
-        github_token: ${{ secrets.GITHUB_TOKEN }}
+#    - name: Push changes
+#      uses: ad-m/github-push-action@master
+#      with:
+#        branch: gh-pages
+#        directory: gh-pages
+#        github_token: ${{ secrets.GITHUB_TOKEN }}
