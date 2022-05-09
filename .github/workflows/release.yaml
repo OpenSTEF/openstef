@@ -6,17 +6,12 @@ name: Release
 
 on:
   push:
-    paths:
-      - 'blub.py'
-
-#on:
-#  push:
-#    branches:
-#      - main
-#  # pull_request event is required only for autolabeler
-#  pull_request:
-#    # Only following types are handled by the action, but one can default to all as well
-#    types: [opened, reopened, synchronize]
+    branches:
+      - main
+  # pull_request event is required only for autolabeler
+  pull_request:
+    # Only following types are handled by the action, but one can default to all as well
+    types: [opened, reopened, synchronize]
 
 jobs:
   # Releases new Python version when Pull Requests are merged into "main"
@@ -31,7 +26,7 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
-      # Bump and commit version
+      # Bump and commit version. The upload to pypi step happens after github release.
       - name: Bump version and commit bumped version back to branch
         id: version
         run: |
@@ -40,24 +35,12 @@ jobs:
           git config --global user.email 'action@github.com'
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY
           git fetch
-          git checkout ${{ github.head_ref }}
+          git checkout main
           git commit --signoff -am "Bumped minor version"
           git push
-          echo $version
-          echo "v$version"
           echo "BUMPED_VERSION=$(echo v$version)" >> $GITHUB_ENV
-#      - name: release
-#        uses: actions/create-release@v1
-#        id: create_release
-#        with:
-#          draft: false
-#          prerelease: false
-#          release_name: ${{ steps.version.outputs.version }}
-#          tag_name: ${{ github.ref }}
-#          body_path: CHANGELOG.md
-
-#      # Drafts your next Release notes a
-#      # config in ../release-drafter.yml
+          echo "New version: $version"
+      # Create new release
       - name: Create Release
         run: gh release create ${{ env.BUMPED_VERSION }} --generate-notes
         env:
