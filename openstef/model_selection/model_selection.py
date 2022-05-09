@@ -16,7 +16,7 @@ PEAK_FRACTION = 0.15
 
 
 def group_kfold(
-    input_data: pd.DataFrame, n_folds: int, random_split: bool = True
+    input_data: pd.DataFrame, n_folds: int, randomize_fold_split: bool = True
 ) -> pd.DataFrame:
     """Function to group data into groups, according to the date and the number of folds
         - each date gets assigned a number between 0 and n_folds
@@ -24,7 +24,7 @@ def group_kfold(
     Args:
         input_data (pd.DataFrame): Input data
         n_folds (int): Number of folds
-        random_split (bool): Indicates if random split needs to be applied
+        randomize_fold_split (bool): Indicates if random split needs to be applied
 
     Returns:
         grouped data (pandas.DataFrame)
@@ -43,7 +43,7 @@ def group_kfold(
 
     items = list(unique_dates)
 
-    if random_split:
+    if randomize_fold_split:
         random.shuffle(items)  # if random, shuffle the days
 
     for i, s in enumerate(zip(separators, separators[1:])):
@@ -260,17 +260,19 @@ def split_data_train_validation_test(
 
 
 def backtest_split_default(
-    input_data: pd.DataFrame,
+    data: pd.DataFrame,
     n_folds: int,
     test_fraction: float = 0.15,
     stratification_min_max: bool = True,
+    randomize_fold_split: bool = False,
 ) -> Iterable[Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]]:
     """Default cross validation strategy.
     Args:
-        input_data:
+        data:
         n_folds:
         test_fraction:
         stratification_min_max:
+        randomize_fold_split:
 
     Returns:
         train_val_test_generator (Iterable[pd.DataFrame, pd.DataFrame, pd.DataFrame]):
@@ -280,15 +282,15 @@ def backtest_split_default(
         We use a generator in order to have lazy estimation and avoid multiple copy of the data.
     """
     if n_folds > 1:
-        input_data.index = pd.to_datetime(input_data.index)
-        input_data["dates"] = input_data.index
-        input_data = group_kfold(input_data, n_folds)
+        data.index = pd.to_datetime(data.index)
+        data["dates"] = data.index
+        data = group_kfold(data, n_folds, randomize_fold_split)
 
         for ifold in range(n_folds):
-            test_data = input_data[input_data["random_fold"] == ifold].sort_index()
+            test_data = data[data["random_fold"] == ifold].sort_index()
 
             (train_data, validation_data, _,) = split_data_train_validation_test(
-                input_data[input_data["random_fold"] != ifold].iloc[:, :-2],
+                data[data["random_fold"] != ifold].iloc[:, :-2],
                 test_fraction=0,
                 back_test=True,
                 stratification_min_max=stratification_min_max,
@@ -297,7 +299,7 @@ def backtest_split_default(
             yield train_data, validation_data, test_data.iloc[:, :-2]
     else:
         yield split_data_train_validation_test(
-            input_data,
+            data,
             back_test=True,
             test_fraction=test_fraction,
             stratification_min_max=stratification_min_max,
