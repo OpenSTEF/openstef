@@ -170,4 +170,3 @@ class TestValidationFindZeroFlatliners(BaseTestCase):
         threshold = 0.25
         result = find_zero_flatliner(df, threshold, timedelta(minutes=30), 0.3)
         self.assertEqual(result, None)
-
