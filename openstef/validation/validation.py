@@ -353,14 +353,17 @@ def find_zero_flatliner(
                     )
                     > flatliner_load_threshold
                 ):
-                    non_compensated_df = non_compensated_df.append(candidate)
+                    transposed_candidate = candidate.to_frame().T
+                    non_compensated_df = pd.concat(
+                        [non_compensated_df, transposed_candidate]
+                    )
                     print(
                         "Found a non-compensated zero value:",
                         candidate.to_string(index=False),
                     )
 
             # after checking all candidates for a single trafo, add moments to result_df
-            result_df = result_df.append(non_compensated_df)
+            result_df = pd.concat([result_df, non_compensated_df])
 
     if len(result_df) == 0:
         result_df = None

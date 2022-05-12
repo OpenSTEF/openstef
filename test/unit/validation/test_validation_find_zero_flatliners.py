@@ -157,8 +157,6 @@ class TestValidationFindZeroFlatliners(BaseTestCase):
         result = find_zero_flatliner(df, threshold, timedelta(minutes=30), 0.3)
         self.assertEqual(result, expected)
 
-        # Run all tests
-
     def test_flatline_at_end(self):
         """Test ability to handle arrays of unequal length. Bug KTPS-1823"""
         df = df_flatline_at_end
@@ -172,7 +170,3 @@ class TestValidationFindZeroFlatliners(BaseTestCase):
         threshold = 0.25
         result = find_zero_flatliner(df, threshold, timedelta(minutes=30), 0.3)
         self.assertEqual(result, None)
-
-
-if __name__ == "__main__":
-    unittest.main()

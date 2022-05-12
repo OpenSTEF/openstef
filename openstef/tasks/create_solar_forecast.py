@@ -164,8 +164,7 @@ def combine_forecasts(forecasts, combination_coefs):
         result["datetime"] = subset["datetime"]
         result["created"] = subset["created"]
         result = result[["datetime", "created", "forecast"]]
-
-        result_df = result_df.append(result)
+        result_df = pd.concat([result_df, result])
     # sort by datetime
     result_df.sort_values(["datetime", "created"], inplace=True)
 
