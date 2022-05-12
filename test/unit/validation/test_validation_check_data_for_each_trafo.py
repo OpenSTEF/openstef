@@ -96,8 +96,3 @@ class TestValidationCheckDataForEachTrafo(BaseTestCase):
         result = check_data_for_each_trafo(df, col)
 
         self.assertEqual(expected, result)
-
-
-# Run all tests
-if __name__ == "__main__":
-    unittest.main()
