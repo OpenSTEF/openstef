@@ -253,5 +253,6 @@ def find_components(df, zero_bound=True):
     # Return result
     return components, coefdict
 
+
 if __name__ == "__main__":
     main()

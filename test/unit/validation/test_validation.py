@@ -4,7 +4,6 @@
 
 from test.unit.utils.base import BaseTestCase
 from test.unit.utils.data import TestData
-from unittest.mock import MagicMock, patch
 
 import numpy as np
 
