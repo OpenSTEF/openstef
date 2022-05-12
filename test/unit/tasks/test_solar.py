@@ -44,7 +44,3 @@ class TestSolar(BaseTestCase):
             refference_result[0][0].columns.all(), self.solar_ref.columns.all()
         )
         self.assertEqual(len(refference_result[0][0]), len(self.solar_ref))
-
-
-if __name__ == "__main__":
-    unittest.main()
