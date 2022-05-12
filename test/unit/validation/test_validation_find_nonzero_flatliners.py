@@ -174,7 +174,3 @@ class TestValidationFindNonzeroFlatliners(BaseTestCase):
         threshold = 0.25
         result = find_nonzero_flatliner(df, threshold)
         self.assertEqual(1, len(result))
-
-
-if __name__ == "__main__":
-    unittest.main()
