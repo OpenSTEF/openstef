@@ -38,7 +38,7 @@ jobs:
           git fetch
           git checkout main
           git commit --signoff -am "Bumped minor version"
-          git push origin main --force-with-lease
+          git push
           echo "BUMPED_VERSION=$(echo v$version)" >> $GITHUB_ENV
           echo "New version: $version"
       # Create new release
