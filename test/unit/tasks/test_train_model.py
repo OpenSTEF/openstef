@@ -105,7 +105,3 @@ class TestTrainModelTask(TestCase):
             task_main(None, not_none_object, None)
 
         task_main(None, not_none_object, not_none_object)
-
-
-if __name__ == "__main__":
-    unittest.main()
