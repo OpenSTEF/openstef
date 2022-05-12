@@ -133,8 +133,3 @@ class TestSplitEnergy(BaseTestCase):
         )
         result = split_forecast.determine_invalid_coefs(new_coefs, last_coefs)
         self.assertDataframeEqual(result, expected_result, check_index_type=False)
-
-
-# Run all tests
-if __name__ == "__main__":
-    unittest.main()
