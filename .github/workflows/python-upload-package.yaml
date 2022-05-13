@@ -4,8 +4,7 @@
 name: Python Upload Package
 
 on:
-  release:
-    types: [published]
+  - release
 
 jobs:
   deploy:

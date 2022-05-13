@@ -131,8 +131,7 @@ class TestPerformanceCalcKpiForSpecificPid(BaseTestCase):
         self.assertAlmostEqual(kpis["4.0h"]["MAE"], 2.9145, places=3)
 
     def test_calc_kpi_no_load_exception(self):
-        """Assert that correct exceptions are raised for
-        empty load"""
+        """Assert that correct exceptions are raised for empty load."""
 
         with self.assertRaises(NoRealisedLoadError):
             calc_kpi_for_specific_pid(
@@ -140,8 +139,7 @@ class TestPerformanceCalcKpiForSpecificPid(BaseTestCase):
             )
 
     def test_calc_kpi_no_prediction_exception(self):
-        """Assert that correct exceptions are raised for
-        empty prediction"""
+        """Assert that correct exceptions are raised for empty prediction."""
 
         with self.assertRaises(NoPredictedLoadError):
             calc_kpi_for_specific_pid(
@@ -160,8 +158,3 @@ class TestPerformanceCalcKpiForSpecificPid(BaseTestCase):
         assert isinstance(kpis, dict)
         arbitrary_tAhead = "47.0h"
         self.assertEqual(kpis[arbitrary_tAhead]["skill_score_basecase"], 0)
-
-
-# Run all tests
-if __name__ == "__main__":
-    unittest.main()
