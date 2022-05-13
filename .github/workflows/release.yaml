@@ -39,8 +39,8 @@ jobs:
           git push
           echo "BUMPED_VERSION=$(echo v$version)" >> $GITHUB_ENV
           echo "New version: $version"
-      # Create new release
+      # Create new release (does not work with standard github token, but needs PAT)
       - name: Create Release
         run: gh release create ${{ env.BUMPED_VERSION }} --generate-notes
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.OPENSTEF_GITHUB_TOKEN }}
