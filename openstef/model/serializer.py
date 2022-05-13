@@ -266,29 +266,25 @@ class MLflowSerializer:
         loaded_model: OpenstfRegressor,
     ) -> list:
         """Get the feature_names from MLflow or the old model."""
-        error_message = "feature_names couldn't be loaded, using None"
+        error_message = "feature_names not loaded and using None, because it"
         try:
             model_specs.feature_names = json.loads(
                 latest_run["tags.feature_names"].replace("'", '"')
             )
-
         except KeyError:
             self.logger.warning(
-                error_message,
+                f"{error_message} did not exist in run",
                 experiment_name=experiment_name,
-                error="tags.feature_names, doesn't exist in run",
             )
         except AttributeError:
             self.logger.warning(
-                error_message,
+                f"{error_message} needs to be a string",
                 experiment_name=experiment_name,
-                error="tags.feature_names, needs to be a string",
             )
         except JSONDecodeError:
             self.logger.warning(
-                error_message,
+                f"{error_message} needs to be a string of a list",
                 experiment_name=experiment_name,
-                error="tags.feature_names, needs to be a string of a list",
             )
 
         # if feature names is none, see if we can retrieve them from the old model
@@ -315,7 +311,7 @@ class MLflowSerializer:
         loaded_model: OpenstfRegressor,
     ) -> list:
         """Get the feature_modules from MLflow or the old model."""
-        error_message = "feature_modules couldn't be loaded, using None"
+        error_message = "feature_modules not loaded and using None, because it"
         try:
             model_specs.feature_modules = json.loads(
                 latest_run["tags.feature_modules"].replace("'", '"')
@@ -323,21 +319,18 @@ class MLflowSerializer:
 
         except KeyError:
             self.logger.warning(
-                error_message,
+                f"{error_message} did not exist in run",
                 experiment_name=experiment_name,
-                error="tags.feature_modules, doesn't exist in run",
             )
         except AttributeError:
             self.logger.warning(
-                error_message,
+                f"{error_message} needs to be a string",
                 experiment_name=experiment_name,
-                error="tags.feature_modules, needs to be a string",
             )
         except JSONDecodeError:
             self.logger.warning(
-                error_message,
+                f"{error_message} needs to be a string of a list",
                 experiment_name=experiment_name,
-                error="tags.feature_modules, needs to be a string of a list",
             )
 
         # if feature modules is none, see if we can retrieve them from the old model
