@@ -76,12 +76,13 @@
 <span id="openstef-model-selection-model-selection-module"></span><h2>openstef.model_selection.model_selection module<a class="headerlink" href="#module-openstef.model_selection.model_selection" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="openstef.model_selection.model_selection.backtest_split_default">
-<code class="sig-prename descclassname">openstef.model_selection.model_selection.</code><code class="sig-name descname">backtest_split_default</code><span class="sig-paren">(</span><em class="sig-param">input_data: pandas.core.frame.DataFrame</em>, <em class="sig-param">n_folds: int</em>, <em class="sig-param">test_fraction: float = 0.15</em>, <em class="sig-param">stratification_min_max: bool = True</em><span class="sig-paren">)</span> &#x2192; Iterable[Tuple[pandas.core.frame.DataFrame, pandas.core.frame.DataFrame, pandas.core.frame.DataFrame]]<a class="headerlink" href="#openstef.model_selection.model_selection.backtest_split_default" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstef.model_selection.model_selection.</code><code class="sig-name descname">backtest_split_default</code><span class="sig-paren">(</span><em class="sig-param">data: pandas.core.frame.DataFrame</em>, <em class="sig-param">n_folds: int</em>, <em class="sig-param">test_fraction: float = 0.15</em>, <em class="sig-param">stratification_min_max: bool = True</em>, <em class="sig-param">randomize_fold_split: bool = False</em><span class="sig-paren">)</span> &#x2192; Iterable[Tuple[pandas.core.frame.DataFrame, pandas.core.frame.DataFrame, pandas.core.frame.DataFrame]]<a class="headerlink" href="#openstef.model_selection.model_selection.backtest_split_default" title="Permalink to this definition">¶</a></dt>
 <dd><p>Default cross validation strategy.
-:param input_data:
+:param data:
 :param n_folds:
 :param test_fraction:
-:param stratification_min_max:</p>
+:param stratification_min_max:
+:param randomize_fold_split:</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Iterable on train, val, test splits</p>
@@ -96,7 +97,7 @@
 
 <dl class="function">
 <dt id="openstef.model_selection.model_selection.group_kfold">
-<code class="sig-prename descclassname">openstef.model_selection.model_selection.</code><code class="sig-name descname">group_kfold</code><span class="sig-paren">(</span><em class="sig-param">input_data: pandas.core.frame.DataFrame</em>, <em class="sig-param">n_folds: int</em>, <em class="sig-param">random_split: bool = True</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstef.model_selection.model_selection.group_kfold" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstef.model_selection.model_selection.</code><code class="sig-name descname">group_kfold</code><span class="sig-paren">(</span><em class="sig-param">input_data: pandas.core.frame.DataFrame</em>, <em class="sig-param">n_folds: int</em>, <em class="sig-param">randomize_fold_split: bool = True</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstef.model_selection.model_selection.group_kfold" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
 <dt>Function to group data into groups, according to the date and the number of folds</dt><dd><ul class="simple">
 <li><p>each date gets assigned a number between 0 and n_folds</p></li>
@@ -108,7 +109,7 @@
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>input_data</strong> (<em>pd.DataFrame</em>) – Input data</p></li>
 <li><p><strong>n_folds</strong> (<em>int</em>) – Number of folds</p></li>
-<li><p><strong>random_split</strong> (<em>bool</em>) – Indicates if random split needs to be applied</p></li>
+<li><p><strong>randomize_fold_split</strong> (<em>bool</em>) – Indicates if random split needs to be applied</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
