@@ -34,7 +34,7 @@ jobs:
           version=$(python .github/bump_version.py)
           git config --global user.name 'bump_version'
           git config --global user.email 'action@github.com'
-          git remote set-url origin https://x-access-token:${{ secrets.OPENSTEF_GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY
+          git remote set-url origin https://x-access-token:$secrets.OPENSTEF_GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY
           git commit --signoff -am "Bumped minor version"
           git push
           echo "BUMPED_VERSION=$(echo v$version)" >> $GITHUB_ENV
