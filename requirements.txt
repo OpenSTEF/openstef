@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-# production dependencies
 cufflinks~=0.17.3
 holidays~=0.13
 lightgbm~=3.1.1
