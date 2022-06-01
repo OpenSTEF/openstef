@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-from typing import List, Tuple, Any
+from typing import Any, List, Tuple
 
 import optuna
 import pandas as pd
@@ -14,12 +14,11 @@ from openstef.exceptions import (
     InputDataWrongColumnOrderError,
 )
 from openstef.feature_engineering.feature_applicator import TrainFeatureApplicator
-from openstef.metrics.reporter import Reporter, Report
+from openstef.metrics.reporter import Report, Reporter
 from openstef.model.model_creator import ModelCreator
-from openstef.model.regressors.regressor import OpenstfRegressor
-
 from openstef.model.objective import RegressorObjective
 from openstef.model.objective_creator import ObjectiveCreator
+from openstef.model.regressors.regressor import OpenstfRegressor
 from openstef.model.serializer import MLflowSerializer
 from openstef.pipeline.train_model import (
     DEFAULT_TRAIN_HORIZONS,

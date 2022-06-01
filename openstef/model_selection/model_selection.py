@@ -5,7 +5,7 @@ import random
 import secrets
 from datetime import timedelta
 from itertools import accumulate
-from typing import List, Tuple, Iterable
+from typing import Iterable, List, Tuple
 
 import numpy as np
 import pandas as pd

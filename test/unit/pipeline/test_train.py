@@ -8,11 +8,11 @@ from test.unit.utils.data import TestData
 
 import numpy as np
 import pandas as pd
+from sklearn.model_selection import TimeSeriesSplit
 
+from openstef.data_classes.split_function import SplitFuncDataClass
 from openstef.model_selection.model_selection import split_data_train_validation_test
 from openstef.pipeline.train_model import train_pipeline_step_split_data
-from openstef.data_classes.split_function import SplitFuncDataClass
-from sklearn.model_selection import TimeSeriesSplit
 
 # define constants
 SPLIT_PARAMS = {

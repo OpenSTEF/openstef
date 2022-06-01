@@ -96,11 +96,18 @@ class MLflowSerializer:
             sk_model=model, artifact_path="model", signature=report.signature
         )
         self.logger.info("Model saved with MLflow", experiment_name=experiment_name)
-        
+
         # Log metrics and parameters
         mlflow.log_metrics(report.metrics)
-        model_specs.hyper_params.update(model.get_params())
-        mlflow.log_params(model_specs.hyper_params)
+        try:
+            model_specs.hyper_params.update(model.get_params())
+            mlflow.log_params(model_specs.hyper_params)
+        except:  # TODO: fix logging of hyper params
+            self.logger.warning(
+                "Hyper parameters could not be logged to MLFlow",
+                hyper_params=model_specs.hyper_params,
+                experiment_name=experiment_name,
+            )
 
         # Process args
         for key, value in kwargs.items():
@@ -113,8 +120,6 @@ class MLflowSerializer:
                     f"Couldn't log {key}, {type(key)} not supported",
                     experiment_name=experiment_name,
                 )
-
-
 
     def _log_figures_with_mlflow(self, report) -> None:
         """Log figures with MLflow in the artifact folder."""

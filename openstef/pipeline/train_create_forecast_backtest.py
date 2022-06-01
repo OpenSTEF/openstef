@@ -15,7 +15,6 @@ from openstef.postprocessing.postprocessing import (
     add_prediction_job_properties_to_forecast,
 )
 
-
 DEFAULT_TRAIN_HORIZONS: List[float] = [0.25, 24.0]
 DEFAULT_EARLY_STOPPING_ROUNDS: int = 10
 
