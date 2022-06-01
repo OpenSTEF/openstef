@@ -90,6 +90,14 @@ class MLflowSerializer:
         )  # feature names are 1+ columns
         mlflow.set_tag("target", model_specs.feature_names[0])  # target is first column
         mlflow.set_tag("feature_modules", model_specs.feature_modules)
+
+        # Log the model to the run. Signature describes model input and output scheme
+        mlflow.sklearn.log_model(
+            sk_model=model, artifact_path="model", signature=report.signature
+        )
+        self.logger.info("Model saved with MLflow", experiment_name=experiment_name)
+        
+        # Log metrics and parameters
         mlflow.log_metrics(report.metrics)
         model_specs.hyper_params.update(model.get_params())
         mlflow.log_params(model_specs.hyper_params)
@@ -106,11 +114,7 @@ class MLflowSerializer:
                     experiment_name=experiment_name,
                 )
 
-        # Log the model to the run. Signature describes model input and output scheme
-        mlflow.sklearn.log_model(
-            sk_model=model, artifact_path="model", signature=report.signature
-        )
-        self.logger.info("Model saved with MLflow", experiment_name=experiment_name)
+
 
     def _log_figures_with_mlflow(self, report) -> None:
         """Log figures with MLflow in the artifact folder."""
