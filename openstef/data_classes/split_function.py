@@ -2,11 +2,11 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+import inspect
 import json
 from importlib import import_module
-from typing import Union, Dict, Callable, Any, Sequence
+from typing import Any, Callable, Dict, Sequence, Union
 
-import inspect
 from pydantic import BaseModel
 
 

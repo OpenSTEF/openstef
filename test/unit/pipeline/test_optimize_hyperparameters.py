@@ -7,15 +7,13 @@ from unittest.mock import patch
 
 import pandas as pd
 
+from openstef.data_classes.model_specifications import ModelSpecificationDataClass
 from openstef.exceptions import (
     InputDataInsufficientError,
     InputDataWrongColumnOrderError,
 )
-
 from openstef.metrics.reporter import Report
 from openstef.model.regressors.regressor import OpenstfRegressor
-from openstef.data_classes.model_specifications import ModelSpecificationDataClass
-
 from openstef.pipeline.optimize_hyperparameters import (
     optimize_hyperparameters_pipeline,
     optimize_hyperparameters_pipeline_core,

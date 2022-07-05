@@ -6,6 +6,7 @@ from test.unit.utils.data import TestData
 
 import numpy as np
 from sklearn.model_selection import TimeSeriesSplit
+
 from openstef.data_classes.split_function import SplitFuncDataClass
 from openstef.feature_engineering.feature_applicator import TrainFeatureApplicator
 from openstef.pipeline.train_create_forecast_backtest import (
