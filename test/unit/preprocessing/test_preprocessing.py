@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: MPL-2.0
 
 import math
-from datetime import datetime, timedelta
 from test.unit.utils.base import BaseTestCase
 
 import numpy as np
@@ -40,7 +39,7 @@ class TestPreprocessing(BaseTestCase):
             df, 3, "Column2"
         )
         self.assertEqual(df_no_repeated["Column1"].isna().values.sum(), 0)
-        self.assertEqual(df_no_repeated["Column2"].isna().values.sum(), 4)
+        self.assertEqual(df_no_repeated["Column2"].isna().values.sum(), 1)
         self.assertEqual(df_no_repeated["Column3"].isna().values.sum(), 0)
         self.assertTrue(df_no_repeated["Column1"].equals(df_no_repeated["Column3"]))
         self.assertTrue(math.isnan(df_no_repeated.at[end_nan, "Column2"]))
@@ -50,7 +49,7 @@ class TestPreprocessing(BaseTestCase):
             df, 2, "Column2"
         )
         self.assertEqual(df_no_repeated["Column1"].isna().values.sum(), 0)
-        self.assertEqual(df_no_repeated["Column2"].isna().values.sum(), 4)
+        self.assertEqual(df_no_repeated["Column2"].isna().values.sum(), 2)
         self.assertEqual(df_no_repeated["Column3"].isna().values.sum(), 0)
         self.assertTrue(df_no_repeated["Column1"].equals(df_no_repeated["Column3"]))
         self.assertTrue(math.isnan(df_no_repeated.at[end_nan, "Column2"]))

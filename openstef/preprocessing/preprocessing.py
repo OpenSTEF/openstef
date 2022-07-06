@@ -21,7 +21,6 @@ def replace_repeated_values_with_nan(
     """
     data = df.copy(deep=True)
     sequentials = data[column_name].diff().ne(0).cumsum()
-    data.loc[
-        sequentials.groupby(sequentials).transform("size") > max_length, column_name
-    ] = np.nan
+    grouped_sequentials_over_max = sequentials.groupby(sequentials).head(max_length)
+    data.loc[~data.index.isin(grouped_sequentials_over_max.index), column_name] = np.nan
     return data
