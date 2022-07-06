@@ -75,35 +75,22 @@
 <div class="section" id="module-openstef.preprocessing.preprocessing">
 <span id="openstef-preprocessing-preprocessing-module"></span><h2>openstef.preprocessing.preprocessing module<a class="headerlink" href="#module-openstef.preprocessing.preprocessing" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
-<dt id="openstef.preprocessing.preprocessing.replace_invalid_data">
-<code class="sig-prename descclassname">openstef.preprocessing.preprocessing.</code><code class="sig-name descname">replace_invalid_data</code><span class="sig-paren">(</span><em class="sig-param">df</em>, <em class="sig-param">suspicious_moments</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.preprocessing.preprocessing.replace_invalid_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>Function that detects invalid data using the nonzero_flatliner function and converts the output to NaN values.</p>
-<p>Input:
-- df: pd.dataFrame(index=DatetimeIndex, columns = [load1, …, loadN]). Load_corrections should be indicated by ‘<a href="#id1"><span class="problematic" id="id2">LC_</span></a>’
-- suspicious_moments (pd.dataframe): output of function nonzero_flatliner in new variable</p>
-<p>return:
-- pd.DataFrame without invalid data (converted to NaN values)</p>
-</dd></dl>
-
-<dl class="function">
 <dt id="openstef.preprocessing.preprocessing.replace_repeated_values_with_nan">
-<code class="sig-prename descclassname">openstef.preprocessing.preprocessing.</code><code class="sig-name descname">replace_repeated_values_with_nan</code><span class="sig-paren">(</span><em class="sig-param">df</em>, <em class="sig-param">max_length</em>, <em class="sig-param">column_name</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.preprocessing.preprocessing.replace_repeated_values_with_nan" title="Permalink to this definition">¶</a></dt>
-<dd><p>Replace repeated values with NaN.</p>
-<blockquote>
-<div><p>Replace repeated values (sequentially repeating values), which repeat longer
-than a set max_length (in data points) with NaNs.</p>
-</div></blockquote>
+<code class="sig-prename descclassname">openstef.preprocessing.preprocessing.</code><code class="sig-name descname">replace_repeated_values_with_nan</code><span class="sig-paren">(</span><em class="sig-param">df: pandas.core.frame.DataFrame</em>, <em class="sig-param">max_length: int</em>, <em class="sig-param">column_name: str</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstef.preprocessing.preprocessing.replace_repeated_values_with_nan" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace sequentially repeated values with NaN.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>df</strong> (<em>pandas.DataFrame</em>) – Data from which you would like to set repeating values to nan</p></li>
-<li><p><strong>max_length</strong> (<em>int</em>) – If a value repeats more often, sequentially, than this value, all those points are set to NaN</p></li>
-<li><p><strong>column_name</strong> (<em>string</em>) – the pandas dataframe column name of the column you want to process</p></li>
+<li><p><strong>df</strong> (<em>pandas.DataFrame</em>) – Data with potential repeating values.</p></li>
+<li><p><strong>max_length</strong> (<em>int</em>) – Maximum length of sequence. Above are set to NaN.</p></li>
+<li><p><strong>column_name</strong> (<em>string</em>) – Column name of input dataframe with repeating values.</p></li>
 </ul>
 </dd>
-</dl>
-<dl class="simple">
-<dt>Rrturns:</dt><dd><p>pandas.DataFrame: data, similar to df, with the desired values set to NaN.</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Data, similar to df, with the desired values set to NaN.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
 </dd>
 </dl>
 </dd></dl>
