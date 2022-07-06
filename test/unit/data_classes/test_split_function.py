@@ -2,9 +2,10 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-import unittest
-import json
 import copy
+import json
+import unittest
+
 from openstef.data_classes.split_function import SplitFuncDataClass
 
 

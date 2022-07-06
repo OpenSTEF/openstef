@@ -2,10 +2,12 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-from typing import Union, Optional, List, Dict, Any
+from typing import Any, Dict, List, Optional, Union
+
 from pydantic import BaseModel
-from .split_function import SplitFuncDataClass
+
 from .model_specifications import ModelSpecificationDataClass
+from .split_function import SplitFuncDataClass
 
 
 class PredictionJobDataClass(BaseModel):
