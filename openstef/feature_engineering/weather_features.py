@@ -342,7 +342,7 @@ def add_additional_wind_features(
     return data
 
 
-def get_dni(
+def calculate_dni(
         radiation: pd.Series, pj: dict
 ) -> pd.Series:
     """
@@ -371,6 +371,7 @@ def get_dni(
 
     # convert ghi to dni
     dni_converted = pvlib.irradiance.dni(ghi_forecasted, dhi_calc, solar_zenith, clearsky_dni=dni_calc)
+
     return dni_converted
 
 
@@ -378,5 +379,36 @@ def get_global_tilt_irradiance():
     pass
 
 
-def add_additional_solar_features():
-    pass
+def add_additional_solar_features(
+        data: pd.DataFrame, pj: dict, feature_names: List[str] = None
+) -> pd.DataFrame:
+    # If features is none add solar feature anyway
+    if feature_names is None:
+        additional_solar_features = True
+
+    # Otherwise check if they are among the requested features
+    else:
+        additional_solar_features = any(
+            x
+            in [
+                "dni",
+                "global_tilt_irradiance"
+            ]
+            for x in feature_names
+        )
+
+        # Add add_additional_wind_features
+        if "radiation" in data.columns and additional_solar_features:
+            data["dni"] = calculate_dni(
+                data["radiation"],
+                pj
+            )
+
+        '''
+        # Do extra check
+        if "windspeed_100m" in data.columns and additional_solar_features:
+            data["windpowerFit_harm_arome"] = calculate_windturbine_power_output(
+                data["windspeed_100m"].astype(float)
+            )
+        '''
+    return data
