@@ -353,7 +353,6 @@ def calculate_dni(
     :return: dni_converted
     pd.Series of the calculated dni.
     """
-    print('testtest')
     lat, lon = pj["lat"], pj["lon"]
     loc = Location(lat, lon, tz='CET')
     times = radiation.index
