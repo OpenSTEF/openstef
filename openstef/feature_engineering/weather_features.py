@@ -348,21 +348,16 @@ def calculate_dni(
     """
     Using the predicted radiation and information derived from the location (obtained from pj) the direct normal
     irradiance (DNI) is calculated. The `pvlib` library is used.
-    :param radiation: predicted radiation
+    :param radiation: predicted radiation including DatetimeIndex with right time-zone
     :param pj: PredictJob including information about the location (lat, lon)
     :return: dni_converted
     pd.Series of the calculated dni.
     """
-    lat, lon = pj["lat"], pj["lon"]
-    loc = Location(lat, lon, tz='CET')
+    loc = Location(pj["lat"], pj["lon"], tz='CET')
     times = radiation.index
-    print("check: is the right timezone included in times variable?", times[0])
 
     # calculate data for loc(ation) at times with clear_sky, as if there would be a clear sky.
     cs = loc.get_clearsky(times)
-    dhi_calc = cs.dhi
-    dni_calc = cs.dni
-    ghi_calc = cs.ghi
 
     # get solar position variable(s) for loc(ation) at times
     solpos = pvlib.solarposition.get_solarposition(times, loc.latitude, loc.longitude)
@@ -372,13 +367,43 @@ def calculate_dni(
     # TODO: check whether unit conversion is necessary
     ghi_forecasted = radiation/3600
     # convert ghi to dni
-    dni_converted = pvlib.irradiance.dni(ghi_forecasted, dhi_calc, solar_zenith, clearsky_dni=dni_calc)
+    dni_converted = pvlib.irradiance.dni(ghi_forecasted, cs.dhi, solar_zenith, clearsky_dni=cs.dni)
     dni_converted = dni_converted.fillna(0)
     return dni_converted
 
 
-def get_global_tilt_irradiance():
-    pass
+def calculate_gti(
+        radiation: pd.Series,
+        pj: dict,
+        surface_tilt: float = 34.0,
+        surface_azimuth: float = 180
+) -> pd.Series:
+    """
+    Calculates the GTI/POA using the radiation (Assuming Global Tilted Irradiance (GTI) = Plane of Array (POA))
+    :param radiation:
+    :param pj:
+    :param surface_tilt: The tilt of the surface of, for example, your PhotoVoltaic-system.
+    :param surface_azimuth: The way the surface is facing. South facing 180 degrees, North facing 0 degrees.
+    :return: gti
+    """
+    loc = Location(pj["lat"], pj["lon"], tz='CET')
+    times = radiation.index
+    print("check: is the right timezone included in times variable?", times[0])
+
+    # calculate data for loc(ation) at times with clear_sky, as if there would be a clear sky.
+    cs = loc.get_clearsky(times)
+    dni = calculate_dni(radiation, pj)
+
+    # get solar position variable(s) for loc(ation) at times
+    solpos = pvlib.solarposition.get_solarposition(times, loc.latitude, loc.longitude)
+    solar_zenith = solpos.apparent_zenith
+    solar_azimuth = solpos.azimuth
+
+    ghi_forecasted = radiation / 3600
+    gti = pvlib.irradiance.get_total_irradiance(surface_tilt, surface_azimuth, solar_zenith, solar_azimuth,
+                                                dni=dni, ghi=ghi_forecasted, dhi=cs.dhi)
+
+    return gti['poa_global']
 
 
 def add_additional_solar_features(
@@ -394,7 +419,7 @@ def add_additional_solar_features(
             x
             in [
                 "dni",
-                "global_tilt_irradiance"
+                "gti"
             ]
             for x in feature_names
         )
@@ -402,6 +427,10 @@ def add_additional_solar_features(
     # Add add_additional_solar_features
     if "radiation" in data.columns and additional_solar_features:
         data["dni"] = calculate_dni(
+            data["radiation"],
+            pj
+        )
+        data["gti"] = calculate_gti(
             data["radiation"],
             pj
         )
