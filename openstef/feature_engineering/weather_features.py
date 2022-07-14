@@ -353,7 +353,7 @@ def calculate_dni(
     :return: dni_converted
     pd.Series of the calculated dni.
     """
-
+    print('testtest')
     lat, lon = pj["lat"], pj["lon"]
     loc = Location(lat, lon, tz='CET')
     times = radiation.index
@@ -369,9 +369,12 @@ def calculate_dni(
     solpos = pvlib.solarposition.get_solarposition(times, loc.latitude, loc.longitude)
     solar_zenith = solpos.apparent_zenith
 
+    # convert radiation (ghi) to right unit (J/m^2 to kWh/m^2)
+    # TODO: check whether unit conversion is necessary
+    ghi_forecasted = radiation/3600
     # convert ghi to dni
     dni_converted = pvlib.irradiance.dni(ghi_forecasted, dhi_calc, solar_zenith, clearsky_dni=dni_calc)
-
+    dni_converted = dni_converted.fillna(0)
     return dni_converted
 
 
@@ -397,18 +400,11 @@ def add_additional_solar_features(
             for x in feature_names
         )
 
-        # Add add_additional_wind_features
-        if "radiation" in data.columns and additional_solar_features:
-            data["dni"] = calculate_dni(
-                data["radiation"],
-                pj
-            )
+    # Add add_additional_solar_features
+    if "radiation" in data.columns and additional_solar_features:
+        data["dni"] = calculate_dni(
+            data["radiation"],
+            pj
+        )
 
-        '''
-        # Do extra check
-        if "windspeed_100m" in data.columns and additional_solar_features:
-            data["windpowerFit_harm_arome"] = calculate_windturbine_power_output(
-                data["windspeed_100m"].astype(float)
-            )
-        '''
     return data
