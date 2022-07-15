@@ -46,7 +46,7 @@ T_BEHIND_DAYS = 0
 T_AHEAD_DAYS = 3
 
 
-def create_components_forecast_task(pj: PredictionJobDataClass, context: TaskContext, ="windspeed_100m"):
+def create_components_forecast_task(pj: PredictionJobDataClass, context: TaskContext):
     """Top level task that creates a components forecast.
     On this task level all database and context manager dependencies are resolved.
 
