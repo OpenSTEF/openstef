@@ -12,6 +12,12 @@ from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.enums import ForecastType
 from openstef.feature_engineering import weather_features
 
+#this is the default for "Lagerwey100"
+TURBINE_DATA = {
+                "rated_power": 1,
+                "slope_center": 8.07,
+                "steepness": 0.664,
+            }
 
 def normalize_and_convert_weather_data_for_splitting(weather_data):
     """Normalize and converts weather data for use in energy splitting.
@@ -39,15 +45,36 @@ def normalize_and_convert_weather_data_for_splitting(weather_data):
         / np.percentile(weather_data["radiation"].dropna(), 99.0)
         * -1
     )
-    wind_ref = weather_features.calculate_windspeed_at_hubheight(
+    wind_ref_series = weather_features.calculate_windspeed_at_hubheight(
         weather_data["windspeed_100m"], fromheight=100
     )
-    wind_ref = wind_ref / np.abs(np.amax(wind_ref)) * -1
+    wind_ref = wind_ref_series.to_frame()
+    wind_ref = calculate_wind_power(wind_ref)
 
     output_dataframe["windpower"] = wind_ref
-
     return output_dataframe
 
+def calculate_wind_power(
+    windspeed_100m: pd.DataFrame,
+) -> pd.DataFrame:
+
+    """Calculate the generated wind power based on the wind speed.
+    Values are related through the power curve, which is described by turbine_data.
+    Default values are used and are normalized to 1MWp.
+
+    args:
+    - windspeed_100m: pd.DataFrame (index = datetime, columns = ["windspeed_100m"])
+
+    returns:
+    - pd.DataFrame(index = datetime, columns = ["windenergy"])"""
+
+    generated_power = TURBINE_DATA["rated_power"] / (
+        1
+        + np.exp(
+            -TURBINE_DATA["steepness"] * (windspeed_100m - TURBINE_DATA["slope_center"])
+        )
+    )
+    return generated_power["windspeed_100m"].rename("windenergy").to_frame()
 
 def split_forecast_in_components(forecast, weather_data, split_coefs):
     """Function that makes estimates of energy components based on given forecast,

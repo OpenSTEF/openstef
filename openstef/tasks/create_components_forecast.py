@@ -46,7 +46,7 @@ T_BEHIND_DAYS = 0
 T_AHEAD_DAYS = 3
 
 
-def create_components_forecast_task(pj: PredictionJobDataClass, context: TaskContext):
+def create_components_forecast_task(pj: PredictionJobDataClass, context: TaskContext, ="windspeed_100m"):
     """Top level task that creates a components forecast.
     On this task level all database and context manager dependencies are resolved.
 
@@ -86,7 +86,7 @@ def create_components_forecast_task(pj: PredictionJobDataClass, context: TaskCon
         [pj["lat"], pj["lon"]],
         [
             "radiation",
-            "windspeed_100m",
+            "windspeed_100m"
         ],  # These variables are used when determing the splitting coeficients, and should therefore be reused when making the component forcasts.
         datetime_start=datetime_start,
         datetime_end=datetime_end,

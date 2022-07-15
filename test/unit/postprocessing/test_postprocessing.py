@@ -33,7 +33,7 @@ class TestPostProcess(BaseTestCase):
     def test_normalize_and_convert_weather_data_for_splitting(self):
         # Create testing input
         weather_data_test = pd.DataFrame(
-            {"windspeed_100m": [10, 15, 33, 1, 2], "radiation": [10, 16, 33, -1, -2]}
+            {"windspeed_100m": [0, 25, 8.07, 0, 0], "radiation": [10, 16, 33, -1, -2]}
         )
 
         # Define test reference output
@@ -47,11 +47,11 @@ class TestPostProcess(BaseTestCase):
                     0.061881,
                 ],
                 "windpower": [
-                    -0.303030,
-                    -0.454545,
-                    -1.000000,
-                    -0.030303,
-                    -0.060606,
+                    0,
+                    1,
+                    0.5,
+                    0,
+                    0,
                 ],
             }
         )
@@ -73,8 +73,27 @@ class TestPostProcess(BaseTestCase):
 
         # Check dataframe content are equal
         self.assertDataframeEqual(
-            weather_data_norm_test, weather_data_norm_ref, check_exact=False, rtol=1e-3
+            weather_data_norm_test, weather_data_norm_ref, check_exact=False, atol=1e-2
         )
+
+    def test_calculate_wind_power(self):
+        # Arrange
+        expected_measures = [0.8749573212034569, 0.010507738070416014, 0.00681214123510128]
+        windspeed_100m = pd.DataFrame(
+            index=pd.to_datetime(
+                ["2021-07-12 14:00:00+0200",
+                 "2021-07-13 15:00:00+0200",
+                 "2021-07-14 16:00:00+0200",
+                 ]
+            ),
+            data={"windspeed_100m": [11, 1.225, 0.5666666666666667]},
+        )
+
+        # Act
+        model = postprocessing.calculate_wind_power(windspeed_100m)
+
+        # Assert
+        self.assertEqual(expected_measures, list(model.windenergy))
 
     def test_split_forecast_in_components(self):
         # Define test input
