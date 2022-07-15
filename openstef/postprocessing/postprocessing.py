@@ -12,12 +12,13 @@ from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.enums import ForecastType
 from openstef.feature_engineering import weather_features
 
-#this is the default for "Lagerwey100"
+# this is the default for "Lagerwey100"
 TURBINE_DATA = {
-                "rated_power": 1,
-                "slope_center": 8.07,
-                "steepness": 0.664,
-            }
+    "rated_power": 1,
+    "slope_center": 8.07,
+    "steepness": 0.664,
+}
+
 
 def normalize_and_convert_weather_data_for_splitting(weather_data):
     """Normalize and converts weather data for use in energy splitting.
@@ -54,6 +55,7 @@ def normalize_and_convert_weather_data_for_splitting(weather_data):
     output_dataframe["windpower"] = wind_ref
     return output_dataframe
 
+
 def calculate_wind_power(
     windspeed_100m: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -75,6 +77,7 @@ def calculate_wind_power(
         )
     )
     return generated_power["windspeed_100m"].rename("windenergy").to_frame()
+
 
 def split_forecast_in_components(forecast, weather_data, split_coefs):
     """Function that makes estimates of energy components based on given forecast,

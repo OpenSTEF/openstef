@@ -86,7 +86,7 @@ def create_components_forecast_task(pj: PredictionJobDataClass, context: TaskCon
         [pj["lat"], pj["lon"]],
         [
             "radiation",
-            "windspeed_100m"
+            "windspeed_100m",
         ],  # These variables are used when determing the splitting coeficients, and should therefore be reused when making the component forcasts.
         datetime_start=datetime_start,
         datetime_end=datetime_end,
