@@ -51,6 +51,7 @@ def normalize_and_convert_weather_data_for_splitting(weather_data):
     )
     wind_ref = wind_ref_series.to_frame()
     wind_ref = calculate_wind_power(wind_ref)
+    wind_ref *= -1
 
     output_dataframe["windpower"] = wind_ref
     return output_dataframe
