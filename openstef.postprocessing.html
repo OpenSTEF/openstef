@@ -102,6 +102,18 @@ This is important for sending GLMD messages correctly to TenneT!</p>
 <dd></dd></dl>
 
 <dl class="function">
+<dt id="openstef.postprocessing.postprocessing.calculate_wind_power">
+<code class="sig-prename descclassname">openstef.postprocessing.postprocessing.</code><code class="sig-name descname">calculate_wind_power</code><span class="sig-paren">(</span><em class="sig-param">windspeed_100m: pandas.core.frame.DataFrame</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstef.postprocessing.postprocessing.calculate_wind_power" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the generated wind power based on the wind speed.
+Values are related through the power curve, which is described by turbine_data.
+Default values are used and are normalized to 1MWp.</p>
+<p>args:
+- windspeed_100m: pd.DataFrame (index = datetime, columns = [“windspeed_100m”])</p>
+<p>returns:
+- pd.DataFrame(index = datetime, columns = [“windenergy”])</p>
+</dd></dl>
+
+<dl class="function">
 <dt id="openstef.postprocessing.postprocessing.normalize_and_convert_weather_data_for_splitting">
 <code class="sig-prename descclassname">openstef.postprocessing.postprocessing.</code><code class="sig-name descname">normalize_and_convert_weather_data_for_splitting</code><span class="sig-paren">(</span><em class="sig-param">weather_data</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.postprocessing.postprocessing.normalize_and_convert_weather_data_for_splitting" title="Permalink to this definition">¶</a></dt>
 <dd><p>Normalize and converts weather data for use in energy splitting.</p>
