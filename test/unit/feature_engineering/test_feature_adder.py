@@ -93,5 +93,5 @@ class TestFeatureAdder(BaseTestCase):
         )
         adders_type = [type(adder) for adder in adders]
         self.assertTrue(len(adders) == 2)
-#        self.assertTrue(DummyFeature in adders_type)
-#        self.assertTrue(DummyIntFeature in adders_type)
+        self.assertTrue(DummyFeature in adders_type)
+        self.assertTrue(DummyIntFeature in adders_type)

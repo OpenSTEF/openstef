@@ -13,6 +13,7 @@ optuna~=2.5.0
 pandas~=1.4.1
 plotly~=5.8.0
 protobuf==3.20.1   # TODO upgrade protobuf
+pvlib==0.9.1
 pydantic~=1.9.0
 pymsteams~=0.1.14   # TODO remove teams dependency
 pytz~=2021.3

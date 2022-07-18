@@ -155,7 +155,7 @@ class HumidityCalculationsTest(BaseTestCase):
 
 class RadiationCalculationsTest(BaseTestCase):
     def setUp(self):
-        # Arrange some mock radiation data. 60 datapoints with high and low radiation.
+        # Arrange some mock radiation data. 60 data points with high and low radiation.
         times = pd.DatetimeIndex(['2020-08-20 10:00:00+00:00', '2020-08-20 10:15:00+00:00',
                                        '2020-08-20 10:30:00+00:00', '2020-08-20 19:00:00+00:00',
                                        '2020-08-20 19:15:00+00:00', '2020-08-20 19:30:00+00:00',
@@ -194,7 +194,7 @@ class RadiationCalculationsTest(BaseTestCase):
                  1116257.688, 1474162.125, 1832066.563, 2189971.0, 2273495.375, 2357019.75, 2440544.125, 2524068.5, 2559136.375,
                  2594204.25, 2629272.125, 2664340.0, 3.2421875, 0.31640625, -2.609375, -1.95703125, -1.3046875],
                 index=times,
-                columns=['radiation']) #.sort_index()
+                columns=['radiation'])
         self.pj = {"lon": 52.98749605, "lat": 6.288165514}
 
     def test_dni(self):

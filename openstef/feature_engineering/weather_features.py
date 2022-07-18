@@ -13,6 +13,11 @@ import pandas as pd
 import pvlib
 from pvlib.location import Location
 
+import structlog
+logger = structlog.get_logger(__name__)
+
+
+
 # Set some (nameless) constants for the Antoine equation:
 A: float = 6.116
 M: float = 7.6
@@ -348,10 +353,12 @@ def calculate_dni(
     """
     Using the predicted radiation and information derived from the location (obtained from pj) the direct normal
     irradiance (DNI) is calculated. The `pvlib` library is used.
-    :param radiation: predicted radiation including DatetimeIndex with right time-zone
-    :param pj: PredictJob including information about the location (lat, lon)
-    :return: dni_converted
-    pd.Series of the calculated dni.
+    Args:
+        radiation: predicted radiation including DatetimeIndex with right time-zone
+        pj: PredictJob including information about the location (lat, lon)
+
+    Returns: dni_converted
+
     """
     loc = Location(pj["lat"], pj["lon"], tz='CET')
     times = radiation.index
@@ -380,15 +387,18 @@ def calculate_gti(
 ) -> pd.Series:
     """
     Calculates the GTI/POA using the radiation (Assuming Global Tilted Irradiance (GTI) = Plane of Array (POA))
-    :param radiation:
-    :param pj:
-    :param surface_tilt: The tilt of the surface of, for example, your PhotoVoltaic-system.
-    :param surface_azimuth: The way the surface is facing. South facing 180 degrees, North facing 0 degrees.
-    :return: gti
+    Args:
+        radiation: pandas series with DatetimeIndex with right timezone information
+        pj: prediction job which should at least contain the latitude and longitude location.
+        surface_tilt: The tilt of the surface of, for example, your PhotoVoltaic-system.
+        surface_azimuth: The way the surface is facing. South facing 180 degrees, North facing 0 degrees, East facing 90
+        degrees and West facing 270 degrees
+
+    Returns: gti
+
     """
     loc = Location(pj["lat"], pj["lon"], tz='CET')
     times = radiation.index
-    print("check: is the right timezone included in times variable?", times[0])
 
     # calculate data for loc(ation) at times with clear_sky, as if there would be a clear sky.
     cs = loc.get_clearsky(times)
@@ -407,8 +417,26 @@ def calculate_gti(
 
 
 def add_additional_solar_features(
-        data: pd.DataFrame, pj: dict, feature_names: List[str] = None
+        data: pd.DataFrame, pj: dict , feature_names: List[str] = None
 ) -> pd.DataFrame:
+    """
+    Adds additional solar features to the input data.
+
+    Args:
+        data (pd.DataFrame): Dataframe to which the solar features have to be added
+        pj: prediction job which should at least contain the latitude and longitude location.
+        feature_names (List[str]): List of requested features
+
+    Returns:
+        pd.DataFrame same as input dataframe with extra columns for the added solar features
+
+    """
+    try:
+        _, _ = pj["lon"], pj["lat"]
+    except:
+        pj = {"lon": 52.132633, "lat": 5.291266}
+        logger.warning("No longitude or latitude data was provided. A random location in the Netherlands is used.")
+
     # If features is none add solar feature anyway
     if feature_names is None:
         additional_solar_features = True
