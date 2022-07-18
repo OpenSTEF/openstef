@@ -417,7 +417,7 @@ def calculate_gti(
 
 
 def add_additional_solar_features(
-        data: pd.DataFrame, pj: dict , feature_names: List[str] = None
+        data: pd.DataFrame, pj: dict = {"lon": 52.132633, "lat": 5.291266}, feature_names: List[str] = None
 ) -> pd.DataFrame:
     """
     Adds additional solar features to the input data.
@@ -431,12 +431,6 @@ def add_additional_solar_features(
         pd.DataFrame same as input dataframe with extra columns for the added solar features
 
     """
-    try:
-        _, _ = pj["lon"], pj["lat"]
-    except:
-        pj = {"lon": 52.132633, "lat": 5.291266}
-        logger.warning("No longitude or latitude data was provided. A random location in the Netherlands is used.")
-
     # If features is none add solar feature anyway
     if feature_names is None:
         additional_solar_features = True

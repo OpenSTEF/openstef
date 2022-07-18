@@ -20,7 +20,8 @@ from openstef.model.objective import (
 
 input_data = TestData.load("reference_sets/307-train-data.csv")
 input_data_with_features = TrainFeatureApplicator(horizons=[0.25, 24.0]).add_features(
-    input_data
+    input_data,
+    pj={"model": "proleaf", "lon": 52.132633, "lat": 5.291266},
 )
 # Select 50 data points to speedup test
 input_data_with_features = input_data_with_features.iloc[::50, :]
