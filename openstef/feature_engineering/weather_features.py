@@ -14,8 +14,8 @@ import pvlib
 from pvlib.location import Location
 
 import structlog
-logger = structlog.get_logger(__name__)
 
+logger = structlog.get_logger(__name__)
 
 
 # Set some (nameless) constants for the Antoine equation:
@@ -424,7 +424,9 @@ def calculate_gti(
 
 
 def add_additional_solar_features(
-        data: pd.DataFrame, pj: dict = {"lon": 52.132633, "lat": 5.291266}, feature_names: List[str] = None
+    data: pd.DataFrame,
+    pj: dict = {"lon": 52.132633, "lat": 5.291266},
+    feature_names: List[str] = None,
 ) -> pd.DataFrame:
     """
     Adds additional solar features to the input data.
