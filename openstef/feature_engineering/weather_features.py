@@ -42,7 +42,7 @@ def calc_saturation_pressure(temperature: float or np.ndarray) -> float or np.nd
 
 
 def calc_vapour_pressure(
-        rh: float or np.ndarray, psat: float or np.ndarray
+    rh: float or np.ndarray, psat: float or np.ndarray
 ) -> float or np.ndarray:
     """Calculates the vapour pressure
 
@@ -66,9 +66,9 @@ def calc_dewpoint(vapour_pressure: float or np.ndarray) -> float or np.ndarray:
 
 
 def calc_air_density(
-        temperature: float or np.ndarray,
-        pressure: float or np.ndarray,
-        rh: float or np.ndarray,
+    temperature: float or np.ndarray,
+    pressure: float or np.ndarray,
+    rh: float or np.ndarray,
 ) -> float or np.ndarray:
     """Calculates the dewpoint.
 
@@ -90,16 +90,16 @@ def calc_air_density(
 
     # Calculate air density
     air_density = (
-            D
-            * (273.15 / temperature_k)
-            * ((pressure - 0.3783 * vapour_pressure) / 760 / TORR)
+        D
+        * (273.15 / temperature_k)
+        * ((pressure - 0.3783 * vapour_pressure) / 760 / TORR)
     )
 
     return air_density
 
 
 def add_humidity_features(
-        data: pd.DataFrame, feature_names: List[str] = None
+    data: pd.DataFrame, feature_names: List[str] = None
 ) -> pd.DataFrame:
     """Adds humidity features to the input dataframe.
 
@@ -145,9 +145,9 @@ def add_humidity_features(
 
 
 def humidity_calculations(
-        temperature: float or np.ndarray,
-        rh: float or np.ndarray,
-        pressure: float or np.ndarray,
+    temperature: float or np.ndarray,
+    rh: float or np.ndarray,
+    pressure: float or np.ndarray,
 ) -> dict or np.ndarray:
     """Function that calculates the
     - Saturation pressure
@@ -218,7 +218,7 @@ def humidity_calculations(
 
 
 def calculate_windspeed_at_hubheight(
-        windspeed: float or pd.Series, fromheight: float = 10.0, hub_height: float = 100.0
+    windspeed: float or pd.Series, fromheight: float = 10.0, hub_height: float = 100.0
 ) -> pd.Series:
     """Calculate windspeed at hubheight.
 
@@ -257,7 +257,7 @@ def calculate_windspeed_at_hubheight(
 
 
 def calculate_windturbine_power_output(
-        windspeed: pd.Series, n_turbines: int = 1, turbine_data: dict = None
+    windspeed: pd.Series, n_turbines: int = 1, turbine_data: dict = None
 ) -> pd.Series:
     """Calculate wind turbine power output.
 
@@ -292,10 +292,10 @@ def calculate_windturbine_power_output(
                 raise KeyError(f"Required property '{prop}' not set in turbine data")
 
     generated_power = turbine_data["rated_power"] / (
-            1
-            + np.exp(
-        -turbine_data["steepness"] * (windspeed - turbine_data["slope_center"])
-    )
+        1
+        + np.exp(
+            -turbine_data["steepness"] * (windspeed - turbine_data["slope_center"])
+        )
     )
     generated_power *= n_turbines
 
@@ -303,7 +303,7 @@ def calculate_windturbine_power_output(
 
 
 def add_additional_wind_features(
-        data: pd.DataFrame, feature_names: List[str] = None
+    data: pd.DataFrame, feature_names: List[str] = None
 ) -> pd.DataFrame:
     """Adds additional wind features to the input data.
 
@@ -347,9 +347,7 @@ def add_additional_wind_features(
     return data
 
 
-def calculate_dni(
-        radiation: pd.Series, pj: dict
-) -> pd.Series:
+def calculate_dni(radiation: pd.Series, pj: dict) -> pd.Series:
     """
     Using the predicted radiation and information derived from the location (obtained from pj) the direct normal
     irradiance (DNI) is calculated. The `pvlib` library is used.
@@ -360,7 +358,7 @@ def calculate_dni(
     Returns: dni_converted
 
     """
-    loc = Location(pj["lat"], pj["lon"], tz='CET')
+    loc = Location(pj["lat"], pj["lon"], tz="CET")
     times = radiation.index
 
     # calculate data for loc(ation) at times with clear_sky, as if there would be a clear sky.
@@ -372,18 +370,20 @@ def calculate_dni(
 
     # convert radiation (ghi) to right unit (J/m^2 to kWh/m^2)
     # TODO: check whether unit conversion is necessary
-    ghi_forecasted = radiation/3600
+    ghi_forecasted = radiation / 3600
     # convert ghi to dni
-    dni_converted = pvlib.irradiance.dni(ghi_forecasted, cs.dhi, solar_zenith, clearsky_dni=cs.dni)
+    dni_converted = pvlib.irradiance.dni(
+        ghi_forecasted, cs.dhi, solar_zenith, clearsky_dni=cs.dni
+    )
     dni_converted = dni_converted.fillna(0)
     return dni_converted
 
 
 def calculate_gti(
-        radiation: pd.Series,
-        pj: dict,
-        surface_tilt: float = 34.0,
-        surface_azimuth: float = 180
+    radiation: pd.Series,
+    pj: dict,
+    surface_tilt: float = 34.0,
+    surface_azimuth: float = 180,
 ) -> pd.Series:
     """
     Calculates the GTI/POA using the radiation (Assuming Global Tilted Irradiance (GTI) = Plane of Array (POA))
@@ -397,7 +397,7 @@ def calculate_gti(
     Returns: gti
 
     """
-    loc = Location(pj["lat"], pj["lon"], tz='CET')
+    loc = Location(pj["lat"], pj["lon"], tz="CET")
     times = radiation.index
 
     # calculate data for loc(ation) at times with clear_sky, as if there would be a clear sky.
@@ -410,10 +410,17 @@ def calculate_gti(
     solar_azimuth = solpos.azimuth
 
     ghi_forecasted = radiation / 3600
-    gti = pvlib.irradiance.get_total_irradiance(surface_tilt, surface_azimuth, solar_zenith, solar_azimuth,
-                                                dni=dni, ghi=ghi_forecasted, dhi=cs.dhi)
+    gti = pvlib.irradiance.get_total_irradiance(
+        surface_tilt,
+        surface_azimuth,
+        solar_zenith,
+        solar_azimuth,
+        dni=dni,
+        ghi=ghi_forecasted,
+        dhi=cs.dhi,
+    )
 
-    return gti['poa_global']
+    return gti["poa_global"]
 
 
 def add_additional_solar_features(
@@ -437,24 +444,11 @@ def add_additional_solar_features(
 
     # Otherwise check if they are among the requested features
     else:
-        additional_solar_features = any(
-            x
-            in [
-                "dni",
-                "gti"
-            ]
-            for x in feature_names
-        )
+        additional_solar_features = any(x in ["dni", "gti"] for x in feature_names)
 
     # Add add_additional_solar_features
     if "radiation" in data.columns and additional_solar_features:
-        data["dni"] = calculate_dni(
-            data["radiation"],
-            pj
-        )
-        data["gti"] = calculate_gti(
-            data["radiation"],
-            pj
-        )
+        data["dni"] = calculate_dni(data["radiation"], pj)
+        data["gti"] = calculate_gti(data["radiation"], pj)
 
     return data
