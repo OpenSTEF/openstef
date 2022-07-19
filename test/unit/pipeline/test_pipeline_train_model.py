@@ -291,9 +291,7 @@ class TestTrainModelPipeline(BaseTestCase):
             "Predictor47.0.html",
             "weight_plot.html",
         ]
-        unittest.TestCase.assertCountEqual(fnames, excepted_fnames)
-
-        assert len([file for file in found_files if "Predictor" in file]) == 2
+        assert set(fnames) == set(excepted_fnames)
 
     @patch("openstef.model.serializer.MLflowSerializer.save_model")
     @patch("openstef.pipeline.train_model.train_model_pipeline_core")
