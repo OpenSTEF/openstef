@@ -17,11 +17,8 @@ logger = structlog.get_logger(__name__)
 try:
     from openstef.model.regressors.proloaf import OpenstfProloafRegressor
 except ImportError:
-    logger.warning(
-        "Proloaf not available, switching to xgboost! See Readme how to install proloaf"
-        " dependencies"
-    )
-    OpenstfProloafRegressor = XGBOpenstfRegressor
+    logger.info("Proloaf not available, setting constructor to None")
+    OpenstfProloafRegressor = None
 
 valid_model_kwargs = {
     MLModelType.XGB: [
@@ -148,11 +145,18 @@ class ModelCreator:
                 model_type = MLModelType(model_type)
                 model_class = ModelCreator.MODEL_CONSTRUCTORS[model_type]
                 valid_kwargs = valid_model_kwargs[model_type]
+                # Check if model as imported
+                if model_class is None:
+                    raise ImportError(
+                        f"Constructor not available for '{model_type}'. "
+                        "Perhaps you forgot to install an optional dependency? "
+                        "Please refer to the ReadMe for instructions"
+                    )
         except ValueError as e:
             valid_types = [t.value for t in MLModelType]
             raise NotImplementedError(
                 f"No constructor for '{model_type}', "
-                f"valid model_types are: {valid_types}"
+                f"valid model_types are: {valid_types} "
                 "or import a custom model"
             ) from e
 
