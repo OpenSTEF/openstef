@@ -28,6 +28,7 @@ from openstef.feature_engineering.lag_features import generate_lag_feature_funct
 from openstef.feature_engineering.weather_features import (
     add_additional_wind_features,
     add_humidity_features,
+    add_additional_solar_features,
 )
 
 
@@ -102,6 +103,9 @@ def apply_features(
 
     # Add humidity features
     data = add_humidity_features(data, feature_names)
+
+    # Add solar features
+    data = add_additional_solar_features(data, pj, feature_names)
 
     # Return dataframe including all requested features
     return data

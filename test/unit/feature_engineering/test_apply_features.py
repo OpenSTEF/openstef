@@ -89,25 +89,29 @@ class TestApplyFeaturesModule(BaseTestCase):
             # data=self.test_data.INPUT_DATA, h_ahead=24
             data=TestData.load("input_data.pickle"),
             horizon=24,
+            pj={"model": "proleaf", "lon": 52.132633, "lat": 5.291266},
         )
+        expected_output = TestData.load("input_data_with_features.csv")
 
         self.assertDataframeEqual(
             input_data_with_features,
-            TestData.load("input_data_with_features.csv").drop(
+            expected_output.drop(
                 columns=["is_bevrijdingsdag", "is_bridgedaybevrijdingsdag"]
             ),
             check_like=True,  # ignore the order of index & columns
+            check_less_precise=3,  # ignore small rounding differences
         )
 
     def test_train_feature_applicator(self):
 
         input_data_with_features = TrainFeatureApplicator(horizons=[0.25]).add_features(
-            TestData.load("input_data.pickle")
+            TestData.load("input_data.pickle"),
+            pj={"model": "proleaf", "lon": 52.132633, "lat": 5.291266},
         )
-
+        expected_output = TestData.load("input_data_multi_horizon_features.csv")
         self.assertDataframeEqual(
             input_data_with_features,
-            TestData.load("input_data_multi_horizon_features.csv"),
+            expected_output,
             check_like=True,  # ignore the order of index & columns
         )
 

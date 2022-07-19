@@ -10,6 +10,14 @@ from typing import List
 import numpy as np
 import pandas as pd
 
+import pvlib
+from pvlib.location import Location
+
+import structlog
+
+logger = structlog.get_logger(__name__)
+
+
 # Set some (nameless) constants for the Antoine equation:
 A: float = 6.116
 M: float = 7.6
@@ -335,5 +343,114 @@ def add_additional_wind_features(
         data["windpowerFit_harm_arome"] = calculate_windturbine_power_output(
             data["windspeed_100m"].astype(float)
         )
+
+    return data
+
+
+def calculate_dni(radiation: pd.Series, pj: dict) -> pd.Series:
+    """
+    Using the predicted radiation and information derived from the location (obtained from pj) the direct normal
+    irradiance (DNI) is calculated. The `pvlib` library is used.
+    Args:
+        radiation: predicted radiation including DatetimeIndex with right time-zone
+        pj: PredictJob including information about the location (lat, lon)
+
+    Returns: dni_converted
+
+    """
+    loc = Location(pj["lat"], pj["lon"], tz="CET")
+    times = radiation.index
+
+    # calculate data for loc(ation) at times with clear_sky, as if there would be a clear sky.
+    cs = loc.get_clearsky(times)
+
+    # get solar position variable(s) for loc(ation) at times
+    solpos = pvlib.solarposition.get_solarposition(times, loc.latitude, loc.longitude)
+    solar_zenith = solpos.apparent_zenith
+
+    # convert radiation (ghi) to right unit (J/m^2 to kWh/m^2)
+    # TODO: check whether unit conversion is necessary
+    ghi_forecasted = radiation / 3600
+    # convert ghi to dni
+    dni_converted = pvlib.irradiance.dni(
+        ghi_forecasted, cs.dhi, solar_zenith, clearsky_dni=cs.dni
+    )
+    dni_converted = dni_converted.fillna(0)
+    return dni_converted
+
+
+def calculate_gti(
+    radiation: pd.Series,
+    pj: dict,
+    surface_tilt: float = 34.0,
+    surface_azimuth: float = 180,
+) -> pd.Series:
+    """
+    Calculates the GTI/POA using the radiation (Assuming Global Tilted Irradiance (GTI) = Plane of Array (POA))
+    Args:
+        radiation: pandas series with DatetimeIndex with right timezone information
+        pj: prediction job which should at least contain the latitude and longitude location.
+        surface_tilt: The tilt of the surface of, for example, your PhotoVoltaic-system.
+        surface_azimuth: The way the surface is facing. South facing 180 degrees, North facing 0 degrees, East facing 90
+        degrees and West facing 270 degrees
+
+    Returns: gti
+
+    """
+    loc = Location(pj["lat"], pj["lon"], tz="CET")
+    times = radiation.index
+
+    # calculate data for loc(ation) at times with clear_sky, as if there would be a clear sky.
+    cs = loc.get_clearsky(times)
+    dni = calculate_dni(radiation, pj)
+
+    # get solar position variable(s) for loc(ation) at times
+    solpos = pvlib.solarposition.get_solarposition(times, loc.latitude, loc.longitude)
+    solar_zenith = solpos.apparent_zenith
+    solar_azimuth = solpos.azimuth
+
+    ghi_forecasted = radiation / 3600
+    gti = pvlib.irradiance.get_total_irradiance(
+        surface_tilt,
+        surface_azimuth,
+        solar_zenith,
+        solar_azimuth,
+        dni=dni,
+        ghi=ghi_forecasted,
+        dhi=cs.dhi,
+    )
+
+    return gti["poa_global"]
+
+
+def add_additional_solar_features(
+    data: pd.DataFrame,
+    pj: dict = {"lon": 52.132633, "lat": 5.291266},
+    feature_names: List[str] = None,
+) -> pd.DataFrame:
+    """
+    Adds additional solar features to the input data.
+
+    Args:
+        data (pd.DataFrame): Dataframe to which the solar features have to be added
+        pj: prediction job which should at least contain the latitude and longitude location.
+        feature_names (List[str]): List of requested features
+
+    Returns:
+        pd.DataFrame same as input dataframe with extra columns for the added solar features
+
+    """
+    # If features is none add solar feature anyway
+    if feature_names is None:
+        additional_solar_features = True
+
+    # Otherwise check if they are among the requested features
+    else:
+        additional_solar_features = any(x in ["dni", "gti"] for x in feature_names)
+
+    # Add add_additional_solar_features
+    if "radiation" in data.columns and additional_solar_features:
+        data["dni"] = calculate_dni(data["radiation"], pj)
+        data["gti"] = calculate_gti(data["radiation"], pj)
 
     return data
