@@ -503,6 +503,24 @@ days_list (List[int]): list of minute lags that were used as features during tra
 <span id="openstef-feature-engineering-weather-features-module"></span><h2>openstef.feature_engineering.weather_features module<a class="headerlink" href="#module-openstef.feature_engineering.weather_features" title="Permalink to this headline">¶</a></h2>
 <p>This module contains all wheather related functions used for feature engineering.</p>
 <dl class="function">
+<dt id="openstef.feature_engineering.weather_features.add_additional_solar_features">
+<code class="sig-prename descclassname">openstef.feature_engineering.weather_features.</code><code class="sig-name descname">add_additional_solar_features</code><span class="sig-paren">(</span><em class="sig-param">data: pandas.core.frame.DataFrame</em>, <em class="sig-param">pj: dict = {'lat': 5.291266</em>, <em class="sig-param">'lon': 52.132633}</em>, <em class="sig-param">feature_names: List[str] = None</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstef.feature_engineering.weather_features.add_additional_solar_features" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds additional solar features to the input data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>pd.DataFrame</em>) – Dataframe to which the solar features have to be added</p></li>
+<li><p><strong>pj</strong> – prediction job which should at least contain the latitude and longitude location.</p></li>
+<li><p><strong>feature_names</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – List of requested features</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>pd.DataFrame same as input dataframe with extra columns for the added solar features</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
 <dt id="openstef.feature_engineering.weather_features.add_additional_wind_features">
 <code class="sig-prename descclassname">openstef.feature_engineering.weather_features.</code><code class="sig-name descname">add_additional_wind_features</code><span class="sig-paren">(</span><em class="sig-param">data: pandas.core.frame.DataFrame</em>, <em class="sig-param">feature_names: List[str] = None</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstef.feature_engineering.weather_features.add_additional_wind_features" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds additional wind features to the input data.</p>
@@ -606,6 +624,28 @@ See <a class="reference external" href="https://www.vaisala.com/sites/default/fi
 <dd class="field-even"><p>The water vapour pressure</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="openstef.feature_engineering.weather_features.calculate_dni">
+<code class="sig-prename descclassname">openstef.feature_engineering.weather_features.</code><code class="sig-name descname">calculate_dni</code><span class="sig-paren">(</span><em class="sig-param">radiation: pandas.core.series.Series</em>, <em class="sig-param">pj: dict</em><span class="sig-paren">)</span> &#x2192; pandas.core.series.Series<a class="headerlink" href="#openstef.feature_engineering.weather_features.calculate_dni" title="Permalink to this definition">¶</a></dt>
+<dd><p>Using the predicted radiation and information derived from the location (obtained from pj) the direct normal
+irradiance (DNI) is calculated. The <cite>pvlib</cite> library is used.
+:param radiation: predicted radiation including DatetimeIndex with right time-zone
+:param pj: PredictJob including information about the location (lat, lon)</p>
+<p>Returns: dni_converted</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="openstef.feature_engineering.weather_features.calculate_gti">
+<code class="sig-prename descclassname">openstef.feature_engineering.weather_features.</code><code class="sig-name descname">calculate_gti</code><span class="sig-paren">(</span><em class="sig-param">radiation: pandas.core.series.Series</em>, <em class="sig-param">pj: dict</em>, <em class="sig-param">surface_tilt: float = 34.0</em>, <em class="sig-param">surface_azimuth: float = 180</em><span class="sig-paren">)</span> &#x2192; pandas.core.series.Series<a class="headerlink" href="#openstef.feature_engineering.weather_features.calculate_gti" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the GTI/POA using the radiation (Assuming Global Tilted Irradiance (GTI) = Plane of Array (POA))
+:param radiation: pandas series with DatetimeIndex with right timezone information
+:param pj: prediction job which should at least contain the latitude and longitude location.
+:param surface_tilt: The tilt of the surface of, for example, your PhotoVoltaic-system.
+:param surface_azimuth: The way the surface is facing. South facing 180 degrees, North facing 0 degrees, East facing 90
+:param degrees and West facing 270 degrees:</p>
+<p>Returns: gti</p>
 </dd></dl>
 
 <dl class="function">
