@@ -40,8 +40,10 @@ class TestComponent(unittest.TestCase):
 
         # Assert that reports on training are stored in correct location
         expected_report_location = f'./test/component/{self.pj["id"]}'
-        written_files = glob.glob(os.path.join(expected_report_location, "*"))
-        fnames = [x.split("\\")[-1] for x in written_files]
+        fnames = [
+            os.path.basename(file_with_path)
+            for file_with_path in glob.glob(os.path.join(expected_report_location, "*"))
+        ]
         expected_fnames = [
             "Predictor0.25.html",
             "Predictor47.0.html",
