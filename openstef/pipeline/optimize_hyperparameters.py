@@ -7,6 +7,7 @@ import optuna
 import pandas as pd
 import structlog
 import os
+from pathlib import Path
 
 from openstef.data_classes.model_specifications import ModelSpecificationDataClass
 from openstef.data_classes.prediction_job import PredictionJobDataClass
@@ -88,7 +89,7 @@ def optimize_hyperparameters_pipeline(
         trial_number=best_trial_number,
     )
     if artifact_folder:
-        report_folder = os.path.join(artifact_folder, pj["id"])
+        report_folder = os.path.join(artifact_folder, str(pj["id"]))
         Reporter.write_report_to_disk(report=report, report_folder=report_folder)
     return best_params
 

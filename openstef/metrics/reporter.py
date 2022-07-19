@@ -138,12 +138,12 @@ class Reporter:
             # write feature importance figure
             if report.feature_importance_figure:  # only write if figure is not none
                 report.feature_importance_figure.write_html(
-                    f"{report_folder}/weight_plot.html"
+                    os.path.join(report_folder, "weight_plot.html")
                 )
             # write predictors
             for name, figure in report.data_series_figures.items():
                 if figure:  # only write if figure is not none
-                    figure.write_html(f"{report_folder}/{name}.html")
+                    figure.write_html(os.path.join(report_folder, f"{name}.html"))
 
     def _make_data_series_figures(self, model: OpenstfRegressor) -> dict:
         """Make data series figures."""

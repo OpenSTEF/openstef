@@ -4,6 +4,7 @@
 import os
 import unittest
 from test.unit.utils.data import TestData
+import glob
 
 from openstef.pipeline.create_forecast import create_forecast_pipeline_core
 from openstef.pipeline.optimize_hyperparameters import optimize_hyperparameters_pipeline
@@ -36,6 +37,17 @@ class TestComponent(unittest.TestCase):
             n_trials=2,
         )
         self.model_specs.hyper_params = parameters
+
+        # Assert that reports on training are stored in correct location
+        expected_report_location = f'./test/component/{self.pj["id"]}'
+        written_files = glob.glob(os.path.join(expected_report_location, "*"))
+        fnames = [x.split("\\")[-1] for x in written_files]
+        expected_fnames = [
+            "Predictor0.25.html",
+            "Predictor47.0.html",
+            "weight_plot.html",
+        ]
+        self.assertCountEqual(fnames, expected_fnames)
 
         # 2) train model, using the optimized hyperparameters
         (
