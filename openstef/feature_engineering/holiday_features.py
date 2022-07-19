@@ -58,7 +58,7 @@ def generate_holiday_feature_functions(
         now = datetime.now()
         years = [now.year - 1, now.year]
 
-    country_holidays = holidays.CountryHoliday(country, years=years)
+    country_holidays = holidays.country_holidays(country, years=years)
 
     # Make holiday function dict
     holiday_functions = {}
@@ -149,7 +149,7 @@ def check_for_bridge_day(
         holiday_functions: dict with holiday feature functions
         bridge_days: list of bridgedays
     """
-    country_holidays = holidays.CountryHoliday(country, years=years)
+    country_holidays = holidays.country_holidays(country, years=years)
 
     # Define function explicitely to mitigate 'late binding' problem
     def make_holiday_func(requested_date):
