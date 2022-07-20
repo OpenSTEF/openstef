@@ -10,6 +10,8 @@ from unittest.mock import MagicMock, patch
 
 import pandas as pd
 import sklearn
+import os
+import glob
 
 from openstef.enums import MLModelType
 from openstef.exceptions import (
@@ -278,6 +280,24 @@ class TestTrainModelPipeline(BaseTestCase):
             mlflow_tracking_uri="./test/unit/trained_models/mlruns",
             artifact_folder="./test/unit/trained_models",
         )
+
+        # Assert the report was attempted to be written to the correct location
+        assert report_mock.method_calls[0].args[0] == os.path.join(
+            "./test/unit/trained_models", "307", "weight_plot.html"
+        )
+        # Assert the figure is in the correct location
+        found_files = [
+            os.path.basename(file_with_path)
+            for file_with_path in glob.glob(
+                os.path.join("./test/unit/trained_models/307/*.html")
+            )
+        ]
+        excepted_fnames = [
+            "Predictor0.25.html",
+            "Predictor47.0.html",
+            "weight_plot.html",
+        ]
+        assert set(found_files) == set(excepted_fnames)
 
     @patch("openstef.model.serializer.MLflowSerializer.save_model")
     @patch("openstef.pipeline.train_model.train_model_pipeline_core")
