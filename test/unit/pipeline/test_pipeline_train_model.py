@@ -106,8 +106,12 @@ class TestTrainModelPipeline(BaseTestCase):
         """
         # Select 50 data points to speedup test
         train_input = self.train_input.iloc[::50, :]
+        # Remove modeltypes which are optional, and add a dummy regressor
         for model_type in list(MLModelType) + [__name__ + ".DummyRegressor"]:
             with self.subTest(model_type=model_type):
+                # Skip the optional proloaf model
+                if model_type == MLModelType.ProLoaf:
+                    continue
                 pj = self.pj
 
                 pj["model"] = (
@@ -157,10 +161,8 @@ class TestTrainModelPipeline(BaseTestCase):
                     test_data,
                 ) = split_data_train_validation_test(data_with_features)
 
-                # not able to generate a feature importance for proloaf as this is a neural network
-                if not pj["model"] == "proloaf":
-                    importance = model.set_feature_importance()
-                    self.assertIsInstance(importance, pd.DataFrame)
+                importance = model.set_feature_importance()
+                self.assertIsInstance(importance, pd.DataFrame)
 
     def test_train_model_pipeline_with_featureAdders(self):
         pj = self.pj
