@@ -5,7 +5,7 @@ from datetime import datetime
 from typing import Tuple
 
 import pandas as pd
-import scipy.ndimage.measurements as mnts
+import scipy.ndimage as mnts
 
 
 def generate_forecast_datetime_range(

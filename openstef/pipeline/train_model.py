@@ -388,12 +388,16 @@ def train_pipeline_step_train_model(
         if key in model.get_params().keys() and key not in protected_hyperparams
     }
 
+    # Add early stopping to set_params
+    valid_hyper_parameters.update(
+        dict(early_stopping_rounds=DEFAULT_EARLY_STOPPING_ROUNDS)
+    )
+
     model.set_params(**valid_hyper_parameters)
     model.fit(
         train_x,
         train_y,
         eval_set=eval_set,
-        early_stopping_rounds=DEFAULT_EARLY_STOPPING_ROUNDS,
         verbose=False,
     )
     # Gets the feature importance df or None if we don't have feature importance
