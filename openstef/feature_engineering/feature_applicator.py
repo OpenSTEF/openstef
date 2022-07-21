@@ -113,7 +113,7 @@ class TrainFeatureApplicator(AbstractFeatureApplicator):
 
         # Add custom features with the dispatcher
         result = self.features_dispatcher.apply_features(
-            result, feature_names=self.feature_names
+            result, feature_names=self.feature_names, pj=pj
         )
 
         # IMPORTANT: sort index to prevent errors when slicing on the (datetime) index
@@ -140,7 +140,7 @@ class TrainFeatureApplicator(AbstractFeatureApplicator):
 
 
 class OperationalPredictFeatureApplicator(AbstractFeatureApplicator):
-    def add_features(self, df: pd.DataFrame) -> pd.DataFrame:
+    def add_features(self, df: pd.DataFrame, pj: PredictionJobDataClass) -> pd.DataFrame:
         """Adds features to an input DataFrame.
 
         This method is implemented specifically for an operational prediction pipeline
@@ -159,11 +159,11 @@ class OperationalPredictFeatureApplicator(AbstractFeatureApplicator):
 
         # Add core features
         df = apply_features(
-            df, feature_names=self.feature_names, horizon=self.horizons[0]
+            df, feature_names=self.feature_names, horizon=self.horizons[0], pj=pj
         )
         # Add custom features with the dispatcher
         df = self.features_dispatcher.apply_features(
-            df, feature_names=self.feature_names
+            df, feature_names=self.feature_names,pj=pj
         )
 
         df = add_missing_feature_columns(df, self.feature_names)
