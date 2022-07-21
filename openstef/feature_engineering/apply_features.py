@@ -30,6 +30,8 @@ from openstef.feature_engineering.weather_features import (
     add_humidity_features,
     add_additional_solar_features,
 )
+import structlog
+logger = structlog.get_logger(__name__)
 
 
 def apply_features(
@@ -104,8 +106,11 @@ def apply_features(
     # Add humidity features
     data = add_humidity_features(data, feature_names)
 
-    # Add solar features
-    data = add_additional_solar_features(data, pj, feature_names)
+    # Add solar features; only when prediction job (pj) is available
+    if pj is not None:
+        data = add_additional_solar_features(data, pj, feature_names)
+    else:
+        logger.info("No prediction job, so additional solar features are not calculated.")
 
     # Return dataframe including all requested features
     return data
