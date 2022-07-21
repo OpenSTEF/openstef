@@ -101,6 +101,22 @@ class TestApplyFeaturesModule(BaseTestCase):
             check_like=True,  # ignore the order of index & columns
             check_less_precise=3,  # ignore small rounding differences
         )
+        
+    def test_apply_features_no_pj(self):
+        """pj = None should work fine as well"""
+        # Arrange
+        input_data_without_features = data = TestData.load("input_data.pickle")
+        pj = None
+
+        # Act
+        input_data_with_features = apply_features.apply_features(
+            input_data_without_features,
+            horizon=24,
+            pj=pj,
+        )
+
+        # Assert: Add a more useful assertion
+        assert len(input_data_with_features) == len(input_data_without_features)
 
     def test_train_feature_applicator(self):
 
