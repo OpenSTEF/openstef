@@ -95,17 +95,15 @@ class TestApplyFeaturesModule(BaseTestCase):
 
         self.assertDataframeEqual(
             input_data_with_features,
-            expected_output.drop(
-                columns=["is_bevrijdingsdag", "is_bridgedaybevrijdingsdag"]
-            ),
+            expected_output,
             check_like=True,  # ignore the order of index & columns
             check_less_precise=3,  # ignore small rounding differences
         )
-        
+
     def test_apply_features_no_pj(self):
         """pj = None should work fine as well"""
         # Arrange
-        input_data_without_features = data = TestData.load("input_data.pickle")
+        input_data_without_features = TestData.load("input_data.pickle")
         pj = None
 
         # Act

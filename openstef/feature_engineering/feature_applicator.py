@@ -46,13 +46,14 @@ class AbstractFeatureApplicator(ABC):
 
     @abstractmethod
     def add_features(
-        self, df: pd.DataFrame, pj: PredictionJobDataClass
+        self, df: pd.DataFrame, pj: PredictionJobDataClass = None
     ) -> pd.DataFrame:
         """Adds features to an input DataFrame
 
         Args:
             df: pd.DataFrame with input data to which the features have to be added
-            pj (PredictionJobDataClass): Prediction job.
+            pj: (Optional) A prediction job that is needed for location dependent features,
+                if not specified a default location is used
         """
         pass
 
@@ -73,7 +74,8 @@ class TrainFeatureApplicator(AbstractFeatureApplicator):
 
         Args:
             df (pd.DataFrame):  Input data to which the features will be added.
-            pj (PredictionJobDataClass): Prediction job.
+            pj: (Optional) A prediction job that is needed for location dependent features,
+                if not specified a default location is used
             latency_config (dict): Optional. Invalidate certain features that are not
                 available for a specific horizon due to data latency. Default to
                 {"APX": 24}
@@ -82,6 +84,10 @@ class TrainFeatureApplicator(AbstractFeatureApplicator):
             pd.DataFrame: Input DataFrame with an extra column for every added feature
                 and sorted on the datetime index.
         """
+
+        # If pj is none add empty dict
+        if pj is None:
+            pj = {}
 
         if latency_config is None:
             latency_config = LATENCY_CONFIG
@@ -113,7 +119,7 @@ class TrainFeatureApplicator(AbstractFeatureApplicator):
 
         # Add custom features with the dispatcher
         result = self.features_dispatcher.apply_features(
-            result, feature_names=self.feature_names, pj=pj
+            result, feature_names=self.feature_names
         )
 
         # IMPORTANT: sort index to prevent errors when slicing on the (datetime) index
@@ -129,7 +135,7 @@ class TrainFeatureApplicator(AbstractFeatureApplicator):
         # NOTE this is required since apply_features could add additional features
         if self.feature_names is not None:
             # Add horizon to requested features else it is removed, and if needed the proloaf feature (historic_load)
-            if pj is not None and pj["model"] == "proloaf":
+            if pj is not None and pj.get("model", "xgb") == "proloaf":
                 features = self.feature_names + ["historic_load"] + ["horizon"]
             else:
                 features = self.feature_names + ["horizon"]
@@ -140,7 +146,9 @@ class TrainFeatureApplicator(AbstractFeatureApplicator):
 
 
 class OperationalPredictFeatureApplicator(AbstractFeatureApplicator):
-    def add_features(self, df: pd.DataFrame, pj: PredictionJobDataClass) -> pd.DataFrame:
+    def add_features(
+        self, df: pd.DataFrame, pj: PredictionJobDataClass = None
+    ) -> pd.DataFrame:
         """Adds features to an input DataFrame.
 
         This method is implemented specifically for an operational prediction pipeline
@@ -148,11 +156,17 @@ class OperationalPredictFeatureApplicator(AbstractFeatureApplicator):
 
         Args:
             df: pd.DataFrame with input data to which the features have to be added
-
+            pj: (Optional) A prediction job that is needed for location dependent features,
+                if not specified a default location is used
         Returns:
             pd.DataFrame: Input DataFrame with an extra column for every added feature.
 
         """
+
+        # If pj is none add empty dict
+        if pj is None:
+            pj = {}
+
         num_horizons = len(self.horizons)
         if num_horizons != 1:
             raise ValueError(f"Expected one horizon, got {num_horizons}")
@@ -163,7 +177,7 @@ class OperationalPredictFeatureApplicator(AbstractFeatureApplicator):
         )
         # Add custom features with the dispatcher
         df = self.features_dispatcher.apply_features(
-            df, feature_names=self.feature_names,pj=pj
+            df, feature_names=self.feature_names
         )
 
         df = add_missing_feature_columns(df, self.feature_names)

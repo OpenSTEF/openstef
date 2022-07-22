@@ -47,6 +47,13 @@ class PredictionJobDataClass(BaseModel):
         else:
             raise AttributeError(f"{key} not an attribute of prediction job.")
 
+    def get(self, key: str, default=None):
+        """Allows to use the get functions similar to a python dict"""
+        if hasattr(self, key):
+            return getattr(self, key)
+        else:
+            return default
+
     # The following configuration is needed to prevent ids in "depends_on"
     # to be converted from int to str when we use integer ids
     class Config:
