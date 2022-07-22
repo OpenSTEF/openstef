@@ -358,7 +358,7 @@ def calculate_dni(radiation: pd.Series, pj: PredictionJobDataClass) -> pd.Series
     Returns: dni_converted
 
     """
-    loc = Location(pj.get("lon", 52.132633), pj.get("lon", 5.291266), tz="CET")
+    loc = Location(pj.get("lat", 52.132633), pj.get("lon", 5.291266), tz="utc")
     times = radiation.index
 
     # calculate data for loc(ation) at times with clear_sky, as if there would be a clear sky.
@@ -397,7 +397,7 @@ def calculate_gti(
     Returns: gti
 
     """
-    loc = Location(pj.get("lon", 52.132633), pj.get("lon", 5.291266), tz="CET")
+    loc = Location(pj.get("lat", 52.132633), pj.get("lon", 5.291266), tz="utc")
     times = radiation.index
 
     # calculate data for loc(ation) at times with clear_sky, as if there would be a clear sky.
@@ -444,9 +444,9 @@ def add_additional_solar_features(
     # If pj is none add solar features with Utrecht as default location
     if pj is None:
         logger.info(
-            "No prediction job, so additional solar features are not calculated."
+            "No prediction job, default location will be used for additional radiation features."
         )
-        return data
+        pj = {}
 
     # If features is none add solar feature anyway
     if feature_names is None:

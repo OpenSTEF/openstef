@@ -107,8 +107,7 @@ def apply_features(
     # Add humidity features
     data = add_humidity_features(data, feature_names)
 
-    # Add solar features; only when prediction job (pj) is available
-
+    # Add solar features; when pj is unavailable a default location is used.
     data = add_additional_solar_features(data, pj, feature_names)
 
     # Return dataframe including all requested features

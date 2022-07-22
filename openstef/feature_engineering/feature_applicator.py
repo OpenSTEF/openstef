@@ -135,7 +135,7 @@ class TrainFeatureApplicator(AbstractFeatureApplicator):
         # NOTE this is required since apply_features could add additional features
         if self.feature_names is not None:
             # Add horizon to requested features else it is removed, and if needed the proloaf feature (historic_load)
-            if pj is not None and pj.get("model", "xgb") == "proloaf":
+            if pj.get("model") == "proloaf":
                 features = self.feature_names + ["historic_load"] + ["horizon"]
             else:
                 features = self.feature_names + ["horizon"]
