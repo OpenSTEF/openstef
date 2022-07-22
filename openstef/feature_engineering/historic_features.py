@@ -29,6 +29,9 @@ def add_historic_load_as_a_feature(
     """
     logger = structlog.get_logger(__name__)
 
+    if pj is None:
+        pj = {}
+
     if pj.get("model") == "proloaf":
         data["historic_load"] = data["load"]
         logger.warning(

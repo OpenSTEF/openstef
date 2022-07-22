@@ -27,6 +27,9 @@ TORR: float = 133.322368  # 1 torr = 133 Pa
 # 1.168 is the mass of 1 m^3 of air on sea level with standard pressure.
 D: float = 1.168
 
+DEFAULT_LAT: float = 52.132633
+DEFAULT_LON: float = 5.291266
+
 
 def calc_saturation_pressure(temperature: float or np.ndarray) -> float or np.ndarray:
     """Calculates the water vapour pressure from the temperature
@@ -358,7 +361,7 @@ def calculate_dni(radiation: pd.Series, pj: PredictionJobDataClass) -> pd.Series
     Returns: dni_converted
 
     """
-    loc = Location(pj.get("lat", 52.132633), pj.get("lon", 5.291266), tz="utc")
+    loc = Location(pj.get("lat", DEFAULT_LAT), pj.get("lon", DEFAULT_LON), tz="utc")
     times = radiation.index
 
     # calculate data for loc(ation) at times with clear_sky, as if there would be a clear sky.
@@ -397,7 +400,7 @@ def calculate_gti(
     Returns: gti
 
     """
-    loc = Location(pj.get("lat", 52.132633), pj.get("lon", 5.291266), tz="utc")
+    loc = Location(pj.get("lat", DEFAULT_LAT), pj.get("lon", DEFAULT_LON), tz="utc")
     times = radiation.index
 
     # calculate data for loc(ation) at times with clear_sky, as if there would be a clear sky.
@@ -446,7 +449,7 @@ def add_additional_solar_features(
         logger.info(
             "No prediction job, default location will be used for additional radiation features."
         )
-        pj = {}
+        pj = {"lat": DEFAULT_LAT, "lon": DEFAULT_LON}
 
     # If features is none add solar feature anyway
     if feature_names is None:
