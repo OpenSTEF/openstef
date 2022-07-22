@@ -30,9 +30,6 @@ from openstef.feature_engineering.weather_features import (
     add_humidity_features,
     add_additional_solar_features,
 )
-import structlog
-
-logger = structlog.get_logger(__name__)
 
 
 def apply_features(
