@@ -105,6 +105,7 @@ class TestApplyFeaturesModule(BaseTestCase):
         # Arrange
         input_data_without_features = TestData.load("input_data.pickle")
         pj = None
+        expected_output = TestData.load("input_data_with_features.csv")
 
         # Act
         input_data_with_features = apply_features.apply_features(
@@ -113,8 +114,15 @@ class TestApplyFeaturesModule(BaseTestCase):
             pj=pj,
         )
 
-        # Assert: Add a more useful assertion
+        # Assert:
         assert len(input_data_with_features) == len(input_data_without_features)
+        assert ["gti", "dni"] not in list(input_data_with_features.columns)
+        self.assertDataframeEqual(
+            input_data_with_features,
+            expected_output.drop(columns=["gti", "dni"]),
+            check_like=True,  # ignore the order of index & columns
+            check_less_precise=3,  # ignore small rounding differences
+        )
 
     def test_train_feature_applicator(self):
 
