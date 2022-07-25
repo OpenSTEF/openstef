@@ -9,11 +9,11 @@ from typing import List
 
 import numpy as np
 import pandas as pd
-
+import structlog
 import pvlib
 from pvlib.location import Location
 
-import structlog
+from openstef.data_classes.prediction_job import PredictionJobDataClass
 
 logger = structlog.get_logger(__name__)
 
@@ -26,6 +26,9 @@ TN: float = 240.7
 TORR: float = 133.322368  # 1 torr = 133 Pa
 # 1.168 is the mass of 1 m^3 of air on sea level with standard pressure.
 D: float = 1.168
+
+DEFAULT_LAT: float = 52.132633
+DEFAULT_LON: float = 5.291266
 
 
 def calc_saturation_pressure(temperature: float or np.ndarray) -> float or np.ndarray:
@@ -347,7 +350,7 @@ def add_additional_wind_features(
     return data
 
 
-def calculate_dni(radiation: pd.Series, pj: dict) -> pd.Series:
+def calculate_dni(radiation: pd.Series, pj: PredictionJobDataClass) -> pd.Series:
     """
     Using the predicted radiation and information derived from the location (obtained from pj) the direct normal
     irradiance (DNI) is calculated. The `pvlib` library is used.
@@ -358,7 +361,7 @@ def calculate_dni(radiation: pd.Series, pj: dict) -> pd.Series:
     Returns: dni_converted
 
     """
-    loc = Location(pj["lat"], pj["lon"], tz="CET")
+    loc = Location(pj.get("lat", DEFAULT_LAT), pj.get("lon", DEFAULT_LON), tz="utc")
     times = radiation.index
 
     # calculate data for loc(ation) at times with clear_sky, as if there would be a clear sky.
@@ -381,7 +384,7 @@ def calculate_dni(radiation: pd.Series, pj: dict) -> pd.Series:
 
 def calculate_gti(
     radiation: pd.Series,
-    pj: dict,
+    pj: PredictionJobDataClass,
     surface_tilt: float = 34.0,
     surface_azimuth: float = 180,
 ) -> pd.Series:
@@ -397,7 +400,7 @@ def calculate_gti(
     Returns: gti
 
     """
-    loc = Location(pj["lat"], pj["lon"], tz="CET")
+    loc = Location(pj.get("lat", DEFAULT_LAT), pj.get("lon", DEFAULT_LON), tz="utc")
     times = radiation.index
 
     # calculate data for loc(ation) at times with clear_sky, as if there would be a clear sky.
@@ -425,7 +428,7 @@ def calculate_gti(
 
 def add_additional_solar_features(
     data: pd.DataFrame,
-    pj: dict = {"lon": 52.132633, "lat": 5.291266},
+    pj: PredictionJobDataClass = None,
     feature_names: List[str] = None,
 ) -> pd.DataFrame:
     """
@@ -440,6 +443,14 @@ def add_additional_solar_features(
         pd.DataFrame same as input dataframe with extra columns for the added solar features
 
     """
+
+    # If pj is none add solar features with Utrecht as default location
+    if pj is None:
+        logger.info(
+            "No prediction job, default location will be used for additional radiation features."
+        )
+        pj = {"lat": DEFAULT_LAT, "lon": DEFAULT_LON}
+
     # If features is none add solar feature anyway
     if feature_names is None:
         additional_solar_features = True
