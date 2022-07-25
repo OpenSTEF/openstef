@@ -504,7 +504,7 @@ days_list (List[int]): list of minute lags that were used as features during tra
 <p>This module contains all wheather related functions used for feature engineering.</p>
 <dl class="function">
 <dt id="openstef.feature_engineering.weather_features.add_additional_solar_features">
-<code class="sig-prename descclassname">openstef.feature_engineering.weather_features.</code><code class="sig-name descname">add_additional_solar_features</code><span class="sig-paren">(</span><em class="sig-param">data: pandas.core.frame.DataFrame</em>, <em class="sig-param">pj: dict = {'lat': 5.291266</em>, <em class="sig-param">'lon': 52.132633}</em>, <em class="sig-param">feature_names: List[str] = None</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstef.feature_engineering.weather_features.add_additional_solar_features" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstef.feature_engineering.weather_features.</code><code class="sig-name descname">add_additional_solar_features</code><span class="sig-paren">(</span><em class="sig-param">data: pandas.core.frame.DataFrame</em>, <em class="sig-param">pj: openstef.data_classes.prediction_job.PredictionJobDataClass = None</em>, <em class="sig-param">feature_names: List[str] = None</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstef.feature_engineering.weather_features.add_additional_solar_features" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds additional solar features to the input data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -628,7 +628,7 @@ See <a class="reference external" href="https://www.vaisala.com/sites/default/fi
 
 <dl class="function">
 <dt id="openstef.feature_engineering.weather_features.calculate_dni">
-<code class="sig-prename descclassname">openstef.feature_engineering.weather_features.</code><code class="sig-name descname">calculate_dni</code><span class="sig-paren">(</span><em class="sig-param">radiation: pandas.core.series.Series</em>, <em class="sig-param">pj: dict</em><span class="sig-paren">)</span> &#x2192; pandas.core.series.Series<a class="headerlink" href="#openstef.feature_engineering.weather_features.calculate_dni" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstef.feature_engineering.weather_features.</code><code class="sig-name descname">calculate_dni</code><span class="sig-paren">(</span><em class="sig-param">radiation: pandas.core.series.Series</em>, <em class="sig-param">pj: openstef.data_classes.prediction_job.PredictionJobDataClass</em><span class="sig-paren">)</span> &#x2192; pandas.core.series.Series<a class="headerlink" href="#openstef.feature_engineering.weather_features.calculate_dni" title="Permalink to this definition">¶</a></dt>
 <dd><p>Using the predicted radiation and information derived from the location (obtained from pj) the direct normal
 irradiance (DNI) is calculated. The <cite>pvlib</cite> library is used.
 :param radiation: predicted radiation including DatetimeIndex with right time-zone
@@ -638,7 +638,7 @@ irradiance (DNI) is calculated. The <cite>pvlib</cite> library is used.
 
 <dl class="function">
 <dt id="openstef.feature_engineering.weather_features.calculate_gti">
-<code class="sig-prename descclassname">openstef.feature_engineering.weather_features.</code><code class="sig-name descname">calculate_gti</code><span class="sig-paren">(</span><em class="sig-param">radiation: pandas.core.series.Series</em>, <em class="sig-param">pj: dict</em>, <em class="sig-param">surface_tilt: float = 34.0</em>, <em class="sig-param">surface_azimuth: float = 180</em><span class="sig-paren">)</span> &#x2192; pandas.core.series.Series<a class="headerlink" href="#openstef.feature_engineering.weather_features.calculate_gti" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstef.feature_engineering.weather_features.</code><code class="sig-name descname">calculate_gti</code><span class="sig-paren">(</span><em class="sig-param">radiation: pandas.core.series.Series</em>, <em class="sig-param">pj: openstef.data_classes.prediction_job.PredictionJobDataClass</em>, <em class="sig-param">surface_tilt: float = 34.0</em>, <em class="sig-param">surface_azimuth: float = 180</em><span class="sig-paren">)</span> &#x2192; pandas.core.series.Series<a class="headerlink" href="#openstef.feature_engineering.weather_features.calculate_gti" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the GTI/POA using the radiation (Assuming Global Tilted Irradiance (GTI) = Plane of Array (POA))
 :param radiation: pandas series with DatetimeIndex with right timezone information
 :param pj: prediction job which should at least contain the latitude and longitude location.
