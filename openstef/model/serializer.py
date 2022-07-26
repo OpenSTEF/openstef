@@ -194,6 +194,17 @@ class MLflowSerializer:
     ) -> ModelSpecificationDataClass:
         """Get model specifications from existing model."""
         model_specs = ModelSpecificationDataClass(id=experiment_name)
+
+        # Temporary fix for update of xgboost
+        # new version requires some attributes that the old (stored) models don't have yet
+        # see: https://stackoverflow.com/questions/71912084/attributeerror-xgbmodel-object-has-no-attribute-callbacks
+        new_attrs = ['grow_policy', 'max_bin', 'eval_metric', 'callbacks', 'early_stopping_rounds', 'max_cat_to_onehot',
+                     'max_leaves', 'sampling_method']
+        additional_attrs = ['enable_categorical', 'predictor'] # these ones are not mentioned in the stackoverflow post
+
+        for attr in new_attrs + additional_attrs:
+            setattr(loaded_model, attr, None)
+
         # get the parameters from the old model, we insert these later into the new model
         model_specs.hyper_params = loaded_model.get_params()
         # get used feature names else use all feature names
