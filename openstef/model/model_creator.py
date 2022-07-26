@@ -72,7 +72,7 @@ valid_model_kwargs = {
         "n_jobs",
         "silent",
         "importance_type",
-        # "early_stopping_rounds", # TODO check if this is supported (in current or latest version)
+        "early_stopping_rounds",
     ],
     MLModelType.XGB_QUANTILE: [
         "quantiles",

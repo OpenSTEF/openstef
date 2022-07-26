@@ -9,7 +9,7 @@ import pandas as pd
 from sklearn.base import BaseEstimator, RegressorMixin
 
 
-class OpenstfRegressorInterface(BaseEstimator, RegressorMixin, ABC):
+class OpenstfRegressorInterface(BaseEstimator, ABC):
     """
     This class defines an abstract ML model,
     of which concrete implementation can be used as a workhorse throughout openstef

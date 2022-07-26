@@ -4,7 +4,7 @@
 
 cufflinks~=0.17.3
 holidays~=0.13
-lightgbm~=3.1.1
+lightgbm~=3.3.2
 matplotlib~=3.3.4
 mlflow~=1.26.1
 networkx~=2.7.1
@@ -17,7 +17,7 @@ pvlib==0.9.1
 pydantic~=1.9.0
 pymsteams~=0.1.14   # TODO remove teams dependency
 pytz~=2021.3
-scikit-learn~=0.24.1
+scikit-learn~=1.1.1
 scipy~=1.8.0
 structlog~=21.5.0
 xgboost~=1.6.1
