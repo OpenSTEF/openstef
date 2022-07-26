@@ -50,6 +50,7 @@ valid_model_kwargs = {
         "importance_type",
         "gpu_id",
         "validate_parameters",
+        "early_stopping_rounds",
     ],
     MLModelType.LGB: [
         "boosting_type",
@@ -71,6 +72,7 @@ valid_model_kwargs = {
         "n_jobs",
         "silent",
         "importance_type",
+        "early_stopping_rounds",
     ],
     MLModelType.XGB_QUANTILE: [
         "quantiles",
@@ -79,6 +81,7 @@ valid_model_kwargs = {
         "subsample",
         "min_child_weight",
         "max_depth",
+        "early_stopping_rounds",
     ],
     MLModelType.ProLoaf: [
         "relu_leak",

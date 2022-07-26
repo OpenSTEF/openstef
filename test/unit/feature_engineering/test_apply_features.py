@@ -97,7 +97,6 @@ class TestApplyFeaturesModule(BaseTestCase):
             input_data_with_features,
             expected_output,
             check_like=True,  # ignore the order of index & columns
-            check_less_precise=3,  # ignore small rounding differences
         )
 
     def test_apply_features_no_pj(self):
@@ -122,7 +121,6 @@ class TestApplyFeaturesModule(BaseTestCase):
             input_data_with_features,
             expected_output,
             check_like=True,  # ignore the order of index & columns
-            check_less_precise=3,  # ignore small rounding differences
         )
 
     def test_train_feature_applicator(self):
