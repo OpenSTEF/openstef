@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 
 from unittest import TestCase
+import sys
 
 from openstef.enums import MLModelType
 from openstef.model.model_creator import ModelCreator
@@ -15,6 +16,9 @@ class TestModelCreator(TestCase):
         # Test happy flow (both str and enum model_type arguments)
         valid_types = [t.value for t in MLModelType] + [t for t in MLModelType]
         for model_type in valid_types:
+            # skip the optional proloaf model
+            if model_type in [MLModelType.ProLoaf, "proloaf"]:
+                continue
             model = ModelCreator.create_model(model_type)
             self.assertIsInstance(model, OpenstfRegressorInterface)
             self.assertTrue(hasattr(model, "can_predict_quantiles"))
@@ -39,3 +43,23 @@ class TestModelCreator(TestCase):
         model_type = "Unknown"
         with self.assertRaises(NotImplementedError):
             ModelCreator.create_model(model_type)
+
+
+class TestWithoutProloaf(TestCase):
+    """Explicitly test if trying to create a proloaf model when proloaf was not installed yields an ImportError"""
+
+    def setUp(self):
+        self._temp_proloaf = None
+        if sys.modules.get("proloaf"):
+            self._temp_proloaf = sys.modules["proloaf"]
+        sys.modules["proloaf"] = None
+
+    def tearDown(self):
+        if self._temp_proloaf:
+            sys.modules["proloaf"] = self._temp_proloaf
+        else:
+            del sys.modules["proloaf"]
+
+    def tests_create_model_uninstalled_proloaf(self):
+        with self.assertRaises(ImportError):
+            ModelCreator.create_model("proloaf")

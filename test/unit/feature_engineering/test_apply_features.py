@@ -89,15 +89,38 @@ class TestApplyFeaturesModule(BaseTestCase):
             # data=self.test_data.INPUT_DATA, h_ahead=24
             data=TestData.load("input_data.pickle"),
             horizon=24,
-            pj={"model": "proleaf", "lon": 52.132633, "lat": 5.291266},
+            pj={"model": "xgb", "lat": 52.132633, "lon": 5.291266},
         )
         expected_output = TestData.load("input_data_with_features.csv")
 
         self.assertDataframeEqual(
             input_data_with_features,
-            expected_output.drop(
-                columns=["is_bevrijdingsdag", "is_bridgedaybevrijdingsdag"]
-            ),
+            expected_output,
+            check_like=True,  # ignore the order of index & columns
+            check_less_precise=3,  # ignore small rounding differences
+        )
+
+    def test_apply_features_no_pj(self):
+        """pj = None should work fine as well"""
+        # Arrange
+        input_data_without_features = TestData.load("input_data.pickle")
+        pj = None
+        expected_output = TestData.load("input_data_with_features.csv")
+
+        # Act
+        input_data_with_features = apply_features.apply_features(
+            input_data_without_features,
+            horizon=24,
+            pj=pj,
+        )
+
+        # Assert:
+        assert len(input_data_with_features) == len(input_data_without_features)
+        assert "gti" in list(input_data_with_features.columns)
+        assert "dni" in list(input_data_with_features.columns)
+        self.assertDataframeEqual(
+            input_data_with_features,
+            expected_output,
             check_like=True,  # ignore the order of index & columns
             check_less_precise=3,  # ignore small rounding differences
         )
@@ -106,7 +129,7 @@ class TestApplyFeaturesModule(BaseTestCase):
 
         input_data_with_features = TrainFeatureApplicator(horizons=[0.25]).add_features(
             TestData.load("input_data.pickle"),
-            pj={"model": "proleaf", "lon": 52.132633, "lat": 5.291266},
+            pj={"model": "proleaf", "lat": 52.132633, "lon": 5.291266},
         )
         expected_output = TestData.load("input_data_multi_horizon_features.csv")
         self.assertDataframeEqual(

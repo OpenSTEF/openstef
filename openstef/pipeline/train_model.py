@@ -2,8 +2,9 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 import logging
-from pathlib import Path
+import os
 from typing import List, Optional, Tuple, Union
+from pathlib import Path
 
 import pandas as pd
 import structlog
@@ -120,7 +121,8 @@ def train_model_pipeline(
         report=report,
     )
     if artifact_folder:
-        Reporter.write_report_to_disk(report=report, artifact_folder=artifact_folder)
+        report_folder = os.path.join(artifact_folder, str(pj["id"]))
+        Reporter.write_report_to_disk(report=report, report_folder=report_folder)
 
     # Clean up older models
     serializer.remove_old_models(

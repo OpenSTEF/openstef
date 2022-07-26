@@ -4,8 +4,8 @@
 import os
 import warnings
 from dataclasses import dataclass
-from pathlib import Path
 from typing import Dict
+import structlog
 
 import numpy as np
 import pandas as pd
@@ -126,21 +126,24 @@ class Reporter:
         return results
 
     @staticmethod
-    def write_report_to_disk(report: Report, artifact_folder: str):
+    def write_report_to_disk(report: Report, report_folder: str):
         """Write report to disk; e.g. for viewing report of latest models using grafana."""
-        if artifact_folder:
+        # Initialize logger and serializer
+        logger = structlog.get_logger(__name__)
+        if report_folder:
             # create path if does not exist
-            if not os.path.exists(artifact_folder):
-                os.makedirs(artifact_folder)
+            if not os.path.exists(report_folder):
+                os.makedirs(report_folder)
+            logger.info(f"Writing reports to {report_folder}")
             # write feature importance figure
             if report.feature_importance_figure:  # only write if figure is not none
                 report.feature_importance_figure.write_html(
-                    f"{artifact_folder}/weight_plot.html"
+                    os.path.join(report_folder, "weight_plot.html")
                 )
             # write predictors
             for name, figure in report.data_series_figures.items():
                 if figure:  # only write if figure is not none
-                    figure.write_html(f"{artifact_folder}/{name}.html")
+                    figure.write_html(os.path.join(report_folder, f"{name}.html"))
 
     def _make_data_series_figures(self, model: OpenstfRegressor) -> dict:
         """Make data series figures."""

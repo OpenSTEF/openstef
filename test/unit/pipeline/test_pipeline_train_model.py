@@ -10,6 +10,8 @@ from unittest.mock import MagicMock, patch
 
 import pandas as pd
 import sklearn
+import os
+import glob
 
 from openstef.enums import MLModelType
 from openstef.exceptions import (
@@ -106,8 +108,12 @@ class TestTrainModelPipeline(BaseTestCase):
         """
         # Select 50 data points to speedup test
         train_input = self.train_input.iloc[::50, :]
+        # Remove modeltypes which are optional, and add a dummy regressor
         for model_type in list(MLModelType) + [__name__ + ".DummyRegressor"]:
             with self.subTest(model_type=model_type):
+                # Skip the optional proloaf model
+                if model_type == MLModelType.ProLoaf:
+                    continue
                 pj = self.pj
 
                 pj["model"] = (
@@ -157,10 +163,8 @@ class TestTrainModelPipeline(BaseTestCase):
                     test_data,
                 ) = split_data_train_validation_test(data_with_features)
 
-                # not able to generate a feature importance for proloaf as this is a neural network
-                if not pj["model"] == "proloaf":
-                    importance = model.set_feature_importance()
-                    self.assertIsInstance(importance, pd.DataFrame)
+                importance = model.set_feature_importance()
+                self.assertIsInstance(importance, pd.DataFrame)
 
     def test_train_model_pipeline_with_featureAdders(self):
         pj = self.pj
@@ -276,6 +280,24 @@ class TestTrainModelPipeline(BaseTestCase):
             mlflow_tracking_uri="./test/unit/trained_models/mlruns",
             artifact_folder="./test/unit/trained_models",
         )
+
+        # Assert the report was attempted to be written to the correct location
+        assert report_mock.method_calls[0].args[0] == os.path.join(
+            "./test/unit/trained_models", "307", "weight_plot.html"
+        )
+        # Assert the figure is in the correct location
+        found_files = [
+            os.path.basename(file_with_path)
+            for file_with_path in glob.glob(
+                os.path.join("./test/unit/trained_models/307/*.html")
+            )
+        ]
+        excepted_fnames = [
+            "Predictor0.25.html",
+            "Predictor47.0.html",
+            "weight_plot.html",
+        ]
+        assert set(found_files) == set(excepted_fnames)
 
     @patch("openstef.model.serializer.MLflowSerializer.save_model")
     @patch("openstef.pipeline.train_model.train_model_pipeline_core")
