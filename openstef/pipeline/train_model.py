@@ -391,7 +391,7 @@ def train_pipeline_step_train_model(
     }
 
     # Add early stopping to set_params if this is supported by the model
-    if 'early_stopping_rounds' in model.get_params().keys():
+    if "early_stopping_rounds" in model.get_params().keys():
         valid_hyper_parameters.update(
             dict(early_stopping_rounds=DEFAULT_EARLY_STOPPING_ROUNDS)
         )
