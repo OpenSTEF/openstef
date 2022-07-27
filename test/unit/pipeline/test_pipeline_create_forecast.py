@@ -31,7 +31,7 @@ class TestCreateForecastPipeline(BaseTestCase):
         _get_model_uri_mock.return_value = Path(rel_path).absolute().as_uri()
 
         # Use MLflowSerializer to load a model
-        self.model, _ = self.serializer.load_model(experiment_name="307")
+        self.model, self.model_specs = self.serializer.load_model(experiment_name="307")
 
     def test_generate_forecast_datetime_range_single_null_values_target_column(self):
         """Test if correct forecast window is made with single range of nulls."""
