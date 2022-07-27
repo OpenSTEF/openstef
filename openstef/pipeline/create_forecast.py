@@ -82,7 +82,7 @@ def create_forecast_pipeline_core(
     data_with_features = OperationalPredictFeatureApplicator(
         # TODO use saved feature_names (should be saved while training the model)
         horizons=[pj["resolution_minutes"] / 60.0],
-        feature_names=model_specs.feature_names,
+        feature_names=model.feature_importance_dataframe.index.values,
         feature_modules=model_specs.feature_modules,
     ).add_features(validated_data)
 
