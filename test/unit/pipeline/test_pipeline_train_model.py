@@ -88,7 +88,14 @@ class TestTrainModelPipeline(BaseTestCase):
 
     @unittest.skip("Do this test if we want to train a new model")
     def test_train_model_pipeline_update_stored_model(self):
-        """Test happy flow of the train model pipeline"""
+        """Test happy flow of the train model pipeline
+
+        Other manual steps;
+        - Identify the artifact forlder of the old model test/unit/trained_models/mlruns/0/d7719d5d316d4416a947e4f7ea7e73a8/artifacts/model
+        - Rename the new artifact folder to that name
+        - Update references to the artifact location in the new ../d7.../meta.yaml
+        - Remove the old folder
+        """
 
         train_model_pipeline(
             pj=self.pj,

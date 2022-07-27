@@ -1,5 +1,5 @@
 artifact_uri: file:///C:/repos/short-term-forecasting/test/unit/trained_models/mlruns/0/d7719d5d316d4416a947e4f7ea7e73a8/artifacts
-end_time: 1638362875305
+end_time: 1658924236317
 entry_point_name: ''
 experiment_id: '0'
 lifecycle_stage: active
@@ -9,7 +9,7 @@ run_uuid: d7719d5d316d4416a947e4f7ea7e73a8
 source_name: ''
 source_type: 4
 source_version: ''
-start_time: 1638362870975
+start_time: 1658924227906
 status: 3
 tags: []
 user_id: AL11943
