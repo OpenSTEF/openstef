@@ -14,7 +14,8 @@ class OpenstfRegressor(OpenstfRegressorInterface):
     def __init__(self):
         self.feature_importance_dataframe = None
         self.feature_importances_ = None
-        self.score = RegressorMixin.score
+        # This `score` attribute makes `score` method from RegressorMixin available
+        self.score = RegressorMixin.score    
 
     def set_feature_importance(self) -> Optional[pd.DataFrame]:
         """get feature importance.
