@@ -494,18 +494,6 @@ class TestTrainModelPipeline(BaseTestCase):
         # check quantiles
         self.assertListEqual(list(model.estimators_.keys()), list(desired_quantiles))
 
-    def test_train_pipeline_common_with_missing_custom_horizon(self):
-        with self.assertRaises(ValueError):
-            (
-                model,
-                report,
-                train_data,
-                validation_data,
-                test_data,
-            ) = train_pipeline_common(
-                self.pj, self.model_specs, self.train_input, horizons="custom_horizon"
-            )
-
     @patch("openstef.pipeline.train_model.MLflowSerializer")
     def test_train_model_pipeline_with_save_train_forecasts(self, mock_serializer):
         """We check that the modelspecs object given as default in the prediction job
