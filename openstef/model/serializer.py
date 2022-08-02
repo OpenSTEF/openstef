@@ -223,6 +223,11 @@ class MLflowSerializer:
 
         # get the parameters from old model, we insert these later into new model
         model_specs.hyper_params = loaded_model.get_params()
+        # TODO: Remove this hardcoded hyper params fix with loop after fix by mlflow
+        # https://github.com/mlflow/mlflow/issues/6384
+        for key, value in model_specs.hyper_params.items():
+            if value == "":
+                model_specs.hyper_params[key] = " "
         # get used feature names else use all feature names
         model_specs.feature_names = self._get_feature_names(
             experiment_name, latest_run, model_specs, loaded_model
