@@ -24,7 +24,7 @@ class PredictionJobDataClass(BaseModel):
     quantiles: Optional[List[float]]
     train_split_func: Optional[SplitFuncDataClass]
     backtest_split_func: Optional[SplitFuncDataClass]
-    train_horizons_minutes: Optional[List[int]]
+    train_horizons_minutes: Optional[List[float]]
     default_modelspecs: Optional[ModelSpecificationDataClass]
     save_train_forecasts: bool = False
     completeness_treshold: float = 0.5
