@@ -26,6 +26,8 @@ class TestModelCreator(TestCase):
                 self.assertTrue(model.can_predict_quantiles)
             else:
                 self.assertFalse(model.can_predict_quantiles)
+            # Assert model has .score method - used in training to compare to old model
+            assert callable(getattr(model, "score", None))
 
     def test_create_model_quantile_model(self):
         # Test if quantile model is properly returned
