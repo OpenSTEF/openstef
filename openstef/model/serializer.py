@@ -92,6 +92,11 @@ class MLflowSerializer:
         mlflow.set_tag("feature_modules", model_specs.feature_modules)
         mlflow.log_metrics(report.metrics)
         model_specs.hyper_params.update(model.get_params())
+        # TODO: Remove this hardcoded hyper params fix with loop after fix by mlflow
+        # https://github.com/mlflow/mlflow/issues/6384
+        for key, value in model_specs.hyper_params.items():
+            if value == "":
+                model_specs.hyper_params[key] = " "
         mlflow.log_params(model_specs.hyper_params)
 
         # Process args
@@ -216,7 +221,7 @@ class MLflowSerializer:
         for attr in new_attrs + additional_attrs:
             setattr(loaded_model, attr, None)
 
-        # get the parameters from the old model, we insert these later into the new model
+        # get the parameters from old model, we insert these later into new model
         model_specs.hyper_params = loaded_model.get_params()
         # get used feature names else use all feature names
         model_specs.feature_names = self._get_feature_names(
