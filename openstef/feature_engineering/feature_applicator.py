@@ -26,7 +26,7 @@ LATENCY_CONFIG = {"APX": 24}  # A specific latency is part of a specific feature
 class AbstractFeatureApplicator(ABC):
     def __init__(
         self,
-        horizons: Union[List[float], str],
+        horizons: List[float],
         feature_names: Optional[List[str]] = None,
         feature_modules: Optional[List[str]] = [],
     ) -> None:
@@ -99,23 +99,17 @@ class TrainFeatureApplicator(AbstractFeatureApplicator):
         # Pre define output variables
         result = pd.DataFrame()
 
-        if isinstance(self.horizons, str):
-            # copy the custom horizon into the horizon column
-            res = df.copy(deep=True)
-            res["horizon"] = res[self.horizons]
+        # Loop over horizons and add corresponding features
+        for horizon in self.horizons:
+            # Deep copy of df is important, because we want a fresh start every iteration!
+            res = apply_features(
+                df.copy(deep=True),
+                horizon=horizon,
+                pj=pj,
+                feature_names=self.feature_names,
+            )
+            res["horizon"] = horizon
             result = pd.concat([result, res])
-        else:
-            # Loop over horizons and add corresponding features
-            for horizon in self.horizons:
-                # Deep copy of df is important, because we want a fresh start every iteration!
-                res = apply_features(
-                    df.copy(deep=True),
-                    horizon=horizon,
-                    pj=pj,
-                    feature_names=self.feature_names,
-                )
-                res["horizon"] = horizon
-                result = pd.concat([result, res])
 
         # Add custom features with the dispatcher
         result = self.features_dispatcher.apply_features(

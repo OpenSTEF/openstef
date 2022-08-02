@@ -218,7 +218,7 @@ def train_pipeline_common(
     pj: PredictionJobDataClass,
     model_specs: ModelSpecificationDataClass,
     input_data: pd.DataFrame,
-    horizons: Union[List[float], str],
+    horizons: List[float],
     test_fraction: float = 0.0,
     backtest: bool = False,
     test_data_predefined: pd.DataFrame = pd.DataFrame(),
@@ -303,7 +303,11 @@ def train_pipeline_step_compute_features(
     """
     if pj["model"] == "proloaf":
         # proloaf is only able to train with one horizon
-        horizons = [horizons[0]]
+        if len(horizons) > 1:
+            raise ValueError(
+                f"If model == proloaf, only a single horizon can be trained."
+                f"received horizons: {horizons}"
+            )
 
     if input_data.empty:
         raise InputDataInsufficientError("Input dataframe is empty")
@@ -312,15 +316,6 @@ def train_pipeline_step_compute_features(
             "Missing the load column in the input dataframe"
         )
 
-    if isinstance(horizons, str):
-        if not (horizons in set(input_data.columns)):
-            raise ValueError(
-                f"The horizon parameter specifies a column name ({horizons}) missing in"
-                " the input data."
-            )
-        else:
-            # sort data to avoid same date repeated multiple time
-            input_data = input_data.sort_values(horizons)
     # Validate and clean data
     validated_data = validation.drop_target_na(
         validation.validate(pj["id"], input_data, pj["flatliner_treshold"])
