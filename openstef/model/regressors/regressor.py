@@ -12,15 +12,16 @@ from sklearn.base import BaseEstimator, RegressorMixin
 class OpenstfRegressor(BaseEstimator):
     """
     This class defines the interface to which all ML models within OpenSTEF should adhere.
-    
+
     Required methods are indicated by abstractmethods, for which concrete implementations
-    of ML models should have a definition. Common functionality which is required for the 
+    of ML models should have a definition. Common functionality which is required for the
     automated pipelines in OpenSTEF is defined in this class.
     """
+
     def __init__(self):
         self.feature_importance_dataframe = None
         self.feature_importances_ = None
-        
+
     ## Define abstract methods required to be implemented by concrete models
     @property
     @abstractmethod
@@ -63,7 +64,7 @@ class OpenstfRegressor(BaseEstimator):
         Returns:
             Fitted model
         """
-        pass        
+        pass
 
     def set_feature_importance(self) -> Optional[pd.DataFrame]:
         """get feature importance.
