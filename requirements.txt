@@ -6,13 +6,12 @@ cufflinks~=0.17.3
 holidays~=0.13
 lightgbm~=3.3.2
 matplotlib~=3.3.4
-mlflow~=1.26.1
+mlflow~=1.27.0
 networkx~=2.7.1
 numpy~=1.22.3
 optuna~=2.10.1
 pandas~=1.4.3
 plotly~=5.8.0
-protobuf==3.20.1   # TODO upgrade protobuf
 pvlib==0.9.1
 pydantic~=1.9.0
 pymsteams~=0.1.14   # TODO remove teams dependency
