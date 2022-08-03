@@ -493,6 +493,13 @@ class TestTrainModelPipeline(BaseTestCase):
 
         # check quantiles
         self.assertListEqual(list(model.estimators_.keys()), list(desired_quantiles))
+        # check the score method works as expected
+        combined = pd.concat([train_data, validation_data]).reset_index(drop=True)
+        x_data, y_data = (
+            combined.iloc[:, 1:-1],
+            combined.iloc[:, 0],
+        )
+        model.score(x_data, y_data)
 
     def test_train_pipeline_common_with_missing_custom_horizon(self):
         with self.assertRaises(ValueError):
