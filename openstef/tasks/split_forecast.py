@@ -26,6 +26,51 @@ Attributes:
 
 
 """
+
+#imports from dazls model
+import matplotlib.pyplot as plt
+import numpy as np
+from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
+import glob
+import pandas as pd
+import os
+from sklearn.model_selection import train_test_split
+from sklearn.decomposition import FastICA
+from sklearn.preprocessing import StandardScaler, MinMaxScaler, MaxAbsScaler, RobustScaler, Normalizer, normalize
+from chemsy.predict.methods import
+from sklearn.linear_model import Lasso, MultiTaskLassoCV
+from sklearn.ensemble import RandomForestRegressor, AdaBoostRegressor
+from sklearn.neighbors import KNeighborsRegressor
+from sklearn.neural_network import MLPRegressor
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.gaussian_process import GaussianProcessRegressor
+from chemsy.prep import *
+from sklearn.decomposition import KernelPCA, PCA
+import random
+from sklearn.utils import shuffle
+from scipy.linalg import fractional_matrix_power
+from sklearn.covariance import LedoitWolf, OAS
+from sklearn.base import BaseEstimator
+
+# Seed, path, etc,
+random.seed(999)
+np.random.seed(999)
+
+path = os.path.dirname(os.path.abspath(__file__))
+folder = ['\\prep_data\\']
+combined_data = []
+station_name = []
+
+# Read prepared data
+for file_name in glob.glob(path + folder[0] + '*.csv'):
+    x = pd.read_csv(file_name, low_memory=False, parse_dates=["datetime"])
+    x["datetime"] = pd.to_datetime(x["datetime"])
+    x = x.set_index('datetime')
+    combined_data.append(x)
+    sn = os.path.basename(file_name)
+    station_name.append(sn[:len(sn) - 4])
+#end here
+
 from datetime import datetime
 from pathlib import Path
 
@@ -116,6 +161,7 @@ def split_forecast_task(
             "Succesfully wrote energy split coefficients to database", pid=pj["id"]
         )
         return coefsdf
+
 
 
 def determine_invalid_coefs(new_coefs, last_coefs):
