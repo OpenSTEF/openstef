@@ -28,11 +28,10 @@ Attributes:
 """
 
 #imports from dazls model
+
 import matplotlib.pyplot as plt
-import numpy as np
 from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
 import glob
-import pandas as pd
 import os
 from sklearn.model_selection import train_test_split
 from sklearn.decomposition import FastICA
@@ -69,6 +68,27 @@ for file_name in glob.glob(path + folder[0] + '*.csv'):
     combined_data.append(x)
     sn = os.path.basename(file_name)
     station_name.append(sn[:len(sn) - 4])
+
+n_delay=1
+# CHOOSE THE DATA, METADATA and TARGET, ETC. BY INDEX
+cc=len(combined_data[0].columns)-4
+xindex=list(np.arange(0,n_delay*3))+list(np.arange(n_delay*3+2,cc))
+x2index=list(np.arange(n_delay*3+2,cc))
+yindex=[n_delay*3,n_delay*3+1]
+
+#PREPARATION
+ori_combined_data=combined_data.copy() #Good procedure to prevent data changing in-place
+domain_model_clf=KNeighborsRegressor(n_neighbors=20,weights='uniform') #any model can be specified, this is the domain model
+adaptation_model_clf=KNeighborsRegressor(n_neighbors=20,weights='uniform') #any model can be specified, this is the adaptation model
+
+nn=len(station_name)
+for n in range(nn): #loop through all stations (leave one out)
+    print(station_name[n])
+    model=DAZLS() #Initialize DAZLS model
+    model.fit(combined_data=ori_combined_data, xindex=xindex,x2index=x2index,yindex=yindex,n=n,domain_model_clf=domain_model_clf,adaptation_model_clf=adaptation_model_clf,n_delay=n_delay,cc=cc) #Fit model
+    y=model.predict() #get predicted y
+    model.score() #print prediction performance
+
 #end here
 
 from datetime import datetime

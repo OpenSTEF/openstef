@@ -14,6 +14,8 @@ class DAZLS(BaseEstimator):
         self.y_test = None
 
     def fit(self, data, xindex, x2index, yindex, n, domain_model_clf, adaptation_model_clf, n_delay, cc):
+
+
         x_index = list(set(np.arange(0, nn)) - set([n]))
         y_index = n
         on_off = np.asarray(combined_data[n].iloc[:, [n_delay * 3 + 4, n_delay * 3 + 5]])
@@ -29,9 +31,9 @@ class DAZLS(BaseEstimator):
                 combined_data[nx].iloc[:, fff] = (combined_data[nx].iloc[:, fff] - combined_data[n].iloc[:, fff])
 
         ####################  CALIBRATION #################################
-        temp_data = [combined_data[ind] for ind in x_index]  # Without the target substation
-        ori_data = np.concatenate(temp_data, axis=0)
-        test_data = np.asarray(combined_data[y_index])
+        temp_data = [combined_data[ind] for ind in x_index]  # all substation_names temp_data without the target substation
+        ori_data = np.concatenate(temp_data, axis=0) #array of all substations'data exluded the target
+        test_data = np.asarray(combined_data[y_index]) #target substation's data. being used for testing
         X, X2, y = ori_data[:, xindex], ori_data[:, x2index], ori_data[:, yindex]
         domain_model_input, adaptation_model_input, y_train = shuffle(X, X2, y, random_state=999)  # just shuffling
         domain_model_test_data, adaptation_model_test_data, y_test = test_data[:, xindex], test_data[:, x2index], test_data[:, yindex]
