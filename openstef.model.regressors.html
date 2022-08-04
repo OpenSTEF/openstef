@@ -42,7 +42,6 @@
 <li><a class="reference internal" href="#module-openstef.model.regressors.linear">openstef.model.regressors.linear module</a></li>
 <li><a class="reference internal" href="#openstef-model-regressors-proloaf-module">openstef.model.regressors.proloaf module</a></li>
 <li><a class="reference internal" href="#module-openstef.model.regressors.regressor">openstef.model.regressors.regressor module</a></li>
-<li><a class="reference internal" href="#module-openstef.model.regressors.regressor_interface">openstef.model.regressors.regressor_interface module</a></li>
 <li><a class="reference internal" href="#module-openstef.model.regressors.xgb">openstef.model.regressors.xgb module</a></li>
 <li><a class="reference internal" href="#module-openstef.model.regressors.xgb_quantile">openstef.model.regressors.xgb_quantile module</a></li>
 <li><a class="reference internal" href="#module-openstef.model.regressors">Module contents</a></li>
@@ -123,7 +122,9 @@
 <dl class="method">
 <dt id="openstef.model.regressors.lgbm.LGBMOpenstfRegressor.can_predict_quantiles">
 <em class="property">property </em><code class="sig-name descname">can_predict_quantiles</code><a class="headerlink" href="#openstef.model.regressors.lgbm.LGBMOpenstfRegressor.can_predict_quantiles" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Attribute that indicates if the model predict particular quantiles.
+e.g. XGBQuantileOpenstfRegressor</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="openstef.model.regressors.lgbm.LGBMOpenstfRegressor.feature_names">
@@ -159,7 +160,9 @@
 <dl class="method">
 <dt id="openstef.model.regressors.linear.LinearOpenstfRegressor.can_predict_quantiles">
 <em class="property">property </em><code class="sig-name descname">can_predict_quantiles</code><a class="headerlink" href="#openstef.model.regressors.linear.LinearOpenstfRegressor.can_predict_quantiles" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Attribute that indicates if the model predict particular quantiles.
+e.g. XGBQuantileOpenstfRegressor</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="openstef.model.regressors.linear.LinearOpenstfRegressor.feature_names">
@@ -239,7 +242,64 @@ data and “missing_value” for strings or object data types.</p>
 <dl class="class">
 <dt id="openstef.model.regressors.regressor.OpenstfRegressor">
 <em class="property">class </em><code class="sig-prename descclassname">openstef.model.regressors.regressor.</code><code class="sig-name descname">OpenstfRegressor</code><a class="headerlink" href="#openstef.model.regressors.regressor.OpenstfRegressor" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#openstef.model.regressors.regressor_interface.OpenstfRegressorInterface" title="openstef.model.regressors.regressor_interface.OpenstfRegressorInterface"><code class="xref py py-class docutils literal notranslate"><span class="pre">openstef.model.regressors.regressor_interface.OpenstfRegressorInterface</span></code></a></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.base.BaseEstimator</span></code></p>
+<p>This class defines the interface to which all ML models within OpenSTEF should adhere.</p>
+<p>Required methods are indicated by abstractmethods, for which concrete implementations
+of ML models should have a definition. Common functionality which is required for the
+automated pipelines in OpenSTEF is defined in this class.</p>
+<dl class="method">
+<dt id="openstef.model.regressors.regressor.OpenstfRegressor.can_predict_quantiles">
+<em class="property">abstract property </em><code class="sig-name descname">can_predict_quantiles</code><a class="headerlink" href="#openstef.model.regressors.regressor.OpenstfRegressor.can_predict_quantiles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Attribute that indicates if the model predict particular quantiles.
+e.g. XGBQuantileOpenstfRegressor</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="openstef.model.regressors.regressor.OpenstfRegressor.feature_names">
+<em class="property">abstract property </em><code class="sig-name descname">feature_names</code><a class="headerlink" href="#openstef.model.regressors.regressor.OpenstfRegressor.feature_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve the model input feature names</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The list of feature names</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="openstef.model.regressors.regressor.OpenstfRegressor.fit">
+<em class="property">abstract </em><code class="sig-name descname">fit</code><span class="sig-paren">(</span><em class="sig-param">x: numpy.array</em>, <em class="sig-param">y: numpy.array</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span> &#x2192; sklearn.base.RegressorMixin<a class="headerlink" href="#openstef.model.regressors.regressor.OpenstfRegressor.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fits the regressor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>np.array</em>) – Feature matrix</p></li>
+<li><p><strong>y</strong> (<em>np.array</em>) – Labels</p></li>
+<li><p><strong>kwargs</strong> – model-specific keywords</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Fitted model</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="openstef.model.regressors.regressor.OpenstfRegressor.predict">
+<em class="property">abstract </em><code class="sig-name descname">predict</code><span class="sig-paren">(</span><em class="sig-param">x: pandas.core.frame.DataFrame</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span> &#x2192; numpy.array<a class="headerlink" href="#openstef.model.regressors.regressor.OpenstfRegressor.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Makes a prediction. Only available after the model has been trained
+:param x: Feature matrix
+:type x: np.array
+:param kwargs: model-specific keywords</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>prediction</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>(np.array)</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="method">
 <dt id="openstef.model.regressors.regressor.OpenstfRegressor.score">
 <code class="sig-name descname">score</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">y</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.regressors.regressor.OpenstfRegressor.score" title="Permalink to this definition">¶</a></dt>
@@ -260,70 +320,6 @@ data and “missing_value” for strings or object data types.</p>
 </dd></dl>
 
 </div>
-<div class="section" id="module-openstef.model.regressors.regressor_interface">
-<span id="openstef-model-regressors-regressor-interface-module"></span><h2>openstef.model.regressors.regressor_interface module<a class="headerlink" href="#module-openstef.model.regressors.regressor_interface" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
-<dt id="openstef.model.regressors.regressor_interface.OpenstfRegressorInterface">
-<em class="property">class </em><code class="sig-prename descclassname">openstef.model.regressors.regressor_interface.</code><code class="sig-name descname">OpenstfRegressorInterface</code><a class="headerlink" href="#openstef.model.regressors.regressor_interface.OpenstfRegressorInterface" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.base.BaseEstimator</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
-<p>This class defines an abstract ML model,
-of which concrete implementation can be used as a workhorse throughout openstef</p>
-<p>If you want to include a new ML model in openstef, it should adhere to the interface
-defined here</p>
-<dl class="method">
-<dt id="openstef.model.regressors.regressor_interface.OpenstfRegressorInterface.can_predict_quantiles">
-<em class="property">abstract property </em><code class="sig-name descname">can_predict_quantiles</code><a class="headerlink" href="#openstef.model.regressors.regressor_interface.OpenstfRegressorInterface.can_predict_quantiles" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="openstef.model.regressors.regressor_interface.OpenstfRegressorInterface.feature_names">
-<em class="property">abstract property </em><code class="sig-name descname">feature_names</code><a class="headerlink" href="#openstef.model.regressors.regressor_interface.OpenstfRegressorInterface.feature_names" title="Permalink to this definition">¶</a></dt>
-<dd><p>Retrieve the model input feature names</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>The list of feature names</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="openstef.model.regressors.regressor_interface.OpenstfRegressorInterface.fit">
-<em class="property">abstract </em><code class="sig-name descname">fit</code><span class="sig-paren">(</span><em class="sig-param">x: numpy.array</em>, <em class="sig-param">y: numpy.array</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span> &#x2192; sklearn.base.RegressorMixin<a class="headerlink" href="#openstef.model.regressors.regressor_interface.OpenstfRegressorInterface.fit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Fits the regressor</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>x</strong> (<em>np.array</em>) – Feature matrix</p></li>
-<li><p><strong>y</strong> (<em>np.array</em>) – Labels</p></li>
-<li><p><strong>kwargs</strong> – model-specific keywords</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Fitted model</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="openstef.model.regressors.regressor_interface.OpenstfRegressorInterface.predict">
-<em class="property">abstract </em><code class="sig-name descname">predict</code><span class="sig-paren">(</span><em class="sig-param">x: pandas.core.frame.DataFrame</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span> &#x2192; numpy.array<a class="headerlink" href="#openstef.model.regressors.regressor_interface.OpenstfRegressorInterface.predict" title="Permalink to this definition">¶</a></dt>
-<dd><p>Makes a prediction. Only available after the model has been trained
-:param x: Feature matrix
-:type x: np.array
-:param kwargs: model-specific keywords</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>prediction</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>(np.array)</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-</div>
 <div class="section" id="module-openstef.model.regressors.xgb">
 <span id="openstef-model-regressors-xgb-module"></span><h2>openstef.model.regressors.xgb module<a class="headerlink" href="#module-openstef.model.regressors.xgb" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
@@ -334,7 +330,9 @@ defined here</p>
 <dl class="method">
 <dt id="openstef.model.regressors.xgb.XGBOpenstfRegressor.can_predict_quantiles">
 <em class="property">property </em><code class="sig-name descname">can_predict_quantiles</code><a class="headerlink" href="#openstef.model.regressors.xgb.XGBOpenstfRegressor.can_predict_quantiles" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Attribute that indicates if the model predict particular quantiles.
+e.g. XGBQuantileOpenstfRegressor</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="openstef.model.regressors.xgb.XGBOpenstfRegressor.feature_names">
@@ -369,7 +367,9 @@ defined here</p>
 <dl class="method">
 <dt id="openstef.model.regressors.xgb_quantile.XGBQuantileOpenstfRegressor.can_predict_quantiles">
 <em class="property">property </em><code class="sig-name descname">can_predict_quantiles</code><a class="headerlink" href="#openstef.model.regressors.xgb_quantile.XGBQuantileOpenstfRegressor.can_predict_quantiles" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Attribute that indicates if the model predict particular quantiles.
+e.g. XGBQuantileOpenstfRegressor</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="openstef.model.regressors.xgb_quantile.XGBQuantileOpenstfRegressor.feature_names">

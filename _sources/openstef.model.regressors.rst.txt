@@ -44,14 +44,6 @@ openstef.model.regressors.regressor module
    :undoc-members:
    :show-inheritance:
 
-openstef.model.regressors.regressor\_interface module
------------------------------------------------------
-
-.. automodule:: openstef.model.regressors.regressor_interface
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 openstef.model.regressors.xgb module
 ------------------------------------
 
