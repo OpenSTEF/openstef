@@ -26,7 +26,7 @@ EVAL_METRIC: str = "mae"
 class RegressorObjective:
     """Regressor optuna objective function.
 
-    Use any of the derived classses for optimization using an optuna study.
+    Use any of the derived classes for optimization using an optuna study.
     The constructor is used to set the "input_data" and optionally add some
     configuration. Next the instance will be called by he optuna study during
     optimization.
@@ -145,10 +145,9 @@ class RegressorObjective:
         forecast_y = self.model.predict(test_x)
         score = self.eval_metric_function(test_y, forecast_y)
 
+        # Convert float32 to float because float32 is not JSON serializable
         self.track_trials[f" trial: {trial.number}"] = {
-            "score": float(
-                score
-            ),  # Convert float32 score to float because float32 is not JSON serializable
+            "score": float(score),
             "params": hyper_params,
         }
         trial.set_user_attr(key="model", value=copy.deepcopy(self.model))
