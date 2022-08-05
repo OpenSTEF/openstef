@@ -313,7 +313,7 @@ def train_pipeline_step_compute_features(
         )
 
     if isinstance(horizons, str):
-        if not (horizons in set(input_data.columns)):
+        if horizons not in set(input_data.columns):
             raise ValueError(
                 f"The horizon parameter specifies a column name ({horizons}) missing in"
                 " the input data."

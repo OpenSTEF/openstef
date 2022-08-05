@@ -1,17 +1,18 @@
 # SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-from pathlib import Path
-
 import pandas as pd
 import pymsteams
 import structlog
 
+from pymsteams import cardsection
+from typing import Union
+
 
 def post_teams(
-    msg: str,
-    invalid_coefs: pd.DataFrame = None,
-    coefsdf: pd.DataFrame = None,
+    msg: Union[str, dict],
+    invalid_coefficients: pd.DataFrame = None,
+    coefficients_df: pd.DataFrame = None,
     url: str = None,
     proxies: dict = None,
 ) -> None:
@@ -28,27 +29,31 @@ def post_teams(
             text, links, sections. Each section can contain the following keys:
             text, title, images, facts, markdown. Also see:
             https://docs.microsoft.com/en-us/outlook/actionable-messages/send-via-connectors
-        invalid_coefs (pd.DatFrame, optional): df of information of invalid
+        invalid_coefficients (pd.DatFrame, optional): df of information of invalid
             coefficients. Defaults to None.
-        coefsdf (pd.DataFrame, optional): df of new coefficients. Defaults to None.
+        coefficients_df (pd.DataFrame, optional): df of new coefficients. Defaults to None.
         url (string, optional): webhook url, monitoring by default
 
     Note:
         This function is namespace-specific.
     """
     logger = structlog.get_logger(__name__)
+    # If no url is passed, give warning and don't send teams message
+    if url is None:
+        logger.warning("Can't post Teams message, no url given.")
+        return
 
     # Add invalid coefficients and manual coefficients-query to message
-    if invalid_coefs is not None and coefsdf is not None:
+    if invalid_coefficients is not None and coefficients_df is not None:
         # add invalid coefficient information to message in dict-format
-        invalid_coefs_text = "".join(
+        invalid_coefficients_text = "".join(
             [
                 f"\n* **{row.coef_name}**: {round(row.coef_value_new, 2)}, "
                 f"(previous: {round(row.coef_value_last, 2)})"
-                for index, row in invalid_coefs.iterrows()
+                for index, row in invalid_coefficients.iterrows()
             ]
         )
-        query = build_sql_query_string(coefsdf, "energy_split_coefs")
+        query = build_sql_query_string(coefficients_df, "energy_split_coefs")
         query_text = (
             "If you would like to update the coefficients manually in the "
             + "database, use this query:"
@@ -59,7 +64,7 @@ def post_teams(
             "text": msg,
             "sections": [
                 {
-                    "text": invalid_coefs_text,
+                    "text": invalid_coefficients_text,
                     "markdown": True,
                 },
                 {
@@ -73,13 +78,6 @@ def post_teams(
                 },
             ],
         }
-
-    # If no url is passed fall back to default
-    if url is None:
-        # if Teams url is not context.configured just return
-        if url == None:
-            logger.warning("Can't post Teams message, no url given")
-            return
 
     card = pymsteams.connectorcard(url)
 
@@ -106,25 +104,29 @@ def post_teams(
 
     # Add sections
     for section_dict in msg.get("sections", []):
-        section = pymsteams.cardsection()
-
-        section.text(section_dict.get("text"))
-        section.title(section_dict.get("title"))
-        for image in section_dict.get("images", []):
-            section.addImage(image)
-        for fact in section_dict.get("facts", []):
-            section.addFact(*fact)
-        if not section_dict.get("markdown", True):
-            section.disableMarkdown()
-        if "link" in section_dict:
-            section.linkButton(
-                section_dict.get("link").get("buttontext"),
-                section_dict.get("link").get("buttonurl"),
-            )
-
-        card.addSection(section)
+        card_section = get_card_section(section_dict=section_dict)
+        card.addSection(card_section)
 
     card.send()
+
+
+def get_card_section(section_dict: dict) -> cardsection:
+    """Get card section for teams message from dictionary."""
+    card_section = cardsection()
+    card_section.text(section_dict.get("text"))
+    card_section.title(section_dict.get("title"))
+    for image in section_dict.get("images", []):
+        card_section.addImage(image)
+    for fact in section_dict.get("facts", []):
+        card_section.addFact(*fact)
+    if not section_dict.get("markdown", True):
+        card_section.disableMarkdown()
+    if "link" in section_dict:
+        card_section.linkButton(
+            section_dict.get("link").get("buttontext"),
+            section_dict.get("link").get("buttonurl"),
+        )
+    return card_section
 
 
 def build_sql_query_string(df, table):

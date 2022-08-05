@@ -102,8 +102,8 @@ def split_forecast_task(
             f"New splitting coefficient(s) for pid **{pj['id']}** deviate strongly "
             "from previously stored coefficients.",
             url=context.config.teams.monitoring_url,
-            invalid_coefs=invalid_coefs,
-            coefsdf=coefsdf,
+            invalid_coefficients=invalid_coefs,
+            coefficients_df=coefsdf,
         )
         # Use the last known coefficients for further processing
         return last_coefsdf

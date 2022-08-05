@@ -278,7 +278,7 @@ class MLflowSerializer:
                 mlflow.delete_run(run.run_id)
                 self.logger.debug("Removed run")
 
-                # mlflow.delete_run only marks it as deleted but does not delete it by itself
+                # mlflow.delete_run marks it as deleted but does not delete it by itself
                 if artifact_folder:  # Also try to remove artifact from disk.
                     artifact_filepath = (
                         f"{artifact_folder}/mlruns/{run.experiment_id}/{run.run_id}"
