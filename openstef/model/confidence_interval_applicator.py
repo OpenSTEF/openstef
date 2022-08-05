@@ -24,7 +24,6 @@ class ConfidenceIntervalApplicator:
         self,
         forecast: pd.DataFrame,
         pj: PredictionJobDataClass,
-        quantile_confidence_interval: bool = True,
     ) -> pd.DataFrame:
         """Add a confidence interval to a forecast.
 
@@ -48,9 +47,6 @@ class ConfidenceIntervalApplicator:
         Args:
             forecast (pd.DataFrame): Forecast DataFrame with columns: "forecast"
             pj (PredictionJobDataClass): Prediction job
-            quantile_confidence_interval (bool):
-                switch to false to skip quantile regression forecasting,
-                mostly used for a basecase forecast
 
         Returns:
             pd.DataFrame: Forecast DataFrame with columns: "forecast", "stdev" and
@@ -106,8 +102,8 @@ class ConfidenceIntervalApplicator:
                 standard_deviation.stdev.mean()
             )
 
-        # -------- Moved from feature_engineering.add_stdev ------------------------- #
-        # pivot. idea is to have a dataframe with columns [stdev, hour, horizon] for a 'near' and a 'far' horizon
+        # pivot to have a dataframe with columns [stdev, hour, horizon] for a
+        # 'near' and a 'far' horizon
         stdev = standard_deviation.pivot_table(columns=["horizon"], index="hour")[
             "stdev"
         ]
@@ -126,7 +122,7 @@ class ConfidenceIntervalApplicator:
                 .round(f"{minimal_resolution}T")
                 .to_pydatetime()
             )
-            # Determin t_aheads by subtracting with now
+            # Determine t_aheads by subtracting with now
             forecast_copy["tAhead"] = (
                 forecast_copy.index - now
             ).total_seconds() / 3600.0
@@ -150,12 +146,13 @@ class ConfidenceIntervalApplicator:
             b = sn - A * (1 - np.exp(-near / tau))
             return A * (1 - np.exp(-t / tau)) + b
 
-        if len(stdev.columns) == 1:  # If only one horizon is available use that one
+        # If only one horizon is available use that one
+        if len(stdev.columns) == 1:
             forecast_copy["stdev"] = forecast_copy.apply(
                 lambda x: stdev.loc[x.hour], axis=1
             )
-        # -------- End moved from feature_engineering.add_stdev --------------------- #
-        else:  # If more are available do something fancy with interpolation
+        # If more are available do something fancy with interpolation
+        else:
             # Add stdev to forecast_copy dataframe
             forecast_copy["stdev"] = forecast_copy.apply(
                 lambda x: calc_exp_dec(x.tAhead, stdev.loc[x.hour], near, far), axis=1
