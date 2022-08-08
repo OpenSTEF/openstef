@@ -62,6 +62,17 @@ class BETTER_DAZLS(BaseEstimator):
         self.target_columns_index = ["total_wind_part", "total_solar_part"]
 
     def fit(self, features, target):
+        """
+        In this function we scale the input of the domain and adaptation models of the DAZLS MODEL.
+        Then we fit the two models.
+        With the help of the index we separate the features into domain_model_input, adaptation_model_input and the
+        target, and we use them for the fitting and the training of the models.
+
+        :param features: the input for different stages of the DAZLS model (domain_model_input, adaptation_model_input)
+        :param target: y_train, the expected output
+
+        """
+
         # Create delay
         n_delay = 1
 
@@ -129,6 +140,13 @@ class BETTER_DAZLS(BaseEstimator):
         # self.y_test = y_test
 
     def predict(self, test_features):
+        """
+        For the prediction we use the test data. We use the index to separate the test data for the domain and the
+        adaptation models.
+
+        :param test_features: domain_model_test_data, adaptation_model_test_data
+        :return: unscaled_test_prediction. The output prediction after both models.
+        """
         domain_model_test_data, adaptation_model_test_data = test_features.loc[:,
                                                              self.domain_model_input_columns_index], test_features.loc[
                                                                                                      :,
@@ -141,11 +159,11 @@ class BETTER_DAZLS(BaseEstimator):
         # Use the scaled_test_features to make domain_model_prediction
         domain_model_test_data_pred = self.domain_model.predict(domain_model_test_data_scaled)
 
-        # Use the domain_model_prediction to make adapatation_model_prediction
+        # Use the domain_model_prediction to make adaptation_model_prediction
         adaptation_model_test_data_pred = self.adaptation_model.predict(
             np.concatenate([adaptation_model_test_data_scaled, domain_model_test_data_pred], axis=1))
 
-        # Rescale adaptation_model_prediction (if reqquired)
+        # Rescale adaptation_model_prediction (if required)
         unscaled_test_prediction = self.yscaler.inverse_transform(adaptation_model_test_data_pred)
 
         # physical correction module (maybe we ll need it in the future)
@@ -155,10 +173,11 @@ class BETTER_DAZLS(BaseEstimator):
 
     def score(self, truth, prediction):
         """
+        Evaluation of the prediction's output.
 
-        :param truth:
-        :param prediction:
-        :return:
+        :param truth: real values
+        :param prediction: predicted values
+        :return: RMSE, R2
         """
 
         RMSE = (mean_squared_error(truth, prediction)) ** 0.5
@@ -181,9 +200,6 @@ target_columns_index = [n_delay * 3, n_delay * 3 + 1]
 
 # PREPARATION
 ori_combined_data = combined_data.copy()  # Good procedure to prevent data changing in-place
-#clf = KNeighborsRegressor(n_neighbors=20, weights='uniform')  # any model can be specified, this is the domain model
-#clf2 = KNeighborsRegressor(n_neighbors=20,
-#                           weights='uniform')  # any model can be specified, this is the adaptation model
 
 nn = len(station_name)
 for n in range(nn):  # loop through all stations (leave one out)
