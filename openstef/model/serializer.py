@@ -226,8 +226,8 @@ class MLflowSerializer:
         # TODO: Remove this hardcoded hyper params fix with loop after fix by mlflow
         # https://github.com/mlflow/mlflow/issues/6384
         for key, value in model_specs.hyper_params.items():
-            if value == "":
-                model_specs.hyper_params[key] = " "
+            if value == " ":
+                model_specs.hyper_params[key] = ""
         # get used feature names else use all feature names
         model_specs.feature_names = self._get_feature_names(
             experiment_name, latest_run, model_specs, loaded_model
