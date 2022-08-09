@@ -26,28 +26,7 @@ Attributes:
 
 
 """
-
-import matplotlib.pyplot as plt
-from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
-import glob
-import os
-from sklearn.model_selection import train_test_split
-from sklearn.decomposition import FastICA
-from sklearn.preprocessing import StandardScaler, MinMaxScaler, MaxAbsScaler, RobustScaler, Normalizer, normalize
-from chemsy.predict.methods import
-from sklearn.linear_model import Lasso, MultiTaskLassoCV
-from sklearn.ensemble import RandomForestRegressor, AdaBoostRegressor
-from sklearn.neighbors import KNeighborsRegressor
-from sklearn.neural_network import MLPRegressor
-from sklearn.tree import DecisionTreeRegressor
-from sklearn.gaussian_process import GaussianProcessRegressor
-from chemsy.prep import *
-from sklearn.decomposition import KernelPCA, PCA
-import random
-from sklearn.utils import shuffle
-from scipy.linalg import fractional_matrix_power
-from sklearn.covariance import LedoitWolf, OAS
-from sklearn.base import BaseEstimator
+#from chemsy.prep import *
 
 
 from datetime import datetime
@@ -93,7 +72,7 @@ def split_forecast_task(
     id pid.
 
     Args:
-        pid (int): Prediction job id
+        pj (int): Prediction job id
 
     Returns:
         pandas.DataFrame: Energy splitting coefficients.
@@ -140,7 +119,6 @@ def split_forecast_task(
             "Succesfully wrote energy split coefficients to database", pid=pj["id"]
         )
         return coefsdf
-
 
 
 def determine_invalid_coefs(new_coefs, last_coefs):
