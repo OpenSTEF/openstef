@@ -1,17 +1,25 @@
 Welcome to the documentation of OpenSTEF!
 =========================================
 
-.. include:: intro.rst
+OpenSTEF is a Python package which is used to make short term forecasts for the energy sector.
+It contains all components for the machine learning pipeline required to make a forecast.
+In order to use the package you need to provide your own data storage and retrieval interface.
+OpenSTEF is available at: https://pypi.org/project/openstef/.
 
-Code index
-==================
+Get started using the :ref:`quickstart` or by reading about the :ref:`concepts`.
 
-* :ref:`genindex`
-* :ref:`modindex`
+.. toctree::
+    :maxdepth: 1
+
+    quickstart
+    tutorials
+    concepts
+    code_modules
+
 
 Contributing
 ============
-Please read `CODE_OF_CONDUCT.md <https://github.com/OpenSTEF/.github/blob/main/CODE_OF_CONDUCT.md>`_, `CONTRIBUTING.md <https://github.com/OpenSTEF/.github/blob/main/CONTRIBUTING.md>`_ and `PROJECT_GOVERNANACE.md <https://github.com/OpenSTEF/.github/blob/main/PROJECT_GOVERNANCE.md>`_ for details on the process for submitting pull requests to us.
+Please read `CODE_OF_CONDUCT.md <https://github.com/OpenSTEF/.github/blob/main/CODE_OF_CONDUCT.md>`_, `CONTRIBUTING.md <https://github.com/OpenSTEF/.github/blob/main/CONTRIBUTING.md>`_ and `PROJECT_GOVERNANCE.md <https://github.com/OpenSTEF/.github/blob/main/PROJECT_GOVERNANCE.md>`_ for details on the process for submitting pull requests to us.
 
 License
 =======

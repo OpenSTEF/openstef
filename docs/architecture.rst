@@ -1,6 +1,0 @@
-Data architecture
-========================
-
-
-Software architecture
-========================
