@@ -24,7 +24,7 @@ sys.path.insert(0, os.path.abspath("../"))
 
 # -- Project information -----------------------------------------------------
 
-project = "Short Term Forecasting"
+project = "OpenSTEF"
 copyright = "2017-2022 Contributors to the OpenSTEF project"
 author = "Frank Kreuwel"
 

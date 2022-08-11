@@ -1,14 +1,18 @@
-<!--
-SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com>
+Welcome to the documentation of OpenSTEF!
+=========================================
 
-SPDX-License-Identifier: MPL-2.0
--->
+.. include:: intro.rst
 
-Welcome to the documentation of Short Term Forecasting!
-
-Indices and tables
+Code index
 ==================
 
 * :ref:`genindex`
 * :ref:`modindex`
-* :ref:`search`
+
+Contributing
+============
+Please read `CODE_OF_CONDUCT.md <https://github.com/OpenSTEF/.github/blob/main/CODE_OF_CONDUCT.md>`_, `CONTRIBUTING.md <https://github.com/OpenSTEF/.github/blob/main/CONTRIBUTING.md>`_ and `PROJECT_GOVERNANACE.md <https://github.com/OpenSTEF/.github/blob/main/PROJECT_GOVERNANCE.md>`_ for details on the process for submitting pull requests to us.
+
+License
+=======
+This project is licensed under the Mozilla Public License, version 2.0 - see LICENSE for details.
