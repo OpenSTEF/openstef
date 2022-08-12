@@ -72,7 +72,7 @@ def split_forecast_task(
     id pid.
 
     Args:
-        pj (int): Prediction job id
+        pid (int): Prediction job id
 
     Returns:
         pandas.DataFrame: Energy splitting coefficients.
@@ -83,6 +83,11 @@ def split_forecast_task(
 
     # Get input for splitting
     input_split_function = context.database.get_input_energy_splitting(pj)
+
+    # Old split method;
+    # find_components() gives two things:
+    # - the split components (load, solar, wind, consumption, Inschatting (=sum of others) )
+    # - coefdict: coefficients of each component; these are not yet an output of Dazls. Lets discuss with JM if we want that
 
     # Carry out the splitting
     components, coefdict = find_components(input_split_function)
