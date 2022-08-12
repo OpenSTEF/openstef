@@ -15,19 +15,45 @@ class BetterDazls(BaseEstimator):
 
     Any data-driven model can be plugged and used as the base for the domain and the adaptation model.
     """
+
     def __init__(self):
         self.__name__ = "DAZLS"
         self.xscaler = None
         self.x2scaler = None
         self.yscaler = None
-        self.domain_model = KNeighborsRegressor(n_neighbors=20, weights='uniform')
-        self.adaptation_model = KNeighborsRegressor(n_neighbors=20, weights='uniform')
+        self.domain_model = KNeighborsRegressor(n_neighbors=20, weights="uniform")
+        self.adaptation_model = KNeighborsRegressor(n_neighbors=20, weights="uniform")
 
-        self.domain_model_input_columns_index = ["radiation", "windspeed_100m", "total_substation", "lat", "lon",
-                                                 "solar_on",
-                                                 "wind_on", "hour", "minute", "var0", "var1", "var2", "sem0", "sem1"]
-        self.adaptation_model_input_columns_index = ["total_substation", "lat", "lon", "solar_on", "wind_on", "hour",
-                                                     "minute", "var0", "var1", "var2", "sem0", "sem1"]
+        self.domain_model_input_columns_index = [
+            "radiation",
+            "windspeed_100m",
+            "total_substation",
+            "lat",
+            "lon",
+            "solar_on",
+            "wind_on",
+            "hour",
+            "minute",
+            "var0",
+            "var1",
+            "var2",
+            "sem0",
+            "sem1",
+        ]
+        self.adaptation_model_input_columns_index = [
+            "total_substation",
+            "lat",
+            "lon",
+            "solar_on",
+            "wind_on",
+            "hour",
+            "minute",
+            "var0",
+            "var1",
+            "var2",
+            "sem0",
+            "sem1",
+        ]
         self.target_columns_index = ["total_wind_part", "total_solar_part"]
 
     def fit(self, features, target):
@@ -42,8 +68,14 @@ class BetterDazls(BaseEstimator):
 
         """
 
-        x, x2, y = features.loc[:, self.domain_model_input_columns_index], features.loc[:, self.adaptation_model_input_columns_index], target.loc[:, self.target_columns_index]
-        domain_model_input, adaptation_model_input, y_train = shuffle(x, x2, y, random_state=999)  # just shuffling
+        x, x2, y = (
+            features.loc[:, self.domain_model_input_columns_index],
+            features.loc[:, self.adaptation_model_input_columns_index],
+            target.loc[:, self.target_columns_index],
+        )
+        domain_model_input, adaptation_model_input, y_train = shuffle(
+            x, x2, y, random_state=999
+        )  # just shuffling
 
         xscaler = MinMaxScaler(clip=True)
         x2scaler = MinMaxScaler(clip=True)
@@ -57,7 +89,9 @@ class BetterDazls(BaseEstimator):
 
         self.domain_model.fit(domain_model_input, y_train)
         domain_model_pred = self.domain_model.predict(domain_model_input)
-        adaptation_model_input = np.concatenate((adaptation_model_input, domain_model_pred), axis=1)
+        adaptation_model_input = np.concatenate(
+            (adaptation_model_input, domain_model_pred), axis=1
+        )
         self.adaptation_model.fit(adaptation_model_input, y_train)
 
         self.xscaler = x_scaler
@@ -72,21 +106,33 @@ class BetterDazls(BaseEstimator):
         :param test_features: domain_model_test_data, adaptation_model_test_data
         :return: unscaled_test_prediction. The output prediction after both models.
         """
-        domain_model_test_data, adaptation_model_test_data = test_features.loc[:, self.domain_model_input_columns_index], test_features.loc[:, self.adaptation_model_input_columns_index]
+        domain_model_test_data, adaptation_model_test_data = (
+            test_features.loc[:, self.domain_model_input_columns_index],
+            test_features.loc[:, self.adaptation_model_input_columns_index],
+        )
 
         # Rescale the test_features (if required)
         domain_model_test_data_scaled = self.xscaler.transform(domain_model_test_data)
-        adaptation_model_test_data_scaled = self.x2scaler.transform(adaptation_model_test_data)
+        adaptation_model_test_data_scaled = self.x2scaler.transform(
+            adaptation_model_test_data
+        )
 
         # Use the scaled_test_features to make domain_model_prediction
-        domain_model_test_data_pred = self.domain_model.predict(domain_model_test_data_scaled)
+        domain_model_test_data_pred = self.domain_model.predict(
+            domain_model_test_data_scaled
+        )
 
         # Use the domain_model_prediction to make adaptation_model_prediction
         adaptation_model_test_data_pred = self.adaptation_model.predict(
-            np.concatenate([adaptation_model_test_data_scaled, domain_model_test_data_pred], axis=1))
+            np.concatenate(
+                [adaptation_model_test_data_scaled, domain_model_test_data_pred], axis=1
+            )
+        )
 
         # Rescale adaptation_model_prediction (if required)
-        unscaled_test_prediction = self.yscaler.inverse_transform(adaptation_model_test_data_pred)
+        unscaled_test_prediction = self.yscaler.inverse_transform(
+            adaptation_model_test_data_pred
+        )
 
         return unscaled_test_prediction
 
