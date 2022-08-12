@@ -151,11 +151,11 @@ class BetterDazls(BaseEstimator):
         return rmse, r2
 
     def save_model(self, file_location: str):
-        with open('better_dazls_stored.pkl', 'wb') as model_file:
+        with open("better_dazls_stored.pkl", "wb") as model_file:
             pickle.dump(BetterDazls, model_file)
         pass
 
     def load_model(self, file_location: str):
-        with open('better_dazls_stored.pkl', 'rb') as model_file:
+        with open("better_dazls_stored.pkl", "rb") as model_file:
             loaded_model = pickle.load(model_file)
         pass
