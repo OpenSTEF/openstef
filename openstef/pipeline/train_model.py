@@ -4,7 +4,6 @@
 import logging
 import os
 from typing import List, Optional, Tuple, Union
-from pathlib import Path
 
 import pandas as pd
 import structlog
@@ -39,7 +38,7 @@ def train_model_pipeline(
     mlflow_tracking_uri: str,
     artifact_folder: str,
 ) -> Optional[Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]]:
-    """Midle level pipeline that takes care of all persistent storage dependencies
+    """Middle level pipeline that takes care of all persistent storage dependencies
     Expected prediction jobs keys: "id", "model", "hyper_params", "feature_names"
 
     Args:
@@ -223,7 +222,7 @@ def train_pipeline_common(
     backtest: bool = False,
     test_data_predefined: pd.DataFrame = pd.DataFrame(),
 ) -> Tuple[OpenstfRegressor, Report, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    """Common pipeline shared with operational training and backtest training
+    """Common pipeline shared with operational training and backtest training.
 
     Args:
         pj (PredictionJobDataClass): Prediction job
@@ -313,7 +312,7 @@ def train_pipeline_step_compute_features(
         )
 
     if isinstance(horizons, str):
-        if not (horizons in set(input_data.columns)):
+        if horizons not in set(input_data.columns):
             raise ValueError(
                 f"The horizon parameter specifies a column name ({horizons}) missing in"
                 " the input data."
