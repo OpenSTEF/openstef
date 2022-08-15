@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Welcome to the documentation of OpenSTEF! &mdash; OpenSTEF  documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <title>Quickstart &mdash; OpenSTEF  documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
@@ -16,7 +16,8 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Quickstart" href="quickstart.html" /> 
+    <link rel="next" title="Tutorials" href="tutorials.html" />
+    <link rel="prev" title="Welcome to the documentation of OpenSTEF!" href="index.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -24,7 +25,7 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="#" class="icon icon-home"> OpenSTEF
+            <a href="index.html" class="icon icon-home"> OpenSTEF
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -34,8 +35,12 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+              <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Quickstart</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="concepts.html">Concepts</a></li>
 <li class="toctree-l1"><a class="reference internal" href="code_modules.html">Code modules</a></li>
@@ -47,17 +52,17 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="#">OpenSTEF</a>
+          <a href="index.html">OpenSTEF</a>
       </nav>
 
       <div class="wy-nav-content">
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="#" class="icon icon-home"></a> &raquo;</li>
-      <li>Welcome to the documentation of OpenSTEF!</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Quickstart</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/quickstart.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -65,36 +70,30 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <div class="section" id="welcome-to-the-documentation-of-openstef">
-<h1>Welcome to the documentation of OpenSTEF!<a class="headerlink" href="#welcome-to-the-documentation-of-openstef" title="Permalink to this headline">¶</a></h1>
-<p>OpenSTEF is a Python package which is used to make short term forecasts for the energy sector.
-It contains all components for the machine learning pipeline required to make a forecast.
-In order to use the package you need to provide your own data storage and retrieval interface.
-OpenSTEF is available at: <a class="reference external" href="https://pypi.org/project/openstef/">https://pypi.org/project/openstef/</a>.</p>
-<p>Get started using the <a class="reference internal" href="quickstart.html#quickstart"><span class="std std-ref">Quickstart</span></a> or by reading about the <a class="reference internal" href="concepts.html#concepts"><span class="std std-ref">Concepts</span></a>.</p>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials</a></li>
-<li class="toctree-l1"><a class="reference internal" href="concepts.html">Concepts</a></li>
-<li class="toctree-l1"><a class="reference internal" href="code_modules.html">Code modules</a></li>
-</ul>
+  <div class="section" id="quickstart">
+<span id="id1"></span><h1>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p>To install use:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install openstef
+</pre></div>
 </div>
 </div>
-<div class="section" id="contributing">
-<h1>Contributing<a class="headerlink" href="#contributing" title="Permalink to this headline">¶</a></h1>
-<p>Please read <a class="reference external" href="https://github.com/OpenSTEF/.github/blob/main/CODE_OF_CONDUCT.md">CODE_OF_CONDUCT.md</a>, <a class="reference external" href="https://github.com/OpenSTEF/.github/blob/main/CONTRIBUTING.md">CONTRIBUTING.md</a> and <a class="reference external" href="https://github.com/OpenSTEF/.github/blob/main/PROJECT_GOVERNANCE.md">PROJECT_GOVERNANCE.md</a> for details on the process for submitting pull requests to us.</p>
+<div class="section" id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<p>To run a task use:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python -m openstef task &lt;task_name&gt;
+</pre></div>
 </div>
-<div class="section" id="license">
-<h1>License<a class="headerlink" href="#license" title="Permalink to this headline">¶</a></h1>
-<p>This project is licensed under the Mozilla Public License, version 2.0 - see LICENSE for details.</p>
+</div>
 </div>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="quickstart.html" class="btn btn-neutral float-right" title="Quickstart" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="index.html" class="btn btn-neutral float-left" title="Welcome to the documentation of OpenSTEF!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tutorials.html" class="btn btn-neutral float-right" title="Tutorials" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

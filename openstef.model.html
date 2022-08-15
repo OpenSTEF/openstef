@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>openstef.model package &mdash; Short Term Forecasting  documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <title>openstef.model package &mdash; OpenSTEF  documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
@@ -15,7 +15,9 @@
         <script src="_static/language_data.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" /> 
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="openstef.model.metamodels package" href="openstef.model.metamodels.html" />
+    <link rel="prev" title="openstef.metrics package" href="openstef.metrics.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -23,7 +25,7 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="index.html" class="icon icon-home"> Short Term Forecasting
+            <a href="index.html" class="icon icon-home"> OpenSTEF
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -33,31 +35,20 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <!-- Local TOC -->
-              <div class="local-toc"><ul>
-<li><a class="reference internal" href="#">openstef.model package</a><ul>
-<li><a class="reference internal" href="#subpackages">Subpackages</a></li>
-<li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#module-openstef.model.basecase">openstef.model.basecase module</a></li>
-<li><a class="reference internal" href="#module-openstef.model.confidence_interval_applicator">openstef.model.confidence_interval_applicator module</a></li>
-<li><a class="reference internal" href="#module-openstef.model.fallback">openstef.model.fallback module</a></li>
-<li><a class="reference internal" href="#module-openstef.model.model_creator">openstef.model.model_creator module</a></li>
-<li><a class="reference internal" href="#module-openstef.model.objective">openstef.model.objective module</a></li>
-<li><a class="reference internal" href="#module-openstef.model.objective_creator">openstef.model.objective_creator module</a></li>
-<li><a class="reference internal" href="#module-openstef.model.serializer">openstef.model.serializer module</a></li>
-<li><a class="reference internal" href="#module-openstef.model.standard_deviation_generator">openstef.model.standard_deviation_generator module</a></li>
-<li><a class="reference internal" href="#module-openstef.model">Module contents</a></li>
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="concepts.html">Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="code_modules.html">Code modules</a></li>
 </ul>
-</li>
-</ul>
-</div>
+
         </div>
       </div>
     </nav>
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">Short Term Forecasting</a>
+          <a href="index.html">OpenSTEF</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -65,6 +56,8 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="code_modules.html">Code modules</a> &raquo;</li>
+          <li><a href="openstef.html">openstef package</a> &raquo;</li>
       <li>openstef.model package</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/openstef.model.rst.txt" rel="nofollow"> View page source</a>
@@ -178,7 +171,7 @@ However a fit method is still included to be fully comatible with sklearn.</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="method">
 <dt id="openstef.model.confidence_interval_applicator.ConfidenceIntervalApplicator.add_confidence_interval">
-<code class="sig-name descname">add_confidence_interval</code><span class="sig-paren">(</span><em class="sig-param">forecast: pandas.core.frame.DataFrame</em>, <em class="sig-param">pj: openstef.data_classes.prediction_job.PredictionJobDataClass</em>, <em class="sig-param">quantile_confidence_interval: bool = True</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstef.model.confidence_interval_applicator.ConfidenceIntervalApplicator.add_confidence_interval" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_confidence_interval</code><span class="sig-paren">(</span><em class="sig-param">forecast: pandas.core.frame.DataFrame</em>, <em class="sig-param">pj: openstef.data_classes.prediction_job.PredictionJobDataClass</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstef.model.confidence_interval_applicator.ConfidenceIntervalApplicator.add_confidence_interval" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a confidence interval to a forecast.</p>
 <dl>
 <dt>Adds a confidence interval to a forecast in two ways:</dt><dd><ol class="arabic">
@@ -219,8 +212,6 @@ regression or the default method.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>forecast</strong> (<em>pd.DataFrame</em>) – Forecast DataFrame with columns: “forecast”</p></li>
 <li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><em>PredictionJobDataClass</em></a>) – Prediction job</p></li>
-<li><p><strong>quantile_confidence_interval</strong> (<em>bool</em>) – switch to false to skip quantile regression forecasting,
-mostly used for a basecase forecast</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -391,7 +382,7 @@ with objective specific parameters.</p>
 <em class="property">class </em><code class="sig-prename descclassname">openstef.model.objective.</code><code class="sig-name descname">RegressorObjective</code><span class="sig-paren">(</span><em class="sig-param">model: openstef.model.regressors.regressor.OpenstfRegressor</em>, <em class="sig-param">input_data: pandas.core.frame.DataFrame</em>, <em class="sig-param">test_fraction=0.15</em>, <em class="sig-param">validation_fraction=0.15</em>, <em class="sig-param">eval_metric='mae'</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.objective.RegressorObjective" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Regressor optuna objective function.</p>
-<p>Use any of the derived classses for optimization using an optuna study.
+<p>Use any of the derived classes for optimization using an optuna study.
 The constructor is used to set the “input_data” and optionally add some
 configuration. Next the instance will be called by he optuna study during
 optimization.</p>
@@ -604,7 +595,10 @@ See also: <a class="reference external" href="https://github.com/mlflow/mlflow/i
 
            </div>
           </div>
-          <footer>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="openstef.metrics.html" class="btn btn-neutral float-left" title="openstef.metrics package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="openstef.model.metamodels.html" class="btn btn-neutral float-right" title="openstef.model.metamodels package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
 
   <hr/>
 

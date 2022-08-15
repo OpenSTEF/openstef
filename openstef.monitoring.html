@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>openstef.monitoring package &mdash; Short Term Forecasting  documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <title>openstef.monitoring package &mdash; OpenSTEF  documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
@@ -15,7 +15,9 @@
         <script src="_static/language_data.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" /> 
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="openstef.pipeline package" href="openstef.pipeline.html" />
+    <link rel="prev" title="openstef.model_selection package" href="openstef.model_selection.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -23,7 +25,7 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="index.html" class="icon icon-home"> Short Term Forecasting
+            <a href="index.html" class="icon icon-home"> OpenSTEF
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -33,24 +35,20 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <!-- Local TOC -->
-              <div class="local-toc"><ul>
-<li><a class="reference internal" href="#">openstef.monitoring package</a><ul>
-<li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#module-openstef.monitoring.performance_meter">openstef.monitoring.performance_meter module</a></li>
-<li><a class="reference internal" href="#module-openstef.monitoring.teams">openstef.monitoring.teams module</a></li>
-<li><a class="reference internal" href="#module-openstef.monitoring">Module contents</a></li>
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="concepts.html">Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="code_modules.html">Code modules</a></li>
 </ul>
-</li>
-</ul>
-</div>
+
         </div>
       </div>
     </nav>
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">Short Term Forecasting</a>
+          <a href="index.html">OpenSTEF</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -58,6 +56,8 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="code_modules.html">Code modules</a> &raquo;</li>
+          <li><a href="openstef.html">openstef package</a> &raquo;</li>
       <li>openstef.monitoring package</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/openstef.monitoring.rst.txt" rel="nofollow"> View page source</a>
@@ -166,8 +166,14 @@ True.</p></li>
 <dd></dd></dl>
 
 <dl class="function">
+<dt id="openstef.monitoring.teams.get_card_section">
+<code class="sig-prename descclassname">openstef.monitoring.teams.</code><code class="sig-name descname">get_card_section</code><span class="sig-paren">(</span><em class="sig-param">section_dict: dict</em><span class="sig-paren">)</span> &#x2192; pymsteams.cardsection<a class="headerlink" href="#openstef.monitoring.teams.get_card_section" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get card section for teams message from dictionary.</p>
+</dd></dl>
+
+<dl class="function">
 <dt id="openstef.monitoring.teams.post_teams">
-<code class="sig-prename descclassname">openstef.monitoring.teams.</code><code class="sig-name descname">post_teams</code><span class="sig-paren">(</span><em class="sig-param">msg: str</em>, <em class="sig-param">invalid_coefs: pandas.core.frame.DataFrame = None</em>, <em class="sig-param">coefsdf: pandas.core.frame.DataFrame = None</em>, <em class="sig-param">url: str = None</em>, <em class="sig-param">proxies: dict = None</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#openstef.monitoring.teams.post_teams" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstef.monitoring.teams.</code><code class="sig-name descname">post_teams</code><span class="sig-paren">(</span><em class="sig-param">msg: Union[str, dict], invalid_coefficients: pandas.core.frame.DataFrame = None, coefficients_df: pandas.core.frame.DataFrame = None, url: str = None, proxies: dict = None</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#openstef.monitoring.teams.post_teams" title="Permalink to this definition">¶</a></dt>
 <dd><p>Post a message to Teams - KTP</p>
 <p>Note that currently no authentication occurs.
 Security is given by keeping the URL secret.
@@ -181,9 +187,9 @@ complex messages pass a dict. The following keys are supported:
 text, links, sections. Each section can contain the following keys:
 text, title, images, facts, markdown. Also see:
 <a class="reference external" href="https://docs.microsoft.com/en-us/outlook/actionable-messages/send-via-connectors">https://docs.microsoft.com/en-us/outlook/actionable-messages/send-via-connectors</a></p></li>
-<li><p><strong>invalid_coefs</strong> (<em>pd.DatFrame</em><em>, </em><em>optional</em>) – df of information of invalid
+<li><p><strong>invalid_coefficients</strong> (<em>pd.DatFrame</em><em>, </em><em>optional</em>) – df of information of invalid
 coefficients. Defaults to None.</p></li>
-<li><p><strong>coefsdf</strong> (<em>pd.DataFrame</em><em>, </em><em>optional</em>) – df of new coefficients. Defaults to None.</p></li>
+<li><p><strong>coefficients_df</strong> (<em>pd.DataFrame</em><em>, </em><em>optional</em>) – df of new coefficients. Defaults to None.</p></li>
 <li><p><strong>url</strong> (<em>string</em><em>, </em><em>optional</em>) – webhook url, monitoring by default</p></li>
 </ul>
 </dd>
@@ -203,7 +209,10 @@ coefficients. Defaults to None.</p></li>
 
            </div>
           </div>
-          <footer>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="openstef.model_selection.html" class="btn btn-neutral float-left" title="openstef.model_selection package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="openstef.pipeline.html" class="btn btn-neutral float-right" title="openstef.pipeline package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
 
   <hr/>
 

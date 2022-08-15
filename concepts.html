@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Concepts &mdash; OpenSTEF  documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Code modules" href="code_modules.html" />
+    <link rel="prev" title="Tutorials" href="tutorials.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> OpenSTEF
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Concepts</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#software-architecture">Software architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#application-architecture">Application architecture</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="code_modules.html">Code modules</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">OpenSTEF</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Concepts</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/concepts.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="concepts">
+<span id="id1"></span><h1>Concepts<a class="headerlink" href="#concepts" title="Permalink to this headline">¶</a></h1>
+<p>Looking at the architecture of OpenSTEF helps to understand OpenSTEF concepts.</p>
+<div class="section" id="software-architecture">
+<h2>Software architecture<a class="headerlink" href="#software-architecture" title="Permalink to this headline">¶</a></h2>
+<a class="reference internal image-reference" href="https://user-images.githubusercontent.com/25053215/184536369-ed608e86-1ea8-4c16-8c6a-5eaeb145eedf.png"><img alt="https://user-images.githubusercontent.com/25053215/184536369-ed608e86-1ea8-4c16-8c6a-5eaeb145eedf.png" src="https://user-images.githubusercontent.com/25053215/184536369-ed608e86-1ea8-4c16-8c6a-5eaeb145eedf.png" style="width: 800px;" /></a>
+<p>OpenSTEF is set up as a package that performs machine learning to forecast energy loads on the energy grid.
+It contains:</p>
+<ul class="simple">
+<li><p><strong>Prediction job</strong>: input configuration for a task and/or pipeline (e.g. train an XGB model for a certain location).</p></li>
+<li><p><strong>Tasks</strong>: can be called to perform training, forecasting, or evaluation. All tasks use corresponding pipelines. Tasks include getting data from a database, raising task exceptions, and writing data to a database.</p></li>
+<li><p><strong>Pipelines</strong>: can be called to perform training, forecasting or evaluation by giving input data to the pipeline. Users can choose to use tasks (which fetches/writes data), or use pipelines directly (which requires fetching/writing data yourself).</p></li>
+<li><p><strong>Data validation</strong>: is called by pipelines to validate data (e.g. checking for flatliners).</p></li>
+<li><p><strong>Feature engineering</strong>: is called by pipelines to select required features for training/forecasting based on the configuration from the prediction job (e.g. create new features for energy load of yesterday, last week).</p></li>
+<li><p><strong>Machine learning</strong>: is called by pipelines to perform training, forecasting, or evaluation based on the configuration from the prediction job (e.g. train an XGB quantile model).</p></li>
+<li><p><strong>Model storage</strong>: is called by pipelines to store or fetch trained machine learning model with MLFlow (e.g. store model locally in disk/database/s3_bucket on AWS).</p></li>
+<li><p><strong>Post processing</strong>: is called by pipelines to post process forecasting (e.g. combine forecast dataframe with extra configuration information from prediction job or split load forecast into solar, wind, and energy usage forecast).</p></li>
+</ul>
+<p>If tasks are used, the openstef-dbc package is required as an interface to the database for reading/writing.
+The current interface in openstef-dbc is for a MySQL database for configuration data (e.g. information for prediction jobs) and Influx database for feature data (e.g. weather, load, energy price data) and energy forecast data.</p>
+</div>
+<div class="section" id="application-architecture">
+<h2>Application architecture<a class="headerlink" href="#application-architecture" title="Permalink to this headline">¶</a></h2>
+<p>OpenSTEF is just a software package by itself and needs more parts to run as an application.</p>
+<a class="reference internal image-reference" href="https://user-images.githubusercontent.com/25053215/184536367-c7914697-7a2a-45b8-b447-36aec1a6c1af.png"><img alt="https://user-images.githubusercontent.com/25053215/184536367-c7914697-7a2a-45b8-b447-36aec1a6c1af.png" src="https://user-images.githubusercontent.com/25053215/184536367-c7914697-7a2a-45b8-b447-36aec1a6c1af.png" style="width: 800px;" /></a>
+<p>It requires:</p>
+<ul class="simple">
+<li><p>Github repository:</p>
+<ul>
+<li><p>(create yourself) <strong>Data fetcher</strong>: software package to fetch data and write it to a database (e.g. a scheduled cron job to fetch weather data in Kubernetes).</p></li>
+<li><p>(create yourself) <strong>Data API</strong>: API to provide data from a database or other source to applications and users (e.g. a REST API).</p></li>
+<li><p>(create yourself) <strong>Forecaster</strong>: software package to fetch config/data and run openstef tasks/pipelines (e.g. a scheduled cron job to train/forecast in Kubernetes).</p></li>
+<li><p>(open source) <strong>OpenSTEF</strong>: software package that performs machine learning to forecast energy loads on the energy grid.</p></li>
+<li><p>(open source) <strong>OpenSTEF-dbc</strong>: software package that is interface to read/write data from/to a database for openstef tasks.</p></li>
+</ul>
+</li>
+<li><p>CI/CD</p>
+<ul>
+<li><p>(create yourself) <strong>Energy forecasting Application CI/CD</strong>: CICD pipeline to build, test, and deploy forecasting application (e.g. to Kubernetes via Jenkins/Tekton).</p></li>
+<li><p>(open source) <strong>OpenSTEF package CI/CD</strong>: CICD pipeline to build, test, and release OpenSTEF package to PyPI (via github actions).</p></li>
+</ul>
+</li>
+<li><p><strong>Compute</strong>: software applications can be run on Kubernetes on AWS.</p></li>
+<li><p><strong>Database</strong>: SQL, influx, or other database can be used to store fetched data and forecasts.</p></li>
+<li><p><strong>Dashboard</strong>: dashboard to visualize historic and forecasted energy loads.</p></li>
+</ul>
+<a class="reference internal image-reference" href="https://user-images.githubusercontent.com/60883372/146760483-29af3ac7-62af-4f13-98c7-982a79c517d1.jpg"><img alt="Screenshot of the operational dashboard showing the key functionality of OpenSTEF." src="https://user-images.githubusercontent.com/60883372/146760483-29af3ac7-62af-4f13-98c7-982a79c517d1.jpg" style="width: 800px;" /></a>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tutorials.html" class="btn btn-neutral float-left" title="Tutorials" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="code_modules.html" class="btn btn-neutral float-right" title="Code modules" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017-2022 Contributors to the OpenSTEF project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
