@@ -20,4 +20,4 @@ Dashboard documentation can be found at: https://github.com/OpenSTEF/.github/blo
 Tutorials
 ---------
 
-#TODO: Add tutorials to show training models and forecasting.
+Tutorials showing the OpenSTEF functionality in Jupyter Notebooks can be found at: https://github.com/OpenSTEF/openstef-offline-example
