@@ -1,12 +1,12 @@
-from pathlib import Path
+# SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
+#
+# SPDX-License-Identifier: MPL-2.0
 import numpy as np
 from sklearn.metrics import r2_score, mean_squared_error
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.utils import shuffle
 from sklearn.base import BaseEstimator
-import pickle
-from os import path
 
 
 # DAZLS algorithm
