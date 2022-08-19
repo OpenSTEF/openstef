@@ -1,3 +1,4 @@
+from pathlib import Path
 import numpy as np
 from sklearn.metrics import r2_score, mean_squared_error
 from sklearn.preprocessing import MinMaxScaler
@@ -5,6 +6,7 @@ from sklearn.neighbors import KNeighborsRegressor
 from sklearn.utils import shuffle
 from sklearn.base import BaseEstimator
 import pickle
+from os import path
 
 
 # DAZLS algorithm
@@ -77,12 +79,12 @@ class BetterDazls(BaseEstimator):
             x, x2, y, random_state=999
         )  # just shuffling
 
-        xscaler = MinMaxScaler(clip=True)
-        x2scaler = MinMaxScaler(clip=True)
-        yscaler = MinMaxScaler(clip=True)
-        x_scaler = xscaler.fit(domain_model_input)
-        x2_scaler = x2scaler.fit(adaptation_model_input)
-        y_scaler = yscaler.fit(y_train)
+        self.xscaler = MinMaxScaler(clip=True)
+        self.x2scaler = MinMaxScaler(clip=True)
+        self.yscaler = MinMaxScaler(clip=True)
+        x_scaler = self.xscaler.fit(domain_model_input)
+        x2_scaler = self.x2scaler.fit(adaptation_model_input)
+        y_scaler = self.yscaler.fit(y_train)
         domain_model_input = x_scaler.transform(domain_model_input)
         adaptation_model_input = x2_scaler.transform(adaptation_model_input)
         y_train = y_scaler.transform(y_train)
@@ -150,12 +152,7 @@ class BetterDazls(BaseEstimator):
         r2 = r2_score(truth, prediction)
         return rmse, r2
 
-    def save_model(self, file_location: str):
-        with open("better_dazls_stored.pkl", "wb") as model_file:
-            pickle.dump(BetterDazls, model_file)
-        pass
 
-    def load_model(self, file_location: str):
-        with open("better_dazls_stored.pkl", "rb") as model_file:
-            loaded_model = pickle.load(model_file)
-        pass
+
+
+
