@@ -151,8 +151,3 @@ class BetterDazls(BaseEstimator):
         rmse = (mean_squared_error(truth, prediction)) ** 0.5
         r2 = r2_score(truth, prediction)
         return rmse, r2
-
-
-
-
-

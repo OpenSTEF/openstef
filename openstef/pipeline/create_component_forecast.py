@@ -18,7 +18,6 @@ from openstef import PROJECT_ROOT
 BETTER_DAZLS_STORED = PROJECT_ROOT / "openstef" / "data" / "better_dazls_stored.sav"
 
 
-
 def create_input(pj, input_data, weather_data):
 
     """
@@ -34,8 +33,12 @@ def create_input(pj, input_data, weather_data):
 
     # Prepare raw input data
 
-    input_df = weather_data[["radiation", "windspeed_100m"]].merge(input_data[["forecast"]].rename(columns={"forecast":"total_substation"}), how="inner", right_index=True, left_index=True)
-
+    input_df = weather_data[["radiation", "windspeed_100m"]].merge(
+        input_data[["forecast"]].rename(columns={"forecast": "total_substation"}),
+        how="inner",
+        right_index=True,
+        left_index=True,
+    )
 
     # Add additional features
     input_df["lat"] = pj["lat"]
@@ -50,9 +53,8 @@ def create_input(pj, input_data, weather_data):
     input_df["var1"] = input_df["windspeed_100m"].var()
     input_df["var2"] = input_df["total_substation"].var()
 
-    input_df["sem0"] = input_df.sem(axis = 1)
-    input_df["sem1"] = input_df.sem(axis = 1)
-
+    input_df["sem0"] = input_df.sem(axis=1)
+    input_df["sem1"] = input_df.sem(axis=1)
 
     return input_df
 
@@ -83,25 +85,46 @@ def create_components_forecast_pipeline(
     logger = structlog.get_logger(__name__)
     logger.info("Make components prediction", pid=pj["id"])
 
-    input_data = create_input(pj, input_data, weather_data)
+    # Make component forecasts
+    try:
+        input_data = create_input(pj, input_data, weather_data)
 
-    # Save and load the model as .sav file
-    # The code for this is the train_component_model.ipynb file
-    better_dazls_model = joblib.load(BETTER_DAZLS_STORED)
+        # Save and load the model as .sav file
+        # The code for this is the train_component_model.ipynb file
+        better_dazls_model: BetterDazls = joblib.load(BETTER_DAZLS_STORED)
 
-    # Use the predict function of BetterDazls model
-    # As input data we use the input_data function which takes into consideration what we want as an input for the -
-    # forecast and what BetterDazls can accept as an input
-    forecasts = better_dazls_model.predict(test_features=input_data)
+        # Use the predict function of BetterDazls model
+        # As input data we use the input_data function which takes into consideration what we want as an input for the -
+        # forecast and what BetterDazls can accept as an input
+        forecasts = better_dazls_model.predict(test_features=input_data)
 
-    # Set the columns for the output forecast dataframe
-    # Make forecasts for the components: forecast_wind_on_shore","forecast_solar" and "forecast_other"
-    forecasts = pd.DataFrame(forecasts, columns=["forecast_wind_on_shore", "forecast_solar"], index = input_data.index)
+        # Set the columns for the output forecast dataframe
+        # Make forecasts for the components: forecast_wind_on_shore","forecast_solar" and "forecast_other"
+        forecasts = pd.DataFrame(
+            forecasts,
+            columns=["forecast_wind_on_shore", "forecast_solar"],
+            index=input_data.index,
+        )
 
-    forecasts["forecast_solar"] = postprocessing.post_process_wind_solar(forecasts["forecast_solar"], forecast_type=ForecastType.SOLAR)
-    forecasts["forecast_wind_on_shore"] = postprocessing.post_process_wind_solar(forecasts["forecast_wind_on_shore"],
-                                                                         forecast_type=ForecastType.WIND)
-    forecasts["forecast_other"] = input_data["total_substation"] -  forecasts["forecast_solar"]  -forecasts["forecast_wind_on_shore"]
+        forecasts["forecast_solar"] = postprocessing.post_process_wind_solar(
+            forecasts["forecast_solar"], forecast_type=ForecastType.SOLAR
+        )
+        forecasts["forecast_wind_on_shore"] = postprocessing.post_process_wind_solar(
+            forecasts["forecast_wind_on_shore"], forecast_type=ForecastType.WIND
+        )
+        forecasts["forecast_other"] = (
+            input_data["total_substation"]
+            - forecasts["forecast_solar"]
+            - forecasts["forecast_wind_on_shore"]
+        )
+    except Exception as e:
+        # In case something goes wrong we fall back on aan empty dataframe
+        logger.warning(
+            f"Could not make component forecasts: {e}, falling back on series of"
+            " zeros!",
+            exc_info=e,
+        )
+        forecasts = pd.DataFrame()
 
     # Prepare for output
     # Add more prediction properties to the forecast ("pid","customer","description","type","algtype)
