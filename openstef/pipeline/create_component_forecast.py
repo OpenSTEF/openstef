@@ -18,6 +18,7 @@ from openstef import PROJECT_ROOT
 BETTER_DAZLS_STORED = PROJECT_ROOT / "openstef" / "data" / "better_dazls_stored.sav"
 
 
+
 def create_input(pj, input_data, weather_data):
 
     """
@@ -32,7 +33,9 @@ def create_input(pj, input_data, weather_data):
     """
 
     # Prepare raw input data
+
     input_df = weather_data[["radiation", "windspeed_100m"]].merge(input_data[["forecast"]].rename(columns={"forecast":"total_substation"}), how="inner", right_index=True, left_index=True)
+
 
     # Add additional features
     input_df["lat"] = pj["lat"]
@@ -40,8 +43,8 @@ def create_input(pj, input_data, weather_data):
 
     input_df["solar_on"] = 1
     input_df["wind_on"] = 1
-    input_df['hour'] = input_df.index.hour
-    input_df['minute'] = input_df.index.minute
+    input_df["hour"] = input_df.index.hour
+    input_df["minute"] = input_df.index.minute
 
     input_df["var0"] = input_df["radiation"].var()
     input_df["var1"] = input_df["windspeed_100m"].var()
@@ -50,10 +53,13 @@ def create_input(pj, input_data, weather_data):
     input_df["sem0"] = input_df.sem(axis = 1)
     input_df["sem1"] = input_df.sem(axis = 1)
 
+
     return input_df
 
+
 def create_components_forecast_pipeline(
-    pj: PredictionJobDataClass, input_data, weather_data):
+    pj: PredictionJobDataClass, input_data, weather_data
+):
 
     """
     Pipeline for creating a component forecast using BetterDazls prediction model
@@ -102,5 +108,4 @@ def create_components_forecast_pipeline(
     forecasts = postprocessing.add_prediction_job_properties_to_forecast(
         pj, forecasts, algorithm_type="component"
     )
-
     return forecasts
