@@ -26,8 +26,6 @@ Attributes:
 
 
 """
-#from chemsy.prep import *
-
 
 from datetime import datetime
 from pathlib import Path
