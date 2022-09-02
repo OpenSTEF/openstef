@@ -2,44 +2,38 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-from pathlib import Path
 import joblib
 import pandas as pd
 import structlog
-
 import openstef.postprocessing.postprocessing as postprocessing
 from openstef.data_classes.prediction_job import PredictionJobDataClass
-from openstef.model.regressors.better_dazls import BetterDazls
+from openstef.model.regressors.better_dazls import Dazls
 from openstef.enums import ForecastType
-
 from openstef import PROJECT_ROOT
 
-# Set the path for the BetterDazls stored model
-BETTER_DAZLS_STORED = PROJECT_ROOT / "openstef" / "data" / "better_dazls_stored.sav"
+# Set the path for the Dazls stored model
+DAZLS_STORED = PROJECT_ROOT / "openstef" / "data" / "better_dazls_stored.sav"
 
 
 def create_input(pj, input_data, weather_data):
-
     """
-    This function prepares the input data, which will be used for the BetterDazls model prediction, so they will be
-    according BetterDazls model requirements.
+    This function prepares the input data, which will be used for the Dazls model prediction, so they will be
+    according Dazls model requirements.
 
     :param pj: pj (PredictionJobDataClass): Prediction job
     :param input_data: (pd.DataFrame): Input forecast for the components forecast.
     :param weather_data: (pd.DataFrame): Weather data with 'radiation' and 'windspeed_100m' columns
 
-    :return: input_df (pd.Dataframe): It outputs a dataframe which will be used fot the BetterDazls prediction function.
+    :return: input_df (pd.Dataframe): It outputs a dataframe which will be used for the Dazls prediction function.
     """
 
     # Prepare raw input data
-
     input_df = weather_data[["radiation", "windspeed_100m"]].merge(
         input_data[["forecast"]].rename(columns={"forecast": "total_substation"}),
         how="inner",
         right_index=True,
         left_index=True,
     )
-
     # Add additional features
     input_df["lat"] = pj["lat"]
     input_df["lon"] = pj["lon"]
@@ -62,9 +56,8 @@ def create_input(pj, input_data, weather_data):
 def create_components_forecast_pipeline(
     pj: PredictionJobDataClass, input_data, weather_data
 ):
-
     """
-    Pipeline for creating a component forecast using BetterDazls prediction model
+    Pipeline for creating a component forecast using Dazls prediction model
 
     Args:
         pj (PredictionJobDataClass): Prediction job
@@ -90,28 +83,31 @@ def create_components_forecast_pipeline(
         input_data = create_input(pj, input_data, weather_data)
 
         # Save and load the model as .sav file
-        # The code for this is the train_component_model.ipynb file
-        better_dazls_model: BetterDazls = joblib.load(BETTER_DAZLS_STORED)
+        # For the code contact: korte.termijn.prognoses@alliander.com
+        dazls_model: Dazls = joblib.load(DAZLS_STORED)
 
-        # Use the predict function of BetterDazls model
-        # As input data we use the input_data function which takes into consideration what we want as an input for the -
-        # forecast and what BetterDazls can accept as an input
-        forecasts = better_dazls_model.predict(test_features=input_data)
+        # Use the predict function of Dazls model
+        # As input data we use the input_data function which takes into consideration what we want as an input for the forecast and what Dazls can accept as an input
+        forecasts = dazls_model.predict(test_features=input_data)
 
         # Set the columns for the output forecast dataframe
-        # Make forecasts for the components: forecast_wind_on_shore","forecast_solar" and "forecast_other"
         forecasts = pd.DataFrame(
             forecasts,
             columns=["forecast_wind_on_shore", "forecast_solar"],
             index=input_data.index,
         )
 
+        # Make post-processed forecasts for solar and wind power
+        # These forecasts are respectively for the components: "forecast_solar" and "forecast_wind_on_shore"
+        # The outcome forecasts are added in the "forecasts" DataFrame we created above
         forecasts["forecast_solar"] = postprocessing.post_process_wind_solar(
             forecasts["forecast_solar"], forecast_type=ForecastType.SOLAR
         )
         forecasts["forecast_wind_on_shore"] = postprocessing.post_process_wind_solar(
             forecasts["forecast_wind_on_shore"], forecast_type=ForecastType.WIND
         )
+
+        # Make forecast for the component: "forecast_other"
         forecasts["forecast_other"] = (
             input_data["total_substation"]
             - forecasts["forecast_solar"]

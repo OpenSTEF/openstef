@@ -3,17 +3,22 @@
 # SPDX-License-Identifier: MPL-2.0
 import numpy as np
 from sklearn.metrics import r2_score, mean_squared_error
-from sklearn.preprocessing import MinMaxScaler
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.utils import shuffle
 from sklearn.base import BaseEstimator
 
 
 # DAZLS algorithm
-class BetterDazls(BaseEstimator):
+"""
+Teng, S.Y., van Nooten, C. C., van Doorn, J.M., Ottenbros, A., Huijbregts, M., Jansen, J.J. 
+Improving Near Real-Time Predictions of Renewable Electricity Production at Substation Level (Submitted)
+"""
+
+
+class Dazls(BaseEstimator):
     """
-    The model carries out wind and solar power prediction for unseen target substations using training data from other substations with
-    known components.
+    The model carries out wind and solar power prediction for unseen target substations using training data from other
+    substations with known components.
 
     Any data-driven model can be plugged and used as the base for the domain and the adaptation model.
     """
@@ -26,21 +31,22 @@ class BetterDazls(BaseEstimator):
         self.domain_model = KNeighborsRegressor(n_neighbors=20, weights="uniform")
         self.adaptation_model = KNeighborsRegressor(n_neighbors=20, weights="uniform")
 
+        # The input columns for the domain and adaptation models (with description)
         self.domain_model_input_columns_index = [
-            "radiation",
-            "windspeed_100m",
-            "total_substation",
-            "lat",
-            "lon",
-            "solar_on",
-            "wind_on",
-            "hour",
-            "minute",
-            "var0",
-            "var1",
-            "var2",
-            "sem0",
-            "sem1",
+            "radiation",  # Weather parameter
+            "windspeed_100m",  # Weather parameter
+            "total_substation",  # Substation's measured total load
+            "lat",  # Latitude
+            "lon",  # Longitude
+            "solar_on",  # Solar installed on substation: yes=1, no=0
+            "wind_on",  # Wind installed on substation: yes=1, no=0
+            "hour",  # Hour of the day
+            "minute",  # Minute of the hour
+            "var0",  # Variance of the total load
+            "var1",  # Variance of the total pv load (only available for calibration substations)
+            "var2",  # Variance of the total wind load (only available for calibration substations)
+            "sem0",  # Standard Error of the Mean of the total load
+            "sem1",  # Standard Error of the Mean of the total PV load (only available for calibration substations)
         ]
         self.adaptation_model_input_columns_index = [
             "total_substation",
@@ -79,9 +85,6 @@ class BetterDazls(BaseEstimator):
             x, x2, y, random_state=999
         )  # just shuffling
 
-        self.xscaler = MinMaxScaler(clip=True)
-        self.x2scaler = MinMaxScaler(clip=True)
-        self.yscaler = MinMaxScaler(clip=True)
         x_scaler = self.xscaler.fit(domain_model_input)
         x2_scaler = self.x2scaler.fit(adaptation_model_input)
         y_scaler = self.yscaler.fit(y_train)
@@ -149,5 +152,5 @@ class BetterDazls(BaseEstimator):
         """
 
         rmse = (mean_squared_error(truth, prediction)) ** 0.5
-        r2 = r2_score(truth, prediction)
-        return rmse, r2
+        r2_score_value = r2_score(truth, prediction)
+        return rmse, r2_score_value
