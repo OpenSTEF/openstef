@@ -88,7 +88,7 @@ def create_components_forecast_pipeline(
 
         # Use the predict function of Dazls model
         # As input data we use the input_data function which takes into consideration what we want as an input for the forecast and what Dazls can accept as an input
-        forecasts = dazls_model.predict(test_features=input_data)
+        forecasts = dazls_model.predict(x=input_data)
 
         # Set the columns for the output forecast dataframe
         forecasts = pd.DataFrame(
