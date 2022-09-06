@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from test.unit.utils.base import BaseTestCase
 from test.unit.utils.data import TestData
 
@@ -24,7 +24,6 @@ class TestComponentForecast(BaseTestCase):
         weather = data[["radiation", "windspeed_100m"]]
         forecast_input = TestData.load("forecastdf_test_add_corrections.csv")
         forecast_input["stdev"] = 0
-        coefs = {"wind_ref": 0.5, "pv_ref": 0.5}
 
         # Shift example data to match current time interval as code expects data
         # available relative to the current time.
@@ -43,7 +42,7 @@ class TestComponentForecast(BaseTestCase):
         weather.index = weather.index.shift(delta, freq=1)
 
         component_forecast = create_components_forecast_pipeline(
-            self.PJ, forecast_input, weather, coefs
+            self.PJ, forecast_input, weather
         )
 
         self.assertEqual(len(component_forecast), 193)
@@ -67,7 +66,6 @@ class TestComponentForecast(BaseTestCase):
         weather = data[["radiation"]]
         forecast_input = TestData.load("forecastdf_test_add_corrections.csv")
         forecast_input["stdev"] = 0
-        coefs = {"wind_ref": 0.5, "pv_ref": 0.5}
 
         # Shift example data to match current time interval as code expects data
         # available relative to the current time.
@@ -85,7 +83,7 @@ class TestComponentForecast(BaseTestCase):
         delta = utc_now - most_recent_date + timedelta(3)
         weather.index = weather.index.shift(delta, freq=1)
         component_forecast = create_components_forecast_pipeline(
-            self.PJ, forecast_input, weather, coefs
+            self.PJ, forecast_input, weather
         )
         # Check if the output matches expectations
         self.assertEqual(
