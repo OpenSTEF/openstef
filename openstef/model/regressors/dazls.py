@@ -11,6 +11,7 @@ from sklearn.preprocessing import MinMaxScaler
 
 # DAZLS algorithm
 
+
 class Dazls(BaseEstimator):
     """
     The model carries out wind and solar power prediction for unseen target substations using training data from other
@@ -89,7 +90,9 @@ class Dazls(BaseEstimator):
         self.adaptation_model_scaler.fit(adaptation_model_input)
         self.target_scaler.fit(y_train)
         domain_model_input = self.domain_model_scaler.transform(domain_model_input)
-        adaptation_model_input = self.adaptation_model_scaler.transform(adaptation_model_input)
+        adaptation_model_input = self.adaptation_model_scaler.transform(
+            adaptation_model_input
+        )
         y_train = self.target_scaler.transform(y_train)
 
         self.domain_model.fit(domain_model_input, y_train)
@@ -112,7 +115,9 @@ class Dazls(BaseEstimator):
             x.loc[:, self.adaptation_model_input_columns],
         )
         # Rescale test data for both models (if required)
-        domain_model_test_data_scaled = self.domain_model_scaler.transform(domain_model_test_data)
+        domain_model_test_data_scaled = self.domain_model_scaler.transform(
+            domain_model_test_data
+        )
         adaptation_model_test_data_scaled = self.adaptation_model_scaler.transform(
             adaptation_model_test_data
         )
