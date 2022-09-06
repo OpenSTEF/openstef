@@ -12,6 +12,14 @@ openstef.model.regressors.custom\_regressor module
    :undoc-members:
    :show-inheritance:
 
+openstef.model.regressors.dazls module
+--------------------------------------
+
+.. automodule:: openstef.model.regressors.dazls
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 openstef.model.regressors.lgbm module
 -------------------------------------
 

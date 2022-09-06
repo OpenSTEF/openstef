@@ -80,20 +80,19 @@
 <span id="openstef-pipeline-create-component-forecast-module"></span><h2>openstef.pipeline.create_component_forecast module<a class="headerlink" href="#module-openstef.pipeline.create_component_forecast" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="openstef.pipeline.create_component_forecast.create_components_forecast_pipeline">
-<code class="sig-prename descclassname">openstef.pipeline.create_component_forecast.</code><code class="sig-name descname">create_components_forecast_pipeline</code><span class="sig-paren">(</span><em class="sig-param">pj: openstef.data_classes.prediction_job.PredictionJobDataClass</em>, <em class="sig-param">input_data</em>, <em class="sig-param">weather_data</em>, <em class="sig-param">split_coefs</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.pipeline.create_component_forecast.create_components_forecast_pipeline" title="Permalink to this definition">¶</a></dt>
-<dd><p>Pipeline for creating a component forecast</p>
+<code class="sig-prename descclassname">openstef.pipeline.create_component_forecast.</code><code class="sig-name descname">create_components_forecast_pipeline</code><span class="sig-paren">(</span><em class="sig-param">pj: openstef.data_classes.prediction_job.PredictionJobDataClass</em>, <em class="sig-param">input_data</em>, <em class="sig-param">weather_data</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.pipeline.create_component_forecast.create_components_forecast_pipeline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pipeline for creating a component forecast using Dazls prediction model</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><em>PredictionJobDataClass</em></a>) – Prediction job</p></li>
 <li><p><strong>input_data</strong> (<em>pd.DataFrame</em>) – Input forecast for the components forecast.</p></li>
 <li><p><strong>weather_data</strong> (<em>pd.DataFrame</em>) – Weather data with ‘radiation’ and ‘windspeed_100m’ columns</p></li>
-<li><p><strong>split_coefs</strong> (<em>dict</em>) – coefieicnts for the splitting that are determined earlier</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><dl class="simple">
-<dt>“forecast_wind_on_shore”,</dt><dd><p>”forecast_solar”,
+<dd class="field-even"><p>“forecast_wind_on_shore”,
+“forecast_solar”,
 “forecast_other”,
 “pid”,
 “customer”,
@@ -101,11 +100,27 @@
 “type”,
 “algtype”</p>
 </dd>
-</dl>
-</p>
-</dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>pd.DataFrame with component forecasts. The dataframe contains these columns</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="openstef.pipeline.create_component_forecast.create_input">
+<code class="sig-prename descclassname">openstef.pipeline.create_component_forecast.</code><code class="sig-name descname">create_input</code><span class="sig-paren">(</span><em class="sig-param">pj</em>, <em class="sig-param">input_data</em>, <em class="sig-param">weather_data</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.pipeline.create_component_forecast.create_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function prepares the input data, which will be used for the Dazls model prediction, so they will be
+according Dazls model requirements.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pj</strong> – pj (PredictionJobDataClass): Prediction job</p></li>
+<li><p><strong>input_data</strong> – (pd.DataFrame): Input forecast for the components forecast.</p></li>
+<li><p><strong>weather_data</strong> – (pd.DataFrame): Weather data with ‘radiation’ and ‘windspeed_100m’ columns</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>input_df (pd.Dataframe): It outputs a dataframe which will be used for the Dazls prediction function.</p>
 </dd>
 </dl>
 </dd></dl>

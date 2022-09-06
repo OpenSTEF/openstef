@@ -227,6 +227,8 @@
 </li>
       <li><a href="openstef.model.regressors.html#openstef.model.regressors.custom_regressor.create_custom_objective">create_custom_objective() (in module openstef.model.regressors.custom_regressor)</a>
 </li>
+      <li><a href="openstef.pipeline.html#openstef.pipeline.create_component_forecast.create_input">create_input() (in module openstef.pipeline.create_component_forecast)</a>
+</li>
       <li><a href="openstef.model.html#openstef.model.model_creator.ModelCreator.create_model">create_model() (openstef.model.model_creator.ModelCreator static method)</a>
 </li>
       <li><a href="openstef.model.html#openstef.model.objective_creator.ObjectiveCreator.create_objective">create_objective() (openstef.model.objective_creator.ObjectiveCreator static method)</a>
@@ -241,6 +243,8 @@
 <h2 id="D">D</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="openstef.model.regressors.html#openstef.model.regressors.dazls.Dazls">Dazls (class in openstef.model.regressors.dazls)</a>
+</li>
       <li><a href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass.default_modelspecs">default_modelspecs (openstef.data_classes.prediction_job.PredictionJobDataClass attribute)</a>
 </li>
       <li><a href="openstef.html#openstef.enums.ForecastType.DEMAND">DEMAND (openstef.enums.ForecastType attribute)</a>
@@ -305,16 +309,18 @@
 </li>
       <li><a href="openstef.validation.html#openstef.validation.validation.find_nonzero_flatliner">find_nonzero_flatliner() (in module openstef.validation.validation)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="openstef.validation.html#openstef.validation.validation.find_zero_flatliner">find_zero_flatliner() (in module openstef.validation.validation)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="openstef.model.html#openstef.model.basecase.BaseCaseModel.fit">fit() (openstef.model.basecase.BaseCaseModel method)</a>
 
       <ul>
         <li><a href="openstef.model.metamodels.html#openstef.model.metamodels.grouped_regressor.GroupedRegressor.fit">(openstef.model.metamodels.grouped_regressor.GroupedRegressor method)</a>
 </li>
         <li><a href="openstef.model.metamodels.html#openstef.model.metamodels.missing_values_handler.MissingValuesHandler.fit">(openstef.model.metamodels.missing_values_handler.MissingValuesHandler method)</a>
+</li>
+        <li><a href="openstef.model.regressors.html#openstef.model.regressors.dazls.Dazls.fit">(openstef.model.regressors.dazls.Dazls method)</a>
 </li>
         <li><a href="openstef.model.regressors.html#openstef.model.regressors.linear.LinearOpenstfRegressor.fit">(openstef.model.regressors.linear.LinearOpenstfRegressor method)</a>
 </li>
@@ -641,11 +647,13 @@
 </li>
       <li><a href="openstef.model.html#module-openstef.model.objective_creator">openstef.model.objective_creator (module)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="openstef.model.regressors.html#module-openstef.model.regressors">openstef.model.regressors (module)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="openstef.model.regressors.html#module-openstef.model.regressors.custom_regressor">openstef.model.regressors.custom_regressor (module)</a>
+</li>
+      <li><a href="openstef.model.regressors.html#module-openstef.model.regressors.dazls">openstef.model.regressors.dazls (module)</a>
 </li>
       <li><a href="openstef.model.regressors.html#module-openstef.model.regressors.lgbm">openstef.model.regressors.lgbm (module)</a>
 </li>
@@ -740,6 +748,8 @@
 </li>
         <li><a href="openstef.model.metamodels.html#openstef.model.metamodels.missing_values_handler.MissingValuesHandler.predict">(openstef.model.metamodels.missing_values_handler.MissingValuesHandler method)</a>
 </li>
+        <li><a href="openstef.model.regressors.html#openstef.model.regressors.dazls.Dazls.predict">(openstef.model.regressors.dazls.Dazls method)</a>
+</li>
         <li><a href="openstef.model.regressors.html#openstef.model.regressors.regressor.OpenstfRegressor.predict">(openstef.model.regressors.regressor.OpenstfRegressor method)</a>
 </li>
         <li><a href="openstef.model.regressors.html#openstef.model.regressors.xgb_quantile.XGBQuantileOpenstfRegressor.predict">(openstef.model.regressors.xgb_quantile.XGBQuantileOpenstfRegressor method)</a>
@@ -817,8 +827,12 @@
 </li>
       <li><a href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass.save_train_forecasts">save_train_forecasts (openstef.data_classes.prediction_job.PredictionJobDataClass attribute)</a>
 </li>
-      <li><a href="openstef.model.regressors.html#openstef.model.regressors.regressor.OpenstfRegressor.score">score() (openstef.model.regressors.regressor.OpenstfRegressor method)</a>
+      <li><a href="openstef.model.regressors.html#openstef.model.regressors.dazls.Dazls.score">score() (openstef.model.regressors.dazls.Dazls method)</a>
+
+      <ul>
+        <li><a href="openstef.model.regressors.html#openstef.model.regressors.regressor.OpenstfRegressor.score">(openstef.model.regressors.regressor.OpenstfRegressor method)</a>
 </li>
+      </ul></li>
       <li><a href="openstef.model.regressors.html#openstef.model.regressors.regressor.OpenstfRegressor.set_feature_importance">set_feature_importance() (openstef.model.regressors.regressor.OpenstfRegressor method)</a>
 </li>
       <li><a href="openstef.tasks.html#openstef.tasks.calculate_kpi.set_incomplete_kpi_to_nan">set_incomplete_kpi_to_nan() (in module openstef.tasks.calculate_kpi)</a>
@@ -827,10 +841,10 @@
 </li>
       <li><a href="openstef.metrics.html#openstef.metrics.metrics.skill_score">skill_score() (in module openstef.metrics.metrics)</a>
 </li>
-      <li><a href="openstef.metrics.html#openstef.metrics.metrics.skill_score_positive_peaks">skill_score_positive_peaks() (in module openstef.metrics.metrics)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="openstef.metrics.html#openstef.metrics.metrics.skill_score_positive_peaks">skill_score_positive_peaks() (in module openstef.metrics.metrics)</a>
+</li>
       <li><a href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass.Config.smart_union">smart_union (openstef.data_classes.prediction_job.PredictionJobDataClass.Config attribute)</a>
 </li>
       <li><a href="openstef.html#openstef.enums.ForecastType.SOLAR">SOLAR (openstef.enums.ForecastType attribute)</a>

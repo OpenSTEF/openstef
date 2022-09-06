@@ -108,6 +108,70 @@
 <dd></dd></dl>
 
 </div>
+<div class="section" id="module-openstef.model.regressors.dazls">
+<span id="openstef-model-regressors-dazls-module"></span><h2>openstef.model.regressors.dazls module<a class="headerlink" href="#module-openstef.model.regressors.dazls" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="openstef.model.regressors.dazls.Dazls">
+<em class="property">class </em><code class="sig-prename descclassname">openstef.model.regressors.dazls.</code><code class="sig-name descname">Dazls</code><a class="headerlink" href="#openstef.model.regressors.dazls.Dazls" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.base.BaseEstimator</span></code></p>
+<p>The model carries out wind and solar power prediction for unseen target substations using training data from other
+substations with known components.</p>
+<p>Any data-driven model can be plugged and used as the base for the domain and the adaptation model.</p>
+<p>For a full reference, see:
+Teng, S.Y., van Nooten, C. C., van Doorn, J.M., Ottenbros, A., Huijbregts, M., Jansen, J.J.
+Improving Near Real-Time Predictions of Renewable Electricity Production at Substation Level (Submitted)</p>
+<dl class="method">
+<dt id="openstef.model.regressors.dazls.Dazls.fit">
+<code class="sig-name descname">fit</code><span class="sig-paren">(</span><em class="sig-param">features</em>, <em class="sig-param">target</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.regressors.dazls.Dazls.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>In this function we scale the input of the domain and adaptation models of the DAZLS MODEL.
+Then we fit the two models.
+We separate the features into domain_model_input, adaptation_model_input and target,
+and we use them for the fitting and the training of the models.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>features</strong> – inputs for domain and adaptation model (domain_model_input, adaptation_model_input)</p></li>
+<li><p><strong>target</strong> – the expected output (y_train)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="openstef.model.regressors.dazls.Dazls.predict">
+<code class="sig-name descname">predict</code><span class="sig-paren">(</span><em class="sig-param">x: numpy.array</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.regressors.dazls.Dazls.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>For the prediction we use the test data x. We use domain_model_input_columns and adaptation_model_input_columns
+to separate x in test data for domain model and adaptation model respectively.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>np.array</strong><strong>)</strong> (<em>x</em>) – domain_model_test_data, adaptation_model_test_data</p>
+</dd>
+<dt class="field-even">Return prediction (np.array)</dt>
+<dd class="field-even"><p>The output prediction after both models.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="openstef.model.regressors.dazls.Dazls.score">
+<code class="sig-name descname">score</code><span class="sig-paren">(</span><em class="sig-param">truth</em>, <em class="sig-param">prediction</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.regressors.dazls.Dazls.score" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluation of the prediction’s output.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>truth</strong> – real values</p></li>
+<li><p><strong>prediction</strong> – predicted values</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>RMSE and R2 scores</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
 <div class="section" id="module-openstef.model.regressors.lgbm">
 <span id="openstef-model-regressors-lgbm-module"></span><h2>openstef.model.regressors.lgbm module<a class="headerlink" href="#module-openstef.model.regressors.lgbm" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
