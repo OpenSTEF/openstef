@@ -38,7 +38,10 @@ class TestTeams(BaseTestCase):
         coefsdf = pd.DataFrame()
 
         teams.post_teams(
-            msg, url="MOCK_URL", invalid_coefs=invalid_coefs, coefsdf=coefsdf
+            msg,
+            url="MOCK_URL",
+            invalid_coefficients=invalid_coefs,
+            coefficients_df=coefsdf,
         )
         card_mock = teamsmock.connectorcard.return_value
         self.assertTrue(card_mock.send.called)

@@ -5,14 +5,70 @@ from typing import Optional
 
 import numpy as np
 import pandas as pd
+from abc import abstractmethod
+from sklearn.base import BaseEstimator, RegressorMixin
 
-from openstef.model.regressors.regressor_interface import OpenstfRegressorInterface
 
+class OpenstfRegressor(BaseEstimator):
+    """
+    This class defines the interface to which all ML models within OpenSTEF should adhere.
 
-class OpenstfRegressor(OpenstfRegressorInterface):
+    Required methods are indicated by abstractmethods, for which concrete implementations
+    of ML models should have a definition. Common functionality which is required for the
+    automated pipelines in OpenSTEF is defined in this class.
+    """
+
     def __init__(self):
         self.feature_importance_dataframe = None
         self.feature_importances_ = None
+
+    def score(self, X, y):
+        """Makes `score` method from RegressorMixin available"""
+        return RegressorMixin.score(self, X, y)
+
+    ## Define abstract methods required to be implemented by concrete models
+    @property
+    @abstractmethod
+    def feature_names(self):
+        """Retrieve the model input feature names
+
+        Returns:
+            The list of feature names
+        """
+        pass
+
+    @property
+    @abstractmethod
+    def can_predict_quantiles(self) -> bool:
+        """Attribute that indicates if the model predict particular quantiles.
+        e.g. XGBQuantileOpenstfRegressor"""
+        pass
+
+    @abstractmethod
+    def predict(self, x: pd.DataFrame, **kwargs) -> np.array:
+        """Makes a prediction. Only available after the model has been trained
+        Args:
+            x (np.array): Feature matrix
+            kwargs: model-specific keywords
+
+        Returns:
+            (np.array): prediction
+        """
+        pass
+
+    @abstractmethod
+    def fit(self, x: np.array, y: np.array, **kwargs) -> RegressorMixin:
+        """Fits the regressor
+
+        Args:
+            x (np.array): Feature matrix
+            y (np.array): Labels
+            kwargs: model-specific keywords
+
+        Returns:
+            Fitted model
+        """
+        pass
 
     def set_feature_importance(self) -> Optional[pd.DataFrame]:
         """get feature importance.

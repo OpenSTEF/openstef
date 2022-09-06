@@ -7,7 +7,7 @@ import sys
 
 from openstef.enums import MLModelType
 from openstef.model.model_creator import ModelCreator
-from openstef.model.regressors.regressor_interface import OpenstfRegressorInterface
+from openstef.model.regressors.regressor import OpenstfRegressor
 from openstef.model.regressors.xgb_quantile import XGBQuantileOpenstfRegressor
 
 
@@ -20,12 +20,14 @@ class TestModelCreator(TestCase):
             if model_type in [MLModelType.ProLoaf, "proloaf"]:
                 continue
             model = ModelCreator.create_model(model_type)
-            self.assertIsInstance(model, OpenstfRegressorInterface)
+            self.assertIsInstance(model, OpenstfRegressor)
             self.assertTrue(hasattr(model, "can_predict_quantiles"))
             if model_type in ["xgb_quantile", MLModelType("xgb_quantile")]:
                 self.assertTrue(model.can_predict_quantiles)
             else:
                 self.assertFalse(model.can_predict_quantiles)
+            # Assert model has .score method - used in training to compare to old model
+            assert callable(getattr(model, "score", None))
 
     def test_create_model_quantile_model(self):
         # Test if quantile model is properly returned
@@ -34,7 +36,7 @@ class TestModelCreator(TestCase):
         # Create relevant model
         model = ModelCreator.create_model(model_type, quantiles=quantiles)
 
-        self.assertIsInstance(model, OpenstfRegressorInterface)
+        self.assertIsInstance(model, OpenstfRegressor)
         self.assertIsInstance(model, XGBQuantileOpenstfRegressor)
         self.assertEqual(model.quantiles, quantiles)
 

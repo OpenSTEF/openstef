@@ -72,7 +72,7 @@ class TestConfidenceIntervalApplicator(TestCase):
         }
         actual_quantile_output = ConfidenceIntervalApplicator(
             MockModel(), stdev_forecast
-        ).add_confidence_interval(forecast, pj, True)
+        ).add_confidence_interval(forecast, pj)
         self.assertEqual(actual_quantile_output, expected_quantile_output)
 
     def test_add_standard_deviation_to_forecast(self):
