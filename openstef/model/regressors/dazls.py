@@ -10,11 +10,6 @@ from sklearn.preprocessing import MinMaxScaler
 
 
 # DAZLS algorithm
-"""
-Teng, S.Y., van Nooten, C. C., van Doorn, J.M., Ottenbros, A., Huijbregts, M., Jansen, J.J. 
-Improving Near Real-Time Predictions of Renewable Electricity Production at Substation Level (Submitted)
-"""
-
 
 class Dazls(BaseEstimator):
     """
@@ -22,18 +17,22 @@ class Dazls(BaseEstimator):
     substations with known components.
 
     Any data-driven model can be plugged and used as the base for the domain and the adaptation model.
+
+    For a full reference, see:
+    Teng, S.Y., van Nooten, C. C., van Doorn, J.M., Ottenbros, A., Huijbregts, M., Jansen, J.J.
+    Improving Near Real-Time Predictions of Renewable Electricity Production at Substation Level (Submitted)
     """
 
     def __init__(self):
         self.__name__ = "DAZLS"
-        self.x_scaler = MinMaxScaler(clip=True)
-        self.x2_scaler = MinMaxScaler(clip=True)
-        self.y_scaler = MinMaxScaler(clip=True)
+        self.domain_model_scaler = MinMaxScaler(clip=True)
+        self.adaptation_model_scaler = MinMaxScaler(clip=True)
+        self.target_scaler = MinMaxScaler(clip=True)
         self.domain_model = KNeighborsRegressor(n_neighbors=20, weights="uniform")
         self.adaptation_model = KNeighborsRegressor(n_neighbors=20, weights="uniform")
 
         # The input columns for the domain and adaptation models (with description)
-        self.domain_model_input_columns_index = [
+        self.domain_model_input_columns = [
             "radiation",  # Weather parameter
             "windspeed_100m",  # Weather parameter
             "total_substation",  # Substation's measured total load
@@ -49,7 +48,7 @@ class Dazls(BaseEstimator):
             "sem0",  # Standard Error of the Mean of the total load
             "sem1",  # Standard Error of the Mean of the total PV load (only available for calibration substations)
         ]
-        self.adaptation_model_input_columns_index = [
+        self.adaptation_model_input_columns = [
             "total_substation",
             "lat",
             "lon",
@@ -63,14 +62,14 @@ class Dazls(BaseEstimator):
             "sem0",
             "sem1",
         ]
-        self.target_columns_index = ["total_wind_part", "total_solar_part"]
+        self.target_columns = ["total_wind_part", "total_solar_part"]
 
     def fit(self, features, target):
         """
         In this function we scale the input of the domain and adaptation models of the DAZLS MODEL.
         Then we fit the two models.
-        With the help of the index we separate the features into domain_model_input, adaptation_model_input and the
-        target, and we use them for the fitting and the training of the models.
+        We separate the features into domain_model_input, adaptation_model_input and target,
+        and we use them for the fitting and the training of the models.
 
         :param features: inputs for domain and adaptation model (domain_model_input, adaptation_model_input)
         :param target: the expected output (y_train)
@@ -78,20 +77,20 @@ class Dazls(BaseEstimator):
         """
 
         x, x2, y = (
-            features.loc[:, self.domain_model_input_columns_index],
-            features.loc[:, self.adaptation_model_input_columns_index],
-            target.loc[:, self.target_columns_index],
+            features.loc[:, self.domain_model_input_columns],
+            features.loc[:, self.adaptation_model_input_columns],
+            target.loc[:, self.target_columns],
         )
         domain_model_input, adaptation_model_input, y_train = shuffle(
             x, x2, y, random_state=999
         )  # just shuffling
 
-        self.x_scaler.fit(domain_model_input)
-        self.x2_scaler.fit(adaptation_model_input)
-        self.y_scaler.fit(y_train)
-        domain_model_input = self.x_scaler.transform(domain_model_input)
-        adaptation_model_input = self.x2_scaler.transform(adaptation_model_input)
-        y_train = self.y_scaler.transform(y_train)
+        self.domain_model_scaler.fit(domain_model_input)
+        self.adaptation_model_scaler.fit(adaptation_model_input)
+        self.target_scaler.fit(y_train)
+        domain_model_input = self.domain_model_scaler.transform(domain_model_input)
+        adaptation_model_input = self.adaptation_model_scaler.transform(adaptation_model_input)
+        y_train = self.target_scaler.transform(y_train)
 
         self.domain_model.fit(domain_model_input, y_train)
         domain_model_pred = self.domain_model.predict(domain_model_input)
@@ -100,24 +99,24 @@ class Dazls(BaseEstimator):
         )
         self.adaptation_model.fit(adaptation_model_input, y_train)
 
-    def predict(self, test_features):
+    def predict(self, x: np.array):
         """
-        For the prediction we use the test data. We use the index to separate the test data for both domain and
-        adaptation models.
+        For the prediction we use the test data x. We use domain_model_input_columns and adaptation_model_input_columns
+        to separate x in test data for domain model and adaptation model respectively.
 
-        :param test_features: domain_model_test_data, adaptation_model_test_data
-        :return: unscaled_test_prediction. The output prediction after both models.
+        :param x (np.array): domain_model_test_data, adaptation_model_test_data
+        :return prediction (np.array): The output prediction after both models.
         """
         domain_model_test_data, adaptation_model_test_data = (
-            test_features.loc[:, self.domain_model_input_columns_index],
-            test_features.loc[:, self.adaptation_model_input_columns_index],
+            x.loc[:, self.domain_model_input_columns],
+            x.loc[:, self.adaptation_model_input_columns],
         )
-        # Rescale the test_features (if required)
-        domain_model_test_data_scaled = self.x_scaler.transform(domain_model_test_data)
-        adaptation_model_test_data_scaled = self.x2_scaler.transform(
+        # Rescale test data for both models (if required)
+        domain_model_test_data_scaled = self.domain_model_scaler.transform(domain_model_test_data)
+        adaptation_model_test_data_scaled = self.adaptation_model_scaler.transform(
             adaptation_model_test_data
         )
-        # Use the scaled_test_features to make domain_model_prediction
+        # Use the scaled data to make domain_model_prediction
         domain_model_test_data_pred = self.domain_model.predict(
             domain_model_test_data_scaled
         )
@@ -128,10 +127,10 @@ class Dazls(BaseEstimator):
             )
         )
         # Rescale adaptation_model_prediction (if required)
-        unscaled_test_prediction = self.y_scaler.inverse_transform(
+        prediction = self.target_scaler.inverse_transform(
             adaptation_model_test_data_pred
         )
-        return unscaled_test_prediction
+        return prediction
 
     def score(self, truth, prediction):
         """
