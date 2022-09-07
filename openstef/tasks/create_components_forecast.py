@@ -31,11 +31,13 @@ Attributes:
 """
 from datetime import datetime, timedelta
 from pathlib import Path
+import pytz
 
 import structlog
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.enums import MLModelType
+from openstef.exceptions import ComponentForecastTooShortHorizonError
 from openstef.pipeline.create_component_forecast import (
     create_components_forecast_pipeline,
 )
@@ -92,17 +94,15 @@ def create_components_forecast_task(pj: PredictionJobDataClass, context: TaskCon
         datetime_end=datetime_end,
     )
 
-    # Get splitting coeficients
-    split_coefs = context.database.get_energy_split_coefs(pj)
-
-    if len(split_coefs) == 0:
-        logger.warning(f"No Coefs found. Skipping pid", pid=pj["id"])
-        return
-
     # Make forecast for the demand, wind and pv components
-    forecasts = create_components_forecast_pipeline(
-        pj, input_data, weather_data, split_coefs
-    )
+    forecasts = create_components_forecast_pipeline(pj, input_data, weather_data)
+
+    if forecasts.index.max() < datetime.utcnow().replace(tzinfo=pytz.utc) + timedelta(
+        hours=30
+    ):
+        raise ComponentForecastTooShortHorizonError(
+            "Could not make component forecast for two days ahead, probably input data is missing."
+        )
 
     # save forecast to database #######################################################
     context.database.write_forecast(forecasts)

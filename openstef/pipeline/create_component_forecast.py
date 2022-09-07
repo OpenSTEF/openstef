@@ -28,11 +28,15 @@ def create_input(pj, input_data, weather_data):
     """
 
     # Prepare raw input data
-    input_df = weather_data[["radiation", "windspeed_100m"]].merge(
-        input_data[["forecast"]].rename(columns={"forecast": "total_substation"}),
-        how="inner",
-        right_index=True,
-        left_index=True,
+    input_df = (
+        weather_data[["radiation", "windspeed_100m"]]
+        .merge(
+            input_data[["forecast"]].rename(columns={"forecast": "total_substation"}),
+            how="inner",
+            right_index=True,
+            left_index=True,
+        )
+        .dropna()
     )
     # Add additional features
     input_df["lat"] = pj["lat"]

@@ -5,9 +5,52 @@ from test.unit.utils.data import TestData
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
 
+import pandas as pd
+from pandas import Timestamp
+
+from datetime import date, timedelta
+
 from openstef.tasks.create_components_forecast import create_components_forecast_task
 
-FORECAST_MOCK = "forecast_mock"
+FORECAST_MOCK = pd.DataFrame(
+    data={
+        "forecast_wind_on_shore": {
+            Timestamp("2022-09-08 10:00:00+0000", tz="UTC"): 0.0,
+            Timestamp("2022-09-08 10:15:00+0000", tz="UTC"): 0.0,
+        },
+        "forecast_solar": {
+            Timestamp("2022-09-08 10:00:00+0000", tz="UTC"): -2.259999,
+            Timestamp("2022-09-08 10:15:00+0000", tz="UTC"): -2.753998,
+        },
+        "forecast_other": {
+            Timestamp("2022-09-08 10:00:00+0000", tz="UTC"): -11.632748,
+            Timestamp("2022-09-08 10:15:00+0000", tz="UTC"): -10.278155,
+        },
+        "pid": {
+            Timestamp("2022-09-08 10:00:00+0000", tz="UTC"): 123,
+            Timestamp("2022-09-08 10:15:00+0000", tz="UTC"): 123,
+        },
+        "customer": {
+            Timestamp("2022-09-08 10:00:00+0000", tz="UTC"): "ABC",
+            Timestamp("2022-09-08 10:15:00+0000", tz="UTC"): "ABC",
+        },
+        "description": {
+            Timestamp("2022-09-08 10:00:00+0000", tz="UTC"): "ABC",
+            Timestamp("2022-09-08 10:15:00+0000", tz="UTC"): "ABC",
+        },
+        "type": {
+            Timestamp("2022-09-08 10:00:00+0000", tz="UTC"): "demand",
+            Timestamp("2022-09-08 10:15:00+0000", tz="UTC"): "demand",
+        },
+        "algtype": {
+            Timestamp("2022-09-08 10:00:00+0000", tz="UTC"): "component",
+            Timestamp(
+                f'{(date.today()+timedelta(days=3)).strftime(format="%Y-%m-%d")} 10:15:00+0000',
+                tz="UTC",
+            ): "component",
+        },
+    }
+)
 
 
 class TestCreateComponentForecastTask(TestCase):
@@ -25,7 +68,7 @@ class TestCreateComponentForecastTask(TestCase):
         context.database.get_energy_split_coefs.return_value = [1, 0]
 
         create_components_forecast_task(self.pj, context)
-        self.assertEqual(context.mock_calls[3].args[0], FORECAST_MOCK)
+        pd.testing.assert_frame_equal(context.mock_calls[2].args[0], FORECAST_MOCK)
 
     @patch(
         "openstef.tasks.create_components_forecast.create_components_forecast_pipeline"
@@ -38,19 +81,6 @@ class TestCreateComponentForecastTask(TestCase):
         pipeline_mock.return_value = FORECAST_MOCK
         create_components_forecast_task(self.pj, context)
         # When no data is available the pipeline should not be called
-        self.assertFalse(pipeline_mock.called)
-
-    @patch(
-        "openstef.tasks.create_components_forecast.create_components_forecast_pipeline"
-    )
-    def test_create_basecase_forecast_task_no_coefs(self, pipeline_mock):
-        # Test pipeline is not called when no coeficients are available
-        context = MagicMock()
-        context.database.get_predicted_load.return_value = [1, 0]
-        context.database.get_energy_split_coefs.return_value = []
-        pipeline_mock.return_value = FORECAST_MOCK
-        create_components_forecast_task(self.pj, context)
-        # When no coeficients are available the pipeline should not be called
         self.assertFalse(pipeline_mock.called)
 
     @patch(
