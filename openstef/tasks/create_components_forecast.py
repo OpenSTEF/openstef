@@ -92,17 +92,13 @@ def create_components_forecast_task(pj: PredictionJobDataClass, context: TaskCon
         datetime_end=datetime_end,
     )
 
-    # Get splitting coeficients
-    split_coefs = context.database.get_energy_split_coefs(pj)
-
-    if len(split_coefs) == 0:
-        logger.warning(f"No Coefs found. Skipping pid", pid=pj["id"])
-        return
-
     # Make forecast for the demand, wind and pv components
-    forecasts = create_components_forecast_pipeline(
-        pj, input_data, weather_data, split_coefs
-    )
+    forecasts = create_components_forecast_pipeline(pj, input_data, weather_data)
+
+    if forecasts.index.max() < datetime.utcnow() + timedelta(days=2):
+        raise ValueError(
+            "Could not make component forecast for two days ahead, probably input data is missing."
+        )
 
     # save forecast to database #######################################################
     context.database.write_forecast(forecasts)
