@@ -52,3 +52,9 @@ class OldModelHigherScoreError(Exception):
 
 class ModelWithoutStDev(Exception):
     """A machine learning model should have a valid standard deviation"""
+
+
+class ComponentForecastTooShortHorizonError(Exception):
+    """Component forecasts should be available for at least 30 hours in advance"""
+
+    pass

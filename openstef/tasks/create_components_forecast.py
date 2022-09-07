@@ -37,6 +37,7 @@ import structlog
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.enums import MLModelType
+from openstef.exceptions import ComponentForecastTooShortHorizonError
 from openstef.pipeline.create_component_forecast import (
     create_components_forecast_pipeline,
 )
@@ -97,9 +98,9 @@ def create_components_forecast_task(pj: PredictionJobDataClass, context: TaskCon
     forecasts = create_components_forecast_pipeline(pj, input_data, weather_data)
 
     if forecasts.index.max() < datetime.utcnow().replace(tzinfo=pytz.utc) + timedelta(
-        days=2
+        hours=30
     ):
-        raise ValueError(
+        raise ComponentForecastTooShortHorizonError(
             "Could not make component forecast for two days ahead, probably input data is missing."
         )
 
