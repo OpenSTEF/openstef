@@ -31,6 +31,7 @@ Attributes:
 """
 from datetime import datetime, timedelta
 from pathlib import Path
+import pytz
 
 import structlog
 
@@ -95,7 +96,9 @@ def create_components_forecast_task(pj: PredictionJobDataClass, context: TaskCon
     # Make forecast for the demand, wind and pv components
     forecasts = create_components_forecast_pipeline(pj, input_data, weather_data)
 
-    if forecasts.index.max() < datetime.utcnow() + timedelta(days=2):
+    if forecasts.index.max() < datetime.utcnow().replace(tzinfo=pytz.utc) + timedelta(
+        days=2
+    ):
         raise ValueError(
             "Could not make component forecast for two days ahead, probably input data is missing."
         )
