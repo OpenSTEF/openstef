@@ -24,6 +24,7 @@ Example:
 """
 from datetime import datetime, timedelta
 from pathlib import Path
+import pandas as pd
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.enums import MLModelType
@@ -97,7 +98,11 @@ def train_model_task(
                 "Database connector does dot support 'write_train_forecasts' while "
                 "'save_train_forecasts option was activated.'"
             )
-        context.database.write_train_forecasts(pj, data_sets)
+        if not pd.concat(data_sets).empty:
+            context.database.write_train_forecasts(pj, data_sets)
+            context.logger.debug(f"Saved Forecasts from trained model on datasets")
+        else:
+            context.logger.debug(f"Skip saving forecasts")
 
     context.perf_meter.checkpoint("Model trained")
 

@@ -83,7 +83,7 @@ def train_model_pipeline(
         logger.warning(
             f"Old model is younger than {MAXIMUM_MODEL_AGE} days, skip training"
         )
-        return
+        return (pd.DataFrame(), pd.DataFrame(), pd.DataFrame())
 
     # Train model with core pipeline
     try:
@@ -92,7 +92,7 @@ def train_model_pipeline(
         )
     except OldModelHigherScoreError as OMHSE:
         logger.error("Old model is better than new model", pid=pj["id"], exc_info=OMHSE)
-        return
+        return (pd.DataFrame(), pd.DataFrame(), pd.DataFrame())
 
     except InputDataInsufficientError as IDIE:
         logger.error(

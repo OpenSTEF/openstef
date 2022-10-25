@@ -326,13 +326,14 @@ class TestTrainModelPipeline(BaseTestCase):
         report_mock = MagicMock()
         pipeline_mock.return_value = ("a", report_mock)
 
-        train_model_pipeline(
+        result = train_model_pipeline(
             pj=self.pj,
             input_data=self.train_input,
             check_old_model_age=True,
             mlflow_tracking_uri="./test/unit/trained_models/mlruns",
             artifact_folder="./test/unit/trained_models",
         )
+        self.assertTrue(pd.concat(result).empty)
         self.assertFalse(pipeline_mock.called)
 
     @patch("openstef.model.serializer.MLflowSerializer.save_model")
@@ -389,7 +390,7 @@ class TestTrainModelPipeline(BaseTestCase):
             mlflow_tracking_uri="./test/unit/trained_models/mlruns",
             artifact_folder="./test/unit/trained_models",
         )
-        self.assertIsNone(result)
+        self.assertTrue(pd.concat(result).empty)
         self.assertEqual(len(serializer_mock_instance.method_calls), 1)
 
     @patch("openstef.model.serializer.MLflowSerializer.save_model")
