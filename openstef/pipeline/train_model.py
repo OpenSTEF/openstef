@@ -266,7 +266,7 @@ def train_pipeline_common(
     )
 
     # Report about the training process
-    reporter = Reporter(train_data, validation_data, test_data)
+    reporter = Reporter(train_data, validation_data, test_data, pj.quantiles)
     report = reporter.generate_report(model)
 
     if pj.save_train_forecasts:
