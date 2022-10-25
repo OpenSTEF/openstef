@@ -114,7 +114,7 @@ def plot_data_series(data, predict_data=None, horizon=47, names=None):
     else:
         actuals = data
         predictions = predict_data
-        if len(predict_series[mask].columns) > 1:
+        if len(predictions.columns) > 1:
             q_low = predict_data.iloc[:, -2]
             q_high = predict_data.iloc[:, -1]
         else:
