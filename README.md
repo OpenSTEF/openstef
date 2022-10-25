@@ -36,6 +36,14 @@ _**Optional**_: if you would like to use the proloaf model with OpenSTEF install
 pip install openstef[proloaf]
 ```
 
+### Remark regarding installation within a **conda environment on Windows**:
+
+A version of the pywin32 package will be installed as a secondary dependency along with the installation of the openstef package. Since conda relies on an old version of pywin32, the new installation can break conda's functionality. The following command can solve this issue:
+```shell
+pip install pywin32==300
+```
+For more information on this issue see the [readme of pywin32](https://github.com/mhammond/pywin32#installing-via-pip) or [this Github issue](https://github.com/mhammond/pywin32/issues/1865#issue-1212752696).
+
 # Usage
 
 To run a task use:
