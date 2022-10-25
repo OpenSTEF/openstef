@@ -176,6 +176,15 @@ class Reporter:
             forecast = pd.DataFrame(
                 index=data_set.index, data={"forecast": model_forecast}
             )
+
+            if (model.can_predict_quantiles) & (len(self.quantiles) >= 2):
+                forecast.loc[:, f"q{100 * self.quantiles[0]}"] = model.predict(
+                    data_set.iloc[:, 1:-1], quantile=self.quantiles[0]
+                )
+                forecast.loc[:, f"q{100 * self.quantiles[-1]}"] = model.predict(
+                    data_set.iloc[:, 1:-1], quantile=self.quantiles[-1]
+                )
+
             self.predicted_data_list.append(forecast)
 
         # Make cufflinks plots for the data series
