@@ -34,7 +34,6 @@ class OpenstfRegressor(BaseEstimator):
             The list of feature names
 
         """
-        pass
 
     @property
     @abstractmethod
@@ -44,7 +43,6 @@ class OpenstfRegressor(BaseEstimator):
         e.g. XGBQuantileOpenstfRegressor
 
         """
-        pass
 
     @abstractmethod
     def predict(self, x: pd.DataFrame, **kwargs) -> np.array:
@@ -58,7 +56,6 @@ class OpenstfRegressor(BaseEstimator):
             (np.array): prediction
 
         """
-        pass
 
     @abstractmethod
     def fit(self, x: np.array, y: np.array, **kwargs) -> RegressorMixin:
@@ -73,7 +70,6 @@ class OpenstfRegressor(BaseEstimator):
             Fitted model
 
         """
-        pass
 
     def set_feature_importance(self) -> Optional[pd.DataFrame]:
         """Get feature importance.

@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: MPL-2.0
 
 """openstef custom exceptions."""
-from datetime import datetime
 
 
 # Define custom exception
@@ -56,4 +55,3 @@ class ModelWithoutStDev(Exception):
 class ComponentForecastTooShortHorizonError(Exception):
     """Component forecasts should be available for at least 30 hours in advance."""
 
-    pass

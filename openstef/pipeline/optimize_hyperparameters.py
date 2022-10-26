@@ -7,7 +7,6 @@ import optuna
 import pandas as pd
 import structlog
 import os
-from pathlib import Path
 
 from openstef.data_classes.model_specifications import ModelSpecificationDataClass
 from openstef.data_classes.prediction_job import PredictionJobDataClass

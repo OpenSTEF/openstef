@@ -1,8 +1,9 @@
 # SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-"""This module contains the CRON job that is periodically executed to make prognoses of solar features that are useful
-for splitting the load in solar and wind contributions.
+"""This module contains the CRON job that is periodically executed to make prognoses of solar features.
+
+These are useful for splitting the load in solar and wind contributions.
 
 Example:
     This module is meant to be called directly from a CRON job. A description of

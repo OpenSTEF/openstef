@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 from abc import ABC, abstractmethod
-from turtle import st
 from typing import List, Optional, Union
 
 import numpy as np
@@ -57,7 +56,6 @@ class AbstractFeatureApplicator(ABC):
                 if not specified a default location is used
 
         """
-        pass
 
 
 class TrainFeatureApplicator(AbstractFeatureApplicator):
