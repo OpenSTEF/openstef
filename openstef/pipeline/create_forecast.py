@@ -54,7 +54,7 @@ def create_forecast_pipeline_core(
     model: OpenstfRegressor,
     model_specs: ModelSpecificationDataClass,
 ) -> pd.DataFrame:
-    """Create forecast pipeline (core)
+    """Create forecast pipeline (core).
 
     Computes the forecasts and confidence intervals given a prediction job and input data.
     This pipeline has no database or persisitent storage dependencies.

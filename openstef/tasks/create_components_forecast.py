@@ -1,12 +1,8 @@
 # SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-
-# -*- coding: utf-8 -*-
-"""create_components_forecast.py.
-
-This module contains the CRON job that is periodically executed to make
-the components prognoses and save them in the database.
+"""This module contains the CRON job that is periodically executed to make the components prognoses and save them in the
+database.
 
 This code assumes trained models are available from the persistent storage.
 If these are not available run model_train.py to train all models.
@@ -24,8 +20,6 @@ Example:
     Alternatively this code can be run directly by running::
 
         $ python create_components_forecast.py
-
-Attributes:
 
 """
 from datetime import datetime, timedelta
@@ -48,8 +42,9 @@ T_AHEAD_DAYS = 3
 
 
 def create_components_forecast_task(pj: PredictionJobDataClass, context: TaskContext):
-    """Top level task that creates a components forecast. On this task level all database and context manager
-    dependencies are resolved.
+    """Top level task that creates a components forecast.
+
+    On this task level all database and context manager dependencies are resolved.
 
     Args:
         pj (PredictionJobDataClass): Prediction job

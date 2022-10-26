@@ -31,6 +31,7 @@ def adders_from_module(module_name: str):
 
 
 def adders_from_modules(module_names: List[str]):
+    """Load all FeatureAdders classes on the fly from specified modules."""
     return sum((adders_from_module(module_name) for module_name in module_names), [])
 
 

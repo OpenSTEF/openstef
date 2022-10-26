@@ -11,6 +11,8 @@ from .split_function import SplitFuncDataClass
 
 
 class PredictionJobDataClass(BaseModel):
+    """Holds all information about the specific forecastthat has to be made."""
+
     id: Union[int, str]
     model: str
     forecast_type: str
@@ -36,6 +38,16 @@ class PredictionJobDataClass(BaseModel):
     n_turbines: Optional[float]  # Only required for create_wind_forecast task
     hub_height: Optional[float]  # Only required for create_wind_forecast task
 
+    class Config:
+        """Pydantic model configuration.
+
+        This following configuration is needed to prevent ids in "depends_on" to be converted from int to str when we
+        use integer ids.
+
+        """
+
+        smart_union = True
+
     def __getitem__(self, item):
         """Allows us to use subscription to get the items from the object."""
         return getattr(self, item)
@@ -53,8 +65,3 @@ class PredictionJobDataClass(BaseModel):
             return getattr(self, key)
         else:
             return default
-
-    # The following configuration is needed to prevent ids in "depends_on"
-    # to be converted from int to str when we use integer ids
-    class Config:
-        smart_union = True

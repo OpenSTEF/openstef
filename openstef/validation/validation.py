@@ -18,6 +18,7 @@ def validate(
     flatliner_threshold: Union[int, None],
 ) -> pd.DataFrame:
     """Validate prediction job and timeseries data.
+
     Steps:
     1. Replace repeated values for longer than flatliner_threshold with NaN
     # TODO: The function description suggests it
@@ -30,8 +31,9 @@ def validate(
             if None, the validation is effectively skipped
 
     Returns:
-        Dataframe where repeated values are set to None"""
+        Dataframe where repeated values are set to None
 
+    """
     logger = structlog.get_logger(__name__)
 
     if flatliner_threshold is None:
@@ -139,7 +141,6 @@ def calc_completeness(
         float: Completeness
 
     """
-
     if weights is None:
         weights = np.array([1] * len(df.columns))
     weights = np.array(weights)
@@ -206,7 +207,6 @@ def find_nonzero_flatliner(df: pd.DataFrame, threshold: int = None) -> pd.DataFr
     ```
 
     """
-
     if len(df) == 0:
         return
 
@@ -260,8 +260,9 @@ def find_zero_flatliner(
     flatliner_window: timedelta,
     flatliner_load_threshold: float,
 ) -> pd.DataFrame or None:
-    """Function that detects a zero value where the load is not compensated by the other trafo's of the station. If zero
-    value is at start or end, ignore that block.
+    """Detect a zero value where the load is not compensated by the other trafo's of the station.
+
+    If zero value is at start or end, ignore that block.
 
     Input:
     - df: pd.dataFrame(index=DatetimeIndex, columns = [load1, ..., loadN]). Load_corrections should be indicated by 'LC_'
@@ -270,7 +271,7 @@ def find_zero_flatliner(
     - flatliner_load_threshold (fraction): how big may the difference be between the total station load
     before and during the zero-value(s).
 
-    return:
+    Return:
     - pd.DataFrame of timestamps, or None if none
 
     TODO: a lot of the logic of this function can be improved using: mnts.label

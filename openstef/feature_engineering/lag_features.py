@@ -71,7 +71,6 @@ def extract_lag_features(
         days_list (List[int]): list of minute lags that were used as features during training
 
     """
-
     # Prepare empty lists to append on
     minutes_list = []
     days_list = []

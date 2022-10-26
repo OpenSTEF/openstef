@@ -66,7 +66,9 @@ class Dazls(BaseEstimator):
         self.target_columns = ["total_wind_part", "total_solar_part"]
 
     def fit(self, features, target):
-        """In this function we scale the input of the domain and adaptation models of the DAZLS MODEL. Then we fit the
+        """Fit the model.
+
+        In this function we scale the input of the domain and adaptation models of the DAZLS MODEL. Then we fit the
         two models. We separate the features into domain_model_input, adaptation_model_input and target, and we use them
         for the fitting and the training of the models.
 
@@ -74,7 +76,6 @@ class Dazls(BaseEstimator):
         :param target: the expected output (y_train)
 
         """
-
         x, x2, y = (
             features.loc[:, self.domain_model_input_columns],
             features.loc[:, self.adaptation_model_input_columns],
@@ -101,7 +102,9 @@ class Dazls(BaseEstimator):
         self.adaptation_model.fit(adaptation_model_input, y_train)
 
     def predict(self, x: np.array):
-        """For the prediction we use the test data x. We use domain_model_input_columns and
+        """Make a prediction.
+
+        For the prediction we use the test data x. We use domain_model_input_columns and
         adaptation_model_input_columns to separate x in test data for domain model and adaptation model respectively.
 
         :param x (np.array): domain_model_test_data, adaptation_model_test_data
@@ -144,7 +147,6 @@ class Dazls(BaseEstimator):
         :return: RMSE and R2 scores
 
         """
-
         rmse = (mean_squared_error(truth, prediction)) ** 0.5
         r2_score_value = r2_score(truth, prediction)
         return rmse, r2_score_value

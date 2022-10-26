@@ -30,7 +30,6 @@ def normalize_and_convert_weather_data_for_splitting(weather_data):
          pd.DataFrame: Dataframe with "windpower" and "radiation" columns.
 
     """
-
     # Check we have "windspeed_100m" and "radiation" available
     if not all(
         elem in weather_data.columns for elem in ["windspeed_100m", "radiation"]
@@ -60,18 +59,18 @@ def normalize_and_convert_weather_data_for_splitting(weather_data):
 def calculate_wind_power(
     windspeed_100m: pd.DataFrame,
 ) -> pd.DataFrame:
+    """Calculate the generated wind power based on the wind speed.
 
-    """Calculate the generated wind power based on the wind speed. Values are related through the power curve, which is
+    Values are related through the power curve, which is
     described by turbine_data. Default values are used and are normalized to 1MWp.
 
-    args:
+    Args:
     - windspeed_100m: pd.DataFrame (index = datetime, columns = ["windspeed_100m"])
 
-    returns:
+    Returns:
     - pd.DataFrame(index = datetime, columns = ["windenergy"])
 
     """
-
     generated_power = TURBINE_DATA["rated_power"] / (
         1
         + np.exp(
@@ -82,8 +81,7 @@ def calculate_wind_power(
 
 
 def split_forecast_in_components(forecast, weather_data, split_coefs):
-    """Function that makes estimates of energy components based on given forecast, previously determine splitting
-    coefficients and relevant weather data.
+    """Make estimates of energy components based on given forecast.
 
     Args:
         forecast(pd.DataFrame): KTP load forecast
@@ -95,7 +93,6 @@ def split_forecast_in_components(forecast, weather_data, split_coefs):
         dict: Forecast dataframe for each component
 
     """
-
     # Normalize weather data
     weather_ref_profiles = normalize_and_convert_weather_data_for_splitting(
         weather_data
@@ -193,7 +190,9 @@ def post_process_wind_solar(forecast: pd.Series, forecast_type):
 
 
 def add_components_base_case_forecast(basecase_forecast: pd.DataFrame) -> pd.DataFrame:
-    """Makes a basecase forecast for the forecast_other component. This will make a simple basecase components forecast
+    """Makes a basecase forecast for the forecast_other component.
+
+    This will make a simple basecase components forecast
     available and ensures that the sum of the components (other, wind and solar) is equal to the normal basecase
     forecast This is important for sending GLMD messages correctly to TenneT!
 
@@ -204,7 +203,6 @@ def add_components_base_case_forecast(basecase_forecast: pd.DataFrame) -> pd.Dat
         basecase_forecast: pd.DataFrame with extra "forecast_other component"
 
     """
-    #
     basecase_forecast["forecast_other"] = basecase_forecast["forecast"]
     return basecase_forecast
 
