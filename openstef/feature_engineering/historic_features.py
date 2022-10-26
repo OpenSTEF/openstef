@@ -15,7 +15,7 @@ def add_historic_load_as_a_feature(
     data: pd.DataFrame,
     pj: PredictionJobDataClass = None,
 ) -> pd.DataFrame:
-    """Adds additional proloaf features to the input data, historic_load (equal to the load)
+    """Adds additional proloaf features to the input data, historic_load (equal to the load).
 
     Args:
         data (pd.DataFrame): Dataframe to which the wind features have to be added

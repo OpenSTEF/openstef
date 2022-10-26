@@ -39,7 +39,6 @@ def create_basecase_forecast_pipeline(
         basecase_forecast (pandas.DataFrame)
 
     """
-
     logger = structlog.get_logger(__name__)
 
     logger.info("Preprocessing data for basecase forecast")

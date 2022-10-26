@@ -156,7 +156,7 @@ class RegressorObjective:
         return score
 
     def get_params(self, trial: optuna.trial.FrozenTrial) -> dict:
-        """get parameters for objective without model specific get_params function.
+        """Get parameters for objective without model specific get_params function.
 
         Args: trial
 
@@ -232,7 +232,7 @@ class XGBRegressorObjective(RegressorObjective):
 
     # extend the parameters with the model specific ones per implementation
     def get_params(self, trial: optuna.trial.FrozenTrial) -> dict:
-        """get parameters for XGB Regressor Objective with objective specific parameters.
+        """Get parameters for XGB Regressor Objective with objective specific parameters.
 
         Args: trial
 
@@ -269,7 +269,7 @@ class LGBRegressorObjective(RegressorObjective):
         self.model_type = MLModelType.LGB
 
     def get_params(self, trial: optuna.trial.FrozenTrial) -> dict:
-        """get parameters for LGB Regressor Objective with objective specific parameters.
+        """Get parameters for LGB Regressor Objective with objective specific parameters.
 
         Args: trial
 
@@ -310,7 +310,7 @@ class XGBQuantileRegressorObjective(RegressorObjective):
         self.model_type = MLModelType.XGB_QUANTILE
 
     def get_params(self, trial: optuna.trial.FrozenTrial) -> dict:
-        """get parameters for XGBQuantile Regressor Objective with objective specific parameters.
+        """Get parameters for XGBQuantile Regressor Objective with objective specific parameters.
 
         Args: trial
 
@@ -339,7 +339,7 @@ class ProLoafRegressorObjective(RegressorObjective):
         self.model_type = MLModelType.ProLoaf
 
     def get_params(self, trial: optuna.trial.FrozenTrial) -> dict:
-        """get parameters for ProLoaf Regressor Objective with objective specific parameters.
+        """Get parameters for ProLoaf Regressor Objective with objective specific parameters.
 
         Args: trial
 
@@ -386,14 +386,13 @@ class LinearRegressorObjective(RegressorObjective):
         self.model_type = MLModelType.LINEAR
 
     def get_params(self, trial: optuna.trial.FrozenTrial) -> dict:
-        """get parameters for Linear Regressor Objective with objective specific parameters.
+        """Get parameters for Linear Regressor Objective with objective specific parameters.
 
         Args: trial
         Returns:
             dict: {parameter: hyperparameter_value}
 
         """
-
         # Imputation strategy
         params = {
             "imputation_strategy": trial.suggest_categorical(

@@ -30,8 +30,9 @@ DEFAULT_LON: float = 5.291266
 
 
 def calc_saturation_pressure(temperature: float or np.ndarray) -> float or np.ndarray:
-    """Calculates the water vapour pressure from the temperature See
-    https://www.vaisala.com/sites/default/files/documents/Humidity_Conversion_Formulas_B210973EN-F.pdf.
+    """Calculate the water vapour pressure from the temperature.
+
+    See https://www.vaisala.com/sites/default/files/documents/Humidity_Conversion_Formulas_B210973EN-F.pdf.
 
     Args:
         temperature (np.array): Temperature in C
@@ -39,7 +40,6 @@ def calc_saturation_pressure(temperature: float or np.ndarray) -> float or np.nd
         The saturation pressure of water at the respective temperature
 
     """
-
     psat = A * 10 ** ((M * temperature) / (temperature + TN))
     return psat
 
@@ -68,7 +68,6 @@ def calc_dewpoint(vapour_pressure: float or np.ndarray) -> float or np.ndarray:
         dewpoint (np.ndarray or float):
 
     """
-
     return TN / ((M / np.log10(vapour_pressure / A)) - 1)
 
 
@@ -88,7 +87,6 @@ def calc_air_density(
         air density (np.ndarray or float): The air density (kg/m^3)
 
     """
-
     # Calculate saturation pressure
     psat = calc_saturation_pressure(temperature)
     # Calculate the current vapour pressure
@@ -123,7 +121,6 @@ def add_humidity_features(
         pd.DataFrame, Same as input dataframe with extra columns for the humidty features.
 
     """
-
     # If features is none add humidity feature anyway
     if feature_names is None:
         humidity_features = True
@@ -176,7 +173,6 @@ def humidity_calculations(
         if the input is numeric: a dict with the calculated moisture indices
 
     """
-
     # First: a sanity check on the relative humidity and the air pressure
     # We only check on the type of temperature, because they need to be the same anyway
     is_series = isinstance(temperature, (np.ndarray, pd.Series))
@@ -288,7 +284,6 @@ def calculate_windturbine_power_output(
         pd.DataFrame(index = datetime, columns = ["forecast"])
 
     """
-
     if turbine_data is None:
         turbine_data = {
             "name": "Lagerwey L100",  # not used here
@@ -364,9 +359,11 @@ def add_additional_wind_features(
 
 
 def calculate_dni(radiation: pd.Series, pj: PredictionJobDataClass) -> pd.Series:
-    """
-    Using the predicted radiation and information derived from the location (obtained from pj) the direct normal
-    irradiance (DNI) is calculated. The `pvlib` library is used.
+    """Calculate the direct normal irradiance (DNI).
+
+    This function uses the predicted radiation and information derived from the location (obtained from pj)
+
+
     Args:
         radiation: predicted radiation including DatetimeIndex with right time-zone
         pj: PredictJob including information about the location (lat, lon)
@@ -401,8 +398,10 @@ def calculate_gti(
     surface_tilt: float = 34.0,
     surface_azimuth: float = 180,
 ) -> pd.Series:
-    """
-    Calculates the GTI/POA using the radiation (Assuming Global Tilted Irradiance (GTI) = Plane of Array (POA))
+    """Calculate the GTI/POA using the radiation.
+
+    This function assumes Global Tilted Irradiance (GTI) = Plane of Array (POA)
+
     Args:
         radiation: pandas series with DatetimeIndex with right timezone information
         pj: prediction job which should at least contain the latitude and longitude location.
@@ -455,7 +454,6 @@ def add_additional_solar_features(
         pd.DataFrame same as input dataframe with extra columns for the added solar features
 
     """
-
     # If pj is none add solar features with Utrecht as default location
     if pj is None:
         logger.info(

@@ -1,8 +1,6 @@
 # SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-
-# -*- coding: utf-8 -*-
 from typing import List
 
 import numpy as np
@@ -28,7 +26,6 @@ def add_missing_feature_columns(
         features (list): List of requiered features.
 
     """
-
     logger = structlog.get_logger(__name__)
 
     if features is None:
@@ -103,7 +100,6 @@ def enforce_feature_order(input_data: pd.DataFrame):
         pd.DataFrame: Properly sorted input data
 
     """
-
     # Extract first column name
     first_column_name = input_data.columns.to_list()[
         0

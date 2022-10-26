@@ -16,7 +16,6 @@ class OpenstfRegressor(BaseEstimator):
     definition. Common functionality which is required for the automated pipelines in OpenSTEF is defined in this class.
 
     """
-
     def __init__(self):
         self.feature_importance_dataframe = None
         self.feature_importances_ = None
@@ -49,13 +48,15 @@ class OpenstfRegressor(BaseEstimator):
 
     @abstractmethod
     def predict(self, x: pd.DataFrame, **kwargs) -> np.array:
-        """Makes a prediction. Only available after the model has been trained
+        """Makes a prediction. Only available after the model has been trained.
+
         Args:
             x (np.array): Feature matrix
             kwargs: model-specific keywords
 
         Returns:
             (np.array): prediction
+
         """
         pass
 
@@ -75,7 +76,7 @@ class OpenstfRegressor(BaseEstimator):
         pass
 
     def set_feature_importance(self) -> Optional[pd.DataFrame]:
-        """get feature importance.
+        """Get feature importance.
 
         Returns:
          pd.DataFrame

@@ -21,7 +21,9 @@ def generate_holiday_feature_functions(
     years: list = None,
     path_to_school_holidays_csv: str = HOLIDAY_CSV_PATH,
 ) -> dict:
-    """Generates functions for creating holiday feature. This improves forecast accuracy. Examples of features that are
+    """Generates functions for creating holiday feature.
+
+    This improves forecast accuracy. Examples of features that are
     added are: 2020-01-01 is 'Nieuwjaarsdag'.
 
         2022-12-24 - 2023-01-08 is the 'Kerstvakantie'
@@ -53,7 +55,6 @@ def generate_holiday_feature_functions(
                 consist of "Is" + the_name_of_the_holiday_to_be_checked
 
     """
-
     if years is None:
         now = datetime.now()
         years = [now.year - 1, now.year]

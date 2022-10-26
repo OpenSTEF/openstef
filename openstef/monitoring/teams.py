@@ -16,7 +16,7 @@ def post_teams(
     url: str = None,
     proxies: dict = None,
 ) -> None:
-    """Post a message to Teams - KTP
+    """Post a message to Teams - KTP.
 
     Note that currently no authentication occurs.
     Security is given by keeping the URL secret.

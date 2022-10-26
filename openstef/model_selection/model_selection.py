@@ -5,7 +5,7 @@ import random
 import secrets
 from datetime import timedelta
 from itertools import accumulate
-from typing import Iterable, List, Tuple
+from typing import Iterable, Tuple
 
 import numpy as np
 import pandas as pd
@@ -69,7 +69,6 @@ def sample_indices_train_val(
         np.array: Sorted list with the indices corresponding to the peak
 
     """
-
     sampled = set()
     peaks_val = []
 
@@ -81,7 +80,7 @@ def sample_indices_train_val(
 
 def random_sample(all_peaks: np.array, k: int) -> np.array:
     """Random sampling of numbers out of a np.array (implemented due to security sonar cloud not accepting the random
-    built-in functions)
+    built-in functions).
 
     Args:
         all_peaks (np.array): List with numbers to sample from
@@ -91,7 +90,6 @@ def random_sample(all_peaks: np.array, k: int) -> np.array:
         np.array: Sorted array with the random samples (dates from the peaks)
 
     """
-
     random_peaks = []
     all_peaks_list = all_peaks.tolist()
     for _ in range(k):
@@ -107,7 +105,7 @@ def split_data_train_validation_test(
     validation_fraction: float = 0.15,
     back_test: bool = False,
     stratification_min_max: bool = True,
-) -> (pd.DataFrame, pd.DataFrame, pd.DataFrame):
+) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Split input data into train, test and validation set.
 
     Function for splitting data with features in a train, test and
@@ -142,7 +140,6 @@ def split_data_train_validation_test(
         test_data (pandas.DataFrame): Test data.
 
     """
-
     train_fraction = 1 - (test_fraction + validation_fraction)
     if train_fraction < 0:
         raise ValueError(
@@ -265,6 +262,7 @@ def backtest_split_default(
     randomize_fold_split: bool = False,
 ) -> Iterable[Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]]:
     """Default cross validation strategy.
+
     Args:
         data:
         n_folds:
@@ -278,6 +276,7 @@ def backtest_split_default(
 
     Notes:
         We use a generator in order to have lazy estimation and avoid multiple copy of the data.
+
     """
     if n_folds > 1:
         data.index = pd.to_datetime(data.index)

@@ -77,7 +77,6 @@ class PerformanceMeter:
             self
 
         """
-
         runtime = round(perf_counter() - self.level_timers.pop(), ndigits=3)
         self.checkpoint_timers.pop()
 

@@ -178,7 +178,6 @@ class ConfidenceIntervalApplicator:
                 columns added.
 
         """
-
         # Check if stdev and forecast are in the dataframe
         if not all(elem in forecast.columns for elem in ["forecast", "stdev"]):
             raise ValueError("Forecast should contain a 'forecast' and 'stdev' column")
@@ -207,7 +206,6 @@ class ConfidenceIntervalApplicator:
                 columns added.
 
         """
-
         for quantile in quantiles:
             quantile_key = f"quantile_P{quantile * 100:02.0f}"
             forecast[quantile_key] = self.model.predict(

@@ -76,7 +76,6 @@ class XGBQuantileOpenstfRegressor(OpenstfRegressor):
             Fitted XGBQuantile model
 
         """
-
         # TODO: specify these required kwargs in the function definition
         early_stopping_rounds = kwargs.get("early_stopping_rounds", None)
         eval_set = kwargs.get("eval_set", None)
@@ -175,7 +174,9 @@ class XGBQuantileOpenstfRegressor(OpenstfRegressor):
 
     @classmethod
     def get_feature_importances_from_booster(cls, booster: Booster) -> np.ndarray:
-        """Gets feauture importances from a XGB booster. This is based on the feature_importance_ property defined in:
+        """Gets feauture importances from a XGB booster.
+
+        This is based on the feature_importance_ property defined in:
         https://github.com/dmlc/xgboost/blob/master/python-package/xgboost/sklearn.py.
 
         Args:
@@ -186,7 +187,6 @@ class XGBQuantileOpenstfRegressor(OpenstfRegressor):
             (np.ndarray) with normalized feature importances
 
         """
-
         # Get score
         score = booster.get_score(importance_type="gain")
 

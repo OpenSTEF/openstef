@@ -1,12 +1,8 @@
 # SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+"""This module contains the CRON job that is periodically executed to make prognoses and save them in to the database.
 
-# -*- coding: utf-8 -*-
-"""create_forecast.py.
-
-This module contains the CRON job that is periodically executed to make prognoses and
-save them in to the database.
 This code assumes trained models are available from the persistent storage. If these
 are not available run model_train.py to train all models.
 To provide the prognoses the folowing steps are carried out:
@@ -22,8 +18,6 @@ Example:
     Alternatively this code can be run directly by running::
 
         $ python create_forecast.py
-
-Attributes:
 
 """
 from datetime import datetime, timedelta

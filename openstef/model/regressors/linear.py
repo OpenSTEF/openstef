@@ -13,9 +13,8 @@ class LinearRegressor(MissingValuesHandler):
     """Linear Regressor wrapped in the metamodel `MissingValuesHandler` that can handle missing values by imputation
     strategy.
 
-     Parameters
+    Parameters
     ----------
-
     missing_values : int, float, str, np.nan or None, default=np.nan
         The placeholder for the missing values. All occurrences of
         `missing_values` will be imputed. For pandas' dataframes with
@@ -42,7 +41,6 @@ class LinearRegressor(MissingValuesHandler):
         data and "missing_value" for strings or object data types.
 
     """
-
     def __init__(self, missing_values=np.nan, imputation_strategy=None, fill_value=0):
         super().__init__(
             LinearRegression(),

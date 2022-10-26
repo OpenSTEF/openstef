@@ -36,6 +36,7 @@ def apply_features(
     horizon: float = 24.0,
 ) -> pd.DataFrame:
     """This script applies the feature functions defined in feature_functions.py and returns the complete dataframe.
+
     Features requiring more recent label-data are omitted.
 
         NOTE: For the time deriven features only the onces in the features list

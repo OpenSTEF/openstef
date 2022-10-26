@@ -1,17 +1,14 @@
 # SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+"""This module contains the CRON job that is periodically executed to make prognoses of solar features that are useful
+for splitting the load in solar and wind contributions.
 
-"""create_solar_forecast
-This module contains the CRON job that is periodically executed to make
-prognoses of solar features that are useful for splitting the load in solar and
-wind contributions.
 Example:
     This module is meant to be called directly from a CRON job. A description of
     the CRON job can be found in the /k8s/CronJobs folder.
     Alternatively this code can be run directly by running::
         $ python create_solar_forecast
-Attributes:
 
 """
 from datetime import datetime, timedelta
@@ -79,7 +76,6 @@ def combine_forecasts(forecasts, combination_coefs):
         - pd.DataFrame(datetime, forecast)
 
     """
-
     models = [x for x in list(forecasts) if x not in ["created", "datetime"]]
 
     # Add subset parameters to df
@@ -181,7 +177,6 @@ def fides(data, all_forecasts=False):
         allForecasts (bool): Should all forecasts be returned or only the combination
 
     Example:
-
     import numpy as np
     index = pd.date_range(start = "2017-01-01 09:00:00", freq = '15T', periods = 300)
     data = pd.DataFrame(index = index,
@@ -190,7 +185,6 @@ def fides(data, all_forecasts=False):
     data.loc[int(len(index)/3*2):,"load"] = np.NaN
 
     """
-
     insolation_forecast = apply_fit_insol(data, add_to_df=False)
     persistence = apply_persistence(data, how="mean", smooth_entries=4, add_to_df=True)
 
@@ -253,6 +247,7 @@ def main(config=None, database=None):
 
 def calc_norm(data, how="max", add_to_df=True):
     """This script calculates the norm of a given dataset.
+
     Input:
         - data: pd.DataFrame(index = datetime, columns = [load])
         - how: str can be any function from numpy, recognized by np.'how'
@@ -263,13 +258,14 @@ def calc_norm(data, how="max", add_to_df=True):
         - pd.DataFrame(index = datetime, columns = [load])
     NB: range of datetime of input is equal to range of datetime of output
 
-    Example
+    Example:
     import pandas as pd
     import numpy as np
     index = pd.date_range(start = "2017-01-01 09:00:00", freq = '15T', periods = 200)
     data = pd.DataFrame(index = index,
-                        data = dict(load=np.sin(index.hour/24*np.pi)*np.random.uniform(0.7,1.7, 200)))"""
+                        data = dict(load=np.sin(index.hour/24*np.pi)*np.random.uniform(0.7,1.7, 200)))
 
+    """
     colname = list(data)[0]
     if how == "max":
         df = data.groupby(data.index.time).apply(lambda x: x.max(skipna=True))
@@ -289,7 +285,8 @@ def calc_norm(data, how="max", add_to_df=True):
 
 
 def apply_persistence(data, how="mean", smooth_entries=4, add_to_df=True, colname=None):
-    """This script calculates the persistence forecast
+    """This script calculates the persistence forecast.
+
     Input:
         - data: pd.DataFrame(index = datetime, columns = [load]), datetime is expected to have historic values, as well as NA values
         Optional:
@@ -302,14 +299,15 @@ def apply_persistence(data, how="mean", smooth_entries=4, add_to_df=True, colnam
         - pd.DataFrame(index = datetime, columns = [(load,) persistence])
     NB: range of datetime of input is equal to range of datetime of output
 
-    Example
+    Example:
     import pandas as pd
     import numpy as np
     index = pd.date_range(start = "2017-01-01 09:00:00", freq = '15T', periods = 300)
     data = pd.DataFrame(index = index,
                         data = dict(load=np.sin(index.hour/24*np.pi)*np.random.uniform(0.7,1.7, 300)))
-    data.loc[200:,"load"] = np.nan"""
+    data.loc[200:,"load"] = np.nan
 
+    """
     data = data.sort_index()
 
     if colname is None:
@@ -348,7 +346,7 @@ def apply_fit_insol(data, add_to_df=True, hours_delta=None, polynomial=False):
         - pd.DataFrame(index = datetime, columns = [(load), forecaopenstefitInsol])
     NB: range of datetime of input is equal to range of datetime of output
 
-    Example
+    Example:
     import pandas as pd
     import numpy as np
     index = pd.date_range(start = "2017-01-01 09:00:00", freq = '15T', periods = 300)
@@ -358,7 +356,6 @@ def apply_fit_insol(data, add_to_df=True, hours_delta=None, polynomial=False):
     data.loc[int(len(index)/3*2):,"load"] = np.NaN
 
     """
-
     colname = list(data)[0]
 
     # Define subset, only keep non-NaN values and the most recent forecasts

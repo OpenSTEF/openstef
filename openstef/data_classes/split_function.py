@@ -5,7 +5,7 @@
 import inspect
 import json
 from importlib import import_module
-from typing import Any, Callable, Dict, Sequence, Union
+from typing import Any, Callable, Dict, Sequence, Union, Tuple
 
 from pydantic import BaseModel
 
@@ -76,7 +76,7 @@ class SplitFuncDataClass(BaseModel):
 
     def load(
         self, required_arguments: Sequence[str] = None
-    ) -> (Callable, Dict[str, Any]):
+    ) -> Tuple[Callable, Dict[str, Any]]:
         """Load the function and its arguments.
 
         If the function and the arguments are given as strings in the instane attributes, load them as Python objects

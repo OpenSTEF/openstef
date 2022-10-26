@@ -38,7 +38,9 @@ def train_model_pipeline(
     mlflow_tracking_uri: str,
     artifact_folder: str,
 ) -> Optional[Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]]:
-    """Middle level pipeline that takes care of all persistent storage dependencies Expected prediction jobs keys: "id",
+    """Middle level pipeline that takes care of all persistent storage dependencies.
+
+    Expected prediction jobs keys: "id",
     "model", "hyper_params", "feature_names".
 
     Args:
@@ -145,7 +147,9 @@ def train_model_pipeline_core(
     ModelSpecificationDataClass,
     Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame],
 ):
-    """Train model core pipeline. Trains a new model given a prediction job, input data and compares it to an old model.
+    """Train model core pipeline.
+
+    Trains a new model given a prediction job, input data and compares it to an old model.
     This pipeline has no database or persistent storage dependencies.
 
     Args:
@@ -167,7 +171,6 @@ def train_model_pipeline_core(
         datasets (Tuple[pd.DataFrmae, pd.DataFrame, pd.Dataframe): The train, validation and test sets
 
     """
-
     if horizons is None:
         if pj.train_horizons_minutes is None:
             horizons = DEFAULT_TRAIN_HORIZONS
@@ -348,7 +351,8 @@ def train_pipeline_step_train_model(
     train_data: pd.DataFrame,
     validation_data: pd.DataFrame,
 ) -> OpenstfRegressor:
-    """Train the model
+    """Train the model.
+
     Args:
         pj (PredictionJobDataClass): Prediction job
         model_specs (ModelSpecificationDataClass): Dataclass containing model specifications
@@ -357,6 +361,7 @@ def train_pipeline_step_train_model(
 
     Returns:
         trained_model (OpenstfRegressor): The trained model
+
     """
     # Test if first column is "load" and last column is "horizon"
     if train_data.columns[0] != "load" or train_data.columns[-1] != "horizon":

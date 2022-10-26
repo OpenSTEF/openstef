@@ -65,7 +65,6 @@ def optimize_hyperparameters_pipeline(
         dict: Optimized hyperparameters.
 
     """
-
     (
         best_model,
         model_specs,

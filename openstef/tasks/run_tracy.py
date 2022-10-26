@@ -1,10 +1,8 @@
 # SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+"""Tracy checks the mysql todolist and tries her best to execute the functions with desired inputs.
 
-"""run_tracy.py
-Tracy checks the mysql todolist and tries her best to execute the
-functions with desired inputs
 This scripts works as follows:
   1. Checks the mysql table 'todolist' for jobs (which are not already in progress and
     which are not already failed)
@@ -24,9 +22,8 @@ Example:
 
     Alternatively this code can be run directly by running::
         $ python run_tracy.py
-Attributes:
-"""
 
+"""
 # sql to create the Tracy jobs table (todolist)
 
 # CREATE TABLE IF NOT EXISTS `tst_icarus`.`todolist` (
@@ -37,7 +34,6 @@ Attributes:
 # `inprogress` BOOLEAN NULL DEFAULT NULL ,
 # PRIMARY KEY (`id`), UNIQUE `id` (`id`))
 # ENGINE = InnoDB;
-
 from pathlib import Path
 
 from openstef.enums import TracyJobResult

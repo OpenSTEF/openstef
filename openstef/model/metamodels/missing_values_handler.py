@@ -11,15 +11,15 @@ from sklearn.utils.validation import check_array, check_is_fitted, check_X_y
 
 
 class MissingValuesHandler(BaseEstimator, RegressorMixin, MetaEstimatorMixin):
-    """Class for a meta-models that handles missing values and removes columns filled exclusively by NaN. It's a
-    pipeline of:
+    """Class for a meta-models that handles missing values and removes columns filled exclusively by NaN.
+
+    It's a pipeline of:
 
         - An Imputation transformer for completing missing values.
         - A Regressor fitted on the filled data.
 
     Parameters
     ----------
-
     base_estimator: RegressorMixin
         Regressor used in the pipeline.
 
@@ -48,7 +48,7 @@ class MissingValuesHandler(BaseEstimator, RegressorMixin, MetaEstimatorMixin):
         If left to the default, fill_value will be 0 when imputing numerical
         data and "missing_value" for strings or object data types.
 
-     Attributes
+    Attributes
     ----------
         feature_names: list(str)
             All input feature.
@@ -72,7 +72,6 @@ class MissingValuesHandler(BaseEstimator, RegressorMixin, MetaEstimatorMixin):
             The feature importances from the regressor for valid features and zero otherwise.
 
     """
-
     def __init__(
         self,
         base_estimator,

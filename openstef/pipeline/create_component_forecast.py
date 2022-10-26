@@ -26,7 +26,6 @@ def create_input(pj, input_data, weather_data):
     :return: input_df (pd.Dataframe): It outputs a dataframe which will be used for the Dazls prediction function.
 
     """
-
     # Prepare raw input data
     input_df = (
         weather_data[["radiation", "windspeed_100m"]]

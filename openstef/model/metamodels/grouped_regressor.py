@@ -13,6 +13,7 @@ from sklearn.utils.validation import check_is_fitted
 
 class GroupedRegressor(BaseEstimator, RegressorMixin, MetaEstimatorMixin):
     """Meta-model that trains an instance of the base estimator for each key of a groupby operation applied on the data.
+
     The base estimator is a sklearn regressor, the groupby is performed on the columns specified in parameters.
     Moreover fit and predict methods can be performed in parallel for each group key thanks to joblib.
     Example:
@@ -42,7 +43,7 @@ class GroupedRegressor(BaseEstimator, RegressorMixin, MetaEstimatorMixin):
          such as the number of Python worker processes when backend=”multiprocessing”
          or the size of the thread-pool when backend=”threading
 
-     Attributes
+    Attributes
     ----------
         feature_names_: list(str)
             All input feature (without group_columns).
@@ -50,8 +51,8 @@ class GroupedRegressor(BaseEstimator, RegressorMixin, MetaEstimatorMixin):
         estimators_: dict(str, RegressorMixin)
             Dictionnary that stocks fitted estimators for each group.
             The keys are the keys of grouping and the values are the regressors fitted on the grouped data.
-    """
 
+    """
     def __init__(
         self,
         base_estimator: BaseEstimator,
@@ -122,8 +123,10 @@ class GroupedRegressor(BaseEstimator, RegressorMixin, MetaEstimatorMixin):
         n_jobs: int = 1,
         eval_set=None,
     ) -> Tuple[Tuple[np.array, ...], DataFrameGroupBy, pd.DataFrame]:
-        """Computes the specified function on each group defined by the grouping columns. It is an utility function used
-        to perform fit and predict on each group. The df_res is the final dataframe that aggregate the results for each
+        """Computes the specified function on each group defined by the grouping columns.
+
+        It is an utility function used to perform fit and predict on each group.
+        The df_res is the final dataframe that aggregate the results for each
         group. The group_res is a tuple where each field is corresponding to a results for a group. The gb is the
         grouping object.
 
@@ -138,7 +141,6 @@ class GroupedRegressor(BaseEstimator, RegressorMixin, MetaEstimatorMixin):
             results (tuple): the tuple of the results of each group, the grouping dataframe and the global dataframe of results.
 
         """
-
         index_name = df.index.name or "index"
         df_reset = df.reset_index()
 

@@ -2,10 +2,9 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-"""split_forecast.py.
+"""This module contains the CRON job that is periodically executed to make prognoses of solar features.
 
-This module contains the CRON job that is periodically executed to make
-prognoses of solar features. These features are usefull for splitting the load
+These features are usefull for splitting the load
 in solar and wind contributions.
 This is achieved by carrying out the folowing steps:
   1. Get the wind and solar reference data for the specific location of the
@@ -22,10 +21,7 @@ Example:
 
         $ python split_forecast.py
 
-Attributes:
-
 """
-
 from datetime import datetime
 from pathlib import Path
 
@@ -201,7 +197,6 @@ def find_components(df, zero_bound=True):
             [1] dict: The coefficients that result from the fitting
 
     """
-
     # Define function to fit
     def weighted_sum(x, *args):
         if len(x) != len(args):

@@ -124,8 +124,8 @@ def generate_trivial_lag_features(horizon: float) -> Tuple[list, list]:
 def generate_non_trivial_lag_times(
     data: pd.DataFrame, height_treshold: float = 0.1
 ) -> list:
-    """Calculates an autocorrelation curve of the load trace. This curve is subsequently used to add additional lag
-    times as features.
+    """Calculate an autocorrelation curve of the load trace. This curve is subsequently used to add additional lag times
+    as features.
 
     Args:
         data (pandas.DataFrame): a pandas dataframe with input data in the form pd.DataFrame(index = datetime,
@@ -136,7 +136,6 @@ def generate_non_trivial_lag_times(
         list: Aditional non-trivial minute lags
 
     """
-
     def autocorr(x: np.array, lags: range) -> np.array:
         """Make an autocorrelation curve."""
         mean = x.mean()

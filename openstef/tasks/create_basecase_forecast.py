@@ -1,8 +1,6 @@
 # SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-
-# -*- coding: utf-8 -*-
 """create_basecase_forecast.py.
 
 This module should be executed once every day. For all prediction_jobs, it will

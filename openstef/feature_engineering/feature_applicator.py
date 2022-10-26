@@ -87,7 +87,6 @@ class TrainFeatureApplicator(AbstractFeatureApplicator):
                 and sorted on the datetime index.
 
         """
-
         # If pj is none add empty dict
         if pj is None:
             pj = {}
@@ -165,7 +164,6 @@ class OperationalPredictFeatureApplicator(AbstractFeatureApplicator):
             pd.DataFrame: Input DataFrame with an extra column for every added feature.
 
         """
-
         # If pj is none add empty dict
         if pj is None:
             pj = {}

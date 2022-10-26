@@ -1,12 +1,9 @@
 # SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+"""This module contains the CRON job that is periodically executed to retrain the prognosis models.
 
-# -*- coding: utf-8 -*-
-"""model_train.py.
-
-This module contains the CRON job that is periodically executed to retrain the
-prognosis models. For this the folowing steps are caried out:
+For this the folowing steps are caried out:
   1. Get historic training data (TDCV, Load, Weather and APX price data)
   2. Apply features
   3. Train and Test the new model
