@@ -17,6 +17,7 @@ from openstef.enums import MLModelType
 from openstef.exceptions import (
     InputDataInsufficientError,
     InputDataWrongColumnOrderError,
+    SkipSaveTrainingForecasts,
 )
 from openstef.feature_engineering.feature_applicator import TrainFeatureApplicator
 from openstef.metrics.reporter import Report
@@ -333,7 +334,40 @@ class TestTrainModelPipeline(BaseTestCase):
             mlflow_tracking_uri="./test/unit/trained_models/mlruns",
             artifact_folder="./test/unit/trained_models",
         )
-        self.assertTrue(pd.concat(result).empty)
+        self.assertIsNone(result)
+        self.assertFalse(pipeline_mock.called)
+
+    @patch("openstef.model.serializer.MLflowSerializer.save_model")
+    @patch("openstef.pipeline.train_model.train_model_pipeline_core")
+    @patch("openstef.pipeline.train_model.MLflowSerializer")
+    def test_train_model_pipeline_young_model_save_forecasts(
+        self, serializer_mock, pipeline_mock, save_model_mock
+    ):
+        """Test pipeline core is not called when model is young"""
+        old_model_mock = MagicMock()
+        old_model_mock.age = 3
+
+        serializer_mock_instance = MagicMock()
+        serializer_mock_instance.load_model.return_value = (
+            old_model_mock,
+            self.model_specs,
+        )
+        serializer_mock.return_value = serializer_mock_instance
+
+        report_mock = MagicMock()
+        pipeline_mock.return_value = ("a", report_mock)
+
+        pj = self.pj
+        pj.save_train_forecasts = True
+
+        with self.assertRaises(SkipSaveTrainingForecasts):
+            train_model_pipeline(
+                pj=pj,
+                input_data=self.train_input,
+                check_old_model_age=True,
+                mlflow_tracking_uri="./test/unit/trained_models/mlruns",
+                artifact_folder="./test/unit/trained_models",
+            )
         self.assertFalse(pipeline_mock.called)
 
     @patch("openstef.model.serializer.MLflowSerializer.save_model")
@@ -390,7 +424,37 @@ class TestTrainModelPipeline(BaseTestCase):
             mlflow_tracking_uri="./test/unit/trained_models/mlruns",
             artifact_folder="./test/unit/trained_models",
         )
-        self.assertTrue(pd.concat(result).empty)
+        self.assertIsNone(result)
+        self.assertEqual(len(serializer_mock_instance.method_calls), 1)
+
+    @patch("openstef.model.serializer.MLflowSerializer.save_model")
+    @patch("openstef.pipeline.train_model.MLflowSerializer")
+    def test_train_model_OldModelHigherScoreError_save_forecast(
+        self, serializer_mock, save_model_mock
+    ):
+        # Mock an old model which is better than the new one.
+        old_model_mock = MagicMock()
+        old_model_mock.age = 8
+
+        serializer_mock_instance = MagicMock()
+        serializer_mock_instance.load_model.return_value = (
+            old_model_mock,
+            self.model_specs,
+        )
+        serializer_mock.return_value = serializer_mock_instance
+        old_model_mock.score.return_value = 5
+
+        pj = self.pj
+        pj.save_train_forecasts = True
+
+        with self.assertRaises(SkipSaveTrainingForecasts):
+            train_model_pipeline(
+                pj=pj,
+                input_data=self.train_input,
+                check_old_model_age=True,
+                mlflow_tracking_uri="./test/unit/trained_models/mlruns",
+                artifact_folder="./test/unit/trained_models",
+            )
         self.assertEqual(len(serializer_mock_instance.method_calls), 1)
 
     @patch("openstef.model.serializer.MLflowSerializer.save_model")

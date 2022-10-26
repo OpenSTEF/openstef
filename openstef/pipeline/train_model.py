@@ -14,6 +14,7 @@ from openstef.exceptions import (
     InputDataInsufficientError,
     InputDataWrongColumnOrderError,
     OldModelHigherScoreError,
+    SkipSaveTrainingForecasts,
 )
 from openstef.feature_engineering.feature_applicator import TrainFeatureApplicator
 from openstef.metrics.reporter import Report, Reporter
@@ -83,7 +84,9 @@ def train_model_pipeline(
         logger.warning(
             f"Old model is younger than {MAXIMUM_MODEL_AGE} days, skip training"
         )
-        return (pd.DataFrame(), pd.DataFrame(), pd.DataFrame())
+        if pj.save_train_forecasts:
+            raise SkipSaveTrainingForecasts
+        return
 
     # Train model with core pipeline
     try:
@@ -92,7 +95,9 @@ def train_model_pipeline(
         )
     except OldModelHigherScoreError as OMHSE:
         logger.error("Old model is better than new model", pid=pj["id"], exc_info=OMHSE)
-        return (pd.DataFrame(), pd.DataFrame(), pd.DataFrame())
+        if pj.save_train_forecasts:
+            raise SkipSaveTrainingForecasts from OMHSE
+        return
 
     except InputDataInsufficientError as IDIE:
         logger.error(
@@ -184,6 +189,10 @@ def train_model_pipeline_core(
     # Check if new model is better than old model
     if old_model:
         combined = pd.concat([train_data, validation_data]).reset_index(drop=True)
+        # skip the forecast column added at the end of dataframes
+        if pj.save_train_forecasts:
+            combined = combined.iloc[:, :-1]
+
         x_data, y_data = (
             combined.iloc[:, 1:-1],
             combined.iloc[:, 0],

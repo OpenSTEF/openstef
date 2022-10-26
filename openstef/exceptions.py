@@ -58,3 +58,7 @@ class ComponentForecastTooShortHorizonError(Exception):
     """Component forecasts should be available for at least 30 hours in advance"""
 
     pass
+
+
+class SkipSaveTrainingForecasts(Exception):
+    """If old model is better or too young, you don't need to save the traing forcast"""
