@@ -25,7 +25,7 @@ def create_forecast_pipeline(
     input_data: pd.DataFrame,
     mlflow_tracking_uri: str,
 ) -> pd.DataFrame:
-    """Create forecast pipeline
+    """Create forecast pipeline.
 
     This is the top-level pipeline which included loading the most recent model for
     the given prediction job.
@@ -70,6 +70,7 @@ def create_forecast_pipeline_core(
 
     Returns:
         forecast (pandas.DataFrame)
+
     """
     logger = structlog.get_logger(__name__)
 

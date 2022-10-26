@@ -79,6 +79,7 @@ class ConfidenceIntervalApplicator:
         Returns:
             (pd.DataFrame): Forecast with added standard deviation. DataFrame with columns:
                 "forecast", "stdev"
+
         """
         minimal_resolution: int = 15  # Minimal time resolution in minutes
         standard_deviation = self.model.standard_deviation
@@ -175,6 +176,7 @@ class ConfidenceIntervalApplicator:
         Returns:
             (pd.DataFrame): Forecast DataFrame with quantile (e.g. 'quantile_PXX')
                 columns added.
+
         """
 
         # Check if stdev and forecast are in the dataframe
@@ -203,6 +205,7 @@ class ConfidenceIntervalApplicator:
         Returns:
             (pd.DataFrame): Forecast DataFrame with quantile (e.g. 'quantile_PXX')
                 columns added.
+
         """
 
         for quantile in quantiles:

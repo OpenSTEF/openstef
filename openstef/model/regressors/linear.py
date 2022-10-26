@@ -10,7 +10,8 @@ from openstef.model.regressors.regressor import OpenstfRegressor
 
 
 class LinearRegressor(MissingValuesHandler):
-    """Linear Regressor wrapped in the metamodel `MissingValuesHandler` that can handle missing values by imputation strategy.
+    """Linear Regressor wrapped in the metamodel `MissingValuesHandler` that can handle missing values by imputation
+    strategy.
 
      Parameters
     ----------

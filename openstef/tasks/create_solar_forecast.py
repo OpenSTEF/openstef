@@ -34,6 +34,7 @@ def make_solar_prediction_pj(pj, context, radius=30, peak_power=180961000.0):
 
     Args:
         pj: (dict) prediction job
+
     """
     context.logger.info("Get solar input data from database")
     # pvdata is only stored in the prd database
@@ -68,15 +69,16 @@ def make_solar_prediction_pj(pj, context, radius=30, peak_power=180961000.0):
 
 
 def combine_forecasts(forecasts, combination_coefs):
-    """This function combines several independent forecasts into one, using
-        predetermined coefficients.
+    """This function combines several independent forecasts into one, using predetermined coefficients.
 
     Input:
         - forecasts: pd.DataFrame(index = datetime, algorithm1, ..., algorithmn)
         - combinationcoefs: pd.DataFrame(param1, ..., paramn, algorithm1, ..., algorithmn)
 
     Output:
-        - pd.DataFrame(datetime, forecast)"""
+        - pd.DataFrame(datetime, forecast)
+
+    """
 
     models = [x for x in list(forecasts) if x not in ["created", "datetime"]]
 
@@ -185,7 +187,9 @@ def fides(data, all_forecasts=False):
     data = pd.DataFrame(index = index,
                         data = dict(load=np.sin(index.hour/24*np.pi)*np.random.uniform(0.7,1.7, 300)))
     data['insolation'] = data.load * np.random.uniform(0.8, 1.2, len(index)) + 0.1
-    data.loc[int(len(index)/3*2):,"load"] = np.NaN"""
+    data.loc[int(len(index)/3*2):,"load"] = np.NaN
+
+    """
 
     insolation_forecast = apply_fit_insol(data, add_to_df=False)
     persistence = apply_persistence(data, how="mean", smooth_entries=4, add_to_df=True)
@@ -332,8 +336,7 @@ def apply_persistence(data, how="mean", smooth_entries=4, add_to_df=True, colnam
 
 
 def apply_fit_insol(data, add_to_df=True, hours_delta=None, polynomial=False):
-    """This model fits insolation to PV yield and uses this fit to forecast PV yield.
-    It uses a 2nd order polynomial
+    """This model fits insolation to PV yield and uses this fit to forecast PV yield. It uses a 2nd order polynomial.
 
     Input:
         - data: pd.DataFrame(index = datetime, columns = [load, insolation])
@@ -352,7 +355,9 @@ def apply_fit_insol(data, add_to_df=True, hours_delta=None, polynomial=False):
     data = pd.DataFrame(index = index,
                         data = dict(load=np.sin(index.hour/24*np.pi)*np.random.uniform(0.7,1.7, len(index))))
     data['insolation'] = data.load * np.random.uniform(0.8, 1.2, len(index)) + 0.1
-    data.loc[int(len(index)/3*2):,"load"] = np.NaN"""
+    data.loc[int(len(index)/3*2):,"load"] = np.NaN
+
+    """
 
     colname = list(data)[0]
 

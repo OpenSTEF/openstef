@@ -35,7 +35,7 @@ class XGBQuantileOpenstfRegressor(OpenstfRegressor):
         alpha: float = 0.0,
         max_delta_step: int = 0,
     ):
-        """Initialize XGBQuantileRegressor
+        """Initialize XGBQuantileRegressor.
 
             Model that provides quantile regression with XGBoost.
             For each desired quantile an XGBoost model is trained,
@@ -44,6 +44,7 @@ class XGBQuantileOpenstfRegressor(OpenstfRegressor):
         Args:
             quantiles (tuple): Tuple with desired quantiles, quantile 0.5 is required.
                 For example: (0.1, 0.5, 0.9)
+
         """
         super().__init__()
         # Check if quantile 0.5 is pressent this is required
@@ -65,7 +66,7 @@ class XGBQuantileOpenstfRegressor(OpenstfRegressor):
         self.learning_rate = learning_rate
 
     def fit(self, x: np.array, y: np.array, **kwargs) -> OpenstfRegressor:
-        """Fits xgb quantile model
+        """Fits xgb quantile model.
 
         Args:
             x (np.array): Feature matrix
@@ -142,7 +143,7 @@ class XGBQuantileOpenstfRegressor(OpenstfRegressor):
         return self
 
     def predict(self, x: np.array, quantile: float = 0.5) -> np.array:
-        """Makes a prediction for a desired quantile
+        """Makes a prediction for a desired quantile.
 
         Args:
             x (np.array): Feature matrix
@@ -174,9 +175,8 @@ class XGBQuantileOpenstfRegressor(OpenstfRegressor):
 
     @classmethod
     def get_feature_importances_from_booster(cls, booster: Booster) -> np.ndarray:
-        """Gets feauture importances from a XGB booster.
-            This is based on the feature_importance_ property defined in:
-            https://github.com/dmlc/xgboost/blob/master/python-package/xgboost/sklearn.py
+        """Gets feauture importances from a XGB booster. This is based on the feature_importance_ property defined in:
+        https://github.com/dmlc/xgboost/blob/master/python-package/xgboost/sklearn.py.
 
         Args:
             booster(Booster): Booster object,

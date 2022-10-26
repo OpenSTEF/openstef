@@ -31,12 +31,14 @@ class ObjectiveCreator:
     @staticmethod
     def create_objective(model_type: Union[MLModelType, str]) -> RegressorObjective:
         """Create an objective function based on model type.
+
         Args:
             model_type (Union[MLModelType, str]): Model type to construct.
         Raises:
             NotImplementedError: When using an invalid model_type.
         Returns:
             RegressorObjective: Objective function
+
         """
         try:
             # This will raise a ValueError when an invalid model_type str is used

@@ -32,8 +32,9 @@ def train_model_and_forecast_back_test(
     List[pd.DataFrame],
     List[pd.DataFrame],
 ):
-    """Pipeline for a back test.
-        When number of folds is larger than 1: apply pipeline for a back test when forecasting the entire input range.
+    """Pipeline for a back test. When number of folds is larger than 1: apply pipeline for a back test when forecasting
+    the entire input range.
+
         - Makes use of kfold cross validation in order to split data multiple times.
         - Results of all the testsets are added together to obtain the forecast for the whole input range.
         - Obtaining the days for each fold can be done either randomly or not
@@ -51,6 +52,7 @@ def train_model_and_forecast_back_test(
         - train data sets (list[pd.DataFrame])
         - validation data sets (list[pd.DataFrame])
         - test data sets (list[pd.DataFrame])
+
     """
     if pj.backtest_split_func is None:
         backtest_split_func = backtest_split_default
@@ -114,6 +116,7 @@ def train_model_and_forecast_test_core(
     Returns:
         trained_model (OpenstfRegressor): The trained model
         forecast (pd.DataFrame): The forecast on the test set.
+
     """
     model = train_model.train_pipeline_step_train_model(
         pj, modelspecs, train_data, validation_data

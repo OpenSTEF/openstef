@@ -76,8 +76,7 @@ def drop_target_na(data: pd.DataFrame) -> pd.DataFrame:
 def is_data_sufficient(
     data: pd.DataFrame, completeness_threshold: float, minimal_table_length: int
 ) -> bool:
-    """Check if enough data is left after validation and cleaning to continue
-        with model training.
+    """Check if enough data is left after validation and cleaning to continue with model training.
 
     Args:
         data: pd.DataFrame() with cleaned input data.
@@ -138,6 +137,7 @@ def calc_completeness(
 
     Returns:
         float: Completeness
+
     """
 
     if weights is None:
@@ -204,6 +204,7 @@ def find_nonzero_flatliner(df: pd.DataFrame, threshold: int = None) -> pd.DataFr
     import scipy.ndimage.measurements as mnts
     mnts.label
     ```
+
     """
 
     if len(df) == 0:
@@ -259,8 +260,8 @@ def find_zero_flatliner(
     flatliner_window: timedelta,
     flatliner_load_threshold: float,
 ) -> pd.DataFrame or None:
-    """Function that detects a zero value where the load is not compensated by the other trafo's of the station.
-    If zero value is at start or end, ignore that block.
+    """Function that detects a zero value where the load is not compensated by the other trafo's of the station. If zero
+    value is at start or end, ignore that block.
 
     Input:
     - df: pd.dataFrame(index=DatetimeIndex, columns = [load1, ..., loadN]). Load_corrections should be indicated by 'LC_'
@@ -277,6 +278,7 @@ def find_zero_flatliner(
     import scipy.ndimage.measurements as mnts
     mnts.label
     ```
+
     """
     result_df = pd.DataFrame()
 
@@ -371,8 +373,7 @@ def find_zero_flatliner(
 
 
 def check_data_for_each_trafo(df: pd.DataFrame, col: pd.Series) -> bool:
-    """Function that detects if each column contains zero-values at all, only
-        zero-values and NaN values.
+    """Function that detects if each column contains zero-values at all, only zero-values and NaN values.
 
     Args:
         df: pd.dataFrame(index=DatetimeIndex, columns = [load1, ..., loadN]).
@@ -381,6 +382,7 @@ def check_data_for_each_trafo(df: pd.DataFrame, col: pd.Series) -> bool:
 
     Returns:
         bool: False if column contains above specified or True if not
+
     """
     if df is None:
         return False

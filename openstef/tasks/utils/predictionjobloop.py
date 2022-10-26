@@ -115,6 +115,7 @@ class PredictionJobLoop:
         Raises:
             PredictionJobException: This exception will be raised if one or more
             prediction jobs raised an exception during the loop.
+
         """
         pids_successful = []
         pids_unsuccessful = []

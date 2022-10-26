@@ -18,7 +18,8 @@ PEAK_FRACTION = 0.15
 def group_kfold(
     input_data: pd.DataFrame, n_folds: int, randomize_fold_split: bool = True
 ) -> pd.DataFrame:
-    """Function to group data into groups, according to the date and the number of folds
+    """Function to group data into groups, according to the date and the number of folds.
+
         - each date gets assigned a number between 0 and n_folds
 
     Args:
@@ -57,8 +58,7 @@ def group_kfold(
 def sample_indices_train_val(
     data: pd.DataFrame, peaks: pd.DataFrame
 ) -> Tuple[np.array, np.array]:
-    """
-    Sample indices of given period length assuming the peaks are evenly spreaded.
+    """Sample indices of given period length assuming the peaks are evenly spreaded.
 
     Args:
         data (pandas.DataFrame): Clean data with features
@@ -80,9 +80,8 @@ def sample_indices_train_val(
 
 
 def random_sample(all_peaks: np.array, k: int) -> np.array:
-    """
-    Random sampling of numbers out of a np.array
-    (implemented due to security sonar cloud not accepting the random built-in functions)
+    """Random sampling of numbers out of a np.array (implemented due to security sonar cloud not accepting the random
+    built-in functions)
 
     Args:
         all_peaks (np.array): List with numbers to sample from
@@ -109,8 +108,7 @@ def split_data_train_validation_test(
     back_test: bool = False,
     stratification_min_max: bool = True,
 ) -> (pd.DataFrame, pd.DataFrame, pd.DataFrame):
-    """
-    Split input data into train, test and validation set.
+    """Split input data into train, test and validation set.
 
     Function for splitting data with features in a train, test and
     validation dataset. In an operational setting the following sequence is

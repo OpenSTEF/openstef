@@ -2,14 +2,13 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-"""openstef custom exceptions
-"""
+"""openstef custom exceptions."""
 from datetime import datetime
 
 
 # Define custom exception
 class NoPredictedLoadError(Exception):
-    """No predicted load for given datatime range"""
+    """No predicted load for given datatime range."""
 
     def __init__(
         self,
@@ -22,7 +21,7 @@ class NoPredictedLoadError(Exception):
 
 
 class NoRealisedLoadError(Exception):
-    """No realised load for given datetime range"""
+    """No realised load for given datetime range."""
 
     def __init__(
         self,
@@ -35,26 +34,26 @@ class NoRealisedLoadError(Exception):
 
 
 class InputDataInvalidError(Exception):
-    """Invalid input data"""
+    """Invalid input data."""
 
 
 class InputDataInsufficientError(InputDataInvalidError):
-    """Insufficient input data"""
+    """Insufficient input data."""
 
 
 class InputDataWrongColumnOrderError(InputDataInvalidError):
-    """Wrong column order input data"""
+    """Wrong column order input data."""
 
 
 class OldModelHigherScoreError(Exception):
-    """Old model has a higher score then new model"""
+    """Old model has a higher score then new model."""
 
 
 class ModelWithoutStDev(Exception):
-    """A machine learning model should have a valid standard deviation"""
+    """A machine learning model should have a valid standard deviation."""
 
 
 class ComponentForecastTooShortHorizonError(Exception):
-    """Component forecasts should be available for at least 30 hours in advance"""
+    """Component forecasts should be available for at least 30 hours in advance."""
 
     pass

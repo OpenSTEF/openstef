@@ -10,3 +10,11 @@ line-length = 88
 [tool.isort]
 profile = "black"
 
+[tool.pydocstyle]
+convention = "google"
+
+[tool.docformatter]
+recursive = true
+wrap-descriptions = 120
+wrap-summaries = 120
+blank = true

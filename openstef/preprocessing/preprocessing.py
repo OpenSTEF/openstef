@@ -18,6 +18,7 @@ def replace_repeated_values_with_nan(
 
     Returns:
         pandas.DataFrame: Data, similar to df, with the desired values set to NaN.
+
     """
     data = df.copy(deep=True)
     sequentials = data[column_name].diff().ne(0).cumsum()

@@ -26,6 +26,7 @@ class PerformanceMeter:
 
         Returns:
             self
+
         """
         self.levels[level_label] = level_name
 
@@ -50,6 +51,7 @@ class PerformanceMeter:
 
         Returns:
             self
+
         """
         runtime = round(perf_counter() - self.checkpoint_timers.pop(), ndigits=3)
         self.logger.info(
@@ -73,6 +75,7 @@ class PerformanceMeter:
 
         Returns:
             self
+
         """
 
         runtime = round(perf_counter() - self.level_timers.pop(), ndigits=3)

@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 
 # -*- coding: utf-8 -*-
-"""create_components_forecast.py
+"""create_components_forecast.py.
 
 This module contains the CRON job that is periodically executed to make
 the components prognoses and save them in the database.
@@ -27,7 +27,6 @@ Example:
 
 Attributes:
 
-
 """
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -49,12 +48,13 @@ T_AHEAD_DAYS = 3
 
 
 def create_components_forecast_task(pj: PredictionJobDataClass, context: TaskContext):
-    """Top level task that creates a components forecast.
-    On this task level all database and context manager dependencies are resolved.
+    """Top level task that creates a components forecast. On this task level all database and context manager
+    dependencies are resolved.
 
     Args:
         pj (PredictionJobDataClass): Prediction job
         context (TaskContext): Contect object that holds a config manager and a database connection
+
     """
     logger = structlog.get_logger(__name__)
     if pj["train_components"] == 0:

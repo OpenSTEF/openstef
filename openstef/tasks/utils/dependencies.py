@@ -20,6 +20,7 @@ def has_dependencies(pjs: Iterable[PredictionJobDataClass]) -> bool:
 
     Returns:
         bool: True if some dependency information was found.
+
     """
     for pj in pjs:
         if pj.depends_on is not None and len(pj.depends_on) > 0:
@@ -30,7 +31,7 @@ def has_dependencies(pjs: Iterable[PredictionJobDataClass]) -> bool:
 def build_graph_structure(
     pjs: Iterable[PredictionJobDataClass],
 ) -> Tuple[Set[NodeIdType], Set[EdgeType]]:
-    """Build the graph of dependencies between prediction jobs
+    """Build the graph of dependencies between prediction jobs.
 
     Args:
         pjs (Iterable[PredictionJobDataClass])): The Iterable of prediction jobs
@@ -38,6 +39,7 @@ def build_graph_structure(
     Returns:
         Set[NodeIdType]: The set of node ids of the graph
         Set[EdgeType]]: The set of edges in the graph
+
     """
     nodes = set()
     edges = set()
@@ -54,7 +56,7 @@ def build_graph_structure(
 def build_nx_graph(
     nodes: Iterable[NodeIdType], edges: Iterable[EdgeType]
 ) -> nx.DiGraph:
-    """Build a networkx Directed Graph
+    """Build a networkx Directed Graph.
 
     Args:
         nodes (Iterable[NodeIdType]): The sequence of node ids
@@ -62,6 +64,7 @@ def build_nx_graph(
 
     Returns:
         nx.DiGraph: The dependency graph
+
     """
     graph = nx.DiGraph()
     graph.add_nodes_from(nodes)
@@ -88,6 +91,7 @@ def find_groups(
     Returns:
         nx.Digraph: the dependency graph
         List[List[PredictionJobDataClass]]: The list of prediction job groups
+
     """
     nodes, edges = build_graph_structure(pjs)
     graph = build_nx_graph(nodes, edges)

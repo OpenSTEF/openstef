@@ -122,11 +122,10 @@ class GroupedRegressor(BaseEstimator, RegressorMixin, MetaEstimatorMixin):
         n_jobs: int = 1,
         eval_set=None,
     ) -> Tuple[Tuple[np.array, ...], DataFrameGroupBy, pd.DataFrame]:
-        """Computes the specified function on each group defined by the grouping columns.
-        It is an utility function used to perform fit and predict on each group.
-        The df_res is the final dataframe that aggregate the results for each group.
-        The group_res is a tuple where each field is corresponding to a results for a group.
-        The gb is the grouping object.
+        """Computes the specified function on each group defined by the grouping columns. It is an utility function used
+        to perform fit and predict on each group. The df_res is the final dataframe that aggregate the results for each
+        group. The group_res is a tuple where each field is corresponding to a results for a group. The gb is the
+        grouping object.
 
         Args:
             df: (pd.DataFrame) data frame containing the input data necessary for the computation .
@@ -137,6 +136,7 @@ class GroupedRegressor(BaseEstimator, RegressorMixin, MetaEstimatorMixin):
 
         Returns:
             results (tuple): the tuple of the results of each group, the grouping dataframe and the global dataframe of results.
+
         """
 
         index_name = df.index.name or "index"

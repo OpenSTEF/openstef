@@ -38,20 +38,17 @@ def get_eval_metric_function(metric_name):
 
 
 def rmse(realised, forecast):
-    """Function that calculates the Root Mean Square Error
-    based on the true and prediciton"""
+    """Function that calculates the Root Mean Square Error based on the true and prediciton."""
     return np.sqrt(((realised - forecast) ** 2).mean())
 
 
 def bias(realised, forecast):
-    """Function that calculates the absolute bias in %
-    based on the true and prediciton"""
+    """Function that calculates the absolute bias in % based on the true and prediciton."""
     return np.mean(forecast - realised)
 
 
 def nsme(realised, forecast):
-    """Function that calculates the Nash-sutcliffe model efficiency
-    based on the true and prediciton"""
+    """Function that calculates the Nash-sutcliffe model efficiency based on the true and prediciton."""
     try:
         return 1 - sum((forecast - realised) ** 2) / sum(
             (realised - np.mean(realised)) ** 2
@@ -61,15 +58,16 @@ def nsme(realised, forecast):
 
 
 def mae(realised, forecast):
-    """Function that calculates the mean absolute error
-    based on the true and prediction"""
+    """Function that calculates the mean absolute error based on the true and prediction."""
     return np.mean(np.abs(forecast - realised))
 
 
 def r_mae(realised, forecast):
-    """Function that calculates the relative mean absolute error
-    based on the true and prediction.
-    The range is based on the load range of the previous two weeks"""
+    """Function that calculates the relative mean absolute error based on the true and prediction.
+
+    The range is based on the load range of the previous two weeks
+
+    """
 
     # Determine load range on entire dataset
     range_ = (
@@ -82,16 +80,18 @@ def r_mae(realised, forecast):
 
 
 def frac_in_stdev(realised, forecast, stdev):
-    """Function that calculates the amount of measurements that are within one stdev of
-    our predictions"""
+    """Function that calculates the amount of measurements that are within one stdev of our predictions."""
     outside_stdev = forecast[(forecast - realised).abs() > stdev]
     return round((1 - (len(outside_stdev) / len(forecast))), 2)
 
 
 def r_mae_highest(realised, forecast, percentile=0.95):
-    """Function that calculates the relative mean absolute error
-    based on the true and prediction for the 5 percent highest realised values.
-    The range is based on the load range of the previous two weeks"""
+    """Function that calculates the relative mean absolute error based on the true and prediction for the 5 percent
+    highest realised values.
+
+    The range is based on the load range of the previous two weeks
+
+    """
 
     # Check if length of both arrays is equal
     if len(np.array(realised)) != len(np.array(forecast)):
@@ -116,10 +116,13 @@ def r_mae_highest(realised, forecast, percentile=0.95):
 
 
 def r_mne_highest(realised, forecast):
-    """Function that calculates the relative mean negative error
-    based on the true and prediction for the 5 percent highest realised values.
-    The range is based on the load range of the previous two weeks, this measure
-    quantifies how much we underestimate peaks"""
+    """Function that calculates the relative mean negative error based on the true and prediction for the 5 percent
+    highest realised values.
+
+    The range is based on the load range of the previous two weeks, this measure quantifies how much we underestimate
+    peaks
+
+    """
 
     # Combine series in one DataFrame
     combined = pd.concat([realised, forecast], axis=1)
@@ -152,10 +155,12 @@ def r_mne_highest(realised, forecast):
 
 
 def r_mpe_highest(realised, forecast):
-    """Function that calculates the relative mean positive error
-    based on the true and prediction for the 5 percent highest realised values.
-    The range is based on the load range of the previous two weeks, this measure
-    quantifies how much we overestimate peaks
+    """Function that calculates the relative mean positive error based on the true and prediction for the 5 percent
+    highest realised values.
+
+    The range is based on the load range of the previous two weeks, this measure quantifies how much we overestimate
+    peaks
+
     """
 
     # Combine series in one DataFrame
@@ -189,9 +194,12 @@ def r_mpe_highest(realised, forecast):
 
 
 def r_mae_lowest(realised, forecast, quantile=0.05):
-    """Function that calculates the relative mean absolute error
-    based on the true and prediction for the 5 percent lowest realised values.
-    The range is based on the load range of the previous two weeks"""
+    """Function that calculates the relative mean absolute error based on the true and prediction for the 5 percent
+    lowest realised values.
+
+    The range is based on the load range of the previous two weeks
+
+    """
 
     # Determine load range on entire dataset
     range_ = (
@@ -211,9 +219,9 @@ def r_mae_lowest(realised, forecast, quantile=0.05):
 def skill_score(realised, forecast, mean):
     """Function that calculates the skill score.
 
-    Thise indicates model performance relative to a reference, in this case the mean
-    of the realised values. The range is based on the load range of the previous
-    two weeks
+    Thise indicates model performance relative to a reference, in this case the mean of the realised values. The range
+    is based on the load range of the previous two weeks
+
     """
     combined = pd.concat([realised, forecast], axis=1)
     combined["mean"] = mean
@@ -300,13 +308,9 @@ def franks_skill_score_peaks(realised, forecast, basecase):
 
 
 def xgb_quantile_eval(preds, dmatrix, quantile=0.2):
-    """
-    Customized evaluational metric that equals
-    to quantile regression loss (also known as
-    pinball loss).
-    Quantile regression is regression that
-    estimates a specified quantile of target's
-    distribution conditional on given features.
+    """Customized evaluational metric that equals to quantile regression loss (also known as pinball loss). Quantile
+    regression is regression that estimates a specified quantile of target's distribution conditional on given features.
+
     @type preds: numpy.ndarray
     @type dmatrix: xgboost.DMatrix
     @type quantile: float
@@ -327,17 +331,11 @@ def xgb_quantile_eval(preds, dmatrix, quantile=0.2):
 
 
 def xgb_quantile_obj(preds, dmatrix, quantile=0.2):
-    """
-    Computes first-order derivative of quantile
-    regression loss and a non-degenerate
-    substitute for second-order derivative.
-    Substitute is returned instead of zeros,
-    because XGBoost requires non-zero
-    second-order derivatives. See this page:
-    https://github.com/dmlc/xgboost/issues/1825
-    to see why it is possible to use this trick.
-    However, be sure that hyperparameter named
-    `max_delta_step` is small enough to satisfy:
+    """Computes first-order derivative of quantile regression loss and a non-degenerate substitute for second-order
+    derivative. Substitute is returned instead of zeros, because XGBoost requires non-zero second-order derivatives. See
+    this page: https://github.com/dmlc/xgboost/issues/1825 to see why it is possible to use this trick. However, be sure
+    that hyperparameter named `max_delta_step` is small enough to satisfy:
+
     ```0.5 * max_delta_step <=
        min(quantile, 1 - quantile)```.
     @type preds: numpy.ndarray
@@ -350,6 +348,7 @@ def xgb_quantile_obj(preds, dmatrix, quantile=0.2):
 
     Reasoning for the hessian:
     https://gist.github.com/Nikolay-Lysenko/06769d701c1d9c9acb9a66f2f9d7a6c7#gistcomment-2322558
+
     """
     try:
         assert 0 <= quantile <= 1

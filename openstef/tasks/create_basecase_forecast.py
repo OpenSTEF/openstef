@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 
 # -*- coding: utf-8 -*-
-"""create_basecase_forecast.py
+"""create_basecase_forecast.py.
 
 This module should be executed once every day. For all prediction_jobs, it will
 create a 'basecase' forecast which is less accurate, but (almost) always available.
@@ -17,6 +17,7 @@ Example:
     Alternatively this code can be run directly by running:
 
         $ python create_basecase_forecast.py
+
 """
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -35,12 +36,13 @@ T_AHEAD_DAYS: int = 14
 def create_basecase_forecast_task(
     pj: PredictionJobDataClass, context: TaskContext
 ) -> None:
-    """Top level task that creates a basecase forecast.
-    On this task level all database and context manager dependencies are resolved.
+    """Top level task that creates a basecase forecast. On this task level all database and context manager dependencies
+    are resolved.
 
     Args:
         pj (PredictionJobDataClass): Prediction job
         context (TaskContext): Contect object that holds a config manager and a database connection
+
     """
     # Define datetime range for input data
     datetime_start = datetime.utcnow() - timedelta(days=T_BEHIND_DAYS)

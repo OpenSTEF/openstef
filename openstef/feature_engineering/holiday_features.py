@@ -21,10 +21,9 @@ def generate_holiday_feature_functions(
     years: list = None,
     path_to_school_holidays_csv: str = HOLIDAY_CSV_PATH,
 ) -> dict:
-    """
-    Generates functions for creating holiday feature.
-    This improves forecast accuracy. Examples of features that are added are:
-        2020-01-01 is 'Nieuwjaarsdag'
+    """Generates functions for creating holiday feature. This improves forecast accuracy. Examples of features that are
+    added are: 2020-01-01 is 'Nieuwjaarsdag'.
+
         2022-12-24 - 2023-01-08 is the 'Kerstvakantie'
         2022-10-15 - 2022-10-23 is the 'HerfstvakantieNoord'
 
@@ -52,6 +51,7 @@ def generate_holiday_feature_functions(
     Returns:
         (dict): Dictionary with functions that check if a given date is a holiday, keys
                 consist of "Is" + the_name_of_the_holiday_to_be_checked
+
     """
 
     if years is None:
@@ -148,6 +148,7 @@ def check_for_bridge_day(
     Returns:
         holiday_functions: dict with holiday feature functions
         bridge_days: list of bridgedays
+
     """
     country_holidays = holidays.country_holidays(country, years=years)
 

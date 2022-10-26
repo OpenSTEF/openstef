@@ -43,7 +43,7 @@ class StandardDeviationGenerator:
 
     @staticmethod
     def _calculate_standard_deviation(realised, predicted):
-        """Protected static method to calculate the corrections for a model
+        """Protected static method to calculate the corrections for a model.
 
         Args:
             realised: pd.series with realised load
@@ -51,6 +51,7 @@ class StandardDeviationGenerator:
 
         Returns:
             pd.DataFrame: with model corrections
+
         """
         result = pd.DataFrame(index=range(24), columns=["stdev", "hour"])
         # Calculate the error for each predicted point

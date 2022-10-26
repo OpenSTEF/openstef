@@ -138,6 +138,7 @@ def build_sql_query_string(df, table):
 
     Returns:
         string: sql query string of insert statement
+
     """
     # round all values to two decimals
     df = df.round(2)

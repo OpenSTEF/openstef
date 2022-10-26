@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 
 # -*- coding: utf-8 -*-
-"""create_forecast.py
+"""create_forecast.py.
 
 This module contains the CRON job that is periodically executed to make prognoses and
 save them in to the database.
@@ -24,7 +24,6 @@ Example:
         $ python create_forecast.py
 
 Attributes:
-
 
 """
 from datetime import datetime, timedelta
@@ -51,6 +50,7 @@ def create_forecast_task(pj: PredictionJobDataClass, context: TaskContext) -> No
     Args:
         pj (PredictionJobDataClass): Prediction job
         context (TaskContext): Contect object that holds a config manager and a database connection
+
     """
     # Extract mlflow tracking URI and trained models folder
     mlflow_tracking_uri = context.config.paths.mlflow_tracking_uri
@@ -76,7 +76,6 @@ def create_forecast_task(pj: PredictionJobDataClass, context: TaskContext) -> No
 
 
 def main(model_type=None, config=None, database=None):
-
     taskname = Path(__file__).name.replace(".py", "")
 
     if database is None or config is None:

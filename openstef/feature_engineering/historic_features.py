@@ -2,9 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-""" This module contains historic load related functions used for feature engineering.
-
-"""
+"""This module contains historic load related functions used for feature engineering."""
 from typing import List
 
 import pandas as pd

@@ -38,8 +38,8 @@ def train_model_pipeline(
     mlflow_tracking_uri: str,
     artifact_folder: str,
 ) -> Optional[Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]]:
-    """Middle level pipeline that takes care of all persistent storage dependencies
-    Expected prediction jobs keys: "id", "model", "hyper_params", "feature_names"
+    """Middle level pipeline that takes care of all persistent storage dependencies Expected prediction jobs keys: "id",
+    "model", "hyper_params", "feature_names".
 
     Args:
         pj (PredictionJobDataClass): Prediction job
@@ -54,6 +54,7 @@ def train_model_pipeline(
             train_data (pd.DataFrame): The train dataset with forecasts
             validation_data (pd.DataFrame): The validation dataset with forecasts
             test_data (pd.DataFrame): The test dataset with forecasts
+
     """
     # Initialize logger and serializer
     logger = structlog.get_logger(__name__)
@@ -144,8 +145,7 @@ def train_model_pipeline_core(
     ModelSpecificationDataClass,
     Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame],
 ):
-    """Train model core pipeline.
-    Trains a new model given a prediction job, input data and compares it to an old model.
+    """Train model core pipeline. Trains a new model given a prediction job, input data and compares it to an old model.
     This pipeline has no database or persistent storage dependencies.
 
     Args:
@@ -165,6 +165,7 @@ def train_model_pipeline_core(
         report (Report)
         modelspecs (ModelSpecificationDataClass)
         datasets (Tuple[pd.DataFrmae, pd.DataFrame, pd.Dataframe): The train, validation and test sets
+
     """
 
     if horizons is None:
@@ -283,7 +284,7 @@ def train_pipeline_step_compute_features(
     input_data: pd.DataFrame,
     horizons=List[float],
 ) -> pd.DataFrame:
-    """Compute features and perform consistency checks
+    """Compute features and perform consistency checks.
 
     Args:
         pj (PredictionJobDataClass): Prediction job
@@ -422,7 +423,7 @@ def train_pipeline_step_split_data(
     backtest: bool = False,
     test_data_predefined: pd.DataFrame = pd.DataFrame(),
 ) -> (pd.DataFrame, pd.DataFrame, pd.DataFrame):
-    """The default way to perform train, val, test split
+    """The default way to perform train, val, test split.
 
     if pj.save_train_forecasts:
         train_data["forecast"] = model.predict(train_data.iloc[:, 1:-1])
@@ -439,6 +440,7 @@ def train_pipeline_step_split_data(
             (empty data frame by default)
     Returns:
         train_data, validation_data, test_data: The train, validation and test datasets.
+
     """
     # if test_data is predefined, apply the pipeline only on the remaining data
     if not test_data_predefined.empty:

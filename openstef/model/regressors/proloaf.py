@@ -19,7 +19,7 @@ from openstef.model.regressors.regressor import OpenstfRegressor
 
 
 def divide_scaling_groups(x: pd.DataFrame) -> Tuple[List[str], List[str], List[str]]:
-    """Divides the column names over different type of scaling groups
+    """Divides the column names over different type of scaling groups.
 
     Args:
         x (pd.DataFrame): Dataframe from which columns have to be divided

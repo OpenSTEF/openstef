@@ -35,6 +35,7 @@ class AbstractFeatureApplicator(ABC):
         Args:
             horizons (list): list of horizons in hours
             feature_names (List[str]):  List of requested features
+
         """
         if not isinstance(horizons, str) and type(horizons) is not list and not None:
             raise ValueError("horizons must be added as a list")
@@ -48,12 +49,13 @@ class AbstractFeatureApplicator(ABC):
     def add_features(
         self, df: pd.DataFrame, pj: PredictionJobDataClass = None
     ) -> pd.DataFrame:
-        """Adds features to an input DataFrame
+        """Adds features to an input DataFrame.
 
         Args:
             df: pd.DataFrame with input data to which the features have to be added
             pj: (Optional) A prediction job that is needed for location dependent features,
                 if not specified a default location is used
+
         """
         pass
 
@@ -83,6 +85,7 @@ class TrainFeatureApplicator(AbstractFeatureApplicator):
         Returns:
             pd.DataFrame: Input DataFrame with an extra column for every added feature
                 and sorted on the datetime index.
+
         """
 
         # If pj is none add empty dict

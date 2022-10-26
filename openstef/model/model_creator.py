@@ -113,7 +113,7 @@ valid_model_kwargs = {
 
 
 class ModelCreator:
-    """Factory object for creating machine learning models"""
+    """Factory object for creating machine learning models."""
 
     # Set object mapping
     MODEL_CONSTRUCTORS = {
@@ -137,6 +137,7 @@ class ModelCreator:
 
         Returns:
             OpenstfRegressor: model
+
         """
         try:
             # This will raise a ValueError when an invalid model_type str is used

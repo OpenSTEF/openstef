@@ -25,6 +25,7 @@ def generate_lag_feature_functions(
 
     Example:
         lag_functions = generate_lag_functions(data,minute_list,h_ahead)
+
     """
     # Use extracted lag features if provided.
     if feature_names is not None:
@@ -59,8 +60,7 @@ def generate_lag_feature_functions(
 def extract_lag_features(
     feature_names: List[str], horizon: float = 24.0
 ) -> Tuple[list, list]:
-    """Creates a list of lag minutes and a list of lag days that were used during
-    the training of the input model.
+    """Creates a list of lag minutes and a list of lag days that were used during the training of the input model.
 
     Args:
         feature_names (List[str]): All requested lag features
@@ -69,6 +69,7 @@ def extract_lag_features(
     Returns:
         minutes_list (List[int]): list of minute lags that were used as features during training
         days_list (List[int]): list of minute lags that were used as features during training
+
     """
 
     # Prepare empty lists to append on
@@ -124,8 +125,8 @@ def generate_trivial_lag_features(horizon: float) -> Tuple[list, list]:
 def generate_non_trivial_lag_times(
     data: pd.DataFrame, height_treshold: float = 0.1
 ) -> list:
-    """Calculates an autocorrelation curve of the load trace. This curve is
-        subsequently used to add additional lag times as features.
+    """Calculates an autocorrelation curve of the load trace. This curve is subsequently used to add additional lag
+    times as features.
 
     Args:
         data (pandas.DataFrame): a pandas dataframe with input data in the form pd.DataFrame(index = datetime,
@@ -134,10 +135,11 @@ def generate_non_trivial_lag_times(
 
     Returns:
         list: Aditional non-trivial minute lags
+
     """
 
     def autocorr(x: np.array, lags: range) -> np.array:
-        """Make an autocorrelation curve"""
+        """Make an autocorrelation curve."""
         mean = x.mean()
         var = np.var(x)
         xp = x - mean

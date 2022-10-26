@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 
 # -*- coding: utf-8 -*-
-"""model_train.py
+"""model_train.py.
 
 This module contains the CRON job that is periodically executed to retrain the
 prognosis models. For this the folowing steps are caried out:
@@ -54,6 +54,7 @@ def train_model_task(
         context (TaskContext): Contect object that holds a config manager and a
             database connection.
         check_old_model_age (bool): check if model is too young to be retrained
+
     """
     # Get the paths for storing model and reports from the config manager
     mlflow_tracking_uri = context.config.paths.mlflow_tracking_uri
@@ -103,7 +104,6 @@ def train_model_task(
 
 
 def main(model_type=None, config=None, database=None):
-
     if database is None or config is None:
         raise RuntimeError(
             "Please specifiy a configmanager and/or database connection object. These"

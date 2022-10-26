@@ -26,6 +26,7 @@ def add_missing_feature_columns(
     Args:
         input_data (pd.DataFrame): DataFrame with input data and featurs.
         features (list): List of requiered features.
+
     """
 
     logger = structlog.get_logger(__name__)
@@ -57,6 +58,7 @@ def remove_non_requested_feature_columns(
 
     Returns:
         pd.DataFrame: Nodel input data with features.
+
     """
     logger = structlog.get_logger(__name__)
 
@@ -99,6 +101,7 @@ def enforce_feature_order(input_data: pd.DataFrame):
 
     Returns:
         pd.DataFrame: Properly sorted input data
+
     """
 
     # Extract first column name

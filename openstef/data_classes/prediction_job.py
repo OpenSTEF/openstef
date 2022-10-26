@@ -37,18 +37,18 @@ class PredictionJobDataClass(BaseModel):
     hub_height: Optional[float]  # Only required for create_wind_forecast task
 
     def __getitem__(self, item):
-        """Allows us to use subscription to get the items from the object"""
+        """Allows us to use subscription to get the items from the object."""
         return getattr(self, item)
 
     def __setitem__(self, key: str, value: any):
-        """Allows us to use subscription to set the items in the object"""
+        """Allows us to use subscription to set the items in the object."""
         if hasattr(self, key):
             self.__dict__[key] = value
         else:
             raise AttributeError(f"{key} not an attribute of prediction job.")
 
     def get(self, key: str, default=None):
-        """Allows to use the get functions similar to a python dict"""
+        """Allows to use the get functions similar to a python dict."""
         if hasattr(self, key):
             return getattr(self, key)
         else:

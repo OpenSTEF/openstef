@@ -16,8 +16,7 @@ DAZLS_STORED = PROJECT_ROOT / "openstef" / "data" / "dazls_stored.sav"
 
 
 def create_input(pj, input_data, weather_data):
-    """
-    This function prepares the input data, which will be used for the Dazls model prediction, so they will be
+    """This function prepares the input data, which will be used for the Dazls model prediction, so they will be
     according Dazls model requirements.
 
     :param pj: pj (PredictionJobDataClass): Prediction job
@@ -25,6 +24,7 @@ def create_input(pj, input_data, weather_data):
     :param weather_data: (pd.DataFrame): Weather data with 'radiation' and 'windspeed_100m' columns
 
     :return: input_df (pd.Dataframe): It outputs a dataframe which will be used for the Dazls prediction function.
+
     """
 
     # Prepare raw input data
@@ -60,8 +60,7 @@ def create_input(pj, input_data, weather_data):
 def create_components_forecast_pipeline(
     pj: PredictionJobDataClass, input_data, weather_data
 ):
-    """
-    Pipeline for creating a component forecast using Dazls prediction model
+    """Pipeline for creating a component forecast using Dazls prediction model.
 
     Args:
         pj (PredictionJobDataClass): Prediction job
@@ -78,6 +77,7 @@ def create_components_forecast_pipeline(
                 "description",
                 "type",
                 "algtype"
+
     """
     logger = structlog.get_logger(__name__)
     logger.info("Make components prediction", pid=pj["id"])

@@ -10,9 +10,8 @@ MINIMAL_RESOLUTION: int = 15  # Used for validating the forecast input
 
 class BaseCaseModel(BaseEstimator, RegressorMixin):
     def predict(self, forecast_input_data: pd.DataFrame) -> pd.DataFrame:
-        """Predict using the basecase method. The basecase forecast is determined by the T-7d and T-14d load.
-        This means fitting the model is not required.
-        However a fit method is still included to be fully comatible with sklearn.
+        """Predict using the basecase method. The basecase forecast is determined by the T-7d and T-14d load. This means
+        fitting the model is not required. However a fit method is still included to be fully comatible with sklearn.
 
         Args:
             forecast_input_data (pd.DataFrame): Forecast input dataframe

@@ -61,15 +61,16 @@ def calculate_wind_power(
     windspeed_100m: pd.DataFrame,
 ) -> pd.DataFrame:
 
-    """Calculate the generated wind power based on the wind speed.
-    Values are related through the power curve, which is described by turbine_data.
-    Default values are used and are normalized to 1MWp.
+    """Calculate the generated wind power based on the wind speed. Values are related through the power curve, which is
+    described by turbine_data. Default values are used and are normalized to 1MWp.
 
     args:
     - windspeed_100m: pd.DataFrame (index = datetime, columns = ["windspeed_100m"])
 
     returns:
-    - pd.DataFrame(index = datetime, columns = ["windenergy"])"""
+    - pd.DataFrame(index = datetime, columns = ["windenergy"])
+
+    """
 
     generated_power = TURBINE_DATA["rated_power"] / (
         1
@@ -81,8 +82,8 @@ def calculate_wind_power(
 
 
 def split_forecast_in_components(forecast, weather_data, split_coefs):
-    """Function that makes estimates of energy components based on given forecast,
-        previously determine splitting coefficients and relevant weather data.
+    """Function that makes estimates of energy components based on given forecast, previously determine splitting
+    coefficients and relevant weather data.
 
     Args:
         forecast(pd.DataFrame): KTP load forecast
@@ -192,10 +193,9 @@ def post_process_wind_solar(forecast: pd.Series, forecast_type):
 
 
 def add_components_base_case_forecast(basecase_forecast: pd.DataFrame) -> pd.DataFrame:
-    """Makes a basecase forecast for the forecast_other component. This will make a
-        simple basecase components forecast available and ensures that the sum of
-        the components (other, wind and solar) is equal to the normal basecase forecast
-        This is important for sending GLMD messages correctly to TenneT!
+    """Makes a basecase forecast for the forecast_other component. This will make a simple basecase components forecast
+    available and ensures that the sum of the components (other, wind and solar) is equal to the normal basecase
+    forecast This is important for sending GLMD messages correctly to TenneT!
 
     Args:
         basecase_forecast: pd.DataFrame with basecase forecast

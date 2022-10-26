@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-"""split_forecast.py
+"""split_forecast.py.
 
 This module contains the CRON job that is periodically executed to make
 prognoses of solar features. These features are usefull for splitting the load
@@ -23,7 +23,6 @@ Example:
         $ python split_forecast.py
 
 Attributes:
-
 
 """
 
@@ -66,14 +65,14 @@ def split_forecast_task(
     pj: PredictionJobDataClass,
     context: TaskContext,
 ):
-    """Function that caries out the energy splitting for a specific prediction job with
-    id pid.
+    """Function that caries out the energy splitting for a specific prediction job with id pid.
 
     Args:
         pid (int): Prediction job id
 
     Returns:
         pandas.DataFrame: Energy splitting coefficients.
+
     """
     logger = structlog.get_logger(__name__)
 
@@ -135,6 +134,7 @@ def determine_invalid_coefs(new_coefs, last_coefs):
 
     Returns:
         pd.DataFrame: df of invalid coefficients
+
     """
     merged_coefs = pd.merge(
         last_coefs, new_coefs, on="coef_name", how="left", suffixes=["_last", "_new"]
@@ -158,8 +158,7 @@ def determine_invalid_coefs(new_coefs, last_coefs):
 
 
 def convert_coefdict_to_coefsdf(pj, input_split_function, coefdict):
-    """Convert dictionary of coefficients to dataframe with additional data for db
-    storage.
+    """Convert dictionary of coefficients to dataframe with additional data for db storage.
 
     Args:
         pj (PredictionJobDataClass): prediction job
@@ -169,6 +168,7 @@ def convert_coefdict_to_coefsdf(pj, input_split_function, coefdict):
 
     Returns:
         pd.DataFrame: df of coefficients to insert in sql
+
     """
     #
     sql_column_labels = ["pid", "date_start", "date_end", "created"]
@@ -188,7 +188,7 @@ def convert_coefdict_to_coefsdf(pj, input_split_function, coefdict):
 
 
 def find_components(df, zero_bound=True):
-    """Function that does the actual energy splitting
+    """Function that does the actual energy splitting.
 
     Args:
         df (pandas.DataFrame): Input data. The dataframe should contain these columns
@@ -199,6 +199,7 @@ def find_components(df, zero_bound=True):
         tuple:
             [0] pandas.DataFrame: Containing the wind and solar components
             [1] dict: The coefficients that result from the fitting
+
     """
 
     # Define function to fit

@@ -43,6 +43,7 @@ class TaskContext:
                 everytime if the task is successful (no exception is raised).
             on_end (callable, optional): Callback, will be called if the task is
                 completed. Callable gets a bool indicating success as argument.
+
         """
         self.name = name
         self.suppress_exceptions = suppress_exceptions

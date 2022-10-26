@@ -40,12 +40,13 @@ class Reporter:
         validation_data: pd.DataFrame = None,
         test_data: pd.DataFrame = None,
     ) -> None:
-        """Initializes reporter
+        """Initializes reporter.
 
         Args:
             train_data: Dataframe with training data
             validation_data: Dataframe with validation data
             test_data: Dataframe with test data
+
         """
         self.horizons = train_data.horizon.unique()
         self.predicted_data_list = []
@@ -55,13 +56,14 @@ class Reporter:
         self,
         model: OpenstfRegressor,
     ) -> Report:
-        """Generate a report on a given model
+        """Generate a report on a given model.
 
         Args:
             model (OpenstfRegressor): the model to create a report on
 
         Returns:
             Report: reporter object containing info about the model
+
         """
         # Get training (input_data_list[0]) and validation (input_data_list[1]) set
         train_x, train_y = (
@@ -98,7 +100,7 @@ class Reporter:
 
     @staticmethod
     def get_metrics(y_pred: np.array, y_true: np.array) -> dict:
-        """Calculate the metrics for a prediction
+        """Calculate the metrics for a prediction.
 
         Args:
             y_pred: np.array
@@ -106,6 +108,7 @@ class Reporter:
 
         Returns:
             dictionary: metrics for the prediction
+
         """
         metric_dict = {
             "bias": bias,

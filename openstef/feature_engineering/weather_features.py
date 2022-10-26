@@ -2,9 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-""" This module contains all wheather related functions used for feature engineering.
-
-"""
+"""This module contains all wheather related functions used for feature engineering."""
 from typing import List
 
 import numpy as np
@@ -32,13 +30,15 @@ DEFAULT_LON: float = 5.291266
 
 
 def calc_saturation_pressure(temperature: float or np.ndarray) -> float or np.ndarray:
-    """Calculates the water vapour pressure from the temperature
-    See https://www.vaisala.com/sites/default/files/documents/Humidity_Conversion_Formulas_B210973EN-F.pdf
+    """Calculates the water vapour pressure from the temperature See
+    https://www.vaisala.com/sites/default/files/documents/Humidity_Conversion_Formulas_B210973EN-F.pdf.
 
     Args:
         temperature (np.array): Temperature in C
     Returns:
-        The saturation pressure of water at the respective temperature"""
+        The saturation pressure of water at the respective temperature
+
+    """
 
     psat = A * 10 ** ((M * temperature) / (temperature + TN))
     return psat
@@ -47,23 +47,27 @@ def calc_saturation_pressure(temperature: float or np.ndarray) -> float or np.nd
 def calc_vapour_pressure(
     rh: float or np.ndarray, psat: float or np.ndarray
 ) -> float or np.ndarray:
-    """Calculates the vapour pressure
+    """Calculates the vapour pressure.
 
     Args:
         rh (np.ndarray or float): Relative humidity
         psat (np.ndarray or float): Saturation pressure: see calc_saturation_pressure
     Returns:
-        The water vapour pressure"""
+        The water vapour pressure
+
+    """
     return rh * psat
 
 
 def calc_dewpoint(vapour_pressure: float or np.ndarray) -> float or np.ndarray:
-    """Calculates the dewpoint, see https://en.wikipedia.org/wiki/Dew_point for mroe info
+    """Calculates the dewpoint, see https://en.wikipedia.org/wiki/Dew_point for mroe info.
 
     Args:
         vapour_pressure (np.ndarray or float): The vapour pressure for which the dewpoint should be calculated
     Returns:
-        dewpoint (np.ndarray or float):"""
+        dewpoint (np.ndarray or float):
+
+    """
 
     return TN / ((M / np.log10(vapour_pressure / A)) - 1)
 
@@ -81,7 +85,9 @@ def calc_air_density(
         rh (np.ndarray or float): Relative humidity
 
     Returns:
-        air density (np.ndarray or float): The air density (kg/m^3)"""
+        air density (np.ndarray or float): The air density (kg/m^3)
+
+    """
 
     # Calculate saturation pressure
     psat = calc_saturation_pressure(temperature)
@@ -115,6 +121,7 @@ def add_humidity_features(
 
     Returns:
         pd.DataFrame, Same as input dataframe with extra columns for the humidty features.
+
     """
 
     # If features is none add humidity feature anyway
@@ -152,7 +159,8 @@ def humidity_calculations(
     rh: float or np.ndarray,
     pressure: float or np.ndarray,
 ) -> dict or np.ndarray:
-    """Function that calculates the
+    """Function that calculates the.
+
     - Saturation pressure
     - Vapour pressure
     - Dewpoint
@@ -165,7 +173,9 @@ def humidity_calculations(
 
     Returns:
         if the input is an np.ndarray: a pandas dataframe with the calculated moisture indices
-        if the input is numeric: a dict with the calculated moisture indices"""
+        if the input is numeric: a dict with the calculated moisture indices
+
+    """
 
     # First: a sanity check on the relative humidity and the air pressure
     # We only check on the type of temperature, because they need to be the same anyway
@@ -235,6 +245,7 @@ def calculate_windspeed_at_hubheight(
 
     Returns:
         float: windspeed at hubheight.
+
     """
     alpha = 0.143
 
@@ -274,7 +285,9 @@ def calculate_windturbine_power_output(
         turbineData (dict): slope_center, rated_power, steepness
 
     Returns:
-        pd.DataFrame(index = datetime, columns = ["forecast"])"""
+        pd.DataFrame(index = datetime, columns = ["forecast"])
+
+    """
 
     if turbine_data is None:
         turbine_data = {
@@ -431,8 +444,7 @@ def add_additional_solar_features(
     pj: PredictionJobDataClass = None,
     feature_names: List[str] = None,
 ) -> pd.DataFrame:
-    """
-    Adds additional solar features to the input data.
+    """Adds additional solar features to the input data.
 
     Args:
         data (pd.DataFrame): Dataframe to which the solar features have to be added

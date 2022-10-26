@@ -17,24 +17,25 @@ class SplitFuncDataClass(BaseModel):
     ]  # JSON string holding the function parameters or dict
 
     def __getitem__(self, key: str):
-        """Allows us to use subscription to get the items from the object"""
+        """Allows us to use subscription to get the items from the object."""
         return getattr(self, key)
 
     def __setitem__(self, key: str, value: any):
-        """Allows us to use subscription to set the items in the object"""
+        """Allows us to use subscription to set the items in the object."""
         if hasattr(self, key):
             self.__dict__[key] = value
         else:
             raise AttributeError(f"{key} not an attribute of prediction job.")
 
     def _load_split_function(self, required_arguments=None) -> Callable:
-        """Load split function from path
+        """Load split function from path.
 
         Args:
             func_path (str): The path to the split function
 
         Returns:
             split_func (Callable): The loaded split function
+
         """
         if isinstance(self.function, str):
             path_elements = self.function.split(".")
@@ -66,6 +67,7 @@ class SplitFuncDataClass(BaseModel):
 
         Returns:
             arguments (Dict[str, Any]): The additional arguments to be passed to he function
+
         """
         if isinstance(self.arguments, str):
             return json.loads(self.arguments)
@@ -75,7 +77,7 @@ class SplitFuncDataClass(BaseModel):
     def load(
         self, required_arguments: Sequence[str] = None
     ) -> (Callable, Dict[str, Any]):
-        """Load the function and its arguments
+        """Load the function and its arguments.
 
         If the function and the arguments are given as strings in the instane attributes, load them as Python objects
         otherwise just return them from the instance attributes.
@@ -86,5 +88,6 @@ class SplitFuncDataClass(BaseModel):
         Returns:
             - function (Callable)
             - arguments (Dict[str, Any])
+
         """
         return self._load_split_function(required_arguments), self._load_arguments()

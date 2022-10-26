@@ -13,15 +13,15 @@ from sklearn.preprocessing import MinMaxScaler
 
 
 class Dazls(BaseEstimator):
-    """
-    The model carries out wind and solar power prediction for unseen target substations using training data from other
-    substations with known components.
+    """The model carries out wind and solar power prediction for unseen target substations using training data from
+    other substations with known components.
 
     Any data-driven model can be plugged and used as the base for the domain and the adaptation model.
 
     For a full reference, see:
     Teng, S.Y., van Nooten, C. C., van Doorn, J.M., Ottenbros, A., Huijbregts, M., Jansen, J.J.
     Improving Near Real-Time Predictions of Renewable Electricity Production at Substation Level (Submitted)
+
     """
 
     def __init__(self):
@@ -66,11 +66,9 @@ class Dazls(BaseEstimator):
         self.target_columns = ["total_wind_part", "total_solar_part"]
 
     def fit(self, features, target):
-        """
-        In this function we scale the input of the domain and adaptation models of the DAZLS MODEL.
-        Then we fit the two models.
-        We separate the features into domain_model_input, adaptation_model_input and target,
-        and we use them for the fitting and the training of the models.
+        """In this function we scale the input of the domain and adaptation models of the DAZLS MODEL. Then we fit the
+        two models. We separate the features into domain_model_input, adaptation_model_input and target, and we use them
+        for the fitting and the training of the models.
 
         :param features: inputs for domain and adaptation model (domain_model_input, adaptation_model_input)
         :param target: the expected output (y_train)
@@ -103,12 +101,12 @@ class Dazls(BaseEstimator):
         self.adaptation_model.fit(adaptation_model_input, y_train)
 
     def predict(self, x: np.array):
-        """
-        For the prediction we use the test data x. We use domain_model_input_columns and adaptation_model_input_columns
-        to separate x in test data for domain model and adaptation model respectively.
+        """For the prediction we use the test data x. We use domain_model_input_columns and
+        adaptation_model_input_columns to separate x in test data for domain model and adaptation model respectively.
 
         :param x (np.array): domain_model_test_data, adaptation_model_test_data
         :return prediction (np.array): The output prediction after both models.
+
         """
         domain_model_test_data, adaptation_model_test_data = (
             x.loc[:, self.domain_model_input_columns],
@@ -138,13 +136,13 @@ class Dazls(BaseEstimator):
         return prediction
 
     def score(self, truth, prediction):
-        """
-        Evaluation of the prediction's output.
+        """Evaluation of the prediction's output.
 
         :param truth: real values
         :param prediction: predicted values
 
         :return: RMSE and R2 scores
+
         """
 
         rmse = (mean_squared_error(truth, prediction)) ** 0.5

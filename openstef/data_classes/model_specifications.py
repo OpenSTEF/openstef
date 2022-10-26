@@ -14,11 +14,11 @@ class ModelSpecificationDataClass(BaseModel):
     feature_modules: Optional[list] = []
 
     def __getitem__(self, item):
-        """Allows us to use subscription to get the items from the object"""
+        """Allows us to use subscription to get the items from the object."""
         return getattr(self, item)
 
     def __setitem__(self, key: str, value: any):
-        """Allows us to use subscription to set the items in the object"""
+        """Allows us to use subscription to set the items in the object."""
         if hasattr(self, key):
             self.__dict__[key] = value
         else:

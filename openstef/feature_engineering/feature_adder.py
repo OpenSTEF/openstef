@@ -14,7 +14,7 @@ ParsedFeature = namedtuple("ParsedFeature", ["name", "params"])
 
 
 def adders_from_module(module_name: str):
-    """Load all FeatureAdders classes on the fly from the module"""
+    """Load all FeatureAdders classes on the fly from the module."""
     module = import_module(module_name)
     feature_adders = []
 
@@ -36,8 +36,11 @@ def adders_from_modules(module_names: List[str]):
 
 class FeatureAdder(ABC):
     """Abstract class that implement the FeatureAdder interface.
-    It is the basic block that handles the logic for computing the specific feature
-    and the syntactic sugar to load properly the feature adder according to the feature name."""
+
+    It is the basic block that handles the logic for computing the specific feature and the syntactic sugar to load
+    properly the feature adder according to the feature name.
+
+    """
 
     @property
     @abstractmethod
@@ -57,7 +60,7 @@ class FeatureAdder(ABC):
         return hash(self.name)
 
     def parse_feature_name(self, feature_name: str) -> Optional[Dict[str, str]]:
-        """Parse a feature name
+        """Parse a feature name.
 
         If the feature name is taken in charge by the feature adder, the method returns
         a dictionnary with the potentially parsed parameters contained the feature name. In the
@@ -75,6 +78,7 @@ class FeatureAdder(ABC):
             The parsed parameters. If the feature name is recognized but has no parameters
             an empty dictionnary is returned. If the feature name is not recognized, None is
             returned.
+
         """
         reg = self._regex
         match = re.match(reg, feature_name)
@@ -92,8 +96,10 @@ class FeatureAdder(ABC):
 
 class FeatureDispatcher:
     """Orchestrator of the feature adders.
-    It scans the feature_names to assign to each feature the proper feature adder
-    and launch the effective computing of the features.
+
+    It scans the feature_names to assign to each feature the proper feature adder and launch the effective computing of
+    the features.
+
     """
 
     def __init__(self, feature_adders: Sequence[FeatureAdder]):

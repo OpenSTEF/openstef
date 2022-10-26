@@ -63,6 +63,7 @@ def optimize_hyperparameters_pipeline(
 
     Returns:
         dict: Optimized hyperparameters.
+
     """
 
     (
@@ -122,6 +123,7 @@ def optimize_hyperparameters_pipeline_core(
         dict: Trials,
         int: Best trial number,
         dict: Optimized hyperparameters.
+
     """
     if input_data.empty:
         raise InputDataInsufficientError("Input dataframe is empty")
@@ -214,7 +216,7 @@ def optuna_optimization(
     validated_data_with_features: pd.DataFrame,
     n_trials: int,
 ) -> Tuple[optuna.study.Study, RegressorObjective]:
-    """Perform hyperparameter optimization with optuna
+    """Perform hyperparameter optimization with optuna.
 
     Args:
         pj: Prediction job

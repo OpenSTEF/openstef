@@ -23,10 +23,11 @@ from openstef.tasks.utils.taskcontext import TaskContext
 
 
 def make_wind_forecast_pj(pj, context):
-    """Make a wind prediction for a specific prediction job
+    """Make a wind prediction for a specific prediction job.
 
     Args:
         pj: (dict) prediction job
+
     """
     context.logger.info("Get turbine data", turbine_type=pj["turbine_type"])
     turbine_data = context.database.get_power_curve(pj["turbine_type"])

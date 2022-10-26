@@ -5,12 +5,9 @@
 # -*- coding: utf-8 -*-
 """apply_features.py.
 
-This module provides functionality for applying features to the input data.
-This improves forecast accuracy. Examples of features that are added are:
-    The load 1 day and 7 days ago at the same time
-    If a day is a weekday or a holiday
-    The extrapolated windspeed at 100m
-    The normalised wind power according to the turbine-specific power curve
+This module provides functionality for applying features to the input data. This improves forecast accuracy. Examples of
+features that are added are:     The load 1 day and 7 days ago at the same time     If a day is a weekday or a holiday
+The extrapolated windspeed at 100m     The normalised wind power according to the turbine-specific power curve
 
 """
 from typing import List
@@ -38,9 +35,8 @@ def apply_features(
     feature_names: List[str] = None,
     horizon: float = 24.0,
 ) -> pd.DataFrame:
-    """This script applies the feature functions defined in
-        feature_functions.py and returns the complete dataframe. Features requiring
-        more recent label-data are omitted.
+    """This script applies the feature functions defined in feature_functions.py and returns the complete dataframe.
+    Features requiring more recent label-data are omitted.
 
         NOTE: For the time deriven features only the onces in the features list
         will be added. But for the weather features all will be added at present.

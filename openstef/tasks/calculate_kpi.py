@@ -2,11 +2,9 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-"""calculate_kpi.py
-This module contains the CRON job that is periodically executed to calculate key
-performance indicators (KPIs) and save them to the database.
-This code assumes prognoses are available from the persistent storage. If these are not
-available run create_forecast.py to train all models.
+"""calculate_kpi.py This module contains the CRON job that is periodically executed to calculate key performance
+indicators (KPIs) and save them to the database. This code assumes prognoses are available from the persistent storage.
+If these are not available run create_forecast.py to train all models.
 
 The folowing tasks are caried out:
   1: Calculate the KPI for a given pid. Ignore SplitEnergy
@@ -18,6 +16,7 @@ Example:
     Alternatively this code can be run directly by running::
         $ python calculate_kpi.py
 Attributes:
+
 """
 # Import builtins
 from datetime import datetime, timedelta
@@ -130,7 +129,8 @@ def calc_kpi_for_specific_pid(
     predicted_load: pd.DataFrame,
     basecase: pd.DataFrame,
 ) -> dict:
-    """Function that checks the model performance based on a pid. This function
+    """Function that checks the model performance based on a pid. This function.
+
     - loads and combines forecast and realised data
     - calculated several key performance indicators (KPIs)
     These metric include:
@@ -154,6 +154,7 @@ def calc_kpi_for_specific_pid(
 
     Example:
         To get the rMAE for the 24 hours ahead prediction: kpis['24h']['rMAE']
+
     """
     COMPLETENESS_REALISED_THRESHOLDS = 0.7
     COMPLETENESS_PREDICTED_LOAD_THRESHOLD = 0.7
@@ -298,12 +299,12 @@ def calc_kpi_for_specific_pid(
 
 
 def set_incomplete_kpi_to_nan(kpis: dict, t_ahead_h: str) -> None:
-    """
-    Checks the given kpis for completeness and sets to nan if this not true
+    """Checks the given kpis for completeness and sets to nan if this not true.
 
     :param kpis: the kpis
     :param t_ahead_h: t_ahead_h
     :return: -
+
     """
     kpi_metrics = list(kpis[t_ahead_h].keys())
     # Set to nan

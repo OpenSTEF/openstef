@@ -10,12 +10,11 @@ from sklearn.base import BaseEstimator, RegressorMixin
 
 
 class OpenstfRegressor(BaseEstimator):
-    """
-    This class defines the interface to which all ML models within OpenSTEF should adhere.
+    """This class defines the interface to which all ML models within OpenSTEF should adhere.
 
-    Required methods are indicated by abstractmethods, for which concrete implementations
-    of ML models should have a definition. Common functionality which is required for the
-    automated pipelines in OpenSTEF is defined in this class.
+    Required methods are indicated by abstractmethods, for which concrete implementations of ML models should have a
+    definition. Common functionality which is required for the automated pipelines in OpenSTEF is defined in this class.
+
     """
 
     def __init__(self):
@@ -23,17 +22,18 @@ class OpenstfRegressor(BaseEstimator):
         self.feature_importances_ = None
 
     def score(self, X, y):
-        """Makes `score` method from RegressorMixin available"""
+        """Makes `score` method from RegressorMixin available."""
         return RegressorMixin.score(self, X, y)
 
     ## Define abstract methods required to be implemented by concrete models
     @property
     @abstractmethod
     def feature_names(self):
-        """Retrieve the model input feature names
+        """Retrieve the model input feature names.
 
         Returns:
             The list of feature names
+
         """
         pass
 
@@ -41,7 +41,10 @@ class OpenstfRegressor(BaseEstimator):
     @abstractmethod
     def can_predict_quantiles(self) -> bool:
         """Attribute that indicates if the model predict particular quantiles.
-        e.g. XGBQuantileOpenstfRegressor"""
+
+        e.g. XGBQuantileOpenstfRegressor
+
+        """
         pass
 
     @abstractmethod
@@ -58,7 +61,7 @@ class OpenstfRegressor(BaseEstimator):
 
     @abstractmethod
     def fit(self, x: np.array, y: np.array, **kwargs) -> RegressorMixin:
-        """Fits the regressor
+        """Fits the regressor.
 
         Args:
             x (np.array): Feature matrix
@@ -67,6 +70,7 @@ class OpenstfRegressor(BaseEstimator):
 
         Returns:
             Fitted model
+
         """
         pass
 
@@ -75,6 +79,7 @@ class OpenstfRegressor(BaseEstimator):
 
         Returns:
          pd.DataFrame
+
         """
         # returns a dict if we can get feature importance else returns None
         importance_names = self._get_importance_names()
@@ -102,7 +107,7 @@ class OpenstfRegressor(BaseEstimator):
 
     @staticmethod
     def _get_importance_names() -> Optional[dict]:
-        """Get importance names if applicable
+        """Get importance names if applicable.
 
         Returns:
             Optional (dict): Returns a dict or None, return None if the model can't get feature importance
