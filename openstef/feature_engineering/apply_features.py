@@ -4,10 +4,11 @@
 """This module provides functionality for applying features to the input data to improve forecast accuracy.
 
 Examples of features that are added:
-    - The load 1 day and 7 days ago at the same time.     
+    - The load 1 day and 7 days ago at the same time.
     - If a day is a weekday or a holiday.
-    - The extrapolated windspeed at 100m.  
+    - The extrapolated windspeed at 100m.
     - The normalised wind power according to the turbine-specific power curve.
+
 """
 from typing import List
 
@@ -54,19 +55,19 @@ def apply_features(
     Returns:
         pd.DataFrame(index = datetime, columns = [label, predictor_1,..., predictor_n, feature_1, ..., feature_m])
 
-    Example output:    
-    
+    Example output:
+
     .. code-block:: py
-    
+
         import pandas as pd
-        import numpy as np        
+        import numpy as np
         index = pd.date_range(start = "2017-01-01 09:00:00",
         freq = '15T', periods = 200)
         data = pd.DataFrame(index = index,
                             data = dict(load=
                             np.sin(index.hour/24*np.pi)*
                             np.random.uniform(0.7,1.7, 200)))
-    
+
     """
     # Add if needed the proloaf feature (historic_load)
     data = add_historic_load_as_a_feature(data, pj)
