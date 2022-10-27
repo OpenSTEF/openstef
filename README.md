@@ -21,7 +21,11 @@ SPDX-License-Identifier: MPL-2.0
 
 # OpenSTEF
 
-OpenSTEF is a Python package which is used to make short term forecasts for the energy sector. This repository contains all components for the machine learning pipeline required to make a forecast. In order to use the package you need to provide your own data storage and retrieval interface. `openstef` is available at: https://pypi.org/project/openstef/
+OpenSTEF is a Python package which is used to make short term forecasts for the energy sector. This repository contains all components for the machine learning pipeline required to make a forecast. In order to use the package you need to provide your own data storage and retrieval interface. 
+
+The `openstef` Python package is available at: https://pypi.org/project/openstef/. 
+
+Documentation is available at: https://openstef.github.io/openstef/index.html. 
 
 # Installation
 
