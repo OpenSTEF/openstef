@@ -16,6 +16,7 @@ class OpenstfRegressor(BaseEstimator):
     definition. Common functionality which is required for the automated pipelines in OpenSTEF is defined in this class.
 
     """
+
     def __init__(self):
         self.feature_importance_dataframe = None
         self.feature_importances_ = None

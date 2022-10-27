@@ -52,4 +52,3 @@ class ModelWithoutStDev(Exception):
 
 class ComponentForecastTooShortHorizonError(Exception):
     """Component forecasts should be available for at least 30 hours in advance."""
-

@@ -22,6 +22,7 @@ class Dazls(BaseEstimator):
     Improving Near Real-Time Predictions of Renewable Electricity Production at Substation Level (Submitted)
 
     """
+
     def __init__(self):
         self.__name__ = "DAZLS"
         self.domain_model_scaler = MinMaxScaler(clip=True)

@@ -41,6 +41,7 @@ class LinearRegressor(MissingValuesHandler):
         data and "missing_value" for strings or object data types.
 
     """
+
     def __init__(self, missing_values=np.nan, imputation_strategy=None, fill_value=0):
         super().__init__(
             LinearRegression(),
