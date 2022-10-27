@@ -151,8 +151,7 @@ class OperationalPredictFeatureApplicator(AbstractFeatureApplicator):
     ) -> pd.DataFrame:
         """Adds features to an input DataFrame.
 
-        This method is implemented specifically for an operational prediction pipeline
-         and will add every available feature.
+        This method is implemented specifically for an operational prediction pipeline and will add every available feature.
 
         Args:
             df: pd.DataFrame with input data to which the features have to be added

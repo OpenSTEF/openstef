@@ -229,7 +229,6 @@ def convert_to_base64_data_uri(path_in, path_out, content_type):
         None
 
     """
-
     with open(path_in, "rb") as f:
         encoded = base64.b64encode(f.read()).decode()
 
