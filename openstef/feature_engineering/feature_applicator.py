@@ -4,6 +4,7 @@
 """This module defines several FeatureApplicators.
 
 These applicatiors are used to add features to the input data in the corresponding pipelines.
+
 """
 from abc import ABC, abstractmethod
 from typing import List, Optional, Union

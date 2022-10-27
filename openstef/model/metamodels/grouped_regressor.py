@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: 2017-2021 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+"""This module defines the grouped regressor."""
 from typing import Any, Callable, Dict, List, Tuple, Union
 
 import joblib
@@ -30,25 +31,20 @@ class GroupedRegressor(BaseEstimator, RegressorMixin, MetaEstimatorMixin):
         the model 1 with the row 0 and 2, columns x0, x1 and x3 as the features and column y as the target.
         the model 2 with the row 1 and 3, columns x0, x1 and x3 as the features and column y as the target.
 
-    Parameters
-    ----------
-    base_estimator: RegressorMixin
-        Regressor .
+    Args:
+        base_estimator: Regressor .
 
-    group_columns : str, int, list
-        Name(s) of the column(s) used as the key for groupby operation.
+        group_columns: Name(s) of the column(s) used as the key for groupby operation.
 
-    n_jobs : int default=1
-        The maximum number of concurrently running jobs,
-         such as the number of Python worker processes when backend=”multiprocessing”
-         or the size of the thread-pool when backend=”threading
+        n_jobs: default=1
+            The maximum number of concurrently running jobs,
+            such as the number of Python worker processes when backend=”multiprocessing”
+            or the size of the thread-pool when backend=”threading
 
-    Attributes
-    ----------
-        feature_names_: list(str)
-            All input feature (without group_columns).
+    Attributes:
+        feature_names_:  All input feature (without group_columns).
 
-        estimators_: dict(str, RegressorMixin)
+        estimators_:
             Dictionnary that stocks fitted estimators for each group.
             The keys are the keys of grouping and the values are the regressors fitted on the grouped data.
 
@@ -56,10 +52,11 @@ class GroupedRegressor(BaseEstimator, RegressorMixin, MetaEstimatorMixin):
 
     def __init__(
         self,
-        base_estimator: BaseEstimator,
+        base_estimator: RegressorMixin,
         group_columns: Union[str, int, List[str], List[int]],
         n_jobs: int = 1,
     ):
+        """Initialize meta model."""
         self.base_estimator = base_estimator
         if type(group_columns) in [int, str]:
             self.group_columns = [group_columns]
@@ -132,14 +129,14 @@ class GroupedRegressor(BaseEstimator, RegressorMixin, MetaEstimatorMixin):
         grouping object.
 
         Args:
-            df: (pd.DataFrame) data frame containing the input data necessary for the computation .
-            group_columns: (list) list of the columns used for the groupby operation
-            func: (Callable) function that take the group key and the conrresponding data of this group
-             and perform the computation on this group.
-            n_jobs: (int) The maximum number of concurrently running jobs,
+            df: DataFrame containing the input data necessary for the computation .
+            group_columns: List of the columns used for the groupby operation
+            func: Function that take the group key and the conrresponding data of this group
+                and perform the computation on this group.
+            n_jobs: The maximum number of concurrently running jobs,
 
         Returns:
-            results (tuple): the tuple of the results of each group, the grouping dataframe and the global dataframe of results.
+            The tuple of the results of each group, the grouping dataframe and the global dataframe of results.
 
         """
         index_name = df.index.name or "index"
@@ -190,7 +187,8 @@ class GroupedRegressor(BaseEstimator, RegressorMixin, MetaEstimatorMixin):
         )
         return dict(group_res)
 
-    def fit(self, x, y, eval_set=None, **kwargs):
+    def fit(self, x: np.ndarray, y: np.ndarray, eval_set=None, **kwargs):
+        """Fit the model."""
         df = pd.DataFrame(x).copy(deep=True)
         self._check_group_columns(df)
 
@@ -212,7 +210,8 @@ class GroupedRegressor(BaseEstimator, RegressorMixin, MetaEstimatorMixin):
         )
         return self
 
-    def predict(self, x, **kwargs):
+    def predict(self, x: np.ndarray, **kwargs) -> np.ndarray:
+        """Make a predicion."""
         check_is_fitted(self)
         df = pd.DataFrame(x)
         self._check_group_columns(df)

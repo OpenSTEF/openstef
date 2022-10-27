@@ -111,6 +111,7 @@ class FeatureDispatcher:
 
         Returns:
             Dictionary with parsed features.
+
         """
         recognized_features = set()
         dispatched_features = {}
@@ -142,6 +143,7 @@ class FeatureDispatcher:
 
         Returns:
             DataFrame with the added features.
+
         """
         if feature_names is None:
             return df

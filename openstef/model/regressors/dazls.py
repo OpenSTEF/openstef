@@ -8,9 +8,6 @@ from sklearn.neighbors import KNeighborsRegressor
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.utils import shuffle
 
-# DAZLS algorithm
-
-
 class Dazls(BaseEstimator):
     """The model carries out wind and solar power prediction for unseen target substations using training data from
     other substations with known components.
