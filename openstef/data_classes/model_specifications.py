@@ -8,9 +8,9 @@ from pydantic import BaseModel
 
 
 class ModelSpecificationDataClass(BaseModel):
-    """Holds all information regarding the training procces of a specific model."""    
-    
-    id: Union[int, str]    
+    """Holds all information regarding the training procces of a specific model."""
+
+    id: Union[int, str]
     hyper_params: Optional[dict] = {}
     """Hyperparameters that should be used during training."""
     feature_names: Optional[list] = None
