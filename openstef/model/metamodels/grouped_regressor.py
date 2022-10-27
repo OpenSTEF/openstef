@@ -53,6 +53,7 @@ class GroupedRegressor(BaseEstimator, RegressorMixin, MetaEstimatorMixin):
             The keys are the keys of grouping and the values are the regressors fitted on the grouped data.
 
     """
+
     def __init__(
         self,
         base_estimator: BaseEstimator,

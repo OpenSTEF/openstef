@@ -136,6 +136,7 @@ def generate_non_trivial_lag_times(
         list: Aditional non-trivial minute lags
 
     """
+
     def autocorr(x: np.array, lags: range) -> np.array:
         """Make an autocorrelation curve."""
         mean = x.mean()
