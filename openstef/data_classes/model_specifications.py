@@ -8,7 +8,7 @@ from pydantic import BaseModel
 
 
 class ModelSpecificationDataClass(BaseModel):
-    """Dataclass that holds all information regarding the training procces of a specific model."""    
+    """Holds all information regarding the training procces of a specific model."""    
     
     id: Union[int, str]    
     hyper_params: Optional[dict] = {}

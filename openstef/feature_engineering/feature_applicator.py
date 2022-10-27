@@ -1,6 +1,10 @@
 # SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+"""This module defines several FeatureApplicators.
+
+These applicatiors are used to add features to the input data in the corresponding pipelines.
+"""
 from abc import ABC, abstractmethod
 from typing import List, Optional, Union
 
@@ -23,6 +27,7 @@ LATENCY_CONFIG = {"APX": 24}  # A specific latency is part of a specific feature
 
 
 class AbstractFeatureApplicator(ABC):
+    """Defines the Applicator interface."""
     def __init__(
         self,
         horizons: Union[List[float], str],
@@ -34,6 +39,7 @@ class AbstractFeatureApplicator(ABC):
         Args:
             horizons (list): list of horizons in hours
             feature_names (List[str]):  List of requested features
+            feature_modules (List[str]): List of modules from which FeatureAdders should be loaded.
 
         """
         if not isinstance(horizons, str) and type(horizons) is not list and not None:
@@ -51,16 +57,20 @@ class AbstractFeatureApplicator(ABC):
         """Adds features to an input DataFrame.
 
         Args:
-            df: pd.DataFrame with input data to which the features have to be added
+            df: pandas.DataFrame with input data to which the features have to be added
             pj: (Optional) A prediction job that is needed for location dependent features,
                 if not specified a default location is used
+                
+        Returns:
+            pandas.DataFrame: Dataframe with added features.
 
         """
 
 
 class TrainFeatureApplicator(AbstractFeatureApplicator):
+    """Feature applicator for use during training."""
     def add_features(
-        self, df: pd.DataFrame, pj: PredictionJobDataClass = None, latency_config=None
+        self, df: pd.DataFrame, pj: PredictionJobDataClass = None, latency_config: dict = None
     ) -> pd.DataFrame:
         """Adds features to an input DataFrame.
 
@@ -73,7 +83,7 @@ class TrainFeatureApplicator(AbstractFeatureApplicator):
             0.25 hours this feature is added as in this case the feature is available.
 
         Args:
-            df (pd.DataFrame):  Input data to which the features will be added.
+            df: Input data to which the features will be added.
             pj: (Optional) A prediction job that is needed for location dependent features,
                 if not specified a default location is used
             latency_config (dict): Optional. Invalidate certain features that are not
@@ -81,7 +91,7 @@ class TrainFeatureApplicator(AbstractFeatureApplicator):
                 {"APX": 24}
 
         Returns:
-            pd.DataFrame: Input DataFrame with an extra column for every added feature
+            pandas.DataFrame: Input DataFrame with an extra column for every added feature
                 and sorted on the datetime index.
 
         """
@@ -146,6 +156,7 @@ class TrainFeatureApplicator(AbstractFeatureApplicator):
 
 
 class OperationalPredictFeatureApplicator(AbstractFeatureApplicator):
+    """Feature applicator for use in operational forecasts."""
     def add_features(
         self, df: pd.DataFrame, pj: PredictionJobDataClass = None
     ) -> pd.DataFrame:
@@ -154,11 +165,11 @@ class OperationalPredictFeatureApplicator(AbstractFeatureApplicator):
         This method is implemented specifically for an operational prediction pipeline and will add every available feature.
 
         Args:
-            df: pd.DataFrame with input data to which the features have to be added
+            df: DataFrame with input data to which the features have to be added
             pj: (Optional) A prediction job that is needed for location dependent features,
                 if not specified a default location is used
         Returns:
-            pd.DataFrame: Input DataFrame with an extra column for every added feature.
+            pandas.DataFrame: Input DataFrame with an extra column for every added feature.
 
         """
         # If pj is none add empty dict
