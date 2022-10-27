@@ -46,7 +46,12 @@ def plot_feature_importance(feature_importance: pd.DataFrame) -> go.Figure:
     )
 
 
-def plot_data_series(data: Union[List[pd.DataFrame],List[pd.Series]], predict_data: Union[List[pd.DataFrame],List[pd.Series]]=None, horizon:int=47, names: List[str]=None)->go.Figure:
+def plot_data_series(
+    data: Union[List[pd.DataFrame], List[pd.Series]],
+    predict_data: Union[List[pd.DataFrame], List[pd.Series]] = None,
+    horizon: int = 47,
+    names: List[str] = None,
+) -> go.Figure:
     """Plots passed data and optionally prediction data for specified horizon.
 
     Args:
@@ -118,7 +123,7 @@ def plot_data_series(data: Union[List[pd.DataFrame],List[pd.Series]], predict_da
     return fig
 
 
-def _plot_data(names: List[str], series:List[pd.Series])->go.Figure:
+def _plot_data(names: List[str], series: List[pd.Series]) -> go.Figure:
     """Create plot of data consisting of different splits.
 
     Note:
@@ -161,7 +166,9 @@ def _plot_data(names: List[str], series:List[pd.Series])->go.Figure:
     return fig
 
 
-def _plot_data_and_predictions(names:List[str], actuals: List[pd.Series], predictions: List[pd.Series]) -> go.Figure:
+def _plot_data_and_predictions(
+    names: List[str], actuals: List[pd.Series], predictions: List[pd.Series]
+) -> go.Figure:
     """Create plot of different data and prediction splits.
 
     Note:

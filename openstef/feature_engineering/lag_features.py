@@ -24,9 +24,9 @@ def generate_lag_feature_functions(
         Lag functions.
 
     Example:
-    
+
     .. code-block:: py
-    
+
         lag_functions = generate_lag_functions(data,minute_list,h_ahead)
 
     """
@@ -128,7 +128,7 @@ def generate_non_trivial_lag_times(
     data: pd.DataFrame, height_treshold: float = 0.1
 ) -> List[int]:
     """Calculate an autocorrelation curve of the load trace.
-    
+
     This curve is subsequently used to add additional lag times as features.
 
     Args:

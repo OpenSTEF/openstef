@@ -28,6 +28,7 @@ LATENCY_CONFIG = {"APX": 24}  # A specific latency is part of a specific feature
 
 class AbstractFeatureApplicator(ABC):
     """Defines the Applicator interface."""
+
     def __init__(
         self,
         horizons: Union[List[float], str],
@@ -60,7 +61,7 @@ class AbstractFeatureApplicator(ABC):
             df: DataFrame with input data to which the features have to be added
             pj: (Optional) A prediction job that is needed for location dependent features,
                 if not specified a default location is used
-                
+
         Returns:
             Dataframe with added features.
 
@@ -69,8 +70,12 @@ class AbstractFeatureApplicator(ABC):
 
 class TrainFeatureApplicator(AbstractFeatureApplicator):
     """Feature applicator for use during training."""
+
     def add_features(
-        self, df: pd.DataFrame, pj: PredictionJobDataClass = None, latency_config: dict = None
+        self,
+        df: pd.DataFrame,
+        pj: PredictionJobDataClass = None,
+        latency_config: dict = None,
     ) -> pd.DataFrame:
         """Adds features to an input DataFrame.
 
@@ -156,6 +161,7 @@ class TrainFeatureApplicator(AbstractFeatureApplicator):
 
 class OperationalPredictFeatureApplicator(AbstractFeatureApplicator):
     """Feature applicator for use in operational forecasts."""
+
     def add_features(
         self, df: pd.DataFrame, pj: PredictionJobDataClass = None
     ) -> pd.DataFrame:

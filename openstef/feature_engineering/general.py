@@ -19,14 +19,14 @@ def add_missing_feature_columns(
     This is especially usefull to make sure the required columns are in place when
     making a prediction.
 
-    .. note:: 
+    .. note::
         This function is intended as a final check to prevent errors during predicion.
         In an ideal world this function is not nescarry.
 
     Args:
         input_data: DataFrame with input data and featurs.
         features: List of requiered features.
-        
+
     Returns:
         Input dataframe with missing columns filled with ``np.N=nan``.
 
@@ -86,7 +86,7 @@ def remove_non_requested_feature_columns(
     return input_data.drop(not_requested_features, axis=1)
 
 
-def enforce_feature_order(input_data: pd.DataFrame)-> pd.DataFrame:
+def enforce_feature_order(input_data: pd.DataFrame) -> pd.DataFrame:
     """Enforces correct order of features.
 
     Alphabetically orders the feature columns. The load column remains the first column

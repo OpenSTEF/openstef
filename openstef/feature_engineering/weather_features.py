@@ -29,7 +29,9 @@ DEFAULT_LAT: float = 52.132633
 DEFAULT_LON: float = 5.291266
 
 
-def calc_saturation_pressure(temperature: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
+def calc_saturation_pressure(
+    temperature: Union[float, np.ndarray]
+) -> Union[float, np.ndarray]:
     """Calculate the water vapour pressure from the temperature.
 
     See https://www.vaisala.com/sites/default/files/documents/Humidity_Conversion_Formulas_B210973EN-F.pdf.
@@ -59,7 +61,9 @@ def calc_vapour_pressure(
     return rh * psat
 
 
-def calc_dewpoint(vapour_pressure: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
+def calc_dewpoint(
+    vapour_pressure: Union[float, np.ndarray]
+) -> Union[float, np.ndarray]:
     """Calculates the dewpoint, see https://en.wikipedia.org/wiki/Dew_point for mroe info.
 
     Args:
@@ -228,7 +232,9 @@ def humidity_calculations(
 
 
 def calculate_windspeed_at_hubheight(
-    windspeed: Union[float, pd.Series], fromheight: float = 10.0, hub_height: float = 100.0
+    windspeed: Union[float, pd.Series],
+    fromheight: float = 10.0,
+    hub_height: float = 100.0,
 ) -> pd.Series:
     """Calculate windspeed at hubheight.
 
@@ -410,7 +416,7 @@ def calculate_gti(
         surface_tilt: The tilt of the surface of, for example, your PhotoVoltaic-system.
         surface_azimuth: The way the surface is facing. South facing 180 degrees, North facing 0 degrees, East facing 90 degrees and West facing 270 degrees
 
-    Returns: 
+    Returns:
         Global Tilted Irradiance (GTI)
 
     """

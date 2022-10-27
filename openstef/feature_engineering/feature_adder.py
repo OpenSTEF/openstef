@@ -13,6 +13,7 @@ import pandas as pd
 
 ParsedFeature = namedtuple("ParsedFeature", ["name", "params"])
 
+
 class FeatureAdder(ABC):
     """Abstract class that implement the FeatureAdder interface.
 
@@ -104,10 +105,10 @@ class FeatureDispatcher:
         self, feature_names: List[str]
     ) -> Dict[FeatureAdder, List[ParsedFeature]]:
         """Dispatch features.
-        
+
         Args:
             feature_names: The names of the features to be dispatched.
-        
+
         Returns:
             Dictionary with parsed features.
         """
@@ -130,7 +131,9 @@ class FeatureDispatcher:
 
         return dispatched_features
 
-    def apply_features(self, df: pd.DataFrame, feature_names: List[str]) -> pd.DataFrame:
+    def apply_features(
+        self, df: pd.DataFrame, feature_names: List[str]
+    ) -> pd.DataFrame:
         """Applies features to the input DataFrame.
 
         Args:
@@ -165,15 +168,16 @@ class FeatureDispatcher:
 
         return df
 
-def adders_from_module(module_name: str)-> List[FeatureAdder]:
+
+def adders_from_module(module_name: str) -> List[FeatureAdder]:
     """Load all FeatureAdders classes on the fly from the module.
-    
+
     Args:
         module_name: The name of the module from which to import.
-    
+
     Returns:
         A list with all loaded FeatureAdders.
-    
+
     """
     module = import_module(module_name)
     feature_adders = []
@@ -190,16 +194,14 @@ def adders_from_module(module_name: str)-> List[FeatureAdder]:
     return feature_adders
 
 
-def adders_from_modules(module_names: List[str])-> List[FeatureAdder]:
+def adders_from_modules(module_names: List[str]) -> List[FeatureAdder]:
     """Load all FeatureAdders classes on the fly from multiple modules.
-    
+
     Args:
         module_names: A list with names of the modules from which to import.
-    
+
     Returns:
         A list with all loaded FeatureAdders.
-    
+
     """
     return sum((adders_from_module(module_name) for module_name in module_names), [])
-
-
