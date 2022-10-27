@@ -1,11 +1,11 @@
 # SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+from abc import abstractmethod
 from typing import Optional
 
 import numpy as np
 import pandas as pd
-from abc import abstractmethod
 from sklearn.base import BaseEstimator, RegressorMixin
 
 

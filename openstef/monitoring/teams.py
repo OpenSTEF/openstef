@@ -1,12 +1,12 @@
 # SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+from typing import Union
+
 import pandas as pd
 import pymsteams
 import structlog
-
 from pymsteams import cardsection
-from typing import Union
 
 
 def post_teams(

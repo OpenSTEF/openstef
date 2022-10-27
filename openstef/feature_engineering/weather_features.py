@@ -7,8 +7,8 @@ from typing import List
 
 import numpy as np
 import pandas as pd
-import structlog
 import pvlib
+import structlog
 from pvlib.location import Location
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass

@@ -5,11 +5,11 @@ import os
 import warnings
 from dataclasses import dataclass
 from typing import Dict
-import structlog
 
 import numpy as np
 import pandas as pd
 import sklearn
+import structlog
 from mlflow.models import ModelSignature, infer_signature
 from plotly.graph_objects import Figure
 

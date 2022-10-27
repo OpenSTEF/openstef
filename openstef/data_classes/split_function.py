@@ -5,7 +5,7 @@
 import inspect
 import json
 from importlib import import_module
-from typing import Any, Callable, Dict, Sequence, Union, Tuple
+from typing import Any, Callable, Dict, Sequence, Tuple, Union
 
 from pydantic import BaseModel
 

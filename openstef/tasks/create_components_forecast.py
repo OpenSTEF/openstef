@@ -24,8 +24,8 @@ Example:
 """
 from datetime import datetime, timedelta
 from pathlib import Path
-import pytz
 
+import pytz
 import structlog
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass

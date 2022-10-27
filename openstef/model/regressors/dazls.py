@@ -2,12 +2,11 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 import numpy as np
-from sklearn.metrics import r2_score, mean_squared_error
-from sklearn.neighbors import KNeighborsRegressor
-from sklearn.utils import shuffle
 from sklearn.base import BaseEstimator
+from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.neighbors import KNeighborsRegressor
 from sklearn.preprocessing import MinMaxScaler
-
+from sklearn.utils import shuffle
 
 # DAZLS algorithm
 

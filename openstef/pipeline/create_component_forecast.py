@@ -5,11 +5,12 @@
 import joblib
 import pandas as pd
 import structlog
+
 import openstef.postprocessing.postprocessing as postprocessing
-from openstef.data_classes.prediction_job import PredictionJobDataClass
-from openstef.model.regressors.dazls import Dazls
-from openstef.enums import ForecastType
 from openstef import PROJECT_ROOT
+from openstef.data_classes.prediction_job import PredictionJobDataClass
+from openstef.enums import ForecastType
+from openstef.model.regressors.dazls import Dazls
 
 # Set the path for the Dazls stored model
 DAZLS_STORED = PROJECT_ROOT / "openstef" / "data" / "dazls_stored.sav"
