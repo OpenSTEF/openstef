@@ -8,12 +8,23 @@
 # SPDX-FileCopyrightText: 2017 Nikolay Lysenko
 #
 # SPDX-License-Identifier: MIT
-
+"""This module contains all metrics to assess forecast quality."""
+from typing import Callable, Tuple
 import numpy as np
 import pandas as pd
+import xgboost
 
 
-def get_eval_metric_function(metric_name):
+def get_eval_metric_function(metric_name: str) -> Callable:
+    """Gets a metric if it is available.
+    
+    Args:
+        metric_name: Name of the metric.
+        
+    Returns:
+        Function to calculate the metric.
+    
+    """
     evaluation_function = {
         "rmse": rmse,
         "bias": bias,
@@ -37,18 +48,43 @@ def get_eval_metric_function(metric_name):
     return evaluation_function
 
 
-def rmse(realised, forecast):
-    """Function that calculates the Root Mean Square Error based on the true and prediciton."""
+def rmse(realised: pd.Series, forecast: pd.Series)-> float:
+    """Function that calculates the Root Mean Square Error based on the true and prediciton.
+    
+    Args:
+        realised: Realised load.
+        forecast: Forecasted load.
+        
+    Returns:
+        Root Mean Square Error
+    
+    """
     return np.sqrt(((realised - forecast) ** 2).mean())
 
 
-def bias(realised, forecast):
-    """Function that calculates the absolute bias in % based on the true and prediciton."""
+def bias(realised: pd.Series, forecast: pd.Series)-> float:
+    """Function that calculates the absolute bias in % based on the true and prediciton.
+    
+    Args:
+        realised: Realised load.
+        forecast: Forecasted load.
+        
+    Returns:
+        Bias
+    """
     return np.mean(forecast - realised)
 
 
-def nsme(realised, forecast):
-    """Function that calculates the Nash-sutcliffe model efficiency based on the true and prediciton."""
+def nsme(realised: pd.Series, forecast: pd.Series)-> float:
+    """Function that calculates the Nash-sutcliffe model efficiency based on the true and prediciton.
+    
+    Args:
+        realised: Realised load.
+        forecast: Forecasted load.
+        
+    Returns:
+        Nash-sutcliffe model efficiency
+    """
     try:
         return 1 - sum((forecast - realised) ** 2) / sum(
             (realised - np.mean(realised)) ** 2
@@ -57,18 +93,17 @@ def nsme(realised, forecast):
         return 1
 
 
-def mae(realised, forecast):
+def mae(realised: pd.Series, forecast: pd.Series)-> float:
     """Function that calculates the mean absolute error based on the true and prediction."""
     return np.mean(np.abs(forecast - realised))
 
 
-def r_mae(realised, forecast):
+def r_mae(realised: pd.Series, forecast: pd.Series)-> float:
     """Function that calculates the relative mean absolute error based on the true and prediction.
 
     The range is based on the load range of the previous two weeks
 
     """
-
     # Determine load range on entire dataset
     range_ = (
         realised.max() - realised.min()
@@ -79,20 +114,18 @@ def r_mae(realised, forecast):
     return mae(realised, forecast) / range_
 
 
-def frac_in_stdev(realised, forecast, stdev):
+def frac_in_stdev(realised: pd.Series, forecast: pd.Series, stdev: pd.Series)-> float:
     """Function that calculates the amount of measurements that are within one stdev of our predictions."""
     outside_stdev = forecast[(forecast - realised).abs() > stdev]
     return round((1 - (len(outside_stdev) / len(forecast))), 2)
 
 
-def r_mae_highest(realised, forecast, percentile=0.95):
-    """Function that calculates the relative mean absolute error based on the true and prediction for the 5 percent
-    highest realised values.
+def r_mae_highest(realised: pd.Series, forecast: pd.Series, percentile: float=0.95)-> float:
+    """Function that calculates the relative mean absolute error based on the true and prediction for the 5 percent highest realised values.
 
-    The range is based on the load range of the previous two weeks
+    The range is based on the load range of the previous two weeks.
 
     """
-
     # Check if length of both arrays is equal
     if len(np.array(realised)) != len(np.array(forecast)):
         raise ValueError(
@@ -115,15 +148,13 @@ def r_mae_highest(realised, forecast, percentile=0.95):
     return r_mae_highest
 
 
-def r_mne_highest(realised, forecast):
-    """Function that calculates the relative mean negative error based on the true and prediction for the 5 percent
-    highest realised values.
+def r_mne_highest(realised: pd.Series, forecast: pd.Series)-> float:
+    """Function that calculates the relative mean negative error based on the true and prediction for the 5 percent highest realised values.
 
     The range is based on the load range of the previous two weeks, this measure quantifies how much we underestimate
     peaks
 
     """
-
     # Combine series in one DataFrame
     combined = pd.concat([realised, forecast], axis=1)
 
@@ -154,15 +185,13 @@ def r_mne_highest(realised, forecast):
     return r_mne_highest
 
 
-def r_mpe_highest(realised, forecast):
-    """Function that calculates the relative mean positive error based on the true and prediction for the 5 percent
-    highest realised values.
+def r_mpe_highest(realised: pd.Series, forecast: pd.Series)-> float:
+    """Function that calculates the relative mean positive error based on the true and prediction for the 5 percent highest realised values.
 
     The range is based on the load range of the previous two weeks, this measure quantifies how much we overestimate
     peaks
 
     """
-
     # Combine series in one DataFrame
     combined = pd.concat([realised, forecast], axis=1)
 
@@ -193,14 +222,12 @@ def r_mpe_highest(realised, forecast):
     return r_mpe_highest
 
 
-def r_mae_lowest(realised, forecast, quantile=0.05):
-    """Function that calculates the relative mean absolute error based on the true and prediction for the 5 percent
-    lowest realised values.
+def r_mae_lowest(realised: pd.Series, forecast: pd.Series, quantile:float=0.05)-> float:
+    """Function that calculates the relative mean absolute error based on the true and prediction for the 5 percent lowest realised values.
 
     The range is based on the load range of the previous two weeks
 
     """
-
     # Determine load range on entire dataset
     range_ = (
         realised.max() - realised.min()
@@ -216,7 +243,7 @@ def r_mae_lowest(realised, forecast, quantile=0.05):
     return r_mae_lowest
 
 
-def skill_score(realised, forecast, mean):
+def skill_score(realised: pd.Series, forecast: pd.Series, mean: pd.Series)-> float:
     """Function that calculates the skill score.
 
     Thise indicates model performance relative to a reference, in this case the mean of the realised values. The range
@@ -234,7 +261,8 @@ def skill_score(realised, forecast, mean):
     return skill_score
 
 
-def skill_score_positive_peaks(realised, forecast, mean):
+def skill_score_positive_peaks(realised: pd.Series, forecast: pd.Series, mean: pd.Series) -> float:
+    """Calculates skill score on positive peaks."""
     # Combine series in one DataFrame
     combined = pd.concat([realised, forecast], axis=1)
 
@@ -253,7 +281,8 @@ def skill_score_positive_peaks(realised, forecast, mean):
     return skill_score_highest
 
 
-def franks_skill_score(realised, forecast, basecase, range_=1.0):
+def franks_skill_score(realised: pd.Series, forecast: pd.Series, basecase: pd.Series, range_:float=1.0) -> float:
+    """Calculate Franks skill score."""
     # Combine series in one DataFrame
     combined = pd.concat([realised, forecast], axis=1)
     if range_ == 1.0:
@@ -271,7 +300,8 @@ def franks_skill_score(realised, forecast, basecase, range_=1.0):
     return franks_skill_score
 
 
-def franks_skill_score_peaks(realised, forecast, basecase):
+def franks_skill_score_peaks(realised: pd.Series, forecast: pd.Series, basecase: pd.Series) -> float:
+    """Calculate Franks skill score on positive peaks."""
     # Combine series in one DataFrame
     combined = pd.concat([realised, forecast, basecase], axis=1)
 
@@ -307,14 +337,19 @@ def franks_skill_score_peaks(realised, forecast, basecase):
 # SPDX-License-Identifier: MIT
 
 
-def xgb_quantile_eval(preds, dmatrix, quantile=0.2):
-    """Customized evaluational metric that equals to quantile regression loss (also known as pinball loss). Quantile
-    regression is regression that estimates a specified quantile of target's distribution conditional on given features.
+def xgb_quantile_eval(preds: np.ndarray, dmatrix: xgboost.DMatrix, quantile: float=0.2) -> str:
+    """Customized evaluational metric that equals to quantile regression loss (also known as pinball loss).
+    
+    Quantile regression is regression that estimates a specified quantile of target's distribution conditional on given features.
 
-    @type preds: numpy.ndarray
-    @type dmatrix: xgboost.DMatrix
-    @type quantile: float
-    @rtype: float
+    Args:
+        preds: Predicted values
+        dmatrix: xgboost.DMatrix of the input data.
+        quantile: Target quantile.
+        
+    Returns:
+        Loss information
+    
 
     # See also:
     https://gist.github.com/Nikolay-Lysenko/06769d701c1d9c9acb9a66f2f9d7a6c7
@@ -330,18 +365,22 @@ def xgb_quantile_eval(preds, dmatrix, quantile=0.2):
     )
 
 
-def xgb_quantile_obj(preds, dmatrix, quantile=0.2):
-    """Computes first-order derivative of quantile regression loss and a non-degenerate substitute for second-order
-    derivative. Substitute is returned instead of zeros, because XGBoost requires non-zero second-order derivatives. See
+def xgb_quantile_obj(preds: np.ndarray, dmatrix: xgboost.DMatrix, quantile: float=0.2) -> Tuple[np.ndarray, np.ndarray]:
+    """Computes first-order derivative of quantile regression loss and a non-degenerate substitute for second-order derivative.
+    
+    Substitute is returned instead of zeros, because XGBoost requires non-zero second-order derivatives. See
     this page: https://github.com/dmlc/xgboost/issues/1825 to see why it is possible to use this trick. However, be sure
     that hyperparameter named `max_delta_step` is small enough to satisfy:
 
     ```0.5 * max_delta_step <=
        min(quantile, 1 - quantile)```.
-    @type preds: numpy.ndarray
-    @type dmatrix: xgboost.DMatrix
-    @type quantile: float
-    @rtype: tuple(numpy.ndarray)
+       
+    Args:
+        preds: numpy.ndarray
+        dmatrix: xgboost.DMatrix
+        quantile: float    
+    Returns:
+        Gradient and Hessian
 
     # See also:
     https://gist.github.com/Nikolay-Lysenko/06769d701c1d9c9acb9a66f2f9d7a6c7
