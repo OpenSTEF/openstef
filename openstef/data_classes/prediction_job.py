@@ -12,6 +12,7 @@ from .split_function import SplitFuncDataClass
 
 class PredictionJobDataClass(BaseModel):
     """Holds all information about the specific forecast that has to be made."""
+
     id: Union[int, str]
     """The predictions job id (often abreviated as pid)."""
     model: str
@@ -67,20 +68,20 @@ class PredictionJobDataClass(BaseModel):
     completeness_treshold: float = 0.5
     """Minimum fraction of data that should be available for making a regular forecast."""
     minimal_table_length: int = 100
-    """Minimum length (in rows) of the forecast input for making a regular forecast."""    
+    """Minimum length (in rows) of the forecast input for making a regular forecast."""
     flatliner_treshold: int = 24
     """Number of consecutive values that have to be constant to detect a flatliner. """
     depends_on: Optional[List[Union[int, str]]]
-    """Link to another prediction job on which this prediction job might depend."""    
-    sid: Optional[str] 
+    """Link to another prediction job on which this prediction job might depend."""
+    sid: Optional[str]
     """Only required for create_solar_forecast task"""
-    turbine_type: Optional[str]  
+    turbine_type: Optional[str]
     """Only required for create_wind_forecast task"""
-    n_turbines: Optional[float]  
+    n_turbines: Optional[float]
     """Only required for create_wind_forecast task"""
-    hub_height: Optional[float]  
+    hub_height: Optional[float]
     """Only required for create_wind_forecast task"""
-    
+
     class Config:
         """Pydantic model configuration.
 

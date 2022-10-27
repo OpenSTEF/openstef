@@ -12,6 +12,7 @@ from pydantic import BaseModel
 
 class SplitFuncDataClass(BaseModel):
     """Class that allows to specify a custom function to generate a train, test and validation set."""
+
     function: Union[str, Callable]
     arguments: Union[
         str, Dict[str, Any]
@@ -28,7 +29,9 @@ class SplitFuncDataClass(BaseModel):
         else:
             raise AttributeError(f"{key} not an attribute of prediction job.")
 
-    def _load_split_function(self, required_arguments: Sequence[str] = None) -> Callable:
+    def _load_split_function(
+        self, required_arguments: Sequence[str] = None
+    ) -> Callable:
         """Load split function from path.
 
         Args:
