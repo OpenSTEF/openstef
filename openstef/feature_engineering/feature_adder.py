@@ -106,8 +106,10 @@ class FeatureDispatcher:
         """Dispatch features.
         
         Args:
-            feature_names (List[str]): The names of the features to be dispatched.
+            feature_names: The names of the features to be dispatched.
         
+        Returns:
+            Dictionary with parsed features.
         """
         recognized_features = set()
         dispatched_features = {}
@@ -128,15 +130,15 @@ class FeatureDispatcher:
 
         return dispatched_features
 
-    def apply_features(self, df: pd.DataFrame, feature_names: List[str]):
+    def apply_features(self, df: pd.DataFrame, feature_names: List[str]) -> pd.DataFrame:
         """Applies features to the input DataFrame.
 
         Args:
-            df (pd.DataFrame): DataFrame to which the features have to be added.
-            feature_names (List[str]): Names of the features.
+            df: DataFrame to which the features have to be added.
+            feature_names: Names of the features.
 
         Returns:
-            pandas.DataFrame: DataFrame with the added features.
+            DataFrame with the added features.
         """
         if feature_names is None:
             return df
@@ -167,10 +169,10 @@ def adders_from_module(module_name: str)-> List[FeatureAdder]:
     """Load all FeatureAdders classes on the fly from the module.
     
     Args:
-        module_name (str): The name of the module from which to import.
+        module_name: The name of the module from which to import.
     
     Returns:
-        List[FeatureAdder] A list with all loaded FeatureAdders.
+        A list with all loaded FeatureAdders.
     
     """
     module = import_module(module_name)
@@ -188,14 +190,14 @@ def adders_from_module(module_name: str)-> List[FeatureAdder]:
     return feature_adders
 
 
-def adders_from_modules(module_names: List[str]):
+def adders_from_modules(module_names: List[str])-> List[FeatureAdder]:
     """Load all FeatureAdders classes on the fly from multiple modules.
     
     Args:
-        module_names (List[str]): A list with names of the modules from which to import.
+        module_names: A list with names of the modules from which to import.
     
     Returns:
-        List[FeatureAdder] A list with all loaded FeatureAdders.
+        A list with all loaded FeatureAdders.
     
     """
     return sum((adders_from_module(module_name) for module_name in module_names), [])

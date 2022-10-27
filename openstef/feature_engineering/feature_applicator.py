@@ -37,9 +37,9 @@ class AbstractFeatureApplicator(ABC):
         """Initialize abstract feature applicator.
 
         Args:
-            horizons (list): list of horizons in hours
-            feature_names (List[str]):  List of requested features
-            feature_modules (List[str]): List of modules from which FeatureAdders should be loaded.
+            horizons: list of horizons in hours
+            feature_names:  List of requested features
+            feature_modules: List of modules from which FeatureAdders should be loaded.
 
         """
         if not isinstance(horizons, str) and type(horizons) is not list and not None:
@@ -57,12 +57,12 @@ class AbstractFeatureApplicator(ABC):
         """Adds features to an input DataFrame.
 
         Args:
-            df: pandas.DataFrame with input data to which the features have to be added
+            df: DataFrame with input data to which the features have to be added
             pj: (Optional) A prediction job that is needed for location dependent features,
                 if not specified a default location is used
                 
         Returns:
-            pandas.DataFrame: Dataframe with added features.
+            Dataframe with added features.
 
         """
 
@@ -86,13 +86,12 @@ class TrainFeatureApplicator(AbstractFeatureApplicator):
             df: Input data to which the features will be added.
             pj: (Optional) A prediction job that is needed for location dependent features,
                 if not specified a default location is used
-            latency_config (dict): Optional. Invalidate certain features that are not
-                available for a specific horizon due to data latency. Default to
-                {"APX": 24}
+            latency_config: (Optional) Invalidate certain features that are not
+                available for a specific horizon due to data latency. Defaults to
+                ``{"APX": 24}``.
 
         Returns:
-            pandas.DataFrame: Input DataFrame with an extra column for every added feature
-                and sorted on the datetime index.
+            Input DataFrame with an extra column for every added feature and sorted on the datetime index.
 
         """
         # If pj is none add empty dict
@@ -169,7 +168,7 @@ class OperationalPredictFeatureApplicator(AbstractFeatureApplicator):
             pj: (Optional) A prediction job that is needed for location dependent features,
                 if not specified a default location is used
         Returns:
-            pandas.DataFrame: Input DataFrame with an extra column for every added feature.
+           Input DataFrame with an extra column for every added feature.
 
         """
         # If pj is none add empty dict

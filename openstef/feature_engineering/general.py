@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+"""This modelu contains various helper functions."""
 from typing import List
 
 import numpy as np
@@ -18,12 +19,16 @@ def add_missing_feature_columns(
     This is especially usefull to make sure the required columns are in place when
     making a prediction.
 
-    NOTE: this function is intended as a final check to prevent errors during predicion.
+    .. note:: 
+        This function is intended as a final check to prevent errors during predicion.
         In an ideal world this function is not nescarry.
 
     Args:
-        input_data (pd.DataFrame): DataFrame with input data and featurs.
-        features (list): List of requiered features.
+        input_data: DataFrame with input data and featurs.
+        features: List of requiered features.
+        
+    Returns:
+        Input dataframe with missing columns filled with ``np.N=nan``.
 
     """
     logger = structlog.get_logger(__name__)
@@ -50,11 +55,11 @@ def remove_non_requested_feature_columns(
     This should not be nescesarry but serves as an extra failsave for making predicitons
 
     Args:
-        input_data: (pd.Dataframe) DataFrame with features
-        requested_features: (list) list of reuqested features
+        input_data: DataFrame with features
+        requested_features: List of reuqested features
 
     Returns:
-        pd.DataFrame: Nodel input data with features.
+        Model input data with features.
 
     """
     logger = structlog.get_logger(__name__)
@@ -81,23 +86,23 @@ def remove_non_requested_feature_columns(
     return input_data.drop(not_requested_features, axis=1)
 
 
-def enforce_feature_order(input_data: pd.DataFrame):
+def enforce_feature_order(input_data: pd.DataFrame)-> pd.DataFrame:
     """Enforces correct order of features.
 
     Alphabetically orders the feature columns. The load column remains the first column
-        and the horizons column remains the last column.
-        Everything in between is alphabetically sorted:
-        The order eventually looks like this:
-        ["load"] -- [alphabetically sorted features] -- ['horizon']
+    and the horizons column remains the last column.
+    Everything in between is alphabetically sorted:
+    The order eventually looks like this:
+    ["load"] -- [alphabetically sorted features] -- ['horizon']
 
-        This funciton assumes the first column contains the to be predicted variable
-        Furthermore the "horizon" is moved to the last position if it is pressent.
+    This function assumes the first column contains the to be predicted variable
+    Furthermore the "horizon" is moved to the last position if it is pressent.
 
     Args:
-        input_data (pd.DataFrame): Input data with features.
+        input_data: Input data with features.
 
     Returns:
-        pd.DataFrame: Properly sorted input data
+        Properly sorted input data.
 
     """
     # Extract first column name

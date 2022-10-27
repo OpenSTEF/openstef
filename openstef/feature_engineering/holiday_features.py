@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-
+"""This module contains all holiday related features."""
 from datetime import datetime, timedelta
 from typing import Tuple
 
@@ -50,9 +50,14 @@ def generate_holiday_feature_functions(
 
     The 'Brugdagen' are updated untill dec 2020. (Generated using agenda)
 
+    Args:
+        country: Country for which to create holiday features.
+        years: years for which to create holiday features.
+        path_to_school_holidays_csv: Filepath to csv with school holidays.
+
     Returns:
-        (dict): Dictionary with functions that check if a given date is a holiday, keys
-                consist of "Is" + the_name_of_the_holiday_to_be_checked
+        Dictionary with functions that check if a given date is a holiday, keys
+        consist of "Is" + the_name_of_the_holiday_to_be_checked
 
     """
     if years is None:
@@ -139,16 +144,16 @@ def check_for_bridge_day(
     function for the bridgeday is added to the general holidayfuncitons dictionary.
 
     Args:
-        date: datetime.datetime, date of holiday to check for associated bridgedays
-        holiday_name: name of the holiday
-        country: country for which to detect the bridgedays
-        years: list of years for which to detect bridgedays
-        holiday_functions: dictionary to which the featurefunction has to be appended to in case of a bridgeday
-        bridge_days: list of bridgedays to which any found bridgedays have to be appended
+        date: Date of holiday to check for associated bridgedays.
+        holiday_name: Name of the holiday.
+        country: Country for which to detect the bridgedays.
+        years: List of years for which to detect bridgedays.
+        holiday_functions: Dictionary to which the featurefunction has to be appended to in case of a bridgeday.
+        bridge_days: List of bridgedays to which any found bridgedays have to be appended.
 
     Returns:
-        holiday_functions: dict with holiday feature functions
-        bridge_days: list of bridgedays
+        - Dict with holiday feature functions
+        - List of bridgedays
 
     """
     country_holidays = holidays.country_holidays(country, years=years)

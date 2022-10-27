@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 
 """This module contains all wheather related functions used for feature engineering."""
-from typing import List
+from typing import Dict, List, Union
 
 import numpy as np
 import pandas as pd
@@ -29,13 +29,13 @@ DEFAULT_LAT: float = 52.132633
 DEFAULT_LON: float = 5.291266
 
 
-def calc_saturation_pressure(temperature: float or np.ndarray) -> float or np.ndarray:
+def calc_saturation_pressure(temperature: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
     """Calculate the water vapour pressure from the temperature.
 
     See https://www.vaisala.com/sites/default/files/documents/Humidity_Conversion_Formulas_B210973EN-F.pdf.
 
     Args:
-        temperature (np.array): Temperature in C
+        temperature: Temperature in C
     Returns:
         The saturation pressure of water at the respective temperature
 
@@ -45,13 +45,13 @@ def calc_saturation_pressure(temperature: float or np.ndarray) -> float or np.nd
 
 
 def calc_vapour_pressure(
-    rh: float or np.ndarray, psat: float or np.ndarray
-) -> float or np.ndarray:
+    rh: Union[float, np.ndarray], psat: Union[float, np.ndarray]
+) -> Union[float, np.ndarray]:
     """Calculates the vapour pressure.
 
     Args:
-        rh (np.ndarray or float): Relative humidity
-        psat (np.ndarray or float): Saturation pressure: see calc_saturation_pressure
+        rh: Relative humidity
+        psat: Saturation pressure: see calc_saturation_pressure
     Returns:
         The water vapour pressure
 
@@ -59,32 +59,32 @@ def calc_vapour_pressure(
     return rh * psat
 
 
-def calc_dewpoint(vapour_pressure: float or np.ndarray) -> float or np.ndarray:
+def calc_dewpoint(vapour_pressure: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
     """Calculates the dewpoint, see https://en.wikipedia.org/wiki/Dew_point for mroe info.
 
     Args:
-        vapour_pressure (np.ndarray or float): The vapour pressure for which the dewpoint should be calculated
+        vapour_pressure: The vapour pressure for which the dewpoint should be calculated
     Returns:
-        dewpoint (np.ndarray or float):
+        Dewpoint
 
     """
     return TN / ((M / np.log10(vapour_pressure / A)) - 1)
 
 
 def calc_air_density(
-    temperature: float or np.ndarray,
-    pressure: float or np.ndarray,
-    rh: float or np.ndarray,
-) -> float or np.ndarray:
+    temperature: Union[float, np.ndarray],
+    pressure: Union[float, np.ndarray],
+    rh: Union[float, np.ndarray],
+) -> Union[float, np.ndarray]:
     """Calculates the dewpoint.
 
     Args:
-        temperature (np.ndarray or float): The temperature in C
-        pressure (np.ndarray or float): the atmospheric pressure in Pa
-        rh (np.ndarray or float): Relative humidity
+        temperature: The temperature in C
+        pressure: the atmospheric pressure in Pa
+        rh: Relative humidity
 
     Returns:
-        air density (np.ndarray or float): The air density (kg/m^3)
+        The air density (kg/m^3)
 
     """
     # Calculate saturation pressure
@@ -114,11 +114,11 @@ def add_humidity_features(
     requested features is used to determine whether to add the humidity features or not.
 
     Args:
-        data (pd.DataFrame): Input dataframe to which features have to be added
-        feature_names (List[str]): list of requested features.
+        data: Input dataframe to which features have to be added
+        feature_names: list of requested features.
 
     Returns:
-        pd.DataFrame, Same as input dataframe with extra columns for the humidty features.
+        Same as input dataframe with extra columns for the humidty features.
 
     """
     # If features is none add humidity feature anyway
@@ -152,25 +152,26 @@ def add_humidity_features(
 
 
 def humidity_calculations(
-    temperature: float or np.ndarray,
-    rh: float or np.ndarray,
-    pressure: float or np.ndarray,
-) -> dict or np.ndarray:
-    """Function that calculates the.
+    temperature: Union[float, np.ndarray],
+    rh: Union[float, np.ndarray],
+    pressure: Union[float, np.ndarray],
+) -> Union[Dict, np.ndarray]:
+    """Function that calculates weather features based on humidity..
 
-    - Saturation pressure
-    - Vapour pressure
-    - Dewpoint
-    - Air density
+    These features are:
+        - Saturation pressure
+        - Vapour pressure
+        - Dewpoint
+        - Air density
 
     Args:
-        temperature (np.array): Temperature in C
-        rh (np.array): Relative humidity in %
-        pressure (np.array): The air pressure in hPa
+        temperature: Temperature in C
+        rh: Relative humidity in %
+        pressure: The air pressure in hPa
 
     Returns:
-        if the input is an np.ndarray: a pandas dataframe with the calculated moisture indices
-        if the input is numeric: a dict with the calculated moisture indices
+        If the input is an np.ndarray; a pandas dataframe with the calculated moisture indices,
+        if the input is numeric; a dict with the calculated moisture indices
 
     """
     # First: a sanity check on the relative humidity and the air pressure
@@ -227,7 +228,7 @@ def humidity_calculations(
 
 
 def calculate_windspeed_at_hubheight(
-    windspeed: float or pd.Series, fromheight: float = 10.0, hub_height: float = 100.0
+    windspeed: Union[float, pd.Series], fromheight: float = 10.0, hub_height: float = 100.0
 ) -> pd.Series:
     """Calculate windspeed at hubheight.
 
@@ -240,7 +241,7 @@ def calculate_windspeed_at_hubheight(
         hubheight: height (m) of the turbine
 
     Returns:
-        float: windspeed at hubheight.
+        Windspeed at hubheight.
 
     """
     alpha = 0.143
@@ -277,8 +278,8 @@ def calculate_windturbine_power_output(
 
     Args:
         windspeed: pd.DataFrame(index = datetime, columns = ["windspeedHub"])
-        nTurbines (int): The number of turbines
-        turbineData (dict): slope_center, rated_power, steepness
+        nTurbines: The number of turbines
+        turbineData: slope_center, rated_power, steepness
 
     Returns:
         pd.DataFrame(index = datetime, columns = ["forecast"])
@@ -319,11 +320,11 @@ def add_additional_wind_features(
     """Adds additional wind features to the input data.
 
     Args:
-        data (pd.DataFrame): Dataframe to which the wind features have to be added
-        feature_names (List[str]): List of requested features
+        data: Dataframe to which the wind features have to be added
+        feature_names: List of requested features
 
     Returns:
-        pd.DataFrame same as input dataframe with extra columns for the added wind features
+        DataFrame same as input dataframe with extra columns for the added wind features
 
     """
     if feature_names is None:
@@ -368,7 +369,8 @@ def calculate_dni(radiation: pd.Series, pj: PredictionJobDataClass) -> pd.Series
         radiation: predicted radiation including DatetimeIndex with right time-zone
         pj: PredictJob including information about the location (lat, lon)
 
-    Returns: dni_converted
+    Returns:
+        Direct normal irradiance (DNI).
 
     """
     loc = Location(pj.get("lat", DEFAULT_LAT), pj.get("lon", DEFAULT_LON), tz="utc")
@@ -406,10 +408,10 @@ def calculate_gti(
         radiation: pandas series with DatetimeIndex with right timezone information
         pj: prediction job which should at least contain the latitude and longitude location.
         surface_tilt: The tilt of the surface of, for example, your PhotoVoltaic-system.
-        surface_azimuth: The way the surface is facing. South facing 180 degrees, North facing 0 degrees, East facing 90
-        degrees and West facing 270 degrees
+        surface_azimuth: The way the surface is facing. South facing 180 degrees, North facing 0 degrees, East facing 90 degrees and West facing 270 degrees
 
-    Returns: gti
+    Returns: 
+        Global Tilted Irradiance (GTI)
 
     """
     loc = Location(pj.get("lat", DEFAULT_LAT), pj.get("lon", DEFAULT_LON), tz="utc")
@@ -446,12 +448,12 @@ def add_additional_solar_features(
     """Adds additional solar features to the input data.
 
     Args:
-        data (pd.DataFrame): Dataframe to which the solar features have to be added
+        data: Dataframe to which the solar features have to be added
         pj: prediction job which should at least contain the latitude and longitude location.
-        feature_names (List[str]): List of requested features
+        feature_names: List of requested features
 
     Returns:
-        pd.DataFrame same as input dataframe with extra columns for the added solar features
+        DataFrame same as input dataframe with extra columns for the added solar features
 
     """
     # If pj is none add solar features with Utrecht as default location
