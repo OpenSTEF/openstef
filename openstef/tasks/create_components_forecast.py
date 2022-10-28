@@ -1,12 +1,7 @@
 # SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-
-# -*- coding: utf-8 -*-
-"""create_components_forecast.py
-
-This module contains the CRON job that is periodically executed to make
-the components prognoses and save them in the database.
+"""This module contains the CRON job that is periodically executed to make the components prognoses.
 
 This code assumes trained models are available from the persistent storage.
 If these are not available run model_train.py to train all models.
@@ -25,14 +20,11 @@ Example:
 
         $ python create_components_forecast.py
 
-Attributes:
-
-
 """
 from datetime import datetime, timedelta
 from pathlib import Path
-import pytz
 
+import pytz
 import structlog
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
@@ -48,13 +40,17 @@ T_BEHIND_DAYS = 0
 T_AHEAD_DAYS = 3
 
 
-def create_components_forecast_task(pj: PredictionJobDataClass, context: TaskContext):
+def create_components_forecast_task(
+    pj: PredictionJobDataClass, context: TaskContext
+) -> None:
     """Top level task that creates a components forecast.
+
     On this task level all database and context manager dependencies are resolved.
 
     Args:
-        pj (PredictionJobDataClass): Prediction job
-        context (TaskContext): Contect object that holds a config manager and a database connection
+        pj: Prediction job
+        context: Contect object that holds a config manager and a database connection
+
     """
     logger = structlog.get_logger(__name__)
     if pj["train_components"] == 0:
@@ -109,7 +105,7 @@ def create_components_forecast_task(pj: PredictionJobDataClass, context: TaskCon
     logger.debug("Written forecast to database")
 
 
-def main(config=None, database=None):
+def main(config: object = None, database: object = None):
     taskname = Path(__file__).name.replace(".py", "")
 
     if database is None or config is None:

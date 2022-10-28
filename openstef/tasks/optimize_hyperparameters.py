@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 
 # -*- coding: utf-8 -*-
-"""optimize_hyper_params.py
+"""optimize_hyper_params.py.
 
 This module contains the CRON job that is periodically executed to optimize the
 hyperparameters for the prognosis models.
@@ -40,8 +40,9 @@ def optimize_hyperparameters_task(
     Only used for logging: "name", "description"
 
     Args:
-        pj (PredictionJobDataClass): Prediction job
-        context (TaskContext): Task context
+        pj: Prediction job
+        context: Task context
+
     """
     # Get the paths for storing model and reports from the config manager
     mlflow_tracking_uri = context.config.paths.mlflow_tracking_uri

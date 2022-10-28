@@ -1,13 +1,12 @@
 # SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+import os
 from typing import Any, List, Tuple
 
 import optuna
 import pandas as pd
 import structlog
-import os
-from pathlib import Path
 
 from openstef.data_classes.model_specifications import ModelSpecificationDataClass
 from openstef.data_classes.prediction_job import PredictionJobDataClass
@@ -51,20 +50,20 @@ def optimize_hyperparameters_pipeline(
     Expected prediction job key's: "name", "model"
 
     Args:
-        pj (PredictionJobDataClass): Prediction job
-        input_data (pd.DataFrame): Raw training input data
-        mlflow_tracking_uri (str): Path/Uri to mlflow service
-        artifact_folder (str): Path where artifacts, such as trained models, are stored
-        horizons (List[float]): horizons for feature engineering.
-        n_trials (int, optional): The number of trials. Defaults to N_TRIALS.
+        pj: Prediction job
+        input_data: Raw training input data
+        mlflow_tracking_uri: Path/Uri to mlflow service
+        artifact_folder: Path where artifacts, such as trained models, are stored
+        horizons: horizons for feature engineering.
+        n_trials: The number of trials. Defaults to N_TRIALS.
 
     Raises:
         ValueError: If the input_date is insufficient.
 
     Returns:
-        dict: Optimized hyperparameters.
-    """
+        Optimized hyperparameters.
 
+    """
     (
         best_model,
         model_specs,
@@ -107,21 +106,22 @@ def optimize_hyperparameters_pipeline_core(
     Expected prediction job key's: "name", "model"
 
     Args:
-        pj (PredictionJobDataClass): Prediction job
-        input_data (pd.DataFrame): Raw training input data
-        horizons (List[float]): horizons for feature engineering.
-        n_trials (int, optional): The number of trials. Defaults to N_TRIALS.
+        pj: Prediction job
+        input_data: Raw training input data
+        horizons: horizons for feature engineering.
+        n_trials: The number of trials. Defaults to N_TRIALS.
 
     Raises:
         ValueError: If the input_date is insufficient.
 
     Returns:
-        OpenstfRegressor: Best model,
-        ModelSpecificationDataClass: Model specifications of the best model,
-        Report: Report of the best training round,
-        dict: Trials,
-        int: Best trial number,
-        dict: Optimized hyperparameters.
+        - Best model,
+        - Model specifications of the best model,
+        - Report of the best training round,
+        - Trials,
+        - Best trial number,
+        - Optimized hyperparameters.
+
     """
     if input_data.empty:
         raise InputDataInsufficientError("Input dataframe is empty")
@@ -214,7 +214,7 @@ def optuna_optimization(
     validated_data_with_features: pd.DataFrame,
     n_trials: int,
 ) -> Tuple[optuna.study.Study, RegressorObjective]:
-    """Perform hyperparameter optimization with optuna
+    """Perform hyperparameter optimization with optuna.
 
     Args:
         pj: Prediction job
@@ -223,9 +223,8 @@ def optuna_optimization(
         n_trials: number of optuna trials
 
     Returns:
-        model (OpenstfRegressor): Optimized model
-        study (optuna.study.Study): Optimization study from optuna
-        objective : The objective object used by optuna
+        - Optimization study from optuna
+        - The objective object used by optuna
 
     """
     model = ModelCreator.create_model(pj["model"])

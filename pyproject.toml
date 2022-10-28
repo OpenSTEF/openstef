@@ -10,3 +10,12 @@ line-length = 88
 [tool.isort]
 profile = "black"
 
+[tool.pydocstyle]
+convention = "google"
+add-ignore = ["D100","D101","D102","D103", "D104", "D105", "D106", "D107"] # For now ignore any missing docstrings. 
+
+[tool.docformatter]
+recursive = true
+wrap-descriptions = 120
+wrap-summaries = 120
+blank = true

@@ -25,7 +25,7 @@ def create_forecast_pipeline(
     input_data: pd.DataFrame,
     mlflow_tracking_uri: str,
 ) -> pd.DataFrame:
-    """Create forecast pipeline
+    """Create forecast pipeline.
 
     This is the top-level pipeline which included loading the most recent model for
     the given prediction job.
@@ -33,12 +33,12 @@ def create_forecast_pipeline(
     Expected prediction job keys: "id",
 
     Args:
-        pj (PredictionJobDataClass): Prediction job
-        input_data (pd.DataFrame): Training input data (without features)
-        mlflow_tracking_uri (str): MlFlow tracking URI
+        pj: Prediction job
+        input_data: Training input data (without features)
+        mlflow_tracking_uri: MlFlow tracking URI
 
     Returns:
-        pd.DataFrame with the forecast
+        DataFrame with the forecast
 
     """
     # Load most recent model for the given pid
@@ -54,7 +54,7 @@ def create_forecast_pipeline_core(
     model: OpenstfRegressor,
     model_specs: ModelSpecificationDataClass,
 ) -> pd.DataFrame:
-    """Create forecast pipeline (core)
+    """Create forecast pipeline (core).
 
     Computes the forecasts and confidence intervals given a prediction job and input data.
     This pipeline has no database or persisitent storage dependencies.
@@ -63,13 +63,14 @@ def create_forecast_pipeline_core(
         "name", "quantiles"
 
     Args:
-        pj (PredictionJobDataClass): Prediction job.
-        input_data (pandas.DataFrame): Input data for the prediction.
-        model (OpenstfRegressor): Model to use for this prediction.
-        model_specs (ModelSpecificationDataClass): Model specifications.
+        pj: Prediction job.
+        input_data: Input data for the prediction.
+        model: Model to use for this prediction.
+        model_specs: Model specifications.
 
     Returns:
-        forecast (pandas.DataFrame)
+        Forecast
+
     """
     logger = structlog.get_logger(__name__)
 

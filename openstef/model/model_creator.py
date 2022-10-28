@@ -113,7 +113,7 @@ valid_model_kwargs = {
 
 
 class ModelCreator:
-    """Factory object for creating machine learning models"""
+    """Factory object for creating machine learning models."""
 
     # Set object mapping
     MODEL_CONSTRUCTORS = {
@@ -129,14 +129,15 @@ class ModelCreator:
         """Create a machine learning model based on model type.
 
         Args:
-            model_type (Union[MLModelType, str]): Model type to construct.
-            kwargs (dict): Optional keyword argument to pass to the model.
+            model_type: Model type to construct.
+            kwargs: Optional keyword argument to pass to the model.
 
         Raises:
             NotImplementedError: When using an invalid model_type.
 
         Returns:
-            OpenstfRegressor: model
+            OpenSTEF model
+
         """
         try:
             # This will raise a ValueError when an invalid model_type str is used

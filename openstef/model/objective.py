@@ -31,11 +31,15 @@ class RegressorObjective:
     configuration. Next the instance will be called by he optuna study during
     optimization.
 
-    Example:
+    Example usage:
+
+    .. code-block:: py
+
         # initialize a (derived class) objective function
         objective = XGBRegressorObjective(input_data, test_fraction)
         # use the objective function
         study.optimize(objective)
+
     """
 
     def __init__(
@@ -71,7 +75,8 @@ class RegressorObjective:
         Args: trial
 
         Returns:
-            float: Mean absolute error for this trial.
+            Mean absolute error for this trial.
+
         """
         # Perform data preprocessing
         if self.model_type == MLModelType.ProLoaf:
@@ -154,12 +159,13 @@ class RegressorObjective:
         return score
 
     def get_params(self, trial: optuna.trial.FrozenTrial) -> dict:
-        """get parameters for objective without model specific get_params function.
+        """Get parameters for objective without model specific get_params function.
 
         Args: trial
 
         Returns:
-            dict: {parameter: hyperparameter_value}
+            Dictionary with hyperparameter name as key and hyperparamer value as value.
+
         """
         default_params = {
             "learning_rate": trial.suggest_float("learning_rate", 0.01, 0.5),
@@ -184,22 +190,23 @@ class RegressorObjective:
         return None
 
     def get_trial_track(self) -> dict:
-        """Get a dictionary of al trials
+        """Get a dictionary of al trials.
 
         Returns:
-            dict: dict with al trials and it's parameters
+            Dict with al trials and it's parameters
 
         """
         return self.track_trials
 
     def create_report(self, model: OpenstfRegressor) -> Report:
-        """Generate a report from the data available inside the objective function
+        """Generate a report from the data available inside the objective function.
 
         Args:
             model: OpenstfRegressor, model to create a report on
 
         Returns:
-            Report: report about the model
+            Report about the model
+
         """
         # Report about the training process
         reporter = Reporter(self.train_data, self.validation_data, self.test_data)
@@ -228,13 +235,13 @@ class XGBRegressorObjective(RegressorObjective):
 
     # extend the parameters with the model specific ones per implementation
     def get_params(self, trial: optuna.trial.FrozenTrial) -> dict:
-        """get parameters for XGB Regressor Objective
-        with objective specific parameters.
+        """Get parameters for XGB Regressor Objective with objective specific parameters.
 
-            Args: trial
+        Args: trial
 
-            Returns:
-                dict: {parameter: hyperparameter_value}
+        Returns:
+            Dictionary with hyperparameter name as key and hyperparamer value as value.
+
         """
         # Filtered default parameters
         model_params = super().get_params(trial)
@@ -265,13 +272,13 @@ class LGBRegressorObjective(RegressorObjective):
         self.model_type = MLModelType.LGB
 
     def get_params(self, trial: optuna.trial.FrozenTrial) -> dict:
-        """get parameters for LGB Regressor Objective
-        with objective specific parameters.
+        """Get parameters for LGB Regressor Objective with objective specific parameters.
 
-            Args: trial
+        Args: trial
 
-            Returns:
-                dict: {parameter: hyperparameter_value}
+        Returns:
+            Dictionary with hyperparameter name as key and hyperparamer value as value.
+
         """
         # Filtered default parameters
         model_params = super().get_params(trial)
@@ -306,13 +313,13 @@ class XGBQuantileRegressorObjective(RegressorObjective):
         self.model_type = MLModelType.XGB_QUANTILE
 
     def get_params(self, trial: optuna.trial.FrozenTrial) -> dict:
-        """get parameters for XGBQuantile Regressor Objective
-        with objective specific parameters.
+        """Get parameters for XGBQuantile Regressor Objective with objective specific parameters.
 
-            Args: trial
+        Args: trial
 
-            Returns:
-                dict: {parameter: hyperparameter_value}
+        Returns:
+            Dictionary with hyperparameter name as key and hyperparamer value as value.
+
         """
         # Filtered default parameters
         model_params = super().get_params(trial)
@@ -335,13 +342,13 @@ class ProLoafRegressorObjective(RegressorObjective):
         self.model_type = MLModelType.ProLoaf
 
     def get_params(self, trial: optuna.trial.FrozenTrial) -> dict:
-        """get parameters for ProLoaf Regressor Objective
-        with objective specific parameters.
+        """Get parameters for ProLoaf Regressor Objective with objective specific parameters.
 
-            Args: trial
+        Args: trial
 
-            Returns:
-                dict: {parameter: hyperparameter_value}
+        Returns:
+            Dictionary with hyperparameter name as key and hyperparamer value as value.
+
         """
         # Filtered default parameters
         model_params = super().get_params(trial)
@@ -382,13 +389,14 @@ class LinearRegressorObjective(RegressorObjective):
         self.model_type = MLModelType.LINEAR
 
     def get_params(self, trial: optuna.trial.FrozenTrial) -> dict:
-        """get parameters for Linear Regressor Objective
-        with objective specific parameters.
-            Args: trial
-            Returns:
-                dict: {parameter: hyperparameter_value}
-        """
+        """Get parameters for Linear Regressor Objective with objective specific parameters.
 
+        Args: trial
+
+        Returns:
+            Dictionary with hyperparameter name as key and hyperparamer value as value.
+
+        """
         # Imputation strategy
         params = {
             "imputation_strategy": trial.suggest_categorical(

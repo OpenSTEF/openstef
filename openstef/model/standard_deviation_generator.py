@@ -12,7 +12,18 @@ class StandardDeviationGenerator:
         self.validation_data = validation_data
 
     def generate_standard_deviation_data(self, model: RegressorMixin) -> RegressorMixin:
+        """Generate the standard data.
 
+        Calculates the difference between realised and predicted on validation set.
+        For each hour of the day the std of the difference is calculated.
+
+        Args:
+            model: The trained model
+
+        Returns:
+            The model with the std data added.
+
+        """
         # Define some variables
         predicted = None
         self.standard_deviation = pd.DataFrame()
@@ -42,15 +53,18 @@ class StandardDeviationGenerator:
         return model
 
     @staticmethod
-    def _calculate_standard_deviation(realised, predicted):
-        """Protected static method to calculate the corrections for a model
+    def _calculate_standard_deviation(
+        realised: pd.Series, predicted: pd.Series
+    ) -> pd.DataFrame:
+        """Protected static method to calculate the corrections for a model.
 
         Args:
             realised: pd.series with realised load
             predicted: pd.series with load predicted by new model
 
         Returns:
-            pd.DataFrame: with model corrections
+            DataFrame with model corrections
+
         """
         result = pd.DataFrame(index=range(24), columns=["stdev", "hour"])
         # Calculate the error for each predicted point

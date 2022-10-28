@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2017-2022 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-
+"""This module defines the custom regressor."""
 import inspect
 from abc import abstractmethod
 from importlib import import_module
@@ -19,6 +19,8 @@ from openstef.model.regressors.regressor import OpenstfRegressor
 
 
 class CustomOpenstfRegressor(OpenstfRegressor):
+    """A custom regressor allows to load any custom model that is not included with openSTEF."""
+
     @staticmethod
     @abstractmethod
     def valid_kwargs() -> List[str]:
@@ -31,6 +33,7 @@ class CustomOpenstfRegressor(OpenstfRegressor):
 
 
 def load_custom_model(custom_model_path) -> CustomOpenstfRegressor:
+    """Load the external custom model."""
     path_elements = custom_model_path.split(".")
     module_path = ".".join(path_elements[:-1])
     module = import_module(module_path)
