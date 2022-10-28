@@ -32,7 +32,7 @@ sphinx-apidoc -o docs openstef
 sphinx-build docs output
 ```
 
-Run documentation formatting en checks locally:
+Run docstring formatting and checks locally:
 ```
 pip install -r requirements.txt
 pip install -r docs/doc-requirements.txt 
