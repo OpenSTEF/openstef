@@ -31,3 +31,11 @@ pip install -r docs/doc-requirements.txt
 sphinx-apidoc -o docs openstef
 sphinx-build docs output
 ```
+
+Run documentation formatting en checks locally:
+```
+pip install -r requirements.txt
+pip install -r docs/doc-requirements.txt 
+pydocstyle .
+docformatter openstef --recursive --wrap-summaries 120 --in-place
+```
