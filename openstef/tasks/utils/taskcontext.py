@@ -1,50 +1,57 @@
 # SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-
+from typing import Callable
 import traceback
 
 import structlog
 
 from openstef.monitoring.performance_meter import PerformanceMeter
 from openstef.monitoring.teams import post_teams
-from openstef.tasks.utils.predictionjobloop import PredictionJobException
+from openstef.exceptions import PredictionJobException
 
 
 class TaskContext:
-    def __init__(
-        self,
-        name: str,
-        config,
-        database,
-        suppress_exceptions: bool = False,
-        post_teams_on_exception: bool = True,
-        on_exception: callable = None,
-        on_successful: callable = None,
-        on_end: callable = None,
-    ):
-        """A context manager that can be used to run tasks with.
+    """A context manager that can be used to run tasks with.
 
-        Should be used as:
+    Should be used as:
+
+    .. code-block:: py
+
         with TaskContext("my_task_name") as context:
             pass
 
-        Args:
-            name (string): Name of the task
-            suppress_exceptions (bool, optional): If set to False the context
-                manager will pass any raised exception on. Defaults to False.
-            post_teams_on_exception (bool, optional): If set to True the context
-                manager will automatically post a message to teams when an
-                exception is encountered. Defaults to True.
-            on_exception (callable, optional): Callback, will be called
-                when an exception is raised. Callable gets exc_type, exc_info,
-                stack_info as arguments.
-            on_successful (callable, optional): Callback, will be called
-                everytime if the task is successful (no exception is raised).
-            on_end (callable, optional): Callback, will be called if the task is
-                completed. Callable gets a bool indicating success as argument.
+    Args:
+        name: Name of the task
+        config: Configuration object, can be found in openSTEF-dbc
+        database: Database object, can be found in openSTEF-dbc
+        suppress_exceptions: If set to False the context
+            manager will pass any raised exception on. Defaults to False.
+        post_teams_on_exception: If set to True the context
+            manager will automatically post a message to teams when an
+            exception is encountered. Defaults to True.
+        on_exception : Callback, will be called
+            when an exception is raised. Callable gets exc_type, exc_info,
+            stack_info as arguments.
+        on_successful: Callback, will be called
+            everytime if the task is successful (no exception is raised).
+        on_end: Callback, will be called if the task is
+            completed. Callable gets a bool indicating success as argument.
 
-        """
+    """
+
+    def __init__(
+        self,
+        name: str,
+        config: object,
+        database: object,
+        suppress_exceptions: bool = False,
+        post_teams_on_exception: bool = True,
+        on_exception: Callable = None,
+        on_successful: Callable = None,
+        on_end: Callable = None,
+    ):
+        """Initialize context manager."""
         self.name = name
         self.suppress_exceptions = suppress_exceptions
         self.post_teams_on_exception = post_teams_on_exception

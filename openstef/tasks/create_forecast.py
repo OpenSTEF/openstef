@@ -38,12 +38,12 @@ def create_forecast_task(pj: PredictionJobDataClass, context: TaskContext) -> No
 
     On this task level all database and context manager dependencies are resolved.
 
-    Expected prediction job keys: "id", "lat", "lon", "resolution_minutes",
+    Expected prediction job keys; "id", "lat", "lon", "resolution_minutes",
         "horizon_minutes", "type", "name", "quantiles"
 
     Args:
-        pj (PredictionJobDataClass): Prediction job
-        context (TaskContext): Contect object that holds a config manager and a database connection
+        pj: Prediction job
+        context: Contect object that holds a config manager and a database connection
 
     """
     # Extract mlflow tracking URI and trained models folder

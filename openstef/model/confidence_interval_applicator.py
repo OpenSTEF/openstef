@@ -45,12 +45,11 @@ class ConfidenceIntervalApplicator:
                  regression or the default method.
 
         Args:
-            forecast (pd.DataFrame): Forecast DataFrame with columns: "forecast"
-            pj (PredictionJobDataClass): Prediction job
+            forecast: Forecast DataFrame with columns: "forecast"
+            pj: Prediction job
 
         Returns:
-            pd.DataFrame: Forecast DataFrame with columns: "forecast", "stdev" and
-                quantile columns
+            Forecast DataFrame with columns; "forecast", "stdev" and quantile columns.
 
         """
         temp_forecast = self._add_standard_deviation_to_forecast(forecast)
@@ -74,10 +73,10 @@ class ConfidenceIntervalApplicator:
         but this will be deprecated.
 
         Args:
-            forecast (pd.DataFrame): Forecast DataFrame with columns: "forecast"
+            forecast: Forecast DataFrame with columns: "forecast"
 
         Returns:
-            (pd.DataFrame): Forecast with added standard deviation. DataFrame with columns:
+            Forecast with added standard deviation. DataFrame with columns:
                 "forecast", "stdev"
 
         """
@@ -169,12 +168,12 @@ class ConfidenceIntervalApplicator:
             Use the standard deviation to calculate the quantiles.
 
         Args:
-            forecast (pd.DataFrame): Forecast (should contain a 'forecast' + 'stdev' column)
-            quantiles (List[float]): List with desired quantiles,
+            forecast: Forecast (should contain a 'forecast' + 'stdev' column)
+            quantiles: List with desired quantiles,
                 for example: [0.01, 0.1, 0.9, 0.99]
 
         Returns:
-            (pd.DataFrame): Forecast DataFrame with quantile (e.g. 'quantile_PXX')
+            Forecast DataFrame with quantile (e.g. 'quantile_PXX')
                 columns added.
 
         """
@@ -198,11 +197,11 @@ class ConfidenceIntervalApplicator:
             Use trained quantile regression model to calculate the quantiles.
 
         Args:
-            forecast (pd.DataFrame): Forecast
-            quantiles (List[float]): List with desired quantiles
+            forecast: Forecast
+            quantiles: List with desired quantiles
 
         Returns:
-            (pd.DataFrame): Forecast DataFrame with quantile (e.g. 'quantile_PXX')
+            Forecast DataFrame with quantile (e.g. 'quantile_PXX')
                 columns added.
 
         """

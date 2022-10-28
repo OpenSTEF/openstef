@@ -47,10 +47,12 @@ def train_model_task(
     Expected prediction job keys:  "id", "model", "lat", "lon", "name"
 
     Args:
-        pj (PredictionJobDataClass): Prediction job
-        context (TaskContext): Contect object that holds a config manager and a
+        pj: Prediction job
+        context: Contect object that holds a config manager and a
             database connection.
-        check_old_model_age (bool): check if model is too young to be retrained
+        check_old_model_age: check if model is too young to be retrained
+        datetime_start: Start
+        datetime_end: End
 
     """
     # Get the paths for storing model and reports from the config manager

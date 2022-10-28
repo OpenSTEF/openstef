@@ -11,7 +11,7 @@ class NoPredictedLoadError(Exception):
         self,
         pid: int,
         message: str = "No predicted load found",
-    ) -> Exception:
+    ):
         self.pid = pid
         self.message = message
         super().__init__(self.message)
@@ -24,7 +24,7 @@ class NoRealisedLoadError(Exception):
         self,
         pid: int,
         message: str = "No realised load found",
-    ) -> Exception:
+    ):
         self.pid = pid
         self.message = message
         super().__init__(self.message)
@@ -52,3 +52,13 @@ class ModelWithoutStDev(Exception):
 
 class ComponentForecastTooShortHorizonError(Exception):
     """Component forecasts should be available for at least 30 hours in advance."""
+
+
+class PredictionJobException(Exception):
+    """One or more prediction jobs raised an exception."""
+
+    def __init__(self, metrics=None):
+        super().__init__("One or more prediction jobs raised an exception.")
+        if metrics is None:
+            metrics = {}
+        self.metrics = metrics

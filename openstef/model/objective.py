@@ -31,7 +31,10 @@ class RegressorObjective:
     configuration. Next the instance will be called by he optuna study during
     optimization.
 
-    Example:
+    Example usage:
+
+    .. code-block:: py
+
         # initialize a (derived class) objective function
         objective = XGBRegressorObjective(input_data, test_fraction)
         # use the objective function
@@ -72,7 +75,7 @@ class RegressorObjective:
         Args: trial
 
         Returns:
-            float: Mean absolute error for this trial.
+            Mean absolute error for this trial.
 
         """
         # Perform data preprocessing
@@ -161,7 +164,7 @@ class RegressorObjective:
         Args: trial
 
         Returns:
-            dict: {parameter: hyperparameter_value}
+            Dictionary with hyperparameter name as key and hyperparamer value as value.
 
         """
         default_params = {
@@ -190,7 +193,7 @@ class RegressorObjective:
         """Get a dictionary of al trials.
 
         Returns:
-            dict: dict with al trials and it's parameters
+            Dict with al trials and it's parameters
 
         """
         return self.track_trials
@@ -202,7 +205,7 @@ class RegressorObjective:
             model: OpenstfRegressor, model to create a report on
 
         Returns:
-            Report: report about the model
+            Report about the model
 
         """
         # Report about the training process
@@ -237,7 +240,7 @@ class XGBRegressorObjective(RegressorObjective):
         Args: trial
 
         Returns:
-            dict: {parameter: hyperparameter_value}
+            Dictionary with hyperparameter name as key and hyperparamer value as value.
 
         """
         # Filtered default parameters
@@ -274,7 +277,7 @@ class LGBRegressorObjective(RegressorObjective):
         Args: trial
 
         Returns:
-            dict: {parameter: hyperparameter_value}
+            Dictionary with hyperparameter name as key and hyperparamer value as value.
 
         """
         # Filtered default parameters
@@ -315,7 +318,7 @@ class XGBQuantileRegressorObjective(RegressorObjective):
         Args: trial
 
         Returns:
-            dict: {parameter: hyperparameter_value}
+            Dictionary with hyperparameter name as key and hyperparamer value as value.
 
         """
         # Filtered default parameters
@@ -344,7 +347,7 @@ class ProLoafRegressorObjective(RegressorObjective):
         Args: trial
 
         Returns:
-            dict: {parameter: hyperparameter_value}
+            Dictionary with hyperparameter name as key and hyperparamer value as value.
 
         """
         # Filtered default parameters
@@ -389,8 +392,9 @@ class LinearRegressorObjective(RegressorObjective):
         """Get parameters for Linear Regressor Objective with objective specific parameters.
 
         Args: trial
+
         Returns:
-            dict: {parameter: hyperparameter_value}
+            Dictionary with hyperparameter name as key and hyperparamer value as value.
 
         """
         # Imputation strategy

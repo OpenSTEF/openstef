@@ -24,15 +24,16 @@ def post_teams(
     action buttons.
 
     Args:
-        msg (mixed): For simple messages a string can be passed. For more
+        msg: For simple messages a string can be passed. For more
             complex messages pass a dict. The following keys are supported:
             text, links, sections. Each section can contain the following keys:
             text, title, images, facts, markdown. Also see:
             https://docs.microsoft.com/en-us/outlook/actionable-messages/send-via-connectors
-        invalid_coefficients (pd.DatFrame, optional): df of information of invalid
+        invalid_coefficients: df of information of invalid
             coefficients. Defaults to None.
-        coefficients_df (pd.DataFrame, optional): df of new coefficients. Defaults to None.
-        url (string, optional): webhook url, monitoring by default
+        coefficients_df: df of new coefficients. Defaults to None.
+        url: webhook url, monitoring by default
+        proxies: Optinonal proxy settings.
 
     Note:
         This function is namespace-specific.
@@ -129,15 +130,15 @@ def get_card_section(section_dict: dict) -> cardsection:
     return card_section
 
 
-def build_sql_query_string(df, table):
+def build_sql_query_string(df: pd.DataFrame, table: str) -> str:
     """Build sql insert query string for Teams message output from df.
 
     Args:
-        df (pd.DataFrame): df of table values to insert in sql
-        table (string): table to insert df into
+        df: Df of table values to insert in sql.
+        table: Table to insert df into.
 
     Returns:
-        string: sql query string of insert statement
+        Sql query of insert statement.
 
     """
     # round all values to two decimals

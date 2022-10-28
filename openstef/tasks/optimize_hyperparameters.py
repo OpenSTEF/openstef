@@ -40,8 +40,8 @@ def optimize_hyperparameters_task(
     Only used for logging: "name", "description"
 
     Args:
-        pj (PredictionJobDataClass): Prediction job
-        context (TaskContext): Task context
+        pj: Prediction job
+        context: Task context
 
     """
     # Get the paths for storing model and reports from the config manager

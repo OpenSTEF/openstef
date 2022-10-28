@@ -33,11 +33,13 @@ class ObjectiveCreator:
         """Create an objective function based on model type.
 
         Args:
-            model_type (Union[MLModelType, str]): Model type to construct.
+            model_type: Model type to construct.
+
         Raises:
             NotImplementedError: When using an invalid model_type.
+
         Returns:
-            RegressorObjective: Objective function
+            Objective function
 
         """
         try:

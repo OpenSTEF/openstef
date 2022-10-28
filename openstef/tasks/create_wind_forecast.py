@@ -16,17 +16,18 @@ Example:
 """
 from pathlib import Path
 
+from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.feature_engineering import weather_features
 from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstef.tasks.utils.taskcontext import TaskContext
 
 
-def make_wind_forecast_pj(pj, context):
+def make_wind_forecast_pj(pj: PredictionJobDataClass, context: TaskContext) -> None:
     """Make a wind prediction for a specific prediction job.
 
     Args:
-        pj: (dict) prediction job
-        context: (ContextManager) context manager
+        pj: Prediction job
+        context: Context manager
 
     """
     context.logger.info("Get turbine data", turbine_type=pj["turbine_type"])

@@ -35,11 +35,11 @@ def create_basecase_forecast_task(
     pj: PredictionJobDataClass, context: TaskContext
 ) -> None:
     """Top level task that creates a basecase forecast. On this task level all database and context manager dependencies
-    are resolved.
+        are resolved.
 
     Args:
-        pj (PredictionJobDataClass): Prediction job
-        context (TaskContext): Contect object that holds a config manager and a database connection
+        pj: Prediction job
+        context: Contect object that holds a config manager and a database connection
 
     """
     # Define datetime range for input data
@@ -69,7 +69,7 @@ def create_basecase_forecast_task(
     context.database.write_forecast(basecase_forecast, t_ahead_series=True)
 
 
-def main(config=None, database=None):
+def main(config: object = None, database: object = None):
     taskname = Path(__file__).name.replace(".py", "")
 
     if database is None or config is None:

@@ -20,15 +20,15 @@ def group_kfold(
 ) -> pd.DataFrame:
     """Function to group data into groups, according to the date and the number of folds.
 
-        - each date gets assigned a number between 0 and n_folds
+    Each date gets assigned a number between 0 and n_folds.
 
     Args:
-        input_data (pd.DataFrame): Input data
-        n_folds (int): Number of folds
-        randomize_fold_split (bool): Indicates if random split needs to be applied
+        input_data: Input data
+        n_folds: Number of folds
+        randomize_fold_split: Indicates if random split needs to be applied
 
     Returns:
-        grouped data (pandas.DataFrame)
+        Grouped data
 
     """
     unique_dates = input_data["dates"].unique()  # dates defines the day (Y-M-D)
@@ -61,12 +61,12 @@ def sample_indices_train_val(
     """Sample indices of given period length assuming the peaks are evenly spreaded.
 
     Args:
-        data (pandas.DataFrame): Clean data with features
-        peaks (pd.DataFrame): Data frame of selected peaks to sample the dates from
+        data: Clean data with features
+        peaks: Data frame of selected peaks to sample the dates from
 
     Returns:
-        np.array: List with the start point of each peak
-        np.array: Sorted list with the indices corresponding to the peak
+        - List with the start point of each peak
+        - Sorted list with the indices corresponding to the peak
 
     """
     sampled = set()
@@ -79,15 +79,16 @@ def sample_indices_train_val(
 
 
 def random_sample(all_peaks: np.array, k: int) -> np.array:
-    """Random sampling of numbers out of a np.array (implemented due to security sonar cloud not accepting the random
-    built-in functions).
+    """Random sampling of numbers out of a np.array.
+
+    Implemented due to security sonar cloud not accepting the random built-in functions.
 
     Args:
-        all_peaks (np.array): List with numbers to sample from
-        k (int): Number of wanted samples
+        all_peaks: List with numbers to sample from
+        k: Number of wanted samples
 
     Returns:
-        np.array: Sorted array with the random samples (dates from the peaks)
+        Sorted array with the random samples (dates from the peaks)
 
     """
     random_peaks = []
@@ -123,21 +124,21 @@ def split_data_train_validation_test(
     validation fraction.
 
     Args:
-        data_ (pandas.DataFrame): Cleaned data with features
-        test_fraction (float): Number between 0 and 1 that indicates the desired
+        data_: Cleaned data with features
+        test_fraction : Number between 0 and 1 that indicates the desired
             fraction of test data.
-        validation_fraction (float): Number between 0 and 1 that indicates the
+        validation_fraction: Number between 0 and 1 that indicates the
             desired fraction of validation data.
-        back_test (bool): Indicates if data is intended for a back test.
-        stratification_min_max (bool): Indicates if validation data must be sampled as
+        back_test: Indicates if data is intended for a back test.
+        stratification_min_max: Indicates if validation data must be sampled as
             periods, using stratification on min and max values per day.
             If True, 'extreme days' are ensured to be included in the validation and train sets,
             ensuring the validation set to be representative of the train set.
 
     Returns:
-        train_data (pandas.DataFrame): Train data.
-        validation_data (pandas.DataFrame): Validation data.
-        test_data (pandas.DataFrame): Test data.
+        - Train data.
+        - Validation data.
+        - Test data.
 
     """
     train_fraction = 1 - (test_fraction + validation_fraction)
@@ -271,8 +272,7 @@ def backtest_split_default(
         randomize_fold_split:
 
     Returns:
-        train_val_test_generator (Iterable[pd.DataFrame, pd.DataFrame, pd.DataFrame]):
-            Iterable on train, val, test splits
+        Iterable on train, val, test splits
 
     Notes:
         We use a generator in order to have lazy estimation and avoid multiple copy of the data.

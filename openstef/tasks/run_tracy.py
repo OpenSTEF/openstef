@@ -35,7 +35,9 @@ Example:
 # PRIMARY KEY (`id`), UNIQUE `id` (`id`))
 # ENGINE = InnoDB;
 from pathlib import Path
+from typing import Dict
 
+from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.enums import TracyJobResult
 from openstef.monitoring import teams
 from openstef.tasks.optimize_hyperparameters import optimize_hyperparameters_task
@@ -43,7 +45,7 @@ from openstef.tasks.train_model import train_model_task
 from openstef.tasks.utils.taskcontext import TaskContext
 
 
-def run_tracy(context):
+def run_tracy(context: TaskContext) -> None:
     # Get all Tracy jobs
     tracy_jobs = context.database.ktp_api.get_all_tracy_jobs(inprogress=0)
     num_jobs = len(tracy_jobs)
@@ -89,7 +91,19 @@ def run_tracy(context):
     context.logger.info("Finished processing all Tracy jobs - Tracy out!")
 
 
-def run_tracy_job(job, pj, context):
+def run_tracy_job(
+    job: Dict, pj: PredictionJobDataClass, context: TaskContext
+) -> TracyJobResult:
+    """Run tracy job.
+
+    Args:
+        job: Tracy jon
+        pj: Prediction job
+        context: Task context.
+
+    Returns:
+        Result of the Tracy job.
+    """
     # Try to process Tracy job
     try:
         # If train model job (TODO remove old name when jobs are done)

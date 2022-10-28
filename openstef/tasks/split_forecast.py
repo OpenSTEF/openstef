@@ -22,6 +22,7 @@ Example:
         $ python split_forecast.py
 
 """
+from typing import Dict, Tuple
 from datetime import datetime
 from pathlib import Path
 
@@ -60,14 +61,14 @@ def main(config=None, database=None):
 def split_forecast_task(
     pj: PredictionJobDataClass,
     context: TaskContext,
-):
+) -> pd.DataFrame:
     """Function that caries out the energy splitting for a specific prediction job with id pid.
 
     Args:
-        pid (int): Prediction job id
+        pid: Prediction job id
 
     Returns:
-        pandas.DataFrame: Energy splitting coefficients.
+        Energy splitting coefficients.
 
     """
     logger = structlog.get_logger(__name__)
@@ -119,17 +120,19 @@ def split_forecast_task(
         return coefsdf
 
 
-def determine_invalid_coefs(new_coefs, last_coefs):
+def determine_invalid_coefs(
+    new_coefs: pd.DataFrame, last_coefs: pd.DataFrame
+) -> pd.DataFrame:
     """Determine which new coefficients are valid and return them.
 
     Args:
-        new_coefs (pd.DataFrame): df of new coefficients for standard load
+        new_coefs: df of new coefficients for standard load
             profiles (i.e. wind, solar, household)
-        last_coefs (pd.DataFrame): df of last coefficients for standard load
+        last_coefs: df of last coefficients for standard load
             profiles (i.e. wind, solar, household)
 
     Returns:
-        pd.DataFrame: df of invalid coefficients
+        Dataframe with invalid coefficients
 
     """
     merged_coefs = pd.merge(
@@ -153,17 +156,19 @@ def determine_invalid_coefs(new_coefs, last_coefs):
     return invalid_coefs
 
 
-def convert_coefdict_to_coefsdf(pj, input_split_function, coefdict):
+def convert_coefdict_to_coefsdf(
+    pj: PredictionJobDataClass, input_split_function: pd.DataFrame, coefdict: Dict
+) -> pd.DataFrame:
     """Convert dictionary of coefficients to dataframe with additional data for db storage.
 
     Args:
-        pj (PredictionJobDataClass): prediction job
-        input_split_function (pd.DataFrame): df of columns of standard load profiles,
+        pj: prediction job
+        input_split_function: df of columns of standard load profiles,
             i.e. wind, solar, household
-        coefdict (dict): dict of coefficient per standard load profile
+        coefdict: dict of coefficient per standard load profile
 
     Returns:
-        pd.DataFrame: df of coefficients to insert in sql
+        DataFrame of coefficients to insert in sql
 
     """
     #
@@ -183,18 +188,20 @@ def convert_coefdict_to_coefsdf(pj, input_split_function, coefdict):
     return coefsdf
 
 
-def find_components(df, zero_bound=True):
+def find_components(
+    df: pd.DataFrame, zero_bound: bool = True
+) -> Tuple[pd.DataFrame, Dict]:
     """Function that does the actual energy splitting.
 
     Args:
-        df (pandas.DataFrame): Input data. The dataframe should contain these columns
+        df: Input data. The dataframe should contain these columns
             in exactly this order: [load, wind_ref, pv_ref, mulitple tdcv colums]
-        zero_bound (bool): If zero_bound is True coefficients can't be negative.
+        zero_bound: If zero_bound is True coefficients can't be negative.
 
     Returns:
         tuple:
-            [0] pandas.DataFrame: Containing the wind and solar components
-            [1] dict: The coefficients that result from the fitting
+            - DataFrame containing the wind and solar components
+            - Dict with the coefficients that result from the fitting
 
     """
     # Define function to fit

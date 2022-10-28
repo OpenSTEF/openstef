@@ -13,14 +13,14 @@ class PerformanceMeter:
         self.level_timers = []
         self.checkpoint_timers = []
 
-    def start_level(self, level_label, level_name, **kwargs):
+    def start_level(self, level_label: str, level_name: str, **kwargs):
         """Enters a new level in the performance meter and logs it.
 
         This function also creates a checkpoint on the newly created level.
 
         Args:
-            level_label (string): The label of the new level. This could i.e. be 'task'
-            level_name (string): The name of the specified level. This could i.e. be
+            level_label: The label of the new level. This could i.e. be 'task'
+            level_name: The name of the specified level. This could i.e. be
                 'tracy_todo'
             **kwargs: Any other kwargs are appended to the logging.
 
@@ -41,12 +41,12 @@ class PerformanceMeter:
 
         return self
 
-    def checkpoint(self, name_checkpoint, **kwargs):
+    def checkpoint(self, name_checkpoint: str, **kwargs):
         """Creates a timing checkpoint and logs the runtime from the previous one.
 
         Args:
-            name_checkpoint (string): The name of the checkpoint. This will be logged as
-                checkpoint: name_checkpoint
+            name_checkpoint: The name of the checkpoint. This will be logged as
+                "checkpoint: name_checkpoint"
             **kwargs: Any other kwargs are appended to the logging.
 
         Returns:
@@ -65,12 +65,11 @@ class PerformanceMeter:
 
         return self
 
-    def complete_level(self, successful=True, **kwargs):
+    def complete_level(self, successful: bool = True, **kwargs):
         """Completes the most inner level and logs the total runtime of that level.
 
         Args:
-            successful (bool, optional): Whether the level was successful. Defaults to
-                True.
+            successful: Whether the level was successful. Defaults to True.
             **kwargs: Any other kwargs are appended to the logging.
 
         Returns:

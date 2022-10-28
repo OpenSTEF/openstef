@@ -41,14 +41,16 @@ T_BEHIND_DAYS = 0
 T_AHEAD_DAYS = 3
 
 
-def create_components_forecast_task(pj: PredictionJobDataClass, context: TaskContext):
+def create_components_forecast_task(
+    pj: PredictionJobDataClass, context: TaskContext
+) -> None:
     """Top level task that creates a components forecast.
 
     On this task level all database and context manager dependencies are resolved.
 
     Args:
-        pj (PredictionJobDataClass): Prediction job
-        context (TaskContext): Contect object that holds a config manager and a database connection
+        pj: Prediction job
+        context: Contect object that holds a config manager and a database connection
 
     """
     logger = structlog.get_logger(__name__)
@@ -104,7 +106,7 @@ def create_components_forecast_task(pj: PredictionJobDataClass, context: TaskCon
     logger.debug("Written forecast to database")
 
 
-def main(config=None, database=None):
+def main(config: object = None, database: object = None):
     taskname = Path(__file__).name.replace(".py", "")
 
     if database is None or config is None:

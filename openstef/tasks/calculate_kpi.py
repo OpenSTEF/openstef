@@ -17,6 +17,7 @@ Example:
     This module is meant to be called directly from a CRON job.
     Alternatively this code can be run directly by running::
         $ python calculate_kpi.py
+        
 Attributes:
 
 """
@@ -142,13 +143,14 @@ def calc_kpi_for_specific_pid(
         - Mean absolute Error
 
     Args:
-        pj (PredictionJobDataclass): Prediction ID for a given prediction job
-        start_time (datetime): Start time from when to retrieve the historic load prediction.
-        end_time (datetime): Start time till when to retrieve the historic load prediction.
+        pid: Prediction ID for a given prediction job
+        realised: Realised load.
+        predicted_load: Predicted load.
+        basecase: Basecase predicted load.
 
     Returns:
-        Dictionary that includes a dictonary for each t_ahead.
-        Dict includes enddate en window (in days) for clarification
+        - Dictionary that includes a dictonary for each t_ahead.
+        - Dict includes enddate en window (in days) for clarification
 
     Raises:
         NoPredictedLoadError: When no predicted load for given datatime range.
@@ -303,9 +305,9 @@ def calc_kpi_for_specific_pid(
 def set_incomplete_kpi_to_nan(kpis: dict, t_ahead_h: str) -> None:
     """Checks the given kpis for completeness and sets to nan if this not true.
 
-    :param kpis: the kpis
-    :param t_ahead_h: t_ahead_h
-    :return: -
+    Args:
+        kpis: the kpis
+        t_ahead_h: t_ahead_h
 
     """
     kpi_metrics = list(kpis[t_ahead_h].keys())

@@ -133,7 +133,12 @@ class MLflowSerializer:
         self,
         experiment_name: str,
     ) -> Tuple[OpenstfRegressor, ModelSpecificationDataClass]:
-        """Load sklearn compatible model from MLFlow."""
+        """Load sklearn compatible model from MLFlow.
+
+        Args:
+            experiment_name: Name of the experiment, often the id of the predition job.
+
+        """
         try:
             models_df = self._find_models(
                 experiment_name, max_results=1
@@ -165,7 +170,13 @@ class MLflowSerializer:
     def get_model_age(
         self, experiment_name: str, hyperparameter_optimization_only: bool = False
     ) -> int:
-        """Get model age of most recent model."""
+        """Get model age of most recent model.
+
+        Args:
+            experiment_name: Name of the experiment, often the id of the predition job.
+            hyperparameter_optimization_only: Set to true if only hyperparameters optimaisation events should be considered.
+
+        """
         filter_string = "attribute.status = 'FINISHED'"
         if hyperparameter_optimization_only:
             filter_string += " AND tags.phase = 'Hyperparameter_opt'"
