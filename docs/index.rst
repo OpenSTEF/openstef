@@ -16,7 +16,7 @@ Get started using the :ref:`quickstart` or by reading about the :ref:`concepts`.
     :maxdepth: 1
 
     quickstart
-    tutorials
+    user_guides
     concepts
     dazls
     code_modules
