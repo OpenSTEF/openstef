@@ -1,10 +1,9 @@
 # SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-"""create_basecase_forecast.py.
+"""This module should be executed once every day.
 
-This module should be executed once every day. For all prediction_jobs, it will
-create a 'basecase' forecast which is less accurate, but (almost) always available.
+For all prediction_jobs, it will create a 'basecase' forecast which is less accurate, but (almost) always available.
 For now, it uses the load a week earlier.
 Missing datapoints are interpolated.
 
@@ -34,8 +33,9 @@ T_AHEAD_DAYS: int = 14
 def create_basecase_forecast_task(
     pj: PredictionJobDataClass, context: TaskContext
 ) -> None:
-    """Top level task that creates a basecase forecast. On this task level all database and context manager dependencies
-        are resolved.
+    """Top level task that creates a basecase forecast.
+    
+    On this task level all database and context manager dependencies are resolved.
 
     Args:
         pj: Prediction job

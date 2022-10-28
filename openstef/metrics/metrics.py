@@ -125,8 +125,7 @@ def frac_in_stdev(realised: pd.Series, forecast: pd.Series, stdev: pd.Series) ->
 def r_mae_highest(
     realised: pd.Series, forecast: pd.Series, percentile: float = 0.95
 ) -> float:
-    """Function that calculates the relative mean absolute error based on the true and prediction for the 5 percent
-    highest realised values.
+    """Function that calculates the relative mean absolute error for the 5 percent highest realised values.
 
     The range is based on the load range of the previous two weeks.
 
@@ -154,11 +153,10 @@ def r_mae_highest(
 
 
 def r_mne_highest(realised: pd.Series, forecast: pd.Series) -> float:
-    """Function that calculates the relative mean negative error based on the true and prediction for the 5 percent
-    highest realised values.
+    """Function that calculates the relative mean negative error for the 5 percent highest realised values.
 
     The range is based on the load range of the previous two weeks, this measure quantifies how much we underestimate
-    peaks
+    peaks.
 
     """
     # Combine series in one DataFrame
@@ -192,11 +190,10 @@ def r_mne_highest(realised: pd.Series, forecast: pd.Series) -> float:
 
 
 def r_mpe_highest(realised: pd.Series, forecast: pd.Series) -> float:
-    """Function that calculates the relative mean positive error based on the true and prediction for the 5 percent
-    highest realised values.
+    """Function that calculates the relative mean positive error for the 5 percent highest realised values.
 
     The range is based on the load range of the previous two weeks, this measure quantifies how much we overestimate
-    peaks
+    peaks.
 
     """
     # Combine series in one DataFrame
@@ -232,10 +229,9 @@ def r_mpe_highest(realised: pd.Series, forecast: pd.Series) -> float:
 def r_mae_lowest(
     realised: pd.Series, forecast: pd.Series, quantile: float = 0.05
 ) -> float:
-    """Function that calculates the relative mean absolute error based on the true and prediction for the 5 percent
-    lowest realised values.
+    """Function that calculates the relative mean absolute error for the 5 percent lowest realised values.
 
-    The range is based on the load range of the previous two weeks
+    The range is based on the load range of the previous two weeks.
 
     """
     # Determine load range on entire dataset
@@ -257,7 +253,7 @@ def skill_score(realised: pd.Series, forecast: pd.Series, mean: pd.Series) -> fl
     """Function that calculates the skill score.
 
     Thise indicates model performance relative to a reference, in this case the mean of the realised values. The range
-    is based on the load range of the previous two weeks
+    is based on the load range of the previous two weeks.
 
     """
     combined = pd.concat([realised, forecast], axis=1)
@@ -386,8 +382,7 @@ def xgb_quantile_eval(
 def xgb_quantile_obj(
     preds: np.ndarray, dmatrix: xgboost.DMatrix, quantile: float = 0.2
 ) -> Tuple[np.ndarray, np.ndarray]:
-    """Computes first-order derivative of quantile regression loss and a non-degenerate substitute for second-order
-    derivative.
+    """Computes first-order derivative of quantile regression loss and a non-degenerate substitute for second-order derivative.
 
     Substitute is returned instead of zeros, because XGBoost requires non-zero second-order derivatives. See
     this page: https://github.com/dmlc/xgboost/issues/1825 to see why it is possible to use this trick. However, be sure
@@ -397,6 +392,7 @@ def xgb_quantile_obj(
         preds: numpy.ndarray
         dmatrix: xgboost.DMatrix
         quantile: float
+        
     Returns:
         Gradient and Hessian
 

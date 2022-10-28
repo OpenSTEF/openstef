@@ -2,8 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-"""This module contains the CRON job that is periodically executed to calculate key performance indicators (KPIs) and
-save them to the database.
+"""This module contains the CRON job that is periodically executed to calculate key performance indicators (KPIs).
 
 This code assumes prognoses are available from the persistent storage.
 If these are not available run create_forecast.py to train all models.
@@ -17,8 +16,6 @@ Example:
     This module is meant to be called directly from a CRON job.
     Alternatively this code can be run directly by running::
         $ python calculate_kpi.py
-        
-Attributes:
 
 """
 # Import builtins

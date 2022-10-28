@@ -48,7 +48,7 @@ def apply_scaling(
     data: pd.DataFrame,
     scalers=None,
 ):
-    """Applies different scaling methods to a certain dataframe (minmax, one hot, or no scaling)
+    """Applies different scaling methods to a certain dataframe (minmax, one hot, or no scaling).
 
     Args:
         scaler_features: Three different lists with features for each scaling

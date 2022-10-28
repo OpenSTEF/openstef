@@ -12,6 +12,7 @@ profile = "black"
 
 [tool.pydocstyle]
 convention = "google"
+add-ignore = ["D100","D101","D102","D103", "D104", "D105", "D106", "D107"] # For now ignore any missing docstrings. 
 
 [tool.docformatter]
 recursive = true
