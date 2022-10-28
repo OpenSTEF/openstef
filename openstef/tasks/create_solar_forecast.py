@@ -173,7 +173,7 @@ def combine_forecasts(forecasts, combination_coefs):
     return result_df
 
 
-def fides(data: pd.DataFrame, all_forecasts: bool=False):
+def fides(data: pd.DataFrame, all_forecasts: bool = False):
     """Fides makes a forecast based on persistence and a direct fit with insolation.
 
     Args:

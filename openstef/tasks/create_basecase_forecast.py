@@ -34,7 +34,7 @@ def create_basecase_forecast_task(
     pj: PredictionJobDataClass, context: TaskContext
 ) -> None:
     """Top level task that creates a basecase forecast.
-    
+
     On this task level all database and context manager dependencies are resolved.
 
     Args:

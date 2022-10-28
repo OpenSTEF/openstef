@@ -104,6 +104,7 @@ def generate_basecase_confidence_interval(
 
     Returns:
         Dataframe with the confidence interval.
+
     """
     confidence_interval = (
         data_with_features[["T-14d"]]  # Select only the T-14d column as a DataFrame

@@ -382,7 +382,10 @@ def xgb_quantile_eval(
 def xgb_quantile_obj(
     preds: np.ndarray, dmatrix: xgboost.DMatrix, quantile: float = 0.2
 ) -> Tuple[np.ndarray, np.ndarray]:
-    """Computes first-order derivative of quantile regression loss and a non-degenerate substitute for second-order derivative.
+    """Quantile regression objective fucntion.
+
+    Computes first-order derivative of quantile regression loss and a non-degenerate substitute for second-order
+    derivative.
 
     Substitute is returned instead of zeros, because XGBoost requires non-zero second-order derivatives. See
     this page: https://github.com/dmlc/xgboost/issues/1825 to see why it is possible to use this trick. However, be sure
@@ -392,7 +395,7 @@ def xgb_quantile_obj(
         preds: numpy.ndarray
         dmatrix: xgboost.DMatrix
         quantile: float
-        
+
     Returns:
         Gradient and Hessian
 

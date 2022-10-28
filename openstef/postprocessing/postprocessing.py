@@ -230,6 +230,7 @@ def add_prediction_job_properties_to_forecast(
 
     Returns:
         Dataframe with added metadata.
+
     """
     logger = structlog.get_logger(__name__)
 

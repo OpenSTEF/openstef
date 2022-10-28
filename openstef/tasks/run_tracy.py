@@ -103,6 +103,7 @@ def run_tracy_job(
 
     Returns:
         Result of the Tracy job.
+
     """
     # Try to process Tracy job
     try:

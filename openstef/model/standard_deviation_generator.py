@@ -22,6 +22,7 @@ class StandardDeviationGenerator:
 
         Returns:
             The model with the std data added.
+
         """
         # Define some variables
         predicted = None

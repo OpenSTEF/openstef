@@ -11,7 +11,10 @@ from sklearn.utils import shuffle
 
 
 class Dazls(BaseEstimator):
-    """The model carries out wind and solar power prediction for unseen target substations using training data from other substations with known components.
+    """DAZLS model.
+
+    The model carries out wind and solar power prediction for unseen target substations using training data from
+    other substations with known components.
 
     Any data-driven model can be plugged and used as the base for the domain and the adaptation model.
 
