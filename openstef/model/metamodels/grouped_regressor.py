@@ -17,19 +17,23 @@ class GroupedRegressor(BaseEstimator, RegressorMixin, MetaEstimatorMixin):
 
     The base estimator is a sklearn regressor, the groupby is performed on the columns specified in parameters.
     Moreover fit and predict methods can be performed in parallel for each group key thanks to joblib.
+
     Example:
 
-    data = | index | group | x0 | x1 | x3 | y |
-           |   0   |   1   | .. | .. | .. | . |
-           |   1   |   2   | .. | .. | .. | . |
-           |   2   |   1   | .. | .. | .. | . |
-           |   3   |   2   | .. | .. | .. | . |
+    .. code-block:: md
 
-           [              X              ][ Y ]
+        data =  | index | group | x0 | x1 | x3 | y |
+                |   0   |   1   | .. | .. | .. | . |
+                |   1   |   2   | .. | .. | .. | . |
+                |   2   |   1   | .. | .. | .. | . |
+                |   3   |   2   | .. | .. | .. | . |
 
-    The GroupedRegressor on the data with the group_columns='group' fits 2 models :
-        the model 1 with the row 0 and 2, columns x0, x1 and x3 as the features and column y as the target.
-        the model 2 with the row 1 and 3, columns x0, x1 and x3 as the features and column y as the target.
+                [              X              ][ Y ]
+
+
+    The GroupedRegressor on the data with the group_columns='group' fits 2 models:
+        - The model 1 with the row 0 and 2, columns x0, x1 and x3 as the features and column y as the target.
+        - The model 2 with the row 1 and 3, columns x0, x1 and x3 as the features and column y as the target.
 
     Args:
         base_estimator: Regressor .

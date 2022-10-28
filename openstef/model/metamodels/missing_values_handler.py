@@ -20,6 +20,28 @@ class MissingValuesHandler(BaseEstimator, RegressorMixin, MetaEstimatorMixin):
         - An Imputation transformer for completing missing values.
         - A Regressor fitted on the filled data.
 
+    Args:
+        base_estimator: Regressor used in the pipeline.
+        missing_values: The placeholder for the missing values. All occurrences of
+            `missing_values` will be imputed. For pandas' dataframes with
+            nullable integer dtypes with missing values, `missing_values`
+            should be set to `np.nan`, since `pd.NA` will be converted to `np.nan`.
+        imputation_strategy:  The imputation strategy.
+            - If None no imputation is performed.
+            - If "mean", then replace missing values using the mean along
+            each column. Can only be used with numeric data.
+            - If "median", then replace missing values using the median along
+            each column. Can only be used with numeric data.
+            - If "most_frequent", then replace missing using the most frequent
+            value along each column. Can be used with strings or numeric data.
+            If there is more than one such value, only the smallest is returned.
+            - If "constant", then replace missing values with fill_value. Can be
+            used with strings or numeric data.
+        fill_value: When strategy == "constant", fill_value is used to replace all
+            occurrences of missing_values.
+            If left to the default, fill_value will be 0 when imputing numerical
+            data and "missing_value" for strings or object data types.
+
     Attributes:
         feature_names:
             All input feature.
@@ -47,35 +69,11 @@ class MissingValuesHandler(BaseEstimator, RegressorMixin, MetaEstimatorMixin):
     def __init__(
         self,
         base_estimator: RegressorMixin,
-        missing_values: Union[int, float, str, np.nan, None] = np.nan,
+        missing_values: Union[int, float, str, None] = np.nan,
         imputation_strategy: str = None,
         fill_value: Union[str, int, float] = None,
     ):
-        """Initialize missing values handler.
-
-        Args:
-            base_estimator: Regressor used in the pipeline.
-            missing_values: The placeholder for the missing values. All occurrences of
-                `missing_values` will be imputed. For pandas' dataframes with
-                nullable integer dtypes with missing values, `missing_values`
-                should be set to `np.nan`, since `pd.NA` will be converted to `np.nan`.
-            imputation_strategy:  The imputation strategy.
-                - If None no imputation is performed.
-                - If "mean", then replace missing values using the mean along
-                each column. Can only be used with numeric data.
-                - If "median", then replace missing values using the median along
-                each column. Can only be used with numeric data.
-                - If "most_frequent", then replace missing using the most frequent
-                value along each column. Can be used with strings or numeric data.
-                If there is more than one such value, only the smallest is returned.
-                - If "constant", then replace missing values with fill_value. Can be
-                used with strings or numeric data.
-            fill_value: When strategy == "constant", fill_value is used to replace all
-                occurrences of missing_values.
-                If left to the default, fill_value will be 0 when imputing numerical
-                data and "missing_value" for strings or object data types.
-
-        """
+        """Initialize missing values handler."""
         self.base_estimator = base_estimator
         self.missing_values = missing_values
         self.imputation_strategy = imputation_strategy

@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+from typing import List, Union
 from abc import abstractmethod
 from typing import Optional
 
@@ -28,7 +29,7 @@ class OpenstfRegressor(BaseEstimator):
     ## Define abstract methods required to be implemented by concrete models
     @property
     @abstractmethod
-    def feature_names(self):
+    def feature_names(self) -> List:
         """Retrieve the model input feature names.
 
         Returns:
@@ -50,11 +51,11 @@ class OpenstfRegressor(BaseEstimator):
         """Makes a prediction. Only available after the model has been trained.
 
         Args:
-            x (np.array): Feature matrix
+            x: Feature matrix
             kwargs: model-specific keywords
 
         Returns:
-            (np.array): prediction
+            Prediction
 
         """
 
@@ -63,8 +64,8 @@ class OpenstfRegressor(BaseEstimator):
         """Fits the regressor.
 
         Args:
-            x (np.array): Feature matrix
-            y (np.array): Labels
+            x: Feature matrix
+            y: Labels
             kwargs: model-specific keywords
 
         Returns:
@@ -72,11 +73,11 @@ class OpenstfRegressor(BaseEstimator):
 
         """
 
-    def set_feature_importance(self) -> Optional[pd.DataFrame]:
+    def set_feature_importance(self) -> Union[pd.DataFrame, None]:
         """Get feature importance.
 
         Returns:
-         pd.DataFrame
+            DataFrame with feature importance.
 
         """
         # returns a dict if we can get feature importance else returns None
@@ -104,11 +105,11 @@ class OpenstfRegressor(BaseEstimator):
         return feature_importance
 
     @staticmethod
-    def _get_importance_names() -> Optional[dict]:
+    def _get_importance_names() -> Union[dict, None]:
         """Get importance names if applicable.
 
         Returns:
-            Optional (dict): Returns a dict or None, return None if the model can't get feature importance
+            A dict or None, return None if the model can't get feature importance
 
         """
         return None

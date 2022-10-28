@@ -37,13 +37,21 @@ class XGBQuantileOpenstfRegressor(OpenstfRegressor):
     ):
         """Initialize XGBQuantileRegressor.
 
-            Model that provides quantile regression with XGBoost.
-            For each desired quantile an XGBoost model is trained,
-            these can later be used to predict quantiles.
+        Model that provides quantile regression with XGBoost.
+        For each desired quantile an XGBoost model is trained,
+        these can later be used to predict quantiles.
 
         Args:
-            quantiles (tuple): Tuple with desired quantiles, quantile 0.5 is required.
+            quantiles: Tuple with desired quantiles, quantile 0.5 is required.
                 For example: (0.1, 0.5, 0.9)
+            gamma: Gamma
+            colsample_bytree: Colsample by tree
+            subsample: Subsample
+            min_child_weight: Minimum child weight
+            max_depth: Maximum depth
+            learning_rate: Learning rate
+            alpha: Alpha
+            max_delta_step: Maximum delta step
 
         """
         super().__init__()
@@ -69,8 +77,8 @@ class XGBQuantileOpenstfRegressor(OpenstfRegressor):
         """Fits xgb quantile model.
 
         Args:
-            x (np.array): Feature matrix
-            y (np.array): Labels
+            x: Feature matrix
+            y: Labels
 
         Returns:
             Fitted XGBQuantile model
@@ -145,13 +153,13 @@ class XGBQuantileOpenstfRegressor(OpenstfRegressor):
         """Makes a prediction for a desired quantile.
 
         Args:
-            x (np.array): Feature matrix
-            quantile (float): Quantile for which a prediciton is desired,
-            note that only quantile are available for which a model is trained,
-            and that this is a quantile-model specific keyword
+            x: Feature matrix
+            quantile: Quantile for which a prediciton is desired,
+                note that only quantile are available for which a model is trained,
+                and that this is a quantile-model specific keyword
 
         Returns:
-            (np.array): prediction
+            Prediction
 
         Raises:
             ValueError in case no model is trained for the requested quantile
@@ -180,11 +188,11 @@ class XGBQuantileOpenstfRegressor(OpenstfRegressor):
         https://github.com/dmlc/xgboost/blob/master/python-package/xgboost/sklearn.py.
 
         Args:
-            booster(Booster): Booster object,
-            most of the times the median model (quantile=0.5) is preferred
+            booster: Booster object,
+                most of the times the median model (quantile=0.5) is preferred
 
         Returns:
-            (np.ndarray) with normalized feature importances
+            Ndarray with normalized feature importances.
 
         """
         # Get score

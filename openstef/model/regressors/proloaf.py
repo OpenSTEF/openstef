@@ -22,7 +22,7 @@ def divide_scaling_groups(x: pd.DataFrame) -> Tuple[List[str], List[str], List[s
     """Divides the column names over different type of scaling groups.
 
     Args:
-        x (pd.DataFrame): Dataframe from which columns have to be divided
+        x: Dataframe from which columns have to be divided
 
     Returns:
         List of all the grouped features for scaling (three groups)
@@ -51,8 +51,8 @@ def apply_scaling(
     """Applies different scaling methods to a certain dataframe (minmax, one hot, or no scaling)
 
     Args:
-        scaler_features (Tuple[List[str], List[str], List[str]]): Three different lists with features for each scaling
-        x (pd.DataFrame): Dataframe from which columns have to be divided
+        scaler_features: Three different lists with features for each scaling
+        x: Dataframe from which columns have to be divided
         scalers: scalers resulting from the previous scaling
 
     Returns:
