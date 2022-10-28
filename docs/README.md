@@ -27,6 +27,7 @@ Important files:
 Running locally, documentation html files are generated but not added to gh-pages:
 ```
 pip install -r requirements.txt
+pip install -r docs/doc-requirements.txt 
 sphinx-apidoc -o docs openstef
 sphinx-build docs output
 ```
