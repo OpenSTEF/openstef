@@ -18,5 +18,5 @@ pymsteams~=0.1.14   # TODO remove teams dependency
 pytz~=2021.3
 scikit-learn~=1.1.1
 scipy~=1.8.0
-structlog~=21.5.0
+structlog~=22.1.0
 xgboost~=1.6.1
