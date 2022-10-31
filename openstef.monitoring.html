@@ -87,8 +87,8 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name_checkpoint</strong> (<em>string</em>) – The name of the checkpoint. This will be logged as
-checkpoint: name_checkpoint</p></li>
+<li><p><strong>name_checkpoint</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The name of the checkpoint. This will be logged as
+“checkpoint: name_checkpoint”</p></li>
 <li><p><strong>**kwargs</strong> – Any other kwargs are appended to the logging.</p></li>
 </ul>
 </dd>
@@ -105,8 +105,7 @@ checkpoint: name_checkpoint</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>successful</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether the level was successful. Defaults to
-True.</p></li>
+<li><p><strong>successful</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether the level was successful. Defaults to True.</p></li>
 <li><p><strong>**kwargs</strong> – Any other kwargs are appended to the logging.</p></li>
 </ul>
 </dd>
@@ -124,8 +123,8 @@ True.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>level_label</strong> (<em>string</em>) – The label of the new level. This could i.e. be ‘task’</p></li>
-<li><p><strong>level_name</strong> (<em>string</em>) – The name of the specified level. This could i.e. be
+<li><p><strong>level_label</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The label of the new level. This could i.e. be ‘task’</p></li>
+<li><p><strong>level_name</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The name of the specified level. This could i.e. be
 ‘tracy_todo’</p></li>
 <li><p><strong>**kwargs</strong> – Any other kwargs are appended to the logging.</p></li>
 </ul>
@@ -148,34 +147,44 @@ True.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – df of table values to insert in sql</p></li>
-<li><p><strong>table</strong> (<em>string</em>) – table to insert df into</p></li>
+<li><p><strong>df</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – Df of table values to insert in sql.</p></li>
+<li><p><strong>table</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Table to insert df into.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>sql query string of insert statement</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>string</p>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Sql query of insert statement.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="openstef.monitoring.teams.format_message">
-<code class="sig-prename descclassname">openstef.monitoring.teams.</code><code class="sig-name descname">format_message</code><span class="sig-paren">(</span><em class="sig-param">title: str</em>, <em class="sig-param">params: dict</em>, <em class="sig-param">fallback=None</em>, <em class="sig-param">color=None</em><span class="sig-paren">)</span> &#x2192; dict<a class="headerlink" href="#openstef.monitoring.teams.format_message" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-prename descclassname">openstef.monitoring.teams.</code><code class="sig-name descname">format_message</code><span class="sig-paren">(</span><em class="sig-param">title</em>, <em class="sig-param">params</em>, <em class="sig-param">fallback=None</em>, <em class="sig-param">color=None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.monitoring.teams.format_message" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="function">
 <dt id="openstef.monitoring.teams.get_card_section">
-<code class="sig-prename descclassname">openstef.monitoring.teams.</code><code class="sig-name descname">get_card_section</code><span class="sig-paren">(</span><em class="sig-param">section_dict: dict</em><span class="sig-paren">)</span> &#x2192; pymsteams.cardsection<a class="headerlink" href="#openstef.monitoring.teams.get_card_section" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstef.monitoring.teams.</code><code class="sig-name descname">get_card_section</code><span class="sig-paren">(</span><em class="sig-param">section_dict</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.monitoring.teams.get_card_section" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get card section for teams message from dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">cardsection</span></code></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="openstef.monitoring.teams.post_teams">
-<code class="sig-prename descclassname">openstef.monitoring.teams.</code><code class="sig-name descname">post_teams</code><span class="sig-paren">(</span><em class="sig-param">msg: Union[str, dict], invalid_coefficients: pandas.core.frame.DataFrame = None, coefficients_df: pandas.core.frame.DataFrame = None, url: str = None, proxies: dict = None</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#openstef.monitoring.teams.post_teams" title="Permalink to this definition">¶</a></dt>
-<dd><p>Post a message to Teams - KTP</p>
+<code class="sig-prename descclassname">openstef.monitoring.teams.</code><code class="sig-name descname">post_teams</code><span class="sig-paren">(</span><em class="sig-param">msg</em>, <em class="sig-param">invalid_coefficients=None</em>, <em class="sig-param">coefficients_df=None</em>, <em class="sig-param">url=None</em>, <em class="sig-param">proxies=None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.monitoring.teams.post_teams" title="Permalink to this definition">¶</a></dt>
+<dd><p>Post a message to Teams - KTP.</p>
 <p>Note that currently no authentication occurs.
 Security is given by keeping the URL secret.
 One should therefore refrain from using more enhanced features such as
@@ -183,15 +192,16 @@ action buttons.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>msg</strong> (<em>mixed</em>) – For simple messages a string can be passed. For more
+<li><p><strong>msg</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>]) – For simple messages a string can be passed. For more
 complex messages pass a dict. The following keys are supported:
 text, links, sections. Each section can contain the following keys:
 text, title, images, facts, markdown. Also see:
 <a class="reference external" href="https://docs.microsoft.com/en-us/outlook/actionable-messages/send-via-connectors">https://docs.microsoft.com/en-us/outlook/actionable-messages/send-via-connectors</a></p></li>
-<li><p><strong>invalid_coefficients</strong> (<em>pd.DatFrame</em><em>, </em><em>optional</em>) – df of information of invalid
+<li><p><strong>invalid_coefficients</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>]) – df of information of invalid
 coefficients. Defaults to None.</p></li>
-<li><p><strong>coefficients_df</strong> (<em>pd.DataFrame</em><em>, </em><em>optional</em>) – df of new coefficients. Defaults to None.</p></li>
-<li><p><strong>url</strong> (<em>string</em><em>, </em><em>optional</em>) – webhook url, monitoring by default</p></li>
+<li><p><strong>coefficients_df</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>]) – df of new coefficients. Defaults to None.</p></li>
+<li><p><strong>url</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – webhook url, monitoring by default</p></li>
+<li><p><strong>proxies</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>]) – Optinonal proxy settings.</p></li>
 </ul>
 </dd>
 </dl>
@@ -199,6 +209,11 @@ coefficients. Defaults to None.</p></li>
 <p class="admonition-title">Note</p>
 <p>This function is namespace-specific.</p>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>

@@ -78,21 +78,21 @@
 <span id="openstef-preprocessing-preprocessing-module"></span><h2>openstef.preprocessing.preprocessing module<a class="headerlink" href="#module-openstef.preprocessing.preprocessing" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="openstef.preprocessing.preprocessing.replace_repeated_values_with_nan">
-<code class="sig-prename descclassname">openstef.preprocessing.preprocessing.</code><code class="sig-name descname">replace_repeated_values_with_nan</code><span class="sig-paren">(</span><em class="sig-param">df: pandas.core.frame.DataFrame</em>, <em class="sig-param">max_length: int</em>, <em class="sig-param">column_name: str</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstef.preprocessing.preprocessing.replace_repeated_values_with_nan" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstef.preprocessing.preprocessing.</code><code class="sig-name descname">replace_repeated_values_with_nan</code><span class="sig-paren">(</span><em class="sig-param">df</em>, <em class="sig-param">max_length</em>, <em class="sig-param">column_name</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.preprocessing.preprocessing.replace_repeated_values_with_nan" title="Permalink to this definition">¶</a></dt>
 <dd><p>Replace sequentially repeated values with NaN.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>df</strong> (<em>pandas.DataFrame</em>) – Data with potential repeating values.</p></li>
-<li><p><strong>max_length</strong> (<em>int</em>) – Maximum length of sequence. Above are set to NaN.</p></li>
-<li><p><strong>column_name</strong> (<em>string</em>) – Column name of input dataframe with repeating values.</p></li>
+<li><p><strong>df</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – Data with potential repeating values.</p></li>
+<li><p><strong>max_length</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Maximum length of sequence. Above are set to NaN.</p></li>
+<li><p><strong>column_name</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Column name of input dataframe with repeating values.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Data, similar to df, with the desired values set to NaN.</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>pandas.DataFrame</p>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>DataFrame, similar to df, with the desired values set to NaN.</p>
 </dd>
 </dl>
 </dd></dl>

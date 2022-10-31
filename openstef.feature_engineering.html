@@ -76,26 +76,26 @@
 </div>
 <div class="section" id="module-openstef.feature_engineering.apply_features">
 <span id="openstef-feature-engineering-apply-features-module"></span><h2>openstef.feature_engineering.apply_features module<a class="headerlink" href="#module-openstef.feature_engineering.apply_features" title="Permalink to this headline">¶</a></h2>
-<p>apply_features.py.</p>
-<p>This module provides functionality for applying features to the input data.
-This improves forecast accuracy. Examples of features that are added are:</p>
-<blockquote>
-<div><p>The load 1 day and 7 days ago at the same time
-If a day is a weekday or a holiday
-The extrapolated windspeed at 100m
-The normalised wind power according to the turbine-specific power curve</p>
-</div></blockquote>
-<dl class="function">
-<dt id="openstef.feature_engineering.apply_features.apply_features">
-<code class="sig-prename descclassname">openstef.feature_engineering.apply_features.</code><code class="sig-name descname">apply_features</code><span class="sig-paren">(</span><em class="sig-param">data: pandas.core.frame.DataFrame</em>, <em class="sig-param">pj: openstef.data_classes.prediction_job.PredictionJobDataClass = None</em>, <em class="sig-param">feature_names: List[str] = None</em>, <em class="sig-param">horizon: float = 24.0</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstef.feature_engineering.apply_features.apply_features" title="Permalink to this definition">¶</a></dt>
-<dd><dl>
-<dt>This script applies the feature functions defined in</dt><dd><p>feature_functions.py and returns the complete dataframe. Features requiring
-more recent label-data are omitted.</p>
-<p>NOTE: For the time deriven features only the onces in the features list
-will be added. But for the weather features all will be added at present.
-These unrequested additional features have to be filtered out later.</p>
+<p>This module provides functionality for applying features to the input data to improve forecast accuracy.</p>
+<dl class="simple">
+<dt>Examples of features that are added:</dt><dd><ul class="simple">
+<li><p>The load 1 day and 7 days ago at the same time.</p></li>
+<li><p>If a day is a weekday or a holiday.</p></li>
+<li><p>The extrapolated windspeed at 100m.</p></li>
+<li><p>The normalised wind power according to the turbine-specific power curve.</p></li>
+</ul>
 </dd>
 </dl>
+<dl class="function">
+<dt id="openstef.feature_engineering.apply_features.apply_features">
+<code class="sig-prename descclassname">openstef.feature_engineering.apply_features.</code><code class="sig-name descname">apply_features</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">pj=None</em>, <em class="sig-param">feature_names=None</em>, <em class="sig-param">horizon=24.0</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.apply_features.apply_features" title="Permalink to this definition">¶</a></dt>
+<dd><p>Applies the feature functions defined in <code class="docutils literal notranslate"><span class="pre">feature_functions.py</span></code> and returns the complete dataframe.</p>
+<p>Features requiring more recent label-data are omitted.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For the time deriven features only the onces in the features list will be added. But for the weather features all will be added at present.
+These unrequested additional features have to be filtered out later.</p>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -112,61 +112,73 @@ columns=[label, predictor_1,…, predictor_n]</p>
 <li><p><strong>horizon</strong> (<em>float</em>) – Forecast horizon limit in hours.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><dl class="simple">
-<dt>pd.DataFrame(index = datetime, columns = [label, predictor_1,…, predictor_n,</dt><dd><p>feature_1, …, feature_m])</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>pd.DataFrame(index = datetime, columns = [label, predictor_1,…, predictor_n, feature_1, …, feature_m])</p>
 </dd>
 </dl>
-</p>
-</dd>
-</dl>
-<p class="rubric">Example</p>
-<p>import pandas as pd
-import numpy as np
-index = pd.date_range(start = “2017-01-01 09:00:00”,
-freq = ‘15T’, periods = 200)
-data = pd.DataFrame(index = index,</p>
-<blockquote>
-<div><p>data = dict(load=
-np.sin(index.hour/24*np.pi)*
-np.random.uniform(0.7,1.7, 200)))</p>
-</div></blockquote>
+<p>Example output:</p>
+<div class="highlight-py notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="n">index</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">date_range</span><span class="p">(</span><span class="n">start</span> <span class="o">=</span> <span class="s2">&quot;2017-01-01 09:00:00&quot;</span><span class="p">,</span>
+<span class="n">freq</span> <span class="o">=</span> <span class="s1">&#39;15T&#39;</span><span class="p">,</span> <span class="n">periods</span> <span class="o">=</span> <span class="mi">200</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">index</span> <span class="o">=</span> <span class="n">index</span><span class="p">,</span>
+                    <span class="n">data</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">load</span><span class="o">=</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">index</span><span class="o">.</span><span class="n">hour</span><span class="o">/</span><span class="mi">24</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span><span class="o">*</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.7</span><span class="p">,</span><span class="mf">1.7</span><span class="p">,</span> <span class="mi">200</span><span class="p">)))</span>
+</pre></div>
+</div>
 </dd></dl>
 
 </div>
 <div class="section" id="module-openstef.feature_engineering.feature_adder">
 <span id="openstef-feature-engineering-feature-adder-module"></span><h2>openstef.feature_engineering.feature_adder module<a class="headerlink" href="#module-openstef.feature_engineering.feature_adder" title="Permalink to this headline">¶</a></h2>
+<p>This module provides functionality for defining custom feature adders.</p>
 <dl class="class">
 <dt id="openstef.feature_engineering.feature_adder.FeatureAdder">
 <em class="property">class </em><code class="sig-prename descclassname">openstef.feature_engineering.feature_adder.</code><code class="sig-name descname">FeatureAdder</code><a class="headerlink" href="#openstef.feature_engineering.feature_adder.FeatureAdder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
-<p>Abstract class that implement the FeatureAdder interface.
-It is the basic block that handles the logic for computing the specific feature
-and the syntactic sugar to load properly the feature adder according to the feature name.</p>
+<p>Abstract class that implement the FeatureAdder interface.</p>
+<p>It is the basic block that handles the logic for computing the specific feature and the syntactic sugar to load
+properly the feature adder according to the feature name.</p>
 <dl class="method">
 <dt id="openstef.feature_engineering.feature_adder.FeatureAdder.apply_features">
-<em class="property">abstract </em><code class="sig-name descname">apply_features</code><span class="sig-paren">(</span><em class="sig-param">df: pandas.core.frame.DataFrame, parsed_feature_names: Sequence[openstef.feature_engineering.feature_adder.ParsedFeature]</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstef.feature_engineering.feature_adder.FeatureAdder.apply_features" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<em class="property">abstract </em><code class="sig-name descname">apply_features</code><span class="sig-paren">(</span><em class="sig-param">df</em>, <em class="sig-param">parsed_feature_names</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.feature_adder.FeatureAdder.apply_features" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply or add the features to the input dataframe.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="openstef.feature_engineering.feature_adder.FeatureAdder.name">
 <em class="property">abstract property </em><code class="sig-name descname">name</code><a class="headerlink" href="#openstef.feature_engineering.feature_adder.FeatureAdder.name" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Name of the FeatureAdder.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="openstef.feature_engineering.feature_adder.FeatureAdder.parse_feature_name">
-<code class="sig-name descname">parse_feature_name</code><span class="sig-paren">(</span><em class="sig-param">feature_name: str</em><span class="sig-paren">)</span> &#x2192; Optional[Dict[str, str]]<a class="headerlink" href="#openstef.feature_engineering.feature_adder.FeatureAdder.parse_feature_name" title="Permalink to this definition">¶</a></dt>
-<dd><p>Parse a feature name</p>
+<code class="sig-name descname">parse_feature_name</code><span class="sig-paren">(</span><em class="sig-param">feature_name</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.feature_adder.FeatureAdder.parse_feature_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse a feature name.</p>
 <p>If the feature name is taken in charge by the feature adder, the method returns
 a dictionnary with the potentially parsed parameters contained the feature name. In the
 case the feature name does not contain parameters an empty dictionary is returned.
 Otherwise the method returns None.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>feature_name</strong> (<em>str</em>) – The feature name. The feature name may contain parameter informations</p>
+<dd class="field-odd"><p><strong>feature_name</strong> (<em>str</em>) – The feature name, this may contain parameter informations.</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>parameters</strong> – The parsed parameters. If the feature name is recognized but has no parameters
+<dd class="field-even"><p>The parsed parameters. If the feature name is recognized but has no parameters
 an empty dictionnary is returned. If the feature name is not recognized, None is
 returned.</p>
 </dd>
@@ -178,27 +190,60 @@ returned.</p>
 
 <dl class="method">
 <dt id="openstef.feature_engineering.feature_adder.FeatureAdder.required_features">
-<em class="property">abstract </em><code class="sig-name descname">required_features</code><span class="sig-paren">(</span><em class="sig-param">feature_names</em><span class="sig-paren">)</span> &#x2192; List[str]<a class="headerlink" href="#openstef.feature_engineering.feature_adder.FeatureAdder.required_features" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<em class="property">abstract </em><code class="sig-name descname">required_features</code><span class="sig-paren">(</span><em class="sig-param">feature_names</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.feature_adder.FeatureAdder.required_features" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of features that are required to calculate this feature.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="openstef.feature_engineering.feature_adder.FeatureDispatcher">
-<em class="property">class </em><code class="sig-prename descclassname">openstef.feature_engineering.feature_adder.</code><code class="sig-name descname">FeatureDispatcher</code><span class="sig-paren">(</span><em class="sig-param">feature_adders: Sequence[openstef.feature_engineering.feature_adder.FeatureAdder]</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.feature_adder.FeatureDispatcher" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">openstef.feature_engineering.feature_adder.</code><code class="sig-name descname">FeatureDispatcher</code><span class="sig-paren">(</span><em class="sig-param">feature_adders</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.feature_adder.FeatureDispatcher" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Orchestrator of the feature adders.
-It scans the feature_names to assign to each feature the proper feature adder
-and launch the effective computing of the features.</p>
+<p>Orchestrator of the feature adders.</p>
+<p>It scans the feature_names to assign to each feature the proper feature adder and launch the effective computing of
+the features.</p>
 <dl class="method">
 <dt id="openstef.feature_engineering.feature_adder.FeatureDispatcher.apply_features">
-<code class="sig-name descname">apply_features</code><span class="sig-paren">(</span><em class="sig-param">df: pandas.core.frame.DataFrame, feature_names: List[str]</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.feature_adder.FeatureDispatcher.apply_features" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname">apply_features</code><span class="sig-paren">(</span><em class="sig-param">df</em>, <em class="sig-param">feature_names</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.feature_adder.FeatureDispatcher.apply_features" title="Permalink to this definition">¶</a></dt>
+<dd><p>Applies features to the input DataFrame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – DataFrame to which the features have to be added.</p></li>
+<li><p><strong>feature_names</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – Names of the features.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>DataFrame with the added features.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="openstef.feature_engineering.feature_adder.FeatureDispatcher.dispatch_features">
-<code class="sig-name descname">dispatch_features</code><span class="sig-paren">(</span><em class="sig-param">feature_names: List[str]</em><span class="sig-paren">)</span> &#x2192; Dict[openstef.feature_engineering.feature_adder.FeatureAdder, List[openstef.feature_engineering.feature_adder.ParsedFeature]]<a class="headerlink" href="#openstef.feature_engineering.feature_adder.FeatureDispatcher.dispatch_features" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname">dispatch_features</code><span class="sig-paren">(</span><em class="sig-param">feature_names</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.feature_adder.FeatureDispatcher.dispatch_features" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dispatch features.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>feature_names</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – The names of the features to be dispatched.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<a class="reference internal" href="#openstef.feature_engineering.feature_adder.FeatureAdder" title="openstef.feature_engineering.feature_adder.FeatureAdder"><code class="xref py py-class docutils literal notranslate"><span class="pre">FeatureAdder</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<a class="reference internal" href="#openstef.feature_engineering.feature_adder.ParsedFeature" title="openstef.feature_engineering.feature_adder.ParsedFeature"><code class="xref py py-class docutils literal notranslate"><span class="pre">ParsedFeature</span></code></a>]]</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Dictionary with parsed features.</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -222,86 +267,213 @@ and launch the effective computing of the features.</p>
 
 <dl class="function">
 <dt id="openstef.feature_engineering.feature_adder.adders_from_module">
-<code class="sig-prename descclassname">openstef.feature_engineering.feature_adder.</code><code class="sig-name descname">adders_from_module</code><span class="sig-paren">(</span><em class="sig-param">module_name: str</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.feature_adder.adders_from_module" title="Permalink to this definition">¶</a></dt>
-<dd><p>Load all FeatureAdders classes on the fly from the module</p>
+<code class="sig-prename descclassname">openstef.feature_engineering.feature_adder.</code><code class="sig-name descname">adders_from_module</code><span class="sig-paren">(</span><em class="sig-param">module_name</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.feature_adder.adders_from_module" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load all FeatureAdders classes on the fly from the module.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>module_name</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The name of the module from which to import.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<a class="reference internal" href="#openstef.feature_engineering.feature_adder.FeatureAdder" title="openstef.feature_engineering.feature_adder.FeatureAdder"><code class="xref py py-class docutils literal notranslate"><span class="pre">FeatureAdder</span></code></a>]</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A list with all loaded FeatureAdders.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="openstef.feature_engineering.feature_adder.adders_from_modules">
-<code class="sig-prename descclassname">openstef.feature_engineering.feature_adder.</code><code class="sig-name descname">adders_from_modules</code><span class="sig-paren">(</span><em class="sig-param">module_names: List[str]</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.feature_adder.adders_from_modules" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-prename descclassname">openstef.feature_engineering.feature_adder.</code><code class="sig-name descname">adders_from_modules</code><span class="sig-paren">(</span><em class="sig-param">module_names</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.feature_adder.adders_from_modules" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load all FeatureAdders classes on the fly from multiple modules.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>module_names</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – A list with names of the modules from which to import.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<a class="reference internal" href="#openstef.feature_engineering.feature_adder.FeatureAdder" title="openstef.feature_engineering.feature_adder.FeatureAdder"><code class="xref py py-class docutils literal notranslate"><span class="pre">FeatureAdder</span></code></a>]</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A list with all loaded FeatureAdders.</p>
+</dd>
+</dl>
+</dd></dl>
 
 </div>
-<div class="section" id="openstef-feature-engineering-feature-applicator-module">
-<h2>openstef.feature_engineering.feature_applicator module<a class="headerlink" href="#openstef-feature-engineering-feature-applicator-module" title="Permalink to this headline">¶</a></h2>
-</div>
-<div class="section" id="module-openstef.feature_engineering.general">
-<span id="openstef-feature-engineering-general-module"></span><h2>openstef.feature_engineering.general module<a class="headerlink" href="#module-openstef.feature_engineering.general" title="Permalink to this headline">¶</a></h2>
-<dl class="function">
-<dt id="openstef.feature_engineering.general.add_missing_feature_columns">
-<code class="sig-prename descclassname">openstef.feature_engineering.general.</code><code class="sig-name descname">add_missing_feature_columns</code><span class="sig-paren">(</span><em class="sig-param">input_data: pandas.core.frame.DataFrame, features: List[str]</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstef.feature_engineering.general.add_missing_feature_columns" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds feature column for features in the featurelist.</p>
-<p>Add feature columns for features in the feature list if these columns don’t
-exist in the input data. If a column is added, its value is set to NaN.
-This is especially usefull to make sure the required columns are in place when
-making a prediction.</p>
+<div class="section" id="module-openstef.feature_engineering.feature_applicator">
+<span id="openstef-feature-engineering-feature-applicator-module"></span><h2>openstef.feature_engineering.feature_applicator module<a class="headerlink" href="#module-openstef.feature_engineering.feature_applicator" title="Permalink to this headline">¶</a></h2>
+<p>This module defines several FeatureApplicators.</p>
+<p>These applicatiors are used to add features to the input data in the corresponding pipelines.</p>
+<dl class="class">
+<dt id="openstef.feature_engineering.feature_applicator.AbstractFeatureApplicator">
+<em class="property">class </em><code class="sig-prename descclassname">openstef.feature_engineering.feature_applicator.</code><code class="sig-name descname">AbstractFeatureApplicator</code><span class="sig-paren">(</span><em class="sig-param">horizons</em>, <em class="sig-param">feature_names=None</em>, <em class="sig-param">feature_modules=[]</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.feature_applicator.AbstractFeatureApplicator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
+<p>Defines the Applicator interface.</p>
+<dl class="method">
+<dt id="openstef.feature_engineering.feature_applicator.AbstractFeatureApplicator.add_features">
+<em class="property">abstract </em><code class="sig-name descname">add_features</code><span class="sig-paren">(</span><em class="sig-param">df</em>, <em class="sig-param">pj=None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.feature_applicator.AbstractFeatureApplicator.add_features" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds features to an input DataFrame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – DataFrame with input data to which the features have to be added</p></li>
+<li><p><strong>pj</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">PredictionJobDataClass</span></code></a>]) – (Optional) A prediction job that is needed for location dependent features,
+if not specified a default location is used</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Dataframe with added features.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="openstef.feature_engineering.feature_applicator.OperationalPredictFeatureApplicator">
+<em class="property">class </em><code class="sig-prename descclassname">openstef.feature_engineering.feature_applicator.</code><code class="sig-name descname">OperationalPredictFeatureApplicator</code><span class="sig-paren">(</span><em class="sig-param">horizons</em>, <em class="sig-param">feature_names=None</em>, <em class="sig-param">feature_modules=[]</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.feature_applicator.OperationalPredictFeatureApplicator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#openstef.feature_engineering.feature_applicator.AbstractFeatureApplicator" title="openstef.feature_engineering.feature_applicator.AbstractFeatureApplicator"><code class="xref py py-class docutils literal notranslate"><span class="pre">openstef.feature_engineering.feature_applicator.AbstractFeatureApplicator</span></code></a></p>
+<p>Feature applicator for use in operational forecasts.</p>
+<dl class="method">
+<dt id="openstef.feature_engineering.feature_applicator.OperationalPredictFeatureApplicator.add_features">
+<code class="sig-name descname">add_features</code><span class="sig-paren">(</span><em class="sig-param">df</em>, <em class="sig-param">pj=None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.feature_applicator.OperationalPredictFeatureApplicator.add_features" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds features to an input DataFrame.</p>
+<p>This method is implemented specifically for an operational prediction pipeline and will add every available feature.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – DataFrame with input data to which the features have to be added</p></li>
+<li><p><strong>pj</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">PredictionJobDataClass</span></code></a>]) – (Optional) A prediction job that is needed for location dependent features,
+if not specified a default location is used</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Input DataFrame with an extra column for every added feature.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="openstef.feature_engineering.feature_applicator.TrainFeatureApplicator">
+<em class="property">class </em><code class="sig-prename descclassname">openstef.feature_engineering.feature_applicator.</code><code class="sig-name descname">TrainFeatureApplicator</code><span class="sig-paren">(</span><em class="sig-param">horizons</em>, <em class="sig-param">feature_names=None</em>, <em class="sig-param">feature_modules=[]</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.feature_applicator.TrainFeatureApplicator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#openstef.feature_engineering.feature_applicator.AbstractFeatureApplicator" title="openstef.feature_engineering.feature_applicator.AbstractFeatureApplicator"><code class="xref py py-class docutils literal notranslate"><span class="pre">openstef.feature_engineering.feature_applicator.AbstractFeatureApplicator</span></code></a></p>
+<p>Feature applicator for use during training.</p>
+<dl class="method">
+<dt id="openstef.feature_engineering.feature_applicator.TrainFeatureApplicator.add_features">
+<code class="sig-name descname">add_features</code><span class="sig-paren">(</span><em class="sig-param">df</em>, <em class="sig-param">pj=None</em>, <em class="sig-param">latency_config=None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.feature_applicator.TrainFeatureApplicator.add_features" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds features to an input DataFrame.</p>
+<p>This method is implemented specifically for a model train pipeline. For larger
+horzions data is invalidated as when they are not available.</p>
 <dl class="simple">
-<dt>NOTE: this function is intended as a final check to prevent errors during predicion.</dt><dd><p>In an ideal world this function is not nescarry.</p>
+<dt>For example:</dt><dd><p>For horzion 24 hours the feature T-720min is not added as the load
+720 minutes ago is not available 24 hours in advance. In case of a horizon
+0.25 hours this feature is added as in this case the feature is available.</p>
 </dd>
 </dl>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>input_data</strong> (<em>pd.DataFrame</em>) – DataFrame with input data and featurs.</p></li>
-<li><p><strong>features</strong> (<em>list</em>) – List of requiered features.</p></li>
+<li><p><strong>df</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – Input data to which the features will be added.</p></li>
+<li><p><strong>pj</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">PredictionJobDataClass</span></code></a>]) – (Optional) A prediction job that is needed for location dependent features,
+if not specified a default location is used</p></li>
+<li><p><strong>latency_config</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>]) – (Optional) Invalidate certain features that are not
+available for a specific horizon due to data latency. Defaults to
+<code class="docutils literal notranslate"><span class="pre">{&quot;APX&quot;:</span> <span class="pre">24}</span></code>.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Input DataFrame with an extra column for every added feature and sorted on the datetime index.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-openstef.feature_engineering.general">
+<span id="openstef-feature-engineering-general-module"></span><h2>openstef.feature_engineering.general module<a class="headerlink" href="#module-openstef.feature_engineering.general" title="Permalink to this headline">¶</a></h2>
+<p>This modelu contains various helper functions.</p>
+<dl class="function">
+<dt id="openstef.feature_engineering.general.add_missing_feature_columns">
+<code class="sig-prename descclassname">openstef.feature_engineering.general.</code><code class="sig-name descname">add_missing_feature_columns</code><span class="sig-paren">(</span><em class="sig-param">input_data</em>, <em class="sig-param">features</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.general.add_missing_feature_columns" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds feature column for features in the featurelist.</p>
+<p>Add feature columns for features in the feature list if these columns don’t
+exist in the input data. If a column is added, its value is set to NaN.
+This is especially usefull to make sure the required columns are in place when
+making a prediction.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This function is intended as a final check to prevent errors during predicion.
+In an ideal world this function is not nescarry.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_data</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – DataFrame with input data and featurs.</p></li>
+<li><p><strong>features</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – List of requiered features.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Input dataframe with missing columns filled with <code class="docutils literal notranslate"><span class="pre">np.N=nan</span></code>.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="openstef.feature_engineering.general.enforce_feature_order">
-<code class="sig-prename descclassname">openstef.feature_engineering.general.</code><code class="sig-name descname">enforce_feature_order</code><span class="sig-paren">(</span><em class="sig-param">input_data: pandas.core.frame.DataFrame</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.general.enforce_feature_order" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstef.feature_engineering.general.</code><code class="sig-name descname">enforce_feature_order</code><span class="sig-paren">(</span><em class="sig-param">input_data</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.general.enforce_feature_order" title="Permalink to this definition">¶</a></dt>
 <dd><p>Enforces correct order of features.</p>
-<dl>
-<dt>Alphabetically orders the feature columns. The load column remains the first column</dt><dd><p>and the horizons column remains the last column.
+<p>Alphabetically orders the feature columns. The load column remains the first column
+and the horizons column remains the last column.
 Everything in between is alphabetically sorted:
 The order eventually looks like this:
 [“load”] – [alphabetically sorted features] – [‘horizon’]</p>
-<p>This funciton assumes the first column contains the to be predicted variable
+<p>This function assumes the first column contains the to be predicted variable
 Furthermore the “horizon” is moved to the last position if it is pressent.</p>
-</dd>
-</dl>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>input_data</strong> (<em>pd.DataFrame</em>) – Input data with features.</p>
+<dd class="field-odd"><p><strong>input_data</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – Input data with features.</p>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Properly sorted input data</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>pd.DataFrame</p>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Properly sorted input data.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="openstef.feature_engineering.general.remove_non_requested_feature_columns">
-<code class="sig-prename descclassname">openstef.feature_engineering.general.</code><code class="sig-name descname">remove_non_requested_feature_columns</code><span class="sig-paren">(</span><em class="sig-param">input_data: pandas.core.frame.DataFrame, requested_features: List[str]</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstef.feature_engineering.general.remove_non_requested_feature_columns" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstef.feature_engineering.general.</code><code class="sig-name descname">remove_non_requested_feature_columns</code><span class="sig-paren">(</span><em class="sig-param">input_data</em>, <em class="sig-param">requested_features</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.general.remove_non_requested_feature_columns" title="Permalink to this definition">¶</a></dt>
 <dd><p>Removes features that are provided in the input data but not in the feature list.</p>
 <p>This should not be nescesarry but serves as an extra failsave for making predicitons</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>input_data</strong> – (pd.Dataframe) DataFrame with features</p></li>
-<li><p><strong>requested_features</strong> – (list) list of reuqested features</p></li>
+<li><p><strong>input_data</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – DataFrame with features</p></li>
+<li><p><strong>requested_features</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – List of reuqested features</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Nodel input data with features.</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>pd.DataFrame</p>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Model input data with features.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -312,17 +484,20 @@ Furthermore the “horizon” is moved to the last position if it is pressent.</
 <p>This module contains historic load related functions used for feature engineering.</p>
 <dl class="function">
 <dt id="openstef.feature_engineering.historic_features.add_historic_load_as_a_feature">
-<code class="sig-prename descclassname">openstef.feature_engineering.historic_features.</code><code class="sig-name descname">add_historic_load_as_a_feature</code><span class="sig-paren">(</span><em class="sig-param">data: pandas.core.frame.DataFrame</em>, <em class="sig-param">pj: openstef.data_classes.prediction_job.PredictionJobDataClass = None</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstef.feature_engineering.historic_features.add_historic_load_as_a_feature" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds additional proloaf features to the input data, historic_load (equal to the load)</p>
+<code class="sig-prename descclassname">openstef.feature_engineering.historic_features.</code><code class="sig-name descname">add_historic_load_as_a_feature</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">pj=None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.historic_features.add_historic_load_as_a_feature" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds additional proloaf features to the input data, historic_load (equal to the load).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<em>pd.DataFrame</em>) – Dataframe to which the wind features have to be added</p></li>
-<li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><em>PredictionJobDataClass</em></a>) – Prediction job.</p></li>
+<li><p><strong>data</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – Dataframe to which the wind features have to be added</p></li>
+<li><p><strong>pj</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">PredictionJobDataClass</span></code></a>]) – Prediction job.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>pd.DataFrame same as input dataframe with extra columns for the added proloaf features</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>DataFrame that is the same as input dataframe with extra columns for the added proloaf features</p>
 </dd>
 </dl>
 </dd></dl>
@@ -330,41 +505,45 @@ Furthermore the “horizon” is moved to the last position if it is pressent.</
 </div>
 <div class="section" id="module-openstef.feature_engineering.holiday_features">
 <span id="openstef-feature-engineering-holiday-features-module"></span><h2>openstef.feature_engineering.holiday_features module<a class="headerlink" href="#module-openstef.feature_engineering.holiday_features" title="Permalink to this headline">¶</a></h2>
+<p>This module contains all holiday related features.</p>
 <dl class="function">
 <dt id="openstef.feature_engineering.holiday_features.check_for_bridge_day">
-<code class="sig-prename descclassname">openstef.feature_engineering.holiday_features.</code><code class="sig-name descname">check_for_bridge_day</code><span class="sig-paren">(</span><em class="sig-param">date: datetime.datetime</em>, <em class="sig-param">holiday_name: str</em>, <em class="sig-param">country: str</em>, <em class="sig-param">years: list</em>, <em class="sig-param">holiday_functions: dict</em>, <em class="sig-param">bridge_days: list</em><span class="sig-paren">)</span> &#x2192; Tuple[dict, list]<a class="headerlink" href="#openstef.feature_engineering.holiday_features.check_for_bridge_day" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstef.feature_engineering.holiday_features.</code><code class="sig-name descname">check_for_bridge_day</code><span class="sig-paren">(</span><em class="sig-param">date</em>, <em class="sig-param">holiday_name</em>, <em class="sig-param">country</em>, <em class="sig-param">years</em>, <em class="sig-param">holiday_functions</em>, <em class="sig-param">bridge_days</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.holiday_features.check_for_bridge_day" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks for bridgedays associated to a specific holiday with date (date).</p>
 <p>Any found bridgedays are appende dto the bridgedays list. Also a specific feature
 function for the bridgeday is added to the general holidayfuncitons dictionary.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>date</strong> – datetime.datetime, date of holiday to check for associated bridgedays</p></li>
-<li><p><strong>holiday_name</strong> – name of the holiday</p></li>
-<li><p><strong>country</strong> – country for which to detect the bridgedays</p></li>
-<li><p><strong>years</strong> – list of years for which to detect bridgedays</p></li>
-<li><p><strong>holiday_functions</strong> – dictionary to which the featurefunction has to be appended to in case of a bridgeday</p></li>
-<li><p><strong>bridge_days</strong> – list of bridgedays to which any found bridgedays have to be appended</p></li>
+<li><p><strong>date</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code>) – Date of holiday to check for associated bridgedays.</p></li>
+<li><p><strong>holiday_name</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Name of the holiday.</p></li>
+<li><p><strong>country</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Country for which to detect the bridgedays.</p></li>
+<li><p><strong>years</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>) – List of years for which to detect bridgedays.</p></li>
+<li><p><strong>holiday_functions</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Dictionary to which the featurefunction has to be appended to in case of a bridgeday.</p></li>
+<li><p><strong>bridge_days</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>) – List of bridgedays to which any found bridgedays have to be appended.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>dict with holiday feature functions
-bridge_days: list of bridgedays</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>]</p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>holiday_functions</p>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p>Dict with holiday feature functions</p></li>
+<li><p>List of bridgedays</p></li>
+</ul>
+</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="openstef.feature_engineering.holiday_features.generate_holiday_feature_functions">
-<code class="sig-prename descclassname">openstef.feature_engineering.holiday_features.</code><code class="sig-name descname">generate_holiday_feature_functions</code><span class="sig-paren">(</span><em class="sig-param">country: str = 'NL'</em>, <em class="sig-param">years: list = None</em>, <em class="sig-param">path_to_school_holidays_csv: str = PosixPath('/github/workspace/openstef/data/dutch_holidays_2020-2022.csv')</em><span class="sig-paren">)</span> &#x2192; dict<a class="headerlink" href="#openstef.feature_engineering.holiday_features.generate_holiday_feature_functions" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generates functions for creating holiday feature.
-This improves forecast accuracy. Examples of features that are added are:</p>
+<code class="sig-prename descclassname">openstef.feature_engineering.holiday_features.</code><code class="sig-name descname">generate_holiday_feature_functions</code><span class="sig-paren">(</span><em class="sig-param">country='NL'</em>, <em class="sig-param">years=None</em>, <em class="sig-param">path_to_school_holidays_csv=PosixPath('/github/workspace/openstef/data/dutch_holidays_2020-2022.csv')</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.holiday_features.generate_holiday_feature_functions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates functions for creating holiday feature.</p>
+<p>This improves forecast accuracy. Examples of features that are
+added are: 2020-01-01 is ‘Nieuwjaarsdag’.</p>
 <blockquote>
-<div><p>2020-01-01 is ‘Nieuwjaarsdag’
-2022-12-24 - 2023-01-08 is the ‘Kerstvakantie’
+<div><p>2022-12-24 - 2023-01-08 is the ‘Kerstvakantie’
 2022-10-15 - 2022-10-23 is the ‘HerfstvakantieNoord’</p>
 </div></blockquote>
 <p>The holidays are based on a manually generated csv file.
@@ -389,15 +568,19 @@ The official following official ducth holidays are included untill 2023:</p>
 </div></blockquote>
 <p>The ‘Brugdagen’ are updated untill dec 2020. (Generated using agenda)</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><dl class="simple">
-<dt>Dictionary with functions that check if a given date is a holiday, keys</dt><dd><p>consist of “Is” + the_name_of_the_holiday_to_be_checked</p>
-</dd>
-</dl>
-</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>country</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Country for which to create holiday features.</p></li>
+<li><p><strong>years</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>]) – years for which to create holiday features.</p></li>
+<li><p><strong>path_to_school_holidays_csv</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Filepath to csv with school holidays.</p></li>
+</ul>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p>(dict)</p>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Dictionary with functions that check if a given date is a holiday, keys
+consist of “Is” + the_name_of_the_holiday_to_be_checked</p>
 </dd>
 </dl>
 </dd></dl>
@@ -405,90 +588,96 @@ The official following official ducth holidays are included untill 2023:</p>
 </div>
 <div class="section" id="module-openstef.feature_engineering.lag_features">
 <span id="openstef-feature-engineering-lag-features-module"></span><h2>openstef.feature_engineering.lag_features module<a class="headerlink" href="#module-openstef.feature_engineering.lag_features" title="Permalink to this headline">¶</a></h2>
+<p>This module contains all lag features.</p>
 <dl class="function">
 <dt id="openstef.feature_engineering.lag_features.extract_lag_features">
-<code class="sig-prename descclassname">openstef.feature_engineering.lag_features.</code><code class="sig-name descname">extract_lag_features</code><span class="sig-paren">(</span><em class="sig-param">feature_names: List[str], horizon: float = 24.0</em><span class="sig-paren">)</span> &#x2192; Tuple[list, list]<a class="headerlink" href="#openstef.feature_engineering.lag_features.extract_lag_features" title="Permalink to this definition">¶</a></dt>
-<dd><p>Creates a list of lag minutes and a list of lag days that were used during
-the training of the input model.</p>
+<code class="sig-prename descclassname">openstef.feature_engineering.lag_features.</code><code class="sig-name descname">extract_lag_features</code><span class="sig-paren">(</span><em class="sig-param">feature_names</em>, <em class="sig-param">horizon=24.0</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.lag_features.extract_lag_features" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a list of lag minutes and a list of lag days that were used during the training of the input model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>feature_names</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – All requested lag features</p></li>
-<li><p><strong>horizon</strong> (<em>float</em>) – Forecast horizon limit in hours.</p></li>
+<li><p><strong>feature_names</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – All requested lag features</p></li>
+<li><p><strong>horizon</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Forecast horizon limit in hours.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>list of minute lags that were used as features during training
-days_list (List[int]): list of minute lags that were used as features during training</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>]</p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>minutes_list (List[int])</p>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p>List of minute lags that were used as features during training.</p></li>
+<li><p>List of days lags that were used as features during training.</p></li>
+</ul>
+</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="openstef.feature_engineering.lag_features.generate_lag_feature_functions">
-<code class="sig-prename descclassname">openstef.feature_engineering.lag_features.</code><code class="sig-name descname">generate_lag_feature_functions</code><span class="sig-paren">(</span><em class="sig-param">feature_names: List[str] = None</em>, <em class="sig-param">horizon: float = 24.0</em><span class="sig-paren">)</span> &#x2192; dict<a class="headerlink" href="#openstef.feature_engineering.lag_features.generate_lag_feature_functions" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstef.feature_engineering.lag_features.</code><code class="sig-name descname">generate_lag_feature_functions</code><span class="sig-paren">(</span><em class="sig-param">feature_names=None</em>, <em class="sig-param">horizon=24.0</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.lag_features.generate_lag_feature_functions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates functions to generate lag features in a dataset.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>feature_names</strong> (<em>list of strings</em>) – minute lagtimes that where used during training
+<li><p><strong>feature_names</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]]) – minute lagtimes that where used during training
 of the model. If empty a new set will be automatically generated.</p></li>
-<li><p><strong>horizon</strong> (<em>float</em>) – Forecast horizon limit in hours.</p></li>
+<li><p><strong>horizon</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Forecast horizon limit in hours.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Lag functions.</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>dict</p>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Lag functions.</p>
 </dd>
 </dl>
-<p class="rubric">Example</p>
-<p>lag_functions = generate_lag_functions(data,minute_list,h_ahead)</p>
+<p>Example:</p>
+<div class="highlight-py notranslate"><div class="highlight"><pre><span></span><span class="n">lag_functions</span> <span class="o">=</span> <span class="n">generate_lag_functions</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="n">minute_list</span><span class="p">,</span><span class="n">h_ahead</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="function">
 <dt id="openstef.feature_engineering.lag_features.generate_non_trivial_lag_times">
-<code class="sig-prename descclassname">openstef.feature_engineering.lag_features.</code><code class="sig-name descname">generate_non_trivial_lag_times</code><span class="sig-paren">(</span><em class="sig-param">data: pandas.core.frame.DataFrame</em>, <em class="sig-param">height_treshold: float = 0.1</em><span class="sig-paren">)</span> &#x2192; list<a class="headerlink" href="#openstef.feature_engineering.lag_features.generate_non_trivial_lag_times" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="simple">
-<dt>Calculates an autocorrelation curve of the load trace. This curve is</dt><dd><p>subsequently used to add additional lag times as features.</p>
-</dd>
-</dl>
+<code class="sig-prename descclassname">openstef.feature_engineering.lag_features.</code><code class="sig-name descname">generate_non_trivial_lag_times</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">height_treshold=0.1</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.lag_features.generate_non_trivial_lag_times" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate an autocorrelation curve of the load trace.</p>
+<p>This curve is subsequently used to add additional lag times as features.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<em>pandas.DataFrame</em>) – a pandas dataframe with input data in the form pd.DataFrame(index = datetime,
+<li><p><strong>data</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – Dataframe with input data in the form pd.DataFrame(index = datetime,
 columns = [label, predictor_1,…, predictor_n])</p></li>
-<li><p><strong>height_treshold</strong> (<em>float</em>) – minimal autocorrelation value to be recognized as a peak.</p></li>
+<li><p><strong>height_treshold</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Minimal autocorrelation value to be recognized as a peak.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Aditional non-trivial minute lags</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>list</p>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Aditional non-trivial minute lags</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="openstef.feature_engineering.lag_features.generate_trivial_lag_features">
-<code class="sig-prename descclassname">openstef.feature_engineering.lag_features.</code><code class="sig-name descname">generate_trivial_lag_features</code><span class="sig-paren">(</span><em class="sig-param">horizon: float</em><span class="sig-paren">)</span> &#x2192; Tuple[list, list]<a class="headerlink" href="#openstef.feature_engineering.lag_features.generate_trivial_lag_features" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstef.feature_engineering.lag_features.</code><code class="sig-name descname">generate_trivial_lag_features</code><span class="sig-paren">(</span><em class="sig-param">horizon</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.lag_features.generate_trivial_lag_features" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generates relevant lag times for lag feature function creation.</p>
-<p>This function is mostly used during training of models and not during predicting</p>
+<p>This function is mostly used during training of models and not during predicting.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>horizon</strong> – Forecast horizon limit in hours.</p>
+<dd class="field-odd"><p><strong>horizon</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Forecast horizon limit in hours.</p>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>list of minute lags that were used as features during training
-days_list (List[int]): list of minute lags that were used as features during training</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>]</p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>minutes_list (List[int])</p>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p>List of minute lags that were used as features during training.</p></li>
+<li><p>List of days lags that were used as features during training.</p></li>
+</ul>
+</p>
 </dd>
 </dl>
 </dd></dl>
@@ -499,176 +688,213 @@ days_list (List[int]): list of minute lags that were used as features during tra
 <p>This module contains all wheather related functions used for feature engineering.</p>
 <dl class="function">
 <dt id="openstef.feature_engineering.weather_features.add_additional_solar_features">
-<code class="sig-prename descclassname">openstef.feature_engineering.weather_features.</code><code class="sig-name descname">add_additional_solar_features</code><span class="sig-paren">(</span><em class="sig-param">data: pandas.core.frame.DataFrame</em>, <em class="sig-param">pj: openstef.data_classes.prediction_job.PredictionJobDataClass = None</em>, <em class="sig-param">feature_names: List[str] = None</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstef.feature_engineering.weather_features.add_additional_solar_features" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstef.feature_engineering.weather_features.</code><code class="sig-name descname">add_additional_solar_features</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">pj=None</em>, <em class="sig-param">feature_names=None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.weather_features.add_additional_solar_features" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds additional solar features to the input data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<em>pd.DataFrame</em>) – Dataframe to which the solar features have to be added</p></li>
-<li><p><strong>pj</strong> – prediction job which should at least contain the latitude and longitude location.</p></li>
-<li><p><strong>feature_names</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – List of requested features</p></li>
+<li><p><strong>data</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – Dataframe to which the solar features have to be added</p></li>
+<li><p><strong>pj</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">PredictionJobDataClass</span></code></a>]) – prediction job which should at least contain the latitude and longitude location.</p></li>
+<li><p><strong>feature_names</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]]) – List of requested features</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>pd.DataFrame same as input dataframe with extra columns for the added solar features</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>DataFrame same as input dataframe with extra columns for the added solar features</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="openstef.feature_engineering.weather_features.add_additional_wind_features">
-<code class="sig-prename descclassname">openstef.feature_engineering.weather_features.</code><code class="sig-name descname">add_additional_wind_features</code><span class="sig-paren">(</span><em class="sig-param">data: pandas.core.frame.DataFrame</em>, <em class="sig-param">feature_names: List[str] = None</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstef.feature_engineering.weather_features.add_additional_wind_features" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstef.feature_engineering.weather_features.</code><code class="sig-name descname">add_additional_wind_features</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">feature_names=None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.weather_features.add_additional_wind_features" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds additional wind features to the input data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<em>pd.DataFrame</em>) – Dataframe to which the wind features have to be added</p></li>
-<li><p><strong>feature_names</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – List of requested features</p></li>
+<li><p><strong>data</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – Dataframe to which the wind features have to be added</p></li>
+<li><p><strong>feature_names</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]]) – List of requested features</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>pd.DataFrame same as input dataframe with extra columns for the added wind features</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>DataFrame same as input dataframe with extra columns for the added wind features</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="openstef.feature_engineering.weather_features.add_humidity_features">
-<code class="sig-prename descclassname">openstef.feature_engineering.weather_features.</code><code class="sig-name descname">add_humidity_features</code><span class="sig-paren">(</span><em class="sig-param">data: pandas.core.frame.DataFrame</em>, <em class="sig-param">feature_names: List[str] = None</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstef.feature_engineering.weather_features.add_humidity_features" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstef.feature_engineering.weather_features.</code><code class="sig-name descname">add_humidity_features</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">feature_names=None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.weather_features.add_humidity_features" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds humidity features to the input dataframe.</p>
 <p>These features are calculated using functions defines in this module. A list of
 requested features is used to determine whether to add the humidity features or not.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<em>pd.DataFrame</em>) – Input dataframe to which features have to be added</p></li>
-<li><p><strong>feature_names</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – list of requested features.</p></li>
+<li><p><strong>data</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – Input dataframe to which features have to be added</p></li>
+<li><p><strong>feature_names</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]]) – list of requested features.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>pd.DataFrame, Same as input dataframe with extra columns for the humidty features.</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Same as input dataframe with extra columns for the humidty features.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="openstef.feature_engineering.weather_features.calc_air_density">
-<code class="sig-prename descclassname">openstef.feature_engineering.weather_features.</code><code class="sig-name descname">calc_air_density</code><span class="sig-paren">(</span><em class="sig-param">temperature: float</em>, <em class="sig-param">pressure: float</em>, <em class="sig-param">rh: float</em><span class="sig-paren">)</span> &#x2192; float<a class="headerlink" href="#openstef.feature_engineering.weather_features.calc_air_density" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstef.feature_engineering.weather_features.</code><code class="sig-name descname">calc_air_density</code><span class="sig-paren">(</span><em class="sig-param">temperature</em>, <em class="sig-param">pressure</em>, <em class="sig-param">rh</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.weather_features.calc_air_density" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the dewpoint.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>temperature</strong> (<em>np.ndarray</em><em> or </em><em>float</em>) – The temperature in C</p></li>
-<li><p><strong>pressure</strong> (<em>np.ndarray</em><em> or </em><em>float</em>) – the atmospheric pressure in Pa</p></li>
-<li><p><strong>rh</strong> (<em>np.ndarray</em><em> or </em><em>float</em>) – Relative humidity</p></li>
+<li><p><strong>temperature</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]) – The temperature in C</p></li>
+<li><p><strong>pressure</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]) – the atmospheric pressure in Pa</p></li>
+<li><p><strong>rh</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]) – Relative humidity</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The air density (kg/m^3)</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>air density (np.ndarray or float)</p>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The air density (kg/m^3)</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="openstef.feature_engineering.weather_features.calc_dewpoint">
-<code class="sig-prename descclassname">openstef.feature_engineering.weather_features.</code><code class="sig-name descname">calc_dewpoint</code><span class="sig-paren">(</span><em class="sig-param">vapour_pressure: float</em><span class="sig-paren">)</span> &#x2192; float<a class="headerlink" href="#openstef.feature_engineering.weather_features.calc_dewpoint" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculates the dewpoint, see <a class="reference external" href="https://en.wikipedia.org/wiki/Dew_point">https://en.wikipedia.org/wiki/Dew_point</a> for mroe info</p>
+<code class="sig-prename descclassname">openstef.feature_engineering.weather_features.</code><code class="sig-name descname">calc_dewpoint</code><span class="sig-paren">(</span><em class="sig-param">vapour_pressure</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.weather_features.calc_dewpoint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the dewpoint, see <a class="reference external" href="https://en.wikipedia.org/wiki/Dew_point">https://en.wikipedia.org/wiki/Dew_point</a> for mroe info.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>vapour_pressure</strong> (<em>np.ndarray</em><em> or </em><em>float</em>) – The vapour pressure for which the dewpoint should be calculated</p>
+<dd class="field-odd"><p><strong>vapour_pressure</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]) – The vapour pressure for which the dewpoint should be calculated</p>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>dewpoint (np.ndarray or float)</p>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Dewpoint</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="openstef.feature_engineering.weather_features.calc_saturation_pressure">
-<code class="sig-prename descclassname">openstef.feature_engineering.weather_features.</code><code class="sig-name descname">calc_saturation_pressure</code><span class="sig-paren">(</span><em class="sig-param">temperature: float</em><span class="sig-paren">)</span> &#x2192; float<a class="headerlink" href="#openstef.feature_engineering.weather_features.calc_saturation_pressure" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculates the water vapour pressure from the temperature
-See <a class="reference external" href="https://www.vaisala.com/sites/default/files/documents/Humidity_Conversion_Formulas_B210973EN-F.pdf">https://www.vaisala.com/sites/default/files/documents/Humidity_Conversion_Formulas_B210973EN-F.pdf</a></p>
+<code class="sig-prename descclassname">openstef.feature_engineering.weather_features.</code><code class="sig-name descname">calc_saturation_pressure</code><span class="sig-paren">(</span><em class="sig-param">temperature</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.weather_features.calc_saturation_pressure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the water vapour pressure from the temperature.</p>
+<p>See <a class="reference external" href="https://www.vaisala.com/sites/default/files/documents/Humidity_Conversion_Formulas_B210973EN-F.pdf">https://www.vaisala.com/sites/default/files/documents/Humidity_Conversion_Formulas_B210973EN-F.pdf</a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>temperature</strong> (<em>np.array</em>) – Temperature in C</p>
+<dd class="field-odd"><p><strong>temperature</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]) – Temperature in C</p>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The saturation pressure of water at the respective temperature</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The saturation pressure of water at the respective temperature</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="openstef.feature_engineering.weather_features.calc_vapour_pressure">
-<code class="sig-prename descclassname">openstef.feature_engineering.weather_features.</code><code class="sig-name descname">calc_vapour_pressure</code><span class="sig-paren">(</span><em class="sig-param">rh: float</em>, <em class="sig-param">psat: float</em><span class="sig-paren">)</span> &#x2192; float<a class="headerlink" href="#openstef.feature_engineering.weather_features.calc_vapour_pressure" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculates the vapour pressure</p>
+<code class="sig-prename descclassname">openstef.feature_engineering.weather_features.</code><code class="sig-name descname">calc_vapour_pressure</code><span class="sig-paren">(</span><em class="sig-param">rh</em>, <em class="sig-param">psat</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.weather_features.calc_vapour_pressure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the vapour pressure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>rh</strong> (<em>np.ndarray</em><em> or </em><em>float</em>) – Relative humidity</p></li>
-<li><p><strong>psat</strong> (<em>np.ndarray</em><em> or </em><em>float</em>) – Saturation pressure: see calc_saturation_pressure</p></li>
+<li><p><strong>rh</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]) – Relative humidity</p></li>
+<li><p><strong>psat</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]) – Saturation pressure: see calc_saturation_pressure</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The water vapour pressure</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The water vapour pressure</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="openstef.feature_engineering.weather_features.calculate_dni">
-<code class="sig-prename descclassname">openstef.feature_engineering.weather_features.</code><code class="sig-name descname">calculate_dni</code><span class="sig-paren">(</span><em class="sig-param">radiation: pandas.core.series.Series</em>, <em class="sig-param">pj: openstef.data_classes.prediction_job.PredictionJobDataClass</em><span class="sig-paren">)</span> &#x2192; pandas.core.series.Series<a class="headerlink" href="#openstef.feature_engineering.weather_features.calculate_dni" title="Permalink to this definition">¶</a></dt>
-<dd><p>Using the predicted radiation and information derived from the location (obtained from pj) the direct normal
-irradiance (DNI) is calculated. The <cite>pvlib</cite> library is used.
-:param radiation: predicted radiation including DatetimeIndex with right time-zone
-:param pj: PredictJob including information about the location (lat, lon)</p>
-<p>Returns: dni_converted</p>
+<code class="sig-prename descclassname">openstef.feature_engineering.weather_features.</code><code class="sig-name descname">calculate_dni</code><span class="sig-paren">(</span><em class="sig-param">radiation</em>, <em class="sig-param">pj</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.weather_features.calculate_dni" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the direct normal irradiance (DNI).</p>
+<p>This function uses the predicted radiation and information derived from the location (obtained from pj)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>radiation</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code>) – predicted radiation including DatetimeIndex with right time-zone</p></li>
+<li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">PredictionJobDataClass</span></code></a>) – PredictJob including information about the location (lat, lon)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Direct normal irradiance (DNI).</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="openstef.feature_engineering.weather_features.calculate_gti">
-<code class="sig-prename descclassname">openstef.feature_engineering.weather_features.</code><code class="sig-name descname">calculate_gti</code><span class="sig-paren">(</span><em class="sig-param">radiation: pandas.core.series.Series</em>, <em class="sig-param">pj: openstef.data_classes.prediction_job.PredictionJobDataClass</em>, <em class="sig-param">surface_tilt: float = 34.0</em>, <em class="sig-param">surface_azimuth: float = 180</em><span class="sig-paren">)</span> &#x2192; pandas.core.series.Series<a class="headerlink" href="#openstef.feature_engineering.weather_features.calculate_gti" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculates the GTI/POA using the radiation (Assuming Global Tilted Irradiance (GTI) = Plane of Array (POA))
-:param radiation: pandas series with DatetimeIndex with right timezone information
-:param pj: prediction job which should at least contain the latitude and longitude location.
-:param surface_tilt: The tilt of the surface of, for example, your PhotoVoltaic-system.
-:param surface_azimuth: The way the surface is facing. South facing 180 degrees, North facing 0 degrees, East facing 90
-:param degrees and West facing 270 degrees:</p>
-<p>Returns: gti</p>
+<code class="sig-prename descclassname">openstef.feature_engineering.weather_features.</code><code class="sig-name descname">calculate_gti</code><span class="sig-paren">(</span><em class="sig-param">radiation</em>, <em class="sig-param">pj</em>, <em class="sig-param">surface_tilt=34.0</em>, <em class="sig-param">surface_azimuth=180</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.weather_features.calculate_gti" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the GTI/POA using the radiation.</p>
+<p>This function assumes Global Tilted Irradiance (GTI) = Plane of Array (POA)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>radiation</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code>) – pandas series with DatetimeIndex with right timezone information</p></li>
+<li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">PredictionJobDataClass</span></code></a>) – prediction job which should at least contain the latitude and longitude location.</p></li>
+<li><p><strong>surface_tilt</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – The tilt of the surface of, for example, your PhotoVoltaic-system.</p></li>
+<li><p><strong>surface_azimuth</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – The way the surface is facing. South facing 180 degrees, North facing 0 degrees, East facing 90 degrees and West facing 270 degrees</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Global Tilted Irradiance (GTI)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="openstef.feature_engineering.weather_features.calculate_windspeed_at_hubheight">
-<code class="sig-prename descclassname">openstef.feature_engineering.weather_features.</code><code class="sig-name descname">calculate_windspeed_at_hubheight</code><span class="sig-paren">(</span><em class="sig-param">windspeed: float</em>, <em class="sig-param">fromheight: float = 10.0</em>, <em class="sig-param">hub_height: float = 100.0</em><span class="sig-paren">)</span> &#x2192; pandas.core.series.Series<a class="headerlink" href="#openstef.feature_engineering.weather_features.calculate_windspeed_at_hubheight" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstef.feature_engineering.weather_features.</code><code class="sig-name descname">calculate_windspeed_at_hubheight</code><span class="sig-paren">(</span><em class="sig-param">windspeed</em>, <em class="sig-param">fromheight=10.0</em>, <em class="sig-param">hub_height=100.0</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.weather_features.calculate_windspeed_at_hubheight" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate windspeed at hubheight.</p>
 <p>Calculates the windspeed at hubheigh by extrapolation from a given height to a given
 hub height using the wind power law <a class="reference external" href="https://en.wikipedia.org/wiki/Wind_profile_power_law">https://en.wikipedia.org/wiki/Wind_profile_power_law</a></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>windspeed</strong> – float OR pandas series of windspeed at height = height</p></li>
-<li><p><strong>fromheight</strong> – height (m) of the windspeed data. Default is 10m</p></li>
+<li><p><strong>windspeed</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code>]) – float OR pandas series of windspeed at height = height</p></li>
+<li><p><strong>fromheight</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – height (m) of the windspeed data. Default is 10m</p></li>
 <li><p><strong>hubheight</strong> – height (m) of the turbine</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>windspeed at hubheight.</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code></p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>float</p>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Windspeed at hubheight.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="openstef.feature_engineering.weather_features.calculate_windturbine_power_output">
-<code class="sig-prename descclassname">openstef.feature_engineering.weather_features.</code><code class="sig-name descname">calculate_windturbine_power_output</code><span class="sig-paren">(</span><em class="sig-param">windspeed: pandas.core.series.Series</em>, <em class="sig-param">n_turbines: int = 1</em>, <em class="sig-param">turbine_data: dict = None</em><span class="sig-paren">)</span> &#x2192; pandas.core.series.Series<a class="headerlink" href="#openstef.feature_engineering.weather_features.calculate_windturbine_power_output" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstef.feature_engineering.weather_features.</code><code class="sig-name descname">calculate_windturbine_power_output</code><span class="sig-paren">(</span><em class="sig-param">windspeed</em>, <em class="sig-param">n_turbines=1</em>, <em class="sig-param">turbine_data=None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.weather_features.calculate_windturbine_power_output" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate wind turbine power output.</p>
 <p>These values are related through the power curve, which is described by turbine_data.
 If no turbine_data is given, default values are used and results are normalized to 1MWp.
@@ -676,39 +902,47 @@ If n_turbines=0, the result is normalized to a rated power of 1.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>windspeed</strong> – pd.DataFrame(index = datetime, columns = [“windspeedHub”])</p></li>
-<li><p><strong>nTurbines</strong> (<em>int</em>) – The number of turbines</p></li>
-<li><p><strong>turbineData</strong> (<em>dict</em>) – slope_center, rated_power, steepness</p></li>
+<li><p><strong>windspeed</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code>) – pd.DataFrame(index = datetime, columns = [“windspeedHub”])</p></li>
+<li><p><strong>nTurbines</strong> – The number of turbines</p></li>
+<li><p><strong>turbineData</strong> – slope_center, rated_power, steepness</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>pd.DataFrame(index = datetime, columns = [“forecast”])</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>pd.DataFrame(index = datetime, columns = [“forecast”])</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="openstef.feature_engineering.weather_features.humidity_calculations">
-<code class="sig-prename descclassname">openstef.feature_engineering.weather_features.</code><code class="sig-name descname">humidity_calculations</code><span class="sig-paren">(</span><em class="sig-param">temperature: float</em>, <em class="sig-param">rh: float</em>, <em class="sig-param">pressure: float</em><span class="sig-paren">)</span> &#x2192; dict<a class="headerlink" href="#openstef.feature_engineering.weather_features.humidity_calculations" title="Permalink to this definition">¶</a></dt>
-<dd><p>Function that calculates the
-- Saturation pressure
-- Vapour pressure
-- Dewpoint
-- Air density</p>
+<code class="sig-prename descclassname">openstef.feature_engineering.weather_features.</code><code class="sig-name descname">humidity_calculations</code><span class="sig-paren">(</span><em class="sig-param">temperature</em>, <em class="sig-param">rh</em>, <em class="sig-param">pressure</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.weather_features.humidity_calculations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that calculates weather features based on humidity..</p>
+<dl class="simple">
+<dt>These features are:</dt><dd><ul class="simple">
+<li><p>Saturation pressure</p></li>
+<li><p>Vapour pressure</p></li>
+<li><p>Dewpoint</p></li>
+<li><p>Air density</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>temperature</strong> (<em>np.array</em>) – Temperature in C</p></li>
-<li><p><strong>rh</strong> (<em>np.array</em>) – Relative humidity in %</p></li>
-<li><p><strong>pressure</strong> (<em>np.array</em>) – The air pressure in hPa</p></li>
+<li><p><strong>temperature</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]) – Temperature in C</p></li>
+<li><p><strong>rh</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]) – Relative humidity in %</p></li>
+<li><p><strong>pressure</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]) – The air pressure in hPa</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>a pandas dataframe with the calculated moisture indices
-if the input is numeric: a dict with the calculated moisture indices</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>if the input is an np.ndarray</p>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>If the input is an np.ndarray; a pandas dataframe with the calculated moisture indices,
+if the input is numeric; a dict with the calculated moisture indices</p>
 </dd>
 </dl>
 </dd></dl>

@@ -96,6 +96,8 @@
 <h2 id="A">A</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="openstef.feature_engineering.html#openstef.feature_engineering.feature_applicator.AbstractFeatureApplicator">AbstractFeatureApplicator (class in openstef.feature_engineering.feature_applicator)</a>
+</li>
       <li><a href="openstef.feature_engineering.html#openstef.feature_engineering.weather_features.add_additional_solar_features">add_additional_solar_features() (in module openstef.feature_engineering.weather_features)</a>
 </li>
       <li><a href="openstef.feature_engineering.html#openstef.feature_engineering.weather_features.add_additional_wind_features">add_additional_wind_features() (in module openstef.feature_engineering.weather_features)</a>
@@ -104,16 +106,24 @@
 </li>
       <li><a href="openstef.model.html#openstef.model.confidence_interval_applicator.ConfidenceIntervalApplicator.add_confidence_interval">add_confidence_interval() (openstef.model.confidence_interval_applicator.ConfidenceIntervalApplicator method)</a>
 </li>
+      <li><a href="openstef.feature_engineering.html#openstef.feature_engineering.feature_applicator.AbstractFeatureApplicator.add_features">add_features() (openstef.feature_engineering.feature_applicator.AbstractFeatureApplicator method)</a>
+
+      <ul>
+        <li><a href="openstef.feature_engineering.html#openstef.feature_engineering.feature_applicator.OperationalPredictFeatureApplicator.add_features">(openstef.feature_engineering.feature_applicator.OperationalPredictFeatureApplicator method)</a>
+</li>
+        <li><a href="openstef.feature_engineering.html#openstef.feature_engineering.feature_applicator.TrainFeatureApplicator.add_features">(openstef.feature_engineering.feature_applicator.TrainFeatureApplicator method)</a>
+</li>
+      </ul></li>
       <li><a href="openstef.feature_engineering.html#openstef.feature_engineering.historic_features.add_historic_load_as_a_feature">add_historic_load_as_a_feature() (in module openstef.feature_engineering.historic_features)</a>
 </li>
       <li><a href="openstef.feature_engineering.html#openstef.feature_engineering.weather_features.add_humidity_features">add_humidity_features() (in module openstef.feature_engineering.weather_features)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="openstef.feature_engineering.html#openstef.feature_engineering.general.add_missing_feature_columns">add_missing_feature_columns() (in module openstef.feature_engineering.general)</a>
 </li>
       <li><a href="openstef.postprocessing.html#openstef.postprocessing.postprocessing.add_prediction_job_properties_to_forecast">add_prediction_job_properties_to_forecast() (in module openstef.postprocessing.postprocessing)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="openstef.feature_engineering.html#openstef.feature_engineering.feature_adder.adders_from_module">adders_from_module() (in module openstef.feature_engineering.feature_adder)</a>
 </li>
       <li><a href="openstef.feature_engineering.html#openstef.feature_engineering.feature_adder.adders_from_modules">adders_from_modules() (in module openstef.feature_engineering.feature_adder)</a>
@@ -200,14 +210,14 @@
         <li><a href="openstef.model.regressors.html#openstef.model.regressors.xgb_quantile.XGBQuantileOpenstfRegressor.can_predict_quantiles">(openstef.model.regressors.xgb_quantile.XGBQuantileOpenstfRegressor property)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="openstef.validation.html#openstef.validation.validation.check_data_for_each_trafo">check_data_for_each_trafo() (in module openstef.validation.validation)</a>
 </li>
       <li><a href="openstef.feature_engineering.html#openstef.feature_engineering.holiday_features.check_for_bridge_day">check_for_bridge_day() (in module openstef.feature_engineering.holiday_features)</a>
 </li>
       <li><a href="openstef.tasks.html#openstef.tasks.calculate_kpi.check_kpi_task">check_kpi_task() (in module openstef.tasks.calculate_kpi)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="openstef.monitoring.html#openstef.monitoring.performance_meter.PerformanceMeter.checkpoint">checkpoint() (openstef.monitoring.performance_meter.PerformanceMeter method)</a>
 </li>
       <li><a href="openstef.tasks.html#openstef.tasks.create_solar_forecast.combine_forecasts">combine_forecasts() (in module openstef.tasks.create_solar_forecast)</a>
@@ -224,11 +234,21 @@
 </li>
       <li><a href="openstef.metrics.html#openstef.metrics.figure.convert_to_base64_data_uri">convert_to_base64_data_uri() (in module openstef.metrics.figure)</a>
 </li>
+      <li><a href="openstef.pipeline.html#openstef.pipeline.create_basecase_forecast.create_basecase_forecast_pipeline">create_basecase_forecast_pipeline() (in module openstef.pipeline.create_basecase_forecast)</a>
+</li>
+      <li><a href="openstef.tasks.html#openstef.tasks.create_basecase_forecast.create_basecase_forecast_task">create_basecase_forecast_task() (in module openstef.tasks.create_basecase_forecast)</a>
+</li>
       <li><a href="openstef.pipeline.html#openstef.pipeline.create_component_forecast.create_components_forecast_pipeline">create_components_forecast_pipeline() (in module openstef.pipeline.create_component_forecast)</a>
 </li>
       <li><a href="openstef.tasks.html#openstef.tasks.create_components_forecast.create_components_forecast_task">create_components_forecast_task() (in module openstef.tasks.create_components_forecast)</a>
 </li>
       <li><a href="openstef.model.regressors.html#openstef.model.regressors.custom_regressor.create_custom_objective">create_custom_objective() (in module openstef.model.regressors.custom_regressor)</a>
+</li>
+      <li><a href="openstef.pipeline.html#openstef.pipeline.create_forecast.create_forecast_pipeline">create_forecast_pipeline() (in module openstef.pipeline.create_forecast)</a>
+</li>
+      <li><a href="openstef.pipeline.html#openstef.pipeline.create_forecast.create_forecast_pipeline_core">create_forecast_pipeline_core() (in module openstef.pipeline.create_forecast)</a>
+</li>
+      <li><a href="openstef.tasks.html#openstef.tasks.create_forecast.create_forecast_task">create_forecast_task() (in module openstef.tasks.create_forecast)</a>
 </li>
       <li><a href="openstef.pipeline.html#openstef.pipeline.create_component_forecast.create_input">create_input() (in module openstef.pipeline.create_component_forecast)</a>
 </li>
@@ -274,6 +294,8 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="openstef.model.metamodels.html#openstef.model.metamodels.grouped_regressor.GroupedRegressor.estimators_">estimators_ (openstef.model.metamodels.grouped_regressor.GroupedRegressor attribute)</a>
+</li>
       <li><a href="openstef.feature_engineering.html#openstef.feature_engineering.lag_features.extract_lag_features">extract_lag_features() (in module openstef.feature_engineering.lag_features)</a>
 </li>
   </ul></td>
@@ -284,10 +306,16 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="openstef.html#openstef.enums.TracyJobResult.FAILED">FAILED (openstef.enums.TracyJobResult attribute)</a>
 </li>
+      <li><a href="openstef.model.metamodels.html#openstef.model.metamodels.missing_values_handler.MissingValuesHandler.feature_importances_">feature_importances_ (openstef.model.metamodels.missing_values_handler.MissingValuesHandler attribute)</a>
+</li>
       <li><a href="openstef.data_classes.html#openstef.data_classes.model_specifications.ModelSpecificationDataClass.feature_modules">feature_modules (openstef.data_classes.model_specifications.ModelSpecificationDataClass attribute)</a>
 </li>
       <li><a href="openstef.data_classes.html#openstef.data_classes.model_specifications.ModelSpecificationDataClass.feature_names">feature_names (openstef.data_classes.model_specifications.ModelSpecificationDataClass attribute)</a>
+
+      <ul>
+        <li><a href="openstef.model.metamodels.html#openstef.model.metamodels.missing_values_handler.MissingValuesHandler.feature_names">(openstef.model.metamodels.missing_values_handler.MissingValuesHandler attribute)</a>
 </li>
+      </ul></li>
       <li><a href="openstef.model.regressors.html#openstef.model.regressors.lgbm.LGBMOpenstfRegressor.feature_names">feature_names() (openstef.model.regressors.lgbm.LGBMOpenstfRegressor property)</a>
 
       <ul>
@@ -300,6 +328,8 @@
         <li><a href="openstef.model.regressors.html#openstef.model.regressors.xgb_quantile.XGBQuantileOpenstfRegressor.feature_names">(openstef.model.regressors.xgb_quantile.XGBQuantileOpenstfRegressor property)</a>
 </li>
       </ul></li>
+      <li><a href="openstef.model.metamodels.html#openstef.model.metamodels.grouped_regressor.GroupedRegressor.feature_names_">feature_names_ (openstef.model.metamodels.grouped_regressor.GroupedRegressor attribute)</a>
+</li>
       <li><a href="openstef.feature_engineering.html#openstef.feature_engineering.feature_adder.FeatureAdder">FeatureAdder (class in openstef.feature_engineering.feature_adder)</a>
 </li>
       <li><a href="openstef.feature_engineering.html#openstef.feature_engineering.feature_adder.FeatureDispatcher">FeatureDispatcher (class in openstef.feature_engineering.feature_adder)</a>
@@ -310,12 +340,12 @@
 </li>
       <li><a href="openstef.tasks.utils.html#openstef.tasks.utils.dependencies.find_groups">find_groups() (in module openstef.tasks.utils.dependencies)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="openstef.validation.html#openstef.validation.validation.find_nonzero_flatliner">find_nonzero_flatliner() (in module openstef.validation.validation)</a>
 </li>
       <li><a href="openstef.validation.html#openstef.validation.validation.find_zero_flatliner">find_zero_flatliner() (in module openstef.validation.validation)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="openstef.model.html#openstef.model.basecase.BaseCaseModel.fit">fit() (openstef.model.basecase.BaseCaseModel method)</a>
 
       <ul>
@@ -360,6 +390,8 @@
         <li><a href="openstef.model.regressors.html#openstef.model.regressors.xgb.XGBOpenstfRegressor.gain_importance_name">(openstef.model.regressors.xgb.XGBOpenstfRegressor attribute)</a>
 </li>
       </ul></li>
+      <li><a href="openstef.pipeline.html#openstef.pipeline.create_basecase_forecast.generate_basecase_confidence_interval">generate_basecase_confidence_interval() (in module openstef.pipeline.create_basecase_forecast)</a>
+</li>
       <li><a href="openstef.model.html#openstef.model.fallback.generate_fallback">generate_fallback() (in module openstef.model.fallback)</a>
 </li>
       <li><a href="openstef.pipeline.html#openstef.pipeline.utils.generate_forecast_datetime_range">generate_forecast_datetime_range() (in module openstef.pipeline.utils)</a>
@@ -460,6 +492,8 @@
         <li><a href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass.id">(openstef.data_classes.prediction_job.PredictionJobDataClass attribute)</a>
 </li>
       </ul></li>
+      <li><a href="openstef.model.metamodels.html#openstef.model.metamodels.missing_values_handler.MissingValuesHandler.imputer_">imputer_ (openstef.model.metamodels.missing_values_handler.MissingValuesHandler attribute)</a>
+</li>
       <li><a href="openstef.html#openstef.exceptions.InputDataInsufficientError">InputDataInsufficientError</a>
 </li>
   </ul></td>
@@ -515,7 +549,11 @@
       <li><a href="openstef.tasks.html#openstef.tasks.calculate_kpi.main">main() (in module openstef.tasks.calculate_kpi)</a>
 
       <ul>
+        <li><a href="openstef.tasks.html#openstef.tasks.create_basecase_forecast.main">(in module openstef.tasks.create_basecase_forecast)</a>
+</li>
         <li><a href="openstef.tasks.html#openstef.tasks.create_components_forecast.main">(in module openstef.tasks.create_components_forecast)</a>
+</li>
+        <li><a href="openstef.tasks.html#openstef.tasks.create_forecast.main">(in module openstef.tasks.create_forecast)</a>
 </li>
         <li><a href="openstef.tasks.html#openstef.tasks.create_solar_forecast.main">(in module openstef.tasks.create_solar_forecast)</a>
 </li>
@@ -523,15 +561,17 @@
 </li>
         <li><a href="openstef.tasks.html#openstef.tasks.split_forecast.main">(in module openstef.tasks.split_forecast)</a>
 </li>
+        <li><a href="openstef.tasks.html#openstef.tasks.train_model.main">(in module openstef.tasks.train_model)</a>
+</li>
       </ul></li>
       <li><a href="openstef.model.html#openstef.model.basecase.BaseCaseModel.make_basecase_forecast">make_basecase_forecast() (openstef.model.basecase.BaseCaseModel static method)</a>
 </li>
       <li><a href="openstef.tasks.html#openstef.tasks.create_solar_forecast.make_solar_prediction_pj">make_solar_prediction_pj() (in module openstef.tasks.create_solar_forecast)</a>
 </li>
-      <li><a href="openstef.tasks.html#openstef.tasks.create_wind_forecast.make_wind_forecast_pj">make_wind_forecast_pj() (in module openstef.tasks.create_wind_forecast)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="openstef.tasks.html#openstef.tasks.create_wind_forecast.make_wind_forecast_pj">make_wind_forecast_pj() (in module openstef.tasks.create_wind_forecast)</a>
+</li>
       <li><a href="openstef.tasks.utils.html#openstef.tasks.utils.predictionjobloop.PredictionJobLoop.map">map() (openstef.tasks.utils.predictionjobloop.PredictionJobLoop method)</a>
 </li>
       <li><a href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass.minimal_table_length">minimal_table_length (openstef.data_classes.prediction_job.PredictionJobDataClass attribute)</a>
@@ -558,6 +598,8 @@
 <h2 id="N">N</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="openstef.model.metamodels.html#openstef.model.metamodels.missing_values_handler.MissingValuesHandler.n_features_in_">n_features_in_ (openstef.model.metamodels.missing_values_handler.MissingValuesHandler attribute)</a>
+</li>
       <li><a href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass.n_turbines">n_turbines (openstef.data_classes.prediction_job.PredictionJobDataClass attribute)</a>
 </li>
       <li><a href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass.name">name (openstef.data_classes.prediction_job.PredictionJobDataClass attribute)</a>
@@ -570,6 +612,8 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="openstef.model.metamodels.html#openstef.model.metamodels.missing_values_handler.MissingValuesHandler.non_null_columns_">non_null_columns_ (openstef.model.metamodels.missing_values_handler.MissingValuesHandler attribute)</a>
+</li>
       <li><a href="openstef.html#openstef.exceptions.NoPredictedLoadError">NoPredictedLoadError</a>
 </li>
       <li><a href="openstef.html#openstef.exceptions.NoRealisedLoadError">NoRealisedLoadError</a>
@@ -612,6 +656,8 @@
 </li>
       <li><a href="openstef.feature_engineering.html#module-openstef.feature_engineering.feature_adder">openstef.feature_engineering.feature_adder (module)</a>
 </li>
+      <li><a href="openstef.feature_engineering.html#module-openstef.feature_engineering.feature_applicator">openstef.feature_engineering.feature_applicator (module)</a>
+</li>
       <li><a href="openstef.feature_engineering.html#module-openstef.feature_engineering.general">openstef.feature_engineering.general (module)</a>
 </li>
       <li><a href="openstef.feature_engineering.html#module-openstef.feature_engineering.historic_features">openstef.feature_engineering.historic_features (module)</a>
@@ -652,14 +698,14 @@
 </li>
       <li><a href="openstef.model.regressors.html#module-openstef.model.regressors">openstef.model.regressors (module)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="openstef.model.regressors.html#module-openstef.model.regressors.custom_regressor">openstef.model.regressors.custom_regressor (module)</a>
 </li>
       <li><a href="openstef.model.regressors.html#module-openstef.model.regressors.dazls">openstef.model.regressors.dazls (module)</a>
 </li>
       <li><a href="openstef.model.regressors.html#module-openstef.model.regressors.lgbm">openstef.model.regressors.lgbm (module)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="openstef.model.regressors.html#module-openstef.model.regressors.linear">openstef.model.regressors.linear (module)</a>
 </li>
       <li><a href="openstef.model.regressors.html#module-openstef.model.regressors.regressor">openstef.model.regressors.regressor (module)</a>
@@ -684,7 +730,15 @@
 </li>
       <li><a href="openstef.pipeline.html#module-openstef.pipeline">openstef.pipeline (module)</a>
 </li>
+      <li><a href="openstef.pipeline.html#module-openstef.pipeline.create_basecase_forecast">openstef.pipeline.create_basecase_forecast (module)</a>
+</li>
       <li><a href="openstef.pipeline.html#module-openstef.pipeline.create_component_forecast">openstef.pipeline.create_component_forecast (module)</a>
+</li>
+      <li><a href="openstef.pipeline.html#module-openstef.pipeline.create_forecast">openstef.pipeline.create_forecast (module)</a>
+</li>
+      <li><a href="openstef.pipeline.html#module-openstef.pipeline.train_create_forecast_backtest">openstef.pipeline.train_create_forecast_backtest (module)</a>
+</li>
+      <li><a href="openstef.pipeline.html#module-openstef.pipeline.train_model">openstef.pipeline.train_model (module)</a>
 </li>
       <li><a href="openstef.pipeline.html#module-openstef.pipeline.utils">openstef.pipeline.utils (module)</a>
 </li>
@@ -700,13 +754,19 @@
 </li>
       <li><a href="openstef.tasks.html#module-openstef.tasks.calculate_kpi">openstef.tasks.calculate_kpi (module)</a>
 </li>
+      <li><a href="openstef.tasks.html#module-openstef.tasks.create_basecase_forecast">openstef.tasks.create_basecase_forecast (module)</a>
+</li>
       <li><a href="openstef.tasks.html#module-openstef.tasks.create_components_forecast">openstef.tasks.create_components_forecast (module)</a>
+</li>
+      <li><a href="openstef.tasks.html#module-openstef.tasks.create_forecast">openstef.tasks.create_forecast (module)</a>
 </li>
       <li><a href="openstef.tasks.html#module-openstef.tasks.create_solar_forecast">openstef.tasks.create_solar_forecast (module)</a>
 </li>
       <li><a href="openstef.tasks.html#module-openstef.tasks.create_wind_forecast">openstef.tasks.create_wind_forecast (module)</a>
 </li>
       <li><a href="openstef.tasks.html#module-openstef.tasks.split_forecast">openstef.tasks.split_forecast (module)</a>
+</li>
+      <li><a href="openstef.tasks.html#module-openstef.tasks.train_model">openstef.tasks.train_model (module)</a>
 </li>
       <li><a href="openstef.tasks.utils.html#module-openstef.tasks.utils">openstef.tasks.utils (module)</a>
 </li>
@@ -722,6 +782,8 @@
 </li>
       <li><a href="openstef.model.regressors.html#openstef.model.regressors.regressor.OpenstfRegressor">OpenstfRegressor (class in openstef.model.regressors.regressor)</a>
 </li>
+      <li><a href="openstef.feature_engineering.html#openstef.feature_engineering.feature_applicator.OperationalPredictFeatureApplicator">OperationalPredictFeatureApplicator (class in openstef.feature_engineering.feature_applicator)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -735,6 +797,8 @@
       <li><a href="openstef.feature_engineering.html#openstef.feature_engineering.feature_adder.ParsedFeature">ParsedFeature (class in openstef.feature_engineering.feature_adder)</a>
 </li>
       <li><a href="openstef.monitoring.html#openstef.monitoring.performance_meter.PerformanceMeter">PerformanceMeter (class in openstef.monitoring.performance_meter)</a>
+</li>
+      <li><a href="openstef.model.metamodels.html#openstef.model.metamodels.missing_values_handler.MissingValuesHandler.pipeline_">pipeline_ (openstef.model.metamodels.missing_values_handler.MissingValuesHandler attribute)</a>
 </li>
       <li><a href="openstef.metrics.html#openstef.metrics.figure.plot_data_series">plot_data_series() (in module openstef.metrics.figure)</a>
 </li>
@@ -764,7 +828,7 @@
 </li>
       <li><a href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass.Config">PredictionJobDataClass.Config (class in openstef.data_classes.prediction_job)</a>
 </li>
-      <li><a href="openstef.tasks.utils.html#openstef.tasks.utils.predictionjobloop.PredictionJobException">PredictionJobException</a>
+      <li><a href="openstef.html#openstef.exceptions.PredictionJobException">PredictionJobException</a>
 </li>
       <li><a href="openstef.tasks.utils.html#openstef.tasks.utils.predictionjobloop.PredictionJobLoop">PredictionJobLoop (class in openstef.tasks.utils.predictionjobloop)</a>
 </li>
@@ -797,6 +861,8 @@
       <li><a href="openstef.metrics.html#openstef.metrics.metrics.r_mpe_highest">r_mpe_highest() (in module openstef.metrics.metrics)</a>
 </li>
       <li><a href="openstef.model_selection.html#openstef.model_selection.model_selection.random_sample">random_sample() (in module openstef.model_selection.model_selection)</a>
+</li>
+      <li><a href="openstef.model.metamodels.html#openstef.model.metamodels.missing_values_handler.MissingValuesHandler.regressor_">regressor_ (openstef.model.metamodels.missing_values_handler.MissingValuesHandler attribute)</a>
 </li>
       <li><a href="openstef.model.html#openstef.model.objective.RegressorObjective">RegressorObjective (class in openstef.model.objective)</a>
 </li>
@@ -878,11 +944,31 @@
 </li>
       <li><a href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass.train_components">train_components (openstef.data_classes.prediction_job.PredictionJobDataClass attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass.train_horizons_minutes">train_horizons_minutes (openstef.data_classes.prediction_job.PredictionJobDataClass attribute)</a>
 </li>
+      <li><a href="openstef.pipeline.html#openstef.pipeline.train_create_forecast_backtest.train_model_and_forecast_back_test">train_model_and_forecast_back_test() (in module openstef.pipeline.train_create_forecast_backtest)</a>
+</li>
+      <li><a href="openstef.pipeline.html#openstef.pipeline.train_create_forecast_backtest.train_model_and_forecast_test_core">train_model_and_forecast_test_core() (in module openstef.pipeline.train_create_forecast_backtest)</a>
+</li>
+      <li><a href="openstef.pipeline.html#openstef.pipeline.train_model.train_model_pipeline">train_model_pipeline() (in module openstef.pipeline.train_model)</a>
+</li>
+      <li><a href="openstef.pipeline.html#openstef.pipeline.train_model.train_model_pipeline_core">train_model_pipeline_core() (in module openstef.pipeline.train_model)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="openstef.tasks.html#openstef.tasks.train_model.train_model_task">train_model_task() (in module openstef.tasks.train_model)</a>
+</li>
+      <li><a href="openstef.pipeline.html#openstef.pipeline.train_model.train_pipeline_common">train_pipeline_common() (in module openstef.pipeline.train_model)</a>
+</li>
+      <li><a href="openstef.pipeline.html#openstef.pipeline.train_model.train_pipeline_step_compute_features">train_pipeline_step_compute_features() (in module openstef.pipeline.train_model)</a>
+</li>
+      <li><a href="openstef.pipeline.html#openstef.pipeline.train_model.train_pipeline_step_split_data">train_pipeline_step_split_data() (in module openstef.pipeline.train_model)</a>
+</li>
+      <li><a href="openstef.pipeline.html#openstef.pipeline.train_model.train_pipeline_step_train_model">train_pipeline_step_train_model() (in module openstef.pipeline.train_model)</a>
+</li>
       <li><a href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass.train_split_func">train_split_func (openstef.data_classes.prediction_job.PredictionJobDataClass attribute)</a>
+</li>
+      <li><a href="openstef.feature_engineering.html#openstef.feature_engineering.feature_applicator.TrainFeatureApplicator">TrainFeatureApplicator (class in openstef.feature_engineering.feature_applicator)</a>
 </li>
       <li><a href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass.turbine_type">turbine_type (openstef.data_classes.prediction_job.PredictionJobDataClass attribute)</a>
 </li>

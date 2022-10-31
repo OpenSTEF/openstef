@@ -91,11 +91,9 @@
 </div>
 <div class="section" id="module-openstef.tasks.calculate_kpi">
 <span id="openstef-tasks-calculate-kpi-module"></span><h2>openstef.tasks.calculate_kpi module<a class="headerlink" href="#module-openstef.tasks.calculate_kpi" title="Permalink to this headline">¶</a></h2>
-<p>calculate_kpi.py
-This module contains the CRON job that is periodically executed to calculate key
-performance indicators (KPIs) and save them to the database.
-This code assumes prognoses are available from the persistent storage. If these are not
-available run create_forecast.py to train all models.</p>
+<p>This module contains the CRON job that is periodically executed to calculate key performance indicators (KPIs).</p>
+<p>This code assumes prognoses are available from the persistent storage.
+If these are not available run create_forecast.py to train all models.</p>
 <dl class="simple">
 <dt>The folowing tasks are caried out:</dt><dd><p>1: Calculate the KPI for a given pid. Ignore SplitEnergy
 2: Create figures
@@ -108,36 +106,44 @@ Alternatively this code can be run directly by running:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python calculate_kpi.py
 </pre></div>
 </div>
-<p>Attributes:</p>
 <dl class="function">
 <dt id="openstef.tasks.calculate_kpi.calc_kpi_for_specific_pid">
-<code class="sig-prename descclassname">openstef.tasks.calculate_kpi.</code><code class="sig-name descname">calc_kpi_for_specific_pid</code><span class="sig-paren">(</span><em class="sig-param">pid: int</em>, <em class="sig-param">realised: pandas.core.frame.DataFrame</em>, <em class="sig-param">predicted_load: pandas.core.frame.DataFrame</em>, <em class="sig-param">basecase: pandas.core.frame.DataFrame</em><span class="sig-paren">)</span> &#x2192; dict<a class="headerlink" href="#openstef.tasks.calculate_kpi.calc_kpi_for_specific_pid" title="Permalink to this definition">¶</a></dt>
-<dd><p>Function that checks the model performance based on a pid. This function
-- loads and combines forecast and realised data
-- calculated several key performance indicators (KPIs)
-These metric include:</p>
-<blockquote>
-<div><ul class="simple">
+<code class="sig-prename descclassname">openstef.tasks.calculate_kpi.</code><code class="sig-name descname">calc_kpi_for_specific_pid</code><span class="sig-paren">(</span><em class="sig-param">pid</em>, <em class="sig-param">realised</em>, <em class="sig-param">predicted_load</em>, <em class="sig-param">basecase</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.calculate_kpi.calc_kpi_for_specific_pid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that checks the model performance based on a pid. This function.</p>
+<ul class="simple">
+<li><p>loads and combines forecast and realised data</p></li>
+<li><p>calculated several key performance indicators (KPIs)</p></li>
+</ul>
+<dl class="simple">
+<dt>These metric include:</dt><dd><ul class="simple">
 <li><p>RMSE,</p></li>
 <li><p>bias,</p></li>
 <li><p>NSME (model efficiency, between -inf and 1)</p></li>
 <li><p>Mean absolute Error</p></li>
 </ul>
-</div></blockquote>
+</dd>
+</dl>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>pj</strong> (<em>PredictionJobDataclass</em>) – Prediction ID for a given prediction job</p></li>
-<li><p><strong>start_time</strong> (<em>datetime</em>) – Start time from when to retrieve the historic load prediction.</p></li>
-<li><p><strong>end_time</strong> (<em>datetime</em>) – Start time till when to retrieve the historic load prediction.</p></li>
+<li><p><strong>pid</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Prediction ID for a given prediction job</p></li>
+<li><p><strong>realised</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – Realised load.</p></li>
+<li><p><strong>predicted_load</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – Predicted load.</p></li>
+<li><p><strong>basecase</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – Basecase predicted load.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Dictionary that includes a dictonary for each t_ahead.
-Dict includes enddate en window (in days) for clarification</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
 </dd>
-<dt class="field-odd">Raises</dt>
-<dd class="field-odd"><ul class="simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p>Dictionary that includes a dictonary for each t_ahead.</p></li>
+<li><p>Dict includes enddate en window (in days) for clarification</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
 <li><p><a class="reference internal" href="openstef.html#openstef.exceptions.NoPredictedLoadError" title="openstef.exceptions.NoPredictedLoadError"><strong>NoPredictedLoadError</strong></a> – When no predicted load for given datatime range.</p></li>
 <li><p><a class="reference internal" href="openstef.html#openstef.exceptions.NoRealisedLoadError" title="openstef.exceptions.NoRealisedLoadError"><strong>NoRealisedLoadError</strong></a> – When no realised load for given datetime range.</p></li>
 </ul>
@@ -149,43 +155,82 @@ Dict includes enddate en window (in days) for clarification</p>
 
 <dl class="function">
 <dt id="openstef.tasks.calculate_kpi.check_kpi_task">
-<code class="sig-prename descclassname">openstef.tasks.calculate_kpi.</code><code class="sig-name descname">check_kpi_task</code><span class="sig-paren">(</span><em class="sig-param">pj: openstef.data_classes.prediction_job.PredictionJobDataClass</em>, <em class="sig-param">context: openstef.tasks.utils.taskcontext.TaskContext</em>, <em class="sig-param">start_time: datetime.datetime</em>, <em class="sig-param">end_time: datetime.datetime</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#openstef.tasks.calculate_kpi.check_kpi_task" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-prename descclassname">openstef.tasks.calculate_kpi.</code><code class="sig-name descname">check_kpi_task</code><span class="sig-paren">(</span><em class="sig-param">pj</em>, <em class="sig-param">context</em>, <em class="sig-param">start_time</em>, <em class="sig-param">end_time</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.calculate_kpi.check_kpi_task" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="function">
 <dt id="openstef.tasks.calculate_kpi.main">
-<code class="sig-prename descclassname">openstef.tasks.calculate_kpi.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><em class="sig-param">model_type: openstef.enums.MLModelType = None</em>, <em class="sig-param">config=None</em>, <em class="sig-param">database=None</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#openstef.tasks.calculate_kpi.main" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-prename descclassname">openstef.tasks.calculate_kpi.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><em class="sig-param">model_type=None</em>, <em class="sig-param">config=None</em>, <em class="sig-param">database=None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.calculate_kpi.main" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="function">
 <dt id="openstef.tasks.calculate_kpi.set_incomplete_kpi_to_nan">
-<code class="sig-prename descclassname">openstef.tasks.calculate_kpi.</code><code class="sig-name descname">set_incomplete_kpi_to_nan</code><span class="sig-paren">(</span><em class="sig-param">kpis: dict</em>, <em class="sig-param">t_ahead_h: str</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#openstef.tasks.calculate_kpi.set_incomplete_kpi_to_nan" title="Permalink to this definition">¶</a></dt>
-<dd><p>Checks the given kpis for completeness and sets to nan if this not true</p>
+<code class="sig-prename descclassname">openstef.tasks.calculate_kpi.</code><code class="sig-name descname">set_incomplete_kpi_to_nan</code><span class="sig-paren">(</span><em class="sig-param">kpis</em>, <em class="sig-param">t_ahead_h</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.calculate_kpi.set_incomplete_kpi_to_nan" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks the given kpis for completeness and sets to nan if this not true.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>kpis</strong> – the kpis</p></li>
-<li><p><strong>t_ahead_h</strong> – t_ahead_h</p></li>
+<li><p><strong>kpis</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – the kpis</p></li>
+<li><p><strong>t_ahead_h</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – t_ahead_h</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><ul class="simple">
-<li></li>
-</ul>
-</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
 </dd>
 </dl>
 </dd></dl>
 
 </div>
-<div class="section" id="openstef-tasks-create-basecase-forecast-module">
-<h2>openstef.tasks.create_basecase_forecast module<a class="headerlink" href="#openstef-tasks-create-basecase-forecast-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-openstef.tasks.create_basecase_forecast">
+<span id="openstef-tasks-create-basecase-forecast-module"></span><h2>openstef.tasks.create_basecase_forecast module<a class="headerlink" href="#module-openstef.tasks.create_basecase_forecast" title="Permalink to this headline">¶</a></h2>
+<p>This module should be executed once every day.</p>
+<p>For all prediction_jobs, it will create a ‘basecase’ forecast which is less accurate, but (almost) always available.
+For now, it uses the load a week earlier.
+Missing datapoints are interpolated.</p>
+<p class="rubric">Example</p>
+<p>This module is meant to be called directly from a CRON job. A description of the
+CRON job can be found in the /k8s/CronJobs folder.</p>
+<p>Alternatively this code can be run directly by running:</p>
+<blockquote>
+<div><p>$ python create_basecase_forecast.py</p>
+</div></blockquote>
+<dl class="function">
+<dt id="openstef.tasks.create_basecase_forecast.create_basecase_forecast_task">
+<code class="sig-prename descclassname">openstef.tasks.create_basecase_forecast.</code><code class="sig-name descname">create_basecase_forecast_task</code><span class="sig-paren">(</span><em class="sig-param">pj</em>, <em class="sig-param">context</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.create_basecase_forecast.create_basecase_forecast_task" title="Permalink to this definition">¶</a></dt>
+<dd><p>Top level task that creates a basecase forecast.</p>
+<p>On this task level all database and context manager dependencies are resolved.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">PredictionJobDataClass</span></code></a>) – Prediction job</p></li>
+<li><p><strong>context</strong> (<a class="reference internal" href="openstef.tasks.utils.html#openstef.tasks.utils.taskcontext.TaskContext" title="openstef.tasks.utils.taskcontext.TaskContext"><code class="xref py py-class docutils literal notranslate"><span class="pre">TaskContext</span></code></a>) – Contect object that holds a config manager and a database connection</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="openstef.tasks.create_basecase_forecast.main">
+<code class="sig-prename descclassname">openstef.tasks.create_basecase_forecast.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><em class="sig-param">config=None</em>, <em class="sig-param">database=None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.create_basecase_forecast.main" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </div>
 <div class="section" id="module-openstef.tasks.create_components_forecast">
 <span id="openstef-tasks-create-components-forecast-module"></span><h2>openstef.tasks.create_components_forecast module<a class="headerlink" href="#module-openstef.tasks.create_components_forecast" title="Permalink to this headline">¶</a></h2>
-<p>create_components_forecast.py</p>
-<p>This module contains the CRON job that is periodically executed to make
-the components prognoses and save them in the database.</p>
+<p>This module contains the CRON job that is periodically executed to make the components prognoses.</p>
 <p>This code assumes trained models are available from the persistent storage.
 If these are not available run model_train.py to train all models.
 To provide the prognoses the following steps are carried out:</p>
@@ -206,18 +251,20 @@ Alternatively this code can be run directly by running:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python create_components_forecast.py
 </pre></div>
 </div>
-<p>Attributes:</p>
 <dl class="function">
 <dt id="openstef.tasks.create_components_forecast.create_components_forecast_task">
-<code class="sig-prename descclassname">openstef.tasks.create_components_forecast.</code><code class="sig-name descname">create_components_forecast_task</code><span class="sig-paren">(</span><em class="sig-param">pj: openstef.data_classes.prediction_job.PredictionJobDataClass</em>, <em class="sig-param">context: openstef.tasks.utils.taskcontext.TaskContext</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.create_components_forecast.create_components_forecast_task" title="Permalink to this definition">¶</a></dt>
-<dd><p>Top level task that creates a components forecast.
-On this task level all database and context manager dependencies are resolved.</p>
+<code class="sig-prename descclassname">openstef.tasks.create_components_forecast.</code><code class="sig-name descname">create_components_forecast_task</code><span class="sig-paren">(</span><em class="sig-param">pj</em>, <em class="sig-param">context</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.create_components_forecast.create_components_forecast_task" title="Permalink to this definition">¶</a></dt>
+<dd><p>Top level task that creates a components forecast.</p>
+<p>On this task level all database and context manager dependencies are resolved.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><em>PredictionJobDataClass</em></a>) – Prediction job</p></li>
-<li><p><strong>context</strong> (<a class="reference internal" href="openstef.tasks.utils.html#openstef.tasks.utils.taskcontext.TaskContext" title="openstef.tasks.utils.taskcontext.TaskContext"><em>TaskContext</em></a>) – Contect object that holds a config manager and a database connection</p></li>
+<li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">PredictionJobDataClass</span></code></a>) – Prediction job</p></li>
+<li><p><strong>context</strong> (<a class="reference internal" href="openstef.tasks.utils.html#openstef.tasks.utils.taskcontext.TaskContext" title="openstef.tasks.utils.taskcontext.TaskContext"><code class="xref py py-class docutils literal notranslate"><span class="pre">TaskContext</span></code></a>) – Contect object that holds a config manager and a database connection</p></li>
 </ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -228,28 +275,71 @@ On this task level all database and context manager dependencies are resolved.</
 <dd></dd></dl>
 
 </div>
-<div class="section" id="openstef-tasks-create-forecast-module">
-<h2>openstef.tasks.create_forecast module<a class="headerlink" href="#openstef-tasks-create-forecast-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-openstef.tasks.create_forecast">
+<span id="openstef-tasks-create-forecast-module"></span><h2>openstef.tasks.create_forecast module<a class="headerlink" href="#module-openstef.tasks.create_forecast" title="Permalink to this headline">¶</a></h2>
+<p>This module contains the CRON job that is periodically executed to make prognoses and save them in to the database.</p>
+<p>This code assumes trained models are available from the persistent storage. If these
+are not available run model_train.py to train all models.
+To provide the prognoses the folowing steps are carried out:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>Get historic training data (TDCV, Load, Weather and APX price data)</p></li>
+<li><p>Apply features</p></li>
+<li><p>Load model</p></li>
+<li><p>Make prediction</p></li>
+<li><p>Write prediction to the database</p></li>
+<li><p>Send Teams message if something goes wrong</p></li>
+</ol>
+</div></blockquote>
+<p class="rubric">Example</p>
+<p>This module is meant to be called directly from a CRON job.
+Alternatively this code can be run directly by running:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python create_forecast.py
+</pre></div>
+</div>
+<dl class="function">
+<dt id="openstef.tasks.create_forecast.create_forecast_task">
+<code class="sig-prename descclassname">openstef.tasks.create_forecast.</code><code class="sig-name descname">create_forecast_task</code><span class="sig-paren">(</span><em class="sig-param">pj</em>, <em class="sig-param">context</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.create_forecast.create_forecast_task" title="Permalink to this definition">¶</a></dt>
+<dd><p>Top level task that creates a forecast.</p>
+<p>On this task level all database and context manager dependencies are resolved.</p>
+<dl class="simple">
+<dt>Expected prediction job keys; “id”, “lat”, “lon”, “resolution_minutes”,</dt><dd><p>“horizon_minutes”, “type”, “name”, “quantiles”</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">PredictionJobDataClass</span></code></a>) – Prediction job</p></li>
+<li><p><strong>context</strong> (<a class="reference internal" href="openstef.tasks.utils.html#openstef.tasks.utils.taskcontext.TaskContext" title="openstef.tasks.utils.taskcontext.TaskContext"><code class="xref py py-class docutils literal notranslate"><span class="pre">TaskContext</span></code></a>) – Contect object that holds a config manager and a database connection</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="openstef.tasks.create_forecast.main">
+<code class="sig-prename descclassname">openstef.tasks.create_forecast.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><em class="sig-param">model_type=None</em>, <em class="sig-param">config=None</em>, <em class="sig-param">database=None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.create_forecast.main" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </div>
 <div class="section" id="module-openstef.tasks.create_solar_forecast">
 <span id="openstef-tasks-create-solar-forecast-module"></span><h2>openstef.tasks.create_solar_forecast module<a class="headerlink" href="#module-openstef.tasks.create_solar_forecast" title="Permalink to this headline">¶</a></h2>
-<p>create_solar_forecast
-This module contains the CRON job that is periodically executed to make
-prognoses of solar features that are useful for splitting the load in solar and
-wind contributions.
-.. rubric:: Example</p>
+<p>This module contains the CRON job that is periodically executed to make prognoses of solar features.</p>
+<p>These are useful for splitting the load in solar and wind contributions.</p>
+<p class="rubric">Example</p>
 <p>This module is meant to be called directly from a CRON job. A description of
 the CRON job can be found in the /k8s/CronJobs folder.
 Alternatively this code can be run directly by running:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python create_solar_forecast
 </pre></div>
 </div>
-<p>Attributes:</p>
 <dl class="function">
 <dt id="openstef.tasks.create_solar_forecast.apply_fit_insol">
 <code class="sig-prename descclassname">openstef.tasks.create_solar_forecast.</code><code class="sig-name descname">apply_fit_insol</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">add_to_df=True</em>, <em class="sig-param">hours_delta=None</em>, <em class="sig-param">polynomial=False</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.create_solar_forecast.apply_fit_insol" title="Permalink to this definition">¶</a></dt>
-<dd><p>This model fits insolation to PV yield and uses this fit to forecast PV yield.
-It uses a 2nd order polynomial</p>
+<dd><p>This model fits insolation to PV yield and uses this fit to forecast PV yield. It uses a 2nd order polynomial.</p>
 <dl>
 <dt>Input:</dt><dd><ul class="simple">
 <li><p>data: pd.DataFrame(index = datetime, columns = [load, insolation])</p></li>
@@ -264,7 +354,7 @@ It uses a 2nd order polynomial</p>
 </dd>
 </dl>
 <p>NB: range of datetime of input is equal to range of datetime of output</p>
-<p>Example
+<p>Example:
 import pandas as pd
 import numpy as np
 index = pd.date_range(start = “2017-01-01 09:00:00”, freq = ‘15T’, periods = 300)
@@ -279,10 +369,9 @@ data.loc[int(len(index)/3*2):,”load”] = np.NaN</p>
 <dl class="function">
 <dt id="openstef.tasks.create_solar_forecast.apply_persistence">
 <code class="sig-prename descclassname">openstef.tasks.create_solar_forecast.</code><code class="sig-name descname">apply_persistence</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">how='mean'</em>, <em class="sig-param">smooth_entries=4</em>, <em class="sig-param">add_to_df=True</em>, <em class="sig-param">colname=None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.create_solar_forecast.apply_persistence" title="Permalink to this definition">¶</a></dt>
-<dd><p>This script calculates the persistence forecast
-Input:</p>
-<blockquote>
-<div><ul class="simple">
+<dd><p>This script calculates the persistence forecast.</p>
+<dl>
+<dt>Input:</dt><dd><ul class="simple">
 <li><p>data: pd.DataFrame(index = datetime, columns = [load]), datetime is expected to have historic values, as well as NA values</p></li>
 </ul>
 <p>Optional:
@@ -290,15 +379,14 @@ Input:</p>
 - smoothEntries: int, number of historic entries over which the persistence is smoothed
 - add_to_df: Bool, add the forecast to the data
 - option of specifying colname if load is not first column</p>
-</div></blockquote>
-<dl class="simple">
+</dd>
 <dt>Output:</dt><dd><ul class="simple">
 <li><p>pd.DataFrame(index = datetime, columns = [(load,) persistence])</p></li>
 </ul>
 </dd>
 </dl>
 <p>NB: range of datetime of input is equal to range of datetime of output</p>
-<p>Example
+<p>Example:
 import pandas as pd
 import numpy as np
 index = pd.date_range(start = “2017-01-01 09:00:00”, freq = ‘15T’, periods = 300)
@@ -312,24 +400,22 @@ data = pd.DataFrame(index = index,</p>
 <dl class="function">
 <dt id="openstef.tasks.create_solar_forecast.calc_norm">
 <code class="sig-prename descclassname">openstef.tasks.create_solar_forecast.</code><code class="sig-name descname">calc_norm</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">how='max'</em>, <em class="sig-param">add_to_df=True</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.create_solar_forecast.calc_norm" title="Permalink to this definition">¶</a></dt>
-<dd><p>This script calculates the norm of a given dataset.
-Input:</p>
-<blockquote>
-<div><ul class="simple">
+<dd><p>This script calculates the norm of a given dataset.</p>
+<dl>
+<dt>Input:</dt><dd><ul class="simple">
 <li><p>data: pd.DataFrame(index = datetime, columns = [load])</p></li>
 <li><p>how: str can be any function from numpy, recognized by np.’how’</p></li>
 </ul>
 <p>Optional:
 - add_to_df: Bool, add the norm to the data</p>
-</div></blockquote>
-<dl class="simple">
+</dd>
 <dt>Output:</dt><dd><ul class="simple">
 <li><p>pd.DataFrame(index = datetime, columns = [load])</p></li>
 </ul>
 </dd>
 </dl>
 <p>NB: range of datetime of input is equal to range of datetime of output</p>
-<p>Example
+<p>Example:
 import pandas as pd
 import numpy as np
 index = pd.date_range(start = “2017-01-01 09:00:00”, freq = ‘15T’, periods = 200)
@@ -342,9 +428,8 @@ data = pd.DataFrame(index = index,</p>
 <dl class="function">
 <dt id="openstef.tasks.create_solar_forecast.combine_forecasts">
 <code class="sig-prename descclassname">openstef.tasks.create_solar_forecast.</code><code class="sig-name descname">combine_forecasts</code><span class="sig-paren">(</span><em class="sig-param">forecasts</em>, <em class="sig-param">combination_coefs</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.create_solar_forecast.combine_forecasts" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="simple">
-<dt>This function combines several independent forecasts into one, using</dt><dd><p>predetermined coefficients.</p>
-</dd>
+<dd><p>This function combines several independent forecasts into one, using predetermined coefficients.</p>
+<dl class="simple">
 <dt>Input:</dt><dd><ul class="simple">
 <li><p>forecasts: pd.DataFrame(index = datetime, algorithm1, …, algorithmn)</p></li>
 <li><p>combinationcoefs: pd.DataFrame(param1, …, paramn, algorithm1, …, algorithmn)</p></li>
@@ -364,13 +449,13 @@ data = pd.DataFrame(index = index,</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> – pd.DataFrame(index = datetime, columns =[‘output’,’insolation’])</p></li>
-<li><p><strong>allForecasts</strong> (<em>bool</em>) – Should all forecasts be returned or only the combination</p></li>
+<li><p><strong>data</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – pd.DataFrame(index = datetime, columns =[‘output’,’insolation’])</p></li>
+<li><p><strong>all_forecasts</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Should all forecasts be returned or only the combination</p></li>
 </ul>
 </dd>
 </dl>
-<p>Example:</p>
-<p>import numpy as np
+<p>Example:
+import numpy as np
 index = pd.date_range(start = “2017-01-01 09:00:00”, freq = ‘15T’, periods = 300)
 data = pd.DataFrame(index = index,</p>
 <blockquote>
@@ -391,7 +476,12 @@ data.loc[int(len(index)/3*2):,”load”] = np.NaN</p>
 <dd><p>Make a solar prediction for a specific prediction job.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>pj</strong> – (dict) prediction job</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pj</strong> – (dict) prediction job</p></li>
+<li><p><strong>context</strong> – Task context</p></li>
+<li><p><strong>radius</strong> – Radius us to collect PV systems.</p></li>
+<li><p><strong>peak_power</strong> – Peak power.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -399,19 +489,16 @@ data.loc[int(len(index)/3*2):,”load”] = np.NaN</p>
 </div>
 <div class="section" id="module-openstef.tasks.create_wind_forecast">
 <span id="openstef-tasks-create-wind-forecast-module"></span><h2>openstef.tasks.create_wind_forecast module<a class="headerlink" href="#module-openstef.tasks.create_wind_forecast" title="Permalink to this headline">¶</a></h2>
-<p>create_wind_forecast
-This module contains the CRON job that is periodically executed to make prognoses of
-wind features.
-These features are usefull for splitting the load in solar and wind contributions and
-making prognoses.
-.. rubric:: Example</p>
+<p>This module contains the CRON job that is periodically executed to make prognoses of wind features.</p>
+<p>These features are usefull for splitting the load in solar and wind contributions and
+making prognoses.</p>
+<p class="rubric">Example</p>
 <p>This module is meant to be called directly from a CRON job. A description of the
 CRON job can be found in the /k8s/CronJobs folder.
 Alternatively this code can be run directly by running:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python create_wind_forecast
 </pre></div>
 </div>
-<p>Attributes:</p>
 <dl class="function">
 <dt id="openstef.tasks.create_wind_forecast.main">
 <code class="sig-prename descclassname">openstef.tasks.create_wind_forecast.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><em class="sig-param">config=None</em>, <em class="sig-param">database=None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.create_wind_forecast.main" title="Permalink to this definition">¶</a></dt>
@@ -420,10 +507,16 @@ Alternatively this code can be run directly by running:</p>
 <dl class="function">
 <dt id="openstef.tasks.create_wind_forecast.make_wind_forecast_pj">
 <code class="sig-prename descclassname">openstef.tasks.create_wind_forecast.</code><code class="sig-name descname">make_wind_forecast_pj</code><span class="sig-paren">(</span><em class="sig-param">pj</em>, <em class="sig-param">context</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.create_wind_forecast.make_wind_forecast_pj" title="Permalink to this definition">¶</a></dt>
-<dd><p>Make a wind prediction for a specific prediction job</p>
+<dd><p>Make a wind prediction for a specific prediction job.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>pj</strong> – (dict) prediction job</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">PredictionJobDataClass</span></code></a>) – Prediction job</p></li>
+<li><p><strong>context</strong> (<a class="reference internal" href="openstef.tasks.utils.html#openstef.tasks.utils.taskcontext.TaskContext" title="openstef.tasks.utils.taskcontext.TaskContext"><code class="xref py py-class docutils literal notranslate"><span class="pre">TaskContext</span></code></a>) – Context manager</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -437,9 +530,8 @@ Alternatively this code can be run directly by running:</p>
 </div>
 <div class="section" id="module-openstef.tasks.split_forecast">
 <span id="openstef-tasks-split-forecast-module"></span><h2>openstef.tasks.split_forecast module<a class="headerlink" href="#module-openstef.tasks.split_forecast" title="Permalink to this headline">¶</a></h2>
-<p>split_forecast.py</p>
-<p>This module contains the CRON job that is periodically executed to make
-prognoses of solar features. These features are usefull for splitting the load
+<p>This module contains the CRON job that is periodically executed to make prognoses of solar features.</p>
+<p>These features are usefull for splitting the load
 in solar and wind contributions.
 This is achieved by carrying out the folowing steps:</p>
 <blockquote>
@@ -459,26 +551,24 @@ Alternatively this code can be run directly by running:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python split_forecast.py
 </pre></div>
 </div>
-<p>Attributes:</p>
 <dl class="function">
 <dt id="openstef.tasks.split_forecast.convert_coefdict_to_coefsdf">
 <code class="sig-prename descclassname">openstef.tasks.split_forecast.</code><code class="sig-name descname">convert_coefdict_to_coefsdf</code><span class="sig-paren">(</span><em class="sig-param">pj</em>, <em class="sig-param">input_split_function</em>, <em class="sig-param">coefdict</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.split_forecast.convert_coefdict_to_coefsdf" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert dictionary of coefficients to dataframe with additional data for db
-storage.</p>
+<dd><p>Convert dictionary of coefficients to dataframe with additional data for db storage.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><em>PredictionJobDataClass</em></a>) – prediction job</p></li>
-<li><p><strong>input_split_function</strong> (<em>pd.DataFrame</em>) – df of columns of standard load profiles,
+<li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">PredictionJobDataClass</span></code></a>) – prediction job</p></li>
+<li><p><strong>input_split_function</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – df of columns of standard load profiles,
 i.e. wind, solar, household</p></li>
-<li><p><strong>coefdict</strong> (<em>dict</em>) – dict of coefficient per standard load profile</p></li>
+<li><p><strong>coefdict</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>) – dict of coefficient per standard load profile</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>df of coefficients to insert in sql</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>pd.DataFrame</p>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>DataFrame of coefficients to insert in sql</p>
 </dd>
 </dl>
 </dd></dl>
@@ -490,17 +580,17 @@ i.e. wind, solar, household</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>new_coefs</strong> (<em>pd.DataFrame</em>) – df of new coefficients for standard load
+<li><p><strong>new_coefs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – df of new coefficients for standard load
 profiles (i.e. wind, solar, household)</p></li>
-<li><p><strong>last_coefs</strong> (<em>pd.DataFrame</em>) – df of last coefficients for standard load
+<li><p><strong>last_coefs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – df of last coefficients for standard load
 profiles (i.e. wind, solar, household)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>df of invalid coefficients</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>pd.DataFrame</p>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Dataframe with invalid coefficients</p>
 </dd>
 </dl>
 </dd></dl>
@@ -508,18 +598,21 @@ profiles (i.e. wind, solar, household)</p></li>
 <dl class="function">
 <dt id="openstef.tasks.split_forecast.find_components">
 <code class="sig-prename descclassname">openstef.tasks.split_forecast.</code><code class="sig-name descname">find_components</code><span class="sig-paren">(</span><em class="sig-param">df</em>, <em class="sig-param">zero_bound=True</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.split_forecast.find_components" title="Permalink to this definition">¶</a></dt>
-<dd><p>Function that does the actual energy splitting</p>
+<dd><p>Function that does the actual energy splitting.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>df</strong> (<em>pandas.DataFrame</em>) – Input data. The dataframe should contain these columns
+<li><p><strong>df</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – Input data. The dataframe should contain these columns
 in exactly this order: [load, wind_ref, pv_ref, mulitple tdcv colums]</p></li>
-<li><p><strong>zero_bound</strong> (<em>bool</em>) – If zero_bound is True coefficients can’t be negative.</p></li>
+<li><p><strong>zero_bound</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – If zero_bound is True coefficients can’t be negative.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>[0] pandas.DataFrame: Containing the wind and solar components
-[1] dict: The coefficients that result from the fitting</p>
+<dd class="field-even"><p><ul class="simple">
+<li><p>DataFrame containing the wind and solar components</p></li>
+<li><p>Dict with the coefficients that result from the fitting</p></li>
+</ul>
+</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>tuple</p>
@@ -534,25 +627,72 @@ in exactly this order: [load, wind_ref, pv_ref, mulitple tdcv colums]</p></li>
 
 <dl class="function">
 <dt id="openstef.tasks.split_forecast.split_forecast_task">
-<code class="sig-prename descclassname">openstef.tasks.split_forecast.</code><code class="sig-name descname">split_forecast_task</code><span class="sig-paren">(</span><em class="sig-param">pj: openstef.data_classes.prediction_job.PredictionJobDataClass</em>, <em class="sig-param">context: openstef.tasks.utils.taskcontext.TaskContext</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.split_forecast.split_forecast_task" title="Permalink to this definition">¶</a></dt>
-<dd><p>Function that caries out the energy splitting for a specific prediction job with
-id pid.</p>
+<code class="sig-prename descclassname">openstef.tasks.split_forecast.</code><code class="sig-name descname">split_forecast_task</code><span class="sig-paren">(</span><em class="sig-param">pj</em>, <em class="sig-param">context</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.split_forecast.split_forecast_task" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that caries out the energy splitting for a specific prediction job with id pid.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>pid</strong> (<em>int</em>) – Prediction job id</p>
+<dd class="field-odd"><p><strong>pid</strong> – Prediction job id</p>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Energy splitting coefficients.</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>pandas.DataFrame</p>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Energy splitting coefficients.</p>
 </dd>
 </dl>
 </dd></dl>
 
 </div>
-<div class="section" id="openstef-tasks-train-model-module">
-<h2>openstef.tasks.train_model module<a class="headerlink" href="#openstef-tasks-train-model-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-openstef.tasks.train_model">
+<span id="openstef-tasks-train-model-module"></span><h2>openstef.tasks.train_model module<a class="headerlink" href="#module-openstef.tasks.train_model" title="Permalink to this headline">¶</a></h2>
+<p>This module contains the CRON job that is periodically executed to retrain the prognosis models.</p>
+<dl class="simple">
+<dt>For this the folowing steps are caried out:</dt><dd><ol class="arabic simple">
+<li><p>Get historic training data (TDCV, Load, Weather and APX price data)</p></li>
+<li><p>Apply features</p></li>
+<li><p>Train and Test the new model</p></li>
+<li><p>Check if new model performs better than the old model</p></li>
+<li><p>Store the model if it performs better</p></li>
+<li><p>Send slack message to inform the users</p></li>
+</ol>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<p>This module is meant to be called directly from a CRON job. A description of
+the CRON job can be found in the /k8s/CronJobs folder.
+Alternatively this code can be run directly by running:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python model_train.py
+</pre></div>
+</div>
+<dl class="function">
+<dt id="openstef.tasks.train_model.main">
+<code class="sig-prename descclassname">openstef.tasks.train_model.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><em class="sig-param">model_type=None</em>, <em class="sig-param">config=None</em>, <em class="sig-param">database=None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.train_model.main" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="openstef.tasks.train_model.train_model_task">
+<code class="sig-prename descclassname">openstef.tasks.train_model.</code><code class="sig-name descname">train_model_task</code><span class="sig-paren">(</span><em class="sig-param">pj</em>, <em class="sig-param">context</em>, <em class="sig-param">check_old_model_age=True</em>, <em class="sig-param">datetime_start=None</em>, <em class="sig-param">datetime_end=None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.train_model.train_model_task" title="Permalink to this definition">¶</a></dt>
+<dd><p>Train model task.</p>
+<p>Top level task that trains a new model and makes sure the beast available model is
+stored. On this task level all database and context manager dependencies are resolved.</p>
+<p>Expected prediction job keys:  “id”, “model”, “lat”, “lon”, “name”</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">PredictionJobDataClass</span></code></a>) – Prediction job</p></li>
+<li><p><strong>context</strong> (<a class="reference internal" href="openstef.tasks.utils.html#openstef.tasks.utils.taskcontext.TaskContext" title="openstef.tasks.utils.taskcontext.TaskContext"><code class="xref py py-class docutils literal notranslate"><span class="pre">TaskContext</span></code></a>) – Contect object that holds a config manager and a
+database connection.</p></li>
+<li><p><strong>check_old_model_age</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – check if model is too young to be retrained</p></li>
+<li><p><strong>datetime_start</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code>]) – Start</p></li>
+<li><p><strong>datetime_end</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code>]) – End</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
 <div class="section" id="module-openstef.tasks">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-openstef.tasks" title="Permalink to this headline">¶</a></h2>

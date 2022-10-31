@@ -78,19 +78,23 @@
 <span id="openstef-model-selection-model-selection-module"></span><h2>openstef.model_selection.model_selection module<a class="headerlink" href="#module-openstef.model_selection.model_selection" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="openstef.model_selection.model_selection.backtest_split_default">
-<code class="sig-prename descclassname">openstef.model_selection.model_selection.</code><code class="sig-name descname">backtest_split_default</code><span class="sig-paren">(</span><em class="sig-param">data: pandas.core.frame.DataFrame</em>, <em class="sig-param">n_folds: int</em>, <em class="sig-param">test_fraction: float = 0.15</em>, <em class="sig-param">stratification_min_max: bool = True</em>, <em class="sig-param">randomize_fold_split: bool = False</em><span class="sig-paren">)</span> &#x2192; Iterable[Tuple[pandas.core.frame.DataFrame, pandas.core.frame.DataFrame, pandas.core.frame.DataFrame]]<a class="headerlink" href="#openstef.model_selection.model_selection.backtest_split_default" title="Permalink to this definition">¶</a></dt>
-<dd><p>Default cross validation strategy.
-:param data:
-:param n_folds:
-:param test_fraction:
-:param stratification_min_max:
-:param randomize_fold_split:</p>
+<code class="sig-prename descclassname">openstef.model_selection.model_selection.</code><code class="sig-name descname">backtest_split_default</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">n_folds</em>, <em class="sig-param">test_fraction=0.15</em>, <em class="sig-param">stratification_min_max=True</em>, <em class="sig-param">randomize_fold_split=False</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model_selection.model_selection.backtest_split_default" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default cross validation strategy.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Iterable on train, val, test splits</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – </p></li>
+<li><p><strong>n_folds</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – </p></li>
+<li><p><strong>test_fraction</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – </p></li>
+<li><p><strong>stratification_min_max</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – </p></li>
+<li><p><strong>randomize_fold_split</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – </p></li>
+</ul>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p>train_val_test_generator (Iterable[pd.DataFrame, pd.DataFrame, pd.DataFrame])</p>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>]]</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Iterable on train, val, test splits</p>
 </dd>
 </dl>
 <p class="rubric">Notes</p>
@@ -99,72 +103,74 @@
 
 <dl class="function">
 <dt id="openstef.model_selection.model_selection.group_kfold">
-<code class="sig-prename descclassname">openstef.model_selection.model_selection.</code><code class="sig-name descname">group_kfold</code><span class="sig-paren">(</span><em class="sig-param">input_data: pandas.core.frame.DataFrame</em>, <em class="sig-param">n_folds: int</em>, <em class="sig-param">randomize_fold_split: bool = True</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#openstef.model_selection.model_selection.group_kfold" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="simple">
-<dt>Function to group data into groups, according to the date and the number of folds</dt><dd><ul class="simple">
-<li><p>each date gets assigned a number between 0 and n_folds</p></li>
-</ul>
-</dd>
-</dl>
+<code class="sig-prename descclassname">openstef.model_selection.model_selection.</code><code class="sig-name descname">group_kfold</code><span class="sig-paren">(</span><em class="sig-param">input_data</em>, <em class="sig-param">n_folds</em>, <em class="sig-param">randomize_fold_split=True</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model_selection.model_selection.group_kfold" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to group data into groups, according to the date and the number of folds.</p>
+<p>Each date gets assigned a number between 0 and n_folds.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>input_data</strong> (<em>pd.DataFrame</em>) – Input data</p></li>
-<li><p><strong>n_folds</strong> (<em>int</em>) – Number of folds</p></li>
-<li><p><strong>randomize_fold_split</strong> (<em>bool</em>) – Indicates if random split needs to be applied</p></li>
+<li><p><strong>input_data</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – Input data</p></li>
+<li><p><strong>n_folds</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Number of folds</p></li>
+<li><p><strong>randomize_fold_split</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Indicates if random split needs to be applied</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>grouped data (pandas.DataFrame)</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Grouped data</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="openstef.model_selection.model_selection.random_sample">
-<code class="sig-prename descclassname">openstef.model_selection.model_selection.</code><code class="sig-name descname">random_sample</code><span class="sig-paren">(</span><em class="sig-param">all_peaks: numpy.array</em>, <em class="sig-param">k: int</em><span class="sig-paren">)</span> &#x2192; numpy.array<a class="headerlink" href="#openstef.model_selection.model_selection.random_sample" title="Permalink to this definition">¶</a></dt>
-<dd><p>Random sampling of numbers out of a np.array
-(implemented due to security sonar cloud not accepting the random built-in functions)</p>
+<code class="sig-prename descclassname">openstef.model_selection.model_selection.</code><code class="sig-name descname">random_sample</code><span class="sig-paren">(</span><em class="sig-param">all_peaks</em>, <em class="sig-param">k</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model_selection.model_selection.random_sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Random sampling of numbers out of a np.array.</p>
+<p>Implemented due to security sonar cloud not accepting the random built-in functions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>all_peaks</strong> (<em>np.array</em>) – List with numbers to sample from</p></li>
-<li><p><strong>k</strong> (<em>int</em>) – Number of wanted samples</p></li>
+<li><p><strong>all_peaks</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code>) – List with numbers to sample from</p></li>
+<li><p><strong>k</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Number of wanted samples</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Sorted array with the random samples (dates from the peaks)</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code></p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>np.array</p>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Sorted array with the random samples (dates from the peaks)</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="openstef.model_selection.model_selection.sample_indices_train_val">
-<code class="sig-prename descclassname">openstef.model_selection.model_selection.</code><code class="sig-name descname">sample_indices_train_val</code><span class="sig-paren">(</span><em class="sig-param">data: pandas.core.frame.DataFrame</em>, <em class="sig-param">peaks: pandas.core.frame.DataFrame</em><span class="sig-paren">)</span> &#x2192; Tuple[numpy.array, numpy.array]<a class="headerlink" href="#openstef.model_selection.model_selection.sample_indices_train_val" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstef.model_selection.model_selection.</code><code class="sig-name descname">sample_indices_train_val</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">peaks</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model_selection.model_selection.sample_indices_train_val" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sample indices of given period length assuming the peaks are evenly spreaded.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<em>pandas.DataFrame</em>) – Clean data with features</p></li>
-<li><p><strong>peaks</strong> (<em>pd.DataFrame</em>) – Data frame of selected peaks to sample the dates from</p></li>
+<li><p><strong>data</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – Clean data with features</p></li>
+<li><p><strong>peaks</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – Data frame of selected peaks to sample the dates from</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>List with the start point of each peak
-np.array: Sorted list with the indices corresponding to the peak</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code>]</p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>np.array</p>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p>List with the start point of each peak</p></li>
+<li><p>Sorted list with the indices corresponding to the peak</p></li>
+</ul>
+</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="openstef.model_selection.model_selection.split_data_train_validation_test">
-<code class="sig-prename descclassname">openstef.model_selection.model_selection.</code><code class="sig-name descname">split_data_train_validation_test</code><span class="sig-paren">(</span><em class="sig-param">data_: pandas.core.frame.DataFrame</em>, <em class="sig-param">test_fraction: float = 0.1</em>, <em class="sig-param">validation_fraction: float = 0.15</em>, <em class="sig-param">back_test: bool = False</em>, <em class="sig-param">stratification_min_max: bool = True) -&gt; (&lt;class 'pandas.core.frame.DataFrame'&gt;</em>, <em class="sig-param">&lt;class 'pandas.core.frame.DataFrame'&gt;</em>, <em class="sig-param">&lt;class 'pandas.core.frame.DataFrame'&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model_selection.model_selection.split_data_train_validation_test" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openstef.model_selection.model_selection.</code><code class="sig-name descname">split_data_train_validation_test</code><span class="sig-paren">(</span><em class="sig-param">data_</em>, <em class="sig-param">test_fraction=0.1</em>, <em class="sig-param">validation_fraction=0.15</em>, <em class="sig-param">back_test=False</em>, <em class="sig-param">stratification_min_max=True</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model_selection.model_selection.split_data_train_validation_test" title="Permalink to this definition">¶</a></dt>
 <dd><p>Split input data into train, test and validation set.</p>
 <p>Function for splitting data with features in a train, test and
 validation dataset. In an operational setting the following sequence is
@@ -178,25 +184,28 @@ validation fraction.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data_</strong> (<em>pandas.DataFrame</em>) – Cleaned data with features</p></li>
-<li><p><strong>test_fraction</strong> (<em>float</em>) – Number between 0 and 1 that indicates the desired
+<li><p><strong>data_</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – Cleaned data with features</p></li>
+<li><p><strong>test_fraction</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Number between 0 and 1 that indicates the desired
 fraction of test data.</p></li>
-<li><p><strong>validation_fraction</strong> (<em>float</em>) – Number between 0 and 1 that indicates the
+<li><p><strong>validation_fraction</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Number between 0 and 1 that indicates the
 desired fraction of validation data.</p></li>
-<li><p><strong>back_test</strong> (<em>bool</em>) – Indicates if data is intended for a back test.</p></li>
-<li><p><strong>stratification_min_max</strong> (<em>bool</em>) – Indicates if validation data must be sampled as
+<li><p><strong>back_test</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Indicates if data is intended for a back test.</p></li>
+<li><p><strong>stratification_min_max</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Indicates if validation data must be sampled as
 periods, using stratification on min and max values per day.
 If True, ‘extreme days’ are ensured to be included in the validation and train sets,
 ensuring the validation set to be representative of the train set.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Train data.
-validation_data (pandas.DataFrame): Validation data.
-test_data (pandas.DataFrame): Test data.</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>]</p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>train_data (pandas.DataFrame)</p>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p>Train data.</p></li>
+<li><p>Validation data.</p></li>
+<li><p>Test data.</p></li>
+</ul>
+</p>
 </dd>
 </dl>
 </dd></dl>
