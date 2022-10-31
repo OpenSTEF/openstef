@@ -5,7 +5,7 @@
 .. _user_guides:
 
 User guides
-=========
+===========
 
 This page contains guides and links to resources that show how OpenSTEF can be used.
 
@@ -26,7 +26,7 @@ Each of the user guides below discusses the functionality and purpose of a pipel
 
 
 Forecasting application - full implementation
-----------------------
+---------------------------------------------
 
 For those who wish to set up a fully functioning forecasting application, a 
 `GitHub repository with a reference implementation <https://github.com/OpenSTEF/openstef-reference>`_  is available. 
@@ -37,5 +37,5 @@ More information on what the architecture of such an application could look like
 Screenshot of the operational dashboard showing the key functionality of OpenSTEF. Dashboard documentation can be found `here <https://raw.githack.com/OpenSTEF/.github/main/profile/html/openstef_dashboard_doc.html>`_.
 
 Example Jupyter notebooks
----------
+-------------------------
 Jupyter Notebooks demonstrating some of OpenSTEF's main functionality can be found at: https://github.com/OpenSTEF/openstef-offline-example.

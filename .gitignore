@@ -103,6 +103,8 @@ instance/
 
 # Sphinx documentation
 docs/_build/
+docs/openstef.*
+docs/modules.rst
 
 # PyBuilder
 .pybuilder/

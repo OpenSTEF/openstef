@@ -7,6 +7,4 @@
 Train model pipeline
 ====================
 
-
-First subsection
-----------------
+Coming soon! We are working on improving OpenSTEF's documentation. This documentation page will be available soon.
