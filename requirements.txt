@@ -12,8 +12,8 @@ numpy~=1.22.3
 optuna~=2.10.1
 pandas~=1.4.3
 plotly~=5.8.0
-pvlib==0.9.1
-pydantic~=1.9.0
+pvlib==0.9.3
+pydantic~=1.10.2
 pymsteams~=0.1.14   # TODO remove teams dependency
 pytz~=2021.3
 scikit-learn~=1.1.1
