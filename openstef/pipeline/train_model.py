@@ -166,7 +166,7 @@ def train_model_pipeline_core(
 
     Returns:
         Fitted_model (OpenstfRegressor)
-        Feport (Report)
+        Report (Report)
         Modelspecs (ModelSpecificationDataClass)
         Datasets (Tuple[pd.DataFrame, pd.DataFrame, pd.Dataframe]): The train, validation and test sets
 
