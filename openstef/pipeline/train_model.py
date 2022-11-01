@@ -169,7 +169,6 @@ def train_model_pipeline_core(
         Feport (Report)
         Modelspecs (ModelSpecificationDataClass)
         Datasets (Tuple[pd.DataFrame, pd.DataFrame, pd.Dataframe]): The train, validation and test sets
-    """
 
     """
     if horizons is None:
