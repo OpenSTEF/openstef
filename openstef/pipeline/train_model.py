@@ -38,22 +38,25 @@ def train_model_pipeline(
     mlflow_tracking_uri: str,
     artifact_folder: str,
 ) -> Optional[Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]]:
-    """Middle level pipeline that takes care of all persistent storage dependencies
-    Expected prediction jobs keys: "id", "model", "hyper_params", "feature_names"
+    """Middle level pipeline that takes care of all persistent storage dependencies.
+
+    Expected prediction jobs keys: "id",
+    "model", "hyper_params", "feature_names".
 
     Args:
-        pj (PredictionJobDataClass): Prediction job
-        input_data (pd.DataFrame): Raw training input data
-        check_old_model_age (bool): Check if training should be skipped because the model is too young
-        mlflow_tracking_uri (str): Tracking URI for MLFlow
-        artifact_folder (str): Path where artifacts, such as trained models, are stored
+        pj: Prediction job
+        input_data: Raw training input data
+        check_old_model_age: Check if training should be skipped because the model is too young
+        mlflow_tracking_uri: Tracking URI for MLFlow
+        artifact_folder: Path where artifacts, such as trained models, are stored
 
     Returns:
         If pj.save_train_forecasts is False, None is returned
         Otherwise:
-            train_data (pd.DataFrame): The train dataset with forecasts
-            validation_data (pd.DataFrame): The validation dataset with forecasts
-            test_data (pd.DataFrame): The test dataset with forecasts
+            - The train dataset with forecasts
+            - The validation dataset with forecasts
+            - The test dataset with forecasts
+
     """
     # Initialize logger and serializer
     logger = structlog.get_logger(__name__)
@@ -138,22 +141,23 @@ def train_model_pipeline_core(
     input_data: pd.DataFrame,
     old_model: OpenstfRegressor = None,
     horizons: Union[List[float], str] = None,
-) -> (
+) -> Union[
     OpenstfRegressor,
     Report,
     ModelSpecificationDataClass,
     Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame],
-):
+]:
     """Train model core pipeline.
+
     Trains a new model given a prediction job, input data and compares it to an old model.
     This pipeline has no database or persistent storage dependencies.
 
     Args:
-        pj (PredictionJobDataClass): Prediction job
-        model_specs (ModelSpecificationDataClass): Dataclass containing model specifications
-        input_data (pd.DataFrame): Input data
-        old_model (OpenstfRegressor, optional): Old model to compare to. Defaults to None.
-        horizons (List[float]): horizons to train on in hours.
+        pj: Prediction job
+        model_specs: Dataclass containing model specifications
+        input_data: Input data
+        old_model: Old model to compare to. Defaults to None.
+        horizons: horizons to train on in hours.
 
     Raises:
         InputDataInsufficientError: when input data is insufficient.
@@ -161,12 +165,13 @@ def train_model_pipeline_core(
         OldModelHigherScoreError: When old model is better than new model.
 
     Returns:
-        fitted_model (OpenstfRegressor)
-        report (Report)
-        modelspecs (ModelSpecificationDataClass)
-        datasets (Tuple[pd.DataFrame, pd.DataFrame, pd.Dataframe]): The train, validation and test sets
+        Fitted_model (OpenstfRegressor)
+        Feport (Report)
+        Modelspecs (ModelSpecificationDataClass)
+        Datasets (Tuple[pd.DataFrame, pd.DataFrame, pd.Dataframe]): The train, validation and test sets
     """
 
+    """
     if horizons is None:
         if pj.train_horizons_minutes is None:
             horizons = DEFAULT_TRAIN_HORIZONS
@@ -225,21 +230,21 @@ def train_pipeline_common(
     """Common pipeline shared with operational training and backtest training.
 
     Args:
-        pj (PredictionJobDataClass): Prediction job
-        model_specs (ModelSpecificationDataClass): Dataclass containing model specifications
-        input_data (pd.DataFrame): Input data
-        horizons (List[float]): horizons to train on in hours.
-        test_fraction (float): fraction of data to use for testing
-        backtest (bool): boolean if we need to do a backtest
-        test_data_predefined (pd.DataFrame): Predefined test data frame to be used in the pipeline
+        pj: Prediction job
+        model_specs: Dataclass containing model specifications
+        input_data: Input data
+        horizons: horizons to train on in hours.
+        test_fraction: fraction of data to use for testing
+        backtest: boolean if we need to do a backtest
+        test_data_predefined: Predefined test data frame to be used in the pipeline
             (empty data frame by default)
 
     Returns:
-        trained_model (RegressorMixin): the trained model
-        report (Report): Report
-        train_data (pd.DataFrame): The train data
-        validation_data (pd.DataFrame): The validation data
-        test_data (pd.DataFrame): The test data
+        - The trained model
+        - Report
+        - The train data
+        - The validation data
+        - The test data
 
     Raises:
         InputDataInsufficientError: when input data is insufficient.
@@ -283,16 +288,16 @@ def train_pipeline_step_compute_features(
     input_data: pd.DataFrame,
     horizons=List[float],
 ) -> pd.DataFrame:
-    """Compute features and perform consistency checks
+    """Compute features and perform consistency checks.
 
     Args:
-        pj (PredictionJobDataClass): Prediction job
-        model_specs (ModelSpecificationDataClass): Dataclass containing model specifications
-        input_data (pd.DataFrame): Input data
-        horizons (List[float]): horizons to train on in hours.
+        pj: Prediction job
+        model_specs: Dataclass containing model specifications
+        input_data: Input data
+        horizons: horizons to train on in hours.
 
     Returns:
-        data_with_features (pd.DataFrame): The dataframe with features need to train the model
+        The dataframe with features need to train the model
 
     Raises:
         InputDataInsufficientError: when input data is insufficient.
@@ -347,15 +352,17 @@ def train_pipeline_step_train_model(
     train_data: pd.DataFrame,
     validation_data: pd.DataFrame,
 ) -> OpenstfRegressor:
-    """Train the model
+    """Train the model.
+
     Args:
-        pj (PredictionJobDataClass): Prediction job
-        model_specs (ModelSpecificationDataClass): Dataclass containing model specifications
-        train_data (pd.DataFrame): The training data
-        validation_data (pd.DataFrame): The test data
+        pj: Prediction job
+        model_specs: Dataclass containing model specifications
+        train_data: The training data
+        validation_data: The test data
 
     Returns:
-        trained_model (OpenstfRegressor): The trained model
+        The trained model
+
     """
     # Test if first column is "load" and last column is "horizon"
     if train_data.columns[0] != "load" or train_data.columns[-1] != "horizon":
@@ -421,24 +428,22 @@ def train_pipeline_step_split_data(
     test_fraction: float,
     backtest: bool = False,
     test_data_predefined: pd.DataFrame = pd.DataFrame(),
-) -> (pd.DataFrame, pd.DataFrame, pd.DataFrame):
-    """The default way to perform train, val, test split
+) -> Union[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """The default way to perform train, val, test split.
 
-    if pj.save_train_forecasts:
-        train_data["forecast"] = model.predict(train_data.iloc[:, 1:-1])
-        validation_data["forecast"] = model.predict(validation_data.iloc[:, 1:-1])
-        test_data["forecast"] = model.predict(test_data.iloc[:, 1:-1])
-
-    return model, report, train_data, validation_data, test_data
     Args:
-        data_with_features (pd.DataFrame): Input data
-        pj (PredictionJobDataClass): Prediction job
-        test_fraction (float): fraction of data to use for testing
-        backtest (bool): boolean if we need to do a backtest
-        test_data_predefined (pd.DataFrame): Predefined test data frame to be used in the pipeline
+        data_with_features: Input data
+        pj: Prediction job
+        test_fraction: fraction of data to use for testing
+        backtest: boolean if we need to do a backtest
+        test_data_predefined: Predefined test data frame to be used in the pipeline
             (empty data frame by default)
+
     Returns:
-        train_data, validation_data, test_data: The train, validation and test datasets.
+        - Train dataset
+        - Validation dataset
+        - Test dataset
+
     """
     # if test_data is predefined, apply the pipeline only on the remaining data
     if not test_data_predefined.empty:

@@ -61,7 +61,9 @@ class MLflowSerializer:
         **kwargs,
     ) -> None:
         """Log model with MLflow.
+
         Note: **kwargs has extra information to be logged with mlflow
+
         """
         # Get previous run id
         models_df = self._find_models(
@@ -131,7 +133,12 @@ class MLflowSerializer:
         self,
         experiment_name: str,
     ) -> Tuple[OpenstfRegressor, ModelSpecificationDataClass]:
-        """Load sklearn compatible model from MLFlow."""
+        """Load sklearn compatible model from MLFlow.
+
+        Args:
+            experiment_name: Name of the experiment, often the id of the predition job.
+
+        """
         try:
             models_df = self._find_models(
                 experiment_name, max_results=1
@@ -163,7 +170,13 @@ class MLflowSerializer:
     def get_model_age(
         self, experiment_name: str, hyperparameter_optimization_only: bool = False
     ) -> int:
-        """Get model age of most recent model."""
+        """Get model age of most recent model.
+
+        Args:
+            experiment_name: Name of the experiment, often the id of the predition job.
+            hyperparameter_optimization_only: Set to true if only hyperparameters optimaisation events should be considered.
+
+        """
         filter_string = "attribute.status = 'FINISHED'"
         if hyperparameter_optimization_only:
             filter_string += " AND tags.phase = 'Hyperparameter_opt'"
@@ -257,7 +270,9 @@ class MLflowSerializer:
         """Remove old models per experiment.
 
         Note: This functionality is not incorporated in MLFlow natively
-        See also: https://github.com/mlflow/mlflow/issues/2152"""
+        See also: https://github.com/mlflow/mlflow/issues/2152
+
+        """
         if max_n_models < 1:
             raise ValueError(
                 f"Max models to keep should be greater than 1! Received: {max_n_models}"
@@ -383,5 +398,8 @@ class MLflowSerializer:
 
     def _get_model_uri(self, artifact_uri: str) -> str:
         """Set model uri based on latest run.
-        Note: this function helps to mock during unit tests"""
+
+        Note: this function helps to mock during unit tests
+
+        """
         return os.path.join(artifact_uri, "model/")

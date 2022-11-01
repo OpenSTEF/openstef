@@ -2,10 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-""" This module contains historic load related functions used for feature engineering.
-
-"""
-from typing import List
+"""This module contains historic load related functions used for feature engineering."""
 
 import pandas as pd
 import structlog
@@ -17,14 +14,14 @@ def add_historic_load_as_a_feature(
     data: pd.DataFrame,
     pj: PredictionJobDataClass = None,
 ) -> pd.DataFrame:
-    """Adds additional proloaf features to the input data, historic_load (equal to the load)
+    """Adds additional proloaf features to the input data, historic_load (equal to the load).
 
     Args:
-        data (pd.DataFrame): Dataframe to which the wind features have to be added
-        pj (PredictionJobDataClass): Prediction job.
+        data: Dataframe to which the wind features have to be added
+        pj: Prediction job.
 
     Returns:
-        pd.DataFrame same as input dataframe with extra columns for the added proloaf features
+        DataFrame that is the same as input dataframe with extra columns for the added proloaf features
 
     """
     logger = structlog.get_logger(__name__)

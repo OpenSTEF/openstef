@@ -11,13 +11,14 @@ MINIMAL_RESOLUTION: int = 15  # Used for validating the forecast input
 class BaseCaseModel(BaseEstimator, RegressorMixin):
     def predict(self, forecast_input_data: pd.DataFrame) -> pd.DataFrame:
         """Predict using the basecase method. The basecase forecast is determined by the T-7d and T-14d load.
-        This means fitting the model is not required.
-        However a fit method is still included to be fully comatible with sklearn.
+
+        This means fitting the model is not required. However a fit method is still included to be fully comatible with sklearn.
 
         Args:
-            forecast_input_data (pd.DataFrame): Forecast input dataframe
+            forecast_input_data: Forecast input dataframe
 
-        Returns: pd.DataFrame: Basecase forecast
+        Returns:
+            Basecase forecast
 
         """
         return self.make_basecase_forecast(forecast_input_data)
@@ -29,20 +30,21 @@ class BaseCaseModel(BaseEstimator, RegressorMixin):
     def make_basecase_forecast(
         forecast_input_data: pd.DataFrame, overwrite_delay_hours: int = 48
     ) -> pd.DataFrame:
-        """Make a basecase forecast. THe idea of the basecase forecast is that if all else fails, this forecasts is
-            still available.
-            Basecase example: the load of last week.
+        """Make a basecase forecast.
+
+        The idea of the basecase forecast is that if all else fails, this forecasts is
+        still available. Basecase example: the load of last week.
+
         Args:
-            forecast_input_data (pd.DataFrame): Forecast input dataframe
-            overwrite_delay_hours (float): times before this in the future are not
+            forecast_input_data: Forecast input dataframe
+            overwrite_delay_hours: times before this in the future are not
                 forecasted
 
         Raises:
             ValueError: if columns T-7d or T-14d is not present
             ValueError: If the start of the forecast is before the horizon of the regular forecast
         Returns:
-            pd.DataFrame: Basecase forecast
-
+            Basecase forecast
 
         """
         # Check if required features are provided

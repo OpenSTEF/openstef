@@ -21,7 +21,17 @@ SPDX-License-Identifier: MPL-2.0
 
 # OpenSTEF
 
-OpenSTEF is a Python package which is used to make short term forecasts for the energy sector. This repository contains all components for the machine learning pipeline required to make a forecast. In order to use the package you need to provide your own data storage and retrieval interface. `openstef` is available at: https://pypi.org/project/openstef/
+OpenSTEF is a Python package which is used to make short term forecasts for the energy sector. This repository contains all components for the machine learning pipeline required to make a forecast. In order to use the package you need to provide your own data storage and retrieval interface. 
+
+Find the latest information on the project on [the project's website](https://www.lfenergy.org/projects/openstef/).
+
+The `openstef` Python package is available at: https://pypi.org/project/openstef/. 
+
+Documentation is available at: https://openstef.github.io/openstef/index.html. 
+
+You can also watch a [video about OpenSTEF](https://www.lfenergy.org/forecasting-to-create-a-more-resilient-optimized-grid/) instead of reading about the project.
+
+Want to join the discussion? Join our [Teams channel](https://teams.microsoft.com/l/team/19%3ac08a513650524fc988afb296cd0358cc%40thread.tacv2/conversations?groupId=bfcb763a-3a97-4938-81d7-b14512aa537d&tenantId=697f104b-d7cb-48c8-ac9f-bd87105bafdc).
 
 # Installation
 
@@ -35,6 +45,13 @@ _**Optional**_: if you would like to use the proloaf model with OpenSTEF install
 ```shell
 pip install openstef[proloaf]
 ```
+### Remark regarding installation within a **conda environment on Windows**:
+
+A version of the pywin32 package will be installed as a secondary dependency along with the installation of the openstef package. Since conda relies on an old version of pywin32, the new installation can break conda's functionality. The following command can solve this issue:
+```shell
+pip install pywin32==300
+```
+For more information on this issue see the [readme of pywin32](https://github.com/mhammond/pywin32#installing-via-pip) or [this Github issue](https://github.com/mhammond/pywin32/issues/1865#issue-1212752696).
 
 # Usage
 

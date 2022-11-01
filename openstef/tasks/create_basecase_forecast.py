@@ -1,12 +1,9 @@
 # SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+"""This module should be executed once every day.
 
-# -*- coding: utf-8 -*-
-"""create_basecase_forecast.py
-
-This module should be executed once every day. For all prediction_jobs, it will
-create a 'basecase' forecast which is less accurate, but (almost) always available.
+For all prediction_jobs, it will create a 'basecase' forecast which is less accurate, but (almost) always available.
 For now, it uses the load a week earlier.
 Missing datapoints are interpolated.
 
@@ -17,6 +14,7 @@ Example:
     Alternatively this code can be run directly by running:
 
         $ python create_basecase_forecast.py
+
 """
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -36,11 +34,13 @@ def create_basecase_forecast_task(
     pj: PredictionJobDataClass, context: TaskContext
 ) -> None:
     """Top level task that creates a basecase forecast.
+
     On this task level all database and context manager dependencies are resolved.
 
     Args:
-        pj (PredictionJobDataClass): Prediction job
-        context (TaskContext): Contect object that holds a config manager and a database connection
+        pj: Prediction job
+        context: Contect object that holds a config manager and a database connection
+
     """
     # Define datetime range for input data
     datetime_start = datetime.utcnow() - timedelta(days=T_BEHIND_DAYS)
@@ -69,7 +69,7 @@ def create_basecase_forecast_task(
     context.database.write_forecast(basecase_forecast, t_ahead_series=True)
 
 
-def main(config=None, database=None):
+def main(config: object = None, database: object = None):
     taskname = Path(__file__).name.replace(".py", "")
 
     if database is None or config is None:

@@ -1,21 +1,21 @@
 # SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+from typing import List, Union
+from abc import abstractmethod
 from typing import Optional
 
 import numpy as np
 import pandas as pd
-from abc import abstractmethod
 from sklearn.base import BaseEstimator, RegressorMixin
 
 
 class OpenstfRegressor(BaseEstimator):
-    """
-    This class defines the interface to which all ML models within OpenSTEF should adhere.
+    """This class defines the interface to which all ML models within OpenSTEF should adhere.
 
-    Required methods are indicated by abstractmethods, for which concrete implementations
-    of ML models should have a definition. Common functionality which is required for the
-    automated pipelines in OpenSTEF is defined in this class.
+    Required methods are indicated by abstractmethods, for which concrete implementations of ML models should have a
+    definition. Common functionality which is required for the automated pipelines in OpenSTEF is defined in this class.
+
     """
 
     def __init__(self):
@@ -23,58 +23,62 @@ class OpenstfRegressor(BaseEstimator):
         self.feature_importances_ = None
 
     def score(self, X, y):
-        """Makes `score` method from RegressorMixin available"""
+        """Makes `score` method from RegressorMixin available."""
         return RegressorMixin.score(self, X, y)
 
     ## Define abstract methods required to be implemented by concrete models
     @property
     @abstractmethod
-    def feature_names(self):
-        """Retrieve the model input feature names
+    def feature_names(self) -> List:
+        """Retrieve the model input feature names.
 
         Returns:
             The list of feature names
+
         """
-        pass
 
     @property
     @abstractmethod
     def can_predict_quantiles(self) -> bool:
         """Attribute that indicates if the model predict particular quantiles.
-        e.g. XGBQuantileOpenstfRegressor"""
-        pass
+
+        e.g. XGBQuantileOpenstfRegressor
+
+        """
 
     @abstractmethod
     def predict(self, x: pd.DataFrame, **kwargs) -> np.array:
-        """Makes a prediction. Only available after the model has been trained
+        """Makes a prediction. Only available after the model has been trained.
+
         Args:
-            x (np.array): Feature matrix
+            x: Feature matrix
             kwargs: model-specific keywords
 
         Returns:
-            (np.array): prediction
+            Prediction
+
         """
-        pass
 
     @abstractmethod
     def fit(self, x: np.array, y: np.array, **kwargs) -> RegressorMixin:
-        """Fits the regressor
+        """Fits the regressor.
 
         Args:
-            x (np.array): Feature matrix
-            y (np.array): Labels
+            x: Feature matrix
+            y: Labels
             kwargs: model-specific keywords
 
         Returns:
             Fitted model
-        """
-        pass
 
-    def set_feature_importance(self) -> Optional[pd.DataFrame]:
-        """get feature importance.
+        """
+
+    def set_feature_importance(self) -> Union[pd.DataFrame, None]:
+        """Get feature importance.
 
         Returns:
-         pd.DataFrame
+            DataFrame with feature importance.
+
         """
         # returns a dict if we can get feature importance else returns None
         importance_names = self._get_importance_names()
@@ -101,11 +105,11 @@ class OpenstfRegressor(BaseEstimator):
         return feature_importance
 
     @staticmethod
-    def _get_importance_names() -> Optional[dict]:
-        """Get importance names if applicable
+    def _get_importance_names() -> Union[dict, None]:
+        """Get importance names if applicable.
 
         Returns:
-            Optional (dict): Returns a dict or None, return None if the model can't get feature importance
+            A dict or None, return None if the model can't get feature importance
 
         """
         return None

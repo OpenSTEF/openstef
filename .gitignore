@@ -103,12 +103,14 @@ instance/
 
 # Sphinx documentation
 docs/_build/
-docs/openstef.*
-docs/modules.rst
+docs/openstef*.rst
+docs/modules*.rst
+
 
 # PyBuilder
 .pybuilder/
 target/
+
 
 # Jupyter Notebook
 .ipynb_checkpoints
