@@ -7,8 +7,8 @@ Welcome to the documentation of OpenSTEF!
 
 OpenSTEF is a Python package which is used to make short term forecasts for the energy sector.
 It contains all components for the machine learning pipeline required to make a forecast.
-In order to use the package you need to provide your own data storage and retrieval interface.
-OpenSTEF is available at: https://pypi.org/project/openstef/.
+In order to use the package, you need to provide your own data storage and retrieval interface.
+The ``openstef`` Python package is available at: https://pypi.org/project/openstef/.
 
 Get started using the :ref:`quickstart` or by reading about the :ref:`concepts`.
 
@@ -21,11 +21,15 @@ Get started using the :ref:`quickstart` or by reading about the :ref:`concepts`.
     dazls
     code_modules
     
-
+More on OpenSTEF
+================
+- Find the latest information on the project on `the project's website <https://www.lfenergy.org/projects/openstef/>`_. 
+- You can also watch a `video about OpenSTEF <https://www.lfenergy.org/forecasting-to-create-a-more-resilient-optimized-grid/>`_, instead of reading about the project.
+- Want to join the discussion? Join our `Teams channel <https://teams.microsoft.com/l/team/19%3ac08a513650524fc988afb296cd0358cc%40thread.tacv2/conversations?groupId=bfcb763a-3a97-4938-81d7-b14512aa537d&tenantId=697f104b-d7cb-48c8-ac9f-bd87105bafdc>`_.
 
 Contributing
 ============
-Please read `CODE_OF_CONDUCT.md <https://github.com/OpenSTEF/.github/blob/main/CODE_OF_CONDUCT.md>`_, `CONTRIBUTING.md <https://github.com/OpenSTEF/.github/blob/main/CONTRIBUTING.md>`_ and `PROJECT_GOVERNANCE.md <https://github.com/OpenSTEF/.github/blob/main/PROJECT_GOVERNANCE.md>`_ for details on the process for submitting pull requests to us.
+Please read `CONTRIBUTING.md <https://github.com/OpenSTEF/.github/blob/main/CONTRIBUTING.md>`_, `CODE_OF_CONDUCT.md <https://github.com/OpenSTEF/.github/blob/main/CODE_OF_CONDUCT.md>`_, and `PROJECT_GOVERNANCE.md <https://github.com/OpenSTEF/.github/blob/main/PROJECT_GOVERNANCE.md>`_ for details on the process for submitting pull requests to us.
 
 License
 =======
