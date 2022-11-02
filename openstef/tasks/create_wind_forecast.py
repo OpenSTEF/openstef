@@ -2,31 +2,33 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-"""create_wind_forecast
-This module contains the CRON job that is periodically executed to make prognoses of
-wind features.
+"""This module contains the CRON job that is periodically executed to make prognoses of wind features.
+
 These features are usefull for splitting the load in solar and wind contributions and
 making prognoses.
+
 Example:
     This module is meant to be called directly from a CRON job. A description of the
     CRON job can be found in the /k8s/CronJobs folder.
     Alternatively this code can be run directly by running::
         $ python create_wind_forecast
-Attributes:
 
 """
 from pathlib import Path
 
+from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.feature_engineering import weather_features
 from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstef.tasks.utils.taskcontext import TaskContext
 
 
-def make_wind_forecast_pj(pj, context):
-    """Make a wind prediction for a specific prediction job
+def make_wind_forecast_pj(pj: PredictionJobDataClass, context: TaskContext) -> None:
+    """Make a wind prediction for a specific prediction job.
 
     Args:
-        pj: (dict) prediction job
+        pj: Prediction job
+        context: Context manager
+
     """
     context.logger.info("Get turbine data", turbine_type=pj["turbine_type"])
     turbine_data = context.database.get_power_curve(pj["turbine_type"])

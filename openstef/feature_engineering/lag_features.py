@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-
+"""This module contains all lag features."""
 import re
 from typing import List, Tuple
 
@@ -16,15 +16,19 @@ def generate_lag_feature_functions(
     """Creates functions to generate lag features in a dataset.
 
     Args:
-        feature_names (list of strings): minute lagtimes that where used during training
+        feature_names: minute lagtimes that where used during training
             of the model. If empty a new set will be automatically generated.
-        horizon (float): Forecast horizon limit in hours.
+        horizon: Forecast horizon limit in hours.
 
     Returns:
-        dict: Lag functions.
+        Lag functions.
 
     Example:
+
+    .. code-block:: py
+
         lag_functions = generate_lag_functions(data,minute_list,h_ahead)
+
     """
     # Use extracted lag features if provided.
     if feature_names is not None:
@@ -59,18 +63,17 @@ def generate_lag_feature_functions(
 def extract_lag_features(
     feature_names: List[str], horizon: float = 24.0
 ) -> Tuple[list, list]:
-    """Creates a list of lag minutes and a list of lag days that were used during
-    the training of the input model.
+    """Creates a list of lag minutes and a list of lag days that were used during the training of the input model.
 
     Args:
-        feature_names (List[str]): All requested lag features
-        horizon (float): Forecast horizon limit in hours.
+        feature_names: All requested lag features
+        horizon: Forecast horizon limit in hours.
 
     Returns:
-        minutes_list (List[int]): list of minute lags that were used as features during training
-        days_list (List[int]): list of minute lags that were used as features during training
-    """
+        - List of minute lags that were used as features during training.
+        - List of days lags that were used as features during training.
 
+    """
     # Prepare empty lists to append on
     minutes_list = []
     days_list = []
@@ -97,14 +100,14 @@ def extract_lag_features(
 def generate_trivial_lag_features(horizon: float) -> Tuple[list, list]:
     """Generates relevant lag times for lag feature function creation.
 
-    This function is mostly used during training of models and not during predicting
+    This function is mostly used during training of models and not during predicting.
 
     Args:
         horizon: Forecast horizon limit in hours.
 
     Returns:
-        minutes_list (List[int]): list of minute lags that were used as features during training
-        days_list (List[int]): list of minute lags that were used as features during training
+        - List of minute lags that were used as features during training.
+        - List of days lags that were used as features during training.
 
     """
     mindays = int(np.ceil(horizon / 24))
@@ -123,21 +126,23 @@ def generate_trivial_lag_features(horizon: float) -> Tuple[list, list]:
 
 def generate_non_trivial_lag_times(
     data: pd.DataFrame, height_treshold: float = 0.1
-) -> list:
-    """Calculates an autocorrelation curve of the load trace. This curve is
-        subsequently used to add additional lag times as features.
+) -> List[int]:
+    """Calculate an autocorrelation curve of the load trace.
+
+    This curve is subsequently used to add additional lag times as features.
 
     Args:
-        data (pandas.DataFrame): a pandas dataframe with input data in the form pd.DataFrame(index = datetime,
+        data: Dataframe with input data in the form pd.DataFrame(index = datetime,
                              columns = [label, predictor_1,..., predictor_n])
-        height_treshold (float): minimal autocorrelation value to be recognized as a peak.
+        height_treshold: Minimal autocorrelation value to be recognized as a peak.
 
     Returns:
-        list: Aditional non-trivial minute lags
+        Aditional non-trivial minute lags
+
     """
 
     def autocorr(x: np.array, lags: range) -> np.array:
-        """Make an autocorrelation curve"""
+        """Make an autocorrelation curve."""
         mean = x.mean()
         var = np.var(x)
         xp = x - mean

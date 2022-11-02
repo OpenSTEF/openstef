@@ -1,30 +1,31 @@
 # SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+"""This module defines the DAZL model."""
 import numpy as np
-from sklearn.metrics import r2_score, mean_squared_error
-from sklearn.neighbors import KNeighborsRegressor
-from sklearn.utils import shuffle
 from sklearn.base import BaseEstimator
+from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.neighbors import KNeighborsRegressor
 from sklearn.preprocessing import MinMaxScaler
-
-
-# DAZLS algorithm
+from sklearn.utils import shuffle
 
 
 class Dazls(BaseEstimator):
-    """
-    The model carries out wind and solar power prediction for unseen target substations using training data from other
-    substations with known components.
+    """DAZLS model.
+
+    The model carries out wind and solar power prediction for unseen target substations using training data from
+    other substations with known components.
 
     Any data-driven model can be plugged and used as the base for the domain and the adaptation model.
 
     For a full reference, see:
     Teng, S.Y., van Nooten, C. C., van Doorn, J.M., Ottenbros, A., Huijbregts, M., Jansen, J.J.
     Improving Near Real-Time Predictions of Renewable Electricity Production at Substation Level (Submitted)
+
     """
 
     def __init__(self):
+        """Initialize DAZL model."""
         self.__name__ = "DAZLS"
         self.domain_model_scaler = MinMaxScaler(clip=True)
         self.adaptation_model_scaler = MinMaxScaler(clip=True)
@@ -66,17 +67,17 @@ class Dazls(BaseEstimator):
         self.target_columns = ["total_wind_part", "total_solar_part"]
 
     def fit(self, features, target):
+        """Fit the model.
+
+        In this function we scale the input of the domain and adaptation models of the DAZLS MODEL. Then we fit the
+        two models. We separate the features into domain_model_input, adaptation_model_input and target, and we use them
+        for the fitting and the training of the models.
+
+        Args:
+            features: inputs for domain and adaptation model (domain_model_input, adaptation_model_input)
+            target: the expected output (y_train)
+
         """
-        In this function we scale the input of the domain and adaptation models of the DAZLS MODEL.
-        Then we fit the two models.
-        We separate the features into domain_model_input, adaptation_model_input and target,
-        and we use them for the fitting and the training of the models.
-
-        :param features: inputs for domain and adaptation model (domain_model_input, adaptation_model_input)
-        :param target: the expected output (y_train)
-
-        """
-
         x, x2, y = (
             features.loc[:, self.domain_model_input_columns],
             features.loc[:, self.adaptation_model_input_columns],
@@ -103,12 +104,15 @@ class Dazls(BaseEstimator):
         self.adaptation_model.fit(adaptation_model_input, y_train)
 
     def predict(self, x: np.array):
-        """
-        For the prediction we use the test data x. We use domain_model_input_columns and adaptation_model_input_columns
-        to separate x in test data for domain model and adaptation model respectively.
+        """Make a prediction.
 
-        :param x (np.array): domain_model_test_data, adaptation_model_test_data
-        :return prediction (np.array): The output prediction after both models.
+        For the prediction we use the test data x. We use domain_model_input_columns and
+        adaptation_model_input_columns to separate x in test data for domain model and adaptation model respectively.
+
+        Args:
+            x: domain_model_test_data, adaptation_model_test_data
+            prediction: The output prediction after both models.
+
         """
         domain_model_test_data, adaptation_model_test_data = (
             x.loc[:, self.domain_model_input_columns],
@@ -138,15 +142,16 @@ class Dazls(BaseEstimator):
         return prediction
 
     def score(self, truth, prediction):
+        """Evaluation of the prediction's output.
+
+        Args:
+            truth: real values
+            prediction: predicted values
+
+        Returns:
+            RMSE and R2 scores
+
         """
-        Evaluation of the prediction's output.
-
-        :param truth: real values
-        :param prediction: predicted values
-
-        :return: RMSE and R2 scores
-        """
-
         rmse = (mean_squared_error(truth, prediction)) ** 0.5
         r2_score_value = r2_score(truth, prediction)
         return rmse, r2_score_value

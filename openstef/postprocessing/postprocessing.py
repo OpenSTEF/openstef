@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-
+from typing import Dict
 from enum import Enum
 
 import numpy as np
@@ -20,17 +20,18 @@ TURBINE_DATA = {
 }
 
 
-def normalize_and_convert_weather_data_for_splitting(weather_data):
+def normalize_and_convert_weather_data_for_splitting(
+    weather_data: pd.DataFrame,
+) -> pd.DataFrame:
     """Normalize and converts weather data for use in energy splitting.
 
     Args:
-        weather_data (pd.DataFrame): Weather data with "windspeed_100m" and "radiation".
+        weather_data: Weather data with "windspeed_100m" and "radiation".
 
     Returns:
-         pd.DataFrame: Dataframe with "windpower" and "radiation" columns.
+         Dataframe with "windpower" and "radiation" columns.
 
     """
-
     # Check we have "windspeed_100m" and "radiation" available
     if not all(
         elem in weather_data.columns for elem in ["windspeed_100m", "radiation"]
@@ -60,17 +61,18 @@ def normalize_and_convert_weather_data_for_splitting(weather_data):
 def calculate_wind_power(
     windspeed_100m: pd.DataFrame,
 ) -> pd.DataFrame:
-
     """Calculate the generated wind power based on the wind speed.
-    Values are related through the power curve, which is described by turbine_data.
-    Default values are used and are normalized to 1MWp.
 
-    args:
-    - windspeed_100m: pd.DataFrame (index = datetime, columns = ["windspeed_100m"])
+    Values are related through the power curve, which is
+    described by turbine_data. Default values are used and are normalized to 1MWp.
 
-    returns:
-    - pd.DataFrame(index = datetime, columns = ["windenergy"])"""
+    Args:
+        windspeed_100m: Example: ``pd.DataFrame (index = datetime, columns = ["windspeed_100m"])``
 
+    Returns:
+        Example output ``pd.DataFrame(index = datetime, columns = ["windenergy"])``
+
+    """
     generated_power = TURBINE_DATA["rated_power"] / (
         1
         + np.exp(
@@ -80,21 +82,20 @@ def calculate_wind_power(
     return generated_power["windspeed_100m"].rename("windenergy").to_frame()
 
 
-def split_forecast_in_components(forecast, weather_data, split_coefs):
-    """Function that makes estimates of energy components based on given forecast,
-        previously determine splitting coefficients and relevant weather data.
+def split_forecast_in_components(
+    forecast: pd.DataFrame, weather_data: pd.DataFrame, split_coefs: Dict
+) -> Dict[str, pd.DataFrame]:
+    """Make estimates of energy components based on given forecast.
 
     Args:
-        forecast(pd.DataFrame): KTP load forecast
-        weather_data (pd.DataFrame): Weather data for energy splitting, at least:
-            "windspeed_100m" and "radiation"
-        split_coefs (dict): Previously determined splitting coefs for prediction job
+        forecast: KTP load forecast
+        weather_data: Weather data for energy splitting, at least; "windspeed_100m" and "radiation"
+        split_coefs: Previously determined splitting coefs for prediction job
 
     Returns:
-        dict: Forecast dataframe for each component
+        Forecast dataframe for each component
 
     """
-
     # Normalize weather data
     weather_ref_profiles = normalize_and_convert_weather_data_for_splitting(
         weather_data
@@ -150,7 +151,9 @@ def split_forecast_in_components(forecast, weather_data, split_coefs):
     return components.drop("forecast", axis=1).drop("stdev", axis=1).dropna()
 
 
-def post_process_wind_solar(forecast: pd.Series, forecast_type):
+def post_process_wind_solar(
+    forecast: pd.Series, forecast_type: ForecastType
+) -> pd.DataFrame:
     """Function that caries out postprocessing for wind and solar power generators.
 
         As these points will always produce energy, predicted energy consumption is
@@ -159,12 +162,12 @@ def post_process_wind_solar(forecast: pd.Series, forecast_type):
         assumed to be the energy production and the other side the energy consumption.
 
     Args:
-        forecast (pd.Series): Series with forecast data.
-        forecast_type (ForecastType): Specifies the type of forecast. This can be retrieved
+        forecast: Series with forecast data.
+        forecast_type: Specifies the type of forecast. This can be retrieved
             from the prediction job as pj['forecast_type']
 
     Returns:
-        forecast (pd.DataFrame): post-processed forecast.
+        Post-processed forecast.
 
     """
     logger = structlog.get_logger(__name__)
@@ -192,10 +195,11 @@ def post_process_wind_solar(forecast: pd.Series, forecast_type):
 
 
 def add_components_base_case_forecast(basecase_forecast: pd.DataFrame) -> pd.DataFrame:
-    """Makes a basecase forecast for the forecast_other component. This will make a
-        simple basecase components forecast available and ensures that the sum of
-        the components (other, wind and solar) is equal to the normal basecase forecast
-        This is important for sending GLMD messages correctly to TenneT!
+    """Makes a basecase forecast for the forecast_other component.
+
+    This will make a simple basecase components forecast
+    available and ensures that the sum of the components (other, wind and solar) is equal to the normal basecase
+    forecast This is important for sending GLMD messages correctly to TenneT!
 
     Args:
         basecase_forecast: pd.DataFrame with basecase forecast
@@ -204,7 +208,6 @@ def add_components_base_case_forecast(basecase_forecast: pd.DataFrame) -> pd.Dat
         basecase_forecast: pd.DataFrame with extra "forecast_other component"
 
     """
-    #
     basecase_forecast["forecast_other"] = basecase_forecast["forecast"]
     return basecase_forecast
 
@@ -216,7 +219,19 @@ def add_prediction_job_properties_to_forecast(
     forecast_type: Enum = None,
     forecast_quality: str = None,
 ) -> pd.DataFrame:
+    """Adds prediciton job meta data to a forecast dataframe.
 
+    Args:
+        pj: Prediciton job.
+        forecast: Forecast dataframe
+        algorithm_type: Type of algirithm used for making the forecast.
+        forecast_type: Type of the forecast. Defaults to None.
+        forecast_quality: Quality of the forecast. Defaults to None.
+
+    Returns:
+        Dataframe with added metadata.
+
+    """
     logger = structlog.get_logger(__name__)
 
     logger.info("Postproces in preparation of storing")

@@ -1,7 +1,8 @@
 # SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-
+"""This module contains all functions for generating figures."""
+from typing import List, Union
 import base64
 
 import pandas as pd
@@ -9,15 +10,15 @@ import plotly.express as px
 import plotly.graph_objects as go
 
 
-def plot_feature_importance(feature_importance):
+def plot_feature_importance(feature_importance: pd.DataFrame) -> go.Figure:
     """Created a treemap plot based on feature importance and weights.
 
     Args:
-        feature_importance (pandas.DataFrame): A DataFrame describing the
+        feature_importance: A DataFrame describing the
             feature importances and weights of the trained model.
 
     Returns:
-        plotly.graph_objects.Figure: A treemap of the features.
+        A treemap of the features.
 
     """
     feature_importance["parent"] = "Feature importance"
@@ -45,25 +46,30 @@ def plot_feature_importance(feature_importance):
     )
 
 
-def plot_data_series(data, predict_data=None, horizon=47, names=None):
+def plot_data_series(
+    data: Union[List[pd.DataFrame], List[pd.Series]],
+    predict_data: Union[List[pd.DataFrame], List[pd.Series]] = None,
+    horizon: int = 47,
+    names: List[str] = None,
+) -> go.Figure:
     """Plots passed data and optionally prediction data for specified horizon.
 
     Args:
-        data (list of mixed): There are two options to use this function. Either
+        data: There are two options to use this function. Either
             pass a list of pandas.DataFrame where each dataframe contains a load
             column and a horizon column. Or pass a list of pandas.Series with
             unique indexing.
-        predict_data (list of mixsed, optional): Similar to data, but
+        predict_data: Similar to data, but
             for prediction data instead. When passing a list of pandas.DataFrame
             the column forecast should exist. Can be set to None.
-        horizon (int, optional): This function will select only data matching
+        horizon: This function will select only data matching
             this horizon. Defaults to 47.
-        names (list of string, optional): The names that will be used in the
+        names: The names that will be used in the
             legend of the plot. If None is passed, this will be build
             automatically based on the number of series passed.
 
     Returns:
-        plotly.graph_objects.Figure: A line plot of each passed data series.
+        A line plot of each passed data series.
 
     """
     series_names = {
@@ -117,18 +123,18 @@ def plot_data_series(data, predict_data=None, horizon=47, names=None):
     return fig
 
 
-def _plot_data(names, series):
+def _plot_data(names: List[str], series: List[pd.Series]) -> go.Figure:
     """Create plot of data consisting of different splits.
 
     Note:
         Do not use this function directly, use plot_data_series instead.
 
     Args:
-        names (list of string): Name of each seperate split.
-        series (list of pandas.Series): Each split as a seperate series.
+        names: Name of each seperate split.
+        series: Each split as a seperate series.
 
     Returns:
-        plotly.graph_objects.Figure: A line plot of each passed series.
+        A line plot of each passed series.
 
     """
     # Build a combined DataFrame with all data.
@@ -160,20 +166,21 @@ def _plot_data(names, series):
     return fig
 
 
-def _plot_data_and_predictions(names, actuals, predictions):
+def _plot_data_and_predictions(
+    names: List[str], actuals: List[pd.Series], predictions: List[pd.Series]
+) -> go.Figure:
     """Create plot of different data and prediction splits.
 
     Note:
         Do not use this function directly, use plot_data_series instead.
 
     Args:
-        names (list of string): Name of each seperate split. The passed names will be
-            suffixed with _actual and _predict for data and predictions respectively.
-        actuals (list of pandas.Series): Each data split as a seperate series.
-        predictions (list of pandas.Series): Each prediction split as a seperate series.
+        names: Name of each seperate split. The passed names will be suffixed with _actual and _predict for data and predictions respectively.
+        actuals: Each data split as a seperate series.
+        predictions: Each prediction split as a seperate series.
 
     Returns:
-        plotly.graph_objects.Figure: A line plot of each passed series.
+        A line plot of each passed series.
 
     """
     # Build a combined DataFrame with all data.
@@ -216,20 +223,16 @@ def _plot_data_and_predictions(names, actuals, predictions):
     return fig
 
 
-def convert_to_base64_data_uri(path_in, path_out, content_type):
+def convert_to_base64_data_uri(path_in: str, path_out: str, content_type: str) -> None:
     """Read file, convert it to a data_uri, then writes the data_uri to file.
 
     Args:
-        path_in (str): Path of the file that will be converted
-        path_out (str): Path of the file containing the data uri
-        content_type (str): Content type of the data uri according to
+        path_in: Path of the file that will be converted
+        path_out: Path of the file containing the data uri
+        content_type: Content type of the data uri according to
             (https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type).
 
-    Returns:
-        None
-
     """
-
     with open(path_in, "rb") as f:
         encoded = base64.b64encode(f.read()).decode()
 

@@ -1,7 +1,6 @@
 # SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-
 from datetime import timedelta
 from typing import Union
 
@@ -18,20 +17,22 @@ def validate(
     flatliner_threshold: Union[int, None],
 ) -> pd.DataFrame:
     """Validate prediction job and timeseries data.
+
     Steps:
     1. Replace repeated values for longer than flatliner_threshold with NaN
     # TODO: The function description suggests it
     'validates' the PJ and Data, but is appears to 'just' replace repeated observations with NaN.
 
     Args:
-        - pj_id: ind/str, used to identify log statements
-        - data: pd.DataFrame where the first column should be the target. index=datetimeIndex
-        - flatliner_threshold: int of max repetitions considered a flatline.
+        pj_id: ind/str, used to identify log statements
+        data: pd.DataFrame where the first column should be the target. index=datetimeIndex
+        flatliner_threshold: int of max repetitions considered a flatline.
             if None, the validation is effectively skipped
 
     Returns:
-        Dataframe where repeated values are set to None"""
+        Dataframe where repeated values are set to None
 
+    """
     logger = structlog.get_logger(__name__)
 
     if flatliner_threshold is None:
@@ -76,8 +77,7 @@ def drop_target_na(data: pd.DataFrame) -> pd.DataFrame:
 def is_data_sufficient(
     data: pd.DataFrame, completeness_threshold: float, minimal_table_length: int
 ) -> bool:
-    """Check if enough data is left after validation and cleaning to continue
-        with model training.
+    """Check if enough data is left after validation and cleaning to continue with model training.
 
     Args:
         data: pd.DataFrame() with cleaned input data.
@@ -86,7 +86,7 @@ def is_data_sufficient(
         minimal_table_length: int with minimal table length (in rows)
 
     Returns:
-        (bool): True if amount of data is sufficient, False otherwise.
+        True if amount of data is sufficient, False otherwise.
 
     """
     logger = structlog.get_logger(__name__)
@@ -129,17 +129,17 @@ def calc_completeness(
     NOTE: NA values count as incomplete
 
     Args:
-        df (pd.DataFrame): Dataframe with a datetimeIndex index
+        df: Dataframe with a datetimeIndex index
         weights: Array-compatible with size equal to columns of df.
             used to weight the completeness of each column
-        time_delayed (bool): Should there be a correction for T-x columns
-        homogenise (bool): Should the index be resampled to median time delta -
+        time_delayed: Should there be a correction for T-x columns
+        homogenise: Should the index be resampled to median time delta -
             only available for DatetimeIndex
 
     Returns:
-        float: Completeness
-    """
+        Fraction of completeness
 
+    """
     if weights is None:
         weights = np.array([1] * len(df.columns))
     weights = np.array(weights)
@@ -186,26 +186,28 @@ def calc_completeness(
     return completeness
 
 
-def find_nonzero_flatliner(df: pd.DataFrame, threshold: int = None) -> pd.DataFrame:
+def find_nonzero_flatliner(
+    df: pd.DataFrame, threshold: int = None
+) -> Union[pd.DataFrame, None]:
     """Function that detects a stationflatliner and returns a list of datetimes.
 
     Args:
-        df: pd.dataFrame(index=DatetimeIndex, columns = [load1, ..., loadN]).
+        df: Example pd.dataFrame(index=DatetimeIndex, columns = [load1, ..., loadN]).
             Load_corrections should be indicated by 'LC_'
         threshold: after how many timesteps should the function detect a flatliner.
             If None, the check is not executed
 
     Returns:
-    # TODO: function returns None or a DataFrame
-        list: flatline moments
+        Flatline moments or None
 
     TODO: a lot of the logic of this function can be improved using: mnts.label
+
     ```
     import scipy.ndimage.measurements as mnts
     mnts.label
     ```
-    """
 
+    """
     if len(df) == 0:
         return
 
@@ -259,24 +261,26 @@ def find_zero_flatliner(
     flatliner_window: timedelta,
     flatliner_load_threshold: float,
 ) -> pd.DataFrame or None:
-    """Function that detects a zero value where the load is not compensated by the other trafo's of the station.
+    """Detect a zero value where the load is not compensated by the other trafo's of the station.
+
     If zero value is at start or end, ignore that block.
 
-    Input:
-    - df: pd.dataFrame(index=DatetimeIndex, columns = [load1, ..., loadN]). Load_corrections should be indicated by 'LC_'
-    - threshold (float): after how many hours should the function detect a flatliner.
-    - flatliner_window (timedelta object): for how many hours before the zero-value should the mean load be calculated.
-    - flatliner_load_threshold (fraction): how big may the difference be between the total station load
-    before and during the zero-value(s).
+    Args:
+        df: DataFrame such as pd.dataFrame(index=DatetimeIndex, columns = [load1, ..., loadN]). Load_corrections should be indicated by 'LC_'
+        threshold: after how many hours should the function detect a flatliner.
+        flatliner_window: for how many hours before the zero-value should the mean load be calculated.
+        flatliner_load_threshold: how big may the difference be between the total station load
+            before and during the zero-value(s).
 
-    return:
-    - pd.DataFrame of timestamps, or None if none
+    Return:
+        DataFrame of timestamps, or None if none
 
     TODO: a lot of the logic of this function can be improved using: mnts.label
     ```
     import scipy.ndimage.measurements as mnts
     mnts.label
     ```
+
     """
     result_df = pd.DataFrame()
 
@@ -371,16 +375,16 @@ def find_zero_flatliner(
 
 
 def check_data_for_each_trafo(df: pd.DataFrame, col: pd.Series) -> bool:
-    """Function that detects if each column contains zero-values at all, only
-        zero-values and NaN values.
+    """Function that detects if each column contains zero-values at all, only zero-values and NaN values.
 
     Args:
-        df: pd.dataFrame(index=DatetimeIndex, columns = [load1, ..., loadN]).
+        df: DataFrama such as pd.dataFrame(index=DatetimeIndex, columns = [load1, ..., loadN]).
             Load_corrections should be indicated by 'LC_'
         col: column of pd.dataFrame
 
     Returns:
-        bool: False if column contains above specified or True if not
+        False if column contains above specified or True if not
+
     """
     if df is None:
         return False

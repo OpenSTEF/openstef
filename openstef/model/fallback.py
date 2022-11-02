@@ -11,23 +11,22 @@ def generate_fallback(
     load: pd.DataFrame,
     fallback_strategy: str = "extreme_day",
 ) -> pd.DataFrame:
-    """Make a fall back forecast,
-    Set the value of the forecast 'quality' column to 'substituted'
+    """Make a fall back forecast, Set the value of the forecast 'quality' column to 'substituted'.
 
     Currently only fallback_strategy=extreme day is implemented which return historic profile of most extreme day.
 
     Args:
-        forecast_input (pandas.DataFrame): dataframe desired for the forecast
-        load (pandas.DataFrame): index=datetime, columns=['load']
-        fallback_strategy (str): strategy to determine fallback. options:
+        forecast_input : dataframe desired for the forecast
+        load: index=datetime, columns=['load']
+        fallback_strategy: strategy to determine fallback. options:
             - extreme_day: use daily profile of most extreme day
     Returns:
-        pandas.DataFrame: Fallback forecast DataFrame with columns:
-            'forecast', 'quality'
+        Fallback forecast DataFrame with columns; 'forecast', 'quality'
 
     Raises:
         ValueError if len(load) == 0
         NotImplementedError if fallback_strategy != 'extreme_day'
+
     """
     # Check if load is completely empty
     if len(load.dropna()) == 0:
