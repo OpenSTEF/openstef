@@ -65,4 +65,4 @@ class PredictionJobException(Exception):
 
 
 class SkipSaveTrainingForecasts(Exception):
-    """If old model is better or too young, you don't need to save the traing forcast"""
+    """If old model is better or too young, you don't need to save the traing forcast."""
