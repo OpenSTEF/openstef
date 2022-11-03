@@ -9,20 +9,36 @@ User guides
 
 This page contains guides and links to resources that show how OpenSTEF can be used.
 
-Using pipelines
----------------
+Pipelines - high level functionality
+-----------------------------------
 Pipelines (see :ref:`concepts <concepts>` for definition) offer an easy way to use OpenSTEF for training models, generating forecasts, and evaluation of forecasting performance. 
-Each of the user guides below discusses the functionality and purpose of a pipeline.
+
+The following pipelines are available:
+
+- :mod:`openstef.pipeline.train_model`
+- :mod:`openstef.pipeline.create_forecast`
+- :mod:`openstef.pipeline.optimize_hyperparameters`
+- :mod:`openstef.pipeline.create_component_forecast`
+- :mod:`openstef.pipeline.create_basecase_forecast`
+- :mod:`openstef.pipeline.train_create_forecast_backtest`
+
+The easiest way to get started and get familiar with pipelines is to have a look at 
+`this GitHub repository that contains an assortment of examples Jupyter notebooks <https://github.com/OpenSTEF/openstef-offline-example>`_, including example data.
+Each of these example notebooks can be ran locally without any setup required, apart from the `installation of the OpenSTEF package <https://pypi.org/project/openstef/>`_.
+
+- Usage of the train model pipeline is demonstrated in 
+  `this example Jupyter Notebook <https://github.com/OpenSTEF/openstef-offline-example/blob/master/examples/01.%20Train%20a%20model%20using%20high-level%20pipelines.ipynb>`_.
+- Usage of the create forecast pipeline is demonstrated in 
+  `this example Jupyter Notebook <https://github.com/OpenSTEF/openstef-offline-example/blob/master/examples/04.%20Test_on_difficult_cases.ipynb>`_.
+- Usage of the train model and forecast backtest pipeline is demonstrated in multiple notebooks, for instance
+  `this example Jupyter Notebook <https://github.com/OpenSTEF/openstef-offline-example/blob/master/examples/02.%20Evaluate%20performance%20using%20Backtest%20Pipeline.ipynb>`_.
+
+Additional and more in depth information on how to use and implement the pipelines, including code examples, is provided on the following page:
 
 .. toctree::
     :maxdepth: 1
 
-    pipeline_user_guides/train_model_pipeline
-    pipeline_user_guides/create_forecast_pipeline
-    pipeline_user_guides/optimize_hyperparameters_pipeline
-    pipeline_user_guides/create_components_forecast_pipeline
-    pipeline_user_guides/create_base_case_forecast_pipeline
-    pipeline_user_guides/train_model_and_forecast_backtest
+    pipelines_user_guide
 
 
 Forecasting application - full implementation

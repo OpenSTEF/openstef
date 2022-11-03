@@ -7,15 +7,13 @@ Welcome to the documentation of OpenSTEF!
 
 OpenSTEF is a Python package which is used to make short term forecasts for the energy sector.
 It contains all components for the machine learning pipeline required to make a forecast.
-In order to use the package, you need to provide your own data storage and retrieval interface.
-The ``openstef`` Python package is available at: https://pypi.org/project/openstef/.
+The ``openstef`` Python package and its installation instructions are available at: https://pypi.org/project/openstef/.
 
-Get started using the :ref:`quickstart` or by reading about the :ref:`concepts`.
+Get started using the :ref:`user_guides` or by reading about the :ref:`concepts`.
 
 .. toctree::
     :maxdepth: 1
 
-    quickstart
     user_guides
     concepts
     dazls
