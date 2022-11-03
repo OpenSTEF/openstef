@@ -10,7 +10,7 @@ User guides
 This page contains guides and links to resources that show how OpenSTEF can be used.
 
 Pipelines - high level functionality
------------------------------------
+------------------------------------
 Pipelines (see :ref:`concepts <concepts>` for definition) offer an easy way to use OpenSTEF for training models, generating forecasts, and evaluation of forecasting performance. 
 
 The following pipelines are available:

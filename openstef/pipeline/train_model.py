@@ -165,10 +165,10 @@ def train_model_pipeline_core(
         OldModelHigherScoreError: When old model is better than new model.
 
     Returns:
-        Fitted_model (OpenstfRegressor)
-        Report (Report)
-        Modelspecs (ModelSpecificationDataClass)
-        Datasets (Tuple[pd.DataFrame, pd.DataFrame, pd.Dataframe]): The train, validation and test sets
+        - Fitted_model (OpenstfRegressor)
+        - Report (Report)
+        - Modelspecs (ModelSpecificationDataClass)
+        - Datasets (Tuple[pd.DataFrame, pd.DataFrame, pd.Dataframe]): The train, validation and test sets
 
     """
     if horizons is None:
