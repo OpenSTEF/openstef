@@ -24,7 +24,7 @@ The following pipelines are available:
 
 The easiest way to get started and get familiar with pipelines is to have a look at 
 `this GitHub repository that contains an assortment of examples Jupyter notebooks <https://github.com/OpenSTEF/openstef-offline-example>`_, including example data.
-Each of these example notebooks can be ran locally without any setup required, apart from the `installation of the OpenSTEF package <https://pypi.org/project/openstef/>`_.
+Each of these example notebooks can be ran locally without any setup required, apart from the `installation of the OpenSTEF package <https://pypi.org/project/openstef/>`_. 
 
 - Usage of the train model pipeline is demonstrated in 
   `this example Jupyter Notebook <https://github.com/OpenSTEF/openstef-offline-example/blob/master/examples/01.%20Train%20a%20model%20using%20high-level%20pipelines.ipynb>`_.
@@ -33,7 +33,8 @@ Each of these example notebooks can be ran locally without any setup required, a
 - Usage of the train model and forecast backtest pipeline is demonstrated in multiple notebooks, for instance
   `this example Jupyter Notebook <https://github.com/OpenSTEF/openstef-offline-example/blob/master/examples/02.%20Evaluate%20performance%20using%20Backtest%20Pipeline.ipynb>`_.
 
-Additional and more in depth information on how to use and implement the pipelines, including code examples, is provided on the following page:
+The notebooks mentioned above are aimed towards a backtesting setting.
+More in depth information on how to use and implement the pipelines in an operaional setting, including code examples, is provided on the following page:
 
 .. toctree::
     :maxdepth: 1
