@@ -34,7 +34,7 @@ Each of these example notebooks can be ran locally without any setup required, a
   `this example Jupyter Notebook <https://github.com/OpenSTEF/openstef-offline-example/blob/master/examples/02.%20Evaluate%20performance%20using%20Backtest%20Pipeline.ipynb>`_.
 
 The notebooks mentioned above are aimed towards a backtesting setting.
-More in depth information on how to use and implement the pipelines in an operaional setting, including code examples, is provided on the following page:
+More in depth information on how to use and implement the pipelines in an operational setting, including code examples, is provided on the following page:
 
 .. toctree::
     :maxdepth: 1
