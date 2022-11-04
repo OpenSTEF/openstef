@@ -9,7 +9,6 @@ Concepts
 
 Looking at the architecture of OpenSTEF helps to understand OpenSTEF concepts.
 
-
 Software architecture
 ---------------------
 
@@ -19,9 +18,15 @@ Software architecture
 OpenSTEF is set up as a package that performs machine learning to forecast energy loads on the energy grid.
 It contains:
 
-* **Prediction job**: input configuration for a task and/or pipeline (e.g. train an XGB model for a certain location).
-* **Tasks**: can be called to perform training, forecasting, or evaluation. All tasks use corresponding pipelines. Tasks include getting data from a database, raising task exceptions, and writing data to a database.
-* **Pipelines**: can be called to perform training, forecasting or evaluation by giving input data to the pipeline. Users can choose to use tasks (which fetches/writes data), or use pipelines directly (which requires fetching/writing data yourself).
+* **Prediction job**: input configuration for a task and/or pipeline 
+  (e.g. train an XGB model for a certain location).
+* **Tasks**: can be called to perform training, forecasting, or evaluation. 
+  All tasks use corresponding pipelines. Tasks include getting data from a database, 
+  raising task exceptions, and writing data to a database. 
+* **Pipelines**: can be called to perform training, forecasting or evaluation by 
+  giving input data to the pipeline. Users can choose to use tasks 
+  (which fetch/write data for you), or use pipelines directly 
+  (which requires fetching/writing data yourself).
 * **Data validation**: is called by pipelines to validate data (e.g. checking for flatliners).
 * **Feature engineering**: is called by pipelines to select required features for training/forecasting based on the configuration from the prediction job (e.g. create new features for energy load of yesterday, last week).
 * **Machine learning**: is called by pipelines to perform training, forecasting, or evaluation based on the configuration from the prediction job (e.g. train an XGB quantile model).
@@ -31,6 +36,8 @@ It contains:
 
 If tasks are used, the openstef-dbc package is required as an interface to the database for reading/writing.
 The current interface in openstef-dbc is for a MySQL database for configuration data (e.g. information for prediction jobs) and Influx database for feature data (e.g. weather, load, energy price data) and energy forecast data.
+
+.. _application-architecture:
 
 Application architecture
 ------------------------

@@ -168,7 +168,7 @@ def train_model_pipeline_core(
         - Fitted_model (OpenstfRegressor)
         - Report (Report)
         - Modelspecs (ModelSpecificationDataClass)
-        - Datasets (Tuple[pd.DataFrmae, pd.DataFrame, pd.Dataframe): The train, validation and test sets
+        - Datasets (Tuple[pd.DataFrame, pd.DataFrame, pd.Dataframe]): The train, validation and test sets
 
     """
     if horizons is None:
