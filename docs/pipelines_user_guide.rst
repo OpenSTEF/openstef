@@ -8,8 +8,9 @@ Pipelines user guide
 =============================
 
 As mentioned in the :ref:`concepts <concepts>` section, tasks are an extension of pipelines, that include getting data from a database, 
-raising task exceptions, and writing data to a database. In the operational setting within Alliander, both tasks and pipelines are used
-to train the forecasting models. 
+raising task exceptions, and writing data to a database. In an operational setting, both tasks and pipelines can be used. 
+The main difference is that an operational application that leverages OpenSTEF's tasks fuctionality is easier to implement, 
+whereas the pipeline functionality offers more flexibility in terms of design and implementation in addition to offering more scalability.
 
 To illustrate the task as well as the pipeline :ref:`concept <concepts>`, code snippets for both implementations are presented below. 
 These code snippets show two different ways in which OpenSTEF's pipeline functionality can be integrated within an application that runs in an operational setting.
@@ -18,10 +19,11 @@ Task implementation
 -------------------
 
 Let's first have a look at the task implementation, which is also the way it is done in the `GitHub repository containing the reference implementation <https://github.com/OpenSTEF/openstef-reference>`_. 
-In the case that model training, hyper parameter tuning, or forecasting is supposed to be ran according to a certain schedule, using CronJobs for example, 
+In the case that model training, hyperparameter tuning, or forecasting is supposed to be ran according to a certain schedule, using CronJobs for example, 
 the task implementation is easy to set up.
-However this implementation's scalability is limited. Below, code snippets are shown for different types of tasks that demonstrate the use of 
-OpenSTEF's task functionality. 
+However this implementation's scalability is limited. Additionally, this implementation relies on the `the OpenSTEF database connector <https://pypi.org/project/openstef-dbc/>`_, ``openstef-dbc``, 
+meaning that the databases have to be set up according to the `reference implementation <https://github.com/OpenSTEF/openstef-reference>`_. 
+Below, code snippets are shown for different types of tasks that demonstrate the use of OpenSTEF's task functionality. 
 
 Note that, apart from the imports, the implementation is the same for each type of task.
 
@@ -170,9 +172,13 @@ Create base case forecast task implementation
 Pipeline implementation
 -----------------------
 
-A more scalable and arguably more neat set up, is to expose the OpenSTEF pipeline functionality through an API, 
-for instance by using the `FastAPI framework <https://fastapi.tiangolo.com/>`_. 
-The pipeline implementation is useful in this context, unlike the tasks implementation. 
+The pipeline implementation does not rely on `the OpenSTEF database connector <https://pypi.org/project/openstef-dbc/>`_, ``openstef-dbc``. 
+Therefore, pipelines can be used together with any kind of database setup, unlike tasks, 
+which require databases to be implemented according to the `reference implementation <https://github.com/OpenSTEF/openstef-reference>`_.
+
+A more scalable and arguably more neat set up than the `reference implementation <https://github.com/OpenSTEF/openstef-reference>`_, 
+is to expose the OpenSTEF pipeline functionality through an API, 
+for instance by using the `FastAPI framework <https://fastapi.tiangolo.com/>`_.  
 The code snippet below shows how OpenSTEF pipelines can be integrated into an API using the 
 `repository pattern <https://mpuig.github.io/Notes/fastapi_basics/02.repository_pattern/>`_::
 

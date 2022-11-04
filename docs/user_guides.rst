@@ -44,9 +44,9 @@ Additional and more in depth information on how to use and implement the pipelin
 Forecasting application - full implementation
 ---------------------------------------------
 
-For those who wish to set up a fully functioning forecasting application, a 
+For those who wish to set up a fully functioning forecasting application that is ready to be used in an operational setting, a 
 `GitHub repository with a reference implementation <https://github.com/OpenSTEF/openstef-reference>`_  is available. 
-The example implementation includes a databases, user interface, and example data.
+The example implementation includes databases, a user interface, and example data.
 More information on what the architecture of such an application could look like can be found :ref:`here <application-architecture>`.
 
 .. include:: dashboard.rst
