@@ -17,7 +17,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Domain Adaptation for Zero Shot Learning in Sequence (DAZLS)" href="dazls.html" />
-    <link rel="prev" title="Tutorials" href="tutorials.html" /> 
+    <link rel="prev" title="Pipelines user guide" href="pipelines_user_guide.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -36,8 +36,7 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_guides.html">User guides</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Concepts</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#software-architecture">Software architecture</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#application-architecture">Application architecture</a></li>
@@ -60,8 +59,8 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Concepts</li>
+      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active">Concepts</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/concepts.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -80,9 +79,15 @@
 <p>OpenSTEF is set up as a package that performs machine learning to forecast energy loads on the energy grid.
 It contains:</p>
 <ul class="simple">
-<li><p><strong>Prediction job</strong>: input configuration for a task and/or pipeline (e.g. train an XGB model for a certain location).</p></li>
-<li><p><strong>Tasks</strong>: can be called to perform training, forecasting, or evaluation. All tasks use corresponding pipelines. Tasks include getting data from a database, raising task exceptions, and writing data to a database.</p></li>
-<li><p><strong>Pipelines</strong>: can be called to perform training, forecasting or evaluation by giving input data to the pipeline. Users can choose to use tasks (which fetches/writes data), or use pipelines directly (which requires fetching/writing data yourself).</p></li>
+<li><p><strong>Prediction job</strong>: input configuration for a task and/or pipeline
+(e.g. train an XGB model for a certain location).</p></li>
+<li><p><strong>Tasks</strong>: can be called to perform training, forecasting, or evaluation.
+All tasks use corresponding pipelines. Tasks include getting data from a database,
+raising task exceptions, and writing data to a database.</p></li>
+<li><p><strong>Pipelines</strong>: can be called to perform training, forecasting or evaluation by
+giving input data to the pipeline. Users can choose to use tasks
+(which fetch/write data for you), or use pipelines directly
+(which requires fetching/writing data yourself).</p></li>
 <li><p><strong>Data validation</strong>: is called by pipelines to validate data (e.g. checking for flatliners).</p></li>
 <li><p><strong>Feature engineering</strong>: is called by pipelines to select required features for training/forecasting based on the configuration from the prediction job (e.g. create new features for energy load of yesterday, last week).</p></li>
 <li><p><strong>Machine learning</strong>: is called by pipelines to perform training, forecasting, or evaluation based on the configuration from the prediction job (e.g. train an XGB quantile model).</p></li>
@@ -93,7 +98,7 @@ It contains:</p>
 The current interface in openstef-dbc is for a MySQL database for configuration data (e.g. information for prediction jobs) and Influx database for feature data (e.g. weather, load, energy price data) and energy forecast data.</p>
 </div>
 <div class="section" id="application-architecture">
-<h2>Application architecture<a class="headerlink" href="#application-architecture" title="Permalink to this headline">¶</a></h2>
+<span id="id2"></span><h2>Application architecture<a class="headerlink" href="#application-architecture" title="Permalink to this headline">¶</a></h2>
 <p>OpenSTEF is just a software package by itself and needs more parts to run as an application.</p>
 <a class="reference internal image-reference" href="https://user-images.githubusercontent.com/25053215/184536367-c7914697-7a2a-45b8-b447-36aec1a6c1af.png"><img alt="https://user-images.githubusercontent.com/25053215/184536367-c7914697-7a2a-45b8-b447-36aec1a6c1af.png" src="https://user-images.githubusercontent.com/25053215/184536367-c7914697-7a2a-45b8-b447-36aec1a6c1af.png" style="width: 800px;" /></a>
 <p>It requires:</p>
@@ -125,7 +130,7 @@ The current interface in openstef-dbc is for a MySQL database for configuration 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="tutorials.html" class="btn btn-neutral float-left" title="Tutorials" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="pipelines_user_guide.html" class="btn btn-neutral float-left" title="Pipelines user guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="dazls.html" class="btn btn-neutral float-right" title="Domain Adaptation for Zero Shot Learning in Sequence (DAZLS)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
