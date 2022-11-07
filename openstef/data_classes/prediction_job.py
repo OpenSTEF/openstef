@@ -8,6 +8,7 @@ from pydantic import BaseModel
 
 from .model_specifications import ModelSpecificationDataClass
 from .split_function import SplitFuncDataClass
+from ..enums import PipelineType
 
 
 class PredictionJobDataClass(BaseModel):
@@ -81,6 +82,8 @@ class PredictionJobDataClass(BaseModel):
     """Only required for create_wind_forecast task"""
     hub_height: Optional[float]
     """Only required for create_wind_forecast task"""
+    pipelines_to_run: PipelineType = PipelineType.BOTH
+    """The pipelines to run for this pj"""
 
     class Config:
         """Pydantic model configuration.

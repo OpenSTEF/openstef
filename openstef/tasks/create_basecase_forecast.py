@@ -22,6 +22,7 @@ from pathlib import Path
 import pandas as pd
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
+from openstef.enums import PipelineType
 from openstef.pipeline.create_basecase_forecast import create_basecase_forecast_pipeline
 from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstef.tasks.utils.taskcontext import TaskContext
@@ -42,6 +43,10 @@ def create_basecase_forecast_task(
         context: Contect object that holds a config manager and a database connection
 
     """
+    if pj.pipelines_to_run == PipelineType.TRAIN:
+        context.logger.info("Skip this PredictionJob because it's in train only.")
+        return
+
     # Define datetime range for input data
     datetime_start = datetime.utcnow() - timedelta(days=T_BEHIND_DAYS)
     datetime_end = datetime.utcnow() + timedelta(days=T_AHEAD_DAYS)

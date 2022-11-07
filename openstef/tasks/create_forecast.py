@@ -24,7 +24,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
-from openstef.enums import MLModelType
+from openstef.enums import MLModelType, PipelineType
 from openstef.pipeline.create_forecast import create_forecast_pipeline
 from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstef.tasks.utils.taskcontext import TaskContext
@@ -46,6 +46,10 @@ def create_forecast_task(pj: PredictionJobDataClass, context: TaskContext) -> No
         context: Contect object that holds a config manager and a database connection
 
     """
+    if pj.pipelines_to_run == PipelineType.TRAIN:
+        context.logger.info("Skip this PredictionJob because it's in train only.")
+        return
+
     # Extract mlflow tracking URI and trained models folder
     mlflow_tracking_uri = context.config.paths.mlflow_tracking_uri
 

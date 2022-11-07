@@ -20,7 +20,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
-from openstef.enums import MLModelType
+from openstef.enums import MLModelType, PipelineType
 from openstef.model.serializer import MLflowSerializer
 from openstef.monitoring import teams
 from openstef.pipeline.optimize_hyperparameters import optimize_hyperparameters_pipeline
@@ -44,6 +44,10 @@ def optimize_hyperparameters_task(
         context: Task context
 
     """
+    if pj.pipelines_to_run == PipelineType.FORECAST:
+        context.logger.info("Skip this PredictionJob because it's in forecast only.")
+        return
+
     # Get the paths for storing model and reports from the config manager
     mlflow_tracking_uri = context.config.paths.mlflow_tracking_uri
     artifact_folder = context.config.paths.artifact_folder
