@@ -5,7 +5,7 @@
 .. _pipeline_user_guide:
 
 Pipelines user guide
-=============================
+====================
 
 As mentioned in the :ref:`concepts <concepts>` section, tasks are an extension of pipelines, that include getting data from a database, 
 raising task exceptions, and writing data to a database. In an operational setting, both tasks and pipelines can be used. 
@@ -39,20 +39,20 @@ Train model task implementation
     from openstef_dbc.database import DataBase
     from openstef_dbc.log import logging
 
-    PROJECT_ROOT - Path(__file__).parent.parent.absolute()
+    PROJECT_ROOT = Path(__file__).parent.parent.absolute()
 
 
     def main():
         # Initialize config manager
-        config - ConfigManager.load_project_config(project_root-PROJECT_ROOT).get_instance()
+        config = ConfigManager.load_project_config(project_root=PROJECT_ROOT).get_instance()
         # Initialize logging
-        logging.configure_logging(loglevel-config.loglevel, runtime_env-config.env)
+        logging.configure_logging(loglevel=config.loglevel, runtime_env=config.env)
         # Initialize database connection
-        database - DataBase(config)
-        task.main(config-config, database-database)
+        database = DataBase(config)
+        task.main(config=config, database=database)
 
 
-    if __name__ -- "__main__":
+    if __name__ == "__main__":
         main()
 
 
@@ -68,20 +68,20 @@ Create forecast task implementation
     from openstef_dbc.database import DataBase
     from openstef_dbc.log import logging
 
-    PROJECT_ROOT - Path(__file__).parent.parent.absolute()
+    PROJECT_ROOT = Path(__file__).parent.parent.absolute()
 
 
     def main():
         # Initialize config manager
-        config - ConfigManager.load_project_config(project_root-PROJECT_ROOT).get_instance()
+        config = ConfigManager.load_project_config(project_root=PROJECT_ROOT).get_instance()
         # Initialize logging
-        logging.configure_logging(loglevel-config.loglevel, runtime_env-config.env)
+        logging.configure_logging(loglevel=config.loglevel, runtime_env=config.env)
         # Initialize database connection
-        database - DataBase(config)
-        task.main(config-config, database-database)
+        database = DataBase(config)
+        task.main(config=config, database=database)
 
 
-    if __name__ -- "__main__":
+    if __name__ == "__main__":
         main()
 
 
@@ -96,20 +96,20 @@ Optimize hyperparameters task implementation
     from openstef_dbc.database import DataBase
     from openstef_dbc.log import logging
 
-    PROJECT_ROOT - Path(__file__).parent.parent.absolute()
+    PROJECT_ROOT = Path(__file__).parent.parent.absolute()
 
 
     def main():
         # Initialize config manager
-        config - ConfigManager.load_project_config(project_root-PROJECT_ROOT).get_instance()
+        config = ConfigManager.load_project_config(project_root=PROJECT_ROOT).get_instance()
         # Initialize logging
-        logging.configure_logging(loglevel-config.loglevel, runtime_env-config.env)
+        logging.configure_logging(loglevel=config.loglevel, runtime_env=config.env)
         # Initialize database connection
-        database - DataBase(config)
-        task.main(config-config, database-database)
+        database = DataBase(config)
+        task.main(config=config, database=database)
 
 
-    if __name__ -- "__main__":
+    if __name__ == "__main__":
         main()
 
 
@@ -124,20 +124,20 @@ Create components forecast task implementation
     from openstef_dbc.database import DataBase
     from openstef_dbc.log import logging
 
-    PROJECT_ROOT - Path(__file__).parent.parent.absolute()
+    PROJECT_ROOT = Path(__file__).parent.parent.absolute()
 
 
     def main():
         # Initialize config manager
-        config - ConfigManager.load_project_config(project_root-PROJECT_ROOT).get_instance()
+        config = ConfigManager.load_project_config(project_root=PROJECT_ROOT).get_instance()
         # Initialize logging
-        logging.configure_logging(loglevel-config.loglevel, runtime_env-config.env)
+        logging.configure_logging(loglevel=config.loglevel, runtime_env=config.env)
         # Initialize database connection
-        database - DataBase(config)
-        task.main(config-config, database-database)
+        database = DataBase(config)
+        task.main(config=config, database=database)
 
 
-    if __name__ -- "__main__":
+    if __name__ == "__main__":
         main()
 
 
@@ -152,20 +152,20 @@ Create base case forecast task implementation
     from openstef_dbc.database import DataBase
     from openstef_dbc.log import logging
 
-    PROJECT_ROOT - Path(__file__).parent.parent.absolute()
+    PROJECT_ROOT = Path(__file__).parent.parent.absolute()
 
 
     def main():
         # Initialize config manager
-        config - ConfigManager.load_project_config(project_root-PROJECT_ROOT).get_instance()
+        config = ConfigManager.load_project_config(project_root=PROJECT_ROOT).get_instance()
         # Initialize logging
-        logging.configure_logging(loglevel-config.loglevel, runtime_env-config.env)
+        logging.configure_logging(loglevel=config.loglevel, runtime_env=config.env)
         # Initialize database connection
-        database - DataBase(config)
-        task.main(config-config, database-database)
+        database = DataBase(config)
+        task.main(config=config, database=database)
 
 
-    if __name__ -- "__main__":
+    if __name__ == "__main__":
         main()
 
 
@@ -229,8 +229,8 @@ The code snippet below shows how OpenSTEF pipelines can be integrated into an AP
             prediction_job: PredictionJobDataClass,
             modelspecs: ModelSpecificationDataClass,
             input_data: pd.DataFrame,
-            horizons: List[float] - None,
-            old_model: OpenstfRegressor - None,
+            horizons: List[float] = None,
+            old_model: OpenstfRegressor = None,
         ) -> Tuple[
             OpenstfRegressor,
             Report,
@@ -245,7 +245,7 @@ The code snippet below shows how OpenSTEF pipelines can be integrated into an AP
                 modelspecs,
                 input_data,
                 old_model,
-                horizons-horizons,
+                horizons=horizons,
             )
 
         def optimize_hyperparameters_pipeline(
@@ -253,7 +253,7 @@ The code snippet below shows how OpenSTEF pipelines can be integrated into an AP
             prediction_job: PredictionJobDataClass,
             input_data: pd.DataFrame,
             n_trials: int,
-            horizons: List[float] - None,
+            horizons: List[float] = None,
         ) -> Tuple[
             OpenstfRegressor, ModelSpecificationDataClass, Report, dict, int, dict[str, Any]
         ]:
