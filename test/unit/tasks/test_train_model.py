@@ -9,6 +9,7 @@ from unittest.mock import MagicMock, patch
 
 import pandas as pd
 
+from openstef.enums import PipelineType
 from openstef.tasks.train_model import main as task_main
 from openstef.tasks.train_model import train_model_task
 
@@ -105,3 +106,28 @@ class TestTrainModelTask(TestCase):
             task_main(None, not_none_object, None)
 
         task_main(None, not_none_object, not_none_object)
+
+    @patch("openstef.tasks.train_model.train_model_pipeline")
+    def test_create_train_model_task_train_only(self, train_model_pipeline_mock):
+        # Test happy flow of create forecast task for train only pj
+        context = MagicMock()
+        pj = self.pj
+        pj.pipelines_to_run = PipelineType.TRAIN
+
+        train_model_task(pj, context)
+
+        self.assertEqual(train_model_pipeline_mock.call_count, 1)
+        self.assertEqual(
+            train_model_pipeline_mock.call_args_list[0][0][0]["id"], pj["id"]
+        )
+
+    @patch("openstef.tasks.train_model.train_model_pipeline")
+    def test_create_train_model_task_forecast_only(self, train_model_pipeline_mock):
+        # Test happy flow of create forecast task for forecast only pj
+        context = MagicMock()
+        pj = self.pj
+        pj.pipelines_to_run = PipelineType.FORECAST
+
+        train_model_task(pj, context)
+
+        self.assertEqual(train_model_pipeline_mock.call_count, 0)

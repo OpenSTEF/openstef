@@ -8,6 +8,7 @@ from unittest.mock import MagicMock, patch
 
 import pandas as pd
 
+from openstef.enums import PipelineType
 from openstef.tasks.create_basecase_forecast import create_basecase_forecast_task
 
 # Specify forecast mock.
@@ -35,6 +36,30 @@ class TestCreateBasecaseForecastTask(TestCase):
         # Test happy flow of create forecast task
         context = MagicMock()
         create_basecase_forecast_task(self.pj, context)
+        pd.testing.assert_frame_equal(context.mock_calls[1].args[0], FORECAST_MOCK)
+
+    @patch("openstef.tasks.create_basecase_forecast.create_basecase_forecast_pipeline")
+    def test_create_forecast_task_train_only(
+        self, create_basecase_forecast_pipeline_mock
+    ):
+        """Test happy flow of create forecast task for train only pj."""
+        context = MagicMock()
+        pj = self.pj
+        pj.pipelines_to_run = PipelineType.TRAIN
+        create_basecase_forecast_task(pj, context)
+        self.assertEqual(create_basecase_forecast_pipeline_mock.call_count, 0)
+
+    @patch("openstef.tasks.create_basecase_forecast.create_basecase_forecast_pipeline")
+    def test_create_forecast_task_forecast_only(
+        self, create_basecase_forecast_pipeline_mock
+    ):
+        """Test happy flow of create forecast task for forecast only pj."""
+        context = MagicMock()
+        create_basecase_forecast_pipeline_mock.return_value = FORECAST_MOCK
+        pj = self.pj
+        pj.pipelines_to_run = PipelineType.FORECAST
+        create_basecase_forecast_task(pj, context)
+        self.assertEqual(create_basecase_forecast_pipeline_mock.call_count, 1)
         pd.testing.assert_frame_equal(context.mock_calls[1].args[0], FORECAST_MOCK)
 
     @patch(
