@@ -5,7 +5,6 @@
 import os
 import warnings
 from dataclasses import dataclass
-from typing import Dict
 
 import numpy as np
 import pandas as pd
@@ -26,7 +25,7 @@ class Report:
     def __init__(
         self,
         feature_importance_figure: Figure,
-        data_series_figures: Dict[str, Figure],
+        data_series_figures: dict[str, Figure],
         metrics: dict,
         signature: ModelSignature,
     ):

@@ -1,9 +1,8 @@
 # SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-from typing import List, Union
 from abc import abstractmethod
-from typing import Optional
+from typing import Union
 
 import numpy as np
 import pandas as pd
@@ -29,7 +28,7 @@ class OpenstfRegressor(BaseEstimator):
     ## Define abstract methods required to be implemented by concrete models
     @property
     @abstractmethod
-    def feature_names(self) -> List:
+    def feature_names(self) -> list:
         """Retrieve the model input feature names.
 
         Returns:

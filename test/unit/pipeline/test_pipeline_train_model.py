@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 import copy
+import glob
+import os
 import unittest
 from datetime import datetime, timedelta
 from test.unit.utils.base import BaseTestCase
@@ -10,8 +12,6 @@ from unittest.mock import MagicMock, patch
 
 import pandas as pd
 import sklearn
-import os
-import glob
 
 from openstef.enums import MLModelType
 from openstef.exceptions import (

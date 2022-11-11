@@ -35,7 +35,6 @@ Example:
 # PRIMARY KEY (`id`), UNIQUE `id` (`id`))
 # ENGINE = InnoDB;
 from pathlib import Path
-from typing import Dict
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.enums import TracyJobResult
@@ -92,7 +91,7 @@ def run_tracy(context: TaskContext) -> None:
 
 
 def run_tracy_job(
-    job: Dict, pj: PredictionJobDataClass, context: TaskContext
+    job: dict, pj: PredictionJobDataClass, context: TaskContext
 ) -> TracyJobResult:
     """Run tracy job.
 

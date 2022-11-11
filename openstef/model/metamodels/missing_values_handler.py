@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 """This module defines the missing value handler."""
 from typing import Union
+
 import numpy as np
 import pandas as pd
 from sklearn.base import BaseEstimator, MetaEstimatorMixin, RegressorMixin, clone

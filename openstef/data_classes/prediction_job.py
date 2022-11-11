@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 """Specifies the prediction job dataclass."""
-from typing import List, Optional, Union
+from typing import Optional, Union
 
 from pydantic import BaseModel
 
@@ -53,13 +53,13 @@ class PredictionJobDataClass(BaseModel):
     """Whether splitting the forecasts in wind, solar, rest is desired."""
     description: Optional[str]
     """Optional description of the prediction job for human reference."""
-    quantiles: Optional[List[float]]
+    quantiles: Optional[list[float]]
     """Quantiles that have to be forecasted."""
     train_split_func: Optional[SplitFuncDataClass]
     """Optional custom splitting function for operational procces."""
     backtest_split_func: Optional[SplitFuncDataClass]
     """Optional custom splitting function for backtesting."""
-    train_horizons_minutes: Optional[List[int]]
+    train_horizons_minutes: Optional[list[int]]
     """List of horizons that should be taken into account during training."""
     default_modelspecs: Optional[ModelSpecificationDataClass]
     """Default model specifications"""
@@ -71,7 +71,7 @@ class PredictionJobDataClass(BaseModel):
     """Minimum length (in rows) of the forecast input for making a regular forecast."""
     flatliner_treshold: int = 24
     """Number of consecutive values that have to be constant to detect a flatliner. """
-    depends_on: Optional[List[Union[int, str]]]
+    depends_on: Optional[list[Union[int, str]]]
     """Link to another prediction job on which this prediction job might depend."""
     sid: Optional[str]
     """Only required for create_solar_forecast task"""

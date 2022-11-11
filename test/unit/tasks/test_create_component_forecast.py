@@ -1,14 +1,13 @@
 # SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+from datetime import date, timedelta
 from test.unit.utils.data import TestData
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
 
 import pandas as pd
 from pandas import Timestamp
-
-from datetime import date, timedelta
 
 from openstef.tasks.create_components_forecast import create_components_forecast_task
 

@@ -9,7 +9,8 @@
 #
 # SPDX-License-Identifier: MIT
 """This module contains all metrics to assess forecast quality."""
-from typing import Callable, Tuple
+from typing import Callable
+
 import numpy as np
 import pandas as pd
 import xgboost
@@ -381,7 +382,7 @@ def xgb_quantile_eval(
 
 def xgb_quantile_obj(
     preds: np.ndarray, dmatrix: xgboost.DMatrix, quantile: float = 0.2
-) -> Tuple[np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray]:
     """Quantile regression objective fucntion.
 
     Computes first-order derivative of quantile regression loss and a non-degenerate substitute for second-order

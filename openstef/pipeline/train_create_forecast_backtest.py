@@ -1,7 +1,6 @@
 # SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-from typing import List, Tuple
 
 import pandas as pd
 
@@ -15,7 +14,7 @@ from openstef.postprocessing.postprocessing import (
     add_prediction_job_properties_to_forecast,
 )
 
-DEFAULT_TRAIN_HORIZONS: List[float] = [0.25, 24.0]
+DEFAULT_TRAIN_HORIZONS: list[float] = [0.25, 24.0]
 DEFAULT_EARLY_STOPPING_ROUNDS: int = 10
 
 
@@ -23,14 +22,14 @@ def train_model_and_forecast_back_test(
     pj: PredictionJobDataClass,
     modelspecs: ModelSpecificationDataClass,
     input_data: pd.DataFrame,
-    training_horizons: List[float] = None,
+    training_horizons: list[float] = None,
     n_folds: int = 1,
-) -> Tuple[
+) -> tuple[
     pd.DataFrame,
-    List[OpenstfRegressor],
-    List[pd.DataFrame],
-    List[pd.DataFrame],
-    List[pd.DataFrame],
+    list[OpenstfRegressor],
+    list[pd.DataFrame],
+    list[pd.DataFrame],
+    list[pd.DataFrame],
 ]:
     """Pipeline for a back test.
 
@@ -52,7 +51,7 @@ def train_model_and_forecast_back_test(
 
     Returns:
         - Forecast (pandas.DataFrame)
-        - Fitted models (List[OpenStfRegressor])
+        - Fitted models (list[OpenStfRegressor])
         - Train data sets (list[pd.DataFrame])
         - Validation data sets (list[pd.DataFrame])
         - Test data sets (list[pd.DataFrame])
@@ -107,7 +106,7 @@ def train_model_and_forecast_test_core(
     train_data: pd.DataFrame,
     validation_data: pd.DataFrame,
     test_data: pd.DataFrame,
-) -> Tuple[OpenstfRegressor, pd.DataFrame]:
+) -> tuple[OpenstfRegressor, pd.DataFrame]:
     """Trains the model and forecast on the test set.
 
     Args:

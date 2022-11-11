@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 import os
-from typing import Any, List, Tuple
+from typing import Any
 
 import optuna
 import pandas as pd
@@ -42,7 +42,7 @@ def optimize_hyperparameters_pipeline(
     input_data: pd.DataFrame,
     mlflow_tracking_uri: str,
     artifact_folder: str,
-    horizons: List[float] = DEFAULT_TRAIN_HORIZONS,
+    horizons: list[float] = DEFAULT_TRAIN_HORIZONS,
     n_trials: int = N_TRIALS,
 ) -> dict:
     """Optimize hyperparameters pipeline.
@@ -96,9 +96,9 @@ def optimize_hyperparameters_pipeline(
 def optimize_hyperparameters_pipeline_core(
     pj: PredictionJobDataClass,
     input_data: pd.DataFrame,
-    horizons: List[float] = DEFAULT_TRAIN_HORIZONS,
+    horizons: list[float] = DEFAULT_TRAIN_HORIZONS,
     n_trials: int = N_TRIALS,
-) -> Tuple[
+) -> tuple[
     OpenstfRegressor, ModelSpecificationDataClass, Report, dict, int, dict[str, Any]
 ]:
     """Optimize hyperparameters pipeline core.
@@ -213,7 +213,7 @@ def optuna_optimization(
     objective: RegressorObjective,
     validated_data_with_features: pd.DataFrame,
     n_trials: int,
-) -> Tuple[optuna.study.Study, RegressorObjective]:
+) -> tuple[optuna.study.Study, RegressorObjective]:
     """Perform hyperparameter optimization with optuna.
 
     Args:

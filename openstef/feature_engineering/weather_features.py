@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 
 """This module contains all wheather related functions used for feature engineering."""
-from typing import Dict, List, Union
+from typing import Union
 
 import numpy as np
 import pandas as pd
@@ -110,7 +110,7 @@ def calc_air_density(
 
 
 def add_humidity_features(
-    data: pd.DataFrame, feature_names: List[str] = None
+    data: pd.DataFrame, feature_names: list[str] = None
 ) -> pd.DataFrame:
     """Adds humidity features to the input dataframe.
 
@@ -159,7 +159,7 @@ def humidity_calculations(
     temperature: Union[float, np.ndarray],
     rh: Union[float, np.ndarray],
     pressure: Union[float, np.ndarray],
-) -> Union[Dict, np.ndarray]:
+) -> Union[dict, np.ndarray]:
     """Function that calculates weather features based on humidity..
 
     These features are:
@@ -321,7 +321,7 @@ def calculate_windturbine_power_output(
 
 
 def add_additional_wind_features(
-    data: pd.DataFrame, feature_names: List[str] = None
+    data: pd.DataFrame, feature_names: list[str] = None
 ) -> pd.DataFrame:
     """Adds additional wind features to the input data.
 
@@ -449,7 +449,7 @@ def calculate_gti(
 def add_additional_solar_features(
     data: pd.DataFrame,
     pj: PredictionJobDataClass = None,
-    feature_names: List[str] = None,
+    feature_names: list[str] = None,
 ) -> pd.DataFrame:
     """Adds additional solar features to the input data.
 

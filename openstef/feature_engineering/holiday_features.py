@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: MPL-2.0
 """This module contains all holiday related features."""
 from datetime import datetime, timedelta
-from typing import Tuple
 
 import holidays
 import numpy as np
@@ -137,7 +136,7 @@ def check_for_bridge_day(
     years: list,
     holiday_functions: dict,
     bridge_days: list,
-) -> Tuple[dict, list]:
+) -> tuple[dict, list]:
     """Checks for bridgedays associated to a specific holiday with date (date).
 
     Any found bridgedays are appende dto the bridgedays list. Also a specific feature

@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 from functools import partial
-from typing import Tuple
 
 import numpy as np
 import xgboost as xgb
@@ -12,7 +11,7 @@ from xgboost import Booster
 import openstef.metrics.metrics as metrics
 from openstef.model.regressors.regressor import OpenstfRegressor
 
-DEFAULT_QUANTILES: Tuple[float, ...] = (0.9, 0.5, 0.1)
+DEFAULT_QUANTILES: tuple[float, ...] = (0.9, 0.5, 0.1)
 
 
 class XGBQuantileOpenstfRegressor(OpenstfRegressor):
@@ -25,7 +24,7 @@ class XGBQuantileOpenstfRegressor(OpenstfRegressor):
 
     def __init__(
         self,
-        quantiles: Tuple[float, ...] = DEFAULT_QUANTILES,
+        quantiles: tuple[float, ...] = DEFAULT_QUANTILES,
         gamma: float = 0.0,
         colsample_bytree: float = 1.0,
         subsample: float = 1.0,

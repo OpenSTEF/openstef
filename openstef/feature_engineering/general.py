@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 """This modelu contains various helper functions."""
-from typing import List
 
 import numpy as np
 import pandas as pd
@@ -10,7 +9,7 @@ import structlog
 
 
 def add_missing_feature_columns(
-    input_data: pd.DataFrame, features: List[str]
+    input_data: pd.DataFrame, features: list[str]
 ) -> pd.DataFrame:
     """Adds feature column for features in the featurelist.
 
@@ -48,7 +47,7 @@ def add_missing_feature_columns(
 
 
 def remove_non_requested_feature_columns(
-    input_data: pd.DataFrame, requested_features: List[str]
+    input_data: pd.DataFrame, requested_features: list[str]
 ) -> pd.DataFrame:
     """Removes features that are provided in the input data but not in the feature list.
 

@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 import logging
 import os
-from typing import List, Optional, Tuple, Union
+from typing import Optional, Union
 
 import pandas as pd
 import structlog
@@ -24,7 +24,7 @@ from openstef.model.standard_deviation_generator import StandardDeviationGenerat
 from openstef.model_selection.model_selection import split_data_train_validation_test
 from openstef.validation import validation
 
-DEFAULT_TRAIN_HORIZONS: List[float] = [0.25, 47.0]
+DEFAULT_TRAIN_HORIZONS: list[float] = [0.25, 47.0]
 MAXIMUM_MODEL_AGE: int = 7
 
 DEFAULT_EARLY_STOPPING_ROUNDS: int = 10
@@ -37,7 +37,7 @@ def train_model_pipeline(
     check_old_model_age: bool,
     mlflow_tracking_uri: str,
     artifact_folder: str,
-) -> Optional[Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]]:
+) -> Optional[tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]]:
     """Middle level pipeline that takes care of all persistent storage dependencies.
 
     Expected prediction jobs keys: "id",
@@ -140,12 +140,12 @@ def train_model_pipeline_core(
     model_specs: ModelSpecificationDataClass,
     input_data: pd.DataFrame,
     old_model: OpenstfRegressor = None,
-    horizons: Union[List[float], str] = None,
+    horizons: Union[list[float], str] = None,
 ) -> Union[
     OpenstfRegressor,
     Report,
     ModelSpecificationDataClass,
-    Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame],
+    tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame],
 ]:
     """Train model core pipeline.
 
@@ -168,7 +168,7 @@ def train_model_pipeline_core(
         - Fitted_model (OpenstfRegressor)
         - Report (Report)
         - Modelspecs (ModelSpecificationDataClass)
-        - Datasets (Tuple[pd.DataFrmae, pd.DataFrame, pd.Dataframe): The train, validation and test sets
+        - Datasets (tuple[pd.DataFrmae, pd.DataFrame, pd.Dataframe): The train, validation and test sets
 
     """
     if horizons is None:
@@ -221,11 +221,11 @@ def train_pipeline_common(
     pj: PredictionJobDataClass,
     model_specs: ModelSpecificationDataClass,
     input_data: pd.DataFrame,
-    horizons: Union[List[float], str],
+    horizons: Union[list[float], str],
     test_fraction: float = 0.0,
     backtest: bool = False,
     test_data_predefined: pd.DataFrame = pd.DataFrame(),
-) -> Tuple[OpenstfRegressor, Report, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+) -> tuple[OpenstfRegressor, Report, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Common pipeline shared with operational training and backtest training.
 
     Args:
@@ -285,7 +285,7 @@ def train_pipeline_step_compute_features(
     pj: PredictionJobDataClass,
     model_specs: ModelSpecificationDataClass,
     input_data: pd.DataFrame,
-    horizons=List[float],
+    horizons=list[float],
 ) -> pd.DataFrame:
     """Compute features and perform consistency checks.
 

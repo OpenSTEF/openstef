@@ -7,7 +7,7 @@ import re
 from abc import ABC, abstractmethod
 from collections import Counter, namedtuple
 from importlib import import_module
-from typing import Dict, List, Optional, Sequence
+from typing import Optional, Sequence
 
 import pandas as pd
 
@@ -31,18 +31,16 @@ class FeatureAdder(ABC):
     @abstractmethod
     def name(self) -> str:
         """Name of the FeatureAdder."""
-        pass
 
     @abstractmethod
-    def required_features(self, feature_names) -> List[str]:
+    def required_features(self, feature_names) -> list[str]:
         """List of features that are required to calculate this feature."""
-        pass
 
     def __hash__(self):
         """Genearate hash of the name of this feature."""
         return hash(self.name)
 
-    def parse_feature_name(self, feature_name: str) -> Optional[Dict[str, str]]:
+    def parse_feature_name(self, feature_name: str) -> Optional[dict[str, str]]:
         """Parse a feature name.
 
         If the feature name is taken in charge by the feature adder, the method returns
@@ -54,7 +52,7 @@ class FeatureAdder(ABC):
             feature_name (str): The feature name, this may contain parameter informations.
 
         Returns:
-            Optional[Dict[str, Any]]: The parsed parameters. If the feature name is recognized but has no parameters
+            Optional[dict[str, Any]]: The parsed parameters. If the feature name is recognized but has no parameters
             an empty dictionnary is returned. If the feature name is not recognized, None is
             returned.
 
@@ -68,7 +66,6 @@ class FeatureAdder(ABC):
         self, df: pd.DataFrame, parsed_feature_names: Sequence[ParsedFeature]
     ) -> pd.DataFrame:
         """Apply or add the features to the input dataframe."""
-        pass
 
     def __repr__(self):
         """Represent as string."""
@@ -102,8 +99,8 @@ class FeatureDispatcher:
             )
 
     def dispatch_features(
-        self, feature_names: List[str]
-    ) -> Dict[FeatureAdder, List[ParsedFeature]]:
+        self, feature_names: list[str]
+    ) -> dict[FeatureAdder, list[ParsedFeature]]:
         """Dispatch features.
 
         Args:
@@ -133,7 +130,7 @@ class FeatureDispatcher:
         return dispatched_features
 
     def apply_features(
-        self, df: pd.DataFrame, feature_names: List[str]
+        self, df: pd.DataFrame, feature_names: list[str]
     ) -> pd.DataFrame:
         """Applies features to the input DataFrame.
 
@@ -171,7 +168,7 @@ class FeatureDispatcher:
         return df
 
 
-def adders_from_module(module_name: str) -> List[FeatureAdder]:
+def adders_from_module(module_name: str) -> list[FeatureAdder]:
     """Load all FeatureAdders classes on the fly from the module.
 
     Args:
@@ -196,7 +193,7 @@ def adders_from_module(module_name: str) -> List[FeatureAdder]:
     return feature_adders
 
 
-def adders_from_modules(module_names: List[str]) -> List[FeatureAdder]:
+def adders_from_modules(module_names: list[str]) -> list[FeatureAdder]:
     """Load all FeatureAdders classes on the fly from multiple modules.
 
     Args:
