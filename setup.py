@@ -45,7 +45,7 @@ setup(
         # Include anything in the data directory
         "openstef": ["data/*", "*.license"]
     },
-    python_requires=">=3.7.0",
+    python_requires=">=3.9.0",
     install_requires=read_requirements_from_file(),
     setup_requires=["wheel"],
     tests_require=["pytest", "pytest-cov", "flake8"],
