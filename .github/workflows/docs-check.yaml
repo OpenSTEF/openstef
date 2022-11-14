@@ -26,7 +26,7 @@ jobs:
       with:
         pre-build-command: |
           cp requirements.txt docs/requirements.txt &&\
-          printf "\pydata-sphinx-theme==0.8.1\n" >> docs/requirements.txt &&\
+          printf "\npydata-sphinx-theme==0.8.1\n" >> docs/requirements.txt &&\
           printf "\njinja2==3.0.0\n" >> docs/requirements.txt &&\
           printf "\nsphinx_autodoc_typehints==1.19.4\n" >> docs/requirements.txt &&\
           printf "\nmkdocs==1.2.3\n" >> docs/requirements.txt &&\
