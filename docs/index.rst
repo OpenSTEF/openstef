@@ -18,8 +18,8 @@ Get started using the :ref:`quickstart` or by reading about the :ref:`concepts`.
     quickstart
     tutorials
     concepts
-    dazls
     code_modules
+    community
     
 
 
