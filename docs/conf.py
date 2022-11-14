@@ -55,7 +55,6 @@ exclude_patterns = []
 html_theme = "pydata_sphinx_theme"
 html_logo = "_static/openstef_logo.png"
 html_theme_options = {
-   
     "icon_links": [
         {
             # Label for this link
@@ -66,7 +65,6 @@ html_theme_options = {
             "icon": "fab fa-github-square",
             # Whether icon should be a FontAwesome class, or a local file
             "type": "fontawesome",  # Default is fontawesome.
-            
         },
         {
             # Label for this link
@@ -77,7 +75,6 @@ html_theme_options = {
             "icon": "fas fa-gift",
             # Whether icon should be a FontAwesome class, or a local file
             "type": "fontawesome",  # Default is fontawesome.
-            
         },
         {
             # Label for this link
@@ -88,8 +85,7 @@ html_theme_options = {
             "icon": "fas fa-bolt",
             # Whether icon should be a FontAwesome class, or a local file
             "type": "fontawesome",  # Default is fontawesome.
-            
-        }
-   ],
-    "show_nav_level": 2
+        },
+    ],
+    "show_nav_level": 2,
 }
