@@ -13,11 +13,12 @@ Get started using the :ref:`user_guides` or by reading about the :ref:`concepts`
 
 .. toctree::
     :maxdepth: 1
-
+    
     user_guides
     concepts
-    code_modules
+    api_reference
     community
+    about_openstef
     
 More on OpenSTEF
 ================
