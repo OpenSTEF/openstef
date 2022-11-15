@@ -4,8 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Domain Adaptation for Zero Shot Learning in Sequence (DAZLS) &#8212; OpenSTEF  documentation</title>
     
   <!-- Loaded before other Sphinx assets -->
@@ -177,12 +176,12 @@
               
               <div>
                 
-  <section id="domain-adaptation-for-zero-shot-learning-in-sequence-dazls">
+  <div class="section" id="domain-adaptation-for-zero-shot-learning-in-sequence-dazls">
 <h1>Domain Adaptation for Zero Shot Learning in Sequence (DAZLS)<a class="headerlink" href="#domain-adaptation-for-zero-shot-learning-in-sequence-dazls" title="Permalink to this headline">#</a></h1>
 <p>DAZLS is an energy splitting function in openSTEF. Is a technique which
 transfers knowledge from complete-information substations to
 incomplete-information substations for solar and wind power prediction.
-It is being used in <a class="reference internal" href="openstef.pipeline.html#module-openstef.pipeline.create_component_forecast" title="openstef.pipeline.create_component_forecast"><code class="xref py py-mod docutils literal notranslate"><span class="pre">openstef.pipeline.create_component_forecast</span></code></a>
+It is being used in <code class="xref py py-mod docutils literal notranslate"><span class="pre">openstef.pipeline.create_component_forecast</span></code>
 to issue the prediction.</p>
 <p>This function trains a splitting model on data from multiple substations
 with known components and uses this model to carry out a prediction for
@@ -204,12 +203,10 @@ with the source metadata of each substation, is being used as the input
 to train the Adaptation model. Then, the Adaptation model provides the
 final output prediction of solar and wind power for the target
 substations.</p>
-<figure class="align-default" id="id1">
+<div class="figure align-default" id="id1">
 <img alt="Presentation3" src="https://user-images.githubusercontent.com/66070103/189650328-377ebb79-e8a7-40c6-acf3-64a5bb6197a4.jpg" />
-<figcaption>
-<p><span class="caption-text">Domain Adaptation Model</span><a class="headerlink" href="#id1" title="Permalink to this image">#</a></p>
-</figcaption>
-</figure>
+<p class="caption"><span class="caption-text">Domain Adaptation Model</span><a class="headerlink" href="#id1" title="Permalink to this image">#</a></p>
+</div>
 <p>For more information about DAZLS model, see:</p>
 <p>Teng, S.Y., van Nooten, C.C., van Doorn, J.M., Ottenbros, A., Huijbregts, M., Jansen, J.J.
 Improving Near Real-Time Predictions of Renewable Electricity Production
@@ -223,7 +220,7 @@ there are changes in the
 <a class="reference external" href="https://github.com/OpenSTEF/openstef/blob/main/openstef/model/regressors/dazls.py">dazls.py</a>,
 to run again the notebook and use the
 newly produced dazls_stored.sav file in the repository.</p>
-</section>
+</div>
 
 
               </div>

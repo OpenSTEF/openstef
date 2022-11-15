@@ -4,8 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>openstef.pipeline package &#8212; OpenSTEF  documentation</title>
     
   <!-- Loaded before other Sphinx assets -->
@@ -255,37 +254,37 @@
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-openstef.pipeline.create_basecase_forecast">
+  <a class="reference internal nav-link" href="#openstef-pipeline-create-basecase-forecast-module">
    openstef.pipeline.create_basecase_forecast module
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-openstef.pipeline.create_component_forecast">
+  <a class="reference internal nav-link" href="#openstef-pipeline-create-component-forecast-module">
    openstef.pipeline.create_component_forecast module
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-openstef.pipeline.create_forecast">
+  <a class="reference internal nav-link" href="#openstef-pipeline-create-forecast-module">
    openstef.pipeline.create_forecast module
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-openstef.pipeline.optimize_hyperparameters">
+  <a class="reference internal nav-link" href="#openstef-pipeline-optimize-hyperparameters-module">
    openstef.pipeline.optimize_hyperparameters module
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-openstef.pipeline.train_create_forecast_backtest">
+  <a class="reference internal nav-link" href="#openstef-pipeline-train-create-forecast-backtest-module">
    openstef.pipeline.train_create_forecast_backtest module
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-openstef.pipeline.train_model">
+  <a class="reference internal nav-link" href="#openstef-pipeline-train-model-module">
    openstef.pipeline.train_model module
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-openstef.pipeline.utils">
+  <a class="reference internal nav-link" href="#openstef-pipeline-utils-module">
    openstef.pipeline.utils module
   </a>
  </li>
@@ -315,548 +314,36 @@
               
               <div>
                 
-  <section id="openstef-pipeline-package">
+  <div class="section" id="openstef-pipeline-package">
 <h1>openstef.pipeline package<a class="headerlink" href="#openstef-pipeline-package" title="Permalink to this headline">#</a></h1>
-<section id="submodules">
+<div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">#</a></h2>
-</section>
-<section id="module-openstef.pipeline.create_basecase_forecast">
-<span id="openstef-pipeline-create-basecase-forecast-module"></span><h2>openstef.pipeline.create_basecase_forecast module<a class="headerlink" href="#module-openstef.pipeline.create_basecase_forecast" title="Permalink to this headline">#</a></h2>
-<dl class="py function">
-<dt class="sig sig-object py" id="openstef.pipeline.create_basecase_forecast.create_basecase_forecast_pipeline">
-<span class="sig-prename descclassname"><span class="pre">openstef.pipeline.create_basecase_forecast.</span></span><span class="sig-name descname"><span class="pre">create_basecase_forecast_pipeline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.pipeline.create_basecase_forecast.create_basecase_forecast_pipeline" title="Permalink to this definition">#</a></dt>
-<dd><p>Computes the base case forecast and confidence intervals for a given prediction job and input data.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">PredictionJobDataClass</span></code></a>) – Prediction job</p></li>
-<li><p><strong>input_data</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – data frame containing the input data necessary for the prediction.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
-</dd>
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Basecase forecast</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="openstef.pipeline.create_basecase_forecast.generate_basecase_confidence_interval">
-<span class="sig-prename descclassname"><span class="pre">openstef.pipeline.create_basecase_forecast.</span></span><span class="sig-name descname"><span class="pre">generate_basecase_confidence_interval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_with_features</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.pipeline.create_basecase_forecast.generate_basecase_confidence_interval" title="Permalink to this definition">#</a></dt>
-<dd><p>Calculate confidence interval for a basecase forecast.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data_with_features</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – Input dataframe that is used to make the basecase forecast.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
-</dd>
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Dataframe with the confidence interval.</p>
-</dd>
-</dl>
-</dd></dl>
-
-</section>
-<section id="module-openstef.pipeline.create_component_forecast">
-<span id="openstef-pipeline-create-component-forecast-module"></span><h2>openstef.pipeline.create_component_forecast module<a class="headerlink" href="#module-openstef.pipeline.create_component_forecast" title="Permalink to this headline">#</a></h2>
-<dl class="py function">
-<dt class="sig sig-object py" id="openstef.pipeline.create_component_forecast.create_components_forecast_pipeline">
-<span class="sig-prename descclassname"><span class="pre">openstef.pipeline.create_component_forecast.</span></span><span class="sig-name descname"><span class="pre">create_components_forecast_pipeline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weather_data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.pipeline.create_component_forecast.create_components_forecast_pipeline" title="Permalink to this definition">#</a></dt>
-<dd><p>Pipeline for creating a component forecast using Dazls prediction model.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">PredictionJobDataClass</span></code></a>) – Prediction job</p></li>
-<li><p><strong>input_data</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – Input forecast for the components forecast.</p></li>
-<li><p><strong>weather_data</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – Weather data with ‘radiation’ and ‘windspeed_100m’ columns</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
-</dd>
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>DataFrame with component forecasts. The dataframe contains these columns;
-“forecast_wind_on_shore”,
-“forecast_solar”,
-“forecast_other”,
-“pid”,
-“customer”,
-“description”,
-“type”,
-“algtype”</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="openstef.pipeline.create_component_forecast.create_input">
-<span class="sig-prename descclassname"><span class="pre">openstef.pipeline.create_component_forecast.</span></span><span class="sig-name descname"><span class="pre">create_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weather_data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.pipeline.create_component_forecast.create_input" title="Permalink to this definition">#</a></dt>
-<dd><p>This function prepares the input data.</p>
-<p>This data will be used for the Dazls model prediction, so they will be
-according Dazls model requirements.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">PredictionJobDataClass</span></code></a>) – Prediction job</p></li>
-<li><p><strong>input_data</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – Input forecast for the components forecast.</p></li>
-<li><p><strong>weather_data</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – Weather data with ‘radiation’ and ‘windspeed_100m’ columns</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
-</dd>
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>It outputs a dataframe which will be used for the Dazls prediction function.</p>
-</dd>
-</dl>
-</dd></dl>
-
-</section>
-<section id="module-openstef.pipeline.create_forecast">
-<span id="openstef-pipeline-create-forecast-module"></span><h2>openstef.pipeline.create_forecast module<a class="headerlink" href="#module-openstef.pipeline.create_forecast" title="Permalink to this headline">#</a></h2>
-<dl class="py function">
-<dt class="sig sig-object py" id="openstef.pipeline.create_forecast.create_forecast_pipeline">
-<span class="sig-prename descclassname"><span class="pre">openstef.pipeline.create_forecast.</span></span><span class="sig-name descname"><span class="pre">create_forecast_pipeline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mlflow_tracking_uri</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.pipeline.create_forecast.create_forecast_pipeline" title="Permalink to this definition">#</a></dt>
-<dd><p>Create forecast pipeline.</p>
-<p>This is the top-level pipeline which included loading the most recent model for
-the given prediction job.</p>
-<p>Expected prediction job keys: “id”,</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">PredictionJobDataClass</span></code></a>) – Prediction job</p></li>
-<li><p><strong>input_data</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – Training input data (without features)</p></li>
-<li><p><strong>mlflow_tracking_uri</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – MlFlow tracking URI</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
-</dd>
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>DataFrame with the forecast</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="openstef.pipeline.create_forecast.create_forecast_pipeline_core">
-<span class="sig-prename descclassname"><span class="pre">openstef.pipeline.create_forecast.</span></span><span class="sig-name descname"><span class="pre">create_forecast_pipeline_core</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_specs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.pipeline.create_forecast.create_forecast_pipeline_core" title="Permalink to this definition">#</a></dt>
-<dd><p>Create forecast pipeline (core).</p>
-<p>Computes the forecasts and confidence intervals given a prediction job and input data.
-This pipeline has no database or persisitent storage dependencies.</p>
-<dl class="simple">
-<dt>Expected prediction job keys: “resolution_minutes”, “horizon_minutes”, “id”, “type”,</dt><dd><p>“name”, “quantiles”</p>
-</dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">PredictionJobDataClass</span></code></a>) – Prediction job.</p></li>
-<li><p><strong>input_data</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – Input data for the prediction.</p></li>
-<li><p><strong>model</strong> (<a class="reference internal" href="openstef.model.regressors.html#openstef.model.regressors.regressor.OpenstfRegressor" title="openstef.model.regressors.regressor.OpenstfRegressor"><code class="xref py py-class docutils literal notranslate"><span class="pre">OpenstfRegressor</span></code></a>) – Model to use for this prediction.</p></li>
-<li><p><strong>model_specs</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.model_specifications.ModelSpecificationDataClass" title="openstef.data_classes.model_specifications.ModelSpecificationDataClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSpecificationDataClass</span></code></a>) – Model specifications.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
-</dd>
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Forecast</p>
-</dd>
-</dl>
-</dd></dl>
-
-</section>
-<section id="module-openstef.pipeline.optimize_hyperparameters">
-<span id="openstef-pipeline-optimize-hyperparameters-module"></span><h2>openstef.pipeline.optimize_hyperparameters module<a class="headerlink" href="#module-openstef.pipeline.optimize_hyperparameters" title="Permalink to this headline">#</a></h2>
-<dl class="py function">
-<dt class="sig sig-object py" id="openstef.pipeline.optimize_hyperparameters.optimize_hyperparameters_pipeline">
-<span class="sig-prename descclassname"><span class="pre">openstef.pipeline.optimize_hyperparameters.</span></span><span class="sig-name descname"><span class="pre">optimize_hyperparameters_pipeline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mlflow_tracking_uri</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">artifact_folder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">horizons</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0.25,</span> <span class="pre">47.0]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_trials</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.pipeline.optimize_hyperparameters.optimize_hyperparameters_pipeline" title="Permalink to this definition">#</a></dt>
-<dd><p>Optimize hyperparameters pipeline.</p>
-<p>Expected prediction job key’s: “name”, “model”</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">PredictionJobDataClass</span></code></a>) – Prediction job</p></li>
-<li><p><strong>input_data</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – Raw training input data</p></li>
-<li><p><strong>mlflow_tracking_uri</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Path/Uri to mlflow service</p></li>
-<li><p><strong>artifact_folder</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Path where artifacts, such as trained models, are stored</p></li>
-<li><p><strong>horizons</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]) – horizons for feature engineering.</p></li>
-<li><p><strong>n_trials</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of trials. Defaults to N_TRIALS.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Raises</dt>
-<dd class="field-even"><p><strong>ValueError</strong> – If the input_date is insufficient.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Optimized hyperparameters.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="openstef.pipeline.optimize_hyperparameters.optimize_hyperparameters_pipeline_core">
-<span class="sig-prename descclassname"><span class="pre">openstef.pipeline.optimize_hyperparameters.</span></span><span class="sig-name descname"><span class="pre">optimize_hyperparameters_pipeline_core</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">horizons</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0.25,</span> <span class="pre">47.0]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_trials</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.pipeline.optimize_hyperparameters.optimize_hyperparameters_pipeline_core" title="Permalink to this definition">#</a></dt>
-<dd><p>Optimize hyperparameters pipeline core.</p>
-<p>Expected prediction job key’s: “name”, “model”</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">PredictionJobDataClass</span></code></a>) – Prediction job</p></li>
-<li><p><strong>input_data</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – Raw training input data</p></li>
-<li><p><strong>horizons</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]) – horizons for feature engineering.</p></li>
-<li><p><strong>n_trials</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of trials. Defaults to N_TRIALS.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Raises</dt>
-<dd class="field-even"><p><strong>ValueError</strong> – If the input_date is insufficient.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<a class="reference internal" href="openstef.model.regressors.html#openstef.model.regressors.regressor.OpenstfRegressor" title="openstef.model.regressors.regressor.OpenstfRegressor"><code class="xref py py-class docutils literal notranslate"><span class="pre">OpenstfRegressor</span></code></a>, <a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.model_specifications.ModelSpecificationDataClass" title="openstef.data_classes.model_specifications.ModelSpecificationDataClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSpecificationDataClass</span></code></a>, <a class="reference internal" href="openstef.metrics.html#openstef.metrics.reporter.Report" title="openstef.metrics.reporter.Report"><code class="xref py py-class docutils literal notranslate"><span class="pre">Report</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]]</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p>Best model,</p></li>
-<li><p>Model specifications of the best model,</p></li>
-<li><p>Report of the best training round,</p></li>
-<li><p>Trials,</p></li>
-<li><p>Best trial number,</p></li>
-<li><p>Optimized hyperparameters.</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="openstef.pipeline.optimize_hyperparameters.optuna_optimization">
-<span class="sig-prename descclassname"><span class="pre">openstef.pipeline.optimize_hyperparameters.</span></span><span class="sig-name descname"><span class="pre">optuna_optimization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">objective</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validated_data_with_features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_trials</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.pipeline.optimize_hyperparameters.optuna_optimization" title="Permalink to this definition">#</a></dt>
-<dd><p>Perform hyperparameter optimization with optuna.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">PredictionJobDataClass</span></code></a>) – Prediction job</p></li>
-<li><p><strong>objective</strong> (<a class="reference internal" href="openstef.model.html#openstef.model.objective.RegressorObjective" title="openstef.model.objective.RegressorObjective"><code class="xref py py-class docutils literal notranslate"><span class="pre">RegressorObjective</span></code></a>) – Objective function for optuna</p></li>
-<li><p><strong>validated_data_with_features</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – cleaned input dataframe</p></li>
-<li><p><strong>n_trials</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – number of optuna trials</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Study</span></code>, <a class="reference internal" href="openstef.model.html#openstef.model.objective.RegressorObjective" title="openstef.model.objective.RegressorObjective"><code class="xref py py-class docutils literal notranslate"><span class="pre">RegressorObjective</span></code></a>]</p>
-</dd>
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p>Optimization study from optuna</p></li>
-<li><p>The objective object used by optuna</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-</dd></dl>
-
-</section>
-<section id="module-openstef.pipeline.train_create_forecast_backtest">
-<span id="openstef-pipeline-train-create-forecast-backtest-module"></span><h2>openstef.pipeline.train_create_forecast_backtest module<a class="headerlink" href="#module-openstef.pipeline.train_create_forecast_backtest" title="Permalink to this headline">#</a></h2>
-<dl class="py function">
-<dt class="sig sig-object py" id="openstef.pipeline.train_create_forecast_backtest.train_model_and_forecast_back_test">
-<span class="sig-prename descclassname"><span class="pre">openstef.pipeline.train_create_forecast_backtest.</span></span><span class="sig-name descname"><span class="pre">train_model_and_forecast_back_test</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modelspecs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training_horizons</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_folds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.pipeline.train_create_forecast_backtest.train_model_and_forecast_back_test" title="Permalink to this definition">#</a></dt>
-<dd><p>Pipeline for a back test.</p>
-<p>When number of folds is larger than 1: apply pipeline for a back test when forecasting
-the entire input range.</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>Makes use of kfold cross validation in order to split data multiple times.</p></li>
-<li><p>Results of all the testsets are added together to obtain the forecast for the whole input range.</p></li>
-<li><p>Obtaining the days for each fold can be done either randomly or not</p></li>
-</ul>
-<p><strong>DO NOT USE THIS PIPELINE FOR OPERATIONAL FORECASTS</strong></p>
-</div></blockquote>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">PredictionJobDataClass</span></code></a>) – Prediction job.</p></li>
-<li><p><strong>modelspecs</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.model_specifications.ModelSpecificationDataClass" title="openstef.data_classes.model_specifications.ModelSpecificationDataClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSpecificationDataClass</span></code></a>) – Dataclass containing model specifications</p></li>
-<li><p><strong>input_data</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – Input data</p></li>
-<li><p><strong>training_horizons</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]]) – horizons to train on in hours.
-These horizons are also used to make predictions (one for every horizon)</p></li>
-<li><p><strong>n_folds</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – number of folds to apply (if 1, no cross validation will be applied)</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<a class="reference internal" href="openstef.model.regressors.html#openstef.model.regressors.regressor.OpenstfRegressor" title="openstef.model.regressors.regressor.OpenstfRegressor"><code class="xref py py-class docutils literal notranslate"><span class="pre">OpenstfRegressor</span></code></a>], <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>]]</p>
-</dd>
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p>Forecast (pandas.DataFrame)</p></li>
-<li><p>Fitted models (list[OpenStfRegressor])</p></li>
-<li><p>Train data sets (list[pd.DataFrame])</p></li>
-<li><p>Validation data sets (list[pd.DataFrame])</p></li>
-<li><p>Test data sets (list[pd.DataFrame])</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="openstef.pipeline.train_create_forecast_backtest.train_model_and_forecast_test_core">
-<span class="sig-prename descclassname"><span class="pre">openstef.pipeline.train_create_forecast_backtest.</span></span><span class="sig-name descname"><span class="pre">train_model_and_forecast_test_core</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modelspecs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validation_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.pipeline.train_create_forecast_backtest.train_model_and_forecast_test_core" title="Permalink to this definition">#</a></dt>
-<dd><p>Trains the model and forecast on the test set.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">PredictionJobDataClass</span></code></a>) – Prediction job.</p></li>
-<li><p><strong>modelspecs</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.model_specifications.ModelSpecificationDataClass" title="openstef.data_classes.model_specifications.ModelSpecificationDataClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSpecificationDataClass</span></code></a>) – Dataclass containing model specifications</p></li>
-<li><p><strong>train_data</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – Train data with computed features</p></li>
-<li><p><strong>validation_data</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – Validation data with computed features</p></li>
-<li><p><strong>test_data</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – Test data with computed features</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<a class="reference internal" href="openstef.model.regressors.html#openstef.model.regressors.regressor.OpenstfRegressor" title="openstef.model.regressors.regressor.OpenstfRegressor"><code class="xref py py-class docutils literal notranslate"><span class="pre">OpenstfRegressor</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>]</p>
-</dd>
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p>The trained model</p></li>
-<li><p>The forecast on the test set.</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-</dd></dl>
-
-</section>
-<section id="module-openstef.pipeline.train_model">
-<span id="openstef-pipeline-train-model-module"></span><h2>openstef.pipeline.train_model module<a class="headerlink" href="#module-openstef.pipeline.train_model" title="Permalink to this headline">#</a></h2>
-<dl class="py function">
-<dt class="sig sig-object py" id="openstef.pipeline.train_model.train_model_pipeline">
-<span class="sig-prename descclassname"><span class="pre">openstef.pipeline.train_model.</span></span><span class="sig-name descname"><span class="pre">train_model_pipeline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_old_model_age</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mlflow_tracking_uri</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">artifact_folder</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.pipeline.train_model.train_model_pipeline" title="Permalink to this definition">#</a></dt>
-<dd><p>Middle level pipeline that takes care of all persistent storage dependencies.</p>
-<p>Expected prediction jobs keys: “id”,
-“model”, “hyper_params”, “feature_names”.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">PredictionJobDataClass</span></code></a>) – Prediction job</p></li>
-<li><p><strong>input_data</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – Raw training input data</p></li>
-<li><p><strong>check_old_model_age</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Check if training should be skipped because the model is too young</p></li>
-<li><p><strong>mlflow_tracking_uri</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Tracking URI for MLFlow</p></li>
-<li><p><strong>artifact_folder</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Path where artifacts, such as trained models, are stored</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>]]</p>
-</dd>
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><p>If pj.save_train_forecasts is False, None is returned
-Otherwise:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>The train dataset with forecasts</p></li>
-<li><p>The validation dataset with forecasts</p></li>
-<li><p>The test dataset with forecasts</p></li>
-</ul>
-</div></blockquote>
-</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="openstef.pipeline.train_model.train_model_pipeline_core">
-<span class="sig-prename descclassname"><span class="pre">openstef.pipeline.train_model.</span></span><span class="sig-name descname"><span class="pre">train_model_pipeline_core</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_specs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">old_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">horizons</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.pipeline.train_model.train_model_pipeline_core" title="Permalink to this definition">#</a></dt>
-<dd><p>Train model core pipeline.</p>
-<p>Trains a new model given a prediction job, input data and compares it to an old model.
-This pipeline has no database or persistent storage dependencies.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">PredictionJobDataClass</span></code></a>) – Prediction job</p></li>
-<li><p><strong>model_specs</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.model_specifications.ModelSpecificationDataClass" title="openstef.data_classes.model_specifications.ModelSpecificationDataClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSpecificationDataClass</span></code></a>) – Dataclass containing model specifications</p></li>
-<li><p><strong>input_data</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – Input data</p></li>
-<li><p><strong>old_model</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<a class="reference internal" href="openstef.model.regressors.html#openstef.model.regressors.regressor.OpenstfRegressor" title="openstef.model.regressors.regressor.OpenstfRegressor"><code class="xref py py-class docutils literal notranslate"><span class="pre">OpenstfRegressor</span></code></a>]) – Old model to compare to. Defaults to None.</p></li>
-<li><p><strong>horizons</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>]) – horizons to train on in hours.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Raises</dt>
-<dd class="field-even"><ul class="simple">
-<li><p><a class="reference internal" href="openstef.html#openstef.exceptions.InputDataInsufficientError" title="openstef.exceptions.InputDataInsufficientError"><strong>InputDataInsufficientError</strong></a> – when input data is insufficient.</p></li>
-<li><p><a class="reference internal" href="openstef.html#openstef.exceptions.InputDataWrongColumnOrderError" title="openstef.exceptions.InputDataWrongColumnOrderError"><strong>InputDataWrongColumnOrderError</strong></a> – when input data has a invalid column order.</p></li>
-<li><p><a class="reference internal" href="openstef.html#openstef.exceptions.OldModelHigherScoreError" title="openstef.exceptions.OldModelHigherScoreError"><strong>OldModelHigherScoreError</strong></a> – When old model is better than new model.</p></li>
-</ul>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<a class="reference internal" href="openstef.model.regressors.html#openstef.model.regressors.regressor.OpenstfRegressor" title="openstef.model.regressors.regressor.OpenstfRegressor"><code class="xref py py-class docutils literal notranslate"><span class="pre">OpenstfRegressor</span></code></a>, <a class="reference internal" href="openstef.metrics.html#openstef.metrics.reporter.Report" title="openstef.metrics.reporter.Report"><code class="xref py py-class docutils literal notranslate"><span class="pre">Report</span></code></a>, <a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.model_specifications.ModelSpecificationDataClass" title="openstef.data_classes.model_specifications.ModelSpecificationDataClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSpecificationDataClass</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>]]</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p>Fitted_model (OpenstfRegressor)</p></li>
-<li><p>Report (Report)</p></li>
-<li><p>Modelspecs (ModelSpecificationDataClass)</p></li>
-<li><p>Datasets (tuple[pd.DataFrmae, pd.DataFrame, pd.Dataframe): The train, validation and test sets</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="openstef.pipeline.train_model.train_pipeline_common">
-<span class="sig-prename descclassname"><span class="pre">openstef.pipeline.train_model.</span></span><span class="sig-name descname"><span class="pre">train_pipeline_common</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_specs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">horizons</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_fraction=0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backtest=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_data_predefined=Empty</span> <span class="pre">DataFrame</span> <span class="pre">Columns:</span> <span class="pre">[]</span> <span class="pre">Index:</span> <span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.pipeline.train_model.train_pipeline_common" title="Permalink to this definition">#</a></dt>
-<dd><p>Common pipeline shared with operational training and backtest training.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">PredictionJobDataClass</span></code></a>) – Prediction job</p></li>
-<li><p><strong>model_specs</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.model_specifications.ModelSpecificationDataClass" title="openstef.data_classes.model_specifications.ModelSpecificationDataClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSpecificationDataClass</span></code></a>) – Dataclass containing model specifications</p></li>
-<li><p><strong>input_data</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – Input data</p></li>
-<li><p><strong>horizons</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – horizons to train on in hours.</p></li>
-<li><p><strong>test_fraction</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – fraction of data to use for testing</p></li>
-<li><p><strong>backtest</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – boolean if we need to do a backtest</p></li>
-<li><p><strong>test_data_predefined</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – Predefined test data frame to be used in the pipeline
-(empty data frame by default)</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<a class="reference internal" href="openstef.model.regressors.html#openstef.model.regressors.regressor.OpenstfRegressor" title="openstef.model.regressors.regressor.OpenstfRegressor"><code class="xref py py-class docutils literal notranslate"><span class="pre">OpenstfRegressor</span></code></a>, <a class="reference internal" href="openstef.metrics.html#openstef.metrics.reporter.Report" title="openstef.metrics.reporter.Report"><code class="xref py py-class docutils literal notranslate"><span class="pre">Report</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>]</p>
-</dd>
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p>The trained model</p></li>
-<li><p>Report</p></li>
-<li><p>The train data</p></li>
-<li><p>The validation data</p></li>
-<li><p>The test data</p></li>
-</ul>
-</p>
-</dd>
-<dt class="field-even">Raises</dt>
-<dd class="field-even"><ul class="simple">
-<li><p><a class="reference internal" href="openstef.html#openstef.exceptions.InputDataInsufficientError" title="openstef.exceptions.InputDataInsufficientError"><strong>InputDataInsufficientError</strong></a> – when input data is insufficient.</p></li>
-<li><p><a class="reference internal" href="openstef.html#openstef.exceptions.InputDataWrongColumnOrderError" title="openstef.exceptions.InputDataWrongColumnOrderError"><strong>InputDataWrongColumnOrderError</strong></a> – when input data has a invalid column order.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="openstef.pipeline.train_model.train_pipeline_step_compute_features">
-<span class="sig-prename descclassname"><span class="pre">openstef.pipeline.train_model.</span></span><span class="sig-name descname"><span class="pre">train_pipeline_step_compute_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_specs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">horizons</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">list[float]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.pipeline.train_model.train_pipeline_step_compute_features" title="Permalink to this definition">#</a></dt>
-<dd><p>Compute features and perform consistency checks.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">PredictionJobDataClass</span></code></a>) – Prediction job</p></li>
-<li><p><strong>model_specs</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.model_specifications.ModelSpecificationDataClass" title="openstef.data_classes.model_specifications.ModelSpecificationDataClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSpecificationDataClass</span></code></a>) – Dataclass containing model specifications</p></li>
-<li><p><strong>input_data</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – Input data</p></li>
-<li><p><strong>horizons</strong> – horizons to train on in hours.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
-</dd>
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>The dataframe with features need to train the model</p>
-</dd>
-<dt class="field-even">Raises</dt>
-<dd class="field-even"><ul class="simple">
-<li><p><a class="reference internal" href="openstef.html#openstef.exceptions.InputDataInsufficientError" title="openstef.exceptions.InputDataInsufficientError"><strong>InputDataInsufficientError</strong></a> – when input data is insufficient.</p></li>
-<li><p><a class="reference internal" href="openstef.html#openstef.exceptions.InputDataWrongColumnOrderError" title="openstef.exceptions.InputDataWrongColumnOrderError"><strong>InputDataWrongColumnOrderError</strong></a> – when input data has a invalid column order.</p></li>
-<li><p><strong>ValueError</strong> – when the horizon is a string and the corresponding column in not in the input data</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="openstef.pipeline.train_model.train_pipeline_step_split_data">
-<span class="sig-prename descclassname"><span class="pre">openstef.pipeline.train_model.</span></span><span class="sig-name descname"><span class="pre">train_pipeline_step_split_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_with_features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_fraction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backtest=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_data_predefined=Empty</span> <span class="pre">DataFrame</span> <span class="pre">Columns:</span> <span class="pre">[]</span> <span class="pre">Index:</span> <span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.pipeline.train_model.train_pipeline_step_split_data" title="Permalink to this definition">#</a></dt>
-<dd><p>The default way to perform train, val, test split.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>data_with_features</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – Input data</p></li>
-<li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">PredictionJobDataClass</span></code></a>) – Prediction job</p></li>
-<li><p><strong>test_fraction</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – fraction of data to use for testing</p></li>
-<li><p><strong>backtest</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – boolean if we need to do a backtest</p></li>
-<li><p><strong>test_data_predefined</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – Predefined test data frame to be used in the pipeline
-(empty data frame by default)</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
-</dd>
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p>Train dataset</p></li>
-<li><p>Validation dataset</p></li>
-<li><p>Test dataset</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="openstef.pipeline.train_model.train_pipeline_step_train_model">
-<span class="sig-prename descclassname"><span class="pre">openstef.pipeline.train_model.</span></span><span class="sig-name descname"><span class="pre">train_pipeline_step_train_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_specs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validation_data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.pipeline.train_model.train_pipeline_step_train_model" title="Permalink to this definition">#</a></dt>
-<dd><p>Train the model.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">PredictionJobDataClass</span></code></a>) – Prediction job</p></li>
-<li><p><strong>model_specs</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.model_specifications.ModelSpecificationDataClass" title="openstef.data_classes.model_specifications.ModelSpecificationDataClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSpecificationDataClass</span></code></a>) – Dataclass containing model specifications</p></li>
-<li><p><strong>train_data</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – The training data</p></li>
-<li><p><strong>validation_data</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – The test data</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference internal" href="openstef.model.regressors.html#openstef.model.regressors.regressor.OpenstfRegressor" title="openstef.model.regressors.regressor.OpenstfRegressor"><code class="xref py py-class docutils literal notranslate"><span class="pre">OpenstfRegressor</span></code></a></p>
-</dd>
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>The trained model</p>
-</dd>
-</dl>
-</dd></dl>
-
-</section>
-<section id="module-openstef.pipeline.utils">
-<span id="openstef-pipeline-utils-module"></span><h2>openstef.pipeline.utils module<a class="headerlink" href="#module-openstef.pipeline.utils" title="Permalink to this headline">#</a></h2>
-<dl class="py function">
-<dt class="sig sig-object py" id="openstef.pipeline.utils.generate_forecast_datetime_range">
-<span class="sig-prename descclassname"><span class="pre">openstef.pipeline.utils.</span></span><span class="sig-name descname"><span class="pre">generate_forecast_datetime_range</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">forecast_data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.pipeline.utils.generate_forecast_datetime_range" title="Permalink to this definition">#</a></dt>
-<dd><p>Generate forecast range based on last cluster of null values in first target column of forecast data.</p>
-<p class="rubric">Example</p>
-<p>A forecast dataset with data between 2021-11-05 and 2021-11-19, and the
-target column ‘load’ as first column is given as input to this function. The first
-column ‘load’ has null values between 2021-11-17 04:00:00 and 2021-11-19 05:00:00.
-The null values at the end of the column indicate when forecasts are needed.
-Therefore this function sets starting time of forecasts as 2021-11-17 04:00:00 and
-end time of forecasts as 2021-11-19 05:00:00.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>forecast_data</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – The forecast dataframe.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code>]</p>
-</dd>
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Start and end datetimes of the forecast range.</p>
-</dd>
-</dl>
-</dd></dl>
-
-</section>
-<section id="module-openstef.pipeline">
+</div>
+<div class="section" id="openstef-pipeline-create-basecase-forecast-module">
+<h2>openstef.pipeline.create_basecase_forecast module<a class="headerlink" href="#openstef-pipeline-create-basecase-forecast-module" title="Permalink to this headline">#</a></h2>
+</div>
+<div class="section" id="openstef-pipeline-create-component-forecast-module">
+<h2>openstef.pipeline.create_component_forecast module<a class="headerlink" href="#openstef-pipeline-create-component-forecast-module" title="Permalink to this headline">#</a></h2>
+</div>
+<div class="section" id="openstef-pipeline-create-forecast-module">
+<h2>openstef.pipeline.create_forecast module<a class="headerlink" href="#openstef-pipeline-create-forecast-module" title="Permalink to this headline">#</a></h2>
+</div>
+<div class="section" id="openstef-pipeline-optimize-hyperparameters-module">
+<h2>openstef.pipeline.optimize_hyperparameters module<a class="headerlink" href="#openstef-pipeline-optimize-hyperparameters-module" title="Permalink to this headline">#</a></h2>
+</div>
+<div class="section" id="openstef-pipeline-train-create-forecast-backtest-module">
+<h2>openstef.pipeline.train_create_forecast_backtest module<a class="headerlink" href="#openstef-pipeline-train-create-forecast-backtest-module" title="Permalink to this headline">#</a></h2>
+</div>
+<div class="section" id="openstef-pipeline-train-model-module">
+<h2>openstef.pipeline.train_model module<a class="headerlink" href="#openstef-pipeline-train-model-module" title="Permalink to this headline">#</a></h2>
+</div>
+<div class="section" id="openstef-pipeline-utils-module">
+<h2>openstef.pipeline.utils module<a class="headerlink" href="#openstef-pipeline-utils-module" title="Permalink to this headline">#</a></h2>
+</div>
+<div class="section" id="module-openstef.pipeline">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-openstef.pipeline" title="Permalink to this headline">#</a></h2>
-</section>
-</section>
+</div>
+</div>
 
 
               </div>

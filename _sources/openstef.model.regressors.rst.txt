@@ -68,6 +68,7 @@ openstef.model.regressors.xgb\_quantile module
    :undoc-members:
    :show-inheritance:
 
+
 Module contents
 ---------------
 

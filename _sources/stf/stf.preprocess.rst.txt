@@ -1,0 +1,10 @@
+stf.preprocess package
+======================
+
+Module contents
+---------------
+
+.. automodule:: stf.preprocess
+   :members:
+   :undoc-members:
+   :show-inheritance:

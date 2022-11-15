@@ -4,8 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Concepts &#8212; OpenSTEF  documentation</title>
     
   <!-- Loaded before other Sphinx assets -->
@@ -206,10 +205,10 @@
               
               <div>
                 
-  <section id="concepts">
+  <div class="section" id="concepts">
 <span id="id1"></span><h1>Concepts<a class="headerlink" href="#concepts" title="Permalink to this headline">#</a></h1>
 <p>Looking at the architecture of OpenSTEF helps to understand OpenSTEF concepts.</p>
-<section id="software-architecture">
+<div class="section" id="software-architecture">
 <h2>Software architecture<a class="headerlink" href="#software-architecture" title="Permalink to this headline">#</a></h2>
 <a class="reference internal image-reference" href="https://user-images.githubusercontent.com/25053215/184536369-ed608e86-1ea8-4c16-8c6a-5eaeb145eedf.png"><img alt="https://user-images.githubusercontent.com/25053215/184536369-ed608e86-1ea8-4c16-8c6a-5eaeb145eedf.png" src="https://user-images.githubusercontent.com/25053215/184536369-ed608e86-1ea8-4c16-8c6a-5eaeb145eedf.png" style="width: 800px;" /></a>
 <p>OpenSTEF is set up as a package that performs machine learning to forecast energy loads on the energy grid.
@@ -232,8 +231,8 @@ giving input data to the pipeline. Users can choose to use tasks
 </ul>
 <p>If tasks are used, the openstef-dbc package is required as an interface to the database for reading/writing.
 The current interface in openstef-dbc is for a MySQL database for configuration data (e.g. information for prediction jobs) and Influx database for feature data (e.g. weather, load, energy price data) and energy forecast data.</p>
-</section>
-<section id="application-architecture">
+</div>
+<div class="section" id="application-architecture">
 <span id="id2"></span><h2>Application architecture<a class="headerlink" href="#application-architecture" title="Permalink to this headline">#</a></h2>
 <p>OpenSTEF is just a software package by itself and needs more parts to run as an application.</p>
 <a class="reference internal image-reference" href="https://user-images.githubusercontent.com/25053215/184536367-c7914697-7a2a-45b8-b447-36aec1a6c1af.png"><img alt="https://user-images.githubusercontent.com/25053215/184536367-c7914697-7a2a-45b8-b447-36aec1a6c1af.png" src="https://user-images.githubusercontent.com/25053215/184536367-c7914697-7a2a-45b8-b447-36aec1a6c1af.png" style="width: 800px;" /></a>
@@ -262,14 +261,14 @@ The current interface in openstef-dbc is for a MySQL database for configuration 
 <div class="line-block">
 <div class="line"><br /></div>
 </div>
-</section>
-</section>
-<section id="domain-adaptation-for-zero-shot-learning-in-sequence-dazls">
+</div>
+</div>
+<div class="section" id="domain-adaptation-for-zero-shot-learning-in-sequence-dazls">
 <h1>Domain Adaptation for Zero Shot Learning in Sequence (DAZLS)<a class="headerlink" href="#domain-adaptation-for-zero-shot-learning-in-sequence-dazls" title="Permalink to this headline">#</a></h1>
 <p>DAZLS is an energy splitting function in openSTEF. Is a technique which
 transfers knowledge from complete-information substations to
 incomplete-information substations for solar and wind power prediction.
-It is being used in <a class="reference internal" href="openstef.pipeline.html#module-openstef.pipeline.create_component_forecast" title="openstef.pipeline.create_component_forecast"><code class="xref py py-mod docutils literal notranslate"><span class="pre">openstef.pipeline.create_component_forecast</span></code></a>
+It is being used in <code class="xref py py-mod docutils literal notranslate"><span class="pre">openstef.pipeline.create_component_forecast</span></code>
 to issue the prediction.</p>
 <p>This function trains a splitting model on data from multiple substations
 with known components and uses this model to carry out a prediction for
@@ -291,12 +290,10 @@ with the source metadata of each substation, is being used as the input
 to train the Adaptation model. Then, the Adaptation model provides the
 final output prediction of solar and wind power for the target
 substations.</p>
-<figure class="align-default" id="id3">
+<div class="figure align-default" id="id3">
 <img alt="Presentation3" src="https://user-images.githubusercontent.com/66070103/189650328-377ebb79-e8a7-40c6-acf3-64a5bb6197a4.jpg" />
-<figcaption>
-<p><span class="caption-text">Domain Adaptation Model</span><a class="headerlink" href="#id3" title="Permalink to this image">#</a></p>
-</figcaption>
-</figure>
+<p class="caption"><span class="caption-text">Domain Adaptation Model</span><a class="headerlink" href="#id3" title="Permalink to this image">#</a></p>
+</div>
 <p>For more information about DAZLS model, see:</p>
 <p>Teng, S.Y., van Nooten, C.C., van Doorn, J.M., Ottenbros, A., Huijbregts, M., Jansen, J.J.
 Improving Near Real-Time Predictions of Renewable Electricity Production
@@ -310,7 +307,7 @@ there are changes in the
 <a class="reference external" href="https://github.com/OpenSTEF/openstef/blob/main/openstef/model/regressors/dazls.py">dazls.py</a>,
 to run again the notebook and use the
 newly produced dazls_stored.sav file in the repository.</p>
-</section>
+</div>
 
 
               </div>

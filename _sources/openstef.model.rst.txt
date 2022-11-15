@@ -5,7 +5,6 @@ Subpackages
 -----------
 
 .. toctree::
-   :maxdepth: 4
 
    openstef.model.metamodels
    openstef.model.regressors
@@ -76,6 +75,7 @@ openstef.model.standard\_deviation\_generator module
    :members:
    :undoc-members:
    :show-inheritance:
+
 
 Module contents
 ---------------

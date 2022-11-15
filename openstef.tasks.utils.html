@@ -4,8 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>openstef.tasks.utils package &#8212; OpenSTEF  documentation</title>
     
   <!-- Loaded before other Sphinx assets -->
@@ -255,12 +254,12 @@
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-openstef.tasks.utils.dependencies">
+  <a class="reference internal nav-link" href="#openstef-tasks-utils-dependencies-module">
    openstef.tasks.utils.dependencies module
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-openstef.tasks.utils.predictionjobloop">
+  <a class="reference internal nav-link" href="#openstef-tasks-utils-predictionjobloop-module">
    openstef.tasks.utils.predictionjobloop module
   </a>
  </li>
@@ -295,168 +294,18 @@
               
               <div>
                 
-  <section id="openstef-tasks-utils-package">
+  <div class="section" id="openstef-tasks-utils-package">
 <h1>openstef.tasks.utils package<a class="headerlink" href="#openstef-tasks-utils-package" title="Permalink to this headline">#</a></h1>
-<section id="submodules">
+<div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">#</a></h2>
-</section>
-<section id="module-openstef.tasks.utils.dependencies">
-<span id="openstef-tasks-utils-dependencies-module"></span><h2>openstef.tasks.utils.dependencies module<a class="headerlink" href="#module-openstef.tasks.utils.dependencies" title="Permalink to this headline">#</a></h2>
-<dl class="py function">
-<dt class="sig sig-object py" id="openstef.tasks.utils.dependencies.build_graph_structure">
-<span class="sig-prename descclassname"><span class="pre">openstef.tasks.utils.dependencies.</span></span><span class="sig-name descname"><span class="pre">build_graph_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pjs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.utils.dependencies.build_graph_structure" title="Permalink to this definition">#</a></dt>
-<dd><p>Build the graph of dependencies between prediction jobs.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>pjs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code>[<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">PredictionJobDataClass</span></code></a>]) – The Iterable of prediction jobs</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Set</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]], <code class="xref py py-class docutils literal notranslate"><span class="pre">Set</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>], <code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]]]]</p>
-</dd>
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p>The set of node ids of the graph</p></li>
-<li><p>The set of edges in the graph</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="openstef.tasks.utils.dependencies.build_nx_graph">
-<span class="sig-prename descclassname"><span class="pre">openstef.tasks.utils.dependencies.</span></span><span class="sig-name descname"><span class="pre">build_nx_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edges</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.utils.dependencies.build_nx_graph" title="Permalink to this definition">#</a></dt>
-<dd><p>Build a networkx Directed Graph.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>nodes</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]]) – The sequence of node ids</p></li>
-<li><p><strong>edges</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>], <code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]]]) – The sequence of edges</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DiGraph</span></code></p>
-</dd>
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>The dependency graph</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="openstef.tasks.utils.dependencies.find_groups">
-<span class="sig-prename descclassname"><span class="pre">openstef.tasks.utils.dependencies.</span></span><span class="sig-name descname"><span class="pre">find_groups</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pjs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">randomize_groups</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.utils.dependencies.find_groups" title="Permalink to this definition">#</a></dt>
-<dd><p>Find a sequence of prediction job groups respecting dependencies.</p>
-<p>Compute groups of prediction jobs such that the prediction jobs in a group
-depend of at least one prediction job in the previous group and does not depend
-on a prediction job in the following groups.
-This means that all the prediction jobs in a group can be run in parallel and that
-if groups are treated in the given order, the dependencies of a prediction job have
-already been treated when the prediction job is run.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>pjs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">PredictionJobDataClass</span></code></a>]) – The sequence of prediction jobs</p></li>
-<li><p><strong>randomize_groups</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Wether subgroups should be randomized.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">DiGraph</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">PredictionJobDataClass</span></code></a>]]]</p>
-</dd>
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p>The dependency graph</p></li>
-<li><p>The list of prediction job groups</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="openstef.tasks.utils.dependencies.has_dependencies">
-<span class="sig-prename descclassname"><span class="pre">openstef.tasks.utils.dependencies.</span></span><span class="sig-name descname"><span class="pre">has_dependencies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pjs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.utils.dependencies.has_dependencies" title="Permalink to this definition">#</a></dt>
-<dd><p>Test whether some prediction jobs have dependencies information.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>pjs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code>[<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">PredictionJobDataClass</span></code></a>]) – The list of prediction jobs</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
-</dd>
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>True if some dependency information was found.</p>
-</dd>
-</dl>
-</dd></dl>
-
-</section>
-<section id="module-openstef.tasks.utils.predictionjobloop">
-<span id="openstef-tasks-utils-predictionjobloop-module"></span><h2>openstef.tasks.utils.predictionjobloop module<a class="headerlink" href="#module-openstef.tasks.utils.predictionjobloop" title="Permalink to this headline">#</a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="openstef.tasks.utils.predictionjobloop.PredictionJobLoop">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef.tasks.utils.predictionjobloop.</span></span><span class="sig-name descname"><span class="pre">PredictionJobLoop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop_on_exception</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">on_exception_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">on_successful_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">on_end_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prediction_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug_pid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">pj_kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.utils.predictionjobloop.PredictionJobLoop" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Convenience objects that maps a function over prediction jobs.</p>
-<p>Default behaviour is to automatically get prediction jobs from the
-database. Any keyword argument passed will be directed to the getting
-function. If another set of prediction jobs is desired, manually pass
-them using the prediction_jobs argument.</p>
-<p>Tip: For debugging a specific PID, use debug_pid=specific_pid</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>context</strong> (<a class="reference internal" href="#openstef.tasks.utils.taskcontext.TaskContext" title="openstef.tasks.utils.taskcontext.TaskContext"><code class="xref py py-class docutils literal notranslate"><span class="pre">TaskContext</span></code></a>) – The context to run this loop in.</p></li>
-<li><p><strong>stop_on_exception</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to break out of the
-loop when an exception is raised. Defaults to False.</p></li>
-<li><p><strong>random_order</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to randomize the order of the
-prediction jobs. Defaults to True. Does not apply to manually
-passed prediction jobs.</p></li>
-<li><p><strong>on_exception_callback</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>]) – Callback, will be called
-everytime an exception is raised. Callable gets the pj and
-exception raised as arguments</p></li>
-<li><p><strong>on_successful_callback</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>]) – Callback, will be called
-everytime an iteration is successful (no exception is raised).
-Callable gets the pj as argument.</p></li>
-<li><p><strong>on_end_callback</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>]) – Callback, will be called everytime an
-iteration is completed. Callable gets the pj and and bool
-indicating success as argument.</p></li>
-<li><p><strong>prediction_jobs</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">PredictionJobDataClass</span></code></a>]]) – Manually pass a list of
-prediction jobs that will be looped over. If set to None, will fetch
-prediction jobs from database based on pj_kwargs</p></li>
-<li><p><strong>debug_pid</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – enter a specific pid for debugging.
-If not None, the prediction job loop will only look at this pid</p></li>
-<li><p><strong>**pj_kwargs</strong> – Any other kwargs willed will be directed to the
-prediction job getting function.</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="openstef.tasks.utils.predictionjobloop.PredictionJobLoop.map">
-<span class="sig-name descname"><span class="pre">map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.utils.predictionjobloop.PredictionJobLoop.map" title="Permalink to this definition">#</a></dt>
-<dd><p>Maps the passed function over all prediction jobs.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>function</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>) – The function that will be applied to each prediction
-job separately.</p></li>
-<li><p><strong>*args</strong> – Any other arguments or passed to the function.</p></li>
-<li><p><strong>**kwargs</strong> – All keyword arguments are passed to the function. This method is
-highly prefered over using args, since kwargs will be automatically
-logged.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Raises</dt>
-<dd class="field-even"><p><a class="reference internal" href="openstef.html#openstef.exceptions.PredictionJobException" title="openstef.exceptions.PredictionJobException"><strong>PredictionJobException</strong></a> – This exception will be raised if one or more
-    prediction jobs raised an exception during the loop.</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-</section>
-<section id="module-openstef.tasks.utils.taskcontext">
+</div>
+<div class="section" id="openstef-tasks-utils-dependencies-module">
+<h2>openstef.tasks.utils.dependencies module<a class="headerlink" href="#openstef-tasks-utils-dependencies-module" title="Permalink to this headline">#</a></h2>
+</div>
+<div class="section" id="openstef-tasks-utils-predictionjobloop-module">
+<h2>openstef.tasks.utils.predictionjobloop module<a class="headerlink" href="#openstef-tasks-utils-predictionjobloop-module" title="Permalink to this headline">#</a></h2>
+</div>
+<div class="section" id="module-openstef.tasks.utils.taskcontext">
 <span id="openstef-tasks-utils-taskcontext-module"></span><h2>openstef.tasks.utils.taskcontext module<a class="headerlink" href="#module-openstef.tasks.utils.taskcontext" title="Permalink to this headline">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="openstef.tasks.utils.taskcontext.TaskContext">
@@ -491,11 +340,11 @@ completed. Callable gets a bool indicating success as argument.</p></li>
 </dl>
 </dd></dl>
 
-</section>
-<section id="module-openstef.tasks.utils">
+</div>
+<div class="section" id="module-openstef.tasks.utils">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-openstef.tasks.utils" title="Permalink to this headline">#</a></h2>
-</section>
-</section>
+</div>
+</div>
 
 
               </div>

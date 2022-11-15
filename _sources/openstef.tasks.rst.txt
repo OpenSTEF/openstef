@@ -5,7 +5,6 @@ Subpackages
 -----------
 
 .. toctree::
-   :maxdepth: 4
 
    openstef.tasks.utils
 
@@ -91,6 +90,7 @@ openstef.tasks.train\_model module
    :members:
    :undoc-members:
    :show-inheritance:
+
 
 Module contents
 ---------------

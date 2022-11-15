@@ -4,8 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>openstef.model.metamodels package &#8212; OpenSTEF  documentation</title>
     
   <!-- Loaded before other Sphinx assets -->
@@ -255,7 +254,7 @@
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-openstef.model.metamodels.grouped_regressor">
+  <a class="reference internal nav-link" href="#openstef-model-metamodels-grouped-regressor-module">
    openstef.model.metamodels.grouped_regressor module
   </a>
  </li>
@@ -290,111 +289,15 @@
               
               <div>
                 
-  <section id="openstef-model-metamodels-package">
+  <div class="section" id="openstef-model-metamodels-package">
 <h1>openstef.model.metamodels package<a class="headerlink" href="#openstef-model-metamodels-package" title="Permalink to this headline">#</a></h1>
-<section id="submodules">
+<div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">#</a></h2>
-</section>
-<section id="module-openstef.model.metamodels.grouped_regressor">
-<span id="openstef-model-metamodels-grouped-regressor-module"></span><h2>openstef.model.metamodels.grouped_regressor module<a class="headerlink" href="#module-openstef.model.metamodels.grouped_regressor" title="Permalink to this headline">#</a></h2>
-<p>This module defines the grouped regressor.</p>
-<dl class="py class">
-<dt class="sig sig-object py" id="openstef.model.metamodels.grouped_regressor.GroupedRegressor">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef.model.metamodels.grouped_regressor.</span></span><span class="sig-name descname"><span class="pre">GroupedRegressor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_estimator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_columns</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.metamodels.grouped_regressor.GroupedRegressor" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.base.BaseEstimator</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.base.RegressorMixin</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.base.MetaEstimatorMixin</span></code></p>
-<p>Meta-model that trains an instance of the base estimator for each key of a groupby operation applied on the data.</p>
-<p>The base estimator is a sklearn regressor, the groupby is performed on the columns specified in parameters.
-Moreover fit and predict methods can be performed in parallel for each group key thanks to joblib.</p>
-<p>Example:</p>
-<div class="highlight-md notranslate"><div class="highlight"><pre><span></span>data =  | index | group | x0 | x1 | x3 | y |
-        |   0   |   1   | .. | .. | .. | . |
-        |   1   |   2   | .. | .. | .. | . |
-        |   2   |   1   | .. | .. | .. | . |
-        |   3   |   2   | .. | .. | .. | . |
-
-        [<span class="nt">              X              </span>][<span class="nl"> Y </span>]
-</pre></div>
 </div>
-<dl class="simple">
-<dt>The GroupedRegressor on the data with the group_columns=’group’ fits 2 models:</dt><dd><ul class="simple">
-<li><p>The model 1 with the row 0 and 2, columns x0, x1 and x3 as the features and column y as the target.</p></li>
-<li><p>The model 2 with the row 1 and 3, columns x0, x1 and x3 as the features and column y as the target.</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>base_estimator</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">RegressorMixin</span></code>) – Regressor .</p></li>
-<li><p><strong>group_columns</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]]) – Name(s) of the column(s) used as the key for groupby operation.</p></li>
-<li><p><strong>n_jobs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – default=1
-The maximum number of concurrently running jobs,
-such as the number of Python worker processes when backend=”multiprocessing”
-or the size of the thread-pool when backend=”threading</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="openstef.model.metamodels.grouped_regressor.GroupedRegressor.feature_names_">
-<span class="sig-name descname"><span class="pre">feature_names_</span></span><a class="headerlink" href="#openstef.model.metamodels.grouped_regressor.GroupedRegressor.feature_names_" title="Permalink to this definition">#</a></dt>
-<dd><p>All input feature (without group_columns).</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="openstef.model.metamodels.grouped_regressor.GroupedRegressor.estimators_">
-<span class="sig-name descname"><span class="pre">estimators_</span></span><a class="headerlink" href="#openstef.model.metamodels.grouped_regressor.GroupedRegressor.estimators_" title="Permalink to this definition">#</a></dt>
-<dd><p>Dictionnary that stocks fitted estimators for each group.
-The keys are the keys of grouping and the values are the regressors fitted on the grouped data.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="openstef.model.metamodels.grouped_regressor.GroupedRegressor.fit">
-<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eval_set</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.metamodels.grouped_regressor.GroupedRegressor.fit" title="Permalink to this definition">#</a></dt>
-<dd><p>Fit the model.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="openstef.model.metamodels.grouped_regressor.GroupedRegressor.grouped_compute">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">grouped_compute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_columns</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eval_set</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.metamodels.grouped_regressor.GroupedRegressor.grouped_compute" title="Permalink to this definition">#</a></dt>
-<dd><p>Computes the specified function on each group defined by the grouping columns.</p>
-<p>It is an utility function used to perform fit and predict on each group.
-The df_res is the final dataframe that aggregate the results for each
-group. The group_res is a tuple where each field is corresponding to a results for a group. The gb is the
-grouping object.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>df</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – DataFrame containing the input data necessary for the computation .</p></li>
-<li><p><strong>group_columns</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]]) – List of the columns used for the groupby operation</p></li>
-<li><p><strong>func</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>[[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code>]) – Function that take the group key and the conrresponding data of this group
-and perform the computation on this group.</p></li>
-<li><p><strong>n_jobs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The maximum number of concurrently running jobs,</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrameGroupBy</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>]</p>
-</dd>
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>The tuple of the results of each group, the grouping dataframe and the global dataframe of results.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="openstef.model.metamodels.grouped_regressor.GroupedRegressor.predict">
-<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.metamodels.grouped_regressor.GroupedRegressor.predict" title="Permalink to this definition">#</a></dt>
-<dd><p>Make a predicion.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-</section>
-<section id="module-openstef.model.metamodels.missing_values_handler">
+<div class="section" id="openstef-model-metamodels-grouped-regressor-module">
+<h2>openstef.model.metamodels.grouped_regressor module<a class="headerlink" href="#openstef-model-metamodels-grouped-regressor-module" title="Permalink to this headline">#</a></h2>
+</div>
+<div class="section" id="module-openstef.model.metamodels.missing_values_handler">
 <span id="openstef-model-metamodels-missing-values-handler-module"></span><h2>openstef.model.metamodels.missing_values_handler module<a class="headerlink" href="#module-openstef.model.metamodels.missing_values_handler" title="Permalink to this headline">#</a></h2>
 <p>This module defines the missing value handler.</p>
 <dl class="py class">
@@ -495,11 +398,11 @@ The feature importances from the regressor for valid features and zero otherwise
 
 </dd></dl>
 
-</section>
-<section id="module-openstef.model.metamodels">
+</div>
+<div class="section" id="module-openstef.model.metamodels">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-openstef.model.metamodels" title="Permalink to this headline">#</a></h2>
-</section>
-</section>
+</div>
+</div>
 
 
               </div>
