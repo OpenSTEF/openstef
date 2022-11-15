@@ -4,7 +4,8 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>User guides &#8212; OpenSTEF  documentation</title>
     
   <!-- Loaded before other Sphinx assets -->
@@ -205,20 +206,20 @@
               
               <div>
                 
-  <div class="section" id="user-guides">
+  <section id="user-guides">
 <span id="id1"></span><h1>User guides<a class="headerlink" href="#user-guides" title="Permalink to this headline">#</a></h1>
 <p>This page contains guides and links to resources that show how OpenSTEF can be used.</p>
-<div class="section" id="pipelines-high-level-functionality">
+<section id="pipelines-high-level-functionality">
 <h2>Pipelines - high level functionality<a class="headerlink" href="#pipelines-high-level-functionality" title="Permalink to this headline">#</a></h2>
 <p>Pipelines (see <a class="reference internal" href="concepts.html#concepts"><span class="std std-ref">concepts</span></a> for definition) offer an easy way to use OpenSTEF for training models, generating forecasts, and evaluation of forecasting performance.</p>
 <p>The following pipelines are available:</p>
 <ul class="simple">
-<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">openstef.pipeline.train_model</span></code></p></li>
-<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">openstef.pipeline.create_forecast</span></code></p></li>
-<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">openstef.pipeline.optimize_hyperparameters</span></code></p></li>
-<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">openstef.pipeline.create_component_forecast</span></code></p></li>
-<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">openstef.pipeline.create_basecase_forecast</span></code></p></li>
-<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">openstef.pipeline.train_create_forecast_backtest</span></code></p></li>
+<li><p><a class="reference internal" href="openstef.pipeline.html#module-openstef.pipeline.train_model" title="openstef.pipeline.train_model"><code class="xref py py-mod docutils literal notranslate"><span class="pre">openstef.pipeline.train_model</span></code></a></p></li>
+<li><p><a class="reference internal" href="openstef.pipeline.html#module-openstef.pipeline.create_forecast" title="openstef.pipeline.create_forecast"><code class="xref py py-mod docutils literal notranslate"><span class="pre">openstef.pipeline.create_forecast</span></code></a></p></li>
+<li><p><a class="reference internal" href="openstef.pipeline.html#module-openstef.pipeline.optimize_hyperparameters" title="openstef.pipeline.optimize_hyperparameters"><code class="xref py py-mod docutils literal notranslate"><span class="pre">openstef.pipeline.optimize_hyperparameters</span></code></a></p></li>
+<li><p><a class="reference internal" href="openstef.pipeline.html#module-openstef.pipeline.create_component_forecast" title="openstef.pipeline.create_component_forecast"><code class="xref py py-mod docutils literal notranslate"><span class="pre">openstef.pipeline.create_component_forecast</span></code></a></p></li>
+<li><p><a class="reference internal" href="openstef.pipeline.html#module-openstef.pipeline.create_basecase_forecast" title="openstef.pipeline.create_basecase_forecast"><code class="xref py py-mod docutils literal notranslate"><span class="pre">openstef.pipeline.create_basecase_forecast</span></code></a></p></li>
+<li><p><a class="reference internal" href="openstef.pipeline.html#module-openstef.pipeline.train_create_forecast_backtest" title="openstef.pipeline.train_create_forecast_backtest"><code class="xref py py-mod docutils literal notranslate"><span class="pre">openstef.pipeline.train_create_forecast_backtest</span></code></a></p></li>
 </ul>
 <p>The easiest way to get started and get familiar with pipelines is to have a look at
 <a class="reference external" href="https://github.com/OpenSTEF/openstef-offline-example">this GitHub repository that contains an assortment of examples Jupyter notebooks</a>, including example data.
@@ -238,8 +239,8 @@ More in depth information on how to use and implement the pipelines in an operat
 <li class="toctree-l1"><a class="reference internal" href="pipelines_user_guide.html">Pipelines user guide</a></li>
 </ul>
 </div>
-</div>
-<div class="section" id="forecasting-application-full-implementation">
+</section>
+<section id="forecasting-application-full-implementation">
 <h2>Forecasting application - full implementation<a class="headerlink" href="#forecasting-application-full-implementation" title="Permalink to this headline">#</a></h2>
 <p>For those who wish to set up a fully functioning forecasting application that is ready to be used in an operational setting, a
 <a class="reference external" href="https://github.com/OpenSTEF/openstef-reference">GitHub repository with a reference implementation</a>  is available.
@@ -247,12 +248,12 @@ The example implementation includes databases, a user interface, and example dat
 More information on what the architecture of such an application could look like can be found <a class="reference internal" href="concepts.html#application-architecture"><span class="std std-ref">here</span></a>.</p>
 <a class="reference internal image-reference" href="https://user-images.githubusercontent.com/60883372/146760483-29af3ac7-62af-4f13-98c7-982a79c517d1.jpg"><img alt="Screenshot of the operational dashboard showing the key functionality of OpenSTEF." src="https://user-images.githubusercontent.com/60883372/146760483-29af3ac7-62af-4f13-98c7-982a79c517d1.jpg" style="width: 800px;" /></a>
 <p>Screenshot of the operational dashboard showing the key functionality of OpenSTEF. Dashboard documentation can be found <a class="reference external" href="https://raw.githack.com/OpenSTEF/.github/main/profile/html/openstef_dashboard_doc.html">here</a>.</p>
-</div>
-<div class="section" id="example-jupyter-notebooks">
+</section>
+<section id="example-jupyter-notebooks">
 <h2>Example Jupyter notebooks<a class="headerlink" href="#example-jupyter-notebooks" title="Permalink to this headline">#</a></h2>
 <p>Jupyter Notebooks demonstrating some of OpenSTEF’s main functionality can be found at: <a class="reference external" href="https://github.com/OpenSTEF/openstef-offline-example">https://github.com/OpenSTEF/openstef-offline-example</a>.</p>
-</div>
-</div>
+</section>
+</section>
 
 
               </div>

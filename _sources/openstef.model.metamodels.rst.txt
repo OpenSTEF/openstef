@@ -20,7 +20,6 @@ openstef.model.metamodels.missing\_values\_handler module
    :undoc-members:
    :show-inheritance:
 
-
 Module contents
 ---------------
 

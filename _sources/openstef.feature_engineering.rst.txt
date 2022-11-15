@@ -68,7 +68,6 @@ openstef.feature\_engineering.weather\_features module
    :undoc-members:
    :show-inheritance:
 
-
 Module contents
 ---------------
 
