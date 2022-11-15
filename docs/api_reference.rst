@@ -5,7 +5,7 @@
 .. _api_reference:
 
 API reference
-=========
+=============
 
 .. toctree::
    :maxdepth: 4
