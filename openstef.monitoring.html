@@ -1,87 +1,308 @@
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>openstef.monitoring package &mdash; OpenSTEF  documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
-    <script src="_static/js/theme.js"></script>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>openstef.monitoring package &#8212; OpenSTEF  documentation</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="openstef.pipeline package" href="openstef.pipeline.html" />
-    <link rel="prev" title="openstef.model_selection package" href="openstef.model_selection.html" /> 
-</head>
+    <link rel="prev" title="openstef.model_selection package" href="openstef.model_selection.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
 
-<body class="wy-body-for-nav"> 
-  <div class="wy-grid-for-nav">
-    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
-      <div class="wy-side-scroll">
-        <div class="wy-side-nav-search" >
-            <a href="index.html" class="icon icon-home"> OpenSTEF
-          </a>
-<div role="search">
-  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
-    <input type="hidden" name="check_keywords" value="yes" />
-    <input type="hidden" name="area" value="default" />
-  </form>
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="container-xl">
+
+  <div id="navbar-start">
+    
+    
+
+<a class="navbar-brand" href="index.html">
+  <img src="_static/openstef_logo.png" class="logo" alt="logo">
+</a>
+
+
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="user_guides.html">
+  User guides
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="concepts.html">
+  Concepts
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="api_reference.html">
+  API reference
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="community.html">
+  Community
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="about_openstef.html">
+  About OpenSTEF
+ </a>
+</li>
+
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/OpenSTEF/openstef" rel="noopener" target="_blank" title="GitHub"><span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://pypi.org/project/openstef/" rel="noopener" target="_blank" title="Pypi"><span><i class="fas fa-gift"></i></span>
+            <label class="sr-only">Pypi</label></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://www.lfenergy.org/projects/openstef/" rel="noopener" target="_blank" title="LFE Homepage"><span><i class="fas fa-bolt"></i></span>
+            <label class="sr-only">LFE Homepage</label></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
 </div>
-        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="user_guides.html">User guides</a></li>
-<li class="toctree-l1"><a class="reference internal" href="concepts.html">Concepts</a></li>
-<li class="toctree-l1"><a class="reference internal" href="dazls.html">Domain Adaptation for Zero Shot Learning in Sequence (DAZLS)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="code_modules.html">Code modules</a></li>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+            
+            <!-- Only show if we have sidebars configured, else just a small margin  -->
+            <div class="col-12 col-md-3 bd-sidebar">
+              <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    <ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="openstef.data_classes.html">
+   openstef.data_classes package
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="openstef.feature_engineering.html">
+   openstef.feature_engineering package
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="openstef.metrics.html">
+   openstef.metrics package
+  </a>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="openstef.model.html">
+   openstef.model package
+  </a>
+  <input checked class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="openstef.model.metamodels.html">
+     openstef.model.metamodels package
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="openstef.model.regressors.html">
+     openstef.model.regressors package
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="openstef.model_selection.html">
+   openstef.model_selection package
+  </a>
+ </li>
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   openstef.monitoring package
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="openstef.pipeline.html">
+   openstef.pipeline package
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="openstef.postprocessing.html">
+   openstef.postprocessing package
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="openstef.preprocessing.html">
+   openstef.preprocessing package
+  </a>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="openstef.tasks.html">
+   openstef.tasks package
+  </a>
+  <input checked class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+  <label for="toctree-checkbox-2">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="openstef.tasks.utils.html">
+     openstef.tasks.utils package
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="openstef.validation.html">
+   openstef.validation package
+  </a>
+ </li>
 </ul>
 
-        </div>
-      </div>
-    </nav>
+  </div>
+</nav>
+              </div>
+              <div class="sidebar-end-items">
+              </div>
+            </div>
+            
+          
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
-          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">OpenSTEF</a>
-      </nav>
-
-      <div class="wy-nav-content">
-        <div class="rst-content">
-          <div role="navigation" aria-label="Page navigation">
-  <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a></li>
-          <li class="breadcrumb-item"><a href="code_modules.html">Code modules</a></li>
-          <li class="breadcrumb-item"><a href="openstef.html">openstef package</a></li>
-      <li class="breadcrumb-item active">openstef.monitoring package</li>
-      <li class="wy-breadcrumbs-aside">
-            <a href="_sources/openstef.monitoring.rst.txt" rel="nofollow"> View page source</a>
-      </li>
-  </ul>
-  <hr/>
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+            
+              
+              <div class="toc-item">
+                
+<div class="tocsection onthispage mt-5 pt-1 pb-3">
+    <i class="fas fa-list"></i> On this page
 </div>
-          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
-           <div itemprop="articleBody">
-             
+
+<nav id="bd-toc-nav">
+    <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#submodules">
+   Submodules
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-openstef.monitoring.performance_meter">
+   openstef.monitoring.performance_meter module
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-openstef.monitoring.teams">
+   openstef.monitoring.teams module
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-openstef.monitoring">
+   Module contents
+  </a>
+ </li>
+</ul>
+
+</nav>
+              </div>
+              
+              <div class="toc-item">
+                
+              </div>
+              
+            
+          </div>
+          
+
+          
+          
+            
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
   <div class="section" id="openstef-monitoring-package">
-<h1>openstef.monitoring package<a class="headerlink" href="#openstef-monitoring-package" title="Permalink to this headline">¶</a></h1>
+<h1>openstef.monitoring package<a class="headerlink" href="#openstef-monitoring-package" title="Permalink to this headline">#</a></h1>
 <div class="section" id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">#</a></h2>
 </div>
 <div class="section" id="module-openstef.monitoring.performance_meter">
-<span id="openstef-monitoring-performance-meter-module"></span><h2>openstef.monitoring.performance_meter module<a class="headerlink" href="#module-openstef.monitoring.performance_meter" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
-<dt id="openstef.monitoring.performance_meter.PerformanceMeter">
-<em class="property">class </em><code class="sig-prename descclassname">openstef.monitoring.performance_meter.</code><code class="sig-name descname">PerformanceMeter</code><span class="sig-paren">(</span><em class="sig-param">logger</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.monitoring.performance_meter.PerformanceMeter" title="Permalink to this definition">¶</a></dt>
+<span id="openstef-monitoring-performance-meter-module"></span><h2>openstef.monitoring.performance_meter module<a class="headerlink" href="#module-openstef.monitoring.performance_meter" title="Permalink to this headline">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="openstef.monitoring.performance_meter.PerformanceMeter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef.monitoring.performance_meter.</span></span><span class="sig-name descname"><span class="pre">PerformanceMeter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logger</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.monitoring.performance_meter.PerformanceMeter" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<dl class="method">
-<dt id="openstef.monitoring.performance_meter.PerformanceMeter.checkpoint">
-<code class="sig-name descname">checkpoint</code><span class="sig-paren">(</span><em class="sig-param">name_checkpoint</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.monitoring.performance_meter.PerformanceMeter.checkpoint" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef.monitoring.performance_meter.PerformanceMeter.checkpoint">
+<span class="sig-name descname"><span class="pre">checkpoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name_checkpoint</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.monitoring.performance_meter.PerformanceMeter.checkpoint" title="Permalink to this definition">#</a></dt>
 <dd><p>Creates a timing checkpoint and logs the runtime from the previous one.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -97,9 +318,9 @@
 </dl>
 </dd></dl>
 
-<dl class="method">
-<dt id="openstef.monitoring.performance_meter.PerformanceMeter.complete_level">
-<code class="sig-name descname">complete_level</code><span class="sig-paren">(</span><em class="sig-param">successful=True</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.monitoring.performance_meter.PerformanceMeter.complete_level" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef.monitoring.performance_meter.PerformanceMeter.complete_level">
+<span class="sig-name descname"><span class="pre">complete_level</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">successful</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.monitoring.performance_meter.PerformanceMeter.complete_level" title="Permalink to this definition">#</a></dt>
 <dd><p>Completes the most inner level and logs the total runtime of that level.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -114,9 +335,9 @@
 </dl>
 </dd></dl>
 
-<dl class="method">
-<dt id="openstef.monitoring.performance_meter.PerformanceMeter.start_level">
-<code class="sig-name descname">start_level</code><span class="sig-paren">(</span><em class="sig-param">level_label</em>, <em class="sig-param">level_name</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.monitoring.performance_meter.PerformanceMeter.start_level" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef.monitoring.performance_meter.PerformanceMeter.start_level">
+<span class="sig-name descname"><span class="pre">start_level</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">level_label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level_name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.monitoring.performance_meter.PerformanceMeter.start_level" title="Permalink to this definition">#</a></dt>
 <dd><p>Enters a new level in the performance meter and logs it.</p>
 <p>This function also creates a checkpoint on the newly created level.</p>
 <dl class="field-list simple">
@@ -138,10 +359,10 @@
 
 </div>
 <div class="section" id="module-openstef.monitoring.teams">
-<span id="openstef-monitoring-teams-module"></span><h2>openstef.monitoring.teams module<a class="headerlink" href="#module-openstef.monitoring.teams" title="Permalink to this headline">¶</a></h2>
-<dl class="function">
-<dt id="openstef.monitoring.teams.build_sql_query_string">
-<code class="sig-prename descclassname">openstef.monitoring.teams.</code><code class="sig-name descname">build_sql_query_string</code><span class="sig-paren">(</span><em class="sig-param">df</em>, <em class="sig-param">table</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.monitoring.teams.build_sql_query_string" title="Permalink to this definition">¶</a></dt>
+<span id="openstef-monitoring-teams-module"></span><h2>openstef.monitoring.teams module<a class="headerlink" href="#module-openstef.monitoring.teams" title="Permalink to this headline">#</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="openstef.monitoring.teams.build_sql_query_string">
+<span class="sig-prename descclassname"><span class="pre">openstef.monitoring.teams.</span></span><span class="sig-name descname"><span class="pre">build_sql_query_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.monitoring.teams.build_sql_query_string" title="Permalink to this definition">#</a></dt>
 <dd><p>Build sql insert query string for Teams message output from df.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -159,9 +380,9 @@
 </dl>
 </dd></dl>
 
-<dl class="function">
-<dt id="openstef.monitoring.teams.format_message">
-<code class="sig-prename descclassname">openstef.monitoring.teams.</code><code class="sig-name descname">format_message</code><span class="sig-paren">(</span><em class="sig-param">title</em>, <em class="sig-param">params</em>, <em class="sig-param">fallback=None</em>, <em class="sig-param">color=None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.monitoring.teams.format_message" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="openstef.monitoring.teams.format_message">
+<span class="sig-prename descclassname"><span class="pre">openstef.monitoring.teams.</span></span><span class="sig-name descname"><span class="pre">format_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">title</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fallback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.monitoring.teams.format_message" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
@@ -169,9 +390,9 @@
 </dl>
 </dd></dl>
 
-<dl class="function">
-<dt id="openstef.monitoring.teams.get_card_section">
-<code class="sig-prename descclassname">openstef.monitoring.teams.</code><code class="sig-name descname">get_card_section</code><span class="sig-paren">(</span><em class="sig-param">section_dict</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.monitoring.teams.get_card_section" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="openstef.monitoring.teams.get_card_section">
+<span class="sig-prename descclassname"><span class="pre">openstef.monitoring.teams.</span></span><span class="sig-name descname"><span class="pre">get_card_section</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">section_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.monitoring.teams.get_card_section" title="Permalink to this definition">#</a></dt>
 <dd><p>Get card section for teams message from dictionary.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
@@ -180,9 +401,9 @@
 </dl>
 </dd></dl>
 
-<dl class="function">
-<dt id="openstef.monitoring.teams.post_teams">
-<code class="sig-prename descclassname">openstef.monitoring.teams.</code><code class="sig-name descname">post_teams</code><span class="sig-paren">(</span><em class="sig-param">msg</em>, <em class="sig-param">invalid_coefficients=None</em>, <em class="sig-param">coefficients_df=None</em>, <em class="sig-param">url=None</em>, <em class="sig-param">proxies=None</em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.monitoring.teams.post_teams" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="openstef.monitoring.teams.post_teams">
+<span class="sig-prename descclassname"><span class="pre">openstef.monitoring.teams.</span></span><span class="sig-name descname"><span class="pre">post_teams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">invalid_coefficients</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coefficients_df</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proxies</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.monitoring.teams.post_teams" title="Permalink to this definition">#</a></dt>
 <dd><p>Post a message to Teams - KTP.</p>
 <p>Note that currently no authentication occurs.
 Security is given by keeping the URL secret.
@@ -217,39 +438,56 @@ coefficients. Defaults to None.</p></li>
 
 </div>
 <div class="section" id="module-openstef.monitoring">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-openstef.monitoring" title="Permalink to this headline">¶</a></h2>
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-openstef.monitoring" title="Permalink to this headline">#</a></h2>
 </div>
 </div>
 
 
-           </div>
-          </div>
-          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="openstef.model_selection.html" class="btn btn-neutral float-left" title="openstef.model_selection package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="openstef.pipeline.html" class="btn btn-neutral float-right" title="openstef.pipeline package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-    </div>
-
-  <hr/>
-
-  <div role="contentinfo">
-    <p>&#169; Copyright 2017-2022 Contributors to the OpenSTEF project.</p>
-  </div>
-
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    provided by <a href="https://readthedocs.org">Read the Docs</a>.
-   
-
-</footer>
+              </div>
+              
+              
+              <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="openstef.model_selection.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">openstef.model_selection package</p>
         </div>
-      </div>
-    </section>
-  </div>
-  <script>
-      jQuery(function () {
-          SphinxRtdTheme.Navigation.enable(true);
-      });
-  </script> 
+    </a>
+    <a class='right-next' id="next-link" href="openstef.pipeline.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">openstef.pipeline package</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+              
+          </main>
+          
 
-</body>
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+<footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    
+    <div class="footer-item">
+      <p class="copyright">
+    &copy; Copyright 2017-2022 Contributors to the OpenSTEF project.<br>
+</p>
+    </div>
+    
+    <div class="footer-item">
+      <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.5.0.<br>
+</p>
+    </div>
+    
+  </div>
+</footer>
+  </body>
 </html>
