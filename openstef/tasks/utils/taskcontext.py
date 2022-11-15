@@ -1,14 +1,14 @@
 # SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-from typing import Callable
 import traceback
+from typing import Callable
 
 import structlog
 
+from openstef.exceptions import PredictionJobException
 from openstef.monitoring.performance_meter import PerformanceMeter
 from openstef.monitoring.teams import post_teams
-from openstef.exceptions import PredictionJobException
 
 
 class TaskContext:

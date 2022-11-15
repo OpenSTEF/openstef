@@ -6,7 +6,7 @@ import os
 import shutil
 from datetime import datetime
 from json import JSONDecodeError
-from typing import Optional, Tuple, Union
+from typing import Optional, Union
 from urllib.parse import unquote, urlparse
 
 import mlflow
@@ -132,7 +132,7 @@ class MLflowSerializer:
     def load_model(
         self,
         experiment_name: str,
-    ) -> Tuple[OpenstfRegressor, ModelSpecificationDataClass]:
+    ) -> tuple[OpenstfRegressor, ModelSpecificationDataClass]:
         """Load sklearn compatible model from MLFlow.
 
         Args:

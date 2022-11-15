@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 from datetime import datetime
-from typing import Tuple
 
 import pandas as pd
 import scipy.ndimage as mnts
@@ -10,7 +9,7 @@ import scipy.ndimage as mnts
 
 def generate_forecast_datetime_range(
     forecast_data: pd.DataFrame,
-) -> Tuple[datetime, datetime]:
+) -> tuple[datetime, datetime]:
     """Generate forecast range based on last cluster of null values in first target column of forecast data.
 
     Example:

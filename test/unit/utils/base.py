@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: MPL-2.0
 
 import unittest
-from unittest.mock import patch
 
 import numpy as np
 import pandas as pd

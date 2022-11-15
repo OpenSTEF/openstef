@@ -2,14 +2,14 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 import random
-from typing import Iterable, List, Sequence, Set, Tuple, Union
+from typing import Iterable, Sequence, Set, Union
 
 import networkx as nx
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
 
 NodeIdType = Union[str, int]
-EdgeType = Tuple[NodeIdType, NodeIdType]
+EdgeType = tuple[NodeIdType, NodeIdType]
 
 
 def has_dependencies(pjs: Iterable[PredictionJobDataClass]) -> bool:
@@ -30,7 +30,7 @@ def has_dependencies(pjs: Iterable[PredictionJobDataClass]) -> bool:
 
 def build_graph_structure(
     pjs: Iterable[PredictionJobDataClass],
-) -> Tuple[Set[NodeIdType], Set[EdgeType]]:
+) -> tuple[Set[NodeIdType], Set[EdgeType]]:
     """Build the graph of dependencies between prediction jobs.
 
     Args:
@@ -74,7 +74,7 @@ def build_nx_graph(
 
 def find_groups(
     pjs: Sequence[PredictionJobDataClass], randomize_groups: bool = False
-) -> Tuple[nx.DiGraph, List[List[PredictionJobDataClass]]]:
+) -> tuple[nx.DiGraph, list[list[PredictionJobDataClass]]]:
     """Find a sequence of prediction job groups respecting dependencies.
 
     Compute groups of prediction jobs such that the prediction jobs in a group

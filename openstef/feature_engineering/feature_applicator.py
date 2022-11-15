@@ -7,7 +7,7 @@ These applicatiors are used to add features to the input data in the correspondi
 
 """
 from abc import ABC, abstractmethod
-from typing import List, Optional, Union
+from typing import Optional, Union
 
 import numpy as np
 import pandas as pd
@@ -32,9 +32,9 @@ class AbstractFeatureApplicator(ABC):
 
     def __init__(
         self,
-        horizons: Union[List[float], str],
-        feature_names: Optional[List[str]] = None,
-        feature_modules: Optional[List[str]] = [],
+        horizons: Union[list[float], str],
+        feature_names: Optional[list[str]] = None,
+        feature_modules: Optional[list[str]] = [],
     ) -> None:
         """Initialize abstract feature applicator.
 

@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2017-2022 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, Union
 
 import numpy as np
 import pandas as pd
@@ -18,7 +18,7 @@ from openstef.model.regressors.regressor import OpenstfRegressor
 # TODO: implement function for defining encoder and decoder features
 
 
-def divide_scaling_groups(x: pd.DataFrame) -> Tuple[List[str], List[str], List[str]]:
+def divide_scaling_groups(x: pd.DataFrame) -> tuple[list[str], list[str], list[str]]:
     """Divides the column names over different type of scaling groups.
 
     Args:
@@ -44,7 +44,7 @@ def divide_scaling_groups(x: pd.DataFrame) -> Tuple[List[str], List[str], List[s
 
 
 def apply_scaling(
-    scaler_features: Tuple[List[str], List[str], List[str]],
+    scaler_features: tuple[list[str], list[str], list[str]],
     data: pd.DataFrame,
     scalers=None,
 ):
@@ -100,10 +100,10 @@ class OpenstfProloafRegressor(OpenstfRegressor, ModelWrapper):
         name: str = "model",
         core_net: str = "torch.nn.LSTM",
         relu_leak: float = 0.1,
-        encoder_features: List[str] = [
+        encoder_features: list[str] = [
             "historic_load",
         ],  # make sure historic load is present, TODO: implement so you can use None
-        decoder_features: List[str] = [
+        decoder_features: list[str] = [
             "air_density"
         ],  # TODO: implement so you can use None
         core_layers: int = 1,
@@ -112,7 +112,7 @@ class OpenstfProloafRegressor(OpenstfRegressor, ModelWrapper):
         dropout_fc: float = 0.4,
         dropout_core: float = 0.3,
         training_metric: str = "nllgauss",
-        metric_options: Dict[str, Any] = {},
+        metric_options: dict[str, Any] = {},
         optimizer_name: str = "adam",
         early_stopping_patience: int = 7,
         early_stopping_margin: float = 0,

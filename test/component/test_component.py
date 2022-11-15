@@ -1,10 +1,10 @@
 # SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+import glob
 import os
 import unittest
 from test.unit.utils.data import TestData
-import glob
 
 from openstef.pipeline.create_forecast import create_forecast_pipeline_core
 from openstef.pipeline.optimize_hyperparameters import optimize_hyperparameters_pipeline

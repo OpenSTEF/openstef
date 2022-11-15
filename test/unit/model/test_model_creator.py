@@ -2,8 +2,8 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-from unittest import TestCase
 import sys
+from unittest import TestCase
 
 from openstef.enums import MLModelType
 from openstef.model.model_creator import ModelCreator

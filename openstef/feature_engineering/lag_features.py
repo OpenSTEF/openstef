@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: MPL-2.0
 """This module contains all lag features."""
 import re
-from typing import List, Tuple
 
 import numpy as np
 import pandas as pd
@@ -11,7 +10,7 @@ import scipy.signal
 
 
 def generate_lag_feature_functions(
-    feature_names: List[str] = None, horizon: float = 24.0
+    feature_names: list[str] = None, horizon: float = 24.0
 ) -> dict:
     """Creates functions to generate lag features in a dataset.
 
@@ -61,8 +60,8 @@ def generate_lag_feature_functions(
 
 
 def extract_lag_features(
-    feature_names: List[str], horizon: float = 24.0
-) -> Tuple[list, list]:
+    feature_names: list[str], horizon: float = 24.0
+) -> tuple[list, list]:
     """Creates a list of lag minutes and a list of lag days that were used during the training of the input model.
 
     Args:
@@ -97,7 +96,7 @@ def extract_lag_features(
     return minutes_list, days_list
 
 
-def generate_trivial_lag_features(horizon: float) -> Tuple[list, list]:
+def generate_trivial_lag_features(horizon: float) -> tuple[list, list]:
     """Generates relevant lag times for lag feature function creation.
 
     This function is mostly used during training of models and not during predicting.
@@ -126,7 +125,7 @@ def generate_trivial_lag_features(horizon: float) -> Tuple[list, list]:
 
 def generate_non_trivial_lag_times(
     data: pd.DataFrame, height_treshold: float = 0.1
-) -> List[int]:
+) -> list[int]:
     """Calculate an autocorrelation curve of the load trace.
 
     This curve is subsequently used to add additional lag times as features.

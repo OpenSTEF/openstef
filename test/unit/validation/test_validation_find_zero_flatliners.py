@@ -4,7 +4,6 @@
 
 # -*- coding: utf-8 -*-
 
-import unittest
 from datetime import datetime, timedelta
 from test.unit.utils.base import BaseTestCase
 

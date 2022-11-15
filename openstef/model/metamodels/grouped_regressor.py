@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 """This module defines the grouped regressor."""
-from typing import Any, Callable, Dict, List, Tuple, Union
+from typing import Any, Callable, Union
 
 import joblib
 import numpy as np
@@ -57,7 +57,7 @@ class GroupedRegressor(BaseEstimator, RegressorMixin, MetaEstimatorMixin):
     def __init__(
         self,
         base_estimator: RegressorMixin,
-        group_columns: Union[str, int, List[str], List[int]],
+        group_columns: Union[str, int, list[str], list[int]],
         n_jobs: int = 1,
     ):
         """Initialize meta model."""
@@ -84,7 +84,7 @@ class GroupedRegressor(BaseEstimator, RegressorMixin, MetaEstimatorMixin):
 
     def _partial_fit(
         self, group: Any, df_group: pd.DataFrame, eval_set=None, **kwargs
-    ) -> Tuple[Any, BaseEstimator]:
+    ) -> tuple[Any, BaseEstimator]:
         estimator = clone(self.base_estimator)
         X = df_group.loc[:, self.feature_names_]
         y = df_group.loc[:, "__target__"]
@@ -120,11 +120,11 @@ class GroupedRegressor(BaseEstimator, RegressorMixin, MetaEstimatorMixin):
     def grouped_compute(
         cls,
         df: pd.DataFrame,
-        group_columns: Union[List[str], List[int]],
-        func: Callable[[Tuple, pd.DataFrame], np.array],
+        group_columns: Union[list[str], list[int]],
+        func: Callable[[tuple, pd.DataFrame], np.array],
         n_jobs: int = 1,
         eval_set=None,
-    ) -> Tuple[Tuple[np.array, ...], DataFrameGroupBy, pd.DataFrame]:
+    ) -> tuple[tuple[np.array, ...], DataFrameGroupBy, pd.DataFrame]:
         """Computes the specified function on each group defined by the grouping columns.
 
         It is an utility function used to perform fit and predict on each group.
@@ -180,7 +180,7 @@ class GroupedRegressor(BaseEstimator, RegressorMixin, MetaEstimatorMixin):
 
     def _grouped_fit(
         self, df: pd.DataFrame, n_jobs: int = 1, eval_set=None, **kwargs
-    ) -> Dict[Any, BaseEstimator]:
+    ) -> dict[Any, BaseEstimator]:
         group_res, _, _ = self.grouped_compute(
             df,
             self.group_columns,

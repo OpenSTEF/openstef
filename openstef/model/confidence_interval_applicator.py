@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 from datetime import datetime
-from typing import List
 
 import numpy as np
 import pandas as pd
@@ -161,7 +160,7 @@ class ConfidenceIntervalApplicator:
 
     @staticmethod
     def _add_quantiles_to_forecast_default(
-        forecast: pd.DataFrame, quantiles: List[float]
+        forecast: pd.DataFrame, quantiles: list[float]
     ) -> pd.DataFrame:
         """Add quantiles to forecast.
 
@@ -190,7 +189,7 @@ class ConfidenceIntervalApplicator:
         return forecast
 
     def _add_quantiles_to_forecast_quantile_regression(
-        self, forecast: pd.DataFrame, quantiles: List[float]
+        self, forecast: pd.DataFrame, quantiles: list[float]
     ) -> pd.DataFrame:
         """Add quantiles to forecast.
 
