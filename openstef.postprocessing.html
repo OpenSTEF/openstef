@@ -4,7 +4,8 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>openstef.postprocessing package &#8212; OpenSTEF  documentation</title>
     
   <!-- Loaded before other Sphinx assets -->
@@ -254,7 +255,7 @@
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#openstef-postprocessing-postprocessing-module">
+  <a class="reference internal nav-link" href="#module-openstef.postprocessing.postprocessing">
    openstef.postprocessing.postprocessing module
   </a>
  </li>
@@ -284,18 +285,145 @@
               
               <div>
                 
-  <div class="section" id="openstef-postprocessing-package">
+  <section id="openstef-postprocessing-package">
 <h1>openstef.postprocessing package<a class="headerlink" href="#openstef-postprocessing-package" title="Permalink to this headline">#</a></h1>
-<div class="section" id="submodules">
+<section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">#</a></h2>
-</div>
-<div class="section" id="openstef-postprocessing-postprocessing-module">
-<h2>openstef.postprocessing.postprocessing module<a class="headerlink" href="#openstef-postprocessing-postprocessing-module" title="Permalink to this headline">#</a></h2>
-</div>
-<div class="section" id="module-openstef.postprocessing">
+</section>
+<section id="module-openstef.postprocessing.postprocessing">
+<span id="openstef-postprocessing-postprocessing-module"></span><h2>openstef.postprocessing.postprocessing module<a class="headerlink" href="#module-openstef.postprocessing.postprocessing" title="Permalink to this headline">#</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="openstef.postprocessing.postprocessing.add_components_base_case_forecast">
+<span class="sig-prename descclassname"><span class="pre">openstef.postprocessing.postprocessing.</span></span><span class="sig-name descname"><span class="pre">add_components_base_case_forecast</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">basecase_forecast</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.postprocessing.postprocessing.add_components_base_case_forecast" title="Permalink to this definition">#</a></dt>
+<dd><p>Makes a basecase forecast for the forecast_other component.</p>
+<p>This will make a simple basecase components forecast
+available and ensures that the sum of the components (other, wind and solar) is equal to the normal basecase
+forecast This is important for sending GLMD messages correctly to TenneT!</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>basecase_forecast</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – pd.DataFrame with basecase forecast</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>pd.DataFrame with extra “forecast_other component”</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>basecase_forecast</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="openstef.postprocessing.postprocessing.add_prediction_job_properties_to_forecast">
+<span class="sig-prename descclassname"><span class="pre">openstef.postprocessing.postprocessing.</span></span><span class="sig-name descname"><span class="pre">add_prediction_job_properties_to_forecast</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">algorithm_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast_quality</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.postprocessing.postprocessing.add_prediction_job_properties_to_forecast" title="Permalink to this definition">#</a></dt>
+<dd><p>Adds prediciton job meta data to a forecast dataframe.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">PredictionJobDataClass</span></code></a>) – Prediciton job.</p></li>
+<li><p><strong>forecast</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – Forecast dataframe</p></li>
+<li><p><strong>algorithm_type</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Type of algirithm used for making the forecast.</p></li>
+<li><p><strong>forecast_type</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code>]) – Type of the forecast. Defaults to None.</p></li>
+<li><p><strong>forecast_quality</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – Quality of the forecast. Defaults to None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Dataframe with added metadata.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="openstef.postprocessing.postprocessing.calculate_wind_power">
+<span class="sig-prename descclassname"><span class="pre">openstef.postprocessing.postprocessing.</span></span><span class="sig-name descname"><span class="pre">calculate_wind_power</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">windspeed_100m</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.postprocessing.postprocessing.calculate_wind_power" title="Permalink to this definition">#</a></dt>
+<dd><p>Calculate the generated wind power based on the wind speed.</p>
+<p>Values are related through the power curve, which is
+described by turbine_data. Default values are used and are normalized to 1MWp.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>windspeed_100m</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – Example: <code class="docutils literal notranslate"><span class="pre">pd.DataFrame</span> <span class="pre">(index</span> <span class="pre">=</span> <span class="pre">datetime,</span> <span class="pre">columns</span> <span class="pre">=</span> <span class="pre">[&quot;windspeed_100m&quot;])</span></code></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Example output <code class="docutils literal notranslate"><span class="pre">pd.DataFrame(index</span> <span class="pre">=</span> <span class="pre">datetime,</span> <span class="pre">columns</span> <span class="pre">=</span> <span class="pre">[&quot;windenergy&quot;])</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="openstef.postprocessing.postprocessing.normalize_and_convert_weather_data_for_splitting">
+<span class="sig-prename descclassname"><span class="pre">openstef.postprocessing.postprocessing.</span></span><span class="sig-name descname"><span class="pre">normalize_and_convert_weather_data_for_splitting</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weather_data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.postprocessing.postprocessing.normalize_and_convert_weather_data_for_splitting" title="Permalink to this definition">#</a></dt>
+<dd><p>Normalize and converts weather data for use in energy splitting.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>weather_data</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – Weather data with “windspeed_100m” and “radiation”.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Dataframe with “windpower” and “radiation” columns.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="openstef.postprocessing.postprocessing.post_process_wind_solar">
+<span class="sig-prename descclassname"><span class="pre">openstef.postprocessing.postprocessing.</span></span><span class="sig-name descname"><span class="pre">post_process_wind_solar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">forecast</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast_type</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.postprocessing.postprocessing.post_process_wind_solar" title="Permalink to this definition">#</a></dt>
+<dd><p>Function that caries out postprocessing for wind and solar power generators.</p>
+<blockquote>
+<div><p>As these points will always produce energy, predicted energy consumption is
+set to zero. This function will automatically detect the sign as this can
+vary from case to case. The largest volume either positive or negative is
+assumed to be the energy production and the other side the energy consumption.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>forecast</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code>) – Series with forecast data.</p></li>
+<li><p><strong>forecast_type</strong> (<a class="reference internal" href="openstef.html#openstef.enums.ForecastType" title="openstef.enums.ForecastType"><code class="xref py py-class docutils literal notranslate"><span class="pre">ForecastType</span></code></a>) – Specifies the type of forecast. This can be retrieved
+from the prediction job as pj[‘forecast_type’]</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Post-processed forecast.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="openstef.postprocessing.postprocessing.split_forecast_in_components">
+<span class="sig-prename descclassname"><span class="pre">openstef.postprocessing.postprocessing.</span></span><span class="sig-name descname"><span class="pre">split_forecast_in_components</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">forecast</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weather_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">split_coefs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.postprocessing.postprocessing.split_forecast_in_components" title="Permalink to this definition">#</a></dt>
+<dd><p>Make estimates of energy components based on given forecast.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>forecast</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – KTP load forecast</p></li>
+<li><p><strong>weather_data</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – Weather data for energy splitting, at least; “windspeed_100m” and “radiation”</p></li>
+<li><p><strong>split_coefs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Previously determined splitting coefs for prediction job</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>]</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Forecast dataframe for each component</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-openstef.postprocessing">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-openstef.postprocessing" title="Permalink to this headline">#</a></h2>
-</div>
-</div>
+</section>
+</section>
 
 
               </div>
