@@ -192,3 +192,35 @@ class TestCreateForecastPipeline(BaseTestCase):
         self.assertEqual(len(forecast.columns), 15)
         self.assertGreater(forecast.forecast.min(), -5)
         self.assertLess(forecast.forecast.max(), 85)
+
+    @patch("mlflow.sklearn.load_model")
+    def test_create_forecast_pipeline_feature_mismatch(self, load_mock):
+        """If the model was trained on different features than given when making a forecast,
+        this should not result in an exception."""
+        # Arrange
+        load_mock.return_value = self.model
+        # Load prediction job and forecast data
+        forecast_data = self.data
+        col_name = forecast_data.columns[0]
+        forecast_data.loc["2020-11-25 00:00:00":"2020-12-01", col_name] = None
+        # Load model
+        model, model_specs = self.serializer.load_model(str(self.pj["id"]))
+        # Cause a feature name mismatch - renaming the first feature causes one expected
+        # feature to not be there and an additional feature to be there
+        forecast_data = forecast_data.rename(columns={forecast_data.columns[1]:'mismatched'+forecast_data.columns[1]})
+
+        if not hasattr(model, "standard_deviation"):  # Renamed the attribute
+            model.standard_deviation = model.confidence_interval
+
+        # Forecast
+        forecast = create_forecast.create_forecast_pipeline_core(
+            pj=self.pj, input_data=forecast_data, model=model, model_specs=model_specs
+        )
+        
+        ###!!!! FRANK: cannot replicate bug.
+
+        # Verify forecast works correctly
+        self.assertEqual(len(forecast), 481)
+        self.assertEqual(len(forecast.columns), 15)
+        self.assertGreater(forecast.forecast.min(), -5)
+        self.assertLess(forecast.forecast.max(), 85)
