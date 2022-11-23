@@ -207,7 +207,9 @@ class TestCreateForecastPipeline(BaseTestCase):
         model, model_specs = self.serializer.load_model(str(self.pj["id"]))
         # Cause a feature name mismatch - renaming the first feature causes one expected
         # feature to not be there and an additional feature to be there
-        forecast_data = forecast_data.rename(columns={forecast_data.columns[1]:'mismatched'+forecast_data.columns[1]})
+        forecast_data = forecast_data.rename(
+            columns={forecast_data.columns[1]: "mismatched" + forecast_data.columns[1]}
+        )
 
         if not hasattr(model, "standard_deviation"):  # Renamed the attribute
             model.standard_deviation = model.confidence_interval
@@ -216,7 +218,7 @@ class TestCreateForecastPipeline(BaseTestCase):
         forecast = create_forecast.create_forecast_pipeline_core(
             pj=self.pj, input_data=forecast_data, model=model, model_specs=model_specs
         )
-        
+
         ###!!!! FRANK: cannot replicate bug.
 
         # Verify forecast works correctly
