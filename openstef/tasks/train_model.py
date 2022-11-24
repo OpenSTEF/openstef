@@ -24,6 +24,7 @@ from pathlib import Path
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.enums import MLModelType
+from openstef.exceptions import SkipSaveTrainingForecasts
 from openstef.pipeline.train_model import train_model_pipeline
 from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstef.tasks.utils.taskcontext import TaskContext
@@ -81,23 +82,27 @@ def train_model_task(
     context.perf_meter.checkpoint("Retrieved timeseries input")
 
     # Excecute the model training pipeline
-    data_sets = train_model_pipeline(
-        pj,
-        input_data,
-        check_old_model_age=check_old_model_age,
-        mlflow_tracking_uri=mlflow_tracking_uri,
-        artifact_folder=artifact_folder,
-    )
+    try:
+        data_sets = train_model_pipeline(
+            pj,
+            input_data,
+            check_old_model_age=check_old_model_age,
+            mlflow_tracking_uri=mlflow_tracking_uri,
+            artifact_folder=artifact_folder,
+        )
 
-    if pj.save_train_forecasts:
-        if data_sets is None:
-            raise RuntimeError("Forecasts were not retrieved")
-        if not hasattr(context.database, "write_train_forecasts"):
-            raise RuntimeError(
-                "Database connector does dot support 'write_train_forecasts' while "
-                "'save_train_forecasts option was activated.'"
-            )
-        context.database.write_train_forecasts(pj, data_sets)
+        if pj.save_train_forecasts:
+            if data_sets is None:
+                raise RuntimeError("Forecasts were not retrieved")
+            if not hasattr(context.database, "write_train_forecasts"):
+                raise RuntimeError(
+                    "Database connector does dot support 'write_train_forecasts' while "
+                    "'save_train_forecasts option was activated.'"
+                )
+            context.database.write_train_forecasts(pj, data_sets)
+            context.logger.debug(f"Saved Forecasts from trained model on datasets")
+    except SkipSaveTrainingForecasts:
+        context.logger.debug(f"Skip saving forecasts")
 
     context.perf_meter.checkpoint("Model trained")
 
