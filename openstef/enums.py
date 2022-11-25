@@ -29,4 +29,4 @@ class TracyJobResult(Enum):
 class PipelineType(Enum):
     FORECAST = "forecast"
     TRAIN = "train"
-    BOTH = "both"
+    HYPER_PARMATERS = "hyper_parameters"

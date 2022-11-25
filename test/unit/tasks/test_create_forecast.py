@@ -52,7 +52,7 @@ class TestCreateForeCastTask(TestCase):
         """Test happy flow of create forecast task for train only pj."""
         context = MagicMock()
         pj = self.pj
-        pj.pipelines_to_run = PipelineType.TRAIN
+        pj.pipelines_to_run = [PipelineType.TRAIN]
         create_forecast_task(pj, context)
         self.assertEqual(create_forecast_pipeline_mock.call_count, 0)
 
@@ -62,7 +62,7 @@ class TestCreateForeCastTask(TestCase):
         context = MagicMock()
         create_forecast_pipeline_mock.return_value = FORECAST_MOCK
         pj = self.pj
-        pj.pipelines_to_run = PipelineType.FORECAST
+        pj.pipelines_to_run = [PipelineType.FORECAST]
         create_forecast_task(pj, context)
         self.assertEqual(create_forecast_pipeline_mock.call_count, 1)
         self.assertEqual(context.mock_calls[1].args[0], FORECAST_MOCK)

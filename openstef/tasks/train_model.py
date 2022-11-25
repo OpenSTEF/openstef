@@ -55,8 +55,11 @@ def train_model_task(
         datetime_end: End
 
     """
-    if pj.pipelines_to_run == PipelineType.FORECAST:
-        context.logger.info("Skip this PredictionJob because it's in forecast only.")
+    # Check pipeline types
+    if PipelineType.TRAIN not in pj.pipelines_to_run:
+        context.logger.info(
+            "Skip this PredictionJob because train pipeline is not specified in the pj."
+        )
         return
 
     # Get the paths for storing model and reports from the config manager

@@ -112,7 +112,7 @@ class TestTrainModelTask(TestCase):
         # Test happy flow of create forecast task for train only pj
         context = MagicMock()
         pj = self.pj
-        pj.pipelines_to_run = PipelineType.TRAIN
+        pj.pipelines_to_run = [PipelineType.TRAIN]
 
         train_model_task(pj, context)
 
@@ -126,7 +126,7 @@ class TestTrainModelTask(TestCase):
         # Test happy flow of create forecast task for forecast only pj
         context = MagicMock()
         pj = self.pj
-        pj.pipelines_to_run = PipelineType.FORECAST
+        pj.pipelines_to_run = [PipelineType.FORECAST]
 
         train_model_task(pj, context)
 

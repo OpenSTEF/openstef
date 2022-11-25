@@ -46,8 +46,11 @@ def create_forecast_task(pj: PredictionJobDataClass, context: TaskContext) -> No
         context: Contect object that holds a config manager and a database connection
 
     """
-    if pj.pipelines_to_run == PipelineType.TRAIN:
-        context.logger.info("Skip this PredictionJob because it's in train only.")
+    # Check pipeline types
+    if PipelineType.FORECAST not in pj.pipelines_to_run:
+        context.logger.info(
+            "Skip this PredictionJob because forecast pipeline is not specified in the pj."
+        )
         return
 
     # Extract mlflow tracking URI and trained models folder

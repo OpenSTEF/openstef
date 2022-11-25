@@ -82,7 +82,11 @@ class PredictionJobDataClass(BaseModel):
     """Only required for create_wind_forecast task"""
     hub_height: Optional[float]
     """Only required for create_wind_forecast task"""
-    pipelines_to_run: PipelineType = PipelineType.BOTH
+    pipelines_to_run: List[PipelineType] = [
+        PipelineType.TRAIN,
+        PipelineType.HYPER_PARMATERS,
+        PipelineType.FORECAST,
+    ]
     """The pipelines to run for this pj"""
     alternative_forecast_model_pid: Optional[Union[int, str]]
     """The pid that references another prediction job from which the model should be used for making forecasts."""
