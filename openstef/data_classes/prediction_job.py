@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 """Specifies the prediction job dataclass."""
-from typing import Optional, Union
+from typing import Optional, Union, List
 
 from pydantic import BaseModel
 
