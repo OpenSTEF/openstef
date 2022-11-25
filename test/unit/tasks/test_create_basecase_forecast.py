@@ -45,7 +45,7 @@ class TestCreateBasecaseForecastTask(TestCase):
         """Test happy flow of create forecast task for train only pj."""
         context = MagicMock()
         pj = self.pj
-        pj.pipelines_to_run = PipelineType.TRAIN
+        pj.pipelines_to_run = [PipelineType.TRAIN]
         create_basecase_forecast_task(pj, context)
         self.assertEqual(create_basecase_forecast_pipeline_mock.call_count, 0)
 
@@ -57,7 +57,7 @@ class TestCreateBasecaseForecastTask(TestCase):
         context = MagicMock()
         create_basecase_forecast_pipeline_mock.return_value = FORECAST_MOCK
         pj = self.pj
-        pj.pipelines_to_run = PipelineType.FORECAST
+        pj.pipelines_to_run = [PipelineType.FORECAST]
         create_basecase_forecast_task(pj, context)
         self.assertEqual(create_basecase_forecast_pipeline_mock.call_count, 1)
         pd.testing.assert_frame_equal(context.mock_calls[1].args[0], FORECAST_MOCK)
