@@ -211,7 +211,7 @@ class TestCreateForecastPipeline(BaseTestCase):
         load_mock.side_effect = side_effects
         create_forecast_pipeline_core_mock.return_value = MagicMock()
 
-        self.pj.forecast_pid = "703"
+        self.pj.alternative_forecast_model_pid = "703"
         # Load prediction job and forecast data
         forecast_data = self.data
         col_name = forecast_data.columns[0]
@@ -236,7 +236,7 @@ class TestCreateForecastPipeline(BaseTestCase):
         load_mock.side_effect = side_effects
         create_forecast_pipeline_core_mock.return_value = MagicMock()
 
-        self.pj.forecast_pid = "3070"
+        self.pj.alternative_forecast_model_pid = "3070"
         # Load prediction job and forecast data
         forecast_data = self.data
         col_name = forecast_data.columns[0]

@@ -41,12 +41,15 @@ def create_forecast_pipeline(
         DataFrame with the forecast
 
     """
-    pid = pj["id"] if pj.forecast_pid is None else pj.forecast_pid
+    prediction_model_pid = pj["id"]
+    # Use the alternative forecast model if it's specify in the pj
+    if pj.alternative_forecast_model_pid:
+        prediction_model_pid = pj.alternative_forecast_model_pid
 
     # Load most recent model for the given pid
     model, model_specs = MLflowSerializer(
         mlflow_tracking_uri=mlflow_tracking_uri
-    ).load_model(experiment_name=str(pid))
+    ).load_model(experiment_name=str(prediction_model_pid))
     return create_forecast_pipeline_core(pj, input_data, model, model_specs)
 
 
