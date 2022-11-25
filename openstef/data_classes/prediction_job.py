@@ -6,7 +6,7 @@ from typing import List, Optional, Union
 
 from pydantic import BaseModel
 
-from .model_specifications import ModelSpecificationDataClass
+from openstef.data_classes.model_specifications import ModelSpecificationDataClass
 from .split_function import SplitFuncDataClass
 from openstef.enums import PipelineType
 
