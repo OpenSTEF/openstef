@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 """Specifies the prediction job dataclass."""
-from typing import Optional, Union, List
+from typing import Optional, Union
 
 from pydantic import BaseModel
 
@@ -82,7 +82,7 @@ class PredictionJobDataClass(BaseModel):
     """Only required for create_wind_forecast task"""
     hub_height: Optional[float]
     """Only required for create_wind_forecast task"""
-    pipelines_to_run: List[PipelineType] = [
+    pipelines_to_run: list[PipelineType] = [
         PipelineType.TRAIN,
         PipelineType.HYPER_PARMATERS,
         PipelineType.FORECAST,
