@@ -94,7 +94,12 @@ def train_model_pipeline(
     # Train model with core pipeline
     try:
         model, report, model_specs_updated, data_sets = train_model_pipeline_core(
-            pj, model_specs, input_data, old_model, horizons=pj.train_horizons_minutes
+            pj,
+            model_specs,
+            input_data,
+            old_model,
+            horizons=pj.train_horizons_minutes,
+            use_old_model_features=check_old_model_age,
         )
     except OldModelHigherScoreError as OMHSE:
         logger.error("Old model is better than new model", pid=pj["id"], exc_info=OMHSE)
@@ -146,6 +151,7 @@ def train_model_pipeline_core(
     input_data: pd.DataFrame,
     old_model: OpenstfRegressor = None,
     horizons: Union[list[float], str] = None,
+    use_old_model_features: bool = True,
 ) -> Union[
     OpenstfRegressor,
     Report,
@@ -163,6 +169,7 @@ def train_model_pipeline_core(
         input_data: Input data
         old_model: Old model to compare to. Defaults to None.
         horizons: horizons to train on in hours.
+        use_old_model_features: Check if any new features are added since the features of the last model, reject any new features.
 
     Raises:
         InputDataInsufficientError: when input data is insufficient.
@@ -186,7 +193,11 @@ def train_model_pipeline_core(
 
     # Call common pipeline
     model, report, train_data, validation_data, test_data = train_pipeline_common(
-        pj, model_specs, input_data, horizons
+        pj,
+        model_specs,
+        input_data,
+        horizons,
+        use_old_model_features=use_old_model_features,
     )
     model_specs.feature_names = list(train_data.columns)
 
@@ -234,6 +245,7 @@ def train_pipeline_common(
     test_fraction: float = 0.0,
     backtest: bool = False,
     test_data_predefined: pd.DataFrame = pd.DataFrame(),
+    use_old_model_features: bool = True,
 ) -> tuple[OpenstfRegressor, Report, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Common pipeline shared with operational training and backtest training.
 
@@ -246,6 +258,7 @@ def train_pipeline_common(
         backtest: boolean if we need to do a backtest
         test_data_predefined: Predefined test data frame to be used in the pipeline
             (empty data frame by default)
+        use_old_model_features: Check if any new features are added since the features of the last model, reject any new features.
 
     Returns:
         - The trained model
@@ -260,7 +273,11 @@ def train_pipeline_common(
 
     """
     data_with_features = train_pipeline_step_compute_features(
-        pj=pj, model_specs=model_specs, input_data=input_data, horizons=horizons
+        pj=pj,
+        model_specs=model_specs,
+        input_data=input_data,
+        horizons=horizons,
+        use_old_model_features=use_old_model_features,
     )
 
     train_data, validation_data, test_data = train_pipeline_step_split_data(
@@ -295,6 +312,7 @@ def train_pipeline_step_compute_features(
     model_specs: ModelSpecificationDataClass,
     input_data: pd.DataFrame,
     horizons=list[float],
+    use_old_model_features: bool = True,
 ) -> pd.DataFrame:
     """Compute features and perform consistency checks.
 
@@ -303,6 +321,7 @@ def train_pipeline_step_compute_features(
         model_specs: Dataclass containing model specifications
         input_data: Input data
         horizons: horizons to train on in hours.
+        use_old_model_features: Check if any new features are added since the features of the last model, reject any new features.
 
     Returns:
         The dataframe with features need to train the model
@@ -349,7 +368,7 @@ def train_pipeline_step_compute_features(
         horizons=horizons,
         feature_names=model_specs.feature_names,
         feature_modules=model_specs.feature_modules,
-    ).add_features(validated_data, pj=pj)
+    ).add_features(validated_data, pj=pj, use_old_model_features=use_old_model_features)
 
     return data_with_features
 
