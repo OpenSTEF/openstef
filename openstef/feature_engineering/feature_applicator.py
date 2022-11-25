@@ -77,7 +77,7 @@ class TrainFeatureApplicator(AbstractFeatureApplicator):
         df: pd.DataFrame,
         pj: PredictionJobDataClass = None,
         latency_config: dict = None,
-        use_old_model_features: bool = True
+        use_old_model_features: bool = True,
     ) -> pd.DataFrame:
         """Adds features to an input DataFrame.
 

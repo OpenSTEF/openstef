@@ -94,7 +94,12 @@ def train_model_pipeline(
     # Train model with core pipeline
     try:
         model, report, model_specs_updated, data_sets = train_model_pipeline_core(
-            pj, model_specs, input_data, old_model, horizons=pj.train_horizons_minutes, use_old_model_features=check_old_model_age
+            pj,
+            model_specs,
+            input_data,
+            old_model,
+            horizons=pj.train_horizons_minutes,
+            use_old_model_features=check_old_model_age,
         )
     except OldModelHigherScoreError as OMHSE:
         logger.error("Old model is better than new model", pid=pj["id"], exc_info=OMHSE)
@@ -146,7 +151,7 @@ def train_model_pipeline_core(
     input_data: pd.DataFrame,
     old_model: OpenstfRegressor = None,
     horizons: Union[list[float], str] = None,
-    use_old_model_features: bool = True
+    use_old_model_features: bool = True,
 ) -> Union[
     OpenstfRegressor,
     Report,
@@ -188,7 +193,11 @@ def train_model_pipeline_core(
 
     # Call common pipeline
     model, report, train_data, validation_data, test_data = train_pipeline_common(
-        pj, model_specs, input_data, horizons, use_old_model_features=use_old_model_features
+        pj,
+        model_specs,
+        input_data,
+        horizons,
+        use_old_model_features=use_old_model_features,
     )
     model_specs.feature_names = list(train_data.columns)
 
@@ -236,7 +245,7 @@ def train_pipeline_common(
     test_fraction: float = 0.0,
     backtest: bool = False,
     test_data_predefined: pd.DataFrame = pd.DataFrame(),
-    use_old_model_features: bool = True
+    use_old_model_features: bool = True,
 ) -> tuple[OpenstfRegressor, Report, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Common pipeline shared with operational training and backtest training.
 
@@ -264,7 +273,11 @@ def train_pipeline_common(
 
     """
     data_with_features = train_pipeline_step_compute_features(
-        pj=pj, model_specs=model_specs, input_data=input_data, horizons=horizons, use_old_model_features=use_old_model_features
+        pj=pj,
+        model_specs=model_specs,
+        input_data=input_data,
+        horizons=horizons,
+        use_old_model_features=use_old_model_features,
     )
 
     train_data, validation_data, test_data = train_pipeline_step_split_data(
@@ -299,7 +312,7 @@ def train_pipeline_step_compute_features(
     model_specs: ModelSpecificationDataClass,
     input_data: pd.DataFrame,
     horizons=list[float],
-    use_old_model_features: bool=True,
+    use_old_model_features: bool = True,
 ) -> pd.DataFrame:
     """Compute features and perform consistency checks.
 
