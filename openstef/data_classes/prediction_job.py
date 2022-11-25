@@ -8,7 +8,7 @@ from pydantic import BaseModel
 
 from .model_specifications import ModelSpecificationDataClass
 from .split_function import SplitFuncDataClass
-from ..enums import PipelineType
+from openstef.enums import PipelineType
 
 
 class PredictionJobDataClass(BaseModel):
