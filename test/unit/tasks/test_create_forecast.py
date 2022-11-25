@@ -6,6 +6,7 @@ from test.unit.utils.data import TestData
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
 
+from openstef.enums import PipelineType
 import openstef.tasks.create_forecast as task
 from openstef.model.serializer import MLflowSerializer
 from openstef.tasks.create_forecast import create_forecast_task
@@ -44,6 +45,26 @@ class TestCreateForeCastTask(TestCase):
         """Test happy flow of create forecast task."""
         context = MagicMock()
         create_forecast_task(self.pj, context)
+        self.assertEqual(context.mock_calls[1].args[0], FORECAST_MOCK)
+
+    @patch("openstef.tasks.create_forecast.create_forecast_pipeline")
+    def test_create_forecast_task_train_only(self, create_forecast_pipeline_mock):
+        """Test happy flow of create forecast task for train only pj."""
+        context = MagicMock()
+        pj = self.pj
+        pj.pipelines_to_run = [PipelineType.TRAIN]
+        create_forecast_task(pj, context)
+        self.assertEqual(create_forecast_pipeline_mock.call_count, 0)
+
+    @patch("openstef.tasks.create_forecast.create_forecast_pipeline")
+    def test_create_forecast_task_forecast_only(self, create_forecast_pipeline_mock):
+        """Test happy flow of create forecast task for forecast only pj."""
+        context = MagicMock()
+        create_forecast_pipeline_mock.return_value = FORECAST_MOCK
+        pj = self.pj
+        pj.pipelines_to_run = [PipelineType.FORECAST]
+        create_forecast_task(pj, context)
+        self.assertEqual(create_forecast_pipeline_mock.call_count, 1)
         self.assertEqual(context.mock_calls[1].args[0], FORECAST_MOCK)
 
     @patch("mlflow.sklearn.load_model")

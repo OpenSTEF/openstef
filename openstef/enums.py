@@ -24,3 +24,9 @@ class TracyJobResult(Enum):
     SUCCESS = "success"
     FAILED = "failed"
     UNKNOWN = "unknown"
+
+
+class PipelineType(Enum):
+    FORECAST = "forecast"
+    TRAIN = "train"
+    HYPER_PARMATERS = "hyper_parameters"

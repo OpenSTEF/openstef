@@ -23,7 +23,8 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
-from openstef.enums import MLModelType
+
+from openstef.enums import MLModelType, PipelineType
 from openstef.exceptions import SkipSaveTrainingForecasts
 from openstef.pipeline.train_model import train_model_pipeline
 from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
@@ -56,6 +57,13 @@ def train_model_task(
         datetime_end: End
 
     """
+    # Check pipeline types
+    if PipelineType.TRAIN not in pj.pipelines_to_run:
+        context.logger.info(
+            "Skip this PredictionJob because train pipeline is not specified in the pj."
+        )
+        return
+
     # Get the paths for storing model and reports from the config manager
     mlflow_tracking_uri = context.config.paths.mlflow_tracking_uri
     context.logger.debug(f"MLflow tracking uri: {mlflow_tracking_uri}")

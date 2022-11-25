@@ -6,8 +6,9 @@ from typing import Optional, Union
 
 from pydantic import BaseModel
 
-from .model_specifications import ModelSpecificationDataClass
-from .split_function import SplitFuncDataClass
+from openstef.data_classes.model_specifications import ModelSpecificationDataClass
+from openstef.data_classes.split_function import SplitFuncDataClass
+from openstef.enums import PipelineType
 
 
 class PredictionJobDataClass(BaseModel):
@@ -81,6 +82,14 @@ class PredictionJobDataClass(BaseModel):
     """Only required for create_wind_forecast task"""
     hub_height: Optional[float]
     """Only required for create_wind_forecast task"""
+    pipelines_to_run: list[PipelineType] = [
+        PipelineType.TRAIN,
+        PipelineType.HYPER_PARMATERS,
+        PipelineType.FORECAST,
+    ]
+    """The pipelines to run for this pj"""
+    alternative_forecast_model_pid: Optional[Union[int, str]]
+    """The pid that references another prediction job from which the model should be used for making forecasts."""
 
     class Config:
         """Pydantic model configuration.
