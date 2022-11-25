@@ -22,7 +22,6 @@ Example:
         $ python split_forecast.py
 
 """
-from typing import Dict, Tuple
 from datetime import datetime
 from pathlib import Path
 
@@ -157,7 +156,7 @@ def determine_invalid_coefs(
 
 
 def convert_coefdict_to_coefsdf(
-    pj: PredictionJobDataClass, input_split_function: pd.DataFrame, coefdict: Dict
+    pj: PredictionJobDataClass, input_split_function: pd.DataFrame, coefdict: dict
 ) -> pd.DataFrame:
     """Convert dictionary of coefficients to dataframe with additional data for db storage.
 
@@ -190,7 +189,7 @@ def convert_coefdict_to_coefsdf(
 
 def find_components(
     df: pd.DataFrame, zero_bound: bool = True
-) -> Tuple[pd.DataFrame, Dict]:
+) -> tuple[pd.DataFrame, dict]:
     """Function that does the actual energy splitting.
 
     Args:

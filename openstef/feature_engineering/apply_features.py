@@ -10,7 +10,6 @@ Examples of features that are added:
     - The normalised wind power according to the turbine-specific power curve.
 
 """
-from typing import List
 
 import pandas as pd
 
@@ -32,7 +31,7 @@ from openstef.feature_engineering.weather_features import (
 def apply_features(
     data: pd.DataFrame,
     pj: PredictionJobDataClass = None,
-    feature_names: List[str] = None,
+    feature_names: list[str] = None,
     horizon: float = 24.0,
 ) -> pd.DataFrame:
     """Applies the feature functions defined in ``feature_functions.py`` and returns the complete dataframe.
@@ -50,7 +49,7 @@ def apply_features(
                                         columns=[label, predictor_1,..., predictor_n]
                                     )
         pj (PredictionJobDataClass): Prediction job.
-        feature_names (List[str]): list of reuqested features
+        feature_names (list[str]): list of reuqested features
         horizon (float): Forecast horizon limit in hours.
 
     Returns:

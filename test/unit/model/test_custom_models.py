@@ -2,11 +2,10 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 import unittest
-from typing import List, Type
+from typing import Type
 
 import numpy as np
 
-from openstef.enums import MLModelType
 from openstef.model.model_creator import ModelCreator
 from openstef.model.objective import RegressorObjective
 from openstef.model.objective_creator import ObjectiveCreator
@@ -23,7 +22,7 @@ class DummyObjective(RegressorObjective):
 
 class DummyRegressor(CustomOpenstfRegressor):
     @staticmethod
-    def valid_kwargs() -> List[str]:
+    def valid_kwargs() -> list[str]:
         return []
 
     @property

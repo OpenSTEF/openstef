@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 import logging
 import os
-from typing import List, Optional, Tuple, Union
+from typing import Optional, Union
 
 import pandas as pd
 import structlog
@@ -14,6 +14,7 @@ from openstef.exceptions import (
     InputDataInsufficientError,
     InputDataWrongColumnOrderError,
     OldModelHigherScoreError,
+    SkipSaveTrainingForecasts,
 )
 from openstef.feature_engineering.feature_applicator import TrainFeatureApplicator
 from openstef.metrics.reporter import Report, Reporter
@@ -24,7 +25,7 @@ from openstef.model.standard_deviation_generator import StandardDeviationGenerat
 from openstef.model_selection.model_selection import split_data_train_validation_test
 from openstef.validation import validation
 
-DEFAULT_TRAIN_HORIZONS: List[float] = [0.25, 47.0]
+DEFAULT_TRAIN_HORIZONS: list[float] = [0.25, 47.0]
 MAXIMUM_MODEL_AGE: int = 7
 
 DEFAULT_EARLY_STOPPING_ROUNDS: int = 10
@@ -37,7 +38,7 @@ def train_model_pipeline(
     check_old_model_age: bool,
     mlflow_tracking_uri: str,
     artifact_folder: str,
-) -> Optional[Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]]:
+) -> Optional[tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]]:
     """Middle level pipeline that takes care of all persistent storage dependencies.
 
     Expected prediction jobs keys: "id",
@@ -86,15 +87,24 @@ def train_model_pipeline(
         logger.warning(
             f"Old model is younger than {MAXIMUM_MODEL_AGE} days, skip training"
         )
+        if pj.save_train_forecasts:
+            raise SkipSaveTrainingForecasts
         return
 
     # Train model with core pipeline
     try:
         model, report, model_specs_updated, data_sets = train_model_pipeline_core(
-            pj, model_specs, input_data, old_model, horizons=pj.train_horizons_minutes
+            pj,
+            model_specs,
+            input_data,
+            old_model,
+            horizons=pj.train_horizons_minutes,
+            use_old_model_features=check_old_model_age,
         )
     except OldModelHigherScoreError as OMHSE:
         logger.error("Old model is better than new model", pid=pj["id"], exc_info=OMHSE)
+        if pj.save_train_forecasts:
+            raise SkipSaveTrainingForecasts from OMHSE
         return
 
     except InputDataInsufficientError as IDIE:
@@ -140,12 +150,13 @@ def train_model_pipeline_core(
     model_specs: ModelSpecificationDataClass,
     input_data: pd.DataFrame,
     old_model: OpenstfRegressor = None,
-    horizons: Union[List[float], str] = None,
+    horizons: Union[list[float], str] = None,
+    use_old_model_features: bool = True,
 ) -> Union[
     OpenstfRegressor,
     Report,
     ModelSpecificationDataClass,
-    Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame],
+    tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame],
 ]:
     """Train model core pipeline.
 
@@ -158,6 +169,7 @@ def train_model_pipeline_core(
         input_data: Input data
         old_model: Old model to compare to. Defaults to None.
         horizons: horizons to train on in hours.
+        use_old_model_features: Check if any new features are added since the features of the last model, reject any new features.
 
     Raises:
         InputDataInsufficientError: when input data is insufficient.
@@ -168,7 +180,7 @@ def train_model_pipeline_core(
         - Fitted_model (OpenstfRegressor)
         - Report (Report)
         - Modelspecs (ModelSpecificationDataClass)
-        - Datasets (Tuple[pd.DataFrame, pd.DataFrame, pd.Dataframe]): The train, validation and test sets
+        - Datasets (tuple[pd.DataFrmae, pd.DataFrame, pd.Dataframe): The train, validation and test sets
 
     """
     if horizons is None:
@@ -181,13 +193,21 @@ def train_model_pipeline_core(
 
     # Call common pipeline
     model, report, train_data, validation_data, test_data = train_pipeline_common(
-        pj, model_specs, input_data, horizons
+        pj,
+        model_specs,
+        input_data,
+        horizons,
+        use_old_model_features=use_old_model_features,
     )
     model_specs.feature_names = list(train_data.columns)
 
     # Check if new model is better than old model
     if old_model:
         combined = pd.concat([train_data, validation_data]).reset_index(drop=True)
+        # skip the forecast column added at the end of dataframes
+        if pj.save_train_forecasts:
+            combined = combined.iloc[:, :-1]
+
         x_data, y_data = (
             combined.iloc[:, 1:-1],
             combined.iloc[:, 0],
@@ -221,11 +241,12 @@ def train_pipeline_common(
     pj: PredictionJobDataClass,
     model_specs: ModelSpecificationDataClass,
     input_data: pd.DataFrame,
-    horizons: Union[List[float], str],
+    horizons: Union[list[float], str],
     test_fraction: float = 0.0,
     backtest: bool = False,
     test_data_predefined: pd.DataFrame = pd.DataFrame(),
-) -> Tuple[OpenstfRegressor, Report, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    use_old_model_features: bool = True,
+) -> tuple[OpenstfRegressor, Report, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Common pipeline shared with operational training and backtest training.
 
     Args:
@@ -237,6 +258,7 @@ def train_pipeline_common(
         backtest: boolean if we need to do a backtest
         test_data_predefined: Predefined test data frame to be used in the pipeline
             (empty data frame by default)
+        use_old_model_features: Check if any new features are added since the features of the last model, reject any new features.
 
     Returns:
         - The trained model
@@ -251,7 +273,11 @@ def train_pipeline_common(
 
     """
     data_with_features = train_pipeline_step_compute_features(
-        pj=pj, model_specs=model_specs, input_data=input_data, horizons=horizons
+        pj=pj,
+        model_specs=model_specs,
+        input_data=input_data,
+        horizons=horizons,
+        use_old_model_features=use_old_model_features,
     )
 
     train_data, validation_data, test_data = train_pipeline_step_split_data(
@@ -285,7 +311,8 @@ def train_pipeline_step_compute_features(
     pj: PredictionJobDataClass,
     model_specs: ModelSpecificationDataClass,
     input_data: pd.DataFrame,
-    horizons=List[float],
+    horizons=list[float],
+    use_old_model_features: bool = True,
 ) -> pd.DataFrame:
     """Compute features and perform consistency checks.
 
@@ -294,6 +321,7 @@ def train_pipeline_step_compute_features(
         model_specs: Dataclass containing model specifications
         input_data: Input data
         horizons: horizons to train on in hours.
+        use_old_model_features: Check if any new features are added since the features of the last model, reject any new features.
 
     Returns:
         The dataframe with features need to train the model
@@ -340,7 +368,7 @@ def train_pipeline_step_compute_features(
         horizons=horizons,
         feature_names=model_specs.feature_names,
         feature_modules=model_specs.feature_modules,
-    ).add_features(validated_data, pj=pj)
+    ).add_features(validated_data, pj=pj, use_old_model_features=use_old_model_features)
 
     return data_with_features
 

@@ -5,7 +5,7 @@
 import inspect
 from abc import abstractmethod
 from importlib import import_module
-from typing import List, Type
+from typing import Type
 
 import pandas as pd
 
@@ -23,7 +23,7 @@ class CustomOpenstfRegressor(OpenstfRegressor):
 
     @staticmethod
     @abstractmethod
-    def valid_kwargs() -> List[str]:
+    def valid_kwargs() -> list[str]:
         ...
 
     @property

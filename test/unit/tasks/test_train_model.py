@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 import copy
-import unittest
 from test.unit.utils.data import TestData
 from unittest import TestCase
 from unittest.mock import MagicMock, patch

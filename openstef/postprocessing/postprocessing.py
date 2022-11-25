@@ -1,7 +1,6 @@
 # SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-from typing import Dict
 from enum import Enum
 
 import numpy as np
@@ -83,8 +82,8 @@ def calculate_wind_power(
 
 
 def split_forecast_in_components(
-    forecast: pd.DataFrame, weather_data: pd.DataFrame, split_coefs: Dict
-) -> Dict[str, pd.DataFrame]:
+    forecast: pd.DataFrame, weather_data: pd.DataFrame, split_coefs: dict
+) -> dict[str, pd.DataFrame]:
     """Make estimates of energy components based on given forecast.
 
     Args:

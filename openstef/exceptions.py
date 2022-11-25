@@ -62,3 +62,7 @@ class PredictionJobException(Exception):
         if metrics is None:
             metrics = {}
         self.metrics = metrics
+
+
+class SkipSaveTrainingForecasts(Exception):
+    """If old model is better or too young, you don't need to save the traing forcast."""

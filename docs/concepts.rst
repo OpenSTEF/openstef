@@ -66,3 +66,7 @@ It requires:
 * **Dashboard**: dashboard to visualize historic and forecasted energy loads.
 
 .. include:: dashboard.rst
+
+|
+
+.. include:: dazls.rst

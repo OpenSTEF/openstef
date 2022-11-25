@@ -29,7 +29,7 @@ def create_basecase_forecast_pipeline(
     pj: PredictionJobDataClass,
     input_data: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Computes the base case forecast and confidence intervals for a given prediction job and input data.
+    """Compute the base case forecast and confidence intervals for a given prediction job and input data.
 
     Args:
         pj: Prediction job

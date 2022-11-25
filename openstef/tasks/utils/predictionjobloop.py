@@ -2,16 +2,16 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-from typing import Callable, List
 import random
 import sys
 from collections import defaultdict
 from itertools import chain
+from typing import Callable
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
+from openstef.exceptions import PredictionJobException
 from openstef.tasks.utils.dependencies import find_groups, has_dependencies
 from openstef.tasks.utils.taskcontext import TaskContext
-from openstef.exceptions import PredictionJobException
 
 
 class PredictionJobLoop:
@@ -58,7 +58,7 @@ class PredictionJobLoop:
         on_exception_callback: Callable = None,
         on_successful_callback: Callable = None,
         on_end_callback: Callable = None,
-        prediction_jobs: List[PredictionJobDataClass] = None,
+        prediction_jobs: list[PredictionJobDataClass] = None,
         debug_pid: int = None,
         **pj_kwargs
     ):

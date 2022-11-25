@@ -5,7 +5,7 @@ import random
 import secrets
 from datetime import timedelta
 from itertools import accumulate
-from typing import Iterable, Tuple
+from typing import Iterable
 
 import numpy as np
 import pandas as pd
@@ -57,7 +57,7 @@ def group_kfold(
 
 def sample_indices_train_val(
     data: pd.DataFrame, peaks: pd.DataFrame
-) -> Tuple[np.array, np.array]:
+) -> tuple[np.array, np.array]:
     """Sample indices of given period length assuming the peaks are evenly spreaded.
 
     Args:
@@ -106,7 +106,7 @@ def split_data_train_validation_test(
     validation_fraction: float = 0.15,
     back_test: bool = False,
     stratification_min_max: bool = True,
-) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Split input data into train, test and validation set.
 
     Function for splitting data with features in a train, test and
@@ -261,7 +261,7 @@ def backtest_split_default(
     test_fraction: float = 0.15,
     stratification_min_max: bool = True,
     randomize_fold_split: bool = False,
-) -> Iterable[Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]]:
+) -> Iterable[tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]]:
     """Default cross validation strategy.
 
     Args:
