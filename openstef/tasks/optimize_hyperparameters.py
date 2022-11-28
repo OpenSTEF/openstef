@@ -33,7 +33,9 @@ DEFAULT_TRAINING_PERIOD_DAYS = 121
 
 
 def optimize_hyperparameters_task(
-    pj: PredictionJobDataClass, context: TaskContext, check_hyper_param_age: bool = DEFAULT_CHECK_HYPER_PARAMS_AGE
+    pj: PredictionJobDataClass,
+    context: TaskContext,
+    check_hyper_param_age: bool = DEFAULT_CHECK_HYPER_PARAMS_AGE,
 ) -> None:
     """Optimize hyperparameters task.
 
