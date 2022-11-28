@@ -14,7 +14,7 @@ from openstef.postprocessing import postprocessing
 class TestPostProcess(BaseTestCase):
     def test_post_process_wind_solar(self):
 
-        forecast_sum = pd.DataFrame({"forecast": [-10, -15, -33, 1, 2]})
+        forecast = pd.DataFrame({"forecast": [-10, -15, -33, 1, 2]})
 
         forecast_positive_removed = pd.DataFrame()
 
