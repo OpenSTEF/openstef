@@ -115,7 +115,7 @@ def run_tracy_job(
             "optimize_hyperparameters",
             "optimize_hyperparameters_for_specific_pid",
         ]:
-            optimize_hyperparameters_task(pj, context)
+            optimize_hyperparameters_task(pj, context, check_hyper_param_age=False)
 
         # Else unknown job
         else:
