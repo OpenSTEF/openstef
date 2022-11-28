@@ -45,6 +45,8 @@ def optimize_hyperparameters_task(
     Args:
         pj: Prediction job
         context: Task context
+        check_hyper_param_age: Boolean indicating if optimization can be skipped in case existing 
+            hyperparameters do not exceed the maximum age.
 
     """
     # Check pipeline types
