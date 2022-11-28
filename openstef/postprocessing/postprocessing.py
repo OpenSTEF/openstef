@@ -18,6 +18,9 @@ TURBINE_DATA = {
     "steepness": 0.664,
 }
 
+# Set value to define precission of power, this is needed because comparing to zero sometimes leads to issues for very small values.
+SMALLEST_POWER_UNIT: float = 0.000001
+
 
 def normalize_and_convert_weather_data_for_splitting(
     weather_data: pd.DataFrame,
@@ -178,11 +181,11 @@ def post_process_wind_solar(
     forecast_data_sum = forecast.sum()
     # Determine sign of sum
     if forecast_data_sum > 0:
-        # Set all values smaller than zero to zero, since this is not realistic
-        forecast.loc[forecast < 0] = 0
+        # Set all values smaller than smallest power unit to zero, since this is not realistic
+        forecast.loc[forecast < SMALLEST_POWER_UNIT] = 0
     elif forecast_data_sum < 0:
-        # Likewise for all values greater than zero
-        forecast.loc[forecast > 0] = 0
+        # Likewise for all values greater than smallest negative power unit
+        forecast.loc[forecast > (-1 * SMALLEST_POWER_UNIT)] = 0
     else:
         logger.warning(
             "Could not determine sign of the forecast, skip post-processing. Sum was"
