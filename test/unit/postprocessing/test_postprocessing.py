@@ -13,19 +13,15 @@ from openstef.postprocessing import postprocessing
 
 class TestPostProcess(BaseTestCase):
     def test_post_process_wind_solar(self):
-       
+
         forecast_sum = pd.DataFrame({"forecast": [-10, -15, -33, 1, 2]})
 
-
         forecast_positive_removed = pd.DataFrame()
-
-
 
         forecast_positive_removed["forecast"] = postprocessing.post_process_wind_solar(
             forecast_sum["forecast"], ForecastType.SOLAR
         )
 
-       
         self.assertTrue((forecast_positive_removed["forecast"] <= 0).all())
 
     def test_normalize_and_convert_weather_data_for_splitting(self):
