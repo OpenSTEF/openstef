@@ -159,9 +159,8 @@ def post_process_wind_solar(
     """Function that caries out postprocessing for wind and solar power generators.
 
         As these points will always produce energy, predicted energy consumption is
-        set to zero. This function will automatically detect the sign as this can
-        vary from case to case. The largest volume either positive or negative is
-        assumed to be the energy production and the other side the energy consumption.
+        set to zero. This function enforces the assumption that production is negative
+        and consuption positive.
 
     Args:
         forecast: Series with forecast data.
@@ -172,25 +171,11 @@ def post_process_wind_solar(
         Post-processed forecast.
 
     """
-    logger = structlog.get_logger(__name__)
-
     if forecast_type not in [ForecastType.WIND, ForecastType.SOLAR]:
         return forecast
 
-    # NOTE this part is really generic, we should probably make it a generic function
-    forecast_data_sum = forecast.sum()
-    # Determine sign of sum
-    if forecast_data_sum > 0:
-        # Set all values smaller than smallest power unit to zero, since this is not realistic
-        forecast.loc[forecast < SMALLEST_POWER_UNIT] = 0
-    elif forecast_data_sum < 0:
-        # Likewise for all values greater than smallest negative power unit
-        forecast.loc[forecast > (-1 * SMALLEST_POWER_UNIT)] = 0
-    else:
-        logger.warning(
-            "Could not determine sign of the forecast, skip post-processing. Sum was"
-            f" {forecast_data_sum}"
-        )
+    # For wind and solar forecasted value should always be negative.
+    forecast.loc[forecast > (-1 * SMALLEST_POWER_UNIT)] = 0
 
     # write changed back to forecast
     return forecast
