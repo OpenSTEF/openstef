@@ -19,10 +19,10 @@ class TestPostProcess(BaseTestCase):
         forecast_positive_removed = pd.DataFrame()
 
         forecast_positive_removed["forecast"] = postprocessing.post_process_wind_solar(
-            forecast_sum["forecast"], ForecastType.SOLAR
+            forecast["forecast"], ForecastType.SOLAR
         )
 
-        self.assertTrue((forecast_positive_removed["forecast"] <= 0).all())
+        self.assertTrue((forecast_positive_removed["forecast"] <= 0.0).all())
 
     def test_normalize_and_convert_weather_data_for_splitting(self):
         # Create testing input
