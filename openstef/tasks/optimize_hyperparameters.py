@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 
 # -*- coding: utf-8 -*-
-"""optimize_hyper_params.py
+"""optimize_hyper_params.py.
 
 This module contains the CRON job that is periodically executed to optimize the
 hyperparameters for the prognosis models.
