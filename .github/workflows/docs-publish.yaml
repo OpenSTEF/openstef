@@ -25,17 +25,18 @@ jobs:
           printf "\nmkdocs==1.2.3\n" >> docs/requirements.txt &&\
           sphinx-apidoc -o docs openstef
         docs-folder: "docs/"
+        build-command: "sphinx-build . _build"
     # Upload artifact so it is available from the action-window
     - name: Upload artifact
       uses: actions/upload-artifact@v1
       with:
         name: html-documentation
-        path: docs/_build/html/
+        path: docs/_build/
     # Commit documentation changes to the gh-pages branch
     - name: Commit documentation changes
       run: |
         git clone https://github.com/OpenSTEF/openstef.git --branch gh-pages --single-branch gh-pages
-        cp -r docs/_build/html/* gh-pages/
+        cp -r docs/_build/* gh-pages/
         cd gh-pages
         touch .nojekyll
         git config --local user.email "action@github.com"
