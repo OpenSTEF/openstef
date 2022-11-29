@@ -56,7 +56,7 @@ def optimize_hyperparameters_task(
         )
         return
 
-    # Get the paths for storing model and reports from the config manager
+    # Retrieve the paths for storing model and reports from the config manager
     mlflow_tracking_uri = context.config.paths.mlflow_tracking_uri
     artifact_folder = context.config.paths.artifact_folder
 
