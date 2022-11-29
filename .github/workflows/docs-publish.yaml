@@ -24,8 +24,8 @@ jobs:
           printf "\nsphinx_autodoc_typehints==1.19.4\n" >> docs/requirements.txt &&\
           printf "\nmkdocs==1.2.3\n" >> docs/requirements.txt &&\
           sphinx-apidoc -o docs openstef
-        docs-folder: "."
-        build-command: "sphinx-build docs docs/_build"
+        docs-folder: "/docs"
+        build-command: "sphinx-build . _build"
     # Upload artifact so it is available from the action-window
     - name: Upload artifact
       uses: actions/upload-artifact@v1
