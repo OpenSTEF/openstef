@@ -28,11 +28,14 @@ from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstef.tasks.utils.taskcontext import TaskContext
 
 MAX_AGE_HYPER_PARAMS_DAYS = 31
+DEFAULT_CHECK_HYPER_PARAMS_AGE = True
 DEFAULT_TRAINING_PERIOD_DAYS = 121
 
 
 def optimize_hyperparameters_task(
-    pj: PredictionJobDataClass, context: TaskContext
+    pj: PredictionJobDataClass,
+    context: TaskContext,
+    check_hyper_param_age: bool = DEFAULT_CHECK_HYPER_PARAMS_AGE,
 ) -> None:
     """Optimize hyperparameters task.
 
@@ -42,6 +45,8 @@ def optimize_hyperparameters_task(
     Args:
         pj: Prediction job
         context: Task context
+        check_hyper_param_age: Boolean indicating if optimization can be skipped in case existing
+            hyperparameters do not exceed the maximum age.
 
     """
     # Check pipeline types
@@ -51,7 +56,7 @@ def optimize_hyperparameters_task(
         )
         return
 
-    # Get the paths for storing model and reports from the config manager
+    # Retrieve the paths for storing model and reports from the config manager
     mlflow_tracking_uri = context.config.paths.mlflow_tracking_uri
     artifact_folder = context.config.paths.artifact_folder
 
@@ -62,7 +67,7 @@ def optimize_hyperparameters_task(
         experiment_name=str(pj["id"]), hyperparameter_optimization_only=True
     )
 
-    if hyper_params_age < MAX_AGE_HYPER_PARAMS_DAYS:
+    if (hyper_params_age < MAX_AGE_HYPER_PARAMS_DAYS) and check_hyper_param_age:
         context.logger.warning(
             "Skip hyperparameter optimization",
             pid=pj["id"],

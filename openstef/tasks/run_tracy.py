@@ -7,7 +7,7 @@ This scripts works as follows:
   1. Checks the mysql table 'todolist' for jobs (which are not already in progress and
     which are not already failed)
   2. Set all newly acquired jobs to 'in progress'
-For each job;
+For each job:
   3. Convert input arguments to a dict with 'args' and 'kwargs'
   4. Interpret the given function and arguments
   5. Execute the job
@@ -115,7 +115,7 @@ def run_tracy_job(
             "optimize_hyperparameters",
             "optimize_hyperparameters_for_specific_pid",
         ]:
-            optimize_hyperparameters_task(pj, context)
+            optimize_hyperparameters_task(pj, context, check_hyper_param_age=False)
 
         # Else unknown job
         else:
