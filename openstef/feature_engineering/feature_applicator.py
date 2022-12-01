@@ -77,7 +77,6 @@ class TrainFeatureApplicator(AbstractFeatureApplicator):
         df: pd.DataFrame,
         pj: PredictionJobDataClass = None,
         latency_config: dict = None,
-        use_old_model_features: bool = True,
     ) -> pd.DataFrame:
         """Adds features to an input DataFrame.
 
@@ -96,7 +95,6 @@ class TrainFeatureApplicator(AbstractFeatureApplicator):
             latency_config: (Optional) Invalidate certain features that are not
                 available for a specific horizon due to data latency. Defaults to
                 ``{"APX": 24}``.
-            use_old_model_features: Check if any new features are added since the features of the last model, reject any new features.
 
         Returns:
             Input DataFrame with an extra column for every added feature and sorted on the datetime index.
@@ -156,8 +154,7 @@ class TrainFeatureApplicator(AbstractFeatureApplicator):
                 features = self.feature_names + ["historic_load"] + ["horizon"]
             else:
                 features = self.feature_names + ["horizon"]
-            if use_old_model_features:
-                result = remove_non_requested_feature_columns(result, features)
+            result = remove_non_requested_feature_columns(result, features)
 
         # Sort all features except for the (first) load and (last) horizon columns
         return enforce_feature_order(result)
