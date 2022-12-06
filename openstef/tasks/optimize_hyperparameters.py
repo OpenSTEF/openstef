@@ -57,8 +57,8 @@ def optimize_hyperparameters_task(
         return
 
     # Retrieve the paths for storing model and reports from the config manager
-    mlflow_tracking_uri = context.config.paths.mlflow_tracking_uri
-    artifact_folder = context.config.paths.artifact_folder
+    mlflow_tracking_uri = context.config.paths_mlflow_tracking_uri
+    artifact_folder = context.config.paths_artifact_folder
 
     # Determine if we need to optimize hyperparams
     # retrieve last model age where hyperparameters were optimized

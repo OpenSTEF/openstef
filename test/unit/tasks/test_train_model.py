@@ -23,10 +23,10 @@ class TestTrainModelTask(TestCase):
 
         self.context = MagicMock()
         self.context.database = self.dbmock
-        self.context.config.paths.mlflow_tracking_uri = (
+        self.context.config.paths_mlflow_tracking_uri = (
             "./test/unit/trained_models/mlruns"
         )
-        self.context.config.paths.artifact_folder = "./test/unit/trained_models"
+        self.context.config.paths_artifact_folder = "./test/unit/trained_models"
         self.context.paths.webroot = "test_webroot"
 
     @patch("openstef.tasks.train_model.train_model_pipeline")

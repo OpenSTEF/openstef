@@ -90,10 +90,10 @@ class TestCreateForeCastTask(TestCase):
         forecast_data.loc["2020-11-28 00:00:00":"2020-12-01", col_name] = None
         dbmock.get_model_input.return_value = forecast_data
 
-        configmock_taskcontext.return_value.paths.mlflow_tracking_uri = (
+        configmock_taskcontext.return_value.paths_mlflow_tracking_uri = (
             "./test/unit/trained_models/mlruns"
         )
-        configmock_taskcontext.return_value.paths.artifact_folder = (
+        configmock_taskcontext.return_value.paths_artifact_folder = (
             "./test/unit/trained_models"
         )
 

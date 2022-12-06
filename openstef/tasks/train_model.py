@@ -65,9 +65,9 @@ def train_model_task(
         return
 
     # Get the paths for storing model and reports from the config manager
-    mlflow_tracking_uri = context.config.paths.mlflow_tracking_uri
+    mlflow_tracking_uri = context.config.paths_mlflow_tracking_uri
     context.logger.debug(f"MLflow tracking uri: {mlflow_tracking_uri}")
-    artifact_folder = context.config.paths.artifact_folder
+    artifact_folder = context.config.paths_artifact_folder
     context.logger.debug(f"Artifact folder: {artifact_folder}")
 
     context.perf_meter.checkpoint("Added metadata to PredictionJob")
