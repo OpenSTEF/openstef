@@ -35,6 +35,10 @@ def validate(
     """
     logger = structlog.get_logger(__name__)
 
+    # Check if DataFrame has datetime index
+    if not isinstance(data.index, pd.DatetimeIndex):
+        raise ValueError("Input dataframe does not have a datetime index.")
+
     if flatliner_threshold is None:
         logger.info("Skipping validation of input data", pj_id=pj_id)
         return data
