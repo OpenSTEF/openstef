@@ -77,7 +77,6 @@ def drop_target_na(data: pd.DataFrame) -> pd.DataFrame:
 def is_data_sufficient(
     data: pd.DataFrame, model, completeness_threshold: float, minimal_table_length: int
 ) -> bool:
-
     """Check if enough data is left after validation and cleaning to continue with model training.
 
     Args:
@@ -131,7 +130,6 @@ def calc_completeness(
     time_delayed: bool = False,
     homogenise: bool = True,
 ) -> float:
-
     """Calculate the (weighted) completeness of a dataframe.
 
     NOTE: NA values count as incomplete
@@ -453,7 +451,6 @@ def calc_completeness_load(
     time_delayed: bool = False,
     homogenise: bool = True,
 ) -> float:
-
     """Calculate the (weighted) completeness of a dataframe.
 
     NOTE: NA values count as incomplete

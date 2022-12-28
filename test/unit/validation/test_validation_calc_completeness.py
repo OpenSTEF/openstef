@@ -2,8 +2,6 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-from test.unit.utils.base import BaseTestCase
-
 import numpy as np
 import pandas as pd
 
