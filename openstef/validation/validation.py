@@ -136,8 +136,8 @@ def calc_completeness(
 
     Args:
         df: Dataframe with a datetimeIndex index
-        weights: Array-compatible with size equal to columns of df.
-            used to weight the completeness of each column
+        weights: Array-compatible with size equal to columns of df
+            (excl. load&horizon), used to weight the completeness of each column
         time_delayed: Should there be a correction for T-x columns
         homogenise: Should the index be resampled to median time delta -
             only available for DatetimeIndex
@@ -165,10 +165,7 @@ def calc_completeness(
     length_features = len(df_copy.columns)
 
     # Returns the list
-    if type(weights) == np.ndarray:
-        df_copy = df_copy
-        weights = weights
-    else:
+    if type(weights) != np.ndarray:
         list_features = weights.index.tolist()
         df_copy = df_copy[list_features]  # Reorder the df to match weights index (list)
         weights = weights.weight
