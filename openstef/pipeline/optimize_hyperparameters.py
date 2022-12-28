@@ -137,7 +137,7 @@ def optimize_hyperparameters_pipeline_core(
 
     # Check if sufficient data is left after cleaning
     if not validation.is_data_sufficient(
-        validated_data, pj["completeness_treshold"], pj["minimal_table_length"]
+        validated_data, None, pj["completeness_treshold"], pj["minimal_table_length"]
     ):
         raise InputDataInsufficientError(
             f"Input data is insufficient for {pj['name']} after validation and cleaning"

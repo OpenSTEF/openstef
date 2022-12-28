@@ -75,12 +75,14 @@ def drop_target_na(data: pd.DataFrame) -> pd.DataFrame:
 
 
 def is_data_sufficient(
-    data: pd.DataFrame, completeness_threshold: float, minimal_table_length: int
+    data: pd.DataFrame, model, completeness_threshold: float, minimal_table_length: int
 ) -> bool:
+
     """Check if enough data is left after validation and cleaning to continue with model training.
 
     Args:
         data: pd.DataFrame() with cleaned input data.
+        model: model which contains all information regarding trained model
         completeness_threshold: float with threshold for completeness:
             1 for fully complete, 0 for anything could be missing.
         minimal_table_length: int with minimal table length (in rows)
@@ -89,12 +91,17 @@ def is_data_sufficient(
         True if amount of data is sufficient, False otherwise.
 
     """
+    if model is None:
+        weights = None  # Remove horizon & load column
+    else:
+        weights = model.feature_importance_dataframe
+
     logger = structlog.get_logger(__name__)
     # Set output variable
     is_sufficient = True
 
     # Calculate completeness
-    completeness = calc_completeness(data, time_delayed=True, homogenise=False)
+    completeness = calc_completeness(data, weights, time_delayed=True, homogenise=False)
     table_length = data.shape[0]
 
     # Check if completeness is up to the standards
@@ -120,10 +127,11 @@ def is_data_sufficient(
 
 def calc_completeness(
     df: pd.DataFrame,
-    weights: np.array = None,
+    weights: pd.DataFrame,
     time_delayed: bool = False,
     homogenise: bool = True,
 ) -> float:
+
     """Calculate the (weighted) completeness of a dataframe.
 
     NOTE: NA values count as incomplete
@@ -140,21 +148,49 @@ def calc_completeness(
         Fraction of completeness
 
     """
-    if weights is None:
-        weights = np.array([1] * len(df.columns))
-    weights = np.array(weights)
+    df_copy = df.copy(
+        deep=True
+    )  # Make deep copy to maintain original dataframe in pipeline
 
-    if homogenise and isinstance(df.index, pd.DatetimeIndex) and len(df) > 0:
+    logger = structlog.get_logger(__name__)
+
+    # Remove load and horizon from data_with_features dataframe to make sure columns are equal
+    if "load" in df_copy:
+        df_copy.drop("load", inplace=True, axis=1)
+    if "horizon" in df_copy:
+        df_copy.drop("horizon", inplace=True, axis=1)
+
+    if weights is None:
+        weights = np.array([1] * ((len(df_copy.columns))))
+
+    length_weights = len(weights)
+    length_features = len(df_copy.columns)
+
+    # Returns the list
+    if type(weights) == np.ndarray:
+        df_copy = df_copy
+        weights = weights
+    else:
+        list_features = weights.index.tolist()
+        df_copy = df_copy[list_features]  # Reorder the df to match weights index (list)
+        weights = weights.weight
+
+    if length_weights != length_features:
+        raise ValueError(
+            "Input data is not sufficient, number of features used in model is unequal to amount of columns in data"
+        )
+
+    if homogenise and isinstance(df_copy.index, pd.DatetimeIndex) and len(df_copy) > 0:
 
         median_timediff = int(
-            df.reset_index().iloc[:, 0].diff().median().total_seconds() / 60.0
+            df_copy.reset_index().iloc[:, 0].diff().median().total_seconds() / 60.0
         )
-        df = df.resample("{:d}T".format(median_timediff)).mean()
+        df_copy = df_copy.resample("{:d}T".format(median_timediff)).mean()
 
     if time_delayed is False:
         # Calculate completeness
         # Completeness per column
-        completeness_per_column = df.count() / len(df)
+        completeness_per_column = df_copy.count() / len(df_copy)
 
     # if timeDelayed is True, we correct that time-delayed columns
     # also in the best case will have NA values. E.g. T-2d is not available
@@ -164,21 +200,28 @@ def calc_completeness(
         # timecols: {delay:number of points expected to be missing}
         # number of points expected to be missing = numberOfPointsUpToTwoDaysAhead - numberOfPointsAvailable
         timecols = {
-            x: len(df) - eval(x[2:].replace("min", "/60").replace("d", "*24.0")) / 0.25
-            for x in df.columns
+            x: len(df_copy)
+            - eval(x[2:].replace("min", "/60").replace("d", "*24.0")) / 0.25
+            for x in df_copy.columns
             if x[:2] == "T-"
         }
 
-        non_na_count = df.count()
+        non_na_count = df_copy.count()
+
         for col, value in timecols.items():
-            if value >= 0:
-                non_na_count[col] += value
+            if non_na_count[col] > value:
+                logger.warning(
+                    "The provided input data (features) contains more values than is to be expected from analysis",
+                    feature=col,
+                    number_non_na=non_na_count[col],
+                    expected_numbers_timedelayed=value,
+                )
 
         # Correct for APX being only expected to be available up to 24h
         if "APX" in non_na_count.index:
-            non_na_count["APX"] += max([len(df) - 96, 0])
+            non_na_count["APX"] += max([len(df_copy) - 96, 0])
 
-        completeness_per_column = non_na_count / len(df)
+        completeness_per_column = non_na_count / (len(df_copy))
 
     # scale to weights and normalize
     completeness = (completeness_per_column * weights).sum() / weights.sum()
@@ -403,3 +446,44 @@ def check_data_for_each_trafo(df: pd.DataFrame, col: pd.Series) -> bool:
         print("Load at trafo {a} is missing, skipping column".format(a=col))
         return False
     return True
+
+
+def calc_completeness_load(
+    df: pd.DataFrame,
+    time_delayed: bool = False,
+    homogenise: bool = True,
+) -> float:
+
+    """Calculate the (weighted) completeness of a dataframe.
+
+    NOTE: NA values count as incomplete
+
+    Args:
+        df: Dataframe with a datetimeIndex index
+        weights: Array-compatible with size equal to columns of df.
+            used to weight the completeness of each column
+        time_delayed: Should there be a correction for T-x columns
+        homogenise: Should the index be resampled to median time delta -
+            only available for DatetimeIndex
+
+    Returns:
+        Fraction of completeness
+
+    """
+    weights = np.array([1] * len(df.columns))
+
+    if homogenise and isinstance(df.index, pd.DatetimeIndex) and len(df) > 0:
+
+        median_timediff = int(
+            df.reset_index().iloc[:, 0].diff().median().total_seconds() / 60.0
+        )
+        df = df.resample("{:d}T".format(median_timediff)).mean()
+
+    if time_delayed is False:
+        # Calculate completeness
+        # Completeness per column
+        completeness_per_column = df.count() / len(df)
+
+    completeness = (completeness_per_column * weights).sum() / weights.sum()
+
+    return completeness
