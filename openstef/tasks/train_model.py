@@ -118,7 +118,7 @@ def train_model_task(
 def main(model_type=None, config=None, database=None):
     if database is None or config is None:
         raise RuntimeError(
-            "Please specifiy a configmanager and/or database connection object. These"
+            "Please specifiy a config object and/or database connection object. These"
             " can be found in the openstef-dbc package."
         )
 
