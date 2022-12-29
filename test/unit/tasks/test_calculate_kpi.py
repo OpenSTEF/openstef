@@ -112,11 +112,11 @@ class TestPerformanceCalcKpiForSpecificPid(BaseTestCase):
     # Test whether none is returned in case of poor completeness for predicted data
     def test_calc_kpi_for_specific_pid_poor_completeness_predicted(self):
         kpis = calc_kpi_for_specific_pid(
-            prediction_job, realised_load, predicted_load_nan, realised_load
+            prediction_job["id"], realised_load, predicted_load_nan, realised_load
         )
 
         t_ahead_keys = kpis.keys()
-        self.assertIs(kpis[list(t_ahead_keys)[0]]["rMAE"], np.NaN)
+        self.assertIsNAN(kpis[list(t_ahead_keys)[0]]["NSME"])
 
     def test_calc_kpi_for_specific_pid_constant_load(self):
         """If load is constant, a warning should be raised, but kpi's should still be calculated"""

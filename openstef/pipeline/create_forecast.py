@@ -100,7 +100,10 @@ def create_forecast_pipeline_core(
 
     # Check if sufficient data is left after cleaning
     if not validation.is_data_sufficient(
-        data_with_features, pj["completeness_treshold"], pj["minimal_table_length"]
+        data_with_features,
+        pj["completeness_treshold"],
+        pj["minimal_table_length"],
+        model,
     ):
         logger.warning(
             "Using fallback forecast",

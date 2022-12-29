@@ -349,7 +349,9 @@ def train_pipeline_step_compute_features(
     )
     # Check if sufficient data is left after cleaning
     if not validation.is_data_sufficient(
-        validated_data, pj["completeness_treshold"], pj["minimal_table_length"]
+        validated_data,
+        pj["completeness_treshold"],
+        pj["minimal_table_length"],
     ):
         raise InputDataInsufficientError(
             "Input data is insufficient, after validation and cleaning"

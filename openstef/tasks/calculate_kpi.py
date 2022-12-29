@@ -174,12 +174,12 @@ def calc_kpi_for_specific_pid(
     start_time = realised.index.min().to_pydatetime()
     end_time = realised.index.max().to_pydatetime()
 
-    completeness_realised = validation.calc_completeness(realised)
+    completeness_realised = validation.calc_completeness_dataframe(realised)[0]
 
     # Interpolate missing data if needed
     realised = realised.resample("15T").interpolate(limit=3)
 
-    completeness_predicted_load = validation.calc_completeness(predicted_load)
+    completeness_predicted_load = validation.calc_completeness_dataframe(predicted_load)
 
     # Combine the forecast and the realised to make sure indices are matched nicely
     combined = pd.merge(realised, predicted_load, left_index=True, right_index=True)
@@ -218,8 +218,9 @@ def calc_kpi_for_specific_pid(
         t_ahead_h = hor_cols[0].split("_")[1]
         fc = combined[hor_cols[0]]  # load predictions
         st = combined[hor_cols[1]]  # standard deviations of load predictions
-        completeness_predicted_load_specific_hor = validation.calc_completeness(
-            fc.to_frame(name=t_ahead_h)
+
+        completeness_predicted_load_specific_hor = (
+            validation.calc_completeness_dataframe(fc.to_frame(name=t_ahead_h))[0]
         )
         kpis.update(
             {
@@ -280,10 +281,7 @@ def calc_kpi_for_specific_pid(
                 completeness_threshold=COMPLETENESS_REALISED_THRESHOLDS,
             )
             set_incomplete_kpi_to_nan(kpis, t_ahead_h)
-        if (
-            completeness_predicted_load_specific_hor
-            < COMPLETENESS_PREDICTED_LOAD_THRESHOLD
-        ):
+        if completeness_predicted_load.any() < COMPLETENESS_PREDICTED_LOAD_THRESHOLD:
             log.warning(
                 "Completeness predicted load of specific horizon too low",
                 prediction_id=pid,
