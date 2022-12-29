@@ -425,7 +425,6 @@ def calc_completeness_dataframe(
         Dataframe with fraction of completeness per column
 
     """
-
     logger = structlog.get_logger(__name__)
 
     if homogenise and isinstance(df.index, pd.DatetimeIndex) and len(df) > 0:
