@@ -5,6 +5,7 @@
 from test.unit.utils.base import BaseTestCase
 from test.unit.utils.data import TestData
 
+import pandas as pd
 import numpy as np
 import pytest
 
@@ -52,3 +53,4 @@ class TestDataValidation(BaseTestCase):
             res = validation.validate(
                 self.pj["id"], input_data, flatliner_threshold=None
             )
+            self.assertIsInstance(res, pd.DataFrame)
