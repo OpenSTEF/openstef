@@ -75,7 +75,10 @@ def drop_target_na(data: pd.DataFrame) -> pd.DataFrame:
 
 
 def is_data_sufficient(
-    data: pd.DataFrame, model, completeness_threshold: float, minimal_table_length: int
+    data: pd.DataFrame,
+    completeness_threshold: float,
+    minimal_table_length: int,
+    model=None,
 ) -> bool:
     """Check if enough data is left after validation and cleaning to continue with model training.
 
@@ -100,7 +103,9 @@ def is_data_sufficient(
     is_sufficient = True
 
     # Calculate completeness
-    completeness = calc_completeness(data, weights, time_delayed=True, homogenise=False)
+    completeness = calc_completeness_features(
+        data, weights, time_delayed=True, homogenise=False
+    )
     table_length = data.shape[0]
 
     # Check if completeness is up to the standards
@@ -124,7 +129,7 @@ def is_data_sufficient(
     return is_sufficient
 
 
-def calc_completeness(
+def calc_completeness_features(
     df: pd.DataFrame,
     weights: pd.DataFrame,
     time_delayed: bool = False,
@@ -150,8 +155,6 @@ def calc_completeness(
         deep=True
     )  # Make deep copy to maintain original dataframe in pipeline
 
-    logger = structlog.get_logger(__name__)
-
     # Remove load and horizon from data_with_features dataframe to make sure columns are equal
     if "load" in df_copy:
         df_copy.drop("load", inplace=True, axis=1)
@@ -174,52 +177,12 @@ def calc_completeness(
         raise ValueError(
             "Input data is not sufficient, number of features used in model is unequal to amount of columns in data"
         )
-
-    if homogenise and isinstance(df_copy.index, pd.DatetimeIndex) and len(df_copy) > 0:
-
-        median_timediff = int(
-            df_copy.reset_index().iloc[:, 0].diff().median().total_seconds() / 60.0
-        )
-        df_copy = df_copy.resample("{:d}T".format(median_timediff)).mean()
-
-    if time_delayed is False:
-        # Calculate completeness
-        # Completeness per column
-        completeness_per_column = df_copy.count() / len(df_copy)
-
-    # if timeDelayed is True, we correct that time-delayed columns
-    # also in the best case will have NA values. E.g. T-2d is not available
-    # for times ahead of more than 2 days
-    elif time_delayed:
-        # assume 15 minute forecast resolution
-        # timecols: {delay:number of points expected to be missing}
-        # number of points expected to be missing = numberOfPointsUpToTwoDaysAhead - numberOfPointsAvailable
-        timecols = {
-            x: len(df_copy)
-            - eval(x[2:].replace("min", "/60").replace("d", "*24.0")) / 0.25
-            for x in df_copy.columns
-            if x[:2] == "T-"
-        }
-
-        non_na_count = df_copy.count()
-
-        for col, value in timecols.items():
-            if non_na_count[col] > value:
-                logger.warning(
-                    "The provided input data (features) contains more values than is to be expected from analysis",
-                    feature=col,
-                    number_non_na=non_na_count[col],
-                    expected_numbers_timedelayed=value,
-                )
-
-        # Correct for APX being only expected to be available up to 24h
-        if "APX" in non_na_count.index:
-            non_na_count["APX"] += max([len(df_copy) - 96, 0])
-
-        completeness_per_column = non_na_count / (len(df_copy))
+    completeness_per_column_dataframe = calc_completeness_dataframe(
+        df_copy, time_delayed, homogenise
+    )
 
     # scale to weights and normalize
-    completeness = (completeness_per_column * weights).sum() / weights.sum()
+    completeness = (completeness_per_column_dataframe * weights).sum() / weights.sum()
 
     return completeness
 
@@ -443,28 +406,27 @@ def check_data_for_each_trafo(df: pd.DataFrame, col: pd.Series) -> bool:
     return True
 
 
-def calc_completeness_load(
+def calc_completeness_dataframe(
     df: pd.DataFrame,
     time_delayed: bool = False,
     homogenise: bool = True,
-) -> float:
-    """Calculate the (weighted) completeness of a dataframe.
+) -> pd.DataFrame:
+    """Calculate the completeness of each column in dataframe.
 
     NOTE: NA values count as incomplete
 
     Args:
         df: Dataframe with a datetimeIndex index
-        weights: Array-compatible with size equal to columns of df.
-            used to weight the completeness of each column
         time_delayed: Should there be a correction for T-x columns
         homogenise: Should the index be resampled to median time delta -
             only available for DatetimeIndex
 
     Returns:
-        Fraction of completeness
+        Dataframe with fraction of completeness per column
 
     """
-    weights = np.array([1] * len(df.columns))
+
+    logger = structlog.get_logger(__name__)
 
     if homogenise and isinstance(df.index, pd.DatetimeIndex) and len(df) > 0:
 
@@ -476,8 +438,36 @@ def calc_completeness_load(
     if time_delayed is False:
         # Calculate completeness
         # Completeness per column
-        completeness_per_column = df.count() / len(df)
+        completeness_per_column_dataframe = df.count() / len(df)
 
-    completeness = (completeness_per_column * weights).sum() / weights.sum()
+    # if timeDelayed is True, we correct that time-delayed columns
+    # also in the best case will have NA values. E.g. T-2d is not available
+    # for times ahead of more than 2 days
+    elif time_delayed:
+        # assume 15 minute forecast resolution
+        # timecols: {delay:number of points expected to be missing}
+        # number of points expected to be missing = numberOfPointsUpToTwoDaysAhead - numberOfPointsAvailable
+        timecols = {
+            x: len(df) - eval(x[2:].replace("min", "/60").replace("d", "*24.0")) / 0.25
+            for x in df.columns
+            if x[:2] == "T-"
+        }
 
-    return completeness
+        non_na_count = df.count()
+
+        for col, value in timecols.items():
+            if non_na_count[col] > value:
+                logger.warning(
+                    "The provided input data (features) contains more values than is to be expected from analysis",
+                    feature=col,
+                    number_non_na=non_na_count[col],
+                    expected_numbers_timedelayed=value,
+                )
+
+        # Correct for APX being only expected to be available up to 24h
+        if "APX" in non_na_count.index:
+            non_na_count["APX"] += max([len(df) - 96, 0])
+
+        completeness_per_column_dataframe = non_na_count / (len(df))
+
+    return completeness_per_column_dataframe

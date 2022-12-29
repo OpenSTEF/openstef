@@ -5,7 +5,7 @@
 import numpy as np
 import pandas as pd
 
-from openstef.validation.validation import calc_completeness
+from openstef.validation.validation import calc_completeness_features
 
 from datetime import datetime as dt
 from pathlib import Path
@@ -41,7 +41,7 @@ class CalcCompletenessTest(BaseTestCase):
     def test_complete_dataframe(self):
         df = pd.DataFrame(index=[0, 1], data={"col1": [1, 1]})
         weights = pd.DataFrame(index=["col1"], data={"gain": 1, "weight": 1})
-        completeness = calc_completeness(df, weights)
+        completeness = calc_completeness_features(df, weights)
 
         self.assertEqual(completeness, 1.0)
 
@@ -49,14 +49,14 @@ class CalcCompletenessTest(BaseTestCase):
         df = pd.DataFrame(index=range(2 * 96), data={"APX": [np.nan] * 2 * 96})
         weights = pd.DataFrame(index=["APX"], data={"gain": 1, "weight": 1})
 
-        completeness = calc_completeness(df, weights, time_delayed=True)
+        completeness = calc_completeness_features(df, weights, time_delayed=True)
         self.assertEqual(completeness, 1 / 2)
 
     def test_incomplete_dataframe(self):
         df = pd.DataFrame(index=[0, 1, 2], data={"col1": [1, np.nan, 3]})
         weights = pd.DataFrame(index=["col1"], data={"gain": 1, "weight": 1})
 
-        completeness = calc_completeness(df, weights)
+        completeness = calc_completeness_features(df, weights)
         self.assertEqual(completeness, 2 / 3)
 
     def test_weighted_dataframe(self):
@@ -65,7 +65,7 @@ class CalcCompletenessTest(BaseTestCase):
             index=["col1", "col2"], data={"gain": [1, 1], "weight": [1, 2]}
         )
 
-        completeness = calc_completeness(df, weights)
+        completeness = calc_completeness_features(df, weights)
         self.assertEqual(completeness, (1 * 0.5 + 2 * 1) / 3)
 
     def test_timedelayed_dataframe(self):
@@ -77,7 +77,7 @@ class CalcCompletenessTest(BaseTestCase):
             index=["T-15min", "T-30min"], data={"gain": [1, 1], "weight": [1, 1]}
         )
 
-        completeness = calc_completeness(df, weights, time_delayed=True)
+        completeness = calc_completeness_features(df, weights, time_delayed=True)
         self.assertEqual(completeness, 1 / 2)
 
     def test_timedelayed_incomplete_dataframe(self):
@@ -89,7 +89,7 @@ class CalcCompletenessTest(BaseTestCase):
             index=["T-15min", "T-30min"], data={"gain": [1, 1], "weight": [1, 1]}
         )
 
-        completeness = calc_completeness(df, weights, time_delayed=True)
+        completeness = calc_completeness_features(df, weights, time_delayed=True)
         self.assertAlmostEqual(completeness, 1 / 3, places=3)
 
     def test_timedelayed_advanced_dataframe(self):
@@ -102,7 +102,7 @@ class CalcCompletenessTest(BaseTestCase):
             },
         )
         weights = np.array([1, 1, 2])
-        completeness = calc_completeness(df, weights, time_delayed=True)
+        completeness = calc_completeness_features(df, weights, time_delayed=True)
         self.assertEqual(completeness, (2 / 3 * 1 + 1 / 3 * 1 + 2 / 3 * 2) / 4)
 
     def test_homogenise_timeindex_complete(self):
@@ -114,7 +114,7 @@ class CalcCompletenessTest(BaseTestCase):
         )
         weights = pd.DataFrame(index=["aggregated"], data={"gain": [1], "weight": [1]})
 
-        completeness_df_complete = calc_completeness(df_complete, weights)
+        completeness_df_complete = calc_completeness_features(df_complete, weights)
         self.assertAlmostEqual(completeness_df_complete, 1)
 
     def test_homogenise_timeindex_incomplete(self):
@@ -131,10 +131,10 @@ class CalcCompletenessTest(BaseTestCase):
             ),
         )
         weights = pd.DataFrame(index=["aggregated"], data={"gain": [1], "weight": [1]})
-        completeness_df_incomplete = calc_completeness(
+        completeness_df_incomplete = calc_completeness_features(
             df_incomplete, weights, homogenise=True
         )
-        completeness_df_incomplete_nothomogenised = calc_completeness(
+        completeness_df_incomplete_nothomogenised = calc_completeness_features(
             df_incomplete, weights, homogenise=False
         )
         self.assertAlmostEqual(completeness_df_incomplete, 0.8)
@@ -143,13 +143,13 @@ class CalcCompletenessTest(BaseTestCase):
     def test_empty_dataframe(self):
         weights = np.array([1])
 
-        empty_compl_homogenise = calc_completeness(
+        empty_compl_homogenise = calc_completeness_features(
             pd.DataFrame(
                 data={"load": [], "aggregated": []}, index=pd.DatetimeIndex([])
             ),
             weights,
         )
-        empty_compl_nohomogenise = calc_completeness(
+        empty_compl_nohomogenise = calc_completeness_features(
             pd.DataFrame(
                 data={"load": [], "aggregated": []}, index=pd.DatetimeIndex([])
             ),
@@ -178,7 +178,7 @@ class CalcCompletenessTest(BaseTestCase):
             data={"gain": [1, 1, 1, 1], "weight": [1, 1, 1, 1]},
         )
 
-        completeness = calc_completeness(df, weights, time_delayed=True)
+        completeness = calc_completeness_features(df, weights, time_delayed=True)
         self.assertEqual(completeness, (1 / 3 * 1 + 1 + 1 + 2 / 3 * 1) / 4)
 
     def test_calc_completeness_model_feature_importance_as_weights(self):
@@ -208,7 +208,7 @@ class CalcCompletenessTest(BaseTestCase):
                 ]
             ),
         )
-        completeness = calc_completeness(
+        completeness = calc_completeness_features(
             data_with_features, weights, time_delayed=True, homogenise=False
         )
         self.assertEqual(completeness, 1)
