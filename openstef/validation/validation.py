@@ -9,6 +9,7 @@ import pandas as pd
 import structlog
 
 from openstef.preprocessing.preprocessing import replace_repeated_values_with_nan
+from openstef.model.regressors.regressor import OpenstfRegressor
 
 
 def validate(
@@ -78,7 +79,7 @@ def is_data_sufficient(
     data: pd.DataFrame,
     completeness_threshold: float,
     minimal_table_length: int,
-    model=None,
+    model: OpenstfRegressor = None,
 ) -> bool:
     """Check if enough data is left after validation and cleaning to continue with model training.
 
