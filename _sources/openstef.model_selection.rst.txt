@@ -12,7 +12,6 @@ openstef.model\_selection.model\_selection module
    :undoc-members:
    :show-inheritance:
 
-
 Module contents
 ---------------
 

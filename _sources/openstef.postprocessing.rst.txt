@@ -12,7 +12,6 @@ openstef.postprocessing.postprocessing module
    :undoc-members:
    :show-inheritance:
 
-
 Module contents
 ---------------
 

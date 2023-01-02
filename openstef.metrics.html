@@ -1,123 +1,209 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>openstef.metrics package &#8212; OpenSTEF  documentation</title>
-    
-  <!-- Loaded before other Sphinx assets -->
-  <link href="_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
-<link href="_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    
-  <link rel="stylesheet"
-    href="_static/vendor/fontawesome/5.13.0/css/all.min.css">
-  <link rel="preload" as="font" type="font/woff2" crossorigin
-    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
-  <link rel="preload" as="font" type="font/woff2" crossorigin
-    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+    <title>openstef.metrics package &#8212; OpenSTEF  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=796348d33e8b1d947c94" rel="stylesheet">
+<link href="_static/styles/bootstrap.css?digest=796348d33e8b1d947c94" rel="stylesheet">
+<link href="_static/styles/pydata-sphinx-theme.css?digest=796348d33e8b1d947c94" rel="stylesheet">
+
+  
+  <link href="_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=796348d33e8b1d947c94" rel="stylesheet">
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2">
 
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    
+  
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=796348d33e8b1d947c94">
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=796348d33e8b1d947c94">
 
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'openstef.metrics';</script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="openstef.model package" href="openstef.model.html" />
     <link rel="prev" title="openstef.feature_engineering package" href="openstef.feature_engineering.html" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="docsearch:language" content="None">
-    
-
-    <!-- Google Analytics -->
-    
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="docsearch:language" content="en">
   </head>
-  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
-    
-    <div class="container-fluid" id="banner"></div>
+  
+  
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="180" data-default-mode="">
 
-    
-    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="container-xl">
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
 
+  
+  <input type="checkbox" class="sidebar-toggle" name="__primary" id="__primary">
+  <label class="overlay overlay-primary" for="__primary"></label>
+
+  
+  <input type="checkbox" class="sidebar-toggle" name="__secondary" id="__secondary">
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+      
+<form class="bd-search d-flex align-items-center" action="search.html" method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+    </div>
+  </div>
+
+  
+  <nav class="bd-header navbar navbar-expand-lg bd-navbar" id="navbar-main"><div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+      <span class="fa-solid fa-bars"></span>
+  </label>
   <div id="navbar-start">
     
     
+  
 
-<a class="navbar-brand" href="index.html">
-  <img src="_static/openstef_logo.png" class="logo" alt="logo">
+
+<a class="navbar-brand logo" href="index.html">
+
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <img src="_static/_static/openstef_logo.png" class="logo__image only-light" alt="Logo image">
+    <img src="_static/_static/openstef_logo.png" class="logo__image only-dark" alt="Logo image">
+  
+  
 </a>
-
-
     
   </div>
 
-  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
-  </button>
-
   
-  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+  <div class="col-lg-9 navbar-header-items">
     <div id="navbar-center" class="mr-auto">
       
       <div class="navbar-center-item">
-        <ul id="navbar-main-elements" class="navbar-nav">
-    <li class="toctree-l1 nav-item">
- <a class="reference internal nav-link" href="user_guides.html">
-  User guides
- </a>
-</li>
+        <nav class="navbar-nav">
+    <p class="sidebar-header-items__title" role="heading" aria-level="1" aria-label="Site Navigation">
+        Site Navigation
+    </p>
+    <ul id="navbar-main-elements" class="navbar-nav">
+        
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="user_guides.html">
+                        User guides
+                      </a>
+                    </li>
+                
 
-<li class="toctree-l1 nav-item">
- <a class="reference internal nav-link" href="concepts.html">
-  Concepts
- </a>
-</li>
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="concepts.html">
+                        Concepts
+                      </a>
+                    </li>
+                
 
-<li class="toctree-l1 nav-item">
- <a class="reference internal nav-link" href="api_reference.html">
-  API reference
- </a>
-</li>
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="api_reference.html">
+                        API reference
+                      </a>
+                    </li>
+                
 
-<li class="toctree-l1 nav-item">
- <a class="reference internal nav-link" href="community.html">
-  Community
- </a>
-</li>
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="community.html">
+                        Community
+                      </a>
+                    </li>
+                
 
-<li class="toctree-l1 nav-item">
- <a class="reference internal nav-link" href="about_openstef.html">
-  About OpenSTEF
- </a>
-</li>
-
-    
-</ul>
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="about_openstef.html">
+                        About OpenSTEF
+                      </a>
+                    </li>
+                
+    </ul>
+</nav>
       </div>
       
     </div>
 
     <div id="navbar-end">
       
+        <div class="navbar-end-item navbar-persistent--container">
+          
+<button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-toggle="tooltip">
+  <i class="fa-solid fa-magnifying-glass"></i>
+</button>
+        </div>
+      
+      
+      <div class="navbar-end-item">
+        <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+</button>
+      </div>
+      
       <div class="navbar-end-item">
         <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
         <li class="nav-item">
-          <a class="nav-link" href="https://github.com/OpenSTEF/openstef" rel="noopener" target="_blank" title="GitHub"><span><i class="fab fa-github-square"></i></span>
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/OpenSTEF/openstef" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-toggle="tooltip"><span><i class="fab fa-github-square"></i></span>
             <label class="sr-only">GitHub</label></a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="https://pypi.org/project/openstef/" rel="noopener" target="_blank" title="Pypi"><span><i class="fas fa-gift"></i></span>
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/openstef/" title="Pypi" class="nav-link" rel="noopener" target="_blank" data-toggle="tooltip"><span><i class="fas fa-gift"></i></span>
             <label class="sr-only">Pypi</label></a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="https://www.lfenergy.org/projects/openstef/" rel="noopener" target="_blank" title="LFE Homepage"><span><i class="fas fa-bolt"></i></span>
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.lfenergy.org/projects/openstef/" title="LFE Homepage" class="nav-link" rel="noopener" target="_blank" data-toggle="tooltip"><span><i class="fas fa-bolt"></i></span>
             <label class="sr-only">LFE Homepage</label></a>
         </li>
       </ul>
@@ -125,128 +211,641 @@
       
     </div>
   </div>
+
+
+  
+  
+    <div class="navbar-persistent--mobile">
+<button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-toggle="tooltip">
+  <i class="fa-solid fa-magnifying-glass"></i>
+</button>
+    </div>
+  
+
+  
+  <label class="sidebar-toggle secondary-toggle" for="__secondary">
+      <span class="fa-solid fa-outdent"></span>
+  </label>
+  
+
 </div>
-    </nav>
+  </nav>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+      
+      <div class="navbar-center-item">
+        <nav class="navbar-nav">
+    <p class="sidebar-header-items__title" role="heading" aria-level="1" aria-label="Site Navigation">
+        Site Navigation
+    </p>
+    <ul id="navbar-main-elements" class="navbar-nav">
+        
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="user_guides.html">
+                        User guides
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="concepts.html">
+                        Concepts
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="api_reference.html">
+                        API reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="community.html">
+                        Community
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="about_openstef.html">
+                        About OpenSTEF
+                      </a>
+                    </li>
+                
+    </ul>
+</nav>
+      </div>
+      
+      </div>
     
 
-    <div class="container-xl">
-      <div class="row">
+    
+    
+    <div class="sidebar-header-items__end">
+      
+      <div class="navbar-end-item">
+        <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+</button>
+      </div>
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
           
-            
-            <!-- Only show if we have sidebars configured, else just a small margin  -->
-            <div class="col-12 col-md-3 bd-sidebar">
-              <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="search.html" method="get">
-  <i class="icon fas fa-search"></i>
-  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
-</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
-  <div class="bd-toc-item active">
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/OpenSTEF/openstef" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-toggle="tooltip"><span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/openstef/" title="Pypi" class="nav-link" rel="noopener" target="_blank" data-toggle="tooltip"><span><i class="fas fa-gift"></i></span>
+            <label class="sr-only">Pypi</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.lfenergy.org/projects/openstef/" title="LFE Homepage" class="nav-link" rel="noopener" target="_blank" data-toggle="tooltip"><span><i class="fas fa-bolt"></i></span>
+            <label class="sr-only">LFE Homepage</label></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+    
+  </div>
+
+  
+  <div class="sidebar-start-items sidebar-primary__section">
+    <div class="sidebar-start-items__item"><nav class="bd-links" id="bd-docs-nav" aria-label="Section navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">
+    Section Navigation
+  </p>
+  <div class="bd-toc-item navbar-nav">
     <ul class="current nav bd-sidenav">
- <li class="toctree-l1">
-  <a class="reference internal" href="openstef.data_classes.html">
-   openstef.data_classes package
-  </a>
- </li>
- <li class="toctree-l1">
-  <a class="reference internal" href="openstef.feature_engineering.html">
-   openstef.feature_engineering package
-  </a>
- </li>
- <li class="toctree-l1 current active">
-  <a class="current reference internal" href="#">
-   openstef.metrics package
-  </a>
- </li>
- <li class="toctree-l1 has-children">
-  <a class="reference internal" href="openstef.model.html">
-   openstef.model package
-  </a>
-  <input checked class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
-  <label for="toctree-checkbox-1">
-   <i class="fas fa-chevron-down">
-   </i>
-  </label>
-  <ul>
-   <li class="toctree-l2">
-    <a class="reference internal" href="openstef.model.metamodels.html">
-     openstef.model.metamodels package
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="openstef.model.regressors.html">
-     openstef.model.regressors package
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toctree-l1">
-  <a class="reference internal" href="openstef.model_selection.html">
-   openstef.model_selection package
-  </a>
- </li>
- <li class="toctree-l1">
-  <a class="reference internal" href="openstef.monitoring.html">
-   openstef.monitoring package
-  </a>
- </li>
- <li class="toctree-l1">
-  <a class="reference internal" href="openstef.pipeline.html">
-   openstef.pipeline package
-  </a>
- </li>
- <li class="toctree-l1">
-  <a class="reference internal" href="openstef.postprocessing.html">
-   openstef.postprocessing package
-  </a>
- </li>
- <li class="toctree-l1">
-  <a class="reference internal" href="openstef.preprocessing.html">
-   openstef.preprocessing package
-  </a>
- </li>
- <li class="toctree-l1 has-children">
-  <a class="reference internal" href="openstef.tasks.html">
-   openstef.tasks package
-  </a>
-  <input checked class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
-  <label for="toctree-checkbox-2">
-   <i class="fas fa-chevron-down">
-   </i>
-  </label>
-  <ul>
-   <li class="toctree-l2">
-    <a class="reference internal" href="openstef.tasks.utils.html">
-     openstef.tasks.utils package
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toctree-l1">
-  <a class="reference internal" href="openstef.validation.html">
-   openstef.validation package
-  </a>
- </li>
+<li class="toctree-l1"><a class="reference internal" href="openstef.data_classes.html">openstef.data_classes package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openstef.feature_engineering.html">openstef.feature_engineering package</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">openstef.metrics package</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="openstef.model.html">openstef.model package</a><input checked class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="openstef.model.metamodels.html">openstef.model.metamodels package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.model.regressors.html">openstef.model.regressors package</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="openstef.model_selection.html">openstef.model_selection package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openstef.monitoring.html">openstef.monitoring package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openstef.pipeline.html">openstef.pipeline package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openstef.postprocessing.html">openstef.postprocessing package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openstef.preprocessing.html">openstef.preprocessing package</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="openstef.tasks.html">openstef.tasks package</a><input checked class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="openstef.tasks.utils.html">openstef.tasks.utils package</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="openstef.validation.html">openstef.validation package</a></li>
 </ul>
 
   </div>
 </nav>
-              </div>
-              <div class="sidebar-end-items">
-              </div>
+    </div>
+  </div>
+  
+
+  
+  <div class="sidebar-end-items sidebar-primary__section">
+    <div class="sidebar-end-items__item">
+    </div>
+  </div>
+
+  
+  <div id="rtd-footer-container"></div>
+
+      </div>
+      <main id="main-content" class="bd-main">
+        
+        
+        <div class="bd-content">
+          <div class="bd-article-container">
+            
+            <div class="bd-header-article">
+                
             </div>
             
-          
-
-          
-          <div class="d-none d-xl-block col-xl-2 bd-toc">
             
+            <article class="bd-article" role="main">
               
-              <div class="toc-item">
-                
-<div class="tocsection onthispage mt-5 pt-1 pb-3">
-    <i class="fas fa-list"></i> On this page
-</div>
+  <section id="openstef-metrics-package">
+<h1>openstef.metrics package<a class="headerlink" href="#openstef-metrics-package" title="Permalink to this heading">#</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">#</a></h2>
+</section>
+<section id="module-openstef.metrics.figure">
+<span id="openstef-metrics-figure-module"></span><h2>openstef.metrics.figure module<a class="headerlink" href="#module-openstef.metrics.figure" title="Permalink to this heading">#</a></h2>
+<p>This module contains all functions for generating figures.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="openstef.metrics.figure.convert_to_base64_data_uri">
+<span class="sig-prename descclassname"><span class="pre">openstef.metrics.figure.</span></span><span class="sig-name descname"><span class="pre">convert_to_base64_data_uri</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_in</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">content_type</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.figure.convert_to_base64_data_uri" title="Permalink to this definition">#</a></dt>
+<dd><p>Read file, convert it to a data_uri, then writes the data_uri to file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path_in</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Path of the file that will be converted</p></li>
+<li><p><strong>path_out</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Path of the file containing the data uri</p></li>
+<li><p><strong>content_type</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Content type of the data uri according to
+(<a class="reference external" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type">https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type</a>).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
 
-<nav id="bd-toc-nav">
+<dl class="py function">
+<dt class="sig sig-object py" id="openstef.metrics.figure.plot_data_series">
+<span class="sig-prename descclassname"><span class="pre">openstef.metrics.figure.</span></span><span class="sig-name descname"><span class="pre">plot_data_series</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predict_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">horizon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">47</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.figure.plot_data_series" title="Permalink to this definition">#</a></dt>
+<dd><p>Plots passed data and optionally prediction data for specified horizon.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code>]]) – There are two options to use this function. Either
+pass a list of pandas.DataFrame where each dataframe contains a load
+column and a horizon column. Or pass a list of pandas.Series with
+unique indexing.</p></li>
+<li><p><strong>predict_data</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code>], <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>]) – Similar to data, but
+for prediction data instead. When passing a list of pandas.DataFrame
+the column forecast should exist. Can be set to None.</p></li>
+<li><p><strong>horizon</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – This function will select only data matching
+this horizon. Defaults to 47.</p></li>
+<li><p><strong>names</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]]) – The names that will be used in the
+legend of the plot. If None is passed, this will be build
+automatically based on the number of series passed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Figure</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A line plot of each passed data series.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="openstef.metrics.figure.plot_feature_importance">
+<span class="sig-prename descclassname"><span class="pre">openstef.metrics.figure.</span></span><span class="sig-name descname"><span class="pre">plot_feature_importance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">feature_importance</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.figure.plot_feature_importance" title="Permalink to this definition">#</a></dt>
+<dd><p>Created a treemap plot based on feature importance and weights.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>feature_importance</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – A DataFrame describing the
+feature importances and weights of the trained model.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Figure</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A treemap of the features.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-openstef.metrics.metrics">
+<span id="openstef-metrics-metrics-module"></span><h2>openstef.metrics.metrics module<a class="headerlink" href="#module-openstef.metrics.metrics" title="Permalink to this heading">#</a></h2>
+<p>This module contains all metrics to assess forecast quality.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="openstef.metrics.metrics.bias">
+<span class="sig-prename descclassname"><span class="pre">openstef.metrics.metrics.</span></span><span class="sig-name descname"><span class="pre">bias</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">realised</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.metrics.bias" title="Permalink to this definition">#</a></dt>
+<dd><p>Function that calculates the absolute bias in % based on the true and prediciton.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>realised</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code>) – Realised load.</p></li>
+<li><p><strong>forecast</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code>) – Forecasted load.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Bias</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="openstef.metrics.metrics.frac_in_stdev">
+<span class="sig-prename descclassname"><span class="pre">openstef.metrics.metrics.</span></span><span class="sig-name descname"><span class="pre">frac_in_stdev</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">realised</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stdev</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.metrics.frac_in_stdev" title="Permalink to this definition">#</a></dt>
+<dd><p>Function that calculates the amount of measurements that are within one stdev of our predictions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="openstef.metrics.metrics.franks_skill_score">
+<span class="sig-prename descclassname"><span class="pre">openstef.metrics.metrics.</span></span><span class="sig-name descname"><span class="pre">franks_skill_score</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">realised</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">basecase</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">range_</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.metrics.franks_skill_score" title="Permalink to this definition">#</a></dt>
+<dd><p>Calculate Franks skill score.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="openstef.metrics.metrics.franks_skill_score_peaks">
+<span class="sig-prename descclassname"><span class="pre">openstef.metrics.metrics.</span></span><span class="sig-name descname"><span class="pre">franks_skill_score_peaks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">realised</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">basecase</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.metrics.franks_skill_score_peaks" title="Permalink to this definition">#</a></dt>
+<dd><p>Calculate Franks skill score on positive peaks.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="openstef.metrics.metrics.get_eval_metric_function">
+<span class="sig-prename descclassname"><span class="pre">openstef.metrics.metrics.</span></span><span class="sig-name descname"><span class="pre">get_eval_metric_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metric_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.metrics.get_eval_metric_function" title="Permalink to this definition">#</a></dt>
+<dd><p>Gets a metric if it is available.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>metric_name</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Name of the metric.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Function to calculate the metric.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="openstef.metrics.metrics.mae">
+<span class="sig-prename descclassname"><span class="pre">openstef.metrics.metrics.</span></span><span class="sig-name descname"><span class="pre">mae</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">realised</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.metrics.mae" title="Permalink to this definition">#</a></dt>
+<dd><p>Function that calculates the mean absolute error based on the true and prediction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="openstef.metrics.metrics.nsme">
+<span class="sig-prename descclassname"><span class="pre">openstef.metrics.metrics.</span></span><span class="sig-name descname"><span class="pre">nsme</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">realised</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.metrics.nsme" title="Permalink to this definition">#</a></dt>
+<dd><p>Function that calculates the Nash-sutcliffe model efficiency based on the true and prediciton.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>realised</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code>) – Realised load.</p></li>
+<li><p><strong>forecast</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code>) – Forecasted load.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Nash-sutcliffe model efficiency</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="openstef.metrics.metrics.r_mae">
+<span class="sig-prename descclassname"><span class="pre">openstef.metrics.metrics.</span></span><span class="sig-name descname"><span class="pre">r_mae</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">realised</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.metrics.r_mae" title="Permalink to this definition">#</a></dt>
+<dd><p>Function that calculates the relative mean absolute error based on the true and prediction.</p>
+<p>The range is based on the load range of the previous two weeks</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="openstef.metrics.metrics.r_mae_highest">
+<span class="sig-prename descclassname"><span class="pre">openstef.metrics.metrics.</span></span><span class="sig-name descname"><span class="pre">r_mae_highest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">realised</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">percentile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.95</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.metrics.r_mae_highest" title="Permalink to this definition">#</a></dt>
+<dd><p>Function that calculates the relative mean absolute error for the 5 percent highest realised values.</p>
+<p>The range is based on the load range of the previous two weeks.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="openstef.metrics.metrics.r_mae_lowest">
+<span class="sig-prename descclassname"><span class="pre">openstef.metrics.metrics.</span></span><span class="sig-name descname"><span class="pre">r_mae_lowest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">realised</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.metrics.r_mae_lowest" title="Permalink to this definition">#</a></dt>
+<dd><p>Function that calculates the relative mean absolute error for the 5 percent lowest realised values.</p>
+<p>The range is based on the load range of the previous two weeks.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="openstef.metrics.metrics.r_mne_highest">
+<span class="sig-prename descclassname"><span class="pre">openstef.metrics.metrics.</span></span><span class="sig-name descname"><span class="pre">r_mne_highest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">realised</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.metrics.r_mne_highest" title="Permalink to this definition">#</a></dt>
+<dd><p>Function that calculates the relative mean negative error for the 5 percent highest realised values.</p>
+<p>The range is based on the load range of the previous two weeks, this measure quantifies how much we underestimate
+peaks.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="openstef.metrics.metrics.r_mpe_highest">
+<span class="sig-prename descclassname"><span class="pre">openstef.metrics.metrics.</span></span><span class="sig-name descname"><span class="pre">r_mpe_highest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">realised</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.metrics.r_mpe_highest" title="Permalink to this definition">#</a></dt>
+<dd><p>Function that calculates the relative mean positive error for the 5 percent highest realised values.</p>
+<p>The range is based on the load range of the previous two weeks, this measure quantifies how much we overestimate
+peaks.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="openstef.metrics.metrics.rmse">
+<span class="sig-prename descclassname"><span class="pre">openstef.metrics.metrics.</span></span><span class="sig-name descname"><span class="pre">rmse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">realised</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.metrics.rmse" title="Permalink to this definition">#</a></dt>
+<dd><p>Function that calculates the Root Mean Square Error based on the true and prediciton.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>realised</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code>) – Realised load.</p></li>
+<li><p><strong>forecast</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code>) – Forecasted load.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Root Mean Square Error</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="openstef.metrics.metrics.skill_score">
+<span class="sig-prename descclassname"><span class="pre">openstef.metrics.metrics.</span></span><span class="sig-name descname"><span class="pre">skill_score</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">realised</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mean</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.metrics.skill_score" title="Permalink to this definition">#</a></dt>
+<dd><p>Function that calculates the skill score.</p>
+<p>Thise indicates model performance relative to a reference, in this case the mean of the realised values. The range
+is based on the load range of the previous two weeks.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="openstef.metrics.metrics.skill_score_positive_peaks">
+<span class="sig-prename descclassname"><span class="pre">openstef.metrics.metrics.</span></span><span class="sig-name descname"><span class="pre">skill_score_positive_peaks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">realised</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mean</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.metrics.skill_score_positive_peaks" title="Permalink to this definition">#</a></dt>
+<dd><p>Calculates skill score on positive peaks.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="openstef.metrics.metrics.xgb_quantile_eval">
+<span class="sig-prename descclassname"><span class="pre">openstef.metrics.metrics.</span></span><span class="sig-name descname"><span class="pre">xgb_quantile_eval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">preds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dmatrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.metrics.xgb_quantile_eval" title="Permalink to this definition">#</a></dt>
+<dd><p>Customized evaluational metric that equals to quantile regression loss (also known as pinball loss).</p>
+<p>Quantile regression is regression that estimates a specified quantile of target’s distribution conditional on given features.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>preds</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Predicted values</p></li>
+<li><p><strong>dmatrix</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DMatrix</span></code>) – xgboost.DMatrix of the input data.</p></li>
+<li><p><strong>quantile</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Target quantile.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Loss information</p>
+</dd>
+</dl>
+<p># See also:
+<a class="reference external" href="https://gist.github.com/Nikolay-Lysenko/06769d701c1d9c9acb9a66f2f9d7a6c7">https://gist.github.com/Nikolay-Lysenko/06769d701c1d9c9acb9a66f2f9d7a6c7</a></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="openstef.metrics.metrics.xgb_quantile_obj">
+<span class="sig-prename descclassname"><span class="pre">openstef.metrics.metrics.</span></span><span class="sig-name descname"><span class="pre">xgb_quantile_obj</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">preds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dmatrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.metrics.xgb_quantile_obj" title="Permalink to this definition">#</a></dt>
+<dd><p>Quantile regression objective fucntion.</p>
+<p>Computes first-order derivative of quantile regression loss and a non-degenerate substitute for second-order
+derivative.</p>
+<p>Substitute is returned instead of zeros, because XGBoost requires non-zero second-order derivatives. See
+this page: <a class="github reference external" href="https://github.com/dmlc/xgboost/issues/1825">dmlc/xgboost#1825</a> to see why it is possible to use this trick. However, be sure
+that hyperparameter named <cite>max_delta_step</cite> is small enough to satisfy:<code class="docutils literal notranslate"><span class="pre">0.5</span> <span class="pre">*</span> <span class="pre">max_delta_step</span> <span class="pre">&lt;=</span> <span class="pre">min(quantile,</span> <span class="pre">1</span> <span class="pre">-</span> <span class="pre">quantile)</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>preds</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – numpy.ndarray</p></li>
+<li><p><strong>dmatrix</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DMatrix</span></code>) – xgboost.DMatrix</p></li>
+<li><p><strong>quantile</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – float</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Gradient and Hessian</p>
+</dd>
+</dl>
+<p># See also:
+<a class="reference external" href="https://gist.github.com/Nikolay-Lysenko/06769d701c1d9c9acb9a66f2f9d7a6c7">https://gist.github.com/Nikolay-Lysenko/06769d701c1d9c9acb9a66f2f9d7a6c7</a></p>
+<p>Reasoning for the hessian:
+<a class="reference external" href="https://gist.github.com/Nikolay-Lysenko/06769d701c1d9c9acb9a66f2f9d7a6c7#gistcomment-2322558">https://gist.github.com/Nikolay-Lysenko/06769d701c1d9c9acb9a66f2f9d7a6c7#gistcomment-2322558</a></p>
+</dd></dl>
+
+</section>
+<section id="module-openstef.metrics.reporter">
+<span id="openstef-metrics-reporter-module"></span><h2>openstef.metrics.reporter module<a class="headerlink" href="#module-openstef.metrics.reporter" title="Permalink to this heading">#</a></h2>
+<p>Defines reporter class.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="openstef.metrics.reporter.Report">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef.metrics.reporter.</span></span><span class="sig-name descname"><span class="pre">Report</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">feature_importance_figure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_series_figures</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metrics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signature</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.reporter.Report" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Dataclass to hold a report describing the training process.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="openstef.metrics.reporter.Reporter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef.metrics.reporter.</span></span><span class="sig-name descname"><span class="pre">Reporter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validation_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.reporter.Reporter" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Reporter class that generates reports describing the training process.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef.metrics.reporter.Reporter.generate_report">
+<span class="sig-name descname"><span class="pre">generate_report</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.reporter.Reporter.generate_report" title="Permalink to this definition">#</a></dt>
+<dd><p>Generate a report on a given model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>model</strong> (<a class="reference internal" href="openstef.model.regressors.html#openstef.model.regressors.regressor.OpenstfRegressor" title="openstef.model.regressors.regressor.OpenstfRegressor"><code class="xref py py-class docutils literal notranslate"><span class="pre">OpenstfRegressor</span></code></a>) – the model to create a report on</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#openstef.metrics.reporter.Report" title="openstef.metrics.reporter.Report"><code class="xref py py-class docutils literal notranslate"><span class="pre">Report</span></code></a></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Reporter object containing info about the model</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef.metrics.reporter.Reporter.get_metrics">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_pred</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_true</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.reporter.Reporter.get_metrics" title="Permalink to this definition">#</a></dt>
+<dd><p>Calculate the metrics for a prediction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>y_pred</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code>) – np.array</p></li>
+<li><p><strong>y_true</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code>) – np.array</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Metrics for the prediction</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef.metrics.reporter.Reporter.write_report_to_disk">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">write_report_to_disk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">report</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">report_folder</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.reporter.Reporter.write_report_to_disk" title="Permalink to this definition">#</a></dt>
+<dd><p>Write report to disk; e.g. for viewing report of latest models using grafana.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-openstef.metrics">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-openstef.metrics" title="Permalink to this heading">#</a></h2>
+</section>
+</section>
+
+
+            </article>
+            
+            
+            
+            <footer class="bd-footer-article">
+                <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+  <a class='left-prev' id="prev-link" href="openstef.feature_engineering.html" title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+          <p class="prev-next-subtitle">previous</p>
+          <p class="prev-next-title">openstef.feature_engineering package</p>
+      </div>
+  </a>
+  <a class='right-next' id="next-link" href="openstef.model.html" title="next page">
+  <div class="prev-next-info">
+      <p class="prev-next-subtitle">next</p>
+      <p class="prev-next-title">openstef.model package</p>
+  </div>
+  <i class="fa-solid fa-angle-right"></i>
+  </a>
+</div>
+            </footer>
+            
+          </div>
+          
+          
+          
+            <div class="bd-sidebar-secondary bd-toc">
+              
+<div class="toc-item">
+  
+<div class="tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+</div>
+<nav id="bd-toc-nav" class="page-toc">
     <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#submodules">
@@ -254,19 +853,252 @@
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#openstef-metrics-figure-module">
+  <a class="reference internal nav-link" href="#module-openstef.metrics.figure">
    openstef.metrics.figure module
   </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#openstef.metrics.figure.convert_to_base64_data_uri">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       convert_to_base64_data_uri()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#openstef.metrics.figure.plot_data_series">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       plot_data_series()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#openstef.metrics.figure.plot_feature_importance">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       plot_feature_importance()
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#openstef-metrics-metrics-module">
+  <a class="reference internal nav-link" href="#module-openstef.metrics.metrics">
    openstef.metrics.metrics module
   </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#openstef.metrics.metrics.bias">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       bias()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#openstef.metrics.metrics.frac_in_stdev">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       frac_in_stdev()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#openstef.metrics.metrics.franks_skill_score">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       franks_skill_score()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#openstef.metrics.metrics.franks_skill_score_peaks">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       franks_skill_score_peaks()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#openstef.metrics.metrics.get_eval_metric_function">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       get_eval_metric_function()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#openstef.metrics.metrics.mae">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       mae()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#openstef.metrics.metrics.nsme">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       nsme()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#openstef.metrics.metrics.r_mae">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       r_mae()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#openstef.metrics.metrics.r_mae_highest">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       r_mae_highest()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#openstef.metrics.metrics.r_mae_lowest">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       r_mae_lowest()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#openstef.metrics.metrics.r_mne_highest">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       r_mne_highest()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#openstef.metrics.metrics.r_mpe_highest">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       r_mpe_highest()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#openstef.metrics.metrics.rmse">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       rmse()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#openstef.metrics.metrics.skill_score">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       skill_score()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#openstef.metrics.metrics.skill_score_positive_peaks">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       skill_score_positive_peaks()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#openstef.metrics.metrics.xgb_quantile_eval">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       xgb_quantile_eval()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#openstef.metrics.metrics.xgb_quantile_obj">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       xgb_quantile_obj()
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#openstef-metrics-reporter-module">
+  <a class="reference internal nav-link" href="#module-openstef.metrics.reporter">
    openstef.metrics.reporter module
   </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#openstef.metrics.reporter.Report">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       Report
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#openstef.metrics.reporter.Reporter">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       Reporter
+      </span>
+     </code>
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.metrics.reporter.Reporter.generate_report">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         Reporter.generate_report()
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.metrics.reporter.Reporter.get_metrics">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         Reporter.get_metrics()
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.metrics.reporter.Reporter.write_report_to_disk">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         Reporter.write_report_to_disk()
+        </span>
+       </code>
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#module-openstef.metrics">
@@ -276,89 +1108,78 @@
 </ul>
 
 </nav>
-              </div>
-              
-              <div class="toc-item">
-                
-              </div>
-              
+</div>
+
+<div class="toc-item">
+  
+<div id="searchbox"></div>
+</div>
+
+<div class="toc-item">
+  
+</div>
+
+<div class="toc-item">
+  
+<div class="tocsection sourcelink">
+    <a href="_sources/openstef.metrics.rst.txt">
+        <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+</div>
+
+</div>
+
+            </div>
+          
+          
+        </div>
+        <footer class="bd-footer-content">
+          <div class="bd-footer-content__inner">
             
           </div>
-          
-
-          
-          
-            
-          
-          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
-              
-              <div>
-                
-  <div class="section" id="openstef-metrics-package">
-<h1>openstef.metrics package<a class="headerlink" href="#openstef-metrics-package" title="Permalink to this headline">#</a></h1>
-<div class="section" id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">#</a></h2>
-</div>
-<div class="section" id="openstef-metrics-figure-module">
-<h2>openstef.metrics.figure module<a class="headerlink" href="#openstef-metrics-figure-module" title="Permalink to this headline">#</a></h2>
-</div>
-<div class="section" id="openstef-metrics-metrics-module">
-<h2>openstef.metrics.metrics module<a class="headerlink" href="#openstef-metrics-metrics-module" title="Permalink to this headline">#</a></h2>
-</div>
-<div class="section" id="openstef-metrics-reporter-module">
-<h2>openstef.metrics.reporter module<a class="headerlink" href="#openstef-metrics-reporter-module" title="Permalink to this headline">#</a></h2>
-</div>
-<div class="section" id="module-openstef.metrics">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-openstef.metrics" title="Permalink to this headline">#</a></h2>
-</div>
-</div>
-
-
-              </div>
-              
-              
-              <!-- Previous / next buttons -->
-<div class='prev-next-area'>
-    <a class='left-prev' id="prev-link" href="openstef.feature_engineering.html" title="previous page">
-        <i class="fas fa-angle-left"></i>
-        <div class="prev-next-info">
-            <p class="prev-next-subtitle">previous</p>
-            <p class="prev-next-title">openstef.feature_engineering package</p>
-        </div>
-    </a>
-    <a class='right-next' id="next-link" href="openstef.model.html" title="next page">
-    <div class="prev-next-info">
-        <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">openstef.model package</p>
+        </footer>
+        
+      </main>
     </div>
-    <i class="fas fa-angle-right"></i>
-    </a>
-</div>
-              
-          </main>
-          
-
-      </div>
-    </div>
-  
-  <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
-<footer class="footer mt-5 mt-md-0">
-  <div class="container">
-    
-    <div class="footer-item">
-      <p class="copyright">
-    &copy; Copyright 2017-2022 Contributors to the OpenSTEF project.<br>
-</p>
-    </div>
-    
-    <div class="footer-item">
-      <p class="sphinx-version">
-Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.5.0.<br>
-</p>
-    </div>
-    
   </div>
-</footer>
+
+  
+    
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=796348d33e8b1d947c94"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=796348d33e8b1d947c94"></script>
+
+  <footer class="bd-footer"><div class="bd-footer__inner container">
+  
+  <div class="footer-item">
+    
+<p class="copyright">
+
+    &copy; Copyright 2017-2022 Contributors to the OpenSTEF project.<br>
+
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    <p class="theme-version">
+    Built with the
+    <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">
+        PyData Sphinx Theme
+    </a>
+    0.12.0.
+</p>
+  </div>
+  
+  <div class="footer-item">
+    
+<p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 6.0.0.<br>
+</p>
+
+  </div>
+  
+</div>
+  </footer>
   </body>
 </html>

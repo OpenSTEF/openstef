@@ -5,6 +5,7 @@ Subpackages
 -----------
 
 .. toctree::
+   :maxdepth: 4
 
    openstef.data_classes
    openstef.feature_engineering
@@ -36,7 +37,6 @@ openstef.exceptions module
    :members:
    :undoc-members:
    :show-inheritance:
-
 
 Module contents
 ---------------

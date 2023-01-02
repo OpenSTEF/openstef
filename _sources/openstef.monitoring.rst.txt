@@ -20,7 +20,6 @@ openstef.monitoring.teams module
    :undoc-members:
    :show-inheritance:
 
-
 Module contents
 ---------------
 

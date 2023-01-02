@@ -1,7 +1,0 @@
-stf
-===
-
-.. toctree::
-   :maxdepth: 4
-
-   stf

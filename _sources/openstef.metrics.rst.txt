@@ -28,7 +28,6 @@ openstef.metrics.reporter module
    :undoc-members:
    :show-inheritance:
 
-
 Module contents
 ---------------
 

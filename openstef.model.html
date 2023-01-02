@@ -1,123 +1,209 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>openstef.model package &#8212; OpenSTEF  documentation</title>
-    
-  <!-- Loaded before other Sphinx assets -->
-  <link href="_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
-<link href="_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    
-  <link rel="stylesheet"
-    href="_static/vendor/fontawesome/5.13.0/css/all.min.css">
-  <link rel="preload" as="font" type="font/woff2" crossorigin
-    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
-  <link rel="preload" as="font" type="font/woff2" crossorigin
-    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+    <title>openstef.model package &#8212; OpenSTEF  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=796348d33e8b1d947c94" rel="stylesheet">
+<link href="_static/styles/bootstrap.css?digest=796348d33e8b1d947c94" rel="stylesheet">
+<link href="_static/styles/pydata-sphinx-theme.css?digest=796348d33e8b1d947c94" rel="stylesheet">
+
+  
+  <link href="_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=796348d33e8b1d947c94" rel="stylesheet">
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2">
 
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    
+  
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=796348d33e8b1d947c94">
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=796348d33e8b1d947c94">
 
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'openstef.model';</script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="openstef.model.metamodels package" href="openstef.model.metamodels.html" />
     <link rel="prev" title="openstef.metrics package" href="openstef.metrics.html" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="docsearch:language" content="None">
-    
-
-    <!-- Google Analytics -->
-    
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="docsearch:language" content="en">
   </head>
-  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
-    
-    <div class="container-fluid" id="banner"></div>
+  
+  
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="180" data-default-mode="">
 
-    
-    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="container-xl">
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
 
+  
+  <input type="checkbox" class="sidebar-toggle" name="__primary" id="__primary">
+  <label class="overlay overlay-primary" for="__primary"></label>
+
+  
+  <input type="checkbox" class="sidebar-toggle" name="__secondary" id="__secondary">
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+      
+<form class="bd-search d-flex align-items-center" action="search.html" method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+    </div>
+  </div>
+
+  
+  <nav class="bd-header navbar navbar-expand-lg bd-navbar" id="navbar-main"><div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+      <span class="fa-solid fa-bars"></span>
+  </label>
   <div id="navbar-start">
     
     
+  
 
-<a class="navbar-brand" href="index.html">
-  <img src="_static/openstef_logo.png" class="logo" alt="logo">
+
+<a class="navbar-brand logo" href="index.html">
+
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <img src="_static/_static/openstef_logo.png" class="logo__image only-light" alt="Logo image">
+    <img src="_static/_static/openstef_logo.png" class="logo__image only-dark" alt="Logo image">
+  
+  
 </a>
-
-
     
   </div>
 
-  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
-  </button>
-
   
-  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+  <div class="col-lg-9 navbar-header-items">
     <div id="navbar-center" class="mr-auto">
       
       <div class="navbar-center-item">
-        <ul id="navbar-main-elements" class="navbar-nav">
-    <li class="toctree-l1 nav-item">
- <a class="reference internal nav-link" href="user_guides.html">
-  User guides
- </a>
-</li>
+        <nav class="navbar-nav">
+    <p class="sidebar-header-items__title" role="heading" aria-level="1" aria-label="Site Navigation">
+        Site Navigation
+    </p>
+    <ul id="navbar-main-elements" class="navbar-nav">
+        
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="user_guides.html">
+                        User guides
+                      </a>
+                    </li>
+                
 
-<li class="toctree-l1 nav-item">
- <a class="reference internal nav-link" href="concepts.html">
-  Concepts
- </a>
-</li>
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="concepts.html">
+                        Concepts
+                      </a>
+                    </li>
+                
 
-<li class="toctree-l1 nav-item">
- <a class="reference internal nav-link" href="api_reference.html">
-  API reference
- </a>
-</li>
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="api_reference.html">
+                        API reference
+                      </a>
+                    </li>
+                
 
-<li class="toctree-l1 nav-item">
- <a class="reference internal nav-link" href="community.html">
-  Community
- </a>
-</li>
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="community.html">
+                        Community
+                      </a>
+                    </li>
+                
 
-<li class="toctree-l1 nav-item">
- <a class="reference internal nav-link" href="about_openstef.html">
-  About OpenSTEF
- </a>
-</li>
-
-    
-</ul>
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="about_openstef.html">
+                        About OpenSTEF
+                      </a>
+                    </li>
+                
+    </ul>
+</nav>
       </div>
       
     </div>
 
     <div id="navbar-end">
       
+        <div class="navbar-end-item navbar-persistent--container">
+          
+<button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-toggle="tooltip">
+  <i class="fa-solid fa-magnifying-glass"></i>
+</button>
+        </div>
+      
+      
+      <div class="navbar-end-item">
+        <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+</button>
+      </div>
+      
       <div class="navbar-end-item">
         <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
         <li class="nav-item">
-          <a class="nav-link" href="https://github.com/OpenSTEF/openstef" rel="noopener" target="_blank" title="GitHub"><span><i class="fab fa-github-square"></i></span>
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/OpenSTEF/openstef" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-toggle="tooltip"><span><i class="fab fa-github-square"></i></span>
             <label class="sr-only">GitHub</label></a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="https://pypi.org/project/openstef/" rel="noopener" target="_blank" title="Pypi"><span><i class="fas fa-gift"></i></span>
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/openstef/" title="Pypi" class="nav-link" rel="noopener" target="_blank" data-toggle="tooltip"><span><i class="fas fa-gift"></i></span>
             <label class="sr-only">Pypi</label></a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="https://www.lfenergy.org/projects/openstef/" rel="noopener" target="_blank" title="LFE Homepage"><span><i class="fas fa-bolt"></i></span>
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.lfenergy.org/projects/openstef/" title="LFE Homepage" class="nav-link" rel="noopener" target="_blank" data-toggle="tooltip"><span><i class="fas fa-bolt"></i></span>
             <label class="sr-only">LFE Homepage</label></a>
         </li>
       </ul>
@@ -125,243 +211,325 @@
       
     </div>
   </div>
+
+
+  
+  
+    <div class="navbar-persistent--mobile">
+<button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-toggle="tooltip">
+  <i class="fa-solid fa-magnifying-glass"></i>
+</button>
+    </div>
+  
+
+  
+  <label class="sidebar-toggle secondary-toggle" for="__secondary">
+      <span class="fa-solid fa-outdent"></span>
+  </label>
+  
+
 </div>
-    </nav>
+  </nav>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+      
+      <div class="navbar-center-item">
+        <nav class="navbar-nav">
+    <p class="sidebar-header-items__title" role="heading" aria-level="1" aria-label="Site Navigation">
+        Site Navigation
+    </p>
+    <ul id="navbar-main-elements" class="navbar-nav">
+        
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="user_guides.html">
+                        User guides
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="concepts.html">
+                        Concepts
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="api_reference.html">
+                        API reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="community.html">
+                        Community
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="about_openstef.html">
+                        About OpenSTEF
+                      </a>
+                    </li>
+                
+    </ul>
+</nav>
+      </div>
+      
+      </div>
     
 
-    <div class="container-xl">
-      <div class="row">
+    
+    
+    <div class="sidebar-header-items__end">
+      
+      <div class="navbar-end-item">
+        <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+</button>
+      </div>
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
           
-            
-            <!-- Only show if we have sidebars configured, else just a small margin  -->
-            <div class="col-12 col-md-3 bd-sidebar">
-              <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="search.html" method="get">
-  <i class="icon fas fa-search"></i>
-  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
-</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
-  <div class="bd-toc-item active">
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/OpenSTEF/openstef" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-toggle="tooltip"><span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/openstef/" title="Pypi" class="nav-link" rel="noopener" target="_blank" data-toggle="tooltip"><span><i class="fas fa-gift"></i></span>
+            <label class="sr-only">Pypi</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.lfenergy.org/projects/openstef/" title="LFE Homepage" class="nav-link" rel="noopener" target="_blank" data-toggle="tooltip"><span><i class="fas fa-bolt"></i></span>
+            <label class="sr-only">LFE Homepage</label></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+    
+  </div>
+
+  
+  <div class="sidebar-start-items sidebar-primary__section">
+    <div class="sidebar-start-items__item"><nav class="bd-links" id="bd-docs-nav" aria-label="Section navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">
+    Section Navigation
+  </p>
+  <div class="bd-toc-item navbar-nav">
     <ul class="current nav bd-sidenav">
- <li class="toctree-l1">
-  <a class="reference internal" href="openstef.data_classes.html">
-   openstef.data_classes package
-  </a>
- </li>
- <li class="toctree-l1">
-  <a class="reference internal" href="openstef.feature_engineering.html">
-   openstef.feature_engineering package
-  </a>
- </li>
- <li class="toctree-l1">
-  <a class="reference internal" href="openstef.metrics.html">
-   openstef.metrics package
-  </a>
- </li>
- <li class="toctree-l1 current active has-children">
-  <a class="current reference internal" href="#">
-   openstef.model package
-  </a>
-  <input checked class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
-  <label for="toctree-checkbox-1">
-   <i class="fas fa-chevron-down">
-   </i>
-  </label>
-  <ul>
-   <li class="toctree-l2">
-    <a class="reference internal" href="openstef.model.metamodels.html">
-     openstef.model.metamodels package
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="openstef.model.regressors.html">
-     openstef.model.regressors package
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toctree-l1">
-  <a class="reference internal" href="openstef.model_selection.html">
-   openstef.model_selection package
-  </a>
- </li>
- <li class="toctree-l1">
-  <a class="reference internal" href="openstef.monitoring.html">
-   openstef.monitoring package
-  </a>
- </li>
- <li class="toctree-l1">
-  <a class="reference internal" href="openstef.pipeline.html">
-   openstef.pipeline package
-  </a>
- </li>
- <li class="toctree-l1">
-  <a class="reference internal" href="openstef.postprocessing.html">
-   openstef.postprocessing package
-  </a>
- </li>
- <li class="toctree-l1">
-  <a class="reference internal" href="openstef.preprocessing.html">
-   openstef.preprocessing package
-  </a>
- </li>
- <li class="toctree-l1 has-children">
-  <a class="reference internal" href="openstef.tasks.html">
-   openstef.tasks package
-  </a>
-  <input checked class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
-  <label for="toctree-checkbox-2">
-   <i class="fas fa-chevron-down">
-   </i>
-  </label>
-  <ul>
-   <li class="toctree-l2">
-    <a class="reference internal" href="openstef.tasks.utils.html">
-     openstef.tasks.utils package
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toctree-l1">
-  <a class="reference internal" href="openstef.validation.html">
-   openstef.validation package
-  </a>
- </li>
+<li class="toctree-l1"><a class="reference internal" href="openstef.data_classes.html">openstef.data_classes package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openstef.feature_engineering.html">openstef.feature_engineering package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openstef.metrics.html">openstef.metrics package</a></li>
+<li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">openstef.model package</a><input checked class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="openstef.model.metamodels.html">openstef.model.metamodels package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.model.regressors.html">openstef.model.regressors package</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="openstef.model_selection.html">openstef.model_selection package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openstef.monitoring.html">openstef.monitoring package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openstef.pipeline.html">openstef.pipeline package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openstef.postprocessing.html">openstef.postprocessing package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openstef.preprocessing.html">openstef.preprocessing package</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="openstef.tasks.html">openstef.tasks package</a><input checked class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="openstef.tasks.utils.html">openstef.tasks.utils package</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="openstef.validation.html">openstef.validation package</a></li>
 </ul>
 
   </div>
 </nav>
-              </div>
-              <div class="sidebar-end-items">
-              </div>
+    </div>
+  </div>
+  
+
+  
+  <div class="sidebar-end-items sidebar-primary__section">
+    <div class="sidebar-end-items__item">
+    </div>
+  </div>
+
+  
+  <div id="rtd-footer-container"></div>
+
+      </div>
+      <main id="main-content" class="bd-main">
+        
+        
+        <div class="bd-content">
+          <div class="bd-article-container">
+            
+            <div class="bd-header-article">
+                
             </div>
             
-          
-
-          
-          <div class="d-none d-xl-block col-xl-2 bd-toc">
             
+            <article class="bd-article" role="main">
               
-              <div class="toc-item">
-                
-<div class="tocsection onthispage mt-5 pt-1 pb-3">
-    <i class="fas fa-list"></i> On this page
-</div>
-
-<nav id="bd-toc-nav">
-    <ul class="visible nav section-nav flex-column">
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#subpackages">
-   Subpackages
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#submodules">
-   Submodules
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-openstef.model.basecase">
-   openstef.model.basecase module
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#openstef-model-confidence-interval-applicator-module">
-   openstef.model.confidence_interval_applicator module
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-openstef.model.fallback">
-   openstef.model.fallback module
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#openstef-model-model-creator-module">
-   openstef.model.model_creator module
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#openstef-model-objective-module">
-   openstef.model.objective module
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#openstef-model-objective-creator-module">
-   openstef.model.objective_creator module
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#openstef-model-serializer-module">
-   openstef.model.serializer module
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-openstef.model.standard_deviation_generator">
-   openstef.model.standard_deviation_generator module
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-openstef.model">
-   Module contents
-  </a>
- </li>
-</ul>
-
-</nav>
-              </div>
-              
-              <div class="toc-item">
-                
-              </div>
-              
-            
-          </div>
-          
-
-          
-          
-            
-          
-          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
-              
-              <div>
-                
-  <div class="section" id="openstef-model-package">
-<h1>openstef.model package<a class="headerlink" href="#openstef-model-package" title="Permalink to this headline">#</a></h1>
-<div class="section" id="subpackages">
-<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">#</a></h2>
+  <section id="openstef-model-package">
+<h1>openstef.model package<a class="headerlink" href="#openstef-model-package" title="Permalink to this heading">#</a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this heading">#</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="openstef.model.metamodels.html">openstef.model.metamodels package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="openstef.model.metamodels.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="openstef.model.metamodels.html#openstef-model-metamodels-grouped-regressor-module">openstef.model.metamodels.grouped_regressor module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="openstef.model.metamodels.html#module-openstef.model.metamodels.missing_values_handler">openstef.model.metamodels.missing_values_handler module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.model.metamodels.html#module-openstef.model.metamodels.grouped_regressor">openstef.model.metamodels.grouped_regressor module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="openstef.model.metamodels.html#openstef.model.metamodels.grouped_regressor.GroupedRegressor"><code class="docutils literal notranslate"><span class="pre">GroupedRegressor</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef.model.metamodels.html#openstef.model.metamodels.grouped_regressor.GroupedRegressor.feature_names_"><code class="docutils literal notranslate"><span class="pre">GroupedRegressor.feature_names_</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef.model.metamodels.html#openstef.model.metamodels.grouped_regressor.GroupedRegressor.estimators_"><code class="docutils literal notranslate"><span class="pre">GroupedRegressor.estimators_</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef.model.metamodels.html#openstef.model.metamodels.grouped_regressor.GroupedRegressor.fit"><code class="docutils literal notranslate"><span class="pre">GroupedRegressor.fit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef.model.metamodels.html#openstef.model.metamodels.grouped_regressor.GroupedRegressor.grouped_compute"><code class="docutils literal notranslate"><span class="pre">GroupedRegressor.grouped_compute()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef.model.metamodels.html#openstef.model.metamodels.grouped_regressor.GroupedRegressor.predict"><code class="docutils literal notranslate"><span class="pre">GroupedRegressor.predict()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.model.metamodels.html#module-openstef.model.metamodels.missing_values_handler">openstef.model.metamodels.missing_values_handler module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="openstef.model.metamodels.html#openstef.model.metamodels.missing_values_handler.MissingValuesHandler"><code class="docutils literal notranslate"><span class="pre">MissingValuesHandler</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef.model.metamodels.html#openstef.model.metamodels.missing_values_handler.MissingValuesHandler.feature_names"><code class="docutils literal notranslate"><span class="pre">MissingValuesHandler.feature_names</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef.model.metamodels.html#openstef.model.metamodels.missing_values_handler.MissingValuesHandler.non_null_columns_"><code class="docutils literal notranslate"><span class="pre">MissingValuesHandler.non_null_columns_</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef.model.metamodels.html#openstef.model.metamodels.missing_values_handler.MissingValuesHandler.n_features_in_"><code class="docutils literal notranslate"><span class="pre">MissingValuesHandler.n_features_in_</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef.model.metamodels.html#openstef.model.metamodels.missing_values_handler.MissingValuesHandler.regressor_"><code class="docutils literal notranslate"><span class="pre">MissingValuesHandler.regressor_</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef.model.metamodels.html#openstef.model.metamodels.missing_values_handler.MissingValuesHandler.imputer_"><code class="docutils literal notranslate"><span class="pre">MissingValuesHandler.imputer_</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef.model.metamodels.html#openstef.model.metamodels.missing_values_handler.MissingValuesHandler.pipeline_"><code class="docutils literal notranslate"><span class="pre">MissingValuesHandler.pipeline_</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef.model.metamodels.html#openstef.model.metamodels.missing_values_handler.MissingValuesHandler.feature_importances_"><code class="docutils literal notranslate"><span class="pre">MissingValuesHandler.feature_importances_</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef.model.metamodels.html#openstef.model.metamodels.missing_values_handler.MissingValuesHandler.fit"><code class="docutils literal notranslate"><span class="pre">MissingValuesHandler.fit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef.model.metamodels.html#openstef.model.metamodels.missing_values_handler.MissingValuesHandler.predict"><code class="docutils literal notranslate"><span class="pre">MissingValuesHandler.predict()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="openstef.model.metamodels.html#module-openstef.model.metamodels">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="openstef.model.regressors.html">openstef.model.regressors package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="openstef.model.regressors.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="openstef.model.regressors.html#openstef-model-regressors-custom-regressor-module">openstef.model.regressors.custom_regressor module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="openstef.model.regressors.html#module-openstef.model.regressors.dazls">openstef.model.regressors.dazls module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="openstef.model.regressors.html#module-openstef.model.regressors.lgbm">openstef.model.regressors.lgbm module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="openstef.model.regressors.html#module-openstef.model.regressors.linear">openstef.model.regressors.linear module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.model.regressors.html#module-openstef.model.regressors.custom_regressor">openstef.model.regressors.custom_regressor module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="openstef.model.regressors.html#openstef.model.regressors.custom_regressor.CustomOpenstfRegressor"><code class="docutils literal notranslate"><span class="pre">CustomOpenstfRegressor</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#openstef.model.regressors.custom_regressor.CustomOpenstfRegressor.objective"><code class="docutils literal notranslate"><span class="pre">CustomOpenstfRegressor.objective</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#openstef.model.regressors.custom_regressor.CustomOpenstfRegressor.valid_kwargs"><code class="docutils literal notranslate"><span class="pre">CustomOpenstfRegressor.valid_kwargs()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="openstef.model.regressors.html#openstef.model.regressors.custom_regressor.create_custom_objective"><code class="docutils literal notranslate"><span class="pre">create_custom_objective()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="openstef.model.regressors.html#openstef.model.regressors.custom_regressor.is_custom_type"><code class="docutils literal notranslate"><span class="pre">is_custom_type()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="openstef.model.regressors.html#openstef.model.regressors.custom_regressor.load_custom_model"><code class="docutils literal notranslate"><span class="pre">load_custom_model()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.model.regressors.html#module-openstef.model.regressors.dazls">openstef.model.regressors.dazls module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="openstef.model.regressors.html#openstef.model.regressors.dazls.Dazls"><code class="docutils literal notranslate"><span class="pre">Dazls</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#openstef.model.regressors.dazls.Dazls.fit"><code class="docutils literal notranslate"><span class="pre">Dazls.fit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#openstef.model.regressors.dazls.Dazls.predict"><code class="docutils literal notranslate"><span class="pre">Dazls.predict()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#openstef.model.regressors.dazls.Dazls.score"><code class="docutils literal notranslate"><span class="pre">Dazls.score()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.model.regressors.html#module-openstef.model.regressors.lgbm">openstef.model.regressors.lgbm module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="openstef.model.regressors.html#openstef.model.regressors.lgbm.LGBMOpenstfRegressor"><code class="docutils literal notranslate"><span class="pre">LGBMOpenstfRegressor</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#openstef.model.regressors.lgbm.LGBMOpenstfRegressor.can_predict_quantiles"><code class="docutils literal notranslate"><span class="pre">LGBMOpenstfRegressor.can_predict_quantiles</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#openstef.model.regressors.lgbm.LGBMOpenstfRegressor.feature_names"><code class="docutils literal notranslate"><span class="pre">LGBMOpenstfRegressor.feature_names</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#openstef.model.regressors.lgbm.LGBMOpenstfRegressor.gain_importance_name"><code class="docutils literal notranslate"><span class="pre">LGBMOpenstfRegressor.gain_importance_name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#openstef.model.regressors.lgbm.LGBMOpenstfRegressor.weight_importance_name"><code class="docutils literal notranslate"><span class="pre">LGBMOpenstfRegressor.weight_importance_name</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.model.regressors.html#module-openstef.model.regressors.linear">openstef.model.regressors.linear module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="openstef.model.regressors.html#openstef.model.regressors.linear.LinearOpenstfRegressor"><code class="docutils literal notranslate"><span class="pre">LinearOpenstfRegressor</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#openstef.model.regressors.linear.LinearOpenstfRegressor.can_predict_quantiles"><code class="docutils literal notranslate"><span class="pre">LinearOpenstfRegressor.can_predict_quantiles</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#openstef.model.regressors.linear.LinearOpenstfRegressor.feature_names"><code class="docutils literal notranslate"><span class="pre">LinearOpenstfRegressor.feature_names</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#openstef.model.regressors.linear.LinearOpenstfRegressor.fit"><code class="docutils literal notranslate"><span class="pre">LinearOpenstfRegressor.fit()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="openstef.model.regressors.html#openstef.model.regressors.linear.LinearRegressor"><code class="docutils literal notranslate"><span class="pre">LinearRegressor</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="openstef.model.regressors.html#openstef-model-regressors-proloaf-module">openstef.model.regressors.proloaf module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="openstef.model.regressors.html#module-openstef.model.regressors.regressor">openstef.model.regressors.regressor module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="openstef.model.regressors.html#module-openstef.model.regressors.xgb">openstef.model.regressors.xgb module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="openstef.model.regressors.html#openstef-model-regressors-xgb-quantile-module">openstef.model.regressors.xgb_quantile module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.model.regressors.html#module-openstef.model.regressors.regressor">openstef.model.regressors.regressor module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="openstef.model.regressors.html#openstef.model.regressors.regressor.OpenstfRegressor"><code class="docutils literal notranslate"><span class="pre">OpenstfRegressor</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#openstef.model.regressors.regressor.OpenstfRegressor.can_predict_quantiles"><code class="docutils literal notranslate"><span class="pre">OpenstfRegressor.can_predict_quantiles</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#openstef.model.regressors.regressor.OpenstfRegressor.feature_names"><code class="docutils literal notranslate"><span class="pre">OpenstfRegressor.feature_names</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#openstef.model.regressors.regressor.OpenstfRegressor.fit"><code class="docutils literal notranslate"><span class="pre">OpenstfRegressor.fit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#openstef.model.regressors.regressor.OpenstfRegressor.predict"><code class="docutils literal notranslate"><span class="pre">OpenstfRegressor.predict()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#openstef.model.regressors.regressor.OpenstfRegressor.score"><code class="docutils literal notranslate"><span class="pre">OpenstfRegressor.score()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#openstef.model.regressors.regressor.OpenstfRegressor.set_feature_importance"><code class="docutils literal notranslate"><span class="pre">OpenstfRegressor.set_feature_importance()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.model.regressors.html#module-openstef.model.regressors.xgb">openstef.model.regressors.xgb module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="openstef.model.regressors.html#openstef.model.regressors.xgb.XGBOpenstfRegressor"><code class="docutils literal notranslate"><span class="pre">XGBOpenstfRegressor</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#openstef.model.regressors.xgb.XGBOpenstfRegressor.can_predict_quantiles"><code class="docutils literal notranslate"><span class="pre">XGBOpenstfRegressor.can_predict_quantiles</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#openstef.model.regressors.xgb.XGBOpenstfRegressor.feature_names"><code class="docutils literal notranslate"><span class="pre">XGBOpenstfRegressor.feature_names</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#openstef.model.regressors.xgb.XGBOpenstfRegressor.gain_importance_name"><code class="docutils literal notranslate"><span class="pre">XGBOpenstfRegressor.gain_importance_name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#openstef.model.regressors.xgb.XGBOpenstfRegressor.weight_importance_name"><code class="docutils literal notranslate"><span class="pre">XGBOpenstfRegressor.weight_importance_name</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.model.regressors.html#module-openstef.model.regressors.xgb_quantile">openstef.model.regressors.xgb_quantile module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="openstef.model.regressors.html#openstef.model.regressors.xgb_quantile.XGBQuantileOpenstfRegressor"><code class="docutils literal notranslate"><span class="pre">XGBQuantileOpenstfRegressor</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#openstef.model.regressors.xgb_quantile.XGBQuantileOpenstfRegressor.can_predict_quantiles"><code class="docutils literal notranslate"><span class="pre">XGBQuantileOpenstfRegressor.can_predict_quantiles</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#openstef.model.regressors.xgb_quantile.XGBQuantileOpenstfRegressor.feature_names"><code class="docutils literal notranslate"><span class="pre">XGBQuantileOpenstfRegressor.feature_names</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#openstef.model.regressors.xgb_quantile.XGBQuantileOpenstfRegressor.fit"><code class="docutils literal notranslate"><span class="pre">XGBQuantileOpenstfRegressor.fit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#openstef.model.regressors.xgb_quantile.XGBQuantileOpenstfRegressor.get_feature_importances_from_booster"><code class="docutils literal notranslate"><span class="pre">XGBQuantileOpenstfRegressor.get_feature_importances_from_booster()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#openstef.model.regressors.xgb_quantile.XGBQuantileOpenstfRegressor.predict"><code class="docutils literal notranslate"><span class="pre">XGBQuantileOpenstfRegressor.predict()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="openstef.model.regressors.html#module-openstef.model.regressors">Module contents</a></li>
 </ul>
 </li>
 </ul>
 </div>
-</div>
-<div class="section" id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">#</a></h2>
-</div>
-<div class="section" id="module-openstef.model.basecase">
-<span id="openstef-model-basecase-module"></span><h2>openstef.model.basecase module<a class="headerlink" href="#module-openstef.model.basecase" title="Permalink to this headline">#</a></h2>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">#</a></h2>
+</section>
+<section id="module-openstef.model.basecase">
+<span id="openstef-model-basecase-module"></span><h2>openstef.model.basecase module<a class="headerlink" href="#module-openstef.model.basecase" title="Permalink to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="openstef.model.basecase.BaseCaseModel">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef.model.basecase.</span></span><span class="sig-name descname"><span class="pre">BaseCaseModel</span></span><a class="headerlink" href="#openstef.model.basecase.BaseCaseModel" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.base.BaseEstimator</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.base.RegressorMixin</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseEstimator</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">RegressorMixin</span></code></p>
 <dl class="py property">
 <dt class="sig sig-object py" id="openstef.model.basecase.BaseCaseModel.can_predict_quantiles">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">can_predict_quantiles</span></span><a class="headerlink" href="#openstef.model.basecase.BaseCaseModel.can_predict_quantiles" title="Permalink to this definition">#</a></dt>
@@ -379,23 +547,23 @@
 <p>The idea of the basecase forecast is that if all else fails, this forecasts is
 still available. Basecase example: the load of last week.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>forecast_input_data</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – Forecast input dataframe</p></li>
 <li><p><strong>overwrite_delay_hours</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – times before this in the future are not
 forecasted</p></li>
 </ul>
 </dd>
-<dt class="field-even">Raises</dt>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
 <li><p><strong>ValueError</strong> – if columns T-7d or T-14d is not present</p></li>
 <li><p><strong>ValueError</strong> – If the start of the forecast is before the horizon of the regular forecast</p></li>
 </ul>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Basecase forecast</p>
 </dd>
 </dl>
@@ -407,13 +575,13 @@ forecasted</p></li>
 <dd><p>Predict using the basecase method. The basecase forecast is determined by the T-7d and T-14d load.</p>
 <p>This means fitting the model is not required. However a fit method is still included to be fully comatible with sklearn.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>forecast_input_data</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – Forecast input dataframe</p>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
 </dd>
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Basecase forecast</p>
 </dd>
 </dl>
@@ -421,19 +589,79 @@ forecasted</p></li>
 
 </dd></dl>
 
-</div>
-<div class="section" id="openstef-model-confidence-interval-applicator-module">
-<h2>openstef.model.confidence_interval_applicator module<a class="headerlink" href="#openstef-model-confidence-interval-applicator-module" title="Permalink to this headline">#</a></h2>
-</div>
-<div class="section" id="module-openstef.model.fallback">
-<span id="openstef-model-fallback-module"></span><h2>openstef.model.fallback module<a class="headerlink" href="#module-openstef.model.fallback" title="Permalink to this headline">#</a></h2>
+</section>
+<section id="module-openstef.model.confidence_interval_applicator">
+<span id="openstef-model-confidence-interval-applicator-module"></span><h2>openstef.model.confidence_interval_applicator module<a class="headerlink" href="#module-openstef.model.confidence_interval_applicator" title="Permalink to this heading">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="openstef.model.confidence_interval_applicator.ConfidenceIntervalApplicator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef.model.confidence_interval_applicator.</span></span><span class="sig-name descname"><span class="pre">ConfidenceIntervalApplicator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast_input_data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.confidence_interval_applicator.ConfidenceIntervalApplicator" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef.model.confidence_interval_applicator.ConfidenceIntervalApplicator.add_confidence_interval">
+<span class="sig-name descname"><span class="pre">add_confidence_interval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">forecast</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pj</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.confidence_interval_applicator.ConfidenceIntervalApplicator.add_confidence_interval" title="Permalink to this definition">#</a></dt>
+<dd><p>Add a confidence interval to a forecast.</p>
+<dl>
+<dt>Adds a confidence interval to a forecast in two ways:</dt><dd><ol class="arabic">
+<li><dl class="simple">
+<dt>“stdev” column, this is a column with a standard deviation that is</dt><dd><p>determined during training (ConfidenceGenerator)</p>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt>Quantile columns, these columns give a more precise defenition of the</dt><dd><p>confidence interval. Quantile columns are determined with one of two
+methods, depending on the model type group:</p>
+<ol class="loweralpha simple">
+<li><dl class="simple">
+<dt>Default, using the “stdev” column and the assumption the error is</dt><dd><p>normally distributed.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Quantile regression, this method is only available for quantile</dt><dd><p>models and uses specifically trained models to estimate the
+quantiles of the confidence interval.</p>
+</dd>
+</dl>
+</li>
+</ol>
+<dl class="simple">
+<dt>Depending on the model type (quantile or non quantile),</dt><dd><p>a confidence interval is added to the forecast based on quantile
+regression or the default method.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</li>
+</ol>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>forecast</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – Forecast DataFrame with columns: “forecast”</p></li>
+<li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">PredictionJobDataClass</span></code></a>) – Prediction job</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Forecast DataFrame with columns; “forecast”, “stdev” and quantile columns.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-openstef.model.fallback">
+<span id="openstef-model-fallback-module"></span><h2>openstef.model.fallback module<a class="headerlink" href="#module-openstef.model.fallback" title="Permalink to this heading">#</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="openstef.model.fallback.generate_fallback">
 <span class="sig-prename descclassname"><span class="pre">openstef.model.fallback.</span></span><span class="sig-name descname"><span class="pre">generate_fallback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">forecast_input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">load</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fallback_strategy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'extreme_day'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.fallback.generate_fallback" title="Permalink to this definition">#</a></dt>
 <dd><p>Make a fall back forecast, Set the value of the forecast ‘quality’ column to ‘substituted’.</p>
 <p>Currently only fallback_strategy=extreme day is implemented which return historic profile of most extreme day.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>forecast_input</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – dataframe desired for the forecast</p></li>
 <li><p><strong>load</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – index=datetime, columns=[‘load’]</p></li>
@@ -441,13 +669,13 @@ forecasted</p></li>
 - extreme_day: use daily profile of most extreme day</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
 </dd>
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Fallback forecast DataFrame with columns; ‘forecast’, ‘quality’</p>
 </dd>
-<dt class="field-even">Raises</dt>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
 <li><p><strong>ValueError if len</strong><strong>(</strong><strong>load</strong><strong>) </strong><strong>== 0</strong> – </p></li>
 <li><p><strong>NotImplementedError if fallback_strategy != 'extreme_day'</strong> – </p></li>
@@ -456,21 +684,357 @@ forecasted</p></li>
 </dl>
 </dd></dl>
 
+</section>
+<section id="module-openstef.model.model_creator">
+<span id="openstef-model-model-creator-module"></span><h2>openstef.model.model_creator module<a class="headerlink" href="#module-openstef.model.model_creator" title="Permalink to this heading">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="openstef.model.model_creator.ModelCreator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef.model.model_creator.</span></span><span class="sig-name descname"><span class="pre">ModelCreator</span></span><a class="headerlink" href="#openstef.model.model_creator.ModelCreator" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Factory object for creating machine learning models.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.model.model_creator.ModelCreator.MODEL_CONSTRUCTORS">
+<span class="sig-name descname"><span class="pre">MODEL_CONSTRUCTORS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{&lt;MLModelType.XGB:</span> <span class="pre">'xgb'&gt;:</span> <span class="pre">&lt;class</span> <span class="pre">'openstef.model.regressors.xgb.XGBOpenstfRegressor'&gt;,</span> <span class="pre">&lt;MLModelType.LGB:</span> <span class="pre">'lgb'&gt;:</span> <span class="pre">&lt;class</span> <span class="pre">'openstef.model.regressors.lgbm.LGBMOpenstfRegressor'&gt;,</span> <span class="pre">&lt;MLModelType.XGB_QUANTILE:</span> <span class="pre">'xgb_quantile'&gt;:</span> <span class="pre">&lt;class</span> <span class="pre">'openstef.model.regressors.xgb_quantile.XGBQuantileOpenstfRegressor'&gt;,</span> <span class="pre">&lt;MLModelType.ProLoaf:</span> <span class="pre">'proloaf'&gt;:</span> <span class="pre">None,</span> <span class="pre">&lt;MLModelType.LINEAR:</span> <span class="pre">'linear'&gt;:</span> <span class="pre">&lt;class</span> <span class="pre">'openstef.model.regressors.linear.LinearOpenstfRegressor'&gt;}</span></em><a class="headerlink" href="#openstef.model.model_creator.ModelCreator.MODEL_CONSTRUCTORS" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef.model.model_creator.ModelCreator.create_model">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_type</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.model_creator.ModelCreator.create_model" title="Permalink to this definition">#</a></dt>
+<dd><p>Create a machine learning model based on model type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_type</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<a class="reference internal" href="openstef.html#openstef.enums.MLModelType" title="openstef.enums.MLModelType"><code class="xref py py-class docutils literal notranslate"><span class="pre">MLModelType</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – Model type to construct.</p></li>
+<li><p><strong>kwargs</strong> – Optional keyword argument to pass to the model.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>NotImplementedError</strong> – When using an invalid model_type.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="openstef.model.regressors.html#openstef.model.regressors.regressor.OpenstfRegressor" title="openstef.model.regressors.regressor.OpenstfRegressor"><code class="xref py py-class docutils literal notranslate"><span class="pre">OpenstfRegressor</span></code></a></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>OpenSTEF model</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-openstef.model.objective">
+<span id="openstef-model-objective-module"></span><h2>openstef.model.objective module<a class="headerlink" href="#module-openstef.model.objective" title="Permalink to this heading">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="openstef.model.objective.LGBRegressorObjective">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef.model.objective.</span></span><span class="sig-name descname"><span class="pre">LGBRegressorObjective</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.objective.LGBRegressorObjective" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#openstef.model.objective.RegressorObjective" title="openstef.model.objective.RegressorObjective"><code class="xref py py-class docutils literal notranslate"><span class="pre">RegressorObjective</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef.model.objective.LGBRegressorObjective.get_params">
+<span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trial</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.objective.LGBRegressorObjective.get_params" title="Permalink to this definition">#</a></dt>
+<dd><p>Get parameters for LGB Regressor Objective with objective specific parameters.</p>
+<p>Args: trial</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dictionary with hyperparameter name as key and hyperparamer value as value.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef.model.objective.LGBRegressorObjective.get_pruning_callback">
+<span class="sig-name descname"><span class="pre">get_pruning_callback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trial</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.objective.LGBRegressorObjective.get_pruning_callback" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="openstef.model.objective.LinearRegressorObjective">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef.model.objective.</span></span><span class="sig-name descname"><span class="pre">LinearRegressorObjective</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.objective.LinearRegressorObjective" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#openstef.model.objective.RegressorObjective" title="openstef.model.objective.RegressorObjective"><code class="xref py py-class docutils literal notranslate"><span class="pre">RegressorObjective</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef.model.objective.LinearRegressorObjective.get_params">
+<span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trial</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.objective.LinearRegressorObjective.get_params" title="Permalink to this definition">#</a></dt>
+<dd><p>Get parameters for Linear Regressor Objective with objective specific parameters.</p>
+<p>Args: trial</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dictionary with hyperparameter name as key and hyperparamer value as value.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="openstef.model.objective.ProLoafRegressorObjective">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef.model.objective.</span></span><span class="sig-name descname"><span class="pre">ProLoafRegressorObjective</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.objective.ProLoafRegressorObjective" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#openstef.model.objective.RegressorObjective" title="openstef.model.objective.RegressorObjective"><code class="xref py py-class docutils literal notranslate"><span class="pre">RegressorObjective</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef.model.objective.ProLoafRegressorObjective.get_params">
+<span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trial</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.objective.ProLoafRegressorObjective.get_params" title="Permalink to this definition">#</a></dt>
+<dd><p>Get parameters for ProLoaf Regressor Objective with objective specific parameters.</p>
+<p>Args: trial</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dictionary with hyperparameter name as key and hyperparamer value as value.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef.model.objective.ProLoafRegressorObjective.get_pruning_callback">
+<span class="sig-name descname"><span class="pre">get_pruning_callback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trial</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.objective.ProLoafRegressorObjective.get_pruning_callback" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="openstef.model.objective.RegressorObjective">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef.model.objective.</span></span><span class="sig-name descname"><span class="pre">RegressorObjective</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_fraction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validation_fraction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eval_metric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mae'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.objective.RegressorObjective" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Regressor optuna objective function.</p>
+<p>Use any of the derived classes for optimization using an optuna study.
+The constructor is used to set the “input_data” and optionally add some
+configuration. Next the instance will be called by he optuna study during
+optimization.</p>
+<p>Example usage:</p>
+<div class="highlight-py notranslate"><div class="highlight"><pre><span></span><span class="c1"># initialize a (derived class) objective function</span>
+<span class="n">objective</span> <span class="o">=</span> <span class="n">XGBRegressorObjective</span><span class="p">(</span><span class="n">input_data</span><span class="p">,</span> <span class="n">test_fraction</span><span class="p">)</span>
+<span class="c1"># use the objective function</span>
+<span class="n">study</span><span class="o">.</span><span class="n">optimize</span><span class="p">(</span><span class="n">objective</span><span class="p">)</span>
+</pre></div>
 </div>
-<div class="section" id="openstef-model-model-creator-module">
-<h2>openstef.model.model_creator module<a class="headerlink" href="#openstef-model-model-creator-module" title="Permalink to this headline">#</a></h2>
-</div>
-<div class="section" id="openstef-model-objective-module">
-<h2>openstef.model.objective module<a class="headerlink" href="#openstef-model-objective-module" title="Permalink to this headline">#</a></h2>
-</div>
-<div class="section" id="openstef-model-objective-creator-module">
-<h2>openstef.model.objective_creator module<a class="headerlink" href="#openstef-model-objective-creator-module" title="Permalink to this headline">#</a></h2>
-</div>
-<div class="section" id="openstef-model-serializer-module">
-<h2>openstef.model.serializer module<a class="headerlink" href="#openstef-model-serializer-module" title="Permalink to this headline">#</a></h2>
-</div>
-<div class="section" id="module-openstef.model.standard_deviation_generator">
-<span id="openstef-model-standard-deviation-generator-module"></span><h2>openstef.model.standard_deviation_generator module<a class="headerlink" href="#module-openstef.model.standard_deviation_generator" title="Permalink to this headline">#</a></h2>
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef.model.objective.RegressorObjective.create_report">
+<span class="sig-name descname"><span class="pre">create_report</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.objective.RegressorObjective.create_report" title="Permalink to this definition">#</a></dt>
+<dd><p>Generate a report from the data available inside the objective function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>model</strong> (<a class="reference internal" href="openstef.model.regressors.html#openstef.model.regressors.regressor.OpenstfRegressor" title="openstef.model.regressors.regressor.OpenstfRegressor"><code class="xref py py-class docutils literal notranslate"><span class="pre">OpenstfRegressor</span></code></a>) – OpenstfRegressor, model to create a report on</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="openstef.metrics.html#openstef.metrics.reporter.Report" title="openstef.metrics.reporter.Report"><code class="xref py py-class docutils literal notranslate"><span class="pre">Report</span></code></a></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Report about the model</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef.model.objective.RegressorObjective.get_default_values">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_default_values</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.objective.RegressorObjective.get_default_values" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef.model.objective.RegressorObjective.get_params">
+<span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trial</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.objective.RegressorObjective.get_params" title="Permalink to this definition">#</a></dt>
+<dd><p>Get parameters for objective without model specific get_params function.</p>
+<p>Args: trial</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dictionary with hyperparameter name as key and hyperparamer value as value.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef.model.objective.RegressorObjective.get_pruning_callback">
+<span class="sig-name descname"><span class="pre">get_pruning_callback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trial</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.objective.RegressorObjective.get_pruning_callback" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef.model.objective.RegressorObjective.get_trial_track">
+<span class="sig-name descname"><span class="pre">get_trial_track</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.objective.RegressorObjective.get_trial_track" title="Permalink to this definition">#</a></dt>
+<dd><p>Get a dictionary of al trials.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dict with al trials and it’s parameters</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="openstef.model.objective.XGBQuantileRegressorObjective">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef.model.objective.</span></span><span class="sig-name descname"><span class="pre">XGBQuantileRegressorObjective</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.objective.XGBQuantileRegressorObjective" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#openstef.model.objective.RegressorObjective" title="openstef.model.objective.RegressorObjective"><code class="xref py py-class docutils literal notranslate"><span class="pre">RegressorObjective</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef.model.objective.XGBQuantileRegressorObjective.get_params">
+<span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trial</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.objective.XGBQuantileRegressorObjective.get_params" title="Permalink to this definition">#</a></dt>
+<dd><p>Get parameters for XGBQuantile Regressor Objective with objective specific parameters.</p>
+<p>Args: trial</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dictionary with hyperparameter name as key and hyperparamer value as value.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef.model.objective.XGBQuantileRegressorObjective.get_pruning_callback">
+<span class="sig-name descname"><span class="pre">get_pruning_callback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trial</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.objective.XGBQuantileRegressorObjective.get_pruning_callback" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="openstef.model.objective.XGBRegressorObjective">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef.model.objective.</span></span><span class="sig-name descname"><span class="pre">XGBRegressorObjective</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.objective.XGBRegressorObjective" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#openstef.model.objective.RegressorObjective" title="openstef.model.objective.RegressorObjective"><code class="xref py py-class docutils literal notranslate"><span class="pre">RegressorObjective</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef.model.objective.XGBRegressorObjective.get_default_values">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_default_values</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.objective.XGBRegressorObjective.get_default_values" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef.model.objective.XGBRegressorObjective.get_params">
+<span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trial</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.objective.XGBRegressorObjective.get_params" title="Permalink to this definition">#</a></dt>
+<dd><p>Get parameters for XGB Regressor Objective with objective specific parameters.</p>
+<p>Args: trial</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dictionary with hyperparameter name as key and hyperparamer value as value.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef.model.objective.XGBRegressorObjective.get_pruning_callback">
+<span class="sig-name descname"><span class="pre">get_pruning_callback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trial</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.objective.XGBRegressorObjective.get_pruning_callback" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-openstef.model.objective_creator">
+<span id="openstef-model-objective-creator-module"></span><h2>openstef.model.objective_creator module<a class="headerlink" href="#module-openstef.model.objective_creator" title="Permalink to this heading">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="openstef.model.objective_creator.ObjectiveCreator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef.model.objective_creator.</span></span><span class="sig-name descname"><span class="pre">ObjectiveCreator</span></span><a class="headerlink" href="#openstef.model.objective_creator.ObjectiveCreator" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.model.objective_creator.ObjectiveCreator.OBJECTIVES">
+<span class="sig-name descname"><span class="pre">OBJECTIVES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{&lt;MLModelType.XGB:</span> <span class="pre">'xgb'&gt;:</span> <span class="pre">&lt;class</span> <span class="pre">'openstef.model.objective.XGBRegressorObjective'&gt;,</span> <span class="pre">&lt;MLModelType.LGB:</span> <span class="pre">'lgb'&gt;:</span> <span class="pre">&lt;class</span> <span class="pre">'openstef.model.objective.LGBRegressorObjective'&gt;,</span> <span class="pre">&lt;MLModelType.XGB_QUANTILE:</span> <span class="pre">'xgb_quantile'&gt;:</span> <span class="pre">&lt;class</span> <span class="pre">'openstef.model.objective.XGBQuantileRegressorObjective'&gt;,</span> <span class="pre">&lt;MLModelType.ProLoaf:</span> <span class="pre">'proloaf'&gt;:</span> <span class="pre">&lt;class</span> <span class="pre">'openstef.model.objective.ProLoafRegressorObjective'&gt;,</span> <span class="pre">&lt;MLModelType.LINEAR:</span> <span class="pre">'linear'&gt;:</span> <span class="pre">&lt;class</span> <span class="pre">'openstef.model.objective.LinearRegressorObjective'&gt;}</span></em><a class="headerlink" href="#openstef.model.objective_creator.ObjectiveCreator.OBJECTIVES" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef.model.objective_creator.ObjectiveCreator.create_objective">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create_objective</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_type</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.objective_creator.ObjectiveCreator.create_objective" title="Permalink to this definition">#</a></dt>
+<dd><p>Create an objective function based on model type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>model_type</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<a class="reference internal" href="openstef.html#openstef.enums.MLModelType" title="openstef.enums.MLModelType"><code class="xref py py-class docutils literal notranslate"><span class="pre">MLModelType</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – Model type to construct.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>NotImplementedError</strong> – When using an invalid model_type.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#openstef.model.objective.RegressorObjective" title="openstef.model.objective.RegressorObjective"><code class="xref py py-class docutils literal notranslate"><span class="pre">RegressorObjective</span></code></a></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Objective function</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-openstef.model.serializer">
+<span id="openstef-model-serializer-module"></span><h2>openstef.model.serializer module<a class="headerlink" href="#module-openstef.model.serializer" title="Permalink to this heading">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="openstef.model.serializer.MLflowSerializer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef.model.serializer.</span></span><span class="sig-name descname"><span class="pre">MLflowSerializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mlflow_tracking_uri</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.serializer.MLflowSerializer" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef.model.serializer.MLflowSerializer.get_model_age">
+<span class="sig-name descname"><span class="pre">get_model_age</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hyperparameter_optimization_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.serializer.MLflowSerializer.get_model_age" title="Permalink to this definition">#</a></dt>
+<dd><p>Get model age of most recent model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>experiment_name</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Name of the experiment, often the id of the predition job.</p></li>
+<li><p><strong>hyperparameter_optimization_only</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Set to true if only hyperparameters optimaisation events should be considered.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef.model.serializer.MLflowSerializer.load_model">
+<span class="sig-name descname"><span class="pre">load_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.serializer.MLflowSerializer.load_model" title="Permalink to this definition">#</a></dt>
+<dd><p>Load sklearn compatible model from MLFlow.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>experiment_name</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Name of the experiment, often the id of the predition job.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<a class="reference internal" href="openstef.model.regressors.html#openstef.model.regressors.regressor.OpenstfRegressor" title="openstef.model.regressors.regressor.OpenstfRegressor"><code class="xref py py-class docutils literal notranslate"><span class="pre">OpenstfRegressor</span></code></a>, <a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.model_specifications.ModelSpecificationDataClass" title="openstef.data_classes.model_specifications.ModelSpecificationDataClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSpecificationDataClass</span></code></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef.model.serializer.MLflowSerializer.remove_old_models">
+<span class="sig-name descname"><span class="pre">remove_old_models</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_n_models</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">artifact_folder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.serializer.MLflowSerializer.remove_old_models" title="Permalink to this definition">#</a></dt>
+<dd><p>Remove old models per experiment.</p>
+<p>Note: This functionality is not incorporated in MLFlow natively
+See also: <a class="github reference external" href="https://github.com/mlflow/mlflow/issues/2152">mlflow/mlflow#2152</a></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef.model.serializer.MLflowSerializer.save_model">
+<span class="sig-name descname"><span class="pre">save_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">experiment_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_specs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">report</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'training'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.serializer.MLflowSerializer.save_model" title="Permalink to this definition">#</a></dt>
+<dd><p>Save sklearn compatible model to MLFlow.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-openstef.model.standard_deviation_generator">
+<span id="openstef-model-standard-deviation-generator-module"></span><h2>openstef.model.standard_deviation_generator module<a class="headerlink" href="#module-openstef.model.standard_deviation_generator" title="Permalink to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="openstef.model.standard_deviation_generator.StandardDeviationGenerator">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef.model.standard_deviation_generator.</span></span><span class="sig-name descname"><span class="pre">StandardDeviationGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">validation_data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.standard_deviation_generator.StandardDeviationGenerator" title="Permalink to this definition">#</a></dt>
@@ -482,13 +1046,13 @@ forecasted</p></li>
 <p>Calculates the difference between realised and predicted on validation set.
 For each hour of the day the std of the difference is calculated.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>model</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">RegressorMixin</span></code>) – The trained model</p>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">RegressorMixin</span></code></p>
 </dd>
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The model with the std data added.</p>
 </dd>
 </dl>
@@ -496,58 +1060,598 @@ For each hour of the day the std of the difference is calculated.</p>
 
 </dd></dl>
 
-</div>
-<div class="section" id="module-openstef.model">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-openstef.model" title="Permalink to this headline">#</a></h2>
-</div>
-</div>
+</section>
+<section id="module-openstef.model">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-openstef.model" title="Permalink to this heading">#</a></h2>
+</section>
+</section>
 
 
-              </div>
-              
-              
-              <!-- Previous / next buttons -->
+            </article>
+            
+            
+            
+            <footer class="bd-footer-article">
+                <!-- Previous / next buttons -->
 <div class='prev-next-area'>
-    <a class='left-prev' id="prev-link" href="openstef.metrics.html" title="previous page">
-        <i class="fas fa-angle-left"></i>
-        <div class="prev-next-info">
-            <p class="prev-next-subtitle">previous</p>
-            <p class="prev-next-title">openstef.metrics package</p>
-        </div>
+  <a class='left-prev' id="prev-link" href="openstef.metrics.html" title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+          <p class="prev-next-subtitle">previous</p>
+          <p class="prev-next-title">openstef.metrics package</p>
+      </div>
+  </a>
+  <a class='right-next' id="next-link" href="openstef.model.metamodels.html" title="next page">
+  <div class="prev-next-info">
+      <p class="prev-next-subtitle">next</p>
+      <p class="prev-next-title">openstef.model.metamodels package</p>
+  </div>
+  <i class="fa-solid fa-angle-right"></i>
+  </a>
+</div>
+            </footer>
+            
+          </div>
+          
+          
+          
+            <div class="bd-sidebar-secondary bd-toc">
+              
+<div class="toc-item">
+  
+<div class="tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+</div>
+<nav id="bd-toc-nav" class="page-toc">
+    <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#subpackages">
+   Subpackages
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#submodules">
+   Submodules
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-openstef.model.basecase">
+   openstef.model.basecase module
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#openstef.model.basecase.BaseCaseModel">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       BaseCaseModel
+      </span>
+     </code>
     </a>
-    <a class='right-next' id="next-link" href="openstef.model.metamodels.html" title="next page">
-    <div class="prev-next-info">
-        <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">openstef.model.metamodels package</p>
-    </div>
-    <i class="fas fa-angle-right"></i>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.model.basecase.BaseCaseModel.can_predict_quantiles">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BaseCaseModel.can_predict_quantiles
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.model.basecase.BaseCaseModel.fit">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BaseCaseModel.fit()
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.model.basecase.BaseCaseModel.make_basecase_forecast">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BaseCaseModel.make_basecase_forecast()
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.model.basecase.BaseCaseModel.predict">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BaseCaseModel.predict()
+        </span>
+       </code>
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-openstef.model.confidence_interval_applicator">
+   openstef.model.confidence_interval_applicator module
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#openstef.model.confidence_interval_applicator.ConfidenceIntervalApplicator">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       ConfidenceIntervalApplicator
+      </span>
+     </code>
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.model.confidence_interval_applicator.ConfidenceIntervalApplicator.add_confidence_interval">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         ConfidenceIntervalApplicator.add_confidence_interval()
+        </span>
+       </code>
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-openstef.model.fallback">
+   openstef.model.fallback module
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#openstef.model.fallback.generate_fallback">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       generate_fallback()
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-openstef.model.model_creator">
+   openstef.model.model_creator module
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#openstef.model.model_creator.ModelCreator">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       ModelCreator
+      </span>
+     </code>
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.model.model_creator.ModelCreator.MODEL_CONSTRUCTORS">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         ModelCreator.MODEL_CONSTRUCTORS
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.model.model_creator.ModelCreator.create_model">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         ModelCreator.create_model()
+        </span>
+       </code>
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-openstef.model.objective">
+   openstef.model.objective module
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#openstef.model.objective.LGBRegressorObjective">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       LGBRegressorObjective
+      </span>
+     </code>
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.model.objective.LGBRegressorObjective.get_params">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         LGBRegressorObjective.get_params()
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.model.objective.LGBRegressorObjective.get_pruning_callback">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         LGBRegressorObjective.get_pruning_callback()
+        </span>
+       </code>
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#openstef.model.objective.LinearRegressorObjective">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       LinearRegressorObjective
+      </span>
+     </code>
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.model.objective.LinearRegressorObjective.get_params">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         LinearRegressorObjective.get_params()
+        </span>
+       </code>
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#openstef.model.objective.ProLoafRegressorObjective">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       ProLoafRegressorObjective
+      </span>
+     </code>
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.model.objective.ProLoafRegressorObjective.get_params">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         ProLoafRegressorObjective.get_params()
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.model.objective.ProLoafRegressorObjective.get_pruning_callback">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         ProLoafRegressorObjective.get_pruning_callback()
+        </span>
+       </code>
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#openstef.model.objective.RegressorObjective">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       RegressorObjective
+      </span>
+     </code>
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.model.objective.RegressorObjective.create_report">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         RegressorObjective.create_report()
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.model.objective.RegressorObjective.get_default_values">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         RegressorObjective.get_default_values()
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.model.objective.RegressorObjective.get_params">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         RegressorObjective.get_params()
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.model.objective.RegressorObjective.get_pruning_callback">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         RegressorObjective.get_pruning_callback()
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.model.objective.RegressorObjective.get_trial_track">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         RegressorObjective.get_trial_track()
+        </span>
+       </code>
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#openstef.model.objective.XGBQuantileRegressorObjective">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       XGBQuantileRegressorObjective
+      </span>
+     </code>
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.model.objective.XGBQuantileRegressorObjective.get_params">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         XGBQuantileRegressorObjective.get_params()
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.model.objective.XGBQuantileRegressorObjective.get_pruning_callback">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         XGBQuantileRegressorObjective.get_pruning_callback()
+        </span>
+       </code>
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#openstef.model.objective.XGBRegressorObjective">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       XGBRegressorObjective
+      </span>
+     </code>
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.model.objective.XGBRegressorObjective.get_default_values">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         XGBRegressorObjective.get_default_values()
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.model.objective.XGBRegressorObjective.get_params">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         XGBRegressorObjective.get_params()
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.model.objective.XGBRegressorObjective.get_pruning_callback">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         XGBRegressorObjective.get_pruning_callback()
+        </span>
+       </code>
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-openstef.model.objective_creator">
+   openstef.model.objective_creator module
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#openstef.model.objective_creator.ObjectiveCreator">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       ObjectiveCreator
+      </span>
+     </code>
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.model.objective_creator.ObjectiveCreator.OBJECTIVES">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         ObjectiveCreator.OBJECTIVES
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.model.objective_creator.ObjectiveCreator.create_objective">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         ObjectiveCreator.create_objective()
+        </span>
+       </code>
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-openstef.model.serializer">
+   openstef.model.serializer module
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#openstef.model.serializer.MLflowSerializer">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       MLflowSerializer
+      </span>
+     </code>
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.model.serializer.MLflowSerializer.get_model_age">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         MLflowSerializer.get_model_age()
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.model.serializer.MLflowSerializer.load_model">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         MLflowSerializer.load_model()
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.model.serializer.MLflowSerializer.remove_old_models">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         MLflowSerializer.remove_old_models()
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.model.serializer.MLflowSerializer.save_model">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         MLflowSerializer.save_model()
+        </span>
+       </code>
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-openstef.model.standard_deviation_generator">
+   openstef.model.standard_deviation_generator module
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#openstef.model.standard_deviation_generator.StandardDeviationGenerator">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       StandardDeviationGenerator
+      </span>
+     </code>
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.model.standard_deviation_generator.StandardDeviationGenerator.generate_standard_deviation_data">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         StandardDeviationGenerator.generate_standard_deviation_data()
+        </span>
+       </code>
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-openstef.model">
+   Module contents
+  </a>
+ </li>
+</ul>
+
+</nav>
+</div>
+
+<div class="toc-item">
+  
+<div id="searchbox"></div>
+</div>
+
+<div class="toc-item">
+  
+</div>
+
+<div class="toc-item">
+  
+<div class="tocsection sourcelink">
+    <a href="_sources/openstef.model.rst.txt">
+        <i class="fa-solid fa-file-lines"></i> Show Source
     </a>
 </div>
-              
-          </main>
-          
 
-      </div>
+</div>
+
+            </div>
+          
+          
+        </div>
+        <footer class="bd-footer-content">
+          <div class="bd-footer-content__inner">
+            
+          </div>
+        </footer>
+        
+      </main>
     </div>
-  
-  <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
-<footer class="footer mt-5 mt-md-0">
-  <div class="container">
-    
-    <div class="footer-item">
-      <p class="copyright">
-    &copy; Copyright 2017-2022 Contributors to the OpenSTEF project.<br>
-</p>
-    </div>
-    
-    <div class="footer-item">
-      <p class="sphinx-version">
-Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.5.0.<br>
-</p>
-    </div>
-    
   </div>
-</footer>
+
+  
+    
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=796348d33e8b1d947c94"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=796348d33e8b1d947c94"></script>
+
+  <footer class="bd-footer"><div class="bd-footer__inner container">
+  
+  <div class="footer-item">
+    
+<p class="copyright">
+
+    &copy; Copyright 2017-2022 Contributors to the OpenSTEF project.<br>
+
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    <p class="theme-version">
+    Built with the
+    <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">
+        PyData Sphinx Theme
+    </a>
+    0.12.0.
+</p>
+  </div>
+  
+  <div class="footer-item">
+    
+<p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 6.0.0.<br>
+</p>
+
+  </div>
+  
+</div>
+  </footer>
   </body>
 </html>
