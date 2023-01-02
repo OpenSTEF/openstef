@@ -29,32 +29,9 @@ jobs:
         printf "\nsphinx_autodoc_typehints==1.19.4\n" >> docs/requirements.txt &&\
         printf "\nmkdocs==1.2.3\n" >> docs/requirements.txt &&\
         pip install -r docs/requirements.txt &&\
-        sphinx-apidoc -o docs openstef &&\
-        mkdir docs/_build
+        sphinx-apidoc -o docs openstef
 
-    - name: Build with sphinx
+    - name: Build and commit
       uses: sphinx-notes/pages@v2
       with:
         requirements_path: ./docs/requirements.txt
-        target_path: ./docs/_build
-
-    # Commit documentation changes to the gh-pages branch
-    - name: Commit documentation changes
-      run: |
-        git clone https://github.com/OpenSTEF/openstef.git --branch gh-pages --single-branch gh-pages
-        cp -r docs/_build/* gh-pages/
-        cd gh-pages
-        touch .nojekyll
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git add .
-        git commit --signoff -m "Update documentation" -a || true
-        # The above command will fail if no changes were present, so we ignore
-        # that.
-    # Push changes (will publish documentation)
-    - name: Push changes
-      uses: ad-m/github-push-action@master
-      with:
-        branch: gh-pages
-        directory: gh-pages
-        github_token: ${{ secrets.GITHUB_TOKEN }}
