@@ -53,11 +53,11 @@ exclude_patterns = []
 # a list of builtin themes.
 #
 html_theme = "pydata_sphinx_theme"
-html_logo = "_static/openstef_logo.png"
+html_logo = "openstef_logo.png"
 html_theme_options = {
     "logo": {
-        "image_light": "_static/openstef_logo.png",
-        "image_dark": "_static/openstef_logo.png",
+        "image_light": "openstef_logo.png",
+        "image_dark": "openstef_logo.png",
     },
     "icon_links": [
         {
