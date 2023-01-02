@@ -17,6 +17,6 @@ pydantic~=1.10.4
 pymsteams~=0.2.2   # TODO remove teams dependency
 pytz~=2022.7
 scikit-learn~=1.2.0
-scipy~=1.6.1
+scipy~=1.8.1
 structlog~=22.3.0
 xgboost~=1.6.1
