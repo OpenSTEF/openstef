@@ -3,20 +3,20 @@
 # SPDX-License-Identifier: MPL-2.0
 
 cufflinks~=0.17.3
-holidays~=0.13
-lightgbm~=3.3.2
-matplotlib~=3.3.4
-mlflow~=1.27.0
-networkx~=2.7.1
-numpy~=1.22.3
-optuna~=2.10.1
-pandas~=1.4.3
-plotly~=5.8.0
-pvlib==0.9.3
-pydantic~=1.10.2
-pymsteams~=0.1.14   # TODO remove teams dependency
-pytz~=2021.3
-scikit-learn~=1.1.1
-scipy~=1.8.0
-structlog~=22.1.0
-xgboost~=1.6.1
+holidays~=0.18
+lightgbm~=3.3.3
+matplotlib~=3.6.2
+mlflow~=2.1.1
+networkx~=2.8.8
+numpy~=1.24.1
+optuna~=3.0.5
+pandas~=1.5.2
+plotly~=5.11.0
+pvlib==0.9.4
+pydantic~=1.10.4
+pymsteams~=0.2.2   # TODO remove teams dependency
+pytz~=2022.7
+scikit-learn~=1.2.0
+scipy~=1.8.1
+structlog~=22.3.0
+xgboost~=1.7.2
