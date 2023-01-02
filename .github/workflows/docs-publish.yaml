@@ -20,7 +20,7 @@ jobs:
     # Setup python version
     - uses: actions/setup-python@v4 
       with:
-        python-version: 'pypy3.9' 
+        python-version: '3.9' 
     # Run pre build command
     - run: |
         cp requirements.txt docs/requirements.txt &&\
@@ -28,9 +28,6 @@ jobs:
         printf "\njinja2==3.0.0\n" >> docs/requirements.txt &&\
         printf "\nsphinx_autodoc_typehints==1.19.4\n" >> docs/requirements.txt &&\
         printf "\nmkdocs==1.2.3\n" >> docs/requirements.txt &&\
-        sudo apt-get update &&\
-        sudo apt-get upgrade python3-pip &&\
-        pip install --upgrade pip &&\
         pip install -r docs/requirements.txt &&\
         sphinx-apidoc -o docs openstef
 
