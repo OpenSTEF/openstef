@@ -29,9 +29,10 @@ jobs:
         printf "\nsphinx_autodoc_typehints==1.19.4\n" >> docs/requirements.txt &&\
         printf "\nmkdocs==1.2.3\n" >> docs/requirements.txt &&\
         pip install -r docs/requirements.txt &&\
-        sphinx-apidoc -o docs openstef
+        sphinx-apidoc -o docs openstef &&\
+        mkdir docs/_build
 
-    - name: Build and Commit
+    - name: Build with sphinx
       uses: sphinx-notes/pages@v2
       with:
         requirements_path: ./docs/requirements.txt
