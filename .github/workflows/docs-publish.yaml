@@ -10,13 +10,17 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/setup-python@v2
     - uses: actions/checkout@master
       with:
         fetch-depth: 0 # otherwise, you will failed to push refs to dest repo
-
+    
+    # Setup python version
+    - uses: actions/setup-python@v4 
+      with:
+        python-version: 'pypy3.9' 
     # Run pre build command
     - run: |
         cp requirements.txt docs/requirements.txt &&\
