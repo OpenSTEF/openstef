@@ -55,6 +55,10 @@ exclude_patterns = []
 html_theme = "pydata_sphinx_theme"
 html_logo = "_static/openstef_logo.png"
 html_theme_options = {
+    "logo": {
+        "image_light": "_static/openstef_logo.png",
+        "image_dark": "_static/openstef_logo.png",
+    },
     "icon_links": [
         {
             # Label for this link
