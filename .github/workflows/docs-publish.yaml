@@ -24,6 +24,7 @@ jobs:
         printf "\njinja2==3.0.0\n" >> docs/requirements.txt &&\
         printf "\nsphinx_autodoc_typehints==1.19.4\n" >> docs/requirements.txt &&\
         printf "\nmkdocs==1.2.3\n" >> docs/requirements.txt &&\
+        pip install -r docs/requirements.txt &&\
         sphinx-apidoc -o docs openstef
 
     - name: Build and Commit
