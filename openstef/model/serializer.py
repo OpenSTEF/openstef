@@ -14,6 +14,7 @@ import numpy as np
 import pandas as pd
 import structlog
 from mlflow.exceptions import MlflowException
+from xgboost import XGBModel  # Temporary for backward compatibility
 
 from openstef.data_classes.model_specifications import ModelSpecificationDataClass
 from openstef.metrics.reporter import Report
@@ -226,13 +227,25 @@ class MLflowSerializer:
             "max_leaves",
             "sampling_method",
         ]
-        additional_attrs = [
+
+        manual_additional_attrs = [
             "enable_categorical",
             "predictor",
         ]  # these ones are not mentioned in the stackoverflow post
+        automatic_additional_attrs = [
+            x
+            for x in XGBModel._get_param_names()
+            if x
+            not in new_attrs + manual_additional_attrs + loaded_model._get_param_names()
+        ]
 
-        for attr in new_attrs + additional_attrs:
+        for attr in new_attrs + manual_additional_attrs + automatic_additional_attrs:
             setattr(loaded_model, attr, None)
+
+        # This one is new is should be set to a specific value (https://xgboost.readthedocs.io/en/latest/python/python_api.html#module-xgboost.training)
+        setattr(loaded_model, "missing", np.nan)
+
+        # End temporary fix
 
         # get the parameters from old model, we insert these later into new model
         model_specs.hyper_params = loaded_model.get_params()
