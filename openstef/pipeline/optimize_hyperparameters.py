@@ -144,11 +144,21 @@ def optimize_hyperparameters_pipeline_core(
         )
 
     if pj.default_modelspecs:
-        feature_names = (pj.default_modelspecs.feature_names,)
+        feature_names = pj.default_modelspecs.feature_names
         feature_modules = pj.default_modelspecs.feature_modules
     else:
         feature_names = None
         feature_modules = []
+
+    if isinstance(horizons, str):
+        if horizons not in set(input_data.columns):
+            raise ValueError(
+                f"The horizon parameter specifies a column name ({horizons}) missing in"
+                " the input data."
+            )
+        else:
+            # sort data to avoid same date repeated multiple time
+            input_data = input_data.sort_values(horizons)
 
     validated_data_with_features = TrainFeatureApplicator(
         horizons=horizons, feature_names=feature_names, feature_modules=feature_modules
@@ -228,6 +238,12 @@ def optuna_optimization(
 
     """
     model = ModelCreator.create_model(pj["model"])
+    valid_hyper_parameters = {
+        key: value
+        for key, value in pj.default_modelspecs.hyper_params.items()
+        if key in model.get_params().keys()
+    }
+    model.set_params(**valid_hyper_parameters)
 
     study = optuna.create_study(
         study_name=pj["model"],

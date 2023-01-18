@@ -25,6 +25,7 @@ class TestOptimizeHyperParametersPipeline(BaseTestCase):
         super().setUp()
         self.input_data = TestData.load("reference_sets/307-train-data.csv")
         self.pj, self.modelspecs = TestData.get_prediction_job_and_modelspecs(pid=307)
+        self.pj.default_modelspecs = self.modelspecs
 
     @patch("openstef.model.serializer.MLflowSerializer.save_model")
     def test_optimize_hyperparameters_pipeline(self, save_model_mock):
