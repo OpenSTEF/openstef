@@ -417,25 +417,25 @@
 <p>Holds all information regarding the training procces of a specific model.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef.data_classes.model_specifications.ModelSpecificationDataClass.feature_modules">
-<span class="sig-name descname"><span class="pre">feature_modules</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#openstef.data_classes.model_specifications.ModelSpecificationDataClass.feature_modules" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">feature_modules</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#openstef.data_classes.model_specifications.ModelSpecificationDataClass.feature_modules" title="Permalink to this definition">#</a></dt>
 <dd><p>Feature modules that should be used during training.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef.data_classes.model_specifications.ModelSpecificationDataClass.feature_names">
-<span class="sig-name descname"><span class="pre">feature_names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#openstef.data_classes.model_specifications.ModelSpecificationDataClass.feature_names" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">feature_names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#openstef.data_classes.model_specifications.ModelSpecificationDataClass.feature_names" title="Permalink to this definition">#</a></dt>
 <dd><p>Features that should be used during training.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef.data_classes.model_specifications.ModelSpecificationDataClass.hyper_params">
-<span class="sig-name descname"><span class="pre">hyper_params</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#openstef.data_classes.model_specifications.ModelSpecificationDataClass.hyper_params" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">hyper_params</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#openstef.data_classes.model_specifications.ModelSpecificationDataClass.hyper_params" title="Permalink to this definition">#</a></dt>
 <dd><p>Hyperparameters that should be used during training.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef.data_classes.model_specifications.ModelSpecificationDataClass.id">
-<span class="sig-name descname"><span class="pre">id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#openstef.data_classes.model_specifications.ModelSpecificationDataClass.id" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#openstef.data_classes.model_specifications.ModelSpecificationDataClass.id" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -465,13 +465,13 @@ use integer ids.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef.data_classes.prediction_job.PredictionJobDataClass.alternative_forecast_model_pid">
-<span class="sig-name descname"><span class="pre">alternative_forecast_model_pid</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.alternative_forecast_model_pid" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">alternative_forecast_model_pid</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.alternative_forecast_model_pid" title="Permalink to this definition">#</a></dt>
 <dd><p>The pid that references another prediction job from which the model should be used for making forecasts.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef.data_classes.prediction_job.PredictionJobDataClass.backtest_split_func">
-<span class="sig-name descname"><span class="pre">backtest_split_func</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#openstef.data_classes.split_function.SplitFuncDataClass" title="openstef.data_classes.split_function.SplitFuncDataClass"><span class="pre">SplitFuncDataClass</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.backtest_split_func" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">backtest_split_func</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#openstef.data_classes.split_function.SplitFuncDataClass" title="openstef.data_classes.split_function.SplitFuncDataClass"><span class="pre">SplitFuncDataClass</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.backtest_split_func" title="Permalink to this definition">#</a></dt>
 <dd><p>Optional custom splitting function for backtesting.</p>
 </dd></dl>
 
@@ -483,19 +483,19 @@ use integer ids.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef.data_classes.prediction_job.PredictionJobDataClass.default_modelspecs">
-<span class="sig-name descname"><span class="pre">default_modelspecs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#openstef.data_classes.model_specifications.ModelSpecificationDataClass" title="openstef.data_classes.model_specifications.ModelSpecificationDataClass"><span class="pre">ModelSpecificationDataClass</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.default_modelspecs" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">default_modelspecs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#openstef.data_classes.model_specifications.ModelSpecificationDataClass" title="openstef.data_classes.model_specifications.ModelSpecificationDataClass"><span class="pre">ModelSpecificationDataClass</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.default_modelspecs" title="Permalink to this definition">#</a></dt>
 <dd><p>Default model specifications</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef.data_classes.prediction_job.PredictionJobDataClass.depends_on">
-<span class="sig-name descname"><span class="pre">depends_on</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.depends_on" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">depends_on</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.depends_on" title="Permalink to this definition">#</a></dt>
 <dd><p>Link to another prediction job on which this prediction job might depend.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef.data_classes.prediction_job.PredictionJobDataClass.description">
-<span class="sig-name descname"><span class="pre">description</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.description" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">description</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.description" title="Permalink to this definition">#</a></dt>
 <dd><p>Optional description of the prediction job for human reference.</p>
 </dd></dl>
 
@@ -539,13 +539,13 @@ use integer ids.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef.data_classes.prediction_job.PredictionJobDataClass.hub_height">
-<span class="sig-name descname"><span class="pre">hub_height</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.hub_height" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">hub_height</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.hub_height" title="Permalink to this definition">#</a></dt>
 <dd><p>Only required for create_wind_forecast task</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef.data_classes.prediction_job.PredictionJobDataClass.id">
-<span class="sig-name descname"><span class="pre">id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.id" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.id" title="Permalink to this definition">#</a></dt>
 <dd><p>The predictions job id (often abreviated as pid).</p>
 </dd></dl>
 
@@ -586,7 +586,7 @@ use integer ids.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef.data_classes.prediction_job.PredictionJobDataClass.n_turbines">
-<span class="sig-name descname"><span class="pre">n_turbines</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.n_turbines" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">n_turbines</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.n_turbines" title="Permalink to this definition">#</a></dt>
 <dd><p>Only required for create_wind_forecast task</p>
 </dd></dl>
 
@@ -604,7 +604,7 @@ use integer ids.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef.data_classes.prediction_job.PredictionJobDataClass.quantiles">
-<span class="sig-name descname"><span class="pre">quantiles</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.quantiles" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">quantiles</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.quantiles" title="Permalink to this definition">#</a></dt>
 <dd><p>Quantiles that have to be forecasted.</p>
 </dd></dl>
 
@@ -622,31 +622,31 @@ use integer ids.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef.data_classes.prediction_job.PredictionJobDataClass.sid">
-<span class="sig-name descname"><span class="pre">sid</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.sid" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">sid</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.sid" title="Permalink to this definition">#</a></dt>
 <dd><p>Only required for create_solar_forecast task</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef.data_classes.prediction_job.PredictionJobDataClass.train_components">
-<span class="sig-name descname"><span class="pre">train_components</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.train_components" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">train_components</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.train_components" title="Permalink to this definition">#</a></dt>
 <dd><p>Whether splitting the forecasts in wind, solar, rest is desired.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef.data_classes.prediction_job.PredictionJobDataClass.train_horizons_minutes">
-<span class="sig-name descname"><span class="pre">train_horizons_minutes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.train_horizons_minutes" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">train_horizons_minutes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.train_horizons_minutes" title="Permalink to this definition">#</a></dt>
 <dd><p>List of horizons that should be taken into account during training.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef.data_classes.prediction_job.PredictionJobDataClass.train_split_func">
-<span class="sig-name descname"><span class="pre">train_split_func</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#openstef.data_classes.split_function.SplitFuncDataClass" title="openstef.data_classes.split_function.SplitFuncDataClass"><span class="pre">SplitFuncDataClass</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.train_split_func" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">train_split_func</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#openstef.data_classes.split_function.SplitFuncDataClass" title="openstef.data_classes.split_function.SplitFuncDataClass"><span class="pre">SplitFuncDataClass</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.train_split_func" title="Permalink to this definition">#</a></dt>
 <dd><p>Optional custom splitting function for operational procces.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef.data_classes.prediction_job.PredictionJobDataClass.turbine_type">
-<span class="sig-name descname"><span class="pre">turbine_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.turbine_type" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">turbine_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.turbine_type" title="Permalink to this definition">#</a></dt>
 <dd><p>Only required for create_wind_forecast task</p>
 </dd></dl>
 
@@ -663,12 +663,12 @@ use integer ids.</p>
 <p>Class that allows to specify a custom function to generate a train, test and validation set.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef.data_classes.split_function.SplitFuncDataClass.arguments">
-<span class="sig-name descname"><span class="pre">arguments</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#openstef.data_classes.split_function.SplitFuncDataClass.arguments" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">arguments</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#openstef.data_classes.split_function.SplitFuncDataClass.arguments" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef.data_classes.split_function.SplitFuncDataClass.function">
-<span class="sig-name descname"><span class="pre">function</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#openstef.data_classes.split_function.SplitFuncDataClass.function" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">function</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Callable</span></em><a class="headerlink" href="#openstef.data_classes.split_function.SplitFuncDataClass.function" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -1199,7 +1199,7 @@ otherwise just return them from the instance attributes.</p>
   <div class="footer-item">
     
 <p class="sphinx-version">
-Created using <a href="http://sphinx-doc.org/">Sphinx</a> 6.0.0.<br>
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 6.1.3.<br>
 </p>
 
   </div>
