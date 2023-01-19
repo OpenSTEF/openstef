@@ -238,12 +238,14 @@ def optuna_optimization(
 
     """
     model = ModelCreator.create_model(pj["model"])
-    valid_hyper_parameters = {
-        key: value
-        for key, value in pj.default_modelspecs.hyper_params.items()
-        if key in model.get_params().keys()
-    }
-    model.set_params(**valid_hyper_parameters)
+    # Apply set to default hyperparameters if they are specified in the pj
+    if pj.default_modelspecs:
+        valid_hyper_parameters = {
+            key: value
+            for key, value in pj.default_modelspecs.hyper_params.items()
+            if key in model.get_params().keys()
+        }
+        model.set_params(**valid_hyper_parameters)
 
     study = optuna.create_study(
         study_name=pj["model"],
