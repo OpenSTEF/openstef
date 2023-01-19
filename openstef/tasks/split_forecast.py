@@ -44,7 +44,7 @@ def main(config=None, database=None):
 
     if database is None or config is None:
         raise RuntimeError(
-            "Please specifiy a configmanager and/or database connection object. These"
+            "Please specifiy a config object and/or database connection object. These"
             " can be found in the openstef-dbc package."
         )
 
@@ -102,7 +102,7 @@ def split_forecast_task(
         monitoring.post_teams(
             f"New splitting coefficient(s) for pid **{pj['id']}** deviate strongly "
             "from previously stored coefficients.",
-            url=context.config.teams.monitoring_url,
+            url=context.config.teams_monitoring_url,
             invalid_coefficients=invalid_coefs,
             coefficients_df=coefsdf,
         )

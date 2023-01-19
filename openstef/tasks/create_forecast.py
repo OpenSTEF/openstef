@@ -54,7 +54,7 @@ def create_forecast_task(pj: PredictionJobDataClass, context: TaskContext) -> No
         return
 
     # Extract mlflow tracking URI and trained models folder
-    mlflow_tracking_uri = context.config.paths.mlflow_tracking_uri
+    mlflow_tracking_uri = context.config.paths_mlflow_tracking_uri
 
     # Define datetime range for input data
     datetime_start = datetime.utcnow() - timedelta(days=T_BEHIND_DAYS)
@@ -81,7 +81,7 @@ def main(model_type=None, config=None, database=None):
 
     if database is None or config is None:
         raise RuntimeError(
-            "Please specify a configmanager and/or database connection object. These"
+            "Please specify a config object and/or database connection object. These"
             " can be found in the openstef-dbc package."
         )
 

@@ -176,7 +176,8 @@ class XGBQuantileOpenstfRegressor(OpenstfRegressor):
         dmatrix_input = xgb.DMatrix(x.copy(deep=True))
 
         return self.estimators_[quantile].predict(
-            dmatrix_input, ntree_limit=self.estimators_[quantile].best_ntree_limit
+            dmatrix_input,
+            iteration_range=(0, self.estimators_[quantile].best_iteration + 1),
         )
 
     @classmethod

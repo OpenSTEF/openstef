@@ -221,7 +221,7 @@ def main(config=None, database=None):
 
     if database is None or config is None:
         raise RuntimeError(
-            "Please specify a configmanager and/or database connection object. These"
+            "Please specify a config object and/or database connection object. These"
             " can be found in the openstef-dbc package."
         )
 

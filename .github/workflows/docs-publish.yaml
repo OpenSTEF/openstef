@@ -1,54 +1,43 @@
 # SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501
 #
 # SPDX-License-Identifier: MPL-2.0
-name: Docs Publish
+name: Deploy Sphinx documentation to Pages
 
+# Runs on pushes targeting the default branch
 on:
-  - release
+  push:
+    branches: [main]
 
 jobs:
-  docs:
+  build:
     runs-on: ubuntu-latest
     steps:
-    # Checkout
-    - name: Checkout code
-      uses: actions/checkout@v2
-    # Run Apidoc and subsequently build documentation (implicit in action).
-    - name: Build documentation
-      uses: ammaraskar/sphinx-action@master
+    - uses: actions/setup-python@v2
+    - uses: actions/checkout@master
       with:
-        pre-build-command: |
-          cp requirements.txt docs/requirements.txt &&\
-          printf "\npydata-sphinx-theme==0.8.1\n" >> docs/requirements.txt &&\
-          printf "\njinja2==3.0.0\n" >> docs/requirements.txt &&\
-          printf "\nsphinx_autodoc_typehints==1.19.4\n" >> docs/requirements.txt &&\
-          printf "\nmkdocs==1.2.3\n" >> docs/requirements.txt &&\
-          sphinx-apidoc -o docs openstef
-        docs-folder: "docs/"
-        build-command: "sphinx-build . _build"
-    # Upload artifact so it is available from the action-window
-    - name: Upload artifact
-      uses: actions/upload-artifact@v1
+        fetch-depth: 0 # otherwise, you will failed to push refs to dest repo
+    
+    # Setup python version
+    - uses: actions/setup-python@v4 
       with:
-        name: html-documentation
-        path: docs/_build/
-    # Commit documentation changes to the gh-pages branch
-    - name: Commit documentation changes
-      run: |
-        git clone https://github.com/OpenSTEF/openstef.git --branch gh-pages --single-branch gh-pages
-        cp -r docs/_build/* gh-pages/
-        cd gh-pages
-        touch .nojekyll
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git add .
-        git commit --signoff -m "Update documentation" -a || true
-        # The above command will fail if no changes were present, so we ignore
-        # that.
-    # Push changes (will publish documentation)
+        python-version: '3.9' 
+    # Run pre build command
+    - run: |
+        cp requirements.txt docs/requirements.txt &&\
+        printf "\npydata-sphinx-theme==0.12.0\n" >> docs/requirements.txt &&\
+        printf "\njinja2==3.0.0\n" >> docs/requirements.txt &&\
+        printf "\nsphinx_autodoc_typehints==1.19.4\n" >> docs/requirements.txt &&\
+        printf "\nmkdocs==1.2.3\n" >> docs/requirements.txt &&\
+        pip install -r docs/requirements.txt &&\
+        sphinx-apidoc -o docs openstef
+
+    - name: Build and commit
+      uses: sphinx-notes/pages@v2
+      with:
+        requirements_path: ./docs/requirements.txt
+
     - name: Push changes
       uses: ad-m/github-push-action@master
       with:
-        branch: gh-pages
-        directory: gh-pages
         github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch: gh-pages

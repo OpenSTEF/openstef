@@ -25,7 +25,7 @@ However this implementation's scalability is limited. Additionally, this impleme
 meaning that the databases have to be set up according to the `reference implementation <https://github.com/OpenSTEF/openstef-reference>`_. 
 Below, code snippets are shown for different types of tasks that demonstrate the use of OpenSTEF's task functionality. 
 
-Note that, apart from the imports, the implementation is the same for each type of task.
+Note that, apart from the imports, the implementation is the same for each type of task. The `config` object is a `pydantic.BaseSettings` object holding all relevanyt configuration such as usernames, secrets and hosts etc.
 
 Train model task implementation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -34,8 +34,7 @@ Train model task implementation
     import sys
     from pathlib import Path
 
-    from openstef.tasks import train_model as task
-    from openstef_dbc.config.config import ConfigManager
+    from openstef.tasks import train_model as task   
     from openstef_dbc.database import DataBase
     from openstef_dbc.log import logging
 
@@ -43,8 +42,6 @@ Train model task implementation
 
 
     def main():
-        # Initialize config manager
-        config = ConfigManager.load_project_config(project_root=PROJECT_ROOT).get_instance()
         # Initialize logging
         logging.configure_logging(loglevel=config.loglevel, runtime_env=config.env)
         # Initialize database connection
@@ -64,7 +61,6 @@ Create forecast task implementation
     from pathlib import Path
 
     from openstef.tasks import create_forecast as task
-    from openstef_dbc.config.config import ConfigManager
     from openstef_dbc.database import DataBase
     from openstef_dbc.log import logging
 
@@ -72,8 +68,6 @@ Create forecast task implementation
 
 
     def main():
-        # Initialize config manager
-        config = ConfigManager.load_project_config(project_root=PROJECT_ROOT).get_instance()
         # Initialize logging
         logging.configure_logging(loglevel=config.loglevel, runtime_env=config.env)
         # Initialize database connection
@@ -92,7 +86,6 @@ Optimize hyperparameters task implementation
     from pathlib import Path
 
     from openstef.tasks import optimize_hyperparameters as task
-    from openstef_dbc.config.config import ConfigManager
     from openstef_dbc.database import DataBase
     from openstef_dbc.log import logging
 
@@ -100,8 +93,6 @@ Optimize hyperparameters task implementation
 
 
     def main():
-        # Initialize config manager
-        config = ConfigManager.load_project_config(project_root=PROJECT_ROOT).get_instance()
         # Initialize logging
         logging.configure_logging(loglevel=config.loglevel, runtime_env=config.env)
         # Initialize database connection
@@ -120,7 +111,6 @@ Create components forecast task implementation
     from pathlib import Path
 
     from openstef.tasks import create_components_forecast as task
-    from openstef_dbc.config.config import ConfigManager
     from openstef_dbc.database import DataBase
     from openstef_dbc.log import logging
 
@@ -128,8 +118,6 @@ Create components forecast task implementation
 
 
     def main():
-        # Initialize config manager
-        config = ConfigManager.load_project_config(project_root=PROJECT_ROOT).get_instance()
         # Initialize logging
         logging.configure_logging(loglevel=config.loglevel, runtime_env=config.env)
         # Initialize database connection
@@ -148,16 +136,13 @@ Create base case forecast task implementation
     from pathlib import Path
 
     from openstef.tasks import create_basecase_forecast as task
-    from openstef_dbc.config.config import ConfigManager
     from openstef_dbc.database import DataBase
     from openstef_dbc.log import logging
 
     PROJECT_ROOT = Path(__file__).parent.parent.absolute()
 
 
-    def main():
-        # Initialize config manager
-        config = ConfigManager.load_project_config(project_root=PROJECT_ROOT).get_instance()
+    def main():        
         # Initialize logging
         logging.configure_logging(loglevel=config.loglevel, runtime_env=config.env)
         # Initialize database connection
