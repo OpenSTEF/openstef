@@ -6,8 +6,9 @@ import structlog
 
 from openstef.data_classes.model_specifications import ModelSpecificationDataClass
 from openstef.data_classes.prediction_job import PredictionJobDataClass
-from openstef.feature_engineering.feature_applicator import (
-    OperationalPredictFeatureApplicator,
+from openstef.feature_engineering.feature_builder import (
+    LegacyFeatureBuilder,
+    dynamic_load,
 )
 from openstef.model.confidence_interval_applicator import ConfidenceIntervalApplicator
 from openstef.model.fallback import generate_fallback
@@ -84,19 +85,16 @@ def create_forecast_pipeline_core(
     # Validate and clean data
     validated_data = validation.validate(pj["id"], input_data, pj["flatliner_treshold"])
 
-    # Add features
-    data_with_features = OperationalPredictFeatureApplicator(
-        horizons=[pj["resolution_minutes"] / 60.0],
-        feature_names=model.feature_names,
-        feature_modules=model_specs.feature_modules,
-    ).add_features(validated_data)
+    builder_class = LegacyFeatureBuilder
+    if pj.feature_builder_class:
+        builder_class = dynamic_load(pj.feature_builder_class)
 
-    # Prep forecast input by selecting only the forecast datetime interval (this is much smaller than the input range)
-    # Also drop the load column
-    forecast_start, forecast_end = generate_forecast_datetime_range(data_with_features)
-    forecast_input_data = data_with_features[forecast_start:forecast_end].drop(
-        columns="load"
-    )
+    # Add features
+    forecast_input_data, data_with_features = builder_class(
+        pj=pj,
+        model_specs=model_specs,
+        model=model,
+    ).process_forecast_data(validated_data)
 
     # Check if sufficient data is left after cleaning
     if not validation.is_data_sufficient(
