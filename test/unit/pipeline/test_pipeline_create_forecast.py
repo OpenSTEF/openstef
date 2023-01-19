@@ -30,6 +30,9 @@ class TestCreateForecastPipeline(BaseTestCase):
         _get_model_uri_mock.return_value = Path(rel_path).absolute().as_uri()
 
         # Use MLflowSerializer to load a model
+        # Note that this model was trained using xgboost v1.6.1
+        # in time, this should be replaced by a model trained by a newer version, so temporary fixes
+        # in loading of the model (serializer.py) can be removed.
         self.model, self.model_specs = self.serializer.load_model(experiment_name="307")
 
     def test_generate_forecast_datetime_range_single_null_values_target_column(self):
