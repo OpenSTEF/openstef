@@ -404,3 +404,26 @@ class LinearRegressorObjective(RegressorObjective):
             ),
         }
         return params
+
+
+class ARIMARegressorObjective(RegressorObjective):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.model_type = MLModelType.ARIMA
+
+    def get_params(self, trial: optuna.trial.FrozenTrial) -> dict:
+        """Get parameters for ARIMA Regressor Objective with objective specific parameters.
+        (Temporar, it seems strang to use optuna for ARIMA models, it is usually done via
+        statistical analysis and heuristics.)
+
+        Args: trial
+
+        Returns:
+            Dictionary with hyperparameter name as key and hyperparamer value as value.
+
+        """
+        # Imputation strategy
+        params = {
+            "trend": trial.suggest_categorical("trend", ["n", "c", "t", "ct"]),
+        }
+        return params

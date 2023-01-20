@@ -13,6 +13,7 @@ from unittest.mock import MagicMock, patch
 import pandas as pd
 import sklearn
 
+from openstef.data_classes.split_function import SplitFuncDataClass
 from openstef.enums import MLModelType
 from openstef.exceptions import (
     InputDataInsufficientError,
@@ -70,6 +71,10 @@ class DummyRegressor(CustomOpenstfRegressor):
             },
             index=self.feature_names,
         )
+
+
+def split_dummy_arima(data, test_fraction):
+    return data.iloc[:-5], data.iloc[-10:-5], data.iloc[-5:]
 
 
 class TestTrainModelPipeline(BaseTestCase):
@@ -137,6 +142,16 @@ class TestTrainModelPipeline(BaseTestCase):
                 # For Linear model we need to choose an imputation strategy to handle missing value
                 if model_type == MLModelType.LINEAR:
                     model_specs.hyper_params["imputation_strategy"] = "mean"
+
+                if model_type == MLModelType.ARIMA:
+                    pj.feature_builder_class = (
+                        "openstef.feature_engineering.feature_builder.ARFeatureBuilder"
+                    )
+                    pj.train_split_func = SplitFuncDataClass(
+                        function=split_dummy_arima,
+                        arguments={},
+                    )
+                    train_input = self.train_input[:150]
 
                 model, report, modelspecs, _ = train_model_pipeline_core(
                     pj=pj, model_specs=model_specs, input_data=train_input

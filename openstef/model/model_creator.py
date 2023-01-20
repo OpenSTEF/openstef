@@ -12,6 +12,7 @@ from openstef.model.regressors.linear import LinearOpenstfRegressor
 from openstef.model.regressors.regressor import OpenstfRegressor
 from openstef.model.regressors.xgb import XGBOpenstfRegressor
 from openstef.model.regressors.xgb_quantile import XGBQuantileOpenstfRegressor
+from openstef.model.regressors.arima import ARIMAOpenstfRegressor
 
 logger = structlog.get_logger(__name__)
 try:
@@ -109,6 +110,10 @@ valid_model_kwargs = {
         "imputation_strategy",
         "fill_value",
     ],
+    MLModelType.ARIMA: [
+        "order" "seasonal_order",
+        "trend",
+    ],
 }
 
 
@@ -122,6 +127,7 @@ class ModelCreator:
         MLModelType.XGB_QUANTILE: XGBQuantileOpenstfRegressor,
         MLModelType.ProLoaf: OpenstfProloafRegressor,
         MLModelType.LINEAR: LinearOpenstfRegressor,
+        MLModelType.ARIMA: ARIMAOpenstfRegressor,
     }
 
     @staticmethod
