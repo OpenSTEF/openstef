@@ -70,3 +70,7 @@ It requires:
 |
 
 .. include:: dazls.rst
+
+|
+
+.. include:: sql_database_diagram.rst
