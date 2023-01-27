@@ -38,9 +38,6 @@ Train model task implementation
     from openstef_dbc.database import DataBase
     from openstef_dbc.log import logging
 
-    PROJECT_ROOT = Path(__file__).parent.parent.absolute()
-
-
     def main():
         # Initialize logging
         logging.configure_logging(loglevel=config.loglevel, runtime_env=config.env)
@@ -64,9 +61,6 @@ Create forecast task implementation
     from openstef_dbc.database import DataBase
     from openstef_dbc.log import logging
 
-    PROJECT_ROOT = Path(__file__).parent.parent.absolute()
-
-
     def main():
         # Initialize logging
         logging.configure_logging(loglevel=config.loglevel, runtime_env=config.env)
@@ -88,9 +82,6 @@ Optimize hyperparameters task implementation
     from openstef.tasks import optimize_hyperparameters as task
     from openstef_dbc.database import DataBase
     from openstef_dbc.log import logging
-
-    PROJECT_ROOT = Path(__file__).parent.parent.absolute()
-
 
     def main():
         # Initialize logging
@@ -114,9 +105,6 @@ Create components forecast task implementation
     from openstef_dbc.database import DataBase
     from openstef_dbc.log import logging
 
-    PROJECT_ROOT = Path(__file__).parent.parent.absolute()
-
-
     def main():
         # Initialize logging
         logging.configure_logging(loglevel=config.loglevel, runtime_env=config.env)
@@ -138,9 +126,6 @@ Create base case forecast task implementation
     from openstef.tasks import create_basecase_forecast as task
     from openstef_dbc.database import DataBase
     from openstef_dbc.log import logging
-
-    PROJECT_ROOT = Path(__file__).parent.parent.absolute()
-
 
     def main():        
         # Initialize logging
