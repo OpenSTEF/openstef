@@ -244,6 +244,7 @@ class MLflowSerializer:
 
         # This one is new is should be set to a specific value (https://xgboost.readthedocs.io/en/latest/python/python_api.html#module-xgboost.training)
         setattr(loaded_model, "missing", np.nan)
+        setattr(loaded_model, "n_estimators", 100)
 
         # End temporary fix
 
