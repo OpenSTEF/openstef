@@ -411,9 +411,6 @@ Below, code snippets are shown for different types of tasks that demonstrate the
 <span class="kn">from</span> <span class="nn">openstef_dbc.database</span> <span class="kn">import</span> <span class="n">DataBase</span>
 <span class="kn">from</span> <span class="nn">openstef_dbc.log</span> <span class="kn">import</span> <span class="n">logging</span>
 
-<span class="n">PROJECT_ROOT</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
-
-
 <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
     <span class="c1"># Initialize logging</span>
     <span class="n">logging</span><span class="o">.</span><span class="n">configure_logging</span><span class="p">(</span><span class="n">loglevel</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">loglevel</span><span class="p">,</span> <span class="n">runtime_env</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">env</span><span class="p">)</span>
@@ -436,9 +433,6 @@ Below, code snippets are shown for different types of tasks that demonstrate the
 <span class="kn">from</span> <span class="nn">openstef_dbc.database</span> <span class="kn">import</span> <span class="n">DataBase</span>
 <span class="kn">from</span> <span class="nn">openstef_dbc.log</span> <span class="kn">import</span> <span class="n">logging</span>
 
-<span class="n">PROJECT_ROOT</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
-
-
 <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
     <span class="c1"># Initialize logging</span>
     <span class="n">logging</span><span class="o">.</span><span class="n">configure_logging</span><span class="p">(</span><span class="n">loglevel</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">loglevel</span><span class="p">,</span> <span class="n">runtime_env</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">env</span><span class="p">)</span>
@@ -459,9 +453,6 @@ Below, code snippets are shown for different types of tasks that demonstrate the
 <span class="kn">from</span> <span class="nn">openstef.tasks</span> <span class="kn">import</span> <span class="n">optimize_hyperparameters</span> <span class="k">as</span> <span class="n">task</span>
 <span class="kn">from</span> <span class="nn">openstef_dbc.database</span> <span class="kn">import</span> <span class="n">DataBase</span>
 <span class="kn">from</span> <span class="nn">openstef_dbc.log</span> <span class="kn">import</span> <span class="n">logging</span>
-
-<span class="n">PROJECT_ROOT</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
-
 
 <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
     <span class="c1"># Initialize logging</span>
@@ -484,9 +475,6 @@ Below, code snippets are shown for different types of tasks that demonstrate the
 <span class="kn">from</span> <span class="nn">openstef_dbc.database</span> <span class="kn">import</span> <span class="n">DataBase</span>
 <span class="kn">from</span> <span class="nn">openstef_dbc.log</span> <span class="kn">import</span> <span class="n">logging</span>
 
-<span class="n">PROJECT_ROOT</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
-
-
 <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
     <span class="c1"># Initialize logging</span>
     <span class="n">logging</span><span class="o">.</span><span class="n">configure_logging</span><span class="p">(</span><span class="n">loglevel</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">loglevel</span><span class="p">,</span> <span class="n">runtime_env</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">env</span><span class="p">)</span>
@@ -507,9 +495,6 @@ Below, code snippets are shown for different types of tasks that demonstrate the
 <span class="kn">from</span> <span class="nn">openstef.tasks</span> <span class="kn">import</span> <span class="n">create_basecase_forecast</span> <span class="k">as</span> <span class="n">task</span>
 <span class="kn">from</span> <span class="nn">openstef_dbc.database</span> <span class="kn">import</span> <span class="n">DataBase</span>
 <span class="kn">from</span> <span class="nn">openstef_dbc.log</span> <span class="kn">import</span> <span class="n">logging</span>
-
-<span class="n">PROJECT_ROOT</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
-
 
 <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
     <span class="c1"># Initialize logging</span>
