@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2017-2022 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+#
+# SPDX-License-Identifier: MPL-2.0
+"""This module contains the SARIMAX regressor wrapper around statsmodels implementation."""
 import pandas as pd
 import statsmodels.api as sm
 from sklearn.preprocessing import OneHotEncoder
