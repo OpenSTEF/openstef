@@ -1,7 +1,6 @@
 # SPDX-FileCopyrightText: 2017-2022 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-import importlib
 import structlog
 
 from abc import ABC, abstractmethod
@@ -9,7 +8,6 @@ from typing import Optional
 
 import pandas as pd
 from datetime import timedelta
-
 from openstef.data_classes.model_specifications import ModelSpecificationDataClass
 from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.model.regressors.regressor import OpenstfRegressor
@@ -24,14 +22,7 @@ from openstef.feature_engineering.general import (
 from openstef.pipeline.utils import generate_forecast_datetime_range
 
 
-def dynamic_load(name):
-    components = name.split(".")
-    module = importlib.import_module(".".join(components[:-1]))
-    my_class = getattr(module, components[-1])
-    return my_class
-
-
-class AbstractFeatureBuilder(ABC):
+class AbstractDataPreparation(ABC):
     def __init__(
         self,
         pj: PredictionJobDataClass,
@@ -46,11 +37,11 @@ class AbstractFeatureBuilder(ABC):
         self.horizons = horizons
 
     @abstractmethod
-    def process_train_data(self, data: pd.DataFrame) -> pd.DataFrame:
+    def prepare_train_data(self, data: pd.DataFrame) -> pd.DataFrame:
         pass
 
     @abstractmethod
-    def process_forecast_data(
+    def prepare_forecast_data(
         self, data: pd.DataFrame
     ) -> tuple[pd.DataFrame, pd.DataFrame]:
         pass
@@ -58,12 +49,12 @@ class AbstractFeatureBuilder(ABC):
     def check_model(self):
         if self.model is None:
             raise ValueError(
-                "If no model has been provided to the feature builder , it cannot perform processing for forecast task!"
+                "If no model has been provided to the data prep class, it cannot perform preparation for forecast task!"
             )
 
 
-class LegacyFeatureBuilder(AbstractFeatureBuilder):
-    def process_train_data(self, data: pd.DataFrame) -> pd.DataFrame:
+class LegacyDataPreparation(AbstractDataPreparation):
+    def prepare_train_data(self, data: pd.DataFrame) -> pd.DataFrame:
         if self.horizons:
             horizons = self.horizons
         else:
@@ -76,7 +67,7 @@ class LegacyFeatureBuilder(AbstractFeatureBuilder):
         )
         return features_applicator.add_features(data, pj=self.pj)
 
-    def process_forecast_data(self, data: pd.DataFrame) -> pd.DataFrame:
+    def prepare_forecast_data(self, data: pd.DataFrame) -> pd.DataFrame:
         self.check_model()
 
         features_applicator = OperationalPredictFeatureApplicator(
@@ -98,7 +89,7 @@ class LegacyFeatureBuilder(AbstractFeatureBuilder):
         return forecast_input_data, data_with_features
 
 
-class ARFeatureBuilder(AbstractFeatureBuilder):
+class ARDataPreparation(AbstractDataPreparation):
     def __init__(
         self,
         pj: PredictionJobDataClass,
@@ -110,7 +101,7 @@ class ARFeatureBuilder(AbstractFeatureBuilder):
         super().__init__(pj, model_specs, model, horizons)
         self.historical_depth = historical_depth
 
-    def process_train_data(self, data: pd.DataFrame) -> pd.DataFrame:
+    def prepare_train_data(self, data: pd.DataFrame) -> pd.DataFrame:
         # Add dummy horizon column
         data["horizon"] = 0
         # data.index.freq = f"{self.pj.resolution_minutes}min"
@@ -120,7 +111,7 @@ class ARFeatureBuilder(AbstractFeatureBuilder):
         # Sort all features except for the (first) load and (last) horizon columns
         return enforce_feature_order(result)
 
-    def process_forecast_data(
+    def prepare_forecast_data(
         self, data: pd.DataFrame
     ) -> tuple[pd.DataFrame, pd.DataFrame]:
         logger = structlog.get_logger(__name__)

@@ -14,12 +14,14 @@ import pandas as pd
 import sklearn
 
 from openstef.data_classes.split_function import SplitFuncDataClass
+from openstef.data_classes.data_prep import DataPrepDataClass
 from openstef.enums import MLModelType
 from openstef.exceptions import (
     InputDataInsufficientError,
     InputDataWrongColumnOrderError,
     SkipSaveTrainingForecasts,
 )
+from openstef.feature_engineering.data_preparation import ARDataPreparation
 from openstef.feature_engineering.feature_applicator import TrainFeatureApplicator
 from openstef.metrics.reporter import Report
 from openstef.model.objective import RegressorObjective
@@ -144,8 +146,9 @@ class TestTrainModelPipeline(BaseTestCase):
                     model_specs.hyper_params["imputation_strategy"] = "mean"
 
                 if model_type == MLModelType.ARIMA:
-                    pj.feature_builder_class = (
-                        "openstef.feature_engineering.feature_builder.ARFeatureBuilder"
+                    pj.data_prep_class = DataPrepDataClass(
+                        klass=ARDataPreparation,
+                        arguments={},
                     )
                     pj.train_split_func = SplitFuncDataClass(
                         function=split_dummy_arima,

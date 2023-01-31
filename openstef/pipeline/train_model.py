@@ -16,10 +16,7 @@ from openstef.exceptions import (
     OldModelHigherScoreError,
     SkipSaveTrainingForecasts,
 )
-from openstef.feature_engineering.feature_builder import (
-    LegacyFeatureBuilder,
-    dynamic_load,
-)
+from openstef.feature_engineering.feature_applicator import TrainFeatureApplicator
 from openstef.metrics.reporter import Report, Reporter
 from openstef.model.model_creator import ModelCreator
 from openstef.model.regressors.regressor import OpenstfRegressor
@@ -360,15 +357,21 @@ def train_pipeline_step_compute_features(
             "Input data is insufficient, after validation and cleaning"
         )
 
-    builder_class = LegacyFeatureBuilder
-    if pj.feature_builder_class:
-        builder_class = dynamic_load(pj.feature_builder_class)
-
-    data_with_features = builder_class(
-        pj=pj,
-        model_specs=model_specs,
-        horizons=horizons,
-    ).process_train_data(validated_data)
+    # Custom data prep or legacy behavior
+    if pj.data_prep_class:
+        data_prep_class, data_prep_args = pj.data_prep_class.load()
+        data_with_features = data_prep_class(
+            pj=pj,
+            model_specs=model_specs,
+            horizons=horizons,
+            **data_prep_args,
+        ).prepare_train_data(validated_data)
+    else:
+        data_with_features = TrainFeatureApplicator(
+            horizons=horizons,
+            feature_names=model_specs.feature_names,
+            feature_modules=model_specs.feature_modules,
+        ).add_features(validated_data, pj=pj)
 
     return data_with_features
 
