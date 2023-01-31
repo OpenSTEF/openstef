@@ -132,8 +132,8 @@ class ARFeatureBuilder(AbstractFeatureBuilder):
 
         historical_start = None
         if self.historical_depth:
-            historical_start = forecast_start - self.historical_depth * timedelta.min(
-                self.pj.resolution_minutes
+            historical_start = forecast_start - self.historical_depth * timedelta(
+                minutes=self.pj.resolution_minutes
             )
         past_data = data[historical_start:forecast_start]
         self.model.update_historic(past_data["load"], past_data.drop(columns="load"))
