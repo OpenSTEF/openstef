@@ -412,8 +412,10 @@ class ARIMARegressorObjective(RegressorObjective):
         self.model_type = MLModelType.ARIMA
 
     def get_params(self, trial: optuna.trial.FrozenTrial) -> dict:
-        """Get parameters for ARIMA Regressor Objective with objective specific parameters. Temporary, it seems strang
-        to use optuna for ARIMA models, it is usually done via statistical analysis and heuristics.
+        """Get parameters for ARIMA Regressor Objective with objective specific parameters.
+
+        Temporary, it seems strange to use optuna for ARIMA models,
+        it is usually done via statistical analysis and heuristics.
 
         Args: trial
 
