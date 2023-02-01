@@ -12,8 +12,9 @@ from openstef.model.regressors.regressor import OpenstfRegressor
 class ARIMAOpenstfRegressor(OpenstfRegressor):
     """Wrapper around statmodels implementation of (S)ARIMA(X) model.
 
-    To make prediction, it needs to update its historic,
-    applying the fitted parameters to new data unrelated to the original training data.
+    To make prediction, it needs to update its historic, applying the fitted parameters to new data unrelated to the
+    original training data.
+
     """
 
     def __init__(self, order=(0, 0, 0), seasonal_order=(0, 0, 0, 0), trend=None):
@@ -49,6 +50,7 @@ class ARIMAOpenstfRegressor(OpenstfRegressor):
             The endogenous (target) data.
         x_past : pd.DataFrame
             The exogenous (features) data.
+
         """
         exog_past = x_past
         self.results_ = self.results_.apply(y_past, exog_past)
@@ -77,6 +79,7 @@ class ARIMAOpenstfRegressor(OpenstfRegressor):
         -------
         pd.Serie
             The quantile prediction.
+
         """
         alpha = quantile
         bound = "lower"
@@ -97,10 +100,11 @@ class ARIMAOpenstfRegressor(OpenstfRegressor):
         return predictions
 
     def set_feature_importance(self):
-        """Because report needs 'weight' and 'gain' as importance metrics,
-        we set the values to these names:
+        """Because report needs 'weight' and 'gain' as importance metrics, we set the values to these names:
+
         - 'weight' is corresponding to the coefficients values
         - 'gain' is corresponding to the pvalue for the nullity test of each coefficient
+
         """
         importances = pd.DataFrame(
             {"weight": self.results_.params, "gain": self.results_.pvalues}
