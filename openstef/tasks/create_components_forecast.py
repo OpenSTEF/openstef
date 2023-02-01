@@ -96,7 +96,7 @@ def create_components_forecast_task(
 
     if not isinstance(forecasts.index, pd.core.indexes.datetimes.DatetimeIndex):
         raise ValueError(
-            f"Index should be datetime, received forecasts:{forecasts.head()}"
+            f"Index is not datetime. Received forecasts:{forecasts.head()}"
         )
 
     if forecasts.index.max() < datetime.utcnow().replace(tzinfo=pytz.utc) + timedelta(
