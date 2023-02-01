@@ -95,7 +95,9 @@ def create_components_forecast_task(
     forecasts = create_components_forecast_pipeline(pj, input_data, weather_data)
 
     if not isinstance(forecasts.index, pd.core.indexes.datetimes.DatetimeIndex):
-        raise ValueError(f"Index should be datetime, received forecasts:{forecasts.head()}")
+        raise ValueError(
+            f"Index should be datetime, received forecasts:{forecasts.head()}"
+        )
 
     if forecasts.index.max() < datetime.utcnow().replace(tzinfo=pytz.utc) + timedelta(
         hours=30
