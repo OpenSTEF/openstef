@@ -103,7 +103,7 @@ class ARIMAOpenstfRegressor(OpenstfRegressor):
         return predictions
 
     def set_feature_importance(self):
-        """Because report needs 'weight' and 'gain' as importance metrics, we set the values to these names:
+        """Because report needs 'weight' and 'gain' as importance metrics, we set the values to these names.
 
         - 'weight' is corresponding to the coefficients values
         - 'gain' is corresponding to the pvalue for the nullity test of each coefficient
