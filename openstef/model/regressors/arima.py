@@ -82,13 +82,15 @@ class ARIMAOpenstfRegressor(OpenstfRegressor):
 
         """
         alpha = quantile
-        bound = "lower"
+        idx = 0
         if quantile > 0.5:
             alpha = 1 - quantile
-            bound = "upper"
-        return self.results_.get_prediction(start, end, exog=exog).conf_int(
-            alpha=alpha
-        )[f"{bound}_FC"]
+            idx = 1
+        return (
+            self.results_.get_prediction(start, end, exog=exog)
+            .conf_int(alpha=alpha)
+            .iloc[:, idx]
+        )
 
     def predict(self, x, quantile: float = 0.5, **kwargs):
         start = x.iloc[0].name
