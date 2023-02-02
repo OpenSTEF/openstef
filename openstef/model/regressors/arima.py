@@ -44,6 +44,7 @@ class ARIMAOpenstfRegressor(OpenstfRegressor):
         applied to a completely new dataset that is assumed to be unrelated to the model’s original data.
         The new results can then be used for analysis or forecasting.
         It should be used before forecasting, to wedge the historic just before the first forecast timestamp.
+
         Parameters
         ----------
         y_past : pd.DataFrame
@@ -102,7 +103,8 @@ class ARIMAOpenstfRegressor(OpenstfRegressor):
         return predictions
 
     def set_feature_importance(self):
-        """Because report needs 'weight' and 'gain' as importance metrics, we set the values to these names:
+        """Because report needs 'weight' and 'gain' as importance metrics,
+        we set the values to these names:
 
         - 'weight' is corresponding to the coefficients values
         - 'gain' is corresponding to the pvalue for the nullity test of each coefficient
