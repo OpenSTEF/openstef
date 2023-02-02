@@ -12,7 +12,7 @@ import sklearn
 from openstef.model.regressors.arima import ARIMAOpenstfRegressor
 
 
-class TestLinearOpenstfRegressor(BaseTestCase):
+class TestARIMAOpenstfRegressor(BaseTestCase):
     def setUp(self):
         self.train_input = TestData.load("reference_sets/307-train-data.csv")
 
@@ -28,7 +28,7 @@ class TestLinearOpenstfRegressor(BaseTestCase):
         self.assertTrue(isinstance(model, sklearn.base.BaseEstimator))
 
     def test_update_historic(self):
-        """Test happy flow of the training of model"""
+        """Test happy flow of the update of historic data"""
         model = ARIMAOpenstfRegressor()
         model.fit(self.train_input.iloc[:150, 1:], self.train_input.iloc[:150, 0])
         model.update_historic(
@@ -42,14 +42,16 @@ class TestLinearOpenstfRegressor(BaseTestCase):
         self.assertTrue(isinstance(model, sklearn.base.BaseEstimator))
 
     def test_predict_wrong_historic(self):
+        """Test the prediction with the wrong historic (missing data)"""
         model = ARIMAOpenstfRegressor()
         model.fit(self.train_input.iloc[:150, 1:], self.train_input.iloc[:150, 0])
 
         # check the prediction with wrong historic (missing data before starting forcast date)
         with self.assertRaises(ValueError):
-            pred = model.predict(self.train_input.iloc[155:160, 1:])
+            model.predict(self.train_input.iloc[155:160, 1:])
 
     def test_predict(self):
+        """Test the prediction"""
         model = ARIMAOpenstfRegressor()
         model.fit(self.train_input.iloc[:150, 1:], self.train_input.iloc[:150, 0])
 
@@ -62,6 +64,7 @@ class TestLinearOpenstfRegressor(BaseTestCase):
         self.assertTrue((forecast == pred).all())
 
     def test_predict_quantile(self):
+        """Test the quantile prediction"""
         model = ARIMAOpenstfRegressor()
         model.fit(self.train_input.iloc[:150, 1:], self.train_input.iloc[:150, 0])
 
@@ -75,7 +78,8 @@ class TestLinearOpenstfRegressor(BaseTestCase):
         self.assertTrue((forecast_ci["lower load"] == pred_q5).all())
         self.assertTrue((forecast_ci["upper load"] == pred_q95).all())
 
-    def test_get_feature_importance_from_arima(self):
+    def test_set_feature_importance_from_arima(self):
+        """Test the set of feature importance"""
         model = ARIMAOpenstfRegressor()
         model.fit(self.train_input.iloc[:150, 1:], self.train_input.iloc[:150, 0])
 
