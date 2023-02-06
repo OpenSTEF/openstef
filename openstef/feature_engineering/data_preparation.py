@@ -110,7 +110,7 @@ class ARDataPreparation(AbstractDataPreparation):
         result = remove_non_requested_feature_columns(data, features)
 
         # Sort all features except for the (first) load and (last) horizon columns
-        result = result[["load"] + features]
+        result = result[["load"] + [c for c in result.columns if c != "load"]]
         result = result.sort_index()
         return enforce_feature_order(result)
 
