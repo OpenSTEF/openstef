@@ -104,11 +104,14 @@ class ARDataPreparation(AbstractDataPreparation):
     def prepare_train_data(self, data: pd.DataFrame) -> pd.DataFrame:
         # Add dummy horizon column
         data["horizon"] = 0
-        # data.index.freq = f"{self.pj.resolution_minutes}min"
+
+        # remove non requested feature
         features = self.model_specs.feature_names + ["horizon"]
         result = remove_non_requested_feature_columns(data, features)
 
         # Sort all features except for the (first) load and (last) horizon columns
+        result = result[["load"] + features]
+        result = result.sort_index()
         return enforce_feature_order(result)
 
     def prepare_forecast_data(
