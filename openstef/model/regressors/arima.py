@@ -126,7 +126,9 @@ class ARIMAOpenstfRegressor(OpenstfRegressor):
 
     def score(self, X, y):
         """Compute R2 score for in-sample prediction.
+
         It need to update the historic with (X,y).
+
         """
         from sklearn.metrics import r2_score
 
