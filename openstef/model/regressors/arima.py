@@ -123,3 +123,15 @@ class ARIMAOpenstfRegressor(OpenstfRegressor):
     def can_predict_quantiles(self):
         """Indicates wether this model can make quantile predictions."""
         return True
+
+    def score(self, X, y):
+        """Compute R2 score for in-sample prediction.
+        It need to update the historic with (X,y).
+        """
+        from sklearn.metrics import r2_score
+
+        arima_results = self.results_.apply(y, X)
+        start = X.iloc[0].name
+        end = X.iloc[-1].name
+        y_pred = arima_results.predict(start, end, exog=X)
+        return r2_score(y, y_pred)

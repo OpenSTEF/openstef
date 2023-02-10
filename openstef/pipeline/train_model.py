@@ -199,7 +199,7 @@ def train_model_pipeline_core(
 
     # Check if new model is better than old model
     if old_model:
-        combined = pd.concat([train_data, validation_data]).reset_index(drop=True)
+        combined = pd.concat([train_data, validation_data])
         # skip the forecast column added at the end of dataframes
         if pj.save_train_forecasts:
             combined = combined.iloc[:, :-1]
