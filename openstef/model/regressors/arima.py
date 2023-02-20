@@ -2,10 +2,12 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 """This module contains the SARIMAX regressor wrapper around statsmodels implementation."""
+import numpy as np
 import pandas as pd
 import statsmodels.api as sm
-from sklearn.preprocessing import OneHotEncoder
 
+from sklearn.metrics import r2_score
+from sklearn.model_selection import TimeSeriesSplit
 from openstef.model.regressors.regressor import OpenstfRegressor
 
 
@@ -17,7 +19,14 @@ class ARIMAOpenstfRegressor(OpenstfRegressor):
 
     """
 
-    def __init__(self, order=(0, 0, 0), seasonal_order=(0, 0, 0, 0), trend=None):
+    def __init__(
+        self,
+        backtest_max_horizon=1440,
+        order=(0, 0, 0),
+        seasonal_order=(0, 0, 0, 0),
+        trend=None,
+    ):
+        self.backtest_max_horizon = backtest_max_horizon
         self.order = order
         self.seasonal_order = seasonal_order
         self.trend = trend
@@ -125,15 +134,30 @@ class ARIMAOpenstfRegressor(OpenstfRegressor):
         return True
 
     def score(self, X, y):
-        """Compute R2 score for in-sample prediction.
+        """Compute R2 score for backtest prediction.
 
-        It need to update the historic with (X,y).
+        It need to update the historic with (X_past, y_past).
 
         """
-        from sklearn.metrics import r2_score
+        ys_true = []
+        ys_pred = []
 
-        arima_results = self.results_.apply(y, X)
-        start = X.iloc[0].name
-        end = X.iloc[-1].name
-        y_pred = arima_results.predict(start, end, exog=X)
-        return r2_score(y, y_pred)
+        freq = pd.infer_freq(X.index)
+        if not (freq[0].isdigit()):
+            freq = f"1{freq}"
+        test_size = pd.Timedelta(self.backtest_max_horizon, "minutes") // pd.Timedelta(
+            freq
+        )
+        n_splits = X.shape[0] // test_size
+        tscv = TimeSeriesSplit(n_splits=n_splits, test_size=test_size)
+        for apply_index, test_index in tscv.split(X):
+            arima_results = self.results_.apply(
+                y.iloc[apply_index], X.iloc[apply_index]
+            )
+            X_ts = X.iloc[test_index]
+            start_ts = X_ts.iloc[0].name
+            end_ts = X_ts.iloc[-1].name
+            ys_true.append(y.iloc[test_index])
+            ys_pred.append(arima_results.predict(start=start_ts, end=end_ts, exog=X_ts))
+
+        return r2_score(np.concatenate(ys_true), np.concatenate(ys_pred))

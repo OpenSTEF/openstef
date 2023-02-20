@@ -111,7 +111,9 @@ valid_model_kwargs = {
         "fill_value",
     ],
     MLModelType.ARIMA: [
-        "order" "seasonal_order",
+        "backtest_max_horizon",
+        "order",
+        "seasonal_order",
         "trend",
     ],
 }
