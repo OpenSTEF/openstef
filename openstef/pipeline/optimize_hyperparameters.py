@@ -26,6 +26,7 @@ from openstef.pipeline.train_model import (
     train_model_pipeline_core,
 )
 from openstef.validation import validation
+from openstef.model_selection.model_selection import split_data_train_validation_test
 
 optuna.logging.enable_propagation()  # Propagate logs to the root logger.
 optuna.logging.disable_default_handler()  # Stop showing logs in sys.stderr.
@@ -257,9 +258,22 @@ def optuna_optimization(
     # this way the optimization never get worse than the default values
     study.enqueue_trial(objective.get_default_values())
 
+    if pj.train_split_func is None:
+        split_func = split_data_train_validation_test
+        split_args = {
+            "stratification_min_max": pj["model"] != "proloaf",
+            "back_test": True,
+        }
+    else:
+        split_func, split_args = pj.train_split_func.load(
+            required_arguments=["data", "test_fraction", "validation_fraction"]
+        )
+
     objective = objective(
         model,
         validated_data_with_features,
+        split_func=split_func,
+        split_args=split_args,
     )
 
     # Optuna updates the model by itself
