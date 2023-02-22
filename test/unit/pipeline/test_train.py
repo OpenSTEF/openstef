@@ -73,10 +73,9 @@ class TestTrain(BaseTestCase):
             delta=2,
         )
 
-        self.assertAlmostEqual(
+        self.assertEqual(
             len(test_set),
-            len(self.data_table.index) * SPLIT_PARAMS["test_fraction"],
-            delta=4,
+            len(self.data_table.index),
         )
 
     def test_split_data_train_validation_test_stratification_backtest(self):
@@ -122,9 +121,7 @@ class TestTrain(BaseTestCase):
 
         """
 
-        train_fraction = 1 - (
-            SPLIT_PARAMS["test_fraction"] + SPLIT_PARAMS["validation_fraction"]
-        )
+        train_fraction = 1 - SPLIT_PARAMS["validation_fraction"]
 
         (train_set, valid_set, test_set,) = split_data_train_validation_test(
             self.data_table,
@@ -136,10 +133,9 @@ class TestTrain(BaseTestCase):
 
         # delta = 4, when looking at the test data, can differ 1 hr (4x15min)
 
-        self.assertAlmostEqual(
+        self.assertEqual(
             len(test_set),
-            len(self.data_table.index) * SPLIT_PARAMS["test_fraction"],
-            delta=4,
+            len(self.data_table.index),
         )
         self.assertAlmostEqual(
             len(set(valid_set.index.date)),
@@ -199,11 +195,9 @@ class TestTrain(BaseTestCase):
             test_fraction=SPLIT_PARAMS["test_fraction"],
         )
 
-        # delta = 4, when looking at the test data, can differ 1 hr (4x15min)
-        self.assertAlmostEqual(
+        self.assertEqual(
             len(test_set),
-            len(self.data_table.index) * SPLIT_PARAMS["test_fraction"],
-            delta=4,
+            len(self.data_table.index),
         )
         self.assertAlmostEqual(
             len(set(valid_set.index.date)),

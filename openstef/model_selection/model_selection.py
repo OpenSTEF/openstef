@@ -113,7 +113,7 @@ def split_data_train_validation_test(
     validation dataset. In an operational setting the following sequence is
     returned (when using stratification):
 
-    Test >> Train >> Validation
+    Train >> Validation (and the test is the Train and Validation combined.)
 
     For a back test (indicated with argument "back_test") the following sequence
     is returned:
@@ -141,6 +141,7 @@ def split_data_train_validation_test(
         - Test data.
 
     """
+    test_fraction = test_fraction if back_test else 0
     train_fraction = 1 - (test_fraction + validation_fraction)
     if train_fraction < 0:
         raise ValueError(
@@ -173,9 +174,8 @@ def split_data_train_validation_test(
         test_data = data_[start_date_test:]
         train_val_data = data_[:start_date_test]
     else:
-        start_date_val = start_date + np.round(number_indices * test_fraction) * delta
-        test_data = data_[:start_date_val]
-        train_val_data = data_[start_date_val:]
+        test_data = data_.copy(deep=True)
+        train_val_data = data_
 
     if stratification_min_max and (
         len(set(train_val_data.index.date)) >= min_days_for_stratification

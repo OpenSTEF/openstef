@@ -199,14 +199,13 @@ def train_model_pipeline_core(
 
     # Check if new model is better than old model
     if old_model:
-        combined = pd.concat([train_data, validation_data]).reset_index(drop=True)
         # skip the forecast column added at the end of dataframes
         if pj.save_train_forecasts:
-            combined = combined.iloc[:, :-1]
+            test_data = test_data.iloc[:, :-1]
 
         x_data, y_data = (
-            combined.iloc[:, 1:-1],
-            combined.iloc[:, 0],
+            test_data.iloc[:, 1:-1],
+            test_data.iloc[:, 0],
         )
 
         # Score method always returns R^2

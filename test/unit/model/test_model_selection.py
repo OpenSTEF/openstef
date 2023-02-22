@@ -79,7 +79,6 @@ class TestTrain(BaseTestCase):
         )
 
         # delta = 1, number of the peaks the two amounts may differ for the train and validation data
-        # delta = 4, when looking at the test data, can differ 1 hr (4x15min)
 
         self.assertAlmostEqual(
             len(valid_set),
@@ -87,10 +86,9 @@ class TestTrain(BaseTestCase):
             delta=2 * 96,
         )  # two days is allowed
 
-        self.assertAlmostEqual(
+        self.assertEqual(
             len(test_set),
-            len(data.index) * SPLIT_PARAMS["test_fraction"],
-            delta=4,
+            len(data),
         )
 
     def test_split_data_train_validation_test_stratification(self):
