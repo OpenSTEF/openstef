@@ -114,8 +114,8 @@ class ARDataPreparation(AbstractDataPreparation):
         result = result.sort_index()
         result = enforce_feature_order(result)
 
-        forecast_start, _ = generate_forecast_datetime_range(result)
-        return result[:forecast_start].iloc[:-1]
+        result = result[result.iloc[:, 0].notna()]
+        return result
 
     def prepare_forecast_data(
         self, data: pd.DataFrame
