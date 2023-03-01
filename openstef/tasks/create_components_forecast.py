@@ -26,6 +26,7 @@ from pathlib import Path
 
 import pytz
 import structlog
+import pandas as pd
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.enums import MLModelType
@@ -92,6 +93,11 @@ def create_components_forecast_task(
 
     # Make forecast for the demand, wind and pv components
     forecasts = create_components_forecast_pipeline(pj, input_data, weather_data)
+
+    if not isinstance(forecasts.index, pd.core.indexes.datetimes.DatetimeIndex):
+        raise ValueError(
+            f"Index is not datetime. Received forecasts:{forecasts.head()}"
+        )
 
     if forecasts.index.max() < datetime.utcnow().replace(tzinfo=pytz.utc) + timedelta(
         hours=30
