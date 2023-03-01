@@ -112,7 +112,10 @@ class ARDataPreparation(AbstractDataPreparation):
         # Sort all features except for the (first) load and (last) horizon columns
         result = result[["load"] + [c for c in result.columns if c != "load"]]
         result = result.sort_index()
-        return enforce_feature_order(result)
+        result = enforce_feature_order(result)
+
+        forecast_start, _ = generate_forecast_datetime_range(result)
+        return result[:forecast_start].iloc[:-1]
 
     def prepare_forecast_data(
         self, data: pd.DataFrame
@@ -121,6 +124,7 @@ class ARDataPreparation(AbstractDataPreparation):
         self.check_model()
         # Prep forecast input by selecting only the forecast datetime interval (this is much smaller than the input range)
         # Also drop the load column
+        data = data[["load"] + self.model.feature_names]
         forecast_start, forecast_end = generate_forecast_datetime_range(data)
         forecast_input_data = data[forecast_start:forecast_end].drop(columns="load")
 
@@ -129,10 +133,11 @@ class ARDataPreparation(AbstractDataPreparation):
             historical_start = forecast_start - self.historical_depth * timedelta(
                 minutes=self.pj.resolution_minutes
             )
-        past_data = data[historical_start:forecast_start]
+        past_data = data[historical_start:forecast_start].iloc[:-1]
         self.model.update_historic(past_data["load"], past_data.drop(columns="load"))
         logger.info(
             "Watch-out side effect on the model performed in the feature builder to update the historical data."
         )
 
+        data[self.model.feature_importance_dataframe.index.tolist()] = 0
         return forecast_input_data, data

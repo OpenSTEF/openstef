@@ -148,7 +148,7 @@ class ARIMAOpenstfRegressor(OpenstfRegressor):
         test_size = pd.Timedelta(self.backtest_max_horizon, "minutes") // pd.Timedelta(
             freq
         )
-        n_splits = X.shape[0] // test_size
+        n_splits = (X.shape[0] // test_size) - 1
         tscv = TimeSeriesSplit(n_splits=n_splits, test_size=test_size)
         for apply_index, test_index in tscv.split(X):
             arima_results = self.results_.apply(
