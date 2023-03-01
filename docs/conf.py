@@ -54,6 +54,7 @@ exclude_patterns = []
 #
 html_theme = "pydata_sphinx_theme"
 html_logo = "openstef_logo_small.png"
+html_favicon = "openstef.ico"
 html_theme_options = {
     "logo": {
         "image_light": "openstef_logo_small.png",
