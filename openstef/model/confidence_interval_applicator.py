@@ -204,10 +204,12 @@ class ConfidenceIntervalApplicator:
                 columns added.
 
         """
+        # Only determine quantiles for datetimes in forecast
+        quantile_df = pd.DataFrame(index=self.forecast_input_data.index)
         for quantile in quantiles:
             quantile_key = f"quantile_P{quantile * 100:02.0f}"
-            forecast[quantile_key] = self.model.predict(
+            quantile_df[quantile_key] = self.model.predict(
                 self.forecast_input_data, quantile=quantile
             )
 
-        return forecast
+        return forecast.merge(quantile_df, left_index=True, right_index=True, how='left')

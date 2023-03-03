@@ -5,6 +5,7 @@
 from unittest import TestCase
 from unittest.mock import patch
 
+import numpy as np
 import pandas as pd
 
 from openstef.model.confidence_interval_applicator import ConfidenceIntervalApplicator
@@ -104,6 +105,23 @@ class TestConfidenceIntervalApplicator(TestCase):
 
         for expected_column in expected_new_columns:
             self.assertTrue(expected_column in pp_forecast.columns)
+            
+    def test_add_quantiles_to_forecast_length_mismatch(self):
+        pj = {"quantiles": self.quantiles}
+        pp_forecast = ConfidenceIntervalApplicator(
+            MockModel(), self.stdev_forecast.iloc[:-1,:] # do not use last value
+        )._add_quantiles_to_forecast_quantile_regression(
+            self.stdev_forecast, pj["quantiles"]
+        )
+
+        expected_new_columns = [
+            f"quantile_P{int(q * 100):02d}" for q in pj["quantiles"]
+        ]
+
+        for expected_column in expected_new_columns:
+            self.assertTrue(expected_column in pp_forecast.columns)
+            # Assert last quantile value is missing
+            self.assertTrue(np.isnan(pp_forecast[expected_column].iloc[-1]))
 
     def test_add_quantiles_to_forecast_default(self):
         pj = {"quantiles": self.quantiles}
