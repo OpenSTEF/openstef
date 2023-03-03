@@ -105,11 +105,11 @@ class TestConfidenceIntervalApplicator(TestCase):
 
         for expected_column in expected_new_columns:
             self.assertTrue(expected_column in pp_forecast.columns)
-            
+
     def test_add_quantiles_to_forecast_length_mismatch(self):
         pj = {"quantiles": self.quantiles}
         pp_forecast = ConfidenceIntervalApplicator(
-            MockModel(), self.stdev_forecast.iloc[:-1,:] # do not use last value
+            MockModel(), self.stdev_forecast.iloc[:-1, :]  # do not use last value
         )._add_quantiles_to_forecast_quantile_regression(
             self.stdev_forecast, pj["quantiles"]
         )

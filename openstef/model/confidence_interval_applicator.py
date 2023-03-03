@@ -212,4 +212,6 @@ class ConfidenceIntervalApplicator:
                 self.forecast_input_data, quantile=quantile
             )
 
-        return forecast.merge(quantile_df, left_index=True, right_index=True, how='left')
+        return forecast.merge(
+            quantile_df, left_index=True, right_index=True, how="left"
+        )
