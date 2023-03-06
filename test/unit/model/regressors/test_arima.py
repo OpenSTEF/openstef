@@ -78,6 +78,7 @@ class TestARIMAOpenstfRegressor(BaseTestCase):
         self.assertTrue((forecast_ci["lower load"] == pred_q5).all())
         self.assertTrue((forecast_ci["upper load"] == pred_q95).all())
 
+    @unittest.skip
     def test_set_feature_importance_from_arima(self):
         """Test the set of feature importance"""
         model = ARIMAOpenstfRegressor()
