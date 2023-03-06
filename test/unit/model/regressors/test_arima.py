@@ -79,7 +79,7 @@ class TestARIMAOpenstfRegressor(BaseTestCase):
         self.assertTrue((forecast_ci["lower load"] == pred_q5).all())
         self.assertTrue((forecast_ci["upper load"] == pred_q95).all())
 
-    @unittest.skip
+    @unittest.skip  # Skip because not working in the CI/CD, not sure why ...
     def test_set_feature_importance_from_arima(self):
         """Test the set of feature importance"""
         model = ARIMAOpenstfRegressor()
@@ -92,3 +92,14 @@ class TestARIMAOpenstfRegressor(BaseTestCase):
         # check the retrieval of feature importance
         self.assertTrue(np.allclose(params, importances["weight"]))
         self.assertTrue(np.allclose(pvalues, importances["gain"]))
+
+    def test_score_backtest(self):
+
+        model = ARIMAOpenstfRegressor(backtest_max_horizon=180)
+        model.fit(self.train_input.iloc[:150, 1:], self.train_input.iloc[:150, 0])
+
+        score_r2 = model.score(
+            self.train_input.iloc[:150, 1:], self.train_input.iloc[:150, 0]
+        )
+        self.assertTrue(score_r2 <= 1.0)
+        self.assertTrue(score_r2 >= 0.5)

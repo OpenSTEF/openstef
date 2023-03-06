@@ -133,7 +133,7 @@ class ARIMAOpenstfRegressor(OpenstfRegressor):
         """Indicates wether this model can make quantile predictions."""
         return True
 
-    def score(self, X, y):
+    def score(self, x, y):
         """Compute R2 score for backtest prediction.
 
         It need to update the historic with (X_past, y_past).
@@ -142,22 +142,22 @@ class ARIMAOpenstfRegressor(OpenstfRegressor):
         ys_true = []
         ys_pred = []
 
-        freq = pd.infer_freq(X.index)
+        freq = pd.infer_freq(x.index)
         if not (freq[0].isdigit()):
             freq = f"1{freq}"
         test_size = pd.Timedelta(self.backtest_max_horizon, "minutes") // pd.Timedelta(
             freq
         )
-        n_splits = (X.shape[0] // test_size) - 1
+        n_splits = (x.shape[0] // test_size) - 1
         tscv = TimeSeriesSplit(n_splits=n_splits, test_size=test_size)
-        for apply_index, test_index in tscv.split(X):
+        for apply_index, test_index in tscv.split(x):
             arima_results = self.results_.apply(
-                y.iloc[apply_index], X.iloc[apply_index]
+                y.iloc[apply_index], x.iloc[apply_index]
             )
-            X_ts = X.iloc[test_index]
-            start_ts = X_ts.iloc[0].name
-            end_ts = X_ts.iloc[-1].name
+            x_ts = x.iloc[test_index]
+            start_ts = x_ts.iloc[0].name
+            end_ts = x_ts.iloc[-1].name
             ys_true.append(y.iloc[test_index])
-            ys_pred.append(arima_results.predict(start=start_ts, end=end_ts, exog=X_ts))
+            ys_pred.append(arima_results.predict(start=start_ts, end=end_ts, exog=x_ts))
 
         return r2_score(np.concatenate(ys_true), np.concatenate(ys_pred))
