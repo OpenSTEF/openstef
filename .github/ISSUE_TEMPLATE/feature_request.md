@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com>
+
+SPDX-License-Identifier: MPL-2.0
+-->
+
 ---
 name: Feature request
 about: Suggest an idea for this project
