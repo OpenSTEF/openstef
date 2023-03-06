@@ -124,6 +124,9 @@ def optimize_hyperparameters_pipeline_core(
         - Optimized hyperparameters.
 
     """
+    if pj.train_horizons_minutes is not None:
+        horizons = pj.train_horizons_minutes
+
     if input_data.empty:
         raise InputDataInsufficientError("Input dataframe is empty")
     elif "load" not in input_data.columns:
