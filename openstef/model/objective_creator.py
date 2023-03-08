@@ -46,7 +46,7 @@ class ObjectiveCreator:
             # This will raise a ValueError when an invalid model_type str is used
             # and nothing when a MLModelType enum is used.
             if is_custom_type(model_type):
-                objective = create_custom_objective
+                objective = create_custom_objective(model_type)
             else:
                 model_type = MLModelType(model_type)
                 objective = ObjectiveCreator.OBJECTIVES[model_type]
