@@ -416,9 +416,9 @@
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef.model.regressors.custom_regressor.</span></span><span class="sig-name descname"><span class="pre">CustomOpenstfRegressor</span></span><a class="headerlink" href="#openstef.model.regressors.custom_regressor.CustomOpenstfRegressor" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#openstef.model.regressors.regressor.OpenstfRegressor" title="openstef.model.regressors.regressor.OpenstfRegressor"><code class="xref py py-class docutils literal notranslate"><span class="pre">OpenstfRegressor</span></code></a></p>
 <p>A custom regressor allows to load any custom model that is not included with openSTEF.</p>
-<dl class="py property">
+<dl class="py method">
 <dt class="sig sig-object py" id="openstef.model.regressors.custom_regressor.CustomOpenstfRegressor.objective">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">objective</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="openstef.model.html#openstef.model.objective.RegressorObjective" title="openstef.model.objective.RegressorObjective"><span class="pre">RegressorObjective</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#openstef.model.regressors.custom_regressor.CustomOpenstfRegressor.objective" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">objective</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.regressors.custom_regressor.CustomOpenstfRegressor.objective" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Type</span></code>[<a class="reference internal" href="openstef.model.html#openstef.model.objective.RegressorObjective" title="openstef.model.objective.RegressorObjective"><code class="xref py py-class docutils literal notranslate"><span class="pre">RegressorObjective</span></code></a>]</p>
@@ -440,7 +440,7 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openstef.model.regressors.custom_regressor.create_custom_objective">
-<span class="sig-prename descclassname"><span class="pre">openstef.model.regressors.custom_regressor.</span></span><span class="sig-name descname"><span class="pre">create_custom_objective</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_fraction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validation_fraction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eval_metric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mae'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.regressors.custom_regressor.create_custom_objective" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">openstef.model.regressors.custom_regressor.</span></span><span class="sig-name descname"><span class="pre">create_custom_objective</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">custom_model_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.regressors.custom_regressor.create_custom_objective" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -928,7 +928,7 @@ and that this is a quantile-model specific keyword</p></li>
       <a class="reference internal nav-link" href="#openstef.model.regressors.custom_regressor.CustomOpenstfRegressor.objective">
        <code class="docutils literal notranslate">
         <span class="pre">
-         CustomOpenstfRegressor.objective
+         CustomOpenstfRegressor.objective()
         </span>
        </code>
       </a>
