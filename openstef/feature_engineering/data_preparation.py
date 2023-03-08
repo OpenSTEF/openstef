@@ -134,7 +134,9 @@ class ARDataPreparation(AbstractDataPreparation):
                 minutes=self.pj.resolution_minutes
             )
         past_data = data[historical_start:forecast_start].iloc[:-1]
-        self.model.update_historic(past_data["load"], past_data.drop(columns="load"))
+        self.model.update_historic_data(
+            past_data.drop(columns="load"), past_data["load"]
+        )
         logger.info(
             "Watch-out side effect on the model performed in the feature builder to update the historical data."
         )

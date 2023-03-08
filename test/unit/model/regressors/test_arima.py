@@ -28,12 +28,12 @@ class TestARIMAOpenstfRegressor(BaseTestCase):
         # check if model is sklearn compatible
         self.assertTrue(isinstance(model, sklearn.base.BaseEstimator))
 
-    def test_update_historic(self):
+    def test_update_historic_data(self):
         """Test happy flow of the update of historic data"""
         model = ARIMAOpenstfRegressor()
         model.fit(self.train_input.iloc[:150, 1:], self.train_input.iloc[:150, 0])
-        model.update_historic(
-            self.train_input.iloc[150:155, 0], self.train_input.iloc[150:155, 1:]
+        model.update_historic_data(
+            self.train_input.iloc[150:155, 1:], self.train_input.iloc[150:155, 0]
         )
 
         # check if the model was fitted (raises NotFittedError when not fitted)
