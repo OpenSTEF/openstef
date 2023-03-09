@@ -291,7 +291,7 @@ def backtest_split_default(
         for ifold in range(n_folds):
             test_data = data[data["random_fold"] == ifold].sort_index()
 
-            (train_data, validation_data, _,) = split_data_train_validation_test(
+            (train_data, validation_data, _, _) = split_data_train_validation_test(
                 data[data["random_fold"] != ifold].iloc[:, :-2],
                 test_fraction=0,
                 back_test=True,

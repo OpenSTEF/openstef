@@ -23,7 +23,7 @@ SPLIT_PARAMS = {
 
 
 def dummy_split(data, test_fraction):
-    return data.iloc[:100], data.iloc[100:110], data.iloc[110:120]
+    return data.iloc[:100], data.iloc[100:110], data.iloc[110:120], data
 
 
 def sk_split(data, test_fraction, gap):
@@ -31,7 +31,12 @@ def sk_split(data, test_fraction, gap):
         n_splits=2, test_size=int(np.round(test_fraction * len(data))), gap=gap
     )
     splits = list(tscv.split(data))
-    return data.iloc[splits[0][0]], data.iloc[splits[0][1]], data.iloc[splits[1][1]]
+    return (
+        data.iloc[splits[0][0]],
+        data.iloc[splits[0][1]],
+        data.iloc[splits[1][1]],
+        data,
+    )
 
 
 class TestTrain(BaseTestCase):
@@ -57,7 +62,12 @@ class TestTrain(BaseTestCase):
 
         """
 
-        (train_set, valid_set, test_set,) = split_data_train_validation_test(
+        (
+            train_set,
+            valid_set,
+            test_set,
+            operational_score_data,
+        ) = split_data_train_validation_test(
             self.data_table,
             test_fraction=SPLIT_PARAMS["test_fraction"],
             validation_fraction=SPLIT_PARAMS["validation_fraction"],
@@ -74,7 +84,7 @@ class TestTrain(BaseTestCase):
         )
 
         self.assertEqual(
-            len(test_set),
+            len(operational_score_data),
             len(self.data_table.index),
         )
 
@@ -88,7 +98,12 @@ class TestTrain(BaseTestCase):
 
         """
 
-        (train_set, valid_set, test_set,) = split_data_train_validation_test(
+        (
+            train_set,
+            valid_set,
+            test_set,
+            operational_score_data,
+        ) = split_data_train_validation_test(
             self.data_table,
             test_fraction=SPLIT_PARAMS["test_fraction"],
             validation_fraction=SPLIT_PARAMS["validation_fraction"],
@@ -123,7 +138,12 @@ class TestTrain(BaseTestCase):
 
         train_fraction = 1 - SPLIT_PARAMS["validation_fraction"]
 
-        (train_set, valid_set, test_set,) = split_data_train_validation_test(
+        (
+            train_set,
+            valid_set,
+            test_set,
+            operational_score_data,
+        ) = split_data_train_validation_test(
             self.data_table,
             test_fraction=SPLIT_PARAMS["test_fraction"],
             validation_fraction=SPLIT_PARAMS["validation_fraction"],
@@ -134,7 +154,7 @@ class TestTrain(BaseTestCase):
         # delta = 4, when looking at the test data, can differ 1 hr (4x15min)
 
         self.assertEqual(
-            len(test_set),
+            len(operational_score_data),
             len(self.data_table.index),
         )
         self.assertAlmostEqual(
@@ -162,7 +182,12 @@ class TestTrain(BaseTestCase):
             SPLIT_PARAMS["test_fraction"] + SPLIT_PARAMS["validation_fraction"]
         )
 
-        (train_set, valid_set, test_set,) = split_data_train_validation_test(
+        (
+            train_set,
+            valid_set,
+            test_set,
+            operational_score_data,
+        ) = split_data_train_validation_test(
             self.data_table,
             test_fraction=SPLIT_PARAMS["test_fraction"],
             validation_fraction=SPLIT_PARAMS["validation_fraction"],
@@ -189,14 +214,19 @@ class TestTrain(BaseTestCase):
         )
 
     def test_train_pipeline_step_split_data(self):
-        train_set, valid_set, test_set = train_pipeline_step_split_data(
+        (
+            train_set,
+            valid_set,
+            test_set,
+            operational_score_data,
+        ) = train_pipeline_step_split_data(
             self.data_table,
             self.pj,
             test_fraction=SPLIT_PARAMS["test_fraction"],
         )
 
         self.assertEqual(
-            len(test_set),
+            len(operational_score_data),
             len(self.data_table.index),
         )
         self.assertAlmostEqual(
@@ -207,7 +237,12 @@ class TestTrain(BaseTestCase):
 
     def test_train_pipeline_step_split_data_test_data_predefined(self):
         test_data_predefined = self.data_table.tail(15)
-        train_data, validation_data, test_data = train_pipeline_step_split_data(
+        (
+            train_data,
+            validation_data,
+            test_data,
+            operational_score_data,
+        ) = train_pipeline_step_split_data(
             self.data_table,
             self.pj,
             test_fraction=0,
@@ -222,7 +257,12 @@ class TestTrain(BaseTestCase):
         # Test wrong custom split
         pj.train_split_func = SplitFuncDataClass(function="unkown_split", arguments={})
         with self.assertRaises(ValueError):
-            train_data, validation_data, test_data = train_pipeline_step_split_data(
+            (
+                train_data,
+                validation_data,
+                test_data,
+                operational_score_data,
+            ) = train_pipeline_step_split_data(
                 self.data_table,
                 pj,
                 test_fraction=0,
@@ -232,7 +272,12 @@ class TestTrain(BaseTestCase):
             function=lambda data: dummy_split(data, 0), arguments={}
         )
         with self.assertRaises(ValueError):
-            train_data, validation_data, test_data = train_pipeline_step_split_data(
+            (
+                train_data,
+                validation_data,
+                test_data,
+                operational_score_data,
+            ) = train_pipeline_step_split_data(
                 self.data_table,
                 pj,
                 test_fraction=0,
@@ -240,7 +285,12 @@ class TestTrain(BaseTestCase):
 
         # Test dummy custom split
         pj.train_split_func = SplitFuncDataClass(function=dummy_split, arguments={})
-        train_data, validation_data, test_data = train_pipeline_step_split_data(
+        (
+            train_data,
+            validation_data,
+            test_data,
+            operational_score_data,
+        ) = train_pipeline_step_split_data(
             self.data_table,
             pj,
             test_fraction=0,
@@ -253,7 +303,12 @@ class TestTrain(BaseTestCase):
         pj.train_split_func = SplitFuncDataClass(
             function="test.unit.pipeline.test_train.dummy_split", arguments="{}"
         )
-        train_data, validation_data, test_data = train_pipeline_step_split_data(
+        (
+            train_data,
+            validation_data,
+            test_data,
+            operational_score_data,
+        ) = train_pipeline_step_split_data(
             self.data_table,
             pj,
             test_fraction=0,
@@ -266,7 +321,12 @@ class TestTrain(BaseTestCase):
         pj.train_split_func = SplitFuncDataClass(
             function=sk_split, arguments={"gap": 10}
         )
-        train_data, validation_data, test_data = train_pipeline_step_split_data(
+        (
+            train_data,
+            validation_data,
+            test_data,
+            operational_score_data,
+        ) = train_pipeline_step_split_data(
             self.data_table,
             pj,
             test_fraction=SPLIT_PARAMS["test_fraction"],

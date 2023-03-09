@@ -58,6 +58,7 @@ class TestComponent(unittest.TestCase):
             train_data,
             validation_data,
             test_data,
+            operational_score_data,
         ) = train_pipeline_common(
             self.pj, self.model_specs, self.input_data, [0.25, 47.0]
         )
