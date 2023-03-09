@@ -4,6 +4,14 @@ openstef.model.regressors package
 Submodules
 ----------
 
+openstef.model.regressors.arima module
+--------------------------------------
+
+.. automodule:: openstef.model.regressors.arima
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 openstef.model.regressors.custom\_regressor module
 --------------------------------------------------
 

@@ -408,6 +408,152 @@
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">#</a></h2>
 </section>
+<section id="module-openstef.model.regressors.arima">
+<span id="openstef-model-regressors-arima-module"></span><h2>openstef.model.regressors.arima module<a class="headerlink" href="#module-openstef.model.regressors.arima" title="Permalink to this heading">#</a></h2>
+<p>This module contains the SARIMAX regressor wrapper around statsmodels implementation.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="openstef.model.regressors.arima.ARIMAOpenstfRegressor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef.model.regressors.arima.</span></span><span class="sig-name descname"><span class="pre">ARIMAOpenstfRegressor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">backtest_max_horizon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1440</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,</span> <span class="pre">0,</span> <span class="pre">0)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seasonal_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,</span> <span class="pre">0,</span> <span class="pre">0,</span> <span class="pre">0)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.regressors.arima.ARIMAOpenstfRegressor" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#openstef.model.regressors.regressor.OpenstfRegressor" title="openstef.model.regressors.regressor.OpenstfRegressor"><code class="xref py py-class docutils literal notranslate"><span class="pre">OpenstfRegressor</span></code></a></p>
+<p>Wrapper around statmodels implementation of (S)ARIMA(X) model.</p>
+<p>The fit of an ARIMA statsmodels produces a result object which is used to perform the various computations around forecasting.
+(see <a class="reference external" href="https://www.statsmodels.org/dev/generated/statsmodels.tsa.arima.model.ARIMAResults.html">https://www.statsmodels.org/dev/generated/statsmodels.tsa.arima.model.ARIMAResults.html</a>)</p>
+<p>To make a prediction, it needs to update the result object’s historic data,
+ie the past values of the target/endogenous data and the features/exogenous data,
+applying the fitted parameters to these new data unrelated to the original training data.
+This update can be performed by the method <cite>update_historic_data</cite>.</p>
+<dl class="simple">
+<dt>In the following code, we use interchangeably the statmodels and scikit-learn terminology for the variables:</dt><dd><ul class="simple">
+<li><p>the features ‘x’ is equivalent to the exogenous data: ‘exog’ for short.</p></li>
+<li><p>the target ‘y’ is equivalent to the endogenous data: ‘endog’ for short.</p></li>
+</ul>
+</dd>
+</dl>
+<p>More information here <a class="reference external" href="https://www.statsmodels.org/stable/endog_exog.html">https://www.statsmodels.org/stable/endog_exog.html</a>.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="openstef.model.regressors.arima.ARIMAOpenstfRegressor.can_predict_quantiles">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">can_predict_quantiles</span></span><a class="headerlink" href="#openstef.model.regressors.arima.ARIMAOpenstfRegressor.can_predict_quantiles" title="Permalink to this definition">#</a></dt>
+<dd><p>Indicates wether this model can make quantile predictions.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="openstef.model.regressors.arima.ARIMAOpenstfRegressor.feature_names">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">feature_names</span></span><a class="headerlink" href="#openstef.model.regressors.arima.ARIMAOpenstfRegressor.feature_names" title="Permalink to this definition">#</a></dt>
+<dd><p>The names of he features used to train the model.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef.model.regressors.arima.ARIMAOpenstfRegressor.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.regressors.arima.ARIMAOpenstfRegressor.fit" title="Permalink to this definition">#</a></dt>
+<dd><p>Fits the regressor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> – Feature matrix</p></li>
+<li><p><strong>y</strong> – Labels</p></li>
+<li><p><strong>kwargs</strong> – model-specific keywords</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Fitted model</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef.model.regressors.arima.ARIMAOpenstfRegressor.predict">
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.regressors.arima.ARIMAOpenstfRegressor.predict" title="Permalink to this definition">#</a></dt>
+<dd><p>Makes a prediction. Only available after the model has been trained.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> – Feature matrix</p></li>
+<li><p><strong>kwargs</strong> – model-specific keywords</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Prediction</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef.model.regressors.arima.ARIMAOpenstfRegressor.predict_quantile">
+<span class="sig-name descname"><span class="pre">predict_quantile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exog</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantile</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.regressors.arima.ARIMAOpenstfRegressor.predict_quantile" title="Permalink to this definition">#</a></dt>
+<dd><p>Quantile prediction.</p>
+<p>It relies on the parameters’ confidence intervals.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>start</strong> (<em>int</em><em>, </em><em>str</em><em>, or </em><em>datetime</em><em>, </em><em>optional</em>) – Zero-indexed observation number at which to start forecasting, i.e.,
+the first forecast is start. Can also be a date string to parse or a datetime type.
+Default is the the zeroth observation.</p></li>
+<li><p><strong>end</strong> (<em>int</em><em>, </em><em>str</em><em>, or </em><em>datetime</em><em>, </em><em>optional</em>) – Zero-indexed observation number at which to end forecasting, i.e.,
+the last forecast is end. Can also be a date string to parse or a datetime type.
+However, if the dates index does not have a fixed frequency,
+end must be an integer index if you want out of sample prediction.
+Default is the last observation in the sample.</p></li>
+<li><p><strong>exog</strong> (<em>pd.DataFrame</em>) – Exogenous data (features).</p></li>
+<li><p><strong>quantile</strong> (<em>float</em>) – The quantile for the confidence interval.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The quantile prediction.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.Serie</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef.model.regressors.arima.ARIMAOpenstfRegressor.score">
+<span class="sig-name descname"><span class="pre">score</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.regressors.arima.ARIMAOpenstfRegressor.score" title="Permalink to this definition">#</a></dt>
+<dd><p>Compute R2 score with backtesting strategy.</p>
+<p>The backtest  is performed by the Time Series cross-validator of scikit-learn which
+returns first k folds as train set and the (k+1)th fold as test set in the kth split.
+(see <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.TimeSeriesSplit.html">https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.TimeSeriesSplit.html</a>)</p>
+<p>It needs to update the historic data with (x_past, y_past) for each split.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef.model.regressors.arima.ARIMAOpenstfRegressor.set_feature_importance">
+<span class="sig-name descname"><span class="pre">set_feature_importance</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.regressors.arima.ARIMAOpenstfRegressor.set_feature_importance" title="Permalink to this definition">#</a></dt>
+<dd><p>Because report needs ‘weight’ and ‘gain’ as importance metrics, we set the values to these names.</p>
+<ul class="simple">
+<li><p>‘weight’ is corresponding to the coefficients values</p></li>
+<li><p>‘gain’ is corresponding to the pvalue for the nullity test of each coefficient</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef.model.regressors.arima.ARIMAOpenstfRegressor.update_historic_data">
+<span class="sig-name descname"><span class="pre">update_historic_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_past</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_past</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.regressors.arima.ARIMAOpenstfRegressor.update_historic_data" title="Permalink to this definition">#</a></dt>
+<dd><p>Apply the fitted parameters to new data unrelated to the original training data. It’s a side-effect.</p>
+<p>Creates a new result object using the current fitted parameters,
+applied to a completely new dataset that is assumed to be unrelated to the model’s original data.
+The new results can then be used for analysis or forecasting.
+It should be used before forecasting, to wedge the historic data just before the first forecast timestamp,
+with:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>New observations from the modeled time-series process.</p></li>
+<li><p>New observations of exogenous regressors.</p></li>
+</ul>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x_past</strong> (<em>pd.DataFrame</em>) – The exogenous (features) data.</p></li>
+<li><p><strong>y_past</strong> (<em>pd.DataFrame</em>) – The endogenous (target) data.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
 <section id="module-openstef.model.regressors.custom_regressor">
 <span id="openstef-model-regressors-custom-regressor-module"></span><h2>openstef.model.regressors.custom_regressor module<a class="headerlink" href="#module-openstef.model.regressors.custom_regressor" title="Permalink to this heading">#</a></h2>
 <p>This module defines the custom regressor.</p>
@@ -909,6 +1055,96 @@ and that this is a quantile-model specific keyword</p></li>
   <a class="reference internal nav-link" href="#submodules">
    Submodules
   </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-openstef.model.regressors.arima">
+   openstef.model.regressors.arima module
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#openstef.model.regressors.arima.ARIMAOpenstfRegressor">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       ARIMAOpenstfRegressor
+      </span>
+     </code>
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.model.regressors.arima.ARIMAOpenstfRegressor.can_predict_quantiles">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         ARIMAOpenstfRegressor.can_predict_quantiles
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.model.regressors.arima.ARIMAOpenstfRegressor.feature_names">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         ARIMAOpenstfRegressor.feature_names
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.model.regressors.arima.ARIMAOpenstfRegressor.fit">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         ARIMAOpenstfRegressor.fit()
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.model.regressors.arima.ARIMAOpenstfRegressor.predict">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         ARIMAOpenstfRegressor.predict()
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.model.regressors.arima.ARIMAOpenstfRegressor.predict_quantile">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         ARIMAOpenstfRegressor.predict_quantile()
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.model.regressors.arima.ARIMAOpenstfRegressor.score">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         ARIMAOpenstfRegressor.score()
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.model.regressors.arima.ARIMAOpenstfRegressor.set_feature_importance">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         ARIMAOpenstfRegressor.set_feature_importance()
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.model.regressors.arima.ARIMAOpenstfRegressor.update_historic_data">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         ARIMAOpenstfRegressor.update_historic_data()
+        </span>
+       </code>
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#module-openstef.model.regressors.custom_regressor">

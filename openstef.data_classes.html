@@ -408,6 +408,50 @@
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">#</a></h2>
 </section>
+<section id="module-openstef.data_classes.data_prep">
+<span id="openstef-data-classes-data-prep-module"></span><h2>openstef.data_classes.data_prep module<a class="headerlink" href="#module-openstef.data_classes.data_prep" title="Permalink to this heading">#</a></h2>
+<p>Specifies the split function dataclass.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="openstef.data_classes.data_prep.DataPrepDataClass">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef.data_classes.data_prep.</span></span><span class="sig-name descname"><span class="pre">DataPrepDataClass</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.data_classes.data_prep.DataPrepDataClass" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
+<p>Class that allows to specify a custom class to prepare the data (feature engineering , etc …).</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.data_classes.data_prep.DataPrepDataClass.arguments">
+<span class="sig-name descname"><span class="pre">arguments</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#openstef.data_classes.data_prep.DataPrepDataClass.arguments" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.data_classes.data_prep.DataPrepDataClass.klass">
+<span class="sig-name descname"><span class="pre">klass</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">type</span><span class="p"><span class="pre">[</span></span><span class="pre">DataPrepClass</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#openstef.data_classes.data_prep.DataPrepDataClass.klass" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef.data_classes.data_prep.DataPrepDataClass.load">
+<span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">required_arguments</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.data_classes.data_prep.DataPrepDataClass.load" title="Permalink to this definition">#</a></dt>
+<dd><p>Load the function and its arguments.</p>
+<p>If the function and the arguments are given as strings in the instane attributes, load them as Python objects
+otherwise just return them from the instance attributes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>required_arguments</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – list of arguments the loaded class must have</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">type</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code>(<code class="docutils literal notranslate"><span class="pre">DataPrepClass</span></code>)], <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]]</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p>class (type[AbstractDataPreparation])</p></li>
+<li><p>arguments (dict[str, Any])</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
 <section id="module-openstef.data_classes.model_specifications">
 <span id="openstef-data-classes-model-specifications-module"></span><h2>openstef.data_classes.model_specifications module<a class="headerlink" href="#module-openstef.data_classes.model_specifications" title="Permalink to this heading">#</a></h2>
 <p>Specifies the dataclass for model specifications.</p>
@@ -480,6 +524,12 @@ use integer ids.</p>
 <dt class="sig sig-object py" id="openstef.data_classes.prediction_job.PredictionJobDataClass.completeness_treshold">
 <span class="sig-name descname"><span class="pre">completeness_treshold</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.completeness_treshold" title="Permalink to this definition">#</a></dt>
 <dd><p>Minimum fraction of data that should be available for making a regular forecast.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.data_classes.prediction_job.PredictionJobDataClass.data_prep_class">
+<span class="sig-name descname"><span class="pre">data_prep_class</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#openstef.data_classes.data_prep.DataPrepDataClass" title="openstef.data_classes.data_prep.DataPrepDataClass"><span class="pre">DataPrepDataClass</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.data_prep_class" title="Permalink to this definition">#</a></dt>
+<dd><p>The import string for the custom data prep class</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -747,6 +797,51 @@ otherwise just return them from the instance attributes.</p>
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-openstef.data_classes.data_prep">
+   openstef.data_classes.data_prep module
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#openstef.data_classes.data_prep.DataPrepDataClass">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       DataPrepDataClass
+      </span>
+     </code>
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.data_classes.data_prep.DataPrepDataClass.arguments">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         DataPrepDataClass.arguments
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.data_classes.data_prep.DataPrepDataClass.klass">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         DataPrepDataClass.klass
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.data_classes.data_prep.DataPrepDataClass.load">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         DataPrepDataClass.load()
+        </span>
+       </code>
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#module-openstef.data_classes.model_specifications">
    openstef.data_classes.model_specifications module
   </a>
@@ -857,6 +952,15 @@ otherwise just return them from the instance attributes.</p>
        <code class="docutils literal notranslate">
         <span class="pre">
          PredictionJobDataClass.completeness_treshold
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.data_prep_class">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         PredictionJobDataClass.data_prep_class
         </span>
        </code>
       </a>

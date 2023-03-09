@@ -12,6 +12,14 @@ openstef.feature\_engineering.apply\_features module
    :undoc-members:
    :show-inheritance:
 
+openstef.feature\_engineering.data\_preparation module
+------------------------------------------------------
+
+.. automodule:: openstef.feature_engineering.data_preparation
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 openstef.feature\_engineering.feature\_adder module
 ---------------------------------------------------
 

@@ -4,6 +4,14 @@ openstef.data\_classes package
 Submodules
 ----------
 
+openstef.data\_classes.data\_prep module
+----------------------------------------
+
+.. automodule:: openstef.data_classes.data_prep
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 openstef.data\_classes.model\_specifications module
 ---------------------------------------------------
 

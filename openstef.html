@@ -411,6 +411,15 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="openstef.data_classes.html">openstef.data_classes package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="openstef.data_classes.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.data_classes.html#module-openstef.data_classes.data_prep">openstef.data_classes.data_prep module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.data_prep.DataPrepDataClass"><code class="docutils literal notranslate"><span class="pre">DataPrepDataClass</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.data_prep.DataPrepDataClass.arguments"><code class="docutils literal notranslate"><span class="pre">DataPrepDataClass.arguments</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.data_prep.DataPrepDataClass.klass"><code class="docutils literal notranslate"><span class="pre">DataPrepDataClass.klass</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.data_prep.DataPrepDataClass.load"><code class="docutils literal notranslate"><span class="pre">DataPrepDataClass.load()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="openstef.data_classes.html#module-openstef.data_classes.model_specifications">openstef.data_classes.model_specifications module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.model_specifications.ModelSpecificationDataClass"><code class="docutils literal notranslate"><span class="pre">ModelSpecificationDataClass</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.model_specifications.ModelSpecificationDataClass.feature_modules"><code class="docutils literal notranslate"><span class="pre">ModelSpecificationDataClass.feature_modules</span></code></a></li>
@@ -427,6 +436,7 @@
 <li class="toctree-l4"><a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass.alternative_forecast_model_pid"><code class="docutils literal notranslate"><span class="pre">PredictionJobDataClass.alternative_forecast_model_pid</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass.backtest_split_func"><code class="docutils literal notranslate"><span class="pre">PredictionJobDataClass.backtest_split_func</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass.completeness_treshold"><code class="docutils literal notranslate"><span class="pre">PredictionJobDataClass.completeness_treshold</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass.data_prep_class"><code class="docutils literal notranslate"><span class="pre">PredictionJobDataClass.data_prep_class</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass.default_modelspecs"><code class="docutils literal notranslate"><span class="pre">PredictionJobDataClass.default_modelspecs</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass.depends_on"><code class="docutils literal notranslate"><span class="pre">PredictionJobDataClass.depends_on</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass.description"><code class="docutils literal notranslate"><span class="pre">PredictionJobDataClass.description</span></code></a></li>
@@ -471,6 +481,25 @@
 <li class="toctree-l2"><a class="reference internal" href="openstef.feature_engineering.html#submodules">Submodules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef.feature_engineering.html#module-openstef.feature_engineering.apply_features">openstef.feature_engineering.apply_features module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="openstef.feature_engineering.html#openstef.feature_engineering.apply_features.apply_features"><code class="docutils literal notranslate"><span class="pre">apply_features()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.feature_engineering.html#module-openstef.feature_engineering.data_preparation">openstef.feature_engineering.data_preparation module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="openstef.feature_engineering.html#openstef.feature_engineering.data_preparation.ARDataPreparation"><code class="docutils literal notranslate"><span class="pre">ARDataPreparation</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef.feature_engineering.html#openstef.feature_engineering.data_preparation.ARDataPreparation.prepare_forecast_data"><code class="docutils literal notranslate"><span class="pre">ARDataPreparation.prepare_forecast_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef.feature_engineering.html#openstef.feature_engineering.data_preparation.ARDataPreparation.prepare_train_data"><code class="docutils literal notranslate"><span class="pre">ARDataPreparation.prepare_train_data()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="openstef.feature_engineering.html#openstef.feature_engineering.data_preparation.AbstractDataPreparation"><code class="docutils literal notranslate"><span class="pre">AbstractDataPreparation</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef.feature_engineering.html#openstef.feature_engineering.data_preparation.AbstractDataPreparation.check_model"><code class="docutils literal notranslate"><span class="pre">AbstractDataPreparation.check_model()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef.feature_engineering.html#openstef.feature_engineering.data_preparation.AbstractDataPreparation.prepare_forecast_data"><code class="docutils literal notranslate"><span class="pre">AbstractDataPreparation.prepare_forecast_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef.feature_engineering.html#openstef.feature_engineering.data_preparation.AbstractDataPreparation.prepare_train_data"><code class="docutils literal notranslate"><span class="pre">AbstractDataPreparation.prepare_train_data()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="openstef.feature_engineering.html#openstef.feature_engineering.data_preparation.LegacyDataPreparation"><code class="docutils literal notranslate"><span class="pre">LegacyDataPreparation</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef.feature_engineering.html#openstef.feature_engineering.data_preparation.LegacyDataPreparation.prepare_forecast_data"><code class="docutils literal notranslate"><span class="pre">LegacyDataPreparation.prepare_forecast_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef.feature_engineering.html#openstef.feature_engineering.data_preparation.LegacyDataPreparation.prepare_train_data"><code class="docutils literal notranslate"><span class="pre">LegacyDataPreparation.prepare_train_data()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="openstef.feature_engineering.html#module-openstef.feature_engineering.feature_adder">openstef.feature_engineering.feature_adder module</a><ul>
@@ -602,6 +631,7 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="openstef.model.regressors.html">openstef.model.regressors package</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#module-openstef.model.regressors.arima">openstef.model.regressors.arima module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#module-openstef.model.regressors.custom_regressor">openstef.model.regressors.custom_regressor module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#module-openstef.model.regressors.dazls">openstef.model.regressors.dazls module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#module-openstef.model.regressors.lgbm">openstef.model.regressors.lgbm module</a></li>
@@ -646,6 +676,10 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="openstef.model.html#module-openstef.model.objective">openstef.model.objective module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="openstef.model.html#openstef.model.objective.ARIMARegressorObjective"><code class="docutils literal notranslate"><span class="pre">ARIMARegressorObjective</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef.model.html#openstef.model.objective.ARIMARegressorObjective.get_params"><code class="docutils literal notranslate"><span class="pre">ARIMARegressorObjective.get_params()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="openstef.model.html#openstef.model.objective.LGBRegressorObjective"><code class="docutils literal notranslate"><span class="pre">LGBRegressorObjective</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="openstef.model.html#openstef.model.objective.LGBRegressorObjective.get_params"><code class="docutils literal notranslate"><span class="pre">LGBRegressorObjective.get_params()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef.model.html#openstef.model.objective.LGBRegressorObjective.get_pruning_callback"><code class="docutils literal notranslate"><span class="pre">LGBRegressorObjective.get_pruning_callback()</span></code></a></li>
@@ -944,6 +978,11 @@
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
 <p>An enumeration.</p>
 <dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.MLModelType.ARIMA">
+<span class="sig-name descname"><span class="pre">ARIMA</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'arima'</span></em><a class="headerlink" href="#openstef.enums.MLModelType.ARIMA" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="openstef.enums.MLModelType.LGB">
 <span class="sig-name descname"><span class="pre">LGB</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'lgb'</span></em><a class="headerlink" href="#openstef.enums.MLModelType.LGB" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
@@ -1203,6 +1242,15 @@
      </code>
     </a>
     <ul class="nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.MLModelType.ARIMA">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         MLModelType.ARIMA
+        </span>
+       </code>
+      </a>
+     </li>
      <li class="toc-h4 nav-item toc-entry">
       <a class="reference internal nav-link" href="#openstef.enums.MLModelType.LGB">
        <code class="docutils literal notranslate">

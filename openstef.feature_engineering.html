@@ -467,6 +467,92 @@ columns=[label, predictor_1,…, predictor_n]</p>
 </dd></dl>
 
 </section>
+<section id="module-openstef.feature_engineering.data_preparation">
+<span id="openstef-feature-engineering-data-preparation-module"></span><h2>openstef.feature_engineering.data_preparation module<a class="headerlink" href="#module-openstef.feature_engineering.data_preparation" title="Permalink to this heading">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="openstef.feature_engineering.data_preparation.ARDataPreparation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef.feature_engineering.data_preparation.</span></span><span class="sig-name descname"><span class="pre">ARDataPreparation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_specs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">horizons</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">historical_depth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.data_preparation.ARDataPreparation" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#openstef.feature_engineering.data_preparation.AbstractDataPreparation" title="openstef.feature_engineering.data_preparation.AbstractDataPreparation"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractDataPreparation</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef.feature_engineering.data_preparation.ARDataPreparation.prepare_forecast_data">
+<span class="sig-name descname"><span class="pre">prepare_forecast_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.data_preparation.ARDataPreparation.prepare_forecast_data" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef.feature_engineering.data_preparation.ARDataPreparation.prepare_train_data">
+<span class="sig-name descname"><span class="pre">prepare_train_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.data_preparation.ARDataPreparation.prepare_train_data" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="openstef.feature_engineering.data_preparation.AbstractDataPreparation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef.feature_engineering.data_preparation.</span></span><span class="sig-name descname"><span class="pre">AbstractDataPreparation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_specs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">horizons</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.data_preparation.AbstractDataPreparation" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef.feature_engineering.data_preparation.AbstractDataPreparation.check_model">
+<span class="sig-name descname"><span class="pre">check_model</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.data_preparation.AbstractDataPreparation.check_model" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef.feature_engineering.data_preparation.AbstractDataPreparation.prepare_forecast_data">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">prepare_forecast_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.data_preparation.AbstractDataPreparation.prepare_forecast_data" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef.feature_engineering.data_preparation.AbstractDataPreparation.prepare_train_data">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">prepare_train_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.data_preparation.AbstractDataPreparation.prepare_train_data" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="openstef.feature_engineering.data_preparation.LegacyDataPreparation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef.feature_engineering.data_preparation.</span></span><span class="sig-name descname"><span class="pre">LegacyDataPreparation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_specs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">horizons</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.data_preparation.LegacyDataPreparation" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#openstef.feature_engineering.data_preparation.AbstractDataPreparation" title="openstef.feature_engineering.data_preparation.AbstractDataPreparation"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractDataPreparation</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef.feature_engineering.data_preparation.LegacyDataPreparation.prepare_forecast_data">
+<span class="sig-name descname"><span class="pre">prepare_forecast_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.data_preparation.LegacyDataPreparation.prepare_forecast_data" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef.feature_engineering.data_preparation.LegacyDataPreparation.prepare_train_data">
+<span class="sig-name descname"><span class="pre">prepare_train_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.data_preparation.LegacyDataPreparation.prepare_train_data" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
 <section id="module-openstef.feature_engineering.feature_adder">
 <span id="openstef-feature-engineering-feature-adder-module"></span><h2>openstef.feature_engineering.feature_adder module<a class="headerlink" href="#module-openstef.feature_engineering.feature_adder" title="Permalink to this heading">#</a></h2>
 <p>This module provides functionality for defining custom feature adders.</p>
@@ -1343,6 +1429,109 @@ if the input is numeric; a dict with the calculated moisture indices</p>
       </span>
      </code>
     </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-openstef.feature_engineering.data_preparation">
+   openstef.feature_engineering.data_preparation module
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#openstef.feature_engineering.data_preparation.ARDataPreparation">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       ARDataPreparation
+      </span>
+     </code>
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.feature_engineering.data_preparation.ARDataPreparation.prepare_forecast_data">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         ARDataPreparation.prepare_forecast_data()
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.feature_engineering.data_preparation.ARDataPreparation.prepare_train_data">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         ARDataPreparation.prepare_train_data()
+        </span>
+       </code>
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#openstef.feature_engineering.data_preparation.AbstractDataPreparation">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       AbstractDataPreparation
+      </span>
+     </code>
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.feature_engineering.data_preparation.AbstractDataPreparation.check_model">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         AbstractDataPreparation.check_model()
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.feature_engineering.data_preparation.AbstractDataPreparation.prepare_forecast_data">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         AbstractDataPreparation.prepare_forecast_data()
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.feature_engineering.data_preparation.AbstractDataPreparation.prepare_train_data">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         AbstractDataPreparation.prepare_train_data()
+        </span>
+       </code>
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#openstef.feature_engineering.data_preparation.LegacyDataPreparation">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       LegacyDataPreparation
+      </span>
+     </code>
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.feature_engineering.data_preparation.LegacyDataPreparation.prepare_forecast_data">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         LegacyDataPreparation.prepare_forecast_data()
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.feature_engineering.data_preparation.LegacyDataPreparation.prepare_train_data">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         LegacyDataPreparation.prepare_train_data()
+        </span>
+       </code>
+      </a>
+     </li>
+    </ul>
    </li>
   </ul>
  </li>
