@@ -189,7 +189,14 @@ def train_model_pipeline_core(
     logger = structlog.get_logger(__name__)
 
     # Call common pipeline
-    model, report, train_data, validation_data, test_data = train_pipeline_common(
+    (
+        model,
+        report,
+        train_data,
+        validation_data,
+        test_data,
+        operational_score_data,
+    ) = train_pipeline_common(
         pj,
         model_specs,
         input_data,
@@ -201,11 +208,11 @@ def train_model_pipeline_core(
     if old_model:
         # skip the forecast column added at the end of dataframes
         if pj.save_train_forecasts:
-            test_data = test_data.iloc[:, :-1]
+            operational_score_data = operational_score_data.iloc[:, :-1]
 
         x_data, y_data = (
-            test_data.iloc[:, 1:-1],
-            test_data.iloc[:, 0],
+            operational_score_data.iloc[:, 1:-1],
+            operational_score_data.iloc[:, 0],
         )
 
         # Score method always returns R^2
@@ -272,7 +279,12 @@ def train_pipeline_common(
         horizons=horizons,
     )
 
-    train_data, validation_data, test_data = train_pipeline_step_split_data(
+    (
+        train_data,
+        validation_data,
+        test_data,
+        operational_score_data,
+    ) = train_pipeline_step_split_data(
         data_with_features=data_with_features,
         pj=pj,
         test_fraction=test_fraction,
@@ -296,7 +308,7 @@ def train_pipeline_common(
         validation_data["forecast"] = model.predict(validation_data.iloc[:, 1:-1])
         test_data["forecast"] = model.predict(test_data.iloc[:, 1:-1])
 
-    return model, report, train_data, validation_data, test_data
+    return model, report, train_data, validation_data, test_data, operational_score_data
 
 
 def train_pipeline_step_compute_features(
@@ -485,7 +497,7 @@ def train_pipeline_step_split_data(
             required_arguments=["data", "test_fraction"]
         )
 
-    train_data, validation_data, test_data = split_func(
+    train_data, validation_data, test_data, operational_score_data = split_func(
         data_with_features, test_fraction, **split_args
     )
 
@@ -493,4 +505,4 @@ def train_pipeline_step_split_data(
     if not test_data_predefined.empty:
         test_data = test_data_predefined
 
-    return train_data, validation_data, test_data
+    return train_data, validation_data, test_data, operational_score_data
