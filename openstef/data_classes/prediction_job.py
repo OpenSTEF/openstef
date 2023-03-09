@@ -8,6 +8,7 @@ from pydantic import BaseModel
 
 from openstef.data_classes.model_specifications import ModelSpecificationDataClass
 from openstef.data_classes.split_function import SplitFuncDataClass
+from openstef.data_classes.data_prep import DataPrepDataClass
 from openstef.enums import PipelineType
 
 
@@ -90,6 +91,8 @@ class PredictionJobDataClass(BaseModel):
     """The pipelines to run for this pj"""
     alternative_forecast_model_pid: Optional[Union[int, str]]
     """The pid that references another prediction job from which the model should be used for making forecasts."""
+    data_prep_class: Optional[DataPrepDataClass]
+    """The import string for the custom data prep class"""
 
     class Config:
         """Pydantic model configuration.

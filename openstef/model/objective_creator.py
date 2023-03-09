@@ -12,6 +12,7 @@ from openstef.model.objective import (
     RegressorObjective,
     XGBQuantileRegressorObjective,
     XGBRegressorObjective,
+    ARIMARegressorObjective,
 )
 from openstef.model.regressors.custom_regressor import (
     create_custom_objective,
@@ -26,6 +27,7 @@ class ObjectiveCreator:
         MLModelType.XGB_QUANTILE: XGBQuantileRegressorObjective,
         MLModelType.ProLoaf: ProLoafRegressorObjective,
         MLModelType.LINEAR: LinearRegressorObjective,
+        MLModelType.ARIMA: ARIMARegressorObjective,
     }
 
     @staticmethod

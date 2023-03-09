@@ -22,7 +22,12 @@ class TestModelCreator(TestCase):
             model = ModelCreator.create_model(model_type)
             self.assertIsInstance(model, OpenstfRegressor)
             self.assertTrue(hasattr(model, "can_predict_quantiles"))
-            if model_type in ["xgb_quantile", MLModelType("xgb_quantile")]:
+            if model_type in [
+                "xgb_quantile",
+                MLModelType("xgb_quantile"),
+                "arima",
+                MLModelType("arima"),
+            ]:
                 self.assertTrue(model.can_predict_quantiles)
             else:
                 self.assertFalse(model.can_predict_quantiles)
