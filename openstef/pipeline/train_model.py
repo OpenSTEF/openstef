@@ -206,10 +206,6 @@ def train_model_pipeline_core(
 
     # Check if new model is better than old model
     if old_model:
-        # skip the forecast column added at the end of dataframes
-        if pj.save_train_forecasts:
-            operational_score_data = operational_score_data.iloc[:, :-1]
-
         x_data, y_data = (
             operational_score_data.iloc[:, 1:-1],
             operational_score_data.iloc[:, 0],
