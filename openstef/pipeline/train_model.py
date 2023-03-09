@@ -421,6 +421,11 @@ def train_pipeline_step_train_model(
         valid_hyper_parameters.update(
             dict(early_stopping_rounds=DEFAULT_EARLY_STOPPING_ROUNDS)
         )
+        
+    # Temporary fix to allow xgboost version upgrade -> set n_estimators if present and None
+    if not valid_hyper_parameters.get("n_estimators", True):
+        valid_hyper_parameters.update(dict(n_estimators=100))
+        logging.info('Deprecation warning: n_estimators=None found, overwriting.')
 
     model.set_params(**valid_hyper_parameters)
     model.fit(
