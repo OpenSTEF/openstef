@@ -63,6 +63,7 @@ class TestTrainBackTestPipeline(BaseTestCase):
             train_data,
             validation_data,
             test_data,
+            operational_score_data,
         ) = train_model_and_forecast_back_test(
             pj=self.pj,
             modelspecs=self.modelspecs,
@@ -101,6 +102,7 @@ class TestTrainBackTestPipeline(BaseTestCase):
                 train_data,
                 validation_data,
                 test_data,
+                operational_score_data,
             ) = train_model_and_forecast_back_test(
                 pj=self.pj,
                 modelspecs=self.modelspecs,
