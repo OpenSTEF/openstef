@@ -99,11 +99,11 @@ def create_components_forecast_task(
         raise ValueError(
             f"Index is not datetime. Received forecasts:{forecasts.head()}"
         )
-        
+
     # save forecast to database #######################################################
     context.database.write_forecast(forecasts)
     logger.debug("Written forecast to database")
-    
+
     # Check if forecast was complete enough, otherwise raise exception
     if forecasts.index.max() < datetime.utcnow().replace(tzinfo=pytz.utc) + timedelta(
         hours=30
