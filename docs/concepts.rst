@@ -74,3 +74,7 @@ It requires:
 |
 
 .. include:: sql_database_diagram.rst
+
+|
+
+.. include:: influx_database_diagram.rst
