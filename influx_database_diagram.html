@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>Welcome to the documentation of OpenSTEF! &#8212; OpenSTEF  documentation</title>
+    <title>Overview of timeseries database schema &#8212; OpenSTEF  documentation</title>
   
   
   
@@ -35,11 +35,10 @@
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/doctools.js"></script>
     <script src="_static/sphinx_highlight.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'index';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'influx_database_diagram';</script>
     <link rel="icon" href="_static/openstef.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="User guides" href="user_guides.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="docsearch:language" content="en">
   </head>
@@ -83,7 +82,7 @@
   
 
 
-<a class="navbar-brand logo" href="#">
+<a class="navbar-brand logo" href="index.html">
 
   
   
@@ -370,40 +369,12 @@
             
             <article class="bd-article" role="main">
               
-  <section id="welcome-to-the-documentation-of-openstef">
-<h1>Welcome to the documentation of OpenSTEF!<a class="headerlink" href="#welcome-to-the-documentation-of-openstef" title="Permalink to this heading">#</a></h1>
-<p>OpenSTEF is a Python package which is used to make short term forecasts for the energy sector.
-It contains all components for the machine learning pipeline required to make a forecast.
-The <code class="docutils literal notranslate"><span class="pre">openstef</span></code> Python package and its installation instructions are available at: <a class="reference external" href="https://pypi.org/project/openstef/">https://pypi.org/project/openstef/</a>.</p>
-<p>Get started using the <a class="reference internal" href="user_guides.html#user-guides"><span class="std std-ref">User guides</span></a> or by reading about the <a class="reference internal" href="concepts.html#concepts"><span class="std std-ref">Concepts</span></a>.</p>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="user_guides.html">User guides</a></li>
-<li class="toctree-l1"><a class="reference internal" href="concepts.html">Concepts</a></li>
-<li class="toctree-l1"><a class="reference internal" href="concepts.html#domain-adaptation-for-zero-shot-learning-in-sequence-dazls">Domain Adaptation for Zero Shot Learning in Sequence (DAZLS)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="concepts.html#overview-of-relational-database-schema">Overview of relational database schema</a></li>
-<li class="toctree-l1"><a class="reference internal" href="concepts.html#overview-of-timeseries-database-schema">Overview of timeseries database schema</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api_reference.html">API reference</a></li>
-<li class="toctree-l1"><a class="reference internal" href="community.html">Community</a></li>
-<li class="toctree-l1"><a class="reference internal" href="about_openstef.html">About OpenSTEF</a></li>
-</ul>
-</div>
-</section>
-<section id="more-on-openstef">
-<h1>More on OpenSTEF<a class="headerlink" href="#more-on-openstef" title="Permalink to this heading">#</a></h1>
-<ul class="simple">
-<li><p>Find the latest information on the project on <a class="reference external" href="https://www.lfenergy.org/projects/openstef/">the project’s website</a>.</p></li>
-<li><p>You can also watch a <a class="reference external" href="https://www.lfenergy.org/forecasting-to-create-a-more-resilient-optimized-grid/">video about OpenSTEF</a>, instead of reading about the project.</p></li>
-<li><p>Want to join the discussion? Join our <a class="reference external" href="https://teams.microsoft.com/l/team/19%3ac08a513650524fc988afb296cd0358cc%40thread.tacv2/conversations?groupId=bfcb763a-3a97-4938-81d7-b14512aa537d&amp;tenantId=697f104b-d7cb-48c8-ac9f-bd87105bafdc">Teams channel</a>.</p></li>
-</ul>
-</section>
-<section id="contributing">
-<h1>Contributing<a class="headerlink" href="#contributing" title="Permalink to this heading">#</a></h1>
-<p>Please read <a class="reference external" href="https://github.com/OpenSTEF/.github/blob/main/CONTRIBUTING.md">CONTRIBUTING.md</a>, <a class="reference external" href="https://github.com/OpenSTEF/.github/blob/main/CODE_OF_CONDUCT.md">CODE_OF_CONDUCT.md</a>, and <a class="reference external" href="https://github.com/OpenSTEF/.github/blob/main/PROJECT_GOVERNANCE.md">PROJECT_GOVERNANCE.md</a> for details on the process for submitting pull requests to us.</p>
-</section>
-<section id="license">
-<h1>License<a class="headerlink" href="#license" title="Permalink to this heading">#</a></h1>
-<p>This project is licensed under the Mozilla Public License, version 2.0 - see LICENSE for details.</p>
+  <section id="overview-of-timeseries-database-schema">
+<h1>Overview of timeseries database schema<a class="headerlink" href="#overview-of-timeseries-database-schema" title="Permalink to this heading">#</a></h1>
+<p>OpenSTEF uses a timeseries database to store all timeseries data. A diagram of its structure is shown bellow.</p>
+<figure class="align-default">
+<img alt="Diagram InlfuxDB" src="_images/influx_database_diagram.png" />
+</figure>
 </section>
 
 
@@ -414,13 +385,6 @@ The <code class="docutils literal notranslate"><span class="pre">openstef</span>
             <footer class="bd-footer-article">
                 <!-- Previous / next buttons -->
 <div class='prev-next-area'>
-  <a class='right-next' id="next-link" href="user_guides.html" title="next page">
-  <div class="prev-next-info">
-      <p class="prev-next-subtitle">next</p>
-      <p class="prev-next-title">User guides</p>
-  </div>
-  <i class="fa-solid fa-angle-right"></i>
-  </a>
 </div>
             </footer>
             
@@ -430,38 +394,6 @@ The <code class="docutils literal notranslate"><span class="pre">openstef</span>
           
             <div class="bd-sidebar-secondary bd-toc">
               
-<div class="toc-item">
-  
-<div class="tocsection onthispage">
-    <i class="fa-solid fa-list"></i> On this page
-</div>
-<nav id="bd-toc-nav" class="page-toc">
-    <ul class="visible nav section-nav flex-column">
- <li class="toc-h1 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#">
-   Welcome to the documentation of OpenSTEF!
-  </a>
- </li>
- <li class="toc-h1 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#more-on-openstef">
-   More on OpenSTEF
-  </a>
- </li>
- <li class="toc-h1 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#contributing">
-   Contributing
-  </a>
- </li>
- <li class="toc-h1 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#license">
-   License
-  </a>
- </li>
-</ul>
-
-</nav>
-</div>
-
 <div class="toc-item">
   
 <div id="searchbox"></div>
@@ -474,7 +406,7 @@ The <code class="docutils literal notranslate"><span class="pre">openstef</span>
 <div class="toc-item">
   
 <div class="tocsection sourcelink">
-    <a href="_sources/index.rst.txt">
+    <a href="_sources/influx_database_diagram.rst.txt">
         <i class="fa-solid fa-file-lines"></i> Show Source
     </a>
 </div>
