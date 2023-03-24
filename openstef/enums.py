@@ -11,6 +11,7 @@ class MLModelType(Enum):
     LGB = "lgb"
     LINEAR = "linear"
     ProLoaf = "proloaf"
+    ARIMA = "arima"
 
 
 class ForecastType(Enum):

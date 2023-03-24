@@ -199,7 +199,7 @@ def train_model_pipeline_core(
 
     # Check if new model is better than old model
     if old_model:
-        combined = pd.concat([train_data, validation_data]).reset_index(drop=True)
+        combined = pd.concat([train_data, validation_data])
         # skip the forecast column added at the end of dataframes
         if pj.save_train_forecasts:
             combined = combined.iloc[:, :-1]
@@ -357,11 +357,21 @@ def train_pipeline_step_compute_features(
             "Input data is insufficient, after validation and cleaning"
         )
 
-    data_with_features = TrainFeatureApplicator(
-        horizons=horizons,
-        feature_names=model_specs.feature_names,
-        feature_modules=model_specs.feature_modules,
-    ).add_features(validated_data, pj=pj)
+    # Custom data prep or legacy behavior
+    if pj.data_prep_class:
+        data_prep_class, data_prep_args = pj.data_prep_class.load()
+        data_with_features = data_prep_class(
+            pj=pj,
+            model_specs=model_specs,
+            horizons=horizons,
+            **data_prep_args,
+        ).prepare_train_data(validated_data)
+    else:
+        data_with_features = TrainFeatureApplicator(
+            horizons=horizons,
+            feature_names=model_specs.feature_names,
+            feature_modules=model_specs.feature_modules,
+        ).add_features(validated_data, pj=pj)
 
     return data_with_features
 
@@ -421,6 +431,11 @@ def train_pipeline_step_train_model(
         valid_hyper_parameters.update(
             dict(early_stopping_rounds=DEFAULT_EARLY_STOPPING_ROUNDS)
         )
+
+    # Temporary fix to allow xgboost version upgrade -> set n_estimators if present and None
+    if not valid_hyper_parameters.get("n_estimators", True):
+        valid_hyper_parameters.update(dict(n_estimators=100))
+        logging.info("Deprecation warning: n_estimators=None found, overwriting.")
 
     model.set_params(**valid_hyper_parameters)
     model.fit(

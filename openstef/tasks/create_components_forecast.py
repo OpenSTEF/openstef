@@ -94,21 +94,36 @@ def create_components_forecast_task(
     # Make forecast for the demand, wind and pv components
     forecasts = create_components_forecast_pipeline(pj, input_data, weather_data)
 
+    ## Perform sanity check on index
     if not isinstance(forecasts.index, pd.core.indexes.datetimes.DatetimeIndex):
         raise ValueError(
             f"Index is not datetime. Received forecasts:{forecasts.head()}"
         )
 
-    if forecasts.index.max() < datetime.utcnow().replace(tzinfo=pytz.utc) + timedelta(
-        hours=30
-    ):
-        raise ComponentForecastTooShortHorizonError(
-            "Could not make component forecast for two days ahead, probably input data is missing."
-        )
-
     # save forecast to database #######################################################
     context.database.write_forecast(forecasts)
     logger.debug("Written forecast to database")
+
+    # Check if forecast was complete enough, otherwise raise exception
+    if forecasts.index.max() < datetime.utcnow().replace(tzinfo=pytz.utc) + timedelta(
+        hours=30
+    ):
+
+        # Check which input data is missing the most.
+        # Do this by counting the NANs for (load)forecast, radiation and windspeed
+        max_index = forecasts.index.max()
+        n_nas = dict(
+            nans_load_forecast=input_data.loc[max_index:, "forecast"].isna().sum(),
+            nans_radiation=weather_data.loc[max_index:, "radiation"].isna().sum(),
+            nans_windspeed_100m=weather_data.loc[max_index:, "windspeed_100m"]
+            .isna()
+            .sum(),
+        )
+        max_na = max(n_nas, key=n_nas.get)
+
+        raise ComponentForecastTooShortHorizonError(
+            f"Could not make component forecast for two days ahead, probably input data is missing, {max_na}: {n_nas[max_na]}"
+        )
 
 
 def main(config: object = None, database: object = None):
