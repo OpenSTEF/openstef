@@ -11,7 +11,7 @@ This page contains guides and links to resources that show how OpenSTEF can be u
 
 Pipelines - high level functionality
 ------------------------------------
-Pipelines (see :ref:`concepts <concepts>` for definition) offer an easy way to use OpenSTEF for training models, generating forecasts, and evaluation of forecasting performance. 
+OpenSTEF is designed around Pipelines (see :ref:`concepts <concepts>` for definition). Pipelines offer an easy way to train models, generate forecasts, and evaluate  forecasting performance. 
 
 The following pipelines are available:
 
@@ -22,32 +22,28 @@ The following pipelines are available:
 - :mod:`openstef.pipeline.create_basecase_forecast`
 - :mod:`openstef.pipeline.train_create_forecast_backtest`
 
-The easiest way to get started and get familiar with pipelines is to have a look at 
-`this GitHub repository that contains an assortment of examples Jupyter notebooks <https://github.com/OpenSTEF/openstef-offline-example>`_, including example data.
-Each of these example notebooks can be ran locally without any setup required, apart from the `installation of the OpenSTEF package <https://pypi.org/project/openstef/>`_. 
+A great way to get started and become familiar with OpenSTEF pipelines is to have a look at 
+`this GitHub repository that contains an assortment of Jupyter notebook examples <https://github.com/OpenSTEF/openstef-offline-example>`_. The repository
+even includes example data.
 
-- Usage of the train model pipeline is demonstrated in 
-  `this example Jupyter Notebook <https://github.com/OpenSTEF/openstef-offline-example/blob/master/examples/01.%20Train%20a%20model%20using%20high-level%20pipelines.ipynb>`_.
-- Usage of the create forecast pipeline is demonstrated in 
-  `this example Jupyter Notebook <https://github.com/OpenSTEF/openstef-offline-example/blob/master/examples/04.%20Test_on_difficult_cases.ipynb>`_.
-- Usage of the train model and forecast backtest pipeline is demonstrated in multiple notebooks, for instance
-  `this example Jupyter Notebook <https://github.com/OpenSTEF/openstef-offline-example/blob/master/examples/02.%20Evaluate%20performance%20using%20Backtest%20Pipeline.ipynb>`_.
+You can run each example notebook locally without any setup required, apart from the `installation of the OpenSTEF package <https://pypi.org/project/openstef/>`_. 
 
-The notebooks mentioned above are aimed towards a backtesting setting.
-More in depth information on how to use and implement the pipelines in an operational setting, including code examples, is provided on the following page:
+We encourage you to check out all the examples, but here is a list to get you started:
 
-.. toctree::
-    :maxdepth: 1
+- `How to train a model <https://github.com/OpenSTEF/openstef-offline-example/blob/master/examples/01.%20Train%20a%20model%20using%20high-level%20pipelines.ipynb>`_.
+- `How to create a forecast <https://github.com/OpenSTEF/openstef-offline-example/blob/master/examples/04.%20Test_on_difficult_cases.ipynb>`_.
+- `How evaluate the performance of model using a backtest  <https://github.com/OpenSTEF/openstef-offline-example/blob/master/examples/02.%20Evaluate%20performance%20using%20Backtest%20Pipeline.ipynb>`_.
 
-    pipelines_user_guide
+For more in-depth information on how to use and implement the pipelines in an operational setting, including code examples, see the :ref:`pipeline_user_guide` section of this documentation.
 
 
-Forecasting application - full implementation
----------------------------------------------
+Deploy as a full Forecasting application
+----------------------------------------
 
-For those who wish to set up a fully functioning forecasting application that is ready to be used in an operational setting, a 
-`GitHub repository with a reference implementation <https://github.com/OpenSTEF/openstef-reference>`_  is available. 
-The example implementation includes databases, a user interface, and example data.
+If you would like to setup a full forecasting application that is ready to be used in an operational setting with a 
+backend datastore and graphical user interface frontent, this 
+`GitHub repository contains a reference implementation <https://github.com/OpenSTEF/openstef-reference>`_  you can use as a starting point. 
+This example implementation includes databases, a user interface, and example data.
 More information on what the architecture of such an application could look like can be found :ref:`here <application-architecture>`.
 
 .. include:: dashboard.rst

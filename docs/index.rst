@@ -2,14 +2,15 @@
     SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com>
     SPDX-License-Identifier: MPL-2.0
 
-Welcome to the documentation of OpenSTEF!
-=========================================
+Welcome to the OpenSTEF documentation!
+======================================
 
 OpenSTEF is a Python package which is used to make short term forecasts for the energy sector.
 It contains all components for the machine learning pipeline required to make a forecast.
 The ``openstef`` Python package and its installation instructions are available at: https://pypi.org/project/openstef/.
 
-Get started using the :ref:`user_guides` or by reading about the :ref:`concepts`.
+If you're brand new, start by reading the :ref:`concepts` section. Otherwise, if you're ready
+to start using OpenSTEF checkout the :ref:`user_guides`.
 
 .. toctree::
     :maxdepth: 1
