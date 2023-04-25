@@ -104,9 +104,9 @@ def create_components_forecast_task(
     logger.debug("Written forecast to database")
 
     # Check if forecast was complete enough, otherwise raise exception
-    if forecasts.index.max() < datetime.utcnow().replace(tzinfo=timezone.utc) + timedelta(
-        hours=30
-    ):
+    if forecasts.index.max() < datetime.utcnow().replace(
+        tzinfo=timezone.utc
+    ) + timedelta(hours=30):
 
         # Check which input data is missing the most.
         # Do this by counting the NANs for (load)forecast, radiation and windspeed

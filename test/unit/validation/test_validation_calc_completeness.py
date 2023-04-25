@@ -171,7 +171,7 @@ class CalcCompletenessTest(BaseTestCase):
     def test_calc_completeness_model_feature_importance_as_weights(self):
         weights = pd.DataFrame(
             index=["temp", "IsSunday", "Month", "snowDepth", "windspeed"],
-            data={"weight": 0.1}
+            data={"weight": 0.1},
         )
 
         data_with_features = pd.DataFrame(

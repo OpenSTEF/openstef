@@ -40,7 +40,6 @@ class TestGroupedRegressor(BaseTestCase):
         model.fit(self.train_x, self.train_y)
         self.assertIsNone(sklearn.utils.validation.check_is_fitted(model))
 
-
         model_parallel = GroupedRegressor(
             LinearRegressor(), group_columns="time", n_jobs=4
         )
