@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501
+# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501
 #
 # SPDX-License-Identifier: MPL-2.0
 [tool.pylint.format]
@@ -12,7 +12,7 @@ profile = "black"
 
 [tool.pydocstyle]
 convention = "google"
-add-ignore = ["D100","D101","D102","D103", "D104", "D105", "D106", "D107"] # For now ignore any missing docstrings. 
+add-ignore = ["D100","D101","D102","D103", "D104", "D105", "D106", "D107"] # For now ignore any missing docstrings.
 
 [tool.docformatter]
 recursive = true

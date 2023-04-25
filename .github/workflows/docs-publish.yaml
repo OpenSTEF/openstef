@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501
+# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501
 #
 # SPDX-License-Identifier: MPL-2.0
 name: Deploy Sphinx documentation to Pages
@@ -16,11 +16,11 @@ jobs:
     - uses: actions/checkout@master
       with:
         fetch-depth: 0 # otherwise, you will failed to push refs to dest repo
-    
+
     # Setup python version
-    - uses: actions/setup-python@v4 
+    - uses: actions/setup-python@v4
       with:
-        python-version: '3.9' 
+        python-version: '3.9'
     # Run pre build command
     - run: |
         cp requirements.txt docs/requirements.txt &&\

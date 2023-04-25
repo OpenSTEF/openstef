@@ -1,5 +1,5 @@
 .. comment:
-    SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com>
+    SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com>
     SPDX-License-Identifier: MPL-2.0
 
 Welcome to the documentation of OpenSTEF!
@@ -13,16 +13,16 @@ Get started using the :ref:`user_guides` or by reading about the :ref:`concepts`
 
 .. toctree::
     :maxdepth: 1
-    
+
     user_guides
     concepts
     api_reference
     community
     about_openstef
-    
+
 More on OpenSTEF
 ================
-- Find the latest information on the project on `the project's website <https://www.lfenergy.org/projects/openstef/>`_. 
+- Find the latest information on the project on `the project's website <https://www.lfenergy.org/projects/openstef/>`_.
 - You can also watch a `video about OpenSTEF <https://www.lfenergy.org/forecasting-to-create-a-more-resilient-optimized-grid/>`_, instead of reading about the project.
 - Want to join the discussion? Join our `Teams channel <https://teams.microsoft.com/l/team/19%3ac08a513650524fc988afb296cd0358cc%40thread.tacv2/conversations?groupId=bfcb763a-3a97-4938-81d7-b14512aa537d&tenantId=697f104b-d7cb-48c8-ac9f-bd87105bafdc>`_.
 

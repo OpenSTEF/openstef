@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 """Specifies the prediction job dataclass."""
@@ -19,27 +19,27 @@ class PredictionJobDataClass(BaseModel):
     """The predictions job id (often abreviated as pid)."""
     model: str
     """The model type that should be used.
-    
+
     Options are:
         - ``"xgb"``
         - ``"xgb_quantile"``
         - ``"lgb"``
         - ``"linear"``
         - ``"proloaf"`` (extra dependencies requiered, see README)
-    
+
     If unsure what to pick, choose ``"xgb"``.
-    
+
     """
     forecast_type: str
     """The type of forecasts that should be made.
-    
+
     Options are:
         - ``"demand"``
         - ``"wind"``
-        - ``"basecase"``   
-        
+        - ``"basecase"``
+
     If unsure what to pick, choose ``"demand"``.
-    
+
     """
     horizon_minutes: int
     """The horizon of the desired forecast in minutes."""
