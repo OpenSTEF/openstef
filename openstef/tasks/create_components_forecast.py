@@ -21,10 +21,9 @@ Example:
         $ python create_components_forecast.py
 
 """
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-import pytz
 import structlog
 import pandas as pd
 
@@ -105,7 +104,7 @@ def create_components_forecast_task(
     logger.debug("Written forecast to database")
 
     # Check if forecast was complete enough, otherwise raise exception
-    if forecasts.index.max() < datetime.utcnow().replace(tzinfo=pytz.utc) + timedelta(
+    if forecasts.index.max() < datetime.utcnow().replace(tzinfo=timezone.utc) + timedelta(
         hours=30
     ):
 

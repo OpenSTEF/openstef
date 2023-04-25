@@ -16,7 +16,7 @@ class TestGroupedRegressor(BaseTestCase):
         self.train_input = TestData.load("reference_sets/307-train-data.csv")
 
         self.train_with_time = self.train_input.copy(deep=True)
-        self.train_with_time["time"] = self.train_with_time.index.time
+        self.train_with_time["time"] = self.train_with_time.index.day
 
         self.train_x = self.train_with_time.iloc[:, 1:]
         self.train_y = self.train_with_time.iloc[:, 0]
@@ -40,7 +40,7 @@ class TestGroupedRegressor(BaseTestCase):
         model.fit(self.train_x, self.train_y)
         self.assertIsNone(sklearn.utils.validation.check_is_fitted(model))
 
-    def test_parallel_fitting(self):
+
         model_parallel = GroupedRegressor(
             LinearRegressor(), group_columns="time", n_jobs=4
         )
@@ -48,7 +48,6 @@ class TestGroupedRegressor(BaseTestCase):
         model_parallel.fit(self.train_x, self.train_y)
         self.assertIsNone(sklearn.utils.validation.check_is_fitted(model_parallel))
 
-    def test_prediction(self):
         model = GroupedRegressor(LinearRegressor(), group_columns=["time"])
         model.fit(self.train_x, self.train_y)
         # test prediction

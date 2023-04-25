@@ -54,7 +54,7 @@ class DummyIntFeature(FeatureAdder):
 
 class TestFeatureAdder(BaseTestCase):
     def setUp(self) -> None:
-        self.input_data = TestData.load("input_data.pickle")
+        self.input_data = TestData.load("input_data.csv")
 
     def test_repr_fearureAdder(self):
         dummy = DummyFeature()

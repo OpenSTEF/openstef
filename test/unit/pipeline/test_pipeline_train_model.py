@@ -90,7 +90,7 @@ class TestTrainModelPipeline(BaseTestCase):
         self.model_specs.hyper_params["n_estimators"] = 3
         datetime_start = datetime.utcnow() - timedelta(days=90)
         datetime_end = datetime.utcnow()
-        self.data_table = TestData.load("input_data_train.pickle").head(8641)
+        self.data_table = TestData.load("input_data_train.csv").head(8641)
         self.data = pd.DataFrame(
             index=pd.date_range(datetime_start, datetime_end, freq="15T")
         )
