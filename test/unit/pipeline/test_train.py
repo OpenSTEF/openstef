@@ -40,7 +40,7 @@ class TestTrain(BaseTestCase):
         self.pj = TestData.get_prediction_job(pid=307)
         datetime_start = datetime.utcnow() - timedelta(days=90)
         datetime_end = datetime.utcnow()
-        self.data_table = TestData.load("input_data_train.pickle").head(8641)
+        self.data_table = TestData.load("input_data_train.csv").head(8641)
         self.data = pd.DataFrame(
             index=pd.date_range(datetime_start, datetime_end, freq="15T")
         )

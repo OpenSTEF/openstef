@@ -24,7 +24,7 @@ The Technical Steering Committee consists of the following members:
 * David Swinkels
 * Frederik Stoel
 
-More information, meeting notes and meeting links can be found `here <https://wiki.lfenergy.org/display/OS/OpenSTEF+Technical+Steering+Committee>`_: 
+More information, meeting notes and meeting links can be found `here <https://wiki.lfenergy.org/display/OS/OpenSTEF+Technical+Steering+Committee>`_:
 
 More information on project governance can be found `here <https://github.com/OpenSTEF/.github/blob/main/PROJECT_GOVERNANCE.md>`_.
 
@@ -34,7 +34,7 @@ An actual overview of the openSTEF roadmap can be found `here <https://wiki.lfen
 
 Contributing
 ------------
-OpenSTEF welcomes contributions in all forms! 
+OpenSTEF welcomes contributions in all forms!
 
 For contributing in code have a look at the `contributing guidelines <https://github.com/OpenSTEF/.github/blob/main/CONTRIBUTING.md>`_.
 

@@ -57,7 +57,7 @@ class TestApplyFeaturesModule(BaseTestCase):
 
     def test_additional_minute_space(self):
         additional_minute_lags_list = generate_non_trivial_lag_times(
-            data=TestData.load("input_data_train.pickle"), height_treshold=0.1
+            data=TestData.load("input_data_train.csv"), height_treshold=0.1
         )
         expected_additional_minute_lags_list = [1410, 2880]
         self.assertEqual(
@@ -86,8 +86,7 @@ class TestApplyFeaturesModule(BaseTestCase):
             AssertionError: When the returned data frame is not equal to the expected one
         """
         input_data_with_features = apply_features.apply_features(
-            # data=self.test_data.INPUT_DATA, h_ahead=24
-            data=TestData.load("input_data.pickle"),
+            data=TestData.load("input_data.csv"),
             horizon=24,
             pj={"model": "xgb", "lat": 52.132633, "lon": 5.291266},
         )
@@ -97,12 +96,13 @@ class TestApplyFeaturesModule(BaseTestCase):
             input_data_with_features,
             expected_output,
             check_like=True,  # ignore the order of index & columns
+            check_dtype=False,
         )
 
     def test_apply_features_no_pj(self):
         """pj = None should work fine as well"""
         # Arrange
-        input_data_without_features = TestData.load("input_data.pickle")
+        input_data_without_features = TestData.load("input_data.csv")
         pj = None
         expected_output = TestData.load("input_data_with_features.csv")
 
@@ -121,12 +121,13 @@ class TestApplyFeaturesModule(BaseTestCase):
             input_data_with_features,
             expected_output,
             check_like=True,  # ignore the order of index & columns
+            check_dtype=False,
         )
 
     def test_train_feature_applicator(self):
 
         input_data_with_features = TrainFeatureApplicator(horizons=[0.25]).add_features(
-            TestData.load("input_data.pickle"),
+            TestData.load("input_data.csv"),
             pj={"model": "proleaf", "lat": 52.132633, "lon": 5.291266},
         )
         expected_output = TestData.load("input_data_multi_horizon_features.csv")
@@ -134,6 +135,7 @@ class TestApplyFeaturesModule(BaseTestCase):
             input_data_with_features,
             expected_output,
             check_like=True,  # ignore the order of index & columns
+            check_dtype=False,
         )
 
     def test_train_feature_applicator_with_latency(self):
@@ -204,6 +206,7 @@ class TestApplyFeaturesModule(BaseTestCase):
             input_data_with_features,
             TestData.load("../data/input_data_with_holiday_features.csv"),
             check_like=True,  # ignore the order of index & columns
+            check_dtype=False,
         )
 
     def test_calculate_windspeed_at_hubheight_realistic_input(self):

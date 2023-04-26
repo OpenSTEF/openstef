@@ -7,7 +7,6 @@ from test.unit.utils.base import BaseTestCase
 from test.unit.utils.data import TestData
 
 import pandas as pd
-import pytz
 
 from openstef.model.basecase import BaseCaseModel
 
@@ -21,7 +20,7 @@ class TestBaseCaseForecast(BaseTestCase):
         # Shift example data to match current time interval as code expects data
         # available relative to the current time.
         utc_now = (
-            pd.Series(datetime.utcnow().replace(tzinfo=pytz.utc))
+            pd.Series(datetime.utcnow().replace(tzinfo=timezone.utc))
             .min()
             .round("15T")
             .to_pydatetime()
@@ -40,7 +39,7 @@ class TestBaseCaseForecast(BaseTestCase):
         # Shift example data to match current time interval as code expects data
         # available relative to the current time.
         utc_now = (
-            pd.Series(datetime.utcnow().replace(tzinfo=pytz.utc))
+            pd.Series(datetime.utcnow().replace(tzinfo=timezone.utc))
             .min()
             .round("15T")
             .to_pydatetime()
