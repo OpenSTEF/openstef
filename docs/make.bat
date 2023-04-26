@@ -1,4 +1,4 @@
-REM SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project
+REM SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project
 REM
 REM SPDX-License-Identifier: MPL-2.0
 
