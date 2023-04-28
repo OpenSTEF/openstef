@@ -24,6 +24,7 @@ from openstef.enums import MLModelType, PipelineType
 from openstef.model.serializer import MLflowSerializer
 from openstef.monitoring import teams
 from openstef.pipeline.optimize_hyperparameters import optimize_hyperparameters_pipeline
+from openstef.pipeline.train_model import train_model_pipeline
 from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstef.tasks.utils.taskcontext import TaskContext
 
@@ -36,6 +37,7 @@ def optimize_hyperparameters_task(
     pj: PredictionJobDataClass,
     context: TaskContext,
     check_hyper_param_age: bool = DEFAULT_CHECK_HYPER_PARAMS_AGE,
+    trigger_retrain: bool = True,
 ) -> None:
     """Optimize hyperparameters task.
 
@@ -47,6 +49,9 @@ def optimize_hyperparameters_task(
         context: Task context
         check_hyper_param_age: Boolean indicating if optimization can be skipped in case existing
             hyperparameters do not exceed the maximum age.
+        trigger_retrain: triggers regular train_model task. The train/validation strategy for
+            hyperparam optimalisation is different wrt the regular train task. Not retraining
+            can lead to suboptimal results.
 
     """
     # Check pipeline types
@@ -93,6 +98,15 @@ def optimize_hyperparameters_task(
         mlflow_tracking_uri=mlflow_tracking_uri,
         artifact_folder=artifact_folder,
     )
+
+    if trigger_retrain:
+        train_model_pipeline(
+            pj,
+            input_data,
+            check_old_model_age=False,
+            mlflow_tracking_uri=mlflow_tracking_uri,
+            artifact_folder=artifact_folder,
+        )
 
     # Sent message to Teams
     title = (
