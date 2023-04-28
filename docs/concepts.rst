@@ -7,7 +7,8 @@
 Concepts
 ========
 
-Looking at the architecture of OpenSTEF helps to understand OpenSTEF concepts.
+Understanding the architecture of OpenSTEF will help you gain insight on how to use this software package
+and better understand the rest of the documentation.
 
 Software architecture
 ---------------------
@@ -15,7 +16,7 @@ Software architecture
 .. image:: https://user-images.githubusercontent.com/25053215/184536369-ed608e86-1ea8-4c16-8c6a-5eaeb145eedf.png
   :width: 800
 
-OpenSTEF is set up as a package that performs machine learning to forecast energy loads on the energy grid.
+OpenSTEF is set up as a Python package that performs machine learning in order to forecast energy loads on the energy grid.
 It contains:
 
 * **Prediction job**: input configuration for a task and/or pipeline
@@ -32,38 +33,40 @@ It contains:
 * **Machine learning**: is called by pipelines to perform training, forecasting, or evaluation based on the configuration from the prediction job (e.g. train an XGB quantile model).
 * **Model storage**: is called by pipelines to store or fetch trained machine learning model with MLFlow (e.g. store model locally in disk/database/s3_bucket on AWS).
 * **Post processing**: is called by pipelines to post process forecasting (e.g. combine forecast dataframe with extra configuration information from prediction job or split load forecast into solar, wind, and energy usage forecast).
+* **Post processing**: is called by pipelines to post process forecasting (e.g. combine forecast dataframe with extra configuration information from prediction job or split load forecast into solar, wind, and energy usage forecast).
 
 
-If tasks are used, the openstef-dbc package is required as an interface to the database for reading/writing.
-The current interface in openstef-dbc is for a MySQL database for configuration data (e.g. information for prediction jobs) and Influx database for feature data (e.g. weather, load, energy price data) and energy forecast data.
+Tasks are provided in a separate Python package called `openstef-dbc <https://pypi.org/project/openstef-dbc/>`_. If you need to use tasks, the openstef-dbc package is required in order to interface to databases for reading/writing.
+Currently, openstef-dbc supports interfaces for a MySQL database for configuration data (e.g. information for prediction jobs) and `InfluxDB <https://www.influxdata.com/>`_ for feature data (e.g. weather, load, energy price data) and energy forecast data.
 
 .. _application-architecture:
 
 Application architecture
 ------------------------
 
-OpenSTEF is just a software package by itself and needs more parts to run as an application.
+OpenSTEF is simply a software package (i.e. a Python library). If you're looking to run it as a full application with a graphical user interface frontend, you must deploy it with additional components.
 
 .. image:: https://user-images.githubusercontent.com/25053215/184536367-c7914697-7a2a-45b8-b447-36aec1a6c1af.png
   :width: 800
 
-It requires:
+Here are the recommended additional components if you want to run it as an application:
 
-* Github repository:
+* Github repositories:
 
-  * (create yourself) **Data fetcher**: software package to fetch data and write it to a database (e.g. a scheduled cron job to fetch weather data in Kubernetes).
+  * (create yourself) **Data fetcher**: software package to fetch input data and write it to a database (e.g. a scheduled `CronJob <https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/>`_ to fetch weather data in Kubernetes).
   * (create yourself) **Data API**: API to provide data from a database or other source to applications and users (e.g. a REST API).
-  * (create yourself) **Forecaster**: software package to fetch config/data and run openstef tasks/pipelines (e.g. a scheduled cron job to train/forecast in Kubernetes).
+  * (create yourself) **Forecaster**: software package to fetch config/data and run OpenSTEF tasks/pipelines (e.g. a scheduled cron job to train/forecast in Kubernetes).
   * (open source) **OpenSTEF**: software package that performs machine learning to forecast energy loads on the energy grid.
-  * (open source) **OpenSTEF-dbc**: software package that is interface to read/write data from/to a database for openstef tasks.
-* CI/CD
+  * (open source) **OpenSTEF-dbc**: software package that provides interface to read/write data from/to a database for openstef tasks.
 
-  * (create yourself) **Energy forecasting Application CI/CD**: CICD pipeline to build, test, and deploy forecasting application (e.g. to Kubernetes via Jenkins/Tekton).
-  * (open source) **OpenSTEF package CI/CD**: CICD pipeline to build, test, and release OpenSTEF package to PyPI (via github actions).
+* CI/CD Infrastructure
 
-* **Compute**: software applications can be run on Kubernetes on AWS.
-* **Database**: SQL, influx, or other database can be used to store fetched data and forecasts.
-* **Dashboard**: dashboard to visualize historic and forecasted energy loads.
+  * (create yourself) **Energy forecasting Application CI/CD**: Continuous Integration/Continuous Delivery pipeline to build, test, and deploy your forecasting application (e.g. to Kubernetes via Jenkins, Chef, Puppet, Tekton, etc.).
+  * (open source) **OpenSTEF package CI/CD**: A set of GitHub Actions that build, test, and publish the OpenSTEF package to PyPI `here <https://pypi.org/project/openstef/>`_ when it is time to release a new version.
+
+* **Compute**: compute resources to run your pipelines and tasks in production (e.g. on Kubernetes using any of the various providers AWS, Azure, GCP, Linode, etc.).
+* **Database**: SQL, InfluxDB, or other database that stores fetched input data and forecasts.
+* **Dashboard**: graphical user interface dashboard that allows uers to visualize application data (e.g. historic and forecasted energy loads)
 
 .. include:: dashboard.rst
 
