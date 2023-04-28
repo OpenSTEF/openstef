@@ -39,8 +39,8 @@
     <link rel="icon" href="_static/openstef.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Pipelines user guide" href="pipelines_user_guide.html" />
-    <link rel="prev" title="Welcome to the documentation of OpenSTEF!" href="index.html" />
+    <link rel="next" title="Concepts" href="concepts.html" />
+    <link rel="prev" title="Welcome to the OpenSTEF documentation!" href="index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="docsearch:language" content="en">
   </head>
@@ -236,7 +236,7 @@
   <div class="bd-container">
     <div class="bd-container__inner bd-page-width">
       
-      <div class="bd-sidebar-primary bd-sidebar">
+      <div class="bd-sidebar-primary bd-sidebar hide-on-wide">
         
   
   <div class="sidebar-header-items sidebar-primary__section">
@@ -347,21 +347,6 @@
   </div>
 
   
-  <div class="sidebar-start-items sidebar-primary__section">
-    <div class="sidebar-start-items__item"><nav class="bd-links" id="bd-docs-nav" aria-label="Section navigation">
-  <p class="bd-links__title" role="heading" aria-level="1">
-    Section Navigation
-  </p>
-  <div class="bd-toc-item navbar-nav">
-    <ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="pipelines_user_guide.html">Pipelines user guide</a></li>
-</ul>
-
-  </div>
-</nav>
-    </div>
-  </div>
-  
 
   
   <div class="sidebar-end-items sidebar-primary__section">
@@ -391,7 +376,7 @@
 <p>This page contains guides and links to resources that show how OpenSTEF can be used.</p>
 <section id="pipelines-high-level-functionality">
 <h2>Pipelines - high level functionality<a class="headerlink" href="#pipelines-high-level-functionality" title="Permalink to this heading">#</a></h2>
-<p>Pipelines (see <a class="reference internal" href="concepts.html#concepts"><span class="std std-ref">concepts</span></a> for definition) offer an easy way to use OpenSTEF for training models, generating forecasts, and evaluation of forecasting performance.</p>
+<p>OpenSTEF is designed around Pipelines (see <a class="reference internal" href="concepts.html#concepts"><span class="std std-ref">concepts</span></a> for definition). Pipelines offer an easy way to train models, generate forecasts, and evaluate  forecasting performance.</p>
 <p>The following pipelines are available:</p>
 <ul class="simple">
 <li><p><a class="reference internal" href="openstef.pipeline.html#module-openstef.pipeline.train_model" title="openstef.pipeline.train_model"><code class="xref py py-mod docutils literal notranslate"><span class="pre">openstef.pipeline.train_model</span></code></a></p></li>
@@ -401,31 +386,25 @@
 <li><p><a class="reference internal" href="openstef.pipeline.html#module-openstef.pipeline.create_basecase_forecast" title="openstef.pipeline.create_basecase_forecast"><code class="xref py py-mod docutils literal notranslate"><span class="pre">openstef.pipeline.create_basecase_forecast</span></code></a></p></li>
 <li><p><a class="reference internal" href="openstef.pipeline.html#module-openstef.pipeline.train_create_forecast_backtest" title="openstef.pipeline.train_create_forecast_backtest"><code class="xref py py-mod docutils literal notranslate"><span class="pre">openstef.pipeline.train_create_forecast_backtest</span></code></a></p></li>
 </ul>
-<p>The easiest way to get started and get familiar with pipelines is to have a look at
-<a class="reference external" href="https://github.com/OpenSTEF/openstef-offline-example">this GitHub repository that contains an assortment of examples Jupyter notebooks</a>, including example data.
-Each of these example notebooks can be ran locally without any setup required, apart from the <a class="reference external" href="https://pypi.org/project/openstef/">installation of the OpenSTEF package</a>.</p>
+<p>A great way to get started and become familiar with OpenSTEF pipelines is to have a look at
+<a class="reference external" href="https://github.com/OpenSTEF/openstef-offline-example">this GitHub repository that contains an assortment of Jupyter notebook examples</a>. The repository
+even includes example data.</p>
+<p>You can run each example notebook locally without any setup required, apart from the <a class="reference external" href="https://pypi.org/project/openstef/">installation of the OpenSTEF package</a>.</p>
+<p>We encourage you to check out all the examples, but here is a list to get you started:</p>
 <ul class="simple">
-<li><p>Usage of the train model pipeline is demonstrated in
-<a class="reference external" href="https://github.com/OpenSTEF/openstef-offline-example/blob/master/examples/01.%20Train%20a%20model%20using%20high-level%20pipelines.ipynb">this example Jupyter Notebook</a>.</p></li>
-<li><p>Usage of the create forecast pipeline is demonstrated in
-<a class="reference external" href="https://github.com/OpenSTEF/openstef-offline-example/blob/master/examples/04.%20Test_on_difficult_cases.ipynb">this example Jupyter Notebook</a>.</p></li>
-<li><p>Usage of the train model and forecast backtest pipeline is demonstrated in multiple notebooks, for instance
-<a class="reference external" href="https://github.com/OpenSTEF/openstef-offline-example/blob/master/examples/02.%20Evaluate%20performance%20using%20Backtest%20Pipeline.ipynb">this example Jupyter Notebook</a>.</p></li>
+<li><p><a class="reference external" href="https://github.com/OpenSTEF/openstef-offline-example/blob/master/examples/01.%20Train%20a%20model%20using%20high-level%20pipelines.ipynb">How to train a model</a>.</p></li>
+<li><p><a class="reference external" href="https://github.com/OpenSTEF/openstef-offline-example/blob/master/examples/04.%20Test_on_difficult_cases.ipynb">How to create a forecast</a>.</p></li>
+<li><p><a class="reference external" href="https://github.com/OpenSTEF/openstef-offline-example/blob/master/examples/02.%20Evaluate%20performance%20using%20Backtest%20Pipeline.ipynb">How evaluate the performance of model using a backtest</a>.</p></li>
 </ul>
-<p>The notebooks mentioned above are aimed towards a backtesting setting.
-More in depth information on how to use and implement the pipelines in an operational setting, including code examples, is provided on the following page:</p>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="pipelines_user_guide.html">Pipelines user guide</a></li>
-</ul>
-</div>
+<p>For more in-depth information on how to use and implement the pipelines in an operational setting, including code examples, see the <a class="reference internal" href="pipelines_user_guide.html#pipeline-user-guide"><span class="std std-ref">Pipelines user guide</span></a> section of this documentation.</p>
 </section>
-<section id="forecasting-application-full-implementation">
-<h2>Forecasting application - full implementation<a class="headerlink" href="#forecasting-application-full-implementation" title="Permalink to this heading">#</a></h2>
-<p>For those who wish to set up a fully functioning forecasting application that is ready to be used in an operational setting, a
-<a class="reference external" href="https://github.com/OpenSTEF/openstef-reference">GitHub repository with a reference implementation</a>  is available.
-The example implementation includes databases, a user interface, and example data.
-More information on what the architecture of such an application could look like can be found <a class="reference internal" href="concepts.html#application-architecture"><span class="std std-ref">here</span></a>.</p>
+<section id="deploy-as-a-full-forecasting-application">
+<h2>Deploy as a full Forecasting application<a class="headerlink" href="#deploy-as-a-full-forecasting-application" title="Permalink to this heading">#</a></h2>
+<p>If you would like to setup a full forecasting application that is ready to be used in an operational setting with a
+backend datastore and graphical user interface frontent, this
+<a class="reference external" href="https://github.com/OpenSTEF/openstef-reference">GitHub repository contains a reference implementation</a>  you can use as a starting point.
+This example implementation includes databases, a user interface, and example data.</p>
+<p>More information on what the architecture of such an application could look like can be found <a class="reference internal" href="concepts.html#application-architecture"><span class="std std-ref">here</span></a>.</p>
 <a class="reference internal image-reference" href="https://user-images.githubusercontent.com/60883372/146760483-29af3ac7-62af-4f13-98c7-982a79c517d1.jpg"><img alt="Screenshot of the operational dashboard showing the key functionality of OpenSTEF." src="https://user-images.githubusercontent.com/60883372/146760483-29af3ac7-62af-4f13-98c7-982a79c517d1.jpg" style="width: 800px;" /></a>
 <p>Screenshot of the operational dashboard showing the key functionality of OpenSTEF. Dashboard documentation can be found <a class="reference external" href="https://raw.githack.com/OpenSTEF/.github/main/profile/html/openstef_dashboard_doc.html">here</a>.</p>
 </section>
@@ -447,13 +426,13 @@ More information on what the architecture of such an application could look like
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
           <p class="prev-next-subtitle">previous</p>
-          <p class="prev-next-title">Welcome to the documentation of OpenSTEF!</p>
+          <p class="prev-next-title">Welcome to the OpenSTEF documentation!</p>
       </div>
   </a>
-  <a class='right-next' id="next-link" href="pipelines_user_guide.html" title="next page">
+  <a class='right-next' id="next-link" href="concepts.html" title="next page">
   <div class="prev-next-info">
       <p class="prev-next-subtitle">next</p>
-      <p class="prev-next-title">Pipelines user guide</p>
+      <p class="prev-next-title">Concepts</p>
   </div>
   <i class="fa-solid fa-angle-right"></i>
   </a>
@@ -479,8 +458,8 @@ More information on what the architecture of such an application could look like
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#forecasting-application-full-implementation">
-   Forecasting application - full implementation
+  <a class="reference internal nav-link" href="#deploy-as-a-full-forecasting-application">
+   Deploy as a full Forecasting application
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">

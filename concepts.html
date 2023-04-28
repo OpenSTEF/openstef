@@ -40,7 +40,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="API reference" href="api_reference.html" />
-    <link rel="prev" title="Pipelines user guide" href="pipelines_user_guide.html" />
+    <link rel="prev" title="User guides" href="user_guides.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="docsearch:language" content="en">
   </head>
@@ -373,11 +373,12 @@
               
   <section id="concepts">
 <span id="id1"></span><h1>Concepts<a class="headerlink" href="#concepts" title="Permalink to this heading">#</a></h1>
-<p>Looking at the architecture of OpenSTEF helps to understand OpenSTEF concepts.</p>
+<p>Understanding the architecture of OpenSTEF will help you gain insight on how to use this software package
+and better understand the rest of the documentation.</p>
 <section id="software-architecture">
 <h2>Software architecture<a class="headerlink" href="#software-architecture" title="Permalink to this heading">#</a></h2>
 <a class="reference internal image-reference" href="https://user-images.githubusercontent.com/25053215/184536369-ed608e86-1ea8-4c16-8c6a-5eaeb145eedf.png"><img alt="https://user-images.githubusercontent.com/25053215/184536369-ed608e86-1ea8-4c16-8c6a-5eaeb145eedf.png" src="https://user-images.githubusercontent.com/25053215/184536369-ed608e86-1ea8-4c16-8c6a-5eaeb145eedf.png" style="width: 800px;" /></a>
-<p>OpenSTEF is set up as a package that performs machine learning to forecast energy loads on the energy grid.
+<p>OpenSTEF is set up as a Python package that performs machine learning in order to forecast energy loads on the energy grid.
 It contains:</p>
 <ul class="simple">
 <li><p><strong>Prediction job</strong>: input configuration for a task and/or pipeline
@@ -394,34 +395,35 @@ giving input data to the pipeline. Users can choose to use tasks
 <li><p><strong>Machine learning</strong>: is called by pipelines to perform training, forecasting, or evaluation based on the configuration from the prediction job (e.g. train an XGB quantile model).</p></li>
 <li><p><strong>Model storage</strong>: is called by pipelines to store or fetch trained machine learning model with MLFlow (e.g. store model locally in disk/database/s3_bucket on AWS).</p></li>
 <li><p><strong>Post processing</strong>: is called by pipelines to post process forecasting (e.g. combine forecast dataframe with extra configuration information from prediction job or split load forecast into solar, wind, and energy usage forecast).</p></li>
+<li><p><strong>Post processing</strong>: is called by pipelines to post process forecasting (e.g. combine forecast dataframe with extra configuration information from prediction job or split load forecast into solar, wind, and energy usage forecast).</p></li>
 </ul>
-<p>If tasks are used, the openstef-dbc package is required as an interface to the database for reading/writing.
-The current interface in openstef-dbc is for a MySQL database for configuration data (e.g. information for prediction jobs) and Influx database for feature data (e.g. weather, load, energy price data) and energy forecast data.</p>
+<p>Tasks are provided in a separate Python package called <a class="reference external" href="https://pypi.org/project/openstef-dbc/">openstef-dbc</a>. If you need to use tasks, the openstef-dbc package is required in order to interface to databases for reading/writing.
+Currently, openstef-dbc supports interfaces for a MySQL database for configuration data (e.g. information for prediction jobs) and <a class="reference external" href="https://www.influxdata.com/">InfluxDB</a> for feature data (e.g. weather, load, energy price data) and energy forecast data.</p>
 </section>
 <section id="application-architecture">
 <span id="id2"></span><h2>Application architecture<a class="headerlink" href="#application-architecture" title="Permalink to this heading">#</a></h2>
-<p>OpenSTEF is just a software package by itself and needs more parts to run as an application.</p>
+<p>OpenSTEF is simply a software package (i.e. a Python library). If you’re looking to run it as a full application with a graphical user interface frontend, you must deploy it with additional components.</p>
 <a class="reference internal image-reference" href="https://user-images.githubusercontent.com/25053215/184536367-c7914697-7a2a-45b8-b447-36aec1a6c1af.png"><img alt="https://user-images.githubusercontent.com/25053215/184536367-c7914697-7a2a-45b8-b447-36aec1a6c1af.png" src="https://user-images.githubusercontent.com/25053215/184536367-c7914697-7a2a-45b8-b447-36aec1a6c1af.png" style="width: 800px;" /></a>
-<p>It requires:</p>
+<p>Here are the recommended additional components if you want to run it as an application:</p>
 <ul class="simple">
-<li><p>Github repository:</p>
+<li><p>Github repositories:</p>
 <ul>
-<li><p>(create yourself) <strong>Data fetcher</strong>: software package to fetch data and write it to a database (e.g. a scheduled cron job to fetch weather data in Kubernetes).</p></li>
+<li><p>(create yourself) <strong>Data fetcher</strong>: software package to fetch input data and write it to a database (e.g. a scheduled <a class="reference external" href="https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/">CronJob</a> to fetch weather data in Kubernetes).</p></li>
 <li><p>(create yourself) <strong>Data API</strong>: API to provide data from a database or other source to applications and users (e.g. a REST API).</p></li>
-<li><p>(create yourself) <strong>Forecaster</strong>: software package to fetch config/data and run openstef tasks/pipelines (e.g. a scheduled cron job to train/forecast in Kubernetes).</p></li>
+<li><p>(create yourself) <strong>Forecaster</strong>: software package to fetch config/data and run OpenSTEF tasks/pipelines (e.g. a scheduled cron job to train/forecast in Kubernetes).</p></li>
 <li><p>(open source) <strong>OpenSTEF</strong>: software package that performs machine learning to forecast energy loads on the energy grid.</p></li>
-<li><p>(open source) <strong>OpenSTEF-dbc</strong>: software package that is interface to read/write data from/to a database for openstef tasks.</p></li>
+<li><p>(open source) <strong>OpenSTEF-dbc</strong>: software package that provides interface to read/write data from/to a database for openstef tasks.</p></li>
 </ul>
 </li>
-<li><p>CI/CD</p>
+<li><p>CI/CD Infrastructure</p>
 <ul>
-<li><p>(create yourself) <strong>Energy forecasting Application CI/CD</strong>: CICD pipeline to build, test, and deploy forecasting application (e.g. to Kubernetes via Jenkins/Tekton).</p></li>
-<li><p>(open source) <strong>OpenSTEF package CI/CD</strong>: CICD pipeline to build, test, and release OpenSTEF package to PyPI (via github actions).</p></li>
+<li><p>(create yourself) <strong>Energy forecasting Application CI/CD</strong>: Continuous Integration/Continuous Delivery pipeline to build, test, and deploy your forecasting application (e.g. to Kubernetes via Jenkins, Chef, Puppet, Tekton, etc.).</p></li>
+<li><p>(open source) <strong>OpenSTEF package CI/CD</strong>: A set of GitHub Actions that build, test, and publish the OpenSTEF package to PyPI <a class="reference external" href="https://pypi.org/project/openstef/">here</a> when it is time to release a new version.</p></li>
 </ul>
 </li>
-<li><p><strong>Compute</strong>: software applications can be run on Kubernetes on AWS.</p></li>
-<li><p><strong>Database</strong>: SQL, influx, or other database can be used to store fetched data and forecasts.</p></li>
-<li><p><strong>Dashboard</strong>: dashboard to visualize historic and forecasted energy loads.</p></li>
+<li><p><strong>Compute</strong>: compute resources to run your pipelines and tasks in production (e.g. on Kubernetes using any of the various providers AWS, Azure, GCP, Linode, etc.).</p></li>
+<li><p><strong>Database</strong>: SQL, InfluxDB, or other database that stores fetched input data and forecasts.</p></li>
+<li><p><strong>Dashboard</strong>: graphical user interface dashboard that allows uers to visualize application data (e.g. historic and forecasted energy loads)</p></li>
 </ul>
 <a class="reference internal image-reference" href="https://user-images.githubusercontent.com/60883372/146760483-29af3ac7-62af-4f13-98c7-982a79c517d1.jpg"><img alt="Screenshot of the operational dashboard showing the key functionality of OpenSTEF." src="https://user-images.githubusercontent.com/60883372/146760483-29af3ac7-62af-4f13-98c7-982a79c517d1.jpg" style="width: 800px;" /></a>
 <div class="line-block">
@@ -431,7 +433,7 @@ The current interface in openstef-dbc is for a MySQL database for configuration 
 </section>
 <section id="domain-adaptation-for-zero-shot-learning-in-sequence-dazls">
 <h1>Domain Adaptation for Zero Shot Learning in Sequence (DAZLS)<a class="headerlink" href="#domain-adaptation-for-zero-shot-learning-in-sequence-dazls" title="Permalink to this heading">#</a></h1>
-<p>DAZLS is an energy splitting function in openSTEF. Is a technique which
+<p>DAZLS is an energy splitting function in OpenSTEF. Is a technique which
 transfers knowledge from complete-information substations to
 incomplete-information substations for solar and wind power prediction.
 It is being used in <a class="reference internal" href="openstef.pipeline.html#module-openstef.pipeline.create_component_forecast" title="openstef.pipeline.create_component_forecast"><code class="xref py py-mod docutils literal notranslate"><span class="pre">openstef.pipeline.create_component_forecast</span></code></a>
@@ -505,11 +507,11 @@ newly produced dazls_stored.sav file in the repository.</p>
             <footer class="bd-footer-article">
                 <!-- Previous / next buttons -->
 <div class='prev-next-area'>
-  <a class='left-prev' id="prev-link" href="pipelines_user_guide.html" title="previous page">
+  <a class='left-prev' id="prev-link" href="user_guides.html" title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
           <p class="prev-next-subtitle">previous</p>
-          <p class="prev-next-title">Pipelines user guide</p>
+          <p class="prev-next-title">User guides</p>
       </div>
   </a>
   <a class='right-next' id="next-link" href="api_reference.html" title="next page">

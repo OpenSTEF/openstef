@@ -6,7 +6,7 @@
 
 Community
 =========
-Here you can find all information about the openSTEF community.
+Here you can find all information about the OpenSTEF community.
 
 Technical Steering Committee
 ----------------------------
@@ -38,11 +38,11 @@ OpenSTEF welcomes contributions in all forms!
 
 For contributing in code have a look at the `contributing guidelines <https://github.com/OpenSTEF/.github/blob/main/CONTRIBUTING.md>`_.
 
-If you found a bug or would like to request a feature please open an issues `here <https://github.com/OpenSTEF/openstef/issues>`_
+If you found a bug or would like to request a feature please open an issue `here <https://github.com/OpenSTEF/openstef/issues>`_
 
-During the bi-weekly refinement we refineme open issues. This meeting is open for anyone that is interested, more details and meeting links can be found `here <https://wiki.lfenergy.org/display/OS/Biweekly+Refinement>`_
+During the bi-weekly refinement we refine open issues. This meeting is open for anyone that is interested, more details and meeting links can be found `here <https://wiki.lfenergy.org/display/OS/Biweekly+Refinement>`_
 
 Support
 -------
-Not found what you are looking for? See possibilities for getting community Support `here <https://github.com/OpenSTEF/.github/blob/main/SUPPORT.md>`_.
-Or post your question in the `openSTEF teams channel <https://teams.microsoft.com/l/team/19%3ac08a513650524fc988afb296cd0358cc%40thread.tacv2/conversations?groupId=bfcb763a-3a97-4938-81d7-b14512aa537d&tenantId=697f104b-d7cb-48c8-ac9f-bd87105bafdc>`_.
+Can't find what you are looking for? See possibilities for getting community Support `here <https://github.com/OpenSTEF/.github/blob/main/SUPPORT.md>`_.
+Or post your question in the `OpenSTEF teams channel <https://teams.microsoft.com/l/team/19%3ac08a513650524fc988afb296cd0358cc%40thread.tacv2/conversations?groupId=bfcb763a-3a97-4938-81d7-b14512aa537d&tenantId=697f104b-d7cb-48c8-ac9f-bd87105bafdc>`_.

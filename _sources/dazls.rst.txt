@@ -5,7 +5,7 @@
 Domain Adaptation for Zero Shot Learning in Sequence (DAZLS)
 ============================================================
 
-DAZLS is an energy splitting function in openSTEF. Is a technique which
+DAZLS is an energy splitting function in OpenSTEF. Is a technique which
 transfers knowledge from complete-information substations to
 incomplete-information substations for solar and wind power prediction.
 It is being used in :mod:`openstef.pipeline.create_component_forecast`
