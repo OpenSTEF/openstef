@@ -14,7 +14,7 @@ from openstef.feature_engineering.feature_applicator import (
 
 class TestFeatureApplicator(TestCase):
     def setUp(self) -> None:
-        self.input_data = TestData.load("input_data.pickle")
+        self.input_data = TestData.load("input_data.csv")
 
     def test_train_feature_applicator_correct_order(self):
         # Test for expected column order of the output

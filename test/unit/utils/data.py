@@ -45,11 +45,7 @@ class TestData:
     @classmethod
     def save(cls, obj, filename):
         filepath = cls.DATA_FILES_FOLDER / filename
-        if ".pickle" in filename:
-            with open(filepath, "wb") as fh:
-                pickle.dump(obj, fh)
-
-        elif ".json" in filename:
+        if ".json" in filename:
             dumper = json.dump
             with open(filepath, "w") as fp:
                 dumper(obj, fp)
@@ -66,13 +62,6 @@ class TestData:
                 filename, cls._CSV_DEFAULT_KWARGS
             )
             return reader(filepath, **reader_kwargs)
-
-        if ".pickle" in filename:
-            with open(filepath, "rb") as fh:
-                data = pickle.load(fh)
-            if filename == "input_data.pickle":
-                data.index.freq = "15T"
-            return data
 
         if ".json" in filename:
             reader = json.load

@@ -13,6 +13,7 @@ Pipelines - high level functionality
 ------------------------------------
 OpenSTEF is designed around Pipelines (see :ref:`concepts <concepts>` for definition). Pipelines offer an easy way to train models, generate forecasts, and evaluate  forecasting performance. 
 
+
 The following pipelines are available:
 
 - :mod:`openstef.pipeline.train_model`
@@ -39,11 +40,11 @@ For more in-depth information on how to use and implement the pipelines in an op
 
 Deploy as a full Forecasting application
 ----------------------------------------
-
 If you would like to setup a full forecasting application that is ready to be used in an operational setting with a 
 backend datastore and graphical user interface frontent, this 
 `GitHub repository contains a reference implementation <https://github.com/OpenSTEF/openstef-reference>`_  you can use as a starting point. 
 This example implementation includes databases, a user interface, and example data.
+
 More information on what the architecture of such an application could look like can be found :ref:`here <application-architecture>`.
 
 .. include:: dashboard.rst

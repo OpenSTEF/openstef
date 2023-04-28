@@ -19,27 +19,27 @@ class PredictionJobDataClass(BaseModel):
     """The predictions job id (often abreviated as pid)."""
     model: str
     """The model type that should be used.
-    
+
     Options are:
         - ``"xgb"``
         - ``"xgb_quantile"``
         - ``"lgb"``
         - ``"linear"``
         - ``"proloaf"`` (extra dependencies requiered, see README)
-    
+
     If unsure what to pick, choose ``"xgb"``.
-    
+
     """
     forecast_type: str
     """The type of forecasts that should be made.
-    
+
     Options are:
         - ``"demand"``
         - ``"wind"``
-        - ``"basecase"``   
-        
+        - ``"basecase"``
+
     If unsure what to pick, choose ``"demand"``.
-    
+
     """
     horizon_minutes: int
     """The horizon of the desired forecast in minutes."""

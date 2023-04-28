@@ -15,8 +15,8 @@ from openstef.validation import validation
 class TestDataValidation(BaseTestCase):
     def setUp(self):
         super().setUp()
-        self.data_train = TestData.load("input_data_train.pickle")
-        self.data_predict = TestData.load("input_data.pickle")
+        self.data_train = TestData.load("input_data_train.csv")
+        self.data_predict = TestData.load("input_data.csv")
         self.pj = TestData.get_prediction_job(pid=307)
 
     def test_drop_target_na(self):
