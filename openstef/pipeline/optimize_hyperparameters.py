@@ -206,7 +206,7 @@ def optimize_hyperparameters_pipeline_core(
         hyper_params=best_hyperparams,
     )
 
-    # Train a model using the regular train pipeline. 
+    # Train a model using the regular train pipeline.
     # The train/validation/test split used in hyperparam optimisation
     # is less suitable for an operational model.
     best_model, report, modelspecs, _ = train_model_pipeline_core(
