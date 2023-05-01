@@ -206,12 +206,12 @@ def optimize_hyperparameters_pipeline_core(
         hyper_params=best_hyperparams,
     )
 
-    # If the model type is quantile, train a model with the best parameters for all quantiles
-    # (optimization is only done for quantile 0.5)
-    if objective.model.can_predict_quantiles:
-        best_model, report, modelspecs, _ = train_model_pipeline_core(
-            pj=pj, input_data=input_data, model_specs=model_specs
-        )
+    # Train a model using the regular train pipeline.
+    # The train/validation/test split used in hyperparam optimisation
+    # is less suitable for an operational model.
+    best_model, report, modelspecs, _ = train_model_pipeline_core(
+        pj=pj, input_data=input_data, model_specs=model_specs
+    )
 
     # Save model and report. Report is always saved to MLFlow and optionally to disk
     report = objective.create_report(model=best_model)
