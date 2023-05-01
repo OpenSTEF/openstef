@@ -24,7 +24,7 @@ from openstef.pipeline.optimize_hyperparameters import (
 )
 
 
-def dummy_split(data, validation_fraction, test_fraction):
+def dummy_split(data, test_fraction, validation_fraction=0.0):
     return data.iloc[:100], data.iloc[100:110], data.iloc[110:120]
 
 
@@ -90,7 +90,10 @@ class TestOptimizeHyperParametersPipeline(BaseTestCase):
 
     def test_optuna_optimization_with_custom_split(self):
         pj = self.pj
-        pj.train_split_func = SplitFuncDataClass(function=dummy_split, arguments={})
+        pj.train_split_func = SplitFuncDataClass(
+            function=dummy_split,
+            arguments={"data", "validation_fraction", "test_fraction"},
+        )
 
         objective = ObjectiveCreator.create_objective(model_type=pj["model"])
 
@@ -103,7 +106,10 @@ class TestOptimizeHyperParametersPipeline(BaseTestCase):
     def test_optimize_hyperparameters_pipeline_with_custom_split(self):
         """Also check if non-default quantiles are processed correctly"""
         pj = self.pj
-        pj.train_split_func = SplitFuncDataClass(function=dummy_split, arguments={})
+        pj.train_split_func = SplitFuncDataClass(
+            function=dummy_split,
+            arguments=dict(),
+        )
         predefined_quantiles = (0.001, 0.5)
         pj["quantiles"] = predefined_quantiles
 
