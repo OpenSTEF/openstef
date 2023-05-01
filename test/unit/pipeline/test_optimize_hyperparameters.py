@@ -92,7 +92,7 @@ class TestOptimizeHyperParametersPipeline(BaseTestCase):
         pj = self.pj
         pj.train_split_func = SplitFuncDataClass(
             function=dummy_split,
-            arguments={"data", "validation_fraction", "test_fraction"},
+            arguments={},
         )
 
         objective = ObjectiveCreator.create_objective(model_type=pj["model"])
