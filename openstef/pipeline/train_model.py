@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 import logging
 import os
-from typing import Optional, Union
+from typing import Optional, Union, Tuple
 
 import pandas as pd
 import structlog
@@ -31,6 +31,7 @@ MAXIMUM_MODEL_AGE: int = 7
 DEFAULT_EARLY_STOPPING_ROUNDS: int = 10
 PENALTY_FACTOR_OLD_MODEL: float = 1.2
 
+logger = structlog.get_logger(__name__)
 
 def train_model_pipeline(
     pj: PredictionJobDataClass,
@@ -60,27 +61,10 @@ def train_model_pipeline(
 
     """
     # Initialize logger and serializer
-    logger = structlog.get_logger(__name__)
     serializer = MLflowSerializer(mlflow_tracking_uri=mlflow_tracking_uri)
 
     # Get old model and age
-    try:
-        old_model, model_specs = serializer.load_model(experiment_name=str(pj["id"]))
-        old_model_age = old_model.age  # Age attribute is openstef specific
-    except Exception:
-        old_model = None
-        old_model_age = float("inf")
-        if pj["default_modelspecs"] is not None:
-            model_specs = pj["default_modelspecs"]
-            if model_specs.id != pj.id:
-                raise RuntimeError(
-                    "The id of the prediction job and its default model_specs do not"
-                    " match."
-                )
-        else:
-            # create basic model_specs
-            model_specs = ModelSpecificationDataClass(id=pj["id"])
-        logger.warning("No old model found, training new model", pid=pj["id"])
+    old_model, model_specs, old_model_age = train_pipeline_step_load_model(pj, serializer)
 
     # Check old model age and continue yes/no
     if (old_model_age < MAXIMUM_MODEL_AGE) and check_old_model_age:
@@ -298,6 +282,30 @@ def train_pipeline_common(
         test_data["forecast"] = model.predict(test_data.iloc[:, 1:-1])
 
     return model, report, train_data, validation_data, test_data
+
+def train_pipeline_step_load_model(pj: PredictionJobDataClass, serializer: MLflowSerializer) ->  tuple[OpenstfRegressor, ModelSpecificationDataClass, Union[int, float]]:
+    try:
+        old_model, model_specs = serializer.load_model(experiment_name=str(pj.id))
+        old_model_age = old_model.age  # Age attribute is openstef specific
+        return old_model, model_specs, old_model_age
+    except (AttributeError, FileNotFoundError, LookupError):
+        logger.warning("No old model found, training new model", pid= pj.id)
+    except Exception:
+        logger.exception("Old model could not be loaded, training new model", pid= pj.id)
+    old_model = None
+    old_model_age = float("inf")
+    if pj["default_modelspecs"] is not None:
+        model_specs = pj["default_modelspecs"]
+        if model_specs.id != pj.id:
+            raise RuntimeError(
+                "The id of the prediction job and its default model_specs do not"
+                " match."
+            )
+    else:
+        # create basic model_specs
+        model_specs = ModelSpecificationDataClass(id=pj["id"])
+
+    return old_model, model_specs, old_model_age
 
 
 def train_pipeline_step_compute_features(
