@@ -1,5 +1,5 @@
 .. comment:
-    SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com>
+    SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com>
     SPDX-License-Identifier: MPL-2.0
 
 .. _user_guides:
@@ -11,7 +11,7 @@ This page contains guides and links to resources that show how OpenSTEF can be u
 
 Pipelines - high level functionality
 ------------------------------------
-OpenSTEF is designed around Pipelines (see :ref:`concepts <concepts>` for definition). Pipelines offer an easy way to train models, generate forecasts, and evaluate  forecasting performance. 
+OpenSTEF is designed around Pipelines (see :ref:`concepts <concepts>` for definition). Pipelines offer an easy way to train models, generate forecasts, and evaluate  forecasting performance.
 
 
 The following pipelines are available:
@@ -23,11 +23,11 @@ The following pipelines are available:
 - :mod:`openstef.pipeline.create_basecase_forecast`
 - :mod:`openstef.pipeline.train_create_forecast_backtest`
 
-A great way to get started and become familiar with OpenSTEF pipelines is to have a look at 
+A great way to get started and become familiar with OpenSTEF pipelines is to have a look at
 `this GitHub repository that contains an assortment of Jupyter notebook examples <https://github.com/OpenSTEF/openstef-offline-example>`_. The repository
 even includes example data.
 
-You can run each example notebook locally without any setup required, apart from the `installation of the OpenSTEF package <https://pypi.org/project/openstef/>`_. 
+You can run each example notebook locally without any setup required, apart from the `installation of the OpenSTEF package <https://pypi.org/project/openstef/>`_.
 
 We encourage you to check out all the examples, but here is a list to get you started:
 
@@ -40,9 +40,9 @@ For more in-depth information on how to use and implement the pipelines in an op
 
 Deploy as a full Forecasting application
 ----------------------------------------
-If you would like to setup a full forecasting application that is ready to be used in an operational setting with a 
-backend datastore and graphical user interface frontent, this 
-`GitHub repository contains a reference implementation <https://github.com/OpenSTEF/openstef-reference>`_  you can use as a starting point. 
+If you would like to setup a full forecasting application that is ready to be used in an operational setting with a
+backend datastore and graphical user interface frontent, this
+`GitHub repository contains a reference implementation <https://github.com/OpenSTEF/openstef-reference>`_  you can use as a starting point.
 This example implementation includes databases, a user interface, and example data.
 
 More information on what the architecture of such an application could look like can be found :ref:`here <application-architecture>`.
