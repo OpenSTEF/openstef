@@ -67,7 +67,7 @@ def train_model_pipeline(
     try:
         old_model, model_specs = serializer.load_model(experiment_name=str(pj["id"]))
         old_model_age = old_model.age  # Age attribute is openstef specific
-    except (AttributeError, FileNotFoundError, LookupError):
+    except Exception:
         old_model = None
         old_model_age = float("inf")
         if pj["default_modelspecs"] is not None:
