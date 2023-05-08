@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project
+# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -23,7 +23,7 @@ sys.path.insert(0, os.path.abspath("../"))
 # -- Project information -----------------------------------------------------
 
 project = "OpenSTEF"
-copyright = "2017-2022 Contributors to the OpenSTEF project"
+copyright = "2017-2023 Contributors to the OpenSTEF project"
 author = "Contributors to the OpenSTEF project"
 
 
