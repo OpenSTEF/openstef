@@ -33,6 +33,7 @@ PENALTY_FACTOR_OLD_MODEL: float = 1.2
 
 logger = structlog.get_logger(__name__)
 
+
 def train_model_pipeline(
     pj: PredictionJobDataClass,
     input_data: pd.DataFrame,
@@ -64,7 +65,9 @@ def train_model_pipeline(
     serializer = MLflowSerializer(mlflow_tracking_uri=mlflow_tracking_uri)
 
     # Get old model and age
-    old_model, model_specs, old_model_age = train_pipeline_step_load_model(pj, serializer)
+    old_model, model_specs, old_model_age = train_pipeline_step_load_model(
+        pj, serializer
+    )
 
     # Check old model age and continue yes/no
     if (old_model_age < MAXIMUM_MODEL_AGE) and check_old_model_age:
@@ -283,15 +286,18 @@ def train_pipeline_common(
 
     return model, report, train_data, validation_data, test_data
 
-def train_pipeline_step_load_model(pj: PredictionJobDataClass, serializer: MLflowSerializer) ->  tuple[OpenstfRegressor, ModelSpecificationDataClass, Union[int, float]]:
+
+def train_pipeline_step_load_model(
+    pj: PredictionJobDataClass, serializer: MLflowSerializer
+) -> tuple[OpenstfRegressor, ModelSpecificationDataClass, Union[int, float]]:
     try:
         old_model, model_specs = serializer.load_model(experiment_name=str(pj.id))
         old_model_age = old_model.age  # Age attribute is openstef specific
         return old_model, model_specs, old_model_age
     except (AttributeError, FileNotFoundError, LookupError):
-        logger.warning("No old model found, training new model", pid= pj.id)
+        logger.warning("No old model found, training new model", pid=pj.id)
     except Exception:
-        logger.exception("Old model could not be loaded, training new model", pid= pj.id)
+        logger.exception("Old model could not be loaded, training new model", pid=pj.id)
     old_model = None
     old_model_age = float("inf")
     if pj["default_modelspecs"] is not None:
