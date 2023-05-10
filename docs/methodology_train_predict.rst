@@ -11,5 +11,6 @@ Furthermore, the train and predict methodology of OpenSTEF allows
 for a single-shot, multi-horizon forecast. To provide a high-level overview
 of these functionalities, a schematic depiction is given here. 
 
-.. figure:: _static/methodology_train_predict.jpg
+.. figure:: _static/methodology_train_predict.svg
    :alt: Methodology overview
+`Source file <_static/methodology_train_predict.pptx>`__
