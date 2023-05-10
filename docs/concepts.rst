@@ -37,6 +37,12 @@ It contains:
 If tasks are used, the openstef-dbc package is required as an interface to the database for reading/writing.
 The current interface in openstef-dbc is for a MySQL database for configuration data (e.g. information for prediction jobs) and Influx database for feature data (e.g. weather, load, energy price data) and energy forecast data.
 
+|
+
+.. include:: methodology_train_predict.rst
+
+|
+
 .. _application-architecture:
 
 Application architecture
