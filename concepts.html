@@ -398,7 +398,24 @@ giving input data to the pipeline. Users can choose to use tasks
 </ul>
 <p>Tasks are provided in a separate Python package called <a class="reference external" href="https://pypi.org/project/openstef-dbc/">openstef-dbc</a>. If you need to use tasks, the openstef-dbc package is required in order to interface to databases for reading/writing.
 Currently, openstef-dbc supports interfaces for a MySQL database for configuration data (e.g. information for prediction jobs) and <a class="reference external" href="https://www.influxdata.com/">InfluxDB</a> for feature data (e.g. weather, load, energy price data) and energy forecast data.</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
 </section>
+</section>
+<section id="high-level-methodology-openstef">
+<h1>High level methodology OpenSTEF<a class="headerlink" href="#high-level-methodology-openstef" title="Permalink to this heading">#</a></h1>
+<p>OpenSTEF automates many typical activities in machine learning.
+These include the combination of input data and preparation of features.
+Furthermore, the train and predict methodology of OpenSTEF allows
+for a single-shot, multi-horizon forecast. To provide a high-level overview
+of these functionalities, a schematic depiction is given here.</p>
+<figure class="align-default">
+<img alt="Methodology overview" src="_images/methodology_train_predict.svg" /></figure>
+<p><a class="reference external" href="_static/methodology_train_predict.pptx">Source file</a></p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
 <section id="application-architecture">
 <span id="id2"></span><h2>Application architecture<a class="headerlink" href="#application-architecture" title="Permalink to this heading">#</a></h2>
 <p>OpenSTEF is simply a software package (i.e. a Python library). If you’re looking to run it as a full application with a graphical user interface frontend, you must deploy it with additional components.</p>
@@ -546,6 +563,13 @@ newly produced dazls_stored.sav file in the repository.</p>
      Software architecture
     </a>
    </li>
+  </ul>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#high-level-methodology-openstef">
+   High level methodology OpenSTEF
+  </a>
+  <ul class="visible nav section-nav flex-column">
    <li class="toc-h2 nav-item toc-entry">
     <a class="reference internal nav-link" href="#application-architecture">
      Application architecture

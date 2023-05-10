@@ -39,6 +39,12 @@ It contains:
 Tasks are provided in a separate Python package called `openstef-dbc <https://pypi.org/project/openstef-dbc/>`_. If you need to use tasks, the openstef-dbc package is required in order to interface to databases for reading/writing.
 Currently, openstef-dbc supports interfaces for a MySQL database for configuration data (e.g. information for prediction jobs) and `InfluxDB <https://www.influxdata.com/>`_ for feature data (e.g. weather, load, energy price data) and energy forecast data.
 
+|
+
+.. include:: methodology_train_predict.rst
+
+|
+
 .. _application-architecture:
 
 Application architecture
