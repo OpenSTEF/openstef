@@ -74,7 +74,7 @@ class StandardDeviationGenerator:
         for hour in range(24):
             hour_error = error[error.index == hour]
             result["stdev"].iloc[hour] = np.std(
-                hour_error[1:]
+                hour_error.iloc[1:]
             )  # Exclude first item as this is the hour itself!
             result["hour"].iloc[hour] = hour
 
