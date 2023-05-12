@@ -67,10 +67,6 @@ class ConfidenceIntervalApplicator:
 
         The stdev for intermediate forecast horizons is interpolated.
 
-        For the input standard_deviation, it is preferred that the forecast horizon is
-        expressed in Hours, instead of 'Near/Far'. For now, Near/Far is supported,
-        but this will be deprecated.
-
         Args:
             forecast: Forecast DataFrame with columns: "forecast"
 
@@ -143,7 +139,9 @@ class ConfidenceIntervalApplicator:
             sf, sn = stdev_row[far], stdev_row[near]
             A = (sf - sn) / ((1 - np.exp(-far / tau)) - (1 - np.exp(-near / tau)))
             b = sn - A * (1 - np.exp(-near / tau))
-            return A * (1 - np.exp(-t / tau)) + b
+            value = A * (1 - np.exp(-t / tau)) + b
+            # cap the value to keep is between near and far
+            return np.max([sn, np.min([sf, value])])
 
         # If only one horizon is available use that one
         if len(stdev.columns) == 1:
