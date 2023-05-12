@@ -11,11 +11,14 @@ from openstef.model.standard_deviation_generator import StandardDeviationGenerat
 class MockModel:
     def predict(self, *args):
 
-        # Prepare mock_forecast
+        # Prepare mock_forecast - 
+        # it should include mutliple observations of the
+        # same time of day for the same horizon, 
+        # otherwise the stdev of the error cannot be calculated
         mock_forecast = pd.DataFrame(
             {
-                "forecast": [1, 2, 3, 4, 1, 3, 3, 7],
-                "horizon": [47.0, 47.0, 47.0, 47.0, 24.0, 24.0, 24.0, 24.0],
+                "forecast": [1, 2, 3, 4, 2, 4, 6, 8],
+                "horizon": [1.0, 2.0, 3.0, 4.0]*2,
             }
         )
         mock_forecast = mock_forecast.set_index(
@@ -25,10 +28,10 @@ class MockModel:
                     "2018-01-01 01:00:00",
                     "2018-01-01 02:00:00",
                     "2018-01-01 03:00:00",
-                    "2018-01-01 00:00:00",
-                    "2018-01-01 01:00:00",
-                    "2018-01-01 02:00:00",
-                    "2018-01-01 03:00:00",
+                    "2018-01-02 00:00:00",
+                    "2018-01-02 01:00:00",
+                    "2018-01-02 02:00:00",
+                    "2018-01-02 03:00:00",
                 ]
             )
         )
@@ -44,10 +47,10 @@ class TestStandardDeviationGenerator(unittest.TestCase):
         # Prepare mock validation data
         mock_validation_data = pd.DataFrame(
             {
-                "load": [4, 2, 5, 2, 4, 2, 5, 2],
-                "feature_1": [4, 2, 5, 2, 5, 4, 8, 2],
-                "feature_2": [4, 2, 5, 2, 5, 4, 8, 2],
-                "horizon": [47.0, 47.0, 47.0, 47.0, 24.0, 24.0, 24.0, 24.0],
+                "load": [4, 2, 5, 2, 4, 2, 5, 2]*2,
+                "feature_1": [4, 2, 5, 2, 5, 4, 8, 2]*2,
+                "feature_2": [4, 2, 5, 2, 5, 4, 8, 2]*2,
+                "horizon": [47.0, 47.0, 47.0, 47.0, 24.0, 24.0, 24.0, 24.0]*2,
             }
         )
 
@@ -62,6 +65,14 @@ class TestStandardDeviationGenerator(unittest.TestCase):
                     "2018-01-01 01:00:00",
                     "2018-01-01 02:00:00",
                     "2018-01-01 03:00:00",
+                    "2018-01-02 00:00:00",
+                    "2018-01-02 01:00:00",
+                    "2018-01-02 02:00:00",
+                    "2018-01-02 03:00:00",
+                    "2018-01-02 00:00:00",
+                    "2018-01-02 01:00:00",
+                    "2018-01-02 02:00:00",
+                    "2018-01-02 03:00:00",
                 ]
             )
         )
@@ -74,7 +85,7 @@ class TestStandardDeviationGenerator(unittest.TestCase):
         # Generate reference dataframe of expected output, this data has been checked.
         ref_df = pd.DataFrame(
             {
-                "stdev": [0, 0.0, 0.0, 0.0],
+                "stdev": [0.5, 1.0, 1.5, 2.0],
                 "hour": [0.0, 1.0, 2.0, 3.0],
                 "horizon": [47.0, 47.0, 47.0, 47.0],
             }
@@ -90,3 +101,5 @@ class TestStandardDeviationGenerator(unittest.TestCase):
 
         # Check if all horizons are pressent
         self.assertEqual([47.0, 24.0], list(model.standard_deviation.horizon.unique()))
+      
+
