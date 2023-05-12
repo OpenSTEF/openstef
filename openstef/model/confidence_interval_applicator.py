@@ -140,7 +140,7 @@ class ConfidenceIntervalApplicator:
             A = (sf - sn) / ((1 - np.exp(-far / tau)) - (1 - np.exp(-near / tau)))
             b = sn - A * (1 - np.exp(-near / tau))
             value = A * (1 - np.exp(-t / tau)) + b
-            # cap the value to keep is between near and far
+            # cap the value to keep it between near and far
             return np.max([sn, np.min([sf, value])])
 
         # If only one horizon is available use that one
