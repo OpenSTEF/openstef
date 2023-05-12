@@ -142,7 +142,7 @@ class ConfidenceIntervalApplicator:
             value = A * (1 - np.exp(-t / tau)) + b
             # cap the value to keep it between near and far
             if value < sn:
-                return sn 
+                return sn
             return sf if value > sf else value
 
         # If only one horizon is available use that one
