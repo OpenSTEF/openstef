@@ -11,14 +11,14 @@ from openstef.model.standard_deviation_generator import StandardDeviationGenerat
 class MockModel:
     def predict(self, *args):
 
-        # Prepare mock_forecast - 
+        # Prepare mock_forecast -
         # it should include mutliple observations of the
-        # same time of day for the same horizon, 
+        # same time of day for the same horizon,
         # otherwise the stdev of the error cannot be calculated
         mock_forecast = pd.DataFrame(
             {
                 "forecast": [1, 2, 3, 4, 2, 4, 6, 8],
-                "horizon": [1.0, 2.0, 3.0, 4.0]*2,
+                "horizon": [1.0, 2.0, 3.0, 4.0] * 2,
             }
         )
         mock_forecast = mock_forecast.set_index(
@@ -47,10 +47,10 @@ class TestStandardDeviationGenerator(unittest.TestCase):
         # Prepare mock validation data
         mock_validation_data = pd.DataFrame(
             {
-                "load": [4, 2, 5, 2, 4, 2, 5, 2]*2,
-                "feature_1": [4, 2, 5, 2, 5, 4, 8, 2]*2,
-                "feature_2": [4, 2, 5, 2, 5, 4, 8, 2]*2,
-                "horizon": [47.0, 47.0, 47.0, 47.0, 24.0, 24.0, 24.0, 24.0]*2,
+                "load": [4, 2, 5, 2, 4, 2, 5, 2] * 2,
+                "feature_1": [4, 2, 5, 2, 5, 4, 8, 2] * 2,
+                "feature_2": [4, 2, 5, 2, 5, 4, 8, 2] * 2,
+                "horizon": [47.0, 47.0, 47.0, 47.0, 24.0, 24.0, 24.0, 24.0] * 2,
             }
         )
 
@@ -101,5 +101,3 @@ class TestStandardDeviationGenerator(unittest.TestCase):
 
         # Check if all horizons are pressent
         self.assertEqual([47.0, 24.0], list(model.standard_deviation.horizon.unique()))
-      
-
