@@ -73,9 +73,7 @@ class StandardDeviationGenerator:
         # For the time starts with 00, 01, 02, etc. TODO (MAKE MORE ELEGANT SOLUTION THAN A LOOP)
         for hour in range(24):
             hour_error = error[error.index == hour]
-            result["stdev"].iloc[hour] = np.std(
-                hour_error.iloc[1:]
-            )  # Exclude first item as this is the hour itself!
+            result["stdev"].iloc[hour] = np.std(hour_error)
             result["hour"].iloc[hour] = hour
 
         result = result.astype("float")
