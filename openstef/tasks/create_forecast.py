@@ -53,6 +53,15 @@ def create_forecast_task(pj: PredictionJobDataClass, context: TaskContext) -> No
         )
         return
 
+    if (
+        context.config.externally_posted_forecasts_pids
+        and pj.id in context.config.externally_posted_forecasts_pids
+    ):
+        context.logger.info(
+            "Skip this PredictionJob because its forecasts are posted by an external process."
+        )
+        return
+
     # Extract mlflow tracking URI and trained models folder
     mlflow_tracking_uri = context.config.paths_mlflow_tracking_uri
 
