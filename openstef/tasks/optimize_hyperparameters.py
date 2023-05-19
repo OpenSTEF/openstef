@@ -56,6 +56,18 @@ def optimize_hyperparameters_task(
         )
         return
 
+    # TODO: Improve implementation by using a field in the database and leveraging the
+    #       `pipelines_to_run` attribute of the `PredictionJobDataClass` object. This
+    #       would require a change to the MySQL datamodel.
+    if (
+        context.config.externally_posted_forecasts_pids
+        and pj.id in context.config.externally_posted_forecasts_pids
+    ):
+        context.logger.info(
+            "Skip this PredictionJob because its forecasts are posted by an external process."
+        )
+        return
+
     # Retrieve the paths for storing model and reports from the config manager
     mlflow_tracking_uri = context.config.paths_mlflow_tracking_uri
     artifact_folder = context.config.paths_artifact_folder

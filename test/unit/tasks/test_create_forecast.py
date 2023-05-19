@@ -41,11 +41,52 @@ class TestCreateForeCastTask(TestCase):
         "openstef.tasks.create_forecast.create_forecast_pipeline",
         MagicMock(return_value=FORECAST_MOCK),
     )
+    def test_create_forecast_task_happy_flow_1(self):
+        """Test happy flow of create forecast task."""
+        # Arrange
+        context = MagicMock()
+        context.config.externally_posted_forecasts_pids = None
+
+        # Act
+        create_forecast_task(self.pj, context)
+
+        # Assert
+        self.assertEqual(context.mock_calls[1].args[0], FORECAST_MOCK)
+
+    @patch(
+        "openstef.tasks.create_forecast.create_forecast_pipeline",
+        MagicMock(return_value=FORECAST_MOCK),
+    )
     def test_create_forecast_task_happy_flow(self):
         """Test happy flow of create forecast task."""
+        # Arrange
         context = MagicMock()
+        context.config.externally_posted_forecasts_pids = [999]
+
+        # Act
         create_forecast_task(self.pj, context)
+
+        # Assert
+        self.assertNotEqual(
+            self.pj.id, context.config.externally_posted_forecasts_pids[0]
+        )
         self.assertEqual(context.mock_calls[1].args[0], FORECAST_MOCK)
+
+    def test_create_forecast_task_skip_external(self):
+        """Test happy flow of create forecast task."""
+        # Arrange
+        context = MagicMock()
+        context.config.externally_posted_forecasts_pids = [307]
+
+        # Act
+        create_forecast_task(self.pj, context)
+
+        # Assert
+        self.assertEqual(self.pj.id, context.config.externally_posted_forecasts_pids[0])
+        self.assertEqual(
+            context.mock_calls[0].args[0],
+            "Skip this PredictionJob because its forecasts are posted by an external process.",
+        )
 
     @patch("openstef.tasks.create_forecast.create_forecast_pipeline")
     def test_create_forecast_task_train_only(self, create_forecast_pipeline_mock):
@@ -59,13 +100,18 @@ class TestCreateForeCastTask(TestCase):
     @patch("openstef.tasks.create_forecast.create_forecast_pipeline")
     def test_create_forecast_task_forecast_only(self, create_forecast_pipeline_mock):
         """Test happy flow of create forecast task for forecast only pj."""
+        # Arrange
         context = MagicMock()
         create_forecast_pipeline_mock.return_value = FORECAST_MOCK
         pj = self.pj
         pj.pipelines_to_run = [PipelineType.FORECAST]
+
+        # Act
         create_forecast_task(pj, context)
+
+        # Assert
         self.assertEqual(create_forecast_pipeline_mock.call_count, 1)
-        self.assertEqual(context.mock_calls[1].args[0], FORECAST_MOCK)
+        self.assertEqual(context.mock_calls[3].args[0], FORECAST_MOCK)
 
     @patch("mlflow.sklearn.load_model")
     @patch("openstef.model.serializer.MLflowSerializer")

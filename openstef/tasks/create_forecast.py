@@ -53,6 +53,18 @@ def create_forecast_task(pj: PredictionJobDataClass, context: TaskContext) -> No
         )
         return
 
+    # TODO: Improve implementation by using a field in the database and leveraging the
+    #       `pipelines_to_run` attribute of the `PredictionJobDataClass` object. This
+    #       would require a change to the MySQL datamodel.
+    if (
+        context.config.externally_posted_forecasts_pids
+        and pj.id in context.config.externally_posted_forecasts_pids
+    ):
+        context.logger.info(
+            "Skip this PredictionJob because its forecasts are posted by an external process."
+        )
+        return
+
     # Extract mlflow tracking URI and trained models folder
     mlflow_tracking_uri = context.config.paths_mlflow_tracking_uri
 
