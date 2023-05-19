@@ -43,13 +43,15 @@ class TestCreateBasecaseForecastTask(TestCase):
         # Arrange
         context = MagicMock()
         context.config.externally_posted_forecasts_pids = [307]
-        
+
         # Act
         create_basecase_forecast_task(self.pj, context)
-        
+
         # Assert
-        self.assertEqual(context.mock_calls[0].args[0], 
-                         "Skip this PredictionJob because its forecasts are posted by an external process.")
+        self.assertEqual(
+            context.mock_calls[0].args[0],
+            "Skip this PredictionJob because its forecasts are posted by an external process.",
+        )
 
     @patch("openstef.tasks.create_basecase_forecast.create_basecase_forecast_pipeline")
     def test_create_forecast_task_train_only(
@@ -72,10 +74,10 @@ class TestCreateBasecaseForecastTask(TestCase):
         create_basecase_forecast_pipeline_mock.return_value = FORECAST_MOCK
         pj = self.pj
         pj.pipelines_to_run = [PipelineType.FORECAST]
-        
+
         # Act
         create_basecase_forecast_task(pj, context)
-        
+
         # Assert
         self.assertEqual(create_basecase_forecast_pipeline_mock.call_count, 1)
         pd.testing.assert_frame_equal(context.mock_calls[3].args[0], FORECAST_MOCK)

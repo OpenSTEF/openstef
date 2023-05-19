@@ -46,10 +46,10 @@ class TestCreateForeCastTask(TestCase):
         # Arrange
         context = MagicMock()
         context.config.externally_posted_forecasts_pids = None
-        
+
         # Act
         create_forecast_task(self.pj, context)
-        
+
         # Assert
         self.assertEqual(context.mock_calls[1].args[0], FORECAST_MOCK)
 
@@ -62,12 +62,14 @@ class TestCreateForeCastTask(TestCase):
         # Arrange
         context = MagicMock()
         context.config.externally_posted_forecasts_pids = [999]
-        
-        # Act 
+
+        # Act
         create_forecast_task(self.pj, context)
-        
-        # Assert 
-        self.assertNotEqual(self.pj.id, context.config.externally_posted_forecasts_pids[0])
+
+        # Assert
+        self.assertNotEqual(
+            self.pj.id, context.config.externally_posted_forecasts_pids[0]
+        )
         self.assertEqual(context.mock_calls[1].args[0], FORECAST_MOCK)
 
     def test_create_forecast_task_skip_external(self):
@@ -75,15 +77,17 @@ class TestCreateForeCastTask(TestCase):
         # Arrange
         context = MagicMock()
         context.config.externally_posted_forecasts_pids = [307]
-        
+
         # Act
         create_forecast_task(self.pj, context)
 
         # Assert
         self.assertEqual(self.pj.id, context.config.externally_posted_forecasts_pids[0])
-        self.assertEqual(context.mock_calls[0].args[0], 
-                         "Skip this PredictionJob because its forecasts are posted by an external process.")
-    
+        self.assertEqual(
+            context.mock_calls[0].args[0],
+            "Skip this PredictionJob because its forecasts are posted by an external process.",
+        )
+
     @patch("openstef.tasks.create_forecast.create_forecast_pipeline")
     def test_create_forecast_task_train_only(self, create_forecast_pipeline_mock):
         """Test happy flow of create forecast task for train only pj."""
@@ -101,10 +105,10 @@ class TestCreateForeCastTask(TestCase):
         create_forecast_pipeline_mock.return_value = FORECAST_MOCK
         pj = self.pj
         pj.pipelines_to_run = [PipelineType.FORECAST]
-        
+
         # Act
         create_forecast_task(pj, context)
-        
+
         # Assert
         self.assertEqual(create_forecast_pipeline_mock.call_count, 1)
         self.assertEqual(context.mock_calls[3].args[0], FORECAST_MOCK)
