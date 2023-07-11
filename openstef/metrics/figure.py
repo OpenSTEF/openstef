@@ -194,6 +194,7 @@ def _plot_data_and_predictions(
         names: Name of each seperate split. The passed names will be suffixed with _actual and _predict for data and predictions respectively.
         actuals: Each data split as a seperate series.
         predictions: Each prediction split as a seperate series.
+        quantiles: List of predicted quantiles that have to be plotted.
 
     Returns:
         A line plot of each passed series.
