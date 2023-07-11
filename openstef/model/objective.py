@@ -90,7 +90,7 @@ class RegressorObjective:
             Mean absolute error for this trial.
 
         """
-        # Define split args
+        # Perform data preprocessings
         split_args = self.split_args
         if split_args is None:
             split_args = {
@@ -98,11 +98,6 @@ class RegressorObjective:
                 "back_test": True,
             }
 
-        # Perform data preprocessing
-        if self.model_type == MLModelType.ProLoaf:
-            stratification_min_max = False
-        else:
-            stratification_min_max = True
         (
             self.train_data,
             self.validation_data,
