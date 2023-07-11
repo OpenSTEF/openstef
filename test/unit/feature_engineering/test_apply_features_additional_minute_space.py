@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -15,7 +15,7 @@ from openstef.feature_engineering.lag_features import generate_non_trivial_lag_t
 class TestApplyFeaturesAditionalMinuteSpace(BaseTestCase):
     def setUp(self):
         super().setUp()
-        self.data = TestData.load("input_data_train.pickle")
+        self.data = TestData.load("input_data_train.csv")
 
     def test_additional_minutes_space(self):
         minute_space_list = generate_non_trivial_lag_times(self.data)

@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -13,11 +13,15 @@ from openstef.metrics.figure import plot_data_series, plot_feature_importance
 class Teopenstefigure(BaseTestCase):
     def setUp(self):
         super().setUp()
-        self.data = TestData.load("input_data.pickle").rename(
-            columns={"Horizon": "horizon"}
+        self.data = (
+            TestData.load("input_data.csv")
+            .rename(columns={"Horizon": "horizon"})
+            .loc[:, ["load"]]
         )
-        self.train_data = TestData.load("input_data_train.pickle").rename(
-            columns={"Horizon": "horizon"}
+        self.train_data = (
+            TestData.load("input_data_train.csv")
+            .rename(columns={"Horizon": "horizon"})
+            .loc[:, ["load", "horizon"]]
         )
 
     def test_plot_data_series(self):

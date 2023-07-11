@@ -1,22 +1,19 @@
-# SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-
-cufflinks~=0.17.3
-holidays~=0.18
-lightgbm~=3.3.3
-matplotlib~=3.6.2
-mlflow~=2.1.1
-networkx~=2.8.8
-numpy<2
-optuna~=3.0.5
-pandas~=1.5.2
-plotly~=5.11.0
+holidays==0.21
+lightgbm~=3.3
+matplotlib~=3.7
+mlflow~=2.3
+networkx~=3.1
+optuna~=3.1
+pandas~=2.0
+plotly~=5.14
 pvlib==0.9.4
-pydantic~=1.10.4
+pydantic~=1.10
 pymsteams~=0.2.2   # TODO remove teams dependency
-pytz~=2022.7
-scikit-learn~=1.2.0
-scipy~=1.8.1
-structlog~=22.3.0
-xgboost~=1.7.3
+scikit-learn~=1.2
+scipy~=1.10
+statsmodels~=0.13.5
+structlog~=23.1
+xgboost~=1.7

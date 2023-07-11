@@ -1,8 +1,9 @@
-# SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 import copy
 from datetime import datetime
+from typing import Any, Callable, Optional
 
 import optuna
 import pandas as pd
@@ -27,9 +28,9 @@ class RegressorObjective:
     """Regressor optuna objective function.
 
     Use any of the derived classes for optimization using an optuna study.
-    The constructor is used to set the "input_data" and optionally add some
-    configuration. Next the instance will be called by he optuna study during
-    optimization.
+    The constructor is used to set the "input_data", specify the splitting function
+    and its arguments and optionally add some configuration.
+    Next the instance will be called by he optuna study during optimization.
 
     Example usage:
 
@@ -46,6 +47,8 @@ class RegressorObjective:
         self,
         model: OpenstfRegressor,
         input_data: pd.DataFrame,
+        split_func: Optional[Callable] = None,
+        split_args: Optional[dict[str, Any]] = None,
         test_fraction=TEST_FRACTION,
         validation_fraction=VALIDATION_FRACTION,
         eval_metric=EVAL_METRIC,
@@ -66,6 +69,15 @@ class RegressorObjective:
         self.model_type = None
         self.track_trials = {}
 
+        # split function and arguments
+        self.split_func = split_func
+        self.split_args = split_args
+
+        # default behavior for splitting
+        if self.split_func is None:
+            self.split_func = split_data_train_validation_test
+            self.split_args = None
+
     def __call__(
         self,
         trial: optuna.trial.FrozenTrial,
@@ -78,6 +90,14 @@ class RegressorObjective:
             Mean absolute error for this trial.
 
         """
+        # Define split args
+        split_args = self.split_args
+        if split_args is None:
+            split_args = {
+                "stratification_min_max": self.model_type != MLModelType.ProLoaf,
+                "back_test": True,
+            }
+        
         # Perform data preprocessing
         if self.model_type == MLModelType.ProLoaf:
             stratification_min_max = False
@@ -92,8 +112,7 @@ class RegressorObjective:
             self.input_data,
             test_fraction=self.test_fraction,
             validation_fraction=self.validation_fraction,
-            stratification_min_max=stratification_min_max,
-            back_test=True,
+            **split_args,
         )
 
         # Test if first column is "load" and last column is "horizon"
@@ -403,5 +422,29 @@ class LinearRegressorObjective(RegressorObjective):
             "imputation_strategy": trial.suggest_categorical(
                 "imputation_strategy", ["mean", "median", "most_frequent"]
             ),
+        }
+        return params
+
+
+class ARIMARegressorObjective(RegressorObjective):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.model_type = MLModelType.ARIMA
+
+    def get_params(self, trial: optuna.trial.FrozenTrial) -> dict:
+        """Get parameters for ARIMA Regressor Objective with objective specific parameters.
+
+        Temporary, it seems strange to use optuna for ARIMA models,
+        it is usually done via statistical analysis and heuristics.
+
+        Args: trial
+
+        Returns:
+            Dictionary with hyperparameter name as key and hyperparamer value as value.
+
+        """
+        # Imputation strategy
+        params = {
+            "trend": trial.suggest_categorical("trend", ["n", "c", "t", "ct"]),
         }
         return params

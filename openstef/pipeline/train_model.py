@@ -1,9 +1,9 @@
-# SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 import logging
 import os
-from typing import Optional, Union
+from typing import Optional, Union, Tuple
 
 import pandas as pd
 import structlog
@@ -30,6 +30,8 @@ MAXIMUM_MODEL_AGE: int = 7
 
 DEFAULT_EARLY_STOPPING_ROUNDS: int = 10
 PENALTY_FACTOR_OLD_MODEL: float = 1.2
+
+logger = structlog.get_logger(__name__)
 
 
 def train_model_pipeline(
@@ -60,27 +62,12 @@ def train_model_pipeline(
 
     """
     # Initialize logger and serializer
-    logger = structlog.get_logger(__name__)
     serializer = MLflowSerializer(mlflow_tracking_uri=mlflow_tracking_uri)
 
     # Get old model and age
-    try:
-        old_model, model_specs = serializer.load_model(experiment_name=str(pj["id"]))
-        old_model_age = old_model.age  # Age attribute is openstef specific
-    except (AttributeError, FileNotFoundError, LookupError):
-        old_model = None
-        old_model_age = float("inf")
-        if pj["default_modelspecs"] is not None:
-            model_specs = pj["default_modelspecs"]
-            if model_specs.id != pj.id:
-                raise RuntimeError(
-                    "The id of the prediction job and its default model_specs do not"
-                    " match."
-                )
-        else:
-            # create basic model_specs
-            model_specs = ModelSpecificationDataClass(id=pj["id"])
-        logger.warning("No old model found, training new model", pid=pj["id"])
+    old_model, model_specs, old_model_age = train_pipeline_step_load_model(
+        pj, serializer
+    )
 
     # Check old model age and continue yes/no
     if (old_model_age < MAXIMUM_MODEL_AGE) and check_old_model_age:
@@ -206,6 +193,11 @@ def train_model_pipeline_core(
 
     # Check if new model is better than old model
     if old_model:
+        combined = pd.concat([train_data, validation_data])
+        # skip the forecast column added at the end of dataframes
+        if pj.save_train_forecasts:
+            combined = combined.iloc[:, :-1]
+
         x_data, y_data = (
             operational_score_data.iloc[:, 1:-1],
             operational_score_data.iloc[:, 0],
@@ -296,7 +288,7 @@ def train_pipeline_common(
     )
 
     # Report about the training process
-    reporter = Reporter(train_data, validation_data, test_data)
+    reporter = Reporter(train_data, validation_data, test_data, pj.quantiles)
     report = reporter.generate_report(model)
 
     if pj.save_train_forecasts:
@@ -305,6 +297,33 @@ def train_pipeline_common(
         test_data["forecast"] = model.predict(test_data.iloc[:, 1:-1])
 
     return model, report, train_data, validation_data, test_data, operational_score_data
+
+
+def train_pipeline_step_load_model(
+    pj: PredictionJobDataClass, serializer: MLflowSerializer
+) -> tuple[OpenstfRegressor, ModelSpecificationDataClass, Union[int, float]]:
+    try:
+        old_model, model_specs = serializer.load_model(experiment_name=str(pj.id))
+        old_model_age = old_model.age  # Age attribute is openstef specific
+        return old_model, model_specs, old_model_age
+    except (AttributeError, FileNotFoundError, LookupError):
+        logger.warning("No old model found, training new model", pid=pj.id)
+    except Exception:
+        logger.exception("Old model could not be loaded, training new model", pid=pj.id)
+    old_model = None
+    old_model_age = float("inf")
+    if pj["default_modelspecs"] is not None:
+        model_specs = pj["default_modelspecs"]
+        if model_specs.id != pj.id:
+            raise RuntimeError(
+                "The id of the prediction job and its default model_specs do not"
+                " match."
+            )
+    else:
+        # create basic model_specs
+        model_specs = ModelSpecificationDataClass(id=pj["id"])
+
+    return old_model, model_specs, old_model_age
 
 
 def train_pipeline_step_compute_features(
@@ -364,11 +383,21 @@ def train_pipeline_step_compute_features(
             "Input data is insufficient, after validation and cleaning"
         )
 
-    data_with_features = TrainFeatureApplicator(
-        horizons=horizons,
-        feature_names=model_specs.feature_names,
-        feature_modules=model_specs.feature_modules,
-    ).add_features(validated_data, pj=pj)
+    # Custom data prep or legacy behavior
+    if pj.data_prep_class:
+        data_prep_class, data_prep_args = pj.data_prep_class.load()
+        data_with_features = data_prep_class(
+            pj=pj,
+            model_specs=model_specs,
+            horizons=horizons,
+            **data_prep_args,
+        ).prepare_train_data(validated_data)
+    else:
+        data_with_features = TrainFeatureApplicator(
+            horizons=horizons,
+            feature_names=model_specs.feature_names,
+            feature_modules=model_specs.feature_modules,
+        ).add_features(validated_data, pj=pj)
 
     return data_with_features
 
@@ -428,6 +457,11 @@ def train_pipeline_step_train_model(
         valid_hyper_parameters.update(
             dict(early_stopping_rounds=DEFAULT_EARLY_STOPPING_ROUNDS)
         )
+
+    # Temporary fix to allow xgboost version upgrade -> set n_estimators if present and None
+    if not valid_hyper_parameters.get("n_estimators", True):
+        valid_hyper_parameters.update(dict(n_estimators=100))
+        logging.info("Deprecation warning: n_estimators=None found, overwriting.")
 
     model.set_params(**valid_hyper_parameters)
     model.fit(

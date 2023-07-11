@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -22,7 +22,12 @@ class TestModelCreator(TestCase):
             model = ModelCreator.create_model(model_type)
             self.assertIsInstance(model, OpenstfRegressor)
             self.assertTrue(hasattr(model, "can_predict_quantiles"))
-            if model_type in ["xgb_quantile", MLModelType("xgb_quantile")]:
+            if model_type in [
+                "xgb_quantile",
+                MLModelType("xgb_quantile"),
+                "arima",
+                MLModelType("arima"),
+            ]:
                 self.assertTrue(model.can_predict_quantiles)
             else:
                 self.assertFalse(model.can_predict_quantiles)

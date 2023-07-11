@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 import pandas as pd
@@ -84,19 +84,31 @@ def create_forecast_pipeline_core(
     # Validate and clean data
     validated_data = validation.validate(pj["id"], input_data, pj["flatliner_treshold"])
 
-    # Add features
-    data_with_features = OperationalPredictFeatureApplicator(
-        horizons=[pj["resolution_minutes"] / 60.0],
-        feature_names=model.feature_names,
-        feature_modules=model_specs.feature_modules,
-    ).add_features(validated_data)
+    # Custom data prep or legacy behavior
+    if pj.data_prep_class:
+        data_prep_class, data_prep_args = pj.data_prep_class.load()
+        forecast_input_data, data_with_features = data_prep_class(
+            pj=pj,
+            model_specs=model_specs,
+            model=model,
+            **data_prep_args,
+        ).prepare_forecast_data(validated_data)
+    else:
+        # Add features
+        data_with_features = OperationalPredictFeatureApplicator(
+            horizons=[pj["resolution_minutes"] / 60.0],
+            feature_names=model.feature_names,
+            feature_modules=model_specs.feature_modules,
+        ).add_features(validated_data)
 
-    # Prep forecast input by selecting only the forecast datetime interval (this is much smaller than the input range)
-    # Also drop the load column
-    forecast_start, forecast_end = generate_forecast_datetime_range(data_with_features)
-    forecast_input_data = data_with_features[forecast_start:forecast_end].drop(
-        columns="load"
-    )
+        # Prep forecast input by selecting only the forecast datetime interval (this is much smaller than the input range)
+        # Also drop the load column
+        forecast_start, forecast_end = generate_forecast_datetime_range(
+            data_with_features
+        )
+        forecast_input_data = data_with_features[forecast_start:forecast_end].drop(
+            columns="load"
+        )
 
     # Check if sufficient data is left after cleaning
     if not validation.is_data_sufficient(

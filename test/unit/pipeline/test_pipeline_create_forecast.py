@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 from datetime import datetime as dt
@@ -26,7 +26,7 @@ class TestCreateForecastPipeline(BaseTestCase):
         # mock model location
         # Determine absolute location where already stored model is, based on relative path.
         # This is needed so the model stored in the repo can be found when running remote
-        rel_path = "test/unit/trained_models/mlruns/0/d7719d5d316d4416a947e4f7ea7e73a8/artifacts/model"
+        rel_path = "test/unit/trained_models/mlruns/893156335105023143/2ca1d126e8724852b303b256e64a6c4f/artifacts/model"
         _get_model_uri_mock.return_value = Path(rel_path).absolute().as_uri()
 
         # Use MLflowSerializer to load a model

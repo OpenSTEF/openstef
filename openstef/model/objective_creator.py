@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -12,6 +12,7 @@ from openstef.model.objective import (
     RegressorObjective,
     XGBQuantileRegressorObjective,
     XGBRegressorObjective,
+    ARIMARegressorObjective,
 )
 from openstef.model.regressors.custom_regressor import (
     create_custom_objective,
@@ -26,6 +27,7 @@ class ObjectiveCreator:
         MLModelType.XGB_QUANTILE: XGBQuantileRegressorObjective,
         MLModelType.ProLoaf: ProLoafRegressorObjective,
         MLModelType.LINEAR: LinearRegressorObjective,
+        MLModelType.ARIMA: ARIMARegressorObjective,
     }
 
     @staticmethod
@@ -46,7 +48,7 @@ class ObjectiveCreator:
             # This will raise a ValueError when an invalid model_type str is used
             # and nothing when a MLModelType enum is used.
             if is_custom_type(model_type):
-                objective = create_custom_objective
+                objective = create_custom_objective(model_type)
             else:
                 model_type = MLModelType(model_type)
                 objective = ObjectiveCreator.OBJECTIVES[model_type]

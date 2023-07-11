@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 """This module contains all functions for generating figures."""
@@ -106,16 +106,29 @@ def plot_data_series(
         # Filter data on given horizon
         actuals = []
         predictions = []
+        q_low = []
+        q_high = []
 
         for series, predict_series in zip(data, predict_data):
             mask = series["horizon"] == horizon
             actuals.append(series[mask]["load"])
             predictions.append(predict_series[mask]["forecast"])
+            if len(predict_series[mask].columns) > 1:
+                q_low.append(predict_series[mask].iloc[:, -2])
+                q_high.append(predict_series[mask].iloc[:, -1])
+
     else:
         actuals = data
         predictions = predict_data
+        if len(predictions.columns) > 1:
+            q_low = predict_data.iloc[:, -2]
+            q_high = predict_data.iloc[:, -1]
+        else:
+            q_low = None
+            q_high = None
 
-    fig = _plot_data_and_predictions(names, actuals, predictions)
+    quantiles = [q_low, q_high] if (q_low is not None) and (len(q_low) != 0) else None
+    fig = _plot_data_and_predictions(names, actuals, predictions, quantiles)
     fig.update_layout(
         title=f"Predictor in action for horizon: {horizon}",
     )
@@ -167,7 +180,10 @@ def _plot_data(names: list[str], series: list[pd.Series]) -> go.Figure:
 
 
 def _plot_data_and_predictions(
-    names: list[str], actuals: list[pd.Series], predictions: list[pd.Series]
+    names: list[str],
+    actuals: list[pd.Series],
+    predictions: list[pd.Series],
+    quantiles: list[float] = None,
 ) -> go.Figure:
     """Create plot of different data and prediction splits.
 
@@ -178,6 +194,7 @@ def _plot_data_and_predictions(
         names: Name of each seperate split. The passed names will be suffixed with _actual and _predict for data and predictions respectively.
         actuals: Each data split as a seperate series.
         predictions: Each prediction split as a seperate series.
+        quantiles: List of predicted quantiles that have to be plotted.
 
     Returns:
         A line plot of each passed series.
@@ -186,13 +203,29 @@ def _plot_data_and_predictions(
     # Build a combined DataFrame with all data.
     # This step is important to create forced NaNs to create gaps in the plot.
     combined = []
-    for name, actual, prediction in zip(names, actuals, predictions):
-        combined.extend(
-            [
-                actual.rename(f"{name}_actual"),
-                prediction.rename(f"{name}_predict"),
-            ]
-        )
+    if quantiles is None:
+        for name, actual, prediction in zip(names, actuals, predictions):
+            combined.extend(
+                [
+                    actual.rename(f"{name}_actual"),
+                    prediction.rename(f"{name}_predict"),
+                ]
+            )
+    else:
+        for name, actual, prediction, q_low, q_high in zip(
+            names, actuals, predictions, quantiles[0], quantiles[-1]
+        ):
+            q_low_name = q_low.name
+            q_high_name = q_high.name
+            combined.extend(
+                [
+                    actual.rename(f"{name}_actual"),
+                    prediction.rename(f"{name}_predict"),
+                    q_low.rename(f"{name}_{q_low_name}"),
+                    q_high.rename(f"{name}_{q_high_name}"),
+                ]
+            )
+
     df_plot = pd.concat(combined, axis=1)
 
     fig = go.Figure()
@@ -200,7 +233,6 @@ def _plot_data_and_predictions(
     # Add a trace for every data series
     for i, name in enumerate(names):
         actual, predict = f"{name}_actual", f"{name}_predict"
-
         fig.add_trace(
             go.Scatter(
                 x=df_plot.index,
@@ -217,6 +249,32 @@ def _plot_data_and_predictions(
                 line=dict(dash="dot", color=px.colors.qualitative.Dark2[i]),
             )
         )
+        if quantiles is not None:
+            q_low, q_high = f"{name}_{q_low_name}", f"{name}_{q_high_name}"
+            fig.add_trace(
+                go.Scatter(
+                    x=df_plot.index,
+                    y=df_plot[q_low],
+                    mode="lines",
+                    line=dict(
+                        color=px.colors.qualitative.Dark2[i], width=0.5, dash="dash"
+                    ),
+                    name=q_low,
+                )
+            )
+            fig.add_trace(
+                go.Scatter(
+                    x=df_plot.index,
+                    y=df_plot[q_high],
+                    fill="tonexty",
+                    fillcolor=f"rgba({px.colors.qualitative.Dark2[i][4:-1]}, 0.3)",
+                    mode="lines",
+                    line=dict(
+                        color=px.colors.qualitative.Dark2[i], width=0.5, dash="dash"
+                    ),
+                    name=q_high,
+                )
+            )
 
     fig.update_layout(yaxis_title="Load (MW)")
 

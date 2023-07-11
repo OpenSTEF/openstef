@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 import os
@@ -26,6 +26,7 @@ from openstef.pipeline.train_model import (
     train_model_pipeline_core,
 )
 from openstef.validation import validation
+from openstef.model_selection.model_selection import split_data_train_validation_test
 
 optuna.logging.enable_propagation()  # Propagate logs to the root logger.
 optuna.logging.disable_default_handler()  # Stop showing logs in sys.stderr.
@@ -123,6 +124,9 @@ def optimize_hyperparameters_pipeline_core(
         - Optimized hyperparameters.
 
     """
+    if pj.train_horizons_minutes is not None:
+        horizons = pj.train_horizons_minutes
+
     if input_data.empty:
         raise InputDataInsufficientError("Input dataframe is empty")
     elif "load" not in input_data.columns:
@@ -144,11 +148,21 @@ def optimize_hyperparameters_pipeline_core(
         )
 
     if pj.default_modelspecs:
-        feature_names = (pj.default_modelspecs.feature_names,)
+        feature_names = pj.default_modelspecs.feature_names
         feature_modules = pj.default_modelspecs.feature_modules
     else:
         feature_names = None
         feature_modules = []
+
+    if isinstance(horizons, str):
+        if horizons not in set(input_data.columns):
+            raise ValueError(
+                f"The horizon parameter specifies a column name ({horizons}) missing in"
+                " the input data."
+            )
+        else:
+            # sort data to avoid same date repeated multiple time
+            input_data = input_data.sort_values(horizons)
 
     validated_data_with_features = TrainFeatureApplicator(
         horizons=horizons, feature_names=feature_names, feature_modules=feature_modules
@@ -192,12 +206,12 @@ def optimize_hyperparameters_pipeline_core(
         hyper_params=best_hyperparams,
     )
 
-    # If the model type is quantile, train a model with the best parameters for all quantiles
-    # (optimization is only done for quantile 0.5)
-    if objective.model.can_predict_quantiles:
-        best_model, report, modelspecs, _ = train_model_pipeline_core(
-            pj=pj, input_data=input_data, model_specs=model_specs
-        )
+    # Train a model using the regular train pipeline.
+    # The train/validation/test split used in hyperparam optimisation
+    # is less suitable for an operational model.
+    best_model, report, modelspecs, _ = train_model_pipeline_core(
+        pj=pj, input_data=input_data, model_specs=model_specs
+    )
 
     # Save model and report. Report is always saved to MLFlow and optionally to disk
     report = objective.create_report(model=best_model)
@@ -228,6 +242,14 @@ def optuna_optimization(
 
     """
     model = ModelCreator.create_model(pj["model"])
+    # Apply set to default hyperparameters if they are specified in the pj
+    if pj.default_modelspecs:
+        valid_hyper_parameters = {
+            key: value
+            for key, value in pj.default_modelspecs.hyper_params.items()
+            if key in model.get_params().keys()
+        }
+        model.set_params(**valid_hyper_parameters)
 
     study = optuna.create_study(
         study_name=pj["model"],
@@ -239,9 +261,22 @@ def optuna_optimization(
     # this way the optimization never get worse than the default values
     study.enqueue_trial(objective.get_default_values())
 
+    if pj.train_split_func is None:
+        split_func = split_data_train_validation_test
+        split_args = {
+            "stratification_min_max": pj["model"] != "proloaf",
+            "back_test": True,
+        }
+    else:
+        split_func, split_args = pj.train_split_func.load(
+            required_arguments=["data", "test_fraction", "validation_fraction"]
+        )
+
     objective = objective(
         model,
         validated_data_with_features,
+        split_func=split_func,
+        split_args=split_args,
     )
 
     # Optuna updates the model by itself

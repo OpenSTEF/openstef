@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -53,12 +53,12 @@ def create_input(
     input_df["hour"] = input_df.index.hour
     input_df["minute"] = input_df.index.minute
 
-    input_df["var0"] = input_df["radiation"].var()
-    input_df["var1"] = input_df["windspeed_100m"].var()
-    input_df["var2"] = input_df["total_substation"].var()
+    input_df["var0"] = input_df["total_substation"].var()
+    input_df["var1"] = input_df["radiation"].var()
+    input_df["var2"] = input_df["windspeed_100m"].var()
 
-    input_df["sem0"] = input_df.sem(axis=1)
-    input_df["sem1"] = input_df.sem(axis=1)
+    input_df["sem0"] = input_df["total_substation"].sem()
+    input_df["sem1"] = input_df["radiation"].sem()
 
     return input_df
 

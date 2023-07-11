@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2022 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2023 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 import unittest
@@ -25,7 +25,7 @@ class DummyRegressor(CustomOpenstfRegressor):
     def valid_kwargs() -> list[str]:
         return []
 
-    @property
+    @classmethod
     def objective(self) -> Type[DummyObjective]:
         return DummyObjective
 
@@ -69,7 +69,7 @@ class TestCustomModels(unittest.TestCase):
     def test_create_custom_objective(self):
         model = DummyRegressor()
         model_path = __name__ + ".DummyRegressor"
-        objective = create_custom_objective(model, None)
+        objective = create_custom_objective(model_path)(model, None)
 
         assert isinstance(objective, DummyObjective)
 

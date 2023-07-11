@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 """This module should be executed once every day.
@@ -47,6 +47,18 @@ def create_basecase_forecast_task(
     if PipelineType.FORECAST not in pj.pipelines_to_run:
         context.logger.info(
             "Skip this PredictionJob because forecast pipeline is not specified in the pj."
+        )
+        return
+
+    # TODO: Improve implementation by using a field in the database and leveraging the
+    #       `pipelines_to_run` attribute of the `PredictionJobDataClass` object. This
+    #       would require a change to the MySQL datamodel.
+    if (
+        context.config.externally_posted_forecasts_pids
+        and pj.id in context.config.externally_posted_forecasts_pids
+    ):
+        context.logger.info(
+            "Skip this PredictionJob because its forecasts are posted by an external process."
         )
         return
 

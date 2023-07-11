@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -17,24 +17,11 @@ from openstef.model.serializer import MLflowSerializer
 
 
 class CalcCompletenessTest(BaseTestCase):
-    @patch("openstef.model.serializer.MLflowSerializer._get_model_uri")
-    def setUp(self, _get_model_uri_mock) -> None:
+    def setUp(self) -> None:
         super().setUp()
         self.pj = TestData.get_prediction_job(pid=307)
-        self.serializer = MLflowSerializer(
-            mlflow_tracking_uri="./test/unit/trained_models/mlruns"
-        )
         self.data = TestData.load("reference_sets/307-test-data.csv")
         self.train_input = TestData.load("reference_sets/307-train-data.csv")
-
-        # mock model location
-        # Determine absolute location where already stored model is, based on relative path.
-        # This is needed so the model stored in the repo can be found when running remote
-        rel_path = "test/unit/trained_models/mlruns/0/d7719d5d316d4416a947e4f7ea7e73a8/artifacts/model"
-        _get_model_uri_mock.return_value = Path(rel_path).absolute().as_uri()
-
-        # Use MLflowSerializer to load a model
-        self.model, self.model_specs = self.serializer.load_model(experiment_name="307")
 
     datetime_format = "%Y-%m-%dT%H:%M:%S%z"
 
@@ -182,9 +169,11 @@ class CalcCompletenessTest(BaseTestCase):
         self.assertEqual(completeness, (1 / 3 * 1 + 1 + 1 + 2 / 3 * 1) / 4)
 
     def test_calc_completeness_model_feature_importance_as_weights(self):
-        weights = self.model.feature_importance_dataframe.loc[
-            ["temp", "IsSunday", "Month", "snowDepth", "windspeed"]
-        ]
+        weights = pd.DataFrame(
+            index=["temp", "IsSunday", "Month", "snowDepth", "windspeed"],
+            data={"weight": 0.1},
+        )
+
         data_with_features = pd.DataFrame(
             data={
                 "load": [1, 1, 2, 2, 3, 3, 4, 4],

@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 from enum import Enum
@@ -11,6 +11,7 @@ class MLModelType(Enum):
     LGB = "lgb"
     LINEAR = "linear"
     ProLoaf = "proloaf"
+    ARIMA = "arima"
 
 
 class ForecastType(Enum):
