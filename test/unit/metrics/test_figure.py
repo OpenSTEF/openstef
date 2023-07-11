@@ -13,12 +13,16 @@ from openstef.metrics.figure import plot_data_series, plot_feature_importance
 class Teopenstefigure(BaseTestCase):
     def setUp(self):
         super().setUp()
-        self.data = TestData.load("input_data.csv").rename(
-            columns={"Horizon": "horizon"}
-        ).loc[:, ["load"]]
-        self.train_data = TestData.load("input_data_train.csv").rename(
-            columns={"Horizon": "horizon"}
-        ).loc[:, ["load", "horizon"]]
+        self.data = (
+            TestData.load("input_data.csv")
+            .rename(columns={"Horizon": "horizon"})
+            .loc[:, ["load"]]
+        )
+        self.train_data = (
+            TestData.load("input_data_train.csv")
+            .rename(columns={"Horizon": "horizon"})
+            .loc[:, ["load", "horizon"]]
+        )
 
     def test_plot_data_series(self):
         self.data["horizon"] = 47.00

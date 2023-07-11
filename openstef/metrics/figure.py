@@ -180,7 +180,10 @@ def _plot_data(names: list[str], series: list[pd.Series]) -> go.Figure:
 
 
 def _plot_data_and_predictions(
-    names: list[str], actuals: list[pd.Series], predictions: list[pd.Series], quantiles: list[float] = None
+    names: list[str],
+    actuals: list[pd.Series],
+    predictions: list[pd.Series],
+    quantiles: list[float] = None,
 ) -> go.Figure:
     """Create plot of different data and prediction splits.
 
