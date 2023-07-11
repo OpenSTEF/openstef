@@ -4,6 +4,7 @@
 from test.unit.utils.base import BaseTestCase
 from test.unit.utils.data import TestData
 
+import pandas as pd
 import numpy as np
 from sklearn.model_selection import TimeSeriesSplit
 
@@ -22,7 +23,7 @@ def timeseries_split(data, n_folds, gap):
     input_set = data.iloc[:-nb_test]
     tscv = TimeSeriesSplit(n_splits=n_folds, test_size=nb_test, gap=gap)
     return [
-        (input_set.iloc[idx_train], input_set.iloc[idx_val], test_set)
+        (input_set.iloc[idx_train], input_set.iloc[idx_val], test_set, pd.DataFrame())
         for idx_train, idx_val in tscv.split(input_set)
     ]
 

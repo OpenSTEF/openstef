@@ -97,7 +97,12 @@ class RegressorObjective:
                 "stratification_min_max": self.model_type != MLModelType.ProLoaf,
                 "back_test": True,
             }
-        (self.train_data, self.validation_data, self.test_data,) = self.split_func(
+        (
+            self.train_data,
+            self.validation_data,
+            self.test_data,
+            self.operational_score_data,
+        ) = self.split_func(
             self.input_data,
             test_fraction=self.test_fraction,
             validation_fraction=self.validation_fraction,

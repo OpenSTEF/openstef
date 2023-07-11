@@ -82,10 +82,14 @@ def train_model_and_forecast_back_test(
     ) = zip(
         *(
             train_model_and_forecast_test_core(
-                pj, modelspecs, train_data, validation_data, test_data
+                pj,
+                modelspecs,
+                train_data,
+                validation_data,
+                test_data,
             )
             + (train_data, validation_data, test_data)
-            for train_data, validation_data, test_data in backtest_split_func(
+            for train_data, validation_data, test_data, _ in backtest_split_func(
                 data_with_features, n_folds, **backtest_split_args
             )
         )

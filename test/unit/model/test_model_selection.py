@@ -71,6 +71,7 @@ class TestTrain(BaseTestCase):
             train_set,
             valid_set,
             test_set,
+            operational_score_data,
         ) = model_selection.split_data_train_validation_test(
             data,
             test_fraction=SPLIT_PARAMS["test_fraction"],
@@ -79,7 +80,6 @@ class TestTrain(BaseTestCase):
         )
 
         # delta = 1, number of the peaks the two amounts may differ for the train and validation data
-        # delta = 4, when looking at the test data, can differ 1 hr (4x15min)
 
         self.assertAlmostEqual(
             len(valid_set),
@@ -87,10 +87,9 @@ class TestTrain(BaseTestCase):
             delta=2 * 96,
         )  # two days is allowed
 
-        self.assertAlmostEqual(
-            len(test_set),
-            len(data.index) * SPLIT_PARAMS["test_fraction"],
-            delta=4,
+        self.assertEqual(
+            len(operational_score_data),
+            len(data),
         )
 
     def test_split_data_train_validation_test_stratification(self):
@@ -123,7 +122,12 @@ class TestTrain(BaseTestCase):
             df.loc[df.index.day == day, "load"] -= 5
 
         # Act: Split using default arguments. Should result in stratified split
-        (train, val, test,) = model_selection.split_data_train_validation_test(
+        (
+            train,
+            val,
+            test,
+            operational_score_data,
+        ) = model_selection.split_data_train_validation_test(
             df, test_fraction=0, stratification_min_max=True
         )
 

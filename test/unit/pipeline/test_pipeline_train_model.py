@@ -79,7 +79,7 @@ class DummyRegressor(CustomOpenstfRegressor):
 
 
 def split_dummy_arima(data, test_fraction):
-    return data.iloc[:-5], data.iloc[-10:-5], data.iloc[-5:]
+    return data.iloc[:-5], data.iloc[-10:-5], data.iloc[-5:], data.iloc[-5:]
 
 
 class TestTrainModelPipeline(BaseTestCase):
@@ -190,6 +190,7 @@ class TestTrainModelPipeline(BaseTestCase):
                     train_data,
                     validation_data,
                     test_data,
+                    operational_score_data,
                 ) = split_data_train_validation_test(data_with_features)
 
                 importance = model.set_feature_importance()
@@ -257,6 +258,7 @@ class TestTrainModelPipeline(BaseTestCase):
                     train_data,
                     validation_data,
                     test_data,
+                    operational_score_data,
                 ) = split_data_train_validation_test(data_with_features)
 
                 importance = model.set_feature_importance()
@@ -640,7 +642,14 @@ class TestTrainModelPipeline(BaseTestCase):
         modified_model_specs["hyper_params"].update(dict(quantiles=old_quantiles))
 
         # train model
-        model, report, train_data, validation_data, test_data = train_pipeline_common(
+        (
+            model,
+            report,
+            train_data,
+            validation_data,
+            test_data,
+            operational_score_data,
+        ) = train_pipeline_common(
             pj, modified_model_specs, self.train_input, horizons=[0.25, 47.0]
         )
 
@@ -662,6 +671,7 @@ class TestTrainModelPipeline(BaseTestCase):
                 train_data,
                 validation_data,
                 test_data,
+                operational_score_data,
             ) = train_pipeline_common(
                 self.pj, self.model_specs, self.train_input, horizons="custom_horizon"
             )
