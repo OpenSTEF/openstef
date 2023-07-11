@@ -25,7 +25,7 @@ from openstef.pipeline.optimize_hyperparameters import (
 
 
 def dummy_split(data, test_fraction, validation_fraction=0.0):
-    return data.iloc[:100], data.iloc[100:110], data.iloc[110:120]
+    return data.iloc[:100], data.iloc[100:110], data.iloc[110:120], data.iloc[110:120]
 
 
 class TestOptimizeHyperParametersPipeline(BaseTestCase):

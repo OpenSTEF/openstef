@@ -79,7 +79,7 @@ class DummyRegressor(CustomOpenstfRegressor):
 
 
 def split_dummy_arima(data, test_fraction):
-    return data.iloc[:-5], data.iloc[-10:-5], data.iloc[-5:]
+    return data.iloc[:-5], data.iloc[-10:-5], data.iloc[-5:], data.iloc[-5:]
 
 
 class TestTrainModelPipeline(BaseTestCase):
@@ -190,6 +190,7 @@ class TestTrainModelPipeline(BaseTestCase):
                     train_data,
                     validation_data,
                     test_data,
+                    operational_score_data,
                 ) = split_data_train_validation_test(data_with_features)
 
                 importance = model.set_feature_importance()
