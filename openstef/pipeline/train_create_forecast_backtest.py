@@ -1,7 +1,6 @@
-# SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-from typing import List, Tuple
 
 import pandas as pd
 
@@ -15,7 +14,7 @@ from openstef.postprocessing.postprocessing import (
     add_prediction_job_properties_to_forecast,
 )
 
-DEFAULT_TRAIN_HORIZONS: List[float] = [0.25, 24.0]
+DEFAULT_TRAIN_HORIZONS: list[float] = [0.25, 24.0]
 DEFAULT_EARLY_STOPPING_ROUNDS: int = 10
 
 
@@ -23,34 +22,40 @@ def train_model_and_forecast_back_test(
     pj: PredictionJobDataClass,
     modelspecs: ModelSpecificationDataClass,
     input_data: pd.DataFrame,
-    training_horizons: List[float] = None,
+    training_horizons: list[float] = None,
     n_folds: int = 1,
-) -> (
+) -> tuple[
     pd.DataFrame,
-    List[OpenstfRegressor],
-    List[pd.DataFrame],
-    List[pd.DataFrame],
-    List[pd.DataFrame],
-):
+    list[OpenstfRegressor],
+    list[pd.DataFrame],
+    list[pd.DataFrame],
+    list[pd.DataFrame],
+]:
     """Pipeline for a back test.
-        When number of folds is larger than 1: apply pipeline for a back test when forecasting the entire input range.
+
+    When number of folds is larger than 1: apply pipeline for a back test when forecasting
+    the entire input range.
+
         - Makes use of kfold cross validation in order to split data multiple times.
         - Results of all the testsets are added together to obtain the forecast for the whole input range.
         - Obtaining the days for each fold can be done either randomly or not
-        DO NOT USE THIS PIPELINE FOR OPERATIONAL FORECASTS
+        **DO NOT USE THIS PIPELINE FOR OPERATIONAL FORECASTS**
+
     Args:
-        pj (PredictionJobDataClass): Prediction job.
-        modelspecs (ModelSpecificationDataClass): Dataclass containing model specifications
-        input_data (pd.DataFrame): Input data
-        training_horizons (list): horizons to train on in hours.
+        pj: Prediction job.
+        modelspecs: Dataclass containing model specifications
+        input_data: Input data
+        training_horizons: horizons to train on in hours.
             These horizons are also used to make predictions (one for every horizon)
-        n_folds (int): number of folds to apply (if 1, no cross validation will be applied)
+        n_folds: number of folds to apply (if 1, no cross validation will be applied)
+
     Returns:
-        - forecast (pandas.DataFrame)
-        - fitted models (List[OpenStfRegressor])
-        - train data sets (list[pd.DataFrame])
-        - validation data sets (list[pd.DataFrame])
-        - test data sets (list[pd.DataFrame])
+        - Forecast (pandas.DataFrame)
+        - Fitted models (list[OpenStfRegressor])
+        - Train data sets (list[pd.DataFrame])
+        - Validation data sets (list[pd.DataFrame])
+        - Test data sets (list[pd.DataFrame])
+
     """
     if pj.backtest_split_func is None:
         backtest_split_func = backtest_split_default
@@ -101,19 +106,20 @@ def train_model_and_forecast_test_core(
     train_data: pd.DataFrame,
     validation_data: pd.DataFrame,
     test_data: pd.DataFrame,
-) -> (OpenstfRegressor, pd.DataFrame):
+) -> tuple[OpenstfRegressor, pd.DataFrame]:
     """Trains the model and forecast on the test set.
 
     Args:
-        pj (PredictionJobDataClass): Prediction job.
-        modelspecs (ModelSpecificationDataClass): Dataclass containing model specifications
-        train_data (pd.DataFrame): Train data with computed features
-        validation_data (pd.DataFrame): Validation data with computed features
-        test_data (pd.DataFrame): Test data with computed features
+        pj: Prediction job.
+        modelspecs: Dataclass containing model specifications
+        train_data: Train data with computed features
+        validation_data: Validation data with computed features
+        test_data: Test data with computed features
 
     Returns:
-        trained_model (OpenstfRegressor): The trained model
-        forecast (pd.DataFrame): The forecast on the test set.
+        - The trained model
+        - The forecast on the test set.
+
     """
     model = train_model.train_pipeline_step_train_model(
         pj, modelspecs, train_data, validation_data

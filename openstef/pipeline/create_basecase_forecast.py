@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 from pathlib import Path
@@ -29,16 +29,16 @@ def create_basecase_forecast_pipeline(
     pj: PredictionJobDataClass,
     input_data: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Computes the base case forecast and confidence intervals for a given prediction job and input data.
+    """Compute the base case forecast and confidence intervals for a given prediction job and input data.
 
     Args:
-        pj: (dict) prediction job
-        input_data (pandas.DataFrame): data frame containing the input data necessary for the prediction.
+        pj: Prediction job
+        input_data: data frame containing the input data necessary for the prediction.
 
     Returns:
-        basecase_forecast (pandas.DataFrame)
-    """
+        Basecase forecast
 
+    """
     logger = structlog.get_logger(__name__)
 
     logger.info("Preprocessing data for basecase forecast")
@@ -94,7 +94,18 @@ def create_basecase_forecast_pipeline(
     return basecase_forecast
 
 
-def generate_basecase_confidence_interval(data_with_features):
+def generate_basecase_confidence_interval(
+    data_with_features: pd.DataFrame,
+) -> pd.DataFrame:
+    """Calculate confidence interval for a basecase forecast.
+
+    Args:
+        data_with_features: Input dataframe that is used to make the basecase forecast.
+
+    Returns:
+        Dataframe with the confidence interval.
+
+    """
     confidence_interval = (
         data_with_features[["T-14d"]]  # Select only the T-14d column as a DataFrame
         .groupby(data_with_features.index.hour)  # Get the std for every hour

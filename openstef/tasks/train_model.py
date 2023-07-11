@@ -1,12 +1,9 @@
-# SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+"""This module contains the CRON job that is periodically executed to retrain the prognosis models.
 
-# -*- coding: utf-8 -*-
-"""model_train.py
-
-This module contains the CRON job that is periodically executed to retrain the
-prognosis models. For this the folowing steps are caried out:
+For this the folowing steps are caried out:
   1. Get historic training data (TDCV, Load, Weather and APX price data)
   2. Apply features
   3. Train and Test the new model
@@ -26,7 +23,9 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
-from openstef.enums import MLModelType
+
+from openstef.enums import MLModelType, PipelineType
+from openstef.exceptions import SkipSaveTrainingForecasts
 from openstef.pipeline.train_model import train_model_pipeline
 from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstef.tasks.utils.taskcontext import TaskContext
@@ -50,15 +49,37 @@ def train_model_task(
     Expected prediction job keys:  "id", "model", "lat", "lon", "name"
 
     Args:
-        pj (PredictionJobDataClass): Prediction job
-        context (TaskContext): Contect object that holds a config manager and a
+        pj: Prediction job
+        context: Contect object that holds a config manager and a
             database connection.
-        check_old_model_age (bool): check if model is too young to be retrained
+        check_old_model_age: check if model is too young to be retrained
+        datetime_start: Start
+        datetime_end: End
+
     """
+    # Check pipeline types
+    if PipelineType.TRAIN not in pj.pipelines_to_run:
+        context.logger.info(
+            "Skip this PredictionJob because train pipeline is not specified in the pj."
+        )
+        return
+
+    # TODO: Improve implementation by using a field in the database and leveraging the
+    #       `pipelines_to_run` attribute of the `PredictionJobDataClass` object. This
+    #       would require a change to the MySQL datamodel.
+    if (
+        context.config.externally_posted_forecasts_pids
+        and pj.id in context.config.externally_posted_forecasts_pids
+    ):
+        context.logger.info(
+            "Skip this PredictionJob because its forecasts are posted by an external process."
+        )
+        return
+
     # Get the paths for storing model and reports from the config manager
-    mlflow_tracking_uri = context.config.paths.mlflow_tracking_uri
+    mlflow_tracking_uri = context.config.paths_mlflow_tracking_uri
     context.logger.debug(f"MLflow tracking uri: {mlflow_tracking_uri}")
-    artifact_folder = context.config.paths.artifact_folder
+    artifact_folder = context.config.paths_artifact_folder
     context.logger.debug(f"Artifact folder: {artifact_folder}")
 
     context.perf_meter.checkpoint("Added metadata to PredictionJob")
@@ -81,32 +102,35 @@ def train_model_task(
     context.perf_meter.checkpoint("Retrieved timeseries input")
 
     # Excecute the model training pipeline
-    data_sets = train_model_pipeline(
-        pj,
-        input_data,
-        check_old_model_age=check_old_model_age,
-        mlflow_tracking_uri=mlflow_tracking_uri,
-        artifact_folder=artifact_folder,
-    )
+    try:
+        data_sets = train_model_pipeline(
+            pj,
+            input_data,
+            check_old_model_age=check_old_model_age,
+            mlflow_tracking_uri=mlflow_tracking_uri,
+            artifact_folder=artifact_folder,
+        )
 
-    if pj.save_train_forecasts:
-        if data_sets is None:
-            raise RuntimeError("Forecasts were not retrieved")
-        if not hasattr(context.database, "write_train_forecasts"):
-            raise RuntimeError(
-                "Database connector does dot support 'write_train_forecasts' while "
-                "'save_train_forecasts option was activated.'"
-            )
-        context.database.write_train_forecasts(pj, data_sets)
+        if pj.save_train_forecasts:
+            if data_sets is None:
+                raise RuntimeError("Forecasts were not retrieved")
+            if not hasattr(context.database, "write_train_forecasts"):
+                raise RuntimeError(
+                    "Database connector does dot support 'write_train_forecasts' while "
+                    "'save_train_forecasts option was activated.'"
+                )
+            context.database.write_train_forecasts(pj, data_sets)
+            context.logger.debug(f"Saved Forecasts from trained model on datasets")
+    except SkipSaveTrainingForecasts:
+        context.logger.debug(f"Skip saving forecasts")
 
     context.perf_meter.checkpoint("Model trained")
 
 
 def main(model_type=None, config=None, database=None):
-
     if database is None or config is None:
         raise RuntimeError(
-            "Please specifiy a configmanager and/or database connection object. These"
+            "Please specifiy a config object and/or database connection object. These"
             " can be found in the openstef-dbc package."
         )
 

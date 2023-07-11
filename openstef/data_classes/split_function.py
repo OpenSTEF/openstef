@@ -1,40 +1,45 @@
-# SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-
+"""Specifies the split function dataclass."""
 import inspect
 import json
 from importlib import import_module
-from typing import Any, Callable, Dict, Sequence, Union
+from typing import Any, Callable, Sequence, Union
 
 from pydantic import BaseModel
 
 
 class SplitFuncDataClass(BaseModel):
+    """Class that allows to specify a custom function to generate a train, test and validation set."""
+
     function: Union[str, Callable]
     arguments: Union[
-        str, Dict[str, Any]
+        str, dict[str, Any]
     ]  # JSON string holding the function parameters or dict
 
     def __getitem__(self, key: str):
-        """Allows us to use subscription to get the items from the object"""
+        """Allows us to use subscription to get the items from the object."""
         return getattr(self, key)
 
     def __setitem__(self, key: str, value: any):
-        """Allows us to use subscription to set the items in the object"""
+        """Allows us to use subscription to set the items in the object."""
         if hasattr(self, key):
             self.__dict__[key] = value
         else:
             raise AttributeError(f"{key} not an attribute of prediction job.")
 
-    def _load_split_function(self, required_arguments=None) -> Callable:
-        """Load split function from path
+    def _load_split_function(
+        self, required_arguments: Sequence[str] = None
+    ) -> Callable:
+        """Load split function from path.
 
         Args:
             func_path (str): The path to the split function
 
         Returns:
             split_func (Callable): The loaded split function
+
         """
         if isinstance(self.function, str):
             path_elements = self.function.split(".")
@@ -59,13 +64,14 @@ class SplitFuncDataClass(BaseModel):
 
         return split_func
 
-    def _load_arguments(self) -> Dict[str, Any]:
+    def _load_arguments(self) -> dict[str, Any]:
         """Load the arguments.
 
         Convert the arguments from JSON if they are given as strings or simply return them otherwise.
 
         Returns:
-            arguments (Dict[str, Any]): The additional arguments to be passed to he function
+            arguments (dict[str, Any]): The additional arguments to be passed to he function
+
         """
         if isinstance(self.arguments, str):
             return json.loads(self.arguments)
@@ -74,17 +80,18 @@ class SplitFuncDataClass(BaseModel):
 
     def load(
         self, required_arguments: Sequence[str] = None
-    ) -> (Callable, Dict[str, Any]):
-        """Load the function and its arguments
+    ) -> tuple[Callable, dict[str, Any]]:
+        """Load the function and its arguments.
 
         If the function and the arguments are given as strings in the instane attributes, load them as Python objects
         otherwise just return them from the instance attributes.
 
         Args:
-            required_arguments (List[str]): list of arguments the loaded function must have
+            required_arguments (list[str]): list of arguments the loaded function must have
 
         Returns:
             - function (Callable)
-            - arguments (Dict[str, Any])
+            - arguments (dict[str, Any])
+
         """
         return self._load_split_function(required_arguments), self._load_arguments()

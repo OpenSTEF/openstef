@@ -1,9 +1,9 @@
-# SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 import logging
 import os
-from typing import List, Optional, Tuple, Union
+from typing import Optional, Union, Tuple
 
 import pandas as pd
 import structlog
@@ -14,6 +14,7 @@ from openstef.exceptions import (
     InputDataInsufficientError,
     InputDataWrongColumnOrderError,
     OldModelHigherScoreError,
+    SkipSaveTrainingForecasts,
 )
 from openstef.feature_engineering.feature_applicator import TrainFeatureApplicator
 from openstef.metrics.reporter import Report, Reporter
@@ -24,11 +25,13 @@ from openstef.model.standard_deviation_generator import StandardDeviationGenerat
 from openstef.model_selection.model_selection import split_data_train_validation_test
 from openstef.validation import validation
 
-DEFAULT_TRAIN_HORIZONS: List[float] = [0.25, 47.0]
+DEFAULT_TRAIN_HORIZONS: list[float] = [0.25, 47.0]
 MAXIMUM_MODEL_AGE: int = 7
 
 DEFAULT_EARLY_STOPPING_ROUNDS: int = 10
 PENALTY_FACTOR_OLD_MODEL: float = 1.2
+
+logger = structlog.get_logger(__name__)
 
 
 def train_model_pipeline(
@@ -37,61 +40,57 @@ def train_model_pipeline(
     check_old_model_age: bool,
     mlflow_tracking_uri: str,
     artifact_folder: str,
-) -> Optional[Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]]:
-    """Middle level pipeline that takes care of all persistent storage dependencies
-    Expected prediction jobs keys: "id", "model", "hyper_params", "feature_names"
+) -> Optional[tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]]:
+    """Middle level pipeline that takes care of all persistent storage dependencies.
+
+    Expected prediction jobs keys: "id",
+    "model", "hyper_params", "feature_names".
 
     Args:
-        pj (PredictionJobDataClass): Prediction job
-        input_data (pd.DataFrame): Raw training input data
-        check_old_model_age (bool): Check if training should be skipped because the model is too young
-        mlflow_tracking_uri (str): Tracking URI for MLFlow
-        artifact_folder (str): Path where artifacts, such as trained models, are stored
+        pj: Prediction job
+        input_data: Raw training input data
+        check_old_model_age: Check if training should be skipped because the model is too young
+        mlflow_tracking_uri: Tracking URI for MLFlow
+        artifact_folder: Path where artifacts, such as trained models, are stored
 
     Returns:
         If pj.save_train_forecasts is False, None is returned
         Otherwise:
-            train_data (pd.DataFrame): The train dataset with forecasts
-            validation_data (pd.DataFrame): The validation dataset with forecasts
-            test_data (pd.DataFrame): The test dataset with forecasts
+            - The train dataset with forecasts
+            - The validation dataset with forecasts
+            - The test dataset with forecasts
+
     """
     # Initialize logger and serializer
-    logger = structlog.get_logger(__name__)
     serializer = MLflowSerializer(mlflow_tracking_uri=mlflow_tracking_uri)
 
     # Get old model and age
-    try:
-        old_model, model_specs = serializer.load_model(experiment_name=str(pj["id"]))
-        old_model_age = old_model.age  # Age attribute is openstef specific
-    except (AttributeError, FileNotFoundError, LookupError):
-        old_model = None
-        old_model_age = float("inf")
-        if pj["default_modelspecs"] is not None:
-            model_specs = pj["default_modelspecs"]
-            if model_specs.id != pj.id:
-                raise RuntimeError(
-                    "The id of the prediction job and its default model_specs do not"
-                    " match."
-                )
-        else:
-            # create basic model_specs
-            model_specs = ModelSpecificationDataClass(id=pj["id"])
-        logger.warning("No old model found, training new model", pid=pj["id"])
+    old_model, model_specs, old_model_age = train_pipeline_step_load_model(
+        pj, serializer
+    )
 
     # Check old model age and continue yes/no
     if (old_model_age < MAXIMUM_MODEL_AGE) and check_old_model_age:
         logger.warning(
             f"Old model is younger than {MAXIMUM_MODEL_AGE} days, skip training"
         )
+        if pj.save_train_forecasts:
+            raise SkipSaveTrainingForecasts
         return
 
     # Train model with core pipeline
     try:
         model, report, model_specs_updated, data_sets = train_model_pipeline_core(
-            pj, model_specs, input_data, old_model, horizons=pj.train_horizons_minutes
+            pj,
+            model_specs,
+            input_data,
+            old_model,
+            horizons=pj.train_horizons_minutes,
         )
     except OldModelHigherScoreError as OMHSE:
         logger.error("Old model is better than new model", pid=pj["id"], exc_info=OMHSE)
+        if pj.save_train_forecasts:
+            raise SkipSaveTrainingForecasts from OMHSE
         return
 
     except InputDataInsufficientError as IDIE:
@@ -137,23 +136,24 @@ def train_model_pipeline_core(
     model_specs: ModelSpecificationDataClass,
     input_data: pd.DataFrame,
     old_model: OpenstfRegressor = None,
-    horizons: Union[List[float], str] = None,
-) -> (
+    horizons: Union[list[float], str] = None,
+) -> Union[
     OpenstfRegressor,
     Report,
     ModelSpecificationDataClass,
-    Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame],
-):
+    tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame],
+]:
     """Train model core pipeline.
+
     Trains a new model given a prediction job, input data and compares it to an old model.
     This pipeline has no database or persistent storage dependencies.
 
     Args:
-        pj (PredictionJobDataClass): Prediction job
-        model_specs (ModelSpecificationDataClass): Dataclass containing model specifications
-        input_data (pd.DataFrame): Input data
-        old_model (OpenstfRegressor, optional): Old model to compare to. Defaults to None.
-        horizons (List[float]): horizons to train on in hours.
+        pj: Prediction job
+        model_specs: Dataclass containing model specifications
+        input_data: Input data
+        old_model: Old model to compare to. Defaults to None.
+        horizons: horizons to train on in hours.
 
     Raises:
         InputDataInsufficientError: when input data is insufficient.
@@ -161,12 +161,12 @@ def train_model_pipeline_core(
         OldModelHigherScoreError: When old model is better than new model.
 
     Returns:
-        fitted_model (OpenstfRegressor)
-        report (Report)
-        modelspecs (ModelSpecificationDataClass)
-        datasets (Tuple[pd.DataFrmae, pd.DataFrame, pd.Dataframe): The train, validation and test sets
-    """
+        - Fitted_model (OpenstfRegressor)
+        - Report (Report)
+        - Modelspecs (ModelSpecificationDataClass)
+        - Datasets (tuple[pd.DataFrmae, pd.DataFrame, pd.Dataframe): The train, validation and test sets
 
+    """
     if horizons is None:
         if pj.train_horizons_minutes is None:
             horizons = DEFAULT_TRAIN_HORIZONS
@@ -177,13 +177,20 @@ def train_model_pipeline_core(
 
     # Call common pipeline
     model, report, train_data, validation_data, test_data = train_pipeline_common(
-        pj, model_specs, input_data, horizons
+        pj,
+        model_specs,
+        input_data,
+        horizons,
     )
     model_specs.feature_names = list(train_data.columns)
 
     # Check if new model is better than old model
     if old_model:
-        combined = pd.concat([train_data, validation_data]).reset_index(drop=True)
+        combined = pd.concat([train_data, validation_data])
+        # skip the forecast column added at the end of dataframes
+        if pj.save_train_forecasts:
+            combined = combined.iloc[:, :-1]
+
         x_data, y_data = (
             combined.iloc[:, 1:-1],
             combined.iloc[:, 0],
@@ -217,29 +224,29 @@ def train_pipeline_common(
     pj: PredictionJobDataClass,
     model_specs: ModelSpecificationDataClass,
     input_data: pd.DataFrame,
-    horizons: Union[List[float], str],
+    horizons: Union[list[float], str],
     test_fraction: float = 0.0,
     backtest: bool = False,
     test_data_predefined: pd.DataFrame = pd.DataFrame(),
-) -> Tuple[OpenstfRegressor, Report, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+) -> tuple[OpenstfRegressor, Report, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Common pipeline shared with operational training and backtest training.
 
     Args:
-        pj (PredictionJobDataClass): Prediction job
-        model_specs (ModelSpecificationDataClass): Dataclass containing model specifications
-        input_data (pd.DataFrame): Input data
-        horizons (List[float]): horizons to train on in hours.
-        test_fraction (float): fraction of data to use for testing
-        backtest (bool): boolean if we need to do a backtest
-        test_data_predefined (pd.DataFrame): Predefined test data frame to be used in the pipeline
+        pj: Prediction job
+        model_specs: Dataclass containing model specifications
+        input_data: Input data
+        horizons: horizons to train on in hours.
+        test_fraction: fraction of data to use for testing
+        backtest: boolean if we need to do a backtest
+        test_data_predefined: Predefined test data frame to be used in the pipeline
             (empty data frame by default)
 
     Returns:
-        trained_model (RegressorMixin): the trained model
-        report (Report): Report
-        train_data (pd.DataFrame): The train data
-        validation_data (pd.DataFrame): The validation data
-        test_data (pd.DataFrame): The test data
+        - The trained model
+        - Report
+        - The train data
+        - The validation data
+        - The test data
 
     Raises:
         InputDataInsufficientError: when input data is insufficient.
@@ -247,7 +254,10 @@ def train_pipeline_common(
 
     """
     data_with_features = train_pipeline_step_compute_features(
-        pj=pj, model_specs=model_specs, input_data=input_data, horizons=horizons
+        pj=pj,
+        model_specs=model_specs,
+        input_data=input_data,
+        horizons=horizons,
     )
 
     train_data, validation_data, test_data = train_pipeline_step_split_data(
@@ -277,22 +287,49 @@ def train_pipeline_common(
     return model, report, train_data, validation_data, test_data
 
 
+def train_pipeline_step_load_model(
+    pj: PredictionJobDataClass, serializer: MLflowSerializer
+) -> tuple[OpenstfRegressor, ModelSpecificationDataClass, Union[int, float]]:
+    try:
+        old_model, model_specs = serializer.load_model(experiment_name=str(pj.id))
+        old_model_age = old_model.age  # Age attribute is openstef specific
+        return old_model, model_specs, old_model_age
+    except (AttributeError, FileNotFoundError, LookupError):
+        logger.warning("No old model found, training new model", pid=pj.id)
+    except Exception:
+        logger.exception("Old model could not be loaded, training new model", pid=pj.id)
+    old_model = None
+    old_model_age = float("inf")
+    if pj["default_modelspecs"] is not None:
+        model_specs = pj["default_modelspecs"]
+        if model_specs.id != pj.id:
+            raise RuntimeError(
+                "The id of the prediction job and its default model_specs do not"
+                " match."
+            )
+    else:
+        # create basic model_specs
+        model_specs = ModelSpecificationDataClass(id=pj["id"])
+
+    return old_model, model_specs, old_model_age
+
+
 def train_pipeline_step_compute_features(
     pj: PredictionJobDataClass,
     model_specs: ModelSpecificationDataClass,
     input_data: pd.DataFrame,
-    horizons=List[float],
+    horizons=list[float],
 ) -> pd.DataFrame:
-    """Compute features and perform consistency checks
+    """Compute features and perform consistency checks.
 
     Args:
-        pj (PredictionJobDataClass): Prediction job
-        model_specs (ModelSpecificationDataClass): Dataclass containing model specifications
-        input_data (pd.DataFrame): Input data
-        horizons (List[float]): horizons to train on in hours.
+        pj: Prediction job
+        model_specs: Dataclass containing model specifications
+        input_data: Input data
+        horizons: horizons to train on in hours.
 
     Returns:
-        data_with_features (pd.DataFrame): The dataframe with features need to train the model
+        The dataframe with features need to train the model
 
     Raises:
         InputDataInsufficientError: when input data is insufficient.
@@ -326,17 +363,29 @@ def train_pipeline_step_compute_features(
     )
     # Check if sufficient data is left after cleaning
     if not validation.is_data_sufficient(
-        validated_data, pj["completeness_treshold"], pj["minimal_table_length"]
+        validated_data,
+        pj["completeness_treshold"],
+        pj["minimal_table_length"],
     ):
         raise InputDataInsufficientError(
             "Input data is insufficient, after validation and cleaning"
         )
 
-    data_with_features = TrainFeatureApplicator(
-        horizons=horizons,
-        feature_names=model_specs.feature_names,
-        feature_modules=model_specs.feature_modules,
-    ).add_features(validated_data, pj=pj)
+    # Custom data prep or legacy behavior
+    if pj.data_prep_class:
+        data_prep_class, data_prep_args = pj.data_prep_class.load()
+        data_with_features = data_prep_class(
+            pj=pj,
+            model_specs=model_specs,
+            horizons=horizons,
+            **data_prep_args,
+        ).prepare_train_data(validated_data)
+    else:
+        data_with_features = TrainFeatureApplicator(
+            horizons=horizons,
+            feature_names=model_specs.feature_names,
+            feature_modules=model_specs.feature_modules,
+        ).add_features(validated_data, pj=pj)
 
     return data_with_features
 
@@ -347,15 +396,17 @@ def train_pipeline_step_train_model(
     train_data: pd.DataFrame,
     validation_data: pd.DataFrame,
 ) -> OpenstfRegressor:
-    """Train the model
+    """Train the model.
+
     Args:
-        pj (PredictionJobDataClass): Prediction job
-        model_specs (ModelSpecificationDataClass): Dataclass containing model specifications
-        train_data (pd.DataFrame): The training data
-        validation_data (pd.DataFrame): The test data
+        pj: Prediction job
+        model_specs: Dataclass containing model specifications
+        train_data: The training data
+        validation_data: The test data
 
     Returns:
-        trained_model (OpenstfRegressor): The trained model
+        The trained model
+
     """
     # Test if first column is "load" and last column is "horizon"
     if train_data.columns[0] != "load" or train_data.columns[-1] != "horizon":
@@ -395,6 +446,11 @@ def train_pipeline_step_train_model(
             dict(early_stopping_rounds=DEFAULT_EARLY_STOPPING_ROUNDS)
         )
 
+    # Temporary fix to allow xgboost version upgrade -> set n_estimators if present and None
+    if not valid_hyper_parameters.get("n_estimators", True):
+        valid_hyper_parameters.update(dict(n_estimators=100))
+        logging.info("Deprecation warning: n_estimators=None found, overwriting.")
+
     model.set_params(**valid_hyper_parameters)
     model.fit(
         train_x,
@@ -421,24 +477,22 @@ def train_pipeline_step_split_data(
     test_fraction: float,
     backtest: bool = False,
     test_data_predefined: pd.DataFrame = pd.DataFrame(),
-) -> (pd.DataFrame, pd.DataFrame, pd.DataFrame):
-    """The default way to perform train, val, test split
+) -> Union[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """The default way to perform train, val, test split.
 
-    if pj.save_train_forecasts:
-        train_data["forecast"] = model.predict(train_data.iloc[:, 1:-1])
-        validation_data["forecast"] = model.predict(validation_data.iloc[:, 1:-1])
-        test_data["forecast"] = model.predict(test_data.iloc[:, 1:-1])
-
-    return model, report, train_data, validation_data, test_data
     Args:
-        data_with_features (pd.DataFrame): Input data
-        pj (PredictionJobDataClass): Prediction job
-        test_fraction (float): fraction of data to use for testing
-        backtest (bool): boolean if we need to do a backtest
-        test_data_predefined (pd.DataFrame): Predefined test data frame to be used in the pipeline
+        data_with_features: Input data
+        pj: Prediction job
+        test_fraction: fraction of data to use for testing
+        backtest: boolean if we need to do a backtest
+        test_data_predefined: Predefined test data frame to be used in the pipeline
             (empty data frame by default)
+
     Returns:
-        train_data, validation_data, test_data: The train, validation and test datasets.
+        - Train dataset
+        - Validation dataset
+        - Test dataset
+
     """
     # if test_data is predefined, apply the pipeline only on the remaining data
     if not test_data_predefined.empty:

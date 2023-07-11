@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 from test.unit.utils.data import TestData
@@ -14,7 +14,7 @@ from openstef.feature_engineering.feature_applicator import (
 
 class TestFeatureApplicator(TestCase):
     def setUp(self) -> None:
-        self.input_data = TestData.load("input_data.pickle")
+        self.input_data = TestData.load("input_data.csv")
 
     def test_train_feature_applicator_correct_order(self):
         # Test for expected column order of the output

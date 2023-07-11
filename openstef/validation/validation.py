@@ -1,7 +1,6 @@
-# SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-
 from datetime import timedelta
 from typing import Union
 
@@ -10,6 +9,7 @@ import pandas as pd
 import structlog
 
 from openstef.preprocessing.preprocessing import replace_repeated_values_with_nan
+from openstef.model.regressors.regressor import OpenstfRegressor
 
 
 def validate(
@@ -18,21 +18,27 @@ def validate(
     flatliner_threshold: Union[int, None],
 ) -> pd.DataFrame:
     """Validate prediction job and timeseries data.
+
     Steps:
     1. Replace repeated values for longer than flatliner_threshold with NaN
     # TODO: The function description suggests it
     'validates' the PJ and Data, but is appears to 'just' replace repeated observations with NaN.
 
     Args:
-        - pj_id: ind/str, used to identify log statements
-        - data: pd.DataFrame where the first column should be the target. index=datetimeIndex
-        - flatliner_threshold: int of max repetitions considered a flatline.
+        pj_id: ind/str, used to identify log statements
+        data: pd.DataFrame where the first column should be the target. index=datetimeIndex
+        flatliner_threshold: int of max repetitions considered a flatline.
             if None, the validation is effectively skipped
 
     Returns:
-        Dataframe where repeated values are set to None"""
+        Dataframe where repeated values are set to None
 
+    """
     logger = structlog.get_logger(__name__)
+
+    # Check if DataFrame has datetime index
+    if not isinstance(data.index, pd.DatetimeIndex):
+        raise ValueError("Input dataframe does not have a datetime index.")
 
     if flatliner_threshold is None:
         logger.info("Skipping validation of input data", pj_id=pj_id)
@@ -74,27 +80,37 @@ def drop_target_na(data: pd.DataFrame) -> pd.DataFrame:
 
 
 def is_data_sufficient(
-    data: pd.DataFrame, completeness_threshold: float, minimal_table_length: int
+    data: pd.DataFrame,
+    completeness_threshold: float,
+    minimal_table_length: int,
+    model: OpenstfRegressor = None,
 ) -> bool:
-    """Check if enough data is left after validation and cleaning to continue
-        with model training.
+    """Check if enough data is left after validation and cleaning to continue with model training.
 
     Args:
         data: pd.DataFrame() with cleaned input data.
+        model: model which contains all information regarding trained model
         completeness_threshold: float with threshold for completeness:
             1 for fully complete, 0 for anything could be missing.
         minimal_table_length: int with minimal table length (in rows)
 
     Returns:
-        (bool): True if amount of data is sufficient, False otherwise.
+        True if amount of data is sufficient, False otherwise.
 
     """
+    if model is None:
+        weights = None  # Remove horizon & load column
+    else:
+        weights = model.feature_importance_dataframe
+
     logger = structlog.get_logger(__name__)
     # Set output variable
     is_sufficient = True
 
     # Calculate completeness
-    completeness = calc_completeness(data, time_delayed=True, homogenise=False)
+    completeness = calc_completeness_features(
+        data, weights, time_delayed=True, homogenise=False
+    )
     table_length = data.shape[0]
 
     # Check if completeness is up to the standards
@@ -118,9 +134,9 @@ def is_data_sufficient(
     return is_sufficient
 
 
-def calc_completeness(
+def calc_completeness_features(
     df: pd.DataFrame,
-    weights: np.array = None,
+    weights: pd.DataFrame,
     time_delayed: bool = False,
     homogenise: bool = True,
 ) -> float:
@@ -129,83 +145,75 @@ def calc_completeness(
     NOTE: NA values count as incomplete
 
     Args:
-        df (pd.DataFrame): Dataframe with a datetimeIndex index
-        weights: Array-compatible with size equal to columns of df.
-            used to weight the completeness of each column
-        time_delayed (bool): Should there be a correction for T-x columns
-        homogenise (bool): Should the index be resampled to median time delta -
+        df: Dataframe with a datetimeIndex index
+        weights: Array-compatible with size equal to columns of df
+            (excl. load&horizon), used to weight the completeness of each column
+        time_delayed: Should there be a correction for T-x columns
+        homogenise: Should the index be resampled to median time delta -
             only available for DatetimeIndex
 
     Returns:
-        float: Completeness
+        Fraction of completeness
+
     """
+    df_copy = df.copy(
+        deep=True
+    )  # Make deep copy to maintain original dataframe in pipeline
+
+    # Remove load and horizon from data_with_features dataframe to make sure columns are equal
+    if "load" in df_copy:
+        df_copy.drop("load", inplace=True, axis=1)
+    if "horizon" in df_copy:
+        df_copy.drop("horizon", inplace=True, axis=1)
 
     if weights is None:
-        weights = np.array([1] * len(df.columns))
-    weights = np.array(weights)
+        weights = np.array([1] * ((len(df_copy.columns))))
 
-    if homogenise and isinstance(df.index, pd.DatetimeIndex) and len(df) > 0:
+    length_weights = len(weights)
+    length_features = len(df_copy.columns)
 
-        median_timediff = int(
-            df.reset_index().iloc[:, 0].diff().median().total_seconds() / 60.0
+    # Returns the list
+    if type(weights) != np.ndarray:
+        list_features = weights.index.tolist()
+        df_copy = df_copy[list_features]  # Reorder the df to match weights index (list)
+        weights = weights.weight
+
+    if length_weights != length_features:
+        raise ValueError(
+            "Input data is not sufficient, number of features used in model is unequal to amount of columns in data"
         )
-        df = df.resample("{:d}T".format(median_timediff)).mean()
-
-    if time_delayed is False:
-        # Calculate completeness
-        # Completeness per column
-        completeness_per_column = df.count() / len(df)
-
-    # if timeDelayed is True, we correct that time-delayed columns
-    # also in the best case will have NA values. E.g. T-2d is not available
-    # for times ahead of more than 2 days
-    elif time_delayed:
-        # assume 15 minute forecast resolution
-        # timecols: {delay:number of points expected to be missing}
-        # number of points expected to be missing = numberOfPointsUpToTwoDaysAhead - numberOfPointsAvailable
-        timecols = {
-            x: len(df) - eval(x[2:].replace("min", "/60").replace("d", "*24.0")) / 0.25
-            for x in df.columns
-            if x[:2] == "T-"
-        }
-
-        non_na_count = df.count()
-        for col, value in timecols.items():
-            if value >= 0:
-                non_na_count[col] += value
-
-        # Correct for APX being only expected to be available up to 24h
-        if "APX" in non_na_count.index:
-            non_na_count["APX"] += max([len(df) - 96, 0])
-
-        completeness_per_column = non_na_count / len(df)
+    completeness_per_column_dataframe = calc_completeness_dataframe(
+        df_copy, time_delayed, homogenise
+    )
 
     # scale to weights and normalize
-    completeness = (completeness_per_column * weights).sum() / weights.sum()
+    completeness = (completeness_per_column_dataframe * weights).sum() / weights.sum()
 
     return completeness
 
 
-def find_nonzero_flatliner(df: pd.DataFrame, threshold: int = None) -> pd.DataFrame:
+def find_nonzero_flatliner(
+    df: pd.DataFrame, threshold: int = None
+) -> Union[pd.DataFrame, None]:
     """Function that detects a stationflatliner and returns a list of datetimes.
 
     Args:
-        df: pd.dataFrame(index=DatetimeIndex, columns = [load1, ..., loadN]).
+        df: Example pd.dataFrame(index=DatetimeIndex, columns = [load1, ..., loadN]).
             Load_corrections should be indicated by 'LC_'
         threshold: after how many timesteps should the function detect a flatliner.
             If None, the check is not executed
 
     Returns:
-    # TODO: function returns None or a DataFrame
-        list: flatline moments
+        Flatline moments or None
 
     TODO: a lot of the logic of this function can be improved using: mnts.label
+
     ```
     import scipy.ndimage.measurements as mnts
     mnts.label
     ```
-    """
 
+    """
     if len(df) == 0:
         return
 
@@ -259,24 +267,26 @@ def find_zero_flatliner(
     flatliner_window: timedelta,
     flatliner_load_threshold: float,
 ) -> pd.DataFrame or None:
-    """Function that detects a zero value where the load is not compensated by the other trafo's of the station.
+    """Detect a zero value where the load is not compensated by the other trafo's of the station.
+
     If zero value is at start or end, ignore that block.
 
-    Input:
-    - df: pd.dataFrame(index=DatetimeIndex, columns = [load1, ..., loadN]). Load_corrections should be indicated by 'LC_'
-    - threshold (float): after how many hours should the function detect a flatliner.
-    - flatliner_window (timedelta object): for how many hours before the zero-value should the mean load be calculated.
-    - flatliner_load_threshold (fraction): how big may the difference be between the total station load
-    before and during the zero-value(s).
+    Args:
+        df: DataFrame such as pd.dataFrame(index=DatetimeIndex, columns = [load1, ..., loadN]). Load_corrections should be indicated by 'LC_'
+        threshold: after how many hours should the function detect a flatliner.
+        flatliner_window: for how many hours before the zero-value should the mean load be calculated.
+        flatliner_load_threshold: how big may the difference be between the total station load
+            before and during the zero-value(s).
 
-    return:
-    - pd.DataFrame of timestamps, or None if none
+    Return:
+        DataFrame of timestamps, or None if none
 
     TODO: a lot of the logic of this function can be improved using: mnts.label
     ```
     import scipy.ndimage.measurements as mnts
     mnts.label
     ```
+
     """
     result_df = pd.DataFrame()
 
@@ -371,16 +381,16 @@ def find_zero_flatliner(
 
 
 def check_data_for_each_trafo(df: pd.DataFrame, col: pd.Series) -> bool:
-    """Function that detects if each column contains zero-values at all, only
-        zero-values and NaN values.
+    """Function that detects if each column contains zero-values at all, only zero-values and NaN values.
 
     Args:
-        df: pd.dataFrame(index=DatetimeIndex, columns = [load1, ..., loadN]).
+        df: DataFrama such as pd.dataFrame(index=DatetimeIndex, columns = [load1, ..., loadN]).
             Load_corrections should be indicated by 'LC_'
         col: column of pd.dataFrame
 
     Returns:
-        bool: False if column contains above specified or True if not
+        False if column contains above specified or True if not
+
     """
     if df is None:
         return False
@@ -399,3 +409,69 @@ def check_data_for_each_trafo(df: pd.DataFrame, col: pd.Series) -> bool:
         print("Load at trafo {a} is missing, skipping column".format(a=col))
         return False
     return True
+
+
+def calc_completeness_dataframe(
+    df: pd.DataFrame,
+    time_delayed: bool = False,
+    homogenise: bool = True,
+) -> pd.DataFrame:
+    """Calculate the completeness of each column in dataframe.
+
+    NOTE: NA values count as incomplete
+
+    Args:
+        df: Dataframe with a datetimeIndex index
+        time_delayed: Should there be a correction for T-x columns
+        homogenise: Should the index be resampled to median time delta -
+            only available for DatetimeIndex
+
+    Returns:
+        Dataframe with fraction of completeness per column
+
+    """
+    logger = structlog.get_logger(__name__)
+
+    if homogenise and isinstance(df.index, pd.DatetimeIndex) and len(df) > 0:
+
+        median_timediff = int(
+            df.reset_index().iloc[:, 0].diff().median().total_seconds() / 60.0
+        )
+        df = df.resample("{:d}T".format(median_timediff)).mean()
+
+    if time_delayed is False:
+        # Calculate completeness
+        # Completeness per column
+        completeness_per_column_dataframe = df.count() / len(df)
+
+    # if timeDelayed is True, we correct that time-delayed columns
+    # also in the best case will have NA values. E.g. T-2d is not available
+    # for times ahead of more than 2 days
+    elif time_delayed:
+        # assume 15 minute forecast resolution
+        # timecols: {delay:number of points expected to be missing}
+        # number of points expected to be missing = numberOfPointsUpToTwoDaysAhead - numberOfPointsAvailable
+        timecols = {
+            x: len(df) - eval(x[2:].replace("min", "/60").replace("d", "*24.0")) / 0.25
+            for x in df.columns
+            if x[:2] == "T-"
+        }
+
+        non_na_count = df.count()
+
+        for col, value in timecols.items():
+            if non_na_count[col] > value:
+                logger.warning(
+                    "The provided input data (features) contains more values than is to be expected from analysis",
+                    feature=col,
+                    number_non_na=non_na_count[col],
+                    expected_numbers_timedelayed=value,
+                )
+
+        # Correct for APX being only expected to be available up to 24h
+        if "APX" in non_na_count.index:
+            non_na_count["APX"] += max([len(df) - 96, 0])
+
+        completeness_per_column_dataframe = non_na_count / (len(df))
+
+    return completeness_per_column_dataframe

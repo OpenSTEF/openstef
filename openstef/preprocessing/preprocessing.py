@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -12,12 +12,13 @@ def replace_repeated_values_with_nan(
     """Replace sequentially repeated values with NaN.
 
     Args:
-        df (pandas.DataFrame): Data with potential repeating values.
-        max_length (int): Maximum length of sequence. Above are set to NaN.
-        column_name (string): Column name of input dataframe with repeating values.
+        df: Data with potential repeating values.
+        max_length: Maximum length of sequence. Above are set to NaN.
+        column_name: Column name of input dataframe with repeating values.
 
     Returns:
-        pandas.DataFrame: Data, similar to df, with the desired values set to NaN.
+        DataFrame, similar to df, with the desired values set to NaN.
+
     """
     data = df.copy(deep=True)
     sequentials = data[column_name].diff().ne(0).cumsum()

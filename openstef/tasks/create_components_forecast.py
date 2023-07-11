@@ -1,12 +1,7 @@
-# SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-
-# -*- coding: utf-8 -*-
-"""create_components_forecast.py
-
-This module contains the CRON job that is periodically executed to make
-the components prognoses and save them in the database.
+"""This module contains the CRON job that is periodically executed to make the components prognoses.
 
 This code assumes trained models are available from the persistent storage.
 If these are not available run model_train.py to train all models.
@@ -25,15 +20,12 @@ Example:
 
         $ python create_components_forecast.py
 
-Attributes:
-
-
 """
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
-import pytz
 
 import structlog
+import pandas as pd
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.enums import MLModelType
@@ -48,13 +40,17 @@ T_BEHIND_DAYS = 0
 T_AHEAD_DAYS = 3
 
 
-def create_components_forecast_task(pj: PredictionJobDataClass, context: TaskContext):
+def create_components_forecast_task(
+    pj: PredictionJobDataClass, context: TaskContext
+) -> None:
     """Top level task that creates a components forecast.
+
     On this task level all database and context manager dependencies are resolved.
 
     Args:
-        pj (PredictionJobDataClass): Prediction job
-        context (TaskContext): Contect object that holds a config manager and a database connection
+        pj: Prediction job
+        context: Contect object that holds a config manager and a database connection
+
     """
     logger = structlog.get_logger(__name__)
     if pj["train_components"] == 0:
@@ -97,24 +93,44 @@ def create_components_forecast_task(pj: PredictionJobDataClass, context: TaskCon
     # Make forecast for the demand, wind and pv components
     forecasts = create_components_forecast_pipeline(pj, input_data, weather_data)
 
-    if forecasts.index.max() < datetime.utcnow().replace(tzinfo=pytz.utc) + timedelta(
-        hours=30
-    ):
-        raise ComponentForecastTooShortHorizonError(
-            "Could not make component forecast for two days ahead, probably input data is missing."
+    ## Perform sanity check on index
+    if not isinstance(forecasts.index, pd.core.indexes.datetimes.DatetimeIndex):
+        raise ValueError(
+            f"Index is not datetime. Received forecasts:{forecasts.head()}"
         )
 
     # save forecast to database #######################################################
     context.database.write_forecast(forecasts)
     logger.debug("Written forecast to database")
 
+    # Check if forecast was complete enough, otherwise raise exception
+    if forecasts.index.max() < datetime.utcnow().replace(
+        tzinfo=timezone.utc
+    ) + timedelta(hours=30):
 
-def main(config=None, database=None):
+        # Check which input data is missing the most.
+        # Do this by counting the NANs for (load)forecast, radiation and windspeed
+        max_index = forecasts.index.max()
+        n_nas = dict(
+            nans_load_forecast=input_data.loc[max_index:, "forecast"].isna().sum(),
+            nans_radiation=weather_data.loc[max_index:, "radiation"].isna().sum(),
+            nans_windspeed_100m=weather_data.loc[max_index:, "windspeed_100m"]
+            .isna()
+            .sum(),
+        )
+        max_na = max(n_nas, key=n_nas.get)
+
+        raise ComponentForecastTooShortHorizonError(
+            f"Could not make component forecast for two days ahead, probably input data is missing, {max_na}: {n_nas[max_na]}"
+        )
+
+
+def main(config: object = None, database: object = None):
     taskname = Path(__file__).name.replace(".py", "")
 
     if database is None or config is None:
         raise RuntimeError(
-            "Please specifiy a configmanager and/or database connection object. These"
+            "Please specifiy a config object and/or database connection object. These"
             " can be found in the openstef-dbc package."
         )
 

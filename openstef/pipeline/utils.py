@@ -1,8 +1,7 @@
-# SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 from datetime import datetime
-from typing import Tuple
 
 import pandas as pd
 import scipy.ndimage as mnts
@@ -10,16 +9,25 @@ import scipy.ndimage as mnts
 
 def generate_forecast_datetime_range(
     forecast_data: pd.DataFrame,
-) -> Tuple[datetime, datetime]:
-    """Generate forecast range based on last cluster of null values in first target
-    column of forecast data.
+) -> tuple[datetime, datetime]:
+    """Generate forecast range based on last cluster of null values in first target column of forecast data.
 
-     Example: a forecast dataset with data between 2021-11-05 and 2021-11-19, and the
-     target column 'load' as first column is given as input to this function. The first
-     column 'load' has null values between 2021-11-17 04:00:00 and 2021-11-19 05:00:00.
-     The null values at the end of the column indicate when forecasts are needed.
-     Therefore this function sets starting time of forecasts as 2021-11-17 04:00:00 and
-     end time of forecasts as 2021-11-19 05:00:00."""
+    Example:
+
+        A forecast dataset with data between 2021-11-05 and 2021-11-19, and the
+        target column 'load' as first column is given as input to this function. The first
+        column 'load' has null values between 2021-11-17 04:00:00 and 2021-11-19 05:00:00.
+        The null values at the end of the column indicate when forecasts are needed.
+        Therefore this function sets starting time of forecasts as 2021-11-17 04:00:00 and
+        end time of forecasts as 2021-11-19 05:00:00.
+
+    Args:
+        forecast_data: The forecast dataframe.
+
+    Returns:
+        Start and end datetimes of the forecast range.
+
+    """
     # By labeling the True/False values (based on the isnull() statement) as clusters,
     # we find what True value belongs to what cluster and the amount of True clusters.
     label_clusters, n_clusters = mnts.label(forecast_data.iloc[:, 0].isnull().values)

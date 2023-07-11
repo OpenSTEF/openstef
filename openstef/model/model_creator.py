@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 from typing import Union
@@ -12,6 +12,7 @@ from openstef.model.regressors.linear import LinearOpenstfRegressor
 from openstef.model.regressors.regressor import OpenstfRegressor
 from openstef.model.regressors.xgb import XGBOpenstfRegressor
 from openstef.model.regressors.xgb_quantile import XGBQuantileOpenstfRegressor
+from openstef.model.regressors.arima import ARIMAOpenstfRegressor
 
 logger = structlog.get_logger(__name__)
 try:
@@ -109,11 +110,17 @@ valid_model_kwargs = {
         "imputation_strategy",
         "fill_value",
     ],
+    MLModelType.ARIMA: [
+        "backtest_max_horizon",
+        "order",
+        "seasonal_order",
+        "trend",
+    ],
 }
 
 
 class ModelCreator:
-    """Factory object for creating machine learning models"""
+    """Factory object for creating machine learning models."""
 
     # Set object mapping
     MODEL_CONSTRUCTORS = {
@@ -122,6 +129,7 @@ class ModelCreator:
         MLModelType.XGB_QUANTILE: XGBQuantileOpenstfRegressor,
         MLModelType.ProLoaf: OpenstfProloafRegressor,
         MLModelType.LINEAR: LinearOpenstfRegressor,
+        MLModelType.ARIMA: ARIMAOpenstfRegressor,
     }
 
     @staticmethod
@@ -129,14 +137,15 @@ class ModelCreator:
         """Create a machine learning model based on model type.
 
         Args:
-            model_type (Union[MLModelType, str]): Model type to construct.
-            kwargs (dict): Optional keyword argument to pass to the model.
+            model_type: Model type to construct.
+            kwargs: Optional keyword argument to pass to the model.
 
         Raises:
             NotImplementedError: When using an invalid model_type.
 
         Returns:
-            OpenstfRegressor: model
+            OpenSTEF model
+
         """
         try:
             # This will raise a ValueError when an invalid model_type str is used

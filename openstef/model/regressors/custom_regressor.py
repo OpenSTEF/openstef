@@ -1,11 +1,11 @@
-# SPDX-FileCopyrightText: 2017-2022 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2023 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-
+"""This module defines the custom regressor."""
 import inspect
 from abc import abstractmethod
 from importlib import import_module
-from typing import List, Type
+from typing import Type
 
 import pandas as pd
 
@@ -19,18 +19,21 @@ from openstef.model.regressors.regressor import OpenstfRegressor
 
 
 class CustomOpenstfRegressor(OpenstfRegressor):
+    """A custom regressor allows to load any custom model that is not included with openSTEF."""
+
     @staticmethod
     @abstractmethod
-    def valid_kwargs() -> List[str]:
+    def valid_kwargs() -> list[str]:
         ...
 
-    @property
+    @classmethod
     @abstractmethod
     def objective(self) -> Type[RegressorObjective]:
         ...
 
 
 def load_custom_model(custom_model_path) -> CustomOpenstfRegressor:
+    """Load the external custom model."""
     path_elements = custom_model_path.split(".")
     module_path = ".".join(path_elements[:-1])
     module = import_module(module_path)
@@ -55,18 +58,7 @@ def is_custom_type(model_type):
 
 
 def create_custom_objective(
-    model: CustomOpenstfRegressor,
-    input_data: pd.DataFrame,
-    test_fraction=TEST_FRACTION,
-    validation_fraction=VALIDATION_FRACTION,
-    eval_metric=EVAL_METRIC,
-    verbose=False,
+    custom_model_path,
 ):
-    return model.objective(
-        model,
-        input_data=input_data,
-        test_fraction=test_fraction,
-        validation_fraction=validation_fraction,
-        eval_metric=eval_metric,
-        verbose=verbose,
-    )
+    model_class = load_custom_model(custom_model_path)
+    return model_class.objective()

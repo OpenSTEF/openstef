@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 
 # SPDX-License-Identifier: MPL-2.0
 
@@ -14,17 +14,15 @@ certificates/
 ktprognoses.egg-info/
 .idea/
 .vscode/
-test/unit/trained_models/models_for_serializertest/mlruns/
-trained_models/
-test/unit/trained_models/mlruns/1/
-test/component/mlruns/
+test/component/mlruns
+test/component/307
+test/unit/trained_models/307
+test/unit/trained_models/mlruns/*
+!test/unit/trained_models/mlruns/893156335105023143/
 
 # Ignore these files
 .DS_Store
 tmp
-test/component/Predictor0.25.html
-test/component/Predictor47.0.html
-test/component/weight_plot.html
 
 
 # default Python .gitignore template: https://raw.githubusercontent.com/github/gitignore/master/Python.gitignore
@@ -103,10 +101,14 @@ instance/
 
 # Sphinx documentation
 docs/_build/
+docs/openstef*.rst
+docs/modules*.rst
+
 
 # PyBuilder
 .pybuilder/
 target/
+
 
 # Jupyter Notebook
 .ipynb_checkpoints

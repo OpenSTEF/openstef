@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 import json
@@ -6,7 +6,7 @@ import os
 import shutil
 from datetime import datetime
 from json import JSONDecodeError
-from typing import Optional, Tuple, Union
+from typing import Optional, Union
 from urllib.parse import unquote, urlparse
 
 import mlflow
@@ -14,6 +14,7 @@ import numpy as np
 import pandas as pd
 import structlog
 from mlflow.exceptions import MlflowException
+from xgboost import XGBModel  # Temporary for backward compatibility
 
 from openstef.data_classes.model_specifications import ModelSpecificationDataClass
 from openstef.metrics.reporter import Report
@@ -61,7 +62,9 @@ class MLflowSerializer:
         **kwargs,
     ) -> None:
         """Log model with MLflow.
+
         Note: **kwargs has extra information to be logged with mlflow
+
         """
         # Get previous run id
         models_df = self._find_models(
@@ -130,8 +133,13 @@ class MLflowSerializer:
     def load_model(
         self,
         experiment_name: str,
-    ) -> Tuple[OpenstfRegressor, ModelSpecificationDataClass]:
-        """Load sklearn compatible model from MLFlow."""
+    ) -> tuple[OpenstfRegressor, ModelSpecificationDataClass]:
+        """Load sklearn compatible model from MLFlow.
+
+        Args:
+            experiment_name: Name of the experiment, often the id of the predition job.
+
+        """
         try:
             models_df = self._find_models(
                 experiment_name, max_results=1
@@ -163,7 +171,13 @@ class MLflowSerializer:
     def get_model_age(
         self, experiment_name: str, hyperparameter_optimization_only: bool = False
     ) -> int:
-        """Get model age of most recent model."""
+        """Get model age of most recent model.
+
+        Args:
+            experiment_name: Name of the experiment, often the id of the predition job.
+            hyperparameter_optimization_only: Set to true if only hyperparameters optimaisation events should be considered.
+
+        """
         filter_string = "attribute.status = 'FINISHED'"
         if hyperparameter_optimization_only:
             filter_string += " AND tags.phase = 'Hyperparameter_opt'"
@@ -213,13 +227,26 @@ class MLflowSerializer:
             "max_leaves",
             "sampling_method",
         ]
-        additional_attrs = [
+
+        manual_additional_attrs = [
             "enable_categorical",
             "predictor",
         ]  # these ones are not mentioned in the stackoverflow post
+        automatic_additional_attrs = [
+            x
+            for x in XGBModel._get_param_names()
+            if x
+            not in new_attrs + manual_additional_attrs + loaded_model._get_param_names()
+        ]
 
-        for attr in new_attrs + additional_attrs:
+        for attr in new_attrs + manual_additional_attrs + automatic_additional_attrs:
             setattr(loaded_model, attr, None)
+
+        # This one is new is should be set to a specific value (https://xgboost.readthedocs.io/en/latest/python/python_api.html#module-xgboost.training)
+        setattr(loaded_model, "missing", np.nan)
+        setattr(loaded_model, "n_estimators", 100)
+
+        # End temporary fix
 
         # get the parameters from old model, we insert these later into new model
         model_specs.hyper_params = loaded_model.get_params()
@@ -257,7 +284,9 @@ class MLflowSerializer:
         """Remove old models per experiment.
 
         Note: This functionality is not incorporated in MLFlow natively
-        See also: https://github.com/mlflow/mlflow/issues/2152"""
+        See also: https://github.com/mlflow/mlflow/issues/2152
+
+        """
         if max_n_models < 1:
             raise ValueError(
                 f"Max models to keep should be greater than 1! Received: {max_n_models}"
@@ -383,5 +412,8 @@ class MLflowSerializer:
 
     def _get_model_uri(self, artifact_uri: str) -> str:
         """Set model uri based on latest run.
-        Note: this function helps to mock during unit tests"""
+
+        Note: this function helps to mock during unit tests
+
+        """
         return os.path.join(artifact_uri, "model/")

@@ -1,14 +1,14 @@
-# SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 import copy
-import unittest
 from test.unit.utils.data import TestData
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
 
 import pandas as pd
 
+from openstef.enums import PipelineType
 from openstef.tasks.train_model import main as task_main
 from openstef.tasks.train_model import train_model_task
 
@@ -23,10 +23,10 @@ class TestTrainModelTask(TestCase):
 
         self.context = MagicMock()
         self.context.database = self.dbmock
-        self.context.config.paths.mlflow_tracking_uri = (
+        self.context.config.paths_mlflow_tracking_uri = (
             "./test/unit/trained_models/mlruns"
         )
-        self.context.config.paths.artifact_folder = "./test/unit/trained_models"
+        self.context.config.paths_artifact_folder = "./test/unit/trained_models"
         self.context.paths.webroot = "test_webroot"
 
     @patch("openstef.tasks.train_model.train_model_pipeline")
@@ -105,3 +105,28 @@ class TestTrainModelTask(TestCase):
             task_main(None, not_none_object, None)
 
         task_main(None, not_none_object, not_none_object)
+
+    @patch("openstef.tasks.train_model.train_model_pipeline")
+    def test_create_train_model_task_train_only(self, train_model_pipeline_mock):
+        # Test happy flow of create forecast task for train only pj
+        context = MagicMock()
+        pj = self.pj
+        pj.pipelines_to_run = [PipelineType.TRAIN]
+
+        train_model_task(pj, context)
+
+        self.assertEqual(train_model_pipeline_mock.call_count, 1)
+        self.assertEqual(
+            train_model_pipeline_mock.call_args_list[0][0][0]["id"], pj["id"]
+        )
+
+    @patch("openstef.tasks.train_model.train_model_pipeline")
+    def test_create_train_model_task_forecast_only(self, train_model_pipeline_mock):
+        # Test happy flow of create forecast task for forecast only pj
+        context = MagicMock()
+        pj = self.pj
+        pj.pipelines_to_run = [PipelineType.FORECAST]
+
+        train_model_task(pj, context)
+
+        self.assertEqual(train_model_pipeline_mock.call_count, 0)

@@ -1,7 +1,9 @@
-# SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 import copy
+import glob
+import os
 import unittest
 from datetime import datetime, timedelta
 from test.unit.utils.base import BaseTestCase
@@ -10,13 +12,18 @@ from unittest.mock import MagicMock, patch
 
 import pandas as pd
 import sklearn
-import os
-import glob
 
+from openstef.data_classes.split_function import SplitFuncDataClass
+from openstef.data_classes.data_prep import DataPrepDataClass
 from openstef.enums import MLModelType
 from openstef.exceptions import (
     InputDataInsufficientError,
     InputDataWrongColumnOrderError,
+    SkipSaveTrainingForecasts,
+)
+from openstef.feature_engineering.data_preparation import (
+    ARDataPreparation,
+    LegacyDataPreparation,
 )
 from openstef.feature_engineering.feature_applicator import TrainFeatureApplicator
 from openstef.metrics.reporter import Report
@@ -71,6 +78,10 @@ class DummyRegressor(CustomOpenstfRegressor):
         )
 
 
+def split_dummy_arima(data, test_fraction):
+    return data.iloc[:-5], data.iloc[-10:-5], data.iloc[-5:]
+
+
 class TestTrainModelPipeline(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
@@ -79,7 +90,7 @@ class TestTrainModelPipeline(BaseTestCase):
         self.model_specs.hyper_params["n_estimators"] = 3
         datetime_start = datetime.utcnow() - timedelta(days=90)
         datetime_end = datetime.utcnow()
-        self.data_table = TestData.load("input_data_train.pickle").head(8641)
+        self.data_table = TestData.load("input_data_train.csv").head(8641)
         self.data = pd.DataFrame(
             index=pd.date_range(datetime_start, datetime_end, freq="15T")
         )
@@ -123,6 +134,84 @@ class TestTrainModelPipeline(BaseTestCase):
                     continue
                 pj = self.pj
 
+                pj["model"] = (
+                    model_type.value if hasattr(model_type, "value") else model_type
+                )
+                model_specs = self.model_specs
+                train_input = self.train_input
+
+                # Use default parameters
+                model_specs.hyper_params = {}
+                model_specs.hyper_params["max_epochs"] = 1
+
+                # For Linear model we need to choose an imputation strategy to handle missing value
+                if model_type == MLModelType.LINEAR:
+                    model_specs.hyper_params["imputation_strategy"] = "mean"
+
+                if model_type == MLModelType.ARIMA:
+                    pj.data_prep_class = DataPrepDataClass(
+                        klass=ARDataPreparation,
+                        arguments={},
+                    )
+                    pj.train_split_func = SplitFuncDataClass(
+                        function=split_dummy_arima,
+                        arguments={},
+                    )
+                    train_input = self.train_input[:150]
+
+                model, report, modelspecs, _ = train_model_pipeline_core(
+                    pj=pj, model_specs=model_specs, input_data=train_input
+                )
+
+                # check if the model was fitted (raises NotFittedError when not fitted)
+                self.assertIsNone(sklearn.utils.validation.check_is_fitted(model))
+
+                # check if the model has a feature_names property
+                self.assertIsNotNone(model.feature_names)
+
+                # check if model is sklearn compatible
+                self.assertTrue(isinstance(model, sklearn.base.BaseEstimator))
+
+                # check if report is a Report
+                self.assertTrue(isinstance(report, Report))
+
+                # Validate and clean data
+                validated_data = validation.drop_target_na(
+                    validation.validate(pj["id"], train_input, flatliner_threshold=24)
+                )
+
+                # Add features
+                data_with_features = TrainFeatureApplicator(
+                    horizons=[0.25, 47.0], feature_names=model_specs.feature_names
+                ).add_features(validated_data, pj=pj)
+
+                # Split data
+                (
+                    train_data,
+                    validation_data,
+                    test_data,
+                ) = split_data_train_validation_test(data_with_features)
+
+                importance = model.set_feature_importance()
+                self.assertIsInstance(importance, pd.DataFrame)
+
+    def test_train_model_pipeline_core_happy_flow_with_legacy_data_prep(self):
+        """Test happy flow of the train model pipeline with the legacy data prep class."""
+        # Select 50 data points to speedup test
+        train_input = self.train_input.iloc[::50, :]
+        for model_type in list(MLModelType) + [__name__ + ".DummyRegressor"]:
+            with self.subTest(model_type=model_type):
+                # Skip the optional proloaf model
+                if model_type == MLModelType.ProLoaf:
+                    continue
+                # Skip the arima model because it does not use legacy data prep
+                if model_type == MLModelType.ARIMA:
+                    continue
+                pj = self.pj
+                pj.data_prep_class = DataPrepDataClass(
+                    klass=LegacyDataPreparation,
+                    arguments={},
+                )
                 pj["model"] = (
                     model_type.value if hasattr(model_type, "value") else model_type
                 )
@@ -326,13 +415,47 @@ class TestTrainModelPipeline(BaseTestCase):
         report_mock = MagicMock()
         pipeline_mock.return_value = ("a", report_mock)
 
-        train_model_pipeline(
+        result = train_model_pipeline(
             pj=self.pj,
             input_data=self.train_input,
             check_old_model_age=True,
             mlflow_tracking_uri="./test/unit/trained_models/mlruns",
             artifact_folder="./test/unit/trained_models",
         )
+        self.assertIsNone(result)
+        self.assertFalse(pipeline_mock.called)
+
+    @patch("openstef.model.serializer.MLflowSerializer.save_model")
+    @patch("openstef.pipeline.train_model.train_model_pipeline_core")
+    @patch("openstef.pipeline.train_model.MLflowSerializer")
+    def test_train_model_pipeline_young_model_save_forecasts(
+        self, serializer_mock, pipeline_mock, save_model_mock
+    ):
+        """Test pipeline core is not called when model is young"""
+        old_model_mock = MagicMock()
+        old_model_mock.age = 3
+
+        serializer_mock_instance = MagicMock()
+        serializer_mock_instance.load_model.return_value = (
+            old_model_mock,
+            self.model_specs,
+        )
+        serializer_mock.return_value = serializer_mock_instance
+
+        report_mock = MagicMock()
+        pipeline_mock.return_value = ("a", report_mock)
+
+        pj = self.pj
+        pj.save_train_forecasts = True
+
+        with self.assertRaises(SkipSaveTrainingForecasts):
+            train_model_pipeline(
+                pj=pj,
+                input_data=self.train_input,
+                check_old_model_age=True,
+                mlflow_tracking_uri="./test/unit/trained_models/mlruns",
+                artifact_folder="./test/unit/trained_models",
+            )
         self.assertFalse(pipeline_mock.called)
 
     @patch("openstef.model.serializer.MLflowSerializer.save_model")
@@ -390,6 +513,36 @@ class TestTrainModelPipeline(BaseTestCase):
             artifact_folder="./test/unit/trained_models",
         )
         self.assertIsNone(result)
+        self.assertEqual(len(serializer_mock_instance.method_calls), 1)
+
+    @patch("openstef.model.serializer.MLflowSerializer.save_model")
+    @patch("openstef.pipeline.train_model.MLflowSerializer")
+    def test_train_model_OldModelHigherScoreError_save_forecast(
+        self, serializer_mock, save_model_mock
+    ):
+        # Mock an old model which is better than the new one.
+        old_model_mock = MagicMock()
+        old_model_mock.age = 8
+
+        serializer_mock_instance = MagicMock()
+        serializer_mock_instance.load_model.return_value = (
+            old_model_mock,
+            self.model_specs,
+        )
+        serializer_mock.return_value = serializer_mock_instance
+        old_model_mock.score.return_value = 5
+
+        pj = self.pj
+        pj.save_train_forecasts = True
+
+        with self.assertRaises(SkipSaveTrainingForecasts):
+            train_model_pipeline(
+                pj=pj,
+                input_data=self.train_input,
+                check_old_model_age=True,
+                mlflow_tracking_uri="./test/unit/trained_models/mlruns",
+                artifact_folder="./test/unit/trained_models",
+            )
         self.assertEqual(len(serializer_mock_instance.method_calls), 1)
 
     @patch("openstef.model.serializer.MLflowSerializer.save_model")

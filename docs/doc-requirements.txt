@@ -1,0 +1,10 @@
+# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
+#
+# SPDX-License-Identifier: MPL-2.0
+pydata-sphinx-theme==0.12.0
+jinja2==3.0.0
+sphinx_autodoc_typehints==1.19.4
+mkdocs==1.2.3
+docformatter==1.5.0
+pydocstyle==6.1.1
+toml==0.10.2

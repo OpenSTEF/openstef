@@ -1,8 +1,7 @@
-# SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 from datetime import datetime
-from typing import List
 
 import numpy as np
 import pandas as pd
@@ -45,12 +44,11 @@ class ConfidenceIntervalApplicator:
                  regression or the default method.
 
         Args:
-            forecast (pd.DataFrame): Forecast DataFrame with columns: "forecast"
-            pj (PredictionJobDataClass): Prediction job
+            forecast: Forecast DataFrame with columns: "forecast"
+            pj: Prediction job
 
         Returns:
-            pd.DataFrame: Forecast DataFrame with columns: "forecast", "stdev" and
-                quantile columns
+            Forecast DataFrame with columns; "forecast", "stdev" and quantile columns.
 
         """
         temp_forecast = self._add_standard_deviation_to_forecast(forecast)
@@ -69,16 +67,13 @@ class ConfidenceIntervalApplicator:
 
         The stdev for intermediate forecast horizons is interpolated.
 
-        For the input standard_deviation, it is preferred that the forecast horizon is
-        expressed in Hours, instead of 'Near/Far'. For now, Near/Far is supported,
-        but this will be deprecated.
-
         Args:
-            forecast (pd.DataFrame): Forecast DataFrame with columns: "forecast"
+            forecast: Forecast DataFrame with columns: "forecast"
 
         Returns:
-            (pd.DataFrame): Forecast with added standard deviation. DataFrame with columns:
+            Forecast with added standard deviation. DataFrame with columns:
                 "forecast", "stdev"
+
         """
         minimal_resolution: int = 15  # Minimal time resolution in minutes
         standard_deviation = self.model.standard_deviation
@@ -144,7 +139,11 @@ class ConfidenceIntervalApplicator:
             sf, sn = stdev_row[far], stdev_row[near]
             A = (sf - sn) / ((1 - np.exp(-far / tau)) - (1 - np.exp(-near / tau)))
             b = sn - A * (1 - np.exp(-near / tau))
-            return A * (1 - np.exp(-t / tau)) + b
+            value = A * (1 - np.exp(-t / tau)) + b
+            # cap the value to keep it between near and far
+            if value < sn:
+                return sn
+            return sf if value > sf else value
 
         # If only one horizon is available use that one
         if len(stdev.columns) == 1:
@@ -161,22 +160,22 @@ class ConfidenceIntervalApplicator:
 
     @staticmethod
     def _add_quantiles_to_forecast_default(
-        forecast: pd.DataFrame, quantiles: List[float]
+        forecast: pd.DataFrame, quantiles: list[float]
     ) -> pd.DataFrame:
         """Add quantiles to forecast.
 
             Use the standard deviation to calculate the quantiles.
 
         Args:
-            forecast (pd.DataFrame): Forecast (should contain a 'forecast' + 'stdev' column)
-            quantiles (List[float]): List with desired quantiles,
+            forecast: Forecast (should contain a 'forecast' + 'stdev' column)
+            quantiles: List with desired quantiles,
                 for example: [0.01, 0.1, 0.9, 0.99]
 
         Returns:
-            (pd.DataFrame): Forecast DataFrame with quantile (e.g. 'quantile_PXX')
+            Forecast DataFrame with quantile (e.g. 'quantile_PXX')
                 columns added.
-        """
 
+        """
         # Check if stdev and forecast are in the dataframe
         if not all(elem in forecast.columns for elem in ["forecast", "stdev"]):
             raise ValueError("Forecast should contain a 'forecast' and 'stdev' column")
@@ -190,25 +189,29 @@ class ConfidenceIntervalApplicator:
         return forecast
 
     def _add_quantiles_to_forecast_quantile_regression(
-        self, forecast: pd.DataFrame, quantiles: List[float]
+        self, forecast: pd.DataFrame, quantiles: list[float]
     ) -> pd.DataFrame:
         """Add quantiles to forecast.
 
             Use trained quantile regression model to calculate the quantiles.
 
         Args:
-            forecast (pd.DataFrame): Forecast
-            quantiles (List[float]): List with desired quantiles
+            forecast: Forecast
+            quantiles: List with desired quantiles
 
         Returns:
-            (pd.DataFrame): Forecast DataFrame with quantile (e.g. 'quantile_PXX')
+            Forecast DataFrame with quantile (e.g. 'quantile_PXX')
                 columns added.
-        """
 
+        """
+        # Only determine quantiles for datetimes in forecast
+        quantile_df = pd.DataFrame(index=self.forecast_input_data.index)
         for quantile in quantiles:
             quantile_key = f"quantile_P{quantile * 100:02.0f}"
-            forecast[quantile_key] = self.model.predict(
+            quantile_df[quantile_key] = self.model.predict(
                 self.forecast_input_data, quantile=quantile
             )
 
-        return forecast
+        return forecast.merge(
+            quantile_df, left_index=True, right_index=True, how="left"
+        )

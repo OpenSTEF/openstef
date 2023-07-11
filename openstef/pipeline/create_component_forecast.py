@@ -1,32 +1,38 @@
-# SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
 import joblib
 import pandas as pd
 import structlog
+
 import openstef.postprocessing.postprocessing as postprocessing
-from openstef.data_classes.prediction_job import PredictionJobDataClass
-from openstef.model.regressors.dazls import Dazls
-from openstef.enums import ForecastType
 from openstef import PROJECT_ROOT
+from openstef.data_classes.prediction_job import PredictionJobDataClass
+from openstef.enums import ForecastType
+from openstef.model.regressors.dazls import Dazls
 
 # Set the path for the Dazls stored model
 DAZLS_STORED = PROJECT_ROOT / "openstef" / "data" / "dazls_stored.sav"
 
 
-def create_input(pj, input_data, weather_data):
-    """
-    This function prepares the input data, which will be used for the Dazls model prediction, so they will be
+def create_input(
+    pj: PredictionJobDataClass, input_data: pd.DataFrame, weather_data: pd.DataFrame
+) -> pd.DataFrame:
+    """This function prepares the input data.
+
+    This data will be used for the Dazls model prediction, so they will be
     according Dazls model requirements.
 
-    :param pj: pj (PredictionJobDataClass): Prediction job
-    :param input_data: (pd.DataFrame): Input forecast for the components forecast.
-    :param weather_data: (pd.DataFrame): Weather data with 'radiation' and 'windspeed_100m' columns
+    Args:
+        pj: Prediction job
+        input_data: Input forecast for the components forecast.
+        weather_data: Weather data with 'radiation' and 'windspeed_100m' columns
 
-    :return: input_df (pd.Dataframe): It outputs a dataframe which will be used for the Dazls prediction function.
+    Returns:
+        It outputs a dataframe which will be used for the Dazls prediction function.
+
     """
-
     # Prepare raw input data
     input_df = (
         weather_data[["radiation", "windspeed_100m"]]
@@ -47,37 +53,37 @@ def create_input(pj, input_data, weather_data):
     input_df["hour"] = input_df.index.hour
     input_df["minute"] = input_df.index.minute
 
-    input_df["var0"] = input_df["radiation"].var()
-    input_df["var1"] = input_df["windspeed_100m"].var()
-    input_df["var2"] = input_df["total_substation"].var()
+    input_df["var0"] = input_df["total_substation"].var()
+    input_df["var1"] = input_df["radiation"].var()
+    input_df["var2"] = input_df["windspeed_100m"].var()
 
-    input_df["sem0"] = input_df.sem(axis=1)
-    input_df["sem1"] = input_df.sem(axis=1)
+    input_df["sem0"] = input_df["total_substation"].sem()
+    input_df["sem1"] = input_df["radiation"].sem()
 
     return input_df
 
 
 def create_components_forecast_pipeline(
-    pj: PredictionJobDataClass, input_data, weather_data
-):
-    """
-    Pipeline for creating a component forecast using Dazls prediction model
+    pj: PredictionJobDataClass, input_data: pd.DataFrame, weather_data: pd.DataFrame
+) -> pd.DataFrame:
+    """Pipeline for creating a component forecast using Dazls prediction model.
 
     Args:
-        pj (PredictionJobDataClass): Prediction job
-        input_data (pd.DataFrame): Input forecast for the components forecast.
-        weather_data (pd.DataFrame): Weather data with 'radiation' and 'windspeed_100m' columns
+        pj: Prediction job
+        input_data: Input forecast for the components forecast.
+        weather_data: Weather data with 'radiation' and 'windspeed_100m' columns
 
     Returns:
-        pd.DataFrame with component forecasts. The dataframe contains these columns:
-                "forecast_wind_on_shore",
-                "forecast_solar",
-                "forecast_other",
-                "pid",
-                "customer",
-                "description",
-                "type",
-                "algtype"
+        DataFrame with component forecasts. The dataframe contains these columns;
+        "forecast_wind_on_shore",
+        "forecast_solar",
+        "forecast_other",
+        "pid",
+        "customer",
+        "description",
+        "type",
+        "algtype"
+
     """
     logger = structlog.get_logger(__name__)
     logger.info("Make components prediction", pid=pj["id"])

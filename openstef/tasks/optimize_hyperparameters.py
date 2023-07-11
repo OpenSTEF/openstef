@@ -1,9 +1,9 @@
-# SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
 # -*- coding: utf-8 -*-
-"""optimize_hyper_params.py
+"""optimize_hyper_params.py.
 
 This module contains the CRON job that is periodically executed to optimize the
 hyperparameters for the prognosis models.
@@ -20,7 +20,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
-from openstef.enums import MLModelType
+from openstef.enums import MLModelType, PipelineType
 from openstef.model.serializer import MLflowSerializer
 from openstef.monitoring import teams
 from openstef.pipeline.optimize_hyperparameters import optimize_hyperparameters_pipeline
@@ -28,11 +28,14 @@ from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstef.tasks.utils.taskcontext import TaskContext
 
 MAX_AGE_HYPER_PARAMS_DAYS = 31
+DEFAULT_CHECK_HYPER_PARAMS_AGE = True
 DEFAULT_TRAINING_PERIOD_DAYS = 121
 
 
 def optimize_hyperparameters_task(
-    pj: PredictionJobDataClass, context: TaskContext
+    pj: PredictionJobDataClass,
+    context: TaskContext,
+    check_hyper_param_age: bool = DEFAULT_CHECK_HYPER_PARAMS_AGE,
 ) -> None:
     """Optimize hyperparameters task.
 
@@ -40,12 +43,34 @@ def optimize_hyperparameters_task(
     Only used for logging: "name", "description"
 
     Args:
-        pj (PredictionJobDataClass): Prediction job
-        context (TaskContext): Task context
+        pj: Prediction job
+        context: Task context
+        check_hyper_param_age: Boolean indicating if optimization can be skipped in case existing
+            hyperparameters do not exceed the maximum age.
+
     """
-    # Get the paths for storing model and reports from the config manager
-    mlflow_tracking_uri = context.config.paths.mlflow_tracking_uri
-    artifact_folder = context.config.paths.artifact_folder
+    # Check pipeline types
+    if PipelineType.HYPER_PARMATERS not in pj.pipelines_to_run:
+        context.logger.info(
+            "Skip this PredictionJob because hyper_parameters pipeline is not specified in the pj."
+        )
+        return
+
+    # TODO: Improve implementation by using a field in the database and leveraging the
+    #       `pipelines_to_run` attribute of the `PredictionJobDataClass` object. This
+    #       would require a change to the MySQL datamodel.
+    if (
+        context.config.externally_posted_forecasts_pids
+        and pj.id in context.config.externally_posted_forecasts_pids
+    ):
+        context.logger.info(
+            "Skip this PredictionJob because its forecasts are posted by an external process."
+        )
+        return
+
+    # Retrieve the paths for storing model and reports from the config manager
+    mlflow_tracking_uri = context.config.paths_mlflow_tracking_uri
+    artifact_folder = context.config.paths_artifact_folder
 
     # Determine if we need to optimize hyperparams
     # retrieve last model age where hyperparameters were optimized
@@ -54,7 +79,7 @@ def optimize_hyperparameters_task(
         experiment_name=str(pj["id"]), hyperparameter_optimization_only=True
     )
 
-    if hyper_params_age < MAX_AGE_HYPER_PARAMS_DAYS:
+    if (hyper_params_age < MAX_AGE_HYPER_PARAMS_DAYS) and check_hyper_param_age:
         context.logger.warning(
             "Skip hyperparameter optimization",
             pid=pj["id"],
@@ -94,7 +119,7 @@ def main(config=None, database=None):
 
     if database is None or config is None:
         raise RuntimeError(
-            "Please specify a configmanager and/or database connection object. These"
+            "Please specify a config object and/or database connection object. These"
             " can be found in the openstef-dbc package."
         )
 

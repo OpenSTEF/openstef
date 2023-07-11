@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -40,7 +40,7 @@ class TestMLflowSerializer(BaseTestCase):
         # Check model path
         assert (
             loaded_model.path.replace("\\", "/")
-            == "/C:/repos/short-term-forecasting/test/unit/trained_models/mlruns/0/d7719d5d316d4416a947e4f7ea7e73a8/artifacts/model/"
+            == "./test/unit/trained_models/mlruns/893156335105023143/2ca1d126e8724852b303b256e64a6c4f/artifacts/model/"
         )
 
     @patch("openstef.data_classes.model_specifications.ModelSpecificationDataClass")

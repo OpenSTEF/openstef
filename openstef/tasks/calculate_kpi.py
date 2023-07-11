@@ -1,12 +1,11 @@
-# SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
-"""calculate_kpi.py
-This module contains the CRON job that is periodically executed to calculate key
-performance indicators (KPIs) and save them to the database.
-This code assumes prognoses are available from the persistent storage. If these are not
-available run create_forecast.py to train all models.
+"""This module contains the CRON job that is periodically executed to calculate key performance indicators (KPIs).
+
+This code assumes prognoses are available from the persistent storage.
+If these are not available run create_forecast.py to train all models.
 
 The folowing tasks are caried out:
   1: Calculate the KPI for a given pid. Ignore SplitEnergy
@@ -17,7 +16,7 @@ Example:
     This module is meant to be called directly from a CRON job.
     Alternatively this code can be run directly by running::
         $ python calculate_kpi.py
-Attributes:
+
 """
 # Import builtins
 from datetime import datetime, timedelta
@@ -45,7 +44,7 @@ def main(model_type: MLModelType = None, config=None, database=None) -> None:
 
     if database is None or config is None:
         raise RuntimeError(
-            "Please specifiy a configmanager and/or database connection object. These"
+            "Please specifiy a config object and/or database connection object. These"
             " can be found in the openstef-dbc package."
         )
 
@@ -130,7 +129,8 @@ def calc_kpi_for_specific_pid(
     predicted_load: pd.DataFrame,
     basecase: pd.DataFrame,
 ) -> dict:
-    """Function that checks the model performance based on a pid. This function
+    """Function that checks the model performance based on a pid. This function.
+
     - loads and combines forecast and realised data
     - calculated several key performance indicators (KPIs)
     These metric include:
@@ -140,13 +140,14 @@ def calc_kpi_for_specific_pid(
         - Mean absolute Error
 
     Args:
-        pj (PredictionJobDataclass): Prediction ID for a given prediction job
-        start_time (datetime): Start time from when to retrieve the historic load prediction.
-        end_time (datetime): Start time till when to retrieve the historic load prediction.
+        pid: Prediction ID for a given prediction job
+        realised: Realised load.
+        predicted_load: Predicted load.
+        basecase: Basecase predicted load.
 
     Returns:
-        Dictionary that includes a dictonary for each t_ahead.
-        Dict includes enddate en window (in days) for clarification
+        - Dictionary that includes a dictonary for each t_ahead.
+        - Dict includes enddate en window (in days) for clarification
 
     Raises:
         NoPredictedLoadError: When no predicted load for given datatime range.
@@ -154,6 +155,7 @@ def calc_kpi_for_specific_pid(
 
     Example:
         To get the rMAE for the 24 hours ahead prediction: kpis['24h']['rMAE']
+
     """
     COMPLETENESS_REALISED_THRESHOLDS = 0.7
     COMPLETENESS_PREDICTED_LOAD_THRESHOLD = 0.7
@@ -172,12 +174,12 @@ def calc_kpi_for_specific_pid(
     start_time = realised.index.min().to_pydatetime()
     end_time = realised.index.max().to_pydatetime()
 
-    completeness_realised = validation.calc_completeness(realised)
+    completeness_realised = validation.calc_completeness_dataframe(realised)[0]
 
     # Interpolate missing data if needed
     realised = realised.resample("15T").interpolate(limit=3)
 
-    completeness_predicted_load = validation.calc_completeness(predicted_load)
+    completeness_predicted_load = validation.calc_completeness_dataframe(predicted_load)
 
     # Combine the forecast and the realised to make sure indices are matched nicely
     combined = pd.merge(realised, predicted_load, left_index=True, right_index=True)
@@ -216,8 +218,9 @@ def calc_kpi_for_specific_pid(
         t_ahead_h = hor_cols[0].split("_")[1]
         fc = combined[hor_cols[0]]  # load predictions
         st = combined[hor_cols[1]]  # standard deviations of load predictions
-        completeness_predicted_load_specific_hor = validation.calc_completeness(
-            fc.to_frame(name=t_ahead_h)
+
+        completeness_predicted_load_specific_hor = (
+            validation.calc_completeness_dataframe(fc.to_frame(name=t_ahead_h))[0]
         )
         kpis.update(
             {
@@ -278,10 +281,7 @@ def calc_kpi_for_specific_pid(
                 completeness_threshold=COMPLETENESS_REALISED_THRESHOLDS,
             )
             set_incomplete_kpi_to_nan(kpis, t_ahead_h)
-        if (
-            completeness_predicted_load_specific_hor
-            < COMPLETENESS_PREDICTED_LOAD_THRESHOLD
-        ):
+        if completeness_predicted_load.any() < COMPLETENESS_PREDICTED_LOAD_THRESHOLD:
             log.warning(
                 "Completeness predicted load of specific horizon too low",
                 prediction_id=pid,
@@ -298,12 +298,12 @@ def calc_kpi_for_specific_pid(
 
 
 def set_incomplete_kpi_to_nan(kpis: dict, t_ahead_h: str) -> None:
-    """
-    Checks the given kpis for completeness and sets to nan if this not true
+    """Checks the given kpis for completeness and sets to nan if this not true.
 
-    :param kpis: the kpis
-    :param t_ahead_h: t_ahead_h
-    :return: -
+    Args:
+        kpis: the kpis
+        t_ahead_h: t_ahead_h
+
     """
     kpi_metrics = list(kpis[t_ahead_h].keys())
     # Set to nan

@@ -1,8 +1,7 @@
-# SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 from functools import partial
-from typing import Tuple
 
 import numpy as np
 import xgboost as xgb
@@ -12,7 +11,7 @@ from xgboost import Booster
 import openstef.metrics.metrics as metrics
 from openstef.model.regressors.regressor import OpenstfRegressor
 
-DEFAULT_QUANTILES: Tuple[float, ...] = (0.9, 0.5, 0.1)
+DEFAULT_QUANTILES: tuple[float, ...] = (0.9, 0.5, 0.1)
 
 
 class XGBQuantileOpenstfRegressor(OpenstfRegressor):
@@ -25,7 +24,7 @@ class XGBQuantileOpenstfRegressor(OpenstfRegressor):
 
     def __init__(
         self,
-        quantiles: Tuple[float, ...] = DEFAULT_QUANTILES,
+        quantiles: tuple[float, ...] = DEFAULT_QUANTILES,
         gamma: float = 0.0,
         colsample_bytree: float = 1.0,
         subsample: float = 1.0,
@@ -35,15 +34,24 @@ class XGBQuantileOpenstfRegressor(OpenstfRegressor):
         alpha: float = 0.0,
         max_delta_step: int = 0,
     ):
-        """Initialize XGBQuantileRegressor
+        """Initialize XGBQuantileRegressor.
 
-            Model that provides quantile regression with XGBoost.
-            For each desired quantile an XGBoost model is trained,
-            these can later be used to predict quantiles.
+        Model that provides quantile regression with XGBoost.
+        For each desired quantile an XGBoost model is trained,
+        these can later be used to predict quantiles.
 
         Args:
-            quantiles (tuple): Tuple with desired quantiles, quantile 0.5 is required.
+            quantiles: Tuple with desired quantiles, quantile 0.5 is required.
                 For example: (0.1, 0.5, 0.9)
+            gamma: Gamma
+            colsample_bytree: Colsample by tree
+            subsample: Subsample
+            min_child_weight: Minimum child weight
+            max_depth: Maximum depth
+            learning_rate: Learning rate
+            alpha: Alpha
+            max_delta_step: Maximum delta step
+
         """
         super().__init__()
         # Check if quantile 0.5 is pressent this is required
@@ -65,17 +73,16 @@ class XGBQuantileOpenstfRegressor(OpenstfRegressor):
         self.learning_rate = learning_rate
 
     def fit(self, x: np.array, y: np.array, **kwargs) -> OpenstfRegressor:
-        """Fits xgb quantile model
+        """Fits xgb quantile model.
 
         Args:
-            x (np.array): Feature matrix
-            y (np.array): Labels
+            x: Feature matrix
+            y: Labels
 
         Returns:
             Fitted XGBQuantile model
 
         """
-
         # TODO: specify these required kwargs in the function definition
         early_stopping_rounds = kwargs.get("early_stopping_rounds", None)
         eval_set = kwargs.get("eval_set", None)
@@ -142,16 +149,16 @@ class XGBQuantileOpenstfRegressor(OpenstfRegressor):
         return self
 
     def predict(self, x: np.array, quantile: float = 0.5) -> np.array:
-        """Makes a prediction for a desired quantile
+        """Makes a prediction for a desired quantile.
 
         Args:
-            x (np.array): Feature matrix
-            quantile (float): Quantile for which a prediciton is desired,
-            note that only quantile are available for which a model is trained,
-            and that this is a quantile-model specific keyword
+            x: Feature matrix
+            quantile: Quantile for which a prediciton is desired,
+                note that only quantile are available for which a model is trained,
+                and that this is a quantile-model specific keyword
 
         Returns:
-            (np.array): prediction
+            Prediction
 
         Raises:
             ValueError in case no model is trained for the requested quantile
@@ -169,24 +176,25 @@ class XGBQuantileOpenstfRegressor(OpenstfRegressor):
         dmatrix_input = xgb.DMatrix(x.copy(deep=True))
 
         return self.estimators_[quantile].predict(
-            dmatrix_input, ntree_limit=self.estimators_[quantile].best_ntree_limit
+            dmatrix_input,
+            iteration_range=(0, self.estimators_[quantile].best_iteration + 1),
         )
 
     @classmethod
     def get_feature_importances_from_booster(cls, booster: Booster) -> np.ndarray:
         """Gets feauture importances from a XGB booster.
-            This is based on the feature_importance_ property defined in:
-            https://github.com/dmlc/xgboost/blob/master/python-package/xgboost/sklearn.py
+
+        This is based on the feature_importance_ property defined in:
+        https://github.com/dmlc/xgboost/blob/master/python-package/xgboost/sklearn.py.
 
         Args:
-            booster(Booster): Booster object,
-            most of the times the median model (quantile=0.5) is preferred
+            booster: Booster object,
+                most of the times the median model (quantile=0.5) is preferred
 
         Returns:
-            (np.ndarray) with normalized feature importances
+            Ndarray with normalized feature importances.
 
         """
-
         # Get score
         score = booster.get_score(importance_type="gain")
 

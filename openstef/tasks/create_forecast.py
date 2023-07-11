@@ -1,12 +1,8 @@
-# SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+"""This module contains the CRON job that is periodically executed to make prognoses and save them in to the database.
 
-# -*- coding: utf-8 -*-
-"""create_forecast.py
-
-This module contains the CRON job that is periodically executed to make prognoses and
-save them in to the database.
 This code assumes trained models are available from the persistent storage. If these
 are not available run model_train.py to train all models.
 To provide the prognoses the folowing steps are carried out:
@@ -23,15 +19,12 @@ Example:
 
         $ python create_forecast.py
 
-Attributes:
-
-
 """
 from datetime import datetime, timedelta
 from pathlib import Path
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
-from openstef.enums import MLModelType
+from openstef.enums import MLModelType, PipelineType
 from openstef.pipeline.create_forecast import create_forecast_pipeline
 from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstef.tasks.utils.taskcontext import TaskContext
@@ -45,15 +38,35 @@ def create_forecast_task(pj: PredictionJobDataClass, context: TaskContext) -> No
 
     On this task level all database and context manager dependencies are resolved.
 
-    Expected prediction job keys: "id", "lat", "lon", "resolution_minutes",
+    Expected prediction job keys; "id", "lat", "lon", "resolution_minutes",
         "horizon_minutes", "type", "name", "quantiles"
 
     Args:
-        pj (PredictionJobDataClass): Prediction job
-        context (TaskContext): Contect object that holds a config manager and a database connection
+        pj: Prediction job
+        context: Contect object that holds a config manager and a database connection
+
     """
+    # Check pipeline types
+    if PipelineType.FORECAST not in pj.pipelines_to_run:
+        context.logger.info(
+            "Skip this PredictionJob because forecast pipeline is not specified in the pj."
+        )
+        return
+
+    # TODO: Improve implementation by using a field in the database and leveraging the
+    #       `pipelines_to_run` attribute of the `PredictionJobDataClass` object. This
+    #       would require a change to the MySQL datamodel.
+    if (
+        context.config.externally_posted_forecasts_pids
+        and pj.id in context.config.externally_posted_forecasts_pids
+    ):
+        context.logger.info(
+            "Skip this PredictionJob because its forecasts are posted by an external process."
+        )
+        return
+
     # Extract mlflow tracking URI and trained models folder
-    mlflow_tracking_uri = context.config.paths.mlflow_tracking_uri
+    mlflow_tracking_uri = context.config.paths_mlflow_tracking_uri
 
     # Define datetime range for input data
     datetime_start = datetime.utcnow() - timedelta(days=T_BEHIND_DAYS)
@@ -76,12 +89,11 @@ def create_forecast_task(pj: PredictionJobDataClass, context: TaskContext) -> No
 
 
 def main(model_type=None, config=None, database=None):
-
     taskname = Path(__file__).name.replace(".py", "")
 
     if database is None or config is None:
         raise RuntimeError(
-            "Please specify a configmanager and/or database connection object. These"
+            "Please specify a config object and/or database connection object. These"
             " can be found in the openstef-dbc package."
         )
 

@@ -1,11 +1,13 @@
-# SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
 from test.unit.utils.base import BaseTestCase
 from test.unit.utils.data import TestData
 
+import pandas as pd
 import numpy as np
+import pytest
 
 from openstef.validation import validation
 
@@ -13,8 +15,8 @@ from openstef.validation import validation
 class TestDataValidation(BaseTestCase):
     def setUp(self):
         super().setUp()
-        self.data_train = TestData.load("input_data_train.pickle")
-        self.data_predict = TestData.load("input_data.pickle")
+        self.data_train = TestData.load("input_data_train.csv")
+        self.data_predict = TestData.load("input_data.csv")
         self.pj = TestData.get_prediction_job(pid=307)
 
     def test_drop_target_na(self):
@@ -39,6 +41,16 @@ class TestDataValidation(BaseTestCase):
 
     def test_validate_none_threshold(self):
         """return the input if flatliner_threshold is None"""
-        input = self.data_train
-        res = validation.validate(self.pj["id"], input, flatliner_threshold=None)
-        self.assertDataframeEqual(res, input)
+        input_data = self.data_train
+        res = validation.validate(self.pj["id"], input_data, flatliner_threshold=None)
+        self.assertDataframeEqual(res, input_data)
+
+    def test_validate_no_datetime_index(self):
+        """Raise a value error if input data has no datetime index."""
+        input_data = self.data_train
+        input_data = input_data.reset_index(drop=True)
+        with pytest.raises(ValueError):
+            res = validation.validate(
+                self.pj["id"], input_data, flatliner_threshold=None
+            )
+            self.assertIsInstance(res, pd.DataFrame)

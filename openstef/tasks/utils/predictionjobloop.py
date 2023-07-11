@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -6,58 +6,63 @@ import random
 import sys
 from collections import defaultdict
 from itertools import chain
+from typing import Callable
 
+from openstef.data_classes.prediction_job import PredictionJobDataClass
+from openstef.exceptions import PredictionJobException
 from openstef.tasks.utils.dependencies import find_groups, has_dependencies
+from openstef.tasks.utils.taskcontext import TaskContext
 
 
 class PredictionJobLoop:
+    """Convenience objects that maps a function over prediction jobs.
+
+    Default behaviour is to automatically get prediction jobs from the
+    database. Any keyword argument passed will be directed to the getting
+    function. If another set of prediction jobs is desired, manually pass
+    them using the prediction_jobs argument.
+
+    Tip: For debugging a specific PID, use debug_pid=specific_pid
+
+    Args:
+        context: The context to run this loop in.
+        stop_on_exception: Whether to break out of the
+            loop when an exception is raised. Defaults to False.
+        random_order: Whether to randomize the order of the
+            prediction jobs. Defaults to True. Does not apply to manually
+            passed prediction jobs.
+        on_exception_callback: Callback, will be called
+            everytime an exception is raised. Callable gets the pj and
+            exception raised as arguments
+        on_successful_callback: Callback, will be called
+            everytime an iteration is successful (no exception is raised).
+            Callable gets the pj as argument.
+        on_end_callback: Callback, will be called everytime an
+            iteration is completed. Callable gets the pj and and bool
+            indicating success as argument.
+        prediction_jobs: Manually pass a list of
+            prediction jobs that will be looped over. If set to None, will fetch
+            prediction jobs from database based on pj_kwargs
+        debug_pid: enter a specific pid for debugging.
+            If not None, the prediction job loop will only look at this pid
+        **pj_kwargs: Any other kwargs willed will be directed to the
+            prediction job getting function.
+
+    """
+
     def __init__(
         self,
-        context,
-        stop_on_exception=False,
-        random_order=True,
-        on_exception_callback=None,
-        on_successful_callback=None,
-        on_end_callback=None,
-        prediction_jobs=None,
-        debug_pid=None,
+        context: TaskContext,
+        stop_on_exception: bool = False,
+        random_order: bool = True,
+        on_exception_callback: Callable = None,
+        on_successful_callback: Callable = None,
+        on_end_callback: Callable = None,
+        prediction_jobs: list[PredictionJobDataClass] = None,
+        debug_pid: int = None,
         **pj_kwargs
     ):
-        """Convenience objects that maps a function over prediction jobs.
-
-        Default behaviour is to automatically get prediction jobs from the
-        database. Any keyword argument passed will be directed to the getting
-        function. If another set of prediction jobs is desired, manually pass
-        them using the prediction_jobs argument.
-
-        Tip: For debugging a specific PID, use debug_pid=specific_pid
-
-        Args:
-            context (openstef.tasks.util.taskcontext.TaskContext): The
-                context to run this loop in.
-            stop_on_exception (bool, optional): Whether to break out of the
-                loop when an exception is raised. Defaults to False.
-            random_order (bool, optional): Whether to randomize the order of the
-                prediction jobs. Defaults to True. Does not apply to manually
-                passed prediction jobs.
-            on_exception_callback (callable, optional): Callback, will be called
-                everytime an exception is raised. Callable gets the pj and
-                exception raised as arguments
-            on_successful_callback (callable, optional): Callback, will be called
-                everytime an iteration is successful (no exception is raised).
-                Callable gets the pj as argument.
-            on_end_callback (callable, optional): Callback, will be called everytime an
-                iteration is completed. Callable gets the pj and and bool
-                indicating success as argument.
-            prediction_jobs (list of dicts, optional): Manually pass a list of
-                prediction jobs that will be looped over. If set to None, will fetch
-                prediction jobs from database based on pj_kwargs
-            debug_pid (int): enter a specific pid for debugging.
-                If not None, the prediction job loop will only look at this pid
-            **pj_kwargs: Any other kwargs willed will be directed to the
-                prediction job getting function.
-
-        """
+        """Initialzie prediction job loop."""
         self.context = context
         self.stop_on_exception = stop_on_exception
         self.random_order = random_order
@@ -101,11 +106,11 @@ class PredictionJobLoop:
 
         return prediction_jobs
 
-    def map(self, function, *args, **kwargs):
+    def map(self, function: Callable, *args, **kwargs):
         """Maps the passed function over all prediction jobs.
 
         Args:
-            function (callable): The function that will be applied to each prediction
+            function: The function that will be applied to each prediction
                 job separately.
             *args: Any other arguments or passed to the function.
             **kwargs: All keyword arguments are passed to the function. This method is
@@ -114,7 +119,8 @@ class PredictionJobLoop:
 
         Raises:
             PredictionJobException: This exception will be raised if one or more
-            prediction jobs raised an exception during the loop.
+                prediction jobs raised an exception during the loop.
+
         """
         pids_successful = []
         pids_unsuccessful = []
@@ -236,11 +242,3 @@ class PredictionJobLoop:
                     exc_info=exc_info,
                     stack_info=stack_info,
                 )
-
-
-class PredictionJobException(Exception):
-    def __init__(self, metrics=None):
-        super().__init__("One or more prediction jobs raised an exception.")
-        if metrics is None:
-            metrics = {}
-        self.metrics = metrics

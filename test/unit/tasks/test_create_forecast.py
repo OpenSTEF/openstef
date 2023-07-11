@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 from pathlib import Path
@@ -6,6 +6,7 @@ from test.unit.utils.data import TestData
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
 
+from openstef.enums import PipelineType
 import openstef.tasks.create_forecast as task
 from openstef.model.serializer import MLflowSerializer
 from openstef.tasks.create_forecast import create_forecast_task
@@ -24,7 +25,7 @@ class TestCreateForeCastTask(TestCase):
         # mock model location
         # Determine absolute location where already stored model is, based on relative path.
         # This is needed so the model stored in the repo can be found when running remote
-        rel_path = "test/unit/trained_models/mlruns/0/d7719d5d316d4416a947e4f7ea7e73a8/artifacts/model"
+        rel_path = "test/unit/trained_models/mlruns/893156335105023143/2ca1d126e8724852b303b256e64a6c4f/artifacts/model"
         _get_model_uri_mock.return_value = Path(rel_path).absolute().as_uri()
         # Use MLflowSerializer to load a model
         self.model, _ = self.serializer.load_model(experiment_name="307")
@@ -32,7 +33,7 @@ class TestCreateForeCastTask(TestCase):
     def test_mocked_model_path(self):
         """This test explicitely tests if the model path is mocked correctly"""
         assert (
-            "/test/unit/trained_models/mlruns/0/d7719d5d316d4416a947e4f7ea7e73a8/artifacts/model"
+            "test/unit/trained_models/mlruns/893156335105023143/2ca1d126e8724852b303b256e64a6c4f/artifacts/model"
             in self.model.path
         )
 
@@ -40,11 +41,77 @@ class TestCreateForeCastTask(TestCase):
         "openstef.tasks.create_forecast.create_forecast_pipeline",
         MagicMock(return_value=FORECAST_MOCK),
     )
+    def test_create_forecast_task_happy_flow_1(self):
+        """Test happy flow of create forecast task."""
+        # Arrange
+        context = MagicMock()
+        context.config.externally_posted_forecasts_pids = None
+
+        # Act
+        create_forecast_task(self.pj, context)
+
+        # Assert
+        self.assertEqual(context.mock_calls[1].args[0], FORECAST_MOCK)
+
+    @patch(
+        "openstef.tasks.create_forecast.create_forecast_pipeline",
+        MagicMock(return_value=FORECAST_MOCK),
+    )
     def test_create_forecast_task_happy_flow(self):
         """Test happy flow of create forecast task."""
+        # Arrange
         context = MagicMock()
+        context.config.externally_posted_forecasts_pids = [999]
+
+        # Act
         create_forecast_task(self.pj, context)
+
+        # Assert
+        self.assertNotEqual(
+            self.pj.id, context.config.externally_posted_forecasts_pids[0]
+        )
         self.assertEqual(context.mock_calls[1].args[0], FORECAST_MOCK)
+
+    def test_create_forecast_task_skip_external(self):
+        """Test happy flow of create forecast task."""
+        # Arrange
+        context = MagicMock()
+        context.config.externally_posted_forecasts_pids = [307]
+
+        # Act
+        create_forecast_task(self.pj, context)
+
+        # Assert
+        self.assertEqual(self.pj.id, context.config.externally_posted_forecasts_pids[0])
+        self.assertEqual(
+            context.mock_calls[0].args[0],
+            "Skip this PredictionJob because its forecasts are posted by an external process.",
+        )
+
+    @patch("openstef.tasks.create_forecast.create_forecast_pipeline")
+    def test_create_forecast_task_train_only(self, create_forecast_pipeline_mock):
+        """Test happy flow of create forecast task for train only pj."""
+        context = MagicMock()
+        pj = self.pj
+        pj.pipelines_to_run = [PipelineType.TRAIN]
+        create_forecast_task(pj, context)
+        self.assertEqual(create_forecast_pipeline_mock.call_count, 0)
+
+    @patch("openstef.tasks.create_forecast.create_forecast_pipeline")
+    def test_create_forecast_task_forecast_only(self, create_forecast_pipeline_mock):
+        """Test happy flow of create forecast task for forecast only pj."""
+        # Arrange
+        context = MagicMock()
+        create_forecast_pipeline_mock.return_value = FORECAST_MOCK
+        pj = self.pj
+        pj.pipelines_to_run = [PipelineType.FORECAST]
+
+        # Act
+        create_forecast_task(pj, context)
+
+        # Assert
+        self.assertEqual(create_forecast_pipeline_mock.call_count, 1)
+        self.assertEqual(context.mock_calls[3].args[0], FORECAST_MOCK)
 
     @patch("mlflow.sklearn.load_model")
     @patch("openstef.model.serializer.MLflowSerializer")
@@ -69,10 +136,10 @@ class TestCreateForeCastTask(TestCase):
         forecast_data.loc["2020-11-28 00:00:00":"2020-12-01", col_name] = None
         dbmock.get_model_input.return_value = forecast_data
 
-        configmock_taskcontext.return_value.paths.mlflow_tracking_uri = (
+        configmock_taskcontext.return_value.paths_mlflow_tracking_uri = (
             "./test/unit/trained_models/mlruns"
         )
-        configmock_taskcontext.return_value.paths.artifact_folder = (
+        configmock_taskcontext.return_value.paths_artifact_folder = (
             "./test/unit/trained_models"
         )
 

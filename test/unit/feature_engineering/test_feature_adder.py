@@ -2,14 +2,10 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-import os
-import re
-import unittest
 from test.unit.utils.base import BaseTestCase
 from test.unit.utils.data import TestData
 
 import numpy as np
-import pandas as pd
 
 from openstef.feature_engineering.feature_adder import (
     FeatureAdder,
@@ -58,7 +54,7 @@ class DummyIntFeature(FeatureAdder):
 
 class TestFeatureAdder(BaseTestCase):
     def setUp(self) -> None:
-        self.input_data = TestData.load("input_data.pickle")
+        self.input_data = TestData.load("input_data.csv")
 
     def test_repr_fearureAdder(self):
         dummy = DummyFeature()

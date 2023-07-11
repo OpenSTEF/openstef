@@ -1,15 +1,15 @@
-# SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+"""Defines reporter class."""
 import os
 import warnings
 from dataclasses import dataclass
-from typing import Dict, List
-import structlog
 
 import numpy as np
 import pandas as pd
 import sklearn
+import structlog
 from mlflow.models import ModelSignature, infer_signature
 from plotly.graph_objects import Figure
 
@@ -20,13 +20,24 @@ from openstef.model.regressors.regressor import OpenstfRegressor
 
 @dataclass
 class Report:
+    """Dataclass to hold a report describing the training process."""
+
     def __init__(
         self,
         feature_importance_figure: Figure,
-        data_series_figures: Dict[str, Figure],
+        data_series_figures: dict[str, Figure],
         metrics: dict,
         signature: ModelSignature,
     ):
+        """Initialize training report.
+
+        Args:
+            feature_importance_figure: Figure with feature importance
+            data_series_figures: Figure with input data time series.
+            metrics: Dict with metrics
+            signature: Model signature
+
+        """
         self.feature_importance_figure = feature_importance_figure
         self.data_series_figures = data_series_figures
         self.metrics = metrics
@@ -34,19 +45,22 @@ class Report:
 
 
 class Reporter:
+    """Reporter class that generates reports describing the training process."""
+
     def __init__(
         self,
         train_data: pd.DataFrame = None,
         validation_data: pd.DataFrame = None,
         test_data: pd.DataFrame = None,
-        quantiles: List[float] = None,
+        quantiles: list[float] = None,
     ) -> None:
-        """Initializes reporter
+        """Initializes reporter.
 
         Args:
             train_data: Dataframe with training data
             validation_data: Dataframe with validation data
             test_data: Dataframe with test data
+
         """
         self.horizons = train_data.horizon.unique()
         self.predicted_data_list = []
@@ -57,13 +71,14 @@ class Reporter:
         self,
         model: OpenstfRegressor,
     ) -> Report:
-        """Generate a report on a given model
+        """Generate a report on a given model.
 
         Args:
-            model (OpenstfRegressor): the model to create a report on
+            model: the model to create a report on
 
         Returns:
-            Report: reporter object containing info about the model
+            Reporter object containing info about the model
+
         """
         # Get training (input_data_list[0]) and validation (input_data_list[1]) set
         train_x, train_y = (
@@ -111,7 +126,7 @@ class Reporter:
         return report
 
     @staticmethod
-    def get_fiabilities(quantiles: Dict[float, np.array], y_true: np.array) -> dict:
+    def get_fiabilities(quantiles: dict[float, np.array], y_true: np.array) -> dict:
         fiabilities_dict = {}
         for alpha, qhat in quantiles.items():
             fiabilities_dict[f"fiability_at_q{alpha}"] = np.mean(qhat >= y_true)
@@ -119,14 +134,15 @@ class Reporter:
 
     @staticmethod
     def get_metrics(y_pred: np.array, y_true: np.array) -> dict:
-        """Calculate the metrics for a prediction
+        """Calculate the metrics for a prediction.
 
         Args:
             y_pred: np.array
             y_true: np.array
 
         Returns:
-            dictionary: metrics for the prediction
+            Metrics for the prediction
+
         """
         metric_dict = {
             "bias": bias,

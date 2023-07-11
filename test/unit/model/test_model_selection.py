@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 import random
@@ -33,7 +33,7 @@ class TestTrain(BaseTestCase):
 
         """
 
-        data = TestData.load("input_data_train.pickle")
+        data = TestData.load("input_data_train.csv")
         start_date = data.index.min().to_pydatetime()
 
         selection = [start_date]
@@ -65,7 +65,7 @@ class TestTrain(BaseTestCase):
             AssertionError: -
         """
 
-        data = TestData.load("input_data_train.pickle")
+        data = TestData.load("input_data_train.csv")
 
         (
             train_set,

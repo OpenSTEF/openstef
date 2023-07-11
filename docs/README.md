@@ -1,5 +1,5 @@
 <!--
-SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com>
+SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com>
 
 SPDX-License-Identifier: MPL-2.0
 -->
@@ -27,6 +27,15 @@ Important files:
 Running locally, documentation html files are generated but not added to gh-pages:
 ```
 pip install -r requirements.txt
+pip install -r docs/doc-requirements.txt
 sphinx-apidoc -o docs openstef
 sphinx-build docs output
+```
+
+Run docstring formatting and checks locally:
+```
+pip install -r requirements.txt
+pip install -r docs/doc-requirements.txt
+pydocstyle .
+docformatter openstef --recursive --wrap-summaries 120 --in-place
 ```

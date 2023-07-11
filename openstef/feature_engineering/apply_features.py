@@ -1,19 +1,15 @@
-# SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+"""This module provides functionality for applying features to the input data to improve forecast accuracy.
 
-# -*- coding: utf-8 -*-
-"""apply_features.py.
-
-This module provides functionality for applying features to the input data.
-This improves forecast accuracy. Examples of features that are added are:
-    The load 1 day and 7 days ago at the same time
-    If a day is a weekday or a holiday
-    The extrapolated windspeed at 100m
-    The normalised wind power according to the turbine-specific power curve
+Examples of features that are added:
+    - The load 1 day and 7 days ago at the same time.
+    - If a day is a weekday or a holiday.
+    - The extrapolated windspeed at 100m.
+    - The normalised wind power according to the turbine-specific power curve.
 
 """
-from typing import List
 
 import pandas as pd
 
@@ -26,24 +22,24 @@ from openstef.feature_engineering.holiday_features import (
 )
 from openstef.feature_engineering.lag_features import generate_lag_feature_functions
 from openstef.feature_engineering.weather_features import (
+    add_additional_solar_features,
     add_additional_wind_features,
     add_humidity_features,
-    add_additional_solar_features,
 )
 
 
 def apply_features(
     data: pd.DataFrame,
     pj: PredictionJobDataClass = None,
-    feature_names: List[str] = None,
+    feature_names: list[str] = None,
     horizon: float = 24.0,
 ) -> pd.DataFrame:
-    """This script applies the feature functions defined in
-        feature_functions.py and returns the complete dataframe. Features requiring
-        more recent label-data are omitted.
+    """Applies the feature functions defined in ``feature_functions.py`` and returns the complete dataframe.
 
-        NOTE: For the time deriven features only the onces in the features list
-        will be added. But for the weather features all will be added at present.
+    Features requiring more recent label-data are omitted.
+
+    .. note::
+        For the time deriven features only the onces in the features list will be added. But for the weather features all will be added at present.
         These unrequested additional features have to be filtered out later.
 
     Args:
@@ -53,14 +49,16 @@ def apply_features(
                                         columns=[label, predictor_1,..., predictor_n]
                                     )
         pj (PredictionJobDataClass): Prediction job.
-        feature_names (List[str]): list of reuqested features
+        feature_names (list[str]): list of reuqested features
         horizon (float): Forecast horizon limit in hours.
 
     Returns:
-        pd.DataFrame(index = datetime, columns = [label, predictor_1,..., predictor_n,
-            feature_1, ..., feature_m])
+        pd.DataFrame(index = datetime, columns = [label, predictor_1,..., predictor_n, feature_1, ..., feature_m])
 
-    Example:
+    Example output:
+
+    .. code-block:: py
+
         import pandas as pd
         import numpy as np
         index = pd.date_range(start = "2017-01-01 09:00:00",

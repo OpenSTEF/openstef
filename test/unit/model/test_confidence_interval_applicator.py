@@ -1,10 +1,11 @@
-# SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
 from unittest import TestCase
 from unittest.mock import patch
 
+import numpy as np
 import pandas as pd
 
 from openstef.model.confidence_interval_applicator import ConfidenceIntervalApplicator
@@ -33,6 +34,16 @@ class MockModel:
     @property
     def can_predict_quantiles(self):
         return True
+
+
+class MockModelMultiHorizonStdev(MockModel):
+    standard_deviation = pd.DataFrame(
+        {
+            "stdev": [0.1, 2.9, 1.6, 1.9, 3.2] + [2.1, 5, 8, 12, 14],
+            "hour": [0, 1, 2, 3, 4] * 2,
+            "horizon": [5, 5, 5, 5, 5] + [10, 10, 10, 10, 10],
+        }
+    )
 
 
 class TestConfidenceIntervalApplicator(TestCase):
@@ -105,6 +116,28 @@ class TestConfidenceIntervalApplicator(TestCase):
         for expected_column in expected_new_columns:
             self.assertTrue(expected_column in pp_forecast.columns)
 
+    def test_add_quantiles_to_forecast_length_mismatch(self):
+        # Arange
+        pj = {"quantiles": self.quantiles}
+
+        # Act
+        pp_forecast = ConfidenceIntervalApplicator(
+            MockModel(), self.stdev_forecast.iloc[:-1, :]  # do not use last value
+        )._add_quantiles_to_forecast_quantile_regression(
+            self.stdev_forecast, pj["quantiles"]
+        )
+
+        # Assert
+        expected_new_columns = [
+            f"quantile_P{int(q * 100):02d}" for q in pj["quantiles"]
+        ]
+
+        for expected_column in expected_new_columns:
+            # Assert the quantiles are available
+            self.assertTrue(expected_column in pp_forecast.columns)
+            # Assert last quantile value is missing
+            self.assertTrue(np.isnan(pp_forecast[expected_column].iloc[-1]))
+
     def test_add_quantiles_to_forecast_default(self):
         pj = {"quantiles": self.quantiles}
 
@@ -118,3 +151,23 @@ class TestConfidenceIntervalApplicator(TestCase):
 
         for expected_column in expected_new_columns:
             self.assertTrue(expected_column in pp_forecast.columns)
+
+    def test_add_standard_deviation_to_forecast_in_past(self):
+        """Forecasts for negative/zero lead times should result in an exploding stdev"""
+        forecast = pd.DataFrame({"forecast": [5, 6, 7], "tAhead": [-1.0, 0.0, 1.0]})
+        forecast.index = [
+            pd.Timestamp(2012, 5, 1, 1, 30),
+            pd.Timestamp(2012, 5, 1, 1, 45),
+            pd.Timestamp(2012, 5, 1, 2, 00),
+        ]
+
+        actual_stdev_forecast = ConfidenceIntervalApplicator(
+            MockModelMultiHorizonStdev(), self.stdev_forecast
+        )._add_standard_deviation_to_forecast(forecast)
+        self.assertTrue("stdev" in actual_stdev_forecast.columns)
+        self.assertGreaterEqual(
+            actual_stdev_forecast["stdev"].min(), 0.1
+        )  # => MockModel.standard_deviation.stdev.min()
+        self.assertLessEqual(
+            actual_stdev_forecast["stdev"].max(), 14
+        )  # => MockModel.standard_deviation.stdev.max())
