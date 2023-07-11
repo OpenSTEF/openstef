@@ -97,7 +97,7 @@ class RegressorObjective:
                 "stratification_min_max": self.model_type != MLModelType.ProLoaf,
                 "back_test": True,
             }
-        
+
         # Perform data preprocessing
         if self.model_type == MLModelType.ProLoaf:
             stratification_min_max = False
