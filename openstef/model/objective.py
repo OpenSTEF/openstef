@@ -87,6 +87,7 @@ class RegressorObjective:
             self.train_data,
             self.validation_data,
             self.test_data,
+            self.operational_score_data,
         ) = split_data_train_validation_test(
             self.input_data,
             test_fraction=self.test_fraction,

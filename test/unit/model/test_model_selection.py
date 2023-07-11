@@ -71,6 +71,7 @@ class TestTrain(BaseTestCase):
             train_set,
             valid_set,
             test_set,
+            operational_score_data,
         ) = model_selection.split_data_train_validation_test(
             data,
             test_fraction=SPLIT_PARAMS["test_fraction"],
@@ -87,7 +88,7 @@ class TestTrain(BaseTestCase):
         )  # two days is allowed
 
         self.assertEqual(
-            len(test_set),
+            len(operational_score_data),
             len(data),
         )
 
@@ -121,7 +122,12 @@ class TestTrain(BaseTestCase):
             df.loc[df.index.day == day, "load"] -= 5
 
         # Act: Split using default arguments. Should result in stratified split
-        (train, val, test,) = model_selection.split_data_train_validation_test(
+        (
+            train,
+            val,
+            test,
+            operational_score_data,
+        ) = model_selection.split_data_train_validation_test(
             df, test_fraction=0, stratification_min_max=True
         )
 

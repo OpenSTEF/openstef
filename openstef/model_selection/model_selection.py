@@ -173,9 +173,18 @@ def split_data_train_validation_test(
         start_date_test = end_date - np.round(number_indices * test_fraction) * delta
         test_data = data_[start_date_test:]
         train_val_data = data_[:start_date_test]
+        operational_score_data = (
+            pd.DataFrame()
+        )  # Empty because a backtest is no operational setting.
     else:
-        test_data = data_.copy(deep=True)
-        train_val_data = data_
+        start_date_val = start_date + np.round(number_indices * test_fraction) * delta
+        test_data = data_[
+            :start_date_val
+        ]  # Empty as all data is used for training in an operational setting.
+        train_val_data = data_[start_date_val:]
+        operational_score_data = data_.copy(deep=True).reset_index(
+            drop=True
+        )  # Used to check wether a new operationally train model is better than the old one.
 
     if stratification_min_max and (
         len(set(train_val_data.index.date)) >= min_days_for_stratification
@@ -248,11 +257,7 @@ def split_data_train_validation_test(
     validation_data = validation_data.sort_index()
     test_data = test_data.sort_index()
 
-    return (
-        train_data,
-        validation_data,
-        test_data,
-    )
+    return (train_data, validation_data, test_data, operational_score_data)
 
 
 def backtest_split_default(
@@ -286,14 +291,14 @@ def backtest_split_default(
         for ifold in range(n_folds):
             test_data = data[data["random_fold"] == ifold].sort_index()
 
-            (train_data, validation_data, _,) = split_data_train_validation_test(
+            (train_data, validation_data, _, _) = split_data_train_validation_test(
                 data[data["random_fold"] != ifold].iloc[:, :-2],
                 test_fraction=0,
                 back_test=True,
                 stratification_min_max=stratification_min_max,
             )
 
-            yield train_data, validation_data, test_data.iloc[:, :-2]
+            yield train_data, validation_data, test_data.iloc[:, :-2], pd.DataFrame()
     else:
         yield split_data_train_validation_test(
             data,
