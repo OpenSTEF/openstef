@@ -60,6 +60,7 @@ class Reporter:
             train_data: Dataframe with training data
             validation_data: Dataframe with validation data
             test_data: Dataframe with test data
+            quantiles: List of predicted quantiles that have to be plotted.
 
         """
         self.horizons = train_data.horizon.unique()
