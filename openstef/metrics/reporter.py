@@ -52,6 +52,7 @@ class Reporter:
         train_data: pd.DataFrame = None,
         validation_data: pd.DataFrame = None,
         test_data: pd.DataFrame = None,
+        quantiles: list[float] = None,
     ) -> None:
         """Initializes reporter.
 
@@ -59,11 +60,13 @@ class Reporter:
             train_data: Dataframe with training data
             validation_data: Dataframe with validation data
             test_data: Dataframe with test data
+            quantiles: List of predicted quantiles that have to be plotted.
 
         """
         self.horizons = train_data.horizon.unique()
         self.predicted_data_list = []
         self.input_data_list = [train_data, validation_data, test_data]
+        self.quantiles = [] if quantiles is None else sorted(quantiles)
 
     def generate_report(
         self,
@@ -102,14 +105,33 @@ class Reporter:
 
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
+
+            if model.can_predict_quantiles:
+                fiabilities = self.get_fiabilities(
+                    {q: model.predict(valid_x, quantile=q) for q in self.quantiles},
+                    valid_y,
+                )
+            else:
+                fiabilities = {}
+
             report = Report(
                 data_series_figures=data_series_figures,
                 feature_importance_figure=feature_importance_figure,
-                metrics=self.get_metrics(model.predict(valid_x), valid_y),
+                metrics={
+                    **self.get_metrics(model.predict(valid_x), valid_y),
+                    **fiabilities,
+                },
                 signature=infer_signature(train_x, train_y),
             )
 
         return report
+
+    @staticmethod
+    def get_fiabilities(quantiles: dict[float, np.array], y_true: np.array) -> dict:
+        fiabilities_dict = {}
+        for alpha, qhat in quantiles.items():
+            fiabilities_dict[f"fiability_at_q{alpha}"] = np.mean(qhat >= y_true)
+        return fiabilities_dict
 
     @staticmethod
     def get_metrics(y_pred: np.array, y_true: np.array) -> dict:
@@ -171,6 +193,15 @@ class Reporter:
             forecast = pd.DataFrame(
                 index=data_set.index, data={"forecast": model_forecast}
             )
+
+            if (model.can_predict_quantiles) & (len(self.quantiles) >= 2):
+                forecast.loc[:, f"q{100 * self.quantiles[0]}"] = model.predict(
+                    data_set.iloc[:, 1:-1], quantile=self.quantiles[0]
+                )
+                forecast.loc[:, f"q{100 * self.quantiles[-1]}"] = model.predict(
+                    data_set.iloc[:, 1:-1], quantile=self.quantiles[-1]
+                )
+
             self.predicted_data_list.append(forecast)
 
         # Make cufflinks plots for the data series
