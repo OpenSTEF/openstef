@@ -5,13 +5,13 @@
 Overview of relational database
 ============================================================
 
-OpenSTEF uses a relational database to store information about prediction jobs and measurements. An ER diagram of this database is shown bellow.
+OpenSTEF uses a relational database to store information about prediction jobs and measurements. An ER diagram of this database is shown below.
 
 .. image:: _static/mysql_er_diagram.png
    :width: 6.3in
    :height: 4.24236in
 
-The nescesarry tables are described in more detail bellow:
+The necessary tables are described in more detail bellow:
 
 customers
 -------------
@@ -28,7 +28,7 @@ customers
 | active         | bool     | activity status       | 1               |
 +----------------+----------+-----------------------+-----------------+
 
-**Customer** : A customer is a collection of prediction jobs. This can be a collection of predictions belonging to a customer but also a collection of prediction belonging to a specific location or substation.
+**Customer** : A customer is a collection of predictions. This can be a collection of predictions belonging to a customer but also a collection of prediction belonging to a specific location or substation.
 
 customersApiKeys
 ----------------
@@ -58,34 +58,6 @@ Correspondence table between customer ids and prediction jobs ids.
 +--------------------+-----------+-----------------------+-------------+
 | prediction_id      | int       | prediction job id     | 313         |
 +--------------------+-----------+-----------------------+-------------+
-
-energy_split_coefs
-------------------
-+----------------+----------------+-----------------+-----------------+
-| **Name**       | **Type**       | **Comment**     | **Example**     |
-+================+================+=================+=================+
-| id             | int            | coefficient id  | 1135293         |
-+----------------+----------------+-----------------+-----------------+
-| pid            | int            | prediction job  | 317             |
-|                |                | id              |                 |
-+----------------+----------------+-----------------+-----------------+
-| date_start     | date           | start date      | 2020-12-08      |
-+----------------+----------------+-----------------+-----------------+
-| date_end       | date           | end date        | 2021-03-08      |
-+----------------+----------------+-----------------+-----------------+
-| created        | datetime       | creation        | 2021-03-08      |
-|                |                | datetime        | 12:14:19        |
-+----------------+----------------+-----------------+-----------------+
-| coef_name      | chr            | coefficient     | wind_ref        |
-|                |                | name            |                 |
-+----------------+----------------+-----------------+-----------------+
-| coef_value     | float          | coefficient     | 52.6867         |
-|                |                | value           |                 |
-+----------------+----------------+-----------------+-----------------+
-
-Deprecated: OpenSTEF now uses DAZLS (`Concepts — OpenSTEF
-documentation <https://openstef.github.io/openstef/concepts.html#domain-adaptation-for-zero-shot-learning-in-sequence-dazls>`__)
-to split net load between wind, solar and the rest.
 
 genericpowercurves
 ----------------------
@@ -126,48 +98,6 @@ by a wind turbine is computed as
 where :math:`v` is the windspeed at hub height, :math:`P_{rated}` =
 rated_power, :math:`k` = steepness and :math:`c` = slope_center.
 
-**hyper_params**
-
-Contains the names of the hyper-parameters to be tuned for each type of
-model (xgb…).
-
-+----------------+----------+-----------------------+-----------------+
-| **Name**       | **Type** | **Comment**           | **Example**     |
-+================+==========+=======================+=================+
-| id             | int      | hyper-parameter id    | 1               |
-+----------------+----------+-----------------------+-----------------+
-| name           | chr      | hyper-parameter name  | subsample       |
-+----------------+----------+-----------------------+-----------------+
-| model          | chr      | name of the model     | xgb             |
-+----------------+----------+-----------------------+-----------------+
-
-Deprecated: Hyper-parameters are managed by MLflow.
-
-hyper_param_values
-------------------
-Contains the values of the hyper-parameters to be tuned for each
-prediction job.
-
-+-----------------+----------+--------------------------+--------------+
-| **Name**        | **Type** | **Comment**              | **Example**  |
-+=================+==========+==========================+==============+
-| id              | int      | Hyper-parameter id       | 159          |
-+-----------------+----------+--------------------------+--------------+
-| prediction_id   | int      | prediction job id        | 313          |
-+-----------------+----------+--------------------------+--------------+
-| hyper_params_id | int      | hyper-parameter id in    | 1            |
-|                 |          | hyper_params             |              |
-+-----------------+----------+--------------------------+--------------+
-| value           | char     | hyper-parameter value    | 0.91         |
-+-----------------+----------+--------------------------+--------------+
-| created         | datetime | datetime when the value  | 2021-04-30   |
-|                 |          | of the hyper-parameter   | 13:04:00     |
-|                 |          | has been added to the    |              |
-|                 |          | table                    |              |
-+-----------------+----------+--------------------------+--------------+
-
-Deprecated: Hyper-parameters are managed by MLflow.
-
 NameToLatLon
 ------------
 +----------------+-----------+-----------------+----------------------+
@@ -180,41 +110,39 @@ NameToLatLon
 | lat            | decimal   | latitude        | 53.201               |
 +----------------+-----------+-----------------+----------------------+
 
+This table is used for looking up coordinates for specific locations that can be used directly for retrieving weather data.
+
+
 predictions
 -----------
 Contains prediction jobs.
 
-+--------------------+----------+------------------------+-----------------+
-| **Name**           | **Type** | **Comment**            | **Example**     |
-+====================+==========+========================+=================+
-| id                 | int      | prediction job id      | 313             |
-+--------------------+----------+------------------------+-----------------+
-| name               | chr      | customer name          | Location_A      |
-+--------------------+----------+------------------------+-----------------+
-| forecast_type      | chr      | type of forecast       | demand          |
-+--------------------+----------+------------------------+-----------------+
-| model              | chr      | type of model          | xgb             |
-+--------------------+----------+------------------------+-----------------+
-| created            | datetime | creation datetime of   | 2019-05-16      |
-|                    |          | the prediction job     | 14:53:38        |
-+--------------------+----------+------------------------+-----------------+
-| active             | int      | 0 = off; 1 = on; 2 =   | 1               |
-|                    |          | automatic              |                 |
-+--------------------+----------+------------------------+-----------------+
-| horizon_minutes    | int      | max forecast horizon   | 2880            |
-|                    |          | (minutes)              |                 |
-+--------------------+----------+------------------------+-----------------+
-| resolution_minutes | int      | time resolution of     | 15              |
-|                    |          | forecasts (minutes)    |                 |
-+--------------------+----------+------------------------+-----------------+
-| train_components   | bool     | use splitting          | 1               |
-|                    |          | components ? (now in a |                 |
-|                    |          | separate pipeline:     |                 |
-|                    |          | component forecast)    |                 |
-+--------------------+----------+------------------------+-----------------+
-| ean                | chr      | id of the connection   | 000             |
-|                    |          | point for Tennet       | 000000000000003 |
-+--------------------+----------+------------------------+-----------------+
++---------------------+-----------+------------------------------------------------------------------------------------------------------------------------------------------------------+--------------------+
+| **Name**            | **Type**  | **Comment**                                                                                                                                          | **Example**        |
++=====================+===========+======================================================================================================================================================+====================+
+| id                  | int       | prediction job id                                                                                                                                    | 313                |
++---------------------+-----------+------------------------------------------------------------------------------------------------------------------------------------------------------+--------------------+
+| name                | chr       | customer name                                                                                                                                        | Location_A         |
++---------------------+-----------+------------------------------------------------------------------------------------------------------------------------------------------------------+--------------------+
+| forecast_type       | chr       | type of forecast                                                                                                                                     | demand             |
++---------------------+-----------+------------------------------------------------------------------------------------------------------------------------------------------------------+--------------------+
+| model               | chr       | type of model                                                                                                                                        | xgb                |
++---------------------+-----------+------------------------------------------------------------------------------------------------------------------------------------------------------+--------------------+
+|  created            |  datetime |  creation datetime of                                                                                                                                |  2019-05-16        |
+|                     |           |  the prediction job                                                                                                                                  |  14:53:38          |
++---------------------+-----------+------------------------------------------------------------------------------------------------------------------------------------------------------+--------------------+
+| active              | int       | 0 = off; 1 = on;                                                                                                                                     |                    |
++---------------------+-----------+------------------------------------------------------------------------------------------------------------------------------------------------------+--------------------+
+|  horizon_minutes    |  int      |  max forecast horizon                                                                                                                                |  2880              |
+|                     |           |  (minutes)                                                                                                                                           |                    |
++---------------------+-----------+------------------------------------------------------------------------------------------------------------------------------------------------------+--------------------+
+|  resolution_minutes |  int      |  time resolution of                                                                                                                                  |  15                |
+|                     |           |  forecasts (minutes)                                                                                                                                 |                    |
++---------------------+-----------+------------------------------------------------------------------------------------------------------------------------------------------------------+--------------------+
+| train_components    | bool      | Optional: Carry out energy splitting for this prediction job                                                                                         | 1                  |
++---------------------+-----------+------------------------------------------------------------------------------------------------------------------------------------------------------+--------------------+
+| ean                 | chr       | EAN of the connectionpoint if the prediction corresponds to a connection point. See also: https://en.wikipedia.org/wiki/International_Article_Number | 000000000000000003 |
++---------------------+-----------+------------------------------------------------------------------------------------------------------------------------------------------------------+--------------------+
 
 **Prediction**: A prediction is the core concept in openSTEF and largley translate to the prediction_job in the openSTEF code. To make a prediction a prediction is usualy coupled to one or more systems. These systems provide the measurement data for which a forecast is made.
 
@@ -237,21 +165,21 @@ predictions_systems
 -------------------
 Correspondence table between prediction jobs and systems.
 
-+---------------+----------+------------------------------------+---------------------+
-| **Name**      | **Type** | **Comment**                        | **Example**         |
-+===============+==========+====================================+=====================+
-| prediction_id | int      | prediction job id                  | 317                 |
-+---------------+----------+------------------------------------+---------------------+
-| system_id     | chr      | system id                          | Location_A_System_1 |
-+---------------+----------+------------------------------------+---------------------+
-| factor        | double   | factor to multiply before addition | -2.0                |
-+---------------+----------+------------------------------------+---------------------+
++---------------+----------+---------------------------------------------+---------------------+
+| **Name**      | **Type** | **Comment**                                 | **Example**         |
++===============+==========+=============================================+=====================+
+| prediction_id | int      | prediction job id                           | 317                 |
++---------------+----------+---------------------------------------------+---------------------+
+| system_id     | chr      | system id                                   | Location_A_System_1 |
++---------------+----------+---------------------------------------------+---------------------+
+| factor        | double   | Optional factor to multiply before addition | -2.0                |
++---------------+----------+---------------------------------------------+---------------------+
 
--  A **prediction job** can correspond to multiple **systems** (e.g. pj
-   #459)
+-  A **prediction job** can correspond to multiple **systems** 
 
--  A **system** can be linked to multiple **prediction jobs** (e.g.
-   Location_A_System_1 for pj #317 and #459)
+-  A **system** can be linked to multiple **prediction jobs** 
+
+-  When mulitple systems are coupled to a prediction all these systems are added and the forecast is made for the sum. I ffor whatever reason a system should not be added but subtracted it is possible to set the factor to -1. Is some scaling needs to be carried out in the sum the factor can be changed from 1 (default) to the desired scaling factor.
 
 **System** : Represents a physical measurement system. All metadata is saved in this SQL table, the actual timeseries can be retrieved from influx by the corresponding system id.  
 
@@ -275,19 +203,19 @@ solarspecs
 ----------
 Configuration for PV forecasts for each prediction job
 
-+------------+----------+------------------------------------+-------------+
-| **Name**   | **Type** | **Comment**                        | **Example** |
-+============+==========+====================================+=============+
-| pid        | int      | prediction job id                  |             |
-+------------+----------+------------------------------------+-------------+
-| lat        | double   | latitude                           |             |
-+------------+----------+------------------------------------+-------------+
-| lon        | double   | longitude                          |             |
-+------------+----------+------------------------------------+-------------+
-| radius     | int      | radius in km                       |             |
-+------------+----------+------------------------------------+-------------+
-| peak_power | int      | max power                          |             |
-+------------+----------+------------------------------------+-------------+
++------------+----------+-------------------+-------------+
+| **Name**   | **Type** | **Comment**       | **Example** |
++============+==========+===================+=============+
+| pid        | int      | prediction job id | 123         |
++------------+----------+-------------------+-------------+
+| lat        | double   | latitude          | 51.9850343  |
++------------+----------+-------------------+-------------+
+| lon        | double   | longitude         | 5.8956792   |
++------------+----------+-------------------+-------------+
+| radius     | int      | radius in km      | 10          |
++------------+----------+-------------------+-------------+
+| peak_power | int      | max power         | 1000        |
++------------+----------+-------------------+-------------+
 
 2 cases:
 
@@ -295,69 +223,67 @@ Configuration for PV forecasts for each prediction job
 
 -  Radius > 0 when the forecast is for a region
 
-This table is empty in openstef-reference.
 
-Cf openstef/tasks/create_solar_forecast.py and get_solar_input in
-openstef_dbc/services/model_input.py
 
 systems
 ---------
 Contains informations about **systems**.
 
-+----------------------------------+----------+---------------+----------------+
-| **Name**                         | **Type** | **Comment**   | **Example**    |
-+==================================+==========+===============+================+
-| sid                              | chr      | system id     | Locat          |
-|                                  |          |               | ion_A_System_1 |
-+----------------------------------+----------+---------------+----------------+
-| origin                           | chr      | origin of the | ems (energy    |
-|                                  |          | system data   | management     |
-|                                  |          |               | system =       |
-|                                  |          |               | SCADA)         |
-+----------------------------------+----------+---------------+----------------+
-| lat                              | double   | latitude      | 5.837          |
-+----------------------------------+----------+---------------+----------------+
-| lon                              | double   | longitude     | 51.813         |
-+----------------------------------+----------+---------------+----------------+
-| region                           | chr      |               |                |
-+----------------------------------+----------+---------------+----------------+
-| timezone                         | chr      |               |                |
-+----------------------------------+----------+---------------+----------------+
-| brand                            | chr      | additional    |                |
-|                                  |          | information   |                |
-|                                  |          | on            |                |
-|                                  |          | measurements  |                |
-+----------------------------------+----------+---------------+----------------+
-| freq                             | int      | additional    |                |
-|                                  |          | information   |                |
-|                                  |          | on            |                |
-|                                  |          | measurements  |                |
-+----------------------------------+----------+---------------+----------------+
-| qual                             | float    | additional    |                |
-|                                  |          | information   |                |
-|                                  |          | on            |                |
-|                                  |          | measurements  |                |
-+----------------------------------+----------+---------------+----------------+
-| lag                              | float    | additional    |                |
-|                                  |          | information   |                |
-|                                  |          | on            |                |
-|                                  |          | measurements  |                |
-+----------------------------------+----------+---------------+----------------+
-| created                          | datetime | system        |                |
-|                                  |          | creation      |                |
-|                                  |          | date          |                |
-+----------------------------------+----------+---------------+----------------+
-| autoupdate                       | tinyint  | ?             |                |
-+----------------------------------+----------+---------------+----------------+
-| polarity                         | int      | sign          | -1/1           |
-|                                  |          | convention    |                |
-|                                  |          | for           |                |
-|                                  |          | production    |                |
-|                                  |          | and load      |                |
-+----------------------------------+----------+---------------+----------------+
-| measurements_customer_api_key_id | int      | API to post   | 199            |
-|                                  |          | measurements  |                |
-+----------------------------------+----------+---------------+----------------+
++-----------------------------------+-----------+-----------------------+---------------------+
+| **Name**                          | **Type**  | **Comment**           | **Example**         |
++===================================+===========+=======================+=====================+
+| sid                               | chr       | system id             | Location_A_System_1 |
++-----------------------------------+-----------+-----------------------+---------------------+
+|  origin                           |  chr      |  origin of the        |  ems (energy        |
+|                                   |           |  system data          |  management         |
+|                                   |           |                       |  system =           |
+|                                   |           |                       |  SCADA)             |
++-----------------------------------+-----------+-----------------------+---------------------+
+| lat                               | double    | latitude              | 5.837               |
++-----------------------------------+-----------+-----------------------+---------------------+
+| lon                               | double    | longitude             | 51.813              |
++-----------------------------------+-----------+-----------------------+---------------------+
+| region                            | chr       |                       |Gelderland           |
++-----------------------------------+-----------+-----------------------+---------------------+
+| timezone                          | chr       |                       |UTC                  |
++-----------------------------------+-----------+-----------------------+---------------------+
+|  brand                            |  chr      |  additional           |accurate_inc         |
+|                                   |           |  information          |                     |
+|                                   |           |  on                   |                     |
+|                                   |           |  measurements         |                     |
++-----------------------------------+-----------+-----------------------+---------------------+
+|  freq                             |  int      |  additional           |5                    |
+|                                   |           |  information          |                     |
+|                                   |           |  on                   |                     |
+|                                   |           |  measurements         |                     |
++-----------------------------------+-----------+-----------------------+---------------------+
+|  qual                             |  float    |  additional           |1                    |
+|                                   |           |  information          |                     |
+|                                   |           |  on                   |                     |
+|                                   |           |  measurements         |                     |
++-----------------------------------+-----------+-----------------------+---------------------+
+|  lag                              |  float    |  additional           |15                   |
+|                                   |           |  information          |                     |
+|                                   |           |  on                   |                     |
+|                                   |           |  measurements         |                     |
++-----------------------------------+-----------+-----------------------+---------------------+
+|  created                          |  datetime |  Date when the system |2021-01-25 09:44:00  |
+|                                   |           |  is registred         |                     |
+|                                   |           |  in openSTEF          |                     |
++-----------------------------------+-----------+-----------------------+---------------------+
+| autoupdate                        | tinyint   | deprecated            | 1                   |
++-----------------------------------+-----------+-----------------------+---------------------+
+|  polarity                         |  int      |  sign                 |  -1/1               |
+|                                   |           |  convention           |                     |
+|                                   |           |  for                  |                     |
+|                                   |           |  production           |                     |
+|                                   |           |  and load             |                     |
++-----------------------------------+-----------+-----------------------+---------------------+
+|  measurements_customer_api_key_id |  int      |  API to post          |  199                |
+|                                   |           |  measurements         |                     |
++-----------------------------------+-----------+-----------------------+---------------------+
+
+**Polarity** is a factor used to make the measurment comply with positive consumption and negative production of energy.
 
 systemsApiKeys
 ------------------
@@ -375,7 +301,6 @@ API key to retrieve systems measurements.
 
 todolist
 ---------
-This table is empty in openstef-reference.
 
 +----------------------+-------------+----------------+----------------+
 | **Name**             | **Type**    | **Comment**    | **Example**    |
@@ -393,12 +318,11 @@ This table is empty in openstef-reference.
 | inprogress           | int         |                |                |
 +----------------------+-------------+----------------+----------------+
 
-Manually add a task besides those scheduled by Kubernetes. The list is
-automatically checked by Kubernetes.
+The todolist table stores jobs that are picked up by the tracy procces that is run every 5 minutes via a CRON job. This makes it possible to run pipelines manually by adding the respective job to the todo list.
 
 weatherforecastlocations
 ------------------------
-Contains the locations of the weather stations. Not used in OpenSTEF.
+Contains the locations of the weather stations. These are used when retrieving weather data for a prediction.
 
 +----------------+----------------+-----------------+-----------------+
 | **Name**       | **Type**       | **Comment**     | **Example**     |
@@ -443,6 +367,3 @@ the wind power forecast related to a prediction job.
 
 The hub height is used to extrapolate the wind speed forecast at the
 correct height.
-
-Cf calculate_windspeed_at_hubheight in
-openstef/feature_engineering/weather_features.py.
