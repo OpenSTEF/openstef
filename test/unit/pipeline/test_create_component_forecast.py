@@ -5,7 +5,6 @@ from datetime import datetime, timedelta, timezone
 from test.unit.utils.base import BaseTestCase
 from test.unit.utils.data import TestData
 import joblib
-import unittest
 
 import pandas as pd
 
