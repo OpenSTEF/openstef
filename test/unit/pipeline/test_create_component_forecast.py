@@ -10,6 +10,7 @@ import unittest
 import pandas as pd
 
 from pathlib import Path
+
 PROJECT_ROOT = Path(__file__).parent.parent.parent.parent.absolute()
 
 from openstef.pipeline.create_component_forecast import (
@@ -21,19 +22,18 @@ class TestComponentForecast(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
         self.PJ = TestData.get_prediction_job(pid=307)
-        
+
     def test_load_dazls_model(self):
         """Version updates of sklearn could break pickle.load
         Let's test for that explicitly
         Assert that loading the old model generates an exception and the new model does not"""
-        
+
         old_model_file = PROJECT_ROOT / "openstef/data/dazls_stored_3.2.49.sav"
         new_model_file = PROJECT_ROOT / "openstef/data/dazls_stored.sav"
-        
+
         self.assertRaises(Exception, joblib.load, old_model_file)
         dazls_model = joblib.load(new_model_file)
         assert dazls_model
-         
 
     def test_component_forecast_pipeline_happy_flow(self):
         # Test happy flow
