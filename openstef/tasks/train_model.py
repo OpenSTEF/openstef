@@ -112,9 +112,9 @@ def train_model_task(
         )
 
         if data_sets:
-          context.perf_meter.checkpoint("Model trained")        
+            context.perf_meter.checkpoint("Model trained")
         else:
-          context.perf_meter.checkpoint("Model not trained")
+            context.perf_meter.checkpoint("Model not trained")
 
         if pj.save_train_forecasts:
             if data_sets is None:
