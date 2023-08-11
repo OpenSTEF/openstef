@@ -209,17 +209,14 @@ def optimize_hyperparameters_pipeline_core(
     # Train a model using the regular train pipeline.
     # The train/validation/test split used in hyperparam optimisation
     # is less suitable for an operational model.
-    best_model, report, modelspecs, _ = train_model_pipeline_core(
+    model, report, model_specs, _ = train_model_pipeline_core(
         pj=pj, input_data=input_data, model_specs=model_specs
     )
-
-    # Save model and report. Report is always saved to MLFlow and optionally to disk
-    report = objective.create_report(model=best_model)
 
     trials = objective.get_trial_track()
     best_trial_number = study.best_trial.number
 
-    return best_model, model_specs, report, trials, best_trial_number, study.best_params
+    return model, model_specs, report, trials, best_trial_number, study.best_params
 
 
 def optuna_optimization(
