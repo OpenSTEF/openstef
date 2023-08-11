@@ -34,6 +34,7 @@
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=ccbe24c1"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'concepts';</script>
     <link rel="icon" href="_static/openstef.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
@@ -497,15 +498,702 @@ newly produced dazls_stored.sav file in the repository.</p>
 <div class="line"><br /></div>
 </div>
 </section>
-<section id="overview-of-relational-database-schema">
-<h1>Overview of relational database schema<a class="headerlink" href="#overview-of-relational-database-schema" title="Permalink to this heading">#</a></h1>
-<p>OpenSTEF uses a relational database to store information about prediction jobs and measurements. An ER diagram of this database is shown bellow.</p>
-<figure class="align-default">
-<img alt="ER diagram" src="_images/mysql_er_diagram.png" />
-</figure>
+<section id="overview-of-relational-database">
+<h1>Overview of relational database<a class="headerlink" href="#overview-of-relational-database" title="Permalink to this heading">#</a></h1>
+<p>OpenSTEF uses a relational database to store information about prediction jobs and measurements. An ER diagram of this database is shown below.</p>
+<a class="reference internal image-reference" href="_images/mysql_er_diagram.png"><img alt="_images/mysql_er_diagram.png" src="_images/mysql_er_diagram.png" style="width: 6.3in; height: 4.24236in;" /></a>
+<p>The necessary tables are described in more detail bellow:</p>
+<section id="customers">
+<h2>customers<a class="headerlink" href="#customers" title="Permalink to this heading">#</a></h2>
+<table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Name</strong></p></th>
+<th class="head"><p><strong>Type</strong></p></th>
+<th class="head"><p><strong>Comment</strong></p></th>
+<th class="head"><p><strong>Example</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>id</p></td>
+<td><p>int</p></td>
+<td><p>customer id</p></td>
+<td><p>307</p></td>
+</tr>
+<tr class="row-odd"><td><p>name</p></td>
+<td><p>chr</p></td>
+<td><p>customer name</p></td>
+<td><p>Location_A</p></td>
+</tr>
+<tr class="row-even"><td><p>vip</p></td>
+<td><p>bool</p></td>
+<td><p>extra important
+forecast (deprecated)</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-odd"><td><p>active</p></td>
+<td><p>bool</p></td>
+<td><p>activity status</p></td>
+<td><p>1</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Customer</strong> : A customer is a collection of predictions. This can be a collection of predictions belonging to a customer but also a collection of prediction belonging to a specific location or substation.</p>
+</section>
+<section id="customersapikeys">
+<h2>customersApiKeys<a class="headerlink" href="#customersapikeys" title="Permalink to this heading">#</a></h2>
+<table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Name</strong></p></th>
+<th class="head"><p><strong>Type</strong></p></th>
+<th class="head"><p><strong>Comment</strong></p></th>
+<th class="head"><p><strong>Example</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>id</p></td>
+<td><p>int</p></td>
+<td><p>API key id</p></td>
+<td><p>94</p></td>
+</tr>
+<tr class="row-odd"><td><p>cid</p></td>
+<td><p>int</p></td>
+<td><p>customer id</p></td>
+<td><p>307</p></td>
+</tr>
+<tr class="row-even"><td><p>name</p></td>
+<td><p>chr</p></td>
+<td><p>customer name</p></td>
+<td><p>Location_A</p></td>
+</tr>
+<tr class="row-odd"><td><p>apiKey</p></td>
+<td><p>chr</p></td>
+<td><p>API key value</p></td>
+<td><p>uuid-Location_A</p></td>
+</tr>
+</tbody>
+</table>
+<p>For users to post measurements or retrieve forecasts related to a
+specific customer (used internally by Alliander).</p>
+<p><strong>customers_predictions</strong></p>
+<p>Correspondence table between customer ids and prediction jobs ids.</p>
+<table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Name</strong></p></th>
+<th class="head"><p><strong>Type</strong></p></th>
+<th class="head"><p><strong>Comment</strong></p></th>
+<th class="head"><p><strong>Example</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>customer_id</p></td>
+<td><p>int</p></td>
+<td><p>customer id</p></td>
+<td><p>307</p></td>
+</tr>
+<tr class="row-odd"><td><p>prediction_id</p></td>
+<td><p>int</p></td>
+<td><p>prediction job id</p></td>
+<td><p>313</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="genericpowercurves">
+<h2>genericpowercurves<a class="headerlink" href="#genericpowercurves" title="Permalink to this heading">#</a></h2>
+<p>Contains the generic load curves of wind turbines. These curves are
+two-parameters sigmoids (center and slope).</p>
+<table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Name</strong></p></th>
+<th class="head"><p><strong>Type</strong></p></th>
+<th class="head"><p><strong>Comment</strong></p></th>
+<th class="head"><p><strong>Example</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>name</p></td>
+<td><p>chr</p></td>
+<td><p>turbine name</p></td>
+<td><p>Vestas V112</p></td>
+</tr>
+<tr class="row-odd"><td><p>cut_in</p></td>
+<td><p>float</p></td>
+<td><p>min wind speed to
+produce (m/s)</p></td>
+<td><p>3</p></td>
+</tr>
+<tr class="row-even"><td><p>cut_off</p></td>
+<td><p>float</p></td>
+<td><p>max wind speed to
+produce (m/s)</p></td>
+<td><p>25</p></td>
+</tr>
+<tr class="row-odd"><td><p>kind</p></td>
+<td><p>chr</p></td>
+<td><p>onshore / offshore</p></td>
+<td><p>onshore</p></td>
+</tr>
+<tr class="row-even"><td><p>manufacturer</p></td>
+<td><p>chr</p></td>
+<td></td>
+<td><p>Enercon</p></td>
+</tr>
+<tr class="row-odd"><td><p>peak_capacity</p></td>
+<td><p>float</p></td>
+<td><p>max power (W)</p></td>
+<td><p>3040270</p></td>
+</tr>
+<tr class="row-even"><td><p>rated_power</p></td>
+<td><p>float</p></td>
+<td><p>rated power (W)</p></td>
+<td><p>3000000</p></td>
+</tr>
+<tr class="row-odd"><td><p>slope_center</p></td>
+<td><p>float</p></td>
+<td><p>Wind speed
+corresponding to 50% of
+rated power (m/s)</p></td>
+<td><p>7.91</p></td>
+</tr>
+<tr class="row-even"><td><p>steepness</p></td>
+<td><p>float</p></td>
+<td><p>See formula</p></td>
+<td><p>0.76</p></td>
+</tr>
+</tbody>
+</table>
+<p>In openstef/feature_engineering/weather_features.py, the power delivered
+by a wind turbine is computed as</p>
+<div class="math notranslate nohighlight">
+\[P(v) = \frac{P_{rated}}{1 + e^{- k(v - c)}},\]</div>
+<p>where <span class="math notranslate nohighlight">\(v\)</span> is the windspeed at hub height, <span class="math notranslate nohighlight">\(P_{rated}\)</span> =
+rated_power, <span class="math notranslate nohighlight">\(k\)</span> = steepness and <span class="math notranslate nohighlight">\(c\)</span> = slope_center.</p>
+</section>
+<section id="nametolatlon">
+<h2>NameToLatLon<a class="headerlink" href="#nametolatlon" title="Permalink to this heading">#</a></h2>
+<table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Name</strong></p></th>
+<th class="head"><p><strong>Type</strong></p></th>
+<th class="head"><p><strong>Comment</strong></p></th>
+<th class="head"><p><strong>Example</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>regionInput</p></td>
+<td><p>chr</p></td>
+<td><p>region name</p></td>
+<td><p>Leeuwarden</p></td>
+</tr>
+<tr class="row-odd"><td><p>lon</p></td>
+<td><p>decimal</p></td>
+<td><p>longitude</p></td>
+<td><p>5.800</p></td>
+</tr>
+<tr class="row-even"><td><p>lat</p></td>
+<td><p>decimal</p></td>
+<td><p>latitude</p></td>
+<td><p>53.201</p></td>
+</tr>
+</tbody>
+</table>
+<p>This table is used for looking up coordinates for specific locations that can be used directly for retrieving weather data.</p>
+</section>
+<section id="predictions">
+<h2>predictions<a class="headerlink" href="#predictions" title="Permalink to this heading">#</a></h2>
+<p>Contains prediction jobs.</p>
+<table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Name</strong></p></th>
+<th class="head"><p><strong>Type</strong></p></th>
+<th class="head"><p><strong>Comment</strong></p></th>
+<th class="head"><p><strong>Example</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>id</p></td>
+<td><p>int</p></td>
+<td><p>prediction job id</p></td>
+<td><p>313</p></td>
+</tr>
+<tr class="row-odd"><td><p>name</p></td>
+<td><p>chr</p></td>
+<td><p>customer name</p></td>
+<td><p>Location_A</p></td>
+</tr>
+<tr class="row-even"><td><p>forecast_type</p></td>
+<td><p>chr</p></td>
+<td><p>type of forecast</p></td>
+<td><p>demand</p></td>
+</tr>
+<tr class="row-odd"><td><p>model</p></td>
+<td><p>chr</p></td>
+<td><p>type of model</p></td>
+<td><p>xgb</p></td>
+</tr>
+<tr class="row-even"><td><p>created</p></td>
+<td><p>datetime</p></td>
+<td><p>creation datetime of
+the prediction job</p></td>
+<td><p>2019-05-16
+14:53:38</p></td>
+</tr>
+<tr class="row-odd"><td><p>active</p></td>
+<td><p>int</p></td>
+<td><p>0 = off; 1 = on;</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>horizon_minutes</p></td>
+<td><p>int</p></td>
+<td><p>max forecast horizon
+(minutes)</p></td>
+<td><p>2880</p></td>
+</tr>
+<tr class="row-odd"><td><p>resolution_minutes</p></td>
+<td><p>int</p></td>
+<td><p>time resolution of
+forecasts (minutes)</p></td>
+<td><p>15</p></td>
+</tr>
+<tr class="row-even"><td><p>train_components</p></td>
+<td><p>bool</p></td>
+<td><p>Optional: Carry out energy splitting for this prediction job</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-odd"><td><p>ean</p></td>
+<td><p>chr</p></td>
+<td><p>EAN of the connectionpoint if the prediction corresponds to a connection point. See also: <a class="reference external" href="https://en.wikipedia.org/wiki/International_Article_Number">https://en.wikipedia.org/wiki/International_Article_Number</a></p></td>
+<td><p>000000000000000003</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Prediction</strong>: A prediction is the core concept in openSTEF and largley translate to the prediction_job in the openSTEF code. To make a prediction a prediction is usualy coupled to one or more systems. These systems provide the measurement data for which a forecast is made.</p>
+</section>
+<section id="predictions-quantiles-sets">
+<h2>predictions_quantiles_sets<a class="headerlink" href="#predictions-quantiles-sets" title="Permalink to this heading">#</a></h2>
+<p>Correspondence table between prediction jobs and the set of quantiles to
+forecast.</p>
+<table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Name</strong></p></th>
+<th class="head"><p><strong>Type</strong></p></th>
+<th class="head"><p><strong>Comment</strong></p></th>
+<th class="head"><p><strong>Example</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>id</p></td>
+<td><p>int</p></td>
+<td></td>
+<td><p>22</p></td>
+</tr>
+<tr class="row-odd"><td><p>prediction_id</p></td>
+<td><p>int</p></td>
+<td><p>prediction job id</p></td>
+<td><p>313</p></td>
+</tr>
+<tr class="row-even"><td><p>quantile_set_id</p></td>
+<td><p>int</p></td>
+<td><p>id of the quantile sets</p></td>
+<td><p>1</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="predictions-systems">
+<h2>predictions_systems<a class="headerlink" href="#predictions-systems" title="Permalink to this heading">#</a></h2>
+<p>Correspondence table between prediction jobs and systems.</p>
+<table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Name</strong></p></th>
+<th class="head"><p><strong>Type</strong></p></th>
+<th class="head"><p><strong>Comment</strong></p></th>
+<th class="head"><p><strong>Example</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>prediction_id</p></td>
+<td><p>int</p></td>
+<td><p>prediction job id</p></td>
+<td><p>317</p></td>
+</tr>
+<tr class="row-odd"><td><p>system_id</p></td>
+<td><p>chr</p></td>
+<td><p>system id</p></td>
+<td><p>Location_A_System_1</p></td>
+</tr>
+<tr class="row-even"><td><p>factor</p></td>
+<td><p>double</p></td>
+<td><p>Optional factor to multiply before addition</p></td>
+<td><p>-2.0</p></td>
+</tr>
+</tbody>
+</table>
+<ul class="simple">
+<li><p>A <strong>prediction job</strong> can correspond to multiple <strong>systems</strong></p></li>
+<li><p>A <strong>system</strong> can be linked to multiple <strong>prediction jobs</strong></p></li>
+<li><p>When mulitple systems are coupled to a prediction all these systems are added and the forecast is made for the sum. I ffor whatever reason a system should not be added but subtracted it is possible to set the factor to -1. Is some scaling needs to be carried out in the sum the factor can be changed from 1 (default) to the desired scaling factor.</p></li>
+</ul>
+<p><strong>System</strong> : Represents a physical measurement system. All metadata is saved in this SQL table, the actual timeseries can be retrieved from influx by the corresponding system id.</p>
+</section>
+<section id="quantiles-sets">
+<h2>quantiles_sets<a class="headerlink" href="#quantiles-sets" title="Permalink to this heading">#</a></h2>
+<p>Contains the specifications of the quantile sets.</p>
+<table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Name</strong></p></th>
+<th class="head"><p><strong>Type</strong></p></th>
+<th class="head"><p><strong>Comment</strong></p></th>
+<th class="head"><p><strong>Example</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>id</p></td>
+<td><p>int</p></td>
+<td><p>quantile set id</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>quantiles</p></td>
+<td><p>json</p></td>
+<td><p>list of
+quantiles</p></td>
+<td><p>[0.05, 0.1, 0.3, 0.5,
+0.7, 0.9, 0.95]</p></td>
+</tr>
+<tr class="row-even"><td><p>description</p></td>
+<td><p>chr</p></td>
+<td></td>
+<td><p>Default quantile set</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="solarspecs">
+<h2>solarspecs<a class="headerlink" href="#solarspecs" title="Permalink to this heading">#</a></h2>
+<p>Configuration for PV forecasts for each prediction job</p>
+<table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Name</strong></p></th>
+<th class="head"><p><strong>Type</strong></p></th>
+<th class="head"><p><strong>Comment</strong></p></th>
+<th class="head"><p><strong>Example</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>pid</p></td>
+<td><p>int</p></td>
+<td><p>prediction job id</p></td>
+<td><p>123</p></td>
+</tr>
+<tr class="row-odd"><td><p>lat</p></td>
+<td><p>double</p></td>
+<td><p>latitude</p></td>
+<td><p>51.9850343</p></td>
+</tr>
+<tr class="row-even"><td><p>lon</p></td>
+<td><p>double</p></td>
+<td><p>longitude</p></td>
+<td><p>5.8956792</p></td>
+</tr>
+<tr class="row-odd"><td><p>radius</p></td>
+<td><p>int</p></td>
+<td><p>radius in km</p></td>
+<td><p>10</p></td>
+</tr>
+<tr class="row-even"><td><p>peak_power</p></td>
+<td><p>int</p></td>
+<td><p>max power</p></td>
+<td><p>1000</p></td>
+</tr>
+</tbody>
+</table>
+<p>2 cases:</p>
+<ul class="simple">
+<li><p>Radius = ‘None’ : when the forecast is for a specific system</p></li>
+<li><p>Radius &gt; 0 when the forecast is for a region</p></li>
+</ul>
+</section>
+<section id="systems">
+<h2>systems<a class="headerlink" href="#systems" title="Permalink to this heading">#</a></h2>
+<p>Contains informations about <strong>systems</strong>.</p>
+<table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Name</strong></p></th>
+<th class="head"><p><strong>Type</strong></p></th>
+<th class="head"><p><strong>Comment</strong></p></th>
+<th class="head"><p><strong>Example</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>sid</p></td>
+<td><p>chr</p></td>
+<td><p>system id</p></td>
+<td><p>Location_A_System_1</p></td>
+</tr>
+<tr class="row-odd"><td><p>origin</p></td>
+<td><p>chr</p></td>
+<td><p>origin of the
+system data</p></td>
+<td><p>ems (energy
+management
+system =
+SCADA)</p></td>
+</tr>
+<tr class="row-even"><td><p>lat</p></td>
+<td><p>double</p></td>
+<td><p>latitude</p></td>
+<td><p>5.837</p></td>
+</tr>
+<tr class="row-odd"><td><p>lon</p></td>
+<td><p>double</p></td>
+<td><p>longitude</p></td>
+<td><p>51.813</p></td>
+</tr>
+<tr class="row-even"><td><p>region</p></td>
+<td><p>chr</p></td>
+<td></td>
+<td><p>Gelderland</p></td>
+</tr>
+<tr class="row-odd"><td><p>timezone</p></td>
+<td><p>chr</p></td>
+<td></td>
+<td><p>UTC</p></td>
+</tr>
+<tr class="row-even"><td><p>brand</p></td>
+<td><p>chr</p></td>
+<td><p>additional
+information
+on
+measurements</p></td>
+<td><p>accurate_inc</p></td>
+</tr>
+<tr class="row-odd"><td><p>freq</p></td>
+<td><p>int</p></td>
+<td><p>additional
+information
+on
+measurements</p></td>
+<td><p>5</p></td>
+</tr>
+<tr class="row-even"><td><p>qual</p></td>
+<td><p>float</p></td>
+<td><p>additional
+information
+on
+measurements</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-odd"><td><p>lag</p></td>
+<td><p>float</p></td>
+<td><p>additional
+information
+on
+measurements</p></td>
+<td><p>15</p></td>
+</tr>
+<tr class="row-even"><td><p>created</p></td>
+<td><p>datetime</p></td>
+<td><p>Date when the system
+is registred
+in openSTEF</p></td>
+<td><p>2021-01-25 09:44:00</p></td>
+</tr>
+<tr class="row-odd"><td><p>autoupdate</p></td>
+<td><p>tinyint</p></td>
+<td><p>deprecated</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-even"><td><p>polarity</p></td>
+<td><p>int</p></td>
+<td><p>sign
+convention
+for
+production
+and load</p></td>
+<td><p>-1/1</p></td>
+</tr>
+<tr class="row-odd"><td><p>measurements_customer_api_key_id</p></td>
+<td><p>int</p></td>
+<td><p>API to post
+measurements</p></td>
+<td><p>199</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Polarity</strong> is a factor used to make the measurment comply with positive consumption and negative production of energy.</p>
+</section>
+<section id="systemsapikeys">
+<h2>systemsApiKeys<a class="headerlink" href="#systemsapikeys" title="Permalink to this heading">#</a></h2>
+<p>API key to retrieve systems measurements.</p>
+<table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Name</strong></p></th>
+<th class="head"><p><strong>Type</strong></p></th>
+<th class="head"><p><strong>Comment</strong></p></th>
+<th class="head"><p><strong>Example</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>id</p></td>
+<td><p>int</p></td>
+<td><p>API key id</p></td>
+<td><p>199</p></td>
+</tr>
+<tr class="row-odd"><td><p>name</p></td>
+<td><p>chr</p></td>
+<td></td>
+<td><p>Measurements</p></td>
+</tr>
+<tr class="row-even"><td><p>apiKey</p></td>
+<td><p>chr</p></td>
+<td><p>API key value</p></td>
+<td><p>uuid-Measurements</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="todolist">
+<h2>todolist<a class="headerlink" href="#todolist" title="Permalink to this heading">#</a></h2>
+<table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Name</strong></p></th>
+<th class="head"><p><strong>Type</strong></p></th>
+<th class="head"><p><strong>Comment</strong></p></th>
+<th class="head"><p><strong>Example</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>id</p></td>
+<td><p>int</p></td>
+<td><p>id of the job</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>created</p></td>
+<td><p>datetime</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>function</p></td>
+<td><p>chr</p></td>
+<td><p>functions to
+execute</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>args</p></td>
+<td><p>chr</p></td>
+<td><p>arguments of
+the functions</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>inprogress</p></td>
+<td><p>int</p></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>The todolist table stores jobs that are picked up by the tracy procces that is run every 5 minutes via a CRON job. This makes it possible to run pipelines manually by adding the respective job to the todo list.</p>
+</section>
+<section id="weatherforecastlocations">
+<h2>weatherforecastlocations<a class="headerlink" href="#weatherforecastlocations" title="Permalink to this heading">#</a></h2>
+<p>Contains the locations of the weather stations. These are used when retrieving weather data for a prediction.</p>
+<table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Name</strong></p></th>
+<th class="head"><p><strong>Type</strong></p></th>
+<th class="head"><p><strong>Comment</strong></p></th>
+<th class="head"><p><strong>Example</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>created</p></td>
+<td><p>datetime</p></td>
+<td></td>
+<td><p>2023-06-08
+18:26:44</p></td>
+</tr>
+<tr class="row-odd"><td><p>input_city</p></td>
+<td><p>chr</p></td>
+<td></td>
+<td><p>Deelen</p></td>
+</tr>
+<tr class="row-even"><td><p>lat</p></td>
+<td><p>double</p></td>
+<td></td>
+<td><p>52.067</p></td>
+</tr>
+<tr class="row-odd"><td><p>lon</p></td>
+<td><p>double</p></td>
+<td></td>
+<td><p>5.8</p></td>
+</tr>
+<tr class="row-even"><td><p>country</p></td>
+<td><p>chr</p></td>
+<td></td>
+<td><p>NL</p></td>
+</tr>
+<tr class="row-odd"><td><p>active</p></td>
+<td><p>int</p></td>
+<td></td>
+<td><p>1</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="windspecs">
+<h2>windspecs<a class="headerlink" href="#windspecs" title="Permalink to this heading">#</a></h2>
+<p>This table is empty in openstef-reference. Contains the information for
+the wind power forecast related to a prediction job.</p>
+<table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Name</strong></p></th>
+<th class="head"><p><strong>Type</strong></p></th>
+<th class="head"><p><strong>Comment</strong></p></th>
+<th class="head"><p><strong>Example</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>pid</p></td>
+<td><p>int</p></td>
+<td><p>prediction job id</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>lat</p></td>
+<td><p>double</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>lon</p></td>
+<td><p>double</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>turbine_type</p></td>
+<td><p>chr</p></td>
+<td><p>corresponds to the
+field ‘name’ in
+genericpowercurves</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>n_turbines</p></td>
+<td><p>int</p></td>
+<td><p>number of wind turbines</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>hub_height</p></td>
+<td><p>int</p></td>
+<td><p>height of the turbines
+(m)</p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>The hub height is used to extrapolate the wind speed forecast at the
+correct height.</p>
 <div class="line-block">
 <div class="line"><br /></div>
 </div>
+</section>
 </section>
 <section id="overview-of-timeseries-database-schema">
 <h1>Overview of timeseries database schema<a class="headerlink" href="#overview-of-timeseries-database-schema" title="Permalink to this heading">#</a></h1>
@@ -583,9 +1271,81 @@ newly produced dazls_stored.sav file in the repository.</p>
   </a>
  </li>
  <li class="toc-h1 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#overview-of-relational-database-schema">
-   Overview of relational database schema
+  <a class="reference internal nav-link" href="#overview-of-relational-database">
+   Overview of relational database
   </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#customers">
+     customers
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#customersapikeys">
+     customersApiKeys
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#genericpowercurves">
+     genericpowercurves
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#nametolatlon">
+     NameToLatLon
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#predictions">
+     predictions
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#predictions-quantiles-sets">
+     predictions_quantiles_sets
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#predictions-systems">
+     predictions_systems
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#quantiles-sets">
+     quantiles_sets
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#solarspecs">
+     solarspecs
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#systems">
+     systems
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#systemsapikeys">
+     systemsApiKeys
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#todolist">
+     todolist
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#weatherforecastlocations">
+     weatherforecastlocations
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#windspecs">
+     windspecs
+    </a>
+   </li>
+  </ul>
  </li>
  <li class="toc-h1 nav-item toc-entry">
   <a class="reference internal nav-link" href="#overview-of-timeseries-database-schema">
