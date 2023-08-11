@@ -14,3 +14,13 @@ of these functionalities, a schematic depiction is given here.
 .. figure:: _static/methodology_train_predict.svg
    :alt: Methodology overview
 `Source file <_static/methodology_train_predict.pptx>`__
+
+
+OpenSTEF provides confidence estimates of it's forecasts. 
+Two methods are available. The figure below explains the differences
+and similarities between the two methods, as well as provide recommendations
+on how to the confidence estimations should be used.
+
+.. figure:: _static/uncertainty_estimation.svg
+   :alt: Uncertainty estimation
+`Source file <_static/methodology_train_predict.pptx>`__
