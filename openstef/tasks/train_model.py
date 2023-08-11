@@ -111,10 +111,10 @@ def train_model_task(
             artifact_folder=artifact_folder,
         )
 
-      if data_sets:
-        context.perf_meter.checkpoint("Model trained")        
-      else:
-        context.perf_meter.checkpoint("Model not trained")
+        if data_sets:
+          context.perf_meter.checkpoint("Model trained")        
+        else:
+          context.perf_meter.checkpoint("Model not trained")
 
         if pj.save_train_forecasts:
             if data_sets is None:
