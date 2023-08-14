@@ -111,6 +111,11 @@ def train_model_task(
             artifact_folder=artifact_folder,
         )
 
+        if data_sets:
+            context.perf_meter.checkpoint("Model trained")
+        else:
+            context.perf_meter.checkpoint("Model not trained")
+
         if pj.save_train_forecasts:
             if data_sets is None:
                 raise RuntimeError("Forecasts were not retrieved")
@@ -123,8 +128,6 @@ def train_model_task(
             context.logger.debug(f"Saved Forecasts from trained model on datasets")
     except SkipSaveTrainingForecasts:
         context.logger.debug(f"Skip saving forecasts")
-
-    context.perf_meter.checkpoint("Model trained")
 
 
 def main(model_type=None, config=None, database=None):
