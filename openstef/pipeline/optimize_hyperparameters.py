@@ -188,7 +188,7 @@ def optimize_hyperparameters_pipeline_core(
     )
 
     best_hyperparams = study.best_params
-    # the best_model could be accessed via study.user_attrs["best_model"]
+    # The best_model could be accessed via study.user_attrs["best_model"]
 
     logger.info(
         f"Finished hyperparameter optimization, error objective {study.best_value} "
