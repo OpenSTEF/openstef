@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="./">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -31,9 +31,9 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=796348d33e8b1d947c94">
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=796348d33e8b1d947c94">
 
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=ccbe24c1"></script>
+    <script src="_static/documentation_options.js?v=8a448e45"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
-    <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'openstef.metrics';</script>
     <link rel="icon" href="_static/openstef.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
@@ -403,16 +403,16 @@
             <article class="bd-article" role="main">
               
   <section id="openstef-metrics-package">
-<h1>openstef.metrics package<a class="headerlink" href="#openstef-metrics-package" title="Permalink to this heading">#</a></h1>
+<h1>openstef.metrics package<a class="headerlink" href="#openstef-metrics-package" title="Link to this heading">#</a></h1>
 <section id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">#</a></h2>
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 </section>
-<section id="module-openstef.metrics.figure">
-<span id="openstef-metrics-figure-module"></span><h2>openstef.metrics.figure module<a class="headerlink" href="#module-openstef.metrics.figure" title="Permalink to this heading">#</a></h2>
-<p>This module contains all functions for generating figures.</p>
+<section id="openstef-metrics-figure-module">
+<h2>openstef.metrics.figure module<a class="headerlink" href="#openstef-metrics-figure-module" title="Link to this heading">#</a></h2>
+<p id="module-openstef.metrics.figure">This module contains all functions for generating figures.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="openstef.metrics.figure.convert_to_base64_data_uri">
-<span class="sig-prename descclassname"><span class="pre">openstef.metrics.figure.</span></span><span class="sig-name descname"><span class="pre">convert_to_base64_data_uri</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_in</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">content_type</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.figure.convert_to_base64_data_uri" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">openstef.metrics.figure.</span></span><span class="sig-name descname"><span class="pre">convert_to_base64_data_uri</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_in</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">content_type</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.figure.convert_to_base64_data_uri" title="Link to this definition">#</a></dt>
 <dd><p>Read file, convert it to a data_uri, then writes the data_uri to file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -431,7 +431,7 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openstef.metrics.figure.plot_data_series">
-<span class="sig-prename descclassname"><span class="pre">openstef.metrics.figure.</span></span><span class="sig-name descname"><span class="pre">plot_data_series</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predict_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">horizon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">47</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.figure.plot_data_series" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">openstef.metrics.figure.</span></span><span class="sig-name descname"><span class="pre">plot_data_series</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predict_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">horizon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">47</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.figure.plot_data_series" title="Link to this definition">#</a></dt>
 <dd><p>Plots passed data and optionally prediction data for specified horizon.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -461,7 +461,7 @@ automatically based on the number of series passed.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openstef.metrics.figure.plot_feature_importance">
-<span class="sig-prename descclassname"><span class="pre">openstef.metrics.figure.</span></span><span class="sig-name descname"><span class="pre">plot_feature_importance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">feature_importance</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.figure.plot_feature_importance" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">openstef.metrics.figure.</span></span><span class="sig-name descname"><span class="pre">plot_feature_importance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">feature_importance</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.figure.plot_feature_importance" title="Link to this definition">#</a></dt>
 <dd><p>Created a treemap plot based on feature importance and weights.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -478,12 +478,12 @@ feature importances and weights of the trained model.</p>
 </dd></dl>
 
 </section>
-<section id="module-openstef.metrics.metrics">
-<span id="openstef-metrics-metrics-module"></span><h2>openstef.metrics.metrics module<a class="headerlink" href="#module-openstef.metrics.metrics" title="Permalink to this heading">#</a></h2>
-<p>This module contains all metrics to assess forecast quality.</p>
+<section id="openstef-metrics-metrics-module">
+<h2>openstef.metrics.metrics module<a class="headerlink" href="#openstef-metrics-metrics-module" title="Link to this heading">#</a></h2>
+<p id="module-openstef.metrics.metrics">This module contains all metrics to assess forecast quality.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="openstef.metrics.metrics.bias">
-<span class="sig-prename descclassname"><span class="pre">openstef.metrics.metrics.</span></span><span class="sig-name descname"><span class="pre">bias</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">realised</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.metrics.bias" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">openstef.metrics.metrics.</span></span><span class="sig-name descname"><span class="pre">bias</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">realised</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.metrics.bias" title="Link to this definition">#</a></dt>
 <dd><p>Function that calculates the absolute bias in % based on the true and prediciton.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -503,7 +503,7 @@ feature importances and weights of the trained model.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openstef.metrics.metrics.frac_in_stdev">
-<span class="sig-prename descclassname"><span class="pre">openstef.metrics.metrics.</span></span><span class="sig-name descname"><span class="pre">frac_in_stdev</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">realised</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stdev</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.metrics.frac_in_stdev" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">openstef.metrics.metrics.</span></span><span class="sig-name descname"><span class="pre">frac_in_stdev</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">realised</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stdev</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.metrics.frac_in_stdev" title="Link to this definition">#</a></dt>
 <dd><p>Function that calculates the amount of measurements that are within one stdev of our predictions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -514,7 +514,7 @@ feature importances and weights of the trained model.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openstef.metrics.metrics.franks_skill_score">
-<span class="sig-prename descclassname"><span class="pre">openstef.metrics.metrics.</span></span><span class="sig-name descname"><span class="pre">franks_skill_score</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">realised</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">basecase</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">range_</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.metrics.franks_skill_score" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">openstef.metrics.metrics.</span></span><span class="sig-name descname"><span class="pre">franks_skill_score</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">realised</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">basecase</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">range_</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.metrics.franks_skill_score" title="Link to this definition">#</a></dt>
 <dd><p>Calculate Franks skill score.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -525,7 +525,7 @@ feature importances and weights of the trained model.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openstef.metrics.metrics.franks_skill_score_peaks">
-<span class="sig-prename descclassname"><span class="pre">openstef.metrics.metrics.</span></span><span class="sig-name descname"><span class="pre">franks_skill_score_peaks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">realised</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">basecase</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.metrics.franks_skill_score_peaks" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">openstef.metrics.metrics.</span></span><span class="sig-name descname"><span class="pre">franks_skill_score_peaks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">realised</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">basecase</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.metrics.franks_skill_score_peaks" title="Link to this definition">#</a></dt>
 <dd><p>Calculate Franks skill score on positive peaks.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -536,7 +536,7 @@ feature importances and weights of the trained model.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openstef.metrics.metrics.get_eval_metric_function">
-<span class="sig-prename descclassname"><span class="pre">openstef.metrics.metrics.</span></span><span class="sig-name descname"><span class="pre">get_eval_metric_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metric_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.metrics.get_eval_metric_function" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">openstef.metrics.metrics.</span></span><span class="sig-name descname"><span class="pre">get_eval_metric_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metric_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.metrics.get_eval_metric_function" title="Link to this definition">#</a></dt>
 <dd><p>Gets a metric if it is available.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -553,7 +553,7 @@ feature importances and weights of the trained model.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openstef.metrics.metrics.mae">
-<span class="sig-prename descclassname"><span class="pre">openstef.metrics.metrics.</span></span><span class="sig-name descname"><span class="pre">mae</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">realised</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.metrics.mae" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">openstef.metrics.metrics.</span></span><span class="sig-name descname"><span class="pre">mae</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">realised</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.metrics.mae" title="Link to this definition">#</a></dt>
 <dd><p>Function that calculates the mean absolute error based on the true and prediction.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -564,7 +564,7 @@ feature importances and weights of the trained model.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openstef.metrics.metrics.nsme">
-<span class="sig-prename descclassname"><span class="pre">openstef.metrics.metrics.</span></span><span class="sig-name descname"><span class="pre">nsme</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">realised</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.metrics.nsme" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">openstef.metrics.metrics.</span></span><span class="sig-name descname"><span class="pre">nsme</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">realised</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.metrics.nsme" title="Link to this definition">#</a></dt>
 <dd><p>Function that calculates the Nash-sutcliffe model efficiency based on the true and prediciton.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -584,7 +584,7 @@ feature importances and weights of the trained model.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openstef.metrics.metrics.r_mae">
-<span class="sig-prename descclassname"><span class="pre">openstef.metrics.metrics.</span></span><span class="sig-name descname"><span class="pre">r_mae</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">realised</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.metrics.r_mae" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">openstef.metrics.metrics.</span></span><span class="sig-name descname"><span class="pre">r_mae</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">realised</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.metrics.r_mae" title="Link to this definition">#</a></dt>
 <dd><p>Function that calculates the relative mean absolute error based on the true and prediction.</p>
 <p>The range is based on the load range of the previous two weeks</p>
 <dl class="field-list simple">
@@ -596,7 +596,7 @@ feature importances and weights of the trained model.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openstef.metrics.metrics.r_mae_highest">
-<span class="sig-prename descclassname"><span class="pre">openstef.metrics.metrics.</span></span><span class="sig-name descname"><span class="pre">r_mae_highest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">realised</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">percentile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.95</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.metrics.r_mae_highest" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">openstef.metrics.metrics.</span></span><span class="sig-name descname"><span class="pre">r_mae_highest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">realised</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">percentile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.95</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.metrics.r_mae_highest" title="Link to this definition">#</a></dt>
 <dd><p>Function that calculates the relative mean absolute error for the 5 percent highest realised values.</p>
 <p>The range is based on the load range of the previous two weeks.</p>
 <dl class="field-list simple">
@@ -608,7 +608,7 @@ feature importances and weights of the trained model.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openstef.metrics.metrics.r_mae_lowest">
-<span class="sig-prename descclassname"><span class="pre">openstef.metrics.metrics.</span></span><span class="sig-name descname"><span class="pre">r_mae_lowest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">realised</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.metrics.r_mae_lowest" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">openstef.metrics.metrics.</span></span><span class="sig-name descname"><span class="pre">r_mae_lowest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">realised</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.metrics.r_mae_lowest" title="Link to this definition">#</a></dt>
 <dd><p>Function that calculates the relative mean absolute error for the 5 percent lowest realised values.</p>
 <p>The range is based on the load range of the previous two weeks.</p>
 <dl class="field-list simple">
@@ -620,7 +620,7 @@ feature importances and weights of the trained model.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openstef.metrics.metrics.r_mne_highest">
-<span class="sig-prename descclassname"><span class="pre">openstef.metrics.metrics.</span></span><span class="sig-name descname"><span class="pre">r_mne_highest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">realised</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.metrics.r_mne_highest" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">openstef.metrics.metrics.</span></span><span class="sig-name descname"><span class="pre">r_mne_highest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">realised</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.metrics.r_mne_highest" title="Link to this definition">#</a></dt>
 <dd><p>Function that calculates the relative mean negative error for the 5 percent highest realised values.</p>
 <p>The range is based on the load range of the previous two weeks, this measure quantifies how much we underestimate
 peaks.</p>
@@ -633,7 +633,7 @@ peaks.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openstef.metrics.metrics.r_mpe_highest">
-<span class="sig-prename descclassname"><span class="pre">openstef.metrics.metrics.</span></span><span class="sig-name descname"><span class="pre">r_mpe_highest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">realised</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.metrics.r_mpe_highest" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">openstef.metrics.metrics.</span></span><span class="sig-name descname"><span class="pre">r_mpe_highest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">realised</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.metrics.r_mpe_highest" title="Link to this definition">#</a></dt>
 <dd><p>Function that calculates the relative mean positive error for the 5 percent highest realised values.</p>
 <p>The range is based on the load range of the previous two weeks, this measure quantifies how much we overestimate
 peaks.</p>
@@ -646,7 +646,7 @@ peaks.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openstef.metrics.metrics.rmse">
-<span class="sig-prename descclassname"><span class="pre">openstef.metrics.metrics.</span></span><span class="sig-name descname"><span class="pre">rmse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">realised</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.metrics.rmse" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">openstef.metrics.metrics.</span></span><span class="sig-name descname"><span class="pre">rmse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">realised</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.metrics.rmse" title="Link to this definition">#</a></dt>
 <dd><p>Function that calculates the Root Mean Square Error based on the true and prediciton.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -666,7 +666,7 @@ peaks.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openstef.metrics.metrics.skill_score">
-<span class="sig-prename descclassname"><span class="pre">openstef.metrics.metrics.</span></span><span class="sig-name descname"><span class="pre">skill_score</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">realised</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mean</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.metrics.skill_score" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">openstef.metrics.metrics.</span></span><span class="sig-name descname"><span class="pre">skill_score</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">realised</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mean</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.metrics.skill_score" title="Link to this definition">#</a></dt>
 <dd><p>Function that calculates the skill score.</p>
 <p>Thise indicates model performance relative to a reference, in this case the mean of the realised values. The range
 is based on the load range of the previous two weeks.</p>
@@ -679,7 +679,7 @@ is based on the load range of the previous two weeks.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openstef.metrics.metrics.skill_score_positive_peaks">
-<span class="sig-prename descclassname"><span class="pre">openstef.metrics.metrics.</span></span><span class="sig-name descname"><span class="pre">skill_score_positive_peaks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">realised</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mean</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.metrics.skill_score_positive_peaks" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">openstef.metrics.metrics.</span></span><span class="sig-name descname"><span class="pre">skill_score_positive_peaks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">realised</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mean</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.metrics.skill_score_positive_peaks" title="Link to this definition">#</a></dt>
 <dd><p>Calculates skill score on positive peaks.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -690,7 +690,7 @@ is based on the load range of the previous two weeks.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openstef.metrics.metrics.xgb_quantile_eval">
-<span class="sig-prename descclassname"><span class="pre">openstef.metrics.metrics.</span></span><span class="sig-name descname"><span class="pre">xgb_quantile_eval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">preds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dmatrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.metrics.xgb_quantile_eval" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">openstef.metrics.metrics.</span></span><span class="sig-name descname"><span class="pre">xgb_quantile_eval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">preds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dmatrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.metrics.xgb_quantile_eval" title="Link to this definition">#</a></dt>
 <dd><p>Customized evaluational metric that equals to quantile regression loss (also known as pinball loss).</p>
 <p>Quantile regression is regression that estimates a specified quantile of target’s distribution conditional on given features.</p>
 <dl class="field-list simple">
@@ -714,7 +714,7 @@ is based on the load range of the previous two weeks.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openstef.metrics.metrics.xgb_quantile_obj">
-<span class="sig-prename descclassname"><span class="pre">openstef.metrics.metrics.</span></span><span class="sig-name descname"><span class="pre">xgb_quantile_obj</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">preds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dmatrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.metrics.xgb_quantile_obj" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">openstef.metrics.metrics.</span></span><span class="sig-name descname"><span class="pre">xgb_quantile_obj</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">preds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dmatrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.metrics.xgb_quantile_obj" title="Link to this definition">#</a></dt>
 <dd><p>Quantile regression objective fucntion.</p>
 <p>Computes first-order derivative of quantile regression loss and a non-degenerate substitute for second-order
 derivative.</p>
@@ -743,24 +743,24 @@ that hyperparameter named <cite>max_delta_step</cite> is small enough to satisfy
 </dd></dl>
 
 </section>
-<section id="module-openstef.metrics.reporter">
-<span id="openstef-metrics-reporter-module"></span><h2>openstef.metrics.reporter module<a class="headerlink" href="#module-openstef.metrics.reporter" title="Permalink to this heading">#</a></h2>
-<p>Defines reporter class.</p>
+<section id="openstef-metrics-reporter-module">
+<h2>openstef.metrics.reporter module<a class="headerlink" href="#openstef-metrics-reporter-module" title="Link to this heading">#</a></h2>
+<p id="module-openstef.metrics.reporter">Defines reporter class.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="openstef.metrics.reporter.Report">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef.metrics.reporter.</span></span><span class="sig-name descname"><span class="pre">Report</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">feature_importance_figure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_series_figures</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metrics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signature</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.reporter.Report" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef.metrics.reporter.</span></span><span class="sig-name descname"><span class="pre">Report</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">feature_importance_figure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_series_figures</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metrics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signature</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.reporter.Report" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Dataclass to hold a report describing the training process.</p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="openstef.metrics.reporter.Reporter">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef.metrics.reporter.</span></span><span class="sig-name descname"><span class="pre">Reporter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validation_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantiles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.reporter.Reporter" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef.metrics.reporter.</span></span><span class="sig-name descname"><span class="pre">Reporter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validation_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantiles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.reporter.Reporter" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Reporter class that generates reports describing the training process.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="openstef.metrics.reporter.Reporter.generate_report">
-<span class="sig-name descname"><span class="pre">generate_report</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.reporter.Reporter.generate_report" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">generate_report</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.reporter.Reporter.generate_report" title="Link to this definition">#</a></dt>
 <dd><p>Generate a report on a given model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -777,7 +777,7 @@ that hyperparameter named <cite>max_delta_step</cite> is small enough to satisfy
 
 <dl class="py method">
 <dt class="sig sig-object py" id="openstef.metrics.reporter.Reporter.get_fiabilities">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_fiabilities</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">quantiles</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_true</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.reporter.Reporter.get_fiabilities" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_fiabilities</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">quantiles</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_true</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.reporter.Reporter.get_fiabilities" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
@@ -787,7 +787,7 @@ that hyperparameter named <cite>max_delta_step</cite> is small enough to satisfy
 
 <dl class="py method">
 <dt class="sig sig-object py" id="openstef.metrics.reporter.Reporter.get_metrics">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_pred</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_true</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.reporter.Reporter.get_metrics" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_pred</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_true</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.reporter.Reporter.get_metrics" title="Link to this definition">#</a></dt>
 <dd><p>Calculate the metrics for a prediction.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -807,16 +807,16 @@ that hyperparameter named <cite>max_delta_step</cite> is small enough to satisfy
 
 <dl class="py method">
 <dt class="sig sig-object py" id="openstef.metrics.reporter.Reporter.write_report_to_disk">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">write_report_to_disk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">report</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">report_folder</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.reporter.Reporter.write_report_to_disk" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">write_report_to_disk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">report</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">report_folder</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.reporter.Reporter.write_report_to_disk" title="Link to this definition">#</a></dt>
 <dd><p>Write report to disk; e.g. for viewing report of latest models using grafana.</p>
 </dd></dl>
 
 </dd></dl>
 
 </section>
-<section id="module-openstef.metrics">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-openstef.metrics" title="Permalink to this heading">#</a></h2>
-</section>
+<section id="module-contents">
+<h2>Module contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
+<span class="target" id="module-openstef.metrics"></span></section>
 </section>
 
 
@@ -863,7 +863,7 @@ that hyperparameter named <cite>max_delta_step</cite> is small enough to satisfy
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-openstef.metrics.figure">
+  <a class="reference internal nav-link" href="#openstef-metrics-figure-module">
    openstef.metrics.figure module
   </a>
   <ul class="nav section-nav flex-column">
@@ -897,7 +897,7 @@ that hyperparameter named <cite>max_delta_step</cite> is small enough to satisfy
   </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-openstef.metrics.metrics">
+  <a class="reference internal nav-link" href="#openstef-metrics-metrics-module">
    openstef.metrics.metrics module
   </a>
   <ul class="nav section-nav flex-column">
@@ -1057,7 +1057,7 @@ that hyperparameter named <cite>max_delta_step</cite> is small enough to satisfy
   </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-openstef.metrics.reporter">
+  <a class="reference internal nav-link" href="#openstef-metrics-reporter-module">
    openstef.metrics.reporter module
   </a>
   <ul class="nav section-nav flex-column">
@@ -1120,7 +1120,7 @@ that hyperparameter named <cite>max_delta_step</cite> is small enough to satisfy
   </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-openstef.metrics">
+  <a class="reference internal nav-link" href="#module-contents">
    Module contents
   </a>
  </li>
@@ -1193,7 +1193,7 @@ that hyperparameter named <cite>max_delta_step</cite> is small enough to satisfy
   <div class="footer-item">
     
 <p class="sphinx-version">
-Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.1.2.<br>
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.2.2.<br>
 </p>
 
   </div>

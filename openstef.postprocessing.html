@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="./">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -31,9 +31,9 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=796348d33e8b1d947c94">
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=796348d33e8b1d947c94">
 
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=ccbe24c1"></script>
+    <script src="_static/documentation_options.js?v=8a448e45"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
-    <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'openstef.postprocessing';</script>
     <link rel="icon" href="_static/openstef.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
@@ -403,15 +403,15 @@
             <article class="bd-article" role="main">
               
   <section id="openstef-postprocessing-package">
-<h1>openstef.postprocessing package<a class="headerlink" href="#openstef-postprocessing-package" title="Permalink to this heading">#</a></h1>
+<h1>openstef.postprocessing package<a class="headerlink" href="#openstef-postprocessing-package" title="Link to this heading">#</a></h1>
 <section id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">#</a></h2>
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 </section>
-<section id="module-openstef.postprocessing.postprocessing">
-<span id="openstef-postprocessing-postprocessing-module"></span><h2>openstef.postprocessing.postprocessing module<a class="headerlink" href="#module-openstef.postprocessing.postprocessing" title="Permalink to this heading">#</a></h2>
-<dl class="py function">
+<section id="openstef-postprocessing-postprocessing-module">
+<h2>openstef.postprocessing.postprocessing module<a class="headerlink" href="#openstef-postprocessing-postprocessing-module" title="Link to this heading">#</a></h2>
+<dl class="py function" id="module-openstef.postprocessing.postprocessing">
 <dt class="sig sig-object py" id="openstef.postprocessing.postprocessing.add_components_base_case_forecast">
-<span class="sig-prename descclassname"><span class="pre">openstef.postprocessing.postprocessing.</span></span><span class="sig-name descname"><span class="pre">add_components_base_case_forecast</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">basecase_forecast</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.postprocessing.postprocessing.add_components_base_case_forecast" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">openstef.postprocessing.postprocessing.</span></span><span class="sig-name descname"><span class="pre">add_components_base_case_forecast</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">basecase_forecast</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.postprocessing.postprocessing.add_components_base_case_forecast" title="Link to this definition">#</a></dt>
 <dd><p>Makes a basecase forecast for the forecast_other component.</p>
 <p>This will make a simple basecase components forecast
 available and ensures that the sum of the components (other, wind and solar) is equal to the normal basecase
@@ -431,7 +431,7 @@ forecast This is important for sending GLMD messages correctly to TenneT!</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openstef.postprocessing.postprocessing.add_prediction_job_properties_to_forecast">
-<span class="sig-prename descclassname"><span class="pre">openstef.postprocessing.postprocessing.</span></span><span class="sig-name descname"><span class="pre">add_prediction_job_properties_to_forecast</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">algorithm_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast_quality</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.postprocessing.postprocessing.add_prediction_job_properties_to_forecast" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">openstef.postprocessing.postprocessing.</span></span><span class="sig-name descname"><span class="pre">add_prediction_job_properties_to_forecast</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">algorithm_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast_quality</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.postprocessing.postprocessing.add_prediction_job_properties_to_forecast" title="Link to this definition">#</a></dt>
 <dd><p>Adds prediciton job meta data to a forecast dataframe.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -454,7 +454,7 @@ forecast This is important for sending GLMD messages correctly to TenneT!</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openstef.postprocessing.postprocessing.calculate_wind_power">
-<span class="sig-prename descclassname"><span class="pre">openstef.postprocessing.postprocessing.</span></span><span class="sig-name descname"><span class="pre">calculate_wind_power</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">windspeed_100m</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.postprocessing.postprocessing.calculate_wind_power" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">openstef.postprocessing.postprocessing.</span></span><span class="sig-name descname"><span class="pre">calculate_wind_power</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">windspeed_100m</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.postprocessing.postprocessing.calculate_wind_power" title="Link to this definition">#</a></dt>
 <dd><p>Calculate the generated wind power based on the wind speed.</p>
 <p>Values are related through the power curve, which is
 described by turbine_data. Default values are used and are normalized to 1MWp.</p>
@@ -473,7 +473,7 @@ described by turbine_data. Default values are used and are normalized to 1MWp.</
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openstef.postprocessing.postprocessing.normalize_and_convert_weather_data_for_splitting">
-<span class="sig-prename descclassname"><span class="pre">openstef.postprocessing.postprocessing.</span></span><span class="sig-name descname"><span class="pre">normalize_and_convert_weather_data_for_splitting</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weather_data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.postprocessing.postprocessing.normalize_and_convert_weather_data_for_splitting" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">openstef.postprocessing.postprocessing.</span></span><span class="sig-name descname"><span class="pre">normalize_and_convert_weather_data_for_splitting</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weather_data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.postprocessing.postprocessing.normalize_and_convert_weather_data_for_splitting" title="Link to this definition">#</a></dt>
 <dd><p>Normalize and converts weather data for use in energy splitting.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -490,7 +490,7 @@ described by turbine_data. Default values are used and are normalized to 1MWp.</
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openstef.postprocessing.postprocessing.post_process_wind_solar">
-<span class="sig-prename descclassname"><span class="pre">openstef.postprocessing.postprocessing.</span></span><span class="sig-name descname"><span class="pre">post_process_wind_solar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">forecast</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast_type</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.postprocessing.postprocessing.post_process_wind_solar" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">openstef.postprocessing.postprocessing.</span></span><span class="sig-name descname"><span class="pre">post_process_wind_solar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">forecast</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast_type</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.postprocessing.postprocessing.post_process_wind_solar" title="Link to this definition">#</a></dt>
 <dd><p>Function that caries out postprocessing for wind and solar power generators.</p>
 <blockquote>
 <div><p>As these points will always produce energy, predicted energy consumption is
@@ -516,7 +516,7 @@ from the prediction job as pj[‘forecast_type’]</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openstef.postprocessing.postprocessing.split_forecast_in_components">
-<span class="sig-prename descclassname"><span class="pre">openstef.postprocessing.postprocessing.</span></span><span class="sig-name descname"><span class="pre">split_forecast_in_components</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">forecast</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weather_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">split_coefs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.postprocessing.postprocessing.split_forecast_in_components" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">openstef.postprocessing.postprocessing.</span></span><span class="sig-name descname"><span class="pre">split_forecast_in_components</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">forecast</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weather_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">split_coefs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.postprocessing.postprocessing.split_forecast_in_components" title="Link to this definition">#</a></dt>
 <dd><p>Make estimates of energy components based on given forecast.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -536,9 +536,9 @@ from the prediction job as pj[‘forecast_type’]</p></li>
 </dd></dl>
 
 </section>
-<section id="module-openstef.postprocessing">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-openstef.postprocessing" title="Permalink to this heading">#</a></h2>
-</section>
+<section id="module-contents">
+<h2>Module contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
+<span class="target" id="module-openstef.postprocessing"></span></section>
 </section>
 
 
@@ -585,7 +585,7 @@ from the prediction job as pj[‘forecast_type’]</p></li>
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-openstef.postprocessing.postprocessing">
+  <a class="reference internal nav-link" href="#openstef-postprocessing-postprocessing-module">
    openstef.postprocessing.postprocessing module
   </a>
   <ul class="nav section-nav flex-column">
@@ -646,7 +646,7 @@ from the prediction job as pj[‘forecast_type’]</p></li>
   </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-openstef.postprocessing">
+  <a class="reference internal nav-link" href="#module-contents">
    Module contents
   </a>
  </li>
@@ -719,7 +719,7 @@ from the prediction job as pj[‘forecast_type’]</p></li>
   <div class="footer-item">
     
 <p class="sphinx-version">
-Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.1.2.<br>
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.2.2.<br>
 </p>
 
   </div>

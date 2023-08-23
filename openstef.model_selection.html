@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="./">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -31,9 +31,9 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=796348d33e8b1d947c94">
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=796348d33e8b1d947c94">
 
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=ccbe24c1"></script>
+    <script src="_static/documentation_options.js?v=8a448e45"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
-    <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'openstef.model_selection';</script>
     <link rel="icon" href="_static/openstef.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
@@ -403,15 +403,15 @@
             <article class="bd-article" role="main">
               
   <section id="openstef-model-selection-package">
-<h1>openstef.model_selection package<a class="headerlink" href="#openstef-model-selection-package" title="Permalink to this heading">#</a></h1>
+<h1>openstef.model_selection package<a class="headerlink" href="#openstef-model-selection-package" title="Link to this heading">#</a></h1>
 <section id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">#</a></h2>
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 </section>
-<section id="module-openstef.model_selection.model_selection">
-<span id="openstef-model-selection-model-selection-module"></span><h2>openstef.model_selection.model_selection module<a class="headerlink" href="#module-openstef.model_selection.model_selection" title="Permalink to this heading">#</a></h2>
-<dl class="py function">
+<section id="openstef-model-selection-model-selection-module">
+<h2>openstef.model_selection.model_selection module<a class="headerlink" href="#openstef-model-selection-model-selection-module" title="Link to this heading">#</a></h2>
+<dl class="py function" id="module-openstef.model_selection.model_selection">
 <dt class="sig sig-object py" id="openstef.model_selection.model_selection.backtest_split_default">
-<span class="sig-prename descclassname"><span class="pre">openstef.model_selection.model_selection.</span></span><span class="sig-name descname"><span class="pre">backtest_split_default</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_folds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_fraction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stratification_min_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">randomize_fold_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model_selection.model_selection.backtest_split_default" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">openstef.model_selection.model_selection.</span></span><span class="sig-name descname"><span class="pre">backtest_split_default</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_folds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_fraction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stratification_min_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">randomize_fold_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model_selection.model_selection.backtest_split_default" title="Link to this definition">#</a></dt>
 <dd><p>Default cross validation strategy.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -436,7 +436,7 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openstef.model_selection.model_selection.group_kfold">
-<span class="sig-prename descclassname"><span class="pre">openstef.model_selection.model_selection.</span></span><span class="sig-name descname"><span class="pre">group_kfold</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_folds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">randomize_fold_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model_selection.model_selection.group_kfold" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">openstef.model_selection.model_selection.</span></span><span class="sig-name descname"><span class="pre">group_kfold</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_folds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">randomize_fold_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model_selection.model_selection.group_kfold" title="Link to this definition">#</a></dt>
 <dd><p>Function to group data into groups, according to the date and the number of folds.</p>
 <p>Each date gets assigned a number between 0 and n_folds.</p>
 <dl class="field-list simple">
@@ -458,7 +458,7 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openstef.model_selection.model_selection.random_sample">
-<span class="sig-prename descclassname"><span class="pre">openstef.model_selection.model_selection.</span></span><span class="sig-name descname"><span class="pre">random_sample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">all_peaks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model_selection.model_selection.random_sample" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">openstef.model_selection.model_selection.</span></span><span class="sig-name descname"><span class="pre">random_sample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">all_peaks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model_selection.model_selection.random_sample" title="Link to this definition">#</a></dt>
 <dd><p>Random sampling of numbers out of a np.array.</p>
 <p>Implemented due to security sonar cloud not accepting the random built-in functions.</p>
 <dl class="field-list simple">
@@ -479,7 +479,7 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openstef.model_selection.model_selection.sample_indices_train_val">
-<span class="sig-prename descclassname"><span class="pre">openstef.model_selection.model_selection.</span></span><span class="sig-name descname"><span class="pre">sample_indices_train_val</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peaks</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model_selection.model_selection.sample_indices_train_val" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">openstef.model_selection.model_selection.</span></span><span class="sig-name descname"><span class="pre">sample_indices_train_val</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peaks</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model_selection.model_selection.sample_indices_train_val" title="Link to this definition">#</a></dt>
 <dd><p>Sample indices of given period length assuming the peaks are evenly spreaded.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -503,7 +503,7 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openstef.model_selection.model_selection.split_data_train_validation_test">
-<span class="sig-prename descclassname"><span class="pre">openstef.model_selection.model_selection.</span></span><span class="sig-name descname"><span class="pre">split_data_train_validation_test</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_fraction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validation_fraction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">back_test</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stratification_min_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model_selection.model_selection.split_data_train_validation_test" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">openstef.model_selection.model_selection.</span></span><span class="sig-name descname"><span class="pre">split_data_train_validation_test</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_fraction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validation_fraction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">back_test</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stratification_min_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model_selection.model_selection.split_data_train_validation_test" title="Link to this definition">#</a></dt>
 <dd><p>Split input data into train, test and validation set.</p>
 <p>Function for splitting data with features in a train, test and
 validation dataset. In an operational setting the following sequence is
@@ -544,9 +544,9 @@ ensuring the validation set to be representative of the train set.</p></li>
 </dd></dl>
 
 </section>
-<section id="module-openstef.model_selection">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-openstef.model_selection" title="Permalink to this heading">#</a></h2>
-</section>
+<section id="module-contents">
+<h2>Module contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
+<span class="target" id="module-openstef.model_selection"></span></section>
 </section>
 
 
@@ -593,7 +593,7 @@ ensuring the validation set to be representative of the train set.</p></li>
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-openstef.model_selection.model_selection">
+  <a class="reference internal nav-link" href="#openstef-model-selection-model-selection-module">
    openstef.model_selection.model_selection module
   </a>
   <ul class="nav section-nav flex-column">
@@ -645,7 +645,7 @@ ensuring the validation set to be representative of the train set.</p></li>
   </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-openstef.model_selection">
+  <a class="reference internal nav-link" href="#module-contents">
    Module contents
   </a>
  </li>
@@ -718,7 +718,7 @@ ensuring the validation set to be representative of the train set.</p></li>
   <div class="footer-item">
     
 <p class="sphinx-version">
-Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.1.2.<br>
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.2.2.<br>
 </p>
 
   </div>

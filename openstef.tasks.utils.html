@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="./">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -31,9 +31,9 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=796348d33e8b1d947c94">
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=796348d33e8b1d947c94">
 
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=ccbe24c1"></script>
+    <script src="_static/documentation_options.js?v=8a448e45"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
-    <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'openstef.tasks.utils';</script>
     <link rel="icon" href="_static/openstef.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
@@ -403,15 +403,15 @@
             <article class="bd-article" role="main">
               
   <section id="openstef-tasks-utils-package">
-<h1>openstef.tasks.utils package<a class="headerlink" href="#openstef-tasks-utils-package" title="Permalink to this heading">#</a></h1>
+<h1>openstef.tasks.utils package<a class="headerlink" href="#openstef-tasks-utils-package" title="Link to this heading">#</a></h1>
 <section id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">#</a></h2>
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 </section>
-<section id="module-openstef.tasks.utils.dependencies">
-<span id="openstef-tasks-utils-dependencies-module"></span><h2>openstef.tasks.utils.dependencies module<a class="headerlink" href="#module-openstef.tasks.utils.dependencies" title="Permalink to this heading">#</a></h2>
-<dl class="py function">
+<section id="openstef-tasks-utils-dependencies-module">
+<h2>openstef.tasks.utils.dependencies module<a class="headerlink" href="#openstef-tasks-utils-dependencies-module" title="Link to this heading">#</a></h2>
+<dl class="py function" id="module-openstef.tasks.utils.dependencies">
 <dt class="sig sig-object py" id="openstef.tasks.utils.dependencies.build_graph_structure">
-<span class="sig-prename descclassname"><span class="pre">openstef.tasks.utils.dependencies.</span></span><span class="sig-name descname"><span class="pre">build_graph_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pjs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.utils.dependencies.build_graph_structure" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">openstef.tasks.utils.dependencies.</span></span><span class="sig-name descname"><span class="pre">build_graph_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pjs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.utils.dependencies.build_graph_structure" title="Link to this definition">#</a></dt>
 <dd><p>Build the graph of dependencies between prediction jobs.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -432,7 +432,7 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openstef.tasks.utils.dependencies.build_nx_graph">
-<span class="sig-prename descclassname"><span class="pre">openstef.tasks.utils.dependencies.</span></span><span class="sig-name descname"><span class="pre">build_nx_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edges</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.utils.dependencies.build_nx_graph" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">openstef.tasks.utils.dependencies.</span></span><span class="sig-name descname"><span class="pre">build_nx_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edges</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.utils.dependencies.build_nx_graph" title="Link to this definition">#</a></dt>
 <dd><p>Build a networkx Directed Graph.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -452,7 +452,7 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openstef.tasks.utils.dependencies.find_groups">
-<span class="sig-prename descclassname"><span class="pre">openstef.tasks.utils.dependencies.</span></span><span class="sig-name descname"><span class="pre">find_groups</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pjs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">randomize_groups</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.utils.dependencies.find_groups" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">openstef.tasks.utils.dependencies.</span></span><span class="sig-name descname"><span class="pre">find_groups</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pjs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">randomize_groups</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.utils.dependencies.find_groups" title="Link to this definition">#</a></dt>
 <dd><p>Find a sequence of prediction job groups respecting dependencies.</p>
 <p>Compute groups of prediction jobs such that the prediction jobs in a group
 depend of at least one prediction job in the previous group and does not depend
@@ -482,7 +482,7 @@ already been treated when the prediction job is run.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openstef.tasks.utils.dependencies.has_dependencies">
-<span class="sig-prename descclassname"><span class="pre">openstef.tasks.utils.dependencies.</span></span><span class="sig-name descname"><span class="pre">has_dependencies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pjs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.utils.dependencies.has_dependencies" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">openstef.tasks.utils.dependencies.</span></span><span class="sig-name descname"><span class="pre">has_dependencies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pjs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.utils.dependencies.has_dependencies" title="Link to this definition">#</a></dt>
 <dd><p>Test whether some prediction jobs have dependencies information.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -498,11 +498,11 @@ already been treated when the prediction job is run.</p>
 </dd></dl>
 
 </section>
-<section id="module-openstef.tasks.utils.predictionjobloop">
-<span id="openstef-tasks-utils-predictionjobloop-module"></span><h2>openstef.tasks.utils.predictionjobloop module<a class="headerlink" href="#module-openstef.tasks.utils.predictionjobloop" title="Permalink to this heading">#</a></h2>
-<dl class="py class">
+<section id="openstef-tasks-utils-predictionjobloop-module">
+<h2>openstef.tasks.utils.predictionjobloop module<a class="headerlink" href="#openstef-tasks-utils-predictionjobloop-module" title="Link to this heading">#</a></h2>
+<dl class="py class" id="module-openstef.tasks.utils.predictionjobloop">
 <dt class="sig sig-object py" id="openstef.tasks.utils.predictionjobloop.PredictionJobLoop">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef.tasks.utils.predictionjobloop.</span></span><span class="sig-name descname"><span class="pre">PredictionJobLoop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop_on_exception</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">on_exception_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">on_successful_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">on_end_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prediction_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug_pid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">pj_kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.utils.predictionjobloop.PredictionJobLoop" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef.tasks.utils.predictionjobloop.</span></span><span class="sig-name descname"><span class="pre">PredictionJobLoop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop_on_exception</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">on_exception_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">on_successful_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">on_end_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prediction_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug_pid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">pj_kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.utils.predictionjobloop.PredictionJobLoop" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Convenience objects that maps a function over prediction jobs.</p>
 <p>Default behaviour is to automatically get prediction jobs from the
@@ -540,7 +540,7 @@ prediction job getting function.</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="openstef.tasks.utils.predictionjobloop.PredictionJobLoop.map">
-<span class="sig-name descname"><span class="pre">map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.utils.predictionjobloop.PredictionJobLoop.map" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.utils.predictionjobloop.PredictionJobLoop.map" title="Link to this definition">#</a></dt>
 <dd><p>Maps the passed function over all prediction jobs.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -563,11 +563,11 @@ logged.</p></li>
 </dd></dl>
 
 </section>
-<section id="module-openstef.tasks.utils.taskcontext">
-<span id="openstef-tasks-utils-taskcontext-module"></span><h2>openstef.tasks.utils.taskcontext module<a class="headerlink" href="#module-openstef.tasks.utils.taskcontext" title="Permalink to this heading">#</a></h2>
-<dl class="py class">
+<section id="openstef-tasks-utils-taskcontext-module">
+<h2>openstef.tasks.utils.taskcontext module<a class="headerlink" href="#openstef-tasks-utils-taskcontext-module" title="Link to this heading">#</a></h2>
+<dl class="py class" id="module-openstef.tasks.utils.taskcontext">
 <dt class="sig sig-object py" id="openstef.tasks.utils.taskcontext.TaskContext">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef.tasks.utils.taskcontext.</span></span><span class="sig-name descname"><span class="pre">TaskContext</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">database</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">suppress_exceptions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">post_teams_on_exception</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">on_exception</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">on_successful</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">on_end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.utils.taskcontext.TaskContext" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef.tasks.utils.taskcontext.</span></span><span class="sig-name descname"><span class="pre">TaskContext</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">database</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">suppress_exceptions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">post_teams_on_exception</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">on_exception</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">on_successful</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">on_end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.utils.taskcontext.TaskContext" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A context manager that can be used to run tasks with.</p>
 <p>Should be used as:</p>
@@ -599,9 +599,9 @@ completed. Callable gets a bool indicating success as argument.</p></li>
 </dd></dl>
 
 </section>
-<section id="module-openstef.tasks.utils">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-openstef.tasks.utils" title="Permalink to this heading">#</a></h2>
-</section>
+<section id="module-contents">
+<h2>Module contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
+<span class="target" id="module-openstef.tasks.utils"></span></section>
 </section>
 
 
@@ -648,7 +648,7 @@ completed. Callable gets a bool indicating success as argument.</p></li>
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-openstef.tasks.utils.dependencies">
+  <a class="reference internal nav-link" href="#openstef-tasks-utils-dependencies-module">
    openstef.tasks.utils.dependencies module
   </a>
   <ul class="nav section-nav flex-column">
@@ -691,7 +691,7 @@ completed. Callable gets a bool indicating success as argument.</p></li>
   </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-openstef.tasks.utils.predictionjobloop">
+  <a class="reference internal nav-link" href="#openstef-tasks-utils-predictionjobloop-module">
    openstef.tasks.utils.predictionjobloop module
   </a>
   <ul class="nav section-nav flex-column">
@@ -718,7 +718,7 @@ completed. Callable gets a bool indicating success as argument.</p></li>
   </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-openstef.tasks.utils.taskcontext">
+  <a class="reference internal nav-link" href="#openstef-tasks-utils-taskcontext-module">
    openstef.tasks.utils.taskcontext module
   </a>
   <ul class="nav section-nav flex-column">
@@ -734,7 +734,7 @@ completed. Callable gets a bool indicating success as argument.</p></li>
   </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-openstef.tasks.utils">
+  <a class="reference internal nav-link" href="#module-contents">
    Module contents
   </a>
  </li>
@@ -807,7 +807,7 @@ completed. Callable gets a bool indicating success as argument.</p></li>
   <div class="footer-item">
     
 <p class="sphinx-version">
-Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.1.2.<br>
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.2.2.<br>
 </p>
 
   </div>
