@@ -61,7 +61,7 @@ def train_model_pipeline(
             - The test dataset with forecasts
 
     """
-    # Initialize logger and serializer
+    # Initialize serializer
     serializer = MLflowSerializer(mlflow_tracking_uri=mlflow_tracking_uri)
 
     # Get old model and age

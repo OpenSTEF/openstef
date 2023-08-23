@@ -26,9 +26,15 @@ from openstef.data_classes.prediction_job import PredictionJobDataClass
 
 from openstef.enums import MLModelType, PipelineType
 from openstef.exceptions import SkipSaveTrainingForecasts
-from openstef.pipeline.train_model import train_model_pipeline
+from openstef.pipeline.train_model import (
+    train_model_pipeline,
+    train_pipeline_step_load_model,
+    MAXIMUM_MODEL_AGE,
+)
 from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstef.tasks.utils.taskcontext import TaskContext
+
+from openstef.model.serializer import MLflowSerializer
 
 TRAINING_PERIOD_DAYS: int = 120
 DEFAULT_CHECK_MODEL_AGE: bool = True
@@ -84,13 +90,30 @@ def train_model_task(
 
     context.perf_meter.checkpoint("Added metadata to PredictionJob")
 
+    # Check the model age before retrieving the input data to speed up train job.
+    # (The exact same model age check is also part of the "train_model_pipeline".)
+
+    # Initialize serializer
+    serializer = MLflowSerializer(mlflow_tracking_uri=mlflow_tracking_uri)
+
+    # Get old model and age
+    _, _, old_model_age = train_pipeline_step_load_model(pj, serializer)
+
+    # Check old model age and continue yes/no
+    if (old_model_age < MAXIMUM_MODEL_AGE) and check_old_model_age:
+        context.perf_meter.checkpoint(
+            f"Old model is younger than {MAXIMUM_MODEL_AGE} days, skip training"
+        )
+        if pj.save_train_forecasts:
+            raise SkipSaveTrainingForecasts
+        return
+
     # Define start and end of the training input data
     if datetime_end is None:
         datetime_end = datetime.utcnow()
     if datetime_start is None:
         datetime_start = datetime_end - timedelta(days=TRAINING_PERIOD_DAYS)
 
-    # todo: See if we can check model age before getting the data
     # Get training input data from database
     input_data = context.database.get_model_input(
         pid=pj["id"],
