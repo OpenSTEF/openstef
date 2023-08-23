@@ -101,8 +101,8 @@ def train_model_task(
 
     # Check old model age and continue yes/no
     if (old_model_age < MAXIMUM_MODEL_AGE) and check_old_model_age:
-        context.logger.warning(
-            f"Old model is younger than {MAXIMUM_MODEL_AGE} days, skip training"
+        context.perf_meter.checkpoint(
+            f"Old model is younger than {MAXIUM_MODEL_AGE} days, skip training"
         )
         if pj.save_train_forecasts:
             raise SkipSaveTrainingForecasts
