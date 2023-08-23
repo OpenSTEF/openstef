@@ -34,11 +34,6 @@ from openstef.pipeline.train_model import (
 from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstef.tasks.utils.taskcontext import TaskContext
 
-from openstef.data_classes.prediction_job import PredictionJobDataClass
-from openstef.exceptions import (
-    SkipSaveTrainingForecasts,
-)
-
 from openstef.model.serializer import MLflowSerializer
 
 TRAINING_PERIOD_DAYS: int = 120
