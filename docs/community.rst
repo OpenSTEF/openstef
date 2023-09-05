@@ -21,7 +21,6 @@ The Technical Steering Committee consists of the following members:
 * Frank Kreuwel
 * Jan Maarten van Doorn
 * Jonas van den Bogaard
-* David Swinkels
 * Frederik Stoel
 
 More information, meeting notes and meeting links can be found `here <https://wiki.lfenergy.org/display/OS/OpenSTEF+Technical+Steering+Committee>`_:
