@@ -147,10 +147,7 @@ class MLflowSerializer:
             if not models_df.empty:
                 latest_run = models_df.iloc[0]  # Use .iloc[0] to only get latest run
             else:
-                raise LookupError(
-                    f"Model not found for experiment_name {experiment_name}. First"
-                    " train a model!"
-                )
+                raise LookupError("Model not found. First train a model!")
             model_uri = self._get_model_uri(latest_run.artifact_uri)
             loaded_model = mlflow.sklearn.load_model(model_uri)
             loaded_model.age = self._determine_model_age_from_mlflow_run(latest_run)
@@ -162,11 +159,8 @@ class MLflowSerializer:
             )  # Path without file:///
             self.logger.info("Model successfully loaded with MLflow")
             return loaded_model, model_specs
-        except (AttributeError, MlflowException, OSError) as e:
-            raise AttributeError(
-                f"Model not found for experiment_name {experiment_name}. First train a"
-                " model!"
-            ) from e
+        except (AttributeError, MlflowException, OSError) as exception:
+            raise LookupError("Model not found. First train a model!") from exception
 
     def get_model_age(
         self, experiment_name: str, hyperparameter_optimization_only: bool = False
