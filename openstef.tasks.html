@@ -410,25 +410,25 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="openstef.tasks.utils.html">openstef.tasks.utils package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="openstef.tasks.utils.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="openstef.tasks.utils.html#openstef-tasks-utils-dependencies-module">openstef.tasks.utils.dependencies module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="openstef.tasks.utils.html#module-openstef.tasks.utils.dependencies">openstef.tasks.utils.dependencies module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="openstef.tasks.utils.html#openstef.tasks.utils.dependencies.build_graph_structure"><code class="docutils literal notranslate"><span class="pre">build_graph_structure()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef.tasks.utils.html#openstef.tasks.utils.dependencies.build_nx_graph"><code class="docutils literal notranslate"><span class="pre">build_nx_graph()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef.tasks.utils.html#openstef.tasks.utils.dependencies.find_groups"><code class="docutils literal notranslate"><span class="pre">find_groups()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef.tasks.utils.html#openstef.tasks.utils.dependencies.has_dependencies"><code class="docutils literal notranslate"><span class="pre">has_dependencies()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="openstef.tasks.utils.html#openstef-tasks-utils-predictionjobloop-module">openstef.tasks.utils.predictionjobloop module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="openstef.tasks.utils.html#module-openstef.tasks.utils.predictionjobloop">openstef.tasks.utils.predictionjobloop module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="openstef.tasks.utils.html#openstef.tasks.utils.predictionjobloop.PredictionJobLoop"><code class="docutils literal notranslate"><span class="pre">PredictionJobLoop</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="openstef.tasks.utils.html#openstef.tasks.utils.predictionjobloop.PredictionJobLoop.map"><code class="docutils literal notranslate"><span class="pre">PredictionJobLoop.map()</span></code></a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="openstef.tasks.utils.html#openstef-tasks-utils-taskcontext-module">openstef.tasks.utils.taskcontext module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="openstef.tasks.utils.html#module-openstef.tasks.utils.taskcontext">openstef.tasks.utils.taskcontext module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="openstef.tasks.utils.html#openstef.tasks.utils.taskcontext.TaskContext"><code class="docutils literal notranslate"><span class="pre">TaskContext</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="openstef.tasks.utils.html#module-contents">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.tasks.utils.html#module-openstef.tasks.utils">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -437,9 +437,9 @@
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 </section>
-<section id="openstef-tasks-calculate-kpi-module">
-<h2>openstef.tasks.calculate_kpi module<a class="headerlink" href="#openstef-tasks-calculate-kpi-module" title="Link to this heading">#</a></h2>
-<p id="module-openstef.tasks.calculate_kpi">This module contains the CRON job that is periodically executed to calculate key performance indicators (KPIs).</p>
+<section id="module-openstef.tasks.calculate_kpi">
+<span id="openstef-tasks-calculate-kpi-module"></span><h2>openstef.tasks.calculate_kpi module<a class="headerlink" href="#module-openstef.tasks.calculate_kpi" title="Link to this heading">#</a></h2>
+<p>This module contains the CRON job that is periodically executed to calculate key performance indicators (KPIs).</p>
 <p>This code assumes prognoses are available from the persistent storage.
 If these are not available run create_forecast.py to train all models.</p>
 <dl class="simple">
@@ -539,9 +539,9 @@ Alternatively this code can be run directly by running:</p>
 </dd></dl>
 
 </section>
-<section id="openstef-tasks-create-basecase-forecast-module">
-<h2>openstef.tasks.create_basecase_forecast module<a class="headerlink" href="#openstef-tasks-create-basecase-forecast-module" title="Link to this heading">#</a></h2>
-<p id="module-openstef.tasks.create_basecase_forecast">This module should be executed once every day.</p>
+<section id="module-openstef.tasks.create_basecase_forecast">
+<span id="openstef-tasks-create-basecase-forecast-module"></span><h2>openstef.tasks.create_basecase_forecast module<a class="headerlink" href="#module-openstef.tasks.create_basecase_forecast" title="Link to this heading">#</a></h2>
+<p>This module should be executed once every day.</p>
 <p>For all prediction_jobs, it will create a ‘basecase’ forecast which is less accurate, but (almost) always available.
 For now, it uses the load a week earlier.
 Missing datapoints are interpolated.</p>
@@ -576,9 +576,9 @@ CRON job can be found in the /k8s/CronJobs folder.</p>
 <dd></dd></dl>
 
 </section>
-<section id="openstef-tasks-create-components-forecast-module">
-<h2>openstef.tasks.create_components_forecast module<a class="headerlink" href="#openstef-tasks-create-components-forecast-module" title="Link to this heading">#</a></h2>
-<p id="module-openstef.tasks.create_components_forecast">This module contains the CRON job that is periodically executed to make the components prognoses.</p>
+<section id="module-openstef.tasks.create_components_forecast">
+<span id="openstef-tasks-create-components-forecast-module"></span><h2>openstef.tasks.create_components_forecast module<a class="headerlink" href="#module-openstef.tasks.create_components_forecast" title="Link to this heading">#</a></h2>
+<p>This module contains the CRON job that is periodically executed to make the components prognoses.</p>
 <p>This code assumes trained models are available from the persistent storage.
 If these are not available run model_train.py to train all models.
 To provide the prognoses the following steps are carried out:</p>
@@ -623,9 +623,9 @@ Alternatively this code can be run directly by running:</p>
 <dd></dd></dl>
 
 </section>
-<section id="openstef-tasks-create-forecast-module">
-<h2>openstef.tasks.create_forecast module<a class="headerlink" href="#openstef-tasks-create-forecast-module" title="Link to this heading">#</a></h2>
-<p id="module-openstef.tasks.create_forecast">This module contains the CRON job that is periodically executed to make prognoses and save them in to the database.</p>
+<section id="module-openstef.tasks.create_forecast">
+<span id="openstef-tasks-create-forecast-module"></span><h2>openstef.tasks.create_forecast module<a class="headerlink" href="#module-openstef.tasks.create_forecast" title="Link to this heading">#</a></h2>
+<p>This module contains the CRON job that is periodically executed to make prognoses and save them in to the database.</p>
 <p>This code assumes trained models are available from the persistent storage. If these
 are not available run model_train.py to train all models.
 To provide the prognoses the folowing steps are carried out:</p>
@@ -673,9 +673,9 @@ Alternatively this code can be run directly by running:</p>
 <dd></dd></dl>
 
 </section>
-<section id="openstef-tasks-create-solar-forecast-module">
-<h2>openstef.tasks.create_solar_forecast module<a class="headerlink" href="#openstef-tasks-create-solar-forecast-module" title="Link to this heading">#</a></h2>
-<p id="module-openstef.tasks.create_solar_forecast">This module contains the CRON job that is periodically executed to make prognoses of solar features.</p>
+<section id="module-openstef.tasks.create_solar_forecast">
+<span id="openstef-tasks-create-solar-forecast-module"></span><h2>openstef.tasks.create_solar_forecast module<a class="headerlink" href="#module-openstef.tasks.create_solar_forecast" title="Link to this heading">#</a></h2>
+<p>This module contains the CRON job that is periodically executed to make prognoses of solar features.</p>
 <p>These are useful for splitting the load in solar and wind contributions.</p>
 <p class="rubric">Example</p>
 <p>This module is meant to be called directly from a CRON job. A description of
@@ -835,9 +835,9 @@ data.loc[int(len(index)/3*2):,”load”] = np.NaN</p>
 </dd></dl>
 
 </section>
-<section id="openstef-tasks-create-wind-forecast-module">
-<h2>openstef.tasks.create_wind_forecast module<a class="headerlink" href="#openstef-tasks-create-wind-forecast-module" title="Link to this heading">#</a></h2>
-<p id="module-openstef.tasks.create_wind_forecast">This module contains the CRON job that is periodically executed to make prognoses of wind features.</p>
+<section id="module-openstef.tasks.create_wind_forecast">
+<span id="openstef-tasks-create-wind-forecast-module"></span><h2>openstef.tasks.create_wind_forecast module<a class="headerlink" href="#module-openstef.tasks.create_wind_forecast" title="Link to this heading">#</a></h2>
+<p>This module contains the CRON job that is periodically executed to make prognoses of wind features.</p>
 <p>These features are usefull for splitting the load in solar and wind contributions and
 making prognoses.</p>
 <p class="rubric">Example</p>
@@ -870,9 +870,9 @@ Alternatively this code can be run directly by running:</p>
 </dd></dl>
 
 </section>
-<section id="openstef-tasks-optimize-hyperparameters-module">
-<h2>openstef.tasks.optimize_hyperparameters module<a class="headerlink" href="#openstef-tasks-optimize-hyperparameters-module" title="Link to this heading">#</a></h2>
-<p id="module-openstef.tasks.optimize_hyperparameters">optimize_hyper_params.py.</p>
+<section id="module-openstef.tasks.optimize_hyperparameters">
+<span id="openstef-tasks-optimize-hyperparameters-module"></span><h2>openstef.tasks.optimize_hyperparameters module<a class="headerlink" href="#module-openstef.tasks.optimize_hyperparameters" title="Link to this heading">#</a></h2>
+<p>optimize_hyper_params.py.</p>
 <p>This module contains the CRON job that is periodically executed to optimize the
 hyperparameters for the prognosis models.</p>
 <p class="rubric">Example</p>
@@ -909,9 +909,9 @@ hyperparameters do not exceed the maximum age.</p></li>
 </dd></dl>
 
 </section>
-<section id="openstef-tasks-run-tracy-module">
-<h2>openstef.tasks.run_tracy module<a class="headerlink" href="#openstef-tasks-run-tracy-module" title="Link to this heading">#</a></h2>
-<p id="module-openstef.tasks.run_tracy">Tracy checks the mysql todolist and tries her best to execute the functions with desired inputs.</p>
+<section id="module-openstef.tasks.run_tracy">
+<span id="openstef-tasks-run-tracy-module"></span><h2>openstef.tasks.run_tracy module<a class="headerlink" href="#module-openstef.tasks.run_tracy" title="Link to this heading">#</a></h2>
+<p>Tracy checks the mysql todolist and tries her best to execute the functions with desired inputs.</p>
 <dl>
 <dt>This scripts works as follows:</dt><dd><ol class="arabic simple">
 <li><p>Checks the mysql table ‘todolist’ for jobs (which are not already in progress and</p></li>
@@ -978,9 +978,9 @@ available_functions.</p>
 </dd></dl>
 
 </section>
-<section id="openstef-tasks-split-forecast-module">
-<h2>openstef.tasks.split_forecast module<a class="headerlink" href="#openstef-tasks-split-forecast-module" title="Link to this heading">#</a></h2>
-<p id="module-openstef.tasks.split_forecast">This module contains the CRON job that is periodically executed to make prognoses of solar features.</p>
+<section id="module-openstef.tasks.split_forecast">
+<span id="openstef-tasks-split-forecast-module"></span><h2>openstef.tasks.split_forecast module<a class="headerlink" href="#module-openstef.tasks.split_forecast" title="Link to this heading">#</a></h2>
+<p>This module contains the CRON job that is periodically executed to make prognoses of solar features.</p>
 <p>These features are usefull for splitting the load
 in solar and wind contributions.
 This is achieved by carrying out the folowing steps:</p>
@@ -1093,9 +1093,9 @@ in exactly this order: [load, wind_ref, pv_ref, mulitple tdcv colums]</p></li>
 </dd></dl>
 
 </section>
-<section id="openstef-tasks-train-model-module">
-<h2>openstef.tasks.train_model module<a class="headerlink" href="#openstef-tasks-train-model-module" title="Link to this heading">#</a></h2>
-<p id="module-openstef.tasks.train_model">This module contains the CRON job that is periodically executed to retrain the prognosis models.</p>
+<section id="module-openstef.tasks.train_model">
+<span id="openstef-tasks-train-model-module"></span><h2>openstef.tasks.train_model module<a class="headerlink" href="#module-openstef.tasks.train_model" title="Link to this heading">#</a></h2>
+<p>This module contains the CRON job that is periodically executed to retrain the prognosis models.</p>
 <dl class="simple">
 <dt>For this the folowing steps are caried out:</dt><dd><ol class="arabic simple">
 <li><p>Get historic training data (TDCV, Load, Weather and APX price data)</p></li>
@@ -1144,9 +1144,9 @@ database connection.</p></li>
 </dd></dl>
 
 </section>
-<section id="module-contents">
-<h2>Module contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
-<span class="target" id="module-openstef.tasks"></span></section>
+<section id="module-openstef.tasks">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-openstef.tasks" title="Link to this heading">#</a></h2>
+</section>
 </section>
 
 
@@ -1198,7 +1198,7 @@ database connection.</p></li>
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#openstef-tasks-calculate-kpi-module">
+  <a class="reference internal nav-link" href="#module-openstef.tasks.calculate_kpi">
    openstef.tasks.calculate_kpi module
   </a>
   <ul class="nav section-nav flex-column">
@@ -1241,7 +1241,7 @@ database connection.</p></li>
   </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#openstef-tasks-create-basecase-forecast-module">
+  <a class="reference internal nav-link" href="#module-openstef.tasks.create_basecase_forecast">
    openstef.tasks.create_basecase_forecast module
   </a>
   <ul class="nav section-nav flex-column">
@@ -1266,7 +1266,7 @@ database connection.</p></li>
   </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#openstef-tasks-create-components-forecast-module">
+  <a class="reference internal nav-link" href="#module-openstef.tasks.create_components_forecast">
    openstef.tasks.create_components_forecast module
   </a>
   <ul class="nav section-nav flex-column">
@@ -1291,7 +1291,7 @@ database connection.</p></li>
   </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#openstef-tasks-create-forecast-module">
+  <a class="reference internal nav-link" href="#module-openstef.tasks.create_forecast">
    openstef.tasks.create_forecast module
   </a>
   <ul class="nav section-nav flex-column">
@@ -1316,7 +1316,7 @@ database connection.</p></li>
   </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#openstef-tasks-create-solar-forecast-module">
+  <a class="reference internal nav-link" href="#module-openstef.tasks.create_solar_forecast">
    openstef.tasks.create_solar_forecast module
   </a>
   <ul class="nav section-nav flex-column">
@@ -1386,7 +1386,7 @@ database connection.</p></li>
   </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#openstef-tasks-create-wind-forecast-module">
+  <a class="reference internal nav-link" href="#module-openstef.tasks.create_wind_forecast">
    openstef.tasks.create_wind_forecast module
   </a>
   <ul class="nav section-nav flex-column">
@@ -1411,7 +1411,7 @@ database connection.</p></li>
   </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#openstef-tasks-optimize-hyperparameters-module">
+  <a class="reference internal nav-link" href="#module-openstef.tasks.optimize_hyperparameters">
    openstef.tasks.optimize_hyperparameters module
   </a>
   <ul class="nav section-nav flex-column">
@@ -1436,7 +1436,7 @@ database connection.</p></li>
   </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#openstef-tasks-run-tracy-module">
+  <a class="reference internal nav-link" href="#module-openstef.tasks.run_tracy">
    openstef.tasks.run_tracy module
   </a>
   <ul class="nav section-nav flex-column">
@@ -1470,7 +1470,7 @@ database connection.</p></li>
   </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#openstef-tasks-split-forecast-module">
+  <a class="reference internal nav-link" href="#module-openstef.tasks.split_forecast">
    openstef.tasks.split_forecast module
   </a>
   <ul class="nav section-nav flex-column">
@@ -1522,7 +1522,7 @@ database connection.</p></li>
   </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#openstef-tasks-train-model-module">
+  <a class="reference internal nav-link" href="#module-openstef.tasks.train_model">
    openstef.tasks.train_model module
   </a>
   <ul class="nav section-nav flex-column">
@@ -1547,7 +1547,7 @@ database connection.</p></li>
   </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-contents">
+  <a class="reference internal nav-link" href="#module-openstef.tasks">
    Module contents
   </a>
  </li>
@@ -1620,7 +1620,7 @@ database connection.</p></li>
   <div class="footer-item">
     
 <p class="sphinx-version">
-Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.2.2.<br>
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.2.5.<br>
 </p>
 
   </div>

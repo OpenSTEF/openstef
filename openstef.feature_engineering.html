@@ -407,9 +407,9 @@
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 </section>
-<section id="openstef-feature-engineering-apply-features-module">
-<h2>openstef.feature_engineering.apply_features module<a class="headerlink" href="#openstef-feature-engineering-apply-features-module" title="Link to this heading">#</a></h2>
-<p id="module-openstef.feature_engineering.apply_features">This module provides functionality for applying features to the input data to improve forecast accuracy.</p>
+<section id="module-openstef.feature_engineering.apply_features">
+<span id="openstef-feature-engineering-apply-features-module"></span><h2>openstef.feature_engineering.apply_features module<a class="headerlink" href="#module-openstef.feature_engineering.apply_features" title="Link to this heading">#</a></h2>
+<p>This module provides functionality for applying features to the input data to improve forecast accuracy.</p>
 <dl class="simple">
 <dt>Examples of features that are added:</dt><dd><ul class="simple">
 <li><p>The load 1 day and 7 days ago at the same time.</p></li>
@@ -466,9 +466,9 @@ columns=[label, predictor_1,…, predictor_n]</p>
 </dd></dl>
 
 </section>
-<section id="openstef-feature-engineering-data-preparation-module">
-<h2>openstef.feature_engineering.data_preparation module<a class="headerlink" href="#openstef-feature-engineering-data-preparation-module" title="Link to this heading">#</a></h2>
-<dl class="py class" id="module-openstef.feature_engineering.data_preparation">
+<section id="module-openstef.feature_engineering.data_preparation">
+<span id="openstef-feature-engineering-data-preparation-module"></span><h2>openstef.feature_engineering.data_preparation module<a class="headerlink" href="#module-openstef.feature_engineering.data_preparation" title="Link to this heading">#</a></h2>
+<dl class="py class">
 <dt class="sig sig-object py" id="openstef.feature_engineering.data_preparation.ARDataPreparation">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef.feature_engineering.data_preparation.</span></span><span class="sig-name descname"><span class="pre">ARDataPreparation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_specs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">horizons</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">historical_depth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.data_preparation.ARDataPreparation" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#openstef.feature_engineering.data_preparation.AbstractDataPreparation" title="openstef.feature_engineering.data_preparation.AbstractDataPreparation"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractDataPreparation</span></code></a></p>
@@ -552,9 +552,9 @@ columns=[label, predictor_1,…, predictor_n]</p>
 </dd></dl>
 
 </section>
-<section id="openstef-feature-engineering-feature-adder-module">
-<h2>openstef.feature_engineering.feature_adder module<a class="headerlink" href="#openstef-feature-engineering-feature-adder-module" title="Link to this heading">#</a></h2>
-<p id="module-openstef.feature_engineering.feature_adder">This module provides functionality for defining custom feature adders.</p>
+<section id="module-openstef.feature_engineering.feature_adder">
+<span id="openstef-feature-engineering-feature-adder-module"></span><h2>openstef.feature_engineering.feature_adder module<a class="headerlink" href="#module-openstef.feature_engineering.feature_adder" title="Link to this heading">#</a></h2>
+<p>This module provides functionality for defining custom feature adders.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="openstef.feature_engineering.feature_adder.FeatureAdder">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef.feature_engineering.feature_adder.</span></span><span class="sig-name descname"><span class="pre">FeatureAdder</span></span><a class="headerlink" href="#openstef.feature_engineering.feature_adder.FeatureAdder" title="Link to this definition">#</a></dt>
@@ -719,9 +719,9 @@ the features.</p>
 </dd></dl>
 
 </section>
-<section id="openstef-feature-engineering-feature-applicator-module">
-<h2>openstef.feature_engineering.feature_applicator module<a class="headerlink" href="#openstef-feature-engineering-feature-applicator-module" title="Link to this heading">#</a></h2>
-<p id="module-openstef.feature_engineering.feature_applicator">This module defines several FeatureApplicators.</p>
+<section id="module-openstef.feature_engineering.feature_applicator">
+<span id="openstef-feature-engineering-feature-applicator-module"></span><h2>openstef.feature_engineering.feature_applicator module<a class="headerlink" href="#module-openstef.feature_engineering.feature_applicator" title="Link to this heading">#</a></h2>
+<p>This module defines several FeatureApplicators.</p>
 <p>These applicatiors are used to add features to the input data in the corresponding pipelines.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="openstef.feature_engineering.feature_applicator.AbstractFeatureApplicator">
@@ -820,9 +820,9 @@ available for a specific horizon due to data latency. Defaults to
 </dd></dl>
 
 </section>
-<section id="openstef-feature-engineering-general-module">
-<h2>openstef.feature_engineering.general module<a class="headerlink" href="#openstef-feature-engineering-general-module" title="Link to this heading">#</a></h2>
-<p id="module-openstef.feature_engineering.general">This modelu contains various helper functions.</p>
+<section id="module-openstef.feature_engineering.general">
+<span id="openstef-feature-engineering-general-module"></span><h2>openstef.feature_engineering.general module<a class="headerlink" href="#module-openstef.feature_engineering.general" title="Link to this heading">#</a></h2>
+<p>This modelu contains various helper functions.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="openstef.feature_engineering.general.add_missing_feature_columns">
 <span class="sig-prename descclassname"><span class="pre">openstef.feature_engineering.general.</span></span><span class="sig-name descname"><span class="pre">add_missing_feature_columns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.general.add_missing_feature_columns" title="Link to this definition">#</a></dt>
@@ -898,9 +898,9 @@ Furthermore the “horizon” is moved to the last position if it is pressent.</
 </dd></dl>
 
 </section>
-<section id="openstef-feature-engineering-historic-features-module">
-<h2>openstef.feature_engineering.historic_features module<a class="headerlink" href="#openstef-feature-engineering-historic-features-module" title="Link to this heading">#</a></h2>
-<p id="module-openstef.feature_engineering.historic_features">This module contains historic load related functions used for feature engineering.</p>
+<section id="module-openstef.feature_engineering.historic_features">
+<span id="openstef-feature-engineering-historic-features-module"></span><h2>openstef.feature_engineering.historic_features module<a class="headerlink" href="#module-openstef.feature_engineering.historic_features" title="Link to this heading">#</a></h2>
+<p>This module contains historic load related functions used for feature engineering.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="openstef.feature_engineering.historic_features.add_historic_load_as_a_feature">
 <span class="sig-prename descclassname"><span class="pre">openstef.feature_engineering.historic_features.</span></span><span class="sig-name descname"><span class="pre">add_historic_load_as_a_feature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pj</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.historic_features.add_historic_load_as_a_feature" title="Link to this definition">#</a></dt>
@@ -922,9 +922,9 @@ Furthermore the “horizon” is moved to the last position if it is pressent.</
 </dd></dl>
 
 </section>
-<section id="openstef-feature-engineering-holiday-features-module">
-<h2>openstef.feature_engineering.holiday_features module<a class="headerlink" href="#openstef-feature-engineering-holiday-features-module" title="Link to this heading">#</a></h2>
-<p id="module-openstef.feature_engineering.holiday_features">This module contains all holiday related features.</p>
+<section id="module-openstef.feature_engineering.holiday_features">
+<span id="openstef-feature-engineering-holiday-features-module"></span><h2>openstef.feature_engineering.holiday_features module<a class="headerlink" href="#module-openstef.feature_engineering.holiday_features" title="Link to this heading">#</a></h2>
+<p>This module contains all holiday related features.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="openstef.feature_engineering.holiday_features.check_for_bridge_day">
 <span class="sig-prename descclassname"><span class="pre">openstef.feature_engineering.holiday_features.</span></span><span class="sig-name descname"><span class="pre">check_for_bridge_day</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holiday_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">country</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">years</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holiday_functions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bridge_days</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.holiday_features.check_for_bridge_day" title="Link to this definition">#</a></dt>
@@ -1005,9 +1005,9 @@ consist of “Is” + the_name_of_the_holiday_to_be_checked</p>
 </dd></dl>
 
 </section>
-<section id="openstef-feature-engineering-lag-features-module">
-<h2>openstef.feature_engineering.lag_features module<a class="headerlink" href="#openstef-feature-engineering-lag-features-module" title="Link to this heading">#</a></h2>
-<p id="module-openstef.feature_engineering.lag_features">This module contains all lag features.</p>
+<section id="module-openstef.feature_engineering.lag_features">
+<span id="openstef-feature-engineering-lag-features-module"></span><h2>openstef.feature_engineering.lag_features module<a class="headerlink" href="#module-openstef.feature_engineering.lag_features" title="Link to this heading">#</a></h2>
+<p>This module contains all lag features.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="openstef.feature_engineering.lag_features.extract_lag_features">
 <span class="sig-prename descclassname"><span class="pre">openstef.feature_engineering.lag_features.</span></span><span class="sig-name descname"><span class="pre">extract_lag_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">feature_names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">horizon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">24.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.lag_features.extract_lag_features" title="Link to this definition">#</a></dt>
@@ -1102,9 +1102,9 @@ columns = [label, predictor_1,…, predictor_n])</p></li>
 </dd></dl>
 
 </section>
-<section id="openstef-feature-engineering-weather-features-module">
-<h2>openstef.feature_engineering.weather_features module<a class="headerlink" href="#openstef-feature-engineering-weather-features-module" title="Link to this heading">#</a></h2>
-<p id="module-openstef.feature_engineering.weather_features">This module contains all wheather related functions used for feature engineering.</p>
+<section id="module-openstef.feature_engineering.weather_features">
+<span id="openstef-feature-engineering-weather-features-module"></span><h2>openstef.feature_engineering.weather_features module<a class="headerlink" href="#module-openstef.feature_engineering.weather_features" title="Link to this heading">#</a></h2>
+<p>This module contains all wheather related functions used for feature engineering.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="openstef.feature_engineering.weather_features.add_additional_solar_features">
 <span class="sig-prename descclassname"><span class="pre">openstef.feature_engineering.weather_features.</span></span><span class="sig-name descname"><span class="pre">add_additional_solar_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pj</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feature_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.weather_features.add_additional_solar_features" title="Link to this definition">#</a></dt>
@@ -1367,9 +1367,9 @@ if the input is numeric; a dict with the calculated moisture indices</p>
 </dd></dl>
 
 </section>
-<section id="module-contents">
-<h2>Module contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
-<span class="target" id="module-openstef.feature_engineering"></span></section>
+<section id="module-openstef.feature_engineering">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-openstef.feature_engineering" title="Link to this heading">#</a></h2>
+</section>
 </section>
 
 
@@ -1416,7 +1416,7 @@ if the input is numeric; a dict with the calculated moisture indices</p>
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#openstef-feature-engineering-apply-features-module">
+  <a class="reference internal nav-link" href="#module-openstef.feature_engineering.apply_features">
    openstef.feature_engineering.apply_features module
   </a>
   <ul class="nav section-nav flex-column">
@@ -1432,7 +1432,7 @@ if the input is numeric; a dict with the calculated moisture indices</p>
   </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#openstef-feature-engineering-data-preparation-module">
+  <a class="reference internal nav-link" href="#module-openstef.feature_engineering.data_preparation">
    openstef.feature_engineering.data_preparation module
   </a>
   <ul class="nav section-nav flex-column">
@@ -1535,7 +1535,7 @@ if the input is numeric; a dict with the calculated moisture indices</p>
   </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#openstef-feature-engineering-feature-adder-module">
+  <a class="reference internal nav-link" href="#module-openstef.feature_engineering.feature_adder">
    openstef.feature_engineering.feature_adder module
   </a>
   <ul class="nav section-nav flex-column">
@@ -1665,7 +1665,7 @@ if the input is numeric; a dict with the calculated moisture indices</p>
   </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#openstef-feature-engineering-feature-applicator-module">
+  <a class="reference internal nav-link" href="#module-openstef.feature_engineering.feature_applicator">
    openstef.feature_engineering.feature_applicator module
   </a>
   <ul class="nav section-nav flex-column">
@@ -1732,7 +1732,7 @@ if the input is numeric; a dict with the calculated moisture indices</p>
   </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#openstef-feature-engineering-general-module">
+  <a class="reference internal nav-link" href="#module-openstef.feature_engineering.general">
    openstef.feature_engineering.general module
   </a>
   <ul class="nav section-nav flex-column">
@@ -1766,7 +1766,7 @@ if the input is numeric; a dict with the calculated moisture indices</p>
   </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#openstef-feature-engineering-historic-features-module">
+  <a class="reference internal nav-link" href="#module-openstef.feature_engineering.historic_features">
    openstef.feature_engineering.historic_features module
   </a>
   <ul class="nav section-nav flex-column">
@@ -1782,7 +1782,7 @@ if the input is numeric; a dict with the calculated moisture indices</p>
   </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#openstef-feature-engineering-holiday-features-module">
+  <a class="reference internal nav-link" href="#module-openstef.feature_engineering.holiday_features">
    openstef.feature_engineering.holiday_features module
   </a>
   <ul class="nav section-nav flex-column">
@@ -1807,7 +1807,7 @@ if the input is numeric; a dict with the calculated moisture indices</p>
   </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#openstef-feature-engineering-lag-features-module">
+  <a class="reference internal nav-link" href="#module-openstef.feature_engineering.lag_features">
    openstef.feature_engineering.lag_features module
   </a>
   <ul class="nav section-nav flex-column">
@@ -1850,7 +1850,7 @@ if the input is numeric; a dict with the calculated moisture indices</p>
   </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#openstef-feature-engineering-weather-features-module">
+  <a class="reference internal nav-link" href="#module-openstef.feature_engineering.weather_features">
    openstef.feature_engineering.weather_features module
   </a>
   <ul class="nav section-nav flex-column">
@@ -1965,7 +1965,7 @@ if the input is numeric; a dict with the calculated moisture indices</p>
   </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-contents">
+  <a class="reference internal nav-link" href="#module-openstef.feature_engineering">
    Module contents
   </a>
  </li>
@@ -2038,7 +2038,7 @@ if the input is numeric; a dict with the calculated moisture indices</p>
   <div class="footer-item">
     
 <p class="sphinx-version">
-Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.2.2.<br>
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.2.5.<br>
 </p>
 
   </div>
