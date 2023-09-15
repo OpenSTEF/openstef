@@ -123,9 +123,7 @@ def train_model_pipeline(
         Reporter.write_report_to_disk(report=report, report_folder=report_folder)
 
     # Clean up older models
-    serializer.remove_old_models(
-        experiment_name=str(pj["id"]), artifact_folder=artifact_folder
-    )
+    serializer.remove_old_models(experiment_name=str(pj["id"]))
 
     if pj.save_train_forecasts:
         return data_sets

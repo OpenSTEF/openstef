@@ -4,6 +4,8 @@
 
 import glob
 import tempfile
+import yaml
+from pathlib import Path
 from datetime import datetime, timedelta
 from distutils.dir_util import copy_tree
 from test.unit.utils.base import BaseTestCase
@@ -20,6 +22,20 @@ from openstef.model.serializer import MLflowSerializer
 
 
 class TestMLflowSerializer(BaseTestCase):
+    @staticmethod
+    def _rewrite_absolute_artifact_path(
+        metadata_file: str, new_path: str, artifact_path_key: str
+    ) -> None:
+        """Helper function to rewrite the absolute path of the artifacts in meta.yaml files.
+        This is required since generating new models takes too long for a unit test and relative paths are not supported."""
+        with open(metadata_file, "r") as f:
+            metadata = yaml.safe_load(f)
+
+        metadata[artifact_path_key] = f"file://{new_path}"
+
+        with open(metadata_file, "w") as f:
+            yaml.dump(metadata, f, default_flow_style=False, sort_keys=False)
+
     def setUp(self) -> None:
         super().setUp()
         self.pj, self.modelspecs = TestData.get_prediction_job_and_modelspecs(pid=307)
@@ -331,6 +347,30 @@ class TestMLflowSerializer(BaseTestCase):
             # Copy already stored models to temp dir
             copy_tree(local_model_dir, temp_model_dir)
 
+            # Fix absolute artifact path in all meta.yaml files
+            for experiment_folder in (
+                Path(f"{temp_model_dir}/mlruns").resolve().iterdir()
+            ):
+                metadata_file = experiment_folder / "meta.yaml"
+
+                # Fix experiment metadata
+                if metadata_file.exists():
+                    self._rewrite_absolute_artifact_path(
+                        metadata_file=metadata_file,
+                        new_path=experiment_folder,
+                        artifact_path_key="artifact_location",
+                    )
+                for run_folder in experiment_folder.iterdir():
+                    metadata_file = run_folder / "meta.yaml"
+
+                    # Fix run metadata
+                    if metadata_file.exists():
+                        self._rewrite_absolute_artifact_path(
+                            metadata_file=metadata_file,
+                            new_path=run_folder / "artifacts",
+                            artifact_path_key="artifact_uri",
+                        )
+
             serializer = MLflowSerializer(
                 mlflow_tracking_uri="file:" + temp_model_dir + "/mlruns"
             )
@@ -338,9 +378,7 @@ class TestMLflowSerializer(BaseTestCase):
             all_stored_models = serializer._find_models(str(self.pj["id"]))
 
             # Remove old models
-            serializer.remove_old_models(
-                str(self.pj["id"]), max_n_models=2, artifact_folder=temp_model_dir
-            )
+            serializer.remove_old_models(str(self.pj["id"]), max_n_models=2)
             # Check which models are left
             final_stored_models = serializer._find_models(str(self.pj["id"]))
 
@@ -361,5 +399,7 @@ class TestMLflowSerializer(BaseTestCase):
             )
 
             # Check if models are removed from disk
-            model_dirs = glob.glob(f"{temp_model_dir}/mlruns/1/*/", recursive=True)
+            model_dirs = glob.glob(
+                f"{temp_model_dir}/mlruns/1/**/*.pkl", recursive=True
+            )
             self.assertEqual(len(model_dirs), 2)
