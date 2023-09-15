@@ -274,7 +274,9 @@ class MLflowSerializer:
         return model_age_days
 
     def remove_old_models(
-        self, experiment_name: str, max_n_models: int = 10,
+        self,
+        experiment_name: str,
+        max_n_models: int = 10,
     ):
         """Remove old models per experiment."""
         if max_n_models < 1:
@@ -300,11 +302,13 @@ class MLflowSerializer:
                 # mlflow.delete_run marks it as deleted but does not delete it by itself
                 # Remove artifacts to save disk space
                 try:
-                    repository = get_artifact_repository(mlflow.get_run(run.run_id).info.artifact_uri)
+                    repository = get_artifact_repository(
+                        mlflow.get_run(run.run_id).info.artifact_uri
+                    )
                     repository.delete_artifacts()
                     self.logger.debug("Removed artifacts")
                 except Exception as e:
-                    self.logger.info(F"Failed removing artifacts: {e}")
+                    self.logger.info(f"Failed removing artifacts: {e}")
 
     def _get_feature_names(
         self,
