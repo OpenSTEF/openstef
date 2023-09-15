@@ -339,7 +339,7 @@ class TestMLflowSerializer(BaseTestCase):
 
             # Remove old models
             serializer.remove_old_models(
-                str(self.pj["id"]), max_n_models=2, artifact_folder=temp_model_dir
+                str(self.pj["id"]), max_n_models=2
             )
             # Check which models are left
             final_stored_models = serializer._find_models(str(self.pj["id"]))

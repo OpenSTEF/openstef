@@ -14,6 +14,7 @@ import numpy as np
 import pandas as pd
 import structlog
 from mlflow.exceptions import MlflowException
+from mlflow.store.artifact.artifact_repository_registry import get_artifact_repository
 from xgboost import XGBModel  # Temporary for backward compatibility
 
 from openstef.data_classes.model_specifications import ModelSpecificationDataClass
@@ -273,14 +274,9 @@ class MLflowSerializer:
         return model_age_days
 
     def remove_old_models(
-        self, experiment_name: str, max_n_models: int = 10, artifact_folder: str = None
+        self, experiment_name: str, max_n_models: int = 10,
     ):
-        """Remove old models per experiment.
-
-        Note: This functionality is not incorporated in MLFlow natively
-        See also: https://github.com/mlflow/mlflow/issues/2152
-
-        """
+        """Remove old models per experiment."""
         if max_n_models < 1:
             raise ValueError(
                 f"Max models to keep should be greater than 1! Received: {max_n_models}"
@@ -302,16 +298,13 @@ class MLflowSerializer:
                 self.logger.debug("Removed run")
 
                 # mlflow.delete_run marks it as deleted but does not delete it by itself
-                if artifact_folder:  # Also try to remove artifact from disk.
-                    artifact_filepath = (
-                        f"{artifact_folder}/mlruns/{run.experiment_id}/{run.run_id}"
-                    )
-                    self.logger.debug(f"Removing artifact: {artifact_filepath}")
-                    try:
-                        shutil.rmtree(artifact_filepath)
-                        self.logger.debug("Removed artifact")
-                    except Exception as e:
-                        self.logger.info(f"Failed removing artifacts: {e}")
+                # Remove artifacts to save disk space
+                try:
+                    repository = get_artifact_repository(mlflow.get_run(run.run_id).info.artifact_uri)
+                    repository.delete_artifacts()
+                    self.logger.debug("Removed artifacts")
+                except Exception as e:
+                    self.logger.info(F"Failed removing artifacts: {e}")
 
     def _get_feature_names(
         self,

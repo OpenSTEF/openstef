@@ -124,7 +124,7 @@ def train_model_pipeline(
 
     # Clean up older models
     serializer.remove_old_models(
-        experiment_name=str(pj["id"]), artifact_folder=artifact_folder
+        experiment_name=str(pj["id"])
     )
 
     if pj.save_train_forecasts:
