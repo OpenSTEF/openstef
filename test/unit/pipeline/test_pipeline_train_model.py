@@ -177,7 +177,12 @@ class TestTrainModelPipeline(BaseTestCase):
 
                 # Validate and clean data
                 validated_data = validation.drop_target_na(
-                    validation.validate(pj["id"], train_input, flatliner_threshold=24)
+                    validation.validate(
+                        pj["id"],
+                        train_input,
+                        flatliner_threshold_minutes=360,
+                        resolution_minutes=15,
+                    )
                 )
 
                 # Add features
@@ -245,7 +250,12 @@ class TestTrainModelPipeline(BaseTestCase):
 
                 # Validate and clean data
                 validated_data = validation.drop_target_na(
-                    validation.validate(pj["id"], train_input, flatliner_threshold=24)
+                    validation.validate(
+                        pj["id"],
+                        train_input,
+                        flatliner_threshold_minutes=360,
+                        resolution_minutes=15,
+                    )
                 )
 
                 # Add features

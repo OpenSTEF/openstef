@@ -4,10 +4,12 @@
 from datetime import timedelta
 from typing import Union
 
+import math
 import numpy as np
 import pandas as pd
 import structlog
 
+from openstef.exceptions import InputDataOngoingZeroFlatlinerError
 from openstef.preprocessing.preprocessing import replace_repeated_values_with_nan
 from openstef.model.regressors.regressor import OpenstfRegressor
 
@@ -15,20 +17,22 @@ from openstef.model.regressors.regressor import OpenstfRegressor
 def validate(
     pj_id: Union[int, str],
     data: pd.DataFrame,
-    flatliner_threshold: Union[int, None],
+    flatliner_threshold_minutes: Union[int, None],
+    resolution_minutes: int,
 ) -> pd.DataFrame:
     """Validate prediction job and timeseries data.
 
     Steps:
-    1. Replace repeated values for longer than flatliner_threshold with NaN
-    # TODO: The function description suggests it
-    'validates' the PJ and Data, but is appears to 'just' replace repeated observations with NaN.
+    1. Check if input dataframe has a datetime index.
+    1. Check if a zero flatliner pattern is ongoing (i.e. all recent measurements are zero).
+    2. Replace repeated values for longer than flatliner_threshold_minutes with NaN.
 
     Args:
         pj_id: ind/str, used to identify log statements
         data: pd.DataFrame where the first column should be the target. index=datetimeIndex
-        flatliner_threshold: int of max repetitions considered a flatline.
+        flatliner_threshold_minutes: int indicating the number of minutes after which constant load is considered a flatline.
             if None, the validation is effectively skipped
+        resolution_minutes: The forecasting resolution in minutes.
 
     Returns:
         Dataframe where repeated values are set to None
@@ -39,13 +43,26 @@ def validate(
     if not isinstance(data.index, pd.DatetimeIndex):
         raise ValueError("Input dataframe does not have a datetime index.")
 
-    if flatliner_threshold is None:
+    if flatliner_threshold_minutes is None:
         logger.info("Skipping validation of input data", pj_id=pj_id)
         return data
 
+    zero_flatliner_ongoing = detect_ongoing_zero_flatliner(
+        load=data.iloc[:, 0], duration_threshold_minutes=flatliner_threshold_minutes
+    )
+
+    if zero_flatliner_ongoing:
+        raise InputDataOngoingZeroFlatlinerError(
+            "All recent load measurements are zero."
+        )
+
+    flatliner_threshold_repetitions = math.ceil(
+        flatliner_threshold_minutes / resolution_minutes
+    )
+
     # Drop 'false' measurements. e.g. where load appears to be constant.
     data = replace_repeated_values_with_nan(
-        data, max_length=flatliner_threshold, column_name=data.columns[0]
+        data, max_length=flatliner_threshold_repetitions, column_name=data.columns[0]
     )
     num_repeated_values = len(data) - len(data.iloc[:, 0].dropna())
     if num_repeated_values > 0:
@@ -193,22 +210,24 @@ def calc_completeness_features(
 
 def detect_ongoing_zero_flatliner(
     load: pd.Series,
-    duration_threshold_hours: int,
+    duration_threshold_minutes: int,
 ) -> bool:
     """Detects if the latest measurements follow a zero flatliner pattern.
 
     Args:
         load (pd.Series): A timeseries of measured load with a datetime index.
-        duration_threshold_hours (int): A zero flatliner is only detected if it exceeds the threshold duration.
+        duration_threshold_minutes (int): A zero flatliner is only detected if it exceeds the threshold duration.
 
     Returns:
         bool: Indicating wether or not there is a zero flatliner ongoing for the given load.
     """
 
     latest_measurement_time = load.index.max()
-    latest_measurements = load[latest_measurement_time - timedelta(minutes=duration_threshold_hours * 60):].dropna()
-    
-    return ((latest_measurements == 0).all() & (not latest_measurements.empty))
+    latest_measurements = load[
+        latest_measurement_time - timedelta(minutes=duration_threshold_minutes) :
+    ].dropna()
+
+    return (latest_measurements == 0).all() & (not latest_measurements.empty)
 
 
 def calc_completeness_dataframe(

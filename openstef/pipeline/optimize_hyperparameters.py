@@ -136,7 +136,12 @@ def optimize_hyperparameters_pipeline_core(
 
     # Validate and clean data
     validated_data = validation.drop_target_na(
-        validation.validate(pj["id"], input_data, pj["flatliner_threshold"])
+        validation.validate(
+            pj["id"],
+            input_data,
+            pj["flatliner_threshold_minutes"],
+            pj["resolution_minutes"],
+        )
     )
 
     # Check if sufficient data is left after cleaning

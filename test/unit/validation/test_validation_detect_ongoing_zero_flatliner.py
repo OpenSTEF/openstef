@@ -15,7 +15,7 @@ class TestDetectOngoingZeroFlatliners(BaseTestCase):
     def test_all_zero(self):
         # Arrange
         load = pd.Series(index=three_hour_range, data=[0 for i in range(13)])
-        duration_threshold = 2
+        duration_threshold = 120
 
         # Act
         zero_flatliner_ongoing = detect_ongoing_zero_flatliner(load, duration_threshold)
@@ -26,7 +26,7 @@ class TestDetectOngoingZeroFlatliners(BaseTestCase):
     def test_all_nonzero(self):
         # Arrange
         load = pd.Series(index=three_hour_range, data=[i for i in range(1, 14)])
-        duration_threshold = 2
+        duration_threshold = 120
 
         # Act
         zero_flatliner_ongoing = detect_ongoing_zero_flatliner(load, duration_threshold)
@@ -37,7 +37,7 @@ class TestDetectOngoingZeroFlatliners(BaseTestCase):
     def test_only_last_nonzero(self):
         # Arrange
         load = pd.Series(index=three_hour_range, data=[0 for i in range(1, 13)] + [1])
-        duration_threshold = 2
+        duration_threshold = 120
 
         # Act
         zero_flatliner_ongoing = detect_ongoing_zero_flatliner(load, duration_threshold)
@@ -50,7 +50,7 @@ class TestDetectOngoingZeroFlatliners(BaseTestCase):
         load = pd.Series(
             index=three_hour_range, data=[i for i in range(1, 10)] + [0, 0, 0, 0]
         )
-        duration_threshold = 2
+        duration_threshold = 120
 
         # Act
         zero_flatliner_ongoing = detect_ongoing_zero_flatliner(load, duration_threshold)
@@ -60,8 +60,10 @@ class TestDetectOngoingZeroFlatliners(BaseTestCase):
 
     def test_zero_flatliner_pattern_just_above_threshold(self):
         # Arrange
-        load = pd.Series(index=three_hour_range, data=[1, 2, 3, 4] + [0 for i in range(9)])
-        duration_threshold = 2
+        load = pd.Series(
+            index=three_hour_range, data=[1, 2, 3, 4] + [0 for i in range(9)]
+        )
+        duration_threshold = 120
 
         # Act
         zero_flatliner_ongoing = detect_ongoing_zero_flatliner(load, duration_threshold)
@@ -71,8 +73,11 @@ class TestDetectOngoingZeroFlatliners(BaseTestCase):
 
     def test_zero_flatliner_and_missing_values(self):
         # Arrange
-        load = pd.Series(index=three_hour_range, data=[1, 2, 3, 4] + [0, 0, 0, 0, np.nan, np.nan, np.nan, np.nan, 0])
-        duration_threshold = 2
+        load = pd.Series(
+            index=three_hour_range,
+            data=[1, 2, 3, 4] + [0, 0, 0, 0, np.nan, np.nan, np.nan, np.nan, 0],
+        )
+        duration_threshold = 120
 
         # Act
         zero_flatliner_ongoing = detect_ongoing_zero_flatliner(load, duration_threshold)
@@ -83,7 +88,7 @@ class TestDetectOngoingZeroFlatliners(BaseTestCase):
     def test_all_missing_values(self):
         # Arrange
         load = pd.Series(index=three_hour_range, data=[np.nan for i in range(13)])
-        duration_threshold = 2
+        duration_threshold = 120
 
         # Act
         zero_flatliner_ongoing = detect_ongoing_zero_flatliner(load, duration_threshold)

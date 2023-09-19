@@ -45,7 +45,12 @@ def create_basecase_forecast_pipeline(
     # Validate data
     # Currently effectively disabled by giving None.
     # We keep this step so it later can be filled using arguments defined in PJ
-    validated_data = validation.validate(pj["id"], input_data, flatliner_threshold=None)
+    validated_data = validation.validate(
+        pj["id"],
+        input_data,
+        flatliner_threshold_minutes=None,
+        resolution_minutes=pj["resolution_minutes"],
+    )
 
     # Add features
     data_with_features = OperationalPredictFeatureApplicator(
