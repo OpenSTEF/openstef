@@ -36,7 +36,6 @@ def validate(
     """
     logger = structlog.get_logger(__name__)
 
-    # Check if DataFrame has datetime index
     if not isinstance(data.index, pd.DatetimeIndex):
         raise ValueError("Input dataframe does not have a datetime index.")
 
@@ -259,6 +258,26 @@ def find_nonzero_flatliner(
     if len(interval_df) == 0:
         interval_df = None
     return interval_df
+
+
+def detect_ongoing_zero_flatliner(
+    load: pd.Series,
+    duration_threshold_hours: int,
+) -> bool:
+    """Detects if the latest measurements follow a zero flatliner pattern.
+
+    Args:
+        load (pd.Series): A timeseries of measured load with a datetime index.
+        duration_threshold_hours (int): A zero flatliner is only detected if it exceeds the threshold duration.
+
+    Returns:
+        bool: Indicating wether or not there is a zero flatliner ongoing for the given load.
+    """
+
+    latest_measurement_time = load.index.max()
+    latest_measurements = load[latest_measurement_time - timedelta(minutes=duration_threshold_hours * 60):].dropna()
+    
+    return ((latest_measurements == 0).all() & (not latest_measurements.empty))
 
 
 def find_zero_flatliner(
