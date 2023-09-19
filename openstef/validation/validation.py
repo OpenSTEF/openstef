@@ -220,6 +220,7 @@ def detect_ongoing_zero_flatliner(
 
     Returns:
         bool: Indicating wether or not there is a zero flatliner ongoing for the given load.
+
     """
 
     latest_measurement_time = load.index.max()
