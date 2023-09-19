@@ -80,7 +80,7 @@ class TestTrainBackTestPipeline(BaseTestCase):
         # check if forecast is indeed of the entire range of the input data
         validated_data = validation.drop_target_na(
             validation.validate(
-                self.pj["id"], self.train_input, self.pj["flatliner_treshold"]
+                self.pj["id"], self.train_input, self.pj["flatliner_threshold"]
             )
         )
         data_with_features = TrainFeatureApplicator(
@@ -158,7 +158,7 @@ class TestTrainBackTestPipeline(BaseTestCase):
             validation.validate(
                 self.pj["id"],
                 self.train_input[-nb_test:],
-                self.pj["flatliner_treshold"],
+                self.pj["flatliner_threshold"],
             )
         )
         data_with_features = TrainFeatureApplicator(

@@ -35,7 +35,7 @@ class TestDataValidation(BaseTestCase):
 
         self.data_predict["load"][0:50] = 10.0
         validated_data = validation.validate(
-            self.pj["id"], self.data_predict, self.pj["flatliner_treshold"]
+            self.pj["id"], self.data_predict, self.pj["flatliner_threshold"]
         )
         self.assertEqual(26, len(validated_data[validated_data["load"].isna()]))
 

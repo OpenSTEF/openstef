@@ -369,12 +369,12 @@ def train_pipeline_step_compute_features(
             input_data = input_data.sort_values(horizons)
     # Validate and clean data
     validated_data = validation.drop_target_na(
-        validation.validate(pj["id"], input_data, pj["flatliner_treshold"])
+        validation.validate(pj["id"], input_data, pj["flatliner_threshold"], pj["resolution_minutes"])
     )
     # Check if sufficient data is left after cleaning
     if not validation.is_data_sufficient(
         validated_data,
-        pj["completeness_treshold"],
+        pj["completeness_threshold"],
         pj["minimal_table_length"],
     ):
         raise InputDataInsufficientError(

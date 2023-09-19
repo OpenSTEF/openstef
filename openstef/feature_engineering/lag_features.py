@@ -124,7 +124,7 @@ def generate_trivial_lag_features(horizon: float) -> tuple[list, list]:
 
 
 def generate_non_trivial_lag_times(
-    data: pd.DataFrame, height_treshold: float = 0.1
+    data: pd.DataFrame, height_threshold: float = 0.1
 ) -> list[int]:
     """Calculate an autocorrelation curve of the load trace.
 
@@ -133,7 +133,7 @@ def generate_non_trivial_lag_times(
     Args:
         data: Dataframe with input data in the form pd.DataFrame(index = datetime,
                              columns = [label, predictor_1,..., predictor_n])
-        height_treshold: Minimal autocorrelation value to be recognized as a peak.
+        height_threshold: Minimal autocorrelation value to be recognized as a peak.
 
     Returns:
         Aditional non-trivial minute lags
@@ -155,7 +155,7 @@ def generate_non_trivial_lag_times(
         # Get autocorrelation curve
         y = autocorr(data, range(10000))
         # Determine the peaks (positive and negative) larger than a specified threshold
-        peaks = scipy.signal.find_peaks(np.abs(y), height=height_treshold)
+        peaks = scipy.signal.find_peaks(np.abs(y), height=height_threshold)
         peaks = peaks[0]
         # Convert peaks to lag times in minutes
         peaks = peaks[peaks < (60 * 4)]

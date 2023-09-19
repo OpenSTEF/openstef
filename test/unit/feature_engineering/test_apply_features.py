@@ -57,7 +57,7 @@ class TestApplyFeaturesModule(BaseTestCase):
 
     def test_additional_minute_space(self):
         additional_minute_lags_list = generate_non_trivial_lag_times(
-            data=TestData.load("input_data_train.csv"), height_treshold=0.1
+            data=TestData.load("input_data_train.csv"), height_threshold=0.1
         )
         expected_additional_minute_lags_list = [1410, 2880]
         self.assertEqual(
