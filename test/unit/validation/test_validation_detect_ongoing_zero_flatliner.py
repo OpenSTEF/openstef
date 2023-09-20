@@ -39,6 +39,9 @@ class TestDetectOngoingZeroFlatliners(BaseTestCase):
         assert zero_flatliner_ongoing == False
 
     def test_only_last_nonzero(self):
+        # Scenario: A zero flatliner pattern has been going on for a long time. However,
+        # now the pattern has ended since the last measurement is not zero anymore.
+
         # Arrange
         load = pd.Series(index=three_hour_range, data=[0 for i in range(1, 13)] + [1])
         duration_threshold = 120
@@ -50,6 +53,9 @@ class TestDetectOngoingZeroFlatliners(BaseTestCase):
         assert zero_flatliner_ongoing == False
 
     def test_zero_flatliner_pattern_below_threshold(self):
+        # Scenario: A zero flatliner pattern has just begun, however it has not lasted
+        # long enough to be considered a zero flatliner yet (given the configured threshold).
+
         # Arrange
         load = pd.Series(
             index=three_hour_range, data=[i for i in range(1, 10)] + [0, 0, 0, 0]
