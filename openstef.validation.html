@@ -458,22 +458,21 @@ only available for DatetimeIndex</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="openstef.validation.validation.check_data_for_each_trafo">
-<span class="sig-prename descclassname"><span class="pre">openstef.validation.validation.</span></span><span class="sig-name descname"><span class="pre">check_data_for_each_trafo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">col</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.validation.validation.check_data_for_each_trafo" title="Link to this definition">#</a></dt>
-<dd><p>Function that detects if each column contains zero-values at all, only zero-values and NaN values.</p>
+<dt class="sig sig-object py" id="openstef.validation.validation.detect_ongoing_zero_flatliner">
+<span class="sig-prename descclassname"><span class="pre">openstef.validation.validation.</span></span><span class="sig-name descname"><span class="pre">detect_ongoing_zero_flatliner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">load</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration_threshold_minutes</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.validation.validation.detect_ongoing_zero_flatliner" title="Link to this definition">#</a></dt>
+<dd><p>Detects if the latest measurements follow a zero flatliner pattern.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>df</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – DataFrama such as pd.dataFrame(index=DatetimeIndex, columns = [load1, …, loadN]).
-Load_corrections should be indicated by ‘<a href="#id1"><span class="problematic" id="id2">LC_</span></a>’</p></li>
-<li><p><strong>col</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code>) – column of pd.dataFrame</p></li>
+<li><p><strong>load</strong> (<em>pd.Series</em>) – A timeseries of measured load with a datetime index.</p></li>
+<li><p><strong>duration_threshold_minutes</strong> (<em>int</em>) – A zero flatliner is only detected if it exceeds the threshold duration.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Indicating wether or not there is a zero flatliner ongoing for the given load.</p>
 </dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>False if column contains above specified or True if not</p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
 </dd>
 </dl>
 </dd></dl>
@@ -486,62 +485,6 @@ Load_corrections should be indicated by ‘<a href="#id1"><span class="problemat
 <dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="openstef.validation.validation.find_nonzero_flatliner">
-<span class="sig-prename descclassname"><span class="pre">openstef.validation.validation.</span></span><span class="sig-name descname"><span class="pre">find_nonzero_flatliner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.validation.validation.find_nonzero_flatliner" title="Link to this definition">#</a></dt>
-<dd><p>Function that detects a stationflatliner and returns a list of datetimes.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>df</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – Example pd.dataFrame(index=DatetimeIndex, columns = [load1, …, loadN]).
-Load_corrections should be indicated by ‘<a href="#id3"><span class="problematic" id="id4">LC_</span></a>’</p></li>
-<li><p><strong>threshold</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – after how many timesteps should the function detect a flatliner.
-If None, the check is not executed</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>]</p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Flatline moments or None</p>
-</dd>
-</dl>
-<p>TODO: a lot of the logic of this function can be improved using: mnts.label</p>
-<p><code class="docutils literal notranslate"><span class="pre">`</span>
-<span class="pre">import</span> <span class="pre">scipy.ndimage.measurements</span> <span class="pre">as</span> <span class="pre">mnts</span>
-<span class="pre">mnts.label</span>
-<span class="pre">`</span></code></p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="openstef.validation.validation.find_zero_flatliner">
-<span class="sig-prename descclassname"><span class="pre">openstef.validation.validation.</span></span><span class="sig-name descname"><span class="pre">find_zero_flatliner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flatliner_window</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flatliner_load_threshold</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.validation.validation.find_zero_flatliner" title="Link to this definition">#</a></dt>
-<dd><p>Detect a zero value where the load is not compensated by the other trafo’s of the station.</p>
-<p>If zero value is at start or end, ignore that block.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>df</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – DataFrame such as pd.dataFrame(index=DatetimeIndex, columns = [load1, …, loadN]). Load_corrections should be indicated by ‘<a href="#id5"><span class="problematic" id="id6">LC_</span></a>’</p></li>
-<li><p><strong>threshold</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – after how many hours should the function detect a flatliner.</p></li>
-<li><p><strong>flatliner_window</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">timedelta</span></code>) – for how many hours before the zero-value should the mean load be calculated.</p></li>
-<li><p><strong>flatliner_load_threshold</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – how big may the difference be between the total station load
-before and during the zero-value(s).</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DataFrame of timestamps, or None if none</p>
-</dd>
-</dl>
-<p>TODO: a lot of the logic of this function can be improved using: mnts.label
-<code class="docutils literal notranslate"><span class="pre">`</span>
-<span class="pre">import</span> <span class="pre">scipy.ndimage.measurements</span> <span class="pre">as</span> <span class="pre">mnts</span>
-<span class="pre">mnts.label</span>
-<span class="pre">`</span></code></p>
 </dd></dl>
 
 <dl class="py function">
@@ -569,19 +512,20 @@ before and during the zero-value(s).</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openstef.validation.validation.validate">
-<span class="sig-prename descclassname"><span class="pre">openstef.validation.validation.</span></span><span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pj_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flatliner_threshold</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.validation.validation.validate" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">openstef.validation.validation.</span></span><span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pj_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flatliner_threshold_minutes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resolution_minutes</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.validation.validation.validate" title="Link to this definition">#</a></dt>
 <dd><p>Validate prediction job and timeseries data.</p>
 <p>Steps:
-1. Replace repeated values for longer than flatliner_threshold with NaN
-# TODO: The function description suggests it
-‘validates’ the PJ and Data, but is appears to ‘just’ replace repeated observations with NaN.</p>
+1. Check if input dataframe has a datetime index.
+1. Check if a zero flatliner pattern is ongoing (i.e. all recent measurements are zero).
+2. Replace repeated values for longer than flatliner_threshold_minutes with NaN.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pj_id</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – ind/str, used to identify log statements</p></li>
 <li><p><strong>data</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – pd.DataFrame where the first column should be the target. index=datetimeIndex</p></li>
-<li><p><strong>flatliner_threshold</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – int of max repetitions considered a flatline.
+<li><p><strong>flatliner_threshold_minutes</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – int indicating the number of minutes after which constant load is considered a flatline.
 if None, the validation is effectively skipped</p></li>
+<li><p><strong>resolution_minutes</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The forecasting resolution in minutes.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -666,10 +610,10 @@ if None, the validation is effectively skipped</p></li>
     </a>
    </li>
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#openstef.validation.validation.check_data_for_each_trafo">
+    <a class="reference internal nav-link" href="#openstef.validation.validation.detect_ongoing_zero_flatliner">
      <code class="docutils literal notranslate">
       <span class="pre">
-       check_data_for_each_trafo()
+       detect_ongoing_zero_flatliner()
       </span>
      </code>
     </a>
@@ -679,24 +623,6 @@ if None, the validation is effectively skipped</p></li>
      <code class="docutils literal notranslate">
       <span class="pre">
        drop_target_na()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#openstef.validation.validation.find_nonzero_flatliner">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       find_nonzero_flatliner()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#openstef.validation.validation.find_zero_flatliner">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       find_zero_flatliner()
       </span>
      </code>
     </a>

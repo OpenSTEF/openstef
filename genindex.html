@@ -533,14 +533,12 @@
         <li><a href="openstef.model.regressors.html#openstef.model.regressors.xgb_quantile.XGBQuantileOpenstfRegressor.can_predict_quantiles">(openstef.model.regressors.xgb_quantile.XGBQuantileOpenstfRegressor property)</a>
 </li>
       </ul></li>
-      <li><a href="openstef.validation.html#openstef.validation.validation.check_data_for_each_trafo">check_data_for_each_trafo() (in module openstef.validation.validation)</a>
-</li>
       <li><a href="openstef.feature_engineering.html#openstef.feature_engineering.holiday_features.check_for_bridge_day">check_for_bridge_day() (in module openstef.feature_engineering.holiday_features)</a>
+</li>
+      <li><a href="openstef.tasks.html#openstef.tasks.calculate_kpi.check_kpi_task">check_kpi_task() (in module openstef.tasks.calculate_kpi)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="openstef.tasks.html#openstef.tasks.calculate_kpi.check_kpi_task">check_kpi_task() (in module openstef.tasks.calculate_kpi)</a>
-</li>
       <li><a href="openstef.feature_engineering.html#openstef.feature_engineering.data_preparation.AbstractDataPreparation.check_model">check_model() (openstef.feature_engineering.data_preparation.AbstractDataPreparation method)</a>
 </li>
       <li><a href="openstef.monitoring.html#openstef.monitoring.performance_meter.PerformanceMeter.checkpoint">checkpoint() (openstef.monitoring.performance_meter.PerformanceMeter method)</a>
@@ -549,7 +547,7 @@
 </li>
       <li><a href="openstef.monitoring.html#openstef.monitoring.performance_meter.PerformanceMeter.complete_level">complete_level() (openstef.monitoring.performance_meter.PerformanceMeter method)</a>
 </li>
-      <li><a href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass.completeness_treshold">completeness_treshold (openstef.data_classes.prediction_job.PredictionJobDataClass attribute)</a>
+      <li><a href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass.completeness_threshold">completeness_threshold (openstef.data_classes.prediction_job.PredictionJobDataClass attribute)</a>
 </li>
       <li><a href="openstef.html#openstef.exceptions.ComponentForecastTooShortHorizonError">ComponentForecastTooShortHorizonError</a>
 </li>
@@ -606,6 +604,8 @@
       <li><a href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass.depends_on">depends_on (openstef.data_classes.prediction_job.PredictionJobDataClass attribute)</a>
 </li>
       <li><a href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass.description">description (openstef.data_classes.prediction_job.PredictionJobDataClass attribute)</a>
+</li>
+      <li><a href="openstef.validation.html#openstef.validation.validation.detect_ongoing_zero_flatliner">detect_ongoing_zero_flatliner() (in module openstef.validation.validation)</a>
 </li>
       <li><a href="openstef.tasks.html#openstef.tasks.split_forecast.determine_invalid_coefs">determine_invalid_coefs() (in module openstef.tasks.split_forecast)</a>
 </li>
@@ -669,12 +669,8 @@
 </li>
       <li><a href="openstef.tasks.utils.html#openstef.tasks.utils.dependencies.find_groups">find_groups() (in module openstef.tasks.utils.dependencies)</a>
 </li>
-      <li><a href="openstef.validation.html#openstef.validation.validation.find_nonzero_flatliner">find_nonzero_flatliner() (in module openstef.validation.validation)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="openstef.validation.html#openstef.validation.validation.find_zero_flatliner">find_zero_flatliner() (in module openstef.validation.validation)</a>
-</li>
       <li><a href="openstef.model.html#openstef.model.basecase.BaseCaseModel.fit">fit() (openstef.model.basecase.BaseCaseModel method)</a>
 
       <ul>
@@ -693,7 +689,7 @@
         <li><a href="openstef.model.regressors.html#openstef.model.regressors.xgb_quantile.XGBQuantileOpenstfRegressor.fit">(openstef.model.regressors.xgb_quantile.XGBQuantileOpenstfRegressor method)</a>
 </li>
       </ul></li>
-      <li><a href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass.flatliner_treshold">flatliner_treshold (openstef.data_classes.prediction_job.PredictionJobDataClass attribute)</a>
+      <li><a href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass.flatliner_threshold_minutes">flatliner_threshold_minutes (openstef.data_classes.prediction_job.PredictionJobDataClass attribute)</a>
 </li>
       <li><a href="openstef.html#openstef.enums.PipelineType.FORECAST">FORECAST (openstef.enums.PipelineType attribute)</a>
 </li>
@@ -838,6 +834,8 @@
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="openstef.html#openstef.exceptions.InputDataInvalidError">InputDataInvalidError</a>
+</li>
+      <li><a href="openstef.html#openstef.exceptions.InputDataOngoingZeroFlatlinerError">InputDataOngoingZeroFlatlinerError</a>
 </li>
       <li><a href="openstef.html#openstef.exceptions.InputDataWrongColumnOrderError">InputDataWrongColumnOrderError</a>
 </li>

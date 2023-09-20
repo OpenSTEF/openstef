@@ -1059,7 +1059,7 @@ of the model. If empty a new set will be automatically generated.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openstef.feature_engineering.lag_features.generate_non_trivial_lag_times">
-<span class="sig-prename descclassname"><span class="pre">openstef.feature_engineering.lag_features.</span></span><span class="sig-name descname"><span class="pre">generate_non_trivial_lag_times</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height_treshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.lag_features.generate_non_trivial_lag_times" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">openstef.feature_engineering.lag_features.</span></span><span class="sig-name descname"><span class="pre">generate_non_trivial_lag_times</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.lag_features.generate_non_trivial_lag_times" title="Link to this definition">#</a></dt>
 <dd><p>Calculate an autocorrelation curve of the load trace.</p>
 <p>This curve is subsequently used to add additional lag times as features.</p>
 <dl class="field-list simple">
@@ -1067,7 +1067,7 @@ of the model. If empty a new set will be automatically generated.</p></li>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>data</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – Dataframe with input data in the form pd.DataFrame(index = datetime,
 columns = [label, predictor_1,…, predictor_n])</p></li>
-<li><p><strong>height_treshold</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Minimal autocorrelation value to be recognized as a peak.</p></li>
+<li><p><strong>height_threshold</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Minimal autocorrelation value to be recognized as a peak.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
