@@ -42,6 +42,10 @@ class InputDataWrongColumnOrderError(InputDataInvalidError):
     """Wrong column order input data."""
 
 
+class InputDataOngoingZeroFlatlinerError(InputDataInvalidError):
+    """All recent load measurements are zero."""
+
+
 class OldModelHigherScoreError(Exception):
     """Old model has a higher score then new model."""
 

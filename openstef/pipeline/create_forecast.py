@@ -82,7 +82,12 @@ def create_forecast_pipeline_core(
     fallback_strategy = "extreme_day"  # this can later be expanded
 
     # Validate and clean data
-    validated_data = validation.validate(pj["id"], input_data, pj["flatliner_treshold"])
+    validated_data = validation.validate(
+        pj["id"],
+        input_data,
+        pj["flatliner_threshold_minutes"],
+        pj["resolution_minutes"],
+    )
 
     # Custom data prep or legacy behavior
     if pj.data_prep_class:
@@ -113,7 +118,7 @@ def create_forecast_pipeline_core(
     # Check if sufficient data is left after cleaning
     if not validation.is_data_sufficient(
         data_with_features,
-        pj["completeness_treshold"],
+        pj["completeness_threshold"],
         pj["minimal_table_length"],
         model,
     ):

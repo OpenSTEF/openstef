@@ -4,10 +4,12 @@
 from datetime import timedelta
 from typing import Union
 
+import math
 import numpy as np
 import pandas as pd
 import structlog
 
+from openstef.exceptions import InputDataOngoingZeroFlatlinerError
 from openstef.preprocessing.preprocessing import replace_repeated_values_with_nan
 from openstef.model.regressors.regressor import OpenstfRegressor
 
@@ -15,20 +17,22 @@ from openstef.model.regressors.regressor import OpenstfRegressor
 def validate(
     pj_id: Union[int, str],
     data: pd.DataFrame,
-    flatliner_threshold: Union[int, None],
+    flatliner_threshold_minutes: Union[int, None],
+    resolution_minutes: int,
 ) -> pd.DataFrame:
     """Validate prediction job and timeseries data.
 
     Steps:
-    1. Replace repeated values for longer than flatliner_threshold with NaN
-    # TODO: The function description suggests it
-    'validates' the PJ and Data, but is appears to 'just' replace repeated observations with NaN.
+    1. Check if input dataframe has a datetime index.
+    1. Check if a zero flatliner pattern is ongoing (i.e. all recent measurements are zero).
+    2. Replace repeated values for longer than flatliner_threshold_minutes with NaN.
 
     Args:
         pj_id: ind/str, used to identify log statements
         data: pd.DataFrame where the first column should be the target. index=datetimeIndex
-        flatliner_threshold: int of max repetitions considered a flatline.
+        flatliner_threshold_minutes: int indicating the number of minutes after which constant load is considered a flatline.
             if None, the validation is effectively skipped
+        resolution_minutes: The forecasting resolution in minutes.
 
     Returns:
         Dataframe where repeated values are set to None
@@ -36,17 +40,29 @@ def validate(
     """
     logger = structlog.get_logger(__name__)
 
-    # Check if DataFrame has datetime index
     if not isinstance(data.index, pd.DatetimeIndex):
         raise ValueError("Input dataframe does not have a datetime index.")
 
-    if flatliner_threshold is None:
+    if flatliner_threshold_minutes is None:
         logger.info("Skipping validation of input data", pj_id=pj_id)
         return data
 
+    zero_flatliner_ongoing = detect_ongoing_zero_flatliner(
+        load=data.iloc[:, 0], duration_threshold_minutes=flatliner_threshold_minutes
+    )
+
+    if zero_flatliner_ongoing:
+        raise InputDataOngoingZeroFlatlinerError(
+            "All recent load measurements are zero."
+        )
+
+    flatliner_threshold_repetitions = math.ceil(
+        flatliner_threshold_minutes / resolution_minutes
+    )
+
     # Drop 'false' measurements. e.g. where load appears to be constant.
     data = replace_repeated_values_with_nan(
-        data, max_length=flatliner_threshold, column_name=data.columns[0]
+        data, max_length=flatliner_threshold_repetitions, column_name=data.columns[0]
     )
     num_repeated_values = len(data) - len(data.iloc[:, 0].dropna())
     if num_repeated_values > 0:
@@ -192,223 +208,26 @@ def calc_completeness_features(
     return completeness
 
 
-def find_nonzero_flatliner(
-    df: pd.DataFrame, threshold: int = None
-) -> Union[pd.DataFrame, None]:
-    """Function that detects a stationflatliner and returns a list of datetimes.
+def detect_ongoing_zero_flatliner(
+    load: pd.Series,
+    duration_threshold_minutes: int,
+) -> bool:
+    """Detects if the latest measurements follow a zero flatliner pattern.
 
     Args:
-        df: Example pd.dataFrame(index=DatetimeIndex, columns = [load1, ..., loadN]).
-            Load_corrections should be indicated by 'LC_'
-        threshold: after how many timesteps should the function detect a flatliner.
-            If None, the check is not executed
+        load (pd.Series): A timeseries of measured load with a datetime index.
+        duration_threshold_minutes (int): A zero flatliner is only detected if it exceeds the threshold duration.
 
     Returns:
-        Flatline moments or None
-
-    TODO: a lot of the logic of this function can be improved using: mnts.label
-
-    ```
-    import scipy.ndimage.measurements as mnts
-    mnts.label
-    ```
+        bool: Indicating wether or not there is a zero flatliner ongoing for the given load.
 
     """
-    if len(df) == 0:
-        return
+    latest_measurement_time = load.index.max()
+    latest_measurements = load[
+        latest_measurement_time - timedelta(minutes=duration_threshold_minutes) :
+    ].dropna()
 
-    # remove load corrections
-    df = df.loc[:, ~df.columns.str.startswith("LC_")]
-
-    # Remove moments when total load is 0
-    df = df[(df.T != 0).any()]
-
-    # Add columns with diff
-    diff_columns = ["diff_" + x for x in df.columns]
-    df[diff_columns] = df.diff().abs()
-    # We are looking for when total station is a flatliner, so all
-    # Select where all diff columns are zero
-    flatliner_total = (df[diff_columns] == 0).mean(axis=1) == 1
-    # Find all first and last occurences of 0
-    first_zeros = flatliner_total[:-1][
-        (flatliner_total.iloc[:-1] == 0).values * (flatliner_total.iloc[1:] != 0).values
-    ]
-    last_zeros = flatliner_total[1:][
-        (flatliner_total.iloc[:-1] != 0).values * (flatliner_total.iloc[1:] == 0).values
-    ]
-
-    # If a zero-value is at start or end of df, remove from last_* list
-    if len(flatliner_total) > 0:
-        if flatliner_total.iloc[0]:
-            last_zeros = last_zeros[1:]
-        if flatliner_total.iloc[-1]:
-            first_zeros = first_zeros[:-1]
-
-    # Give as output from:to
-    interval_df = pd.DataFrame(
-        {
-            "from_time": first_zeros.index,
-            "to_time": last_zeros.index,
-            "duration_h": last_zeros.index - first_zeros.index,
-        },
-        index=range(len(first_zeros)),
-    )
-
-    # Only keep periods which exceed threshold
-    interval_df = interval_df[interval_df["duration_h"] >= timedelta(hours=threshold)]
-    if len(interval_df) == 0:
-        interval_df = None
-    return interval_df
-
-
-def find_zero_flatliner(
-    df: pd.DataFrame,
-    threshold: float,
-    flatliner_window: timedelta,
-    flatliner_load_threshold: float,
-) -> pd.DataFrame or None:
-    """Detect a zero value where the load is not compensated by the other trafo's of the station.
-
-    If zero value is at start or end, ignore that block.
-
-    Args:
-        df: DataFrame such as pd.dataFrame(index=DatetimeIndex, columns = [load1, ..., loadN]). Load_corrections should be indicated by 'LC_'
-        threshold: after how many hours should the function detect a flatliner.
-        flatliner_window: for how many hours before the zero-value should the mean load be calculated.
-        flatliner_load_threshold: how big may the difference be between the total station load
-            before and during the zero-value(s).
-
-    Return:
-        DataFrame of timestamps, or None if none
-
-    TODO: a lot of the logic of this function can be improved using: mnts.label
-    ```
-    import scipy.ndimage.measurements as mnts
-    mnts.label
-    ```
-
-    """
-    result_df = pd.DataFrame()
-
-    for col in df.columns:
-        # Check for each trafo if it contains zero-values or NaN values
-        if check_data_for_each_trafo(df, col):
-            # Copy column in order to manipulate data
-            df_col = df[col].copy()
-            # Create list of zero_values to check length
-            zero_values = df_col == 0
-            last_zeros = zero_values[:-1][
-                (zero_values.iloc[:-1] != 0).values * (zero_values.iloc[1:] == 0).values
-            ]
-            first_zeros = zero_values[1:][
-                (zero_values.iloc[:-1] == 0).values * (zero_values.iloc[1:] != 0).values
-            ]
-
-            # If a zero-value is at start or end of df, remove from last_* list
-            if len(zero_values) > 0:
-                if zero_values.iloc[0]:
-                    last_zeros = last_zeros[1:]
-                if zero_values.iloc[-1]:
-                    first_zeros = first_zeros[:-1]
-
-            interval_df = pd.DataFrame(
-                {
-                    "from_time": first_zeros.index,
-                    "to_time": last_zeros.index,
-                    "duration_h": last_zeros.index - first_zeros.index,
-                },
-                index=range(len(first_zeros)),
-            )
-
-            # Keep dataframe with zero_value > threshold
-            interval_df = interval_df[
-                interval_df["duration_h"] >= timedelta(hours=threshold)
-            ]
-
-            # Check if there are missing values in the data
-            num_nan = np.sum(pd.isna(df_col))
-            if np.sum(num_nan) > 0:
-                print(
-                    "Found {a} missing values at trafo {b}, dropping NaN values".format(
-                        a=num_nan, b=col
-                    )
-                )
-                df_col = df_col.dropna()
-
-            non_compensated_df = pd.DataFrame()
-            print(
-                "Found {b} suspicious moments were load is a zero at trafo {a}".format(
-                    a=col, b=len(interval_df)
-                )
-            )
-            # Forloop all moments of zero_values, check if delta of to_zero_trafo is compesated by other trafos
-            for i, candidate in interval_df.iterrows():
-                # Calculate mean load before and after zero-moment
-                mean_load_before = (
-                    df[candidate.from_time - flatliner_window : candidate.from_time]
-                    .sum(axis=1)
-                    .mean()
-                )
-                mean_full_timespan = (
-                    df[candidate.from_time : candidate.from_time + flatliner_window]
-                    .sum(axis=1)
-                    .mean()
-                )
-
-                # Compare load and detect zero-value flatliner
-                if (
-                    np.abs(
-                        (mean_load_before - mean_full_timespan)
-                        / np.max([np.abs(mean_load_before), np.abs(mean_full_timespan)])
-                    )
-                    > flatliner_load_threshold
-                ):
-                    transposed_candidate = candidate.to_frame().T
-                    non_compensated_df = pd.concat(
-                        [non_compensated_df, transposed_candidate]
-                    )
-                    print(
-                        "Found a non-compensated zero value:",
-                        candidate.to_string(index=False),
-                    )
-
-            # after checking all candidates for a single trafo, add moments to result_df
-            result_df = pd.concat([result_df, non_compensated_df])
-
-    if len(result_df) == 0:
-        result_df = None
-    return result_df
-
-
-def check_data_for_each_trafo(df: pd.DataFrame, col: pd.Series) -> bool:
-    """Function that detects if each column contains zero-values at all, only zero-values and NaN values.
-
-    Args:
-        df: DataFrama such as pd.dataFrame(index=DatetimeIndex, columns = [load1, ..., loadN]).
-            Load_corrections should be indicated by 'LC_'
-        col: column of pd.dataFrame
-
-    Returns:
-        False if column contains above specified or True if not
-
-    """
-    if df is None:
-        return False
-
-    # Check for each column the data on the following: (Skipping if true)
-    # Check if there a zero-values at all
-    if (df[col] != 0).all(axis=0):
-        print(f"No zero values found - at all at trafo {col}, skipping column")
-        return False
-    # Check if all values are zero in column
-    elif (df[col] == 0).all(axis=0):
-        print("Load at trafo {a} is zero, skipping column".format(a=col))
-        return False
-    # Check if all values are NaN in the column
-    elif np.all(pd.isna(col)):
-        print("Load at trafo {a} is missing, skipping column".format(a=col))
-        return False
-    return True
+    return (latest_measurements == 0).all() & (not latest_measurements.empty)
 
 
 def calc_completeness_dataframe(

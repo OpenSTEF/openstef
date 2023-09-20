@@ -67,12 +67,12 @@ class PredictionJobDataClass(BaseModel):
     """Default model specifications"""
     save_train_forecasts: bool = False
     """Indicate wether the forecasts produced during the training process should be saved."""
-    completeness_treshold: float = 0.5
+    completeness_threshold: float = 0.5
     """Minimum fraction of data that should be available for making a regular forecast."""
     minimal_table_length: int = 100
     """Minimum length (in rows) of the forecast input for making a regular forecast."""
-    flatliner_treshold: int = 24
-    """Number of consecutive values that have to be constant to detect a flatliner. """
+    flatliner_threshold_minutes: int = 360
+    """Number of minutes that the load has to be constant to detect a flatliner. """
     depends_on: Optional[list[Union[int, str]]]
     """Link to another prediction job on which this prediction job might depend."""
     sid: Optional[str]
