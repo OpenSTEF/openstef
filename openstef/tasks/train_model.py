@@ -153,7 +153,7 @@ def train_model_task(
         context.logger.debug(f"Skip saving forecasts")
     except InputDataOngoingZeroFlatlinerError:
         if context.config.known_zero_flatliners:
-            # No model needs to trained for known zero flatliners, since the fallback forecasts suffice.
+            # No model needs to trained for known zero flatliners, since the fallback forecasts are sufficient.
             return
         else:
             raise InputDataOngoingZeroFlatlinerError(
