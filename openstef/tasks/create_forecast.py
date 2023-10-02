@@ -87,20 +87,20 @@ def create_forecast_task(pj: PredictionJobDataClass, context: TaskContext) -> No
             pj, input_data, mlflow_tracking_uri=mlflow_tracking_uri
         )
     except InputDataOngoingZeroFlatlinerError:
-        if context.config.known_zero_flatliners:
+        if context.config.known_zero_flatliners and pj.id in context.config.known_zero_flatliners:
             # No forecasts need to be made for known zero flatliners, since the fallback forecasts suffice.
             return
         else:
             raise InputDataOngoingZeroFlatlinerError(
                 'All recent load measurements are zero. Consider adding this pid to the "known_zero_flatliners" app_setting.'
             )
-    except LookupError as lookup_e:
+    except LookupError as lookup_error:
         # A lookuperror occurs when a model cannot be found. For known zero flatliners no model can be trained.
-        if context.config.known_zero_flatliners:
+        if context.config.known_zero_flatliners and pj.id in context.config.known_zero_flatliners:
             # No forecasts need to be made for known zero flatliners, since the fallback forecasts suffice.
             return
         else:
-            raise e
+            raise lookup_error
 
     # Write forecast to the database
     context.database.write_forecast(forecast, t_ahead_series=True)

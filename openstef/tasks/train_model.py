@@ -25,7 +25,7 @@ from pathlib import Path
 from openstef.data_classes.prediction_job import PredictionJobDataClass
 
 from openstef.enums import MLModelType, PipelineType
-from openstef.exceptions import SkipSaveTrainingForecasts
+from openstef.exceptions import SkipSaveTrainingForecasts, InputDataOngoingZeroFlatlinerError
 from openstef.pipeline.train_model import (
     train_model_pipeline,
     train_pipeline_step_load_model,
@@ -152,7 +152,7 @@ def train_model_task(
     except SkipSaveTrainingForecasts:
         context.logger.debug(f"Skip saving forecasts")
     except InputDataOngoingZeroFlatlinerError:
-        if context.config.known_zero_flatliners:
+        if context.config.known_zero_flatliners and pj.id in context.config.known_zero_flatliners:
             # No model needs to trained for known zero flatliners, since the fallback forecasts are sufficient.
             return
         else:
