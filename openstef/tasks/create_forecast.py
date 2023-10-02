@@ -80,7 +80,7 @@ def create_forecast_task(pj: PredictionJobDataClass, context: TaskContext) -> No
         datetime_start=datetime_start,
         datetime_end=datetime_end,
     )
-    
+
     try:
         # Make forecast with the forecast pipeline
         forecast = create_forecast_pipeline(
@@ -92,13 +92,14 @@ def create_forecast_task(pj: PredictionJobDataClass, context: TaskContext) -> No
             return
         else:
             raise InputDataOngoingZeroFlatlinerError(
-                'All recent load measurements are zero. Consider adding this pid to the "known_zero_flatliners" app_setting.')
+                'All recent load measurements are zero. Consider adding this pid to the "known_zero_flatliners" app_setting.'
+            )
     except LookupError as lookup_e:
         # A lookuperror occurs when a model cannot be found. For known zero flatliners no model can be trained.
         if context.config.known_zero_flatliners:
             # No forecasts need to be made for known zero flatliners, since the fallback forecasts suffice.
             return
-        else: 
+        else:
             raise e
 
     # Write forecast to the database
