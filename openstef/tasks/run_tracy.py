@@ -56,7 +56,6 @@ def run_tracy(context: TaskContext) -> None:
     context.logger.info("Start processing Tracy jobs", num_jobs=num_jobs)
 
     for i, job in enumerate(tracy_jobs):
-
         # get a new logger with bound job
         logger = context.logger.bind(job=job)
         logger.info("Process job", job_counter=i, total_jobs=num_jobs)

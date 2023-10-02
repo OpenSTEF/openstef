@@ -23,7 +23,6 @@ class MockModel:
 
 class MockScore:
     def get(self, a, b):
-
         book = {"a": 12, "b": 23, "c": 36}
 
         return book[a] + b

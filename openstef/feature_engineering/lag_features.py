@@ -78,7 +78,6 @@ def extract_lag_features(
     days_list = []
 
     for lag_feature in feature_names:
-
         # Select the number of days or the number of minutes by matching with a regular expression
         number_of_minutes = re.search(r"T-(\d+)min", lag_feature)
         number_of_days = re.search(r"T-(\d+)d", lag_feature)

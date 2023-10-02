@@ -127,7 +127,6 @@ class TestOptimizeHyperParametersPipeline(BaseTestCase):
 
     @patch("openstef.validation.validation.is_data_sufficient", return_value=False)
     def test_optimize_hyperparameters_pipeline_insufficient_data(self, mock):
-
         # if data is not sufficient a InputDataInsufficientError should be raised
         with self.assertRaises(InputDataInsufficientError):
             optimize_hyperparameters_pipeline_core(
@@ -148,7 +147,6 @@ class TestOptimizeHyperParametersPipeline(BaseTestCase):
             )
 
     def test_optimize_hyperparameters_pipeline_no_load_data(self):
-
         input_data = self.input_data.drop("load", axis=1)
         # if there is no data a InputDataWrongColumnOrderError should be raised
         with self.assertRaises(InputDataWrongColumnOrderError):

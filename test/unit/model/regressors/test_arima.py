@@ -94,7 +94,6 @@ class TestARIMAOpenstfRegressor(BaseTestCase):
         self.assertTrue(np.allclose(pvalues, importances["gain"]))
 
     def test_score_backtest(self):
-
         model = ARIMAOpenstfRegressor(backtest_max_horizon=180)
         model.fit(self.train_input.iloc[:150, 1:], self.train_input.iloc[:150, 0])
 

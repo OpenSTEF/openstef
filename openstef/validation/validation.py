@@ -252,7 +252,6 @@ def calc_completeness_dataframe(
     logger = structlog.get_logger(__name__)
 
     if homogenise and isinstance(df.index, pd.DatetimeIndex) and len(df) > 0:
-
         median_timediff = int(
             df.reset_index().iloc[:, 0].diff().median().total_seconds() / 60.0
         )

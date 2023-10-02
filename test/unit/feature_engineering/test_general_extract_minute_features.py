@@ -152,7 +152,6 @@ class TestGeneralExtractMinuteFeatures(BaseTestCase):
         ]
 
     def test_extract_minute_features_short_horizon(self):
-
         testlist_minutes, testlist_days = extract_lag_features(
             self.feature_names, horizon=0.25
         )

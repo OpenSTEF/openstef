@@ -15,7 +15,6 @@ from openstef.data_classes.prediction_job import PredictionJobDataClass
 
 
 class TestData:
-
     DATA_FILES_FOLDER = Path(__file__).parent.parent / "data"
     TRAINED_MODELS_FOLDER = Path(__file__).parent.parent / "trained_models"
 

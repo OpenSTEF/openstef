@@ -92,7 +92,6 @@ class TestTrainBackTestPipeline(BaseTestCase):
         self.assertEqual(len(forecast), len(data_with_features))
 
     def test_train_model_pipeline_core_custom_split(self):
-
         pj = self.pj
         # test wrong custom backtest split
         pj.backtest_split_func = SplitFuncDataClass(

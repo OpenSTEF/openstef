@@ -107,7 +107,6 @@ def create_components_forecast_task(
     if forecasts.index.max() < datetime.utcnow().replace(
         tzinfo=timezone.utc
     ) + timedelta(hours=30):
-
         # Check which input data is missing the most.
         # Do this by counting the NANs for (load)forecast, radiation and windspeed
         max_index = forecasts.index.max()
@@ -135,7 +134,6 @@ def main(config: object = None, database: object = None):
         )
 
     with TaskContext(taskname, config, database) as context:
-
         model_type = [ml.value for ml in MLModelType]
 
         PredictionJobLoop(

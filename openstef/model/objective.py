@@ -274,7 +274,6 @@ class XGBRegressorObjective(RegressorObjective):
 
     @classmethod
     def get_default_values(cls) -> dict:
-
         default_parameter_values = super().get_default_values()
         default_parameter_values.update({"gamma": 0.0, "booster": "gbtree"})
         return default_parameter_values

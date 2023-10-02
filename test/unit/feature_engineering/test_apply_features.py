@@ -125,7 +125,6 @@ class TestApplyFeaturesModule(BaseTestCase):
         )
 
     def test_train_feature_applicator(self):
-
         input_data_with_features = TrainFeatureApplicator(horizons=[0.25]).add_features(
             TestData.load("input_data.csv"),
             pj={"model": "proleaf", "lat": 52.132633, "lon": 5.291266},
@@ -164,18 +163,14 @@ class TestApplyFeaturesModule(BaseTestCase):
         # Skip first row, since T-30min not available for first row
         self.assertTrue(
             input_data_with_features.loc[horizon == 47, ["APX", "T-30min"]]
-            .iloc[
-                1:,
-            ]
+            .iloc[1:,]
             .isna()
             .all()
             .all()
         )
         self.assertFalse(
             input_data_with_features.loc[horizon == 0.25, ["APX", "T-30min"]]
-            .iloc[
-                1:,
-            ]
+            .iloc[1:,]
             .isna()
             .any()
             .any()

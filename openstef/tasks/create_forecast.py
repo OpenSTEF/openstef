@@ -116,7 +116,6 @@ def main(model_type=None, config=None, database=None):
         )
 
     with TaskContext(taskname, config, database) as context:
-
         if model_type is None:
             model_type = [ml.value for ml in MLModelType]
 
