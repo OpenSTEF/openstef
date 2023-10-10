@@ -1123,7 +1123,7 @@ Alternatively this code can be run directly by running:</p>
 <dt class="sig sig-object py" id="openstef.tasks.train_model.train_model_task">
 <span class="sig-prename descclassname"><span class="pre">openstef.tasks.train_model.</span></span><span class="sig-name descname"><span class="pre">train_model_task</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_old_model_age</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datetime_start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datetime_end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.train_model.train_model_task" title="Link to this definition">#</a></dt>
 <dd><p>Train model task.</p>
-<p>Top level task that trains a new model and makes sure the beast available model is
+<p>Top level task that trains a new model and makes sure the best available model is
 stored. On this task level all database and context manager dependencies are resolved.</p>
 <p>Expected prediction job keys:  “id”, “model”, “lat”, “lon”, “name”</p>
 <dl class="field-list simple">
