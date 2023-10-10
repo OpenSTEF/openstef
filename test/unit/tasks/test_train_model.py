@@ -73,7 +73,7 @@ class TestTrainModelTask(TestCase):
         "openstef.tasks.train_model.train_model_pipeline",
         MagicMock(side_effect=InputDataOngoingZeroFlatlinerError()),
     )
-    def test_train_model_known_zero_flatliner(self):
+    def test_train_model_unexpected_zero_flatliner(self):
         """Test that there is an informative error message for unexpected zero flatliners."""
         # Arrange
         context = MagicMock()
