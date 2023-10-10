@@ -16,7 +16,7 @@ from openstef.tasks.create_forecast import create_forecast_task
 FORECAST_MOCK = "forecast_mock"
 
 
-class TestCreateForeCastTask(TestCase):
+class TestCreateForecastTask(TestCase):
     @patch("openstef.model.serializer.MLflowSerializer._get_model_uri")
     def setUp(self, _get_model_uri_mock) -> None:
         self.pj, self.modelspecs = TestData.get_prediction_job_and_modelspecs(pid=307)
@@ -110,7 +110,7 @@ class TestCreateForeCastTask(TestCase):
         self.assertEqual(self.pj.id, context.config.known_zero_flatliners[0])
         self.assertEqual(
             context.mock_calls[1].args[0],
-            "Skip this PredictionJob because no forecasts need to be made for known zero flatliners, since the fallback forecasts are sufficient.",
+            "No forecasts were made for this known zero flatliner prediction job. No forecasts need to be made either, since the fallback forecasts are sufficient.",
         )
         assert (
             not context.database.write_forecast.called
@@ -134,7 +134,7 @@ class TestCreateForeCastTask(TestCase):
         self.assertEqual(self.pj.id, context.config.known_zero_flatliners[0])
         self.assertEqual(
             context.mock_calls[1].args[0],
-            "Skip this PredictionJob because no forecasts need to be made for known zero flatliners, since the fallback forecasts are sufficient.",
+            "No forecasts were made for this known zero flatliner prediction job. No forecasts need to be made either, since the fallback forecasts are sufficient.",
         )
         assert (
             not context.database.write_forecast.called
@@ -157,7 +157,7 @@ class TestCreateForeCastTask(TestCase):
 
         assert (
             e.value.args[0]
-            == 'All recent load measurements are zero. Consider adding this pid to the "known_zero_flatliners" app_setting.'
+            == 'Consider adding this pid to the "known_zero_flatliners" app_setting.'
         )
 
     @patch(

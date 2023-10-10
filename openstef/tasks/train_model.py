@@ -52,7 +52,7 @@ def train_model_task(
 ) -> None:
     """Train model task.
 
-    Top level task that trains a new model and makes sure the beast available model is
+    Top level task that trains a new model and makes sure the best available model is
     stored. On this task level all database and context manager dependencies are resolved.
 
     Expected prediction job keys:  "id", "model", "lat", "lon", "name"
@@ -160,7 +160,7 @@ def train_model_task(
             and pj.id in context.config.known_zero_flatliners
         ):
             context.logger.info(
-                "No model needs to trained for known zero flatliners, since the fallback forecasts are sufficient."
+                "No model was trained for this known zero flatliner. No model needs to be trained either, since the fallback forecasts are sufficient."
             )
             return
         else:

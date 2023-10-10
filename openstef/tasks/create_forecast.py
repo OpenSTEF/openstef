@@ -86,31 +86,23 @@ def create_forecast_task(pj: PredictionJobDataClass, context: TaskContext) -> No
         forecast = create_forecast_pipeline(
             pj, input_data, mlflow_tracking_uri=mlflow_tracking_uri
         )
-    except InputDataOngoingZeroFlatlinerError:
+    except (InputDataOngoingZeroFlatlinerError, LookupError) as e:
         if (
             context.config.known_zero_flatliners
             and pj.id in context.config.known_zero_flatliners
         ):
             context.logger.info(
-                "Skip this PredictionJob because no forecasts need to be made for known zero flatliners, since the fallback forecasts are sufficient."
+                "No forecasts were made for this known zero flatliner prediction job. No forecasts need to be made either, since the fallback forecasts are sufficient."
             )
             return
-        else:
+        elif isinstance(e, InputDataOngoingZeroFlatlinerError):
             raise InputDataOngoingZeroFlatlinerError(
-                'All recent load measurements are zero. Consider adding this pid to the "known_zero_flatliners" app_setting.'
-            )
-    except LookupError as lookup_error:
-        # A lookuperror occurs when a model cannot be found. For known zero flatliners no model can be trained.
-        if (
-            context.config.known_zero_flatliners
-            and pj.id in context.config.known_zero_flatliners
-        ):
-            context.logger.info(
-                "Skip this PredictionJob because no forecasts need to be made for known zero flatliners, since the fallback forecasts are sufficient."
-            )
-            return
-        else:
-            raise lookup_error
+                'Consider adding this pid to the "known_zero_flatliners" app_setting.'
+            ) from e
+        elif isinstance(e, LookupError):
+            raise LookupError(
+                'Consider checking for a zero flatliner and adding this pid to the "known_zero_flatliners" app_setting. For zero flatliners, no model can be trained.'
+            ) from e
 
     # Write forecast to the database
     context.database.write_forecast(forecast, t_ahead_series=True)

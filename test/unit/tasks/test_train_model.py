@@ -66,7 +66,7 @@ class TestTrainModelTask(TestCase):
         self.assertEqual(self.pj.id, context.config.known_zero_flatliners[0])
         self.assertEqual(
             context.mock_calls[22].args[0],
-            "No model needs to trained for known zero flatliners, since the fallback forecasts are sufficient.",
+            "No model was trained for this known zero flatliner. No model needs to be trained either, since the fallback forecasts are sufficient.",
         )
 
     @patch(
