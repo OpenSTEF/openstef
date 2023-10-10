@@ -10,7 +10,6 @@ from openstef.model.standard_deviation_generator import StandardDeviationGenerat
 
 class MockModel:
     def predict(self, *args):
-
         # Prepare mock_forecast -
         # it should include mutliple observations of the
         # same time of day for the same horizon,

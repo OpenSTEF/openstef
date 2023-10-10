@@ -30,7 +30,6 @@ class TestSolar(BaseTestCase):
         }
 
     def test_make_solar_predicion_pj(self):
-
         context = MagicMock()
         context.database.get_solar_input = MagicMock(return_value=self.test_solar_input)
 

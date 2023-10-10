@@ -228,7 +228,6 @@ class PredictionJobLoop:
             )
 
     def _handle_finished_last_iteration(self, prediction_job, successful):
-
         self.context.perf_meter.complete_level(successful)
 
         if self.on_end_callback is not None:

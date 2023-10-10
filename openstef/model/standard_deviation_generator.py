@@ -8,7 +8,6 @@ from sklearn.base import RegressorMixin
 
 class StandardDeviationGenerator:
     def __init__(self, validation_data: pd.DataFrame) -> None:
-
         self.validation_data = validation_data
 
     def generate_standard_deviation_data(self, model: RegressorMixin) -> RegressorMixin:

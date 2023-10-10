@@ -125,7 +125,6 @@ class TestApplyFeaturesModule(BaseTestCase):
         )
 
     def test_train_feature_applicator(self):
-
         input_data_with_features = TrainFeatureApplicator(horizons=[0.25]).add_features(
             TestData.load("input_data.csv"),
             pj={"model": "proleaf", "lat": 52.132633, "lon": 5.291266},

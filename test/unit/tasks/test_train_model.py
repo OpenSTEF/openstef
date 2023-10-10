@@ -5,6 +5,9 @@ import copy
 from test.unit.utils.data import TestData
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
+import pytest
+
+from openstef.exceptions import InputDataOngoingZeroFlatlinerError
 
 import pandas as pd
 
@@ -32,12 +35,57 @@ class TestTrainModelTask(TestCase):
     @patch("openstef.tasks.train_model.train_model_pipeline")
     def test_create_train_model_task_happy_flow(self, train_model_pipeline_mock):
         # Test happy flow of create forecast task
+
+        # Arrange
         context = MagicMock()
+
+        # Act
         train_model_task(self.pj, context)
 
+        # Assert
         self.assertEqual(train_model_pipeline_mock.call_count, 1)
         self.assertEqual(
             train_model_pipeline_mock.call_args_list[0][0][0]["id"], self.pj["id"]
+        )
+
+    @patch(
+        "openstef.tasks.train_model.train_model_pipeline",
+        MagicMock(side_effect=InputDataOngoingZeroFlatlinerError()),
+    )
+    def test_train_model_known_zero_flatliner(self):
+        """Test that training a model is skipped for known zero flatliners."""
+        # Arrange
+        context = MagicMock()
+        context.config.externally_posted_forecasts_pids = None
+        context.config.known_zero_flatliners = [307]
+
+        # Act
+        train_model_task(self.pj, context)
+
+        # Assert
+        self.assertEqual(self.pj.id, context.config.known_zero_flatliners[0])
+        self.assertEqual(
+            context.mock_calls[22].args[0],
+            "No model was trained for this known zero flatliner. No model needs to be trained either, since the fallback forecasts are sufficient.",
+        )
+
+    @patch(
+        "openstef.tasks.train_model.train_model_pipeline",
+        MagicMock(side_effect=InputDataOngoingZeroFlatlinerError()),
+    )
+    def test_train_model_unexpected_zero_flatliner(self):
+        """Test that there is an informative error message for unexpected zero flatliners."""
+        # Arrange
+        context = MagicMock()
+        context.config.externally_posted_forecasts_pids = None
+        context.config.known_zero_flatliners = None
+
+        # Act & Assert
+        with pytest.raises(InputDataOngoingZeroFlatlinerError) as e:
+            train_model_task(self.pj, context)
+        self.assertEqual(
+            e.value.args[0],
+            'All recent load measurements are zero. Consider adding this pid to the "known_zero_flatliners" app_setting.',
         )
 
     @patch("openstef.model.serializer.MLflowSerializer.save_model")

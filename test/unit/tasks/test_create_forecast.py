@@ -6,7 +6,9 @@ from test.unit.utils.data import TestData
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
 
+import pytest
 from openstef.enums import PipelineType
+from openstef.exceptions import InputDataOngoingZeroFlatlinerError
 import openstef.tasks.create_forecast as task
 from openstef.model.serializer import MLflowSerializer
 from openstef.tasks.create_forecast import create_forecast_task
@@ -14,7 +16,7 @@ from openstef.tasks.create_forecast import create_forecast_task
 FORECAST_MOCK = "forecast_mock"
 
 
-class TestCreateForeCastTask(TestCase):
+class TestCreateForecastTask(TestCase):
     @patch("openstef.model.serializer.MLflowSerializer._get_model_uri")
     def setUp(self, _get_model_uri_mock) -> None:
         self.pj, self.modelspecs = TestData.get_prediction_job_and_modelspecs(pid=307)
@@ -51,6 +53,7 @@ class TestCreateForeCastTask(TestCase):
         create_forecast_task(self.pj, context)
 
         # Assert
+        self.assertEqual(context.mock_calls[1][0], "database.write_forecast")
         self.assertEqual(context.mock_calls[1].args[0], FORECAST_MOCK)
 
     @patch(
@@ -70,10 +73,11 @@ class TestCreateForeCastTask(TestCase):
         self.assertNotEqual(
             self.pj.id, context.config.externally_posted_forecasts_pids[0]
         )
+        self.assertEqual(context.mock_calls[1][0], "database.write_forecast")
         self.assertEqual(context.mock_calls[1].args[0], FORECAST_MOCK)
 
     def test_create_forecast_task_skip_external(self):
-        """Test happy flow of create forecast task."""
+        """Test that making a forecast is skipped for externally posted pids."""
         # Arrange
         context = MagicMock()
         context.config.externally_posted_forecasts_pids = [307]
@@ -87,6 +91,89 @@ class TestCreateForeCastTask(TestCase):
             context.mock_calls[0].args[0],
             "Skip this PredictionJob because its forecasts are posted by an external process.",
         )
+
+    @patch(
+        "openstef.tasks.create_forecast.create_forecast_pipeline",
+        MagicMock(side_effect=InputDataOngoingZeroFlatlinerError()),
+    )
+    def test_create_forecast_known_zero_flatliner(self):
+        """Test that making a forecast is skipped for known zero flatliners."""
+        # Arrange
+        context = MagicMock()
+        context.config.externally_posted_forecasts_pids = None
+        context.config.known_zero_flatliners = [307]
+
+        # Act
+        create_forecast_task(self.pj, context)
+
+        # Assert
+        self.assertEqual(self.pj.id, context.config.known_zero_flatliners[0])
+        self.assertEqual(
+            context.mock_calls[1].args[0],
+            "No forecasts were made for this known zero flatliner prediction job. No forecasts need to be made either, since the fallback forecasts are sufficient.",
+        )
+        assert (
+            not context.database.write_forecast.called
+        ), "The `write_forecast` method should not have been called."
+
+    @patch(
+        "openstef.tasks.create_forecast.create_forecast_pipeline",
+        MagicMock(side_effect=LookupError()),
+    )
+    def test_create_forecast_known_zero_flatliner_no_model(self):
+        """Test that making a forecast is skipped for known zero flatliners for which no model has been trained yet."""
+        # Arrange
+        context = MagicMock()
+        context.config.externally_posted_forecasts_pids = None
+        context.config.known_zero_flatliners = [307]
+
+        # Act
+        create_forecast_task(self.pj, context)
+
+        # Assert
+        self.assertEqual(self.pj.id, context.config.known_zero_flatliners[0])
+        self.assertEqual(
+            context.mock_calls[1].args[0],
+            "No forecasts were made for this known zero flatliner prediction job. No forecasts need to be made either, since the fallback forecasts are sufficient.",
+        )
+        assert (
+            not context.database.write_forecast.called
+        ), "The `write_forecast` method should not have been called."
+
+    @patch(
+        "openstef.tasks.create_forecast.create_forecast_pipeline",
+        MagicMock(side_effect=InputDataOngoingZeroFlatlinerError()),
+    )
+    def test_create_forecast_unexpected_zero_flatliner(self):
+        """Test that there is an informative error message for unexpected zero flatliners."""
+        # Arrange
+        context = MagicMock()
+        context.config.externally_posted_forecasts_pids = None
+        context.config.known_zero_flatliners = None
+
+        # Act & Assert
+        with pytest.raises(InputDataOngoingZeroFlatlinerError) as e:
+            create_forecast_task(self.pj, context)
+
+        assert (
+            e.value.args[0]
+            == 'Consider adding this pid to the "known_zero_flatliners" app_setting.'
+        )
+
+    @patch(
+        "openstef.tasks.create_forecast.create_forecast_pipeline",
+        MagicMock(side_effect=LookupError()),
+    )
+    def test_create_forecast_unexpected_zero_flatliner_lookuperror(self):
+        """Test that the lookuperror is propoerly raised when the prediction job is not an expected zero flatliner."""
+        # Arrange
+        context = MagicMock()
+        context.config.externally_posted_forecasts_pids = None
+        context.config.known_zero_flatliners = None
+
+        # Act & Assert
+        with pytest.raises(LookupError):
+            create_forecast_task(self.pj, context)
 
     @patch("openstef.tasks.create_forecast.create_forecast_pipeline")
     def test_create_forecast_task_train_only(self, create_forecast_pipeline_mock):

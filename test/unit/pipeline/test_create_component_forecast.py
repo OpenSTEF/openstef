@@ -25,7 +25,8 @@ class TestComponentForecast(BaseTestCase):
     def test_load_dazls_model(self):
         """Version updates of sklearn could break pickle.load
         Let's test for that explicitly
-        Assert that loading the old model generates an exception and the new model does not"""
+        Assert that loading the old model generates an exception and the new model does not
+        """
 
         old_model_file = PROJECT_ROOT / "openstef/data/dazls_stored_3.2.49.sav"
         new_model_file = PROJECT_ROOT / "openstef/data/dazls_stored.sav"

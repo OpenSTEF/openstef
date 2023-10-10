@@ -75,7 +75,6 @@ def get_database_mock_predicted_empty():
 
 
 class TestPerformanceCalcKpiForSpecificPid(BaseTestCase):
-
     # Test whether correct kpis are calculated for specific test data
     def test_calc_kpi_for_specific_pid(self):
         kpis = calc_kpi_for_specific_pid(

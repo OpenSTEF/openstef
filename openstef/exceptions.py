@@ -3,6 +3,8 @@
 # SPDX-License-Identifier: MPL-2.0
 
 """Openstef custom exceptions."""
+
+
 # Define custom exception
 class NoPredictedLoadError(Exception):
     """No predicted load for given datatime range."""

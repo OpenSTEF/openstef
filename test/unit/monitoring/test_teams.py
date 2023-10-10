@@ -18,7 +18,6 @@ class TestTeams(BaseTestCase):
         self.pj = TestData.get_prediction_job(pid=307)
 
     def test_post_teams(self, teamsmock):
-
         msg = "test"
 
         teams.post_teams(msg, url="MOCK_URL")
@@ -26,7 +25,6 @@ class TestTeams(BaseTestCase):
         self.assertTrue(card_mock.send.called)
 
     def test_post_teams_invalid_keys(self, teamsmock):
-
         msg = "test"
         invalid_coefs = pd.DataFrame(
             {

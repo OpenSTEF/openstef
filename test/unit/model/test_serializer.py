@@ -27,7 +27,8 @@ class TestMLflowSerializer(BaseTestCase):
         metadata_file: str, new_path: str, artifact_path_key: str
     ) -> None:
         """Helper function to rewrite the absolute path of the artifacts in meta.yaml files.
-        This is required since generating new models takes too long for a unit test and relative paths are not supported."""
+        This is required since generating new models takes too long for a unit test and relative paths are not supported.
+        """
         with open(metadata_file, "r") as f:
             metadata = yaml.safe_load(f)
 

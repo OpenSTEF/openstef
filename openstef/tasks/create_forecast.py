@@ -25,6 +25,7 @@ from pathlib import Path
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.enums import MLModelType, PipelineType
+from openstef.exceptions import InputDataOngoingZeroFlatlinerError
 from openstef.pipeline.create_forecast import create_forecast_pipeline
 from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstef.tasks.utils.taskcontext import TaskContext
@@ -79,10 +80,29 @@ def create_forecast_task(pj: PredictionJobDataClass, context: TaskContext) -> No
         datetime_start=datetime_start,
         datetime_end=datetime_end,
     )
-    # Make forecast with the forecast pipeline
-    forecast = create_forecast_pipeline(
-        pj, input_data, mlflow_tracking_uri=mlflow_tracking_uri
-    )
+
+    try:
+        # Make forecast with the forecast pipeline
+        forecast = create_forecast_pipeline(
+            pj, input_data, mlflow_tracking_uri=mlflow_tracking_uri
+        )
+    except (InputDataOngoingZeroFlatlinerError, LookupError) as e:
+        if (
+            context.config.known_zero_flatliners
+            and pj.id in context.config.known_zero_flatliners
+        ):
+            context.logger.info(
+                "No forecasts were made for this known zero flatliner prediction job. No forecasts need to be made either, since the fallback forecasts are sufficient."
+            )
+            return
+        elif isinstance(e, InputDataOngoingZeroFlatlinerError):
+            raise InputDataOngoingZeroFlatlinerError(
+                'Consider adding this pid to the "known_zero_flatliners" app_setting.'
+            ) from e
+        elif isinstance(e, LookupError):
+            raise LookupError(
+                'Consider checking for a zero flatliner and adding this pid to the "known_zero_flatliners" app_setting. For zero flatliners, no model can be trained.'
+            ) from e
 
     # Write forecast to the database
     context.database.write_forecast(forecast, t_ahead_series=True)
@@ -98,7 +118,6 @@ def main(model_type=None, config=None, database=None):
         )
 
     with TaskContext(taskname, config, database) as context:
-
         if model_type is None:
             model_type = [ml.value for ml in MLModelType]
 

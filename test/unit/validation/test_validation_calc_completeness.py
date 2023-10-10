@@ -7,7 +7,6 @@ import pandas as pd
 
 from openstef.validation.validation import calc_completeness_features
 
-from datetime import datetime as dt
 from pathlib import Path
 from test.unit.utils.base import BaseTestCase
 from test.unit.utils.data import TestData
