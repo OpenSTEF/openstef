@@ -91,7 +91,9 @@ def create_forecast_task(pj: PredictionJobDataClass, context: TaskContext) -> No
             context.config.known_zero_flatliners
             and pj.id in context.config.known_zero_flatliners
         ):
-            # No forecasts need to be made for known zero flatliners, since the fallback forecasts are sufficient.
+            context.logger.info(
+                "Skip this PredictionJob because no forecasts need to be made for known zero flatliners, since the fallback forecasts are sufficient."
+            )
             return
         else:
             raise InputDataOngoingZeroFlatlinerError(
@@ -103,7 +105,9 @@ def create_forecast_task(pj: PredictionJobDataClass, context: TaskContext) -> No
             context.config.known_zero_flatliners
             and pj.id in context.config.known_zero_flatliners
         ):
-            # No forecasts need to be made for known zero flatliners, since the fallback forecasts suffice.
+            context.logger.info(
+                "Skip this PredictionJob because no forecasts need to be made for known zero flatliners, since the fallback forecasts are sufficient."
+            )
             return
         else:
             raise lookup_error

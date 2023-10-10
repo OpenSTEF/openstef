@@ -159,7 +159,9 @@ def train_model_task(
             context.config.known_zero_flatliners
             and pj.id in context.config.known_zero_flatliners
         ):
-            # No model needs to trained for known zero flatliners, since the fallback forecasts are sufficient.
+            context.logger.info(
+                "No model needs to trained for known zero flatliners, since the fallback forecasts are sufficient."
+            )
             return
         else:
             raise InputDataOngoingZeroFlatlinerError(
