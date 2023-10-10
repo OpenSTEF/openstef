@@ -164,7 +164,7 @@ class TestCreateForeCastTask(TestCase):
         "openstef.tasks.create_forecast.create_forecast_pipeline",
         MagicMock(side_effect=LookupError()),
     )
-    def test_create_forecast_unexpected_zero_flatliner(self):
+    def test_create_forecast_unexpected_zero_flatliner_lookuperror(self):
         """Test that the lookuperror is propoerly raised when the prediction job is not an expected zero flatliner."""
         # Arrange
         context = MagicMock()
