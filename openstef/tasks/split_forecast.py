@@ -203,7 +203,6 @@ def find_components(
             - Dict with the coefficients that result from the fitting
 
     """
-
     # Define function to fit
     def weighted_sum(x, *args):
         if len(x) != len(args):
