@@ -172,7 +172,7 @@ class TestCreateForeCastTask(TestCase):
         context.config.known_zero_flatliners = None
 
         # Act & Assert
-        with pytest.raises(LookupError) as e:
+        with pytest.raises(LookupError):
             create_forecast_task(self.pj, context)
 
     @patch("openstef.tasks.create_forecast.create_forecast_pipeline")
