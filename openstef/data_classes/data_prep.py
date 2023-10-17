@@ -7,7 +7,7 @@ import json
 from importlib import import_module
 from typing import Any, Sequence, Union, TypeVar
 
-from pydantic import BaseModel
+from pydantic.v1 import BaseModel
 
 DataPrepClass = TypeVar("DataPrepClass")
 
