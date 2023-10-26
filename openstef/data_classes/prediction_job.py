@@ -4,7 +4,7 @@
 """Specifies the prediction job dataclass."""
 from typing import Optional, Union
 
-from pydantic import BaseModel
+from pydantic.v1 import BaseModel
 
 from openstef.data_classes.model_specifications import ModelSpecificationDataClass
 from openstef.data_classes.split_function import SplitFuncDataClass

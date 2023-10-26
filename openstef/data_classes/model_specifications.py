@@ -4,7 +4,7 @@
 """Specifies the dataclass for model specifications."""
 from typing import Optional, Union
 
-from pydantic import BaseModel
+from pydantic.v1 import BaseModel
 
 
 class ModelSpecificationDataClass(BaseModel):
