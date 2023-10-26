@@ -5,6 +5,7 @@ name: Python Build
 
 on:
   - push
+  - pull_request
 
 jobs:
   build:
