@@ -10,6 +10,7 @@ import pandas as pd
 
 from openstef.validation.validation import detect_ongoing_zero_flatliner
 
+
 @freeze_time("2023-10-30 12:01:02")
 class TestDetectOngoingZeroFlatliners(BaseTestCase):
     def setUp(self) -> None:
@@ -19,9 +20,11 @@ class TestDetectOngoingZeroFlatliners(BaseTestCase):
             start=now - timedelta(minutes=180), end=now, freq="0.25H"
         )
         self.four_hour_range_predict_setting = pd.date_range(
-            start=now - timedelta(minutes=180), end=now + timedelta(minutes=60), freq="0.25H"
+            start=now - timedelta(minutes=180),
+            end=now + timedelta(minutes=60),
+            freq="0.25H",
         )
-        
+
     def test_all_zero(self):
         # Arrange
         load = pd.Series(index=self.three_hour_range, data=[0 for i in range(13)])
@@ -49,7 +52,9 @@ class TestDetectOngoingZeroFlatliners(BaseTestCase):
         # now the pattern has ended since the last measurement is not zero anymore.
 
         # Arrange
-        load = pd.Series(index=self.three_hour_range, data=[0 for i in range(1, 13)] + [1])
+        load = pd.Series(
+            index=self.three_hour_range, data=[0 for i in range(1, 13)] + [1]
+        )
         duration_threshold = 120
 
         # Act
