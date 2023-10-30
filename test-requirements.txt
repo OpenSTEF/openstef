@@ -9,7 +9,6 @@ autoflake==1.7.5
 bandit==1.7.4
 black==23.9.1
 docformatter==1.5.0
-freezegun==1.2.2
 isort==5.10.1
 pydocstyle==6.1.1
 pylint==2.15.4
