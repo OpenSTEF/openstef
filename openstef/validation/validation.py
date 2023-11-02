@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-from datetime import timedelta
+from datetime import datetime, timedelta
 from typing import Union
 
 import math
@@ -222,6 +222,8 @@ def detect_ongoing_zero_flatliner(
         bool: Indicating wether or not there is a zero flatliner ongoing for the given load.
 
     """
+    # remove all timestamps in the future
+    load = load[load.index.tz_localize(None) <= datetime.utcnow()]
     latest_measurement_time = load.index.max()
     latest_measurements = load[
         latest_measurement_time - timedelta(minutes=duration_threshold_minutes) :
