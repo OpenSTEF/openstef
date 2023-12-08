@@ -165,7 +165,7 @@ def train_model_task(
             return
         else:
             raise InputDataOngoingZeroFlatlinerError(
-                'All recent load measurements are zero. Consider adding this pid to the "known_zero_flatliners" app_setting.'
+                'All recent load measurements are zero. Consider adding this pid to the "known_zero_flatliners" app_setting, and check the relevant existing flatliners.'
             )
 
 

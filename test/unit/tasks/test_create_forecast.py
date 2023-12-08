@@ -157,7 +157,7 @@ class TestCreateForecastTask(TestCase):
 
         assert (
             e.value.args[0]
-            == 'Consider adding this pid to the "known_zero_flatliners" app_setting.'
+            == 'Consider adding this pid to the "known_zero_flatliners" app_setting, and check the relevant existing flatliners.'
         )
 
     @patch(
