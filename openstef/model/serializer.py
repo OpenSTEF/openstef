@@ -39,7 +39,8 @@ class MLflowSerializer:
         **kwargs,
     ) -> None:
         """Save sklearn compatible model to MLFlow."""
-        mlflow.set_experiment(experiment_name=experiment_name)
+        db_experiment_name = os.environ["DATABRICKS_WORKSPACE_PATH"]+experiment_name if "DATABRICKS_WORKSPACE_PATH" in os.environ else experiment_name
+        mlflow.set_experiment(experiment_name=db_experiment_name)
         with mlflow.start_run(run_name=experiment_name):
             self._log_model_with_mlflow(
                 model=model,
@@ -68,8 +69,9 @@ class MLflowSerializer:
 
         """
         # Get previous run id
+        db_experiment_name = os.environ["DATABRICKS_WORKSPACE_PATH"]+experiment_name if "DATABRICKS_WORKSPACE_PATH" in os.environ else experiment_name
         models_df = self._find_models(
-            experiment_name, max_results=1
+            db_experiment_name, max_results=1
         )  # returns latest model
         if not models_df.empty:
             previous_run_id = models_df["run_id"][
@@ -142,8 +144,9 @@ class MLflowSerializer:
 
         """
         try:
+            db_experiment_name = os.environ["DATABRICKS_WORKSPACE_PATH"]+experiment_name if "DATABRICKS_WORKSPACE_PATH" in os.environ else experiment_name
             models_df = self._find_models(
-                experiment_name, max_results=1
+                db_experiment_name, max_results=1
             )  # return the latest finished run of the model
             if not models_df.empty:
                 latest_run = models_df.iloc[0]  # Use .iloc[0] to only get latest run
@@ -176,8 +179,9 @@ class MLflowSerializer:
         filter_string = "attribute.status = 'FINISHED'"
         if hyperparameter_optimization_only:
             filter_string += " AND tags.phase = 'Hyperparameter_opt'"
+        db_experiment_name = os.environ["DATABRICKS_WORKSPACE_PATH"]+experiment_name if "DATABRICKS_WORKSPACE_PATH" in os.environ else experiment_name 
         models_df = self._find_models(
-            experiment_name, max_results=1, filter_string=filter_string
+            db_experiment_name, max_results=1, filter_string=filter_string
         )
         if not models_df.empty:
             run = models_df.iloc[0]  # Use .iloc[0] to only get latest run
@@ -283,7 +287,8 @@ class MLflowSerializer:
             raise ValueError(
                 f"Max models to keep should be greater than 1! Received: {max_n_models}"
             )
-        previous_runs = self._find_models(experiment_name=experiment_name)
+        db_experiment_name = os.environ["DATABRICKS_WORKSPACE_PATH"]+experiment_name if "DATABRICKS_WORKSPACE_PATH" in os.environ else experiment_name
+        previous_runs = self._find_models(experiment_name=db_experiment_name)
         if len(previous_runs) > max_n_models:
             self.logger.debug(
                 f"Going to delete old models. {len(previous_runs)} > {max_n_models}"
