@@ -102,7 +102,7 @@ def optimize_hyperparameters_pipeline(
 def optimize_hyperparameters_pipeline_core(
     pj: PredictionJobDataClass,
     input_data: pd.DataFrame,
-    horizons: Union[list[float], str] = DEFAULT_TRAIN_HORIZONS_HOURS,
+    horizons: list[float] = DEFAULT_TRAIN_HORIZONS_HOURS,
     n_trials: int = N_TRIALS,
 ) -> tuple[
     OpenstfRegressor, ModelSpecificationDataClass, Report, dict, int, dict[str, Any]

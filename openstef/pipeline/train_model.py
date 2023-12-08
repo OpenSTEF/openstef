@@ -141,7 +141,7 @@ def train_model_pipeline_core(
     model_specs: ModelSpecificationDataClass,
     input_data: pd.DataFrame,
     old_model: OpenstfRegressor = None,
-    horizons: Union[list[float], str] = DEFAULT_TRAIN_HORIZONS_HOURS,
+    horizons: list[float] = DEFAULT_TRAIN_HORIZONS_HOURS,
 ) -> Union[
     OpenstfRegressor,
     Report,
@@ -230,7 +230,7 @@ def train_pipeline_common(
     pj: PredictionJobDataClass,
     model_specs: ModelSpecificationDataClass,
     input_data: pd.DataFrame,
-    horizons: Union[list[float], str],
+    horizons: list[float],
     test_fraction: float = 0.0,
     backtest: bool = False,
     test_data_predefined: pd.DataFrame = pd.DataFrame(),
