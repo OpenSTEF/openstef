@@ -36,6 +36,7 @@ from openstef.pipeline.train_model import (
     train_pipeline_common,
 )
 from openstef.validation import validation
+from openstef.pipeline.train_model import DEFAULT_TRAIN_HORIZONS_HOURS
 
 
 class DummyObjective(RegressorObjective):
@@ -685,6 +686,48 @@ class TestTrainModelPipeline(BaseTestCase):
             ) = train_pipeline_common(
                 self.pj, self.model_specs, self.train_input, horizons="custom_horizon"
             )
+    
+    
+    @patch("openstef.pipeline.train_model.MLflowSerializer")
+    @patch("openstef.pipeline.train_model.train_model_pipeline_core")
+    def test_train_model_pipeline_with_default_train_horizons(self, mock_train_model_pipeline_core, mock_serializer):
+        # Arrange
+        mock_train_model_pipeline_core.return_value = 'a', 'b', 'c', 'd'
+        
+        # Act
+        train_model_pipeline(
+            pj=self.pj,
+            input_data=self.train_input,
+            check_old_model_age=False,
+            mlflow_tracking_uri="./test/unit/trained_models/mlruns",
+            artifact_folder=None
+        )
+        
+        # Assert
+        self.pj.train_horizons_minutes == None
+        assert mock_train_model_pipeline_core.call_args.kwargs["horizons"] == DEFAULT_TRAIN_HORIZONS_HOURS
+
+
+    @patch("openstef.pipeline.train_model.MLflowSerializer")
+    @patch("openstef.pipeline.train_model.train_model_pipeline_core")
+    def test_train_model_pipeline_with_custom_train_horizons(self, mock_train_model_pipeline_core, mock_serializer):
+        # Arrange
+        mock_train_model_pipeline_core.return_value = 'a', 'b', 'c', 'd'
+        self.pj.train_horizons_minutes = [1440, 21600]
+        train_horizons_hours = [24, 360]
+        
+        # Act
+        train_model_pipeline(
+            pj=self.pj,
+            input_data=self.train_input,
+            check_old_model_age=False,
+            mlflow_tracking_uri="./test/unit/trained_models/mlruns",
+            artifact_folder=None
+        )
+        
+        # Assert
+        assert mock_train_model_pipeline_core.call_args.kwargs["horizons"] == train_horizons_hours
+        
 
     @patch("openstef.pipeline.train_model.MLflowSerializer")
     def test_train_model_pipeline_with_save_train_forecasts(self, mock_serializer):
