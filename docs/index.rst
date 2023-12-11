@@ -9,17 +9,18 @@ OpenSTEF is a Python package which is used to make short term forecasts for the 
 It contains all components for the machine learning pipeline required to make a forecast.
 The ``openstef`` Python package and its installation instructions are available at: https://pypi.org/project/openstef/.
 
-If you're brand new, start by reading the :ref:`concepts` section. Otherwise, if you're ready
+If you're brand new, start by reading the :ref:`architecture_methodology_components` section. Otherwise, if you're ready
 to start using OpenSTEF checkout the :ref:`user_guides`.
 
 .. toctree::
     :maxdepth: 1
 
+    about_openstef
     user_guides
-    concepts
+    architecture_methodology_components
     api_reference
     community
-    about_openstef
+    
 
 More on OpenSTEF
 ================
