@@ -85,7 +85,7 @@ class TestTrainModelTask(TestCase):
             train_model_task(self.pj, context)
         self.assertEqual(
             e.value.args[0],
-            "All recent load measurements are zero. Check the load profile of this pid as well as related/neighbouring prediction jobs. Afterwards, consider adding this pid to the "known_zero_flatliners" app_setting and possibly removing other pids from the same app_setting.",
+            'All recent load measurements are zero. Check the load profile of this pid as well as related/neighbouring prediction jobs. Afterwards, consider adding this pid to the "known_zero_flatliners" app_setting and possibly removing other pids from the same app_setting.',
         )
 
     @patch("openstef.model.serializer.MLflowSerializer.save_model")
