@@ -97,7 +97,7 @@ def create_forecast_task(pj: PredictionJobDataClass, context: TaskContext) -> No
             return
         elif isinstance(e, InputDataOngoingZeroFlatlinerError):
             raise InputDataOngoingZeroFlatlinerError(
-                'Consider adding this pid to the "known_zero_flatliners" app_setting, and check the relevant existing flatliners.'
+                "All recent load measurements are zero. Check the load profile of this pid as well as related/neighbouring prediction jobs. Afterwards, consider adding this pid to the "known_zero_flatliners" app_setting and possibly removing other pids from the same app_setting."
             ) from e
         elif isinstance(e, LookupError):
             raise LookupError(
