@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Overview of relational database &#8212; OpenSTEF  documentation</title>
+    <title>Software architecture &#8212; OpenSTEF  documentation</title>
   
   
   
@@ -35,10 +35,12 @@
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'sql_database_diagram';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'architecture_methodology_components';</script>
     <link rel="icon" href="_static/openstef.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="API reference" href="api_reference.html" />
+    <link rel="prev" title="User guides" href="user_guides.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="docsearch:language" content="en">
   </head>
@@ -126,8 +128,8 @@
                     </li>
                 
 
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="architecture_methodology_components.html">
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="#">
                         Software architecture
                       </a>
                     </li>
@@ -263,8 +265,8 @@
                     </li>
                 
 
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="architecture_methodology_components.html">
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="#">
                         Software architecture
                       </a>
                     </li>
@@ -369,13 +371,149 @@
             
             <article class="bd-article" role="main">
               
-  <section id="overview-of-relational-database">
-<h1>Overview of relational database<a class="headerlink" href="#overview-of-relational-database" title="Link to this heading">#</a></h1>
+  <blockquote id="concepts">
+<div><p>Architecture, Methodology, and Components</p>
+</div></blockquote>
+<hr class="docutils" />
+<p>Understanding the architecture of OpenSTEF will help you gain insight on how to use this software package
+and better understand the rest of the documentation.</p>
+<section id="software-architecture">
+<h1>Software architecture<a class="headerlink" href="#software-architecture" title="Link to this heading">#</a></h1>
+<p>OpenSTEF is set up as a Python package that performs machine learning in order to forecast energy loads on the energy grid.</p>
+<a class="reference internal image-reference" href="https://github.com/OpenSTEF/openstef/blob/a3abd78212248ee71fcfe182894c04e2df6dd1df/docs/software_arch.png"><img alt="https://github.com/OpenSTEF/openstef/blob/a3abd78212248ee71fcfe182894c04e2df6dd1df/docs/software_arch.png" src="https://github.com/OpenSTEF/openstef/blob/a3abd78212248ee71fcfe182894c04e2df6dd1df/docs/software_arch.png" style="width: 830px;" /></a>
+<p>OpenSTEF contains:</p>
+<ul class="simple">
+<li><p><strong>Prediction job</strong>: input configuration for a task and/or pipeline
+(e.g. train an XGB model for a certain location).</p></li>
+<li><p><strong>Tasks</strong>: can be called to perform training, forecasting, or evaluation.
+All tasks use corresponding pipelines. Tasks include getting data from a database,
+raising task exceptions, and writing data to a database.</p></li>
+<li><p><strong>Pipelines</strong>: can be called to perform training, forecasting or evaluation by
+giving input data to the pipeline. Users can choose to use tasks
+(which fetch/write data for you), or use pipelines directly
+(which requires fetching/writing data yourself).</p></li>
+<li><p><strong>Data validation</strong>: is called by pipelines to validate data (e.g. checking for flatliners).</p></li>
+<li><p><strong>Feature engineering</strong>: is called by pipelines to select required features for training/forecasting based on the configuration from the prediction job (e.g. create new features for energy load of yesterday, last week).</p></li>
+<li><p><strong>Machine learning</strong>: is called by pipelines to perform training, forecasting, or evaluation based on the configuration from the prediction job (e.g. train an XGB quantile model).</p></li>
+<li><p><strong>Model storage</strong>: is called by pipelines to store or fetch trained machine learning model with MLFlow (e.g. store model locally in disk/database/s3_bucket on AWS).</p></li>
+<li><p><strong>Post processing</strong>: is called by pipelines to post process forecasting (e.g. combine forecast dataframe with extra configuration information from prediction job or split load forecast into solar, wind, and energy usage forecast).</p></li>
+<li><p><strong>Post processing</strong>: is called by pipelines to post process forecasting (e.g. combine forecast dataframe with extra configuration information from prediction job or split load forecast into solar, wind, and energy usage forecast).</p></li>
+</ul>
+<p>Tasks are provided in a separate Python package called <a class="reference external" href="https://pypi.org/project/openstef-dbc/">openstef-dbc</a>. If you need to use tasks, the openstef-dbc package is required in order to interface to databases for reading/writing.
+Currently, openstef-dbc supports interfaces for a MySQL database for configuration data (e.g. information for prediction jobs) and <a class="reference external" href="https://www.influxdata.com/">InfluxDB</a> for feature data (e.g. weather, load, energy price data) and energy forecast data.</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<section id="high-level-methodology-openstef">
+<h2>High level methodology OpenSTEF<a class="headerlink" href="#high-level-methodology-openstef" title="Link to this heading">#</a></h2>
+<p>OpenSTEF automates many typical activities in machine learning.
+These include the combination of input data and preparation of features.
+Furthermore, the train and predict methodology of OpenSTEF allows
+for a single-shot, multi-horizon forecast. To provide a high-level overview
+of these functionalities, a schematic depiction is given here.</p>
+<figure class="align-default">
+<img alt="Methodology overview" src="_images/methodology_train_predict.svg" /></figure>
+<p><a class="reference external" href="_static/methodology_train_predict.pptx">Source file</a></p>
+<p>OpenSTEF provides confidence estimates of it’s forecasts.
+Two methods are available. The figure below explains the differences
+and similarities between the two methods, as well as provide recommendations
+on how to the confidence estimations should be used.</p>
+<figure class="align-default">
+<img alt="Uncertainty estimation" src="_images/uncertainty_estimation.svg" /></figure>
+<p><a class="reference external" href="_static/methodology_train_predict.pptx">Source file</a></p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
+</section>
+<section id="application-architecture">
+<span id="id1"></span><h1>Application architecture<a class="headerlink" href="#application-architecture" title="Link to this heading">#</a></h1>
+<p>OpenSTEF is simply a software package (i.e. a Python library). If you’re looking to run it as a full application with a graphical user interface frontend, you must deploy it with additional components.</p>
+<a class="reference internal image-reference" href="https://user-images.githubusercontent.com/25053215/184536367-c7914697-7a2a-45b8-b447-36aec1a6c1af.png"><img alt="https://user-images.githubusercontent.com/25053215/184536367-c7914697-7a2a-45b8-b447-36aec1a6c1af.png" src="https://user-images.githubusercontent.com/25053215/184536367-c7914697-7a2a-45b8-b447-36aec1a6c1af.png" style="width: 800px;" /></a>
+<p>Here are the recommended additional components if you want to run it as an application:</p>
+<ul class="simple">
+<li><p>Github repositories:</p>
+<ul>
+<li><p>(create yourself) <strong>Data fetcher</strong>: software package to fetch input data and write it to a database (e.g. a scheduled <a class="reference external" href="https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/">CronJob</a> to fetch weather data in Kubernetes).</p></li>
+<li><p>(create yourself) <strong>Data API</strong>: API to provide data from a database or other source to applications and users (e.g. a REST API).</p></li>
+<li><p>(create yourself) <strong>Forecaster</strong>: software package to fetch config/data and run OpenSTEF tasks/pipelines (e.g. a scheduled cron job to train/forecast in Kubernetes).</p></li>
+<li><p>(open source) <strong>OpenSTEF</strong>: software package that performs machine learning to forecast energy loads on the energy grid.</p></li>
+<li><p>(open source) <strong>OpenSTEF-dbc</strong>: software package that provides interface to read/write data from/to a database for openstef tasks.</p></li>
+</ul>
+</li>
+<li><p>CI/CD Infrastructure</p>
+<ul>
+<li><p>(create yourself) <strong>Energy forecasting Application CI/CD</strong>: Continuous Integration/Continuous Delivery pipeline to build, test, and deploy your forecasting application (e.g. to Kubernetes via Jenkins, Chef, Puppet, Tekton, etc.).</p></li>
+<li><p>(open source) <strong>OpenSTEF package CI/CD</strong>: A set of GitHub Actions that build, test, and publish the OpenSTEF package to PyPI <a class="reference external" href="https://pypi.org/project/openstef/">here</a> when it is time to release a new version.</p></li>
+</ul>
+</li>
+<li><p><strong>Compute</strong>: compute resources to run your pipelines and tasks in production (e.g. on Kubernetes using any of the various providers AWS, Azure, GCP, Linode, etc.).</p></li>
+<li><p><strong>Database</strong>: SQL, InfluxDB, or other database that stores fetched input data and forecasts.</p></li>
+<li><p><strong>Dashboard</strong>: graphical user interface dashboard that allows uers to visualize application data (e.g. historic and forecasted energy loads)</p></li>
+</ul>
+<a class="reference internal image-reference" href="https://user-images.githubusercontent.com/60883372/146760483-29af3ac7-62af-4f13-98c7-982a79c517d1.jpg"><img alt="Screenshot of the operational dashboard showing the key functionality of OpenSTEF." src="https://user-images.githubusercontent.com/60883372/146760483-29af3ac7-62af-4f13-98c7-982a79c517d1.jpg" style="width: 800px;" /></a>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<section id="split-forecast-domain-adaptation-for-zero-shot-learning-in-sequence-dazls">
+<h2>Split forecast: Domain Adaptation for Zero Shot Learning in Sequence (DAZLS)<a class="headerlink" href="#split-forecast-domain-adaptation-for-zero-shot-learning-in-sequence-dazls" title="Link to this heading">#</a></h2>
+<p>DAZLS is an energy splitting function in OpenSTEF. Is a technique which
+transfers knowledge from complete-information substations to
+incomplete-information substations for solar and wind power prediction.
+It is being used in <a class="reference internal" href="openstef.pipeline.html#module-openstef.pipeline.create_component_forecast" title="openstef.pipeline.create_component_forecast"><code class="xref py py-mod docutils literal notranslate"><span class="pre">openstef.pipeline.create_component_forecast</span></code></a>
+to issue the prediction.</p>
+<p>This function trains a splitting model on data from multiple substations
+with known components and uses this model to carry out a prediction for
+target substations with unknown components. The training data from the
+known substations include weather, location, and total load information
+of each substation and predicts the solar and the wind power of the
+target substations.</p>
+<p>The model is developed as a zero-shot learning method because it has to
+carry out the prediction of target substations with unknown components
+by using training data from other substations with known components. For
+this purpose, the method is formulated as a 2-step approach by combining
+two models deployed in sequence, the Domain and the Adaptation model.</p>
+<p>The schema bellow depicts the structure of the DAZLS model. The input of
+the model is data from the complete-information substations. For every
+known substation we have input data, source metadata and output data. At
+first, we feed the input data to train the Domain model. Domain model
+gives a predicted output. This predicted output data, linked together
+with the source metadata of each substation, is being used as the input
+to train the Adaptation model. Then, the Adaptation model provides the
+final output prediction of solar and wind power for the target
+substations.</p>
+<figure class="align-default" id="id2">
+<img alt="Presentation3" src="https://user-images.githubusercontent.com/66070103/189650328-377ebb79-e8a7-40c6-acf3-64a5bb6197a4.jpg" />
+<figcaption>
+<p><span class="caption-text">Domain Adaptation Model</span><a class="headerlink" href="#id2" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>For more information about DAZLS model, see:</p>
+<p>Teng, S.Y., van Nooten, C.C., van Doorn, J.M., Ottenbros, A., Huijbregts, M., Jansen, J.J.
+Improving Near Real-Time Predictions of Renewable Electricity Production
+at Substation Level (Submitted)</p>
+<p>HOW TO USE: The code which loads and stores the DAZLS model is in the
+notebook file
+<a class="reference external" href="https://github.com/OpenSTEF/openstef-offline-example/tree/master/examples/05.%20Split%20net%20load%20into%20Components">05. Split net load into Components.ipynb</a>.
+When running this notebook, a dazls_stored.sav file is being produced
+and can be used in the prediction pipeline. It is important, whenever
+there are changes in the
+<a class="reference external" href="https://github.com/OpenSTEF/openstef/blob/main/openstef/model/regressors/dazls.py">dazls.py</a>,
+to run again the notebook and use the
+newly produced dazls_stored.sav file in the repository.</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
+<section id="overview-of-relational-database">
+<h2>Overview of relational database<a class="headerlink" href="#overview-of-relational-database" title="Link to this heading">#</a></h2>
 <p>OpenSTEF uses a relational database to store information about prediction jobs and measurements. An ER diagram of this database is shown below.</p>
 <a class="reference internal image-reference" href="_images/mysql_er_diagram.png"><img alt="_images/mysql_er_diagram.png" src="_images/mysql_er_diagram.png" style="width: 6.3in; height: 4.24236in;" /></a>
 <p>The necessary tables are described in more detail bellow:</p>
+</section>
+</section>
 <section id="customers">
-<h2>customers<a class="headerlink" href="#customers" title="Link to this heading">#</a></h2>
+<h1>customers<a class="headerlink" href="#customers" title="Link to this heading">#</a></h1>
 <table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p><strong>Name</strong></p></th>
@@ -411,7 +549,7 @@ forecast (deprecated)</p></td>
 <p><strong>Customer</strong> : A customer is a collection of predictions. This can be a collection of predictions belonging to a customer but also a collection of prediction belonging to a specific location or substation.</p>
 </section>
 <section id="customersapikeys">
-<h2>customersApiKeys<a class="headerlink" href="#customersapikeys" title="Link to this heading">#</a></h2>
+<h1>customersApiKeys<a class="headerlink" href="#customersapikeys" title="Link to this heading">#</a></h1>
 <table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p><strong>Name</strong></p></th>
@@ -470,7 +608,7 @@ specific customer (used internally by Alliander).</p>
 </table>
 </section>
 <section id="genericpowercurves">
-<h2>genericpowercurves<a class="headerlink" href="#genericpowercurves" title="Link to this heading">#</a></h2>
+<h1>genericpowercurves<a class="headerlink" href="#genericpowercurves" title="Link to this heading">#</a></h1>
 <p>Contains the generic load curves of wind turbines. These curves are
 two-parameters sigmoids (center and slope).</p>
 <table class="table">
@@ -541,7 +679,7 @@ by a wind turbine is computed as</p>
 rated_power, <span class="math notranslate nohighlight">\(k\)</span> = steepness and <span class="math notranslate nohighlight">\(c\)</span> = slope_center.</p>
 </section>
 <section id="nametolatlon">
-<h2>NameToLatLon<a class="headerlink" href="#nametolatlon" title="Link to this heading">#</a></h2>
+<h1>NameToLatLon<a class="headerlink" href="#nametolatlon" title="Link to this heading">#</a></h1>
 <table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p><strong>Name</strong></p></th>
@@ -571,7 +709,7 @@ rated_power, <span class="math notranslate nohighlight">\(k\)</span> = steepness
 <p>This table is used for looking up coordinates for specific locations that can be used directly for retrieving weather data.</p>
 </section>
 <section id="predictions">
-<h2>predictions<a class="headerlink" href="#predictions" title="Link to this heading">#</a></h2>
+<h1>predictions<a class="headerlink" href="#predictions" title="Link to this heading">#</a></h1>
 <p>Contains prediction jobs.</p>
 <table class="table">
 <thead>
@@ -641,7 +779,7 @@ forecasts (minutes)</p></td>
 <p><strong>Prediction</strong>: A prediction is the core concept in openSTEF and largley translate to the prediction_job in the openSTEF code. To make a prediction a prediction is usualy coupled to one or more systems. These systems provide the measurement data for which a forecast is made.</p>
 </section>
 <section id="predictions-quantiles-sets">
-<h2>predictions_quantiles_sets<a class="headerlink" href="#predictions-quantiles-sets" title="Link to this heading">#</a></h2>
+<h1>predictions_quantiles_sets<a class="headerlink" href="#predictions-quantiles-sets" title="Link to this heading">#</a></h1>
 <p>Correspondence table between prediction jobs and the set of quantiles to
 forecast.</p>
 <table class="table">
@@ -672,7 +810,7 @@ forecast.</p>
 </table>
 </section>
 <section id="predictions-systems">
-<h2>predictions_systems<a class="headerlink" href="#predictions-systems" title="Link to this heading">#</a></h2>
+<h1>predictions_systems<a class="headerlink" href="#predictions-systems" title="Link to this heading">#</a></h1>
 <p>Correspondence table between prediction jobs and systems.</p>
 <table class="table">
 <thead>
@@ -708,7 +846,7 @@ forecast.</p>
 <p><strong>System</strong> : Represents a physical measurement system. All metadata is saved in this SQL table, the actual timeseries can be retrieved from influx by the corresponding system id.</p>
 </section>
 <section id="quantiles-sets">
-<h2>quantiles_sets<a class="headerlink" href="#quantiles-sets" title="Link to this heading">#</a></h2>
+<h1>quantiles_sets<a class="headerlink" href="#quantiles-sets" title="Link to this heading">#</a></h1>
 <p>Contains the specifications of the quantile sets.</p>
 <table class="table">
 <thead>
@@ -740,7 +878,7 @@ quantiles</p></td>
 </table>
 </section>
 <section id="solarspecs">
-<h2>solarspecs<a class="headerlink" href="#solarspecs" title="Link to this heading">#</a></h2>
+<h1>solarspecs<a class="headerlink" href="#solarspecs" title="Link to this heading">#</a></h1>
 <p>Configuration for PV forecasts for each prediction job</p>
 <table class="table">
 <thead>
@@ -785,7 +923,7 @@ quantiles</p></td>
 </ul>
 </section>
 <section id="systems">
-<h2>systems<a class="headerlink" href="#systems" title="Link to this heading">#</a></h2>
+<h1>systems<a class="headerlink" href="#systems" title="Link to this heading">#</a></h1>
 <p>Contains informations about <strong>systems</strong>.</p>
 <table class="table">
 <thead>
@@ -894,7 +1032,7 @@ measurements</p></td>
 <p><strong>Polarity</strong> is a factor used to make the measurment comply with positive consumption and negative production of energy.</p>
 </section>
 <section id="systemsapikeys">
-<h2>systemsApiKeys<a class="headerlink" href="#systemsapikeys" title="Link to this heading">#</a></h2>
+<h1>systemsApiKeys<a class="headerlink" href="#systemsapikeys" title="Link to this heading">#</a></h1>
 <p>API key to retrieve systems measurements.</p>
 <table class="table">
 <thead>
@@ -924,7 +1062,7 @@ measurements</p></td>
 </table>
 </section>
 <section id="todolist">
-<h2>todolist<a class="headerlink" href="#todolist" title="Link to this heading">#</a></h2>
+<h1>todolist<a class="headerlink" href="#todolist" title="Link to this heading">#</a></h1>
 <table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p><strong>Name</strong></p></th>
@@ -966,7 +1104,7 @@ the functions</p></td>
 <p>The todolist table stores jobs that are picked up by the tracy procces that is run every 5 minutes via a CRON job. This makes it possible to run pipelines manually by adding the respective job to the todo list.</p>
 </section>
 <section id="weatherforecastlocations">
-<h2>weatherforecastlocations<a class="headerlink" href="#weatherforecastlocations" title="Link to this heading">#</a></h2>
+<h1>weatherforecastlocations<a class="headerlink" href="#weatherforecastlocations" title="Link to this heading">#</a></h1>
 <p>Contains the locations of the weather stations. These are used when retrieving weather data for a prediction.</p>
 <table class="table">
 <thead>
@@ -1012,7 +1150,7 @@ the functions</p></td>
 </table>
 </section>
 <section id="windspecs">
-<h2>windspecs<a class="headerlink" href="#windspecs" title="Link to this heading">#</a></h2>
+<h1>windspecs<a class="headerlink" href="#windspecs" title="Link to this heading">#</a></h1>
 <p>This table is empty in openstef-reference. Contains the information for
 the wind power forecast related to a prediction job.</p>
 <table class="table">
@@ -1061,6 +1199,15 @@ genericpowercurves</p></td>
 </table>
 <p>The hub height is used to extrapolate the wind speed forecast at the
 correct height.</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<section id="overview-of-timeseries-database-schema">
+<h2>Overview of timeseries database schema<a class="headerlink" href="#overview-of-timeseries-database-schema" title="Link to this heading">#</a></h2>
+<p>OpenSTEF uses a timeseries database to store all timeseries data. A diagram of its structure is shown bellow.</p>
+<figure class="align-default">
+<img alt="Diagram InlfuxDB" src="_images/influx_database_diagram.png" />
+</figure>
 </section>
 </section>
 
@@ -1072,6 +1219,20 @@ correct height.</p>
             <footer class="bd-footer-article">
                 <!-- Previous / next buttons -->
 <div class='prev-next-area'>
+  <a class='left-prev' id="prev-link" href="user_guides.html" title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+          <p class="prev-next-subtitle">previous</p>
+          <p class="prev-next-title">User guides</p>
+      </div>
+  </a>
+  <a class='right-next' id="next-link" href="api_reference.html" title="next page">
+  <div class="prev-next-info">
+      <p class="prev-next-subtitle">next</p>
+      <p class="prev-next-title">API reference</p>
+  </div>
+  <i class="fa-solid fa-angle-right"></i>
+  </a>
 </div>
             </footer>
             
@@ -1088,75 +1249,111 @@ correct height.</p>
 </div>
 <nav id="bd-toc-nav" class="page-toc">
     <ul class="visible nav section-nav flex-column">
- <li class="toc-h2 nav-item toc-entry">
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#">
+   Software architecture
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#high-level-methodology-openstef">
+     High level methodology OpenSTEF
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#application-architecture">
+   Application architecture
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#split-forecast-domain-adaptation-for-zero-shot-learning-in-sequence-dazls">
+     Split forecast: Domain Adaptation for Zero Shot Learning in Sequence (DAZLS)
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#overview-of-relational-database">
+     Overview of relational database
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
   <a class="reference internal nav-link" href="#customers">
    customers
   </a>
  </li>
- <li class="toc-h2 nav-item toc-entry">
+ <li class="toc-h1 nav-item toc-entry">
   <a class="reference internal nav-link" href="#customersapikeys">
    customersApiKeys
   </a>
  </li>
- <li class="toc-h2 nav-item toc-entry">
+ <li class="toc-h1 nav-item toc-entry">
   <a class="reference internal nav-link" href="#genericpowercurves">
    genericpowercurves
   </a>
  </li>
- <li class="toc-h2 nav-item toc-entry">
+ <li class="toc-h1 nav-item toc-entry">
   <a class="reference internal nav-link" href="#nametolatlon">
    NameToLatLon
   </a>
  </li>
- <li class="toc-h2 nav-item toc-entry">
+ <li class="toc-h1 nav-item toc-entry">
   <a class="reference internal nav-link" href="#predictions">
    predictions
   </a>
  </li>
- <li class="toc-h2 nav-item toc-entry">
+ <li class="toc-h1 nav-item toc-entry">
   <a class="reference internal nav-link" href="#predictions-quantiles-sets">
    predictions_quantiles_sets
   </a>
  </li>
- <li class="toc-h2 nav-item toc-entry">
+ <li class="toc-h1 nav-item toc-entry">
   <a class="reference internal nav-link" href="#predictions-systems">
    predictions_systems
   </a>
  </li>
- <li class="toc-h2 nav-item toc-entry">
+ <li class="toc-h1 nav-item toc-entry">
   <a class="reference internal nav-link" href="#quantiles-sets">
    quantiles_sets
   </a>
  </li>
- <li class="toc-h2 nav-item toc-entry">
+ <li class="toc-h1 nav-item toc-entry">
   <a class="reference internal nav-link" href="#solarspecs">
    solarspecs
   </a>
  </li>
- <li class="toc-h2 nav-item toc-entry">
+ <li class="toc-h1 nav-item toc-entry">
   <a class="reference internal nav-link" href="#systems">
    systems
   </a>
  </li>
- <li class="toc-h2 nav-item toc-entry">
+ <li class="toc-h1 nav-item toc-entry">
   <a class="reference internal nav-link" href="#systemsapikeys">
    systemsApiKeys
   </a>
  </li>
- <li class="toc-h2 nav-item toc-entry">
+ <li class="toc-h1 nav-item toc-entry">
   <a class="reference internal nav-link" href="#todolist">
    todolist
   </a>
  </li>
- <li class="toc-h2 nav-item toc-entry">
+ <li class="toc-h1 nav-item toc-entry">
   <a class="reference internal nav-link" href="#weatherforecastlocations">
    weatherforecastlocations
   </a>
  </li>
- <li class="toc-h2 nav-item toc-entry">
+ <li class="toc-h1 nav-item toc-entry">
   <a class="reference internal nav-link" href="#windspecs">
    windspecs
   </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#overview-of-timeseries-database-schema">
+     Overview of timeseries database schema
+    </a>
+   </li>
+  </ul>
  </li>
 </ul>
 
@@ -1175,7 +1372,7 @@ correct height.</p>
 <div class="toc-item">
   
 <div class="tocsection sourcelink">
-    <a href="_sources/sql_database_diagram.rst.txt">
+    <a href="_sources/architecture_methodology_components.rst.txt">
         <i class="fa-solid fa-file-lines"></i> Show Source
     </a>
 </div>
