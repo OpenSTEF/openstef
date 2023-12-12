@@ -510,8 +510,6 @@ newly produced dazls_stored.sav file in the repository.</p>
 <p>OpenSTEF uses a relational database to store information about prediction jobs and measurements. An ER diagram of this database is shown below.</p>
 <a class="reference internal image-reference" href="_images/mysql_er_diagram.png"><img alt="_images/mysql_er_diagram.png" src="_images/mysql_er_diagram.png" style="width: 6.3in; height: 4.24236in;" /></a>
 <p>The necessary tables are described in more detail bellow:</p>
-<section id="customers">
-<h2>customers<a class="headerlink" href="#customers" title="Link to this heading">#</a></h2>
 <table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p><strong>Name</strong></p></th>
@@ -545,9 +543,6 @@ forecast (deprecated)</p></td>
 </tbody>
 </table>
 <p><strong>Customer</strong> : A customer is a collection of predictions. This can be a collection of predictions belonging to a customer but also a collection of prediction belonging to a specific location or substation.</p>
-</section>
-<section id="customersapikeys">
-<h2>customersApiKeys<a class="headerlink" href="#customersapikeys" title="Link to this heading">#</a></h2>
 <table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p><strong>Name</strong></p></th>
@@ -604,9 +599,6 @@ specific customer (used internally by Alliander).</p>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="genericpowercurves">
-<h2>genericpowercurves<a class="headerlink" href="#genericpowercurves" title="Link to this heading">#</a></h2>
 <p>Contains the generic load curves of wind turbines. These curves are
 two-parameters sigmoids (center and slope).</p>
 <table class="table">
@@ -675,9 +667,6 @@ by a wind turbine is computed as</p>
 \[P(v) = \frac{P_{rated}}{1 + e^{- k(v - c)}},\]</div>
 <p>where <span class="math notranslate nohighlight">\(v\)</span> is the windspeed at hub height, <span class="math notranslate nohighlight">\(P_{rated}\)</span> =
 rated_power, <span class="math notranslate nohighlight">\(k\)</span> = steepness and <span class="math notranslate nohighlight">\(c\)</span> = slope_center.</p>
-</section>
-<section id="nametolatlon">
-<h2>NameToLatLon<a class="headerlink" href="#nametolatlon" title="Link to this heading">#</a></h2>
 <table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p><strong>Name</strong></p></th>
@@ -705,9 +694,6 @@ rated_power, <span class="math notranslate nohighlight">\(k\)</span> = steepness
 </tbody>
 </table>
 <p>This table is used for looking up coordinates for specific locations that can be used directly for retrieving weather data.</p>
-</section>
-<section id="predictions">
-<h2>predictions<a class="headerlink" href="#predictions" title="Link to this heading">#</a></h2>
 <p>Contains prediction jobs.</p>
 <table class="table">
 <thead>
@@ -775,9 +761,6 @@ forecasts (minutes)</p></td>
 </tbody>
 </table>
 <p><strong>Prediction</strong>: A prediction is the core concept in openSTEF and largley translate to the prediction_job in the openSTEF code. To make a prediction a prediction is usualy coupled to one or more systems. These systems provide the measurement data for which a forecast is made.</p>
-</section>
-<section id="predictions-quantiles-sets">
-<h2>predictions_quantiles_sets<a class="headerlink" href="#predictions-quantiles-sets" title="Link to this heading">#</a></h2>
 <p>Correspondence table between prediction jobs and the set of quantiles to
 forecast.</p>
 <table class="table">
@@ -806,9 +789,6 @@ forecast.</p>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="predictions-systems">
-<h2>predictions_systems<a class="headerlink" href="#predictions-systems" title="Link to this heading">#</a></h2>
 <p>Correspondence table between prediction jobs and systems.</p>
 <table class="table">
 <thead>
@@ -842,9 +822,6 @@ forecast.</p>
 <li><p>When mulitple systems are coupled to a prediction all these systems are added and the forecast is made for the sum. I ffor whatever reason a system should not be added but subtracted it is possible to set the factor to -1. Is some scaling needs to be carried out in the sum the factor can be changed from 1 (default) to the desired scaling factor.</p></li>
 </ul>
 <p><strong>System</strong> : Represents a physical measurement system. All metadata is saved in this SQL table, the actual timeseries can be retrieved from influx by the corresponding system id.</p>
-</section>
-<section id="quantiles-sets">
-<h2>quantiles_sets<a class="headerlink" href="#quantiles-sets" title="Link to this heading">#</a></h2>
 <p>Contains the specifications of the quantile sets.</p>
 <table class="table">
 <thead>
@@ -874,9 +851,6 @@ quantiles</p></td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="solarspecs">
-<h2>solarspecs<a class="headerlink" href="#solarspecs" title="Link to this heading">#</a></h2>
 <p>Configuration for PV forecasts for each prediction job</p>
 <table class="table">
 <thead>
@@ -919,9 +893,6 @@ quantiles</p></td>
 <li><p>Radius = ‘None’ : when the forecast is for a specific system</p></li>
 <li><p>Radius &gt; 0 when the forecast is for a region</p></li>
 </ul>
-</section>
-<section id="systems">
-<h2>systems<a class="headerlink" href="#systems" title="Link to this heading">#</a></h2>
 <p>Contains informations about <strong>systems</strong>.</p>
 <table class="table">
 <thead>
@@ -1028,9 +999,6 @@ measurements</p></td>
 </tbody>
 </table>
 <p><strong>Polarity</strong> is a factor used to make the measurment comply with positive consumption and negative production of energy.</p>
-</section>
-<section id="systemsapikeys">
-<h2>systemsApiKeys<a class="headerlink" href="#systemsapikeys" title="Link to this heading">#</a></h2>
 <p>API key to retrieve systems measurements.</p>
 <table class="table">
 <thead>
@@ -1058,9 +1026,6 @@ measurements</p></td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="todolist">
-<h2>todolist<a class="headerlink" href="#todolist" title="Link to this heading">#</a></h2>
 <table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p><strong>Name</strong></p></th>
@@ -1100,9 +1065,6 @@ the functions</p></td>
 </tbody>
 </table>
 <p>The todolist table stores jobs that are picked up by the tracy procces that is run every 5 minutes via a CRON job. This makes it possible to run pipelines manually by adding the respective job to the todo list.</p>
-</section>
-<section id="weatherforecastlocations">
-<h2>weatherforecastlocations<a class="headerlink" href="#weatherforecastlocations" title="Link to this heading">#</a></h2>
 <p>Contains the locations of the weather stations. These are used when retrieving weather data for a prediction.</p>
 <table class="table">
 <thead>
@@ -1146,9 +1108,6 @@ the functions</p></td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="windspecs">
-<h2>windspecs<a class="headerlink" href="#windspecs" title="Link to this heading">#</a></h2>
 <p>This table is empty in openstef-reference. Contains the information for
 the wind power forecast related to a prediction job.</p>
 <table class="table">
@@ -1200,7 +1159,6 @@ correct height.</p>
 <div class="line-block">
 <div class="line"><br /></div>
 </div>
-</section>
 </section>
 <section id="overview-of-timeseries-database-schema">
 <h1>Overview of timeseries database schema<a class="headerlink" href="#overview-of-timeseries-database-schema" title="Link to this heading">#</a></h1>
@@ -1281,78 +1239,6 @@ correct height.</p>
   <a class="reference internal nav-link" href="#overview-of-relational-database">
    Overview of relational database
   </a>
-  <ul class="visible nav section-nav flex-column">
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#customers">
-     customers
-    </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#customersapikeys">
-     customersApiKeys
-    </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#genericpowercurves">
-     genericpowercurves
-    </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#nametolatlon">
-     NameToLatLon
-    </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#predictions">
-     predictions
-    </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#predictions-quantiles-sets">
-     predictions_quantiles_sets
-    </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#predictions-systems">
-     predictions_systems
-    </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#quantiles-sets">
-     quantiles_sets
-    </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#solarspecs">
-     solarspecs
-    </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#systems">
-     systems
-    </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#systemsapikeys">
-     systemsApiKeys
-    </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#todolist">
-     todolist
-    </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#weatherforecastlocations">
-     weatherforecastlocations
-    </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#windspecs">
-     windspecs
-    </a>
-   </li>
-  </ul>
  </li>
  <li class="toc-h1 nav-item toc-entry">
   <a class="reference internal nav-link" href="#overview-of-timeseries-database-schema">
