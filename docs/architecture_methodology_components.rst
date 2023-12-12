@@ -14,7 +14,7 @@ Software architecture
 ---------------------
 OpenSTEF is set up as a Python package that performs machine learning in order to forecast energy loads on the energy grid.
 
-.. image:: https://github.com/OpenSTEF/openstef/blob/a3abd78212248ee71fcfe182894c04e2df6dd1df/docs/software_arch.png
+.. image:: software_arch.png
    :width: 830
 
 OpenSTEF contains:
