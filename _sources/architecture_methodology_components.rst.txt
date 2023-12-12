@@ -4,7 +4,7 @@
 
 .. _concepts:
 
- Architecture, Methodology, and Components
+Architecture, Methodology, and Components
 ========
 
 Understanding the architecture of OpenSTEF will help you gain insight on how to use this software package
