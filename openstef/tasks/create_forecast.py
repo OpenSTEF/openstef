@@ -31,7 +31,6 @@ from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstef.tasks.utils.taskcontext import TaskContext
 
 T_BEHIND_DAYS: int = 14
-T_AHEAD_DAYS: int = 2
 
 
 def create_forecast_task(pj: PredictionJobDataClass, context: TaskContext) -> None:
@@ -71,7 +70,7 @@ def create_forecast_task(pj: PredictionJobDataClass, context: TaskContext) -> No
 
     # Define datetime range for input data
     datetime_start = datetime.utcnow() - timedelta(days=T_BEHIND_DAYS)
-    datetime_end = datetime.utcnow() + timedelta(days=T_AHEAD_DAYS)
+    datetime_end = datetime.utcnow() + timedelta(seconds=pj.horizon_minutes * 60)
 
     # Retrieve input data
     input_data = context.database.get_model_input(
