@@ -130,6 +130,7 @@ class TestApplyFeaturesModule(BaseTestCase):
             pj={"model": "proleaf", "lat": 52.132633, "lon": 5.291266},
         )
         expected_output = TestData.load("input_data_multi_horizon_features.csv")
+        
         self.assertDataframeEqual(
             input_data_with_features,
             expected_output,
