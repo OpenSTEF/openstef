@@ -67,7 +67,7 @@ def generate_holiday_feature_functions(
             now.year - 2,
             now.year - 1,
             now.year,
-            now.year + 1
+            now.year + 1,
         ]
 
     country_holidays = holidays.country_holidays(country, years=years)
