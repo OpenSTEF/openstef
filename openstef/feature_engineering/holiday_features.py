@@ -61,7 +61,7 @@ def generate_holiday_feature_functions(
     """
     if years is None:
         now = datetime.now()
-        years = [now.year - 1, now.year]
+        years = [now.year -4, now.year-3, now.year-2, now.year - 1, now.year]
 
     country_holidays = holidays.country_holidays(country, years=years)
 
@@ -154,9 +154,13 @@ def check_for_bridge_day(
         - Dict with holiday feature functions
         - List of bridgedays
 
-    """
+    """   
     country_holidays = holidays.country_holidays(country, years=years)
-
+    
+    # if the date is a holiday, it is not a bridgeday
+    if date in country_holidays:
+        return holiday_functions, bridge_days   
+    
     # Define function explicitely to mitigate 'late binding' problem
     def make_holiday_func(requested_date):
         return lambda x: np.isin(x.index.date, np.array([requested_date]))
@@ -172,7 +176,7 @@ def check_for_bridge_day(
 
     if (is_holiday_in_two_days or is_saturday_in_two_days) and (
         not is_holiday_tommorow and not is_weekend_tommorrow
-    ):
+    ) and not date in country_holidays:
         # Create feature function for each holiday
         holiday_functions.update(
             {
@@ -184,7 +188,7 @@ def check_for_bridge_day(
         )
         bridge_days.append((date + timedelta(days=1)))
 
-    # Looking backward: If day before yesterday is a national holiday
+    # Looking backward: If the day before is a national holiday
     # or a sunday check if yesterday is a national holiday
     is_saturday_two_days_ago = (date - timedelta(days=2)).weekday() == 6
     is_holiday_two_days_ago = (date - timedelta(days=2)) in country_holidays

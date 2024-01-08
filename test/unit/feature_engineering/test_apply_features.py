@@ -78,7 +78,7 @@ class TestApplyFeaturesModule(BaseTestCase):
 
     def test_apply_features(self):
         """Test the 'apply_features' function.
-
+        
             Test if the returned data frame with the generated and added features is
             equal to a previously saved data frame.
 
@@ -91,7 +91,7 @@ class TestApplyFeaturesModule(BaseTestCase):
             pj={"model": "xgb", "lat": 52.132633, "lon": 5.291266},
         )
         expected_output = TestData.load("input_data_with_features.csv")
-
+        
         self.assertDataframeEqual(
             input_data_with_features,
             expected_output,
@@ -180,7 +180,7 @@ class TestApplyFeaturesModule(BaseTestCase):
             .any()
         )
 
-    def test_apply_holiday_features(self):
+    def test_apply_holiday_features(self): 
         input_data = pd.DataFrame(
             index=pd.to_datetime(
                 [
@@ -200,10 +200,12 @@ class TestApplyFeaturesModule(BaseTestCase):
         input_data_with_features = apply_features.apply_features(
             data=input_data, horizon=24
         )
+        
+        expected =  TestData.load("../data/input_data_with_holiday_features.csv")
 
         self.assertDataframeEqual(
             input_data_with_features,
-            TestData.load("../data/input_data_with_holiday_features.csv"),
+            expected,
             check_like=True,  # ignore the order of index & columns
             check_dtype=False,
         )

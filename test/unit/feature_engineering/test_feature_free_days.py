@@ -43,7 +43,7 @@ expected_keys = [
 
 class GeneralTest(BaseTestCase):
     def test_create_holiday_functions(self):
-        holiday_functions = generate_holiday_feature_functions(country="NL")
+        holiday_functions = generate_holiday_feature_functions(country="NL", years=[2023])
 
         # Assert for every holiday a function is available and no extra functions are generated
         self.assertEqual(
