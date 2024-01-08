@@ -117,7 +117,7 @@ class TestApplyFeaturesModule(BaseTestCase):
         assert len(input_data_with_features) == len(input_data_without_features)
         assert "gti" in list(input_data_with_features.columns)
         assert "dni" in list(input_data_with_features.columns)
-        
+
     def test_train_feature_applicator(self):
         input_data_with_features = TrainFeatureApplicator(horizons=[0.25]).add_features(
             TestData.load("input_data.csv"),
