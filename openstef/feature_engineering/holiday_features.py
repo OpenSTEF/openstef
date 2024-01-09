@@ -39,7 +39,6 @@ def generate_holiday_feature_functions(
         - Bouwvak
         - Zomervakantie
         - Voorjaarsvakantie
-
         - Nieuwjaarsdag
         - Pasen
         - Koningsdag
