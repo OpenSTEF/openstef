@@ -36,7 +36,7 @@ def create_basecase_forecast_pipeline(
         input_data: data frame containing the input data necessary for the prediction.
 
     Returns:
-        Basecase forecast
+        Base case forecast
 
     """
     logger = structlog.get_logger(__name__)
