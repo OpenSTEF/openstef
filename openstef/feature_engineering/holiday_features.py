@@ -183,7 +183,7 @@ def check_for_bridge_day(
     if (
         (is_holiday_in_two_days or is_saturday_in_two_days)
         and (not is_holiday_tommorow and not is_weekend_tommorrow)
-        and not date in country_holidays
+        and date not in country_holidays
     ):
         # Create feature function for each holiday
         holiday_functions.update(
