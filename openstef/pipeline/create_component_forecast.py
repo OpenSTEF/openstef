@@ -39,9 +39,7 @@ def create_input(
     input_df = (
         weather_data[["radiation", "windspeed_100m"]]
         .merge(
-            input_data[["forecast"]].rename(
-                columns={"forecast": "total_load"}
-            ),
+            input_data[["forecast"]].rename(columns={"forecast": "total_load"}),
             how="inner",
             right_index=True,
             left_index=True,
