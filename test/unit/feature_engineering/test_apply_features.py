@@ -104,7 +104,6 @@ class TestApplyFeaturesModule(BaseTestCase):
         # Arrange
         input_data_without_features = TestData.load("input_data.csv")
         pj = None
-        expected_output = TestData.load("input_data_with_features.csv")
 
         # Act
         input_data_with_features = apply_features.apply_features(
