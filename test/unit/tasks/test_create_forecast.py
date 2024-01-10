@@ -178,12 +178,12 @@ class TestCreateForecastTask(TestCase):
         # Act & Assert
         with pytest.raises(LookupError) as e:
             create_forecast_task(self.pj, context)
-            
+
         assert (
             e.value.args[0]
             == 'Model not found. Consider checking for a zero flatliner and adding this pid to the "known_zero_flatliners" app_setting. For zero flatliners, no model can be trained.'
         )
-    
+
     @patch(
         "openstef.tasks.create_forecast.create_forecast_pipeline",
         MagicMock(side_effect=LookupError("Model not found. First train a model!")),
@@ -202,11 +202,8 @@ class TestCreateForecastTask(TestCase):
         # Act & Assert
         with pytest.raises(LookupError) as e:
             create_forecast_task(self.pj, context)
-            
-        assert (
-            e.value.args[0]
-            == "Model not found. First train a model!"
-        )
+
+        assert e.value.args[0] == "Model not found. First train a model!"
 
     @patch("openstef.tasks.create_forecast.create_forecast_pipeline")
     def test_create_forecast_task_train_only(self, create_forecast_pipeline_mock):

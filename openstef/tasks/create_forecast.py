@@ -101,7 +101,8 @@ def create_forecast_task(pj: PredictionJobDataClass, context: TaskContext) -> No
             ) from e
         elif isinstance(e, LookupError):
             zero_flatliner_ongoing = detect_ongoing_zero_flatliner(
-                load=input_data.iloc[:, 0], duration_threshold_minutes=pj.flatliner_threshold_minutes
+                load=input_data.iloc[:, 0],
+                duration_threshold_minutes=pj.flatliner_threshold_minutes,
             )
             if zero_flatliner_ongoing:
                 raise LookupError(
