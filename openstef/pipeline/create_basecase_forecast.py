@@ -46,12 +46,13 @@ def create_basecase_forecast_pipeline(
     forecast_start, forecast_end = generate_forecast_datetime_range(input_data)
 
     zero_flatliner_ongoing = validation.detect_ongoing_zero_flatliner(
-        load=input_data.iloc[:, 0], duration_threshold_minutes=pj.flatliner_threshold_minutes
+        load=input_data.iloc[:, 0],
+        duration_threshold_minutes=pj.flatliner_threshold_minutes,
     )
 
     if zero_flatliner_ongoing:
         input_data.loc[input_data.index < forecast_start, "load"] = 0
-    
+
     # Add features
     data_with_features = OperationalPredictFeatureApplicator(
         horizons=[0.25],
