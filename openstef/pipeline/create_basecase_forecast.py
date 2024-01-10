@@ -45,18 +45,13 @@ def create_basecase_forecast_pipeline(
 
     forecast_start, forecast_end = generate_forecast_datetime_range(input_data)
 
-    # Validate data
-    try:
-        validated_data = validation.validate(
-            pj["id"],
-            input_data,
-            pj["flatliner_threshold_minutes"],
-            pj["resolution_minutes"],
-        )
-    except InputDataOngoingZeroFlatlinerError:
-        validated_data = input_data
-        validated_data.loc[input_data.index < forecast_start, "load"] = 0
+    zero_flatliner_ongoing = validation.detect_ongoing_zero_flatliner(
+        load=input_data.iloc[:, 0], duration_threshold_minutes=pj.flatliner_threshold_minutes
+    )
 
+    if zero_flatliner_ongoing:
+        input_data.loc[input_data.index < forecast_start, "load"] = 0
+    
     # Add features
     data_with_features = OperationalPredictFeatureApplicator(
         horizons=[0.25],
@@ -64,7 +59,7 @@ def create_basecase_forecast_pipeline(
             "T-7d",
             "T-14d",
         ],  # Generate features for load 7 days ago and load 14 days ago these are the same as the basecase forecast.
-    ).add_features(validated_data)
+    ).add_features(input_data)
 
     forecast_input = data_with_features[forecast_start:forecast_end]
 
