@@ -39,7 +39,9 @@ def create_input(
     input_df = (
         weather_data[["radiation", "windspeed_100m"]]
         .merge(
-            input_data[["forecast"]].rename(columns={"forecast": "total_load"}),  # "forecast": "total_substation"
+            input_data[["forecast"]].rename(
+                columns={"forecast": "total_load"}
+            ),  # "forecast": "total_substation"
             how="inner",
             right_index=True,
             left_index=True,
@@ -65,7 +67,7 @@ def create_input(
 
     # Features for the new model
     # Periodic Month feature
-    c = (1/11) * np.pi - (1/365)
+    c = (1 / 11) * np.pi - (1 / 365)
     n = pd.to_datetime(input_df.index).strftime("%m").tolist()
     n = np.array([float(x) for x in n])
     input_df["month_ff"] = np.sin(c * (n - 1))
