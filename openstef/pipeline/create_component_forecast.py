@@ -41,7 +41,7 @@ def create_input(
         .merge(
             input_data[["forecast"]].rename(
                 columns={"forecast": "total_load"}
-            ),  # "forecast": "total_substation"
+            ),
             how="inner",
             right_index=True,
             left_index=True,
