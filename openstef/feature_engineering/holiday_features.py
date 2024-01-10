@@ -39,7 +39,6 @@ def generate_holiday_feature_functions(
         - Bouwvak
         - Zomervakantie
         - Voorjaarsvakantie
-
         - Nieuwjaarsdag
         - Pasen
         - Koningsdag
@@ -61,7 +60,14 @@ def generate_holiday_feature_functions(
     """
     if years is None:
         now = datetime.now()
-        years = [now.year - 4, now.year - 3, now.year - 2, now.year - 1, now.year]
+        years = [
+            now.year - 4,
+            now.year - 3,
+            now.year - 2,
+            now.year - 1,
+            now.year,
+            now.year + 1,
+        ]
 
     country_holidays = holidays.country_holidays(country, years=years)
 
