@@ -219,7 +219,7 @@ def detect_ongoing_zero_flatliner(
         duration_threshold_minutes (int): A zero flatliner is only detected if it exceeds the threshold duration.
 
     Returns:
-        bool: Indicating wether or not there is a zero flatliner ongoing for the given load.
+        bool: Indicating whether or not there is a zero flatliner ongoing for the given load.
 
     """
     # remove all timestamps in the future
