@@ -54,6 +54,7 @@ def create_basecase_forecast_pipeline(
     )
 
     if zero_flatliner_ongoing:
+        # Set historic load to zero to force the basecase forecasts to be zero.
         input_data.loc[input_data.index < forecast_start, "load"] = 0
 
     # Add features
