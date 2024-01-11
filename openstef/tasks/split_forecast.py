@@ -203,14 +203,6 @@ def find_components(
             - Dict with the coefficients that result from the fitting
 
     """
-
-    # Define function to fit
-    def weighted_sum(x, *args):
-        if len(x) != len(args):
-            raise ValueError("Length of args should match len of x")
-        weights = np.array([v for v in args])
-        return np.dot(x.T, weights)
-
     load = df.iloc[:, 0]
     wind_ref = df.iloc[:, 1]
     pv_ref = df.iloc[:, 2]
@@ -228,6 +220,13 @@ def find_components(
         bounds = (0, "inf")
     else:
         bounds = ("-inf", "inf")
+
+    # Define function to fit
+    def weighted_sum(x, *args):
+        if len(x) != len(args):
+            raise ValueError("Length of args should match len of x")
+        weights = np.array([v for v in args])
+        return np.dot(x.T, weights)
 
     # Carry out fitting
     # See https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.curve_fit.html # noqa
