@@ -47,7 +47,7 @@ def create_basecase_forecast_pipeline(
 
     if not isinstance(input_data.index, pd.DatetimeIndex):
         raise ValueError("Input dataframe does not have a datetime index.")
-    
+
     zero_flatliner_ongoing = validation.detect_ongoing_zero_flatliner(
         load=input_data.iloc[:, 0],
         duration_threshold_minutes=pj.flatliner_threshold_minutes,
