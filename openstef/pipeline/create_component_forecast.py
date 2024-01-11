@@ -15,7 +15,7 @@ from openstef.model.regressors.dazls import Dazls
 import numpy as np
 
 # Set the path for the Dazls stored model
-DAZLS_STORED = PROJECT_ROOT / "openstef" / "data" / "dazls_stored_new.sav"
+DAZLS_STORED = str(PROJECT_ROOT / "openstef" / "data" / "dazls_stored_new_")
 
 
 def create_input(
@@ -102,9 +102,19 @@ def create_components_forecast_pipeline(
     try:
         input_data = create_input(pj, input_data, weather_data)
 
-        # Save and load the model as .sav file
+        # Save and load the model as .sav file (or as .z file)
         # For the code contact: korte.termijn.prognoses@alliander.com
-        dazls_model: Dazls = joblib.load(DAZLS_STORED)
+        dazls_model = Dazls()
+        dazls_model.domain_model               = joblib.load(DAZLS_STORED + "domain_model.z")
+        dazls_model.domain_model_scaler        = joblib.load(DAZLS_STORED + "domain_model_scaler.z")
+        dazls_model.domain_model_input_columns = joblib.load(DAZLS_STORED + "domain_model_features.z")
+
+        dazls_model.adaptation_model               = joblib.load(DAZLS_STORED + "adaptation_model.z")
+        dazls_model.adaptation_model_scaler        = joblib.load(DAZLS_STORED + "adaptation_model_scaler.z")
+        dazls_model.adaptation_model_input_columns = joblib.load(DAZLS_STORED + "adaptation_model_features.z")
+
+        dazls_model.target_columns = joblib.load(DAZLS_STORED + "target.z")
+        dazls_model.target_scaler  = joblib.load(DAZLS_STORED + "target_scaler.z")
 
         print(dazls_model)
 

@@ -13,9 +13,12 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).parent.parent.parent.parent.absolute()
 
 from openstef.pipeline.create_component_forecast import (
-    create_components_forecast_pipeline,
+    create_components_forecast_pipeline
 )
 
+from openstef.model.regressors.dazls import (
+    Dazls,
+)
 
 class TestComponentForecast(BaseTestCase):
     def setUp(self) -> None:
@@ -29,10 +32,22 @@ class TestComponentForecast(BaseTestCase):
         """
 
         old_model_file = PROJECT_ROOT / "openstef/data/dazls_stored_3.2.49.sav"
-        new_model_file = PROJECT_ROOT / "openstef/data/dazls_stored_new.sav"
+        new_model_file = str(PROJECT_ROOT / "openstef/data/dazls_stored_new_")
 
         self.assertRaises(Exception, joblib.load, old_model_file)
-        dazls_model = joblib.load(new_model_file)
+        dazls_model = Dazls()
+
+        dazls_model.domain_model               = joblib.load(new_model_file + "domain_model.z")
+        dazls_model.domain_model_scaler        = joblib.load(new_model_file + "domain_model_scaler.z")
+        dazls_model.domain_model_input_columns = joblib.load(new_model_file + "domain_model_features.z")
+
+        dazls_model.adaptation_model               = joblib.load(new_model_file + "adaptation_model.z")
+        dazls_model.adaptation_model_scaler        = joblib.load(new_model_file + "adaptation_model_scaler.z")
+        dazls_model.adaptation_model_input_columns = joblib.load(new_model_file + "adaptation_model_features.z")
+
+        dazls_model.target_columns = joblib.load(new_model_file + "target.z")
+        dazls_model.target_scaler  = joblib.load(new_model_file + "target_scaler.z")
+
         assert dazls_model
 
     def test_component_forecast_pipeline_happy_flow(self):
