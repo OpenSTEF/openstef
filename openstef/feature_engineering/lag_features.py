@@ -108,7 +108,7 @@ def generate_trivial_lag_features(horizon: float) -> tuple[list, list]:
         - List of days lags that were used as features during training.
 
     """
-    mindays = int(np.ceil(horizon / 24))
+    mindays = min(int(np.ceil(horizon / 24)), 15)
     lag_time_days_list = list(np.linspace(mindays, 14, 15 - mindays))
 
     # Make list of trivial lag times

@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 import os
-from typing import Any
+from typing import Any, Union
 
 import optuna
 import pandas as pd
@@ -22,7 +22,7 @@ from openstef.model.objective_creator import ObjectiveCreator
 from openstef.model.regressors.regressor import OpenstfRegressor
 from openstef.model.serializer import MLflowSerializer
 from openstef.pipeline.train_model import (
-    DEFAULT_TRAIN_HORIZONS,
+    DEFAULT_TRAIN_HORIZONS_HOURS,
     train_model_pipeline_core,
 )
 from openstef.validation import validation
@@ -43,7 +43,6 @@ def optimize_hyperparameters_pipeline(
     input_data: pd.DataFrame,
     mlflow_tracking_uri: str,
     artifact_folder: str,
-    horizons: list[float] = DEFAULT_TRAIN_HORIZONS,
     n_trials: int = N_TRIALS,
 ) -> dict:
     """Optimize hyperparameters pipeline.
@@ -65,6 +64,12 @@ def optimize_hyperparameters_pipeline(
         Optimized hyperparameters.
 
     """
+    if pj.train_horizons_minutes is None:
+        horizons = DEFAULT_TRAIN_HORIZONS_HOURS
+    else:
+        horizons = [
+            horizon_minutes / 60 for horizon_minutes in pj.train_horizons_minutes
+        ]
     (
         best_model,
         model_specs,
@@ -97,7 +102,7 @@ def optimize_hyperparameters_pipeline(
 def optimize_hyperparameters_pipeline_core(
     pj: PredictionJobDataClass,
     input_data: pd.DataFrame,
-    horizons: list[float] = DEFAULT_TRAIN_HORIZONS,
+    horizons: list[float] = DEFAULT_TRAIN_HORIZONS_HOURS,
     n_trials: int = N_TRIALS,
 ) -> tuple[
     OpenstfRegressor, ModelSpecificationDataClass, Report, dict, int, dict[str, Any]
@@ -109,7 +114,7 @@ def optimize_hyperparameters_pipeline_core(
     Args:
         pj: Prediction job
         input_data: Raw training input data
-        horizons: horizons for feature engineering.
+        horizons: horizons for feature engineering in hours.
         n_trials: The number of trials. Defaults to N_TRIALS.
 
     Raises:
@@ -124,9 +129,6 @@ def optimize_hyperparameters_pipeline_core(
         - Optimized hyperparameters.
 
     """
-    if pj.train_horizons_minutes is not None:
-        horizons = pj.train_horizons_minutes
-
     if input_data.empty:
         raise InputDataInsufficientError("Input dataframe is empty")
     elif "load" not in input_data.columns:

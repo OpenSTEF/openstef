@@ -2,7 +2,7 @@
     SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com>
     SPDX-License-Identifier: MPL-2.0
 
-Domain Adaptation for Zero Shot Learning in Sequence (DAZLS)
+Split forecast: Domain Adaptation for Zero Shot Learning in Sequence (DAZLS)
 ============================================================
 
 DAZLS is an energy splitting function in OpenSTEF. Is a technique which

@@ -3,7 +3,7 @@
     SPDX-License-Identifier: MPL-2.0
 
 Overview of relational database
-============================================================
+===============================
 
 OpenSTEF uses a relational database to store information about prediction jobs and measurements. An ER diagram of this database is shown below.
 
@@ -14,7 +14,7 @@ OpenSTEF uses a relational database to store information about prediction jobs a
 The necessary tables are described in more detail bellow:
 
 customers
--------------
+^^^^^^^^^^^
 +----------------+----------+-----------------------+-----------------+
 | **Name**       | **Type** | **Comment**           | **Example**     |
 +================+==========+=======================+=================+
@@ -31,7 +31,7 @@ customers
 **Customer** : A customer is a collection of predictions. This can be a collection of predictions belonging to a customer but also a collection of prediction belonging to a specific location or substation.
 
 customersApiKeys
-----------------
+^^^^^^^^^^^
 +----------------+----------------+-----------------+-----------------+
 | **Name**       | **Type**       | **Comment**     | **Example**     |
 +================+================+=================+=================+
@@ -60,7 +60,7 @@ Correspondence table between customer ids and prediction jobs ids.
 +--------------------+-----------+-----------------------+-------------+
 
 genericpowercurves
-----------------------
+^^^^^^^^^^^
 Contains the generic load curves of wind turbines. These curves are
 two-parameters sigmoids (center and slope).
 
@@ -99,7 +99,7 @@ where :math:`v` is the windspeed at hub height, :math:`P_{rated}` =
 rated_power, :math:`k` = steepness and :math:`c` = slope_center.
 
 NameToLatLon
-------------
+^^^^^^^^^^^
 +----------------+-----------+-----------------+----------------------+
 | **Name**       | **Type**  | **Comment**     | **Example**          |
 +================+===========+=================+======================+
@@ -114,7 +114,7 @@ This table is used for looking up coordinates for specific locations that can be
 
 
 predictions
------------
+^^^^^^^^^^^
 Contains prediction jobs.
 
 +---------------------+-----------+------------------------------------------------------------------------------------------------------------------------------------------------------+--------------------+
@@ -147,7 +147,7 @@ Contains prediction jobs.
 **Prediction**: A prediction is the core concept in openSTEF and largley translate to the prediction_job in the openSTEF code. To make a prediction a prediction is usualy coupled to one or more systems. These systems provide the measurement data for which a forecast is made.
 
 predictions_quantiles_sets
---------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 Correspondence table between prediction jobs and the set of quantiles to
 forecast.
 
@@ -162,7 +162,7 @@ forecast.
 +-----------------+---------+--------------------------+-----------------+
 
 predictions_systems
--------------------
+^^^^^^^^^^^^^^^^^^^
 Correspondence table between prediction jobs and systems.
 
 +---------------+----------+---------------------------------------------+---------------------+
@@ -184,7 +184,7 @@ Correspondence table between prediction jobs and systems.
 **System** : Represents a physical measurement system. All metadata is saved in this SQL table, the actual timeseries can be retrieved from influx by the corresponding system id.  
 
 quantiles_sets
----------------
+^^^^^^^^^^^^^
 Contains the specifications of the quantile sets.
 
 +----------------+----------+------------------+-------------------------+
@@ -200,7 +200,7 @@ Contains the specifications of the quantile sets.
 +----------------+----------+------------------+-------------------------+
 
 solarspecs
-----------
+^^^^^^^^^^^
 Configuration for PV forecasts for each prediction job
 
 +------------+----------+-------------------+-------------+
@@ -226,7 +226,7 @@ Configuration for PV forecasts for each prediction job
 
 
 systems
----------
+^^^^^^^^^^^
 Contains informations about **systems**.
 
 +-----------------------------------+-----------+-----------------------+---------------------+
@@ -286,7 +286,7 @@ Contains informations about **systems**.
 **Polarity** is a factor used to make the measurment comply with positive consumption and negative production of energy.
 
 systemsApiKeys
-------------------
+^^^^^^^^^^^^^^
 API key to retrieve systems measurements.
 
 +----------------+----------------+-----------------+-------------------+
@@ -300,7 +300,7 @@ API key to retrieve systems measurements.
 +----------------+----------------+-----------------+-------------------+
 
 todolist
----------
+^^^^^^^^
 
 +----------------------+-------------+----------------+----------------+
 | **Name**             | **Type**    | **Comment**    | **Example**    |
@@ -321,7 +321,7 @@ todolist
 The todolist table stores jobs that are picked up by the tracy procces that is run every 5 minutes via a CRON job. This makes it possible to run pipelines manually by adding the respective job to the todo list.
 
 weatherforecastlocations
-------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^
 Contains the locations of the weather stations. These are used when retrieving weather data for a prediction.
 
 +----------------+----------------+-----------------+-----------------+
@@ -342,7 +342,7 @@ Contains the locations of the weather stations. These are used when retrieving w
 +----------------+----------------+-----------------+-----------------+
 
 windspecs
----------
+^^^^^^^^^^^
 This table is empty in openstef-reference. Contains the information for
 the wind power forecast related to a prediction job.
 

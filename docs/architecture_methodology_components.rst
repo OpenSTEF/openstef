@@ -4,7 +4,7 @@
 
 .. _concepts:
 
-Concepts
+Architecture, Methodology, and Components
 ========
 
 Understanding the architecture of OpenSTEF will help you gain insight on how to use this software package
@@ -12,12 +12,12 @@ and better understand the rest of the documentation.
 
 Software architecture
 ---------------------
-
-.. image:: https://user-images.githubusercontent.com/25053215/184536369-ed608e86-1ea8-4c16-8c6a-5eaeb145eedf.png
-  :width: 800
-
 OpenSTEF is set up as a Python package that performs machine learning in order to forecast energy loads on the energy grid.
-It contains:
+
+.. image:: software_arch.png
+   :width: 830
+
+OpenSTEF contains:
 
 * **Prediction job**: input configuration for a task and/or pipeline
   (e.g. train an XGB model for a certain location).

@@ -22,6 +22,7 @@ The Technical Steering Committee consists of the following members:
 * Jan Maarten van Doorn
 * Jonas van den Bogaard
 * Frederik Stoel
+* Jonita Ruiter
 
 More information, meeting notes and meeting links can be found `here <https://wiki.lfenergy.org/display/OS/OpenSTEF+Technical+Steering+Committee>`_:
 
@@ -39,7 +40,7 @@ For contributing in code have a look at the `contributing guidelines <https://gi
 
 If you found a bug or would like to request a feature please open an issue `here <https://github.com/OpenSTEF/openstef/issues>`_
 
-During the bi-weekly refinement we refine open issues. This meeting is open for anyone that is interested, more details and meeting links can be found `here <https://wiki.lfenergy.org/display/OS/Biweekly+Refinement>`_
+During the four-weekly community meetings we discuss progress, refine open issues and explore collaboration possibilities. This meeting is open for anyone that is interested, more details and meeting links can be found `here <https://wiki.lfenergy.org/display/OS/Biweekly+Refinement>`_
 
 Support
 -------
