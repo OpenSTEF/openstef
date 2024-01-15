@@ -62,7 +62,7 @@ def validate(
 
     # Drop 'false' measurements. e.g. where load appears to be constant.
     data = replace_repeated_values_with_nan(
-        data, max_length=flatliner_threshold_repetitions, column_name=data.columns[0]
+        data, threshold=flatliner_threshold_repetitions, column_name=data.columns[0]
     )
     num_repeated_values = len(data) - len(data.iloc[:, 0].dropna())
     if num_repeated_values > 0:
