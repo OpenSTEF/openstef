@@ -411,13 +411,13 @@
 <span id="openstef-preprocessing-preprocessing-module"></span><h2>openstef.preprocessing.preprocessing module<a class="headerlink" href="#module-openstef.preprocessing.preprocessing" title="Link to this heading">#</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="openstef.preprocessing.preprocessing.replace_repeated_values_with_nan">
-<span class="sig-prename descclassname"><span class="pre">openstef.preprocessing.preprocessing.</span></span><span class="sig-name descname"><span class="pre">replace_repeated_values_with_nan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.preprocessing.preprocessing.replace_repeated_values_with_nan" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">openstef.preprocessing.preprocessing.</span></span><span class="sig-name descname"><span class="pre">replace_repeated_values_with_nan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.preprocessing.preprocessing.replace_repeated_values_with_nan" title="Link to this definition">#</a></dt>
 <dd><p>Replace sequentially repeated values with NaN.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>df</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – Data with potential repeating values.</p></li>
-<li><p><strong>max_length</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Maximum length of sequence. Above are set to NaN.</p></li>
+<li><p><strong>threshold</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The minimum number of squentially repeated values needed to trigger the replacement with NaN.</p></li>
 <li><p><strong>column_name</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Column name of input dataframe with repeating values.</p></li>
 </ul>
 </dd>
