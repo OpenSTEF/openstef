@@ -15,7 +15,7 @@ from openstef.model.regressors.dazls import Dazls
 import numpy as np
 
 # Set the path for the Dazls stored model
-DAZLS_STORED = str(PROJECT_ROOT / "openstef" / "data" / "dazls_stored_new_")
+DAZLS_STORED = str(PROJECT_ROOT / "openstef" / "data" / "dazls_model_3.4.0" / "dazls_stored_3.4.0_")
 
 
 def create_input(
@@ -66,8 +66,7 @@ def create_input(
     # Features for the new model
     # Periodic Month feature
     c = (1 / 11) * np.pi - (1 / 365)
-    n = pd.to_datetime(input_df.index).strftime("%m").tolist()
-    n = np.array([float(x) for x in n])
+    n = np.array(input_df.index.month, dtype=float)
     input_df["month_ff"] = np.sin(c * (n - 1))
 
     return input_df
@@ -116,7 +115,8 @@ def create_components_forecast_pipeline(
         dazls_model.target_columns = joblib.load(DAZLS_STORED + "target.z")
         dazls_model.target_scaler  = joblib.load(DAZLS_STORED + "target_scaler.z")
 
-        print(dazls_model)
+        logger = structlog.get_logger(__name__)
+        logger.info("DAZLS model loaded", dazls_model=str(dazls_model))
 
         # Use the predict function of Dazls model
         # As input data we use the input_data function which takes into consideration what we want as an input for the forecast and what Dazls can accept as an input
