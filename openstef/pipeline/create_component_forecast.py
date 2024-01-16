@@ -15,7 +15,9 @@ from openstef.model.regressors.dazls import Dazls
 import numpy as np
 
 # Set the path for the Dazls stored model
-DAZLS_STORED = str(PROJECT_ROOT / "openstef" / "data" / "dazls_model_3.4.0" / "dazls_stored_3.4.0_")
+DAZLS_STORED = str(
+    PROJECT_ROOT / "openstef" / "data" / "dazls_model_3.4.0" / "dazls_stored_3.4.0_"
+)
 
 
 def create_input(
