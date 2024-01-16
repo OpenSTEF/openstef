@@ -155,3 +155,23 @@ class Dazls(BaseEstimator):
         rmse = (mean_squared_error(truth, prediction)) ** 0.5
         r2_score_value = r2_score(truth, prediction)
         return rmse, r2_score_value
+
+    def __str__(self):
+        """String method of the DAZLs model, provides a summary of the model for easy inspection.
+
+        Returns:
+            Summary represented by a string
+
+        """
+        summary_str = (
+            f"{self.__name__} model summary:\n\n"
+            f"Domain Model: {self.domain_model} \n"
+            f"\tInput columns: {self.domain_model_input_columns} \n"
+            f"\tScaler: {self.domain_model_scaler} \n\n"
+            f"Adaptation Model: {self.adaptation_model} \n"
+            f"\tInput columns: {self.adaptation_model_input_columns} \n"
+            f"\tScaler: {self.adaptation_model_scaler} \n\n"
+            f"Target columns: {self.target_columns}"
+        )
+
+        return summary_str
