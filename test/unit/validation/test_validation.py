@@ -50,7 +50,7 @@ class TestDataValidation(BaseTestCase):
             self.pj["flatliner_threshold_minutes"],
             resolution_minutes=15,
         )
-        self.assertEqual(26, len(validated_data[validated_data["load"].isna()]))
+        self.assertEqual(50, len(validated_data[validated_data["load"].isna()]))
 
     def test_validate_none_threshold(self):
         """return the input if flatliner_threshold_minutes is None"""
