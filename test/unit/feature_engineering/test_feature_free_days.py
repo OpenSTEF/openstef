@@ -16,12 +16,10 @@ expected_keys = [
     "is_tweede_paasdag",
     "is_koningsdag",
     "is_hemelvaart",
-    "is_bridgedayhemelvaart",
     "is_eerste_pinksterdag",
     "is_tweede_pinksterdag",
     "is_eerste_kerstdag",
     "is_tweede_kerstdag",
-    "is_bridgedaykoningsdag",
     "is_bridgeday",
     "is_schoolholiday",
     "is_voorjaarsvakantiezuid",
@@ -43,7 +41,9 @@ expected_keys = [
 
 class GeneralTest(BaseTestCase):
     def test_create_holiday_functions(self):
-        holiday_functions = generate_holiday_feature_functions(country="NL")
+        holiday_functions = generate_holiday_feature_functions(
+            country="NL", years=[2023]
+        )
 
         # Assert for every holiday a function is available and no extra functions are generated
         self.assertEqual(
