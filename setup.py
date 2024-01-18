@@ -43,7 +43,7 @@ setup(
     # for more information
     package_data={
         # Include anything in the data directory
-        "openstef": ["data/*", "*.license"]
+        "openstef": ["data/*", "data/dazls_model_3.4.0/*", "*.license"]
     },
     python_requires=">=3.9.0",
     install_requires=read_requirements_from_file(),
