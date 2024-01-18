@@ -46,7 +46,6 @@ setup(
         "openstef": [
             "data/*",
             "data/dazls_model_3.4.0/*",
-            "data/dazls_model_3.2.49/*",
             "*.license",
         ]
     },
