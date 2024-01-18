@@ -7,7 +7,7 @@ import pandas as pd
 import structlog
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
-from openstef.exceptions import NoRealisedLoadError
+from openstef.exceptions import NoRealisedLoadError, InputDataOngoingZeroFlatlinerError
 from openstef.feature_engineering.feature_applicator import (
     OperationalPredictFeatureApplicator,
 )
@@ -36,21 +36,26 @@ def create_basecase_forecast_pipeline(
         input_data: data frame containing the input data necessary for the prediction.
 
     Returns:
-        Basecase forecast
+        Base case forecast
 
     """
     logger = structlog.get_logger(__name__)
 
     logger.info("Preprocessing data for basecase forecast")
-    # Validate data
-    # Currently effectively disabled by giving None.
-    # We keep this step so it later can be filled using arguments defined in PJ
-    validated_data = validation.validate(
-        pj["id"],
-        input_data,
-        flatliner_threshold_minutes=None,
-        resolution_minutes=pj["resolution_minutes"],
+
+    forecast_start, forecast_end = generate_forecast_datetime_range(input_data)
+
+    if not isinstance(input_data.index, pd.DatetimeIndex):
+        raise ValueError("Input dataframe does not have a datetime index.")
+
+    zero_flatliner_ongoing = validation.detect_ongoing_zero_flatliner(
+        load=input_data.iloc[:, 0],
+        duration_threshold_minutes=pj.flatliner_threshold_minutes,
     )
+
+    if zero_flatliner_ongoing:
+        # Set historic load to zero to force the basecase forecasts to be zero.
+        input_data.loc[input_data.index < forecast_start, "load"] = 0
 
     # Add features
     data_with_features = OperationalPredictFeatureApplicator(
@@ -59,12 +64,8 @@ def create_basecase_forecast_pipeline(
             "T-7d",
             "T-14d",
         ],  # Generate features for load 7 days ago and load 14 days ago these are the same as the basecase forecast.
-    ).add_features(validated_data)
+    ).add_features(input_data)
 
-    # Similarly to the forecast pipeline, only try to make a forecast for moments in the future
-    # TODO, do we want to be this strict on time window of forecast in this place?
-    # see issue https://github.com/OpenSTEF/openstef/issues/121
-    forecast_start, forecast_end = generate_forecast_datetime_range(data_with_features)
     forecast_input = data_with_features[forecast_start:forecast_end]
 
     # Initialize model
