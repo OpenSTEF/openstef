@@ -9,7 +9,7 @@ mlflow~=2.3
 networkx~=3.1
 optuna~=3.1
 pandas~=2.0
-plotly~=5.14
+plotly~=5.18
 pvlib==0.9.4
 pydantic~=2.4
 pymsteams~=0.2.2   # TODO remove teams dependency
