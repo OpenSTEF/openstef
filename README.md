@@ -20,16 +20,27 @@ SPDX-License-Identifier: MPL-2.0
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/5585/badge)](https://bestpractices.coreinfrastructure.org/projects/5585)
 
 # OpenSTEF
+OpenSTEF is a Python package designed for generating short-term forecasts in the energy sector. The repository includes all the essential components required for machine learning pipelines that facilitate the forecasting process. To utilize the package, users are required to furnish their own data storage and retrieval interface.
 
-OpenSTEF is a Python package which is used to make short term forecasts for the energy sector. This repository contains all components for the machine learning pipeline required to make a forecast. In order to use the package you need to provide your own data storage and retrieval interface.
+# Table of contents
+- [External information sources](#external-information-sources)
+- [Installation](install)
+- [Usage](usage)
+- [Reference Implementation](reference-implementation)
+- [Database connector for OpenSTEF](Openstef-dbc-Database-connector-for-openstef) 
+- [License](license)
+- [Licences third-party libraries](licenses-third-party-libraries)
+- [Contributing](contributing)
+- [Contact](contact)
 
-Find the latest information on the project on [the project's website](https://www.lfenergy.org/projects/openstef/).
-
-The `openstef` Python package is available at: https://pypi.org/project/openstef/.
-
-Documentation is available at: https://openstef.github.io/openstef/index.html.
-
-You can also watch a [video about OpenSTEF](https://www.lfenergy.org/forecasting-to-create-a-more-resilient-optimized-grid/) instead of reading about the project.
+# External information sources
+- [Documentation website](https://openstef.github.io/openstef/index.html);
+- [Python package](https://pypi.org/project/openstef/);
+- [Project website](https://www.lfenergy.org/projects/openstef/);
+- [Documentation on dashboard](https://raw.githack.com/OpenSTEF/.github/main/profile/html/openstef_dashboard_doc.html);
+- [Linux Foundation project page](https://openstef.github.io/openstef/index.html)
+- [Video about OpenSTEF](https://www.lfenergy.org/forecasting-to-create-a-more-resilient-optimized-grid/);
+- [Teams channel](https://teams.microsoft.com/l/team/19%3ac08a513650524fc988afb296cd0358cc%40thread.tacv2/conversations?groupId=bfcb763a-3a97-4938-81d7-b14512aa537d&tenantId=697f104b-d7cb-48c8-ac9f-bd87105bafdc) 
 
 # Installation
 
@@ -65,6 +76,12 @@ A complete implementation including databases, user interface, example data, etc
 ![screenshot](https://user-images.githubusercontent.com/60883372/146760483-29af3ac7-62af-4f13-98c7-982a79c517d1.jpg)
 Screenshot of the operational dashboard showing the key functionality of OpenSTEF.
 Dashboard documentation can be found [here](https://github.com/OpenSTEF/.github/blob/main/profile/README.md).
+
+## Openstef-dbc - Database connector for openstef
+This repository provides an interface to OpenSTEF (reference) databases. The repository can be found [here](https://github.com/OpenSTEF/openstef-dbc).
+
+## Example notebooks 
+To help you get started, a set of fundamental example notebooks has been created. You can access these offline examples [here](https://github.com/OpenSTEF/openstef-offline-example).
 
 ## License
 This project is licensed under the Mozilla Public License, version 2.0 - see LICENSE for details.

@@ -41,8 +41,8 @@ class PredictionJobDataClass(BaseModel):
     If unsure what to pick, choose ``"demand"``.
 
     """
-    horizon_minutes: int
-    """The horizon of the desired forecast in minutes."""
+    horizon_minutes: int = 2880
+    """The horizon of the desired forecast in minutes. Defaults to 2880 minutes (i.e. 2 days)."""
     resolution_minutes: int
     """The resolution of the desired forecast in minutes."""
     lat: float

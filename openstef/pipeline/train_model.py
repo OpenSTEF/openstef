@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 import logging
 import os
-from typing import Optional, Union, Tuple
+from typing import Optional, Union
 
 import pandas as pd
 import structlog
@@ -25,7 +25,7 @@ from openstef.model.standard_deviation_generator import StandardDeviationGenerat
 from openstef.model_selection.model_selection import split_data_train_validation_test
 from openstef.validation import validation
 
-DEFAULT_TRAIN_HORIZONS: list[float] = [0.25, 47.0]
+DEFAULT_TRAIN_HORIZONS_HOURS: list[float] = [0.25, 47.0]
 MAXIMUM_MODEL_AGE: int = 7
 
 DEFAULT_EARLY_STOPPING_ROUNDS: int = 10
@@ -80,12 +80,19 @@ def train_model_pipeline(
 
     # Train model with core pipeline
     try:
+        if pj.train_horizons_minutes is None:
+            horizons = DEFAULT_TRAIN_HORIZONS_HOURS
+        else:
+            horizons = [
+                horizon_minutes / 60 for horizon_minutes in pj.train_horizons_minutes
+            ]
+
         model, report, model_specs_updated, data_sets = train_model_pipeline_core(
             pj,
             model_specs,
             input_data,
             old_model,
-            horizons=pj.train_horizons_minutes,
+            horizons=horizons,
         )
     except OldModelHigherScoreError as OMHSE:
         logger.error("Old model is better than new model", pid=pj["id"], exc_info=OMHSE)
@@ -134,7 +141,7 @@ def train_model_pipeline_core(
     model_specs: ModelSpecificationDataClass,
     input_data: pd.DataFrame,
     old_model: OpenstfRegressor = None,
-    horizons: Union[list[float], str] = None,
+    horizons: list[float] = DEFAULT_TRAIN_HORIZONS_HOURS,
 ) -> Union[
     OpenstfRegressor,
     Report,
@@ -151,7 +158,7 @@ def train_model_pipeline_core(
         model_specs: Dataclass containing model specifications
         input_data: Input data
         old_model: Old model to compare to. Defaults to None.
-        horizons: horizons to train on in hours.
+        horizons: Horizons to train on in hours, relevant for feature engineering.
 
     Raises:
         InputDataInsufficientError: when input data is insufficient.
@@ -165,12 +172,6 @@ def train_model_pipeline_core(
         - Datasets (tuple[pd.DataFrmae, pd.DataFrame, pd.Dataframe): The train, validation and test sets
 
     """
-    if horizons is None:
-        if pj.train_horizons_minutes is None:
-            horizons = DEFAULT_TRAIN_HORIZONS
-        else:
-            horizons = pj.train_horizons_minutes
-
     logger = structlog.get_logger(__name__)
 
     # Call common pipeline
@@ -229,7 +230,7 @@ def train_pipeline_common(
     pj: PredictionJobDataClass,
     model_specs: ModelSpecificationDataClass,
     input_data: pd.DataFrame,
-    horizons: Union[list[float], str],
+    horizons: list[float],
     test_fraction: float = 0.0,
     backtest: bool = False,
     test_data_predefined: pd.DataFrame = pd.DataFrame(),

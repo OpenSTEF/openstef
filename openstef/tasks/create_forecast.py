@@ -29,9 +29,9 @@ from openstef.exceptions import InputDataOngoingZeroFlatlinerError
 from openstef.pipeline.create_forecast import create_forecast_pipeline
 from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstef.tasks.utils.taskcontext import TaskContext
+from openstef.validation.validation import detect_ongoing_zero_flatliner
 
 T_BEHIND_DAYS: int = 14
-T_AHEAD_DAYS: int = 2
 
 
 def create_forecast_task(pj: PredictionJobDataClass, context: TaskContext) -> None:
@@ -71,7 +71,7 @@ def create_forecast_task(pj: PredictionJobDataClass, context: TaskContext) -> No
 
     # Define datetime range for input data
     datetime_start = datetime.utcnow() - timedelta(days=T_BEHIND_DAYS)
-    datetime_end = datetime.utcnow() + timedelta(days=T_AHEAD_DAYS)
+    datetime_end = datetime.utcnow() + timedelta(seconds=pj.horizon_minutes * 60)
 
     # Retrieve input data
     input_data = context.database.get_model_input(
@@ -97,12 +97,19 @@ def create_forecast_task(pj: PredictionJobDataClass, context: TaskContext) -> No
             return
         elif isinstance(e, InputDataOngoingZeroFlatlinerError):
             raise InputDataOngoingZeroFlatlinerError(
-                'Consider adding this pid to the "known_zero_flatliners" app_setting.'
+                'All recent load measurements are zero. Check the load profile of this pid as well as related/neighbouring prediction jobs. Afterwards, consider adding this pid to the "known_zero_flatliners" app_setting and possibly removing other pids from the same app_setting.'
             ) from e
         elif isinstance(e, LookupError):
-            raise LookupError(
-                'Consider checking for a zero flatliner and adding this pid to the "known_zero_flatliners" app_setting. For zero flatliners, no model can be trained.'
-            ) from e
+            zero_flatliner_ongoing = detect_ongoing_zero_flatliner(
+                load=input_data.iloc[:, 0],
+                duration_threshold_minutes=pj.flatliner_threshold_minutes,
+            )
+            if zero_flatliner_ongoing:
+                raise LookupError(
+                    'Model not found. Consider checking for a zero flatliner and adding this pid to the "known_zero_flatliners" app_setting. For zero flatliners, no model can be trained.'
+                ) from e
+            else:
+                raise e
 
     # Write forecast to the database
     context.database.write_forecast(forecast, t_ahead_series=True)
