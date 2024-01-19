@@ -71,7 +71,7 @@ class PredictionJobDataClass(BaseModel):
     """Minimum fraction of data that should be available for making a regular forecast."""
     minimal_table_length: int = 100
     """Minimum length (in rows) of the forecast input for making a regular forecast."""
-    flatliner_threshold_minutes: int = 360
+    flatliner_threshold_minutes: int = 1440
     """Number of minutes that the load has to be constant to detect a flatliner. """
     depends_on: Optional[list[Union[int, str]]]
     """Link to another prediction job on which this prediction job might depend."""
