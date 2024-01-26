@@ -73,7 +73,7 @@ class StandardDeviationGenerator:
         for hour in range(24):
             hour_error = error[error.index == hour]
             result.loc[hour,"stdev"]=np.std(hour_error)
-            result.loc[hour,"hour"]=hour
+            result.loc[hour,"hour"]=hour 
 
         result = result.astype("float")
 
