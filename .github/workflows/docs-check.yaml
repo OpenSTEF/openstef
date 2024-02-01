@@ -24,6 +24,7 @@ jobs:
     - name: Build documentation
       uses: ammaraskar/sphinx-action@master
       with:
+        python-version: '3.9'
         pre-build-command: |
           cp requirements.txt docs/requirements.txt &&\
           printf "\npydata-sphinx-theme==0.8.1\n" >> docs/requirements.txt &&\
