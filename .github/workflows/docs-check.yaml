@@ -25,6 +25,7 @@ jobs:
       uses: ammaraskar/sphinx-action@master
       with:
         pre-build-command: |
+          echo hoi123 &&\
           cp requirements.txt docs/requirements.txt &&\
           printf "\npydata-sphinx-theme==0.12.0\n" >> docs/requirements.txt &&\
           printf "\njinja2==3.0.0\n" >> docs/requirements.txt &&\
