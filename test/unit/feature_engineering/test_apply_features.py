@@ -104,7 +104,6 @@ class TestApplyFeaturesModule(BaseTestCase):
         # Arrange
         input_data_without_features = TestData.load("input_data.csv")
         pj = None
-        expected_output = TestData.load("input_data_with_features.csv")
 
         # Act
         input_data_with_features = apply_features.apply_features(
@@ -117,12 +116,6 @@ class TestApplyFeaturesModule(BaseTestCase):
         assert len(input_data_with_features) == len(input_data_without_features)
         assert "gti" in list(input_data_with_features.columns)
         assert "dni" in list(input_data_with_features.columns)
-        self.assertDataframeEqual(
-            input_data_with_features,
-            expected_output,
-            check_like=True,  # ignore the order of index & columns
-            check_dtype=False,
-        )
 
     def test_train_feature_applicator(self):
         input_data_with_features = TrainFeatureApplicator(horizons=[0.25]).add_features(
@@ -130,6 +123,7 @@ class TestApplyFeaturesModule(BaseTestCase):
             pj={"model": "proleaf", "lat": 52.132633, "lon": 5.291266},
         )
         expected_output = TestData.load("input_data_multi_horizon_features.csv")
+
         self.assertDataframeEqual(
             input_data_with_features,
             expected_output,
@@ -163,18 +157,14 @@ class TestApplyFeaturesModule(BaseTestCase):
         # Skip first row, since T-30min not available for first row
         self.assertTrue(
             input_data_with_features.loc[horizon == 47, ["APX", "T-30min"]]
-            .iloc[
-                1:,
-            ]
+            .iloc[1:,]
             .isna()
             .all()
             .all()
         )
         self.assertFalse(
             input_data_with_features.loc[horizon == 0.25, ["APX", "T-30min"]]
-            .iloc[
-                1:,
-            ]
+            .iloc[1:,]
             .isna()
             .any()
             .any()
@@ -201,9 +191,11 @@ class TestApplyFeaturesModule(BaseTestCase):
             data=input_data, horizon=24
         )
 
+        expected = TestData.load("../data/input_data_with_holiday_features.csv")
+
         self.assertDataframeEqual(
             input_data_with_features,
-            TestData.load("../data/input_data_with_holiday_features.csv"),
+            expected,
             check_like=True,  # ignore the order of index & columns
             check_dtype=False,
         )

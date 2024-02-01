@@ -62,7 +62,7 @@ def validate(
 
     # Drop 'false' measurements. e.g. where load appears to be constant.
     data = replace_repeated_values_with_nan(
-        data, max_length=flatliner_threshold_repetitions, column_name=data.columns[0]
+        data, threshold=flatliner_threshold_repetitions, column_name=data.columns[0]
     )
     num_repeated_values = len(data) - len(data.iloc[:, 0].dropna())
     if num_repeated_values > 0:
@@ -219,7 +219,7 @@ def detect_ongoing_zero_flatliner(
         duration_threshold_minutes (int): A zero flatliner is only detected if it exceeds the threshold duration.
 
     Returns:
-        bool: Indicating wether or not there is a zero flatliner ongoing for the given load.
+        bool: Indicating whether or not there is a zero flatliner ongoing for the given load.
 
     """
     # remove all timestamps in the future
