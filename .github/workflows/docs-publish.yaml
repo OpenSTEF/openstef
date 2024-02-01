@@ -23,6 +23,7 @@ jobs:
         python-version: '3.9'
     # Run pre-build command
     - run: |
+        echo hier! &&\
         cp requirements.txt docs/requirements.txt &&\
         printf "\npydata-sphinx-theme==0.12.0\n" >> docs/requirements.txt &&\
         printf "\njinja2==3.0.0\n" >> docs/requirements.txt &&\
