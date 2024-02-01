@@ -26,28 +26,8 @@ jobs:
       with:
         python-version: '3.9'
 
-    #- name: Upgrade pip
-    #  run: |
-      # install pip=>20.1 to use "pip cache dir"
-    #    python3 -m pip install --upgrade pip
-
     # Build documentation
-    # The online deployer here is out of date because of an old docker file, namely version 2.4.4
-    # therefore it will certainly not work with python 3.10, 3.9 was not exactly found but highly likely
-    # that with more modern packages that still work with it do not work with the rest.
-    # An alternative is to build it directly ourselves or
-    # use https://github.com/peaceiris/actions-gh-pages
     - name: Build documentation
-      #uses: ammaraskar/sphinx-action@master
-      #with:
-      #  pre-build-command: |
-      #    cp requirements.txt docs/requirements.txt &&\
-      #    printf "\npydata-sphinx-theme==0.12.0\n" >> docs/requirements.txt &&\
-      #    printf "\njinja2==3.0.0\n" >> docs/requirements.txt &&\
-      #    printf "\nsphinx_autodoc_typehints==1.19.4\n" >> docs/requirements.txt &&\
-      #    printf "\nmkdocs==1.2.3\n" >> docs/requirements.txt &&\
-      #    sphinx-apidoc -o docs openstef
-      #  docs-folder: "docs/"
       run: |
           cp requirements.txt docs/requirements.txt &&\
           printf "\npydata-sphinx-theme==0.12.0\n" >> docs/requirements.txt &&\
