@@ -32,7 +32,9 @@ class TestComponentForecast(BaseTestCase):
         Assert that loading the old model generates an exception and the new model does not
         """
 
-        old_model_file = PROJECT_ROOT / "openstef/data/dazls_model_3.2.49/dazls_stored_3.2.49.sav"
+        old_model_file = (
+            PROJECT_ROOT / "openstef/data/dazls_model_3.2.49/dazls_stored_3.2.49.sav"
+        )
         new_model_file = str(
             PROJECT_ROOT / "openstef/data/dazls_model_3.4.7/dazls_stored_3.4.7_"
         )
