@@ -126,7 +126,7 @@ class TestTrainModelPipeline(BaseTestCase):
 
         """
         # Select 50 data points to speedup test
-        train_input = self.train_input.iloc[::50, :]
+        train_input = self.train_input.iloc[:50, :]
         # Remove modeltypes which are optional, and add a dummy regressor
         for model_type in list(MLModelType) + [__name__ + ".DummyRegressor"]:
             with self.subTest(model_type=model_type):
