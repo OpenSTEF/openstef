@@ -73,8 +73,10 @@ class PredictionJobDataClass(BaseModel):
     """Minimum length (in rows) of the forecast input for making a regular forecast."""
     flatliner_threshold_minutes: int = 1440
     """Number of minutes that the load has to be constant to detect a flatliner. """
+    country: str = "NL"
+    """Used in OpenSTEF-dbc to fetch relevant data for the country"""
     depends_on: Optional[list[Union[int, str]]]
-    """Link to another prediction job on which this prediction job might depend."""
+    """Link to another prediction job on which this prediction job might depend."""  
     sid: Optional[str]
     """Only required for create_solar_forecast task"""
     turbine_type: Optional[str]
