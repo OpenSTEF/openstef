@@ -28,7 +28,7 @@ class TestBaseCaseForecast(BaseTestCase):
             - (forecast_input.index.max() - timedelta(days=7))
         ).total_seconds()
         forecast_input = forecast_input.shift(
-            freq="T", periods=int(int(offset_seconds / 60.0 / 15.0) * 15)
+            freq="min", periods=int(int(offset_seconds / 60.0 / 15.0) * 15)
         )
 
         self.forecast_input = forecast_input
