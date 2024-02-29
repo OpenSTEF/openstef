@@ -38,6 +38,7 @@ class Dazls(BaseEstimator):
 
     Args:
         - BaseEstimator (object) : a base model that can be used to carry out predictions.
+
     """
 
     def __init__(self):

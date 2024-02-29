@@ -43,7 +43,7 @@ def generate_lag_feature_functions(
     for minutes in lag_times_minutes:  # Add intraday-lag functions (lags in minutes)
 
         def func(x, shift=minutes):
-            return x.shift(freq="T", periods=1 * shift)
+            return x.shift(freq="min", periods=1 * shift)
 
         new = {"T-" + str(int(minutes)) + "min": func}
         lag_functions.update(new)

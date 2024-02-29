@@ -20,15 +20,19 @@ jobs:
     # Checkout
     - name: Checkout code
       uses: actions/checkout@v2
+
+      # Setup python version
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
     # Build documentation
     - name: Build documentation
-      uses: ammaraskar/sphinx-action@master
-      with:
-        pre-build-command: |
+      run: |
           cp requirements.txt docs/requirements.txt &&\
-          printf "\npydata-sphinx-theme==0.8.1\n" >> docs/requirements.txt &&\
+          printf "\npydata-sphinx-theme==0.12.0\n" >> docs/requirements.txt &&\
           printf "\njinja2==3.0.0\n" >> docs/requirements.txt &&\
           printf "\nsphinx_autodoc_typehints==1.19.4\n" >> docs/requirements.txt &&\
           printf "\nmkdocs==1.2.3\n" >> docs/requirements.txt &&\
+          pip install -r docs/requirements.txt &&\
           sphinx-apidoc -o docs openstef
-        docs-folder: "docs/"
