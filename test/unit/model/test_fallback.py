@@ -24,7 +24,10 @@ class TestFallback(BaseTestCase):
             fallback_strategy="extreme_day",
         )
 
-        self.assertDataframeEqual(fallback_forecast, expected_forecast)
+        self.assertDataframeEqual(
+            fallback_forecast.sort_index(),
+            expected_forecast.sort_index(),
+        )
 
     def test_generate_fallback_empty_load(self):
         """Test if exception is raised if load is empty"""
