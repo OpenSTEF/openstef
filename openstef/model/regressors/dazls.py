@@ -116,6 +116,7 @@ class Dazls(BaseEstimator):
             x: domain_model_test_data, adaptation_model_test_data
             return_sub_preds : a flag value indicating to return the predictions of the domain model and adaptation
                                model separately. (Default: False.)
+
         Returns:
             prediction: The output prediction after both models.
 
