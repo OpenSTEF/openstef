@@ -36,7 +36,7 @@ class TestComponentForecast(BaseTestCase):
             PROJECT_ROOT / "openstef/data/dazls_model_3.2.49/dazls_stored_3.2.49.sav"
         )
         new_model_file = str(
-            PROJECT_ROOT / "openstef/data/dazls_model_3.4.0/dazls_stored_3.4.0_"
+            PROJECT_ROOT / "openstef/data/dazls_model_3.4.7/dazls_stored_3.4.7_"
         )
 
         self.assertRaises(Exception, joblib.load, old_model_file)
