@@ -15,13 +15,29 @@ class Dazls(BaseEstimator):
 
     The model carries out wind and solar power prediction for unseen target substations using training data from
     other substations with known components.
+    This model has two sub-models:
+
+    - domain model : a model taking a set of 'input' features of a substation and make an 'initial' prediction.
+      Input features can be features such as: weather, geospatial, total load, etc.
+      These features are always directly related to the components' size in some way.
+
+
+    - adaptation model : a model taking a set of 'meta' features of a substation and refines the domain model's
+      prediction. Next to the features, it is trained on the domain model's predictions.
+      'Meta' features are features related to the uncertainty of the data, and include:
+      variance of the total load, standard deviation of the total load, etc.
 
     Any data-driven model can be plugged and used as the base for the domain and the adaptation model.
+
+    CAUTION : 'Meta' features should be kept out of the domain model, and vice versa input features should be
+    kept out the adaptation model.
 
     For a full reference, see:
     Teng, S.Y., van Nooten, C. C., van Doorn, J.M., Ottenbros, A., Huijbregts, M., Jansen, J.J.
     Improving Near Real-Time Predictions of Renewable Electricity Production at Substation Level (Submitted)
 
+    Args:
+        - BaseEstimator (object) : a base model that can be used to carry out predictions.
     """
 
     def __init__(self):
@@ -40,29 +56,12 @@ class Dazls(BaseEstimator):
             "total_substation",  # Substation's measured total load
             "lat",  # Latitude
             "lon",  # Longitude
-            "solar_on",  # Solar installed on substation: yes=1, no=0
-            "wind_on",  # Wind installed on substation: yes=1, no=0
             "hour",  # Hour of the day
             "minute",  # Minute of the hour
-            "var0",  # Variance of the total load
-            "var1",  # Variance of the total pv load (only available for calibration substations)
-            "var2",  # Variance of the total wind load (only available for calibration substations)
-            "sem0",  # Standard Error of the Mean of the total load
-            "sem1",  # Standard Error of the Mean of the total PV load (only available for calibration substations)
         ]
         self.adaptation_model_input_columns = [
-            "total_substation",
-            "lat",
-            "lon",
-            "solar_on",
-            "wind_on",
-            "hour",
-            "minute",
-            "var0",
-            "var1",
-            "var2",
-            "sem0",
-            "sem1",
+            "var_total",  # Variance of the total load
+            "sem_total",  # Standard Error of the Mean of the total load
         ]
         self.target_columns = ["total_wind_part", "total_solar_part"]
 
@@ -103,14 +102,20 @@ class Dazls(BaseEstimator):
         )
         self.adaptation_model.fit(adaptation_model_input, y_train)
 
-    def predict(self, x: np.array):
+    def predict(self, x: np.array, return_sub_preds=False):
         """Make a prediction.
 
         For the prediction we use the test data x. We use domain_model_input_columns and
         adaptation_model_input_columns to separate x in test data for domain model and adaptation model respectively.
 
+        There is an option available to return the domain model and adaptation model predictions separately to more
+        easily investigate the effectiveness of the models.
+
         Args:
             x: domain_model_test_data, adaptation_model_test_data
+            return_sub_preds : a flag value indicating to return the predictions of the domain model and adaptation
+                               model separately. (Default: False.)
+        Returns:
             prediction: The output prediction after both models.
 
         """
@@ -139,7 +144,14 @@ class Dazls(BaseEstimator):
         prediction = self.target_scaler.inverse_transform(
             adaptation_model_test_data_pred
         )
-        return prediction
+
+        if return_sub_preds:
+            prediction_domain = self.target_scaler.inverse_transform(
+                domain_model_test_data_pred
+            )
+            return prediction, prediction_domain
+        else:
+            return prediction
 
     def score(self, truth, prediction):
         """Evaluation of the prediction's output.
