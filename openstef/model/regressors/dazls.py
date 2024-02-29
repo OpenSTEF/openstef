@@ -102,7 +102,7 @@ class Dazls(BaseEstimator):
         )
         self.adaptation_model.fit(adaptation_model_input, y_train)
 
-    def predict(self, x: np.array, return_sub_preds=False):
+    def predict(self, x: np.array, return_sub_preds: bool = False):
         """Make a prediction.
 
         For the prediction we use the test data x. We use domain_model_input_columns and
