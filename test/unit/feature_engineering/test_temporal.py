@@ -1,8 +1,9 @@
 import numpy as np
 import pandas as pd
 
-from openstef.feature_engineering.temporal_features import \
-    add_time_of_the_day_cyclic_features
+from openstef.feature_engineering.temporal_features import (
+    add_time_of_the_day_cyclic_features,
+)
 from test.unit.utils.base import BaseTestCase
 
 
@@ -20,9 +21,10 @@ class TestTemporalFeaturesModule(BaseTestCase):
 
         # Two subsequent periods ranging from 0 to 2 * pi
         periods = (
-                np.linspace(
-                    start=0.0, stop=2.0, num=num_points, endpoint=False)
-                % 1.0 * 2 * np.pi
+            np.linspace(start=0.0, stop=2.0, num=num_points, endpoint=False)
+            % 1.0
+            * 2
+            * np.pi
         )
 
         assert np.allclose(output_data["sin_time_of_day"], np.sin(periods))
