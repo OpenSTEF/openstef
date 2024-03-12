@@ -24,7 +24,7 @@ def add_time_of_the_day_cyclic_features(
     )
     period_of_the_day = 2 * np.pi * second_of_the_day / NUM_SECONDS_IN_A_DAY
 
-    data["sin_time_of_day"] = np.sin(period_of_the_day)
-    data["cos_time_of_day"] = np.cos(period_of_the_day)
+    data["time_of_day_sine"] = np.sin(period_of_the_day)
+    data["time_of_day_cosine"] = np.cos(period_of_the_day)
 
     return data

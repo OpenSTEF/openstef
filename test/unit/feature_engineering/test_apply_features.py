@@ -93,11 +93,6 @@ class TestApplyFeaturesModule(BaseTestCase):
             pj={"model": "xgb", "lat": 52.132633, "lon": 5.291266},
         )
 
-        # Time of the day cyclic features are not in the expected output dataset
-        input_data_with_features = input_data_with_features.drop(
-            columns=time_of_the_day_cyclic_features_columns
-        )
-
         expected_output = TestData.load("input_data_with_features.csv")
 
         self.assertDataframeEqual(
@@ -129,11 +124,6 @@ class TestApplyFeaturesModule(BaseTestCase):
         input_data_with_features = TrainFeatureApplicator(horizons=[0.25]).add_features(
             TestData.load("input_data.csv"),
             pj={"model": "proleaf", "lat": 52.132633, "lon": 5.291266},
-        )
-
-        # Time of the day cyclic features are not in the expected output dataset
-        input_data_with_features = input_data_with_features.drop(
-            columns=time_of_the_day_cyclic_features_columns
         )
 
         expected_output = TestData.load("input_data_multi_horizon_features.csv")
@@ -203,11 +193,6 @@ class TestApplyFeaturesModule(BaseTestCase):
         )
         input_data_with_features = apply_features.apply_features(
             data=input_data, horizon=24
-        )
-
-        # Time of the day cyclic features are not in the expected output dataset
-        input_data_with_features = input_data_with_features.drop(
-            columns=time_of_the_day_cyclic_features_columns
         )
 
         expected = TestData.load("../data/input_data_with_holiday_features.csv")

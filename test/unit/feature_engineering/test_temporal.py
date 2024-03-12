@@ -27,5 +27,5 @@ class TestTemporalFeaturesModule(BaseTestCase):
             * np.pi
         )
 
-        assert np.allclose(output_data["sin_time_of_day"], np.sin(periods))
-        assert np.allclose(output_data["cos_time_of_day"], np.cos(periods))
+        assert np.allclose(output_data["time_of_day_sine"], np.sin(periods))
+        assert np.allclose(output_data["time_of_day_cosine"], np.cos(periods))
