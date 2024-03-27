@@ -35,11 +35,11 @@ logger = structlog.get_logger(__name__)
 
 
 def train_model_pipeline(
-        pj: PredictionJobDataClass,
-        input_data: pd.DataFrame,
-        check_old_model_age: bool,
-        mlflow_tracking_uri: str,
-        artifact_folder: str,
+    pj: PredictionJobDataClass,
+    input_data: pd.DataFrame,
+    check_old_model_age: bool,
+    mlflow_tracking_uri: str,
+    artifact_folder: str,
 ) -> Optional[tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]]:
     """Middle level pipeline that takes care of all persistent storage dependencies.
 
@@ -144,11 +144,11 @@ def train_model_pipeline(
 
 
 def train_model_pipeline_core(
-        pj: PredictionJobDataClass,
-        model_specs: ModelSpecificationDataClass,
-        input_data: pd.DataFrame,
-        old_model: OpenstfRegressor = None,
-        horizons: list[float] = DEFAULT_TRAIN_HORIZONS_HOURS,
+    pj: PredictionJobDataClass,
+    model_specs: ModelSpecificationDataClass,
+    input_data: pd.DataFrame,
+    old_model: OpenstfRegressor = None,
+    horizons: list[float] = DEFAULT_TRAIN_HORIZONS_HOURS,
 ) -> Union[
     OpenstfRegressor,
     Report,
@@ -235,13 +235,13 @@ def train_model_pipeline_core(
 
 
 def train_pipeline_common(
-        pj: PredictionJobDataClass,
-        model_specs: ModelSpecificationDataClass,
-        input_data: pd.DataFrame,
-        horizons: list[float],
-        test_fraction: float = 0.0,
-        backtest: bool = False,
-        test_data_predefined: pd.DataFrame = pd.DataFrame(),
+    pj: PredictionJobDataClass,
+    model_specs: ModelSpecificationDataClass,
+    input_data: pd.DataFrame,
+    horizons: list[float],
+    test_fraction: float = 0.0,
+    backtest: bool = False,
+    test_data_predefined: pd.DataFrame = pd.DataFrame(),
 ) -> tuple[OpenstfRegressor, Report, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Common pipeline shared with operational training and backtest training.
 
@@ -309,7 +309,7 @@ def train_pipeline_common(
 
 
 def train_pipeline_step_load_model(
-        pj: PredictionJobDataClass, serializer: MLflowSerializer
+    pj: PredictionJobDataClass, serializer: MLflowSerializer
 ) -> tuple[OpenstfRegressor, ModelSpecificationDataClass, Union[int, float]]:
     try:
         old_model, model_specs = serializer.load_model(experiment_name=str(pj.id))
@@ -336,10 +336,10 @@ def train_pipeline_step_load_model(
 
 
 def train_pipeline_step_compute_features(
-        pj: PredictionJobDataClass,
-        model_specs: ModelSpecificationDataClass,
-        input_data: pd.DataFrame,
-        horizons=list[float],
+    pj: PredictionJobDataClass,
+    model_specs: ModelSpecificationDataClass,
+    input_data: pd.DataFrame,
+    horizons=list[float],
 ) -> pd.DataFrame:
     """Compute features and perform consistency checks.
 
@@ -390,9 +390,9 @@ def train_pipeline_step_compute_features(
     )
     # Check if sufficient data is left after cleaning
     if not validation.is_data_sufficient(
-            validated_data,
-            pj["completeness_threshold"],
-            pj["minimal_table_length"],
+        validated_data,
+        pj["completeness_threshold"],
+        pj["minimal_table_length"],
     ):
         raise InputDataInsufficientError(
             "Input data is insufficient, after validation and cleaning"
@@ -418,10 +418,10 @@ def train_pipeline_step_compute_features(
 
 
 def train_pipeline_step_train_model(
-        pj: PredictionJobDataClass,
-        model_specs: ModelSpecificationDataClass,
-        train_data: pd.DataFrame,
-        validation_data: pd.DataFrame,
+    pj: PredictionJobDataClass,
+    model_specs: ModelSpecificationDataClass,
+    train_data: pd.DataFrame,
+    validation_data: pd.DataFrame,
 ) -> OpenstfRegressor:
     """Train the model.
 
@@ -503,11 +503,11 @@ def train_pipeline_step_train_model(
 
 
 def train_pipeline_step_split_data(
-        data_with_features: pd.DataFrame,
-        pj: PredictionJobDataClass,
-        test_fraction: float,
-        backtest: bool = False,
-        test_data_predefined: pd.DataFrame = pd.DataFrame(),
+    data_with_features: pd.DataFrame,
+    pj: PredictionJobDataClass,
+    test_fraction: float,
+    backtest: bool = False,
+    test_data_predefined: pd.DataFrame = pd.DataFrame(),
 ) -> Union[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """The default way to perform train, val, test split.
 
