@@ -46,4 +46,3 @@ class AppSettings(BaseSettings):
     model_config = SettingsConfigDict(
         env_prefix="openstef_", env_file=".env", extra="ignore"
     )
-
