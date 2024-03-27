@@ -37,7 +37,8 @@ def normalize_and_convert_weather_data_for_splitting(
     """
     # Check we have "windspeed_100m" and "radiation" available
     if not all(
-        elem in weather_data.columns for elem in [WeatherColumnName.WINDSPEED_100M, WeatherColumnName.RADIATION]
+        elem in weather_data.columns
+        for elem in [WeatherColumnName.WINDSPEED_100M, WeatherColumnName.RADIATION]
     ):
         raise ValueError("weather data does not contain required data!")
 
@@ -82,7 +83,11 @@ def calculate_wind_power(
             -TURBINE_DATA["steepness"] * (windspeed_100m - TURBINE_DATA["slope_center"])
         )
     )
-    return generated_power[WeatherColumnName.WINDSPEED_100M].rename("windenergy").to_frame()
+    return (
+        generated_power[WeatherColumnName.WINDSPEED_100M]
+        .rename("windenergy")
+        .to_frame()
+    )
 
 
 def split_forecast_in_components(

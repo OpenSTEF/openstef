@@ -42,7 +42,7 @@ def make_solar_prediction_pj(pj, context, radius=30, peak_power=180961000.0):
     # pvdata is only stored in the prd database
     solar_input = context.database.get_solar_input(
         (pj[LocationColumnName.LAT], pj[LocationColumnName.LON]),
-        pj["horizon_minutes"],
+        pj[ForecastColumnName.HORIZON_MINUTES],
         pj["resolution_minutes"],
         radius=radius,
         sid=pj["sid"],

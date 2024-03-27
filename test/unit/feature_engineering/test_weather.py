@@ -149,7 +149,12 @@ class HumidityCalculationsTest(BaseTestCase):
             df.temp, df.humidity, df.pressure
         )
         result_df = df[
-            [WeatherColumnName.SATURATION_PRESSURE, WeatherColumnName.VAPOUR_PRESSURE, WeatherColumnName.DEWPOINT, WeatherColumnName.AIR_DENSITY]
+            [
+                WeatherColumnName.SATURATION_PRESSURE,
+                WeatherColumnName.VAPOUR_PRESSURE,
+                WeatherColumnName.DEWPOINT,
+                WeatherColumnName.AIR_DENSITY,
+            ]
         ]
         self.assertDataframeEqual(humidity_df, result_df)
 
@@ -287,7 +292,10 @@ class RadiationCalculationsTest(BaseTestCase):
             index=times,
             columns=[WeatherColumnName.RADIATION],
         )  # .sort_index()
-        self.pj = {LocationColumnName.LON: 52.98749605, LocationColumnName.LAT: 6.288165514}
+        self.pj = {
+            LocationColumnName.LON: 52.98749605,
+            LocationColumnName.LAT: 6.288165514,
+        }
 
     def test_dni(self):
         # Act

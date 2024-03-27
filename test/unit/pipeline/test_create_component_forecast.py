@@ -103,7 +103,7 @@ class TestComponentForecast(BaseTestCase):
                 ForecastColumnName.PID,
                 ForecastColumnName.CUSTOMER,
                 ForecastColumnName.DESCRIPTION,
-                ForecastColumnName.TYPE
+                ForecastColumnName.TYPE,
                 ForecastColumnName.GENERAL_TYPE,
             ],
         )
@@ -136,6 +136,12 @@ class TestComponentForecast(BaseTestCase):
         # Check if the output matches expectations
         self.assertEqual(
             component_forecast.columns.to_list(),
-            [ForecastColumnName.PID, ForecastColumnName.CUSTOMER, ForecastColumnName.DESCRIPTION, ForecastColumnName.TYPE ForecastColumnName.GENERAL_TYPE],
+            [
+                ForecastColumnName.PID,
+                ForecastColumnName.CUSTOMER,
+                ForecastColumnName.DESCRIPTION,
+                ForecastColumnName.TYPE,
+                ForecastColumnName.GENERAL_TYPE,
+            ],
         )
         self.assertEqual(len(component_forecast), 0)

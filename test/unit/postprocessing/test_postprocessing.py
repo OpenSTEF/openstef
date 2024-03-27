@@ -26,7 +26,10 @@ class TestPostProcess(BaseTestCase):
     def test_normalize_and_convert_weather_data_for_splitting(self):
         # Create testing input
         weather_data_test = pd.DataFrame(
-            {WeatherColumnName.WINDSPEED_100M: [0, 25, 8.07, 0, 0], WeatherColumnName.RADIATION: [10, 16, 33, -1, -2]}
+            {
+                WeatherColumnName.WINDSPEED_100M: [0, 25, 8.07, 0, 0],
+                WeatherColumnName.RADIATION: [10, 16, 33, -1, -2],
+            }
         )
 
         # Define test reference output
@@ -96,7 +99,10 @@ class TestPostProcess(BaseTestCase):
     def test_split_forecast_in_components(self):
         # Define test input
         weather_data_test = pd.DataFrame(
-            {WeatherColumnName.WINDSPEED_100M: [10, 15, 33, 1, 2], WeatherColumnName.RADIATION: [10, 16, 33, -1, -2]}
+            {
+                WeatherColumnName.WINDSPEED_100M: [10, 15, 33, 1, 2],
+                WeatherColumnName.RADIATION: [10, 16, 33, -1, -2],
+            }
         )
 
         split_coefs_test = {"pv_ref": 0.5, "wind_ref": 0.25}
@@ -105,7 +111,7 @@ class TestPostProcess(BaseTestCase):
         forecast[ForecastColumnName.PID] = 123
         forecast[ForecastColumnName.CUSTOMER] = "test_customer"
         forecast[ForecastColumnName.DESCRIPTION] = "test_desription"
-        forecastForecastColumnName.TYPE] = "component"
+        forecast[ForecastColumnName.TYPE] = "component"
         forecast["stdev"] = 0
 
         forecasts = postprocessing.split_forecast_in_components(

@@ -210,12 +210,18 @@ def humidity_calculations(
                 WeatherColumnName.AIR_DENSITY,
             ]
         )
-        humidity_df[WeatherColumnName.SATURATION_PRESSURE] = calc_saturation_pressure(temperature)
+        humidity_df[WeatherColumnName.SATURATION_PRESSURE] = calc_saturation_pressure(
+            temperature
+        )
         humidity_df[WeatherColumnName.VAPOUR_PRESSURE] = calc_vapour_pressure(
             rh, humidity_df.saturation_pressure
         )
-        humidity_df[WeatherColumnName.DEWPOINT] = calc_dewpoint(humidity_df.vapour_pressure)
-        humidity_df[WeatherColumnName.AIR_DENSITY] = calc_air_density(temperature, pressure, rh)
+        humidity_df[WeatherColumnName.DEWPOINT] = calc_dewpoint(
+            humidity_df.vapour_pressure
+        )
+        humidity_df[WeatherColumnName.AIR_DENSITY] = calc_air_density(
+            temperature, pressure, rh
+        )
 
         return humidity_df
 
@@ -349,9 +355,9 @@ def add_additional_wind_features(
 
     # Add add_additional_wind_features
     if WeatherColumnName.WINDSPEED in data.columns and additional_wind_features:
-        data[WeatherColumnName.WINDSPEED_100M_EXTRAPOLATED] = calculate_windspeed_at_hubheight(
-            data[WeatherColumnName.WINDSPEED]
-        )
+        data[
+            WeatherColumnName.WINDSPEED_100M_EXTRAPOLATED
+        ] = calculate_windspeed_at_hubheight(data[WeatherColumnName.WINDSPEED])
 
         data[WeatherColumnName.WIND_EXTRAPOLATED] = calculate_windturbine_power_output(
             data[WeatherColumnName.WINDSPEED_100M_EXTRAPOLATED]
@@ -380,7 +386,11 @@ def calculate_dni(radiation: pd.Series, pj: PredictionJobDataClass) -> pd.Series
         Direct normal irradiance (DNI).
 
     """
-    loc = Location(pj.get(LocationColumnName.LAT, DEFAULT_LAT), pj.get(LocationColumnName.LON, DEFAULT_LON), tz="utc")
+    loc = Location(
+        pj.get(LocationColumnName.LAT, DEFAULT_LAT),
+        pj.get(LocationColumnName.LON, DEFAULT_LON),
+        tz="utc",
+    )
     times = radiation.index
 
     # calculate data for loc(ation) at times with clear_sky, as if there would be a clear sky.
@@ -421,7 +431,11 @@ def calculate_gti(
         Global Tilted Irradiance (GTI)
 
     """
-    loc = Location(pj.get(LocationColumnName.LAT, DEFAULT_LAT), pj.get(LocationColumnName.LON, DEFAULT_LON), tz="utc")
+    loc = Location(
+        pj.get(LocationColumnName.LAT, DEFAULT_LAT),
+        pj.get(LocationColumnName.LON, DEFAULT_LON),
+        tz="utc",
+    )
     times = radiation.index
 
     # calculate data for loc(ation) at times with clear_sky, as if there would be a clear sky.

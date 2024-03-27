@@ -1,5 +1,6 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+
 class AppSettings(BaseSettings):
     """Global app settings"""
 
@@ -32,4 +33,4 @@ class AppSettings(BaseSettings):
     forecast_column_name_description = "description"
     forecast_column_name_type = "type"
     forecast_column_name_general_type = "algtype"
-    
+    forecast_column_name_horizon_minutes = "horizon_minutes"
