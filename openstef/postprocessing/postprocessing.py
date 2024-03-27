@@ -247,7 +247,7 @@ def add_prediction_job_properties_to_forecast(
 
 
 def sort_quantiles(forecast: pd.DataFrame) -> pd.DataFrame:
-    """Sort quantile values so quantiles do not cross
+    """Sort quantile values so quantiles do not cross.
 
     This function assumes that all quantile columns start with 'P_'
     For more academic details on why this is mathematically sounds,
