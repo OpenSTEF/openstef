@@ -137,16 +137,16 @@ class TestSortValuesByRow(unittest.TestCase):
         # Test DataFrame with columns starting with 'P_'
         df = pd.DataFrame(
             {
-                "P_05": [1, 3, 5],
-                "P_95": [2, 0, 6],
+                "quantile_P05": [1, 3, 5],
+                "quantile_P95": [2, 0, 6],
             }
         )
 
         sorted_df = postprocessing.sort_quantiles(df)
         expected_result = pd.DataFrame(
             {
-                "P_05": [1, 0, 5],
-                "P_95": [2, 3, 6],
+                "quantile_P05": [1, 0, 5],
+                "quantile_P95": [2, 3, 6],
             }
         )
         pd.testing.assert_frame_equal(sorted_df, expected_result)
@@ -154,9 +154,9 @@ class TestSortValuesByRow(unittest.TestCase):
     def test_sort_values_by_row_complex(self):
         df = pd.DataFrame(
             {
-                "P_05": [1, 3, 5],
-                "P_95": [2, 0, 6],
-                "P_50": [1.5, 5, 1],
+                "quantile_P05": [1, 3, 5],
+                "quantile_P95": [2, 0, 6],
+                "quantile_P50": [1.5, 5, 1],
                 "Other_column": [1, 0, 3],
             }
         )
@@ -164,15 +164,27 @@ class TestSortValuesByRow(unittest.TestCase):
         sorted_df = postprocessing.sort_quantiles(df)
         expected_result = pd.DataFrame(
             {
-                "P_05": [1, 0, 1],
-                "P_95": [2, 5, 6],
-                "P_50": [1.5, 3, 5],
+                "quantile_P05": [1, 0, 1],
+                "quantile_P95": [2, 5, 6],
+                "quantile_P50": [1.5, 3, 5],
                 "Other_column": [1, 0, 3],
             }
         )
 
         sorted_df = postprocessing.sort_quantiles(df)
         pd.testing.assert_frame_equal(sorted_df, expected_result, check_dtype=False)
+
+    def test_sort_values_no_rel_cols(self):
+        df = pd.DataFrame(
+            {
+                "A": [1, 3, 5],
+                "B": [2, 0, 6],
+            }
+        )
+
+        sorted_df = postprocessing.sort_quantiles(df)
+
+        pd.testing.assert_frame_equal(sorted_df, df)
 
 
 if __name__ == "__main__":
