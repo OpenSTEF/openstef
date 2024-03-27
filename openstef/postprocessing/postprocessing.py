@@ -9,9 +9,8 @@ import pandas as pd
 import structlog
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
-from openstef.enums import ForecastType
+from openstef.enums import ForecastType, WeatherColumnName, ForecastColumnName
 from openstef.feature_engineering import weather_features
-from enums import WeatherColumnName, ForecastColumnName
 from openstef.settings import Settings
 
 # this is the default for "Lagerwey100"

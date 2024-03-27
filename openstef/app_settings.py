@@ -9,7 +9,9 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class AppSettings(BaseSettings):
     """Global app settings."""
 
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    model_config = SettingsConfigDict(
+        env_prefix="openstef_", env_file=".env", extra="ignore"
+    )
 
     # Weather column names
     weather_column_name_temperature: str = "temp"
@@ -43,6 +45,3 @@ class AppSettings(BaseSettings):
     # Logging settings.
     log_level: str = Field("INFO", description="Log level used for logging statements.")
 
-    model_config = SettingsConfigDict(
-        env_prefix="openstef_", env_file=".env", extra="ignore"
-    )

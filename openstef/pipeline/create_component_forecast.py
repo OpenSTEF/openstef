@@ -12,9 +12,8 @@ import structlog
 import openstef.postprocessing.postprocessing as postprocessing
 from openstef import PROJECT_ROOT
 from openstef.data_classes.prediction_job import PredictionJobDataClass
-from openstef.enums import ForecastType
+from openstef.enums import ForecastType, WeatherColumnName, LocationColumnName
 from openstef.model.regressors.dazls import Dazls
-from enums import WeatherColumnName, LocationColumnName
 
 from openstef.settings import Settings
 
