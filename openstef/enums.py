@@ -34,16 +34,16 @@ class PipelineType(Enum):
     HYPER_PARMATERS = "hyper_parameters"
 
 
-class WeatherConstants(Enum):
-    TEMPERATURE = AppSettings.weather_temperature
-    RADIATION = AppSettings.weather_radiation
-    WINDSPEED_100M = AppSettings.weather_windspeed_100m
-    SATURATION_PRESSURE = AppSettings.weather_saturation_pressure
-    VAPOUR_PRESSURE = AppSettings.weather_vapour_pressure
-    DEWPOINT = AppSettings.weather_dewpoint
-    AIR_DENSITY = AppSettings.weather_air_density
-    HUMIDITY = AppSettings.weather_humidity
-    PRESSURE = AppSettings.weather_pressure
+class WeatherColumnName(Enum):
+    TEMPERATURE = AppSettings.weather_column_name_temperature
+    RADIATION = AppSettings.weather_column_name_radiation
+    WINDSPEED_100M = AppSettings.weather_column_name_windspeed_100m
+    SATURATION_PRESSURE = AppSettings.weather_column_name_saturation_pressure
+    VAPOUR_PRESSURE = AppSettings.weather_column_name_vapour_pressure
+    DEWPOINT = AppSettings.weather_column_name_dewpoint
+    AIR_DENSITY = AppSettings.weather_column_name_air_density
+    HUMIDITY = AppSettings.weather_column_name_humidity
+    PRESSURE = AppSettings.weather_column_name_pressure
 
 
 class LocationColumnName(Enum):

@@ -10,7 +10,7 @@ import structlog
 from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.enums import ForecastType
 from openstef.feature_engineering import weather_features
-from enums import WeatherConstants
+from enums import WeatherColumnName
 
 # this is the default for "Lagerwey100"
 TURBINE_DATA = {
@@ -37,7 +37,7 @@ def normalize_and_convert_weather_data_for_splitting(
     """
     # Check we have "windspeed_100m" and "radiation" available
     if not all(
-        elem in weather_data.columns for elem in [WeatherConstants.WINDSPEED_100M, WeatherConstants.RADIATION]
+        elem in weather_data.columns for elem in [WeatherColumnName.WINDSPEED_100M, WeatherColumnName.RADIATION]
     ):
         raise ValueError("weather data does not contain required data!")
 
@@ -45,13 +45,13 @@ def normalize_and_convert_weather_data_for_splitting(
     output_dataframe = pd.DataFrame()
 
     # Normalize weather data
-    output_dataframe[WeatherConstants.RADIATION] = (
-        weather_data[WeatherConstants.RADIATION]
-        / np.percentile(weather_data[WeatherConstants.RADIATION].dropna(), 99.0)
+    output_dataframe[WeatherColumnName.RADIATION] = (
+        weather_data[WeatherColumnName.RADIATION]
+        / np.percentile(weather_data[WeatherColumnName.RADIATION].dropna(), 99.0)
         * -1
     )
     wind_ref_series = weather_features.calculate_windspeed_at_hubheight(
-        weather_data[WeatherConstants.WINDSPEED_100M], fromheight=100
+        weather_data[WeatherColumnName.WINDSPEED_100M], fromheight=100
     )
     wind_ref = wind_ref_series.to_frame()
     wind_ref = calculate_wind_power(wind_ref)
@@ -82,7 +82,7 @@ def calculate_wind_power(
             -TURBINE_DATA["steepness"] * (windspeed_100m - TURBINE_DATA["slope_center"])
         )
     )
-    return generated_power[WeatherConstants.WINDSPEED_100M].rename("windenergy").to_frame()
+    return generated_power[WeatherColumnName.WINDSPEED_100M].rename("windenergy").to_frame()
 
 
 def split_forecast_in_components(
@@ -106,7 +106,7 @@ def split_forecast_in_components(
 
     # Check input
     if not all(
-        elem in ["windpower", WeatherConstants.RADIATION]
+        elem in ["windpower", WeatherColumnName.RADIATION]
         for elem in list(weather_ref_profiles.columns)
     ):
         raise ValueError("weather data does not contain required data!")
@@ -129,7 +129,7 @@ def split_forecast_in_components(
         split_coefs["wind_ref"] * weather_ref_profiles["windpower"]
     )
     components["forecast_solar"] = (
-        split_coefs["pv_ref"] * weather_ref_profiles[WeatherConstants.RADIATION]
+        split_coefs["pv_ref"] * weather_ref_profiles[WeatherColumnName.RADIATION]
     )
     components["forecast_other"] = (
         weather_ref_profiles["forecast"]
