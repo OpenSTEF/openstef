@@ -37,6 +37,9 @@ def validate(
     Returns:
         Dataframe where repeated values are set to None
 
+    Raises:
+        InputDataOngoingZeroFlatlinerError: If all recent load measurements are zero.
+
     """
     logger = structlog.get_logger(__name__)
 

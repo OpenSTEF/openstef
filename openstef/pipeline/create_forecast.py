@@ -40,6 +40,10 @@ def create_forecast_pipeline(
     Returns:
         DataFrame with the forecast
 
+    Raises:
+        InputDataOngoingZeroFlatlinerError: When all recent load measurements are zero.
+        LookupError: When no model is found for the given prediction job in MLflow.
+
     """
     prediction_model_pid = pj["id"]
     # Use the alternative forecast model if it's specify in the pj
@@ -75,6 +79,9 @@ def create_forecast_pipeline_core(
 
     Returns:
         Forecast
+
+    Raises:
+        InputDataOngoingZeroFlatlinerError: When all recent load measurements are zero.
 
     """
     logger = structlog.get_logger(__name__)
