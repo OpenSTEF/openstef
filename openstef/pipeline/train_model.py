@@ -178,7 +178,6 @@ def train_model_pipeline_core(
         - Datasets (tuple[pd.DataFrmae, pd.DataFrame, pd.Dataframe): The train, validation and test sets
 
     """
-
     # Call common pipeline
     (
         model,
