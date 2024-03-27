@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 from enum import Enum
-from app_settings import AppSettings
+from openstef.app_settings import AppSettings
 
 
 # TODO replace this with ModelType (MLModelType == Machine Learning model type)
