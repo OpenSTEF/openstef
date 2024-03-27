@@ -59,7 +59,6 @@ class TestFeatureApplicator(TestCase):
         self.assertEqual(data_with_features.columns.to_list()[0], "load")
         self.assertTrue("horizon" not in data_with_features.columns.to_list())
 
-
     def test_operational_feature_applicator_one_horizon(self):
         # Test for expected column order of the output
         # Also check "horizons" is not in the output
