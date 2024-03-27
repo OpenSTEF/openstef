@@ -5,9 +5,9 @@
 import numpy as np
 import pandas as pd
 import statsmodels.api as sm
-
 from sklearn.metrics import r2_score
 from sklearn.model_selection import TimeSeriesSplit
+
 from openstef.model.regressors.regressor import OpenstfRegressor
 
 

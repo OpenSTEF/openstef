@@ -24,8 +24,8 @@ Example:
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-import structlog
 import pandas as pd
+import structlog
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.enums import MLModelType

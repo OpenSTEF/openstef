@@ -7,7 +7,7 @@ import pandas as pd
 import structlog
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
-from openstef.exceptions import NoRealisedLoadError, InputDataOngoingZeroFlatlinerError
+from openstef.exceptions import InputDataOngoingZeroFlatlinerError, NoRealisedLoadError
 from openstef.feature_engineering.feature_applicator import (
     OperationalPredictFeatureApplicator,
 )

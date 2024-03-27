@@ -23,21 +23,19 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
-
 from openstef.enums import MLModelType, PipelineType
 from openstef.exceptions import (
-    SkipSaveTrainingForecasts,
     InputDataOngoingZeroFlatlinerError,
+    SkipSaveTrainingForecasts,
 )
+from openstef.model.serializer import MLflowSerializer
 from openstef.pipeline.train_model import (
+    MAXIMUM_MODEL_AGE,
     train_model_pipeline,
     train_pipeline_step_load_model,
-    MAXIMUM_MODEL_AGE,
 )
 from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstef.tasks.utils.taskcontext import TaskContext
-
-from openstef.model.serializer import MLflowSerializer
 
 TRAINING_PERIOD_DAYS: int = 120
 DEFAULT_CHECK_MODEL_AGE: bool = True
