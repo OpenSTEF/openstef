@@ -149,11 +149,7 @@ class TrainFeatureApplicator(AbstractFeatureApplicator):
 
         # NOTE this is required since apply_features could add additional features
         if self.feature_names is not None:
-            # Add horizon to requested features else it is removed, and if needed the proloaf feature (historic_load)
-            if pj.get("model") == "proloaf":
-                features = self.feature_names + ["historic_load"] + ["horizon"]
-            else:
-                features = self.feature_names + ["horizon"]
+            features = self.feature_names + ["horizon"]
             result = remove_non_requested_feature_columns(result, features)
 
         # Sort all features except for the (first) load and (last) horizon columns
