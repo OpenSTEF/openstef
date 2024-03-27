@@ -7,7 +7,7 @@
 This code assumes prognoses are available from the persistent storage.
 If these are not available run create_forecast.py to train all models.
 
-The folowing tasks are caried out:
+The folowing tasks are carried out:
   1: Calculate the KPI for a given pid. Ignore SplitEnergy
   2: Create figures
   3: Write KPI to database
