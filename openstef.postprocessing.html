@@ -515,6 +515,20 @@ from the prediction job as pj[‘forecast_type’]</p></li>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="openstef.postprocessing.postprocessing.sort_quantiles">
+<span class="sig-prename descclassname"><span class="pre">openstef.postprocessing.postprocessing.</span></span><span class="sig-name descname"><span class="pre">sort_quantiles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">forecast</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantile_col_start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'quantile_P'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.postprocessing.postprocessing.sort_quantiles" title="Link to this definition">#</a></dt>
+<dd><p>Sort quantile values so quantiles do not cross.</p>
+<p>This function assumes that all quantile columns start with ‘quantile_P’
+For more academic details on why this is mathematically sounds,
+please refer to Quantile and Probability Curves Without Crossing (Chernozhukov, 2010)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="openstef.postprocessing.postprocessing.split_forecast_in_components">
 <span class="sig-prename descclassname"><span class="pre">openstef.postprocessing.postprocessing.</span></span><span class="sig-name descname"><span class="pre">split_forecast_in_components</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">forecast</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weather_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">split_coefs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.postprocessing.postprocessing.split_forecast_in_components" title="Link to this definition">#</a></dt>
 <dd><p>Make estimates of energy components based on given forecast.</p>
@@ -630,6 +644,15 @@ from the prediction job as pj[‘forecast_type’]</p></li>
      <code class="docutils literal notranslate">
       <span class="pre">
        post_process_wind_solar()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#openstef.postprocessing.postprocessing.sort_quantiles">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       sort_quantiles()
       </span>
      </code>
     </a>
