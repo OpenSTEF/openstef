@@ -22,7 +22,7 @@ from scipy import optimize
 from openstef import PROJECT_ROOT
 from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstef.tasks.utils.taskcontext import TaskContext
-from enums import LocationColumnName
+from enums import WeatherColumnName, LocationColumnName
 
 # TODO move to config
 PV_COEFS_FILEPATH = PROJECT_ROOT / "openstef" / "data" / "pv_single_coefs.csv"
@@ -53,7 +53,7 @@ def make_solar_prediction_pj(pj, context, radius=30, peak_power=180961000.0):
 
     context.logger.info("Make solar prediction using Fides")
     power = fides(
-        solar_input[["aggregated", WeatherConstants.RADIATION]].rename(
+        solar_input[["aggregated", WeatherColumnName.RADIATION]].rename(
             columns=dict(radiation="insolation", aggregated="load")
         )
     )

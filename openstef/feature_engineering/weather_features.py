@@ -12,7 +12,7 @@ import structlog
 from pvlib.location import Location
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
-from enums import WeatherColumnName
+from enums import WeatherColumnName, LocationColumnName
 
 logger = structlog.get_logger(__name__)
 
@@ -340,26 +340,26 @@ def add_additional_wind_features(
         additional_wind_features = any(
             x
             in [
-                "windspeed_100mExtrapolated",
-                "windPowerFit_extrapolated",
-                "windpowerFit_harm_arome",
+                WeatherColumnName.WINDSPEED_100M_EXTRAPOLATED,
+                WeatherColumnName.WIND_EXTRAPOLATED,
+                WeatherColumnName.WIND_HARM_AROME,
             ]
             for x in feature_names
         )
 
     # Add add_additional_wind_features
-    if "windspeed" in data.columns and additional_wind_features:
-        data["windspeed_100mExtrapolated"] = calculate_windspeed_at_hubheight(
-            data["windspeed"]
+    if WeatherColumnName.WINDSPEED in data.columns and additional_wind_features:
+        data[WeatherColumnName.WINDSPEED_100M_EXTRAPOLATED] = calculate_windspeed_at_hubheight(
+            data[WeatherColumnName.WINDSPEED]
         )
 
-        data["windPowerFit_extrapolated"] = calculate_windturbine_power_output(
-            data["windspeed_100mExtrapolated"]
+        data[WeatherColumnName.WIND_EXTRAPOLATED] = calculate_windturbine_power_output(
+            data[WeatherColumnName.WINDSPEED_100M_EXTRAPOLATED]
         )
 
     # Do extra check
     if WeatherColumnName.WINDSPEED_100M in data.columns and additional_wind_features:
-        data["windpowerFit_harm_arome"] = calculate_windturbine_power_output(
+        data[WeatherColumnName.WIND_HARM_AROME] = calculate_windturbine_power_output(
             data[WeatherColumnName.WINDSPEED_100M].astype(float)
         )
 
