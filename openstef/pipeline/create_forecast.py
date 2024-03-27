@@ -1,6 +1,8 @@
 # SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+import logging
+
 import pandas as pd
 import structlog
 
@@ -16,7 +18,9 @@ from openstef.model.serializer import MLflowSerializer
 from openstef.pipeline.utils import generate_forecast_datetime_range
 from openstef.postprocessing.postprocessing import (
     add_prediction_job_properties_to_forecast,
+    sort_quantiles,
 )
+from openstef.settings import Settings
 from openstef.validation import validation
 
 
@@ -39,6 +43,10 @@ def create_forecast_pipeline(
 
     Returns:
         DataFrame with the forecast
+
+    Raises:
+        InputDataOngoingZeroFlatlinerError: When all recent load measurements are zero.
+        LookupError: When no model is found for the given prediction job in MLflow.
 
     """
     prediction_model_pid = pj["id"]
@@ -64,7 +72,7 @@ def create_forecast_pipeline_core(
     Computes the forecasts and confidence intervals given a prediction job and input data.
     This pipeline has no database or persisitent storage dependencies.
 
-    Expected prediction job keys: "resolution_minutes", "horizon_minutes", "id", "type",
+    Expected prediction job keys: "resolution_minutes", "id", "type",
         "name", "quantiles"
 
     Args:
@@ -76,7 +84,15 @@ def create_forecast_pipeline_core(
     Returns:
         Forecast
 
+    Raises:
+        InputDataOngoingZeroFlatlinerError: When all recent load measurements are zero.
+
     """
+    structlog.configure(
+        wrapper_class=structlog.make_filtering_bound_logger(
+            logging.getLevelName(Settings.log_level)
+        )
+    )
     logger = structlog.get_logger(__name__)
 
     fallback_strategy = "extreme_day"  # this can later be expanded
@@ -141,6 +157,9 @@ def create_forecast_pipeline_core(
     forecast = ConfidenceIntervalApplicator(
         model, forecast_input_data
     ).add_confidence_interval(forecast, pj)
+
+    # Sort quantiles - prevents crossing and is statistically sound
+    forecast = sort_quantiles(forecast)
 
     # Prepare for output
     forecast = add_prediction_job_properties_to_forecast(
