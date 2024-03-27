@@ -53,6 +53,10 @@ def create_components_forecast_task(
         pj: Prediction job
         context: Contect object that holds a config manager and a database connection
 
+    Raises:
+        ComponentForecastTooShortHorizonError: If the forecast horizon is too short
+         (less than 30 minutes in advance)
+
     """
     structlog.configure(
         wrapper_class=structlog.make_filtering_bound_logger(

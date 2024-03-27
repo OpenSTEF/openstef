@@ -71,6 +71,9 @@ def plot_data_series(
     Returns:
         A line plot of each passed data series.
 
+    Raises:
+        ValueError: If names is None and the number of series is greater than 3.
+
     """
     series_names = {
         1: ("series",),

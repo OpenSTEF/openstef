@@ -66,6 +66,9 @@ def optimize_hyperparameters_pipeline(
 
     Raises:
         ValueError: If the input_date is insufficient.
+        InputDataInsufficientError: If the input dataframe is empty.
+        InputDataWrongColumnOrderError: If the load column is missing in the input dataframe.
+        OldModelHigherScoreError: When old model is better than new model.
 
     Returns:
         Optimized hyperparameters.
@@ -126,6 +129,10 @@ def optimize_hyperparameters_pipeline_core(
 
     Raises:
         ValueError: If the input_date is insufficient.
+        InputDataInsufficientError: If the input dataframe is empty.
+        InputDataWrongColumnOrderError: If the load column is missing in the input dataframe.
+        OldModelHigherScoreError: When old model is better than new model.
+        InputDataOngoingZeroFlatlinerError: When all recent load measurements are zero.
 
     Returns:
         - Best model,

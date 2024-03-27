@@ -81,6 +81,9 @@ class ConfidenceIntervalApplicator:
             Forecast with added standard deviation. DataFrame with columns:
                 "forecast", "stdev"
 
+        Raises:
+            ModelWithoutStDev: If the model does not have a valid standard deviation.
+
         """
         minimal_resolution: int = 15  # Minimal time resolution in minutes
         standard_deviation = self.model.standard_deviation

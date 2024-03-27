@@ -63,6 +63,10 @@ def train_model_task(
         datetime_start: Start
         datetime_end: End
 
+    Raises:
+        SkipSaveTrainingForecasts: If old model is better or too young, you don't need to save the traing forcast.
+        InputDataOngoingZeroFlatlinerError: If all recent load measurements are zero.
+
     """
     # Check pipeline types
     if PipelineType.TRAIN not in pj.pipelines_to_run:
