@@ -130,9 +130,6 @@ class TestTrainModelPipeline(BaseTestCase):
         # Remove modeltypes which are optional, and add a dummy regressor
         for model_type in list(MLModelType) + [__name__ + ".DummyRegressor"]:
             with self.subTest(model_type=model_type):
-                # Skip the optional proloaf model
-                if model_type == MLModelType.ProLoaf:
-                    continue
                 pj = self.pj
 
                 pj["model"] = (
@@ -208,9 +205,6 @@ class TestTrainModelPipeline(BaseTestCase):
         train_input = self.train_input.iloc[::50, :]
         for model_type in list(MLModelType) + [__name__ + ".DummyRegressor"]:
             with self.subTest(model_type=model_type):
-                # Skip the optional proloaf model
-                if model_type == MLModelType.ProLoaf:
-                    continue
                 # Skip the arima model because it does not use legacy data prep
                 if model_type == MLModelType.ARIMA:
                     continue

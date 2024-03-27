@@ -15,11 +15,6 @@ from openstef.model.regressors.xgb_quantile import XGBQuantileOpenstfRegressor
 from openstef.model.regressors.arima import ARIMAOpenstfRegressor
 
 logger = structlog.get_logger(__name__)
-try:
-    from openstef.model.regressors.proloaf import OpenstfProloafRegressor
-except ImportError:
-    logger.info("Proloaf not available, setting constructor to None")
-    OpenstfProloafRegressor = None
 
 valid_model_kwargs = {
     MLModelType.XGB: [
@@ -84,27 +79,6 @@ valid_model_kwargs = {
         "max_depth",
         "early_stopping_rounds",
     ],
-    MLModelType.ProLoaf: [
-        "relu_leak",
-        "encoder_features",
-        "decoder_features",
-        "core_layers",
-        "rel_linear_hidden_size",
-        "rel_core_hidden_size",
-        "dropout_fc",
-        "dropout_core",
-        "training_metric",
-        "metric_options",
-        "optimizer_name",
-        "early_stopping_patience",
-        "early_stopping_margin",
-        "learning_rate",
-        "max_epochs",
-        "device",
-        "batch_size",
-        "history_horizon",
-        "horizon_minutes",
-    ],
     MLModelType.LINEAR: [
         "missing_values",
         "imputation_strategy",
@@ -127,7 +101,6 @@ class ModelCreator:
         MLModelType.XGB: XGBOpenstfRegressor,
         MLModelType.LGB: LGBMOpenstfRegressor,
         MLModelType.XGB_QUANTILE: XGBQuantileOpenstfRegressor,
-        MLModelType.ProLoaf: OpenstfProloafRegressor,
         MLModelType.LINEAR: LinearOpenstfRegressor,
         MLModelType.ARIMA: ARIMAOpenstfRegressor,
     }
