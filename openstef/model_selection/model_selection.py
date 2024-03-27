@@ -140,6 +140,9 @@ def split_data_train_validation_test(
         - Validation data.
         - Test data.
 
+    Raises:
+        ValueError: When the test and validation fractions are too high.
+
     """
     test_fraction = test_fraction if back_test else 0
     train_fraction = 1 - (test_fraction + validation_fraction)
