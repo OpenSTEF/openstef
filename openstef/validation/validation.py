@@ -1,17 +1,17 @@
 # SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+import math
 from datetime import datetime, timedelta
 from typing import Union
 
-import math
 import numpy as np
 import pandas as pd
 import structlog
 
 from openstef.exceptions import InputDataOngoingZeroFlatlinerError
-from openstef.preprocessing.preprocessing import replace_repeated_values_with_nan
 from openstef.model.regressors.regressor import OpenstfRegressor
+from openstef.preprocessing.preprocessing import replace_repeated_values_with_nan
 
 
 def validate(
@@ -36,6 +36,9 @@ def validate(
 
     Returns:
         Dataframe where repeated values are set to None
+
+    Raises:
+        InputDataOngoingZeroFlatlinerError: If all recent load measurements are zero.
 
     """
     logger = structlog.get_logger(__name__)

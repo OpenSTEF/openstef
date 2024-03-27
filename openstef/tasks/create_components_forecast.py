@@ -24,8 +24,8 @@ Example:
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-import structlog
 import pandas as pd
+import structlog
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.enums import MLModelType
@@ -50,6 +50,10 @@ def create_components_forecast_task(
     Args:
         pj: Prediction job
         context: Contect object that holds a config manager and a database connection
+
+    Raises:
+        ComponentForecastTooShortHorizonError: If the forecast horizon is too short
+         (less than 30 minutes in advance)
 
     """
     logger = structlog.get_logger(__name__)

@@ -25,6 +25,9 @@ def get_eval_metric_function(metric_name: str) -> Callable:
     Returns:
         Function to calculate the metric.
 
+    Raises:
+        KeyError: If the metric is not available.
+
     """
     evaluation_function = {
         "rmse": rmse,
@@ -129,6 +132,9 @@ def r_mae_highest(
     """Function that calculates the relative mean absolute error for the 5 percent highest realised values.
 
     The range is based on the load range of the previous two weeks.
+
+    Raises:
+        ValueError: If the length of the realised and forecast arrays are not equal.
 
     """
     # Check if length of both arrays is equal
@@ -395,7 +401,7 @@ def xgb_quantile_obj(
     Args:
         preds: numpy.ndarray
         dmatrix: xgboost.DMatrix
-        quantile: float
+        quantile: float between 0 and 1
 
     Returns:
         Gradient and Hessian

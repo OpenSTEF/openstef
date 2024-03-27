@@ -7,7 +7,7 @@ import pandas as pd
 import structlog
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
-from openstef.exceptions import NoRealisedLoadError, InputDataOngoingZeroFlatlinerError
+from openstef.exceptions import InputDataOngoingZeroFlatlinerError, NoRealisedLoadError
 from openstef.feature_engineering.feature_applicator import (
     OperationalPredictFeatureApplicator,
 )
@@ -37,6 +37,9 @@ def create_basecase_forecast_pipeline(
 
     Returns:
         Base case forecast
+
+    Raises:
+        NoRealisedLoadError: When no realised load for given datetime range.
 
     """
     logger = structlog.get_logger(__name__)

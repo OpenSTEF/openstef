@@ -6,13 +6,13 @@ from typing import Union
 import structlog
 
 from openstef.enums import MLModelType
+from openstef.model.regressors.arima import ARIMAOpenstfRegressor
 from openstef.model.regressors.custom_regressor import is_custom_type, load_custom_model
 from openstef.model.regressors.lgbm import LGBMOpenstfRegressor
 from openstef.model.regressors.linear import LinearOpenstfRegressor
 from openstef.model.regressors.regressor import OpenstfRegressor
 from openstef.model.regressors.xgb import XGBOpenstfRegressor
 from openstef.model.regressors.xgb_quantile import XGBQuantileOpenstfRegressor
-from openstef.model.regressors.arima import ARIMAOpenstfRegressor
 
 logger = structlog.get_logger(__name__)
 

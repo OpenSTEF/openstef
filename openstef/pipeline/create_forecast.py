@@ -16,6 +16,7 @@ from openstef.model.serializer import MLflowSerializer
 from openstef.pipeline.utils import generate_forecast_datetime_range
 from openstef.postprocessing.postprocessing import (
     add_prediction_job_properties_to_forecast,
+    sort_quantiles,
 )
 from openstef.validation import validation
 
@@ -39,6 +40,10 @@ def create_forecast_pipeline(
 
     Returns:
         DataFrame with the forecast
+
+    Raises:
+        InputDataOngoingZeroFlatlinerError: When all recent load measurements are zero.
+        LookupError: When no model is found for the given prediction job in MLflow.
 
     """
     prediction_model_pid = pj["id"]
@@ -75,6 +80,9 @@ def create_forecast_pipeline_core(
 
     Returns:
         Forecast
+
+    Raises:
+        InputDataOngoingZeroFlatlinerError: When all recent load measurements are zero.
 
     """
     logger = structlog.get_logger(__name__)
@@ -141,6 +149,9 @@ def create_forecast_pipeline_core(
     forecast = ConfidenceIntervalApplicator(
         model, forecast_input_data
     ).add_confidence_interval(forecast, pj)
+
+    # Sort quantiles - prevents crossing and is statistically sound
+    forecast = sort_quantiles(forecast)
 
     # Prepare for output
     forecast = add_prediction_job_properties_to_forecast(
