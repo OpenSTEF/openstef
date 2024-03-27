@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 """Defines reporter class."""
+import logging
 import os
 import warnings
 from dataclasses import dataclass
@@ -16,6 +17,7 @@ from plotly.graph_objects import Figure
 from openstef.metrics import figure
 from openstef.metrics.metrics import bias, mae, nsme, r_mae, rmse
 from openstef.model.regressors.regressor import OpenstfRegressor
+from openstef.settings import Settings
 
 
 @dataclass
@@ -167,6 +169,11 @@ class Reporter:
     def write_report_to_disk(report: Report, report_folder: str):
         """Write report to disk; e.g. for viewing report of latest models using grafana."""
         # Initialize logger and serializer
+        structlog.configure(
+            wrapper_class=structlog.make_filtering_bound_logger(
+                logging.getLevelName(Settings.log_level)
+            )
+        )
         logger = structlog.get_logger(__name__)
         if report_folder:
             # create path if does not exist

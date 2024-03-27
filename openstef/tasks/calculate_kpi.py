@@ -18,6 +18,8 @@ Example:
         $ python calculate_kpi.py
 
 """
+import logging
+
 # Import builtins
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -30,6 +32,7 @@ from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.enums import MLModelType
 from openstef.exceptions import NoPredictedLoadError, NoRealisedLoadError
 from openstef.metrics import metrics
+from openstef.settings import Settings
 from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstef.tasks.utils.taskcontext import TaskContext
 from openstef.validation import validation
@@ -160,7 +163,12 @@ def calc_kpi_for_specific_pid(
     COMPLETENESS_REALISED_THRESHOLDS = 0.7
     COMPLETENESS_PREDICTED_LOAD_THRESHOLD = 0.7
 
-    log = structlog.get_logger(__name__)
+    structlog.configure(
+        wrapper_class=structlog.make_filtering_bound_logger(
+            logging.getLevelName(Settings.log_level)
+        )
+    )
+    logger = structlog.get_logger(__name__)
 
     # If predicted is empty
     if len(predicted_load) == 0:
@@ -194,9 +202,9 @@ def calc_kpi_for_specific_pid(
 
     # Raise exception in case of constant load
     if combined.load.nunique() == 1:
-        structlog.get_logger(__name__).warning(
+        logger.warning(
             "The load is constant! KPIs will still be calculated, but relative metrics"
-            " will be nan"
+            " will be nan."
         )
 
     # Define output dictonary
@@ -213,7 +221,7 @@ def calc_kpi_for_specific_pid(
     date = pd.to_datetime(end_time)
 
     # Calculate model metrics and add them to the output dictionary
-    log.info("Start calculating kpis")
+    logger.info("Start calculating kpis")
     for hor_cols in hor_list:
         t_ahead_h = hor_cols[0].split("_")[1]
         fc = combined[hor_cols[0]]  # load predictions
@@ -272,7 +280,7 @@ def calc_kpi_for_specific_pid(
         )
 
         if completeness_realised < COMPLETENESS_REALISED_THRESHOLDS:
-            log.warning(
+            logger.warning(
                 "Completeness realised load too low",
                 prediction_id=pid,
                 start_time=start_time,
@@ -282,7 +290,7 @@ def calc_kpi_for_specific_pid(
             )
             set_incomplete_kpi_to_nan(kpis, t_ahead_h)
         if completeness_predicted_load.any() < COMPLETENESS_PREDICTED_LOAD_THRESHOLD:
-            log.warning(
+            logger.warning(
                 "Completeness predicted load of specific horizon too low",
                 prediction_id=pid,
                 horizon=t_ahead_h,

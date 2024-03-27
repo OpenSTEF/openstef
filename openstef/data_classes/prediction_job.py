@@ -6,9 +6,9 @@ from typing import Optional, Union
 
 from pydantic.v1 import BaseModel
 
+from openstef.data_classes.data_prep import DataPrepDataClass
 from openstef.data_classes.model_specifications import ModelSpecificationDataClass
 from openstef.data_classes.split_function import SplitFuncDataClass
-from openstef.data_classes.data_prep import DataPrepDataClass
 from openstef.enums import PipelineType
 
 

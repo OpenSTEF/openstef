@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+import logging
 from enum import Enum
 
 import numpy as np
@@ -11,6 +12,7 @@ from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.enums import ForecastType
 from openstef.feature_engineering import weather_features
 from enums import WeatherColumnName, ForecastColumnName
+from openstef.settings import Settings
 
 # this is the default for "Lagerwey100"
 TURBINE_DATA = {
@@ -225,6 +227,11 @@ def add_prediction_job_properties_to_forecast(
         Dataframe with added metadata.
 
     """
+    structlog.configure(
+        wrapper_class=structlog.make_filtering_bound_logger(
+            logging.getLevelName(Settings.log_level)
+        )
+    )
     logger = structlog.get_logger(__name__)
 
     logger.info("Postproces in preparation of storing")
