@@ -1,6 +1,8 @@
 # SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+import logging
+
 import pandas as pd
 import structlog
 
@@ -18,6 +20,7 @@ from openstef.postprocessing.postprocessing import (
     add_prediction_job_properties_to_forecast,
     sort_quantiles,
 )
+from openstef.settings import Settings
 from openstef.validation import validation
 
 
@@ -85,6 +88,11 @@ def create_forecast_pipeline_core(
         InputDataOngoingZeroFlatlinerError: When all recent load measurements are zero.
 
     """
+    structlog.configure(
+        wrapper_class=structlog.make_filtering_bound_logger(
+            logging.getLevelName(Settings.log_level)
+        )
+    )
     logger = structlog.get_logger(__name__)
 
     fallback_strategy = "extreme_day"  # this can later be expanded

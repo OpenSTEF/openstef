@@ -21,6 +21,7 @@ Example:
         $ python create_components_forecast.py
 
 """
+import logging
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -33,6 +34,7 @@ from openstef.exceptions import ComponentForecastTooShortHorizonError
 from openstef.pipeline.create_component_forecast import (
     create_components_forecast_pipeline,
 )
+from openstef.settings import Settings
 from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstef.tasks.utils.taskcontext import TaskContext
 
@@ -56,6 +58,11 @@ def create_components_forecast_task(
          (less than 30 minutes in advance)
 
     """
+    structlog.configure(
+        wrapper_class=structlog.make_filtering_bound_logger(
+            logging.getLevelName(Settings.log_level)
+        )
+    )
     logger = structlog.get_logger(__name__)
     if pj["train_components"] == 0:
         context.logger.info(
