@@ -12,6 +12,7 @@ import torch
 from proloaf.modelhandler import ModelWrapper
 
 from openstef.model.regressors.regressor import OpenstfRegressor
+from openstef.enums import WeatherColumnName
 
 # TODO: implement the hyperparameter optimalisation via optuna
 # TODO: set the default for hyperparameters in the init of OpenstfProloafRegressor
@@ -104,7 +105,7 @@ class OpenstfProloafRegressor(OpenstfRegressor, ModelWrapper):
             "historic_load",
         ],  # make sure historic load is present, TODO: implement so you can use None
         decoder_features: list[str] = [
-            WeatherConstants.AIR_DENSITY
+            WeatherColumnName.AIR_DENSITY
         ],  # TODO: implement so you can use None
         core_layers: int = 1,
         rel_linear_hidden_size: float = 1.0,

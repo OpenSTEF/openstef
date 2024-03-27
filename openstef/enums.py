@@ -37,13 +37,17 @@ class PipelineType(Enum):
 class WeatherColumnName(Enum):
     TEMPERATURE = AppSettings.weather_column_name_temperature
     RADIATION = AppSettings.weather_column_name_radiation
+    WINDSPEED = AppSettings.weather_column_name_windspeed 
     WINDSPEED_100M = AppSettings.weather_column_name_windspeed_100m
+    WINDSPEED_100M_EXTRAPOLATED = AppSettings.weather_column_name_windspeed_100m_extrapolated
     SATURATION_PRESSURE = AppSettings.weather_column_name_saturation_pressure
     VAPOUR_PRESSURE = AppSettings.weather_column_name_vapour_pressure
     DEWPOINT = AppSettings.weather_column_name_dewpoint
     AIR_DENSITY = AppSettings.weather_column_name_air_density
     HUMIDITY = AppSettings.weather_column_name_humidity
     PRESSURE = AppSettings.weather_column_name_pressure
+    WIND_EXTRAPOLATED = AppSettings.weather_column_name_wind_power_fit_extrapolated
+    WIND_HARM_AROME = AppSettings.weather_column_name_wind_power_fit_harm_arome
 
 
 class LocationColumnName(Enum):

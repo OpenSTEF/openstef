@@ -13,6 +13,7 @@ from test.unit.utils.data import TestData
 from unittest.mock import patch, MagicMock
 from mlflow.exceptions import MlflowException
 from openstef.model.serializer import MLflowSerializer
+from openstef.enums import WeatherColumnName
 
 
 class CalcCompletenessTest(BaseTestCase):
@@ -169,7 +170,7 @@ class CalcCompletenessTest(BaseTestCase):
 
     def test_calc_completeness_model_feature_importance_as_weights(self):
         weights = pd.DataFrame(
-            index=[WeatherConstants.TEMPERATURE, "IsSunday", "Month", "snowDepth", "windspeed"],
+            index=[WeatherColumnName.TEMPERATURE, "IsSunday", "Month", "snowDepth", WeatherColumnName.WINDSPEED],
             data={"weight": 0.1},
         )
 
@@ -177,9 +178,9 @@ class CalcCompletenessTest(BaseTestCase):
             data={
                 "load": [1, 1, 2, 2, 3, 3, 4, 4],
                 "IsSunday": [1, 1, 2, 2, 3, 3, 4, 4],
-                WeatherConstants.TEMPERATURE: [1, 1, 2, 2, 3, 3, 4, 4],
+                WeatherColumnName.TEMPERATURE: [1, 1, 2, 2, 3, 3, 4, 4],
                 "snowDepth": [1, 1, 2, 2, 3, 3, 4, 4],
-                "windspeed": [1, 1, 2, 2, 3, 3, 4, 4],
+                WeatherColumnName.WINDSPEED: [1, 1, 2, 2, 3, 3, 4, 4],
                 "Month": [1, 1, 2, 2, 3, 3, 4, 4],
                 "horizon": [0.25, 47.0, 0.25, 47.0, 0.25, 47.0, 0.25, 47.0],
             },
