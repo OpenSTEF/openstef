@@ -12,6 +12,7 @@ import structlog
 from pvlib.location import Location
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
+from enums import WeatherConstants
 
 logger = structlog.get_logger(__name__)
 
@@ -478,8 +479,8 @@ def add_additional_solar_features(
         additional_solar_features = any(x in ["dni", "gti"] for x in feature_names)
 
     # Add add_additional_solar_features
-    if "radiation" in data.columns and additional_solar_features:
-        data["dni"] = calculate_dni(data["radiation"], pj)
-        data["gti"] = calculate_gti(data["radiation"], pj)
+    if WeatherConstants.RADIATION in data.columns and additional_solar_features:
+        data["dni"] = calculate_dni(data[WeatherConstants.RADIATION], pj)
+        data["gti"] = calculate_gti(data[WeatherConstants.RADIATION], pj)
 
     return data
