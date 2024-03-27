@@ -137,7 +137,7 @@ def add_humidity_features(
             in [
                 WeatherConstants.SATURATION_PRESSURE,
                 WeatherConstants.VAPOUR_PRESSURE,
-                "dewpoint",
+                WeatherConstants.DEWPOINT,
                 "air_density",
             ]
             for x in feature_names
@@ -206,7 +206,7 @@ def humidity_calculations(
             columns=[
                 WeatherConstants.SATURATION_PRESSURE,
                 WeatherConstants.VAPOUR_PRESSURE,
-                "dewpoint",
+                WeatherConstants.DEWPOINT,
                 "air_density",
             ]
         )
@@ -214,7 +214,7 @@ def humidity_calculations(
         humidity_df[WeatherConstants.VAPOUR_PRESSURE] = calc_vapour_pressure(
             rh, humidity_df.saturation_pressure
         )
-        humidity_df["dewpoint"] = calc_dewpoint(humidity_df.vapour_pressure)
+        humidity_df[WeatherConstants.DEWPOINT] = calc_dewpoint(humidity_df.vapour_pressure)
         humidity_df["air_density"] = calc_air_density(temperature, pressure, rh)
 
         return humidity_df
@@ -227,7 +227,7 @@ def humidity_calculations(
     return {
         WeatherConstants.SATURATION_PRESSURE: psat,
         WeatherConstants.VAPOUR_PRESSURE: pw,
-        "dewpoint": td,
+        WeatherConstants.DEWPOINT: td,
         "air_density": air_density,
     }
 
