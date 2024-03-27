@@ -10,6 +10,7 @@ import pandas as pd
 from pandas import Timestamp
 
 from openstef.tasks.create_components_forecast import create_components_forecast_task
+from openstef.enums import ForecastColumnName
 
 FORECAST_MOCK = pd.DataFrame(
     data={
@@ -25,15 +26,15 @@ FORECAST_MOCK = pd.DataFrame(
             Timestamp("2022-09-08 10:00:00+0000", tz="UTC"): -11.632748,
             Timestamp("2022-09-08 10:15:00+0000", tz="UTC"): -10.278155,
         },
-        "pid": {
+        ForecastColumnName.PID: {
             Timestamp("2022-09-08 10:00:00+0000", tz="UTC"): 123,
             Timestamp("2022-09-08 10:15:00+0000", tz="UTC"): 123,
         },
-        "customer": {
+        ForecastColumnName.CUSTOMER: {
             Timestamp("2022-09-08 10:00:00+0000", tz="UTC"): "ABC",
             Timestamp("2022-09-08 10:15:00+0000", tz="UTC"): "ABC",
         },
-        "description": {
+        ForecastColumnName.DESCRIPTION: {
             Timestamp("2022-09-08 10:00:00+0000", tz="UTC"): "ABC",
             Timestamp("2022-09-08 10:15:00+0000", tz="UTC"): "ABC",
         },
@@ -41,7 +42,7 @@ FORECAST_MOCK = pd.DataFrame(
             Timestamp("2022-09-08 10:00:00+0000", tz="UTC"): "demand",
             Timestamp("2022-09-08 10:15:00+0000", tz="UTC"): "demand",
         },
-        "algtype": {
+        ForecastColumnName.GENERAL_TYPE: {
             Timestamp("2022-09-08 10:00:00+0000", tz="UTC"): "component",
             Timestamp(
                 f'{(date.today()+timedelta(days=3)).strftime(format="%Y-%m-%d")} 10:15:00+0000',

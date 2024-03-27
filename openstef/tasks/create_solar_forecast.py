@@ -22,7 +22,7 @@ from scipy import optimize
 from openstef import PROJECT_ROOT
 from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstef.tasks.utils.taskcontext import TaskContext
-from enums import WeatherColumnName, LocationColumnName
+from enums import WeatherColumnName, LocationColumnName, ForecastColumnName
 
 # TODO move to config
 PV_COEFS_FILEPATH = PROJECT_ROOT / "openstef" / "data" / "pv_single_coefs.csv"
@@ -62,11 +62,11 @@ def make_solar_prediction_pj(pj, context, radius=30, peak_power=180961000.0):
     if (radius != 0) and (not np.isnan(peak_power)):
         power = peak_power / max(solar_input.aggregated) * power
     context.logger.info("Store solar prediction in database")
-    power["pid"] = pj["id"]
-    power["type"] = "solar"
-    power["algtype"] = "Fides"
-    power["customer"] = pj["name"]
-    power["description"] = pj["description"]
+    power[ForecastColumnName.PID] = pj["id"]
+    power[ForecastColumnName.TYPE] = "solar"
+    power[ForecastColumnName.GENERAL_TYPE] = "Fides"
+    power[ForecastColumnName.CUSTOMER] = pj["name"]
+    power[ForecastColumnName.DESCRIPTION] = pj[ForecastColumnName.DESCRIPTION]
     context.database.write_forecast(power)
 
 

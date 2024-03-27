@@ -11,7 +11,7 @@ from openstef import PROJECT_ROOT
 from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.enums import ForecastType
 from openstef.model.regressors.dazls import Dazls
-from enums import WeatherColumnName
+from enums import WeatherColumnName, LocationColumnName
 
 import numpy as np
 

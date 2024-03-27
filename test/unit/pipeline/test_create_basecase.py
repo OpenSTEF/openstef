@@ -10,6 +10,7 @@ import pandas as pd
 
 from openstef.exceptions import NoRealisedLoadError
 from openstef.pipeline.create_basecase_forecast import create_basecase_forecast_pipeline
+from openstef.enums import ForecastColumnName
 
 
 class TestBaseCaseForecast(BaseTestCase):
@@ -58,11 +59,11 @@ class TestBaseCaseForecast(BaseTestCase):
                 "quantile_P95",
                 "forecast_other",
                 "quality",
-                "pid",
-                "customer",
-                "description",
-                "type",
-                "algtype",
+                ForecastColumnName.PID,
+                ForecastColumnName.CUSTOMER,
+                ForecastColumnName.DESCRIPTION,
+                ForecastColumnName.TYPE
+                ForecastColumnName.GENERAL_TYPE,
             ],
             base_case_forecast.columns.to_list(),
         )

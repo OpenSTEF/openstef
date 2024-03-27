@@ -10,7 +10,7 @@ import structlog
 from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.enums import ForecastType
 from openstef.feature_engineering import weather_features
-from enums import WeatherColumnName
+from enums import WeatherColumnName, ForecastColumnName
 
 # this is the default for "Lagerwey100"
 TURBINE_DATA = {
@@ -229,7 +229,7 @@ def add_prediction_job_properties_to_forecast(
         # get the value from the enum
         forecast_type = forecast_type.value
 
-    # NOTE this field is only used when making the babasecase forecast and fallback
+    # NOTE this field is only used when making the basecase forecast and fallback
     if forecast_quality is not None:
         forecast["quality"] = forecast_quality
 
@@ -238,10 +238,10 @@ def add_prediction_job_properties_to_forecast(
     # TODO perhaps better to make a forecast its own class!
     # TODO double check and sync this with make_basecase_forecast (other fields are added)
     # !!!!! TODO fix the requirement for customer
-    forecast["pid"] = pj["id"]
-    forecast["customer"] = pj["name"]
-    forecast["description"] = pj["description"]
-    forecast["type"] = forecast_type
-    forecast["algtype"] = algorithm_type
+    forecast[ForecastColumnName.PID] = pj["id"]
+    forecast[ForecastColumnName.CUSTOMER] = pj["name"]
+    forecast[ForecastColumnName.DESCRIPTION] = pj[ForecastColumnName.DESCRIPTION]
+    forecast[ForecastColumnName.TYPE] = forecast_type
+    forecast[ForecastColumnName.GENERAL_TYPE] = algorithm_type
 
     return forecast
