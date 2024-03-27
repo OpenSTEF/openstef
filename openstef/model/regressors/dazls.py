@@ -56,8 +56,8 @@ class Dazls(BaseEstimator):
             WeatherConstants.RADIATION,  # Weather parameter
             WeatherConstants.WINDSPEED_100M,  # Weather parameter
             "total_substation",  # Substation's measured total load
-            "lat",  # Latitude
-            "lon",  # Longitude
+            LocationColumnName.LAT,  # Latitude
+            LocationColumnName.LON,  # Longitude
             "hour",  # Hour of the day
             "minute",  # Minute of the hour
         ]

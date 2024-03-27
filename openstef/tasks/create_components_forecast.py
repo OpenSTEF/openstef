@@ -35,7 +35,7 @@ from openstef.pipeline.create_component_forecast import (
 )
 from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstef.tasks.utils.taskcontext import TaskContext
-from enums import WeatherConstants
+from enums import WeatherConstants, LocationColumnName
 
 T_BEHIND_DAYS = 0
 T_AHEAD_DAYS = 3
@@ -82,7 +82,7 @@ def create_components_forecast_task(
     #  this will make this function much shorter
     # Get required weather data
     weather_data = context.database.get_weather_data(
-        [pj["lat"], pj["lon"]],
+        [pj[LocationColumnName.LAT], pj[LocationColumnName.LON]],
         [
             WeatherConstants.RADIATION,
             WeatherConstants.WINDSPEED_100M,

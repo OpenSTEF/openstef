@@ -15,4 +15,7 @@ class AppSettings(BaseSettings):
     weather_air_density = "air_density"
     weather_humidity = "humidity"
     weather_pressure = "pressure"
+
+    location_column_name_latitude = "lat"
+    location_column_name_longitude = "lon"
     

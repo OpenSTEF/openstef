@@ -50,8 +50,8 @@ def create_input(
         .dropna()
     )
     # Add additional features
-    input_df["lat"] = pj["lat"]
-    input_df["lon"] = pj["lon"]
+    input_df[LocationColumnName.LAT] = pj[LocationColumnName.LAT]
+    input_df[LocationColumnName.LON] = pj[LocationColumnName.LON]
 
     input_df["solar_on"] = 1
     input_df["wind_on"] = 1

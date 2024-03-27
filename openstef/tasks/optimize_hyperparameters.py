@@ -26,6 +26,7 @@ from openstef.monitoring import teams
 from openstef.pipeline.optimize_hyperparameters import optimize_hyperparameters_pipeline
 from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstef.tasks.utils.taskcontext import TaskContext
+from enums import LocationColumnName
 
 MAX_AGE_HYPER_PARAMS_DAYS = 31
 DEFAULT_CHECK_HYPER_PARAMS_AGE = True
@@ -93,7 +94,7 @@ def optimize_hyperparameters_task(
 
     input_data = context.database.get_model_input(
         pid=pj["id"],
-        location=[pj["lat"], pj["lon"]],
+        location=[pj[LocationColumnName.LAT], pj[LocationColumnName.LON]],
         datetime_start=datetime_start,
         datetime_end=datetime_end,
     )

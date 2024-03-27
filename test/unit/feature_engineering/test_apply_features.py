@@ -15,6 +15,7 @@ from openstef.feature_engineering.lag_features import (
     generate_lag_feature_functions,
     generate_non_trivial_lag_times,
 )
+from openstef.enums import WeatherConstants, LocationColumnName
 
 
 class TestApplyFeaturesModule(BaseTestCase):
@@ -88,7 +89,7 @@ class TestApplyFeaturesModule(BaseTestCase):
         input_data_with_features = apply_features.apply_features(
             data=TestData.load("input_data.csv"),
             horizon=24,
-            pj={"model": "xgb", "lat": 52.132633, "lon": 5.291266},
+            pj={"model": "xgb", LocationColumnName.LAT: 52.132633, LocationColumnName.LON: 5.291266},
         )
         expected_output = TestData.load("input_data_with_features.csv")
 
@@ -120,7 +121,7 @@ class TestApplyFeaturesModule(BaseTestCase):
     def test_train_feature_applicator(self):
         input_data_with_features = TrainFeatureApplicator(horizons=[0.25]).add_features(
             TestData.load("input_data.csv"),
-            pj={"model": "proleaf", "lat": 52.132633, "lon": 5.291266},
+            pj={"model": "proleaf", LocationColumnName.LAT: 52.132633, LocationColumnName.LON: 5.291266},
         )
         expected_output = TestData.load("input_data_multi_horizon_features.csv")
 
