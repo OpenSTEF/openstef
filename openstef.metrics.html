@@ -456,6 +456,9 @@ automatically based on the number of series passed.</p></li>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>A line plot of each passed data series.</p>
 </dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If names is None and the number of series is greater than 3.</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -548,6 +551,9 @@ feature importances and weights of the trained model.</p>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Function to calculate the metric.</p>
 </dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>KeyError</strong> – If the metric is not available.</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -600,8 +606,11 @@ feature importances and weights of the trained model.</p>
 <dd><p>Function that calculates the relative mean absolute error for the 5 percent highest realised values.</p>
 <p>The range is based on the load range of the previous two weeks.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></p>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – If the length of the realised and forecast arrays are not equal.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -726,7 +735,7 @@ that hyperparameter named <cite>max_delta_step</cite> is small enough to satisfy
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>preds</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – numpy.ndarray</p></li>
 <li><p><strong>dmatrix</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DMatrix</span></code>) – xgboost.DMatrix</p></li>
-<li><p><strong>quantile</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – float</p></li>
+<li><p><strong>quantile</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – float between 0 and 1</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>

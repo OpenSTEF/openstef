@@ -426,6 +426,9 @@
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Base case forecast</p>
 </dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="openstef.html#openstef.exceptions.NoRealisedLoadError" title="openstef.exceptions.NoRealisedLoadError"><strong>NoRealisedLoadError</strong></a> – When no realised load for given datetime range.</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -525,6 +528,12 @@ the given prediction job.</p>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>DataFrame with the forecast</p>
 </dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference internal" href="openstef.html#openstef.exceptions.InputDataOngoingZeroFlatlinerError" title="openstef.exceptions.InputDataOngoingZeroFlatlinerError"><strong>InputDataOngoingZeroFlatlinerError</strong></a> – When all recent load measurements are zero.</p></li>
+<li><p><strong>LookupError</strong> – When no model is found for the given prediction job in MLflow.</p></li>
+</ul>
+</dd>
 </dl>
 </dd></dl>
 
@@ -553,6 +562,9 @@ This pipeline has no database or persisitent storage dependencies.</p>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Forecast</p>
 </dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="openstef.html#openstef.exceptions.InputDataOngoingZeroFlatlinerError" title="openstef.exceptions.InputDataOngoingZeroFlatlinerError"><strong>InputDataOngoingZeroFlatlinerError</strong></a> – When all recent load measurements are zero.</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -576,7 +588,12 @@ This pipeline has no database or persisitent storage dependencies.</p>
 </ul>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>ValueError</strong> – If the input_date is insufficient.</p>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – If the input_date is insufficient.</p></li>
+<li><p><a class="reference internal" href="openstef.html#openstef.exceptions.InputDataInsufficientError" title="openstef.exceptions.InputDataInsufficientError"><strong>InputDataInsufficientError</strong></a> – If the input dataframe is empty.</p></li>
+<li><p><a class="reference internal" href="openstef.html#openstef.exceptions.InputDataWrongColumnOrderError" title="openstef.exceptions.InputDataWrongColumnOrderError"><strong>InputDataWrongColumnOrderError</strong></a> – If the load column is missing in the input dataframe.</p></li>
+<li><p><a class="reference internal" href="openstef.html#openstef.exceptions.OldModelHigherScoreError" title="openstef.exceptions.OldModelHigherScoreError"><strong>OldModelHigherScoreError</strong></a> – When old model is better than new model.</p></li>
+</ul>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
@@ -602,7 +619,13 @@ This pipeline has no database or persisitent storage dependencies.</p>
 </ul>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>ValueError</strong> – If the input_date is insufficient.</p>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – If the input_date is insufficient.</p></li>
+<li><p><a class="reference internal" href="openstef.html#openstef.exceptions.InputDataInsufficientError" title="openstef.exceptions.InputDataInsufficientError"><strong>InputDataInsufficientError</strong></a> – If the input dataframe is empty.</p></li>
+<li><p><a class="reference internal" href="openstef.html#openstef.exceptions.InputDataWrongColumnOrderError" title="openstef.exceptions.InputDataWrongColumnOrderError"><strong>InputDataWrongColumnOrderError</strong></a> – If the load column is missing in the input dataframe.</p></li>
+<li><p><a class="reference internal" href="openstef.html#openstef.exceptions.OldModelHigherScoreError" title="openstef.exceptions.OldModelHigherScoreError"><strong>OldModelHigherScoreError</strong></a> – When old model is better than new model.</p></li>
+<li><p><a class="reference internal" href="openstef.html#openstef.exceptions.InputDataOngoingZeroFlatlinerError" title="openstef.exceptions.InputDataOngoingZeroFlatlinerError"><strong>InputDataOngoingZeroFlatlinerError</strong></a> – When all recent load measurements are zero.</p></li>
+</ul>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<a class="reference internal" href="openstef.model.regressors.html#openstef.model.regressors.regressor.OpenstfRegressor" title="openstef.model.regressors.regressor.OpenstfRegressor"><code class="xref py py-class docutils literal notranslate"><span class="pre">OpenstfRegressor</span></code></a>, <a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.model_specifications.ModelSpecificationDataClass" title="openstef.data_classes.model_specifications.ModelSpecificationDataClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSpecificationDataClass</span></code></a>, <a class="reference internal" href="openstef.metrics.html#openstef.metrics.reporter.Report" title="openstef.metrics.reporter.Report"><code class="xref py py-class docutils literal notranslate"><span class="pre">Report</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]]</p>
@@ -688,6 +711,14 @@ These horizons are also used to make predictions (one for every horizon)</p></li
 </ul>
 </p>
 </dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference internal" href="openstef.html#openstef.exceptions.InputDataInsufficientError" title="openstef.exceptions.InputDataInsufficientError"><strong>InputDataInsufficientError</strong></a> – when input data is insufficient.</p></li>
+<li><p><a class="reference internal" href="openstef.html#openstef.exceptions.InputDataWrongColumnOrderError" title="openstef.exceptions.InputDataWrongColumnOrderError"><strong>InputDataWrongColumnOrderError</strong></a> – when input data has a invalid column order.</p></li>
+<li><p><strong>ValueError</strong> – when the horizon is a string and the corresponding column in not in the input data</p></li>
+<li><p><a class="reference internal" href="openstef.html#openstef.exceptions.InputDataOngoingZeroFlatlinerError" title="openstef.exceptions.InputDataOngoingZeroFlatlinerError"><strong>InputDataOngoingZeroFlatlinerError</strong></a> – when all recent load measurements are zero.</p></li>
+</ul>
+</dd>
 </dl>
 </dd></dl>
 
@@ -714,6 +745,12 @@ These horizons are also used to make predictions (one for every horizon)</p></li
 <li><p>The forecast on the test set.</p></li>
 </ul>
 </p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>NotImplementedError</strong> – When using invalid model type in the prediction job.</p></li>
+<li><p><a class="reference internal" href="openstef.html#openstef.exceptions.InputDataWrongColumnOrderError" title="openstef.exceptions.InputDataWrongColumnOrderError"><strong>InputDataWrongColumnOrderError</strong></a> – When ‘load’ column is not first and ‘horizon’ column is not last.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -752,6 +789,15 @@ Otherwise:</p>
 </div></blockquote>
 </p>
 </dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference internal" href="openstef.html#openstef.exceptions.InputDataInsufficientError" title="openstef.exceptions.InputDataInsufficientError"><strong>InputDataInsufficientError</strong></a> – when input data is insufficient.</p></li>
+<li><p><a class="reference internal" href="openstef.html#openstef.exceptions.InputDataWrongColumnOrderError" title="openstef.exceptions.InputDataWrongColumnOrderError"><strong>InputDataWrongColumnOrderError</strong></a> – when input data has a invalid column order.
+    ‘load’ column should be first and ‘horizon’ column last.</p></li>
+<li><p><a class="reference internal" href="openstef.html#openstef.exceptions.OldModelHigherScoreError" title="openstef.exceptions.OldModelHigherScoreError"><strong>OldModelHigherScoreError</strong></a> – When old model is better than new model.</p></li>
+<li><p><a class="reference internal" href="openstef.html#openstef.exceptions.SkipSaveTrainingForecasts" title="openstef.exceptions.SkipSaveTrainingForecasts"><strong>SkipSaveTrainingForecasts</strong></a> – If old model is better or younger than <cite>MAXIMUM_MODEL_AGE</cite>, the model is not saved.</p></li>
+</ul>
+</dd>
 </dl>
 </dd></dl>
 
@@ -776,6 +822,7 @@ This pipeline has no database or persistent storage dependencies.</p>
 <li><p><a class="reference internal" href="openstef.html#openstef.exceptions.InputDataInsufficientError" title="openstef.exceptions.InputDataInsufficientError"><strong>InputDataInsufficientError</strong></a> – when input data is insufficient.</p></li>
 <li><p><a class="reference internal" href="openstef.html#openstef.exceptions.InputDataWrongColumnOrderError" title="openstef.exceptions.InputDataWrongColumnOrderError"><strong>InputDataWrongColumnOrderError</strong></a> – when input data has a invalid column order.</p></li>
 <li><p><a class="reference internal" href="openstef.html#openstef.exceptions.OldModelHigherScoreError" title="openstef.exceptions.OldModelHigherScoreError"><strong>OldModelHigherScoreError</strong></a> – When old model is better than new model.</p></li>
+<li><p><a class="reference internal" href="openstef.html#openstef.exceptions.InputDataOngoingZeroFlatlinerError" title="openstef.exceptions.InputDataOngoingZeroFlatlinerError"><strong>InputDataOngoingZeroFlatlinerError</strong></a> – when all recent load measurements are zero.</p></li>
 </ul>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -826,7 +873,9 @@ This pipeline has no database or persistent storage dependencies.</p>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
 <li><p><a class="reference internal" href="openstef.html#openstef.exceptions.InputDataInsufficientError" title="openstef.exceptions.InputDataInsufficientError"><strong>InputDataInsufficientError</strong></a> – when input data is insufficient.</p></li>
-<li><p><a class="reference internal" href="openstef.html#openstef.exceptions.InputDataWrongColumnOrderError" title="openstef.exceptions.InputDataWrongColumnOrderError"><strong>InputDataWrongColumnOrderError</strong></a> – when input data has a invalid column order.</p></li>
+<li><p><a class="reference internal" href="openstef.html#openstef.exceptions.InputDataWrongColumnOrderError" title="openstef.exceptions.InputDataWrongColumnOrderError"><strong>InputDataWrongColumnOrderError</strong></a> – when input data has a invalid column order.
+    ‘load’ column should be first and ‘horizon’ column last.</p></li>
+<li><p><a class="reference internal" href="openstef.html#openstef.exceptions.InputDataOngoingZeroFlatlinerError" title="openstef.exceptions.InputDataOngoingZeroFlatlinerError"><strong>InputDataOngoingZeroFlatlinerError</strong></a> – when all recent load measurements are zero.</p></li>
 </ul>
 </dd>
 </dl>
@@ -856,6 +905,7 @@ This pipeline has no database or persistent storage dependencies.</p>
 <li><p><a class="reference internal" href="openstef.html#openstef.exceptions.InputDataInsufficientError" title="openstef.exceptions.InputDataInsufficientError"><strong>InputDataInsufficientError</strong></a> – when input data is insufficient.</p></li>
 <li><p><a class="reference internal" href="openstef.html#openstef.exceptions.InputDataWrongColumnOrderError" title="openstef.exceptions.InputDataWrongColumnOrderError"><strong>InputDataWrongColumnOrderError</strong></a> – when input data has a invalid column order.</p></li>
 <li><p><strong>ValueError</strong> – when the horizon is a string and the corresponding column in not in the input data</p></li>
+<li><p><a class="reference internal" href="openstef.html#openstef.exceptions.InputDataOngoingZeroFlatlinerError" title="openstef.exceptions.InputDataOngoingZeroFlatlinerError"><strong>InputDataOngoingZeroFlatlinerError</strong></a> – when all recent load measurements are zero.</p></li>
 </ul>
 </dd>
 </dl>
@@ -919,6 +969,12 @@ This pipeline has no database or persistent storage dependencies.</p>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The trained model</p>
 </dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>NotImplementedError</strong> – When using invalid model type in the prediction job.</p></li>
+<li><p><a class="reference internal" href="openstef.html#openstef.exceptions.InputDataWrongColumnOrderError" title="openstef.exceptions.InputDataWrongColumnOrderError"><strong>InputDataWrongColumnOrderError</strong></a> – When ‘load’ column is not first and ‘horizon’ column is not last.</p></li>
+</ul>
+</dd>
 </dl>
 </dd></dl>
 
@@ -945,6 +1001,9 @@ end time of forecasts as 2021-11-19 05:00:00.</p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Start and end datetimes of the forecast range.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the target column does not have null values.</p>
 </dd>
 </dl>
 </dd></dl>

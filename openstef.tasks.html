@@ -611,8 +611,12 @@ Alternatively this code can be run directly by running:</p>
 <li><p><strong>context</strong> (<a class="reference internal" href="openstef.tasks.utils.html#openstef.tasks.utils.taskcontext.TaskContext" title="openstef.tasks.utils.taskcontext.TaskContext"><code class="xref py py-class docutils literal notranslate"><span class="pre">TaskContext</span></code></a>) – Contect object that holds a config manager and a database connection</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="openstef.html#openstef.exceptions.ComponentForecastTooShortHorizonError" title="openstef.exceptions.ComponentForecastTooShortHorizonError"><strong>ComponentForecastTooShortHorizonError</strong></a> – If the forecast horizon is too short
+    (less than 30 minutes in advance)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1137,8 +1141,14 @@ database connection.</p></li>
 <li><p><strong>datetime_end</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code>]) – End</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference internal" href="openstef.html#openstef.exceptions.SkipSaveTrainingForecasts" title="openstef.exceptions.SkipSaveTrainingForecasts"><strong>SkipSaveTrainingForecasts</strong></a> – If old model is better or too young, you don’t need to save the traing forcast.</p></li>
+<li><p><a class="reference internal" href="openstef.html#openstef.exceptions.InputDataOngoingZeroFlatlinerError" title="openstef.exceptions.InputDataOngoingZeroFlatlinerError"><strong>InputDataOngoingZeroFlatlinerError</strong></a> – If all recent load measurements are zero.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
 </dd>
 </dl>
 </dd></dl>
