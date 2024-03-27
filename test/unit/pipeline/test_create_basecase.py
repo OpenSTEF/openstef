@@ -62,7 +62,7 @@ class TestBaseCaseForecast(BaseTestCase):
                 ForecastColumnName.PID,
                 ForecastColumnName.CUSTOMER,
                 ForecastColumnName.DESCRIPTION,
-                ForecastColumnName.TYPE
+                ForecastColumnName.TYPE,
                 ForecastColumnName.GENERAL_TYPE,
             ],
             base_case_forecast.columns.to_list(),

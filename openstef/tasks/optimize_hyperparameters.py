@@ -108,9 +108,7 @@ def optimize_hyperparameters_task(
     )
 
     # Sent message to Teams
-    title = (
-        f'Optimized hyperparameters for prediction job {pj["name"]} {pj[ForecastColumnName.DESCRIPTION]}'
-    )
+    title = f'Optimized hyperparameters for prediction job {pj["name"]} {pj[ForecastColumnName.DESCRIPTION]}'
 
     teams.post_teams(teams.format_message(title=title, params=hyperparameters))
 

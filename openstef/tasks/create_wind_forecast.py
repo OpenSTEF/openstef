@@ -31,20 +31,26 @@ def make_wind_forecast_pj(pj: PredictionJobDataClass, context: TaskContext) -> N
         context: Context manager
 
     """
-    context.logger.info("Get turbine data", turbine_type=pj[WeatherColumnName.TURBINE_TYPE])
+    context.logger.info(
+        "Get turbine data", turbine_type=pj[WeatherColumnName.TURBINE_TYPE]
+    )
     turbine_data = context.database.get_power_curve(pj[WeatherColumnName.TURBINE_TYPE])
 
     context.logger.info(
-        "Get windspeed", location=[pj[LocationColumnName.LAT], pj[LocationColumnName.LON]], hub_height=pj[WeatherColumnName.WIND_HUB_HEIGHT]
+        "Get windspeed",
+        location=[pj[LocationColumnName.LAT], pj[LocationColumnName.LON]],
+        hub_height=pj[WeatherColumnName.WIND_HUB_HEIGHT],
     )
     windspeed = context.database.get_wind_input(
         (pj[LocationColumnName.LAT], pj[LocationColumnName.LON]),
         pj[WeatherColumnName.WIND_HUB_HEIGHT],
-        pj["horizon_minutes"],
+        pj[ForecastColumnName.HORIZON_MINUTES],
         pj["resolution_minutes"],
     )
 
-    context.logger.info("Calculate windturbine power", n_turbines=pj[WeatherColumnName.NUMBER_TURBINES])
+    context.logger.info(
+        "Calculate windturbine power", n_turbines=pj[WeatherColumnName.NUMBER_TURBINES]
+    )
     power = weather_features.calculate_windturbine_power_output(
         windspeed, pj[WeatherColumnName.NUMBER_TURBINES], turbine_data
     ).rename(columns=dict(windspeed_100m="forecast"))

@@ -281,7 +281,7 @@ class TestCreateForecastTask(TestCase):
                 ForecastColumnName.PID,
                 ForecastColumnName.CUSTOMER,
                 ForecastColumnName.DESCRIPTION,
-                ForecastColumnName.TYPE
+                ForecastColumnName.TYPE,
                 ForecastColumnName.GENERAL_TYPE,
             ],
         )

@@ -7,7 +7,7 @@ from test.unit.utils.data import TestData
 from unittest.mock import MagicMock
 
 from openstef.tasks.create_solar_forecast import make_solar_prediction_pj
-from openstef.enums import LocationColumnName
+from openstef.enums import LocationColumnName, ForecastColumnName
 
 
 class TestSolar(BaseTestCase):
@@ -19,7 +19,7 @@ class TestSolar(BaseTestCase):
             "id": 71,
             "typ": "solar",
             "model": "latest",
-            "horizon_minutes": 2880,
+            ForecastColumnName.HORIZON_MINUTES: 2880,
             "resolution_minutes": 15,
             "name": "Provincies",
             LocationColumnName.LAT: 52.5,
