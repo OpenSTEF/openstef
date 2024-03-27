@@ -3,10 +3,11 @@
 # SPDX-License-Identifier: MPL-2.0
 
 from datetime import datetime, timedelta
-from freezegun import freeze_time
 from test.unit.utils.base import BaseTestCase
+
 import numpy as np
 import pandas as pd
+from freezegun import freeze_time
 
 from openstef.validation.validation import detect_ongoing_zero_flatliner
 

@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+import logging
 import math
 from datetime import datetime, timedelta
 from typing import Union
@@ -12,6 +13,7 @@ import structlog
 from openstef.exceptions import InputDataOngoingZeroFlatlinerError
 from openstef.model.regressors.regressor import OpenstfRegressor
 from openstef.preprocessing.preprocessing import replace_repeated_values_with_nan
+from openstef.settings import Settings
 
 
 def validate(
@@ -41,6 +43,11 @@ def validate(
         InputDataOngoingZeroFlatlinerError: If all recent load measurements are zero.
 
     """
+    structlog.configure(
+        wrapper_class=structlog.make_filtering_bound_logger(
+            logging.getLevelName(Settings.log_level)
+        )
+    )
     logger = structlog.get_logger(__name__)
 
     if not isinstance(data.index, pd.DatetimeIndex):
@@ -84,6 +91,11 @@ def validate(
 
 
 def drop_target_na(data: pd.DataFrame) -> pd.DataFrame:
+    structlog.configure(
+        wrapper_class=structlog.make_filtering_bound_logger(
+            logging.getLevelName(Settings.log_level)
+        )
+    )
     logger = structlog.get_logger(__name__)
     len_original = len(data)
     # Remove where load is NA, NaN features are preserved
@@ -122,6 +134,11 @@ def is_data_sufficient(
     else:
         weights = model.feature_importance_dataframe
 
+    structlog.configure(
+        wrapper_class=structlog.make_filtering_bound_logger(
+            logging.getLevelName(Settings.log_level)
+        )
+    )
     logger = structlog.get_logger(__name__)
     # Set output variable
     is_sufficient = True
@@ -254,6 +271,11 @@ def calc_completeness_dataframe(
         Dataframe with fraction of completeness per column
 
     """
+    structlog.configure(
+        wrapper_class=structlog.make_filtering_bound_logger(
+            logging.getLevelName(Settings.log_level)
+        )
+    )
     logger = structlog.get_logger(__name__)
 
     if homogenise and isinstance(df.index, pd.DatetimeIndex) and len(df) > 0:

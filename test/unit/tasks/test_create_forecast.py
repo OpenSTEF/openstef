@@ -7,9 +7,10 @@ from unittest import TestCase
 from unittest.mock import MagicMock, patch
 
 import pytest
+
+import openstef.tasks.create_forecast as task
 from openstef.enums import PipelineType
 from openstef.exceptions import InputDataOngoingZeroFlatlinerError
-import openstef.tasks.create_forecast as task
 from openstef.model.serializer import MLflowSerializer
 from openstef.tasks.create_forecast import create_forecast_task
 
