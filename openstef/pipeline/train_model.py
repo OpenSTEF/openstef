@@ -348,7 +348,6 @@ def train_pipeline_step_compute_features(
         ValueError: when the horizon is a string and the corresponding column in not in the input data
 
     """
-
     if input_data.empty:
         raise InputDataInsufficientError("Input dataframe is empty")
     elif "load" not in input_data.columns:

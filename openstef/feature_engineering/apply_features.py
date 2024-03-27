@@ -66,7 +66,6 @@ def apply_features(
                             np.random.uniform(0.7,1.7, 200)))
 
     """
-
     # Get lag feature functions
     feature_functions = generate_lag_feature_functions(feature_names, horizon)
 
