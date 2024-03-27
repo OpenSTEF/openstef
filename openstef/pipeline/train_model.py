@@ -348,9 +348,6 @@ def train_pipeline_step_compute_features(
         ValueError: when the horizon is a string and the corresponding column in not in the input data
 
     """
-    if pj["model"] == "proloaf":
-        # proloaf is only able to train with one horizon
-        horizons = [horizons[0]]
 
     if input_data.empty:
         raise InputDataInsufficientError("Input dataframe is empty")
@@ -523,7 +520,7 @@ def train_pipeline_step_split_data(
     if pj.train_split_func is None:
         split_func = split_data_train_validation_test
         split_args = {
-            "stratification_min_max": pj["model"] != "proloaf",
+            "stratification_min_max": True,
             "back_test": backtest,
         }
     else:

@@ -175,18 +175,6 @@ def optimize_hyperparameters_pipeline_core(
         horizons=horizons, feature_names=feature_names, feature_modules=feature_modules
     ).add_features(validated_data, pj=pj)
 
-    # Adds additional proloaf features to the input data, historic_load (equal to the load, first column)
-    if pj["model"] == "proloaf" and "historic_load" not in list(
-        validated_data_with_features.columns
-    ):
-        validated_data_with_features[
-            "historic_load"
-        ] = validated_data_with_features.iloc[:, 0]
-        # Make sure horizons is last column
-        temp_cols = validated_data_with_features.columns.tolist()
-        new_cols = temp_cols[:-2] + [temp_cols[-1]] + [temp_cols[-2]]
-        validated_data_with_features = validated_data_with_features[new_cols]
-
     # Create objective (NOTE: this is a callable class)
     objective = ObjectiveCreator.create_objective(model_type=pj["model"])
 
@@ -268,7 +256,7 @@ def optuna_optimization(
     if pj.train_split_func is None:
         split_func = split_data_train_validation_test
         split_args = {
-            "stratification_min_max": pj["model"] != "proloaf",
+            "stratification_min_max": True,
             "back_test": True,
         }
     else:
