@@ -9,6 +9,7 @@ import joblib
 import pandas as pd
 
 from pathlib import Path
+from openstef.enums import WeatherConstants
 
 PROJECT_ROOT = Path(__file__).parent.parent.parent.parent.absolute()
 
@@ -68,7 +69,7 @@ class TestComponentForecast(BaseTestCase):
     def test_component_forecast_pipeline_happy_flow(self):
         # Test happy flow
         data = TestData.load("reference_sets/307-test-data.csv")
-        weather = data[["radiation", "windspeed_100m"]]
+        weather = data[[WeatherConstants.RADIATION, "windspeed_100m"]]
         forecast_input = TestData.load("forecastdf_test_add_corrections.csv")
         forecast_input["stdev"] = 0
 
@@ -110,7 +111,7 @@ class TestComponentForecast(BaseTestCase):
     def test_component_forecast_pipeline_not_all_weather_data_available(self):
         # Test happy flow
         data = TestData.load("reference_sets/307-test-data.csv")
-        weather = data[["radiation"]]
+        weather = data[[WeatherConstants.RADIATION]]
         forecast_input = TestData.load("forecastdf_test_add_corrections.csv")
         forecast_input["stdev"] = 0
 

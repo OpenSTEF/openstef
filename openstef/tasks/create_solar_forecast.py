@@ -52,7 +52,7 @@ def make_solar_prediction_pj(pj, context, radius=30, peak_power=180961000.0):
 
     context.logger.info("Make solar prediction using Fides")
     power = fides(
-        solar_input[["aggregated", "radiation"]].rename(
+        solar_input[["aggregated", WeatherConstants.RADIATION]].rename(
             columns=dict(radiation="insolation", aggregated="load")
         )
     )

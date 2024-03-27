@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 
 from openstef.feature_engineering import weather_features
+from openstef.enums import WeatherConstants
 
 
 class HumidityCalculationsTest(BaseTestCase):
@@ -284,7 +285,7 @@ class RadiationCalculationsTest(BaseTestCase):
                 -1.3046875,
             ],
             index=times,
-            columns=["radiation"],
+            columns=[WeatherConstants.RADIATION],
         )  # .sort_index()
         self.pj = {"lon": 52.98749605, "lat": 6.288165514}
 
