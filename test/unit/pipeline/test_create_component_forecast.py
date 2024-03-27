@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta, timezone, UTC
 from test.unit.utils.base import BaseTestCase
 from test.unit.utils.data import TestData
 import joblib
@@ -75,7 +75,7 @@ class TestComponentForecast(BaseTestCase):
         # Shift example data to match current time interval as code expects data
         # available relative to the current time.
         utc_now = (
-            pd.Series(datetime.utcnow().replace(tzinfo=timezone.utc))
+            pd.Series(datetime.now(tz=UTC))
             .min()
             .round("15T")
             .to_pydatetime()
@@ -117,7 +117,7 @@ class TestComponentForecast(BaseTestCase):
         # Shift example data to match current time interval as code expects data
         # available relative to the current time.
         utc_now = (
-            pd.Series(datetime.utcnow().replace(tzinfo=timezone.utc))
+            pd.Series(datetime.now(tz=UTC))
             .min()
             .round("15T")
             .to_pydatetime()

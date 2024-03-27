@@ -46,11 +46,11 @@ class GeneralTest(BaseTestCase):
         )
 
         # Assert for every holiday a function is available and no extra functions are generated
-        self.assertEqual(
-            all([key in holiday_functions.keys() for key in expected_keys]), True
+        self.assertTrue(
+            all([key in holiday_functions.keys() for key in expected_keys])
         )
-        self.assertEqual(
-            all([key in expected_keys for key in holiday_functions.keys()]), True
+        self.assertTrue(
+            all([key in expected_keys for key in holiday_functions.keys()])
         )
 
 

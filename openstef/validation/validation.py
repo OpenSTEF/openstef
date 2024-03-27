@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from typing import Union
 
 import math
@@ -183,7 +183,7 @@ def calc_completeness_features(
         df_copy.drop("horizon", inplace=True, axis=1)
 
     if weights is None:
-        weights = np.array([1] * ((len(df_copy.columns))))
+        weights = np.array([1] * (len(df_copy.columns)))
 
     length_weights = len(weights)
     length_features = len(df_copy.columns)
@@ -223,7 +223,7 @@ def detect_ongoing_zero_flatliner(
 
     """
     # remove all timestamps in the future
-    load = load[load.index.tz_localize(None) <= datetime.utcnow()]
+    load = load[load.index<= datetime.now(tz=UTC)]
     latest_measurement_time = load.index.max()
     latest_measurements = load[
         latest_measurement_time - timedelta(minutes=duration_threshold_minutes) :
@@ -272,9 +272,9 @@ def calc_completeness_dataframe(
         # timecols: {delay:number of points expected to be missing}
         # number of points expected to be missing = numberOfPointsUpToTwoDaysAhead - numberOfPointsAvailable
         timecols = {
-            x: len(df) - eval(x[2:].replace("min", "/60").replace("d", "*24.0")) / 0.25
-            for x in df.columns
-            if x[:2] == "T-"
+            column: len(df) - eval(column[2:].replace("min", "/60").replace("d", "*24.0")) / 0.25
+            for column in df.columns
+            if column.startswith("T-")
         }
 
         non_na_count = df.count()

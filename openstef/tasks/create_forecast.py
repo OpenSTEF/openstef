@@ -20,7 +20,7 @@ Example:
         $ python create_forecast.py
 
 """
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from pathlib import Path
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
@@ -70,8 +70,8 @@ def create_forecast_task(pj: PredictionJobDataClass, context: TaskContext) -> No
     mlflow_tracking_uri = context.config.paths_mlflow_tracking_uri
 
     # Define datetime range for input data
-    datetime_start = datetime.utcnow() - timedelta(days=T_BEHIND_DAYS)
-    datetime_end = datetime.utcnow() + timedelta(seconds=pj.horizon_minutes * 60)
+    datetime_start = datetime.now(tz=UTC) - timedelta(days=T_BEHIND_DAYS)
+    datetime_end = datetime.now(tz=UTC) + timedelta(seconds=pj.horizon_minutes * 60)
 
     # Retrieve input data
     input_data = context.database.get_model_input(

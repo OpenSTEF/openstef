@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from test.unit.utils.base import BaseTestCase
 from test.unit.utils.data import TestData
 
@@ -24,7 +24,7 @@ class TestBaseCaseForecast(BaseTestCase):
         ] = np.nan
         # Shift so the input matches 'now'
         offset_seconds = (
-            pd.to_datetime(datetime.utcnow(), utc=True)
+            pd.to_datetime(datetime.now(tz=UTC))
             - (forecast_input.index.max() - timedelta(days=7))
         ).total_seconds()
         forecast_input = forecast_input.shift(

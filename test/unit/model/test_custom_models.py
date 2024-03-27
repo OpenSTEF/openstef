@@ -26,7 +26,7 @@ class DummyRegressor(CustomOpenstfRegressor):
         return []
 
     @classmethod
-    def objective(self) -> Type[DummyObjective]:
+    def objective() -> Type[DummyObjective]:
         return DummyObjective
 
     @property

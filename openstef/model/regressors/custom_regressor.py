@@ -28,7 +28,7 @@ class CustomOpenstfRegressor(OpenstfRegressor):
 
     @classmethod
     @abstractmethod
-    def objective(self) -> Type[RegressorObjective]:
+    def objective() -> Type[RegressorObjective]:
         ...
 
 

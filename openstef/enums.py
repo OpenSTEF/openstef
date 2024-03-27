@@ -3,8 +3,6 @@
 # SPDX-License-Identifier: MPL-2.0
 from enum import Enum
 
-
-# TODO replace this with ModelType (MLModelType == Machine Learning model type)
 class MLModelType(Enum):
     XGB = "xgb"
     XGB_QUANTILE = "xgb_quantile"
