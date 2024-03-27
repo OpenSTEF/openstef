@@ -132,5 +132,39 @@ class TestPostProcess(BaseTestCase):
         self.assertEqual(len(forecasts), 5)
 
 
+class TestSortValuesByRow(unittest.TestCase):
+    def test_sort_values_by_row_simple(self):
+        # Test DataFrame with columns starting with 'P_'
+        df = pd.DataFrame({
+            'P_05': [1, 3, 5],
+            'P_95': [2, 0, 6],
+        })
+        
+        sorted_df = postprocessing.sort_quantiles(df)
+        expected_result = pd.DataFrame({
+            'P_05': [1, 0, 5],
+            'P_95': [2, 3, 6],
+        })
+        pd.testing.assert_frame_equal(sorted_df, expected_result)
+    
+    def test_sort_values_by_row_complex(self):
+        df = pd.DataFrame({
+            'P_05': [1, 3, 5],
+            'P_95': [2, 0, 6],
+            'P_50': [1.5, 5, 1],
+            'Other_column': [1, 0, 3],
+        })
+        
+        sorted_df = postprocessing.sort_quantiles(df)
+        expected_result = pd.DataFrame({
+            'P_05': [1, 0, 1],
+            'P_95': [2, 5, 6],
+            'P_50': [1.5, 3, 5],
+            'Other_column': [1, 0, 3],
+        })
+        
+        sorted_df = postprocessing.sort_quantiles(df)
+        pd.testing.assert_frame_equal(sorted_df, expected_result)
+
 if __name__ == "__main__":
     unittest.main()

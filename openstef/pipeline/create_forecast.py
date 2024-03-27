@@ -141,6 +141,9 @@ def create_forecast_pipeline_core(
     forecast = ConfidenceIntervalApplicator(
         model, forecast_input_data
     ).add_confidence_interval(forecast, pj)
+    
+    # Sort quantiles - prevents crossing and is statistically sound
+    forecast = sort_quantiles(forecast)
 
     # Prepare for output
     forecast = add_prediction_job_properties_to_forecast(
