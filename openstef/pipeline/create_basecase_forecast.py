@@ -40,6 +40,9 @@ def create_basecase_forecast_pipeline(
     Returns:
         Base case forecast
 
+    Raises:
+        NoRealisedLoadError: When no realised load for given datetime range.
+
     """
     structlog.configure(
         wrapper_class=structlog.make_filtering_bound_logger(

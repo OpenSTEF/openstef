@@ -40,14 +40,14 @@ class PredictionJobDataClass(BaseModel):
     If unsure what to pick, choose ``"demand"``.
 
     """
-    horizon_minutes: int = 2880
-    """The horizon of the desired forecast in minutes. Defaults to 2880 minutes (i.e. 2 days)."""
+    horizon_minutes: Optional[int] = 2880
+    """The horizon of the desired forecast in minutes used in tasks. Defaults to 2880 minutes (i.e. 2 days)."""
     resolution_minutes: int
     """The resolution of the desired forecast in minutes."""
-    lat: float
-    """Latitude of the forecasted location in degrees."""
-    lon: float
-    """Longitude of the forecasted location in degrees."""
+    lat: Optional[float] = 52.132633
+    """Latitude of the forecasted location in degrees. Used for fetching weather data in tasks, calculating derrived features and component splitting."""
+    lon: Optional[float] = 5.291266
+    """Longitude of the forecasted location in degrees. Used for fetching weather data in tasks, calculating derrived features and component splitting."""
     name: str
     """Name of the forecast, e.g. the location name."""
     train_components: Optional[bool]

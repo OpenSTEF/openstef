@@ -154,6 +154,9 @@ class MLflowSerializer:
         Args:
             experiment_name: Name of the experiment, often the id of the predition job.
 
+        Raises:
+            LookupError: If model is not found in MLflow.
+
         """
         try:
             models_df = self._find_models(

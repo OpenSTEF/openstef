@@ -257,3 +257,25 @@ def add_prediction_job_properties_to_forecast(
     forecast[ForecastColumnName.GENERAL_TYPE] = algorithm_type
 
     return forecast
+
+
+def sort_quantiles(
+    forecast: pd.DataFrame, quantile_col_start="quantile_P"
+) -> pd.DataFrame:
+    """Sort quantile values so quantiles do not cross.
+
+    This function assumes that all quantile columns start with 'quantile_P'
+    For more academic details on why this is mathematically sounds,
+    please refer to Quantile and Probability Curves Without Crossing (Chernozhukov, 2010)
+    """
+    p_columns = [col for col in forecast.columns if col.startswith(quantile_col_start)]
+
+    if len(p_columns) == 0:
+        return forecast
+
+    # sort the columns
+    p_columns = np.sort(p_columns)
+
+    forecast.loc[:, p_columns] = forecast[p_columns].apply(sorted, axis=1).to_list()
+
+    return forecast

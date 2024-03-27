@@ -27,6 +27,9 @@ def generate_forecast_datetime_range(
     Returns:
         Start and end datetimes of the forecast range.
 
+    Raises:
+        ValueError: If the target column does not have null values.
+
     """
     # By labeling the True/False values (based on the isnull() statement) as clusters,
     # we find what True value belongs to what cluster and the amount of True clusters.
