@@ -51,15 +51,17 @@ class TestSplitFuncDataClass(unittest.TestCase):
         with self.assertRaises(AttributeError):
             split_func["dummy"] = None
 
-    def test_load(self):
+    def test_load_split_func_with_objects(self):
         split_func, args = self.split_func_with_objects.load()
         self.assertIs(split_func, dummy_split_func)
         self.assertEqual(args, self.arguments)
 
+    def test_load_split_func_with_strings(self):
         split_func, args = self.split_func_with_strings.load()
         self.assertIs(split_func, dummy_split_func)
         self.assertEqual(args, self.arguments)
 
+    def test_load_split_func_with_non_callable_object(self):
         # Non Callable object
         split_func_dc = copy.deepcopy(self.split_func_with_strings)
         split_func_dc[
@@ -67,6 +69,7 @@ class TestSplitFuncDataClass(unittest.TestCase):
         ] = "test.unit.data_classes.test_split_function.dummy_not_func"
         with self.assertRaises(ValueError):
             _ = split_func_dc.load()
+
 
     def test_check_arguments(self):
         # Should not raise exception
