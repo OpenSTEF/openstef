@@ -104,7 +104,7 @@ class OpenstfProloafRegressor(OpenstfRegressor, ModelWrapper):
             "historic_load",
         ],  # make sure historic load is present, TODO: implement so you can use None
         decoder_features: list[str] = [
-            "air_density"
+            WeatherConstants.AIR_DENSITY
         ],  # TODO: implement so you can use None
         core_layers: int = 1,
         rel_linear_hidden_size: float = 1.0,
