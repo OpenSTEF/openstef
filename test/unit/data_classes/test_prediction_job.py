@@ -50,10 +50,10 @@ class TestPredictionJobs(unittest.TestCase):
             "forecast_type": "demand",
         }
 
-        # Assert
+        # Act
         pj = PredictionJobDataClass(**pj_dict)
 
-        # Act
+        # Assert
         self.assertIsInstance(pj, PredictionJobDataClass)
 
     def test_prediction_job_from_dict_with_solar_columns(self):
@@ -90,10 +90,10 @@ class TestPredictionJobs(unittest.TestCase):
             "forecast_type": "demand",
         }
 
-        # Assert
+        # Act
         pj = PredictionJobDataClass(**pj_dict)
 
-        # Act
+        # Assert
         self.assertIsInstance(pj, PredictionJobDataClass)
         self.assertEqual(pj["id"], 307)
         self.assertEqual(pj["sid"], "NrynRS_10-G_V12_P")
@@ -135,10 +135,10 @@ class TestPredictionJobs(unittest.TestCase):
             "forecast_type": "demand",
         }
 
-        # Assert
+        # Act
         pj = PredictionJobDataClass(**pj_dict)
 
-        # Act
+        # Assert
         self.assertIsInstance(pj, PredictionJobDataClass)
         self.assertEqual(pj["id"], 307)
         self.assertEqual(pj["turbine_type"], "test")
