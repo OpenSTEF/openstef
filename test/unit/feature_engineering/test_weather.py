@@ -65,7 +65,7 @@ class HumidityCalculationsTest(BaseTestCase):
                 9: 21.419891357421875,
                 10: 20.398956298828125,
             },
-            "humidity": {
+            WeatherConstants.HUMIDITY: {
                 0: 0.7382869124412537,
                 1: 0.7526984214782715,
                 2: 0.7334562540054321,
@@ -78,7 +78,7 @@ class HumidityCalculationsTest(BaseTestCase):
                 9: 0.6748714596033096,
                 10: 0.6509994566440582,
             },
-            "pressure": {
+            WeatherConstants.PRESSURE: {
                 0: 101683.453125,
                 1: 101669.109375,
                 2: 101660.3203125,
