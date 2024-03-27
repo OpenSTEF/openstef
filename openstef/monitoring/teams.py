@@ -1,11 +1,13 @@
 # SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+import logging
 from typing import Union
 
 import pandas as pd
 import pymsteams
 import structlog
+from app_settings import AppSettings
 from pymsteams import cardsection
 
 
@@ -38,6 +40,11 @@ def post_teams(
     Note:
         This function is namespace-specific.
     """
+    structlog.configure(
+        wrapper_class=structlog.make_filtering_bound_logger(
+            logging.getLevelName(AppSettings.log_level)
+        )
+    )
     logger = structlog.get_logger(__name__)
     # If no url is passed, give warning and don't send teams message
     if url is None:

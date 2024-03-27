@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 import json
+import logging
 import os
 import shutil
 from datetime import datetime
@@ -13,6 +14,7 @@ import mlflow
 import numpy as np
 import pandas as pd
 import structlog
+from app_settings import AppSettings
 from mlflow.exceptions import MlflowException
 from mlflow.store.artifact.artifact_repository_registry import get_artifact_repository
 from xgboost import XGBModel  # Temporary for backward compatibility
@@ -24,6 +26,11 @@ from openstef.model.regressors.regressor import OpenstfRegressor
 
 class MLflowSerializer:
     def __init__(self, mlflow_tracking_uri: str):
+        structlog.configure(
+            wrapper_class=structlog.make_filtering_bound_logger(
+                logging.getLevelName(AppSettings.log_level)
+            )
+        )
         self.logger = structlog.get_logger(self.__class__.__name__)
         mlflow.set_tracking_uri(mlflow_tracking_uri)
         self.logger.debug(f"MLflow tracking uri at init= {mlflow_tracking_uri}")

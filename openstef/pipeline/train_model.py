@@ -7,6 +7,7 @@ from typing import Optional, Union
 
 import pandas as pd
 import structlog
+from app_settings import AppSettings
 
 from openstef.data_classes.model_specifications import ModelSpecificationDataClass
 from openstef.data_classes.prediction_job import PredictionJobDataClass
@@ -31,6 +32,11 @@ MAXIMUM_MODEL_AGE: int = 7
 DEFAULT_EARLY_STOPPING_ROUNDS: int = 10
 PENALTY_FACTOR_OLD_MODEL: float = 1.2
 
+structlog.configure(
+    wrapper_class=structlog.make_filtering_bound_logger(
+        logging.getLevelName(AppSettings.log_level)
+    )
+)
 logger = structlog.get_logger(__name__)
 
 
@@ -172,7 +178,6 @@ def train_model_pipeline_core(
         - Datasets (tuple[pd.DataFrmae, pd.DataFrame, pd.Dataframe): The train, validation and test sets
 
     """
-    logger = structlog.get_logger(__name__)
 
     # Call common pipeline
     (

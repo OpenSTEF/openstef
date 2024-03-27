@@ -21,11 +21,13 @@ Example:
         $ python create_components_forecast.py
 
 """
+import logging
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-import structlog
 import pandas as pd
+import structlog
+from app_settings import AppSettings
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.enums import MLModelType
@@ -52,6 +54,11 @@ def create_components_forecast_task(
         context: Contect object that holds a config manager and a database connection
 
     """
+    structlog.configure(
+        wrapper_class=structlog.make_filtering_bound_logger(
+            logging.getLevelName(AppSettings.log_level)
+        )
+    )
     logger = structlog.get_logger(__name__)
     if pj["train_components"] == 0:
         context.logger.info(

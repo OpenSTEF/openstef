@@ -1,13 +1,15 @@
 # SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+import logging
 from pathlib import Path
 
 import pandas as pd
 import structlog
+from app_settings import AppSettings
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
-from openstef.exceptions import NoRealisedLoadError, InputDataOngoingZeroFlatlinerError
+from openstef.exceptions import InputDataOngoingZeroFlatlinerError, NoRealisedLoadError
 from openstef.feature_engineering.feature_applicator import (
     OperationalPredictFeatureApplicator,
 )
@@ -39,6 +41,11 @@ def create_basecase_forecast_pipeline(
         Base case forecast
 
     """
+    structlog.configure(
+        wrapper_class=structlog.make_filtering_bound_logger(
+            logging.getLevelName(AppSettings.log_level)
+        )
+    )
     logger = structlog.get_logger(__name__)
 
     logger.info("Preprocessing data for basecase forecast")

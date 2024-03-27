@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 """Defines reporter class."""
+import logging
 import os
 import warnings
 from dataclasses import dataclass
@@ -10,6 +11,7 @@ import numpy as np
 import pandas as pd
 import sklearn
 import structlog
+from app_settings import AppSettings
 from mlflow.models import ModelSignature, infer_signature
 from plotly.graph_objects import Figure
 
@@ -167,6 +169,11 @@ class Reporter:
     def write_report_to_disk(report: Report, report_folder: str):
         """Write report to disk; e.g. for viewing report of latest models using grafana."""
         # Initialize logger and serializer
+        structlog.configure(
+            wrapper_class=structlog.make_filtering_bound_logger(
+                logging.getLevelName(AppSettings.log_level)
+            )
+        )
         logger = structlog.get_logger(__name__)
         if report_folder:
             # create path if does not exist

@@ -5,7 +5,7 @@
 import inspect
 import json
 from importlib import import_module
-from typing import Any, Sequence, Union, TypeVar
+from typing import Any, Sequence, TypeVar, Union
 
 from pydantic.v1 import BaseModel
 
