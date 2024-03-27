@@ -22,6 +22,14 @@ Subpackages
 Submodules
 ----------
 
+openstef.app\_settings module
+-----------------------------
+
+.. automodule:: openstef.app_settings
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 openstef.enums module
 ---------------------
 
@@ -34,6 +42,14 @@ openstef.exceptions module
 --------------------------
 
 .. automodule:: openstef.exceptions
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+openstef.settings module
+------------------------
+
+.. automodule:: openstef.settings
    :members:
    :undoc-members:
    :show-inheritance:
