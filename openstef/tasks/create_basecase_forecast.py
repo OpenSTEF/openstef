@@ -32,9 +32,10 @@ T_AHEAD_DAYS: int = 14
 
 
 def create_basecase_forecast_task(
-    pj: PredictionJobDataClass, context: TaskContext,
-    t_behind_days = T_BEHIND_DAYS,
-    t_ahead_days = T_AHEAD_DAYS
+    pj: PredictionJobDataClass,
+    context: TaskContext,
+    t_behind_days=T_BEHIND_DAYS,
+    t_ahead_days=T_AHEAD_DAYS,
 ) -> None:
     """Top level task that creates a basecase forecast.
 

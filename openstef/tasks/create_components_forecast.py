@@ -41,7 +41,8 @@ T_AHEAD_DAYS = 3
 
 
 def create_components_forecast_task(
-    pj: PredictionJobDataClass, context: TaskContext,
+    pj: PredictionJobDataClass,
+    context: TaskContext,
     t_behind_days: int = T_BEHIND_DAYS,
     t_ahead_days: int = T_AHEAD_DAYS,
 ) -> None:

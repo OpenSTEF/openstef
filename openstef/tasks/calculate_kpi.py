@@ -69,8 +69,8 @@ def check_kpi_task(
     context: TaskContext,
     start_time: datetime,
     end_time: datetime,
-    threshold_optimizing = THRESHOLD_OPTIMIZING,
-    threshold_retraining = THRESHOLD_RETRAINING,
+    threshold_optimizing=THRESHOLD_OPTIMIZING,
+    threshold_retraining=THRESHOLD_RETRAINING,
 ) -> None:
     # Apply default parameters if none are provided
     if start_time is None:

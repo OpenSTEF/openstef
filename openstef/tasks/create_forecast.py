@@ -34,10 +34,9 @@ from openstef.validation.validation import detect_ongoing_zero_flatliner
 T_BEHIND_DAYS: int = 14
 
 
-def create_forecast_task(pj: PredictionJobDataClass,
-                         context: TaskContext,
-                         t_behind_days: int = T_BEHIND_DAYS
-                         ) -> None:
+def create_forecast_task(
+    pj: PredictionJobDataClass, context: TaskContext, t_behind_days: int = T_BEHIND_DAYS
+) -> None:
     """Top level task that creates a forecast.
 
     On this task level all database and context manager dependencies are resolved.
