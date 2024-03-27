@@ -52,7 +52,7 @@ class HumidityCalculationsTest(BaseTestCase):
 
     def test_pd_input(self):
         dict_for_df = {
-            "temp": {
+            WeatherConstants.TEMPERATURE: {
                 0: 17.527984619140625,
                 1: 18.406951904296875,
                 2: 19.725128173828125,
