@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 import copy
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Callable, Optional
 
 import optuna
@@ -59,7 +59,7 @@ class RegressorObjective:
         self.validation_data = None
         self.test_data = None
         self.model = model
-        self.start_time = datetime.utcnow()
+        self.start_time = datetime.now(timezone.utc)
         self.test_fraction = test_fraction
         self.validation_fraction = validation_fraction
         self.eval_metric = eval_metric
