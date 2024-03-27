@@ -14,9 +14,6 @@ Examples of features that are added:
 import pandas as pd
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
-from openstef.feature_engineering.historic_features import (
-    add_historic_load_as_a_feature,
-)
 from openstef.feature_engineering.holiday_features import (
     generate_holiday_feature_functions,
 )
@@ -69,9 +66,6 @@ def apply_features(
                             np.random.uniform(0.7,1.7, 200)))
 
     """
-    # Add if needed the proloaf feature (historic_load)
-    data = add_historic_load_as_a_feature(data, pj)
-
     # Get lag feature functions
     feature_functions = generate_lag_feature_functions(feature_names, horizon)
 

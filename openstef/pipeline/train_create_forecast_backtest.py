@@ -59,7 +59,7 @@ def train_model_and_forecast_back_test(
     """
     if pj.backtest_split_func is None:
         backtest_split_func = backtest_split_default
-        backtest_split_args = {"stratification_min_max": pj["model"] != "proloaf"}
+        backtest_split_args = {"stratification_min_max": True}
     else:
         backtest_split_func, backtest_split_args = pj.backtest_split_func.load(
             required_arguments=["data", "n_folds"]

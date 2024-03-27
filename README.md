@@ -13,6 +13,8 @@ SPDX-License-Identifier: MPL-2.0
 OpenSTEF is a Python package designed for generating short-term forecasts in the energy sector. The repository includes all the essential components required for machine learning pipelines that facilitate the forecasting process. To utilize the package, users are required to furnish their own data storage and retrieval interface.
 
 # Table of contents
+- [OpenSTEF](#openstef)
+- [Table of contents](#table-of-contents)
 - [External information sources](#external-information-sources)
 - [Installation](#install)
 - [Usage](#usage)
@@ -39,10 +41,6 @@ OpenSTEF is a Python package designed for generating short-term forecasts in the
 pip install openstef
 ```
 
-_**Optional**_: if you would like to use the proloaf model with OpenSTEF install the proloaf dependencies by running:
-```shell
-pip install openstef[proloaf]
-```
 ### Remark regarding installation within a **conda environment on Windows**:
 
 A version of the pywin32 package will be installed as a secondary dependency along with the installation of the openstef package. Since conda relies on an old version of pywin32, the new installation can break conda's functionality. The following command can solve this issue:

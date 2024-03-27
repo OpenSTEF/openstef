@@ -25,7 +25,6 @@ class PredictionJobDataClass(BaseModel):
         - ``"xgb_quantile"``
         - ``"lgb"``
         - ``"linear"``
-        - ``"proloaf"`` (extra dependencies requiered, see README)
 
     If unsure what to pick, choose ``"xgb"``.
 
