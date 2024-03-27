@@ -115,7 +115,6 @@ def check_kpi_task(
             rMAE=kpis["47.0h"]["rMAE"],
             optimizing_threshold=THRESHOLD_OPTIMIZING,
         )
-        function_name = "optimize_hyperparameters"
 
 
 def calc_kpi_for_specific_pid(
