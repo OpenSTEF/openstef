@@ -70,8 +70,8 @@ def create_forecast_task(pj: PredictionJobDataClass, context: TaskContext) -> No
     mlflow_tracking_uri = context.config.paths_mlflow_tracking_uri
 
     # Define datetime range for input data
-    datetime_start = datetime.now(datetime.UTC) - timedelta(days=T_BEHIND_DAYS)
-    datetime_end = datetime.now(datetime.UTC) + timedelta(
+    datetime_start = datetime.utcnow() - timedelta(days=T_BEHIND_DAYS)
+    datetime_end = datetime.utcnow() + timedelta(
         seconds=pj.horizon_minutes * 60
     )
 
