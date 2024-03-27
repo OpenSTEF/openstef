@@ -26,6 +26,7 @@ from openstef.enums import PipelineType
 from openstef.pipeline.create_basecase_forecast import create_basecase_forecast_pipeline
 from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstef.tasks.utils.taskcontext import TaskContext
+from enums import LocationColumnName
 
 T_BEHIND_DAYS: int = 15
 T_AHEAD_DAYS: int = 14
@@ -69,7 +70,7 @@ def create_basecase_forecast_task(
     # Retrieve input data
     input_data = context.database.get_model_input(
         pid=pj["id"],
-        location=[pj["lat"], pj["lon"]],
+        location=[pj[LocationColumnName.LAT], pj[LocationColumnName.LON]],
         datetime_start=datetime_start,
         datetime_end=datetime_end,
     )

@@ -20,6 +20,7 @@ from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.feature_engineering import weather_features
 from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstef.tasks.utils.taskcontext import TaskContext
+from enums import LocationColumnName
 
 
 def make_wind_forecast_pj(pj: PredictionJobDataClass, context: TaskContext) -> None:
@@ -34,10 +35,10 @@ def make_wind_forecast_pj(pj: PredictionJobDataClass, context: TaskContext) -> N
     turbine_data = context.database.get_power_curve(pj["turbine_type"])
 
     context.logger.info(
-        "Get windspeed", location=[pj["lat"], pj["lon"]], hub_height=pj["hub_height"]
+        "Get windspeed", location=[pj[LocationColumnName.LAT], pj[LocationColumnName.LON]], hub_height=pj["hub_height"]
     )
     windspeed = context.database.get_wind_input(
-        (pj["lat"], pj["lon"]),
+        (pj[LocationColumnName.LAT], pj[LocationColumnName.LON]),
         pj["hub_height"],
         pj["horizon_minutes"],
         pj["resolution_minutes"],

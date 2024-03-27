@@ -30,6 +30,7 @@ from openstef.pipeline.create_forecast import create_forecast_pipeline
 from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstef.tasks.utils.taskcontext import TaskContext
 from openstef.validation.validation import detect_ongoing_zero_flatliner
+from enums import LocationColumnName
 
 T_BEHIND_DAYS: int = 14
 
@@ -76,7 +77,7 @@ def create_forecast_task(pj: PredictionJobDataClass, context: TaskContext) -> No
     # Retrieve input data
     input_data = context.database.get_model_input(
         pid=pj["id"],
-        location=[pj["lat"], pj["lon"]],
+        location=[pj[LocationColumnName.LAT], pj[LocationColumnName.LON]],
         datetime_start=datetime_start,
         datetime_end=datetime_end,
     )

@@ -22,6 +22,7 @@ from scipy import optimize
 from openstef import PROJECT_ROOT
 from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstef.tasks.utils.taskcontext import TaskContext
+from enums import LocationColumnName
 
 # TODO move to config
 PV_COEFS_FILEPATH = PROJECT_ROOT / "openstef" / "data" / "pv_single_coefs.csv"
@@ -40,7 +41,7 @@ def make_solar_prediction_pj(pj, context, radius=30, peak_power=180961000.0):
     context.logger.info("Get solar input data from database")
     # pvdata is only stored in the prd database
     solar_input = context.database.get_solar_input(
-        (pj["lat"], pj["lon"]),
+        (pj[LocationColumnName.LAT], pj[LocationColumnName.LON]),
         pj["horizon_minutes"],
         pj["resolution_minutes"],
         radius=radius,

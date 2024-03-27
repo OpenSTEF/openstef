@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 
 from openstef.feature_engineering import weather_features
-from openstef.enums import WeatherConstants
+from openstef.enums import WeatherConstants, LocationColumnName
 
 
 class HumidityCalculationsTest(BaseTestCase):
@@ -287,7 +287,7 @@ class RadiationCalculationsTest(BaseTestCase):
             index=times,
             columns=[WeatherConstants.RADIATION],
         )  # .sort_index()
-        self.pj = {"lon": 52.98749605, "lat": 6.288165514}
+        self.pj = {LocationColumnName.LON: 52.98749605, LocationColumnName.LAT: 6.288165514}
 
     def test_dni(self):
         # Act

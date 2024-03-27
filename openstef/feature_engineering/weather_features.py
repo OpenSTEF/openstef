@@ -380,7 +380,7 @@ def calculate_dni(radiation: pd.Series, pj: PredictionJobDataClass) -> pd.Series
         Direct normal irradiance (DNI).
 
     """
-    loc = Location(pj.get("lat", DEFAULT_LAT), pj.get("lon", DEFAULT_LON), tz="utc")
+    loc = Location(pj.get(LocationColumnName.LAT, DEFAULT_LAT), pj.get(LocationColumnName.LON, DEFAULT_LON), tz="utc")
     times = radiation.index
 
     # calculate data for loc(ation) at times with clear_sky, as if there would be a clear sky.
@@ -421,7 +421,7 @@ def calculate_gti(
         Global Tilted Irradiance (GTI)
 
     """
-    loc = Location(pj.get("lat", DEFAULT_LAT), pj.get("lon", DEFAULT_LON), tz="utc")
+    loc = Location(pj.get(LocationColumnName.LAT, DEFAULT_LAT), pj.get(LocationColumnName.LON, DEFAULT_LON), tz="utc")
     times = radiation.index
 
     # calculate data for loc(ation) at times with clear_sky, as if there would be a clear sky.
@@ -468,7 +468,7 @@ def add_additional_solar_features(
         logger.info(
             "No prediction job, default location will be used for additional radiation features."
         )
-        pj = {"lat": DEFAULT_LAT, "lon": DEFAULT_LON}
+        pj = {LocationColumnName.LAT: DEFAULT_LAT, LocationColumnName.LON: DEFAULT_LON}
 
     # If features is none add solar feature anyway
     if feature_names is None:

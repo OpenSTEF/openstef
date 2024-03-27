@@ -44,4 +44,9 @@ class WeatherConstants(Enum):
     AIR_DENSITY = AppSettings.weather_air_density
     HUMIDITY = AppSettings.weather_humidity
     PRESSURE = AppSettings.weather_pressure
+
+
+class LocationColumnName(Enum):
+    LAT = AppSettings.location_column_name_latitude
+    LON = AppSettings.location_column_name_longitude
     

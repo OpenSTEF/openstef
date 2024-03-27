@@ -6,6 +6,7 @@ import unittest
 from test.unit.utils.data import TestData
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
+from openstef.enums import LocationColumnName
 
 
 class TestPredictionJobs(unittest.TestCase):
@@ -26,8 +27,8 @@ class TestPredictionJobs(unittest.TestCase):
             "resolution_minutes": 15,
             "train_components": 1,
             "name": "Neerijnen",
-            "lat": 51.8336647,
-            "lon": 5.2137814,
+            LocationColumnName.LAT: 51.8336647,
+            LocationColumnName.LON: 5.2137814,
             "sid": "NrynRS_10-G_V12_P",
             "created": "2019-04-05 12:08:23",
             "description": "NrynRS_10-G_V12_P+NrynRS_10-G_V13_P+NrynRS_10-G_V14_P+NrynRS_10-G_V15_P+NrynRS_10-G_V16_P+NrynRS_10-G_V17_P+NrynRS_10-G_V18_P+NrynRS_10-G_V20_P+NrynRS_10-G_V21_P+NrynRS_10-G_V22_P+NrynRS_10-G_V23_P+NrynRS_10-G_V24_P+NrynRS_10-G_V25_P",
@@ -66,8 +67,8 @@ class TestPredictionJobs(unittest.TestCase):
             "resolution_minutes": 15,
             "train_components": 1,
             "name": "Neerijnen",
-            "lat": 51.8336647,
-            "lon": 5.2137814,
+            LocationColumnName.LAT: 51.8336647,
+            LocationColumnName.LON: 5.2137814,
             "sid": "NrynRS_10-G_V12_P",
             "created": "2019-04-05 12:08:23",
             "description": "NrynRS_10-G_V12_P+NrynRS_10-G_V13_P+NrynRS_10-G_V14_P+NrynRS_10-G_V15_P+NrynRS_10-G_V16_P+NrynRS_10-G_V17_P+NrynRS_10-G_V18_P+NrynRS_10-G_V20_P+NrynRS_10-G_V21_P+NrynRS_10-G_V22_P+NrynRS_10-G_V23_P+NrynRS_10-G_V24_P+NrynRS_10-G_V25_P",
@@ -111,8 +112,8 @@ class TestPredictionJobs(unittest.TestCase):
             "resolution_minutes": 15,
             "train_components": 1,
             "name": "Neerijnen",
-            "lat": 51.8336647,
-            "lon": 5.2137814,
+            LocationColumnName.LAT: 51.8336647,
+            LocationColumnName.LON: 5.2137814,
             "sid": "NrynRS_10-G_V12_P",
             "created": "2019-04-05 12:08:23",
             "description": "NrynRS_10-G_V12_P+NrynRS_10-G_V13_P+NrynRS_10-G_V14_P+NrynRS_10-G_V15_P+NrynRS_10-G_V16_P+NrynRS_10-G_V17_P+NrynRS_10-G_V18_P+NrynRS_10-G_V20_P+NrynRS_10-G_V21_P+NrynRS_10-G_V22_P+NrynRS_10-G_V23_P+NrynRS_10-G_V24_P+NrynRS_10-G_V25_P",
