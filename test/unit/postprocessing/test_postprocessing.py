@@ -7,7 +7,7 @@ from test.unit.utils.base import BaseTestCase
 
 import pandas as pd
 
-from openstef.enums import ForecastType, WeatherColumnName
+from openstef.enums import ForecastType, WeatherColumnName, ForecastColumnName
 from openstef.postprocessing import postprocessing
 
 
@@ -102,10 +102,10 @@ class TestPostProcess(BaseTestCase):
         split_coefs_test = {"pv_ref": 0.5, "wind_ref": 0.25}
 
         forecast = pd.DataFrame({"forecast": [10, 15, 33, -1, -2]})
-        forecast["pid"] = 123
-        forecast["customer"] = "test_customer"
-        forecast["description"] = "test_desription"
-        forecast["type"] = "component"
+        forecast[ForecastColumnName.PID] = 123
+        forecast[ForecastColumnName.CUSTOMER] = "test_customer"
+        forecast[ForecastColumnName.DESCRIPTION] = "test_desription"
+        forecastForecastColumnName.TYPE] = "component"
         forecast["stdev"] = 0
 
         forecasts = postprocessing.split_forecast_in_components(

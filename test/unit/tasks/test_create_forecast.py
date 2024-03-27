@@ -7,7 +7,7 @@ from unittest import TestCase
 from unittest.mock import MagicMock, patch
 
 import pytest
-from openstef.enums import PipelineType
+from openstef.enums import PipelineType, ForecastColumnName
 from openstef.exceptions import InputDataOngoingZeroFlatlinerError
 import openstef.tasks.create_forecast as task
 from openstef.model.serializer import MLflowSerializer
@@ -278,10 +278,10 @@ class TestCreateForecastTask(TestCase):
                 "quantile_P70",
                 "quantile_P90",
                 "quantile_P95",
-                "pid",
-                "customer",
-                "description",
-                "type",
-                "algtype",
+                ForecastColumnName.PID,
+                ForecastColumnName.CUSTOMER,
+                ForecastColumnName.DESCRIPTION,
+                ForecastColumnName.TYPE
+                ForecastColumnName.GENERAL_TYPE,
             ],
         )

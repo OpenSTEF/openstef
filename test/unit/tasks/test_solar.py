@@ -27,7 +27,7 @@ class TestSolar(BaseTestCase):
             "sid": None,
             "radius": 30,
             "peak_power": 180961000.0,
-            "description": "",
+            ForecastColumnName.DESCRIPTION: "",
         }
 
     def test_make_solar_predicion_pj(self):

@@ -48,9 +48,21 @@ class WeatherColumnName(Enum):
     PRESSURE = AppSettings.weather_column_name_pressure
     WIND_EXTRAPOLATED = AppSettings.weather_column_name_wind_power_fit_extrapolated
     WIND_HARM_AROME = AppSettings.weather_column_name_wind_power_fit_harm_arome
+    WIND_HUB_HEIGHT = AppSettings.weather_column_name_wind_hub_height
+    TURBINE_TYPE = AppSettings.weather_column_name_turbine_type
+    NUMBER_TURBINES = AppSettings.weather_column_name_number_turbines
 
 
 class LocationColumnName(Enum):
     LAT = AppSettings.location_column_name_latitude
     LON = AppSettings.location_column_name_longitude
+
+
+class ForecastColumnName(Enum):
+    PID = AppSettings.forecast_column_name_pid
+    CUSTOMER = AppSettings.forecast_column_name_customer
+    DESCRIPTION = AppSettings.forecast_column_name_description
+    TYPE = AppSettings.forecast_column_name_type
+    GENERAL_TYPE = AppSettings.forecast_column_name_general_type
+
     

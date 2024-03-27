@@ -9,7 +9,7 @@ import joblib
 import pandas as pd
 
 from pathlib import Path
-from openstef.enums import WeatherColumnName
+from openstef.enums import WeatherColumnName, ForecastColumnName
 
 PROJECT_ROOT = Path(__file__).parent.parent.parent.parent.absolute()
 
@@ -100,11 +100,11 @@ class TestComponentForecast(BaseTestCase):
                 "forecast_wind_on_shore",
                 "forecast_solar",
                 "forecast_other",
-                "pid",
-                "customer",
-                "description",
-                "type",
-                "algtype",
+                ForecastColumnName.PID,
+                ForecastColumnName.CUSTOMER,
+                ForecastColumnName.DESCRIPTION,
+                ForecastColumnName.TYPE
+                ForecastColumnName.GENERAL_TYPE,
             ],
         )
 
@@ -136,6 +136,6 @@ class TestComponentForecast(BaseTestCase):
         # Check if the output matches expectations
         self.assertEqual(
             component_forecast.columns.to_list(),
-            ["pid", "customer", "description", "type", "algtype"],
+            [ForecastColumnName.PID, ForecastColumnName.CUSTOMER, ForecastColumnName.DESCRIPTION, ForecastColumnName.TYPE ForecastColumnName.GENERAL_TYPE],
         )
         self.assertEqual(len(component_forecast), 0)
