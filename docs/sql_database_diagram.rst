@@ -299,27 +299,6 @@ API key to retrieve systems measurements.
 | apiKey         | chr            | API key value   | uuid-Measurements |
 +----------------+----------------+-----------------+-------------------+
 
-todolist
-^^^^^^^^
-
-+----------------------+-------------+----------------+----------------+
-| **Name**             | **Type**    | **Comment**    | **Example**    |
-+======================+=============+================+================+
-| id                   | int         | id of the job  |                |
-+----------------------+-------------+----------------+----------------+
-| created              | datetime    |                |                |
-+----------------------+-------------+----------------+----------------+
-| function             | chr         | functions to   |                |
-|                      |             | execute        |                |
-+----------------------+-------------+----------------+----------------+
-| args                 | chr         | arguments of   |                |
-|                      |             | the functions  |                |
-+----------------------+-------------+----------------+----------------+
-| inprogress           | int         |                |                |
-+----------------------+-------------+----------------+----------------+
-
-The todolist table stores jobs that are picked up by the tracy procces that is run every 5 minutes via a CRON job. This makes it possible to run pipelines manually by adding the respective job to the todo list.
-
 weatherforecastlocations
 ^^^^^^^^^^^^^^^^^^^^^^^^
 Contains the locations of the weather stations. These are used when retrieving weather data for a prediction.

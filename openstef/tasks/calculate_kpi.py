@@ -108,9 +108,6 @@ def check_kpi_task(
         )
         function_name = "train_model"
 
-        context.logger.info("Adding tracy job", function=function_name)
-        context.database.ktp_api.add_tracy_job(pj["id"], function=function_name)
-
     if kpis["47.0h"]["rMAE"] > THRESHOLD_OPTIMIZING:
         context.logger.warning(
             "Need to optimize hyperparameters, optimizing threshold rMAE 47h exceeded",
@@ -119,9 +116,6 @@ def check_kpi_task(
             optimizing_threshold=THRESHOLD_OPTIMIZING,
         )
         function_name = "optimize_hyperparameters"
-        context.logger.info("Adding tracy job", function=function_name)
-        context.database.ktp_api.add_tracy_job(pj["id"], function=function_name)
-
 
 def calc_kpi_for_specific_pid(
     pid: int,

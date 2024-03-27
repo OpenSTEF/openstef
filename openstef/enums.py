@@ -19,13 +19,6 @@ class ForecastType(Enum):
     SOLAR = "solar"
     BASECASE = "basecase"
 
-
-class TracyJobResult(Enum):
-    SUCCESS = "success"
-    FAILED = "failed"
-    UNKNOWN = "unknown"
-
-
 class PipelineType(Enum):
     FORECAST = "forecast"
     TRAIN = "train"
