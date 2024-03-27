@@ -11,7 +11,6 @@ class MLModelType(Enum):
     XGB_QUANTILE = "xgb_quantile"
     LGB = "lgb"
     LINEAR = "linear"
-    ProLoaf = "proloaf"
     ARIMA = "arima"
 
 

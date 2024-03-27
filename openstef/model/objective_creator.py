@@ -8,7 +8,6 @@ from openstef.enums import MLModelType
 from openstef.model.objective import (
     LGBRegressorObjective,
     LinearRegressorObjective,
-    ProLoafRegressorObjective,
     RegressorObjective,
     XGBQuantileRegressorObjective,
     XGBRegressorObjective,
@@ -25,7 +24,6 @@ class ObjectiveCreator:
         MLModelType.XGB: XGBRegressorObjective,
         MLModelType.LGB: LGBRegressorObjective,
         MLModelType.XGB_QUANTILE: XGBQuantileRegressorObjective,
-        MLModelType.ProLoaf: ProLoafRegressorObjective,
         MLModelType.LINEAR: LinearRegressorObjective,
         MLModelType.ARIMA: ARIMARegressorObjective,
     }

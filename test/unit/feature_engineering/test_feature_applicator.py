@@ -59,16 +59,6 @@ class TestFeatureApplicator(TestCase):
         self.assertEqual(data_with_features.columns.to_list()[0], "load")
         self.assertTrue("horizon" not in data_with_features.columns.to_list())
 
-    def test_train_feature_applicator_correct_order_historic_load(self):
-        # Test for expected column order of the output and test for expected historic_load column
-        pj = {"model": "proloaf"}
-        data_with_features = TrainFeatureApplicator(horizons=[0.25, 24.0]).add_features(
-            self.input_data[["load"]], pj=pj
-        )
-        self.assertTrue("historic_load" in data_with_features.columns.to_list())
-        self.assertEqual(data_with_features.columns.to_list()[0], "load")
-        self.assertEqual(data_with_features.columns.to_list()[-1], "horizon")
-
     def test_operational_feature_applicator_one_horizon(self):
         # Test for expected column order of the output
         # Also check "horizons" is not in the output
