@@ -8,7 +8,7 @@ from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.utils import shuffle
-from enums import WeatherColumnName
+from enums import WeatherColumnName, LocationColumnName
 
 
 class Dazls(BaseEstimator):

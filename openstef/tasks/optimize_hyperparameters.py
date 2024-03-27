@@ -26,7 +26,7 @@ from openstef.monitoring import teams
 from openstef.pipeline.optimize_hyperparameters import optimize_hyperparameters_pipeline
 from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstef.tasks.utils.taskcontext import TaskContext
-from enums import LocationColumnName
+from enums import LocationColumnName, ForecastColumnName
 
 MAX_AGE_HYPER_PARAMS_DAYS = 31
 DEFAULT_CHECK_HYPER_PARAMS_AGE = True
