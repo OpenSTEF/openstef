@@ -182,7 +182,7 @@ class TestApplyFeaturesModule(BaseTestCase):
             ),
             data={
                 "load": [10, 15, 20, 15],
-                "temp": [9, 9, 9, 9],
+                WeatherConstants.TEMPERATURE: [9, 9, 9, 9],
                 "humidity": [1, 2, 3.0, 4.0],
                 "pressure": [3, 4, 5, 6],
             },
