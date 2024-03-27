@@ -16,6 +16,7 @@ from openstef.model.serializer import MLflowSerializer
 from openstef.pipeline.utils import generate_forecast_datetime_range
 from openstef.postprocessing.postprocessing import (
     add_prediction_job_properties_to_forecast,
+    sort_quantiles,
 )
 from openstef.validation import validation
 
