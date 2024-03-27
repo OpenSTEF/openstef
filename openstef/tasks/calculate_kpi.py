@@ -117,6 +117,7 @@ def check_kpi_task(
         )
         function_name = "optimize_hyperparameters"
 
+
 def calc_kpi_for_specific_pid(
     pid: int,
     realised: pd.DataFrame,

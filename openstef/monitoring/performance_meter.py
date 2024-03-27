@@ -20,7 +20,7 @@ class PerformanceMeter:
 
         Args:
             level_label: The label of the new level. This could i.e. be 'task'
-            level_name: The name of the specified level. 
+            level_name: The name of the specified level.
             **kwargs: Any other kwargs are appended to the logging.
 
         Returns:

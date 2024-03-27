@@ -19,6 +19,7 @@ class ForecastType(Enum):
     SOLAR = "solar"
     BASECASE = "basecase"
 
+
 class PipelineType(Enum):
     FORECAST = "forecast"
     TRAIN = "train"
