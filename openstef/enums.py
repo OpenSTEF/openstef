@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 from enum import Enum
+from app_settings import AppSettings
 
 
 # TODO replace this with ModelType (MLModelType == Machine Learning model type)
@@ -31,3 +32,16 @@ class PipelineType(Enum):
     FORECAST = "forecast"
     TRAIN = "train"
     HYPER_PARMATERS = "hyper_parameters"
+
+
+class WeatherConstants(Enum):
+    TEMPERATURE = AppSettings.weather_temperature
+    RADIATION = AppSettings.weather_radiation
+    WINDSPEED_100M = AppSettings.weather_windspeed_100m
+    SATURATION_PRESSURE = AppSettings.weather_saturation_pressure
+    VAPOUR_PRESSURE = AppSettings.weather_vapour_pressure
+    DEWPOINT = AppSettings.weather_dewpoint
+    AIR_DENSITY = AppSettings.weather_air_density
+    HUMIDITY = AppSettings.weather_humidity
+    PRESSURE = AppSettings.weather_pressure
+    
