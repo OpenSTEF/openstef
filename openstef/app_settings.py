@@ -17,3 +17,4 @@ class AppSettings(BaseSettings):
 
     # Logging settings.
     log_level: str = Field("INFO", description="Log level used for logging statements.")
+
