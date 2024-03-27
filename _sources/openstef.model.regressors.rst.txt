@@ -44,14 +44,6 @@ openstef.model.regressors.linear module
    :undoc-members:
    :show-inheritance:
 
-openstef.model.regressors.proloaf module
-----------------------------------------
-
-.. automodule:: openstef.model.regressors.proloaf
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 openstef.model.regressors.regressor module
 ------------------------------------------
 

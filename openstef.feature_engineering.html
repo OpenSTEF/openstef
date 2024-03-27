@@ -898,30 +898,6 @@ Furthermore the “horizon” is moved to the last position if it is pressent.</
 </dd></dl>
 
 </section>
-<section id="module-openstef.feature_engineering.historic_features">
-<span id="openstef-feature-engineering-historic-features-module"></span><h2>openstef.feature_engineering.historic_features module<a class="headerlink" href="#module-openstef.feature_engineering.historic_features" title="Link to this heading">#</a></h2>
-<p>This module contains historic load related functions used for feature engineering.</p>
-<dl class="py function">
-<dt class="sig sig-object py" id="openstef.feature_engineering.historic_features.add_historic_load_as_a_feature">
-<span class="sig-prename descclassname"><span class="pre">openstef.feature_engineering.historic_features.</span></span><span class="sig-name descname"><span class="pre">add_historic_load_as_a_feature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pj</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.historic_features.add_historic_load_as_a_feature" title="Link to this definition">#</a></dt>
-<dd><p>Adds additional proloaf features to the input data, historic_load (equal to the load).</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – Dataframe to which the wind features have to be added</p></li>
-<li><p><strong>pj</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">PredictionJobDataClass</span></code></a>]) – Prediction job.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DataFrame that is the same as input dataframe with extra columns for the added proloaf features</p>
-</dd>
-</dl>
-</dd></dl>
-
-</section>
 <section id="module-openstef.feature_engineering.holiday_features">
 <span id="openstef-feature-engineering-holiday-features-module"></span><h2>openstef.feature_engineering.holiday_features module<a class="headerlink" href="#module-openstef.feature_engineering.holiday_features" title="Link to this heading">#</a></h2>
 <p>This module contains all holiday related features.</p>
@@ -1759,22 +1735,6 @@ if the input is numeric; a dict with the calculated moisture indices</p>
      <code class="docutils literal notranslate">
       <span class="pre">
        remove_non_requested_feature_columns()
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-openstef.feature_engineering.historic_features">
-   openstef.feature_engineering.historic_features module
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#openstef.feature_engineering.historic_features.add_historic_load_as_a_feature">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       add_historic_load_as_a_feature()
       </span>
      </code>
     </a>

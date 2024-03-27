@@ -544,10 +544,6 @@
 <li class="toctree-l3"><a class="reference internal" href="openstef.feature_engineering.html#openstef.feature_engineering.general.remove_non_requested_feature_columns"><code class="docutils literal notranslate"><span class="pre">remove_non_requested_feature_columns()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="openstef.feature_engineering.html#module-openstef.feature_engineering.historic_features">openstef.feature_engineering.historic_features module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="openstef.feature_engineering.html#openstef.feature_engineering.historic_features.add_historic_load_as_a_feature"><code class="docutils literal notranslate"><span class="pre">add_historic_load_as_a_feature()</span></code></a></li>
-</ul>
-</li>
 <li class="toctree-l2"><a class="reference internal" href="openstef.feature_engineering.html#module-openstef.feature_engineering.holiday_features">openstef.feature_engineering.holiday_features module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="openstef.feature_engineering.html#openstef.feature_engineering.holiday_features.check_for_bridge_day"><code class="docutils literal notranslate"><span class="pre">check_for_bridge_day()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef.feature_engineering.html#openstef.feature_engineering.holiday_features.generate_holiday_feature_functions"><code class="docutils literal notranslate"><span class="pre">generate_holiday_feature_functions()</span></code></a></li>
@@ -636,7 +632,6 @@
 <li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#module-openstef.model.regressors.dazls">openstef.model.regressors.dazls module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#module-openstef.model.regressors.lgbm">openstef.model.regressors.lgbm module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#module-openstef.model.regressors.linear">openstef.model.regressors.linear module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#openstef-model-regressors-proloaf-module">openstef.model.regressors.proloaf module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#module-openstef.model.regressors.regressor">openstef.model.regressors.regressor module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#module-openstef.model.regressors.xgb">openstef.model.regressors.xgb module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#module-openstef.model.regressors.xgb_quantile">openstef.model.regressors.xgb_quantile module</a></li>
@@ -689,11 +684,6 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="openstef.model.html#openstef.model.objective.LinearRegressorObjective"><code class="docutils literal notranslate"><span class="pre">LinearRegressorObjective</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="openstef.model.html#openstef.model.objective.LinearRegressorObjective.get_params"><code class="docutils literal notranslate"><span class="pre">LinearRegressorObjective.get_params()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="openstef.model.html#openstef.model.objective.ProLoafRegressorObjective"><code class="docutils literal notranslate"><span class="pre">ProLoafRegressorObjective</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="openstef.model.html#openstef.model.objective.ProLoafRegressorObjective.get_params"><code class="docutils literal notranslate"><span class="pre">ProLoafRegressorObjective.get_params()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="openstef.model.html#openstef.model.objective.ProLoafRegressorObjective.get_pruning_callback"><code class="docutils literal notranslate"><span class="pre">ProLoafRegressorObjective.get_pruning_callback()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="openstef.model.html#openstef.model.objective.RegressorObjective"><code class="docutils literal notranslate"><span class="pre">RegressorObjective</span></code></a><ul>
@@ -994,11 +984,6 @@
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="openstef.enums.MLModelType.ProLoaf">
-<span class="sig-name descname"><span class="pre">ProLoaf</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'proloaf'</span></em><a class="headerlink" href="#openstef.enums.MLModelType.ProLoaf" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
 <dt class="sig sig-object py" id="openstef.enums.MLModelType.XGB">
 <span class="sig-name descname"><span class="pre">XGB</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'xgb'</span></em><a class="headerlink" href="#openstef.enums.MLModelType.XGB" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
@@ -1273,15 +1258,6 @@
        <code class="docutils literal notranslate">
         <span class="pre">
          MLModelType.LINEAR
-        </span>
-       </code>
-      </a>
-     </li>
-     <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#openstef.enums.MLModelType.ProLoaf">
-       <code class="docutils literal notranslate">
-        <span class="pre">
-         MLModelType.ProLoaf
         </span>
        </code>
       </a>

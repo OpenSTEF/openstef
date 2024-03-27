@@ -44,14 +44,6 @@ openstef.feature\_engineering.general module
    :undoc-members:
    :show-inheritance:
 
-openstef.feature\_engineering.historic\_features module
--------------------------------------------------------
-
-.. automodule:: openstef.feature_engineering.historic_features
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 openstef.feature\_engineering.holiday\_features module
 ------------------------------------------------------
 
