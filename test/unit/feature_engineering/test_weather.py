@@ -21,7 +21,7 @@ class HumidityCalculationsTest(BaseTestCase):
             WeatherConstants.SATURATION_PRESSURE: 74.0413358265025,
             WeatherConstants.VAPOUR_PRESSURE: 37.02066791325125,
             WeatherConstants.DEWPOINT: 27.606507491812938,
-            "air_density": 1.0184141379792693,
+            WeatherConstants.AIR_DENSITY: 1.0184141379792693,
         }
         result = weather_features.humidity_calculations(temp, rh, pressure)
 
@@ -36,7 +36,7 @@ class HumidityCalculationsTest(BaseTestCase):
             WeatherConstants.SATURATION_PRESSURE: 74.0413358265025,
             WeatherConstants.VAPOUR_PRESSURE: 37.02066791325125,
             WeatherConstants.DEWPOINT: 27.606507491812938,
-            "air_density": 1.0184141379792693,
+            WeatherConstants.AIR_DENSITY: 1.0184141379792693,
         }
         result = weather_features.humidity_calculations(temp, rh, pressure)
 
@@ -130,7 +130,7 @@ class HumidityCalculationsTest(BaseTestCase):
                 9: 15.15887144798449,
                 10: 13.631785491225672,
             },
-            "air_density": {
+            WeatherConstants.AIR_DENSITY: {
                 0: 1.1013913267467517,
                 1: 1.0979113262307172,
                 2: 1.0928715770331208,
@@ -149,7 +149,7 @@ class HumidityCalculationsTest(BaseTestCase):
             df.temp, df.humidity, df.pressure
         )
         result_df = df[
-            [WeatherConstants.SATURATION_PRESSURE, WeatherConstants.VAPOUR_PRESSURE, WeatherConstants.DEWPOINT, "air_density"]
+            [WeatherConstants.SATURATION_PRESSURE, WeatherConstants.VAPOUR_PRESSURE, WeatherConstants.DEWPOINT, WeatherConstants.AIR_DENSITY]
         ]
         self.assertDataframeEqual(humidity_df, result_df)
 
