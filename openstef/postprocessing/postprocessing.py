@@ -37,7 +37,7 @@ def normalize_and_convert_weather_data_for_splitting(
     """
     # Check we have "windspeed_100m" and "radiation" available
     if not all(
-        elem in weather_data.columns for elem in ["windspeed_100m", WeatherConstants.RADIATION]
+        elem in weather_data.columns for elem in [WeatherConstants.WINDSPEED_100M, WeatherConstants.RADIATION]
     ):
         raise ValueError("weather data does not contain required data!")
 
@@ -51,7 +51,7 @@ def normalize_and_convert_weather_data_for_splitting(
         * -1
     )
     wind_ref_series = weather_features.calculate_windspeed_at_hubheight(
-        weather_data["windspeed_100m"], fromheight=100
+        weather_data[WeatherConstants.WINDSPEED_100M], fromheight=100
     )
     wind_ref = wind_ref_series.to_frame()
     wind_ref = calculate_wind_power(wind_ref)
@@ -82,7 +82,7 @@ def calculate_wind_power(
             -TURBINE_DATA["steepness"] * (windspeed_100m - TURBINE_DATA["slope_center"])
         )
     )
-    return generated_power["windspeed_100m"].rename("windenergy").to_frame()
+    return generated_power[WeatherConstants.WINDSPEED_100M].rename("windenergy").to_frame()
 
 
 def split_forecast_in_components(

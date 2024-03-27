@@ -85,7 +85,7 @@ def create_components_forecast_task(
         [pj["lat"], pj["lon"]],
         [
             WeatherConstants.RADIATION,
-            "windspeed_100m",
+            WeatherConstants.WINDSPEED_100M,
         ],  # These variables are used when determing the splitting coeficients, and should therefore be reused when making the component forcasts.
         datetime_start=datetime_start,
         datetime_end=datetime_end
@@ -114,7 +114,7 @@ def create_components_forecast_task(
         n_nas = dict(
             nans_load_forecast=input_data.loc[max_index:, "forecast"].isna().sum(),
             nans_radiation=weather_data.loc[max_index:, WeatherConstants.RADIATION].isna().sum(),
-            nans_windspeed_100m=weather_data.loc[max_index:, "windspeed_100m"]
+            nans_windspeed_100m=weather_data.loc[max_index:, WeatherConstants.WINDSPEED_100M]
             .isna()
             .sum(),
         )

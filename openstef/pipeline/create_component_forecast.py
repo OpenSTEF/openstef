@@ -40,7 +40,7 @@ def create_input(
     """
     # Prepare raw input data
     input_df = (
-        weather_data[[WeatherConstants.RADIATION, "windspeed_100m"]]
+        weather_data[[WeatherConstants.RADIATION, WeatherConstants.WINDSPEED_100M]]
         .merge(
             input_data[["forecast"]].rename(columns={"forecast": "total_load"}),
             how="inner",
@@ -60,11 +60,11 @@ def create_input(
 
     input_df["var0"] = input_df["total_load"].var()
     input_df["var1"] = input_df[WeatherConstants.RADIATION].var()
-    input_df["var2"] = input_df["windspeed_100m"].var()
+    input_df["var2"] = input_df[WeatherConstants.WINDSPEED_100M].var()
 
     input_df["sem0"] = input_df["total_load"].sem()
     input_df["sem1"] = input_df[WeatherConstants.RADIATION].sem()
-    input_df["sem2"] = input_df["windspeed_100m"].sem()
+    input_df["sem2"] = input_df[WeatherConstants.WINDSPEED_100M].sem()
 
     # Features for the new model
     # Periodic Month feature
