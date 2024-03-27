@@ -16,7 +16,6 @@ from openstef.enums import ForecastType
 from openstef.model.regressors.dazls import Dazls
 from enums import WeatherColumnName, LocationColumnName
 
-import numpy as np
 from openstef.settings import Settings
 
 # Set the path for the Dazls stored model

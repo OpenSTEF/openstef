@@ -9,7 +9,6 @@ from test.unit.utils.data import TestData
 import joblib
 import pandas as pd
 
-from pathlib import Path
 from openstef.enums import WeatherColumnName, ForecastColumnName
 
 PROJECT_ROOT = Path(__file__).parent.parent.parent.parent.absolute()

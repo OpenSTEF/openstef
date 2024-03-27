@@ -37,7 +37,6 @@ from openstef.pipeline.train_model import (
 from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstef.tasks.utils.taskcontext import TaskContext
 
-from openstef.model.serializer import MLflowSerializer
 from enums import LocationColumnName
 
 TRAINING_PERIOD_DAYS: int = 120
