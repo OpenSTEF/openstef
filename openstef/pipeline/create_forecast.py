@@ -64,7 +64,7 @@ def create_forecast_pipeline_core(
     Computes the forecasts and confidence intervals given a prediction job and input data.
     This pipeline has no database or persisitent storage dependencies.
 
-    Expected prediction job keys: "resolution_minutes", "horizon_minutes", "id", "type",
+    Expected prediction job keys: "resolution_minutes", "id", "type",
         "name", "quantiles"
 
     Args:
