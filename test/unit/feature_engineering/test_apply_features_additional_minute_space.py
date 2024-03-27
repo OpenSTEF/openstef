@@ -26,9 +26,14 @@ class TestApplyFeaturesAditionalMinuteSpace(BaseTestCase):
         self.assertEqual(minute_space_list, [])
 
     def test_no_peaks_in_correlation(self):
+        # Arrange
         data = pd.DataFrame()
         data["random_column_name"] = np.linspace(0, 1000, 1000, endpoint=False)
+
+        # Act
         minute_space_list = generate_non_trivial_lag_times(data)
+
+        # Assert
         self.assertEqual(minute_space_list, [])
 
 
