@@ -32,7 +32,9 @@ T_AHEAD_DAYS: int = 14
 
 
 def create_basecase_forecast_task(
-    pj: PredictionJobDataClass, context: TaskContext
+    pj: PredictionJobDataClass, context: TaskContext,
+    t_behind_days = T_BEHIND_DAYS,
+    t_ahead_days = T_AHEAD_DAYS
 ) -> None:
     """Top level task that creates a basecase forecast.
 
@@ -41,6 +43,8 @@ def create_basecase_forecast_task(
     Args:
         pj: Prediction job
         context: Contect object that holds a config manager and a database connection
+        t_behind_days: number of days included as history. This is used to generated lagged features for the to-be-forecasted period
+        t_ahead_days: number of days a basecase forecast is created for
 
     """
     # Check pipeline types
@@ -63,8 +67,8 @@ def create_basecase_forecast_task(
         return
 
     # Define datetime range for input data
-    datetime_start = datetime.utcnow() - timedelta(days=T_BEHIND_DAYS)
-    datetime_end = datetime.utcnow() + timedelta(days=T_AHEAD_DAYS)
+    datetime_start = datetime.utcnow() - timedelta(days=t_behind_days)
+    datetime_end = datetime.utcnow() + timedelta(days=t_ahead_days)
 
     # Retrieve input data
     input_data = context.database.get_model_input(
