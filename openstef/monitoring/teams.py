@@ -7,6 +7,7 @@ import pandas as pd
 import pymsteams
 import structlog
 from pymsteams import cardsection
+from app_settings import AppSettings
 
 
 def post_teams(
@@ -38,6 +39,9 @@ def post_teams(
     Note:
         This function is namespace-specific.
     """
+    if not AppSettings.post_teams_messages:
+        return
+
     logger = structlog.get_logger(__name__)
     # If no url is passed, give warning and don't send teams message
     if url is None:
