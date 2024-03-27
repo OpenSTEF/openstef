@@ -54,7 +54,7 @@ class Dazls(BaseEstimator):
         # The input columns for the domain and adaptation models (with description)
         self.domain_model_input_columns = [
             WeatherConstants.RADIATION,  # Weather parameter
-            "windspeed_100m",  # Weather parameter
+            WeatherConstants.WINDSPEED_100M,  # Weather parameter
             "total_substation",  # Substation's measured total load
             "lat",  # Latitude
             "lon",  # Longitude

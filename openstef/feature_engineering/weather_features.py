@@ -358,9 +358,9 @@ def add_additional_wind_features(
         )
 
     # Do extra check
-    if "windspeed_100m" in data.columns and additional_wind_features:
+    if WeatherConstants.WINDSPEED_100M in data.columns and additional_wind_features:
         data["windpowerFit_harm_arome"] = calculate_windturbine_power_output(
-            data["windspeed_100m"].astype(float)
+            data[WeatherConstants.WINDSPEED_100M].astype(float)
         )
 
     return data

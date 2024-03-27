@@ -69,7 +69,7 @@ class TestComponentForecast(BaseTestCase):
     def test_component_forecast_pipeline_happy_flow(self):
         # Test happy flow
         data = TestData.load("reference_sets/307-test-data.csv")
-        weather = data[[WeatherConstants.RADIATION, "windspeed_100m"]]
+        weather = data[[WeatherConstants.RADIATION, WeatherConstants.WINDSPEED_100M]]
         forecast_input = TestData.load("forecastdf_test_add_corrections.csv")
         forecast_input["stdev"] = 0
 
