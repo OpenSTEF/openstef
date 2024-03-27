@@ -71,9 +71,7 @@ def create_forecast_task(pj: PredictionJobDataClass, context: TaskContext) -> No
 
     # Define datetime range for input data
     datetime_start = datetime.utcnow() - timedelta(days=T_BEHIND_DAYS)
-    datetime_end = datetime.utcnow() + timedelta(
-        seconds=pj.horizon_minutes * 60
-    )
+    datetime_end = datetime.utcnow() + timedelta(seconds=pj.horizon_minutes * 60)
 
     # Retrieve input data
     input_data = context.database.get_model_input(
