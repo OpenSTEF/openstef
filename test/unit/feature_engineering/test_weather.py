@@ -18,7 +18,7 @@ class HumidityCalculationsTest(BaseTestCase):
         rh = 0.5
         pressure = 101300
         expected = {
-            "saturation_pressure": 74.0413358265025,
+            WeatherConstants.SATURATION_PRESSURE: 74.0413358265025,
             "vapour_pressure": 37.02066791325125,
             "dewpoint": 27.606507491812938,
             "air_density": 1.0184141379792693,
@@ -33,7 +33,7 @@ class HumidityCalculationsTest(BaseTestCase):
         rh = 50
         pressure = 101300
         expected = {
-            "saturation_pressure": 74.0413358265025,
+            WeatherConstants.SATURATION_PRESSURE: 74.0413358265025,
             "vapour_pressure": 37.02066791325125,
             "dewpoint": 27.606507491812938,
             "air_density": 1.0184141379792693,
@@ -91,7 +91,7 @@ class HumidityCalculationsTest(BaseTestCase):
                 9: 101544.28125,
                 10: 101571.5859375,
             },
-            "saturation_pressure": {
+            WeatherConstants.SATURATION_PRESSURE: {
                 0: 20.060412049531564,
                 1: 21.201730117304287,
                 2: 23.020084506148535,
@@ -149,7 +149,7 @@ class HumidityCalculationsTest(BaseTestCase):
             df.temp, df.humidity, df.pressure
         )
         result_df = df[
-            ["saturation_pressure", "vapour_pressure", "dewpoint", "air_density"]
+            [WeatherConstants.SATURATION_PRESSURE, "vapour_pressure", "dewpoint", "air_density"]
         ]
         self.assertDataframeEqual(humidity_df, result_df)
 
