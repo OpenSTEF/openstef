@@ -8,7 +8,6 @@ from typing import Optional
 
 import pandas as pd
 import structlog
-from app_settings import AppSettings
 
 from openstef.data_classes.model_specifications import ModelSpecificationDataClass
 from openstef.data_classes.prediction_job import PredictionJobDataClass
@@ -22,6 +21,7 @@ from openstef.feature_engineering.general import (
 )
 from openstef.model.regressors.regressor import OpenstfRegressor
 from openstef.pipeline.utils import generate_forecast_datetime_range
+from openstef.settings import Settings
 
 
 class AbstractDataPreparation(ABC):
@@ -124,7 +124,7 @@ class ARDataPreparation(AbstractDataPreparation):
     ) -> tuple[pd.DataFrame, pd.DataFrame]:
         structlog.configure(
             wrapper_class=structlog.make_filtering_bound_logger(
-                logging.getLevelName(AppSettings.log_level)
+                logging.getLevelName(Settings.log_level)
             )
         )
         logger = structlog.get_logger(__name__)

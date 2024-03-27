@@ -13,6 +13,7 @@ import structlog
 from openstef.exceptions import InputDataOngoingZeroFlatlinerError
 from openstef.model.regressors.regressor import OpenstfRegressor
 from openstef.preprocessing.preprocessing import replace_repeated_values_with_nan
+from openstef.settings import Settings
 
 
 def validate(
@@ -41,7 +42,7 @@ def validate(
     """
     structlog.configure(
         wrapper_class=structlog.make_filtering_bound_logger(
-            logging.getLevelName(AppSettings.log_level)
+            logging.getLevelName(Settings.log_level)
         )
     )
     logger = structlog.get_logger(__name__)
@@ -89,7 +90,7 @@ def validate(
 def drop_target_na(data: pd.DataFrame) -> pd.DataFrame:
     structlog.configure(
         wrapper_class=structlog.make_filtering_bound_logger(
-            logging.getLevelName(AppSettings.log_level)
+            logging.getLevelName(Settings.log_level)
         )
     )
     logger = structlog.get_logger(__name__)
@@ -132,7 +133,7 @@ def is_data_sufficient(
 
     structlog.configure(
         wrapper_class=structlog.make_filtering_bound_logger(
-            logging.getLevelName(AppSettings.log_level)
+            logging.getLevelName(Settings.log_level)
         )
     )
     logger = structlog.get_logger(__name__)
@@ -269,7 +270,7 @@ def calc_completeness_dataframe(
     """
     structlog.configure(
         wrapper_class=structlog.make_filtering_bound_logger(
-            logging.getLevelName(AppSettings.log_level)
+            logging.getLevelName(Settings.log_level)
         )
     )
     logger = structlog.get_logger(__name__)

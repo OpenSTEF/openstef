@@ -6,11 +6,11 @@ import traceback
 from typing import Callable
 
 import structlog
-from app_settings import AppSettings
 
 from openstef.exceptions import PredictionJobException
 from openstef.monitoring.performance_meter import PerformanceMeter
 from openstef.monitoring.teams import post_teams
+from openstef.settings import Settings
 
 
 class TaskContext:
@@ -66,7 +66,7 @@ class TaskContext:
     def __enter__(self):
         structlog.configure(
             wrapper_class=structlog.make_filtering_bound_logger(
-                logging.getLevelName(AppSettings.log_level)
+                logging.getLevelName(Settings.log_level)
             )
         )
         self.logger = structlog.get_logger(__name__).bind(task=self.name)

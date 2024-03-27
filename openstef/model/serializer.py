@@ -14,7 +14,6 @@ import mlflow
 import numpy as np
 import pandas as pd
 import structlog
-from app_settings import AppSettings
 from mlflow.exceptions import MlflowException
 from mlflow.store.artifact.artifact_repository_registry import get_artifact_repository
 from xgboost import XGBModel  # Temporary for backward compatibility
@@ -22,13 +21,14 @@ from xgboost import XGBModel  # Temporary for backward compatibility
 from openstef.data_classes.model_specifications import ModelSpecificationDataClass
 from openstef.metrics.reporter import Report
 from openstef.model.regressors.regressor import OpenstfRegressor
+from openstef.settings import Settings
 
 
 class MLflowSerializer:
     def __init__(self, mlflow_tracking_uri: str):
         structlog.configure(
             wrapper_class=structlog.make_filtering_bound_logger(
-                logging.getLevelName(AppSettings.log_level)
+                logging.getLevelName(Settings.log_level)
             )
         )
         self.logger = structlog.get_logger(self.__class__.__name__)

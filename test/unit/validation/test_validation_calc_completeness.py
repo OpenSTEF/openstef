@@ -2,17 +2,17 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-import numpy as np
-import pandas as pd
-
-from openstef.validation.validation import calc_completeness_features
-
 from pathlib import Path
 from test.unit.utils.base import BaseTestCase
 from test.unit.utils.data import TestData
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+
+import numpy as np
+import pandas as pd
 from mlflow.exceptions import MlflowException
+
 from openstef.model.serializer import MLflowSerializer
+from openstef.validation.validation import calc_completeness_features
 
 
 class CalcCompletenessTest(BaseTestCase):

@@ -12,4 +12,6 @@ class AppSettings(BaseSettings):
     # Logging settings.
     log_level: str = Field("INFO", description="Log level used for logging statements.")
 
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    model_config = SettingsConfigDict(
+        env_prefix="openstef_", env_file=".env", extra="ignore"
+    )

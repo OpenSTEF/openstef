@@ -5,13 +5,12 @@ import copy
 from test.unit.utils.data import TestData
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
-import pytest
-
-from openstef.exceptions import InputDataOngoingZeroFlatlinerError
 
 import pandas as pd
+import pytest
 
 from openstef.enums import PipelineType
+from openstef.exceptions import InputDataOngoingZeroFlatlinerError
 from openstef.tasks.train_model import main as task_main
 from openstef.tasks.train_model import train_model_task
 

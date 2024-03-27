@@ -7,11 +7,11 @@ from enum import Enum
 import numpy as np
 import pandas as pd
 import structlog
-from app_settings import AppSettings
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.enums import ForecastType
 from openstef.feature_engineering import weather_features
+from openstef.settings import Settings
 
 # this is the default for "Lagerwey100"
 TURBINE_DATA = {
@@ -223,7 +223,7 @@ def add_prediction_job_properties_to_forecast(
     """
     structlog.configure(
         wrapper_class=structlog.make_filtering_bound_logger(
-            logging.getLevelName(AppSettings.log_level)
+            logging.getLevelName(Settings.log_level)
         )
     )
     logger = structlog.get_logger(__name__)

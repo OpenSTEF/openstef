@@ -8,13 +8,13 @@ import joblib
 import numpy as np
 import pandas as pd
 import structlog
-from app_settings import AppSettings
 
 import openstef.postprocessing.postprocessing as postprocessing
 from openstef import PROJECT_ROOT
 from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.enums import ForecastType
 from openstef.model.regressors.dazls import Dazls
+from openstef.settings import Settings
 
 # Set the path for the Dazls stored model
 DAZLS_STORED = str(
@@ -100,7 +100,7 @@ def create_components_forecast_pipeline(
     """
     structlog.configure(
         wrapper_class=structlog.make_filtering_bound_logger(
-            logging.getLevelName(AppSettings.log_level)
+            logging.getLevelName(Settings.log_level)
         )
     )
     logger = structlog.get_logger(__name__)

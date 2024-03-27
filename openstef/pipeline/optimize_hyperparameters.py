@@ -8,7 +8,6 @@ from typing import Any
 import optuna
 import pandas as pd
 import structlog
-from app_settings import AppSettings
 
 from openstef.data_classes.model_specifications import ModelSpecificationDataClass
 from openstef.data_classes.prediction_job import PredictionJobDataClass
@@ -28,6 +27,7 @@ from openstef.pipeline.train_model import (
     DEFAULT_TRAIN_HORIZONS_HOURS,
     train_model_pipeline_core,
 )
+from openstef.settings import Settings
 from openstef.validation import validation
 
 optuna.logging.enable_propagation()  # Propagate logs to the root logger.
@@ -35,7 +35,7 @@ optuna.logging.disable_default_handler()  # Stop showing logs in sys.stderr.
 
 structlog.configure(
     wrapper_class=structlog.make_filtering_bound_logger(
-        logging.getLevelName(AppSettings.log_level)
+        logging.getLevelName(Settings.log_level)
     )
 )
 logger = structlog.get_logger(__name__)

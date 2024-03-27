@@ -7,12 +7,12 @@ from datetime import datetime
 import numpy as np
 import pandas as pd
 import structlog
-from app_settings import AppSettings
 from scipy import stats
 from sklearn.base import RegressorMixin
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.exceptions import ModelWithoutStDev
+from openstef.settings import Settings
 
 
 class ConfidenceIntervalApplicator:
@@ -21,7 +21,7 @@ class ConfidenceIntervalApplicator:
         self.forecast_input_data = forecast_input_data
         structlog.configure(
             wrapper_class=structlog.make_filtering_bound_logger(
-                logging.getLevelName(AppSettings.log_level)
+                logging.getLevelName(Settings.log_level)
             )
         )
         self.logger = structlog.get_logger(self.__class__.__name__)

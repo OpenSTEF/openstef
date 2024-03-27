@@ -11,13 +11,13 @@ import numpy as np
 import pandas as pd
 import sklearn
 import structlog
-from app_settings import AppSettings
 from mlflow.models import ModelSignature, infer_signature
 from plotly.graph_objects import Figure
 
 from openstef.metrics import figure
 from openstef.metrics.metrics import bias, mae, nsme, r_mae, rmse
 from openstef.model.regressors.regressor import OpenstfRegressor
+from openstef.settings import Settings
 
 
 @dataclass
@@ -171,7 +171,7 @@ class Reporter:
         # Initialize logger and serializer
         structlog.configure(
             wrapper_class=structlog.make_filtering_bound_logger(
-                logging.getLevelName(AppSettings.log_level)
+                logging.getLevelName(Settings.log_level)
             )
         )
         logger = structlog.get_logger(__name__)

@@ -10,14 +10,14 @@ import numpy as np
 import pandas as pd
 import pvlib
 import structlog
-from app_settings import AppSettings
 from pvlib.location import Location
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
+from openstef.settings import Settings
 
 structlog.configure(
     wrapper_class=structlog.make_filtering_bound_logger(
-        logging.getLevelName(AppSettings.log_level)
+        logging.getLevelName(Settings.log_level)
     )
 )
 logger = structlog.get_logger(__name__)

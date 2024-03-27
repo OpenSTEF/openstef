@@ -7,8 +7,9 @@ from typing import Union
 import pandas as pd
 import pymsteams
 import structlog
-from app_settings import AppSettings
 from pymsteams import cardsection
+
+from openstef.settings import Settings
 
 
 def post_teams(
@@ -42,7 +43,7 @@ def post_teams(
     """
     structlog.configure(
         wrapper_class=structlog.make_filtering_bound_logger(
-            logging.getLevelName(AppSettings.log_level)
+            logging.getLevelName(Settings.log_level)
         )
     )
     logger = structlog.get_logger(__name__)

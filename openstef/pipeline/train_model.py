@@ -7,7 +7,6 @@ from typing import Optional, Union
 
 import pandas as pd
 import structlog
-from app_settings import AppSettings
 
 from openstef.data_classes.model_specifications import ModelSpecificationDataClass
 from openstef.data_classes.prediction_job import PredictionJobDataClass
@@ -24,6 +23,7 @@ from openstef.model.regressors.regressor import OpenstfRegressor
 from openstef.model.serializer import MLflowSerializer
 from openstef.model.standard_deviation_generator import StandardDeviationGenerator
 from openstef.model_selection.model_selection import split_data_train_validation_test
+from openstef.settings import Settings
 from openstef.validation import validation
 
 DEFAULT_TRAIN_HORIZONS_HOURS: list[float] = [0.25, 47.0]
@@ -34,7 +34,7 @@ PENALTY_FACTOR_OLD_MODEL: float = 1.2
 
 structlog.configure(
     wrapper_class=structlog.make_filtering_bound_logger(
-        logging.getLevelName(AppSettings.log_level)
+        logging.getLevelName(Settings.log_level)
     )
 )
 logger = structlog.get_logger(__name__)

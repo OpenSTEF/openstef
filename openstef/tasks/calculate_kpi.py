@@ -27,12 +27,12 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import structlog
-from app_settings import AppSettings
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.enums import MLModelType
 from openstef.exceptions import NoPredictedLoadError, NoRealisedLoadError
 from openstef.metrics import metrics
+from openstef.settings import Settings
 from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstef.tasks.utils.taskcontext import TaskContext
 from openstef.validation import validation
@@ -165,7 +165,7 @@ def calc_kpi_for_specific_pid(
 
     structlog.configure(
         wrapper_class=structlog.make_filtering_bound_logger(
-            logging.getLevelName(AppSettings.log_level)
+            logging.getLevelName(Settings.log_level)
         )
     )
     logger = structlog.get_logger(__name__)

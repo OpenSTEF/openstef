@@ -8,7 +8,8 @@ import logging
 import numpy as np
 import pandas as pd
 import structlog
-from app_settings import AppSettings
+
+from openstef.settings import Settings
 
 
 def add_missing_feature_columns(
@@ -35,7 +36,7 @@ def add_missing_feature_columns(
     """
     structlog.configure(
         wrapper_class=structlog.make_filtering_bound_logger(
-            logging.getLevelName(AppSettings.log_level)
+            logging.getLevelName(Settings.log_level)
         )
     )
     logger = structlog.get_logger(__name__)
@@ -71,7 +72,7 @@ def remove_non_requested_feature_columns(
     """
     structlog.configure(
         wrapper_class=structlog.make_filtering_bound_logger(
-            logging.getLevelName(AppSettings.log_level)
+            logging.getLevelName(Settings.log_level)
         )
     )
     logger = structlog.get_logger(__name__)

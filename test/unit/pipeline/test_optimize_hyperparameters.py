@@ -14,9 +14,9 @@ from openstef.exceptions import (
     InputDataWrongColumnOrderError,
 )
 from openstef.metrics.reporter import Report
-from openstef.model_selection.model_selection import split_data_train_validation_test
-from openstef.model.regressors.regressor import OpenstfRegressor
 from openstef.model.objective_creator import ObjectiveCreator
+from openstef.model.regressors.regressor import OpenstfRegressor
+from openstef.model_selection.model_selection import split_data_train_validation_test
 from openstef.pipeline.optimize_hyperparameters import (
     optimize_hyperparameters_pipeline,
     optimize_hyperparameters_pipeline_core,

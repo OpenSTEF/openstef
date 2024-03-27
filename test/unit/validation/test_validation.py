@@ -8,9 +8,8 @@ from test.unit.utils.data import TestData
 import numpy as np
 import pytest
 
-from openstef.validation import validation
-
 from openstef.exceptions import InputDataOngoingZeroFlatlinerError
+from openstef.validation import validation
 
 
 class TestDataValidation(BaseTestCase):

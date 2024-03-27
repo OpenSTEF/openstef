@@ -4,13 +4,11 @@
 from pathlib import Path
 from test.unit.utils.data import TestData
 from unittest import TestCase
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 import numpy as np
 
-from openstef.feature_engineering.data_preparation import (
-    LegacyDataPreparation,
-)
+from openstef.feature_engineering.data_preparation import LegacyDataPreparation
 from openstef.model.serializer import MLflowSerializer
 
 
