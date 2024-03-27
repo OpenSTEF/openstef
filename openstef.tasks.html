@@ -913,75 +913,6 @@ hyperparameters do not exceed the maximum age.</p></li>
 </dd></dl>
 
 </section>
-<section id="module-openstef.tasks.run_tracy">
-<span id="openstef-tasks-run-tracy-module"></span><h2>openstef.tasks.run_tracy module<a class="headerlink" href="#module-openstef.tasks.run_tracy" title="Link to this heading">#</a></h2>
-<p>Tracy checks the mysql todolist and tries her best to execute the functions with desired inputs.</p>
-<dl>
-<dt>This scripts works as follows:</dt><dd><ol class="arabic simple">
-<li><p>Checks the mysql table ‘todolist’ for jobs (which are not already in progress and</p></li>
-</ol>
-<blockquote>
-<div><p>which are not already failed)</p>
-</div></blockquote>
-<ol class="arabic simple" start="2">
-<li><p>Set all newly acquired jobs to ‘in progress’</p></li>
-</ol>
-</dd>
-<dt>For each job:</dt><dd><ol class="arabic simple" start="3">
-<li><p>Convert input arguments to a dict with ‘args’ and ‘kwargs’</p></li>
-<li><p>Interpret the given function and arguments</p></li>
-<li><p>Execute the job</p></li>
-<li><p>Post result to Teams</p></li>
-<li><p>Remove job from mysql table</p></li>
-</ol>
-</dd>
-</dl>
-<p>If job fails, set in progress to 2
-All functions that tracy is able to execute need to be imported and defined in the
-available_functions.</p>
-<p class="rubric">Example</p>
-<p>This module is meant to be called directly from a CRON job.</p>
-<dl class="simple">
-<dt>Alternatively this code can be run directly by running::</dt><dd><p>$ python run_tracy.py</p>
-</dd>
-</dl>
-<dl class="py function">
-<dt class="sig sig-object py" id="openstef.tasks.run_tracy.main">
-<span class="sig-prename descclassname"><span class="pre">openstef.tasks.run_tracy.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">database</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.run_tracy.main" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="openstef.tasks.run_tracy.run_tracy">
-<span class="sig-prename descclassname"><span class="pre">openstef.tasks.run_tracy.</span></span><span class="sig-name descname"><span class="pre">run_tracy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.run_tracy.run_tracy" title="Link to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="openstef.tasks.run_tracy.run_tracy_job">
-<span class="sig-prename descclassname"><span class="pre">openstef.tasks.run_tracy.</span></span><span class="sig-name descname"><span class="pre">run_tracy_job</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">job</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.run_tracy.run_tracy_job" title="Link to this definition">#</a></dt>
-<dd><p>Run tracy job.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>job</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Tracy jon</p></li>
-<li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">PredictionJobDataClass</span></code></a>) – Prediction job</p></li>
-<li><p><strong>context</strong> (<a class="reference internal" href="openstef.tasks.utils.html#openstef.tasks.utils.taskcontext.TaskContext" title="openstef.tasks.utils.taskcontext.TaskContext"><code class="xref py py-class docutils literal notranslate"><span class="pre">TaskContext</span></code></a>) – Task context.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="openstef.html#openstef.enums.TracyJobResult" title="openstef.enums.TracyJobResult"><code class="xref py py-class docutils literal notranslate"><span class="pre">TracyJobResult</span></code></a></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Result of the Tracy job.</p>
-</dd>
-</dl>
-</dd></dl>
-
-</section>
 <section id="module-openstef.tasks.split_forecast">
 <span id="openstef-tasks-split-forecast-module"></span><h2>openstef.tasks.split_forecast module<a class="headerlink" href="#module-openstef.tasks.split_forecast" title="Link to this heading">#</a></h2>
 <p>This module contains the CRON job that is periodically executed to make prognoses of solar features.</p>
@@ -1439,40 +1370,6 @@ database connection.</p></li>
      <code class="docutils literal notranslate">
       <span class="pre">
        optimize_hyperparameters_task()
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-openstef.tasks.run_tracy">
-   openstef.tasks.run_tracy module
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#openstef.tasks.run_tracy.main">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       main()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#openstef.tasks.run_tracy.run_tracy">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       run_tracy()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#openstef.tasks.run_tracy.run_tracy_job">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       run_tracy_job()
       </span>
      </code>
     </a>

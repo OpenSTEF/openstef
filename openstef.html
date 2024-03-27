@@ -892,12 +892,6 @@
 <li class="toctree-l3"><a class="reference internal" href="openstef.tasks.html#openstef.tasks.optimize_hyperparameters.optimize_hyperparameters_task"><code class="docutils literal notranslate"><span class="pre">optimize_hyperparameters_task()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="openstef.tasks.html#module-openstef.tasks.run_tracy">openstef.tasks.run_tracy module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="openstef.tasks.html#openstef.tasks.run_tracy.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="openstef.tasks.html#openstef.tasks.run_tracy.run_tracy"><code class="docutils literal notranslate"><span class="pre">run_tracy()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="openstef.tasks.html#openstef.tasks.run_tracy.run_tracy_job"><code class="docutils literal notranslate"><span class="pre">run_tracy_job()</span></code></a></li>
-</ul>
-</li>
 <li class="toctree-l2"><a class="reference internal" href="openstef.tasks.html#module-openstef.tasks.split_forecast">openstef.tasks.split_forecast module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="openstef.tasks.html#openstef.tasks.split_forecast.convert_coefdict_to_coefsdf"><code class="docutils literal notranslate"><span class="pre">convert_coefdict_to_coefsdf()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef.tasks.html#openstef.tasks.split_forecast.determine_invalid_coefs"><code class="docutils literal notranslate"><span class="pre">determine_invalid_coefs()</span></code></a></li>
@@ -1013,28 +1007,6 @@
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef.enums.PipelineType.TRAIN">
 <span class="sig-name descname"><span class="pre">TRAIN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'train'</span></em><a class="headerlink" href="#openstef.enums.PipelineType.TRAIN" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="openstef.enums.TracyJobResult">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef.enums.</span></span><span class="sig-name descname"><span class="pre">TracyJobResult</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.enums.TracyJobResult" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
-<p>An enumeration.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="openstef.enums.TracyJobResult.FAILED">
-<span class="sig-name descname"><span class="pre">FAILED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'failed'</span></em><a class="headerlink" href="#openstef.enums.TracyJobResult.FAILED" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="openstef.enums.TracyJobResult.SUCCESS">
-<span class="sig-name descname"><span class="pre">SUCCESS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'success'</span></em><a class="headerlink" href="#openstef.enums.TracyJobResult.SUCCESS" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="openstef.enums.TracyJobResult.UNKNOWN">
-<span class="sig-name descname"><span class="pre">UNKNOWN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'unknown'</span></em><a class="headerlink" href="#openstef.enums.TracyJobResult.UNKNOWN" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -1314,44 +1286,6 @@
        <code class="docutils literal notranslate">
         <span class="pre">
          PipelineType.TRAIN
-        </span>
-       </code>
-      </a>
-     </li>
-    </ul>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#openstef.enums.TracyJobResult">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       TracyJobResult
-      </span>
-     </code>
-    </a>
-    <ul class="nav section-nav flex-column">
-     <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#openstef.enums.TracyJobResult.FAILED">
-       <code class="docutils literal notranslate">
-        <span class="pre">
-         TracyJobResult.FAILED
-        </span>
-       </code>
-      </a>
-     </li>
-     <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#openstef.enums.TracyJobResult.SUCCESS">
-       <code class="docutils literal notranslate">
-        <span class="pre">
-         TracyJobResult.SUCCESS
-        </span>
-       </code>
-      </a>
-     </li>
-     <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#openstef.enums.TracyJobResult.UNKNOWN">
-       <code class="docutils literal notranslate">
-        <span class="pre">
-         TracyJobResult.UNKNOWN
         </span>
        </code>
       </a>

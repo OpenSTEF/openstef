@@ -68,14 +68,6 @@ openstef.tasks.optimize\_hyperparameters module
    :undoc-members:
    :show-inheritance:
 
-openstef.tasks.run\_tracy module
---------------------------------
-
-.. automodule:: openstef.tasks.run_tracy
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 openstef.tasks.split\_forecast module
 -------------------------------------
 
