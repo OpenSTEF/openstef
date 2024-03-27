@@ -12,7 +12,7 @@ import structlog
 from pvlib.location import Location
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
-from enums import WeatherConstants
+from enums import WeatherColumnName
 
 logger = structlog.get_logger(__name__)
 
@@ -135,10 +135,10 @@ def add_humidity_features(
         humidity_features = any(
             x
             in [
-                WeatherConstants.SATURATION_PRESSURE,
-                WeatherConstants.VAPOUR_PRESSURE,
-                WeatherConstants.DEWPOINT,
-                WeatherConstants.AIR_DENSITY,
+                WeatherColumnName.SATURATION_PRESSURE,
+                WeatherColumnName.VAPOUR_PRESSURE,
+                WeatherColumnName.DEWPOINT,
+                WeatherColumnName.AIR_DENSITY,
             ]
             for x in feature_names
         )
@@ -204,18 +204,18 @@ def humidity_calculations(
     if is_series:
         humidity_df = pd.DataFrame(
             columns=[
-                WeatherConstants.SATURATION_PRESSURE,
-                WeatherConstants.VAPOUR_PRESSURE,
-                WeatherConstants.DEWPOINT,
-                WeatherConstants.AIR_DENSITY,
+                WeatherColumnName.SATURATION_PRESSURE,
+                WeatherColumnName.VAPOUR_PRESSURE,
+                WeatherColumnName.DEWPOINT,
+                WeatherColumnName.AIR_DENSITY,
             ]
         )
-        humidity_df[WeatherConstants.SATURATION_PRESSURE] = calc_saturation_pressure(temperature)
-        humidity_df[WeatherConstants.VAPOUR_PRESSURE] = calc_vapour_pressure(
+        humidity_df[WeatherColumnName.SATURATION_PRESSURE] = calc_saturation_pressure(temperature)
+        humidity_df[WeatherColumnName.VAPOUR_PRESSURE] = calc_vapour_pressure(
             rh, humidity_df.saturation_pressure
         )
-        humidity_df[WeatherConstants.DEWPOINT] = calc_dewpoint(humidity_df.vapour_pressure)
-        humidity_df[WeatherConstants.AIR_DENSITY] = calc_air_density(temperature, pressure, rh)
+        humidity_df[WeatherColumnName.DEWPOINT] = calc_dewpoint(humidity_df.vapour_pressure)
+        humidity_df[WeatherColumnName.AIR_DENSITY] = calc_air_density(temperature, pressure, rh)
 
         return humidity_df
 
@@ -225,10 +225,10 @@ def humidity_calculations(
     td = calc_dewpoint(pw)
     air_density = calc_air_density(temperature, pressure, rh)
     return {
-        WeatherConstants.SATURATION_PRESSURE: psat,
-        WeatherConstants.VAPOUR_PRESSURE: pw,
-        WeatherConstants.DEWPOINT: td,
-        WeatherConstants.AIR_DENSITY: air_density,
+        WeatherColumnName.SATURATION_PRESSURE: psat,
+        WeatherColumnName.VAPOUR_PRESSURE: pw,
+        WeatherColumnName.DEWPOINT: td,
+        WeatherColumnName.AIR_DENSITY: air_density,
     }
 
 
@@ -358,9 +358,9 @@ def add_additional_wind_features(
         )
 
     # Do extra check
-    if WeatherConstants.WINDSPEED_100M in data.columns and additional_wind_features:
+    if WeatherColumnName.WINDSPEED_100M in data.columns and additional_wind_features:
         data["windpowerFit_harm_arome"] = calculate_windturbine_power_output(
-            data[WeatherConstants.WINDSPEED_100M].astype(float)
+            data[WeatherColumnName.WINDSPEED_100M].astype(float)
         )
 
     return data
@@ -479,8 +479,8 @@ def add_additional_solar_features(
         additional_solar_features = any(x in ["dni", "gti"] for x in feature_names)
 
     # Add add_additional_solar_features
-    if WeatherConstants.RADIATION in data.columns and additional_solar_features:
-        data["dni"] = calculate_dni(data[WeatherConstants.RADIATION], pj)
-        data["gti"] = calculate_gti(data[WeatherConstants.RADIATION], pj)
+    if WeatherColumnName.RADIATION in data.columns and additional_solar_features:
+        data["dni"] = calculate_dni(data[WeatherColumnName.RADIATION], pj)
+        data["gti"] = calculate_gti(data[WeatherColumnName.RADIATION], pj)
 
     return data

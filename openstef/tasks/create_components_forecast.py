@@ -35,7 +35,7 @@ from openstef.pipeline.create_component_forecast import (
 )
 from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstef.tasks.utils.taskcontext import TaskContext
-from enums import WeatherConstants, LocationColumnName
+from enums import WeatherColumnName, LocationColumnName
 
 T_BEHIND_DAYS = 0
 T_AHEAD_DAYS = 3
@@ -84,8 +84,8 @@ def create_components_forecast_task(
     weather_data = context.database.get_weather_data(
         [pj[LocationColumnName.LAT], pj[LocationColumnName.LON]],
         [
-            WeatherConstants.RADIATION,
-            WeatherConstants.WINDSPEED_100M,
+            WeatherColumnName.RADIATION,
+            WeatherColumnName.WINDSPEED_100M,
         ],  # These variables are used when determing the splitting coeficients, and should therefore be reused when making the component forcasts.
         datetime_start=datetime_start,
         datetime_end=datetime_end
@@ -113,8 +113,8 @@ def create_components_forecast_task(
         max_index = forecasts.index.max()
         n_nas = dict(
             nans_load_forecast=input_data.loc[max_index:, "forecast"].isna().sum(),
-            nans_radiation=weather_data.loc[max_index:, WeatherConstants.RADIATION].isna().sum(),
-            nans_windspeed_100m=weather_data.loc[max_index:, WeatherConstants.WINDSPEED_100M]
+            nans_radiation=weather_data.loc[max_index:, WeatherColumnName.RADIATION].isna().sum(),
+            nans_windspeed_100m=weather_data.loc[max_index:, WeatherColumnName.WINDSPEED_100M]
             .isna()
             .sum(),
         )

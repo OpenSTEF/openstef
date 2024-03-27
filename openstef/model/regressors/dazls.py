@@ -8,7 +8,7 @@ from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.utils import shuffle
-from enums import WeatherConstants
+from enums import WeatherColumnName
 
 
 class Dazls(BaseEstimator):
@@ -53,8 +53,8 @@ class Dazls(BaseEstimator):
 
         # The input columns for the domain and adaptation models (with description)
         self.domain_model_input_columns = [
-            WeatherConstants.RADIATION,  # Weather parameter
-            WeatherConstants.WINDSPEED_100M,  # Weather parameter
+            WeatherColumnName.RADIATION,  # Weather parameter
+            WeatherColumnName.WINDSPEED_100M,  # Weather parameter
             "total_substation",  # Substation's measured total load
             LocationColumnName.LAT,  # Latitude
             LocationColumnName.LON,  # Longitude

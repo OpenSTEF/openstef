@@ -15,7 +15,7 @@ from openstef.feature_engineering.lag_features import (
     generate_lag_feature_functions,
     generate_non_trivial_lag_times,
 )
-from openstef.enums import WeatherConstants, LocationColumnName
+from openstef.enums import WeatherColumnName, LocationColumnName
 
 
 class TestApplyFeaturesModule(BaseTestCase):
@@ -183,9 +183,9 @@ class TestApplyFeaturesModule(BaseTestCase):
             ),
             data={
                 "load": [10, 15, 20, 15],
-                WeatherConstants.TEMPERATURE: [9, 9, 9, 9],
-                WeatherConstants.HUMIDITY: [1, 2, 3.0, 4.0],
-                WeatherConstants.PRESSURE: [3, 4, 5, 6],
+                WeatherColumnName.TEMPERATURE: [9, 9, 9, 9],
+                WeatherColumnName.HUMIDITY: [1, 2, 3.0, 4.0],
+                WeatherColumnName.PRESSURE: [3, 4, 5, 6],
             },
         )
         input_data_with_features = apply_features.apply_features(

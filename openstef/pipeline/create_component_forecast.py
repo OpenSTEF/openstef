@@ -11,7 +11,7 @@ from openstef import PROJECT_ROOT
 from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.enums import ForecastType
 from openstef.model.regressors.dazls import Dazls
-from enums import WeatherConstants
+from enums import WeatherColumnName
 
 import numpy as np
 
@@ -40,7 +40,7 @@ def create_input(
     """
     # Prepare raw input data
     input_df = (
-        weather_data[[WeatherConstants.RADIATION, WeatherConstants.WINDSPEED_100M]]
+        weather_data[[WeatherColumnName.RADIATION, WeatherColumnName.WINDSPEED_100M]]
         .merge(
             input_data[["forecast"]].rename(columns={"forecast": "total_load"}),
             how="inner",
@@ -59,12 +59,12 @@ def create_input(
     input_df["minute"] = input_df.index.minute
 
     input_df["var0"] = input_df["total_load"].var()
-    input_df["var1"] = input_df[WeatherConstants.RADIATION].var()
-    input_df["var2"] = input_df[WeatherConstants.WINDSPEED_100M].var()
+    input_df["var1"] = input_df[WeatherColumnName.RADIATION].var()
+    input_df["var2"] = input_df[WeatherColumnName.WINDSPEED_100M].var()
 
     input_df["sem0"] = input_df["total_load"].sem()
-    input_df["sem1"] = input_df[WeatherConstants.RADIATION].sem()
-    input_df["sem2"] = input_df[WeatherConstants.WINDSPEED_100M].sem()
+    input_df["sem1"] = input_df[WeatherColumnName.RADIATION].sem()
+    input_df["sem2"] = input_df[WeatherColumnName.WINDSPEED_100M].sem()
 
     # Features for the new model
     # Periodic Month feature

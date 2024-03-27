@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 
 from openstef.feature_engineering import weather_features
-from openstef.enums import WeatherConstants, LocationColumnName
+from openstef.enums import WeatherColumnName, LocationColumnName
 
 
 class HumidityCalculationsTest(BaseTestCase):
@@ -18,10 +18,10 @@ class HumidityCalculationsTest(BaseTestCase):
         rh = 0.5
         pressure = 101300
         expected = {
-            WeatherConstants.SATURATION_PRESSURE: 74.0413358265025,
-            WeatherConstants.VAPOUR_PRESSURE: 37.02066791325125,
-            WeatherConstants.DEWPOINT: 27.606507491812938,
-            WeatherConstants.AIR_DENSITY: 1.0184141379792693,
+            WeatherColumnName.SATURATION_PRESSURE: 74.0413358265025,
+            WeatherColumnName.VAPOUR_PRESSURE: 37.02066791325125,
+            WeatherColumnName.DEWPOINT: 27.606507491812938,
+            WeatherColumnName.AIR_DENSITY: 1.0184141379792693,
         }
         result = weather_features.humidity_calculations(temp, rh, pressure)
 
@@ -33,10 +33,10 @@ class HumidityCalculationsTest(BaseTestCase):
         rh = 50
         pressure = 101300
         expected = {
-            WeatherConstants.SATURATION_PRESSURE: 74.0413358265025,
-            WeatherConstants.VAPOUR_PRESSURE: 37.02066791325125,
-            WeatherConstants.DEWPOINT: 27.606507491812938,
-            WeatherConstants.AIR_DENSITY: 1.0184141379792693,
+            WeatherColumnName.SATURATION_PRESSURE: 74.0413358265025,
+            WeatherColumnName.VAPOUR_PRESSURE: 37.02066791325125,
+            WeatherColumnName.DEWPOINT: 27.606507491812938,
+            WeatherColumnName.AIR_DENSITY: 1.0184141379792693,
         }
         result = weather_features.humidity_calculations(temp, rh, pressure)
 
@@ -52,7 +52,7 @@ class HumidityCalculationsTest(BaseTestCase):
 
     def test_pd_input(self):
         dict_for_df = {
-            WeatherConstants.TEMPERATURE: {
+            WeatherColumnName.TEMPERATURE: {
                 0: 17.527984619140625,
                 1: 18.406951904296875,
                 2: 19.725128173828125,
@@ -65,7 +65,7 @@ class HumidityCalculationsTest(BaseTestCase):
                 9: 21.419891357421875,
                 10: 20.398956298828125,
             },
-            WeatherConstants.HUMIDITY: {
+            WeatherColumnName.HUMIDITY: {
                 0: 0.7382869124412537,
                 1: 0.7526984214782715,
                 2: 0.7334562540054321,
@@ -78,7 +78,7 @@ class HumidityCalculationsTest(BaseTestCase):
                 9: 0.6748714596033096,
                 10: 0.6509994566440582,
             },
-            WeatherConstants.PRESSURE: {
+            WeatherColumnName.PRESSURE: {
                 0: 101683.453125,
                 1: 101669.109375,
                 2: 101660.3203125,
@@ -91,7 +91,7 @@ class HumidityCalculationsTest(BaseTestCase):
                 9: 101544.28125,
                 10: 101571.5859375,
             },
-            WeatherConstants.SATURATION_PRESSURE: {
+            WeatherColumnName.SATURATION_PRESSURE: {
                 0: 20.060412049531564,
                 1: 21.201730117304287,
                 2: 23.020084506148535,
@@ -104,7 +104,7 @@ class HumidityCalculationsTest(BaseTestCase):
                 9: 25.557810225856993,
                 10: 24.00131027167236,
             },
-            WeatherConstants.VAPOUR_PRESSURE: {
+            WeatherColumnName.VAPOUR_PRESSURE: {
                 0: 14.81033967434798,
                 1: 15.958508791903265,
                 2: 16.884224948768193,
@@ -117,7 +117,7 @@ class HumidityCalculationsTest(BaseTestCase):
                 9: 17.248236691388502,
                 10: 15.62483994560416,
             },
-            WeatherConstants.DEWPOINT: {
+            WeatherColumnName.DEWPOINT: {
                 0: 12.8122960368354,
                 1: 13.956688695601496,
                 2: 14.827795599027679,
@@ -130,7 +130,7 @@ class HumidityCalculationsTest(BaseTestCase):
                 9: 15.15887144798449,
                 10: 13.631785491225672,
             },
-            WeatherConstants.AIR_DENSITY: {
+            WeatherColumnName.AIR_DENSITY: {
                 0: 1.1013913267467517,
                 1: 1.0979113262307172,
                 2: 1.0928715770331208,
@@ -149,7 +149,7 @@ class HumidityCalculationsTest(BaseTestCase):
             df.temp, df.humidity, df.pressure
         )
         result_df = df[
-            [WeatherConstants.SATURATION_PRESSURE, WeatherConstants.VAPOUR_PRESSURE, WeatherConstants.DEWPOINT, WeatherConstants.AIR_DENSITY]
+            [WeatherColumnName.SATURATION_PRESSURE, WeatherColumnName.VAPOUR_PRESSURE, WeatherColumnName.DEWPOINT, WeatherColumnName.AIR_DENSITY]
         ]
         self.assertDataframeEqual(humidity_df, result_df)
 
@@ -285,7 +285,7 @@ class RadiationCalculationsTest(BaseTestCase):
                 -1.3046875,
             ],
             index=times,
-            columns=[WeatherConstants.RADIATION],
+            columns=[WeatherColumnName.RADIATION],
         )  # .sort_index()
         self.pj = {LocationColumnName.LON: 52.98749605, LocationColumnName.LAT: 6.288165514}
 
