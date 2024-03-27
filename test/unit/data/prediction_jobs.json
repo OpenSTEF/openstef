@@ -58,7 +58,7 @@
             "radiation",
             "rain",
             "snowDepth",
-            WeatherConstants.TEMPERATURE,
+            "temp",
             "winddeg",
             "windspeed",
             "windspeed_100m",
