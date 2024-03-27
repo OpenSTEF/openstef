@@ -21,12 +21,12 @@ from openstef.model.objective import RegressorObjective
 from openstef.model.objective_creator import ObjectiveCreator
 from openstef.model.regressors.regressor import OpenstfRegressor
 from openstef.model.serializer import MLflowSerializer
+from openstef.model_selection.model_selection import split_data_train_validation_test
 from openstef.pipeline.train_model import (
     DEFAULT_TRAIN_HORIZONS_HOURS,
     train_model_pipeline_core,
 )
 from openstef.validation import validation
-from openstef.model_selection.model_selection import split_data_train_validation_test
 
 optuna.logging.enable_propagation()  # Propagate logs to the root logger.
 optuna.logging.disable_default_handler()  # Stop showing logs in sys.stderr.

@@ -1,24 +1,24 @@
 # SPDX-FileCopyrightText: 2017-2023 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-import structlog
-
 from abc import ABC, abstractmethod
+from datetime import timedelta
 from typing import Optional
 
 import pandas as pd
-from datetime import timedelta
+import structlog
+
 from openstef.data_classes.model_specifications import ModelSpecificationDataClass
 from openstef.data_classes.prediction_job import PredictionJobDataClass
-from openstef.model.regressors.regressor import OpenstfRegressor
 from openstef.feature_engineering.feature_applicator import (
-    TrainFeatureApplicator,
     OperationalPredictFeatureApplicator,
+    TrainFeatureApplicator,
 )
 from openstef.feature_engineering.general import (
     enforce_feature_order,
     remove_non_requested_feature_columns,
 )
+from openstef.model.regressors.regressor import OpenstfRegressor
 from openstef.pipeline.utils import generate_forecast_datetime_range
 
 

@@ -106,7 +106,6 @@ def check_kpi_task(
             rMAE=kpis["47.0h"]["rMAE"],
             retraining_threshold=THRESHOLD_RETRAINING,
         )
-        function_name = "train_model"
 
     if kpis["47.0h"]["rMAE"] > THRESHOLD_OPTIMIZING:
         context.logger.warning(

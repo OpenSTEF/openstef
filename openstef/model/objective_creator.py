@@ -6,12 +6,12 @@ from typing import Union
 
 from openstef.enums import MLModelType
 from openstef.model.objective import (
+    ARIMARegressorObjective,
     LGBRegressorObjective,
     LinearRegressorObjective,
     RegressorObjective,
     XGBQuantileRegressorObjective,
     XGBRegressorObjective,
-    ARIMARegressorObjective,
 )
 from openstef.model.regressors.custom_regressor import (
     create_custom_objective,

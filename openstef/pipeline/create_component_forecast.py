@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 
 import joblib
+import numpy as np
 import pandas as pd
 import structlog
 
@@ -11,8 +12,6 @@ from openstef import PROJECT_ROOT
 from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.enums import ForecastType
 from openstef.model.regressors.dazls import Dazls
-
-import numpy as np
 
 # Set the path for the Dazls stored model
 DAZLS_STORED = str(
