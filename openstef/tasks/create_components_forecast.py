@@ -43,7 +43,10 @@ T_AHEAD_DAYS = 3
 
 
 def create_components_forecast_task(
-    pj: PredictionJobDataClass, context: TaskContext
+    pj: PredictionJobDataClass,
+    context: TaskContext,
+    t_behind_days: int = T_BEHIND_DAYS,
+    t_ahead_days: int = T_AHEAD_DAYS,
 ) -> None:
     """Top level task that creates a components forecast.
 
@@ -52,6 +55,8 @@ def create_components_forecast_task(
     Args:
         pj: Prediction job
         context: Contect object that holds a config manager and a database connection
+        t_behind_days: number of days in the past that the component forecast is created for
+        t_ahead_days: number of days in the future that the component forecast is created for
 
     Raises:
         ComponentForecastTooShortHorizonError: If the forecast horizon is too short
@@ -71,8 +76,8 @@ def create_components_forecast_task(
         return
 
     # Define datetime range for input data
-    datetime_start = datetime.utcnow() - timedelta(days=T_BEHIND_DAYS)
-    datetime_end = datetime.utcnow() + timedelta(days=T_AHEAD_DAYS)
+    datetime_start = datetime.utcnow() - timedelta(days=t_behind_days)
+    datetime_end = datetime.utcnow() + timedelta(days=t_ahead_days)
 
     logger.info(
         "Get predicted load", datetime_start=datetime_start, datetime_end=datetime_end

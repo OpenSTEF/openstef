@@ -34,7 +34,9 @@ from openstef.validation.validation import detect_ongoing_zero_flatliner
 T_BEHIND_DAYS: int = 14
 
 
-def create_forecast_task(pj: PredictionJobDataClass, context: TaskContext) -> None:
+def create_forecast_task(
+    pj: PredictionJobDataClass, context: TaskContext, t_behind_days: int = T_BEHIND_DAYS
+) -> None:
     """Top level task that creates a forecast.
 
     On this task level all database and context manager dependencies are resolved.
@@ -45,6 +47,7 @@ def create_forecast_task(pj: PredictionJobDataClass, context: TaskContext) -> No
     Args:
         pj: Prediction job
         context: Contect object that holds a config manager and a database connection
+        t_behind_days: number of days included as history. This is used to generated lagged features for the to-be-forecasted period
 
     """
     # Check pipeline types
@@ -70,7 +73,7 @@ def create_forecast_task(pj: PredictionJobDataClass, context: TaskContext) -> No
     mlflow_tracking_uri = context.config.paths_mlflow_tracking_uri
 
     # Define datetime range for input data
-    datetime_start = datetime.utcnow() - timedelta(days=T_BEHIND_DAYS)
+    datetime_start = datetime.utcnow() - timedelta(days=t_behind_days)
     datetime_end = datetime.utcnow() + timedelta(seconds=pj.horizon_minutes * 60)
 
     # Retrieve input data
