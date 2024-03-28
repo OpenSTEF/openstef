@@ -12,8 +12,6 @@ from app_settings import AppSettings
 
 from openstef.settings import Settings
 
-from openstef.settings import Settings
-
 
 def post_teams(
     msg: Union[str, dict],
