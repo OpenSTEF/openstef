@@ -91,8 +91,8 @@ class TestApplyFeaturesModule(BaseTestCase):
             horizon=24,
             pj={
                 "model": "xgb",
-                LocationColumnName.LAT: 52.132633,
-                LocationColumnName.LON: 5.291266,
+                LocationColumnName.LAT.value: 52.132633,
+                LocationColumnName.LON.value: 5.291266,
             },
         )
         expected_output = TestData.load("input_data_with_features.csv")
@@ -127,8 +127,8 @@ class TestApplyFeaturesModule(BaseTestCase):
             TestData.load("input_data.csv"),
             pj={
                 "model": "proleaf",
-                LocationColumnName.LAT: 52.132633,
-                LocationColumnName.LON: 5.291266,
+                LocationColumnName.LAT.value: 52.132633,
+                LocationColumnName.LON.value: 5.291266,
             },
         )
         expected_output = TestData.load("input_data_multi_horizon_features.csv")
@@ -191,9 +191,9 @@ class TestApplyFeaturesModule(BaseTestCase):
             ),
             data={
                 "load": [10, 15, 20, 15],
-                WeatherColumnName.TEMPERATURE: [9, 9, 9, 9],
-                WeatherColumnName.HUMIDITY: [1, 2, 3.0, 4.0],
-                WeatherColumnName.PRESSURE: [3, 4, 5, 6],
+                WeatherColumnName.TEMPERATURE.value: [9, 9, 9, 9],
+                WeatherColumnName.HUMIDITY.value: [1, 2, 3.0, 4.0],
+                WeatherColumnName.PRESSURE.value: [3, 4, 5, 6],
             },
         )
         input_data_with_features = apply_features.apply_features(

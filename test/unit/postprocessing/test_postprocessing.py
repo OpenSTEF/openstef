@@ -27,15 +27,15 @@ class TestPostProcess(BaseTestCase):
         # Create testing input
         weather_data_test = pd.DataFrame(
             {
-                WeatherColumnName.WINDSPEED_100M: [0, 25, 8.07, 0, 0],
-                WeatherColumnName.RADIATION: [10, 16, 33, -1, -2],
+                WeatherColumnName.WINDSPEED_100M.value: [0, 25, 8.07, 0, 0],
+                WeatherColumnName.RADIATION.value: [10, 16, 33, -1, -2],
             }
         )
 
         # Define test reference output
         weather_data_norm_ref = pd.DataFrame(
             {
-                WeatherColumnName.RADIATION: [
+                WeatherColumnName.RADIATION.value: [
                     -0.309406,
                     -0.495050,
                     -1.021040,
@@ -62,7 +62,7 @@ class TestPostProcess(BaseTestCase):
         # Check column names are correctly set
         self.assertTrue(
             all(
-                elem in ["windpower", WeatherColumnName.RADIATION]
+                elem in ["windpower", WeatherColumnName.RADIATION.value]
                 for elem in list(weather_data_norm_test.columns)
             )
         )
@@ -87,7 +87,7 @@ class TestPostProcess(BaseTestCase):
                     "2021-07-14 16:00:00+0200",
                 ]
             ),
-            data={WeatherColumnName.WINDSPEED_100M: [11, 1.225, 0.5666666666666667]},
+            data={WeatherColumnName.WINDSPEED_100M.value: [11, 1.225, 0.5666666666666667]},
         )
 
         # Act
@@ -100,18 +100,18 @@ class TestPostProcess(BaseTestCase):
         # Define test input
         weather_data_test = pd.DataFrame(
             {
-                WeatherColumnName.WINDSPEED_100M: [10, 15, 33, 1, 2],
-                WeatherColumnName.RADIATION: [10, 16, 33, -1, -2],
+                WeatherColumnName.WINDSPEED_100M.value: [10, 15, 33, 1, 2],
+                WeatherColumnName.RADIATION.value: [10, 16, 33, -1, -2],
             }
         )
 
         split_coefs_test = {"pv_ref": 0.5, "wind_ref": 0.25}
 
         forecast = pd.DataFrame({"forecast": [10, 15, 33, -1, -2]})
-        forecast[ForecastColumnName.PID] = 123
-        forecast[ForecastColumnName.CUSTOMER] = "test_customer"
-        forecast[ForecastColumnName.DESCRIPTION] = "test_desription"
-        forecast[ForecastColumnName.TYPE] = "component"
+        forecast[ForecastColumnName.PID.value] = 123
+        forecast[ForecastColumnName.CUSTOMER.value] = "test_customer"
+        forecast[ForecastColumnName.DESCRIPTION.value] = "test_desription"
+        forecast[ForecastColumnName.TYPE.value] = "component"
         forecast["stdev"] = 0
 
         forecasts = postprocessing.split_forecast_in_components(

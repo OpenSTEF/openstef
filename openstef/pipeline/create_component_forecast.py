@@ -42,7 +42,7 @@ def create_input(
     """
     # Prepare raw input data
     input_df = (
-        weather_data[[WeatherColumnName.RADIATION, WeatherColumnName.WINDSPEED_100M]]
+        weather_data[[WeatherColumnName.RADIATION.value, WeatherColumnName.WINDSPEED_100M.value]]
         .merge(
             input_data[["forecast"]].rename(columns={"forecast": "total_load"}),
             how="inner",
@@ -52,8 +52,8 @@ def create_input(
         .dropna()
     )
     # Add additional features
-    input_df[LocationColumnName.LAT] = pj[LocationColumnName.LAT]
-    input_df[LocationColumnName.LON] = pj[LocationColumnName.LON]
+    input_df[LocationColumnName.LAT.value] = pj[LocationColumnName.LAT.value]
+    input_df[LocationColumnName.LON.value] = pj[LocationColumnName.LON.value]
 
     input_df["solar_on"] = 1
     input_df["wind_on"] = 1
@@ -61,12 +61,12 @@ def create_input(
     input_df["minute"] = input_df.index.minute
 
     input_df["var0"] = input_df["total_load"].var()
-    input_df["var1"] = input_df[WeatherColumnName.RADIATION].var()
-    input_df["var2"] = input_df[WeatherColumnName.WINDSPEED_100M].var()
+    input_df["var1"] = input_df[WeatherColumnName.RADIATION.value].var()
+    input_df["var2"] = input_df[WeatherColumnName.WINDSPEED_100M.value].var()
 
     input_df["sem0"] = input_df["total_load"].sem()
-    input_df["sem1"] = input_df[WeatherColumnName.RADIATION].sem()
-    input_df["sem2"] = input_df[WeatherColumnName.WINDSPEED_100M].sem()
+    input_df["sem1"] = input_df[WeatherColumnName.RADIATION.value].sem()
+    input_df["sem2"] = input_df[WeatherColumnName.WINDSPEED_100M.value].sem()
 
     # Features for the new model
     # Periodic Month feature

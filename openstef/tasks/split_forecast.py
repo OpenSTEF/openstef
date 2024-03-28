@@ -178,7 +178,7 @@ def convert_coefdict_to_coefsdf(
 
     """
     #
-    sql_column_labels = [ForecastColumnName.PID, "date_start", "date_end", "created"]
+    sql_column_labels = [ForecastColumnName.PID.value, "date_start", "date_end", "created"]
     sql_colum_values = [
         pj["id"],
         input_split_function.index.min().date(),

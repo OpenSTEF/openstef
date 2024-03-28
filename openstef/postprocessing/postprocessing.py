@@ -39,7 +39,7 @@ def normalize_and_convert_weather_data_for_splitting(
     # Check we have "windspeed_100m" and "radiation" available
     if not all(
         elem in weather_data.columns
-        for elem in [WeatherColumnName.WINDSPEED_100M, WeatherColumnName.RADIATION]
+        for elem in [WeatherColumnName.WINDSPEED_100M.value, WeatherColumnName.RADIATION.value]
     ):
         raise ValueError("weather data does not contain required data!")
 
@@ -47,13 +47,13 @@ def normalize_and_convert_weather_data_for_splitting(
     output_dataframe = pd.DataFrame()
 
     # Normalize weather data
-    output_dataframe[WeatherColumnName.RADIATION] = (
-        weather_data[WeatherColumnName.RADIATION]
-        / np.percentile(weather_data[WeatherColumnName.RADIATION].dropna(), 99.0)
+    output_dataframe[WeatherColumnName.RADIATION.value] = (
+        weather_data[WeatherColumnName.RADIATION.value]
+        / np.percentile(weather_data[WeatherColumnName.RADIATION.value].dropna(), 99.0)
         * -1
     )
     wind_ref_series = weather_features.calculate_windspeed_at_hubheight(
-        weather_data[WeatherColumnName.WINDSPEED_100M], fromheight=100
+        weather_data[WeatherColumnName.WINDSPEED_100M.value], fromheight=100
     )
     wind_ref = wind_ref_series.to_frame()
     wind_ref = calculate_wind_power(wind_ref)
@@ -85,7 +85,7 @@ def calculate_wind_power(
         )
     )
     return (
-        generated_power[WeatherColumnName.WINDSPEED_100M]
+        generated_power[WeatherColumnName.WINDSPEED_100M.value]
         .rename("windenergy")
         .to_frame()
     )
@@ -112,7 +112,7 @@ def split_forecast_in_components(
 
     # Check input
     if not all(
-        elem in ["windpower", WeatherColumnName.RADIATION]
+        elem in ["windpower", WeatherColumnName.RADIATION.value]
         for elem in list(weather_ref_profiles.columns)
     ):
         raise ValueError("weather data does not contain required data!")
@@ -135,7 +135,7 @@ def split_forecast_in_components(
         split_coefs["wind_ref"] * weather_ref_profiles["windpower"]
     )
     components["forecast_solar"] = (
-        split_coefs["pv_ref"] * weather_ref_profiles[WeatherColumnName.RADIATION]
+        split_coefs["pv_ref"] * weather_ref_profiles[WeatherColumnName.RADIATION.value]
     )
     components["forecast_other"] = (
         weather_ref_profiles["forecast"]
@@ -249,11 +249,11 @@ def add_prediction_job_properties_to_forecast(
     # TODO perhaps better to make a forecast its own class!
     # TODO double check and sync this with make_basecase_forecast (other fields are added)
     # !!!!! TODO fix the requirement for customer
-    forecast[ForecastColumnName.PID] = pj["id"]
-    forecast[ForecastColumnName.CUSTOMER] = pj["name"]
-    forecast[ForecastColumnName.DESCRIPTION] = pj[ForecastColumnName.DESCRIPTION]
-    forecast[ForecastColumnName.TYPE] = forecast_type
-    forecast[ForecastColumnName.GENERAL_TYPE] = algorithm_type
+    forecast[ForecastColumnName.PID.value] = pj["id"]
+    forecast[ForecastColumnName.CUSTOMER.value] = pj["name"]
+    forecast[ForecastColumnName.DESCRIPTION.value] = pj[ForecastColumnName.DESCRIPTION.value]
+    forecast[ForecastColumnName.TYPE.value] = forecast_type
+    forecast[ForecastColumnName.GENERAL_TYPE.value] = algorithm_type
 
     return forecast
 

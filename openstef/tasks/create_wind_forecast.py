@@ -32,35 +32,35 @@ def make_wind_forecast_pj(pj: PredictionJobDataClass, context: TaskContext) -> N
 
     """
     context.logger.info(
-        "Get turbine data", turbine_type=pj[WeatherColumnName.TURBINE_TYPE]
+        "Get turbine data", turbine_type=pj[WeatherColumnName.TURBINE_TYPE.value]
     )
-    turbine_data = context.database.get_power_curve(pj[WeatherColumnName.TURBINE_TYPE])
+    turbine_data = context.database.get_power_curve(pj[WeatherColumnName.TURBINE_TYPE.value])
 
     context.logger.info(
         "Get windspeed",
-        location=[pj[LocationColumnName.LAT], pj[LocationColumnName.LON]],
-        hub_height=pj[WeatherColumnName.WIND_HUB_HEIGHT],
+        location=[pj[LocationColumnName.LAT.value], pj[LocationColumnName.LON.value]],
+        hub_height=pj[WeatherColumnName.WIND_HUB_HEIGHT.value],
     )
     windspeed = context.database.get_wind_input(
-        (pj[LocationColumnName.LAT], pj[LocationColumnName.LON]),
-        pj[WeatherColumnName.WIND_HUB_HEIGHT],
-        pj[ForecastColumnName.HORIZON_MINUTES],
+        (pj[LocationColumnName.LAT.value], pj[LocationColumnName.LON.value]),
+        pj[WeatherColumnName.WIND_HUB_HEIGHT.value],
+        pj[ForecastColumnName.HORIZON_MINUTES.value],
         pj["resolution_minutes"],
     )
 
     context.logger.info(
-        "Calculate windturbine power", n_turbines=pj[WeatherColumnName.NUMBER_TURBINES]
+        "Calculate windturbine power", n_turbines=pj[WeatherColumnName.NUMBER_TURBINES.value]
     )
     power = weather_features.calculate_windturbine_power_output(
-        windspeed, pj[WeatherColumnName.NUMBER_TURBINES], turbine_data
+        windspeed, pj[WeatherColumnName.NUMBER_TURBINES.value], turbine_data
     ).rename(columns=dict(windspeed_100m="forecast"))
 
     context.logger.info("Store wind prediction in database")
-    power[ForecastColumnName.PID] = pj["id"]
-    power[ForecastColumnName.TYPE] = "wind"
-    power[ForecastColumnName.GENERAL_TYPE] = "powerCurve"
-    power[ForecastColumnName.CUSTOMER] = pj["name"]
-    power[ForecastColumnName.DESCRIPTION] = pj[ForecastColumnName.DESCRIPTION]
+    power[ForecastColumnName.PID.value] = pj["id"]
+    power[ForecastColumnName.TYPE.value] = "wind"
+    power[ForecastColumnName.GENERAL_TYPE.value] = "powerCurve"
+    power[ForecastColumnName.CUSTOMER.value] = pj["name"]
+    power[ForecastColumnName.DESCRIPTION.value] = pj[ForecastColumnName.DESCRIPTION.value]
     context.database.write_forecast(power, t_ahead_series=True)
 
 

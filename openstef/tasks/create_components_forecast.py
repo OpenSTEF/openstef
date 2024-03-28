@@ -92,10 +92,10 @@ def create_components_forecast_task(
     #  this will make this function much shorter
     # Get required weather data
     weather_data = context.database.get_weather_data(
-        [pj[LocationColumnName.LAT], pj[LocationColumnName.LON]],
+        [pj[LocationColumnName.LAT.value], pj[LocationColumnName.LON.value]],
         [
-            WeatherColumnName.RADIATION,
-            WeatherColumnName.WINDSPEED_100M,
+            WeatherColumnName.RADIATION.value,
+            WeatherColumnName.WINDSPEED_100M.value,
         ],  # These variables are used when determing the splitting coeficients, and should therefore be reused when making the component forcasts.
         datetime_start=datetime_start,
         datetime_end=datetime_end,
@@ -123,11 +123,11 @@ def create_components_forecast_task(
         max_index = forecasts.index.max()
         n_nas = dict(
             nans_load_forecast=input_data.loc[max_index:, "forecast"].isna().sum(),
-            nans_radiation=weather_data.loc[max_index:, WeatherColumnName.RADIATION]
+            nans_radiation=weather_data.loc[max_index:, WeatherColumnName.RADIATION.value]
             .isna()
             .sum(),
             nans_windspeed_100m=weather_data.loc[
-                max_index:, WeatherColumnName.WINDSPEED_100M
+                max_index:, WeatherColumnName.WINDSPEED_100M.value
             ]
             .isna()
             .sum(),

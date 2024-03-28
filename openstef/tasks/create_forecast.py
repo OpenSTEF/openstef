@@ -76,7 +76,7 @@ def create_forecast_task(pj: PredictionJobDataClass, context: TaskContext) -> No
     # Retrieve input data
     input_data = context.database.get_model_input(
         pid=pj["id"],
-        location=[pj[LocationColumnName.LAT], pj[LocationColumnName.LON]],
+        location=[pj[LocationColumnName.LAT.value], pj[LocationColumnName.LON.value]],
         datetime_start=datetime_start,
         datetime_end=datetime_end,
     )

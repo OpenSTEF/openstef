@@ -98,7 +98,7 @@ def optimize_hyperparameters_task(
 
     input_data = context.database.get_model_input(
         pid=pj["id"],
-        location=[pj[LocationColumnName.LAT], pj[LocationColumnName.LON]],
+        location=[pj[LocationColumnName.LAT.value], pj[LocationColumnName.LON.value]],
         datetime_start=datetime_start,
         datetime_end=datetime_end,
     )
@@ -112,7 +112,7 @@ def optimize_hyperparameters_task(
     )
 
     # Sent message to Teams
-    title = f'Optimized hyperparameters for prediction job {pj["name"]} {pj[ForecastColumnName.DESCRIPTION]}'
+    title = f'Optimized hyperparameters for prediction job {pj["name"]} {pj[ForecastColumnName.DESCRIPTION.value]}'
 
     teams.post_teams(teams.format_message(title=title, params=hyperparameters))
 

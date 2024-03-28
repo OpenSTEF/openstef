@@ -26,15 +26,15 @@ FORECAST_MOCK = pd.DataFrame(
             Timestamp("2022-09-08 10:00:00+0000", tz="UTC"): -11.632748,
             Timestamp("2022-09-08 10:15:00+0000", tz="UTC"): -10.278155,
         },
-        ForecastColumnName.PID: {
+        ForecastColumnName.PID.value: {
             Timestamp("2022-09-08 10:00:00+0000", tz="UTC"): 123,
             Timestamp("2022-09-08 10:15:00+0000", tz="UTC"): 123,
         },
-        ForecastColumnName.CUSTOMER: {
+        ForecastColumnName.CUSTOMER.value: {
             Timestamp("2022-09-08 10:00:00+0000", tz="UTC"): "ABC",
             Timestamp("2022-09-08 10:15:00+0000", tz="UTC"): "ABC",
         },
-        ForecastColumnName.DESCRIPTION: {
+        ForecastColumnName.DESCRIPTION.value: {
             Timestamp("2022-09-08 10:00:00+0000", tz="UTC"): "ABC",
             Timestamp("2022-09-08 10:15:00+0000", tz="UTC"): "ABC",
         },
@@ -42,7 +42,7 @@ FORECAST_MOCK = pd.DataFrame(
             Timestamp("2022-09-08 10:00:00+0000", tz="UTC"): "demand",
             Timestamp("2022-09-08 10:15:00+0000", tz="UTC"): "demand",
         },
-        ForecastColumnName.GENERAL_TYPE: {
+        ForecastColumnName.GENERAL_TYPE.value: {
             Timestamp("2022-09-08 10:00:00+0000", tz="UTC"): "component",
             Timestamp(
                 f'{(date.today()+timedelta(days=3)).strftime(format="%Y-%m-%d")} 10:15:00+0000',

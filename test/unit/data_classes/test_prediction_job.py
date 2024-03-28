@@ -23,15 +23,15 @@ class TestPredictionJobs(unittest.TestCase):
             "id": 307,
             "model": "xgb",
             "model_type_group": "xgb",
-            ForecastColumnName.HORIZON_MINUTES: 2880,
+            ForecastColumnName.HORIZON_MINUTES.value: 2880,
             "resolution_minutes": 15,
             "train_components": 1,
             "name": "Neerijnen",
-            LocationColumnName.LAT: 51.8336647,
-            LocationColumnName.LON: 5.2137814,
+            LocationColumnName.LAT.value: 51.8336647,
+            LocationColumnName.LON.value: 5.2137814,
             "sid": "NrynRS_10-G_V12_P",
             "created": "2019-04-05 12:08:23",
-            ForecastColumnName.DESCRIPTION: "NrynRS_10-G_V12_P+NrynRS_10-G_V13_P+NrynRS_10-G_V14_P+NrynRS_10-G_V15_P+NrynRS_10-G_V16_P+NrynRS_10-G_V17_P+NrynRS_10-G_V18_P+NrynRS_10-G_V20_P+NrynRS_10-G_V21_P+NrynRS_10-G_V22_P+NrynRS_10-G_V23_P+NrynRS_10-G_V24_P+NrynRS_10-G_V25_P",
+            ForecastColumnName.DESCRIPTION.value: "NrynRS_10-G_V12_P+NrynRS_10-G_V13_P+NrynRS_10-G_V14_P+NrynRS_10-G_V15_P+NrynRS_10-G_V16_P+NrynRS_10-G_V17_P+NrynRS_10-G_V18_P+NrynRS_10-G_V20_P+NrynRS_10-G_V21_P+NrynRS_10-G_V22_P+NrynRS_10-G_V23_P+NrynRS_10-G_V24_P+NrynRS_10-G_V25_P",
             "quantiles": [0.05, 0.1, 0.3, 0.5, 0.7, 0.9, 0.95],
             "hyper_params": {
                 "subsample": 0.9650102355823993,
@@ -63,15 +63,15 @@ class TestPredictionJobs(unittest.TestCase):
             "id": 307,
             "model": "xgb",
             "model_type_group": "xgb",
-            ForecastColumnName.HORIZON_MINUTES: 2880,
+            ForecastColumnName.HORIZON_MINUTES.value: 2880,
             "resolution_minutes": 15,
             "train_components": 1,
             "name": "Neerijnen",
-            LocationColumnName.LAT: 51.8336647,
-            LocationColumnName.LON: 5.2137814,
+            LocationColumnName.LAT.value: 51.8336647,
+            LocationColumnName.LON.value: 5.2137814,
             "sid": "NrynRS_10-G_V12_P",
             "created": "2019-04-05 12:08:23",
-            ForecastColumnName.DESCRIPTION: "NrynRS_10-G_V12_P+NrynRS_10-G_V13_P+NrynRS_10-G_V14_P+NrynRS_10-G_V15_P+NrynRS_10-G_V16_P+NrynRS_10-G_V17_P+NrynRS_10-G_V18_P+NrynRS_10-G_V20_P+NrynRS_10-G_V21_P+NrynRS_10-G_V22_P+NrynRS_10-G_V23_P+NrynRS_10-G_V24_P+NrynRS_10-G_V25_P",
+            ForecastColumnName.DESCRIPTION.value: "NrynRS_10-G_V12_P+NrynRS_10-G_V13_P+NrynRS_10-G_V14_P+NrynRS_10-G_V15_P+NrynRS_10-G_V16_P+NrynRS_10-G_V17_P+NrynRS_10-G_V18_P+NrynRS_10-G_V20_P+NrynRS_10-G_V21_P+NrynRS_10-G_V22_P+NrynRS_10-G_V23_P+NrynRS_10-G_V24_P+NrynRS_10-G_V25_P",
             "quantiles": [0.05, 0.1, 0.3, 0.5, 0.7, 0.9, 0.95],
             "hyper_params": {
                 "subsample": 0.9650102355823993,
@@ -103,20 +103,20 @@ class TestPredictionJobs(unittest.TestCase):
         # Arrange
         pj_dict = {
             "id": 307,
-            WeatherColumnName.TURBINE_TYPE: "test",
-            WeatherColumnName.NUMBER_TURBINES: 3.0,
-            WeatherColumnName.WIND_HUB_HEIGHT: 20.0,
+            WeatherColumnName.TURBINE_TYPE.value: "test",
+            WeatherColumnName.NUMBER_TURBINES.value: 3.0,
+            WeatherColumnName.WIND_HUB_HEIGHT.value: 20.0,
             "model": "xgb",
             "model_type_group": "xgb",
-            ForecastColumnName.HORIZON_MINUTES: 2880,
+            ForecastColumnName.HORIZON_MINUTES.value: 2880,
             "resolution_minutes": 15,
             "train_components": 1,
             "name": "Neerijnen",
-            LocationColumnName.LAT: 51.8336647,
-            LocationColumnName.LON: 5.2137814,
+            LocationColumnName.LAT.value: 51.8336647,
+            LocationColumnName.LON.value: 5.2137814,
             "sid": "NrynRS_10-G_V12_P",
             "created": "2019-04-05 12:08:23",
-            ForecastColumnName.DESCRIPTION: "NrynRS_10-G_V12_P+NrynRS_10-G_V13_P+NrynRS_10-G_V14_P+NrynRS_10-G_V15_P+NrynRS_10-G_V16_P+NrynRS_10-G_V17_P+NrynRS_10-G_V18_P+NrynRS_10-G_V20_P+NrynRS_10-G_V21_P+NrynRS_10-G_V22_P+NrynRS_10-G_V23_P+NrynRS_10-G_V24_P+NrynRS_10-G_V25_P",
+            ForecastColumnName.DESCRIPTION.value: "NrynRS_10-G_V12_P+NrynRS_10-G_V13_P+NrynRS_10-G_V14_P+NrynRS_10-G_V15_P+NrynRS_10-G_V16_P+NrynRS_10-G_V17_P+NrynRS_10-G_V18_P+NrynRS_10-G_V20_P+NrynRS_10-G_V21_P+NrynRS_10-G_V22_P+NrynRS_10-G_V23_P+NrynRS_10-G_V24_P+NrynRS_10-G_V25_P",
             "quantiles": [0.05, 0.1, 0.3, 0.5, 0.7, 0.9, 0.95],
             "hyper_params": {
                 "subsample": 0.9650102355823993,
@@ -142,6 +142,6 @@ class TestPredictionJobs(unittest.TestCase):
         # Act
         self.assertIsInstance(pj, PredictionJobDataClass)
         self.assertEqual(pj["id"], 307)
-        self.assertEqual(pj[WeatherColumnName.TURBINE_TYPE], "test")
-        self.assertEqual(pj[WeatherColumnName.NUMBER_TURBINES], 3.0)
-        self.assertEqual(pj[WeatherColumnName.WIND_HUB_HEIGHT], 20.0)
+        self.assertEqual(pj[WeatherColumnName.TURBINE_TYPE.value], "test")
+        self.assertEqual(pj[WeatherColumnName.NUMBER_TURBINES.value], 3.0)
+        self.assertEqual(pj[WeatherColumnName.WIND_HUB_HEIGHT.value], 20.0)
