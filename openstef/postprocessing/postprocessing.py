@@ -9,7 +9,7 @@ import pandas as pd
 import structlog
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
-from openstef.enums import ForecastType
+from openstef.enums import ForecastType, WeatherColumnName, ForecastColumnName
 from openstef.feature_engineering import weather_features
 from openstef.settings import Settings
 
@@ -38,7 +38,11 @@ def normalize_and_convert_weather_data_for_splitting(
     """
     # Check we have "windspeed_100m" and "radiation" available
     if not all(
-        elem in weather_data.columns for elem in ["windspeed_100m", "radiation"]
+        elem in weather_data.columns
+        for elem in [
+            WeatherColumnName.WINDSPEED_100M.value,
+            WeatherColumnName.RADIATION.value,
+        ]
     ):
         raise ValueError("weather data does not contain required data!")
 
@@ -46,13 +50,13 @@ def normalize_and_convert_weather_data_for_splitting(
     output_dataframe = pd.DataFrame()
 
     # Normalize weather data
-    output_dataframe["radiation"] = (
-        weather_data["radiation"]
-        / np.percentile(weather_data["radiation"].dropna(), 99.0)
+    output_dataframe[WeatherColumnName.RADIATION.value] = (
+        weather_data[WeatherColumnName.RADIATION.value]
+        / np.percentile(weather_data[WeatherColumnName.RADIATION.value].dropna(), 99.0)
         * -1
     )
     wind_ref_series = weather_features.calculate_windspeed_at_hubheight(
-        weather_data["windspeed_100m"], fromheight=100
+        weather_data[WeatherColumnName.WINDSPEED_100M.value], fromheight=100
     )
     wind_ref = wind_ref_series.to_frame()
     wind_ref = calculate_wind_power(wind_ref)
@@ -83,7 +87,11 @@ def calculate_wind_power(
             -TURBINE_DATA["steepness"] * (windspeed_100m - TURBINE_DATA["slope_center"])
         )
     )
-    return generated_power["windspeed_100m"].rename("windenergy").to_frame()
+    return (
+        generated_power[WeatherColumnName.WINDSPEED_100M.value]
+        .rename("windenergy")
+        .to_frame()
+    )
 
 
 def split_forecast_in_components(
@@ -107,7 +115,7 @@ def split_forecast_in_components(
 
     # Check input
     if not all(
-        elem in ["windpower", "radiation"]
+        elem in ["windpower", WeatherColumnName.RADIATION.value]
         for elem in list(weather_ref_profiles.columns)
     ):
         raise ValueError("weather data does not contain required data!")
@@ -130,7 +138,7 @@ def split_forecast_in_components(
         split_coefs["wind_ref"] * weather_ref_profiles["windpower"]
     )
     components["forecast_solar"] = (
-        split_coefs["pv_ref"] * weather_ref_profiles["radiation"]
+        split_coefs["pv_ref"] * weather_ref_profiles[WeatherColumnName.RADIATION.value]
     )
     components["forecast_other"] = (
         weather_ref_profiles["forecast"]
@@ -235,7 +243,7 @@ def add_prediction_job_properties_to_forecast(
         # get the value from the enum
         forecast_type = forecast_type.value
 
-    # NOTE this field is only used when making the babasecase forecast and fallback
+    # NOTE this field is only used when making the basecase forecast and fallback
     if forecast_quality is not None:
         forecast["quality"] = forecast_quality
 
@@ -244,11 +252,13 @@ def add_prediction_job_properties_to_forecast(
     # TODO perhaps better to make a forecast its own class!
     # TODO double check and sync this with make_basecase_forecast (other fields are added)
     # !!!!! TODO fix the requirement for customer
-    forecast["pid"] = pj["id"]
-    forecast["customer"] = pj["name"]
-    forecast["description"] = pj["description"]
-    forecast["type"] = forecast_type
-    forecast["algtype"] = algorithm_type
+    forecast[ForecastColumnName.PID.value] = pj["id"]
+    forecast[ForecastColumnName.CUSTOMER.value] = pj["name"]
+    forecast[ForecastColumnName.DESCRIPTION.value] = pj[
+        ForecastColumnName.DESCRIPTION.value
+    ]
+    forecast[ForecastColumnName.TYPE.value] = forecast_type
+    forecast[ForecastColumnName.GENERAL_TYPE.value] = algorithm_type
 
     return forecast
 
@@ -258,9 +268,9 @@ def sort_quantiles(
 ) -> pd.DataFrame:
     """Sort quantile values so quantiles do not cross.
 
-    This function assumes that all quantile columns start with 'quantile_P'
-    For more academic details on why this is mathematically sounds,
-    please refer to Quantile and Probability Curves Without Crossing (Chernozhukov, 2010)
+    This function assumes that all quantile columns start with 'quantile_P' For more academic details on why this is
+    mathematically sounds, please refer to Quantile and Probability Curves Without Crossing (Chernozhukov, 2010)
+
     """
     p_columns = [col for col in forecast.columns if col.startswith(quantile_col_start)]
 

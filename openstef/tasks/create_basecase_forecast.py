@@ -22,7 +22,7 @@ from pathlib import Path
 import pandas as pd
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
-from openstef.enums import PipelineType
+from openstef.enums import PipelineType, LocationColumnName
 from openstef.pipeline.create_basecase_forecast import create_basecase_forecast_pipeline
 from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstef.tasks.utils.taskcontext import TaskContext
@@ -69,7 +69,7 @@ def create_basecase_forecast_task(
     # Retrieve input data
     input_data = context.database.get_model_input(
         pid=pj["id"],
-        location=[pj["lat"], pj["lon"]],
+        location=[pj[LocationColumnName.LAT.value], pj[LocationColumnName.LON.value]],
         datetime_start=datetime_start,
         datetime_end=datetime_end,
     )

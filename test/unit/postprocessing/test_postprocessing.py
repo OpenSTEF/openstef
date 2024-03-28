@@ -7,7 +7,7 @@ from test.unit.utils.base import BaseTestCase
 
 import pandas as pd
 
-from openstef.enums import ForecastType
+from openstef.enums import ForecastType, WeatherColumnName, ForecastColumnName
 from openstef.postprocessing import postprocessing
 
 
@@ -26,13 +26,16 @@ class TestPostProcess(BaseTestCase):
     def test_normalize_and_convert_weather_data_for_splitting(self):
         # Create testing input
         weather_data_test = pd.DataFrame(
-            {"windspeed_100m": [0, 25, 8.07, 0, 0], "radiation": [10, 16, 33, -1, -2]}
+            {
+                WeatherColumnName.WINDSPEED_100M.value: [0, 25, 8.07, 0, 0],
+                WeatherColumnName.RADIATION.value: [10, 16, 33, -1, -2],
+            }
         )
 
         # Define test reference output
         weather_data_norm_ref = pd.DataFrame(
             {
-                "radiation": [
+                WeatherColumnName.RADIATION.value: [
                     -0.309406,
                     -0.495050,
                     -1.021040,
@@ -59,7 +62,7 @@ class TestPostProcess(BaseTestCase):
         # Check column names are correctly set
         self.assertTrue(
             all(
-                elem in ["windpower", "radiation"]
+                elem in ["windpower", WeatherColumnName.RADIATION.value]
                 for elem in list(weather_data_norm_test.columns)
             )
         )
@@ -84,7 +87,9 @@ class TestPostProcess(BaseTestCase):
                     "2021-07-14 16:00:00+0200",
                 ]
             ),
-            data={"windspeed_100m": [11, 1.225, 0.5666666666666667]},
+            data={
+                WeatherColumnName.WINDSPEED_100M.value: [11, 1.225, 0.5666666666666667]
+            },
         )
 
         # Act
@@ -96,16 +101,19 @@ class TestPostProcess(BaseTestCase):
     def test_split_forecast_in_components(self):
         # Define test input
         weather_data_test = pd.DataFrame(
-            {"windspeed_100m": [10, 15, 33, 1, 2], "radiation": [10, 16, 33, -1, -2]}
+            {
+                WeatherColumnName.WINDSPEED_100M.value: [10, 15, 33, 1, 2],
+                WeatherColumnName.RADIATION.value: [10, 16, 33, -1, -2],
+            }
         )
 
         split_coefs_test = {"pv_ref": 0.5, "wind_ref": 0.25}
 
         forecast = pd.DataFrame({"forecast": [10, 15, 33, -1, -2]})
-        forecast["pid"] = 123
-        forecast["customer"] = "test_customer"
-        forecast["description"] = "test_desription"
-        forecast["type"] = "component"
+        forecast[ForecastColumnName.PID.value] = 123
+        forecast[ForecastColumnName.CUSTOMER.value] = "test_customer"
+        forecast[ForecastColumnName.DESCRIPTION.value] = "test_desription"
+        forecast[ForecastColumnName.TYPE.value] = "component"
         forecast["stdev"] = 0
 
         forecasts = postprocessing.split_forecast_in_components(

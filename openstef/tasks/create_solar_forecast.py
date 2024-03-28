@@ -22,6 +22,7 @@ from scipy import optimize
 from openstef import PROJECT_ROOT
 from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstef.tasks.utils.taskcontext import TaskContext
+from openstef.enums import WeatherColumnName, LocationColumnName, ForecastColumnName
 
 # TODO move to config
 PV_COEFS_FILEPATH = PROJECT_ROOT / "openstef" / "data" / "pv_single_coefs.csv"
@@ -40,8 +41,8 @@ def make_solar_prediction_pj(pj, context, radius=30, peak_power=180961000.0):
     context.logger.info("Get solar input data from database")
     # pvdata is only stored in the prd database
     solar_input = context.database.get_solar_input(
-        (pj["lat"], pj["lon"]),
-        pj["horizon_minutes"],
+        (pj[LocationColumnName.LAT.value], pj[LocationColumnName.LON.value]),
+        pj[ForecastColumnName.HORIZON_MINUTES.value],
         pj["resolution_minutes"],
         radius=radius,
         sid=pj["sid"],
@@ -52,7 +53,7 @@ def make_solar_prediction_pj(pj, context, radius=30, peak_power=180961000.0):
 
     context.logger.info("Make solar prediction using Fides")
     power = fides(
-        solar_input[["aggregated", "radiation"]].rename(
+        solar_input[["aggregated", WeatherColumnName.RADIATION.value]].rename(
             columns=dict(radiation="insolation", aggregated="load")
         )
     )
@@ -61,11 +62,13 @@ def make_solar_prediction_pj(pj, context, radius=30, peak_power=180961000.0):
     if (radius != 0) and (not np.isnan(peak_power)):
         power = peak_power / max(solar_input.aggregated) * power
     context.logger.info("Store solar prediction in database")
-    power["pid"] = pj["id"]
-    power["type"] = "solar"
-    power["algtype"] = "Fides"
-    power["customer"] = pj["name"]
-    power["description"] = pj["description"]
+    power[ForecastColumnName.PID.value] = pj["id"]
+    power[ForecastColumnName.TYPE.value] = "solar"
+    power[ForecastColumnName.GENERAL_TYPE.value] = "Fides"
+    power[ForecastColumnName.CUSTOMER.value] = pj["name"]
+    power[ForecastColumnName.DESCRIPTION.value] = pj[
+        ForecastColumnName.DESCRIPTION.value
+    ]
     context.database.write_forecast(power)
 
 

@@ -24,7 +24,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
-from openstef.enums import MLModelType, PipelineType
+from openstef.enums import MLModelType, PipelineType, LocationColumnName
 from openstef.exceptions import InputDataOngoingZeroFlatlinerError
 from openstef.pipeline.create_forecast import create_forecast_pipeline
 from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
@@ -76,7 +76,7 @@ def create_forecast_task(pj: PredictionJobDataClass, context: TaskContext) -> No
     # Retrieve input data
     input_data = context.database.get_model_input(
         pid=pj["id"],
-        location=[pj["lat"], pj["lon"]],
+        location=[pj[LocationColumnName.LAT.value], pj[LocationColumnName.LON.value]],
         datetime_start=datetime_start,
         datetime_end=datetime_end,
     )

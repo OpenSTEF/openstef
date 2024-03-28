@@ -9,6 +9,8 @@ from test.unit.utils.data import TestData
 import joblib
 import pandas as pd
 
+from openstef.enums import WeatherColumnName, ForecastColumnName
+
 PROJECT_ROOT = Path(__file__).parent.parent.parent.parent.absolute()
 
 from openstef.model.regressors.dazls import Dazls
@@ -64,7 +66,9 @@ class TestComponentForecast(BaseTestCase):
     def test_component_forecast_pipeline_happy_flow(self):
         # Test happy flow
         data = TestData.load("reference_sets/307-test-data.csv")
-        weather = data[["radiation", "windspeed_100m"]]
+        weather = data[
+            [WeatherColumnName.RADIATION.value, WeatherColumnName.WINDSPEED_100M.value]
+        ]
         forecast_input = TestData.load("forecastdf_test_add_corrections.csv")
         forecast_input["stdev"] = 0
 
@@ -95,18 +99,18 @@ class TestComponentForecast(BaseTestCase):
                 "forecast_wind_on_shore",
                 "forecast_solar",
                 "forecast_other",
-                "pid",
-                "customer",
-                "description",
-                "type",
-                "algtype",
+                ForecastColumnName.PID.value,
+                ForecastColumnName.CUSTOMER.value,
+                ForecastColumnName.DESCRIPTION.value,
+                ForecastColumnName.TYPE.value,
+                ForecastColumnName.GENERAL_TYPE.value,
             ],
         )
 
     def test_component_forecast_pipeline_not_all_weather_data_available(self):
         # Test happy flow
         data = TestData.load("reference_sets/307-test-data.csv")
-        weather = data[["radiation"]]
+        weather = data[[WeatherColumnName.RADIATION.value]]
         forecast_input = TestData.load("forecastdf_test_add_corrections.csv")
         forecast_input["stdev"] = 0
 
@@ -131,6 +135,12 @@ class TestComponentForecast(BaseTestCase):
         # Check if the output matches expectations
         self.assertEqual(
             component_forecast.columns.to_list(),
-            ["pid", "customer", "description", "type", "algtype"],
+            [
+                ForecastColumnName.PID.value,
+                ForecastColumnName.CUSTOMER.value,
+                ForecastColumnName.DESCRIPTION.value,
+                ForecastColumnName.TYPE.value,
+                ForecastColumnName.GENERAL_TYPE.value,
+            ],
         )
         self.assertEqual(len(component_forecast), 0)

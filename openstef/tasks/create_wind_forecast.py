@@ -20,6 +20,7 @@ from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.feature_engineering import weather_features
 from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstef.tasks.utils.taskcontext import TaskContext
+from enums import WeatherColumnName, LocationColumnName, ForecastColumnName
 
 
 def make_wind_forecast_pj(pj: PredictionJobDataClass, context: TaskContext) -> None:
@@ -30,30 +31,41 @@ def make_wind_forecast_pj(pj: PredictionJobDataClass, context: TaskContext) -> N
         context: Context manager
 
     """
-    context.logger.info("Get turbine data", turbine_type=pj["turbine_type"])
-    turbine_data = context.database.get_power_curve(pj["turbine_type"])
+    context.logger.info(
+        "Get turbine data", turbine_type=pj[WeatherColumnName.TURBINE_TYPE.value]
+    )
+    turbine_data = context.database.get_power_curve(
+        pj[WeatherColumnName.TURBINE_TYPE.value]
+    )
 
     context.logger.info(
-        "Get windspeed", location=[pj["lat"], pj["lon"]], hub_height=pj["hub_height"]
+        "Get windspeed",
+        location=[pj[LocationColumnName.LAT.value], pj[LocationColumnName.LON.value]],
+        hub_height=pj[WeatherColumnName.WIND_HUB_HEIGHT.value],
     )
     windspeed = context.database.get_wind_input(
-        (pj["lat"], pj["lon"]),
-        pj["hub_height"],
-        pj["horizon_minutes"],
+        (pj[LocationColumnName.LAT.value], pj[LocationColumnName.LON.value]),
+        pj[WeatherColumnName.WIND_HUB_HEIGHT.value],
+        pj[ForecastColumnName.HORIZON_MINUTES.value],
         pj["resolution_minutes"],
     )
 
-    context.logger.info("Calculate windturbine power", n_turbines=pj["n_turbines"])
+    context.logger.info(
+        "Calculate windturbine power",
+        n_turbines=pj[WeatherColumnName.NUMBER_TURBINES.value],
+    )
     power = weather_features.calculate_windturbine_power_output(
-        windspeed, pj["n_turbines"], turbine_data
+        windspeed, pj[WeatherColumnName.NUMBER_TURBINES.value], turbine_data
     ).rename(columns=dict(windspeed_100m="forecast"))
 
     context.logger.info("Store wind prediction in database")
-    power["pid"] = pj["id"]
-    power["type"] = "wind"
-    power["algtype"] = "powerCurve"
-    power["customer"] = pj["name"]
-    power["description"] = pj["description"]
+    power[ForecastColumnName.PID.value] = pj["id"]
+    power[ForecastColumnName.TYPE.value] = "wind"
+    power[ForecastColumnName.GENERAL_TYPE.value] = "powerCurve"
+    power[ForecastColumnName.CUSTOMER.value] = pj["name"]
+    power[ForecastColumnName.DESCRIPTION.value] = pj[
+        ForecastColumnName.DESCRIPTION.value
+    ]
     context.database.write_forecast(power, t_ahead_series=True)
 
 

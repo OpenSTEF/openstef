@@ -61,6 +61,7 @@ def train_model_and_forecast_back_test(
         InputDataWrongColumnOrderError: when input data has a invalid column order.
         ValueError: when the horizon is a string and the corresponding column in not in the input data
         InputDataOngoingZeroFlatlinerError: when all recent load measurements are zero.
+
     """
     if pj.backtest_split_func is None:
         backtest_split_func = backtest_split_default
@@ -132,6 +133,7 @@ def train_model_and_forecast_test_core(
     Raises:
         NotImplementedError: When using invalid model type in the prediction job.
         InputDataWrongColumnOrderError: When 'load' column is not first and 'horizon' column is not last.
+
     """
     model = train_model.train_pipeline_step_train_model(
         pj, modelspecs, train_data, validation_data

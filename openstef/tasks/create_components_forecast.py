@@ -29,7 +29,7 @@ import pandas as pd
 import structlog
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
-from openstef.enums import MLModelType
+from openstef.enums import MLModelType, WeatherColumnName, LocationColumnName
 from openstef.exceptions import ComponentForecastTooShortHorizonError
 from openstef.pipeline.create_component_forecast import (
     create_components_forecast_pipeline,
@@ -92,10 +92,10 @@ def create_components_forecast_task(
     #  this will make this function much shorter
     # Get required weather data
     weather_data = context.database.get_weather_data(
-        [pj["lat"], pj["lon"]],
+        [pj[LocationColumnName.LAT.value], pj[LocationColumnName.LON.value]],
         [
-            "radiation",
-            "windspeed_100m",
+            WeatherColumnName.RADIATION.value,
+            WeatherColumnName.WINDSPEED_100M.value,
         ],  # These variables are used when determing the splitting coeficients, and should therefore be reused when making the component forcasts.
         datetime_start=datetime_start,
         datetime_end=datetime_end,
@@ -123,8 +123,14 @@ def create_components_forecast_task(
         max_index = forecasts.index.max()
         n_nas = dict(
             nans_load_forecast=input_data.loc[max_index:, "forecast"].isna().sum(),
-            nans_radiation=weather_data.loc[max_index:, "radiation"].isna().sum(),
-            nans_windspeed_100m=weather_data.loc[max_index:, "windspeed_100m"]
+            nans_radiation=weather_data.loc[
+                max_index:, WeatherColumnName.RADIATION.value
+            ]
+            .isna()
+            .sum(),
+            nans_windspeed_100m=weather_data.loc[
+                max_index:, WeatherColumnName.WINDSPEED_100M.value
+            ]
             .isna()
             .sum(),
         )

@@ -33,7 +33,7 @@ import structlog
 
 import openstef.monitoring.teams as monitoring
 from openstef.data_classes.prediction_job import PredictionJobDataClass
-from openstef.enums import MLModelType
+from openstef.enums import MLModelType, ForecastColumnName
 from openstef.settings import Settings
 from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstef.tasks.utils.taskcontext import TaskContext
@@ -178,7 +178,12 @@ def convert_coefdict_to_coefsdf(
 
     """
     #
-    sql_column_labels = ["pid", "date_start", "date_end", "created"]
+    sql_column_labels = [
+        ForecastColumnName.PID.value,
+        "date_start",
+        "date_end",
+        "created",
+    ]
     sql_colum_values = [
         pj["id"],
         input_split_function.index.min().date(),

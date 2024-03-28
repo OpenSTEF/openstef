@@ -20,7 +20,12 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
-from openstef.enums import MLModelType, PipelineType
+from openstef.enums import (
+    MLModelType,
+    PipelineType,
+    LocationColumnName,
+    ForecastColumnName,
+)
 from openstef.model.serializer import MLflowSerializer
 from openstef.monitoring import teams
 from openstef.pipeline.optimize_hyperparameters import optimize_hyperparameters_pipeline
@@ -93,7 +98,7 @@ def optimize_hyperparameters_task(
 
     input_data = context.database.get_model_input(
         pid=pj["id"],
-        location=[pj["lat"], pj["lon"]],
+        location=[pj[LocationColumnName.LAT.value], pj[LocationColumnName.LON.value]],
         datetime_start=datetime_start,
         datetime_end=datetime_end,
     )
@@ -107,9 +112,7 @@ def optimize_hyperparameters_task(
     )
 
     # Sent message to Teams
-    title = (
-        f'Optimized hyperparameters for prediction job {pj["name"]} {pj["description"]}'
-    )
+    title = f'Optimized hyperparameters for prediction job {pj["name"]} {pj[ForecastColumnName.DESCRIPTION.value]}'
 
     teams.post_teams(teams.format_message(title=title, params=hyperparameters))
 

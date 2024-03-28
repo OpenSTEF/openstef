@@ -4,7 +4,6 @@
 import json
 import logging
 import os
-import shutil
 from datetime import datetime
 from json import JSONDecodeError
 from typing import Optional, Union
