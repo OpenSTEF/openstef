@@ -217,9 +217,9 @@ def humidity_calculations(
                 WeatherColumnName.AIR_DENSITY.value,
             ]
         )
-        humidity_df[WeatherColumnName.SATURATION_PRESSURE.value] = calc_saturation_pressure(
-            temperature
-        )
+        humidity_df[
+            WeatherColumnName.SATURATION_PRESSURE.value
+        ] = calc_saturation_pressure(temperature)
         humidity_df[WeatherColumnName.VAPOUR_PRESSURE.value] = calc_vapour_pressure(
             rh, humidity_df.saturation_pressure
         )
@@ -366,13 +366,20 @@ def add_additional_wind_features(
             WeatherColumnName.WINDSPEED_100M_EXTRAPOLATED.value
         ] = calculate_windspeed_at_hubheight(data[WeatherColumnName.WINDSPEED.value])
 
-        data[WeatherColumnName.WIND_EXTRAPOLATED.value] = calculate_windturbine_power_output(
+        data[
+            WeatherColumnName.WIND_EXTRAPOLATED.value
+        ] = calculate_windturbine_power_output(
             data[WeatherColumnName.WINDSPEED_100M_EXTRAPOLATED.value]
         )
 
     # Do extra check
-    if WeatherColumnName.WINDSPEED_100M.value in data.columns and additional_wind_features:
-        data[WeatherColumnName.WIND_HARM_AROME.value] = calculate_windturbine_power_output(
+    if (
+        WeatherColumnName.WINDSPEED_100M.value in data.columns
+        and additional_wind_features
+    ):
+        data[
+            WeatherColumnName.WIND_HARM_AROME.value
+        ] = calculate_windturbine_power_output(
             data[WeatherColumnName.WINDSPEED_100M.value].astype(float)
         )
 
@@ -489,7 +496,10 @@ def add_additional_solar_features(
         logger.info(
             "No prediction job, default location will be used for additional radiation features."
         )
-        pj = {LocationColumnName.LAT.value: DEFAULT_LAT, LocationColumnName.LON.value: DEFAULT_LON}
+        pj = {
+            LocationColumnName.LAT.value: DEFAULT_LAT,
+            LocationColumnName.LON.value: DEFAULT_LON,
+        }
 
     # If features is none add solar feature anyway
     if feature_names is None:

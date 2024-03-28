@@ -123,7 +123,9 @@ def create_components_forecast_task(
         max_index = forecasts.index.max()
         n_nas = dict(
             nans_load_forecast=input_data.loc[max_index:, "forecast"].isna().sum(),
-            nans_radiation=weather_data.loc[max_index:, WeatherColumnName.RADIATION.value]
+            nans_radiation=weather_data.loc[
+                max_index:, WeatherColumnName.RADIATION.value
+            ]
             .isna()
             .sum(),
             nans_windspeed_100m=weather_data.loc[

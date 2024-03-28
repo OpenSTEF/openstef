@@ -42,7 +42,9 @@ def create_input(
     """
     # Prepare raw input data
     input_df = (
-        weather_data[[WeatherColumnName.RADIATION.value, WeatherColumnName.WINDSPEED_100M.value]]
+        weather_data[
+            [WeatherColumnName.RADIATION.value, WeatherColumnName.WINDSPEED_100M.value]
+        ]
         .merge(
             input_data[["forecast"]].rename(columns={"forecast": "total_load"}),
             how="inner",

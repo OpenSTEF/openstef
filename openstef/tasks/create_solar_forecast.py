@@ -66,7 +66,9 @@ def make_solar_prediction_pj(pj, context, radius=30, peak_power=180961000.0):
     power[ForecastColumnName.TYPE.value] = "solar"
     power[ForecastColumnName.GENERAL_TYPE.value] = "Fides"
     power[ForecastColumnName.CUSTOMER.value] = pj["name"]
-    power[ForecastColumnName.DESCRIPTION.value] = pj[ForecastColumnName.DESCRIPTION.value]
+    power[ForecastColumnName.DESCRIPTION.value] = pj[
+        ForecastColumnName.DESCRIPTION.value
+    ]
     context.database.write_forecast(power)
 
 

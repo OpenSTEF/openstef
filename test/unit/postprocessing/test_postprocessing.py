@@ -87,7 +87,9 @@ class TestPostProcess(BaseTestCase):
                     "2021-07-14 16:00:00+0200",
                 ]
             ),
-            data={WeatherColumnName.WINDSPEED_100M.value: [11, 1.225, 0.5666666666666667]},
+            data={
+                WeatherColumnName.WINDSPEED_100M.value: [11, 1.225, 0.5666666666666667]
+            },
         )
 
         # Act

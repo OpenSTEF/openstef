@@ -34,7 +34,9 @@ def make_wind_forecast_pj(pj: PredictionJobDataClass, context: TaskContext) -> N
     context.logger.info(
         "Get turbine data", turbine_type=pj[WeatherColumnName.TURBINE_TYPE.value]
     )
-    turbine_data = context.database.get_power_curve(pj[WeatherColumnName.TURBINE_TYPE.value])
+    turbine_data = context.database.get_power_curve(
+        pj[WeatherColumnName.TURBINE_TYPE.value]
+    )
 
     context.logger.info(
         "Get windspeed",
@@ -49,7 +51,8 @@ def make_wind_forecast_pj(pj: PredictionJobDataClass, context: TaskContext) -> N
     )
 
     context.logger.info(
-        "Calculate windturbine power", n_turbines=pj[WeatherColumnName.NUMBER_TURBINES.value]
+        "Calculate windturbine power",
+        n_turbines=pj[WeatherColumnName.NUMBER_TURBINES.value],
     )
     power = weather_features.calculate_windturbine_power_output(
         windspeed, pj[WeatherColumnName.NUMBER_TURBINES.value], turbine_data
@@ -60,7 +63,9 @@ def make_wind_forecast_pj(pj: PredictionJobDataClass, context: TaskContext) -> N
     power[ForecastColumnName.TYPE.value] = "wind"
     power[ForecastColumnName.GENERAL_TYPE.value] = "powerCurve"
     power[ForecastColumnName.CUSTOMER.value] = pj["name"]
-    power[ForecastColumnName.DESCRIPTION.value] = pj[ForecastColumnName.DESCRIPTION.value]
+    power[ForecastColumnName.DESCRIPTION.value] = pj[
+        ForecastColumnName.DESCRIPTION.value
+    ]
     context.database.write_forecast(power, t_ahead_series=True)
 
 

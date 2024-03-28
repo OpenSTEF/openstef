@@ -39,7 +39,10 @@ def normalize_and_convert_weather_data_for_splitting(
     # Check we have "windspeed_100m" and "radiation" available
     if not all(
         elem in weather_data.columns
-        for elem in [WeatherColumnName.WINDSPEED_100M.value, WeatherColumnName.RADIATION.value]
+        for elem in [
+            WeatherColumnName.WINDSPEED_100M.value,
+            WeatherColumnName.RADIATION.value,
+        ]
     ):
         raise ValueError("weather data does not contain required data!")
 
@@ -251,7 +254,9 @@ def add_prediction_job_properties_to_forecast(
     # !!!!! TODO fix the requirement for customer
     forecast[ForecastColumnName.PID.value] = pj["id"]
     forecast[ForecastColumnName.CUSTOMER.value] = pj["name"]
-    forecast[ForecastColumnName.DESCRIPTION.value] = pj[ForecastColumnName.DESCRIPTION.value]
+    forecast[ForecastColumnName.DESCRIPTION.value] = pj[
+        ForecastColumnName.DESCRIPTION.value
+    ]
     forecast[ForecastColumnName.TYPE.value] = forecast_type
     forecast[ForecastColumnName.GENERAL_TYPE.value] = algorithm_type
 
