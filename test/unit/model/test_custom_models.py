@@ -25,7 +25,7 @@ class DummyRegressor(CustomOpenstfRegressor):
     def valid_kwargs() -> list[str]:
         return []
 
-    @classmethod
+    @staticmethod
     def objective() -> Type[DummyObjective]:
         return DummyObjective
 

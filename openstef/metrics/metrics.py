@@ -291,7 +291,10 @@ def skill_score_positive_peaks(
 
 
 def franks_skill_score(
-    realised: pd.Series, forecast: pd.Series, basecase: pd.Series, range_: Optional[float] = 1.0
+    realised: pd.Series,
+    forecast: pd.Series,
+    basecase: pd.Series,
+    range_: Optional[float] = None
 ) -> float:
     """Calculate Franks skill score."""
     # Combine series in one DataFrame
