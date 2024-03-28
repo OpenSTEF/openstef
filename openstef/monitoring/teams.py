@@ -41,6 +41,9 @@ def post_teams(
     Note:
         This function is namespace-specific.
     """
+    if not Settings.post_teams_messages:
+        return
+
     structlog.configure(
         wrapper_class=structlog.make_filtering_bound_logger(
             logging.getLevelName(Settings.log_level)
