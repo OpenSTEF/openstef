@@ -23,6 +23,7 @@ from openstef.model.regressors.regressor import OpenstfRegressor
 from openstef.model.serializer import MLflowSerializer
 from openstef.model.standard_deviation_generator import StandardDeviationGenerator
 from openstef.model_selection.model_selection import split_data_train_validation_test
+from openstef.settings import Settings
 from openstef.validation import validation
 
 DEFAULT_TRAIN_HORIZONS_HOURS: list[float] = [0.25, 47.0]
@@ -31,6 +32,11 @@ MAXIMUM_MODEL_AGE: int = 7
 DEFAULT_EARLY_STOPPING_ROUNDS: int = 10
 PENALTY_FACTOR_OLD_MODEL: float = 1.2
 
+structlog.configure(
+    wrapper_class=structlog.make_filtering_bound_logger(
+        logging.getLevelName(Settings.log_level)
+    )
+)
 logger = structlog.get_logger(__name__)
 
 
@@ -59,6 +65,13 @@ def train_model_pipeline(
             - The train dataset with forecasts
             - The validation dataset with forecasts
             - The test dataset with forecasts
+
+    Raises:
+        InputDataInsufficientError: when input data is insufficient.
+        InputDataWrongColumnOrderError: when input data has a invalid column order.
+            'load' column should be first and 'horizon' column last.
+        OldModelHigherScoreError: When old model is better than new model.
+        SkipSaveTrainingForecasts: If old model is better or younger than `MAXIMUM_MODEL_AGE`, the model is not saved.
 
     """
     # Initialize serializer
@@ -164,6 +177,7 @@ def train_model_pipeline_core(
         InputDataInsufficientError: when input data is insufficient.
         InputDataWrongColumnOrderError: when input data has a invalid column order.
         OldModelHigherScoreError: When old model is better than new model.
+        InputDataOngoingZeroFlatlinerError: when all recent load measurements are zero.
 
     Returns:
         - Fitted_model (OpenstfRegressor)
@@ -172,8 +186,6 @@ def train_model_pipeline_core(
         - Datasets (tuple[pd.DataFrmae, pd.DataFrame, pd.Dataframe): The train, validation and test sets
 
     """
-    logger = structlog.get_logger(__name__)
-
     # Call common pipeline
     (
         model,
@@ -257,6 +269,8 @@ def train_pipeline_common(
     Raises:
         InputDataInsufficientError: when input data is insufficient.
         InputDataWrongColumnOrderError: when input data has a invalid column order.
+            'load' column should be first and 'horizon' column last.
+        InputDataOngoingZeroFlatlinerError: when all recent load measurements are zero.
 
     """
     data_with_features = train_pipeline_step_compute_features(
@@ -346,6 +360,7 @@ def train_pipeline_step_compute_features(
         InputDataInsufficientError: when input data is insufficient.
         InputDataWrongColumnOrderError: when input data has a invalid column order.
         ValueError: when the horizon is a string and the corresponding column in not in the input data
+        InputDataOngoingZeroFlatlinerError: when all recent load measurements are zero.
 
     """
     if input_data.empty:
@@ -418,6 +433,10 @@ def train_pipeline_step_train_model(
 
     Returns:
         The trained model
+
+    Raises:
+        NotImplementedError: When using invalid model type in the prediction job.
+        InputDataWrongColumnOrderError: When 'load' column is not first and 'horizon' column is not last.
 
     """
     # Test if first column is "load" and last column is "horizon"

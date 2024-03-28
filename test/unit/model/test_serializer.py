@@ -4,16 +4,16 @@
 
 import glob
 import tempfile
-import yaml
-from pathlib import Path
 from datetime import datetime, timedelta, UTC
 from distutils.dir_util import copy_tree
+from pathlib import Path
 from test.unit.utils.base import BaseTestCase
 from test.unit.utils.data import TestData
 from unittest.mock import MagicMock, PropertyMock, patch
 
 import numpy as np
 import pandas as pd
+import yaml
 
 from openstef.data_classes.model_specifications import ModelSpecificationDataClass
 from openstef.metrics.reporter import Report

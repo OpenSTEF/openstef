@@ -1,25 +1,27 @@
 # SPDX-FileCopyrightText: 2017-2023 Alliander N.V. <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-import structlog
-
+import logging
 from abc import ABC, abstractmethod
+from datetime import timedelta
 from typing import Optional
 
 import pandas as pd
-from datetime import timedelta
+import structlog
+
 from openstef.data_classes.model_specifications import ModelSpecificationDataClass
 from openstef.data_classes.prediction_job import PredictionJobDataClass
-from openstef.model.regressors.regressor import OpenstfRegressor
 from openstef.feature_engineering.feature_applicator import (
-    TrainFeatureApplicator,
     OperationalPredictFeatureApplicator,
+    TrainFeatureApplicator,
 )
 from openstef.feature_engineering.general import (
     enforce_feature_order,
     remove_non_requested_feature_columns,
 )
+from openstef.model.regressors.regressor import OpenstfRegressor
 from openstef.pipeline.utils import generate_forecast_datetime_range
+from openstef.settings import Settings
 
 
 class AbstractDataPreparation(ABC):
@@ -120,6 +122,11 @@ class ARDataPreparation(AbstractDataPreparation):
     def prepare_forecast_data(
         self, data: pd.DataFrame
     ) -> tuple[pd.DataFrame, pd.DataFrame]:
+        structlog.configure(
+            wrapper_class=structlog.make_filtering_bound_logger(
+                logging.getLevelName(Settings.log_level)
+            )
+        )
         logger = structlog.get_logger(__name__)
         self.check_model()
         # Prep forecast input by selecting only the forecast datetime interval (this is much smaller than the input range)

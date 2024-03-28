@@ -5,7 +5,8 @@ from datetime import datetime as dt
 from pathlib import Path
 from test.unit.utils.base import BaseTestCase
 from test.unit.utils.data import TestData
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+
 from mlflow.exceptions import MlflowException
 
 from openstef.model.serializer import MLflowSerializer

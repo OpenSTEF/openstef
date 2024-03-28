@@ -2,22 +2,18 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 from datetime import datetime, timedelta, timezone, UTC
+from pathlib import Path
 from test.unit.utils.base import BaseTestCase
 from test.unit.utils.data import TestData
+
 import joblib
-
 import pandas as pd
-
-from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).parent.parent.parent.parent.absolute()
 
+from openstef.model.regressors.dazls import Dazls
 from openstef.pipeline.create_component_forecast import (
     create_components_forecast_pipeline,
-)
-
-from openstef.model.regressors.dazls import (
-    Dazls,
 )
 
 

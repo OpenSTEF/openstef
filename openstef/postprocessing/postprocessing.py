@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+import logging
 from enum import Enum
 
 import numpy as np
@@ -10,6 +11,7 @@ import structlog
 from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.enums import ForecastType
 from openstef.feature_engineering import weather_features
+from openstef.settings import Settings
 
 # this is the default for "Lagerwey100"
 TURBINE_DATA = {
@@ -219,6 +221,11 @@ def add_prediction_job_properties_to_forecast(
         Dataframe with added metadata.
 
     """
+    structlog.configure(
+        wrapper_class=structlog.make_filtering_bound_logger(
+            logging.getLevelName(Settings.log_level)
+        )
+    )
     logger = structlog.get_logger(__name__)
 
     logger.info("Postproces in preparation of storing")
@@ -237,5 +244,27 @@ def add_prediction_job_properties_to_forecast(
     forecast["description"] = pj["description"]
     forecast["type"] = forecast_type
     forecast["algtype"] = algorithm_type
+
+    return forecast
+
+
+def sort_quantiles(
+    forecast: pd.DataFrame, quantile_col_start="quantile_P"
+) -> pd.DataFrame:
+    """Sort quantile values so quantiles do not cross.
+
+    This function assumes that all quantile columns start with 'quantile_P'
+    For more academic details on why this is mathematically sounds,
+    please refer to Quantile and Probability Curves Without Crossing (Chernozhukov, 2010)
+    """
+    p_columns = [col for col in forecast.columns if col.startswith(quantile_col_start)]
+
+    if len(p_columns) == 0:
+        return forecast
+
+    # sort the columns
+    p_columns = np.sort(p_columns)
+
+    forecast.loc[:, p_columns] = forecast[p_columns].apply(sorted, axis=1).to_list()
 
     return forecast

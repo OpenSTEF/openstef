@@ -52,6 +52,9 @@ class XGBQuantileOpenstfRegressor(OpenstfRegressor):
             alpha: Alpha
             max_delta_step: Maximum delta step
 
+        Raises:
+            ValueError in case quantile 0.5 is not in the requested quantiles
+
         """
         super().__init__()
         # Check if quantile 0.5 is pressent this is required

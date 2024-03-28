@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+import logging
 from datetime import datetime
 
 import numpy as np
@@ -11,12 +12,18 @@ from sklearn.base import RegressorMixin
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.exceptions import ModelWithoutStDev
+from openstef.settings import Settings
 
 
 class ConfidenceIntervalApplicator:
     def __init__(self, model: RegressorMixin, forecast_input_data: pd.DataFrame):
         self.model = model
         self.forecast_input_data = forecast_input_data
+        structlog.configure(
+            wrapper_class=structlog.make_filtering_bound_logger(
+                logging.getLevelName(Settings.log_level)
+            )
+        )
         self.logger = structlog.get_logger(self.__class__.__name__)
 
     def add_confidence_interval(
@@ -73,6 +80,9 @@ class ConfidenceIntervalApplicator:
         Returns:
             Forecast with added standard deviation. DataFrame with columns:
                 "forecast", "stdev"
+
+        Raises:
+            ModelWithoutStDev: If the model does not have a valid standard deviation.
 
         """
         minimal_resolution: int = 15  # Minimal time resolution in minutes

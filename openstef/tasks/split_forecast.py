@@ -22,6 +22,7 @@ Example:
         $ python split_forecast.py
 
 """
+import logging
 from datetime import datetime, UTC
 from pathlib import Path
 
@@ -33,6 +34,7 @@ import structlog
 import openstef.monitoring.teams as monitoring
 from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.enums import MLModelType
+from openstef.settings import Settings
 from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstef.tasks.utils.taskcontext import TaskContext
 
@@ -70,6 +72,11 @@ def split_forecast_task(
         Energy splitting coefficients.
 
     """
+    structlog.configure(
+        wrapper_class=structlog.make_filtering_bound_logger(
+            logging.getLevelName(Settings.log_level)
+        )
+    )
     logger = structlog.get_logger(__name__)
 
     logger.info("Start splitting energy", pid=pj["id"])

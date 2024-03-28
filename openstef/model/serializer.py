@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 import json
+import logging
 import os
 import shutil
 from datetime import datetime, UTC
@@ -20,10 +21,16 @@ from xgboost import XGBModel  # Temporary for backward compatibility
 from openstef.data_classes.model_specifications import ModelSpecificationDataClass
 from openstef.metrics.reporter import Report
 from openstef.model.regressors.regressor import OpenstfRegressor
+from openstef.settings import Settings
 
 
 class MLflowSerializer:
     def __init__(self, mlflow_tracking_uri: str):
+        structlog.configure(
+            wrapper_class=structlog.make_filtering_bound_logger(
+                logging.getLevelName(Settings.log_level)
+            )
+        )
         self.logger = structlog.get_logger(self.__class__.__name__)
         mlflow.set_tracking_uri(mlflow_tracking_uri)
         self.logger.debug(f"MLflow tracking uri at init= {mlflow_tracking_uri}")
@@ -146,6 +153,9 @@ class MLflowSerializer:
 
         Args:
             experiment_name: Name of the experiment, often the id of the predition job.
+
+        Raises:
+            LookupError: If model is not found in MLflow.
 
         """
         try:
