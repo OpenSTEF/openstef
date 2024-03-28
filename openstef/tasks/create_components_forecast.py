@@ -29,7 +29,7 @@ import pandas as pd
 import structlog
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
-from openstef.enums import MLModelType
+from openstef.enums import MLModelType, WeatherColumnName, LocationColumnName
 from openstef.exceptions import ComponentForecastTooShortHorizonError
 from openstef.pipeline.create_component_forecast import (
     create_components_forecast_pipeline,
@@ -37,7 +37,6 @@ from openstef.pipeline.create_component_forecast import (
 from openstef.settings import Settings
 from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstef.tasks.utils.taskcontext import TaskContext
-from enums import WeatherColumnName, LocationColumnName
 
 T_BEHIND_DAYS = 0
 T_AHEAD_DAYS = 3

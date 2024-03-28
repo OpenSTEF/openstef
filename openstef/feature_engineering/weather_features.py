@@ -13,7 +13,7 @@ import structlog
 from pvlib.location import Location
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
-from enums import WeatherColumnName, LocationColumnName
+from openstef.enums import WeatherColumnName, LocationColumnName
 from openstef.settings import Settings
 
 structlog.configure(

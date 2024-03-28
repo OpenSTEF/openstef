@@ -20,13 +20,17 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
-from openstef.enums import MLModelType, PipelineType
+from openstef.enums import (
+    MLModelType,
+    PipelineType,
+    LocationColumnName,
+    ForecastColumnName,
+)
 from openstef.model.serializer import MLflowSerializer
 from openstef.monitoring import teams
 from openstef.pipeline.optimize_hyperparameters import optimize_hyperparameters_pipeline
 from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstef.tasks.utils.taskcontext import TaskContext
-from enums import LocationColumnName, ForecastColumnName
 
 MAX_AGE_HYPER_PARAMS_DAYS = 31
 DEFAULT_CHECK_HYPER_PARAMS_AGE = True

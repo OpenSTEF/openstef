@@ -23,7 +23,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
-from openstef.enums import MLModelType, PipelineType
+from openstef.enums import MLModelType, PipelineType, LocationColumnName
 from openstef.exceptions import (
     InputDataOngoingZeroFlatlinerError,
     SkipSaveTrainingForecasts,
@@ -37,7 +37,6 @@ from openstef.pipeline.train_model import (
 from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstef.tasks.utils.taskcontext import TaskContext
 
-from enums import LocationColumnName
 
 TRAINING_PERIOD_DAYS: int = 120
 DEFAULT_CHECK_MODEL_AGE: bool = True

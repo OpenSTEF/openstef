@@ -22,11 +22,10 @@ from pathlib import Path
 import pandas as pd
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
-from openstef.enums import PipelineType
+from openstef.enums import PipelineType, LocationColumnName
 from openstef.pipeline.create_basecase_forecast import create_basecase_forecast_pipeline
 from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstef.tasks.utils.taskcontext import TaskContext
-from enums import LocationColumnName
 
 T_BEHIND_DAYS: int = 15
 T_AHEAD_DAYS: int = 14

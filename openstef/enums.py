@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 from enum import Enum
-from openstef.app_settings import AppSettings
+from openstef.settings import Settings
 
 
 # TODO replace this with ModelType (MLModelType == Machine Learning model type)
@@ -28,35 +28,35 @@ class PipelineType(Enum):
 
 
 class WeatherColumnName(Enum):
-    TEMPERATURE = AppSettings.weather_column_name_temperature
-    RADIATION = AppSettings.weather_column_name_radiation
-    WINDSPEED = AppSettings.weather_column_name_windspeed
-    WINDSPEED_100M = AppSettings.weather_column_name_windspeed_100m
+    TEMPERATURE = Settings.weather_column_name_temperature
+    RADIATION = Settings.weather_column_name_radiation
+    WINDSPEED = Settings.weather_column_name_windspeed
+    WINDSPEED_100M = Settings.weather_column_name_windspeed_100m
     WINDSPEED_100M_EXTRAPOLATED = (
-        AppSettings.weather_column_name_windspeed_100m_extrapolated
+        Settings.weather_column_name_windspeed_100m_extrapolated
     )
-    SATURATION_PRESSURE = AppSettings.weather_column_name_saturation_pressure
-    VAPOUR_PRESSURE = AppSettings.weather_column_name_vapour_pressure
-    DEWPOINT = AppSettings.weather_column_name_dewpoint
-    AIR_DENSITY = AppSettings.weather_column_name_air_density
-    HUMIDITY = AppSettings.weather_column_name_humidity
-    PRESSURE = AppSettings.weather_column_name_pressure
-    WIND_EXTRAPOLATED = AppSettings.weather_column_name_wind_power_fit_extrapolated
-    WIND_HARM_AROME = AppSettings.weather_column_name_wind_power_fit_harm_arome
-    WIND_HUB_HEIGHT = AppSettings.weather_column_name_wind_hub_height
-    TURBINE_TYPE = AppSettings.weather_column_name_turbine_type
-    NUMBER_TURBINES = AppSettings.weather_column_name_number_turbines
+    SATURATION_PRESSURE = Settings.weather_column_name_saturation_pressure
+    VAPOUR_PRESSURE = Settings.weather_column_name_vapour_pressure
+    DEWPOINT = Settings.weather_column_name_dewpoint
+    AIR_DENSITY = Settings.weather_column_name_air_density
+    HUMIDITY = Settings.weather_column_name_humidity
+    PRESSURE = Settings.weather_column_name_pressure
+    WIND_EXTRAPOLATED = Settings.weather_column_name_wind_power_fit_extrapolated
+    WIND_HARM_AROME = Settings.weather_column_name_wind_power_fit_harm_arome
+    WIND_HUB_HEIGHT = Settings.weather_column_name_wind_hub_height
+    TURBINE_TYPE = Settings.weather_column_name_turbine_type
+    NUMBER_TURBINES = Settings.weather_column_name_number_turbines
 
 
 class LocationColumnName(Enum):
-    LAT = AppSettings.location_column_name_latitude
-    LON = AppSettings.location_column_name_longitude
+    LAT = Settings.location_column_name_latitude
+    LON = Settings.location_column_name_longitude
 
 
 class ForecastColumnName(Enum):
-    PID = AppSettings.forecast_column_name_pid
-    CUSTOMER = AppSettings.forecast_column_name_customer
-    DESCRIPTION = AppSettings.forecast_column_name_description
-    TYPE = AppSettings.forecast_column_name_type
-    GENERAL_TYPE = AppSettings.forecast_column_name_general_type
-    HORIZON_MINUTES = AppSettings.forecast_column_name_horizon_minutes
+    PID = Settings.forecast_column_name_pid
+    CUSTOMER = Settings.forecast_column_name_customer
+    DESCRIPTION = Settings.forecast_column_name_description
+    TYPE = Settings.forecast_column_name_type
+    GENERAL_TYPE = Settings.forecast_column_name_general_type
+    HORIZON_MINUTES = Settings.forecast_column_name_horizon_minutes

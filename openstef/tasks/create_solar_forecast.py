@@ -22,7 +22,7 @@ from scipy import optimize
 from openstef import PROJECT_ROOT
 from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstef.tasks.utils.taskcontext import TaskContext
-from enums import WeatherColumnName, LocationColumnName, ForecastColumnName
+from openstef.enums import WeatherColumnName, LocationColumnName, ForecastColumnName
 
 # TODO move to config
 PV_COEFS_FILEPATH = PROJECT_ROOT / "openstef" / "data" / "pv_single_coefs.csv"
