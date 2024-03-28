@@ -5,7 +5,7 @@ import json
 import logging
 import os
 import shutil
-from datetime import datetime
+from datetime import datetime, UTC
 from json import JSONDecodeError
 from typing import Optional, Union
 from urllib.parse import unquote, urlparse
@@ -283,8 +283,7 @@ class MLflowSerializer:
         """Determines how many days ago a model is trained from the mlflow run."""
         try:
             model_datetime = run.end_time.to_pydatetime()
-            model_datetime = model_datetime.replace(tzinfo=None)
-            model_age_days = (datetime.utcnow() - model_datetime).days
+            model_age_days = (datetime.now(tz=UTC) - model_datetime).days
         except Exception as e:
             self.logger.warning(
                 "Could not get model age. Returning infinite age!", exception=str(e)

@@ -69,7 +69,7 @@ class StandardDeviationGenerator:
         # Calculate the error for each predicted point
         error = realised - predicted
         error.index = error.index.hour  # Hour only, remove the rest
-        # For the time starts with 00, 01, 02, etc. TODO (MAKE MORE ELEGANT SOLUTION THAN A LOOP)
+        # For the time starts with 00, 01, 02, etc.
         for hour in range(24):
             hour_error = error[error.index == hour]
 

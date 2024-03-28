@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 import unittest
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from test.unit.utils.base import BaseTestCase
 from test.unit.utils.data import TestData
 
@@ -43,8 +43,8 @@ class TestTrain(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
         self.pj = TestData.get_prediction_job(pid=307)
-        datetime_start = datetime.utcnow() - timedelta(days=90)
-        datetime_end = datetime.utcnow()
+        datetime_start = datetime.now(tz=UTC) - timedelta(days=90)
+        datetime_end = datetime.now(tz=UTC)
         self.data_table = TestData.load("input_data_train.csv").head(8641)
         self.data = pd.DataFrame(
             index=pd.date_range(datetime_start, datetime_end, freq="15T")

@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from test.unit.utils.base import BaseTestCase
 
 import numpy as np
@@ -16,7 +16,7 @@ from openstef.validation.validation import detect_ongoing_zero_flatliner
 class TestDetectOngoingZeroFlatliners(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
-        now = datetime.utcnow()
+        now = datetime.now(tz=UTC)
         self.three_hour_range = pd.date_range(
             start=now - timedelta(minutes=180), end=now, freq="0.25H"
         )

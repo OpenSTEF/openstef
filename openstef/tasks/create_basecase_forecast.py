@@ -16,7 +16,7 @@ Example:
         $ python create_basecase_forecast.py
 
 """
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from pathlib import Path
 
 import pandas as pd
@@ -63,8 +63,8 @@ def create_basecase_forecast_task(
         return
 
     # Define datetime range for input data
-    datetime_start = datetime.utcnow() - timedelta(days=T_BEHIND_DAYS)
-    datetime_end = datetime.utcnow() + timedelta(days=T_AHEAD_DAYS)
+    datetime_start = datetime.now(tz=UTC) - timedelta(days=T_BEHIND_DAYS)
+    datetime_end = datetime.now(tz=UTC) + timedelta(days=T_AHEAD_DAYS)
 
     # Retrieve input data
     input_data = context.database.get_model_input(
@@ -81,7 +81,7 @@ def create_basecase_forecast_task(
     # Those should be updated by regular forecast process.
     basecase_forecast = basecase_forecast.loc[
         basecase_forecast.index
-        > (pd.to_datetime(datetime.utcnow(), utc=True) + timedelta(hours=48)),
+        > (pd.to_datetime(datetime.now(tz=UTC), utc=True) + timedelta(hours=48)),
         :,
     ]
 

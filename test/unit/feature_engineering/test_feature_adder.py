@@ -75,8 +75,8 @@ class TestFeatureAdder(BaseTestCase):
         feat_disp = FeatureDispatcher([DummyFeature()])
         df_out = feat_disp.apply_features(self.input_data, feature_names)
         # Test if the features have been correctly added
-        self.assertTrue(
-            set(feature_names + list(self.input_data.columns)) == set(df_out.columns)
+        self.assertEqual(
+            set(feature_names + list(self.input_data.columns)), set(df_out.columns)
         )
         self.assertTrue((df_out["dummy_0"] == 0).all())
         self.assertTrue((df_out["dummy_-1"] == -1).all())
@@ -88,6 +88,6 @@ class TestFeatureAdder(BaseTestCase):
             ["test.unit.feature_engineering.test_feature_adder"]
         )
         adders_type = [type(adder) for adder in adders]
-        self.assertTrue(len(adders) == 2)
-        self.assertTrue(DummyFeature in adders_type)
-        self.assertTrue(DummyIntFeature in adders_type)
+        self.assertEqual(len(adders), 2)
+        self.assertIn(DummyFeature, adders_type)
+        self.assertIn(DummyIntFeature, adders_type)

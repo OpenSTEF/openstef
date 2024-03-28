@@ -397,7 +397,6 @@ def calculate_dni(radiation: pd.Series, pj: PredictionJobDataClass) -> pd.Series
     solar_zenith = solpos.apparent_zenith
 
     # convert radiation (ghi) to right unit (J/m^2 to kWh/m^2)
-    # TODO: check whether unit conversion is necessary
     ghi_forecasted = radiation / 3600
     # convert ghi to dni
     dni_converted = pvlib.irradiance.dni(

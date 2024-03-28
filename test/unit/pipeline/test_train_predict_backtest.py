@@ -50,9 +50,9 @@ class TestTrainBackTestPipeline(BaseTestCase):
             training_horizons=[0.25, 24.0],
         )
 
-        self.assertTrue("forecast" in forecast.columns)
-        self.assertTrue("realised" in forecast.columns)
-        self.assertTrue("horizon" in forecast.columns)
+        self.assertIn("forecast", forecast.columns)
+        self.assertIn("realised", forecast.columns)
+        self.assertIn("horizon", forecast.columns)
         self.assertEqual(set(forecast.horizon.unique()), {0.25, 24.0})
 
     def test_train_model_pipeline_core_happy_flow_nfold(self):
@@ -72,9 +72,9 @@ class TestTrainBackTestPipeline(BaseTestCase):
             n_folds=4,
         )
 
-        self.assertTrue("forecast" in forecast.columns)
-        self.assertTrue("realised" in forecast.columns)
-        self.assertTrue("horizon" in forecast.columns)
+        self.assertIn("forecast", forecast.columns)
+        self.assertIn("realised", forecast.columns)
+        self.assertIn("horizon", forecast.columns)
         self.assertEqual(sorted(list(forecast.horizon.unique())), [0.25, 24.0])
 
         # check if forecast is indeed of the entire range of the input data
@@ -148,9 +148,9 @@ class TestTrainBackTestPipeline(BaseTestCase):
             n_folds=4,
         )
 
-        self.assertTrue("forecast" in forecast.columns)
-        self.assertTrue("realised" in forecast.columns)
-        self.assertTrue("horizon" in forecast.columns)
+        self.assertIn("forecast", forecast.columns)
+        self.assertIn("realised", forecast.columns)
+        self.assertIn("horizon", forecast.columns)
         self.assertEqual(sorted(list(forecast.horizon.unique())), [0.25, 24.0])
 
         # check if forecast is indeed of the entire range of the input data

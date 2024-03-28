@@ -65,7 +65,7 @@ class TestXgbQuantile(BaseTestCase):
         self.assertIsNone(sklearn.utils.validation.check_is_fitted(model))
 
         # check if model is sklearn compatible
-        self.assertTrue(isinstance(model, sklearn.base.BaseEstimator))
+        self.assertIsInstance(model, sklearn.base.BaseEstimator)
 
     def test_value_error_raised(self):
         # Check if Value Error is raised when 0.5 is not in the requested quantiles list
