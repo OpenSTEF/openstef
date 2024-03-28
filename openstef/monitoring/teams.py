@@ -8,7 +8,6 @@ import pandas as pd
 import pymsteams
 import structlog
 from pymsteams import cardsection
-from app_settings import AppSettings
 
 from openstef.settings import Settings
 
@@ -42,7 +41,7 @@ def post_teams(
     Note:
         This function is namespace-specific.
     """
-    if not AppSettings.post_teams_messages:
+    if not Settings.post_teams_messages:
         return
 
     structlog.configure(
