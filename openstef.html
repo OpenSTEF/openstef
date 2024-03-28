@@ -955,11 +955,16 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef.app_settings.AppSettings.model_fields">
-<span class="sig-name descname"><span class="pre">model_fields</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">FieldInfo</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'log_level':</span> <span class="pre">FieldInfo(annotation=str,</span> <span class="pre">required=False,</span> <span class="pre">default='INFO',</span> <span class="pre">description='Log</span> <span class="pre">level</span> <span class="pre">used</span> <span class="pre">for</span> <span class="pre">logging</span> <span class="pre">statements.')}</span></em><a class="headerlink" href="#openstef.app_settings.AppSettings.model_fields" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">model_fields</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">FieldInfo</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'log_level':</span> <span class="pre">FieldInfo(annotation=str,</span> <span class="pre">required=False,</span> <span class="pre">default='INFO',</span> <span class="pre">description='Log</span> <span class="pre">level</span> <span class="pre">used</span> <span class="pre">for</span> <span class="pre">logging</span> <span class="pre">statements.'),</span> <span class="pre">'post_teams_messages':</span> <span class="pre">FieldInfo(annotation=bool,</span> <span class="pre">required=False,</span> <span class="pre">default=True)}</span></em><a class="headerlink" href="#openstef.app_settings.AppSettings.model_fields" title="Link to this definition">#</a></dt>
 <dd><p>Metadata about the fields defined on the model,
 mapping of field names to [<cite>FieldInfo</cite>][pydantic.fields.FieldInfo].</p>
 <p>This replaces <cite>Model.__fields__</cite> from Pydantic V1.</p>
 </dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.app_settings.AppSettings.post_teams_messages">
+<span class="sig-name descname"><span class="pre">post_teams_messages</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#openstef.app_settings.AppSettings.post_teams_messages" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -1231,6 +1236,15 @@ mapping of field names to [<cite>FieldInfo</cite>][pydantic.fields.FieldInfo].</
        <code class="docutils literal notranslate">
         <span class="pre">
          AppSettings.model_fields
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.app_settings.AppSettings.post_teams_messages">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         AppSettings.post_teams_messages
         </span>
        </code>
       </a>
