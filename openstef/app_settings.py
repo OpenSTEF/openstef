@@ -13,7 +13,7 @@ class AppSettings(BaseSettings):
         env_prefix="openstef_", env_file=".env", extra="ignore"
     )
 
-    post_teams_messages: str = True
+    post_teams_messages: bool = True
 
     # Logging settings.
     log_level: str = Field("INFO", description="Log level used for logging statements.")
