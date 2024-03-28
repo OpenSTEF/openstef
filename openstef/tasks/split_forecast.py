@@ -179,7 +179,7 @@ def convert_coefdict_to_coefsdf(
     """
     #
     sql_column_labels = [
-        ForecastColumnName.PID.value,
+        ForecastColumnName.PID,
         "date_start",
         "date_end",
         "created",

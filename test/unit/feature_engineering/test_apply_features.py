@@ -91,8 +91,8 @@ class TestApplyFeaturesModule(BaseTestCase):
             horizon=24,
             pj={
                 "model": "xgb",
-                LocationColumnName.LAT.value: 52.132633,
-                LocationColumnName.LON.value: 5.291266,
+                LocationColumnName.LAT: 52.132633,
+                LocationColumnName.LON: 5.291266,
             },
         )
         expected_output = TestData.load("input_data_with_features.csv")
@@ -127,8 +127,8 @@ class TestApplyFeaturesModule(BaseTestCase):
             TestData.load("input_data.csv"),
             pj={
                 "model": "proleaf",
-                LocationColumnName.LAT.value: 52.132633,
-                LocationColumnName.LON.value: 5.291266,
+                LocationColumnName.LAT: 52.132633,
+                LocationColumnName.LON: 5.291266,
             },
         )
         expected_output = TestData.load("input_data_multi_horizon_features.csv")
@@ -166,14 +166,18 @@ class TestApplyFeaturesModule(BaseTestCase):
         # Skip first row, since T-30min not available for first row
         self.assertTrue(
             input_data_with_features.loc[horizon == 47, ["APX", "T-30min"]]
-            .iloc[1:,]
+            .iloc[
+                1:,
+            ]
             .isna()
             .all()
             .all()
         )
         self.assertFalse(
             input_data_with_features.loc[horizon == 0.25, ["APX", "T-30min"]]
-            .iloc[1:,]
+            .iloc[
+                1:,
+            ]
             .isna()
             .any()
             .any()
@@ -191,9 +195,9 @@ class TestApplyFeaturesModule(BaseTestCase):
             ),
             data={
                 "load": [10, 15, 20, 15],
-                WeatherColumnName.TEMPERATURE.value: [9, 9, 9, 9],
-                WeatherColumnName.HUMIDITY.value: [1, 2, 3.0, 4.0],
-                WeatherColumnName.PRESSURE.value: [3, 4, 5, 6],
+                WeatherColumnName.TEMPERATURE: [9, 9, 9, 9],
+                WeatherColumnName.HUMIDITY: [1, 2, 3.0, 4.0],
+                WeatherColumnName.PRESSURE: [3, 4, 5, 6],
             },
         )
         input_data_with_features = apply_features.apply_features(

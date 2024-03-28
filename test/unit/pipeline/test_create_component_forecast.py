@@ -66,9 +66,7 @@ class TestComponentForecast(BaseTestCase):
     def test_component_forecast_pipeline_happy_flow(self):
         # Test happy flow
         data = TestData.load("reference_sets/307-test-data.csv")
-        weather = data[
-            [WeatherColumnName.RADIATION.value, WeatherColumnName.WINDSPEED_100M.value]
-        ]
+        weather = data[[WeatherColumnName.RADIATION, WeatherColumnName.WINDSPEED_100M]]
         forecast_input = TestData.load("forecastdf_test_add_corrections.csv")
         forecast_input["stdev"] = 0
 
@@ -99,18 +97,18 @@ class TestComponentForecast(BaseTestCase):
                 "forecast_wind_on_shore",
                 "forecast_solar",
                 "forecast_other",
-                ForecastColumnName.PID.value,
-                ForecastColumnName.CUSTOMER.value,
-                ForecastColumnName.DESCRIPTION.value,
-                ForecastColumnName.TYPE.value,
-                ForecastColumnName.GENERAL_TYPE.value,
+                ForecastColumnName.PID,
+                ForecastColumnName.CUSTOMER,
+                ForecastColumnName.DESCRIPTION,
+                ForecastColumnName.TYPE,
+                ForecastColumnName.GENERAL_TYPE,
             ],
         )
 
     def test_component_forecast_pipeline_not_all_weather_data_available(self):
         # Test happy flow
         data = TestData.load("reference_sets/307-test-data.csv")
-        weather = data[[WeatherColumnName.RADIATION.value]]
+        weather = data[[WeatherColumnName.RADIATION]]
         forecast_input = TestData.load("forecastdf_test_add_corrections.csv")
         forecast_input["stdev"] = 0
 
@@ -136,11 +134,11 @@ class TestComponentForecast(BaseTestCase):
         self.assertEqual(
             component_forecast.columns.to_list(),
             [
-                ForecastColumnName.PID.value,
-                ForecastColumnName.CUSTOMER.value,
-                ForecastColumnName.DESCRIPTION.value,
-                ForecastColumnName.TYPE.value,
-                ForecastColumnName.GENERAL_TYPE.value,
+                ForecastColumnName.PID,
+                ForecastColumnName.CUSTOMER,
+                ForecastColumnName.DESCRIPTION,
+                ForecastColumnName.TYPE,
+                ForecastColumnName.GENERAL_TYPE,
             ],
         )
         self.assertEqual(len(component_forecast), 0)

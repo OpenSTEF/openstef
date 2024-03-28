@@ -19,15 +19,15 @@ class TestSolar(BaseTestCase):
             "id": 71,
             "typ": "solar",
             "model": "latest",
-            ForecastColumnName.HORIZON_MINUTES.value: 2880,
+            ForecastColumnName.HORIZON_MINUTES: 2880,
             "resolution_minutes": 15,
             "name": "Provincies",
-            LocationColumnName.LAT.value: 52.5,
-            LocationColumnName.LON.value: 4.9,
+            LocationColumnName.LAT: 52.5,
+            LocationColumnName.LON: 4.9,
             "sid": None,
             "radius": 30,
             "peak_power": 180961000.0,
-            ForecastColumnName.DESCRIPTION.value: "",
+            ForecastColumnName.DESCRIPTION: "",
         }
 
     def test_make_solar_predicion_pj(self):

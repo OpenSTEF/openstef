@@ -52,7 +52,7 @@ def main(model_type: MLModelType = None, config=None, database=None) -> None:
         )
 
     if model_type is None:
-        model_type = [ml.value for ml in MLModelType]
+        model_type = [ml for ml in MLModelType]
 
     with TaskContext(taskname, config, database) as context:
         # Set start and end time

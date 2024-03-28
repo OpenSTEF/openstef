@@ -123,7 +123,7 @@ def train_model_task(
     # Get training input data from database
     input_data = context.database.get_model_input(
         pid=pj["id"],
-        location=[pj[LocationColumnName.LAT.value], pj[LocationColumnName.LON.value]],
+        location=[pj[LocationColumnName.LAT], pj[LocationColumnName.LON]],
         datetime_start=datetime_start,
         datetime_end=datetime_end,
     )

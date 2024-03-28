@@ -142,10 +142,10 @@ def add_humidity_features(
         humidity_features = any(
             x
             in [
-                WeatherColumnName.SATURATION_PRESSURE.value,
-                WeatherColumnName.VAPOUR_PRESSURE.value,
-                WeatherColumnName.DEWPOINT.value,
-                WeatherColumnName.AIR_DENSITY.value,
+                WeatherColumnName.SATURATION_PRESSURE,
+                WeatherColumnName.VAPOUR_PRESSURE,
+                WeatherColumnName.DEWPOINT,
+                WeatherColumnName.AIR_DENSITY,
             ]
             for x in feature_names
         )
@@ -211,22 +211,22 @@ def humidity_calculations(
     if is_series:
         humidity_df = pd.DataFrame(
             columns=[
-                WeatherColumnName.SATURATION_PRESSURE.value,
-                WeatherColumnName.VAPOUR_PRESSURE.value,
-                WeatherColumnName.DEWPOINT.value,
-                WeatherColumnName.AIR_DENSITY.value,
+                WeatherColumnName.SATURATION_PRESSURE,
+                WeatherColumnName.VAPOUR_PRESSURE,
+                WeatherColumnName.DEWPOINT,
+                WeatherColumnName.AIR_DENSITY,
             ]
         )
-        humidity_df[
-            WeatherColumnName.SATURATION_PRESSURE.value
-        ] = calc_saturation_pressure(temperature)
-        humidity_df[WeatherColumnName.VAPOUR_PRESSURE.value] = calc_vapour_pressure(
+        humidity_df[WeatherColumnName.SATURATION_PRESSURE] = calc_saturation_pressure(
+            temperature
+        )
+        humidity_df[WeatherColumnName.VAPOUR_PRESSURE] = calc_vapour_pressure(
             rh, humidity_df.saturation_pressure
         )
-        humidity_df[WeatherColumnName.DEWPOINT.value] = calc_dewpoint(
+        humidity_df[WeatherColumnName.DEWPOINT] = calc_dewpoint(
             humidity_df.vapour_pressure
         )
-        humidity_df[WeatherColumnName.AIR_DENSITY.value] = calc_air_density(
+        humidity_df[WeatherColumnName.AIR_DENSITY] = calc_air_density(
             temperature, pressure, rh
         )
 
@@ -238,10 +238,10 @@ def humidity_calculations(
     td = calc_dewpoint(pw)
     air_density = calc_air_density(temperature, pressure, rh)
     return {
-        WeatherColumnName.SATURATION_PRESSURE.value: psat,
-        WeatherColumnName.VAPOUR_PRESSURE.value: pw,
-        WeatherColumnName.DEWPOINT.value: td,
-        WeatherColumnName.AIR_DENSITY.value: air_density,
+        WeatherColumnName.SATURATION_PRESSURE: psat,
+        WeatherColumnName.VAPOUR_PRESSURE: pw,
+        WeatherColumnName.DEWPOINT: td,
+        WeatherColumnName.AIR_DENSITY: air_density,
     }
 
 
@@ -353,34 +353,27 @@ def add_additional_wind_features(
         additional_wind_features = any(
             x
             in [
-                WeatherColumnName.WINDSPEED_100M_EXTRAPOLATED.value,
-                WeatherColumnName.WIND_EXTRAPOLATED.value,
-                WeatherColumnName.WIND_HARM_AROME.value,
+                WeatherColumnName.WINDSPEED_100M_EXTRAPOLATED,
+                WeatherColumnName.WIND_EXTRAPOLATED,
+                WeatherColumnName.WIND_HARM_AROME,
             ]
             for x in feature_names
         )
 
     # Add add_additional_wind_features
-    if WeatherColumnName.WINDSPEED.value in data.columns and additional_wind_features:
+    if WeatherColumnName.WINDSPEED in data.columns and additional_wind_features:
         data[
-            WeatherColumnName.WINDSPEED_100M_EXTRAPOLATED.value
-        ] = calculate_windspeed_at_hubheight(data[WeatherColumnName.WINDSPEED.value])
+            WeatherColumnName.WINDSPEED_100M_EXTRAPOLATED
+        ] = calculate_windspeed_at_hubheight(data[WeatherColumnName.WINDSPEED])
 
-        data[
-            WeatherColumnName.WIND_EXTRAPOLATED.value
-        ] = calculate_windturbine_power_output(
-            data[WeatherColumnName.WINDSPEED_100M_EXTRAPOLATED.value]
+        data[WeatherColumnName.WIND_EXTRAPOLATED] = calculate_windturbine_power_output(
+            data[WeatherColumnName.WINDSPEED_100M_EXTRAPOLATED]
         )
 
     # Do extra check
-    if (
-        WeatherColumnName.WINDSPEED_100M.value in data.columns
-        and additional_wind_features
-    ):
-        data[
-            WeatherColumnName.WIND_HARM_AROME.value
-        ] = calculate_windturbine_power_output(
-            data[WeatherColumnName.WINDSPEED_100M.value].astype(float)
+    if WeatherColumnName.WINDSPEED_100M in data.columns and additional_wind_features:
+        data[WeatherColumnName.WIND_HARM_AROME] = calculate_windturbine_power_output(
+            data[WeatherColumnName.WINDSPEED_100M].astype(float)
         )
 
     return data
@@ -401,8 +394,8 @@ def calculate_dni(radiation: pd.Series, pj: PredictionJobDataClass) -> pd.Series
 
     """
     loc = Location(
-        pj.get(LocationColumnName.LAT.value, DEFAULT_LAT),
-        pj.get(LocationColumnName.LON.value, DEFAULT_LON),
+        pj.get(LocationColumnName.LAT, DEFAULT_LAT),
+        pj.get(LocationColumnName.LON, DEFAULT_LON),
         tz="utc",
     )
     times = radiation.index
@@ -446,8 +439,8 @@ def calculate_gti(
 
     """
     loc = Location(
-        pj.get(LocationColumnName.LAT.value, DEFAULT_LAT),
-        pj.get(LocationColumnName.LON.value, DEFAULT_LON),
+        pj.get(LocationColumnName.LAT, DEFAULT_LAT),
+        pj.get(LocationColumnName.LON, DEFAULT_LON),
         tz="utc",
     )
     times = radiation.index
@@ -497,8 +490,8 @@ def add_additional_solar_features(
             "No prediction job, default location will be used for additional radiation features."
         )
         pj = {
-            LocationColumnName.LAT.value: DEFAULT_LAT,
-            LocationColumnName.LON.value: DEFAULT_LON,
+            LocationColumnName.LAT: DEFAULT_LAT,
+            LocationColumnName.LON: DEFAULT_LON,
         }
 
     # If features is none add solar feature anyway
@@ -510,8 +503,8 @@ def add_additional_solar_features(
         additional_solar_features = any(x in ["dni", "gti"] for x in feature_names)
 
     # Add add_additional_solar_features
-    if WeatherColumnName.RADIATION.value in data.columns and additional_solar_features:
-        data["dni"] = calculate_dni(data[WeatherColumnName.RADIATION.value], pj)
-        data["gti"] = calculate_gti(data[WeatherColumnName.RADIATION.value], pj)
+    if WeatherColumnName.RADIATION in data.columns and additional_solar_features:
+        data["dni"] = calculate_dni(data[WeatherColumnName.RADIATION], pj)
+        data["gti"] = calculate_gti(data[WeatherColumnName.RADIATION], pj)
 
     return data
