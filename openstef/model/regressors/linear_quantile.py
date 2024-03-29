@@ -8,8 +8,9 @@ from sklearn.linear_model import QuantileRegressor
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.utils.validation import check_is_fitted
 
-from openstef.feature_engineering.missing_values_transformer import \
-    MissingValuesTransformer
+from openstef.feature_engineering.missing_values_transformer import (
+    MissingValuesTransformer,
+)
 from openstef.model.regressors.regressor import OpenstfRegressor
 
 DEFAULT_QUANTILES: tuple[float, ...] = (0.9, 0.5, 0.1)
@@ -36,13 +37,13 @@ class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
     }
 
     def __init__(
-            self,
-            quantiles: tuple[float, ...] = DEFAULT_QUANTILES,
-            alpha: float = 0.0,
-            solver: str = "highs",
-            missing_values: Union[int, float, str, None] = np.nan,
-            imputation_strategy: str = None,
-            fill_value: Union[str, int, float] = None,
+        self,
+        quantiles: tuple[float, ...] = DEFAULT_QUANTILES,
+        alpha: float = 0.0,
+        solver: str = "highs",
+        missing_values: Union[int, float, str, None] = np.nan,
+        imputation_strategy: str = None,
+        fill_value: Union[str, int, float] = None,
     ):
         """Initialize LinearQuantileOpenstfRegressor.
 
@@ -79,11 +80,7 @@ class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
         self.x_scaler_ = MinMaxScaler(feature_range=(-1, 1))
         self.y_scaler_ = MinMaxScaler(feature_range=(0, 1))
         self.models_ = {
-            quantile: QuantileRegressor(
-                alpha=alpha,
-                quantile=quantile,
-                solver=solver
-            )
+            quantile: QuantileRegressor(alpha=alpha, quantile=quantile, solver=solver)
             for quantile in quantiles
         }
 
@@ -116,12 +113,14 @@ class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
 
         """
         return (
-                # Ignore named features
-                feature_name in self.FEATURE_IGNORE_LIST or
-                # Ignore holiday features
-                re.match(r"is_", feature_name) is not None or
-                # Ignore log features
-                re.match(r"T-", feature_name) is not None
+            # Ignore named features
+            feature_name in self.FEATURE_IGNORE_LIST
+            or
+            # Ignore holiday features
+            re.match(r"is_", feature_name) is not None
+            or
+            # Ignore log features
+            re.match(r"T-", feature_name) is not None
         )
 
     def _remove_ignored_features(self, x: pd.DataFrame) -> pd.DataFrame:
@@ -133,9 +132,7 @@ class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
         Returns:
             Data without ignored features
         """
-        return x.drop(
-            columns=[c for c in x.columns if self._is_feature_ignored(c)]
-        )
+        return x.drop(columns=[c for c in x.columns if self._is_feature_ignored(c)])
 
     def fit(self, x: pd.DataFrame, y: pd.Series, **kwargs) -> RegressorMixin:
         """Fits linear quantile model.
@@ -156,8 +153,10 @@ class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
         # Fix nan columns
         x = self.imputer_.fit_transform(x)
         if x.isna().any().any():
-            raise ValueError("There are nan values in the input data. Set "
-                             "imputation_strategy to solve them.")
+            raise ValueError(
+                "There are nan values in the input data. Set "
+                "imputation_strategy to solve them."
+            )
 
         # Apply feature scaling
         x_scaled = self.x_scaler_.fit_transform(x)
@@ -169,9 +168,7 @@ class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
         # Fit quantile regressors
         for quantile in self.quantiles:
             self.models_[quantile].fit(
-                X=x_scaled,
-                y=y_scaled,
-                sample_weight=sample_weight
+                X=x_scaled, y=y_scaled, sample_weight=sample_weight
             )
 
         self.is_fitted_ = True
@@ -217,10 +214,12 @@ class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
         reg_feature_importances_dict = dict(
             zip(self.imputer_.non_null_feature_names, feature_importance_linear)
         )
-        return np.array([
-            reg_feature_importances_dict.get(c, 0)
-            for c in self.imputer_.in_feature_names
-        ])
+        return np.array(
+            [
+                reg_feature_importances_dict.get(c, 0)
+                for c in self.imputer_.in_feature_names
+            ]
+        )
 
     @classmethod
     def _get_param_names(cls):
@@ -235,6 +234,3 @@ class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
 
     def __sklearn_is_fitted__(self) -> bool:
         return self.is_fitted_
-
-
-

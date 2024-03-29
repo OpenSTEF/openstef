@@ -16,8 +16,10 @@ from test.unit.utils.data import TestData
 
 train_input = TestData.load("reference_sets/307-train-data.csv")
 
+
 class MockModel:
     coef_ = np.array([1, 1, 3])
+
 
 class TestLinearQuantile(BaseTestCase):
     def setUp(self) -> None:
@@ -112,9 +114,7 @@ class TestLinearQuantile(BaseTestCase):
 
         # Assert
         self.assertTrue(
-            (
-                feature_importance == np.array([1, 1, 3], dtype=np.float32)
-            ).all()
+            (feature_importance == np.array([1, 1, 3], dtype=np.float32)).all()
         )
 
     def test_ignore_features(self):
@@ -123,17 +123,16 @@ class TestLinearQuantile(BaseTestCase):
 
         input_data_engineered = apply_features(train_input)
 
-        self.assertIn('T-1d', input_data_engineered.columns)
-        self.assertIn('is_eerste_kerstdag', input_data_engineered.columns)
-        self.assertIn('IsWeekDay', input_data_engineered.columns)
-        self.assertIn('load', input_data_engineered.columns)
+        self.assertIn("T-1d", input_data_engineered.columns)
+        self.assertIn("is_eerste_kerstdag", input_data_engineered.columns)
+        self.assertIn("IsWeekDay", input_data_engineered.columns)
+        self.assertIn("load", input_data_engineered.columns)
 
         # Act
         input_data_filtered = model._remove_ignored_features(input_data_engineered)
 
         # Assert
-        self.assertNotIn('T-1d', input_data_filtered.columns)
-        self.assertNotIn('is_eerste_kerstdag', input_data_filtered.columns)
-        self.assertNotIn('IsWeekDay', input_data_filtered.columns)
-        self.assertIn('load', input_data_filtered.columns)
-
+        self.assertNotIn("T-1d", input_data_filtered.columns)
+        self.assertNotIn("is_eerste_kerstdag", input_data_filtered.columns)
+        self.assertNotIn("IsWeekDay", input_data_filtered.columns)
+        self.assertIn("load", input_data_filtered.columns)

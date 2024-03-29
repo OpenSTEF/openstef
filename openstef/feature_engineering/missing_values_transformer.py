@@ -14,10 +14,10 @@ class MissingValuesTransformer:
     non_null_feature_names: List[str] = None
 
     def __init__(
-            self,
-            missing_values: Union[int, float, str, None] = np.nan,
-            imputation_strategy: str = None,
-            fill_value: Union[str, int, float] = None,
+        self,
+        missing_values: Union[int, float, str, None] = np.nan,
+        imputation_strategy: str = None,
+        fill_value: Union[str, int, float] = None,
     ):
         """Initialize missing values handler."""
         self.missing_values = missing_values
