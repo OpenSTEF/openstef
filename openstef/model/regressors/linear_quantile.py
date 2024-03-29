@@ -1,4 +1,5 @@
-from typing import Dict, Union
+import re
+from typing import Dict, Union, Set
 
 import numpy as np
 import pandas as pd
@@ -25,6 +26,14 @@ class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
     models_: Dict[float, QuantileRegressor] = None
 
     is_fitted_: bool = False
+
+    FEATURE_IGNORE_LIST: Set[str] = {
+        "IsWeekendDay",
+        "IsWeekDay",
+        "IsSunday",
+        "Month",
+        "Quarter",
+    }
 
     def __init__(
             self,
@@ -96,6 +105,38 @@ class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
         """Attribute that indicates if the model predict particular quantiles."""
         return True
 
+    def _is_feature_ignored(self, feature_name: str) -> bool:
+        """Check if a feature is ignored by the model.
+
+        Args:
+            feature_name: Feature name
+
+        Returns:
+            True if the feature is ignored, False otherwise
+
+        """
+        return (
+                # Ignore named features
+                feature_name in self.FEATURE_IGNORE_LIST or
+                # Ignore holiday features
+                re.match(r"is_", feature_name) is not None or
+                # Ignore log features
+                re.match(r"T-", feature_name) is not None
+        )
+
+    def _remove_ignored_features(self, x: pd.DataFrame) -> pd.DataFrame:
+        """Remove ignored features from the input data.
+
+        Args:
+            x: Input data
+
+        Returns:
+            Data without ignored features
+        """
+        return x.drop(
+            columns=[c for c in x.columns if self._is_feature_ignored(c)]
+        )
+
     def fit(self, x: pd.DataFrame, y: pd.Series, **kwargs) -> RegressorMixin:
         """Fits linear quantile model.
 
@@ -109,6 +150,8 @@ class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
         """
         if type(y) != pd.Series:
             y = pd.Series(np.asarray(y), name="load")
+
+        x = self._remove_ignored_features(x)
 
         # Fix nan columns
         x = self.imputer_.fit_transform(x)
@@ -156,6 +199,7 @@ class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
         check_is_fitted(self)
 
         # Preprocess input data
+        x = self._remove_ignored_features(x)
         x = self.imputer_.transform(x)
         x_scaled = self.x_scaler_.transform(x)
 
