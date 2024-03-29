@@ -230,9 +230,6 @@ class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
             "quantiles",
             "alpha",
             "solver",
-            "missing_values",
-            "imputation_strategy",
-            "fill_value",
         ]
 
     def __sklearn_is_fitted__(self) -> bool:
