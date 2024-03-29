@@ -25,10 +25,13 @@ class PredictionJobDataClass(BaseModel):
         - ``"xgb_quantile"``
         - ``"lgb"``
         - ``"linear"``
+        - ``"linear_quantile"``
 
     If unsure what to pick, choose ``"xgb"``.
 
     """
+    model_kwargs: Optional[dict]
+    """The model parameters that should be used."""
     forecast_type: str
     """The type of forecasts that should be made.
 
