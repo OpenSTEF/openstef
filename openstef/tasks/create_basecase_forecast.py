@@ -81,7 +81,10 @@ def create_basecase_forecast_task(
     # Those should be updated by regular forecast process.
     basecase_forecast = basecase_forecast.loc[
         basecase_forecast.index
-        > (pd.to_datetime(datetime.utcnow(), utc=True) + timedelta(minutes=pj.horizon_minutes)),
+        > (
+            pd.to_datetime(datetime.utcnow(), utc=True)
+            + timedelta(minutes=pj.horizon_minutes)
+        ),
         :,
     ]
 
