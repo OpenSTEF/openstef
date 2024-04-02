@@ -45,7 +45,7 @@ class TestLinearQuantile(BaseTestCase):
         self.assertIsNone(sklearn.utils.validation.check_is_fitted(model))
 
         # check if model is sklearn compatible
-        self.assertTrue(isinstance(model, sklearn.base.BaseEstimator))
+        self.assertIsInstance(model, sklearn.base.BaseEstimator)
 
         model.predict(train_input.iloc[:, 1:])
 

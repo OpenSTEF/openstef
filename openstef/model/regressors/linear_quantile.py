@@ -27,7 +27,7 @@ class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
     imputer_: MissingValuesTransformer
     x_scaler_: MinMaxScaler
     y_scaler_: MinMaxScaler
-    models_: Dict[float, QuantileRegressor] = None
+    models_: Dict[float, QuantileRegressor]
 
     is_fitted_: bool = False
 
@@ -53,6 +53,12 @@ class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
         Model that provides quantile regression with SKLearn QuantileRegressor.
         For each desired quantile an QuantileRegressor model is trained,
         these can later be used to predict quantiles.
+
+        This model is sensitive to feature quality and therefore has logic to remove
+        some custom features produced by OpenSTEF. The features that are removed are:
+        - Holiday features (is_christmas, is_*)
+        - Lagged features (T-1d, T-*)
+        - Point in time features (IsWeekendDay, IsWeekDay, IsSunday, Month, Quarter)
 
         Args:
             quantiles: Tuple with desired quantiles, quantile 0.5 is required.
@@ -81,7 +87,7 @@ class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
             fill_value=fill_value,
         )
         self.x_scaler_ = MinMaxScaler(feature_range=(-1, 1))
-        self.y_scaler_ = MinMaxScaler(feature_range=(0, 1))
+        self.y_scaler_ = MinMaxScaler(feature_range=(-1, 1))
         self.models_ = {
             quantile: QuantileRegressor(alpha=alpha, quantile=quantile, solver=solver)
             for quantile in quantiles
@@ -122,7 +128,7 @@ class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
             # Ignore holiday features
             re.match(r"is_", feature_name) is not None
             or
-            # Ignore log features
+            # Ignore lag features
             re.match(r"T-", feature_name) is not None
         )
 
@@ -148,7 +154,7 @@ class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
             Fitted LinearQuantile model
 
         """
-        if type(y) != pd.Series:
+        if not isinstance(y, pd.Series):
             y = pd.Series(np.asarray(y), name="load")
 
         x = self._remove_ignored_features(x)
