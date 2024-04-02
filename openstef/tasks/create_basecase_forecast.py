@@ -77,11 +77,11 @@ def create_basecase_forecast_task(
     # Make basecase forecast using the corresponding pipeline
     basecase_forecast = create_basecase_forecast_pipeline(pj, input_data)
 
-    # Do not store basecase forecasts for moments within next 48 hours.
+    # Do not store basecase forecasts for moments within the prediction job's horizon.
     # Those should be updated by regular forecast process.
     basecase_forecast = basecase_forecast.loc[
         basecase_forecast.index
-        > (pd.to_datetime(datetime.utcnow(), utc=True) + timedelta(hours=48)),
+        > (pd.to_datetime(datetime.utcnow(), utc=True) + timedelta(minutes=pj.horizon_minutes)),
         :,
     ]
 
