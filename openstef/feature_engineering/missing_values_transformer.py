@@ -11,9 +11,10 @@ from sklearn.utils.validation import check_array
 
 
 class MissingValuesTransformer:
-    """
-    MissingValuesTransformer handles missing values in data by imputing them with a
-    given strategy. It also removes columns that are always null from the data.
+    """MissingValuesTransformer handles missing values in data by imputing them with a given strategy.
+
+    It also removes columns that are always null from the data.
+
     """
 
     in_feature_names: Optional[List[str]] = None
@@ -27,8 +28,7 @@ class MissingValuesTransformer:
         imputation_strategy: str = None,
         fill_value: Union[str, int, float] = None,
     ):
-        """
-        Initialize missing values handler.
+        """Initialize missing values handler.
 
         Args:
             missing_values: The placeholder for the missing values. All occurrences of
@@ -37,15 +37,14 @@ class MissingValuesTransformer:
                 Can be one of "mean", "median", "most_frequent", "constant" or None.
             fill_value: When strategy == "constant", fill_value is used to replace all
                 occurrences of missing_values.
+
         """
         self.missing_values = missing_values
         self.imputation_strategy = imputation_strategy
         self.fill_value = fill_value
 
     def fit(self, x, y=None):
-        """
-        Fit the imputer on the input data.
-        """
+        """Fit the imputer on the input data."""
         _ = check_array(x, force_all_finite="allow-nan")
         if not isinstance(x, pd.DataFrame):
             x = pd.DataFrame(np.asarray(x))
@@ -73,9 +72,7 @@ class MissingValuesTransformer:
         self.imputer_.fit(X=x, y=None)
 
     def transform(self, x) -> pd.DataFrame:
-        """
-        Transform the input data by imputing missing values.
-        """
+        """Transform the input data by imputing missing values."""
         _ = check_array(x, force_all_finite="allow-nan")
         if not isinstance(x, pd.DataFrame):
             x = pd.DataFrame(np.asarray(x))
@@ -85,11 +82,11 @@ class MissingValuesTransformer:
         return self.imputer_.transform(x)
 
     def fit_transform(self, x, y=None):
-        """
-        Fit the imputer on the input data and transform it.
+        """Fit the imputer on the input data and transform it.
 
         Returns:
             The data with missing values imputed.
+
         """
         self.fit(x, y)
         return self.transform(x)

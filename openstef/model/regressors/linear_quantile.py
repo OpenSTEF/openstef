@@ -140,6 +140,7 @@ class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
 
         Returns:
             Data without ignored features
+
         """
         return x.drop(columns=[c for c in x.columns if self._is_feature_ignored(c)])
 
