@@ -1078,6 +1078,55 @@ columns = [label, predictor_1,…, predictor_n])</p></li>
 </dd></dl>
 
 </section>
+<section id="module-openstef.feature_engineering.missing_values_transformer">
+<span id="openstef-feature-engineering-missing-values-transformer-module"></span><h2>openstef.feature_engineering.missing_values_transformer module<a class="headerlink" href="#module-openstef.feature_engineering.missing_values_transformer" title="Link to this heading">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="openstef.feature_engineering.missing_values_transformer.MissingValuesTransformer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef.feature_engineering.missing_values_transformer.</span></span><span class="sig-name descname"><span class="pre">MissingValuesTransformer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">missing_values</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">nan</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imputation_strategy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fill_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.missing_values_transformer.MissingValuesTransformer" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>MissingValuesTransformer handles missing values in data by imputing them with a given strategy.</p>
+<p>It also removes columns that are always null from the data.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef.feature_engineering.missing_values_transformer.MissingValuesTransformer.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.missing_values_transformer.MissingValuesTransformer.fit" title="Link to this definition">#</a></dt>
+<dd><p>Fit the imputer on the input data.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef.feature_engineering.missing_values_transformer.MissingValuesTransformer.fit_transform">
+<span class="sig-name descname"><span class="pre">fit_transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.missing_values_transformer.MissingValuesTransformer.fit_transform" title="Link to this definition">#</a></dt>
+<dd><p>Fit the imputer on the input data and transform it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The data with missing values imputed.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.feature_engineering.missing_values_transformer.MissingValuesTransformer.in_feature_names">
+<span class="sig-name descname"><span class="pre">in_feature_names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#openstef.feature_engineering.missing_values_transformer.MissingValuesTransformer.in_feature_names" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.feature_engineering.missing_values_transformer.MissingValuesTransformer.non_null_feature_names">
+<span class="sig-name descname"><span class="pre">non_null_feature_names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#openstef.feature_engineering.missing_values_transformer.MissingValuesTransformer.non_null_feature_names" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef.feature_engineering.missing_values_transformer.MissingValuesTransformer.transform">
+<span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.missing_values_transformer.MissingValuesTransformer.transform" title="Link to this definition">#</a></dt>
+<dd><p>Transform the input data by imputing missing values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
 <section id="module-openstef.feature_engineering.weather_features">
 <span id="openstef-feature-engineering-weather-features-module"></span><h2>openstef.feature_engineering.weather_features module<a class="headerlink" href="#module-openstef.feature_engineering.weather_features" title="Link to this heading">#</a></h2>
 <p>This module contains all wheather related functions used for feature engineering.</p>
@@ -1806,6 +1855,69 @@ if the input is numeric; a dict with the calculated moisture indices</p>
       </span>
      </code>
     </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-openstef.feature_engineering.missing_values_transformer">
+   openstef.feature_engineering.missing_values_transformer module
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#openstef.feature_engineering.missing_values_transformer.MissingValuesTransformer">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       MissingValuesTransformer
+      </span>
+     </code>
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.feature_engineering.missing_values_transformer.MissingValuesTransformer.fit">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         MissingValuesTransformer.fit()
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.feature_engineering.missing_values_transformer.MissingValuesTransformer.fit_transform">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         MissingValuesTransformer.fit_transform()
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.feature_engineering.missing_values_transformer.MissingValuesTransformer.in_feature_names">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         MissingValuesTransformer.in_feature_names
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.feature_engineering.missing_values_transformer.MissingValuesTransformer.non_null_feature_names">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         MissingValuesTransformer.non_null_feature_names
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.feature_engineering.missing_values_transformer.MissingValuesTransformer.transform">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         MissingValuesTransformer.transform()
+        </span>
+       </code>
+      </a>
+     </li>
+    </ul>
    </li>
   </ul>
  </li>

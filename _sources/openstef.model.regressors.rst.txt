@@ -44,6 +44,14 @@ openstef.model.regressors.linear module
    :undoc-members:
    :show-inheritance:
 
+openstef.model.regressors.linear\_quantile module
+-------------------------------------------------
+
+.. automodule:: openstef.model.regressors.linear_quantile
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 openstef.model.regressors.regressor module
 ------------------------------------------
 
