@@ -98,3 +98,4 @@ Please read [CODE_OF_CONDUCT.md](https://github.com/OpenSTEF/.github/blob/main/C
 
 ## Contact
 Please read [SUPPORT.md](https://github.com/OpenSTEF/.github/blob/main/SUPPORT.md) for how to connect and get into contact with the OpenSTEF project
+
