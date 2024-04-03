@@ -503,7 +503,7 @@ Alternatively this code can be run directly by running:</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openstef.tasks.calculate_kpi.check_kpi_task">
-<span class="sig-prename descclassname"><span class="pre">openstef.tasks.calculate_kpi.</span></span><span class="sig-name descname"><span class="pre">check_kpi_task</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_time</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.calculate_kpi.check_kpi_task" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">openstef.tasks.calculate_kpi.</span></span><span class="sig-name descname"><span class="pre">check_kpi_task</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold_optimizing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold_retraining</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.25</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.calculate_kpi.check_kpi_task" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
@@ -554,7 +554,7 @@ CRON job can be found in the /k8s/CronJobs folder.</p>
 </div></blockquote>
 <dl class="py function">
 <dt class="sig sig-object py" id="openstef.tasks.create_basecase_forecast.create_basecase_forecast_task">
-<span class="sig-prename descclassname"><span class="pre">openstef.tasks.create_basecase_forecast.</span></span><span class="sig-name descname"><span class="pre">create_basecase_forecast_task</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.create_basecase_forecast.create_basecase_forecast_task" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">openstef.tasks.create_basecase_forecast.</span></span><span class="sig-name descname"><span class="pre">create_basecase_forecast_task</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_behind_days</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_ahead_days</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">14</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.create_basecase_forecast.create_basecase_forecast_task" title="Link to this definition">#</a></dt>
 <dd><p>Top level task that creates a basecase forecast.</p>
 <p>On this task level all database and context manager dependencies are resolved.</p>
 <dl class="field-list simple">
@@ -562,6 +562,8 @@ CRON job can be found in the /k8s/CronJobs folder.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">PredictionJobDataClass</span></code></a>) – Prediction job</p></li>
 <li><p><strong>context</strong> (<a class="reference internal" href="openstef.tasks.utils.html#openstef.tasks.utils.taskcontext.TaskContext" title="openstef.tasks.utils.taskcontext.TaskContext"><code class="xref py py-class docutils literal notranslate"><span class="pre">TaskContext</span></code></a>) – Contect object that holds a config manager and a database connection</p></li>
+<li><p><strong>t_behind_days</strong> – number of days included as history. This is used to generated lagged features for the to-be-forecasted period</p></li>
+<li><p><strong>t_ahead_days</strong> – number of days a basecase forecast is created for</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -601,7 +603,7 @@ Alternatively this code can be run directly by running:</p>
 </div>
 <dl class="py function">
 <dt class="sig sig-object py" id="openstef.tasks.create_components_forecast.create_components_forecast_task">
-<span class="sig-prename descclassname"><span class="pre">openstef.tasks.create_components_forecast.</span></span><span class="sig-name descname"><span class="pre">create_components_forecast_task</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.create_components_forecast.create_components_forecast_task" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">openstef.tasks.create_components_forecast.</span></span><span class="sig-name descname"><span class="pre">create_components_forecast_task</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_behind_days</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_ahead_days</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.create_components_forecast.create_components_forecast_task" title="Link to this definition">#</a></dt>
 <dd><p>Top level task that creates a components forecast.</p>
 <p>On this task level all database and context manager dependencies are resolved.</p>
 <dl class="field-list simple">
@@ -609,6 +611,8 @@ Alternatively this code can be run directly by running:</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">PredictionJobDataClass</span></code></a>) – Prediction job</p></li>
 <li><p><strong>context</strong> (<a class="reference internal" href="openstef.tasks.utils.html#openstef.tasks.utils.taskcontext.TaskContext" title="openstef.tasks.utils.taskcontext.TaskContext"><code class="xref py py-class docutils literal notranslate"><span class="pre">TaskContext</span></code></a>) – Contect object that holds a config manager and a database connection</p></li>
+<li><p><strong>t_behind_days</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – number of days in the past that the component forecast is created for</p></li>
+<li><p><strong>t_ahead_days</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – number of days in the future that the component forecast is created for</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
@@ -651,7 +655,7 @@ Alternatively this code can be run directly by running:</p>
 </div>
 <dl class="py function">
 <dt class="sig sig-object py" id="openstef.tasks.create_forecast.create_forecast_task">
-<span class="sig-prename descclassname"><span class="pre">openstef.tasks.create_forecast.</span></span><span class="sig-name descname"><span class="pre">create_forecast_task</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.create_forecast.create_forecast_task" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">openstef.tasks.create_forecast.</span></span><span class="sig-name descname"><span class="pre">create_forecast_task</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_behind_days</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">14</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.tasks.create_forecast.create_forecast_task" title="Link to this definition">#</a></dt>
 <dd><p>Top level task that creates a forecast.</p>
 <p>On this task level all database and context manager dependencies are resolved.</p>
 <dl class="simple">
@@ -663,6 +667,7 @@ Alternatively this code can be run directly by running:</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">PredictionJobDataClass</span></code></a>) – Prediction job</p></li>
 <li><p><strong>context</strong> (<a class="reference internal" href="openstef.tasks.utils.html#openstef.tasks.utils.taskcontext.TaskContext" title="openstef.tasks.utils.taskcontext.TaskContext"><code class="xref py py-class docutils literal notranslate"><span class="pre">TaskContext</span></code></a>) – Contect object that holds a config manager and a database connection</p></li>
+<li><p><strong>t_behind_days</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – number of days included as history. This is used to generated lagged features for the to-be-forecasted period</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
