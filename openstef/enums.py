@@ -10,6 +10,7 @@ class MLModelType(Enum):
     XGB_QUANTILE = "xgb_quantile"
     LGB = "lgb"
     LINEAR = "linear"
+    LINEAR_QUANTILE = "linear_quantile"
     ARIMA = "arima"
 
 

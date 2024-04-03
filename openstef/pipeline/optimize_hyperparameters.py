@@ -247,7 +247,7 @@ def optuna_optimization(
         - The objective object used by optuna
 
     """
-    model = ModelCreator.create_model(pj["model"])
+    model = ModelCreator.create_model(pj["model"], **(pj.model_kwargs or {}))
     # Apply set to default hyperparameters if they are specified in the pj
     if pj.default_modelspecs:
         valid_hyper_parameters = {

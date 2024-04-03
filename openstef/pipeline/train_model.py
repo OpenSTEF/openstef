@@ -450,6 +450,7 @@ def train_pipeline_step_train_model(
     model = ModelCreator.create_model(
         pj["model"],
         quantiles=pj["quantiles"],
+        **(pj.model_kwargs or {}),
     )
 
     # split x and y data

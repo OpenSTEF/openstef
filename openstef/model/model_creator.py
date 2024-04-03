@@ -11,6 +11,7 @@ from openstef.model.regressors.arima import ARIMAOpenstfRegressor
 from openstef.model.regressors.custom_regressor import is_custom_type, load_custom_model
 from openstef.model.regressors.lgbm import LGBMOpenstfRegressor
 from openstef.model.regressors.linear import LinearOpenstfRegressor
+from openstef.model.regressors.linear_quantile import LinearQuantileOpenstfRegressor
 from openstef.model.regressors.regressor import OpenstfRegressor
 from openstef.model.regressors.xgb import XGBOpenstfRegressor
 from openstef.model.regressors.xgb_quantile import XGBQuantileOpenstfRegressor
@@ -91,6 +92,14 @@ valid_model_kwargs = {
         "imputation_strategy",
         "fill_value",
     ],
+    MLModelType.LINEAR_QUANTILE: [
+        "alpha",
+        "quantiles",
+        "solver",
+        "missing_values",
+        "imputation_strategy",
+        "fill_value",
+    ],
     MLModelType.ARIMA: [
         "backtest_max_horizon",
         "order",
@@ -109,6 +118,7 @@ class ModelCreator:
         MLModelType.LGB: LGBMOpenstfRegressor,
         MLModelType.XGB_QUANTILE: XGBQuantileOpenstfRegressor,
         MLModelType.LINEAR: LinearOpenstfRegressor,
+        MLModelType.LINEAR_QUANTILE: LinearQuantileOpenstfRegressor,
         MLModelType.ARIMA: ARIMAOpenstfRegressor,
     }
 
