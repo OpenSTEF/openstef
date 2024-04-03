@@ -72,6 +72,8 @@ def check_kpi_task(
     context: TaskContext,
     start_time: datetime,
     end_time: datetime,
+    threshold_optimizing=THRESHOLD_OPTIMIZING,
+    threshold_retraining=THRESHOLD_RETRAINING,
 ) -> None:
     # Apply default parameters if none are provided
     if start_time is None:
@@ -102,20 +104,20 @@ def check_kpi_task(
 
     # Add pid to the list of pids that should be retrained or optimized if
     # performance is insufficient
-    if kpis["47.0h"]["rMAE"] > THRESHOLD_RETRAINING:
+    if kpis["47.0h"]["rMAE"] > threshold_retraining:
         context.logger.warning(
             "Need to retrain model, retraining threshold rMAE 47h exceeded",
             t_ahead="47.0h",
             rMAE=kpis["47.0h"]["rMAE"],
-            retraining_threshold=THRESHOLD_RETRAINING,
+            retraining_threshold=threshold_retraining,
         )
 
-    if kpis["47.0h"]["rMAE"] > THRESHOLD_OPTIMIZING:
+    if kpis["47.0h"]["rMAE"] > threshold_optimizing:
         context.logger.warning(
             "Need to optimize hyperparameters, optimizing threshold rMAE 47h exceeded",
             t_ahead="47.0h",
             rMAE=kpis["47.0h"]["rMAE"],
-            optimizing_threshold=THRESHOLD_OPTIMIZING,
+            optimizing_threshold=threshold_optimizing,
         )
 
 
