@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 import re
-from typing import Dict, Union, Set
+from typing import Dict, Union, Set, Optional
 
 import numpy as np
 import pandas as pd
@@ -45,7 +45,7 @@ class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
         alpha: float = 0.0,
         solver: str = "highs",
         missing_values: Union[int, float, str, None] = np.nan,
-        imputation_strategy: str = None,
+        imputation_strategy: Optional[str] = "mean",
         fill_value: Union[str, int, float] = None,
     ):
         """Initialize LinearQuantileOpenstfRegressor.
