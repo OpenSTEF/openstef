@@ -66,10 +66,10 @@ class XGBMultiOutputQuantileOpenstfRegressor(OpenstfRegressor):
         subsample: float = 1.0,
         min_child_weight: int = 0,
         max_depth: int = 6,
-        learning_rate: float = 0.3,
+        learning_rate: float = 0.22,
         alpha: float = 0.0,
         max_delta_step: int = 0.5,
-        arctan_smoothing: float = 0.05,
+        arctan_smoothing: float = 0.055,
         early_stopping_rounds: Optional[int] = None,
     ):
         """Initialize XGBMultiQuantileRegressor.
@@ -131,7 +131,6 @@ class XGBMultiOutputQuantileOpenstfRegressor(OpenstfRegressor):
             objective=objective,
             base_score=0,
             multi_strategy="one_output_per_tree",
-            num_boost_round=100,
             **xgb_regressor_params,
         )
         self.estimator_ = TransformedTargetRegressor(
