@@ -15,6 +15,9 @@ from openstef.model.regressors.linear_quantile import LinearQuantileOpenstfRegre
 from openstef.model.regressors.regressor import OpenstfRegressor
 from openstef.model.regressors.xgb import XGBOpenstfRegressor
 from openstef.model.regressors.xgb_quantile import XGBQuantileOpenstfRegressor
+from openstef.model.regressors.xgb_multioutput_quantile import (
+    XGBMultiOutputQuantileOpenstfRegressor,
+)
 from openstef.settings import Settings
 
 structlog.configure(
@@ -87,6 +90,16 @@ valid_model_kwargs = {
         "max_depth",
         "early_stopping_rounds",
     ],
+    MLModelType.XGB_MULTIOUTPUT_QUANTILE: [
+        "quantiles",
+        "gamma",
+        "colsample_bytree",
+        "subsample",
+        "min_child_weight",
+        "max_depth",
+        "early_stopping_rounds",
+        "arctan_smoothing",
+    ],
     MLModelType.LINEAR: [
         "missing_values",
         "imputation_strategy",
@@ -117,6 +130,7 @@ class ModelCreator:
         MLModelType.XGB: XGBOpenstfRegressor,
         MLModelType.LGB: LGBMOpenstfRegressor,
         MLModelType.XGB_QUANTILE: XGBQuantileOpenstfRegressor,
+        MLModelType.XGB_MULTIOUTPUT_QUANTILE: XGBMultiOutputQuantileOpenstfRegressor,
         MLModelType.LINEAR: LinearOpenstfRegressor,
         MLModelType.LINEAR_QUANTILE: LinearQuantileOpenstfRegressor,
         MLModelType.ARIMA: ARIMAOpenstfRegressor,
