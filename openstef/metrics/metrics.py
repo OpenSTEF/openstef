@@ -453,6 +453,7 @@ def arctan_loss(y_true, y_pred, taus, s=0.1):
     Returns:
         grad: An array containing the (negative) gradients with respect to y_pred.
         hess: An array containing the second derivative with respect to y_pred.
+
     """
     size = len(y_true)
     n_dim = len(taus)  # The number of columns

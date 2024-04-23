@@ -20,9 +20,7 @@ DEFAULT_QUANTILES: tuple[float, ...] = (0.9, 0.5, 0.1)
 
 
 class XGBMultiOutputQuantileOpenstfRegressor(OpenstfRegressor):
-    """
-    Model that provides multioutput quantile regression with XGBoost by default using
-    the arctan loss function.
+    """Model that provides multioutput quantile regression with XGBoost by default using the arctan loss function.
 
     Arctan loss:
         Refence: https://github.com/LaurensSluyterman/XGBoost_quantile_regression/tree/master
@@ -30,7 +28,7 @@ class XGBMultiOutputQuantileOpenstfRegressor(OpenstfRegressor):
         pinball loss, that has a relatively large second derivative.
 
         The approximation is given by:
-        $$L^{(\text{arctan})}_{\tau, s}(u) = (\tau - 0.5 + \frac{\arctan (u/s)}{\pi})u	 + \frac{s}{\pi}$$.  # noqa E501
+        $$L^{(\text{arctan})}_{\tau, s}(u) = (\tau - 0.5 + \frac{\arctan (u/s)}{\pi})u   + \frac{s}{\pi}$$.  # noqa E501
 
         Some important settings:
 
@@ -46,6 +44,7 @@ class XGBMultiOutputQuantileOpenstfRegressor(OpenstfRegressor):
             This prevents excessive steps that could happen due to the relatively
             small second derivative.
         * For the same reason, use a slightly lower learning rate of 0.05.
+
     """
 
     estimator_: TransformedTargetRegressor
@@ -95,6 +94,7 @@ class XGBMultiOutputQuantileOpenstfRegressor(OpenstfRegressor):
 
         Raises:
             ValueError in case quantile 0.5 is not in the requested quantiles
+
         """
         super().__init__()
         if 0.5 not in quantiles:
@@ -256,5 +256,6 @@ def replicate_for_multioutput(y: np.array, num_quantiles: int) -> np.array:
 
     Returns:
         2D array with shape (len(y), num_quantiles)
+
     """
     return np.repeat(y[:, None], num_quantiles, axis=1)
