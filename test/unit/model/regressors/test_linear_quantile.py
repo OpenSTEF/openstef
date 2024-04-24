@@ -123,10 +123,16 @@ class TestLinearQuantile(BaseTestCase):
 
         input_data_engineered = apply_features(train_input)
 
+        # Add non-feature-engineerd columns that should be ignored
+        input_data_engineered["E1B_AMI_I"] = 1
+        input_data_engineered["E4A_I"] = 1
+
         self.assertIn("T-1d", input_data_engineered.columns)
         self.assertIn("is_eerste_kerstdag", input_data_engineered.columns)
         self.assertIn("IsWeekDay", input_data_engineered.columns)
         self.assertIn("load", input_data_engineered.columns)
+        self.assertIn("E1B_AMI_I", input_data_engineered.columns)
+        self.assertIn("E4A_I", input_data_engineered.columns)
 
         # Act
         input_data_filtered = model._remove_ignored_features(input_data_engineered)
@@ -135,4 +141,6 @@ class TestLinearQuantile(BaseTestCase):
         self.assertNotIn("T-1d", input_data_filtered.columns)
         self.assertNotIn("is_eerste_kerstdag", input_data_filtered.columns)
         self.assertNotIn("IsWeekDay", input_data_filtered.columns)
+        self.assertNotIn("E1B_AMI_I", input_data_filtered.columns)
+        self.assertNotIn("E4A_I", input_data_filtered.columns)
         self.assertIn("load", input_data_filtered.columns)

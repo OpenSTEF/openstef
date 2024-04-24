@@ -59,6 +59,7 @@ class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
         - Holiday features (is_christmas, is_*)
         - Lagged features (T-1d, T-*)
         - Point in time features (IsWeekendDay, IsWeekDay, IsSunday, Month, Quarter)
+        - Infeed MFFBAS profiles (E*_I)
 
         Args:
             quantiles: Tuple with desired quantiles, quantile 0.5 is required.
@@ -130,6 +131,9 @@ class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
             or
             # Ignore lag features
             re.match(r"T-", feature_name) is not None
+            or
+            # Ignore infeed MFFBAS profiles
+            re.match(r"E\d.*_I", feature_name) is not None
         )
 
     def _remove_ignored_features(self, x: pd.DataFrame) -> pd.DataFrame:
