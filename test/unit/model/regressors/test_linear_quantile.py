@@ -122,7 +122,7 @@ class TestLinearQuantile(BaseTestCase):
         model = LinearQuantileOpenstfRegressor(quantiles=(0.2, 0.3, 0.5, 0.6, 0.7))
 
         input_data_engineered = apply_features(train_input)
-        
+
         # Add non-feature-engineerd columns that should be ignored
         input_data_engineered["E1B_AMI_I"] = 1
         input_data_engineered["E4A_I"] = 1
