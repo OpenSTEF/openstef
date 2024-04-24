@@ -32,7 +32,7 @@
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=796348d33e8b1d947c94">
 
     <script src="_static/documentation_options.js?v=8a448e45"></script>
-    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'about_openstef';</script>
     <link rel="icon" href="_static/openstef.ico"/>
@@ -371,31 +371,35 @@
             <article class="bd-article" role="main">
               
   <section id="about-openstef">
-<h1>About OpenSTEF<a class="headerlink" href="#about-openstef" title="Link to this heading">#</a></h1>
+<h1>About OpenSTEF<a class="headerlink" href="#about-openstef" title="Link to this heading">¶</a></h1>
 <p>The energy transition poses new challenges to all parties within the energy sector. Grid operators, grappling with the upsurge in renewable energy and heightened electrification, find their grid capacities nearing physical limitations. Therefore, it is imperative to forecast grid load in the upcoming hours to days, enabling the anticipation of local congestion and thereby optimal utilization of existing assets.</p>
 <p>OpenSTEF provides a complete software stack specifically engineered to forecast the load on the electricity grid for the next hours to days. Given a timeseries of measured (net) load or generation, a fully automated machine learning pipeline is executed which delivers a probabilistic forecast of future load. This is applicable to energy consumption, renewable generation, or a combination of the two. OpenSTEF does not stop at forecating: it validates input data, combines measurements with external predictors such as weather data and market prices, trains any scikit-learn compatible machine learning model, and delivers the forecast via both an API and an (expert) graphical user interface.</p>
 <p>The entire stack, crafted on open-source technology and adhering to standards, is organized in a microservice architecture optimized for cloud-deployment.</p>
 <section id="features">
-<h2>Features:<a class="headerlink" href="#features" title="Link to this heading">#</a></h2>
-<a class="reference internal image-reference" href="_images/infinity.png"><img alt="_images/infinity.png" src="_images/infinity.png" style="width: 50px;" /></a>
+<h2>Features:<a class="headerlink" href="#features" title="Link to this heading">¶</a></h2>
+<a class="reference internal image-reference" href="_images/infinity.png"><img alt="_images/infinity.png" src="_images/infinity.png" style="width: 50px;" />
+</a>
 <ul class="simple">
 <li><p><strong>Resilient</strong>: As forecast availability is critical in energy sector applications OpenSTEF deploys multiple fallback stategies. This way a forecast is always available. When a fallback forecast is issued this is always labeled as such making it possible to reconstruct on which forecasts a decision is based.</p></li>
 </ul>
-<a class="reference internal image-reference" href="_images/crane.png"><img alt="_images/crane.png" src="_images/crane.png" style="width: 50px;" /></a>
+<a class="reference internal image-reference" href="_images/crane.png"><img alt="_images/crane.png" src="_images/crane.png" style="width: 50px;" />
+</a>
 <ul class="simple">
 <li><p><strong>Cloud based and platform agnostic</strong> OpenSTEF is fully containerized and runs on any container platform. A reference implementation is available that can be deployed directly. Most users will however have a unique IT landscape in which case the modular nature of OpenSTEF enables users to easily addapt openSTEF to their environment.</p></li>
 </ul>
-<a class="reference internal image-reference" href="_images/probability.png"><img alt="_images/probability.png" src="_images/probability.png" style="width: 50px;" /></a>
+<a class="reference internal image-reference" href="_images/probability.png"><img alt="_images/probability.png" src="_images/probability.png" style="width: 50px;" />
+</a>
 <ul class="simple">
 <li><p><strong>Probabilistic forecasts</strong> Making decisions can be difficult, openSTEF enables to make risk-based decisions by providing probabilistic forecasts. This way users can work towards a standard policy to react to predicted events.</p></li>
 </ul>
-<a class="reference internal image-reference" href="_images/power-source.png"><img alt="_images/power-source.png" src="_images/power-source.png" style="width: 50px;" /></a>
+<a class="reference internal image-reference" href="_images/power-source.png"><img alt="_images/power-source.png" src="_images/power-source.png" style="width: 50px;" />
+</a>
 <ul class="simple">
 <li><p><strong>Split forecasts in energy source components</strong> With an increasing fraction of renewable sources in the energy mix balancing the grid can be challenging. OpenSTEF provides insight in the fraction of wind and solar power generation. This is relevant for <a class="reference external" href="https://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2013:163:0001:0012:EN:PDF">EU commision regulation No. 543/2013</a></p></li>
 </ul>
 </section>
 <section id="repositories">
-<h2>Repositories:<a class="headerlink" href="#repositories" title="Link to this heading">#</a></h2>
+<h2>Repositories:<a class="headerlink" href="#repositories" title="Link to this heading">¶</a></h2>
 <p>There are four repositories regarding OpenSTEF:</p>
 <ul class="simple">
 <li><p>OpenSTEF: Basis of all the repositories. Automatic machine learning pipelines. Builds the Opensource Short Term Forecasting package.</p></li>
@@ -524,7 +528,7 @@
   <div class="footer-item">
     
 <p class="sphinx-version">
-Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.2.6.<br>
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.3.7.<br>
 </p>
 
   </div>

@@ -32,7 +32,7 @@
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=796348d33e8b1d947c94">
 
     <script src="_static/documentation_options.js?v=8a448e45"></script>
-    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'openstef.model.metamodels';</script>
     <link rel="icon" href="_static/openstef.ico"/>
@@ -403,16 +403,16 @@
             <article class="bd-article" role="main">
               
   <section id="openstef-model-metamodels-package">
-<h1>openstef.model.metamodels package<a class="headerlink" href="#openstef-model-metamodels-package" title="Link to this heading">#</a></h1>
+<h1>openstef.model.metamodels package<a class="headerlink" href="#openstef-model-metamodels-package" title="Link to this heading">¶</a></h1>
 <section id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">¶</a></h2>
 </section>
 <section id="module-openstef.model.metamodels.grouped_regressor">
-<span id="openstef-model-metamodels-grouped-regressor-module"></span><h2>openstef.model.metamodels.grouped_regressor module<a class="headerlink" href="#module-openstef.model.metamodels.grouped_regressor" title="Link to this heading">#</a></h2>
+<span id="openstef-model-metamodels-grouped-regressor-module"></span><h2>openstef.model.metamodels.grouped_regressor module<a class="headerlink" href="#module-openstef.model.metamodels.grouped_regressor" title="Link to this heading">¶</a></h2>
 <p>This module defines the grouped regressor.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="openstef.model.metamodels.grouped_regressor.GroupedRegressor">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef.model.metamodels.grouped_regressor.</span></span><span class="sig-name descname"><span class="pre">GroupedRegressor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_estimator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_columns</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.metamodels.grouped_regressor.GroupedRegressor" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef.model.metamodels.grouped_regressor.</span></span><span class="sig-name descname"><span class="pre">GroupedRegressor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_estimator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_columns</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.metamodels.grouped_regressor.GroupedRegressor" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseEstimator</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">RegressorMixin</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">MetaEstimatorMixin</span></code></p>
 <p>Meta-model that trains an instance of the base estimator for each key of a groupby operation applied on the data.</p>
 <p>The base estimator is a sklearn regressor, the groupby is performed on the columns specified in parameters.
@@ -448,26 +448,26 @@ or the size of the thread-pool when backend=”threading</p></li>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef.model.metamodels.grouped_regressor.GroupedRegressor.feature_names_">
-<span class="sig-name descname"><span class="pre">feature_names_</span></span><a class="headerlink" href="#openstef.model.metamodels.grouped_regressor.GroupedRegressor.feature_names_" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">feature_names_</span></span><a class="headerlink" href="#openstef.model.metamodels.grouped_regressor.GroupedRegressor.feature_names_" title="Link to this definition">¶</a></dt>
 <dd><p>All input feature (without group_columns).</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef.model.metamodels.grouped_regressor.GroupedRegressor.estimators_">
-<span class="sig-name descname"><span class="pre">estimators_</span></span><a class="headerlink" href="#openstef.model.metamodels.grouped_regressor.GroupedRegressor.estimators_" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">estimators_</span></span><a class="headerlink" href="#openstef.model.metamodels.grouped_regressor.GroupedRegressor.estimators_" title="Link to this definition">¶</a></dt>
 <dd><p>Dictionnary that stocks fitted estimators for each group.
 The keys are the keys of grouping and the values are the regressors fitted on the grouped data.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="openstef.model.metamodels.grouped_regressor.GroupedRegressor.fit">
-<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eval_set</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.metamodels.grouped_regressor.GroupedRegressor.fit" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eval_set</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.metamodels.grouped_regressor.GroupedRegressor.fit" title="Link to this definition">¶</a></dt>
 <dd><p>Fit the model.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="openstef.model.metamodels.grouped_regressor.GroupedRegressor.grouped_compute">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">grouped_compute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_columns</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eval_set</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.metamodels.grouped_regressor.GroupedRegressor.grouped_compute" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">grouped_compute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_columns</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eval_set</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.metamodels.grouped_regressor.GroupedRegressor.grouped_compute" title="Link to this definition">¶</a></dt>
 <dd><p>Computes the specified function on each group defined by the grouping columns.</p>
 <p>It is an utility function used to perform fit and predict on each group.
 The df_res is the final dataframe that aggregate the results for each
@@ -494,7 +494,7 @@ and perform the computation on this group.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="openstef.model.metamodels.grouped_regressor.GroupedRegressor.predict">
-<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.metamodels.grouped_regressor.GroupedRegressor.predict" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.metamodels.grouped_regressor.GroupedRegressor.predict" title="Link to this definition">¶</a></dt>
 <dd><p>Make a predicion.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -505,7 +505,7 @@ and perform the computation on this group.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="openstef.model.metamodels.grouped_regressor.GroupedRegressor.set_fit_request">
-<span class="sig-name descname"><span class="pre">set_fit_request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eval_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'$UNCHANGED$'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'$UNCHANGED$'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#openstef.model.metamodels.grouped_regressor.GroupedRegressor" title="openstef.model.metamodels.grouped_regressor.GroupedRegressor"><span class="pre">GroupedRegressor</span></a></span></span><a class="headerlink" href="#openstef.model.metamodels.grouped_regressor.GroupedRegressor.set_fit_request" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_fit_request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eval_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'$UNCHANGED$'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'$UNCHANGED$'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#openstef.model.metamodels.grouped_regressor.GroupedRegressor" title="openstef.model.metamodels.grouped_regressor.GroupedRegressor"><span class="pre">GroupedRegressor</span></a></span></span><a class="headerlink" href="#openstef.model.metamodels.grouped_regressor.GroupedRegressor.set_fit_request" title="Link to this definition">¶</a></dt>
 <dd><p>Request metadata passed to the <code class="docutils literal notranslate"><span class="pre">fit</span></code> method.</p>
 <p>Note that this method is only relevant if
 <code class="docutils literal notranslate"><span class="pre">enable_metadata_routing=True</span></code> (see <code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.set_config()</span></code>).
@@ -522,7 +522,7 @@ mechanism works.</p>
 existing request. This allows you to change the request for some
 parameters and not others.</p>
 <div class="versionadded">
-<p><span class="versionmodified added">New in version 1.3.</span></p>
+<p><span class="versionmodified added">Added in version 1.3.</span></p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -548,7 +548,7 @@ sub-estimator of a meta-estimator, e.g. used inside a
 
 <dl class="py method">
 <dt class="sig sig-object py" id="openstef.model.metamodels.grouped_regressor.GroupedRegressor.set_predict_request">
-<span class="sig-name descname"><span class="pre">set_predict_request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'$UNCHANGED$'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#openstef.model.metamodels.grouped_regressor.GroupedRegressor" title="openstef.model.metamodels.grouped_regressor.GroupedRegressor"><span class="pre">GroupedRegressor</span></a></span></span><a class="headerlink" href="#openstef.model.metamodels.grouped_regressor.GroupedRegressor.set_predict_request" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_predict_request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'$UNCHANGED$'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#openstef.model.metamodels.grouped_regressor.GroupedRegressor" title="openstef.model.metamodels.grouped_regressor.GroupedRegressor"><span class="pre">GroupedRegressor</span></a></span></span><a class="headerlink" href="#openstef.model.metamodels.grouped_regressor.GroupedRegressor.set_predict_request" title="Link to this definition">¶</a></dt>
 <dd><p>Request metadata passed to the <code class="docutils literal notranslate"><span class="pre">predict</span></code> method.</p>
 <p>Note that this method is only relevant if
 <code class="docutils literal notranslate"><span class="pre">enable_metadata_routing=True</span></code> (see <code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.set_config()</span></code>).
@@ -565,7 +565,7 @@ mechanism works.</p>
 existing request. This allows you to change the request for some
 parameters and not others.</p>
 <div class="versionadded">
-<p><span class="versionmodified added">New in version 1.3.</span></p>
+<p><span class="versionmodified added">Added in version 1.3.</span></p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -588,7 +588,7 @@ sub-estimator of a meta-estimator, e.g. used inside a
 
 <dl class="py method">
 <dt class="sig sig-object py" id="openstef.model.metamodels.grouped_regressor.GroupedRegressor.set_score_request">
-<span class="sig-name descname"><span class="pre">set_score_request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'$UNCHANGED$'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#openstef.model.metamodels.grouped_regressor.GroupedRegressor" title="openstef.model.metamodels.grouped_regressor.GroupedRegressor"><span class="pre">GroupedRegressor</span></a></span></span><a class="headerlink" href="#openstef.model.metamodels.grouped_regressor.GroupedRegressor.set_score_request" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_score_request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'$UNCHANGED$'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#openstef.model.metamodels.grouped_regressor.GroupedRegressor" title="openstef.model.metamodels.grouped_regressor.GroupedRegressor"><span class="pre">GroupedRegressor</span></a></span></span><a class="headerlink" href="#openstef.model.metamodels.grouped_regressor.GroupedRegressor.set_score_request" title="Link to this definition">¶</a></dt>
 <dd><p>Request metadata passed to the <code class="docutils literal notranslate"><span class="pre">score</span></code> method.</p>
 <p>Note that this method is only relevant if
 <code class="docutils literal notranslate"><span class="pre">enable_metadata_routing=True</span></code> (see <code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.set_config()</span></code>).
@@ -605,7 +605,7 @@ mechanism works.</p>
 existing request. This allows you to change the request for some
 parameters and not others.</p>
 <div class="versionadded">
-<p><span class="versionmodified added">New in version 1.3.</span></p>
+<p><span class="versionmodified added">Added in version 1.3.</span></p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -630,11 +630,11 @@ sub-estimator of a meta-estimator, e.g. used inside a
 
 </section>
 <section id="module-openstef.model.metamodels.missing_values_handler">
-<span id="openstef-model-metamodels-missing-values-handler-module"></span><h2>openstef.model.metamodels.missing_values_handler module<a class="headerlink" href="#module-openstef.model.metamodels.missing_values_handler" title="Link to this heading">#</a></h2>
+<span id="openstef-model-metamodels-missing-values-handler-module"></span><h2>openstef.model.metamodels.missing_values_handler module<a class="headerlink" href="#module-openstef.model.metamodels.missing_values_handler" title="Link to this heading">¶</a></h2>
 <p>This module defines the missing value handler.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="openstef.model.metamodels.missing_values_handler.MissingValuesHandler">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef.model.metamodels.missing_values_handler.</span></span><span class="sig-name descname"><span class="pre">MissingValuesHandler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_estimator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">missing_values</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">nan</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imputation_strategy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fill_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.metamodels.missing_values_handler.MissingValuesHandler" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef.model.metamodels.missing_values_handler.</span></span><span class="sig-name descname"><span class="pre">MissingValuesHandler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_estimator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">missing_values</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">nan</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imputation_strategy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fill_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.metamodels.missing_values_handler.MissingValuesHandler" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseEstimator</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">RegressorMixin</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">MetaEstimatorMixin</span></code></p>
 <p>Class for a meta-models that handles missing values and removes columns filled exclusively by NaN.</p>
 <p>It’s a pipeline of:</p>
@@ -672,65 +672,65 @@ data and “missing_value” for strings or object data types.</p></li>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef.model.metamodels.missing_values_handler.MissingValuesHandler.feature_names">
-<span class="sig-name descname"><span class="pre">feature_names</span></span><a class="headerlink" href="#openstef.model.metamodels.missing_values_handler.MissingValuesHandler.feature_names" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">feature_names</span></span><a class="headerlink" href="#openstef.model.metamodels.missing_values_handler.MissingValuesHandler.feature_names" title="Link to this definition">¶</a></dt>
 <dd><p>All input feature.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef.model.metamodels.missing_values_handler.MissingValuesHandler.non_null_columns_">
-<span class="sig-name descname"><span class="pre">non_null_columns_</span></span><a class="headerlink" href="#openstef.model.metamodels.missing_values_handler.MissingValuesHandler.non_null_columns_" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">non_null_columns_</span></span><a class="headerlink" href="#openstef.model.metamodels.missing_values_handler.MissingValuesHandler.non_null_columns_" title="Link to this definition">¶</a></dt>
 <dd><p>Valid features used by the regressor.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef.model.metamodels.missing_values_handler.MissingValuesHandler.n_features_in_">
-<span class="sig-name descname"><span class="pre">n_features_in_</span></span><a class="headerlink" href="#openstef.model.metamodels.missing_values_handler.MissingValuesHandler.n_features_in_" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">n_features_in_</span></span><a class="headerlink" href="#openstef.model.metamodels.missing_values_handler.MissingValuesHandler.n_features_in_" title="Link to this definition">¶</a></dt>
 <dd><p>Number of input features.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef.model.metamodels.missing_values_handler.MissingValuesHandler.regressor_">
-<span class="sig-name descname"><span class="pre">regressor_</span></span><a class="headerlink" href="#openstef.model.metamodels.missing_values_handler.MissingValuesHandler.regressor_" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">regressor_</span></span><a class="headerlink" href="#openstef.model.metamodels.missing_values_handler.MissingValuesHandler.regressor_" title="Link to this definition">¶</a></dt>
 <dd><p>RegressorMixin
 Regressor fitted on valid columns.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef.model.metamodels.missing_values_handler.MissingValuesHandler.imputer_">
-<span class="sig-name descname"><span class="pre">imputer_</span></span><a class="headerlink" href="#openstef.model.metamodels.missing_values_handler.MissingValuesHandler.imputer_" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">imputer_</span></span><a class="headerlink" href="#openstef.model.metamodels.missing_values_handler.MissingValuesHandler.imputer_" title="Link to this definition">¶</a></dt>
 <dd><p>SimpleImputer
 Imputer for missig value fitted on valid columns.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef.model.metamodels.missing_values_handler.MissingValuesHandler.pipeline_">
-<span class="sig-name descname"><span class="pre">pipeline_</span></span><a class="headerlink" href="#openstef.model.metamodels.missing_values_handler.MissingValuesHandler.pipeline_" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">pipeline_</span></span><a class="headerlink" href="#openstef.model.metamodels.missing_values_handler.MissingValuesHandler.pipeline_" title="Link to this definition">¶</a></dt>
 <dd><p>Pipeline
 Pipeline that chains the imputer and the regressor.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef.model.metamodels.missing_values_handler.MissingValuesHandler.feature_importances_">
-<span class="sig-name descname"><span class="pre">feature_importances_</span></span><a class="headerlink" href="#openstef.model.metamodels.missing_values_handler.MissingValuesHandler.feature_importances_" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">feature_importances_</span></span><a class="headerlink" href="#openstef.model.metamodels.missing_values_handler.MissingValuesHandler.feature_importances_" title="Link to this definition">¶</a></dt>
 <dd><p>ndarray (<a href="#id1"><span class="problematic" id="id2">n_features_in_</span></a>, )
 The feature importances from the regressor for valid features and zero otherwise.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="openstef.model.metamodels.missing_values_handler.MissingValuesHandler.fit">
-<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.metamodels.missing_values_handler.MissingValuesHandler.fit" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.metamodels.missing_values_handler.MissingValuesHandler.fit" title="Link to this definition">¶</a></dt>
 <dd><p>Fit model.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="openstef.model.metamodels.missing_values_handler.MissingValuesHandler.predict">
-<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.metamodels.missing_values_handler.MissingValuesHandler.predict" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.metamodels.missing_values_handler.MissingValuesHandler.predict" title="Link to this definition">¶</a></dt>
 <dd><p>Make a prediction.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="openstef.model.metamodels.missing_values_handler.MissingValuesHandler.set_fit_request">
-<span class="sig-name descname"><span class="pre">set_fit_request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'$UNCHANGED$'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#openstef.model.metamodels.missing_values_handler.MissingValuesHandler" title="openstef.model.metamodels.missing_values_handler.MissingValuesHandler"><span class="pre">MissingValuesHandler</span></a></span></span><a class="headerlink" href="#openstef.model.metamodels.missing_values_handler.MissingValuesHandler.set_fit_request" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_fit_request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'$UNCHANGED$'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#openstef.model.metamodels.missing_values_handler.MissingValuesHandler" title="openstef.model.metamodels.missing_values_handler.MissingValuesHandler"><span class="pre">MissingValuesHandler</span></a></span></span><a class="headerlink" href="#openstef.model.metamodels.missing_values_handler.MissingValuesHandler.set_fit_request" title="Link to this definition">¶</a></dt>
 <dd><p>Request metadata passed to the <code class="docutils literal notranslate"><span class="pre">fit</span></code> method.</p>
 <p>Note that this method is only relevant if
 <code class="docutils literal notranslate"><span class="pre">enable_metadata_routing=True</span></code> (see <code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.set_config()</span></code>).
@@ -747,7 +747,7 @@ mechanism works.</p>
 existing request. This allows you to change the request for some
 parameters and not others.</p>
 <div class="versionadded">
-<p><span class="versionmodified added">New in version 1.3.</span></p>
+<p><span class="versionmodified added">Added in version 1.3.</span></p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -770,7 +770,7 @@ sub-estimator of a meta-estimator, e.g. used inside a
 
 <dl class="py method">
 <dt class="sig sig-object py" id="openstef.model.metamodels.missing_values_handler.MissingValuesHandler.set_predict_request">
-<span class="sig-name descname"><span class="pre">set_predict_request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'$UNCHANGED$'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#openstef.model.metamodels.missing_values_handler.MissingValuesHandler" title="openstef.model.metamodels.missing_values_handler.MissingValuesHandler"><span class="pre">MissingValuesHandler</span></a></span></span><a class="headerlink" href="#openstef.model.metamodels.missing_values_handler.MissingValuesHandler.set_predict_request" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_predict_request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'$UNCHANGED$'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#openstef.model.metamodels.missing_values_handler.MissingValuesHandler" title="openstef.model.metamodels.missing_values_handler.MissingValuesHandler"><span class="pre">MissingValuesHandler</span></a></span></span><a class="headerlink" href="#openstef.model.metamodels.missing_values_handler.MissingValuesHandler.set_predict_request" title="Link to this definition">¶</a></dt>
 <dd><p>Request metadata passed to the <code class="docutils literal notranslate"><span class="pre">predict</span></code> method.</p>
 <p>Note that this method is only relevant if
 <code class="docutils literal notranslate"><span class="pre">enable_metadata_routing=True</span></code> (see <code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.set_config()</span></code>).
@@ -787,7 +787,7 @@ mechanism works.</p>
 existing request. This allows you to change the request for some
 parameters and not others.</p>
 <div class="versionadded">
-<p><span class="versionmodified added">New in version 1.3.</span></p>
+<p><span class="versionmodified added">Added in version 1.3.</span></p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -810,7 +810,7 @@ sub-estimator of a meta-estimator, e.g. used inside a
 
 <dl class="py method">
 <dt class="sig sig-object py" id="openstef.model.metamodels.missing_values_handler.MissingValuesHandler.set_score_request">
-<span class="sig-name descname"><span class="pre">set_score_request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'$UNCHANGED$'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#openstef.model.metamodels.missing_values_handler.MissingValuesHandler" title="openstef.model.metamodels.missing_values_handler.MissingValuesHandler"><span class="pre">MissingValuesHandler</span></a></span></span><a class="headerlink" href="#openstef.model.metamodels.missing_values_handler.MissingValuesHandler.set_score_request" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_score_request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'$UNCHANGED$'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#openstef.model.metamodels.missing_values_handler.MissingValuesHandler" title="openstef.model.metamodels.missing_values_handler.MissingValuesHandler"><span class="pre">MissingValuesHandler</span></a></span></span><a class="headerlink" href="#openstef.model.metamodels.missing_values_handler.MissingValuesHandler.set_score_request" title="Link to this definition">¶</a></dt>
 <dd><p>Request metadata passed to the <code class="docutils literal notranslate"><span class="pre">score</span></code> method.</p>
 <p>Note that this method is only relevant if
 <code class="docutils literal notranslate"><span class="pre">enable_metadata_routing=True</span></code> (see <code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.set_config()</span></code>).
@@ -827,7 +827,7 @@ mechanism works.</p>
 existing request. This allows you to change the request for some
 parameters and not others.</p>
 <div class="versionadded">
-<p><span class="versionmodified added">New in version 1.3.</span></p>
+<p><span class="versionmodified added">Added in version 1.3.</span></p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -852,7 +852,7 @@ sub-estimator of a meta-estimator, e.g. used inside a
 
 </section>
 <section id="module-openstef.model.metamodels">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-openstef.model.metamodels" title="Link to this heading">#</a></h2>
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-openstef.model.metamodels" title="Link to this heading">¶</a></h2>
 </section>
 </section>
 
@@ -1189,7 +1189,7 @@ sub-estimator of a meta-estimator, e.g. used inside a
   <div class="footer-item">
     
 <p class="sphinx-version">
-Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.2.6.<br>
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.3.7.<br>
 </p>
 
   </div>

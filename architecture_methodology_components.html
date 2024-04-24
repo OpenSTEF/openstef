@@ -32,7 +32,7 @@
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=796348d33e8b1d947c94">
 
     <script src="_static/documentation_options.js?v=8a448e45"></script>
-    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'architecture_methodology_components';</script>
@@ -372,13 +372,14 @@
             <article class="bd-article" role="main">
               
   <section id="architecture-methodology-and-components">
-<span id="concepts"></span><h1>Architecture, Methodology, and Components<a class="headerlink" href="#architecture-methodology-and-components" title="Link to this heading">#</a></h1>
+<span id="concepts"></span><h1>Architecture, Methodology, and Components<a class="headerlink" href="#architecture-methodology-and-components" title="Link to this heading">¶</a></h1>
 <p>Understanding the architecture of OpenSTEF will help you gain insight on how to use this software package
 and better understand the rest of the documentation.</p>
 <section id="software-architecture">
-<h2>Software architecture<a class="headerlink" href="#software-architecture" title="Link to this heading">#</a></h2>
+<h2>Software architecture<a class="headerlink" href="#software-architecture" title="Link to this heading">¶</a></h2>
 <p>OpenSTEF is set up as a Python package that performs machine learning in order to forecast energy loads on the energy grid.</p>
-<a class="reference internal image-reference" href="_images/software_arch.png"><img alt="_images/software_arch.png" src="_images/software_arch.png" style="width: 830px;" /></a>
+<a class="reference internal image-reference" href="_images/software_arch.png"><img alt="_images/software_arch.png" src="_images/software_arch.png" style="width: 830px;" />
+</a>
 <p>OpenSTEF contains:</p>
 <ul class="simple">
 <li><p><strong>Prediction job</strong>: input configuration for a task and/or pipeline
@@ -405,7 +406,7 @@ Currently, openstef-dbc supports interfaces for a MySQL database for configurati
 </section>
 </section>
 <section id="high-level-methodology-openstef">
-<h1>High level methodology OpenSTEF<a class="headerlink" href="#high-level-methodology-openstef" title="Link to this heading">#</a></h1>
+<h1>High level methodology OpenSTEF<a class="headerlink" href="#high-level-methodology-openstef" title="Link to this heading">¶</a></h1>
 <p>OpenSTEF automates many typical activities in machine learning.
 These include the combination of input data and preparation of features.
 Furthermore, the train and predict methodology of OpenSTEF allows
@@ -425,9 +426,10 @@ on how to the confidence estimations should be used.</p>
 <div class="line"><br /></div>
 </div>
 <section id="application-architecture">
-<span id="id1"></span><h2>Application architecture<a class="headerlink" href="#application-architecture" title="Link to this heading">#</a></h2>
+<span id="id1"></span><h2>Application architecture<a class="headerlink" href="#application-architecture" title="Link to this heading">¶</a></h2>
 <p>OpenSTEF is simply a software package (i.e. a Python library). If you’re looking to run it as a full application with a graphical user interface frontend, you must deploy it with additional components.</p>
-<a class="reference internal image-reference" href="https://user-images.githubusercontent.com/25053215/184536367-c7914697-7a2a-45b8-b447-36aec1a6c1af.png"><img alt="https://user-images.githubusercontent.com/25053215/184536367-c7914697-7a2a-45b8-b447-36aec1a6c1af.png" src="https://user-images.githubusercontent.com/25053215/184536367-c7914697-7a2a-45b8-b447-36aec1a6c1af.png" style="width: 800px;" /></a>
+<a class="reference internal image-reference" href="https://user-images.githubusercontent.com/25053215/184536367-c7914697-7a2a-45b8-b447-36aec1a6c1af.png"><img alt="https://user-images.githubusercontent.com/25053215/184536367-c7914697-7a2a-45b8-b447-36aec1a6c1af.png" src="https://user-images.githubusercontent.com/25053215/184536367-c7914697-7a2a-45b8-b447-36aec1a6c1af.png" style="width: 800px;" />
+</a>
 <p>Here are the recommended additional components if you want to run it as an application:</p>
 <ul class="simple">
 <li><p>Github repositories:</p>
@@ -449,14 +451,15 @@ on how to the confidence estimations should be used.</p>
 <li><p><strong>Database</strong>: SQL, InfluxDB, or other database that stores fetched input data and forecasts.</p></li>
 <li><p><strong>Dashboard</strong>: graphical user interface dashboard that allows uers to visualize application data (e.g. historic and forecasted energy loads)</p></li>
 </ul>
-<a class="reference internal image-reference" href="https://user-images.githubusercontent.com/60883372/146760483-29af3ac7-62af-4f13-98c7-982a79c517d1.jpg"><img alt="Screenshot of the operational dashboard showing the key functionality of OpenSTEF." src="https://user-images.githubusercontent.com/60883372/146760483-29af3ac7-62af-4f13-98c7-982a79c517d1.jpg" style="width: 800px;" /></a>
+<a class="reference internal image-reference" href="https://user-images.githubusercontent.com/60883372/146760483-29af3ac7-62af-4f13-98c7-982a79c517d1.jpg"><img alt="Screenshot of the operational dashboard showing the key functionality of OpenSTEF." src="https://user-images.githubusercontent.com/60883372/146760483-29af3ac7-62af-4f13-98c7-982a79c517d1.jpg" style="width: 800px;" />
+</a>
 <div class="line-block">
 <div class="line"><br /></div>
 </div>
 </section>
 </section>
 <section id="split-forecast-domain-adaptation-for-zero-shot-learning-in-sequence-dazls">
-<h1>Split forecast: Domain Adaptation for Zero Shot Learning in Sequence (DAZLS)<a class="headerlink" href="#split-forecast-domain-adaptation-for-zero-shot-learning-in-sequence-dazls" title="Link to this heading">#</a></h1>
+<h1>Split forecast: Domain Adaptation for Zero Shot Learning in Sequence (DAZLS)<a class="headerlink" href="#split-forecast-domain-adaptation-for-zero-shot-learning-in-sequence-dazls" title="Link to this heading">¶</a></h1>
 <p>DAZLS is an energy splitting function in OpenSTEF. Is a technique which
 transfers knowledge from complete-information substations to
 incomplete-information substations for solar and wind power prediction.
@@ -485,7 +488,7 @@ substations.</p>
 <figure class="align-default" id="id2">
 <img alt="Presentation3" src="https://user-images.githubusercontent.com/66070103/189650328-377ebb79-e8a7-40c6-acf3-64a5bb6197a4.jpg" />
 <figcaption>
-<p><span class="caption-text">Domain Adaptation Model</span><a class="headerlink" href="#id2" title="Link to this image">#</a></p>
+<p><span class="caption-text">Domain Adaptation Model</span><a class="headerlink" href="#id2" title="Link to this image">¶</a></p>
 </figcaption>
 </figure>
 <p>For more information about DAZLS model, see:</p>
@@ -506,9 +509,10 @@ newly produced dazls_stored.sav file in the repository.</p>
 </div>
 </section>
 <section id="overview-of-relational-database">
-<h1>Overview of relational database<a class="headerlink" href="#overview-of-relational-database" title="Link to this heading">#</a></h1>
+<h1>Overview of relational database<a class="headerlink" href="#overview-of-relational-database" title="Link to this heading">¶</a></h1>
 <p>OpenSTEF uses a relational database to store information about prediction jobs and measurements. An ER diagram of this database is shown below.</p>
-<a class="reference internal image-reference" href="_images/mysql_er_diagram.png"><img alt="_images/mysql_er_diagram.png" src="_images/mysql_er_diagram.png" style="width: 6.3in; height: 4.24236in;" /></a>
+<a class="reference internal image-reference" href="_images/mysql_er_diagram.png"><img alt="_images/mysql_er_diagram.png" src="_images/mysql_er_diagram.png" style="width: 6.3in; height: 4.24236in;" />
+</a>
 <p>The necessary tables are described in more detail bellow:</p>
 <table class="table">
 <thead>
@@ -1122,7 +1126,7 @@ correct height.</p>
 </div>
 </section>
 <section id="overview-of-timeseries-database-schema">
-<h1>Overview of timeseries database schema<a class="headerlink" href="#overview-of-timeseries-database-schema" title="Link to this heading">#</a></h1>
+<h1>Overview of timeseries database schema<a class="headerlink" href="#overview-of-timeseries-database-schema" title="Link to this heading">¶</a></h1>
 <p>OpenSTEF uses a timeseries database to store all timeseries data. A diagram of its structure is shown bellow.</p>
 <figure class="align-default">
 <img alt="Diagram InlfuxDB" src="_images/influx_database_diagram.png" />
@@ -1275,7 +1279,7 @@ correct height.</p>
   <div class="footer-item">
     
 <p class="sphinx-version">
-Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.2.6.<br>
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.3.7.<br>
 </p>
 
   </div>

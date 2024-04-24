@@ -32,7 +32,7 @@
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=796348d33e8b1d947c94">
 
     <script src="_static/documentation_options.js?v=8a448e45"></script>
-    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'openstef.validation';</script>
     <link rel="icon" href="_static/openstef.ico"/>
@@ -403,15 +403,15 @@
             <article class="bd-article" role="main">
               
   <section id="openstef-validation-package">
-<h1>openstef.validation package<a class="headerlink" href="#openstef-validation-package" title="Link to this heading">#</a></h1>
+<h1>openstef.validation package<a class="headerlink" href="#openstef-validation-package" title="Link to this heading">¶</a></h1>
 <section id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">¶</a></h2>
 </section>
 <section id="module-openstef.validation.validation">
-<span id="openstef-validation-validation-module"></span><h2>openstef.validation.validation module<a class="headerlink" href="#module-openstef.validation.validation" title="Link to this heading">#</a></h2>
+<span id="openstef-validation-validation-module"></span><h2>openstef.validation.validation module<a class="headerlink" href="#module-openstef.validation.validation" title="Link to this heading">¶</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="openstef.validation.validation.calc_completeness_dataframe">
-<span class="sig-prename descclassname"><span class="pre">openstef.validation.validation.</span></span><span class="sig-name descname"><span class="pre">calc_completeness_dataframe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_delayed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">homogenise</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.validation.validation.calc_completeness_dataframe" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">openstef.validation.validation.</span></span><span class="sig-name descname"><span class="pre">calc_completeness_dataframe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_delayed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">homogenise</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.validation.validation.calc_completeness_dataframe" title="Link to this definition">¶</a></dt>
 <dd><p>Calculate the completeness of each column in dataframe.</p>
 <p>NOTE: NA values count as incomplete</p>
 <dl class="field-list simple">
@@ -434,7 +434,7 @@ only available for DatetimeIndex</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openstef.validation.validation.calc_completeness_features">
-<span class="sig-prename descclassname"><span class="pre">openstef.validation.validation.</span></span><span class="sig-name descname"><span class="pre">calc_completeness_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_delayed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">homogenise</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.validation.validation.calc_completeness_features" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">openstef.validation.validation.</span></span><span class="sig-name descname"><span class="pre">calc_completeness_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_delayed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">homogenise</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.validation.validation.calc_completeness_features" title="Link to this definition">¶</a></dt>
 <dd><p>Calculate the (weighted) completeness of a dataframe.</p>
 <p>NOTE: NA values count as incomplete</p>
 <dl class="field-list simple">
@@ -459,7 +459,7 @@ only available for DatetimeIndex</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openstef.validation.validation.detect_ongoing_zero_flatliner">
-<span class="sig-prename descclassname"><span class="pre">openstef.validation.validation.</span></span><span class="sig-name descname"><span class="pre">detect_ongoing_zero_flatliner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">load</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration_threshold_minutes</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.validation.validation.detect_ongoing_zero_flatliner" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">openstef.validation.validation.</span></span><span class="sig-name descname"><span class="pre">detect_ongoing_zero_flatliner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">load</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration_threshold_minutes</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.validation.validation.detect_ongoing_zero_flatliner" title="Link to this definition">¶</a></dt>
 <dd><p>Detects if the latest measurements follow a zero flatliner pattern.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -479,7 +479,7 @@ only available for DatetimeIndex</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openstef.validation.validation.drop_target_na">
-<span class="sig-prename descclassname"><span class="pre">openstef.validation.validation.</span></span><span class="sig-name descname"><span class="pre">drop_target_na</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.validation.validation.drop_target_na" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">openstef.validation.validation.</span></span><span class="sig-name descname"><span class="pre">drop_target_na</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.validation.validation.drop_target_na" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
@@ -489,7 +489,7 @@ only available for DatetimeIndex</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openstef.validation.validation.is_data_sufficient">
-<span class="sig-prename descclassname"><span class="pre">openstef.validation.validation.</span></span><span class="sig-name descname"><span class="pre">is_data_sufficient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">completeness_threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minimal_table_length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.validation.validation.is_data_sufficient" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">openstef.validation.validation.</span></span><span class="sig-name descname"><span class="pre">is_data_sufficient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">completeness_threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minimal_table_length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.validation.validation.is_data_sufficient" title="Link to this definition">¶</a></dt>
 <dd><p>Check if enough data is left after validation and cleaning to continue with model training.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -512,7 +512,7 @@ only available for DatetimeIndex</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openstef.validation.validation.validate">
-<span class="sig-prename descclassname"><span class="pre">openstef.validation.validation.</span></span><span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pj_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flatliner_threshold_minutes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resolution_minutes</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.validation.validation.validate" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">openstef.validation.validation.</span></span><span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pj_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flatliner_threshold_minutes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resolution_minutes</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.validation.validation.validate" title="Link to this definition">¶</a></dt>
 <dd><p>Validate prediction job and timeseries data.</p>
 <p>Steps:
 1. Check if input dataframe has a datetime index.
@@ -542,7 +542,7 @@ if None, the validation is effectively skipped</p></li>
 
 </section>
 <section id="module-openstef.validation">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-openstef.validation" title="Link to this heading">#</a></h2>
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-openstef.validation" title="Link to this heading">¶</a></h2>
 </section>
 </section>
 
@@ -724,7 +724,7 @@ if None, the validation is effectively skipped</p></li>
   <div class="footer-item">
     
 <p class="sphinx-version">
-Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.2.6.<br>
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.3.7.<br>
 </p>
 
   </div>

@@ -32,7 +32,7 @@
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=796348d33e8b1d947c94">
 
     <script src="_static/documentation_options.js?v=8a448e45"></script>
-    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'pipelines_user_guide';</script>
     <link rel="icon" href="_static/openstef.ico"/>
@@ -369,7 +369,7 @@
             <article class="bd-article" role="main">
               
   <section id="pipelines-user-guide">
-<span id="pipeline-user-guide"></span><h1>Pipelines user guide<a class="headerlink" href="#pipelines-user-guide" title="Link to this heading">#</a></h1>
+<span id="pipeline-user-guide"></span><h1>Pipelines user guide<a class="headerlink" href="#pipelines-user-guide" title="Link to this heading">¶</a></h1>
 <p>As mentioned in the <a class="reference internal" href="architecture_methodology_components.html#concepts"><span class="std std-ref">concepts</span></a> section, tasks are an extension of pipelines, that include getting data from a database,
 raising task exceptions, and writing data to a database. In an operational setting, both tasks and pipelines can be used.
 The main difference is that an operational application that leverages OpenSTEF’s tasks fuctionality is easier to implement,
@@ -377,7 +377,7 @@ whereas the pipeline functionality offers more flexibility in terms of design an
 <p>To illustrate the task as well as the pipeline <a class="reference internal" href="architecture_methodology_components.html#concepts"><span class="std std-ref">concept</span></a>, code snippets for both implementations are presented below.
 These code snippets show two different ways in which OpenSTEF’s pipeline functionality can be integrated within an application that runs in an operational setting.</p>
 <section id="task-implementation">
-<h2>Task implementation<a class="headerlink" href="#task-implementation" title="Link to this heading">#</a></h2>
+<h2>Task implementation<a class="headerlink" href="#task-implementation" title="Link to this heading">¶</a></h2>
 <p>Let’s first have a look at the task implementation, which is also the way it is done in the <a class="reference external" href="https://github.com/OpenSTEF/openstef-reference">GitHub repository containing the reference implementation</a>.
 In the case that model training, hyperparameter tuning, or forecasting is supposed to be ran according to a certain schedule, using CronJobs for example,
 the task implementation is easy to set up.
@@ -386,7 +386,7 @@ meaning that the databases have to be set up according to the <a class="referenc
 Below, code snippets are shown for different types of tasks that demonstrate the use of OpenSTEF’s task functionality.</p>
 <p>Note that, apart from the imports, the implementation is the same for each type of task. The <cite>config</cite> object is a <cite>pydantic.BaseSettings</cite> object holding all relevanyt configuration such as usernames, secrets and hosts etc.</p>
 <section id="train-model-task-implementation">
-<h3>Train model task implementation<a class="headerlink" href="#train-model-task-implementation" title="Link to this heading">#</a></h3>
+<h3>Train model task implementation<a class="headerlink" href="#train-model-task-implementation" title="Link to this heading">¶</a></h3>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 
@@ -408,7 +408,7 @@ Below, code snippets are shown for different types of tasks that demonstrate the
 </div>
 </section>
 <section id="create-forecast-task-implementation">
-<h3>Create forecast task implementation<a class="headerlink" href="#create-forecast-task-implementation" title="Link to this heading">#</a></h3>
+<h3>Create forecast task implementation<a class="headerlink" href="#create-forecast-task-implementation" title="Link to this heading">¶</a></h3>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 
@@ -430,7 +430,7 @@ Below, code snippets are shown for different types of tasks that demonstrate the
 </div>
 </section>
 <section id="optimize-hyperparameters-task-implementation">
-<h3>Optimize hyperparameters task implementation<a class="headerlink" href="#optimize-hyperparameters-task-implementation" title="Link to this heading">#</a></h3>
+<h3>Optimize hyperparameters task implementation<a class="headerlink" href="#optimize-hyperparameters-task-implementation" title="Link to this heading">¶</a></h3>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 
 <span class="kn">from</span> <span class="nn">openstef.tasks</span> <span class="kn">import</span> <span class="n">optimize_hyperparameters</span> <span class="k">as</span> <span class="n">task</span>
@@ -451,7 +451,7 @@ Below, code snippets are shown for different types of tasks that demonstrate the
 </div>
 </section>
 <section id="create-components-forecast-task-implementation">
-<h3>Create components forecast task implementation<a class="headerlink" href="#create-components-forecast-task-implementation" title="Link to this heading">#</a></h3>
+<h3>Create components forecast task implementation<a class="headerlink" href="#create-components-forecast-task-implementation" title="Link to this heading">¶</a></h3>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 
 <span class="kn">from</span> <span class="nn">openstef.tasks</span> <span class="kn">import</span> <span class="n">create_components_forecast</span> <span class="k">as</span> <span class="n">task</span>
@@ -472,7 +472,7 @@ Below, code snippets are shown for different types of tasks that demonstrate the
 </div>
 </section>
 <section id="create-base-case-forecast-task-implementation">
-<h3>Create base case forecast task implementation<a class="headerlink" href="#create-base-case-forecast-task-implementation" title="Link to this heading">#</a></h3>
+<h3>Create base case forecast task implementation<a class="headerlink" href="#create-base-case-forecast-task-implementation" title="Link to this heading">¶</a></h3>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 
 <span class="kn">from</span> <span class="nn">openstef.tasks</span> <span class="kn">import</span> <span class="n">create_basecase_forecast</span> <span class="k">as</span> <span class="n">task</span>
@@ -494,7 +494,7 @@ Below, code snippets are shown for different types of tasks that demonstrate the
 </section>
 </section>
 <section id="pipeline-implementation">
-<h2>Pipeline implementation<a class="headerlink" href="#pipeline-implementation" title="Link to this heading">#</a></h2>
+<h2>Pipeline implementation<a class="headerlink" href="#pipeline-implementation" title="Link to this heading">¶</a></h2>
 <p>The pipeline implementation does not rely on <a class="reference external" href="https://pypi.org/project/openstef-dbc/">the OpenSTEF database connector</a>, <code class="docutils literal notranslate"><span class="pre">openstef-dbc</span></code>.
 Therefore, pipelines can be used together with any kind of database setup, unlike tasks,
 which require databases to be implemented according to the <a class="reference external" href="https://github.com/OpenSTEF/openstef-reference">reference implementation</a>.</p>
@@ -719,7 +719,7 @@ The code snippet below shows how OpenSTEF pipelines can be integrated into an AP
   <div class="footer-item">
     
 <p class="sphinx-version">
-Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.2.6.<br>
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.3.7.<br>
 </p>
 
   </div>

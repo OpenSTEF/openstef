@@ -32,7 +32,7 @@
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=796348d33e8b1d947c94">
 
     <script src="_static/documentation_options.js?v=8a448e45"></script>
-    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'openstef.monitoring';</script>
     <link rel="icon" href="_static/openstef.ico"/>
@@ -403,19 +403,19 @@
             <article class="bd-article" role="main">
               
   <section id="openstef-monitoring-package">
-<h1>openstef.monitoring package<a class="headerlink" href="#openstef-monitoring-package" title="Link to this heading">#</a></h1>
+<h1>openstef.monitoring package<a class="headerlink" href="#openstef-monitoring-package" title="Link to this heading">¶</a></h1>
 <section id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">¶</a></h2>
 </section>
 <section id="module-openstef.monitoring.performance_meter">
-<span id="openstef-monitoring-performance-meter-module"></span><h2>openstef.monitoring.performance_meter module<a class="headerlink" href="#module-openstef.monitoring.performance_meter" title="Link to this heading">#</a></h2>
+<span id="openstef-monitoring-performance-meter-module"></span><h2>openstef.monitoring.performance_meter module<a class="headerlink" href="#module-openstef.monitoring.performance_meter" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="openstef.monitoring.performance_meter.PerformanceMeter">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef.monitoring.performance_meter.</span></span><span class="sig-name descname"><span class="pre">PerformanceMeter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logger</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.monitoring.performance_meter.PerformanceMeter" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef.monitoring.performance_meter.</span></span><span class="sig-name descname"><span class="pre">PerformanceMeter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logger</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.monitoring.performance_meter.PerformanceMeter" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="openstef.monitoring.performance_meter.PerformanceMeter.checkpoint">
-<span class="sig-name descname"><span class="pre">checkpoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name_checkpoint</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.monitoring.performance_meter.PerformanceMeter.checkpoint" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">checkpoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name_checkpoint</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.monitoring.performance_meter.PerformanceMeter.checkpoint" title="Link to this definition">¶</a></dt>
 <dd><p>Creates a timing checkpoint and logs the runtime from the previous one.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -433,7 +433,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="openstef.monitoring.performance_meter.PerformanceMeter.complete_level">
-<span class="sig-name descname"><span class="pre">complete_level</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">successful</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.monitoring.performance_meter.PerformanceMeter.complete_level" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">complete_level</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">successful</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.monitoring.performance_meter.PerformanceMeter.complete_level" title="Link to this definition">¶</a></dt>
 <dd><p>Completes the most inner level and logs the total runtime of that level.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -450,7 +450,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="openstef.monitoring.performance_meter.PerformanceMeter.start_level">
-<span class="sig-name descname"><span class="pre">start_level</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">level_label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level_name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.monitoring.performance_meter.PerformanceMeter.start_level" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">start_level</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">level_label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level_name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.monitoring.performance_meter.PerformanceMeter.start_level" title="Link to this definition">¶</a></dt>
 <dd><p>Enters a new level in the performance meter and logs it.</p>
 <p>This function also creates a checkpoint on the newly created level.</p>
 <dl class="field-list simple">
@@ -471,10 +471,10 @@
 
 </section>
 <section id="module-openstef.monitoring.teams">
-<span id="openstef-monitoring-teams-module"></span><h2>openstef.monitoring.teams module<a class="headerlink" href="#module-openstef.monitoring.teams" title="Link to this heading">#</a></h2>
+<span id="openstef-monitoring-teams-module"></span><h2>openstef.monitoring.teams module<a class="headerlink" href="#module-openstef.monitoring.teams" title="Link to this heading">¶</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="openstef.monitoring.teams.build_sql_query_string">
-<span class="sig-prename descclassname"><span class="pre">openstef.monitoring.teams.</span></span><span class="sig-name descname"><span class="pre">build_sql_query_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.monitoring.teams.build_sql_query_string" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">openstef.monitoring.teams.</span></span><span class="sig-name descname"><span class="pre">build_sql_query_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.monitoring.teams.build_sql_query_string" title="Link to this definition">¶</a></dt>
 <dd><p>Build sql insert query string for Teams message output from df.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -494,7 +494,7 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openstef.monitoring.teams.format_message">
-<span class="sig-prename descclassname"><span class="pre">openstef.monitoring.teams.</span></span><span class="sig-name descname"><span class="pre">format_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">title</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fallback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.monitoring.teams.format_message" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">openstef.monitoring.teams.</span></span><span class="sig-name descname"><span class="pre">format_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">title</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fallback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.monitoring.teams.format_message" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
@@ -504,7 +504,7 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openstef.monitoring.teams.get_card_section">
-<span class="sig-prename descclassname"><span class="pre">openstef.monitoring.teams.</span></span><span class="sig-name descname"><span class="pre">get_card_section</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">section_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.monitoring.teams.get_card_section" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">openstef.monitoring.teams.</span></span><span class="sig-name descname"><span class="pre">get_card_section</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">section_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.monitoring.teams.get_card_section" title="Link to this definition">¶</a></dt>
 <dd><p>Get card section for teams message from dictionary.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -515,7 +515,7 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openstef.monitoring.teams.post_teams">
-<span class="sig-prename descclassname"><span class="pre">openstef.monitoring.teams.</span></span><span class="sig-name descname"><span class="pre">post_teams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">invalid_coefficients</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coefficients_df</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proxies</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.monitoring.teams.post_teams" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">openstef.monitoring.teams.</span></span><span class="sig-name descname"><span class="pre">post_teams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">invalid_coefficients</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coefficients_df</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proxies</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.monitoring.teams.post_teams" title="Link to this definition">¶</a></dt>
 <dd><p>Post a message to Teams - KTP.</p>
 <p>Note that currently no authentication occurs.
 Security is given by keeping the URL secret.
@@ -550,7 +550,7 @@ coefficients. Defaults to None.</p></li>
 
 </section>
 <section id="module-openstef.monitoring">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-openstef.monitoring" title="Link to this heading">#</a></h2>
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-openstef.monitoring" title="Link to this heading">¶</a></h2>
 </section>
 </section>
 
@@ -759,7 +759,7 @@ coefficients. Defaults to None.</p></li>
   <div class="footer-item">
     
 <p class="sphinx-version">
-Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.2.6.<br>
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.3.7.<br>
 </p>
 
   </div>
