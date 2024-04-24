@@ -355,7 +355,8 @@ class XGBMultioutputQuantileRegressorObjective(RegressorObjective):
         self.model_type = MLModelType.XGB_QUANTILE
 
     def get_params(self, trial: optuna.trial.FrozenTrial) -> dict:
-        """Get parameters for XGBQuantile Regressor Objective with objective specific parameters.
+        """Get parameters for XGB Multioutput Quantile Regressor Objective with
+        objective specific parameters.
 
         Args: trial
 

@@ -80,21 +80,20 @@ class XGBMultiOutputQuantileOpenstfRegressor(OpenstfRegressor):
         Args:
             quantiles: Tuple with desired quantiles, quantile 0.5 is required.
                 For example: (0.1, 0.5, 0.9)
-            gamma: Gamma
-            colsample_bytree: Colsample by tree
-            subsample: Subsample
-            min_child_weight: Minimum child weight
-            max_depth: Maximum depth
-            learning_rate: Learning rate
-            alpha: Alpha
-            max_delta_step: Maximum delta step
-            arctan_smoothing: smoothing parameter of the arctan loss function
+            gamma: Gamma.
+            colsample_bytree: Colsample by tree.
+            subsample: Subsample.
+            min_child_weight: Minimum child weight.
+            max_depth: Maximum depth.
+            learning_rate: Learning rate.
+            alpha: Alpha.
+            max_delta_step: Maximum delta step.
+            arctan_smoothing: smoothing parameter of the arctan loss function.
             early_stopping_rounds: Number of rounds to stop training if no improvement
-                is made
+                is made.
 
         Raises:
-            ValueError in case quantile 0.5 is not in the requested quantiles
-
+            ValueError in case quantile 0.5 is not in the requested quantiles.
         """
         super().__init__()
         if 0.5 not in quantiles:
@@ -153,13 +152,13 @@ class XGBMultiOutputQuantileOpenstfRegressor(OpenstfRegressor):
         """Fits xgb quantile model.
 
         Args:
-            x: Feature matrix
-            y: Labels
-            eval_set: Evaluation set to monitor training performance
-            verbose: Verbosity level (disabled by default)
+            x: Feature matrix.
+            y: Labels.
+            eval_set: Evaluation set to monitor training performance.
+            verbose: Verbosity level (disabled by default).
 
         Returns:
-            Fitted XGBQuantile model
+            Fitted XGBQuantile model.
 
         """
         if isinstance(y, pd.Series):
@@ -205,16 +204,16 @@ class XGBMultiOutputQuantileOpenstfRegressor(OpenstfRegressor):
         """Makes a prediction for a desired quantile.
 
         Args:
-            x: Feature matrix
+            x: Feature matrix.
             quantile: Quantile for which a prediciton is desired,
                 note that only quantile are available for which a model is trained,
-                and that this is a quantile-model specific keyword
+                and that this is a quantile-model specific keyword.
 
         Returns:
-            Prediction
+            Prediction.
 
         Raises:
-            ValueError in case no model is trained for the requested quantile
+            ValueError in case no model is trained for the requested quantile.
 
         """
         # Check if model is trained for this quantile
@@ -251,11 +250,10 @@ def replicate_for_multioutput(y: np.array, num_quantiles: int) -> np.array:
     """Replicates a 1D array to a 2D array for multioutput regression.
 
     Args:
-        y: 1D array
-        num_quantiles: Number of columns in the output array
+        y: 1D array.
+        num_quantiles: Number of columns in the output array.
 
     Returns:
         2D array with shape (len(y), num_quantiles)
-
     """
     return np.repeat(y[:, None], num_quantiles, axis=1)

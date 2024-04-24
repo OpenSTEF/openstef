@@ -76,7 +76,10 @@ class TestXgbMultiOutputQuantile(BaseTestCase):
     def test_set_params(self):
         # Check hyperparameters are set correctly and do not cause errors
 
-        model = XGBMultiOutputQuantileOpenstfRegressor((0.2, 0.3, 0.5, 0.6, 0.7))
+        model = XGBMultiOutputQuantileOpenstfRegressor(
+            quantiles=(0.2, 0.3, 0.5, 0.6, 0.7),
+            arctan_smoothing=0.42,
+        )
 
         hyperparams = {
             "subsample": "0.9",
@@ -85,6 +88,7 @@ class TestXgbMultiOutputQuantile(BaseTestCase):
             "gamma": "0.37879654",
             "colsample_bytree": "0.78203051",
             "training_period_days": "90",
+            "arctan_smoothing": "0.42",
         }
         valid_hyper_parameters = {
             key: value
