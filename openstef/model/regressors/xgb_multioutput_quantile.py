@@ -94,6 +94,7 @@ class XGBMultiOutputQuantileOpenstfRegressor(OpenstfRegressor):
 
         Raises:
             ValueError in case quantile 0.5 is not in the requested quantiles.
+
         """
         super().__init__()
         if 0.5 not in quantiles:
@@ -255,5 +256,6 @@ def replicate_for_multioutput(y: np.array, num_quantiles: int) -> np.array:
 
     Returns:
         2D array with shape (len(y), num_quantiles)
+
     """
     return np.repeat(y[:, None], num_quantiles, axis=1)
