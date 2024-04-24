@@ -127,6 +127,8 @@ class TestLinearQuantile(BaseTestCase):
         self.assertIn("is_eerste_kerstdag", input_data_engineered.columns)
         self.assertIn("IsWeekDay", input_data_engineered.columns)
         self.assertIn("load", input_data_engineered.columns)
+        self.assertIn("E1B_AMI_I", input_data_engineered.columns)
+        self.assertIn("E4A_I", input_data_engineered.columns)
 
         # Act
         input_data_filtered = model._remove_ignored_features(input_data_engineered)
