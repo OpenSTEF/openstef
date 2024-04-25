@@ -444,7 +444,7 @@ def arctan_loss(y_true, y_pred, taus, s=0.1):
     and second derivatives. Legibility was chosen over efficiency. This part
     can be made more efficient.
 
-    Parameters:
+    Args:
         y_true: An array containing the true observations.
         y_pred: An array containing the predicted quantiles.
         taus: A list containing the true desired coverage of the quantiles.

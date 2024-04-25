@@ -20,7 +20,7 @@ DEFAULT_QUANTILES: tuple[float, ...] = (0.9, 0.5, 0.1)
 
 
 class XGBMultiOutputQuantileOpenstfRegressor(OpenstfRegressor):
-    """Model that provides multioutput quantile regression with XGBoost by default using the arctan loss function.
+    r"""Model that provides multioutput quantile regression with XGBoost by default using the arctan loss function.
 
     Arctan loss:
         Refence: https://github.com/LaurensSluyterman/XGBoost_quantile_regression/tree/master
