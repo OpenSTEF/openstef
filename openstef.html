@@ -595,6 +595,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="openstef.metrics.html#module-openstef.metrics.metrics">openstef.metrics.metrics module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="openstef.metrics.html#openstef.metrics.metrics.arctan_loss"><code class="docutils literal notranslate"><span class="pre">arctan_loss()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef.metrics.html#openstef.metrics.metrics.bias"><code class="docutils literal notranslate"><span class="pre">bias()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef.metrics.html#openstef.metrics.metrics.frac_in_stdev"><code class="docutils literal notranslate"><span class="pre">frac_in_stdev()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef.metrics.html#openstef.metrics.metrics.franks_skill_score"><code class="docutils literal notranslate"><span class="pre">franks_skill_score()</span></code></a></li>
@@ -647,6 +648,7 @@
 <li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#module-openstef.model.regressors.linear_quantile">openstef.model.regressors.linear_quantile module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#module-openstef.model.regressors.regressor">openstef.model.regressors.regressor module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#module-openstef.model.regressors.xgb">openstef.model.regressors.xgb module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#module-openstef.model.regressors.xgb_multioutput_quantile">openstef.model.regressors.xgb_multioutput_quantile module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#module-openstef.model.regressors.xgb_quantile">openstef.model.regressors.xgb_quantile module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#module-openstef.model.regressors">Module contents</a></li>
 </ul>
@@ -705,6 +707,11 @@
 <li class="toctree-l4"><a class="reference internal" href="openstef.model.html#openstef.model.objective.RegressorObjective.get_params"><code class="docutils literal notranslate"><span class="pre">RegressorObjective.get_params()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef.model.html#openstef.model.objective.RegressorObjective.get_pruning_callback"><code class="docutils literal notranslate"><span class="pre">RegressorObjective.get_pruning_callback()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef.model.html#openstef.model.objective.RegressorObjective.get_trial_track"><code class="docutils literal notranslate"><span class="pre">RegressorObjective.get_trial_track()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="openstef.model.html#openstef.model.objective.XGBMultioutputQuantileRegressorObjective"><code class="docutils literal notranslate"><span class="pre">XGBMultioutputQuantileRegressorObjective</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef.model.html#openstef.model.objective.XGBMultioutputQuantileRegressorObjective.get_params"><code class="docutils literal notranslate"><span class="pre">XGBMultioutputQuantileRegressorObjective.get_params()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef.model.html#openstef.model.objective.XGBMultioutputQuantileRegressorObjective.get_pruning_callback"><code class="docutils literal notranslate"><span class="pre">XGBMultioutputQuantileRegressorObjective.get_pruning_callback()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="openstef.model.html#openstef.model.objective.XGBQuantileRegressorObjective"><code class="docutils literal notranslate"><span class="pre">XGBQuantileRegressorObjective</span></code></a><ul>
@@ -1042,6 +1049,11 @@ mapping of field names to [<cite>FieldInfo</cite>][pydantic.fields.FieldInfo].</
 <dd></dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.MLModelType.XGB_MULTIOUTPUT_QUANTILE">
+<span class="sig-name descname"><span class="pre">XGB_MULTIOUTPUT_QUANTILE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'xgb_multioutput_quantile'</span></em><a class="headerlink" href="#openstef.enums.MLModelType.XGB_MULTIOUTPUT_QUANTILE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="openstef.enums.MLModelType.XGB_QUANTILE">
 <span class="sig-name descname"><span class="pre">XGB_QUANTILE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'xgb_quantile'</span></em><a class="headerlink" href="#openstef.enums.MLModelType.XGB_QUANTILE" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -1373,6 +1385,15 @@ mapping of field names to [<cite>FieldInfo</cite>][pydantic.fields.FieldInfo].</
        <code class="docutils literal notranslate">
         <span class="pre">
          MLModelType.XGB
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.MLModelType.XGB_MULTIOUTPUT_QUANTILE">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         MLModelType.XGB_MULTIOUTPUT_QUANTILE
         </span>
        </code>
       </a>

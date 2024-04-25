@@ -1991,6 +1991,230 @@ sub-estimator of a meta-estimator, e.g. used inside a
 </dd></dl>
 
 </section>
+<section id="module-openstef.model.regressors.xgb_multioutput_quantile">
+<span id="openstef-model-regressors-xgb-multioutput-quantile-module"></span><h2>openstef.model.regressors.xgb_multioutput_quantile module<a class="headerlink" href="#module-openstef.model.regressors.xgb_multioutput_quantile" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="openstef.model.regressors.xgb_multioutput_quantile.XGBMultiOutputQuantileOpenstfRegressor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef.model.regressors.xgb_multioutput_quantile.</span></span><span class="sig-name descname"><span class="pre">XGBMultiOutputQuantileOpenstfRegressor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">quantiles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0.9,</span> <span class="pre">0.5,</span> <span class="pre">0.1)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colsample_bytree</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subsample</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_child_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_depth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">learning_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.22</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_delta_step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arctan_smoothing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.055</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">early_stopping_rounds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.regressors.xgb_multioutput_quantile.XGBMultiOutputQuantileOpenstfRegressor" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#openstef.model.regressors.regressor.OpenstfRegressor" title="openstef.model.regressors.regressor.OpenstfRegressor"><code class="xref py py-class docutils literal notranslate"><span class="pre">OpenstfRegressor</span></code></a></p>
+<p>Model that provides multioutput quantile regression with XGBoost by default using the arctan loss function.</p>
+<dl>
+<dt>Arctan loss:</dt><dd><p>Refence: <a class="github reference external" href="https://github.com/LaurensSluyterman/XGBoost_quantile_regression/tree/master">LaurensSluyterman/XGBoost_quantile_regression</a>
+The key idea is to use a smooth approximation of the pinball loss, the arctan
+pinball loss, that has a relatively large second derivative.</p>
+<p>The approximation is given by:
+$$L^{(text{arctan})}_{tau, s}(u) = (tau - 0.5 + frac{arctan (u/s)}{pi})u   + frac{s}{pi}$$.  # noqa E501</p>
+<p>Some important settings:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>The parameter in the loss function determines the amount of smoothing. A</dt><dd><p>smaller values gives a closer approximation but also a much smaller second
+derivative. A larger value gives more conservative quantiles when
+is larger than 0.5, the quantile becomes larger and vice versa.
+Values between 0.05 and 0.1 appear to work well. It may be a good idea to
+optimize this parameter.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Set min-child-weight to zero. The second derivatives can be a lot smaller</dt><dd><p>than 1 and this parameter may prevent any splits.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Use a relatively small max-delta-step. We used a default of 0.5.</dt><dd><p>This prevents excessive steps that could happen due to the relatively
+small second derivative.</p>
+</dd>
+</dl>
+</li>
+<li><p>For the same reason, use a slightly lower learning rate of 0.05.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="openstef.model.regressors.xgb_multioutput_quantile.XGBMultiOutputQuantileOpenstfRegressor.can_predict_quantiles">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">can_predict_quantiles</span></span><a class="headerlink" href="#openstef.model.regressors.xgb_multioutput_quantile.XGBMultiOutputQuantileOpenstfRegressor.can_predict_quantiles" title="Link to this definition">¶</a></dt>
+<dd><p>Attribute that indicates if the model predict particular quantiles.</p>
+<p>e.g. XGBQuantileOpenstfRegressor</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.model.regressors.xgb_multioutput_quantile.XGBMultiOutputQuantileOpenstfRegressor.estimator_">
+<span class="sig-name descname"><span class="pre">estimator_</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">TransformedTargetRegressor</span></em><a class="headerlink" href="#openstef.model.regressors.xgb_multioutput_quantile.XGBMultiOutputQuantileOpenstfRegressor.estimator_" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="openstef.model.regressors.xgb_multioutput_quantile.XGBMultiOutputQuantileOpenstfRegressor.feature_names">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">feature_names</span></span><a class="headerlink" href="#openstef.model.regressors.xgb_multioutput_quantile.XGBMultiOutputQuantileOpenstfRegressor.feature_names" title="Link to this definition">¶</a></dt>
+<dd><p>Retrieve the model input feature names.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The list of feature names</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef.model.regressors.xgb_multioutput_quantile.XGBMultiOutputQuantileOpenstfRegressor.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eval_set</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.regressors.xgb_multioutput_quantile.XGBMultiOutputQuantileOpenstfRegressor.fit" title="Link to this definition">¶</a></dt>
+<dd><p>Fits xgb quantile model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code>) – Feature matrix.</p></li>
+<li><p><strong>y</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code>) – Labels.</p></li>
+<li><p><strong>eval_set</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code>]]]) – Evaluation set to monitor training performance.</p></li>
+<li><p><strong>verbose</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>]) – Verbosity level (disabled by default).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#openstef.model.regressors.regressor.OpenstfRegressor" title="openstef.model.regressors.regressor.OpenstfRegressor"><code class="xref py py-class docutils literal notranslate"><span class="pre">OpenstfRegressor</span></code></a></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Fitted XGBQuantile model.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef.model.regressors.xgb_multioutput_quantile.XGBMultiOutputQuantileOpenstfRegressor.predict">
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.regressors.xgb_multioutput_quantile.XGBMultiOutputQuantileOpenstfRegressor.predict" title="Link to this definition">¶</a></dt>
+<dd><p>Makes a prediction for a desired quantile.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code>) – Feature matrix.</p></li>
+<li><p><strong>quantile</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Quantile for which a prediciton is desired,
+note that only quantile are available for which a model is trained,
+and that this is a quantile-model specific keyword.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Prediction</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError in case no model is trained for the requested quantile.</strong> – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.model.regressors.xgb_multioutput_quantile.XGBMultiOutputQuantileOpenstfRegressor.quantile_indices_">
+<span class="sig-name descname"><span class="pre">quantile_indices_</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#openstef.model.regressors.xgb_multioutput_quantile.XGBMultiOutputQuantileOpenstfRegressor.quantile_indices_" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef.model.regressors.xgb_multioutput_quantile.XGBMultiOutputQuantileOpenstfRegressor.set_fit_request">
+<span class="sig-name descname"><span class="pre">set_fit_request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eval_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'$UNCHANGED$'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'$UNCHANGED$'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'$UNCHANGED$'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#openstef.model.regressors.xgb_multioutput_quantile.XGBMultiOutputQuantileOpenstfRegressor" title="openstef.model.regressors.xgb_multioutput_quantile.XGBMultiOutputQuantileOpenstfRegressor"><span class="pre">XGBMultiOutputQuantileOpenstfRegressor</span></a></span></span><a class="headerlink" href="#openstef.model.regressors.xgb_multioutput_quantile.XGBMultiOutputQuantileOpenstfRegressor.set_fit_request" title="Link to this definition">¶</a></dt>
+<dd><p>Request metadata passed to the <code class="docutils literal notranslate"><span class="pre">fit</span></code> method.</p>
+<p>Note that this method is only relevant if
+<code class="docutils literal notranslate"><span class="pre">enable_metadata_routing=True</span></code> (see <code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.set_config()</span></code>).
+Please see <span class="xref std std-ref">User Guide</span> on how the routing
+mechanism works.</p>
+<p>The options for each parameter are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">True</span></code>: metadata is requested, and passed to <code class="docutils literal notranslate"><span class="pre">fit</span></code> if provided. The request is ignored if metadata is not provided.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">False</span></code>: metadata is not requested and the meta-estimator will not pass it to <code class="docutils literal notranslate"><span class="pre">fit</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">None</span></code>: metadata is not requested, and the meta-estimator will raise an error if the user provides it.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">str</span></code>: metadata should be passed to the meta-estimator with this given alias instead of the original name.</p></li>
+</ul>
+<p>The default (<code class="docutils literal notranslate"><span class="pre">sklearn.utils.metadata_routing.UNCHANGED</span></code>) retains the
+existing request. This allows you to change the request for some
+parameters and not others.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 1.3.</span></p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This method is only relevant if this estimator is used as a
+sub-estimator of a meta-estimator, e.g. used inside a
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Pipeline</span></code>. Otherwise it has no effect.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>eval_set</strong> (<em>str</em><em>, </em><em>True</em><em>, </em><em>False</em><em>, or </em><em>None</em><em>,                     </em><em>default=sklearn.utils.metadata_routing.UNCHANGED</em>) – Metadata routing for <code class="docutils literal notranslate"><span class="pre">eval_set</span></code> parameter in <code class="docutils literal notranslate"><span class="pre">fit</span></code>.</p></li>
+<li><p><strong>verbose</strong> (<em>str</em><em>, </em><em>True</em><em>, </em><em>False</em><em>, or </em><em>None</em><em>,                     </em><em>default=sklearn.utils.metadata_routing.UNCHANGED</em>) – Metadata routing for <code class="docutils literal notranslate"><span class="pre">verbose</span></code> parameter in <code class="docutils literal notranslate"><span class="pre">fit</span></code>.</p></li>
+<li><p><strong>x</strong> (<em>str</em><em>, </em><em>True</em><em>, </em><em>False</em><em>, or </em><em>None</em><em>,                     </em><em>default=sklearn.utils.metadata_routing.UNCHANGED</em>) – Metadata routing for <code class="docutils literal notranslate"><span class="pre">x</span></code> parameter in <code class="docutils literal notranslate"><span class="pre">fit</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>self</strong> – The updated object.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef.model.regressors.xgb_multioutput_quantile.XGBMultiOutputQuantileOpenstfRegressor.set_predict_request">
+<span class="sig-name descname"><span class="pre">set_predict_request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantile</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'$UNCHANGED$'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'$UNCHANGED$'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#openstef.model.regressors.xgb_multioutput_quantile.XGBMultiOutputQuantileOpenstfRegressor" title="openstef.model.regressors.xgb_multioutput_quantile.XGBMultiOutputQuantileOpenstfRegressor"><span class="pre">XGBMultiOutputQuantileOpenstfRegressor</span></a></span></span><a class="headerlink" href="#openstef.model.regressors.xgb_multioutput_quantile.XGBMultiOutputQuantileOpenstfRegressor.set_predict_request" title="Link to this definition">¶</a></dt>
+<dd><p>Request metadata passed to the <code class="docutils literal notranslate"><span class="pre">predict</span></code> method.</p>
+<p>Note that this method is only relevant if
+<code class="docutils literal notranslate"><span class="pre">enable_metadata_routing=True</span></code> (see <code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.set_config()</span></code>).
+Please see <span class="xref std std-ref">User Guide</span> on how the routing
+mechanism works.</p>
+<p>The options for each parameter are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">True</span></code>: metadata is requested, and passed to <code class="docutils literal notranslate"><span class="pre">predict</span></code> if provided. The request is ignored if metadata is not provided.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">False</span></code>: metadata is not requested and the meta-estimator will not pass it to <code class="docutils literal notranslate"><span class="pre">predict</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">None</span></code>: metadata is not requested, and the meta-estimator will raise an error if the user provides it.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">str</span></code>: metadata should be passed to the meta-estimator with this given alias instead of the original name.</p></li>
+</ul>
+<p>The default (<code class="docutils literal notranslate"><span class="pre">sklearn.utils.metadata_routing.UNCHANGED</span></code>) retains the
+existing request. This allows you to change the request for some
+parameters and not others.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 1.3.</span></p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This method is only relevant if this estimator is used as a
+sub-estimator of a meta-estimator, e.g. used inside a
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Pipeline</span></code>. Otherwise it has no effect.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>quantile</strong> (<em>str</em><em>, </em><em>True</em><em>, </em><em>False</em><em>, or </em><em>None</em><em>,                     </em><em>default=sklearn.utils.metadata_routing.UNCHANGED</em>) – Metadata routing for <code class="docutils literal notranslate"><span class="pre">quantile</span></code> parameter in <code class="docutils literal notranslate"><span class="pre">predict</span></code>.</p></li>
+<li><p><strong>x</strong> (<em>str</em><em>, </em><em>True</em><em>, </em><em>False</em><em>, or </em><em>None</em><em>,                     </em><em>default=sklearn.utils.metadata_routing.UNCHANGED</em>) – Metadata routing for <code class="docutils literal notranslate"><span class="pre">x</span></code> parameter in <code class="docutils literal notranslate"><span class="pre">predict</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>self</strong> – The updated object.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>object</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="openstef.model.regressors.xgb_multioutput_quantile.replicate_for_multioutput">
+<span class="sig-prename descclassname"><span class="pre">openstef.model.regressors.xgb_multioutput_quantile.</span></span><span class="sig-name descname"><span class="pre">replicate_for_multioutput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_quantiles</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.regressors.xgb_multioutput_quantile.replicate_for_multioutput" title="Link to this definition">¶</a></dt>
+<dd><p>Replicates a 1D array to a 2D array for multioutput regression.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>y</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code>) – 1D array.</p></li>
+<li><p><strong>num_quantiles</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Number of columns in the output array.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>2D array with shape (len(y), num_quantiles)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
 <section id="module-openstef.model.regressors.xgb_quantile">
 <span id="openstef-model-regressors-xgb-quantile-module"></span><h2>openstef.model.regressors.xgb_quantile module<a class="headerlink" href="#module-openstef.model.regressors.xgb_quantile" title="Link to this heading">¶</a></h2>
 <dl class="py class">
@@ -2978,6 +3202,105 @@ sub-estimator of a meta-estimator, e.g. used inside a
       </a>
      </li>
     </ul>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-openstef.model.regressors.xgb_multioutput_quantile">
+   openstef.model.regressors.xgb_multioutput_quantile module
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#openstef.model.regressors.xgb_multioutput_quantile.XGBMultiOutputQuantileOpenstfRegressor">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       XGBMultiOutputQuantileOpenstfRegressor
+      </span>
+     </code>
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.model.regressors.xgb_multioutput_quantile.XGBMultiOutputQuantileOpenstfRegressor.can_predict_quantiles">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         XGBMultiOutputQuantileOpenstfRegressor.can_predict_quantiles
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.model.regressors.xgb_multioutput_quantile.XGBMultiOutputQuantileOpenstfRegressor.estimator_">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         XGBMultiOutputQuantileOpenstfRegressor.estimator_
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.model.regressors.xgb_multioutput_quantile.XGBMultiOutputQuantileOpenstfRegressor.feature_names">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         XGBMultiOutputQuantileOpenstfRegressor.feature_names
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.model.regressors.xgb_multioutput_quantile.XGBMultiOutputQuantileOpenstfRegressor.fit">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         XGBMultiOutputQuantileOpenstfRegressor.fit()
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.model.regressors.xgb_multioutput_quantile.XGBMultiOutputQuantileOpenstfRegressor.predict">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         XGBMultiOutputQuantileOpenstfRegressor.predict()
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.model.regressors.xgb_multioutput_quantile.XGBMultiOutputQuantileOpenstfRegressor.quantile_indices_">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         XGBMultiOutputQuantileOpenstfRegressor.quantile_indices_
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.model.regressors.xgb_multioutput_quantile.XGBMultiOutputQuantileOpenstfRegressor.set_fit_request">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         XGBMultiOutputQuantileOpenstfRegressor.set_fit_request()
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.model.regressors.xgb_multioutput_quantile.XGBMultiOutputQuantileOpenstfRegressor.set_predict_request">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         XGBMultiOutputQuantileOpenstfRegressor.set_predict_request()
+        </span>
+       </code>
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#openstef.model.regressors.xgb_multioutput_quantile.replicate_for_multioutput">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       replicate_for_multioutput()
+      </span>
+     </code>
+    </a>
    </li>
   </ul>
  </li>

@@ -485,6 +485,36 @@ feature importances and weights of the trained model.</p>
 <span id="openstef-metrics-metrics-module"></span><h2>openstef.metrics.metrics module<a class="headerlink" href="#module-openstef.metrics.metrics" title="Link to this heading">¶</a></h2>
 <p>This module contains all metrics to assess forecast quality.</p>
 <dl class="py function">
+<dt class="sig sig-object py" id="openstef.metrics.metrics.arctan_loss">
+<span class="sig-prename descclassname"><span class="pre">openstef.metrics.metrics.</span></span><span class="sig-name descname"><span class="pre">arctan_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_true</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_pred</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">taus</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.metrics.arctan_loss" title="Link to this definition">¶</a></dt>
+<dd><p>Compute the arctan pinball loss.</p>
+<p>Note that XGBoost outputs the predictions in a slightly peculiar manner.
+Suppose we have 100 data points and we predict 10 quantiles. The predictions
+will be an array of size (1000 x 1). We first resize this to a (100x10) array
+where each row corresponds to the 10 predicted quantile for a single data
+point. We then use a for-loop (over the 10 columns) to calculate the gradients
+and second derivatives. Legibility was chosen over efficiency. This part
+can be made more efficient.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>y_true</strong> – An array containing the true observations.</p></li>
+<li><p><strong>y_pred</strong> – An array containing the predicted quantiles.</p></li>
+<li><p><strong>taus</strong> – A list containing the true desired coverage of the quantiles.</p></li>
+<li><p><strong>s</strong> – A smoothing parameter.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>An array containing the (negative) gradients with respect to y_pred.
+hess: An array containing the second derivative with respect to y_pred.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>grad</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="openstef.metrics.metrics.bias">
 <span class="sig-prename descclassname"><span class="pre">openstef.metrics.metrics.</span></span><span class="sig-name descname"><span class="pre">bias</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">realised</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.metrics.metrics.bias" title="Link to this definition">¶</a></dt>
 <dd><p>Function that calculates the absolute bias in % based on the true and prediciton.</p>
@@ -910,6 +940,15 @@ that hyperparameter named <cite>max_delta_step</cite> is small enough to satisfy
    openstef.metrics.metrics module
   </a>
   <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#openstef.metrics.metrics.arctan_loss">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       arctan_loss()
+      </span>
+     </code>
+    </a>
+   </li>
    <li class="toc-h3 nav-item toc-entry">
     <a class="reference internal nav-link" href="#openstef.metrics.metrics.bias">
      <code class="docutils literal notranslate">

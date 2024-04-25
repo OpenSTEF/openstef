@@ -68,6 +68,14 @@ openstef.model.regressors.xgb module
    :undoc-members:
    :show-inheritance:
 
+openstef.model.regressors.xgb\_multioutput\_quantile module
+-----------------------------------------------------------
+
+.. automodule:: openstef.model.regressors.xgb_multioutput_quantile
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 openstef.model.regressors.xgb\_quantile module
 ----------------------------------------------
 
