@@ -8,6 +8,7 @@ from enum import Enum
 class MLModelType(Enum):
     XGB = "xgb"
     XGB_QUANTILE = "xgb_quantile"
+    XGB_MULTIOUTPUT_QUANTILE = "xgb_multioutput_quantile"
     LGB = "lgb"
     LINEAR = "linear"
     LINEAR_QUANTILE = "linear_quantile"

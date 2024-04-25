@@ -26,6 +26,8 @@ class TestModelCreator(TestCase):
                 MLModelType("arima"),
                 "linear_quantile",
                 MLModelType("linear_quantile"),
+                "xgb_multioutput_quantile",
+                MLModelType("xgb_multioutput_quantile"),
             ]:
                 self.assertTrue(model.can_predict_quantiles)
             else:
