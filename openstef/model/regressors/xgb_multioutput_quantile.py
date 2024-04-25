@@ -211,7 +211,7 @@ class XGBMultiOutputQuantileOpenstfRegressor(OpenstfRegressor):
                 and that this is a quantile-model specific keyword.
 
         Returns:
-            Prediction.
+            Prediction
 
         Raises:
             ValueError in case no model is trained for the requested quantile.
