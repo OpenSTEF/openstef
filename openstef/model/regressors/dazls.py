@@ -14,8 +14,9 @@ from sklearn.preprocessing import MinMaxScaler
 class Dazls(BaseEstimator):
     """DAZLS model.
 
-    The model carries out wind and solar power prediction for unseen target substations using training data from
-    other substations with known components.
+    The model carries out wind and solar power prediction for unseen target substations using training data from other
+    substations with known components.
+
     """
 
     model_: Pipeline
@@ -29,16 +30,15 @@ class Dazls(BaseEstimator):
             transformer=MinMaxScaler(clip=True),
         )
 
-        self.model_ = Pipeline([
-            ("scaler", MinMaxScaler(clip=True)),
-            ("regressor", regressor)
-        ])
+        self.model_ = Pipeline(
+            [("scaler", MinMaxScaler(clip=True)), ("regressor", regressor)]
+        )
 
         # The input columns for the domain and adaptation models (with description)
         self.baseline_input_columns = [
-            'radiation',  # Weather parameter
-            'windspeed_100m',  # Weather parameter
-            'total_load'
+            "radiation",  # Weather parameter
+            "windspeed_100m",  # Weather parameter
+            "total_load",
         ]
         self.target_columns = ["total_wind_part", "total_solar_part"]
 
