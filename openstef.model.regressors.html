@@ -816,29 +816,8 @@ sub-estimator of a meta-estimator, e.g. used inside a
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef.model.regressors.dazls.</span></span><span class="sig-name descname"><span class="pre">Dazls</span></span><a class="headerlink" href="#openstef.model.regressors.dazls.Dazls" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseEstimator</span></code></p>
 <p>DAZLS model.</p>
-<p>The model carries out wind and solar power prediction for unseen target substations using training data from
-other substations with known components.
-This model has two sub-models:</p>
-<ul class="simple">
-<li><p>domain model : a model taking a set of ‘input’ features of a substation and make an ‘initial’ prediction.
-Input features can be features such as: weather, geospatial, total load, etc.
-These features are always directly related to the components’ size in some way.</p></li>
-<li><p>adaptation model : a model taking a set of ‘meta’ features of a substation and refines the domain model’s
-prediction. Next to the features, it is trained on the domain model’s predictions.
-‘Meta’ features are features related to the uncertainty of the data, and include:
-variance of the total load, standard deviation of the total load, etc.</p></li>
-</ul>
-<p>Any data-driven model can be plugged and used as the base for the domain and the adaptation model.</p>
-<p>CAUTION : ‘Meta’ features should be kept out of the domain model, and vice versa input features should be
-kept out the adaptation model.</p>
-<p>For a full reference, see:
-Teng, S.Y., van Nooten, C. C., van Doorn, J.M., Ottenbros, A., Huijbregts, M., Jansen, J.J.
-Improving Near Real-Time Predictions of Renewable Electricity Production at Substation Level (Submitted)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>BaseEstimator</strong> (<em>-</em>) – a base model that can be used to carry out predictions.</p>
-</dd>
-</dl>
+<p>The model carries out wind and solar power prediction for unseen target substations using training data from other
+substations with known components.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="openstef.model.regressors.dazls.Dazls.fit">
 <span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.regressors.dazls.Dazls.fit" title="Link to this definition">¶</a></dt>
@@ -856,9 +835,14 @@ for the fitting and the training of the models.</p>
 </dl>
 </dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.model.regressors.dazls.Dazls.model_">
+<span class="sig-name descname"><span class="pre">model_</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Pipeline</span></em><a class="headerlink" href="#openstef.model.regressors.dazls.Dazls.model_" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="openstef.model.regressors.dazls.Dazls.predict">
-<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_sub_preds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.regressors.dazls.Dazls.predict" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.regressors.dazls.Dazls.predict" title="Link to this definition">¶</a></dt>
 <dd><p>Make a prediction.</p>
 <p>For the prediction we use the test data x. We use domain_model_input_columns and
 adaptation_model_input_columns to separate x in test data for domain model and adaptation model respectively.</p>
@@ -868,7 +852,7 @@ easily investigate the effectiveness of the models.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>x</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code>) – domain_model_test_data, adaptation_model_test_data</p></li>
-<li><p><strong>return_sub_preds</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – a flag value indicating to return the predictions of the domain model and adaptation
+<li><p><strong>return_sub_preds</strong> – a flag value indicating to return the predictions of the domain model and adaptation
 model separately. (Default: False.)</p></li>
 </ul>
 </dd>
@@ -943,7 +927,7 @@ sub-estimator of a meta-estimator, e.g. used inside a
 
 <dl class="py method">
 <dt class="sig sig-object py" id="openstef.model.regressors.dazls.Dazls.set_predict_request">
-<span class="sig-name descname"><span class="pre">set_predict_request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_sub_preds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'$UNCHANGED$'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'$UNCHANGED$'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#openstef.model.regressors.dazls.Dazls" title="openstef.model.regressors.dazls.Dazls"><span class="pre">Dazls</span></a></span></span><a class="headerlink" href="#openstef.model.regressors.dazls.Dazls.set_predict_request" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">set_predict_request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'$UNCHANGED$'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#openstef.model.regressors.dazls.Dazls" title="openstef.model.regressors.dazls.Dazls"><span class="pre">Dazls</span></a></span></span><a class="headerlink" href="#openstef.model.regressors.dazls.Dazls.set_predict_request" title="Link to this definition">¶</a></dt>
 <dd><p>Request metadata passed to the <code class="docutils literal notranslate"><span class="pre">predict</span></code> method.</p>
 <p>Note that this method is only relevant if
 <code class="docutils literal notranslate"><span class="pre">enable_metadata_routing=True</span></code> (see <code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.set_config()</span></code>).
@@ -970,10 +954,7 @@ sub-estimator of a meta-estimator, e.g. used inside a
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>return_sub_preds</strong> (<em>str</em><em>, </em><em>True</em><em>, </em><em>False</em><em>, or </em><em>None</em><em>,                     </em><em>default=sklearn.utils.metadata_routing.UNCHANGED</em>) – Metadata routing for <code class="docutils literal notranslate"><span class="pre">return_sub_preds</span></code> parameter in <code class="docutils literal notranslate"><span class="pre">predict</span></code>.</p></li>
-<li><p><strong>x</strong> (<em>str</em><em>, </em><em>True</em><em>, </em><em>False</em><em>, or </em><em>None</em><em>,                     </em><em>default=sklearn.utils.metadata_routing.UNCHANGED</em>) – Metadata routing for <code class="docutils literal notranslate"><span class="pre">x</span></code> parameter in <code class="docutils literal notranslate"><span class="pre">predict</span></code>.</p></li>
-</ul>
+<dd class="field-odd"><p><strong>x</strong> (<em>str</em><em>, </em><em>True</em><em>, </em><em>False</em><em>, or </em><em>None</em><em>,                     </em><em>default=sklearn.utils.metadata_routing.UNCHANGED</em>) – Metadata routing for <code class="docutils literal notranslate"><span class="pre">x</span></code> parameter in <code class="docutils literal notranslate"><span class="pre">predict</span></code>.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>self</strong> – The updated object.</p>
@@ -2655,6 +2636,15 @@ sub-estimator of a meta-estimator, e.g. used inside a
        <code class="docutils literal notranslate">
         <span class="pre">
          Dazls.fit()
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.model.regressors.dazls.Dazls.model_">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         Dazls.model_
         </span>
        </code>
       </a>
