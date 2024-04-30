@@ -18,7 +18,7 @@ from openstef.settings import Settings
 
 # Set the path for the Dazls stored model
 DAZLS_STORED = str(
-    PROJECT_ROOT / "openstef" / "data" / "dazls_model_3.4.7" / "dazls_stored_3.4.7_"
+    PROJECT_ROOT / "openstef" / "data" / "dazls_model_3.4.24" / "dazls_stored_3.4.24_"
 )
 
 
@@ -113,24 +113,7 @@ def create_components_forecast_pipeline(
         # Save and load the model as .sav file (or as .z file)
         # For the code contact: korte.termijn.prognoses@alliander.com
         dazls_model = Dazls()
-        dazls_model.domain_model = joblib.load(DAZLS_STORED + "domain_model.z")
-        dazls_model.domain_model_scaler = joblib.load(
-            DAZLS_STORED + "domain_model_scaler.z"
-        )
-        dazls_model.domain_model_input_columns = joblib.load(
-            DAZLS_STORED + "domain_model_features.z"
-        )
-
-        dazls_model.adaptation_model = joblib.load(DAZLS_STORED + "adaptation_model.z")
-        dazls_model.adaptation_model_scaler = joblib.load(
-            DAZLS_STORED + "adaptation_model_scaler.z"
-        )
-        dazls_model.adaptation_model_input_columns = joblib.load(
-            DAZLS_STORED + "adaptation_model_features.z"
-        )
-
-        dazls_model.target_columns = joblib.load(DAZLS_STORED + "target.z")
-        dazls_model.target_scaler = joblib.load(DAZLS_STORED + "target_scaler.z")
+        dazls_model.model_ = joblib.load(DAZLS_STORED + "baseline_model.z")
 
         logger.info("DAZLS model loaded", dazls_model=str(dazls_model))
 
