@@ -184,7 +184,7 @@ class TestConfidenceIntervalApplicator(TestCase):
 
 
     def test_add_quantiles_to_forecast_untrained_quantiles_with_quantile_model(self):
-        """For quantile models, the trained quantiles should be used and not the quantiles of the pj"""
+        """For quantile models, the trained quantiles can used if the quantiles of the pj are incompatible"""
         # Set up
         pj = {"quantiles": [0.12, 0.5, 0.65]} # numbers are arbitrary
         model = MockModel()
