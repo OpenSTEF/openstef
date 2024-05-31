@@ -28,6 +28,8 @@ class TestModelCreator(TestCase):
                 MLModelType("linear_quantile"),
                 "xgb_multioutput_quantile",
                 MLModelType("xgb_multioutput_quantile"),
+                "flatliner",
+                MLModelType("flatliner"),
             ]:
                 self.assertTrue(model.can_predict_quantiles)
             else:

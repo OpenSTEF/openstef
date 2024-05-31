@@ -73,8 +73,11 @@ class ConfidenceIntervalApplicator:
                 result = self._add_quantiles_to_forecast_quantile_regression(
                     temp_forecast, self.model.quantiles
                 )
-                self.logger.warning('Quantiles are requested the model was not trained on. Using the quantiles the model was trained on', 
-                               requested_quantiles=pj["quantiles"], trained_quantiles=self.model.quantiles)
+                self.logger.warning(
+                    "Quantiles are requested the model was not trained on. Using the quantiles the model was trained on",
+                    requested_quantiles=pj["quantiles"],
+                    trained_quantiles=self.model.quantiles,
+                )
                 return result
 
         return self._add_quantiles_to_forecast_default(temp_forecast, pj["quantiles"])

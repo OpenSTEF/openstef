@@ -27,6 +27,7 @@ class PredictionJobDataClass(BaseModel):
         - ``"linear"``
         - ``"linear_quantile"``
         - ``"xgb_multioutput_quantile"``
+        - ``"flatliner"``
 
     If unsure what to pick, choose ``"xgb"``.
 
