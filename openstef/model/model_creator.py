@@ -13,6 +13,7 @@ from openstef.model.regressors.lgbm import LGBMOpenstfRegressor
 from openstef.model.regressors.linear import LinearOpenstfRegressor
 from openstef.model.regressors.linear_quantile import LinearQuantileOpenstfRegressor
 from openstef.model.regressors.regressor import OpenstfRegressor
+from openstef.model.regressors.flatliner import FlatlinerRegressor
 from openstef.model.regressors.xgb import XGBOpenstfRegressor
 from openstef.model.regressors.xgb_quantile import XGBQuantileOpenstfRegressor
 from openstef.model.regressors.xgb_multioutput_quantile import (
@@ -105,6 +106,9 @@ valid_model_kwargs = {
         "imputation_strategy",
         "fill_value",
     ],
+    MLModelType.FLATLINER: [
+        "quantiles",
+    ],
     MLModelType.LINEAR_QUANTILE: [
         "alpha",
         "quantiles",
@@ -134,6 +138,7 @@ class ModelCreator:
         MLModelType.LINEAR: LinearOpenstfRegressor,
         MLModelType.LINEAR_QUANTILE: LinearQuantileOpenstfRegressor,
         MLModelType.ARIMA: ARIMAOpenstfRegressor,
+        MLModelType.FLATLINER: FlatlinerRegressor,
     }
 
     @staticmethod

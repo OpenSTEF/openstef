@@ -13,6 +13,7 @@ class MLModelType(Enum):
     LINEAR = "linear"
     LINEAR_QUANTILE = "linear_quantile"
     ARIMA = "arima"
+    FLATLINER = "flatliner"
 
 
 class ForecastType(Enum):
