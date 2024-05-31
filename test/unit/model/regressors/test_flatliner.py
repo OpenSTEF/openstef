@@ -47,9 +47,10 @@ class TestLinearQuantile(BaseTestCase):
         # check if model is sklearn compatible
         self.assertIsInstance(model, sklearn.base.BaseEstimator)
 
-        result = model.predict(train_input.iloc[:, 1:])
+        result: np.ndarray = model.predict(train_input.iloc[:, 1:])
 
         self.assertEquals(len(result), len(train_input.iloc[:, 1:]))
+        self.assertTrue((result == 0).all())
 
     def test_get_feature_names_from_linear(self):
         # Arrange
