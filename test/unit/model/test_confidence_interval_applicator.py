@@ -26,14 +26,20 @@ class MockModel:
         }
     )
 
-    @staticmethod
-    def predict(input, quantile):
+    can_predict_quantiles_ = True
+
+    def predict(self, input, quantile):
+        if self.can_predict_quantiles and quantile not in self.quantiles:
+            # When model is trained on quantiles, it should fail if quantile is not in
+            # trained quantiles
+            raise ValueError("Quantile not in trained quantiles")
+
         stdev_forecast = pd.DataFrame({"forecast": [5, 6, 7], "stdev": [0.5, 0.6, 0.7]})
         return stdev_forecast["stdev"].rename(quantile)
 
     @property
     def can_predict_quantiles(self):
-        return True
+        return self.can_predict_quantiles_
 
     @property
     def quantiles(self):
@@ -193,6 +199,7 @@ class TestConfidenceIntervalApplicator(TestCase):
             pd.Timestamp(2012, 5, 1, 1, 45),
             pd.Timestamp(2012, 5, 1, 2, 00),
         ]
+        model.can_predict_quantiles_ = True
         # Specify expectation
         expected_quantiles = model.quantiles
         expected_columns = [f"quantile_P{int(q * 100):02d}" for q in expected_quantiles]
@@ -217,6 +224,7 @@ class TestConfidenceIntervalApplicator(TestCase):
             pd.Timestamp(2012, 5, 1, 1, 45),
             pd.Timestamp(2012, 5, 1, 2, 00),
         ]
+        model.can_predict_quantiles_ = False
         # Specify expectation
         expected_quantiles = pj["quantiles"]
         expected_columns = [f"quantile_P{int(q * 100):02d}" for q in expected_quantiles]
