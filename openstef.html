@@ -643,6 +643,7 @@
 <li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#module-openstef.model.regressors.arima">openstef.model.regressors.arima module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#module-openstef.model.regressors.custom_regressor">openstef.model.regressors.custom_regressor module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#module-openstef.model.regressors.dazls">openstef.model.regressors.dazls module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#module-openstef.model.regressors.flatliner">openstef.model.regressors.flatliner module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#module-openstef.model.regressors.lgbm">openstef.model.regressors.lgbm module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#module-openstef.model.regressors.linear">openstef.model.regressors.linear module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#module-openstef.model.regressors.linear_quantile">openstef.model.regressors.linear_quantile module</a></li>
@@ -1029,6 +1030,11 @@ mapping of field names to [<cite>FieldInfo</cite>][pydantic.fields.FieldInfo].</
 <dd></dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.MLModelType.FLATLINER">
+<span class="sig-name descname"><span class="pre">FLATLINER</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'flatliner'</span></em><a class="headerlink" href="#openstef.enums.MLModelType.FLATLINER" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="openstef.enums.MLModelType.LGB">
 <span class="sig-name descname"><span class="pre">LGB</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'lgb'</span></em><a class="headerlink" href="#openstef.enums.MLModelType.LGB" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -1349,6 +1355,15 @@ mapping of field names to [<cite>FieldInfo</cite>][pydantic.fields.FieldInfo].</
        <code class="docutils literal notranslate">
         <span class="pre">
          MLModelType.ARIMA
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.MLModelType.FLATLINER">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         MLModelType.FLATLINER
         </span>
        </code>
       </a>

@@ -28,6 +28,14 @@ openstef.model.regressors.dazls module
    :undoc-members:
    :show-inheritance:
 
+openstef.model.regressors.flatliner module
+------------------------------------------
+
+.. automodule:: openstef.model.regressors.flatliner
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 openstef.model.regressors.lgbm module
 -------------------------------------
 
