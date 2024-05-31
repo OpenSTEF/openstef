@@ -23,9 +23,9 @@ class FlatlinerRegressor(OpenstfRegressor, RegressorMixin):
     def __init__(self, quantiles=None):
         """Initialize FlatlinerRegressor.
 
-        The model always predicts 0.0, regardless of the input features. The model is meant to be used for flatliner
-        locations that still expect a prediction while preserving the prediction interface.
-
+        The model always predicts 0.0, regardless of the input features. The model is
+        meant to be used for flatliner locations that still expect a prediction while
+        preserving the prediction interface.
         """
         super().__init__()
         self.quantiles = quantiles
