@@ -23,9 +23,9 @@ class FlatlinerRegressor(OpenstfRegressor, RegressorMixin):
     def __init__(self, quantiles=None):
         """Initialize FlatlinerRegressor.
 
-        The model always predicts 0.0, regardless of the input features. The model is
-        meant to be used for flatliner locations that still expect a prediction while
-        preserving the prediction interface.
+        The model always predicts 0.0, regardless of the input features. The model is meant to be used for flatliner
+        locations that still expect a prediction while preserving the prediction interface.
+
         """
         super().__init__()
         self.quantiles = quantiles
@@ -60,7 +60,9 @@ class FlatlinerRegressor(OpenstfRegressor, RegressorMixin):
 
         """
         self.feature_names_ = list(x.columns)
-        self.feature_importances_ = np.ones(len(self.feature_names_)) / (len(self.feature_names_) or 1.0)
+        self.feature_importances_ = np.ones(len(self.feature_names_)) / (
+            len(self.feature_names_) or 1.0
+        )
 
         return self
 
@@ -86,12 +88,7 @@ class FlatlinerRegressor(OpenstfRegressor, RegressorMixin):
 
     def _get_feature_importance_from_linear(self, quantile: float = 0.5) -> np.array:
         check_is_fitted(self)
-        return np.array(
-            [
-                0.0
-                for _ in self.feature_names_
-            ]
-        )
+        return np.array([0.0 for _ in self.feature_names_])
 
     @classmethod
     def _get_param_names(cls):

@@ -63,4 +63,3 @@ class TestLinearQuantile(BaseTestCase):
         self.assertTrue(
             (feature_importance == np.array([0, 0, 0], dtype=np.float32)).all()
         )
-

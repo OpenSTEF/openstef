@@ -34,12 +34,12 @@ class MockModel:
     @property
     def can_predict_quantiles(self):
         return True
-    
+
     @property
     def quantiles(self):
         return [0.01, 0.10, 0.25, 0.50, 0.75, 0.90, 0.99]
-    
-    
+
+
 class MockNonQuantileModel(MockModel):
     @property
     def can_predict_quantiles(self):
@@ -182,11 +182,10 @@ class TestConfidenceIntervalApplicator(TestCase):
             actual_stdev_forecast["stdev"].max(), 14
         )  # => MockModel.standard_deviation.stdev.max())
 
-
     def test_add_quantiles_to_forecast_untrained_quantiles_with_quantile_model(self):
         """For quantile models, the trained quantiles can used if the quantiles of the pj are incompatible"""
         # Set up
-        pj = {"quantiles": [0.12, 0.5, 0.65]} # numbers are arbitrary
+        pj = {"quantiles": [0.12, 0.5, 0.65]}  # numbers are arbitrary
         model = MockModel()
         forecast = pd.DataFrame({"forecast": [5, 6, 7], "tAhead": [-1.0, 0.0, 1.0]})
         forecast.index = [
@@ -196,9 +195,7 @@ class TestConfidenceIntervalApplicator(TestCase):
         ]
         # Specify expectation
         expected_quantiles = model.quantiles
-        expected_columns = [
-            f"quantile_P{int(q * 100):02d}" for q in expected_quantiles
-        ]
+        expected_columns = [f"quantile_P{int(q * 100):02d}" for q in expected_quantiles]
 
         # Act
         pp_forecast = ConfidenceIntervalApplicator(
@@ -208,12 +205,11 @@ class TestConfidenceIntervalApplicator(TestCase):
         # Assert
         for expected_column in expected_columns:
             self.assertTrue(expected_column in pp_forecast.columns)
-    
-            
+
     def test_add_quantiles_to_forecast_untrained_quantiles_with_nonquantile_model(self):
         """For nonquantile models, the quantiles of the pj should be used, also if the model was not trained on those"""
         # Set up
-        pj = {"quantiles": [0.12, 0.5, 0.65]} # numbers are arbitrary
+        pj = {"quantiles": [0.12, 0.5, 0.65]}  # numbers are arbitrary
         model = MockModel()
         forecast = pd.DataFrame({"forecast": [5, 6, 7], "tAhead": [-1.0, 0.0, 1.0]})
         forecast.index = [
@@ -222,10 +218,8 @@ class TestConfidenceIntervalApplicator(TestCase):
             pd.Timestamp(2012, 5, 1, 2, 00),
         ]
         # Specify expectation
-        expected_quantiles = pj['quantiles']
-        expected_columns = [
-            f"quantile_P{int(q * 100):02d}" for q in expected_quantiles
-        ]
+        expected_quantiles = pj["quantiles"]
+        expected_columns = [f"quantile_P{int(q * 100):02d}" for q in expected_quantiles]
 
         # Act
         pp_forecast = ConfidenceIntervalApplicator(
@@ -235,5 +229,3 @@ class TestConfidenceIntervalApplicator(TestCase):
         # Assert
         for expected_column in expected_columns:
             self.assertTrue(expected_column in pp_forecast.columns)
-            
-            
