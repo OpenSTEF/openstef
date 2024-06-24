@@ -246,7 +246,9 @@ def train_pipeline_common(
     test_fraction: float = 0.0,
     backtest: bool = False,
     test_data_predefined: pd.DataFrame = pd.DataFrame(),
-) -> tuple[OpenstfRegressor, Report, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+) -> tuple[
+    OpenstfRegressor, Report, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame
+]:
     """Common pipeline shared with operational training and backtest training.
 
     Args:
