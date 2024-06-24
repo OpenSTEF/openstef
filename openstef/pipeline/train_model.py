@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 import logging
 import os
-from typing import Optional, Union
+from typing import Optional, Union, Tuple
 
 import pandas as pd
 import structlog
@@ -155,7 +155,7 @@ def train_model_pipeline_core(
     input_data: pd.DataFrame,
     old_model: OpenstfRegressor = None,
     horizons: list[float] = DEFAULT_TRAIN_HORIZONS_HOURS,
-) -> Union[
+) -> Tuple[
     OpenstfRegressor,
     Report,
     ModelSpecificationDataClass,
@@ -246,7 +246,9 @@ def train_pipeline_common(
     test_fraction: float = 0.0,
     backtest: bool = False,
     test_data_predefined: pd.DataFrame = pd.DataFrame(),
-) -> tuple[OpenstfRegressor, Report, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+) -> tuple[
+    OpenstfRegressor, Report, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame
+]:
     """Common pipeline shared with operational training and backtest training.
 
     Args:
@@ -314,7 +316,8 @@ def train_pipeline_common(
 
 def train_pipeline_step_load_model(
     pj: PredictionJobDataClass, serializer: MLflowSerializer
-) -> tuple[OpenstfRegressor, ModelSpecificationDataClass, Union[int, float]]:
+) -> Tuple[OpenstfRegressor, ModelSpecificationDataClass, Union[int, float]]:
+    old_model: Optional[OpenstfRegressor]
     try:
         old_model, model_specs = serializer.load_model(experiment_name=str(pj.id))
         old_model_age = old_model.age  # Age attribute is openstef specific
@@ -509,7 +512,7 @@ def train_pipeline_step_split_data(
     test_fraction: float,
     backtest: bool = False,
     test_data_predefined: pd.DataFrame = pd.DataFrame(),
-) -> Union[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """The default way to perform train, val, test split.
 
     Args:
