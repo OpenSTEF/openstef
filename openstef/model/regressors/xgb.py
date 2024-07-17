@@ -33,7 +33,9 @@ class XGBOpenstfRegressor(XGBRegressor, OpenstfRegressor):
         }
 
     def fit(
-        self, x: np.array, y: np.array,
+        self,
+        x: np.array,
+        y: np.array,
         *,
         early_stopping_rounds: Optional[int] = None,
         callbacks: Optional[list] = None,
@@ -48,5 +50,3 @@ class XGBOpenstfRegressor(XGBRegressor, OpenstfRegressor):
             self.set_params(eval_metric=eval_metric)
 
         super().fit(x, y, **kwargs)
-
-
