@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import FunctionTransformer
-from sklearn.utils.validation import check_array
+from sklearn.utils.validation import check_array, check_is_fitted
 
 
 class MissingValuesTransformer:
@@ -42,6 +42,20 @@ class MissingValuesTransformer:
         self.missing_values = missing_values
         self.imputation_strategy = imputation_strategy
         self.fill_value = fill_value
+        self.is_fitted_ = False
+
+        # Build the proper imputation transformer
+        # - Identity function if strategy is None
+        # - SimpleImputer with the dedicated strategy
+        if self.imputation_strategy is None:
+            self.imputer_ = FunctionTransformer(func=self._identity)
+        else:
+            self.imputer_ = SimpleImputer(
+                missing_values=self.missing_values,
+                strategy=self.imputation_strategy,
+                fill_value=self.fill_value,
+            ).set_output(transform="pandas")
+            self.imputer_._validate_params()
 
     def fit(self, x, y=None):
         """Fit the imputer on the input data."""
@@ -56,23 +70,13 @@ class MissingValuesTransformer:
         is_column_null = x.isnull().all(axis="index")
         self.non_null_feature_names = list(x.columns[~is_column_null])
 
-        # Build the proper imputation transformer
-        # - Identity function if strategy is None
-        # - SimpleImputer with the dedicated strategy
-        if self.imputation_strategy is None:
-            self.imputer_ = FunctionTransformer(func=self._identity)
-        else:
-            self.imputer_ = SimpleImputer(
-                missing_values=self.missing_values,
-                strategy=self.imputation_strategy,
-                fill_value=self.fill_value,
-            ).set_output(transform="pandas")
-
         # Imputers do not support labels
-        self.imputer_.fit(X=x, y=None)
+        self.imputer_.fit(X=x[self.non_null_feature_names], y=None)
+        self.is_fitted_ = True
 
     def transform(self, x) -> pd.DataFrame:
         """Transform the input data by imputing missing values."""
+        check_is_fitted(self)
         _ = check_array(x, force_all_finite="allow-nan")
         if not isinstance(x, pd.DataFrame):
             x = pd.DataFrame(np.asarray(x))
