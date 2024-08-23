@@ -171,19 +171,19 @@ def r_mne_highest(realised: pd.Series, forecast: pd.Series) -> float:
 
     # Determine load range on entire dataset
     range_ = (
-        combined["load"].max() - combined["load"].min()
-        if (combined["load"].max() - combined["load"].min()) != 0
+        combined[realised.name].max() - combined[realised.name].min()
+        if (combined[realised.name].max() - combined[realised.name].min()) != 0
         else np.nan
     )
 
     # Select 5 percent highest realised load values
-    combined["highest"] = combined["load"][
-        combined["load"] > combined["load"].quantile(0.95)
+    combined["highest"] = combined[realised.name][
+        combined[realised.name] > combined[realised.name].quantile(0.95)
     ]
     combined = combined[np.invert(np.isnan(combined["highest"]))]
 
     # Calculate rMNE for the selected points
-    diff = combined[forecast.name] - combined["load"]
+    diff = combined[forecast.name] - combined[realised.name]
 
     if len(diff[diff < 0]) < 2:
         return 0.0
@@ -208,20 +208,20 @@ def r_mpe_highest(realised: pd.Series, forecast: pd.Series) -> float:
 
     # Determine load range on entire dataset
     range_ = (
-        combined["load"].max() - combined["load"].min()
-        if (combined["load"].max() - combined["load"].min()) != 0
+        combined[realised.name].max() - combined[realised.name].min()
+        if (combined[realised.name].max() - combined[realised.name].min()) != 0
         else np.nan
     )
 
     # Select 5 percent highest realised load values
-    combined["highest"] = combined["load"][
-        combined["load"] > combined["load"].quantile(0.95)
+    combined["highest"] = combined[realised.name][
+        combined[realised.name] > combined[realised.name].quantile(0.95)
     ]
     combined = combined[np.invert(np.isnan(combined["highest"]))]
 
     # Calculate rMPE for the selected points
 
-    diff = combined[forecast.name] - combined["load"]
+    diff = combined[forecast.name] - combined[realised.name]
 
     if len(diff[diff > 0]) < 2:
         return 0.0
@@ -282,13 +282,15 @@ def skill_score_positive_peaks(
     combined = pd.concat([realised, forecast], axis=1)
 
     # Select 5 percent highest realised load values
-    combined["highest"] = combined["load"][
-        combined["load"] > combined["load"].quantile(0.95)
+    combined["highest"] = combined[realised.name][
+        combined[realised.name] > combined[realised.name].quantile(0.95)
     ]
     combined = combined[np.invert(np.isnan(combined["highest"]))]
 
     # Calculate rMAE for the selected points
-    skill_score_highest = skill_score(combined["load"], combined[forecast.name], mean)
+    skill_score_highest = skill_score(
+        combined[realised.name], combined[forecast.name], mean
+    )
 
     if np.isnan(skill_score_highest):
         return 0
@@ -304,8 +306,8 @@ def franks_skill_score(
     combined = pd.concat([realised, forecast], axis=1)
     if range_ == 1.0:
         range_ = (
-            combined["load"].max() - combined["load"].min()
-            if (combined["load"].max() - combined["load"].min()) != 0
+            combined[realised.name].max() - combined[realised.name].min()
+            if (combined[realised.name].max() - combined[realised.name].min()) != 0
             else np.nan
         )
 
@@ -325,19 +327,19 @@ def franks_skill_score_peaks(
     combined = pd.concat([realised, forecast, basecase], axis=1)
 
     range_ = (
-        combined["load"].max() - combined["load"].min()
-        if (combined["load"].max() - combined["load"].min()) != 0
+        combined[realised.name].max() - combined[realised.name].min()
+        if (combined[realised.name].max() - combined[realised.name].min()) != 0
         else np.nan
     )
     # Select 5 percent highest realised load values
-    combined["highest"] = combined["load"][
-        combined["load"] > combined["load"].quantile(0.95)
+    combined["highest"] = combined[realised.name][
+        combined[realised.name] > combined[realised.name].quantile(0.95)
     ]
     combined = combined[np.invert(np.isnan(combined["highest"]))]
 
     # Calculate rMAE for the selected points
     franks_skill_score_highest = franks_skill_score(
-        combined["load"],
+        combined[realised.name],
         combined[forecast.name],
         combined[basecase.name],
         range_=range_,
