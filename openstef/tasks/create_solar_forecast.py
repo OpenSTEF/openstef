@@ -216,7 +216,7 @@ def fides(data: pd.DataFrame, all_forecasts: bool = False):
     return forecast
 
 
-def main(config=None, database=None):
+def main(config=None, database=None, **kwargs):
     taskname = Path(__file__).name.replace(".py", "")
 
     if database is None or config is None:
@@ -245,7 +245,7 @@ def main(config=None, database=None):
             )
 
         PredictionJobLoop(context, prediction_jobs=prediction_jobs).map(
-            make_solar_prediction_pj, context
+            make_solar_prediction_pj, context, kwargs=kwargs
         )
 
 

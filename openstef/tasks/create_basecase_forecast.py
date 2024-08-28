@@ -97,7 +97,7 @@ def create_basecase_forecast_task(
     context.database.write_forecast(basecase_forecast, t_ahead_series=True)
 
 
-def main(config: object = None, database: object = None):
+def main(config: object = None, database: object = None, **kwargs):
     taskname = Path(__file__).name.replace(".py", "")
 
     if database is None or config is None:
@@ -110,7 +110,7 @@ def main(config: object = None, database: object = None):
         model_type = ["xgb", "xgb_quantile", "lgb"]
 
         PredictionJobLoop(context, model_type=model_type).map(
-            create_basecase_forecast_task, context
+            create_basecase_forecast_task, context, **kwargs
         )
 
 
