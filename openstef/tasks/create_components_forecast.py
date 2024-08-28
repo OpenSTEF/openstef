@@ -140,7 +140,7 @@ def create_components_forecast_task(
         )
 
 
-def main(config: object = None, database: object = None):
+def main(config: object = None, database: object = None, **kwargs):
     taskname = Path(__file__).name.replace(".py", "")
 
     if database is None or config is None:
@@ -155,7 +155,7 @@ def main(config: object = None, database: object = None):
         PredictionJobLoop(
             context,
             model_type=model_type,
-        ).map(create_components_forecast_task, context)
+        ).map(create_components_forecast_task, context, **kwargs)
 
 
 if __name__ == "__main__":
