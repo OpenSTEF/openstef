@@ -81,7 +81,7 @@ def apply_features(
     )
 
     # Get holiday feature functions
-    feature_functions.update(generate_holiday_feature_functions())
+    feature_functions.update(generate_holiday_feature_functions(country=pj.country))
 
     # Add the features to the dataframe using previously defined feature functions
     for key, featfunc in feature_functions.items():

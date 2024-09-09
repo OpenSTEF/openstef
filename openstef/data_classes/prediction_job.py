@@ -97,6 +97,8 @@ class PredictionJobDataClass(BaseModel):
     """The pid that references another prediction job from which the model should be used for making forecasts."""
     data_prep_class: Optional[DataPrepDataClass]
     """The import string for the custom data prep class"""
+    country: Optional[str] = "NL"
+    """The country code for retrieving holidays"""
 
     class Config:
         """Pydantic model configuration.
