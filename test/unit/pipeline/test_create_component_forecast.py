@@ -80,6 +80,61 @@ class TestComponentForecast(BaseTestCase):
             ],
         )
 
+    def test_component_forecast_pipeline_weather_data_ends_early(self):
+        # Arrange
+        data = TestData.load("reference_sets/307-test-data.csv")
+        weather = data[["radiation", "windspeed_100m"]]
+        forecast_input = TestData.load("forecastdf_test_add_corrections.csv")
+        forecast_input["stdev"] = 0
+
+        # Shift example data to match current time interval as code expects data
+        # available relative to the current time.
+        utc_now = (
+            pd.Series(datetime.utcnow().replace(tzinfo=timezone.utc))
+            .min()
+            .round("15T")
+            .to_pydatetime()
+        )
+        most_recent_date = forecast_input.index.max().ceil("15T").to_pydatetime()
+        delta = utc_now - most_recent_date + timedelta(3)
+
+        forecast_input.index = forecast_input.index.shift(delta, freq=1)
+        most_recent_date = weather.index.max().ceil("15T").to_pydatetime()
+        delta = utc_now - most_recent_date + timedelta(3)
+        weather.index = weather.index.shift(delta, freq=1)
+
+        # Drop the last couple of rows of weather data to simulate missing data
+        weather.drop(weather.tail(30).index, inplace=True)
+
+        # Act
+        component_forecast = create_components_forecast_pipeline(
+            self.PJ, forecast_input, weather
+        )
+
+        # Assert
+        self.assertEqual(len(component_forecast), 193)
+        self.assertTrue(
+            component_forecast.tail(30)[
+                ["forecast_wind_on_shore", "forecast_solar", "forecast_other"]
+            ]
+            .eq(0)
+            .all()
+            .all()
+        )
+        self.assertEqual(
+            component_forecast.columns.to_list(),
+            [
+                "forecast_wind_on_shore",
+                "forecast_solar",
+                "forecast_other",
+                "pid",
+                "customer",
+                "description",
+                "type",
+                "algtype",
+            ],
+        )
+
     def test_component_forecast_pipeline_not_all_weather_data_available(self):
         # Test happy flow
         data = TestData.load("reference_sets/307-test-data.csv")
@@ -108,6 +163,22 @@ class TestComponentForecast(BaseTestCase):
         # Check if the output matches expectations
         self.assertEqual(
             component_forecast.columns.to_list(),
-            ["pid", "customer", "description", "type", "algtype"],
+            [
+                "forecast_wind_on_shore",
+                "forecast_solar",
+                "forecast_other",
+                "pid",
+                "customer",
+                "description",
+                "type",
+                "algtype",
+            ],
         )
-        self.assertEqual(len(component_forecast), 0)
+        self.assertTrue(
+            component_forecast[
+                ["forecast_wind_on_shore", "forecast_solar", "forecast_other"]
+            ]
+            .eq(0)
+            .all()
+            .all()
+        )
