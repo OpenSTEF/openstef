@@ -83,7 +83,13 @@ class MissingValuesTransformer:
 
         x = x[self.non_null_feature_names]
 
-        return self.imputer_.transform(x)
+        transformed = self.imputer_.transform(x)
+
+        # Do not impute for trailing missing values
+        trailing_nans = x.bfill().isna().to_numpy()
+        transformed = transformed.where(~trailing_nans, np.nan)
+
+        return transformed
 
     def fit_transform(self, x, y=None):
         """Fit the imputer on the input data and transform it.
