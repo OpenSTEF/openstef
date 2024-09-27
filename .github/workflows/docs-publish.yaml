@@ -20,7 +20,7 @@ jobs:
     # Setup python version
     - uses: actions/setup-python@v4
       with:
-        python-version: '3.9'
+        python-version: '3.11'
     # Run pre-build command
     - run: |
         cp requirements.txt docs/requirements.txt &&\
