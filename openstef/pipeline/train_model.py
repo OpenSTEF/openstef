@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 import logging
 import os
-from typing import Optional, Union
+from typing import Optional, Union, Tuple
 
 import pandas as pd
 import structlog
@@ -23,6 +23,7 @@ from openstef.model.regressors.regressor import OpenstfRegressor
 from openstef.model.serializer import MLflowSerializer
 from openstef.model.standard_deviation_generator import StandardDeviationGenerator
 from openstef.model_selection.model_selection import split_data_train_validation_test
+from openstef.settings import Settings
 from openstef.validation import validation
 
 DEFAULT_TRAIN_HORIZONS_HOURS: list[float] = [0.25, 47.0]
@@ -31,6 +32,11 @@ MAXIMUM_MODEL_AGE: int = 7
 DEFAULT_EARLY_STOPPING_ROUNDS: int = 10
 PENALTY_FACTOR_OLD_MODEL: float = 1.2
 
+structlog.configure(
+    wrapper_class=structlog.make_filtering_bound_logger(
+        logging.getLevelName(Settings.log_level)
+    )
+)
 logger = structlog.get_logger(__name__)
 
 
@@ -59,6 +65,13 @@ def train_model_pipeline(
             - The train dataset with forecasts
             - The validation dataset with forecasts
             - The test dataset with forecasts
+
+    Raises:
+        InputDataInsufficientError: when input data is insufficient.
+        InputDataWrongColumnOrderError: when input data has a invalid column order.
+            'load' column should be first and 'horizon' column last.
+        OldModelHigherScoreError: When old model is better than new model.
+        SkipSaveTrainingForecasts: If old model is better or younger than `MAXIMUM_MODEL_AGE`, the model is not saved.
 
     """
     # Initialize serializer
@@ -142,7 +155,7 @@ def train_model_pipeline_core(
     input_data: pd.DataFrame,
     old_model: OpenstfRegressor = None,
     horizons: list[float] = DEFAULT_TRAIN_HORIZONS_HOURS,
-) -> Union[
+) -> Tuple[
     OpenstfRegressor,
     Report,
     ModelSpecificationDataClass,
@@ -164,6 +177,7 @@ def train_model_pipeline_core(
         InputDataInsufficientError: when input data is insufficient.
         InputDataWrongColumnOrderError: when input data has a invalid column order.
         OldModelHigherScoreError: When old model is better than new model.
+        InputDataOngoingZeroFlatlinerError: when all recent load measurements are zero.
 
     Returns:
         - Fitted_model (OpenstfRegressor)
@@ -172,8 +186,6 @@ def train_model_pipeline_core(
         - Datasets (tuple[pd.DataFrmae, pd.DataFrame, pd.Dataframe): The train, validation and test sets
 
     """
-    logger = structlog.get_logger(__name__)
-
     # Call common pipeline
     (
         model,
@@ -234,7 +246,9 @@ def train_pipeline_common(
     test_fraction: float = 0.0,
     backtest: bool = False,
     test_data_predefined: pd.DataFrame = pd.DataFrame(),
-) -> tuple[OpenstfRegressor, Report, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+) -> tuple[
+    OpenstfRegressor, Report, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame
+]:
     """Common pipeline shared with operational training and backtest training.
 
     Args:
@@ -257,6 +271,8 @@ def train_pipeline_common(
     Raises:
         InputDataInsufficientError: when input data is insufficient.
         InputDataWrongColumnOrderError: when input data has a invalid column order.
+            'load' column should be first and 'horizon' column last.
+        InputDataOngoingZeroFlatlinerError: when all recent load measurements are zero.
 
     """
     data_with_features = train_pipeline_step_compute_features(
@@ -300,7 +316,8 @@ def train_pipeline_common(
 
 def train_pipeline_step_load_model(
     pj: PredictionJobDataClass, serializer: MLflowSerializer
-) -> tuple[OpenstfRegressor, ModelSpecificationDataClass, Union[int, float]]:
+) -> Tuple[OpenstfRegressor, ModelSpecificationDataClass, Union[int, float]]:
+    old_model: Optional[OpenstfRegressor]
     try:
         old_model, model_specs = serializer.load_model(experiment_name=str(pj.id))
         old_model_age = old_model.age  # Age attribute is openstef specific
@@ -346,12 +363,9 @@ def train_pipeline_step_compute_features(
         InputDataInsufficientError: when input data is insufficient.
         InputDataWrongColumnOrderError: when input data has a invalid column order.
         ValueError: when the horizon is a string and the corresponding column in not in the input data
+        InputDataOngoingZeroFlatlinerError: when all recent load measurements are zero.
 
     """
-    if pj["model"] == "proloaf":
-        # proloaf is only able to train with one horizon
-        horizons = [horizons[0]]
-
     if input_data.empty:
         raise InputDataInsufficientError("Input dataframe is empty")
     elif "load" not in input_data.columns:
@@ -423,6 +437,10 @@ def train_pipeline_step_train_model(
     Returns:
         The trained model
 
+    Raises:
+        NotImplementedError: When using invalid model type in the prediction job.
+        InputDataWrongColumnOrderError: When 'load' column is not first and 'horizon' column is not last.
+
     """
     # Test if first column is "load" and last column is "horizon"
     if train_data.columns[0] != "load" or train_data.columns[-1] != "horizon":
@@ -435,6 +453,7 @@ def train_pipeline_step_train_model(
     model = ModelCreator.create_model(
         pj["model"],
         quantiles=pj["quantiles"],
+        **(pj.model_kwargs or {}),
     )
 
     # split x and y data
@@ -493,7 +512,7 @@ def train_pipeline_step_split_data(
     test_fraction: float,
     backtest: bool = False,
     test_data_predefined: pd.DataFrame = pd.DataFrame(),
-) -> Union[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """The default way to perform train, val, test split.
 
     Args:
@@ -523,7 +542,7 @@ def train_pipeline_step_split_data(
     if pj.train_split_func is None:
         split_func = split_data_train_validation_test
         split_args = {
-            "stratification_min_max": pj["model"] != "proloaf",
+            "stratification_min_max": True,
             "back_test": backtest,
         }
     else:

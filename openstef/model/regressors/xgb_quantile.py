@@ -52,6 +52,9 @@ class XGBQuantileOpenstfRegressor(OpenstfRegressor):
             alpha: Alpha
             max_delta_step: Maximum delta step
 
+        Raises:
+            ValueError in case quantile 0.5 is not in the requested quantiles
+
         """
         super().__init__()
         # Check if quantile 0.5 is pressent this is required
@@ -175,10 +178,15 @@ class XGBQuantileOpenstfRegressor(OpenstfRegressor):
         # Convert array to dmatrix
         dmatrix_input = xgb.DMatrix(x.copy(deep=True))
 
-        return self.estimators_[quantile].predict(
-            dmatrix_input,
-            iteration_range=(0, self.estimators_[quantile].best_iteration + 1),
-        )
+        # best_iteration is only available if early stopping was used during training
+        if hasattr(self.estimators_[quantile], "best_iteration"):
+            return self.estimators_[quantile].predict(
+                dmatrix_input,
+                iteration_range=(0, self.estimators_[quantile].best_iteration + 1),
+            )
+
+        else:
+            return self.estimators_[quantile].predict(dmatrix_input)
 
     @classmethod
     def get_feature_importances_from_booster(cls, booster: Booster) -> np.ndarray:

@@ -6,9 +6,9 @@ from typing import Optional, Union
 
 from pydantic.v1 import BaseModel
 
+from openstef.data_classes.data_prep import DataPrepDataClass
 from openstef.data_classes.model_specifications import ModelSpecificationDataClass
 from openstef.data_classes.split_function import SplitFuncDataClass
-from openstef.data_classes.data_prep import DataPrepDataClass
 from openstef.enums import PipelineType
 
 
@@ -25,11 +25,15 @@ class PredictionJobDataClass(BaseModel):
         - ``"xgb_quantile"``
         - ``"lgb"``
         - ``"linear"``
-        - ``"proloaf"`` (extra dependencies requiered, see README)
+        - ``"linear_quantile"``
+        - ``"xgb_multioutput_quantile"``
+        - ``"flatliner"``
 
     If unsure what to pick, choose ``"xgb"``.
 
     """
+    model_kwargs: Optional[dict]
+    """The model parameters that should be used."""
     forecast_type: str
     """The type of forecasts that should be made.
 
@@ -41,14 +45,14 @@ class PredictionJobDataClass(BaseModel):
     If unsure what to pick, choose ``"demand"``.
 
     """
-    horizon_minutes: int = 2880
-    """The horizon of the desired forecast in minutes. Defaults to 2880 minutes (i.e. 2 days)."""
+    horizon_minutes: Optional[int] = 2880
+    """The horizon of the desired forecast in minutes used in tasks. Defaults to 2880 minutes (i.e. 2 days)."""
     resolution_minutes: int
     """The resolution of the desired forecast in minutes."""
-    lat: float
-    """Latitude of the forecasted location in degrees."""
-    lon: float
-    """Longitude of the forecasted location in degrees."""
+    lat: Optional[float] = 52.132633
+    """Latitude of the forecasted location in degrees. Used for fetching weather data in tasks, calculating derrived features and component splitting."""
+    lon: Optional[float] = 5.291266
+    """Longitude of the forecasted location in degrees. Used for fetching weather data in tasks, calculating derrived features and component splitting."""
     name: str
     """Name of the forecast, e.g. the location name."""
     train_components: Optional[bool]
@@ -71,7 +75,7 @@ class PredictionJobDataClass(BaseModel):
     """Minimum fraction of data that should be available for making a regular forecast."""
     minimal_table_length: int = 100
     """Minimum length (in rows) of the forecast input for making a regular forecast."""
-    flatliner_threshold_minutes: int = 360
+    flatliner_threshold_minutes: int = 1440
     """Number of minutes that the load has to be constant to detect a flatliner. """
     depends_on: Optional[list[Union[int, str]]]
     """Link to another prediction job on which this prediction job might depend."""

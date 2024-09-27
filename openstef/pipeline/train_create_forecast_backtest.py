@@ -56,10 +56,16 @@ def train_model_and_forecast_back_test(
         - Validation data sets (list[pd.DataFrame])
         - Test data sets (list[pd.DataFrame])
 
+    Raises:
+        InputDataInsufficientError: when input data is insufficient.
+        InputDataWrongColumnOrderError: when input data has a invalid column order.
+        ValueError: when the horizon is a string and the corresponding column in not in the input data
+        InputDataOngoingZeroFlatlinerError: when all recent load measurements are zero.
+
     """
     if pj.backtest_split_func is None:
         backtest_split_func = backtest_split_default
-        backtest_split_args = {"stratification_min_max": pj["model"] != "proloaf"}
+        backtest_split_args = {"stratification_min_max": True}
     else:
         backtest_split_func, backtest_split_args = pj.backtest_split_func.load(
             required_arguments=["data", "n_folds"]
@@ -123,6 +129,10 @@ def train_model_and_forecast_test_core(
     Returns:
         - The trained model
         - The forecast on the test set.
+
+    Raises:
+        NotImplementedError: When using invalid model type in the prediction job.
+        InputDataWrongColumnOrderError: When 'load' column is not first and 'horizon' column is not last.
 
     """
     model = train_model.train_pipeline_step_train_model(

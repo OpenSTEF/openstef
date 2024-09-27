@@ -5,7 +5,7 @@
 """Openstef custom exceptions."""
 
 
-# Define custom exception
+# Define custom exceptions
 class NoPredictedLoadError(Exception):
     """No predicted load for given datatime range."""
 

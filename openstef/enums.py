@@ -8,10 +8,12 @@ from enum import Enum
 class MLModelType(Enum):
     XGB = "xgb"
     XGB_QUANTILE = "xgb_quantile"
+    XGB_MULTIOUTPUT_QUANTILE = "xgb_multioutput_quantile"
     LGB = "lgb"
     LINEAR = "linear"
-    ProLoaf = "proloaf"
+    LINEAR_QUANTILE = "linear_quantile"
     ARIMA = "arima"
+    FLATLINER = "flatliner"
 
 
 class ForecastType(Enum):
@@ -19,12 +21,6 @@ class ForecastType(Enum):
     WIND = "wind"
     SOLAR = "solar"
     BASECASE = "basecase"
-
-
-class TracyJobResult(Enum):
-    SUCCESS = "success"
-    FAILED = "failed"
-    UNKNOWN = "unknown"
 
 
 class PipelineType(Enum):

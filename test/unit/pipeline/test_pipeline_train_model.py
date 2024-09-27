@@ -13,8 +13,8 @@ from unittest.mock import MagicMock, patch
 import pandas as pd
 import sklearn
 
-from openstef.data_classes.split_function import SplitFuncDataClass
 from openstef.data_classes.data_prep import DataPrepDataClass
+from openstef.data_classes.split_function import SplitFuncDataClass
 from openstef.enums import MLModelType
 from openstef.exceptions import (
     InputDataInsufficientError,
@@ -31,12 +31,12 @@ from openstef.model.objective import RegressorObjective
 from openstef.model.regressors.custom_regressor import CustomOpenstfRegressor
 from openstef.model_selection.model_selection import split_data_train_validation_test
 from openstef.pipeline.train_model import (
+    DEFAULT_TRAIN_HORIZONS_HOURS,
     train_model_pipeline,
     train_model_pipeline_core,
     train_pipeline_common,
 )
 from openstef.validation import validation
-from openstef.pipeline.train_model import DEFAULT_TRAIN_HORIZONS_HOURS
 
 
 class DummyObjective(RegressorObjective):
@@ -126,13 +126,10 @@ class TestTrainModelPipeline(BaseTestCase):
 
         """
         # Select 50 data points to speedup test
-        train_input = self.train_input.iloc[::50, :]
+        train_input = self.train_input.iloc[:50, :]
         # Remove modeltypes which are optional, and add a dummy regressor
         for model_type in list(MLModelType) + [__name__ + ".DummyRegressor"]:
             with self.subTest(model_type=model_type):
-                # Skip the optional proloaf model
-                if model_type == MLModelType.ProLoaf:
-                    continue
                 pj = self.pj
 
                 pj["model"] = (
@@ -208,9 +205,6 @@ class TestTrainModelPipeline(BaseTestCase):
         train_input = self.train_input.iloc[::50, :]
         for model_type in list(MLModelType) + [__name__ + ".DummyRegressor"]:
             with self.subTest(model_type=model_type):
-                # Skip the optional proloaf model
-                if model_type == MLModelType.ProLoaf:
-                    continue
                 # Skip the arima model because it does not use legacy data prep
                 if model_type == MLModelType.ARIMA:
                     continue

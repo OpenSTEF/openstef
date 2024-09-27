@@ -1,8 +1,9 @@
 # SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+import logging
 import os
-from typing import Any, Union
+from typing import Any
 
 import optuna
 import pandas as pd
@@ -21,16 +22,22 @@ from openstef.model.objective import RegressorObjective
 from openstef.model.objective_creator import ObjectiveCreator
 from openstef.model.regressors.regressor import OpenstfRegressor
 from openstef.model.serializer import MLflowSerializer
+from openstef.model_selection.model_selection import split_data_train_validation_test
 from openstef.pipeline.train_model import (
     DEFAULT_TRAIN_HORIZONS_HOURS,
     train_model_pipeline_core,
 )
+from openstef.settings import Settings
 from openstef.validation import validation
-from openstef.model_selection.model_selection import split_data_train_validation_test
 
 optuna.logging.enable_propagation()  # Propagate logs to the root logger.
 optuna.logging.disable_default_handler()  # Stop showing logs in sys.stderr.
 
+structlog.configure(
+    wrapper_class=structlog.make_filtering_bound_logger(
+        logging.getLevelName(Settings.log_level)
+    )
+)
 logger = structlog.get_logger(__name__)
 
 # See https://optuna.readthedocs.io/en/stable/reference/generated/optuna.study.Study.html#optuna.study.Study.optimize
@@ -59,6 +66,9 @@ def optimize_hyperparameters_pipeline(
 
     Raises:
         ValueError: If the input_date is insufficient.
+        InputDataInsufficientError: If the input dataframe is empty.
+        InputDataWrongColumnOrderError: If the load column is missing in the input dataframe.
+        OldModelHigherScoreError: When old model is better than new model.
 
     Returns:
         Optimized hyperparameters.
@@ -119,6 +129,10 @@ def optimize_hyperparameters_pipeline_core(
 
     Raises:
         ValueError: If the input_date is insufficient.
+        InputDataInsufficientError: If the input dataframe is empty.
+        InputDataWrongColumnOrderError: If the load column is missing in the input dataframe.
+        OldModelHigherScoreError: When old model is better than new model.
+        InputDataOngoingZeroFlatlinerError: When all recent load measurements are zero.
 
     Returns:
         - Best model,
@@ -174,18 +188,6 @@ def optimize_hyperparameters_pipeline_core(
     validated_data_with_features = TrainFeatureApplicator(
         horizons=horizons, feature_names=feature_names, feature_modules=feature_modules
     ).add_features(validated_data, pj=pj)
-
-    # Adds additional proloaf features to the input data, historic_load (equal to the load, first column)
-    if pj["model"] == "proloaf" and "historic_load" not in list(
-        validated_data_with_features.columns
-    ):
-        validated_data_with_features[
-            "historic_load"
-        ] = validated_data_with_features.iloc[:, 0]
-        # Make sure horizons is last column
-        temp_cols = validated_data_with_features.columns.tolist()
-        new_cols = temp_cols[:-2] + [temp_cols[-1]] + [temp_cols[-2]]
-        validated_data_with_features = validated_data_with_features[new_cols]
 
     # Create objective (NOTE: this is a callable class)
     objective = ObjectiveCreator.create_objective(model_type=pj["model"])
@@ -245,7 +247,7 @@ def optuna_optimization(
         - The objective object used by optuna
 
     """
-    model = ModelCreator.create_model(pj["model"])
+    model = ModelCreator.create_model(pj["model"], **(pj.model_kwargs or {}))
     # Apply set to default hyperparameters if they are specified in the pj
     if pj.default_modelspecs:
         valid_hyper_parameters = {
@@ -268,7 +270,7 @@ def optuna_optimization(
     if pj.train_split_func is None:
         split_func = split_data_train_validation_test
         split_args = {
-            "stratification_min_max": pj["model"] != "proloaf",
+            "stratification_min_max": True,
             "back_test": True,
         }
     else:

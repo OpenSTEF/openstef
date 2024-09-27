@@ -21,11 +21,12 @@ Example:
         $ python create_components_forecast.py
 
 """
+import logging
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-import structlog
 import pandas as pd
+import structlog
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.enums import MLModelType
@@ -33,6 +34,7 @@ from openstef.exceptions import ComponentForecastTooShortHorizonError
 from openstef.pipeline.create_component_forecast import (
     create_components_forecast_pipeline,
 )
+from openstef.settings import Settings
 from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstef.tasks.utils.taskcontext import TaskContext
 
@@ -41,7 +43,10 @@ T_AHEAD_DAYS = 3
 
 
 def create_components_forecast_task(
-    pj: PredictionJobDataClass, context: TaskContext
+    pj: PredictionJobDataClass,
+    context: TaskContext,
+    t_behind_days: int = T_BEHIND_DAYS,
+    t_ahead_days: int = T_AHEAD_DAYS,
 ) -> None:
     """Top level task that creates a components forecast.
 
@@ -50,8 +55,19 @@ def create_components_forecast_task(
     Args:
         pj: Prediction job
         context: Contect object that holds a config manager and a database connection
+        t_behind_days: number of days in the past that the component forecast is created for
+        t_ahead_days: number of days in the future that the component forecast is created for
+
+    Raises:
+        ComponentForecastTooShortHorizonError: If the forecast horizon is too short
+         (less than 30 minutes in advance)
 
     """
+    structlog.configure(
+        wrapper_class=structlog.make_filtering_bound_logger(
+            logging.getLevelName(Settings.log_level)
+        )
+    )
     logger = structlog.get_logger(__name__)
     if pj["train_components"] == 0:
         context.logger.info(
@@ -60,8 +76,8 @@ def create_components_forecast_task(
         return
 
     # Define datetime range for input data
-    datetime_start = datetime.utcnow() - timedelta(days=T_BEHIND_DAYS)
-    datetime_end = datetime.utcnow() + timedelta(days=T_AHEAD_DAYS)
+    datetime_start = datetime.utcnow() - timedelta(days=t_behind_days)
+    datetime_end = datetime.utcnow() + timedelta(days=t_ahead_days)
 
     logger.info(
         "Get predicted load", datetime_start=datetime_start, datetime_end=datetime_end
@@ -124,7 +140,7 @@ def create_components_forecast_task(
         )
 
 
-def main(config: object = None, database: object = None):
+def main(config: object = None, database: object = None, **kwargs):
     taskname = Path(__file__).name.replace(".py", "")
 
     if database is None or config is None:
@@ -139,7 +155,7 @@ def main(config: object = None, database: object = None):
         PredictionJobLoop(
             context,
             model_type=model_type,
-        ).map(create_components_forecast_task, context)
+        ).map(create_components_forecast_task, context, **kwargs)
 
 
 if __name__ == "__main__":

@@ -2,7 +2,10 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+import logging
+
 import joblib
+import numpy as np
 import pandas as pd
 import structlog
 
@@ -11,9 +14,12 @@ from openstef import PROJECT_ROOT
 from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.enums import ForecastType
 from openstef.model.regressors.dazls import Dazls
+from openstef.settings import Settings
 
 # Set the path for the Dazls stored model
-DAZLS_STORED = PROJECT_ROOT / "openstef" / "data" / "dazls_stored.sav"
+DAZLS_STORED = str(
+    PROJECT_ROOT / "openstef" / "data" / "dazls_model_3.4.24" / "dazls_stored_3.4.24_"
+)
 
 
 def create_input(
@@ -37,7 +43,7 @@ def create_input(
     input_df = (
         weather_data[["radiation", "windspeed_100m"]]
         .merge(
-            input_data[["forecast"]].rename(columns={"forecast": "total_substation"}),
+            input_data[["forecast"]].rename(columns={"forecast": "total_load"}),
             how="inner",
             right_index=True,
             left_index=True,
@@ -53,12 +59,19 @@ def create_input(
     input_df["hour"] = input_df.index.hour
     input_df["minute"] = input_df.index.minute
 
-    input_df["var0"] = input_df["total_substation"].var()
+    input_df["var0"] = input_df["total_load"].var()
     input_df["var1"] = input_df["radiation"].var()
     input_df["var2"] = input_df["windspeed_100m"].var()
 
-    input_df["sem0"] = input_df["total_substation"].sem()
+    input_df["sem0"] = input_df["total_load"].sem()
     input_df["sem1"] = input_df["radiation"].sem()
+    input_df["sem2"] = input_df["windspeed_100m"].sem()
+
+    # Features for the new model
+    # Periodic Month feature
+    c = (1 / 11) * np.pi - (1 / 365)
+    n = np.array(input_df.index.month, dtype=float)
+    input_df["month_ff"] = np.sin(c * (n - 1))
 
     return input_df
 
@@ -85,6 +98,11 @@ def create_components_forecast_pipeline(
         "algtype"
 
     """
+    structlog.configure(
+        wrapper_class=structlog.make_filtering_bound_logger(
+            logging.getLevelName(Settings.log_level)
+        )
+    )
     logger = structlog.get_logger(__name__)
     logger.info("Make components prediction", pid=pj["id"])
 
@@ -92,9 +110,12 @@ def create_components_forecast_pipeline(
     try:
         input_data = create_input(pj, input_data, weather_data)
 
-        # Save and load the model as .sav file
+        # Save and load the model as .sav file (or as .z file)
         # For the code contact: korte.termijn.prognoses@alliander.com
-        dazls_model: Dazls = joblib.load(DAZLS_STORED)
+        dazls_model = Dazls()
+        dazls_model.model_ = joblib.load(DAZLS_STORED + "baseline_model.z")
+
+        logger.info("DAZLS model loaded", dazls_model=str(dazls_model))
 
         # Use the predict function of Dazls model
         # As input data we use the input_data function which takes into consideration what we want as an input for the forecast and what Dazls can accept as an input
@@ -119,7 +140,7 @@ def create_components_forecast_pipeline(
 
         # Make forecast for the component: "forecast_other"
         forecasts["forecast_other"] = (
-            input_data["total_substation"]
+            input_data["total_load"]
             - forecasts["forecast_solar"]
             - forecasts["forecast_wind_on_shore"]
         )

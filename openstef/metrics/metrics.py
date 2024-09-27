@@ -25,6 +25,9 @@ def get_eval_metric_function(metric_name: str) -> Callable:
     Returns:
         Function to calculate the metric.
 
+    Raises:
+        KeyError: If the metric is not available.
+
     """
     evaluation_function = {
         "rmse": rmse,
@@ -129,6 +132,9 @@ def r_mae_highest(
     """Function that calculates the relative mean absolute error for the 5 percent highest realised values.
 
     The range is based on the load range of the previous two weeks.
+
+    Raises:
+        ValueError: If the length of the realised and forecast arrays are not equal.
 
     """
     # Check if length of both arrays is equal
@@ -395,7 +401,7 @@ def xgb_quantile_obj(
     Args:
         preds: numpy.ndarray
         dmatrix: xgboost.DMatrix
-        quantile: float
+        quantile: float between 0 and 1
 
     Returns:
         Gradient and Hessian
@@ -425,3 +431,54 @@ def xgb_quantile_obj(
     hess = np.ones_like(preds)
 
     return grad, hess
+
+
+def arctan_loss(y_true, y_pred, taus, s=0.1):
+    """Compute the arctan pinball loss.
+
+    Note that XGBoost outputs the predictions in a slightly peculiar manner.
+    Suppose we have 100 data points and we predict 10 quantiles. The predictions
+    will be an array of size (1000 x 1). We first resize this to a (100x10) array
+    where each row corresponds to the 10 predicted quantile for a single data
+    point. We then use a for-loop (over the 10 columns) to calculate the gradients
+    and second derivatives. Legibility was chosen over efficiency. This part
+    can be made more efficient.
+
+    Args:
+        y_true: An array containing the true observations.
+        y_pred: An array containing the predicted quantiles.
+        taus: A list containing the true desired coverage of the quantiles.
+        s: A smoothing parameter.
+
+    Returns:
+        grad: An array containing the (negative) gradients with respect to y_pred.
+        hess: An array containing the second derivative with respect to y_pred.
+
+    """
+    size = len(y_true)
+    n_dim = len(taus)  # The number of columns
+    n_rows = size // n_dim
+
+    # Resize the predictions and targets.
+    # Each column corresponds to a quantile, each row to a data point.
+    y_pred = np.reshape(y_pred, (n_rows, n_dim))
+    y_true = np.reshape(y_true, (n_rows, n_dim))
+
+    # Calculate the differences
+    u = y_true - y_pred
+
+    # Calculate the gradient and second derivatives
+    grad = np.zeros_like(y_pred)
+    hess = np.zeros_like(y_pred)
+    z = u / s
+    for i, tau in enumerate(taus):
+        x = 1 + z[:, i] ** 2
+        grad[:, i] = (
+            tau - 0.5 + 1 / np.pi * np.arctan(z[:, i]) + z[:, i] / (np.pi) * x**-1
+        )
+        hess[:, i] = 2 / (np.pi * s) * x ** (-2)
+
+    # Reshape back to the original shape.
+    grad = grad.reshape(size)
+    hess = hess.reshape(size)
+    return -grad / n_dim, hess / n_dim

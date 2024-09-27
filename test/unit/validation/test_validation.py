@@ -8,9 +8,8 @@ from test.unit.utils.data import TestData
 import numpy as np
 import pytest
 
-from openstef.validation import validation
-
 from openstef.exceptions import InputDataOngoingZeroFlatlinerError
+from openstef.validation import validation
 
 
 class TestDataValidation(BaseTestCase):
@@ -43,14 +42,32 @@ class TestDataValidation(BaseTestCase):
         self.assertEqual(len(cleaned_data), 1000)
 
     def test_validate(self):
-        self.data_predict["load"][0:50] = 10.0
+        # Arrange
+        default_flatliner_threshold_minutes = 1440
+        flatliner_pattern_length_quarters = int(
+            default_flatliner_threshold_minutes / 15 + 1
+        )
+        self.data_predict["load"][0:flatliner_pattern_length_quarters] = 10.0
+
+        # Act
         validated_data = validation.validate(
             self.pj["id"],
             self.data_predict,
             self.pj["flatliner_threshold_minutes"],
             resolution_minutes=15,
         )
-        self.assertEqual(26, len(validated_data[validated_data["load"].isna()]))
+
+        # Assert
+        assert (
+            self.pj["flatliner_threshold_minutes"]
+            == default_flatliner_threshold_minutes
+        ), (
+            "Change the 'default_flatliner_threshold_minutes' in the arrange part of this unittest"
+            "to the default value given in the prediction job dataclass."
+        )
+        self.assertEqual(
+            flatliner_pattern_length_quarters, sum(validated_data["load"].isna())
+        )
 
     def test_validate_none_threshold(self):
         """return the input if flatliner_threshold_minutes is None"""

@@ -1,25 +1,32 @@
 # SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+import logging
 from typing import Union
 
 import structlog
 
 from openstef.enums import MLModelType
+from openstef.model.regressors.arima import ARIMAOpenstfRegressor
 from openstef.model.regressors.custom_regressor import is_custom_type, load_custom_model
 from openstef.model.regressors.lgbm import LGBMOpenstfRegressor
 from openstef.model.regressors.linear import LinearOpenstfRegressor
+from openstef.model.regressors.linear_quantile import LinearQuantileOpenstfRegressor
 from openstef.model.regressors.regressor import OpenstfRegressor
+from openstef.model.regressors.flatliner import FlatlinerRegressor
 from openstef.model.regressors.xgb import XGBOpenstfRegressor
 from openstef.model.regressors.xgb_quantile import XGBQuantileOpenstfRegressor
-from openstef.model.regressors.arima import ARIMAOpenstfRegressor
+from openstef.model.regressors.xgb_multioutput_quantile import (
+    XGBMultiOutputQuantileOpenstfRegressor,
+)
+from openstef.settings import Settings
 
+structlog.configure(
+    wrapper_class=structlog.make_filtering_bound_logger(
+        logging.getLevelName(Settings.log_level)
+    )
+)
 logger = structlog.get_logger(__name__)
-try:
-    from openstef.model.regressors.proloaf import OpenstfProloafRegressor
-except ImportError:
-    logger.info("Proloaf not available, setting constructor to None")
-    OpenstfProloafRegressor = None
 
 valid_model_kwargs = {
     MLModelType.XGB: [
@@ -84,28 +91,28 @@ valid_model_kwargs = {
         "max_depth",
         "early_stopping_rounds",
     ],
-    MLModelType.ProLoaf: [
-        "relu_leak",
-        "encoder_features",
-        "decoder_features",
-        "core_layers",
-        "rel_linear_hidden_size",
-        "rel_core_hidden_size",
-        "dropout_fc",
-        "dropout_core",
-        "training_metric",
-        "metric_options",
-        "optimizer_name",
-        "early_stopping_patience",
-        "early_stopping_margin",
-        "learning_rate",
-        "max_epochs",
-        "device",
-        "batch_size",
-        "history_horizon",
-        "horizon_minutes",
+    MLModelType.XGB_MULTIOUTPUT_QUANTILE: [
+        "quantiles",
+        "gamma",
+        "colsample_bytree",
+        "subsample",
+        "min_child_weight",
+        "max_depth",
+        "early_stopping_rounds",
+        "arctan_smoothing",
     ],
     MLModelType.LINEAR: [
+        "missing_values",
+        "imputation_strategy",
+        "fill_value",
+    ],
+    MLModelType.FLATLINER: [
+        "quantiles",
+    ],
+    MLModelType.LINEAR_QUANTILE: [
+        "alpha",
+        "quantiles",
+        "solver",
         "missing_values",
         "imputation_strategy",
         "fill_value",
@@ -127,9 +134,11 @@ class ModelCreator:
         MLModelType.XGB: XGBOpenstfRegressor,
         MLModelType.LGB: LGBMOpenstfRegressor,
         MLModelType.XGB_QUANTILE: XGBQuantileOpenstfRegressor,
-        MLModelType.ProLoaf: OpenstfProloafRegressor,
+        MLModelType.XGB_MULTIOUTPUT_QUANTILE: XGBMultiOutputQuantileOpenstfRegressor,
         MLModelType.LINEAR: LinearOpenstfRegressor,
+        MLModelType.LINEAR_QUANTILE: LinearQuantileOpenstfRegressor,
         MLModelType.ARIMA: ARIMAOpenstfRegressor,
+        MLModelType.FLATLINER: FlatlinerRegressor,
     }
 
     @staticmethod

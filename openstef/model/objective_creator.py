@@ -6,13 +6,13 @@ from typing import Union
 
 from openstef.enums import MLModelType
 from openstef.model.objective import (
+    ARIMARegressorObjective,
     LGBRegressorObjective,
     LinearRegressorObjective,
-    ProLoafRegressorObjective,
     RegressorObjective,
     XGBQuantileRegressorObjective,
     XGBRegressorObjective,
-    ARIMARegressorObjective,
+    XGBMultioutputQuantileRegressorObjective,
 )
 from openstef.model.regressors.custom_regressor import (
     create_custom_objective,
@@ -25,8 +25,9 @@ class ObjectiveCreator:
         MLModelType.XGB: XGBRegressorObjective,
         MLModelType.LGB: LGBRegressorObjective,
         MLModelType.XGB_QUANTILE: XGBQuantileRegressorObjective,
-        MLModelType.ProLoaf: ProLoafRegressorObjective,
+        MLModelType.XGB_MULTIOUTPUT_QUANTILE: XGBMultioutputQuantileRegressorObjective,
         MLModelType.LINEAR: LinearRegressorObjective,
+        MLModelType.LINEAR_QUANTILE: LinearRegressorObjective,
         MLModelType.ARIMA: ARIMARegressorObjective,
     }
 

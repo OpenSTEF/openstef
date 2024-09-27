@@ -2,16 +2,16 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 from test.unit.utils.base import BaseTestCase
 from test.unit.utils.data import TestData
+
 import joblib
-
 import pandas as pd
-
-from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).parent.parent.parent.parent.absolute()
 
+from openstef.model.regressors.dazls import Dazls
 from openstef.pipeline.create_component_forecast import (
     create_components_forecast_pipeline,
 )
@@ -28,11 +28,14 @@ class TestComponentForecast(BaseTestCase):
         Assert that loading the old model generates an exception and the new model does not
         """
 
-        old_model_file = PROJECT_ROOT / "openstef/data/dazls_stored_3.2.49.sav"
-        new_model_file = PROJECT_ROOT / "openstef/data/dazls_stored.sav"
+        new_model_file = str(
+            PROJECT_ROOT / "openstef/data/dazls_model_3.4.24/dazls_stored_3.4.24_"
+        )
 
-        self.assertRaises(Exception, joblib.load, old_model_file)
-        dazls_model = joblib.load(new_model_file)
+        dazls_model = Dazls()
+
+        dazls_model.model_ = joblib.load(new_model_file + "baseline_model.z")
+
         assert dazls_model
 
     def test_component_forecast_pipeline_happy_flow(self):

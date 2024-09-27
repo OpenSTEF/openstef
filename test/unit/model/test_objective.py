@@ -12,7 +12,6 @@ from openstef.model.model_creator import ModelCreator
 from openstef.model.objective import (
     LGBRegressorObjective,
     LinearRegressorObjective,
-    ProLoafRegressorObjective,
     RegressorObjective,
     XGBQuantileRegressorObjective,
     XGBRegressorObjective,
@@ -111,33 +110,6 @@ class TestXGBQRegressorObjective(BaseTestCase):
 
         self.assertIsInstance(objective, XGBQuantileRegressorObjective)
         self.assertEqual(len(study.trials), N_TRIALS)
-
-
-class TestProLoafRegressorObjective(BaseTestCase):
-    @unittest.skip  # Skip as this cannot always succeed due to neural network libraries being optional
-    def test_call(self):
-        input_data = TestData.load("reference_sets/307-train-data.csv")
-        pj = {"model": "proloaf"}
-        input_data_with_features = TrainFeatureApplicator(horizons=[24.0]).add_features(
-            input_data, pj=pj
-        )
-
-        model_type = "proloaf"
-        model = ModelCreator.create_model(model_type)
-
-        objective = ProLoafRegressorObjective(
-            model,
-            input_data_with_features,
-        )
-        study = optuna.create_study(
-            study_name=model_type,
-            pruner=optuna.pruners.MedianPruner(n_warmup_steps=5),
-            direction="minimize",
-        )
-        study.optimize(objective, n_trials=1)
-
-        self.assertIsInstance(objective, ProLoafRegressorObjective)
-        self.assertEqual(len(study.trials), 1)
 
 
 class TestLinearRegressorObjective(BaseTestCase):
