@@ -56,7 +56,7 @@ class TestLinearQuantile(BaseTestCase):
         n_sample = train_input.shape[0]
         X = train_input.iloc[:, 1:].copy(deep=True)
         sp = np.ones(n_sample)
-        sp[-1] = np.nan
+        sp[-2] = np.nan
         X["Sparse"] = sp
         model1 = LinearQuantileOpenstfRegressor(imputation_strategy=None)
         model2 = LinearQuantileOpenstfRegressor(imputation_strategy="mean")
