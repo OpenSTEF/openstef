@@ -7,12 +7,12 @@ lightgbm~=3.3
 matplotlib~=3.7
 mlflow~=2.3
 networkx~=3.1
-numpy<2.0.0
+numpy>=2,<3
 optuna~=3.1
 optuna-integration~=3.6
 pandas~=2.2.0
 plotly~=5.18
-pvlib==0.9.4
+pvlib==0.10.5
 pydantic~=2.4
 pydantic-settings~=2.3
 pymsteams~=0.2.2   # TODO remove teams dependency
