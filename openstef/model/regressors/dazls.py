@@ -52,6 +52,7 @@ class Dazls(BaseEstimator):
         Args:
             features: inputs for domain and adaptation model (domain_model_input, adaptation_model_input)
             target: the expected output (y_train)
+
         """
         x, y = (
             features.loc[:, self.baseline_input_columns],
@@ -76,6 +77,7 @@ class Dazls(BaseEstimator):
 
         Returns:
             prediction: The output prediction after both models.
+
         """
         model_test_data = x.loc[:, self.baseline_input_columns]
 
@@ -90,6 +92,7 @@ class Dazls(BaseEstimator):
 
         Returns:
             RMSE and R2 scores
+
         """
         rmse = (mean_squared_error(truth, prediction)) ** 0.5
         r2_score_value = r2_score(truth, prediction)
@@ -100,6 +103,7 @@ class Dazls(BaseEstimator):
 
         Returns:
             Summary represented by a string
+
         """
         summary_str = (
             f"{self.__name__} model summary:\n\n"

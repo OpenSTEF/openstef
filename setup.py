@@ -29,7 +29,7 @@ def read_long_description_from_readme():
 
 setup(
     name="openstef",
-    version="3.4.25",
+    version="3.4.33",
     packages=find_packages(include=["openstef", "openstef.*"]),
     description="Open short term energy forecaster",
     long_description=read_long_description_from_readme(),
@@ -43,9 +43,9 @@ setup(
     # for more information
     package_data={
         # Include anything in the data directory
-        "openstef": ["data/*", "data/dazls_model_3.4.7/*", "*.license"]
+        "openstef": ["data/*", "data/**/*", "*.license"]
     },
-    python_requires=">=3.9.0",
+    python_requires=">=3.11.0",
     install_requires=read_requirements_from_file(),
     setup_requires=["wheel"],
     tests_require=["pytest", "pytest-cov", "flake8"],
@@ -53,7 +53,6 @@ setup(
         r"Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
         r"License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)",
-        "Programming Language :: Python :: 3.9",
-        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
     ],
 )

@@ -231,7 +231,7 @@ class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
         return np.array(
             [
                 reg_feature_importances_dict.get(c, 0)
-                for c in self.imputer_.in_feature_names
+                for c in self.imputer_.non_null_feature_names
             ]
         )
 

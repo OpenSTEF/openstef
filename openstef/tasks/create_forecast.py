@@ -118,7 +118,7 @@ def create_forecast_task(
     context.database.write_forecast(forecast, t_ahead_series=True)
 
 
-def main(model_type=None, config=None, database=None):
+def main(model_type=None, config=None, database=None, **kwargs):
     taskname = Path(__file__).name.replace(".py", "")
 
     if database is None or config is None:
@@ -132,7 +132,7 @@ def main(model_type=None, config=None, database=None):
             model_type = [ml.value for ml in MLModelType]
 
         PredictionJobLoop(context, model_type=model_type).map(
-            create_forecast_task, context
+            create_forecast_task, context, **kwargs
         )
 
 

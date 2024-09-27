@@ -26,14 +26,30 @@ class MockModel:
         }
     )
 
-    @staticmethod
-    def predict(input, quantile):
+    can_predict_quantiles_ = True
+
+    def predict(self, input, quantile):
+        if self.can_predict_quantiles and quantile not in self.quantiles:
+            # When model is trained on quantiles, it should fail if quantile is not in
+            # trained quantiles
+            raise ValueError("Quantile not in trained quantiles")
+
         stdev_forecast = pd.DataFrame({"forecast": [5, 6, 7], "stdev": [0.5, 0.6, 0.7]})
         return stdev_forecast["stdev"].rename(quantile)
 
     @property
     def can_predict_quantiles(self):
-        return True
+        return self.can_predict_quantiles_
+
+    @property
+    def quantiles(self):
+        return [0.01, 0.10, 0.25, 0.50, 0.75, 0.90, 0.99]
+
+
+class MockNonQuantileModel(MockModel):
+    @property
+    def can_predict_quantiles(self):
+        return False
 
 
 class MockModelMultiHorizonStdev(MockModel):
@@ -171,3 +187,53 @@ class TestConfidenceIntervalApplicator(TestCase):
         self.assertLessEqual(
             actual_stdev_forecast["stdev"].max(), 14
         )  # => MockModel.standard_deviation.stdev.max())
+
+    def test_add_quantiles_to_forecast_untrained_quantiles_with_quantile_model(self):
+        """For quantile models, the trained quantiles can used if the quantiles of the pj are incompatible"""
+        # Set up
+        pj = {"quantiles": [0.12, 0.5, 0.65]}  # numbers are arbitrary
+        model = MockModel()
+        forecast = pd.DataFrame({"forecast": [5, 6, 7], "tAhead": [-1.0, 0.0, 1.0]})
+        forecast.index = [
+            pd.Timestamp(2012, 5, 1, 1, 30),
+            pd.Timestamp(2012, 5, 1, 1, 45),
+            pd.Timestamp(2012, 5, 1, 2, 00),
+        ]
+        model.can_predict_quantiles_ = True
+        # Specify expectation
+        expected_quantiles = model.quantiles
+        expected_columns = [f"quantile_P{int(q * 100):02d}" for q in expected_quantiles]
+
+        # Act
+        pp_forecast = ConfidenceIntervalApplicator(
+            model, forecast
+        ).add_confidence_interval(forecast, pj)
+
+        # Assert
+        for expected_column in expected_columns:
+            self.assertTrue(expected_column in pp_forecast.columns)
+
+    def test_add_quantiles_to_forecast_untrained_quantiles_with_nonquantile_model(self):
+        """For nonquantile models, the quantiles of the pj should be used, also if the model was not trained on those"""
+        # Set up
+        pj = {"quantiles": [0.12, 0.5, 0.65]}  # numbers are arbitrary
+        model = MockModel()
+        forecast = pd.DataFrame({"forecast": [5, 6, 7], "tAhead": [-1.0, 0.0, 1.0]})
+        forecast.index = [
+            pd.Timestamp(2012, 5, 1, 1, 30),
+            pd.Timestamp(2012, 5, 1, 1, 45),
+            pd.Timestamp(2012, 5, 1, 2, 00),
+        ]
+        model.can_predict_quantiles_ = False
+        # Specify expectation
+        expected_quantiles = pj["quantiles"]
+        expected_columns = [f"quantile_P{int(q * 100):02d}" for q in expected_quantiles]
+
+        # Act
+        pp_forecast = ConfidenceIntervalApplicator(
+            model, forecast
+        ).add_confidence_interval(forecast, pj)
+
+        # Assert
+        for expected_column in expected_columns:
+            self.assertTrue(expected_column in pp_forecast.columns)
