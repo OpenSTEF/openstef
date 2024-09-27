@@ -68,7 +68,8 @@ class MissingValuesTransformer:
 
         # Remove always null columns
         is_column_null = x.isnull().all(axis="index")
-        self.non_null_feature_names = list(x.columns[~is_column_null])
+        trailing_null_columns = x.bfill().isnull().any(axis="index")
+        self.non_null_feature_names = list(x.columns[~(is_column_null | trailing_null_columns)])
 
         # Imputers do not support labels
         self.imputer_.fit(X=x[self.non_null_feature_names], y=None)
@@ -84,10 +85,6 @@ class MissingValuesTransformer:
         x = x[self.non_null_feature_names]
 
         transformed = self.imputer_.transform(x)
-
-        # Do not impute for trailing missing values
-        trailing_nans = x.bfill().isna().to_numpy()
-        transformed = transformed.where(~trailing_nans, np.nan)
 
         return transformed
 
