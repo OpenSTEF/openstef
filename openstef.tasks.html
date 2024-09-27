@@ -720,7 +720,7 @@ data = pd.DataFrame(index = index,</p>
 <div><p>data = dict(load=np.sin(index.hour/24*np.pi)*np.random.uniform(0.7,1.7, len(index))))</p>
 </div></blockquote>
 <p>data[‘insolation’] = data.load * np.random.uniform(0.8, 1.2, len(index)) + 0.1
-data.loc[int(len(index)/3*2):,”load”] = np.NaN</p>
+data.loc[int(len(index)/3*2):,”load”] = np.nan</p>
 </dd></dl>
 
 <dl class="py function">
@@ -819,7 +819,7 @@ data = pd.DataFrame(index = index,</p>
 <div><p>data = dict(load=np.sin(index.hour/24*np.pi)*np.random.uniform(0.7,1.7, 300)))</p>
 </div></blockquote>
 <p>data[‘insolation’] = data.load * np.random.uniform(0.8, 1.2, len(index)) + 0.1
-data.loc[int(len(index)/3*2):,”load”] = np.NaN</p>
+data.loc[int(len(index)/3*2):,”load”] = np.nan</p>
 </dd></dl>
 
 <dl class="py function">
