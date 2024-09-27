@@ -2,18 +2,13 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 import re
-from typing import Dict, Union, Set, Optional, List
+from typing import List
 
 import numpy as np
 import pandas as pd
 from sklearn.base import RegressorMixin
-from sklearn.linear_model import QuantileRegressor
-from sklearn.preprocessing import MinMaxScaler
 from sklearn.utils.validation import check_is_fitted
 
-from openstef.feature_engineering.missing_values_transformer import (
-    MissingValuesTransformer,
-)
 from openstef.model.regressors.regressor import OpenstfRegressor
 
 
