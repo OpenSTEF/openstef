@@ -440,12 +440,12 @@
 pass a list of pandas.DataFrame where each dataframe contains a load
 column and a horizon column. Or pass a list of pandas.Series with
 unique indexing.</p></li>
-<li><p><strong>predict_data</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code>], <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>]) – Similar to data, but
+<li><p><strong>predict_data</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code>]]) – Similar to data, but
 for prediction data instead. When passing a list of pandas.DataFrame
 the column forecast should exist. Can be set to None.</p></li>
 <li><p><strong>horizon</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – This function will select only data matching
 this horizon. Defaults to 47.</p></li>
-<li><p><strong>names</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]]) – The names that will be used in the
+<li><p><strong>names</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – The names that will be used in the
 legend of the plot. If None is passed, this will be build
 automatically based on the number of series passed.</p></li>
 </ul>

@@ -736,7 +736,7 @@ the features.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>df</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – DataFrame with input data to which the features have to be added</p></li>
-<li><p><strong>pj</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">PredictionJobDataClass</span></code></a>]) – (Optional) A prediction job that is needed for location dependent features,
+<li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">PredictionJobDataClass</span></code></a>) – (Optional) A prediction job that is needed for location dependent features,
 if not specified a default location is used</p></li>
 </ul>
 </dd>
@@ -765,7 +765,7 @@ if not specified a default location is used</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>df</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – DataFrame with input data to which the features have to be added</p></li>
-<li><p><strong>pj</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">PredictionJobDataClass</span></code></a>]) – (Optional) A prediction job that is needed for location dependent features,
+<li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">PredictionJobDataClass</span></code></a>) – (Optional) A prediction job that is needed for location dependent features,
 if not specified a default location is used</p></li>
 </ul>
 </dd>
@@ -801,9 +801,9 @@ horzions data is invalidated as when they are not available.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>df</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – Input data to which the features will be added.</p></li>
-<li><p><strong>pj</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">PredictionJobDataClass</span></code></a>]) – (Optional) A prediction job that is needed for location dependent features,
+<li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">PredictionJobDataClass</span></code></a>) – (Optional) A prediction job that is needed for location dependent features,
 if not specified a default location is used</p></li>
-<li><p><strong>latency_config</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>]) – (Optional) Invalidate certain features that are not
+<li><p><strong>latency_config</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – (Optional) Invalidate certain features that are not
 available for a specific horizon due to data latency. Defaults to
 <code class="docutils literal notranslate"><span class="pre">{&quot;APX&quot;:</span> <span class="pre">24}</span></code>.</p></li>
 </ul>
@@ -966,7 +966,7 @@ The official following official ducth holidays are included untill 2023:</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>country</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Country for which to create holiday features.</p></li>
-<li><p><strong>years</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>]) – years for which to create holiday features.</p></li>
+<li><p><strong>years</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>) – years for which to create holiday features.</p></li>
 <li><p><strong>path_to_school_holidays_csv</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Filepath to csv with school holidays.</p></li>
 </ul>
 </dd>
@@ -1015,7 +1015,7 @@ consist of “Is” + the_name_of_the_holiday_to_be_checked</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>feature_names</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]]) – minute lagtimes that where used during training
+<li><p><strong>feature_names</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – minute lagtimes that where used during training
 of the model. If empty a new set will be automatically generated.</p></li>
 <li><p><strong>horizon</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Forecast horizon limit in hours.</p></li>
 </ul>
@@ -1138,8 +1138,8 @@ columns = [label, predictor_1,…, predictor_n])</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>data</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – Dataframe to which the solar features have to be added</p></li>
-<li><p><strong>pj</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">PredictionJobDataClass</span></code></a>]) – prediction job which should at least contain the latitude and longitude location.</p></li>
-<li><p><strong>feature_names</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]]) – List of requested features</p></li>
+<li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">PredictionJobDataClass</span></code></a>) – prediction job which should at least contain the latitude and longitude location.</p></li>
+<li><p><strong>feature_names</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – List of requested features</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -1159,7 +1159,7 @@ columns = [label, predictor_1,…, predictor_n])</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>data</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – Dataframe to which the wind features have to be added</p></li>
-<li><p><strong>feature_names</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]]) – List of requested features</p></li>
+<li><p><strong>feature_names</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – List of requested features</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -1181,7 +1181,7 @@ requested features is used to determine whether to add the humidity features or 
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>data</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – Input dataframe to which features have to be added</p></li>
-<li><p><strong>feature_names</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]]) – list of requested features.</p></li>
+<li><p><strong>feature_names</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – list of requested features.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>

@@ -519,19 +519,19 @@ loop when an exception is raised. Defaults to False.</p></li>
 <li><p><strong>random_order</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to randomize the order of the
 prediction jobs. Defaults to True. Does not apply to manually
 passed prediction jobs.</p></li>
-<li><p><strong>on_exception_callback</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>]) – Callback, will be called
+<li><p><strong>on_exception_callback</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>) – Callback, will be called
 everytime an exception is raised. Callable gets the pj and
 exception raised as arguments</p></li>
-<li><p><strong>on_successful_callback</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>]) – Callback, will be called
+<li><p><strong>on_successful_callback</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>) – Callback, will be called
 everytime an iteration is successful (no exception is raised).
 Callable gets the pj as argument.</p></li>
-<li><p><strong>on_end_callback</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>]) – Callback, will be called everytime an
+<li><p><strong>on_end_callback</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>) – Callback, will be called everytime an
 iteration is completed. Callable gets the pj and and bool
 indicating success as argument.</p></li>
-<li><p><strong>prediction_jobs</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">PredictionJobDataClass</span></code></a>]]) – Manually pass a list of
+<li><p><strong>prediction_jobs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">PredictionJobDataClass</span></code></a>]) – Manually pass a list of
 prediction jobs that will be looped over. If set to None, will fetch
 prediction jobs from database based on pj_kwargs</p></li>
-<li><p><strong>debug_pid</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – enter a specific pid for debugging.
+<li><p><strong>debug_pid</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – enter a specific pid for debugging.
 If not None, the prediction job loop will only look at this pid</p></li>
 <li><p><strong>**pj_kwargs</strong> – Any other kwargs willed will be directed to the
 prediction job getting function.</p></li>
@@ -586,12 +586,12 @@ manager will pass any raised exception on. Defaults to False.</p></li>
 <li><p><strong>post_teams_on_exception</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – If set to True the context
 manager will automatically post a message to teams when an
 exception is encountered. Defaults to True.</p></li>
-<li><p><strong>on_exception</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>]) – Callback, will be called
+<li><p><strong>on_exception</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>) – Callback, will be called
 when an exception is raised. Callable gets exc_type, exc_info,
 stack_info as arguments.</p></li>
-<li><p><strong>on_successful</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>]) – Callback, will be called
+<li><p><strong>on_successful</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>) – Callback, will be called
 everytime if the task is successful (no exception is raised).</p></li>
-<li><p><strong>on_end</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>]) – Callback, will be called if the task is
+<li><p><strong>on_end</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>) – Callback, will be called if the task is
 completed. Callable gets a bool indicating success as argument.</p></li>
 </ul>
 </dd>

@@ -652,7 +652,7 @@ sub-estimator of a meta-estimator, e.g. used inside a
 <cite>missing_values</cite> will be imputed. For pandas’ dataframes with
 nullable integer dtypes with missing values, <cite>missing_values</cite>
 should be set to <cite>np.nan</cite>, since <cite>pd.NA</cite> will be converted to <cite>np.nan</cite>.</p></li>
-<li><p><strong>imputation_strategy</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – The imputation strategy.
+<li><p><strong>imputation_strategy</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The imputation strategy.
 - If None no imputation is performed.
 - If “mean”, then replace missing values using the mean along
 each column. Can only be used with numeric data.
@@ -663,7 +663,7 @@ value along each column. Can be used with strings or numeric data.
 If there is more than one such value, only the smallest is returned.
 - If “constant”, then replace missing values with fill_value. Can be
 used with strings or numeric data.</p></li>
-<li><p><strong>fill_value</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>]) – When strategy == “constant”, fill_value is used to replace all
+<li><p><strong>fill_value</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]) – When strategy == “constant”, fill_value is used to replace all
 occurrences of missing_values.
 If left to the default, fill_value will be 0 when imputing numerical
 data and “missing_value” for strings or object data types.</p></li>
