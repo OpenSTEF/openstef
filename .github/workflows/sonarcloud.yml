@@ -34,7 +34,7 @@ name: SonarCloud analysis
 
 on:
   workflow_run:
-    workflows: [Build]
+    workflows: [Python Build]
     types: [completed]
   workflow_dispatch:
 
