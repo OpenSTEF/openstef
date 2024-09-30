@@ -10,9 +10,7 @@ import pandas as pd
 
 from openstef import PROJECT_ROOT
 
-HOLIDAY_CSV_PATH: str = (
-    PROJECT_ROOT / "openstef" / "data" / "dutch_holidays_2020-2022.csv"
-)
+HOLIDAY_CSV_PATH: str = PROJECT_ROOT / "openstef" / "data" / "dutch_holidays.csv"
 
 
 def generate_holiday_feature_functions(
@@ -46,12 +44,14 @@ def generate_holiday_feature_functions(
         - Pinksteren
         - Kerst
 
+
     The 'Brugdagen' are updated untill dec 2020. (Generated using agenda)
 
     Args:
         country: Country for which to create holiday features.
         years: years for which to create holiday features.
         path_to_school_holidays_csv: Filepath to csv with school holidays.
+        NOTE: Dutch holidays csv file is only until January 2026.
 
     Returns:
         Dictionary with functions that check if a given date is a holiday, keys
