@@ -33,10 +33,9 @@
 name: SonarCloud analysis
 
 on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+  workflow_run:
+    workflows: [Build]
+    types: [completed]
   workflow_dispatch:
 
 permissions:
@@ -45,8 +44,16 @@ permissions:
 jobs:
   Analysis:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+    if: github.event.workflow_run.conclusion == 'success'
 
     steps:
+      # Checkout main to get access to the SONAR_TOKEN. PR from forked repo does not have access to it.
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event.workflow_run.head_repository.full_name }}
+          ref: ${{ github.event.workflow_run.head_branch }}
+          fetch-depth: 0
       - name: Analyze with SonarCloud
         if: ${{ github.actor != 'dependabot[bot]' }}
         # You can pin the exact commit or the version.
@@ -62,6 +69,10 @@ jobs:
             -Dsonar.projectKey=OpenSTEF_openstef
             -Dsonar.organization=openstef
             -Dsonar.verbose=true
+            -Dsonar.scm.revision=${{ github.event.workflow_run.head_sha }}
+            -Dsonar.pullrequest.key=${{ github.event.workflow_run.pull_requests[0].number }}
+            -Dsonar.pullrequest.branch=${{ github.event.workflow_run.pull_requests[0].head.ref }}
+            -Dsonar.pullrequest.base=${{ github.event.workflow_run.pull_requests[0].base.ref }}
             # Comma-separated paths to directories containing main source files.
             #-Dsonar.sources= # optional, default is project base directory
             # Comma-separated paths to directories containing test source files.
