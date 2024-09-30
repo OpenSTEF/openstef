@@ -18,11 +18,11 @@ realised_load = TestData.load("calculate_kpi_relealised_load.csv")
 
 # Prepare dataframe with nans to test low completeness
 realised_load_nan = realised_load.copy()
-realised_load_nan.loc[realised_load_nan.sample(frac=0.5).index, :] = np.NaN
+realised_load_nan.loc[realised_load_nan.sample(frac=0.5).index, :] = np.nan
 
 # Prepare dataframe with nans to test low completeness
 predicted_load_nan = predicted_load.copy()
-predicted_load_nan.loc[predicted_load_nan.sample(frac=0.5).index, :] = np.NaN
+predicted_load_nan.loc[predicted_load_nan.sample(frac=0.5).index, :] = np.nan
 
 prediction_job = TestData.get_prediction_job(pid=307)
 
@@ -106,7 +106,7 @@ class TestPerformanceCalcKpiForSpecificPid(BaseTestCase):
             prediction_job["id"], realised_load_nan, predicted_load, realised_load_nan
         )
         t_ahead_keys = kpis.keys()
-        self.assertIs(kpis[list(t_ahead_keys)[0]]["rMAE"], np.NaN)
+        self.assertIs(kpis[list(t_ahead_keys)[0]]["rMAE"], np.nan)
 
     # Test whether none is returned in case of poor completeness for predicted data
     def test_calc_kpi_for_specific_pid_poor_completeness_predicted(self):
