@@ -66,7 +66,6 @@ jobs:
             # mandatory
             -Dsonar.projectKey=OpenSTEF_openstef
             -Dsonar.organization=openstef
-            -Dsonar.verbose=true
             -Dsonar.scm.revision=${{ github.event.workflow_run.head_sha }}
             -Dsonar.pullrequest.key=${{ github.event.workflow_run.pull_requests[0].number }}
             -Dsonar.pullrequest.branch=${{ github.event.workflow_run.pull_requests[0].head.ref }}
