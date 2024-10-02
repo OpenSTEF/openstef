@@ -15,7 +15,7 @@ from openstef.feature_engineering.missing_values_transformer import (
 class MissingValuesTransformerTests(BaseTestCase):
     def setUp(self):
         self.data = pd.DataFrame(
-            {"A": [np.nan, 2, 3], "B": [1, np.nan, 3], "C": [4, 5, np.nan], "D": [np.nan, np.nan, np.nan]}
+            {"A": [np.nan, 2, 3, 4], "B": [1, np.nan, 3, 4], "C": [3, 4, 5, np.nan], "D": [np.nan, np.nan, np.nan, np.nan]}
         )
 
     def test_imputation_with_mean_strategy_fills_missing_values(self):
@@ -39,10 +39,10 @@ class MissingValuesTransformerTests(BaseTestCase):
         transformer.fit(self.data)
         self.assertNotIn("D", transformer.non_null_feature_names)
 
-    def test_columns_with_missing_values_at_end_are_removed(self):
+    def test_rows_with_missing_values_at_end_are_removed(self):
         transformer = MissingValuesTransformer()
         transformer.fit(self.data)
-        self.assertNotIn("C", transformer.non_null_feature_names)
+        self.assertEqual(transformer.non_trailing_null_rows, [0, 1, 2])
 
     def test_non_dataframe_input_is_converted_and_processed(self):
         transformer = MissingValuesTransformer(imputation_strategy="mean")
@@ -50,11 +50,12 @@ class MissingValuesTransformerTests(BaseTestCase):
         transformed = transformer.fit_transform(array)
         self.assertIsInstance(transformed, pd.DataFrame)
         self.assertEqual(transformed.isnull().sum().sum(), 0)
+        self.assertEqual(transformed.shape, (1, 1))
 
-    def test_fitting_transformer_without_strategy_keeps_data_unchanged(self):
+    def test_fitting_transformer_without_strategy_keeps_valid_data_unchanged(self):
         transformer = MissingValuesTransformer()
         transformed = transformer.fit_transform(self.data)
-        pd.testing.assert_frame_equal(transformed, self.data.drop(columns=["C", "D"]))
+        pd.testing.assert_frame_equal(transformed, self.data.drop(index=3, columns=["D"]))
 
     def test_calling_transform_before_fit_raises_error(self):
         transformer = MissingValuesTransformer()

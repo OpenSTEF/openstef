@@ -21,6 +21,7 @@ class MissingValuesTransformer:
     _n_in_features: Optional[int] = None
 
     non_null_feature_names: List[str] = None
+    non_trailing_null_rows: List[int] = None
 
     def __init__(
         self,
@@ -68,11 +69,16 @@ class MissingValuesTransformer:
 
         # Remove always null columns
         is_column_null = x.isnull().all(axis="index")
-        trailing_null_columns = x.bfill().isnull().any(axis="index")
-        self.non_null_feature_names = list(x.columns[~(is_column_null | trailing_null_columns)])
+        self.non_null_feature_names = list(x.columns[~is_column_null])
+        x = x[self.non_null_feature_names]
+
+        # Remove rows with trailing null values
+        row_has_trailing_null = x.bfill().isnull().any(axis="columns")
+        self.non_trailing_null_rows = list(x.index[~row_has_trailing_null])
+        x = x.loc[self.non_trailing_null_rows]
 
         # Imputers do not support labels
-        self.imputer_.fit(X=x[self.non_null_feature_names], y=None)
+        self.imputer_.fit(X=x, y=None)
         self.is_fitted_ = True
 
     def transform(self, x) -> pd.DataFrame:
@@ -83,6 +89,7 @@ class MissingValuesTransformer:
             x = pd.DataFrame(np.asarray(x))
 
         x = x[self.non_null_feature_names]
+        x = x.loc[self.non_trailing_null_rows]
 
         transformed = self.imputer_.transform(x)
 
