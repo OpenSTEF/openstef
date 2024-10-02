@@ -19,15 +19,16 @@ class MissingValuesTransformerTests(BaseTestCase):
                 "B": [1, np.nan, 3, 4],
                 "C": [3, 4, 5, np.nan],
                 "D": [np.nan, np.nan, np.nan, np.nan],
-            }
+            },
+            index=[0, 1, 1, 2],
         )
 
     def test_imputation_with_mean_strategy_fills_missing_values(self):
         transformer = MissingValuesTransformer(imputation_strategy="mean")
         transformed, _ = transformer.fit_transform(self.data)
         self.assertEqual(transformed.isnull().sum().sum(), 0)
-        self.assertAlmostEqual(transformed.loc[0, "A"], 2.5)
-        self.assertAlmostEqual(transformed.loc[1, "B"], 2)
+        self.assertAlmostEqual(transformed.iloc[0]["A"], 2.5)
+        self.assertAlmostEqual(transformed.iloc[1]["B"], 2)
 
     def test_imputation_with_constant_strategy_fills_missing_values(self):
         transformer = MissingValuesTransformer(
@@ -35,23 +36,26 @@ class MissingValuesTransformerTests(BaseTestCase):
         )
         transformed, _ = transformer.fit_transform(self.data)
         self.assertEqual(transformed.isnull().sum().sum(), 0)
-        self.assertEqual(transformed.loc[0, "A"], 0)
-        self.assertEqual(transformed.loc[1, "B"], 0)
+        self.assertEqual(transformed.iloc[0]["A"], 0)
+        self.assertEqual(transformed.iloc[1]["B"], 0)
 
     def test_columns_always_null_are_removed(self):
         transformer = MissingValuesTransformer()
         transformer.fit(self.data)
         self.assertNotIn("D", transformer.non_null_feature_names)
 
-    def test_rows_with_missing_values_at_end_are_removed(self):
+    def test_determining_non_trailing_null_rows(self):
         transformer = MissingValuesTransformer()
         transformer.fit(self.data)
-        self.assertEqual(transformer.non_trailing_null_rows, [0, 1, 2])
+        pd.testing.assert_series_equal(
+            transformer.non_trailing_null_rows,
+            pd.Series([True, True, True, False], index=[0, 1, 1, 2]),
+        )
 
     def test_fitting_with_labels_removes_rows_with_trailing_nulls(self):
         transformer = MissingValuesTransformer()
         _, y_transformed = transformer.fit_transform(
-            self.data, y=pd.Series([1, 2, 3, 4])
+            self.data, y=pd.Series([1, 2, 3, 4], index=self.data.index)
         )
         self.assertEqual(y_transformed.tolist(), [1, 2, 3])
 
@@ -67,7 +71,7 @@ class MissingValuesTransformerTests(BaseTestCase):
         transformer = MissingValuesTransformer()
         transformed, _ = transformer.fit_transform(self.data)
         pd.testing.assert_frame_equal(
-            transformed, self.data.drop(index=3, columns=["D"])
+            transformed, self.data.drop(index=2, columns=["D"])
         )
 
     def test_calling_transform_before_fit_raises_error(self):
