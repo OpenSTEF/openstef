@@ -95,7 +95,7 @@ class MissingValuesTransformer:
 
         return transformed
 
-    def fit_transform(self, x, y=None):
+    def fit_transform(self, x, y=None) -> tuple[pd.DataFrame, Optional[pd.Series]]:
         """Fit the imputer on the input data and transform it.
 
         Returns:
@@ -107,7 +107,9 @@ class MissingValuesTransformer:
         if y is not None:
             y = y.loc[self.non_trailing_null_rows]
 
-        return self.transform(x), y
+        x = self.transform(x)
+        assert x.shape[0] == y.shape[0], "Number of rows in x and y should be equal."
+        return x, y
 
     @classmethod
     def _identity(cls, x):
