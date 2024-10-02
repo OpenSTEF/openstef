@@ -108,7 +108,6 @@ class MissingValuesTransformer:
             y = y.loc[self.non_trailing_null_rows]
 
         x = self.transform(x)
-        assert x.shape[0] == y.shape[0], "Number of rows in x and y should be equal."
         return x, y
 
     @classmethod
