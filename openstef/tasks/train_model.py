@@ -23,7 +23,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
-from openstef.enums import MLModelType, PipelineType
+from openstef.enums import ModelType, PipelineType
 from openstef.exceptions import (
     InputDataOngoingZeroFlatlinerError,
     SkipSaveTrainingForecasts,
@@ -179,7 +179,7 @@ def main(model_type=None, config=None, database=None):
         )
 
     if model_type is None:
-        model_type = [ml.value for ml in MLModelType]
+        model_type = [ml.value for ml in ModelType]
 
     taskname = Path(__file__).name.replace(".py", "")
     datetime_now = datetime.utcnow()
