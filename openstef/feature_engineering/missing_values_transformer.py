@@ -58,6 +58,11 @@ class MissingValuesTransformer:
             ).set_output(transform="pandas")
             self.imputer_._validate_params()
 
+    def remove_trailing_null_rows(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Remove rows with trailing null values in a DataFrame."""
+        self.non_trailing_null_rows = ~df.bfill().isnull().any(axis="columns")
+        return df.loc[self.non_trailing_null_rows]
+
     def fit(self, x, y=None):
         """Fit the imputer on the input data."""
         _ = check_array(x, force_all_finite="allow-nan")
@@ -106,6 +111,7 @@ class MissingValuesTransformer:
             y = y.loc[self.non_trailing_null_rows]
 
         x = self.transform(x)
+        x = x.loc[self.non_trailing_null_rows]
         return x, y
 
     @classmethod

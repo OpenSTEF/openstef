@@ -77,7 +77,8 @@ class TestLinearQuantile(BaseTestCase):
         self.assertTrue((model2.predict(X_) == model2.predict(X)).all())
 
         # check if last row is removed because of trailing null values
-        self.assertEqual(X_.shape[0], n_sample - 1)
+        X_transformed, _ = model2.imputer_.fit_transform(X)
+        self.assertEqual(X_transformed.shape[0], n_sample - 1)
 
     def test_value_error_raised(self):
         # Check if Value Error is raised when 0.5 is not in the requested quantiles list
