@@ -15,7 +15,12 @@ from openstef.feature_engineering.missing_values_transformer import (
 class MissingValuesTransformerTests(BaseTestCase):
     def setUp(self):
         self.data = pd.DataFrame(
-            {"A": [np.nan, 2, 3, 4], "B": [1, np.nan, 3, 4], "C": [3, 4, 5, np.nan], "D": [np.nan, np.nan, np.nan, np.nan]}
+            {
+                "A": [np.nan, 2, 3, 4],
+                "B": [1, np.nan, 3, 4],
+                "C": [3, 4, 5, np.nan],
+                "D": [np.nan, np.nan, np.nan, np.nan],
+            }
         )
 
     def test_imputation_with_mean_strategy_fills_missing_values(self):
@@ -55,7 +60,9 @@ class MissingValuesTransformerTests(BaseTestCase):
     def test_fitting_transformer_without_strategy_keeps_valid_data_unchanged(self):
         transformer = MissingValuesTransformer()
         transformed = transformer.fit_transform(self.data)
-        pd.testing.assert_frame_equal(transformed, self.data.drop(index=3, columns=["D"]))
+        pd.testing.assert_frame_equal(
+            transformed, self.data.drop(index=3, columns=["D"])
+        )
 
     def test_calling_transform_before_fit_raises_error(self):
         transformer = MissingValuesTransformer()
