@@ -24,7 +24,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
-from openstef.enums import MLModelType, PipelineType
+from openstef.enums import ModelType, PipelineType
 from openstef.exceptions import InputDataOngoingZeroFlatlinerError
 from openstef.pipeline.create_forecast import create_forecast_pipeline
 from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
@@ -129,7 +129,7 @@ def main(model_type=None, config=None, database=None, **kwargs):
 
     with TaskContext(taskname, config, database) as context:
         if model_type is None:
-            model_type = [ml.value for ml in MLModelType]
+            model_type = [ml.value for ml in ModelType]
 
         PredictionJobLoop(context, model_type=model_type).map(
             create_forecast_task, context, **kwargs

@@ -29,7 +29,7 @@ import pandas as pd
 import structlog
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
-from openstef.enums import MLModelType
+from openstef.enums import ModelType
 from openstef.exceptions import ComponentForecastTooShortHorizonError
 from openstef.pipeline.create_component_forecast import (
     create_components_forecast_pipeline,
@@ -150,7 +150,7 @@ def main(config: object = None, database: object = None, **kwargs):
         )
 
     with TaskContext(taskname, config, database) as context:
-        model_type = [ml.value for ml in MLModelType]
+        model_type = [ml.value for ml in ModelType]
 
         PredictionJobLoop(
             context,

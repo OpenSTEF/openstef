@@ -15,7 +15,7 @@ import sklearn
 
 from openstef.data_classes.data_prep import DataPrepDataClass
 from openstef.data_classes.split_function import SplitFuncDataClass
-from openstef.enums import MLModelType
+from openstef.enums import ModelType
 from openstef.exceptions import (
     InputDataInsufficientError,
     InputDataWrongColumnOrderError,
@@ -128,7 +128,7 @@ class TestTrainModelPipeline(BaseTestCase):
         # Select 50 data points to speedup test
         train_input = self.train_input.iloc[:50, :]
         # Remove modeltypes which are optional, and add a dummy regressor
-        for model_type in list(MLModelType) + [__name__ + ".DummyRegressor"]:
+        for model_type in list(ModelType) + [__name__ + ".DummyRegressor"]:
             with self.subTest(model_type=model_type):
                 pj = self.pj
 
@@ -143,10 +143,10 @@ class TestTrainModelPipeline(BaseTestCase):
                 model_specs.hyper_params["max_epochs"] = 1
 
                 # For Linear model we need to choose an imputation strategy to handle missing value
-                if model_type == MLModelType.LINEAR:
+                if model_type == ModelType.LINEAR:
                     model_specs.hyper_params["imputation_strategy"] = "mean"
 
-                if model_type == MLModelType.ARIMA:
+                if model_type == ModelType.ARIMA:
                     pj.data_prep_class = DataPrepDataClass(
                         klass=ARDataPreparation,
                         arguments={},
@@ -203,10 +203,10 @@ class TestTrainModelPipeline(BaseTestCase):
         """Test happy flow of the train model pipeline with the legacy data prep class."""
         # Select 50 data points to speedup test
         train_input = self.train_input.iloc[::50, :]
-        for model_type in list(MLModelType) + [__name__ + ".DummyRegressor"]:
+        for model_type in list(ModelType) + [__name__ + ".DummyRegressor"]:
             with self.subTest(model_type=model_type):
                 # Skip the arima model because it does not use legacy data prep
-                if model_type == MLModelType.ARIMA:
+                if model_type == ModelType.ARIMA:
                     continue
                 pj = self.pj
                 pj.data_prep_class = DataPrepDataClass(
@@ -224,7 +224,7 @@ class TestTrainModelPipeline(BaseTestCase):
                 model_specs.hyper_params["max_epochs"] = 1
 
                 # For Linear model we need to choose an imputation strategy to handle missing value
-                if model_type == MLModelType.LINEAR:
+                if model_type == ModelType.LINEAR:
                     model_specs.hyper_params["imputation_strategy"] = "mean"
 
                 model, report, modelspecs, _ = train_model_pipeline_core(

@@ -4,8 +4,7 @@
 from enum import Enum
 
 
-# TODO replace this with ModelType (MLModelType == Machine Learning model type)
-class MLModelType(Enum):
+class ModelType(Enum):
     XGB = "xgb"
     XGB_QUANTILE = "xgb_quantile"
     XGB_MULTIOUTPUT_QUANTILE = "xgb_multioutput_quantile"

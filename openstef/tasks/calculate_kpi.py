@@ -29,7 +29,7 @@ import pandas as pd
 import structlog
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
-from openstef.enums import MLModelType
+from openstef.enums import ModelType
 from openstef.exceptions import NoPredictedLoadError, NoRealisedLoadError
 from openstef.metrics import metrics
 from openstef.settings import Settings
@@ -42,7 +42,7 @@ THRESHOLD_RETRAINING = 0.25
 THRESHOLD_OPTIMIZING = 0.50
 
 
-def main(model_type: MLModelType = None, config=None, database=None) -> None:
+def main(model_type: ModelType = None, config=None, database=None) -> None:
     taskname = Path(__file__).name.replace(".py", "")
 
     if database is None or config is None:
@@ -52,7 +52,7 @@ def main(model_type: MLModelType = None, config=None, database=None) -> None:
         )
 
     if model_type is None:
-        model_type = [ml.value for ml in MLModelType]
+        model_type = [ml.value for ml in ModelType]
 
     with TaskContext(taskname, config, database) as context:
         # Set start and end time
