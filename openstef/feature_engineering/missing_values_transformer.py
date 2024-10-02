@@ -103,7 +103,11 @@ class MissingValuesTransformer:
 
         """
         self.fit(x, y)
-        return self.transform(x)
+
+        if y is not None:
+            y = y.loc[self.non_trailing_null_rows]
+
+        return self.transform(x), y
 
     @classmethod
     def _identity(cls, x):

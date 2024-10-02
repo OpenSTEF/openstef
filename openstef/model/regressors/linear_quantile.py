@@ -165,8 +165,8 @@ class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
         x = self._remove_ignored_features(x)
 
         # Fix nan columns
-        x = self.imputer_.fit_transform(x)
-        if (x.isna() & ~x.bfill().isna()).any().any():
+        x, y = self.imputer_.fit_transform(x, y)
+        if x.isna().any().any():
             raise ValueError(
                 "There are nan values in the input data. Set "
                 "imputation_strategy to solve them."
