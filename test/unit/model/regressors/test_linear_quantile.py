@@ -164,3 +164,4 @@ class TestLinearQuantile(BaseTestCase):
         self.assertIsInstance(model, LinearQuantileOpenstfRegressor)
         self.assertEqual(model.weight_scale_percentile, 50)
         self.assertEqual(model.weight_exponent, 2)
+        self.assertEqual(model.quantiles, [0.5])
