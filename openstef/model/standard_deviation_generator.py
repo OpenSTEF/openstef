@@ -40,9 +40,9 @@ class StandardDeviationGenerator:
             confidence_interval_horizon = self._calculate_standard_deviation(
                 sub_val.iloc[:, 0], predicted
             )
-            confidence_interval_horizon[
-                "horizon"
-            ] = horizon  # Label with respective horizon
+            confidence_interval_horizon["horizon"] = (
+                horizon  # Label with respective horizon
+            )
             self.standard_deviation = pd.concat(
                 [self.standard_deviation, confidence_interval_horizon]
             )
