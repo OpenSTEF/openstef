@@ -39,7 +39,8 @@ from openstef.pipeline.train_model import (
 from openstef.validation import validation
 
 
-class DummyObjective(RegressorObjective): ...
+class DummyObjective(RegressorObjective):
+    ...
 
 
 class DummyRegressor(CustomOpenstfRegressor):
