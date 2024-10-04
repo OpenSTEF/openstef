@@ -116,6 +116,8 @@ valid_model_kwargs = {
         "missing_values",
         "imputation_strategy",
         "fill_value",
+        "weight_scale_percentile",
+        "weight_exponent",
     ],
     ModelType.ARIMA: [
         "backtest_max_horizon",

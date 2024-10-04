@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 from sklearn.base import RegressorMixin
 from sklearn.linear_model import QuantileRegressor
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import StandardScaler
 from sklearn.utils.validation import check_is_fitted
 
 from openstef.feature_engineering.missing_values_transformer import (
@@ -25,8 +25,8 @@ class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
     solver: str
 
     imputer_: MissingValuesTransformer
-    x_scaler_: MinMaxScaler
-    y_scaler_: MinMaxScaler
+    x_scaler_: StandardScaler
+    y_scaler_: StandardScaler
     models_: Dict[float, QuantileRegressor]
 
     is_fitted_: bool = False
@@ -47,6 +47,8 @@ class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
         missing_values: Union[int, float, str, None] = np.nan,
         imputation_strategy: Optional[str] = "mean",
         fill_value: Union[str, int, float] = None,
+        weight_scale_percentile: int = 95,
+        weight_exponent: float = 1,
     ):
         """Initialize LinearQuantileOpenstfRegressor.
 
@@ -82,13 +84,15 @@ class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
         self.quantiles = quantiles
         self.alpha = alpha
         self.solver = solver
+        self.weight_scale_percentile = weight_scale_percentile
+        self.weight_exponent = weight_exponent
         self.imputer_ = MissingValuesTransformer(
             missing_values=missing_values,
             imputation_strategy=imputation_strategy,
             fill_value=fill_value,
         )
-        self.x_scaler_ = MinMaxScaler(feature_range=(-1, 1))
-        self.y_scaler_ = MinMaxScaler(feature_range=(-1, 1))
+        self.x_scaler_ = StandardScaler()
+        self.y_scaler_ = StandardScaler()
         self.models_ = {
             quantile: QuantileRegressor(alpha=alpha, quantile=quantile, solver=solver)
             for quantile in quantiles
@@ -177,7 +181,7 @@ class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
         y_scaled = self.y_scaler_.fit_transform(y.to_frame())[:, 0]
 
         # Add more focus on extreme / peak values
-        sample_weight = np.abs(y_scaled)
+        sample_weight = self._calculate_sample_weights(y.values.squeeze())
 
         # Fit quantile regressors
         for quantile in self.quantiles:
@@ -190,6 +194,16 @@ class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
         self.feature_importances_ = self._get_feature_importance_from_linear()
 
         return self
+
+    def _calculate_sample_weights(self, y: np.array):
+        return np.clip(
+            _weight_exp(
+                _scale_percentile(y, percentile=self.weight_scale_percentile),
+                exponent=self.weight_exponent,
+            ),
+            a_min=0,
+            a_max=1,
+        )
 
     def predict(self, x: pd.DataFrame, quantile: float = 0.5, **kwargs) -> np.array:
         """Makes a prediction for a desired quantile.
@@ -245,3 +259,11 @@ class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
 
     def __sklearn_is_fitted__(self) -> bool:
         return self.is_fitted_
+
+
+def _scale_percentile(x: np.ndarray, percentile: int = 95):
+    return np.abs(x / np.percentile(np.abs(x), percentile))
+
+
+def _weight_exp(x: np.ndarray, exponent: float = 1):
+    return np.abs(x) ** exponent
