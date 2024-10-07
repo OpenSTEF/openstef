@@ -74,6 +74,23 @@ class MissingValuesTransformerTests(BaseTestCase):
             transformed, self.data.drop(index=2, columns=["D"])
         )
 
+    def test_call_transform_on_fitted_transformer_does_not_remove_trailing_null_rows(
+        self,
+    ):
+        transformer = MissingValuesTransformer()
+        transformer.fit(self.data)
+        new_data = pd.DataFrame(
+            {
+                "A": [1, 2, 3, 4],
+                "B": [1, 2, 3, 4],
+                "C": [1, 2, 3, 4],
+                "D": [1, 2, 3, 4],
+            },
+            index=[0, 1, 1, 2],
+        )
+        transformed = transformer.transform(new_data)
+        pd.testing.assert_frame_equal(transformed, new_data.drop(columns=["D"]))
+
     def test_calling_transform_before_fit_raises_error(self):
         transformer = MissingValuesTransformer()
         with self.assertRaises(NotFittedError):
