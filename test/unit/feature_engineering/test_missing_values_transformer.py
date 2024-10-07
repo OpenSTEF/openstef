@@ -47,8 +47,11 @@ class MissingValuesTransformerTests(BaseTestCase):
     def test_determining_non_trailing_null_rows(self):
         transformer = MissingValuesTransformer()
         transformer.fit(self.data)
+        non_trailing_null_rows = transformer._determine_trailing_null_rows(
+            self.data[transformer.non_null_feature_names]
+        )
         pd.testing.assert_series_equal(
-            transformer.non_trailing_null_rows,
+            non_trailing_null_rows,
             pd.Series([True, True, True, False], index=[0, 1, 1, 2]),
         )
 

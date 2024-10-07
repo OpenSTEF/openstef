@@ -21,7 +21,6 @@ class MissingValuesTransformer:
     _n_in_features: Optional[int] = None
 
     non_null_feature_names: List[str] = None
-    non_trailing_null_rows: pd.Series = None
 
     def __init__(
         self,
@@ -58,10 +57,10 @@ class MissingValuesTransformer:
             ).set_output(transform="pandas")
             self.imputer_._validate_params()
 
-    def remove_trailing_null_rows(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Remove rows with trailing null values in a DataFrame."""
-        self.non_trailing_null_rows = ~df.bfill().isnull().any(axis="columns")
-        return df.loc[self.non_trailing_null_rows]
+    @staticmethod
+    def _determine_trailing_null_rows(x: pd.DataFrame) -> pd.Series:
+        """Determine rows with trailing null values in a DataFrame."""
+        return ~x.bfill().isnull().any(axis="columns")
 
     def fit(self, x, y=None):
         """Fit the imputer on the input data."""
@@ -77,9 +76,9 @@ class MissingValuesTransformer:
         self.non_null_feature_names = list(x.columns[~is_column_null])
         x = x[self.non_null_feature_names]
 
-        # Remove rows with trailing null values
-        self.non_trailing_null_rows = ~x.bfill().isnull().any(axis="columns")
-        x = x.loc[self.non_trailing_null_rows]
+        # Remove trailing null rows
+        trailing_null_rows = self._determine_trailing_null_rows(x)
+        x = x.loc[trailing_null_rows]
 
         # Imputers do not support labels
         self.imputer_.fit(X=x, y=None)
@@ -107,11 +106,20 @@ class MissingValuesTransformer:
         """
         self.fit(x, y)
 
-        if y is not None:
-            y = y.loc[self.non_trailing_null_rows]
+        if not isinstance(x, pd.DataFrame):
+            x = pd.DataFrame(np.asarray(x))
+
+        x = x[self.non_null_feature_names]
+
+        non_trailing_null_rows = self._determine_trailing_null_rows(x)
+
+        x = x.loc[non_trailing_null_rows]
 
         x = self.transform(x)
-        x = x.loc[self.non_trailing_null_rows]
+
+        if y is not None:
+            y = y.loc[non_trailing_null_rows]
+
         return x, y
 
     @classmethod
