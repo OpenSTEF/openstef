@@ -118,6 +118,7 @@ valid_model_kwargs = {
         "fill_value",
         "weight_scale_percentile",
         "weight_exponent",
+        "weight_floor",
     ],
     ModelType.ARIMA: [
         "backtest_max_horizon",

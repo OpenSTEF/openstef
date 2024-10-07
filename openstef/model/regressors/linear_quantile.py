@@ -49,6 +49,7 @@ class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
         fill_value: Union[str, int, float] = None,
         weight_scale_percentile: int = 95,
         weight_exponent: float = 1,
+        weight_floor: float = 0.1,
     ):
         """Initialize LinearQuantileOpenstfRegressor.
 
@@ -86,6 +87,7 @@ class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
         self.solver = solver
         self.weight_scale_percentile = weight_scale_percentile
         self.weight_exponent = weight_exponent
+        self.weight_floor = weight_floor
         self.imputer_ = MissingValuesTransformer(
             missing_values=missing_values,
             imputation_strategy=imputation_strategy,
@@ -196,12 +198,29 @@ class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
         return self
 
     def _calculate_sample_weights(self, y: np.array):
+        """
+        Calculate sample weights based on the y values of arbitrary scale. The resulting
+        weights are in the range [0, 1] and are used to put more emphasis on certain
+        samples.
+
+        The sample weighting function does:
+        * Rescale data to a [-1, 1] range using quantile scaling. 90% of the data will
+          be within this range. Rest is outside.
+        * Calculate the weight by taking the exponent of scaled data.
+          * exponent=0: Results in uniform weights for all samples.
+          * exponent=1: Results in linearly increasing weights for samples that are
+            closer to the extremes.
+          * exponent>1: Results in exponentially increasing weights for samples that are
+            closer to the extremes.
+        * Clip the data to [0, 1] range with weight_floor as the minimum weight.
+          * Weight floor is used to make sure that all the samples are considered.
+        """
         return np.clip(
             _weight_exp(
                 _scale_percentile(y, percentile=self.weight_scale_percentile),
                 exponent=self.weight_exponent,
             ),
-            a_min=0,
+            a_min=self.weight_floor,
             a_max=1,
         )
 
