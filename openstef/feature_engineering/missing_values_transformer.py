@@ -27,6 +27,7 @@ class MissingValuesTransformer:
         missing_values: Union[int, float, str, None] = np.nan,
         imputation_strategy: str = None,
         fill_value: Union[str, int, float] = None,
+        no_fill_future_values_features: List[str] = [],
     ):
         """Initialize missing values handler.
 
@@ -37,11 +38,14 @@ class MissingValuesTransformer:
                 Can be one of "mean", "median", "most_frequent", "constant" or None.
             fill_value: When strategy == "constant", fill_value is used to replace all
                 occurrences of missing_values.
-
+            no_fill_future_values_features: The features for which it does not make sense
+                to fill future values. Rows that contain trailing null values for these
+                features will be removed from the data.
         """
         self.missing_values = missing_values
         self.imputation_strategy = imputation_strategy
         self.fill_value = fill_value
+        self.no_fill_future_values_features = no_fill_future_values_features
         self.is_fitted_ = False
 
         # Build the proper imputation transformer
@@ -76,8 +80,11 @@ class MissingValuesTransformer:
         self.non_null_feature_names = list(x.columns[~is_column_null])
         x = x[self.non_null_feature_names]
 
-        # Remove trailing null rows
-        trailing_null_rows = self._determine_trailing_null_rows(x)
+        # Remove trailing null rows for features that should
+        # not be imputed in the future
+        trailing_null_rows = self._determine_trailing_null_rows(
+            x[self.no_fill_future_values_features]
+        )
         x = x.loc[trailing_null_rows]
 
         # Imputers do not support labels
@@ -111,8 +118,11 @@ class MissingValuesTransformer:
 
         x = x[self.non_null_feature_names]
 
-        non_trailing_null_rows = self._determine_trailing_null_rows(x)
-
+        # Remove trailing null rows for features that should
+        # not be imputed in the future
+        non_trailing_null_rows = self._determine_trailing_null_rows(
+            x[self.no_fill_future_values_features]
+        )
         x = x.loc[non_trailing_null_rows]
 
         x = self.transform(x)

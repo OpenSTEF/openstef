@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 import re
-from typing import Dict, Union, Set, Optional
+from typing import Dict, Union, Set, Optional, List
 
 import numpy as np
 import pandas as pd
@@ -47,6 +47,7 @@ class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
         missing_values: Union[int, float, str, None] = np.nan,
         imputation_strategy: Optional[str] = "mean",
         fill_value: Union[str, int, float] = None,
+        no_fill_future_values_features: List[str] = [],
     ):
         """Initialize LinearQuantileOpenstfRegressor.
 
@@ -69,6 +70,9 @@ class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
             missing_values: Value to be considered as missing value
             imputation_strategy: Imputation strategy
             fill_value: Fill value
+            no_fill_future_values_features: The features for which it does not make sense
+                to fill future values. Rows that contain trailing null values for these
+                features will be removed from the data.
 
         """
         super().__init__()
@@ -86,6 +90,7 @@ class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
             missing_values=missing_values,
             imputation_strategy=imputation_strategy,
             fill_value=fill_value,
+            no_fill_future_values_features=no_fill_future_values_features,
         )
         self.x_scaler_ = MinMaxScaler(feature_range=(-1, 1))
         self.y_scaler_ = MinMaxScaler(feature_range=(-1, 1))

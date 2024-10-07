@@ -60,7 +60,9 @@ class TestLinearQuantile(BaseTestCase):
         X["sparse_2"] = np.ones(n_sample)
         X.loc[X.index[-1], "sparse_2"] = np.nan
         model1 = LinearQuantileOpenstfRegressor(imputation_strategy=None)
-        model2 = LinearQuantileOpenstfRegressor(imputation_strategy="mean")
+        model2 = LinearQuantileOpenstfRegressor(
+            imputation_strategy="mean", no_fill_future_values_features=["sparse_2"]
+        )
 
         # Act
         # Model should give error if nan values are present.
