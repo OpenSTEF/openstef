@@ -27,7 +27,7 @@ class MissingValuesTransformer:
         missing_values: Union[int, float, str, None] = np.nan,
         imputation_strategy: str = None,
         fill_value: Union[str, int, float] = None,
-        no_fill_future_values_features: List[str] = [],
+        no_fill_future_values_features: List[str] = None,
     ):
         """Initialize missing values handler.
 
@@ -45,6 +45,8 @@ class MissingValuesTransformer:
         self.missing_values = missing_values
         self.imputation_strategy = imputation_strategy
         self.fill_value = fill_value
+        if no_fill_future_values_features is None:
+            no_fill_future_values_features = []
         self.no_fill_future_values_features = no_fill_future_values_features
         self.is_fitted_ = False
 

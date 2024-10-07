@@ -47,7 +47,7 @@ class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
         missing_values: Union[int, float, str, None] = np.nan,
         imputation_strategy: Optional[str] = "mean",
         fill_value: Union[str, int, float] = None,
-        no_fill_future_values_features: List[str] = [],
+        no_fill_future_values_features: List[str] = None,
     ):
         """Initialize LinearQuantileOpenstfRegressor.
 
