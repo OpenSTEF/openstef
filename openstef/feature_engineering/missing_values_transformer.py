@@ -45,9 +45,7 @@ class MissingValuesTransformer:
         self.missing_values = missing_values
         self.imputation_strategy = imputation_strategy
         self.fill_value = fill_value
-        if no_fill_future_values_features is None:
-            no_fill_future_values_features = []
-        self.no_fill_future_values_features = no_fill_future_values_features
+        self.no_fill_future_values_features = no_fill_future_values_features or []
         self.is_fitted_ = False
 
         # Build the proper imputation transformer
