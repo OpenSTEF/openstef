@@ -27,6 +27,7 @@ class MissingValuesTransformer:
         missing_values: Union[int, float, str, None] = np.nan,
         imputation_strategy: str = None,
         fill_value: Union[str, int, float] = None,
+        no_fill_future_values_features: List[str] = None,
     ):
         """Initialize missing values handler.
 
@@ -37,11 +38,14 @@ class MissingValuesTransformer:
                 Can be one of "mean", "median", "most_frequent", "constant" or None.
             fill_value: When strategy == "constant", fill_value is used to replace all
                 occurrences of missing_values.
-
+            no_fill_future_values_features: The features for which it does not make sense
+                to fill future values. Rows that contain trailing null values for these
+                features will be removed from the data.
         """
         self.missing_values = missing_values
         self.imputation_strategy = imputation_strategy
         self.fill_value = fill_value
+        self.no_fill_future_values_features = no_fill_future_values_features or []
         self.is_fitted_ = False
 
         # Build the proper imputation transformer
@@ -57,6 +61,11 @@ class MissingValuesTransformer:
             ).set_output(transform="pandas")
             self.imputer_._validate_params()
 
+    @staticmethod
+    def _determine_trailing_null_rows(x: pd.DataFrame) -> pd.Series:
+        """Determine rows with trailing null values in a DataFrame."""
+        return ~x.bfill().isnull().any(axis="columns")
+
     def fit(self, x, y=None):
         """Fit the imputer on the input data."""
         _ = check_array(x, force_all_finite="allow-nan")
@@ -69,9 +78,17 @@ class MissingValuesTransformer:
         # Remove always null columns
         is_column_null = x.isnull().all(axis="index")
         self.non_null_feature_names = list(x.columns[~is_column_null])
+        x = x[self.non_null_feature_names]
+
+        # Remove trailing null rows for features that should
+        # not be imputed in the future
+        trailing_null_rows = self._determine_trailing_null_rows(
+            x[self.no_fill_future_values_features]
+        )
+        x = x.loc[trailing_null_rows]
 
         # Imputers do not support labels
-        self.imputer_.fit(X=x[self.non_null_feature_names], y=None)
+        self.imputer_.fit(X=x, y=None)
         self.is_fitted_ = True
 
     def transform(self, x) -> pd.DataFrame:
@@ -83,9 +100,11 @@ class MissingValuesTransformer:
 
         x = x[self.non_null_feature_names]
 
-        return self.imputer_.transform(x)
+        transformed = self.imputer_.transform(x)
 
-    def fit_transform(self, x, y=None):
+        return transformed
+
+    def fit_transform(self, x, y=None) -> tuple[pd.DataFrame, Optional[pd.Series]]:
         """Fit the imputer on the input data and transform it.
 
         Returns:
@@ -93,7 +112,25 @@ class MissingValuesTransformer:
 
         """
         self.fit(x, y)
-        return self.transform(x)
+
+        if not isinstance(x, pd.DataFrame):
+            x = pd.DataFrame(np.asarray(x))
+
+        x = x[self.non_null_feature_names]
+
+        # Remove trailing null rows for features that should
+        # not be imputed in the future
+        non_trailing_null_rows = self._determine_trailing_null_rows(
+            x[self.no_fill_future_values_features]
+        )
+        x = x.loc[non_trailing_null_rows]
+
+        x = self.transform(x)
+
+        if y is not None:
+            y = y.loc[non_trailing_null_rows]
+
+        return x, y
 
     @classmethod
     def _identity(cls, x):
