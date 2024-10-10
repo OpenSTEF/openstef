@@ -125,8 +125,6 @@ class TestTrainModelPipeline(BaseTestCase):
         but it can/should include predictors (e.g. weather data)
 
         """
-        # Select 50 data points to speedup test
-        train_input = self.train_input.iloc[:50, :]
         # Remove modeltypes which are optional, and add a dummy regressor
         for model_type in list(ModelType) + [__name__ + ".DummyRegressor"]:
             with self.subTest(model_type=model_type):
@@ -136,7 +134,9 @@ class TestTrainModelPipeline(BaseTestCase):
                     model_type.value if hasattr(model_type, "value") else model_type
                 )
                 model_specs = self.model_specs
-                train_input = self.train_input
+
+                # Select 150 data points to speedup test
+                train_input = self.train_input.iloc[:150, :]
 
                 # Use default parameters
                 model_specs.hyper_params = {}
@@ -155,7 +155,6 @@ class TestTrainModelPipeline(BaseTestCase):
                         function=split_dummy_arima,
                         arguments={},
                     )
-                    train_input = self.train_input[:150]
 
                 model, report, modelspecs, _ = train_model_pipeline_core(
                     pj=pj, model_specs=model_specs, input_data=train_input

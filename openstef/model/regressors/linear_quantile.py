@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 import re
-from typing import Dict, Union, Set, Optional
+from typing import Dict, Union, Set, Optional, List
 
 import numpy as np
 import pandas as pd
@@ -50,6 +50,7 @@ class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
         weight_scale_percentile: int = 95,
         weight_exponent: float = 1,
         weight_floor: float = 0.1,
+        no_fill_future_values_features: List[str] = None,
     ):
         """Initialize LinearQuantileOpenstfRegressor.
 
@@ -72,6 +73,9 @@ class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
             missing_values: Value to be considered as missing value
             imputation_strategy: Imputation strategy
             fill_value: Fill value
+            no_fill_future_values_features: The features for which it does not make sense
+                to fill future values. Rows that contain trailing null values for these
+                features will be removed from the data.
 
         """
         super().__init__()
@@ -92,6 +96,7 @@ class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
             missing_values=missing_values,
             imputation_strategy=imputation_strategy,
             fill_value=fill_value,
+            no_fill_future_values_features=no_fill_future_values_features,
         )
         self.x_scaler_ = StandardScaler()
         self.y_scaler_ = StandardScaler()
@@ -171,7 +176,7 @@ class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
         x = self._remove_ignored_features(x)
 
         # Fix nan columns
-        x = self.imputer_.fit_transform(x)
+        x, y = self.imputer_.fit_transform(x, y)
         if x.isna().any().any():
             raise ValueError(
                 "There are nan values in the input data. Set "

@@ -56,11 +56,14 @@ class TestLinearQuantile(BaseTestCase):
         # Arrange
         n_sample = train_input.shape[0]
         X = train_input.iloc[:, 1:].copy(deep=True)
-        sp = np.ones(n_sample)
-        sp[-1] = np.nan
-        X["Sparse"] = sp
+        X["sparse"] = np.ones(n_sample)
+        X.loc[X.index[-2], "sparse"] = np.nan
+        X["sparse_2"] = np.ones(n_sample)
+        X.loc[X.index[-1], "sparse_2"] = np.nan
         model1 = LinearQuantileOpenstfRegressor(imputation_strategy=None)
-        model2 = LinearQuantileOpenstfRegressor(imputation_strategy="mean")
+        model2 = LinearQuantileOpenstfRegressor(
+            imputation_strategy="mean", no_fill_future_values_features=["sparse_2"]
+        )
 
         # Act
         # Model should give error if nan values are present.
@@ -75,6 +78,10 @@ class TestLinearQuantile(BaseTestCase):
 
         X_ = pd.DataFrame(model2.imputer_.transform(X), columns=X.columns)
         self.assertTrue((model2.predict(X_) == model2.predict(X)).all())
+
+        # check if last row is removed because of trailing null values
+        X_transformed, _ = model2.imputer_.fit_transform(X)
+        self.assertEqual(X_transformed.shape[0], n_sample - 1)
 
     def test_value_error_raised(self):
         # Check if Value Error is raised when 0.5 is not in the requested quantiles list
