@@ -219,7 +219,6 @@ class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
             closer to the extremes.
         * Clip the data to [0, 1] range with weight_floor as the minimum weight.
           * Weight floor is used to make sure that all the samples are considered.
-
         """
         return np.clip(
             _weight_exp(
