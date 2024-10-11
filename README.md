@@ -50,7 +50,7 @@ OpenSTEF is a Python package designed for generating short-term forecasts in the
 pip install openstef
 ```
 
-### Remark regarding installation within a **conda environment on Windows**:
+### Remark regarding installation within a **conda environment on Windows**
 
 A version of the pywin32 package will be installed as a secondary dependency along with the installation of the openstef package. Since conda relies on an old version of pywin32, the new installation can break conda's functionality. The following command can solve this issue:
 ```shell

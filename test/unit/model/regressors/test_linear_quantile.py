@@ -10,6 +10,7 @@ import sklearn
 from sklearn.utils.estimator_checks import check_estimator
 
 from openstef.feature_engineering.apply_features import apply_features
+from openstef.model.model_creator import ModelCreator
 from openstef.model.regressors.linear_quantile import LinearQuantileOpenstfRegressor
 from test.unit.utils.base import BaseTestCase
 from test.unit.utils.data import TestData
@@ -151,3 +152,22 @@ class TestLinearQuantile(BaseTestCase):
         self.assertNotIn("E1B_AMI_I", input_data_filtered.columns)
         self.assertNotIn("E4A_I", input_data_filtered.columns)
         self.assertIn("load", input_data_filtered.columns)
+
+    def test_create_model(self):
+        # Arrange
+        kwargs = {
+            "weight_scale_percentile": 50,
+            "weight_exponent": 2,
+        }
+
+        # Act
+        model = ModelCreator.create_model(
+            model_type="linear_quantile",
+            quantiles=[0.5],
+            **kwargs,
+        )
+
+        # Assert
+        self.assertIsInstance(model, LinearQuantileOpenstfRegressor)
+        self.assertEqual(model.weight_scale_percentile, 50)
+        self.assertEqual(model.weight_exponent, 2)

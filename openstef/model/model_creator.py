@@ -116,6 +116,9 @@ valid_model_kwargs = {
         "missing_values",
         "imputation_strategy",
         "fill_value",
+        "weight_scale_percentile",
+        "weight_exponent",
+        "weight_floor",
         "no_fill_future_values_features",
     ],
     ModelType.ARIMA: [
