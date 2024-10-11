@@ -206,9 +206,9 @@ class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
         return self
 
     def _calculate_sample_weights(self, y: np.array):
-        """Calculate sample weights based on the y values of arbitrary scale.
-        The resulting weights are in the range [0,1] and are used to put more emphasis on certain samples.
-        The sample weighting function does:
+        """Calculate sample weights based on the y values of arbitrary scale. The resulting weights are in the range
+        [0,1] and are used to put more emphasis on certain samples. The sample weighting function does:
+
         * Rescale data to a [-1, 1] range using quantile scaling. 90% of the data will
           be within this range. Rest is outside.
         * Calculate the weight by taking the exponent of scaled data.
