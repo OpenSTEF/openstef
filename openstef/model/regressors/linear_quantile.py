@@ -73,6 +73,9 @@ class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
             missing_values: Value to be considered as missing value
             imputation_strategy: Imputation strategy
             fill_value: Fill value
+            weight_scale_percentile: Percentile used in scaling of the samples
+            weight_exponent: Exponent used in sample weighing
+            weight_floor: Minimum weight for samples
             no_fill_future_values_features: The features for which it does not make sense
                 to fill future values. Rows that contain trailing null values for these
                 features will be removed from the data.
@@ -203,8 +206,8 @@ class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
         return self
 
     def _calculate_sample_weights(self, y: np.array):
-        """Calculate sample weights based on the y values of arbitrary scale. The resulting weights are in the range [0,
-        1] and are used to put more emphasis on certain samples.
+        """Calculate sample weights based on the y values of arbitrary scale.
+        The resulting weights are in the range [0, 1] and are used to put more emphasis on certain samples.
 
         The sample weighting function does:
         * Rescale data to a [-1, 1] range using quantile scaling. 90% of the data will
