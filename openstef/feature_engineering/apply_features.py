@@ -19,7 +19,9 @@ from openstef.feature_engineering.holiday_features import (
     generate_holiday_feature_functions,
 )
 from openstef.feature_engineering.lag_features import generate_lag_feature_functions
-from openstef.feature_engineering.bidding_zone_to_country_mapping import BIDDING_ZONE_TO_COUNTRY_CODE_MAPPING
+from openstef.feature_engineering.bidding_zone_to_country_mapping import (
+    BIDDING_ZONE_TO_COUNTRY_CODE_MAPPING,
+)
 from openstef.feature_engineering.weather_features import (
     add_additional_solar_features,
     add_additional_wind_features,
@@ -35,38 +37,38 @@ def apply_features(
 ) -> pd.DataFrame:
     """Applies the feature functions defined in ``feature_functions.py`` and returns the complete dataframe.
 
-    Features requiring more recent label-data are omitted.
+        Features requiring more recent label-data are omitted.
 
-    .. note::
-        For the time deriven features only the onces in the features list will be added. But for the weather features all will be added at present.
-        These unrequested additional features have to be filtered out later.
+        .. note::
+            For the time deriven features only the onces in the features list will be added. But for the weather features all will be added at present.
+            These unrequested additional features have to be filtered out later.
 
-    Args:
-        data (pandas.DataFrame): a pandas dataframe with input data in the form:
-                                    pd.DataFrame(
-                                        index=datetime,
-                                        columns=[label, predictor_1,..., predictor_n]
-                                    )
-        pj (PredictionJobDataClass): Prediction job.
-        feature_names (list[str]): list of reuqested features
-        horizon (float): Forecast horizon limit in hours.
+        Args:
+            data (pandas.DataFrame): a pandas dataframe with input data in the form:
+                                        pd.DataFrame(
+                                            index=datetime,
+                                            columns=[label, predictor_1,..., predictor_n]
+                                        )
+            pj (PredictionJobDataClass): Prediction job.
+            feature_names (list[str]): list of reuqested features
+            horizon (float): Forecast horizon limit in hours.
 
-    Returns:
-        pd.DataFrame(index = datetime, columns = [label, predictor_1,..., predictor_n, feature_1, ..., feature_m])
+        Returns:
+            pd.DataFrame(index = datetime, columns = [label, predictor_1,..., predictor_n, feature_1, ..., feature_m])
 
-    Example output:
+        Example output:
 
-    .. code-block:: py
+        .. code-block:: py
 
-        import pandas as pd
-        import numpy as np
-from geopy.geocoders import Nominatim
-        index = pd.date_range(start = "2017-01-01 09:00:00",
-        freq = '15T', periods = 200)
-        data = pd.DataFrame(index = index,
-                            data = dict(load=
-                            np.sin(index.hour/24*np.pi)*
-                            np.random.uniform(0.7,1.7, 200)))
+            import pandas as pd
+            import numpy as np
+    from geopy.geocoders import Nominatim
+            index = pd.date_range(start = "2017-01-01 09:00:00",
+            freq = '15T', periods = 200)
+            data = pd.DataFrame(index = index,
+                                data = dict(load=
+                                np.sin(index.hour/24*np.pi)*
+                                np.random.uniform(0.7,1.7, 200)))
 
     """
     # Get lag feature functions
@@ -81,14 +83,16 @@ from geopy.geocoders import Nominatim
             "Month": lambda x: x.index.month,
             "Quarter": lambda x: x.index.quarter,
         }
-    )    
-    
+    )
+
     # Get country code from bidding zone if available
-    electricity_bidding_zone = pj.get("electricity_bidding_zone", BiddingZone.NL)    
+    electricity_bidding_zone = pj.get("electricity_bidding_zone", BiddingZone.NL)
     country_code = BIDDING_ZONE_TO_COUNTRY_CODE_MAPPING[electricity_bidding_zone.name]
-    
+
     # Get holiday feature functions
-    feature_functions.update(generate_holiday_feature_functions(country_code=country_code))
+    feature_functions.update(
+        generate_holiday_feature_functions(country_code=country_code)
+    )
 
     # Add the features to the dataframe using previously defined feature functions
     for key, featfunc in feature_functions.items():
