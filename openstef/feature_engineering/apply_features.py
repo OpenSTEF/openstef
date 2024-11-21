@@ -14,10 +14,12 @@ Examples of features that are added:
 import pandas as pd
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
+from openstef.enums import BiddingZone
 from openstef.feature_engineering.holiday_features import (
     generate_holiday_feature_functions,
 )
 from openstef.feature_engineering.lag_features import generate_lag_feature_functions
+from openstef.feature_engineering.bidding_zone_to_country_mapping import BIDDING_ZONE_TO_COUNTRY_CODE_MAPPING
 from openstef.feature_engineering.weather_features import (
     add_additional_solar_features,
     add_additional_wind_features,
@@ -58,6 +60,7 @@ def apply_features(
 
         import pandas as pd
         import numpy as np
+from geopy.geocoders import Nominatim
         index = pd.date_range(start = "2017-01-01 09:00:00",
         freq = '15T', periods = 200)
         data = pd.DataFrame(index = index,
@@ -78,10 +81,14 @@ def apply_features(
             "Month": lambda x: x.index.month,
             "Quarter": lambda x: x.index.quarter,
         }
-    )
-
+    )    
+    
+    # Get country code from bidding zone if available
+    electricity_bidding_zone = pj.get("electricity_bidding_zone", BiddingZone.NL)    
+    country_code = BIDDING_ZONE_TO_COUNTRY_CODE_MAPPING[electricity_bidding_zone.name]
+    
     # Get holiday feature functions
-    feature_functions.update(generate_holiday_feature_functions())
+    feature_functions.update(generate_holiday_feature_functions(country_code=country_code))
 
     # Add the features to the dataframe using previously defined feature functions
     for key, featfunc in feature_functions.items():

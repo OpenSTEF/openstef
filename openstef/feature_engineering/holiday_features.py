@@ -14,7 +14,7 @@ HOLIDAY_CSV_PATH: str = PROJECT_ROOT / "openstef" / "data" / "dutch_holidays.csv
 
 
 def generate_holiday_feature_functions(
-    country: str = "NL",
+    country_code: str = "NL",
     years: list = None,
     path_to_school_holidays_csv: str = HOLIDAY_CSV_PATH,
 ) -> dict:
@@ -69,7 +69,7 @@ def generate_holiday_feature_functions(
             now.year + 1,
         ]
 
-    country_holidays = holidays.country_holidays(country, years=years)
+    country_holidays = holidays.country_holidays(country_code, years=years)
 
     # Make holiday function dict
     holiday_functions = {}
@@ -96,7 +96,7 @@ def generate_holiday_feature_functions(
 
         # Check for bridge day
         holiday_functions, bridge_days = check_for_bridge_day(
-            date, holiday_name, country, years, holiday_functions, bridge_days
+            date, holiday_name, country_code, years, holiday_functions, bridge_days
         )
 
     # Add feature function that includes all bridgedays
