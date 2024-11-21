@@ -106,14 +106,20 @@ def generate_holiday_feature_functions(
 
     # Add school holidays if country is NL
     if country_code == "NL":
-        
+
         # Manully generated csv including all dutch schoolholidays for different regions
         df_holidays = pd.read_csv(path_to_school_holidays_csv, index_col=None)
-        df_holidays["datum"] = pd.to_datetime(df_holidays.datum).apply(lambda x: x.date())
+        df_holidays["datum"] = pd.to_datetime(df_holidays.datum).apply(
+            lambda x: x.date()
+        )
 
         # Add check function that includes all holidays of the provided csv
         holiday_functions.update(
-            {"is_schoolholiday": lambda x: np.isin(x.index.date, df_holidays.datum.values)}
+            {
+                "is_schoolholiday": lambda x: np.isin(
+                    x.index.date, df_holidays.datum.values
+                )
+            }
         )
 
         # Loop over list of holidays names
@@ -121,7 +127,8 @@ def generate_holiday_feature_functions(
             # Define function explicitely to mitigate 'late binding' problem
             def make_holiday_func(holidayname=holiday_name):
                 return lambda x: np.isin(
-                    x.index.date, df_holidays.datum[df_holidays.name == holidayname].values
+                    x.index.date,
+                    df_holidays.datum[df_holidays.name == holidayname].values,
                 )
 
             # Create lag function for each holiday
