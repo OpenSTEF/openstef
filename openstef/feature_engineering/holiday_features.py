@@ -106,7 +106,6 @@ def generate_holiday_feature_functions(
 
     # Add school holidays if country is NL
     if country_code == "NL":
-
         # Manully generated csv including all dutch schoolholidays for different regions
         df_holidays = pd.read_csv(path_to_school_holidays_csv, index_col=None)
         df_holidays["datum"] = pd.to_datetime(df_holidays.datum).apply(
