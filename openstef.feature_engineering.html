@@ -455,6 +455,7 @@ columns=[label, predictor_1,…, predictor_n]</p>
 <p>Example output:</p>
 <div class="highlight-py notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">geopy.geocoders</span> <span class="kn">import</span> <span class="n">Nominatim</span>
 <span class="n">index</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">date_range</span><span class="p">(</span><span class="n">start</span> <span class="o">=</span> <span class="s2">&quot;2017-01-01 09:00:00&quot;</span><span class="p">,</span>
 <span class="n">freq</span> <span class="o">=</span> <span class="s1">&#39;15T&#39;</span><span class="p">,</span> <span class="n">periods</span> <span class="o">=</span> <span class="mi">200</span><span class="p">)</span>
 <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">index</span> <span class="o">=</span> <span class="n">index</span><span class="p">,</span>
@@ -465,6 +466,9 @@ columns=[label, predictor_1,…, predictor_n]</p>
 </div>
 </dd></dl>
 
+</section>
+<section id="module-openstef.feature_engineering.bidding_zone_to_country_mapping">
+<span id="openstef-feature-engineering-bidding-zone-to-country-mapping-module"></span><h2>openstef.feature_engineering.bidding_zone_to_country_mapping module<a class="headerlink" href="#module-openstef.feature_engineering.bidding_zone_to_country_mapping" title="Link to this heading">¶</a></h2>
 </section>
 <section id="module-openstef.feature_engineering.data_preparation">
 <span id="openstef-feature-engineering-data-preparation-module"></span><h2>openstef.feature_engineering.data_preparation module<a class="headerlink" href="#module-openstef.feature_engineering.data_preparation" title="Link to this heading">¶</a></h2>
@@ -933,7 +937,7 @@ function for the bridgeday is added to the general holidayfuncitons dictionary.<
 
 <dl class="py function">
 <dt class="sig sig-object py" id="openstef.feature_engineering.holiday_features.generate_holiday_feature_functions">
-<span class="sig-prename descclassname"><span class="pre">openstef.feature_engineering.holiday_features.</span></span><span class="sig-name descname"><span class="pre">generate_holiday_feature_functions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">country</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'NL'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">years</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_to_school_holidays_csv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">PosixPath('/home/runner/work/openstef/openstef/openstef/data/dutch_holidays.csv')</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.holiday_features.generate_holiday_feature_functions" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">openstef.feature_engineering.holiday_features.</span></span><span class="sig-name descname"><span class="pre">generate_holiday_feature_functions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">country_code</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'NL'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">years</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_to_school_holidays_csv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">PosixPath('/home/runner/work/openstef/openstef/openstef/data/dutch_holidays.csv')</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.holiday_features.generate_holiday_feature_functions" title="Link to this definition">¶</a></dt>
 <dd><p>Generates functions for creating holiday feature.</p>
 <p>This improves forecast accuracy. Examples of features that are
 added are: 2020-01-01 is ‘Nieuwjaarsdag’.</p>
@@ -965,7 +969,7 @@ The official following official ducth holidays are included untill 2023:</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>country</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Country for which to create holiday features.</p></li>
+<li><p><strong>country</strong> – Country for which to create holiday features.</p></li>
 <li><p><strong>years</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>) – years for which to create holiday features.</p></li>
 <li><p><strong>path_to_school_holidays_csv</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Filepath to csv with school holidays.</p></li>
 <li><p><strong>NOTE</strong> – Dutch holidays csv file is only until January 2026.</p></li>
@@ -1459,6 +1463,11 @@ if the input is numeric; a dict with the calculated moisture indices</p>
     </a>
    </li>
   </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-openstef.feature_engineering.bidding_zone_to_country_mapping">
+   openstef.feature_engineering.bidding_zone_to_country_mapping module
+  </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#module-openstef.feature_engineering.data_preparation">

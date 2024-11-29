@@ -439,6 +439,7 @@
 <li class="toctree-l4"><a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass.default_modelspecs"><code class="docutils literal notranslate"><span class="pre">PredictionJobDataClass.default_modelspecs</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass.depends_on"><code class="docutils literal notranslate"><span class="pre">PredictionJobDataClass.depends_on</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass.description"><code class="docutils literal notranslate"><span class="pre">PredictionJobDataClass.description</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass.electricity_bidding_zone"><code class="docutils literal notranslate"><span class="pre">PredictionJobDataClass.electricity_bidding_zone</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass.flatliner_threshold_minutes"><code class="docutils literal notranslate"><span class="pre">PredictionJobDataClass.flatliner_threshold_minutes</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass.forecast_type"><code class="docutils literal notranslate"><span class="pre">PredictionJobDataClass.forecast_type</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass.get"><code class="docutils literal notranslate"><span class="pre">PredictionJobDataClass.get()</span></code></a></li>
@@ -483,6 +484,7 @@
 <li class="toctree-l3"><a class="reference internal" href="openstef.feature_engineering.html#openstef.feature_engineering.apply_features.apply_features"><code class="docutils literal notranslate"><span class="pre">apply_features()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.feature_engineering.html#module-openstef.feature_engineering.bidding_zone_to_country_mapping">openstef.feature_engineering.bidding_zone_to_country_mapping module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef.feature_engineering.html#module-openstef.feature_engineering.data_preparation">openstef.feature_engineering.data_preparation module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="openstef.feature_engineering.html#openstef.feature_engineering.data_preparation.ARDataPreparation"><code class="docutils literal notranslate"><span class="pre">ARDataPreparation</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="openstef.feature_engineering.html#openstef.feature_engineering.data_preparation.ARDataPreparation.prepare_forecast_data"><code class="docutils literal notranslate"><span class="pre">ARDataPreparation.prepare_forecast_data()</span></code></a></li>
@@ -979,6 +981,517 @@
 <section id="module-openstef.enums">
 <span id="openstef-enums-module"></span><h2>openstef.enums module<a class="headerlink" href="#module-openstef.enums" title="Link to this heading">¶</a></h2>
 <dl class="py class">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef.enums.</span></span><span class="sig-name descname"><span class="pre">BiddingZone</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.enums.BiddingZone" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.AL">
+<span class="sig-name descname"><span class="pre">AL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'AL'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.AL" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.AT">
+<span class="sig-name descname"><span class="pre">AT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'AT'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.AT" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.BA">
+<span class="sig-name descname"><span class="pre">BA</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'BA'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.BA" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.BE">
+<span class="sig-name descname"><span class="pre">BE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'BE'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.BE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.BG">
+<span class="sig-name descname"><span class="pre">BG</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'BG'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.BG" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.BY">
+<span class="sig-name descname"><span class="pre">BY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'BY'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.BY" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.CH">
+<span class="sig-name descname"><span class="pre">CH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'CH'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.CH" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.CWE">
+<span class="sig-name descname"><span class="pre">CWE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'CWE'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.CWE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.CY">
+<span class="sig-name descname"><span class="pre">CY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'CY'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.CY" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.CZ">
+<span class="sig-name descname"><span class="pre">CZ</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'CZ'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.CZ" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.CZ_DE_SK">
+<span class="sig-name descname"><span class="pre">CZ_DE_SK</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'CZ_DE_SK'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.CZ_DE_SK" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.DE">
+<span class="sig-name descname"><span class="pre">DE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'DE'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.DE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.DE_50HZ">
+<span class="sig-name descname"><span class="pre">DE_50HZ</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'DE_50HZ'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.DE_50HZ" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.DE_AMPRION">
+<span class="sig-name descname"><span class="pre">DE_AMPRION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'DE_AMPRION'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.DE_AMPRION" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.DE_AMP_LU">
+<span class="sig-name descname"><span class="pre">DE_AMP_LU</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'DE_AMP_LU'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.DE_AMP_LU" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.DE_AT_LU">
+<span class="sig-name descname"><span class="pre">DE_AT_LU</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'DE_AT_LU'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.DE_AT_LU" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.DE_LU">
+<span class="sig-name descname"><span class="pre">DE_LU</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'DE_LU'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.DE_LU" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.DE_TENNET">
+<span class="sig-name descname"><span class="pre">DE_TENNET</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'DE_TENNET'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.DE_TENNET" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.DE_TRANSNET">
+<span class="sig-name descname"><span class="pre">DE_TRANSNET</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'DE_TRANSNET'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.DE_TRANSNET" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.DK">
+<span class="sig-name descname"><span class="pre">DK</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'DK'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.DK" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.DK_1">
+<span class="sig-name descname"><span class="pre">DK_1</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'DK_1'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.DK_1" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.DK_1_NO_1">
+<span class="sig-name descname"><span class="pre">DK_1_NO_1</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'DK_1_NO_1'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.DK_1_NO_1" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.DK_2">
+<span class="sig-name descname"><span class="pre">DK_2</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'DK_2'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.DK_2" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.DK_CA">
+<span class="sig-name descname"><span class="pre">DK_CA</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'DK_CA'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.DK_CA" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.EE">
+<span class="sig-name descname"><span class="pre">EE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'EE'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.EE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.ES">
+<span class="sig-name descname"><span class="pre">ES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ES'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.ES" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.FI">
+<span class="sig-name descname"><span class="pre">FI</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'FI'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.FI" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.FR">
+<span class="sig-name descname"><span class="pre">FR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'FR'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.FR" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.GB">
+<span class="sig-name descname"><span class="pre">GB</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'GB'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.GB" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.GB_ELECLINK">
+<span class="sig-name descname"><span class="pre">GB_ELECLINK</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'GB_ELECLINK'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.GB_ELECLINK" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.GB_IFA">
+<span class="sig-name descname"><span class="pre">GB_IFA</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'GB_IFA'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.GB_IFA" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.GB_IFA2">
+<span class="sig-name descname"><span class="pre">GB_IFA2</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'GB_IFA2'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.GB_IFA2" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.GB_NIR">
+<span class="sig-name descname"><span class="pre">GB_NIR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'GB_NIR'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.GB_NIR" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.GE">
+<span class="sig-name descname"><span class="pre">GE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'GE'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.GE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.GR">
+<span class="sig-name descname"><span class="pre">GR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'GR'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.GR" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.HR">
+<span class="sig-name descname"><span class="pre">HR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'HR'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.HR" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.HU">
+<span class="sig-name descname"><span class="pre">HU</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'HU'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.HU" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.IE">
+<span class="sig-name descname"><span class="pre">IE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'IE'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.IE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.IE_SEM">
+<span class="sig-name descname"><span class="pre">IE_SEM</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'IE_SEM'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.IE_SEM" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.IS">
+<span class="sig-name descname"><span class="pre">IS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'IS'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.IS" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.IT">
+<span class="sig-name descname"><span class="pre">IT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'IT'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.IT" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.IT_BRNN">
+<span class="sig-name descname"><span class="pre">IT_BRNN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'IT_BRNN'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.IT_BRNN" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.IT_CALA">
+<span class="sig-name descname"><span class="pre">IT_CALA</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'IT_CALA'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.IT_CALA" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.IT_CNOR">
+<span class="sig-name descname"><span class="pre">IT_CNOR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'IT_CNOR'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.IT_CNOR" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.IT_CSUD">
+<span class="sig-name descname"><span class="pre">IT_CSUD</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'IT_CSUD'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.IT_CSUD" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.IT_FOGN">
+<span class="sig-name descname"><span class="pre">IT_FOGN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'IT_FOGN'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.IT_FOGN" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.IT_GR">
+<span class="sig-name descname"><span class="pre">IT_GR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'IT_GR'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.IT_GR" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.IT_MACRO_NORTH">
+<span class="sig-name descname"><span class="pre">IT_MACRO_NORTH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'IT_MACRO_NORTH'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.IT_MACRO_NORTH" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.IT_MACRO_SOUTH">
+<span class="sig-name descname"><span class="pre">IT_MACRO_SOUTH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'IT_MACRO_SOUTH'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.IT_MACRO_SOUTH" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.IT_MALTA">
+<span class="sig-name descname"><span class="pre">IT_MALTA</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'IT_MALTA'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.IT_MALTA" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.IT_NORD">
+<span class="sig-name descname"><span class="pre">IT_NORD</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'IT_NORD'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.IT_NORD" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.IT_NORD_AT">
+<span class="sig-name descname"><span class="pre">IT_NORD_AT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'IT_NORD_AT'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.IT_NORD_AT" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.IT_NORD_CH">
+<span class="sig-name descname"><span class="pre">IT_NORD_CH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'IT_NORD_CH'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.IT_NORD_CH" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.IT_NORD_FR">
+<span class="sig-name descname"><span class="pre">IT_NORD_FR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'IT_NORD_FR'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.IT_NORD_FR" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.IT_NORD_SI">
+<span class="sig-name descname"><span class="pre">IT_NORD_SI</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'IT_NORD_SI'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.IT_NORD_SI" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.IT_PRGP">
+<span class="sig-name descname"><span class="pre">IT_PRGP</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'IT_PRGP'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.IT_PRGP" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.IT_ROSN">
+<span class="sig-name descname"><span class="pre">IT_ROSN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'IT_ROSN'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.IT_ROSN" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.IT_SACO_AC">
+<span class="sig-name descname"><span class="pre">IT_SACO_AC</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'IT_SACO_AC'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.IT_SACO_AC" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.IT_SACO_DC">
+<span class="sig-name descname"><span class="pre">IT_SACO_DC</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'IT_SACO_DC'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.IT_SACO_DC" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.IT_SARD">
+<span class="sig-name descname"><span class="pre">IT_SARD</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'IT_SARD'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.IT_SARD" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.IT_SICI">
+<span class="sig-name descname"><span class="pre">IT_SICI</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'IT_SICI'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.IT_SICI" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.IT_SUD">
+<span class="sig-name descname"><span class="pre">IT_SUD</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'IT_SUD'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.IT_SUD" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.LT">
+<span class="sig-name descname"><span class="pre">LT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'LT'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.LT" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.LU">
+<span class="sig-name descname"><span class="pre">LU</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'LU'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.LU" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.LU_BZN">
+<span class="sig-name descname"><span class="pre">LU_BZN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'LU_BZN'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.LU_BZN" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.LV">
+<span class="sig-name descname"><span class="pre">LV</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'LV'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.LV" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.MD">
+<span class="sig-name descname"><span class="pre">MD</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'MD'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.MD" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.ME">
+<span class="sig-name descname"><span class="pre">ME</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ME'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.ME" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.MK">
+<span class="sig-name descname"><span class="pre">MK</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'MK'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.MK" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.MT">
+<span class="sig-name descname"><span class="pre">MT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'MT'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.MT" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.NL">
+<span class="sig-name descname"><span class="pre">NL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'NL'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.NL" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.NO">
+<span class="sig-name descname"><span class="pre">NO</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'NO'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.NO" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.NO_1">
+<span class="sig-name descname"><span class="pre">NO_1</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'NO_1'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.NO_1" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.NO_1A">
+<span class="sig-name descname"><span class="pre">NO_1A</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'NO_1A'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.NO_1A" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.NO_2">
+<span class="sig-name descname"><span class="pre">NO_2</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'NO_2'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.NO_2" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.NO_2A">
+<span class="sig-name descname"><span class="pre">NO_2A</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'NO_2A'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.NO_2A" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.NO_2_NSL">
+<span class="sig-name descname"><span class="pre">NO_2_NSL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'NO_2_NSL'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.NO_2_NSL" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.NO_3">
+<span class="sig-name descname"><span class="pre">NO_3</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'NO_3'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.NO_3" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.NO_4">
+<span class="sig-name descname"><span class="pre">NO_4</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'NO_4'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.NO_4" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.NO_5">
+<span class="sig-name descname"><span class="pre">NO_5</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'NO_5'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.NO_5" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.PL">
+<span class="sig-name descname"><span class="pre">PL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'PL'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.PL" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.PL_CZ">
+<span class="sig-name descname"><span class="pre">PL_CZ</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'PL_CZ'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.PL_CZ" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.PT">
+<span class="sig-name descname"><span class="pre">PT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'PT'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.PT" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.RO">
+<span class="sig-name descname"><span class="pre">RO</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'RO'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.RO" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.RS">
+<span class="sig-name descname"><span class="pre">RS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'RS'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.RS" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.RU">
+<span class="sig-name descname"><span class="pre">RU</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'RU'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.RU" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.RU_KGD">
+<span class="sig-name descname"><span class="pre">RU_KGD</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'RU_KGD'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.RU_KGD" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.SE">
+<span class="sig-name descname"><span class="pre">SE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'SE'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.SE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.SE_1">
+<span class="sig-name descname"><span class="pre">SE_1</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'SE_1'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.SE_1" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.SE_2">
+<span class="sig-name descname"><span class="pre">SE_2</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'SE_2'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.SE_2" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.SE_3">
+<span class="sig-name descname"><span class="pre">SE_3</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'SE_3'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.SE_3" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.SE_4">
+<span class="sig-name descname"><span class="pre">SE_4</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'SE_4'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.SE_4" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.SI">
+<span class="sig-name descname"><span class="pre">SI</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'SI'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.SI" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.SK">
+<span class="sig-name descname"><span class="pre">SK</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'SK'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.SK" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.TR">
+<span class="sig-name descname"><span class="pre">TR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'TR'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.TR" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.UA">
+<span class="sig-name descname"><span class="pre">UA</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'UA'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.UA" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.UA_BEI">
+<span class="sig-name descname"><span class="pre">UA_BEI</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'UA_BEI'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.UA_BEI" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.UA_DOBTPP">
+<span class="sig-name descname"><span class="pre">UA_DOBTPP</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'UA_DOBTPP'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.UA_DOBTPP" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.UA_IPS">
+<span class="sig-name descname"><span class="pre">UA_IPS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'UA_IPS'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.UA_IPS" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.UK">
+<span class="sig-name descname"><span class="pre">UK</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'UK'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.UK" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.BiddingZone.XK">
+<span class="sig-name descname"><span class="pre">XK</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'XK'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.XK" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="openstef.enums.ForecastType">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef.enums.</span></span><span class="sig-name descname"><span class="pre">ForecastType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.enums.ForecastType" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
@@ -1259,6 +1772,926 @@
    openstef.enums module
   </a>
   <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#openstef.enums.BiddingZone">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       BiddingZone
+      </span>
+     </code>
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.AL">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.AL
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.AT">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.AT
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.BA">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.BA
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.BE">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.BE
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.BG">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.BG
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.BY">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.BY
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.CH">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.CH
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.CWE">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.CWE
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.CY">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.CY
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.CZ">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.CZ
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.CZ_DE_SK">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.CZ_DE_SK
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.DE">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.DE
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.DE_50HZ">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.DE_50HZ
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.DE_AMPRION">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.DE_AMPRION
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.DE_AMP_LU">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.DE_AMP_LU
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.DE_AT_LU">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.DE_AT_LU
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.DE_LU">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.DE_LU
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.DE_TENNET">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.DE_TENNET
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.DE_TRANSNET">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.DE_TRANSNET
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.DK">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.DK
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.DK_1">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.DK_1
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.DK_1_NO_1">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.DK_1_NO_1
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.DK_2">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.DK_2
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.DK_CA">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.DK_CA
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.EE">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.EE
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.ES">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.ES
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.FI">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.FI
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.FR">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.FR
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.GB">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.GB
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.GB_ELECLINK">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.GB_ELECLINK
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.GB_IFA">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.GB_IFA
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.GB_IFA2">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.GB_IFA2
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.GB_NIR">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.GB_NIR
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.GE">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.GE
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.GR">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.GR
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.HR">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.HR
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.HU">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.HU
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.IE">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.IE
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.IE_SEM">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.IE_SEM
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.IS">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.IS
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.IT">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.IT
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.IT_BRNN">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.IT_BRNN
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.IT_CALA">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.IT_CALA
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.IT_CNOR">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.IT_CNOR
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.IT_CSUD">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.IT_CSUD
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.IT_FOGN">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.IT_FOGN
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.IT_GR">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.IT_GR
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.IT_MACRO_NORTH">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.IT_MACRO_NORTH
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.IT_MACRO_SOUTH">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.IT_MACRO_SOUTH
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.IT_MALTA">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.IT_MALTA
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.IT_NORD">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.IT_NORD
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.IT_NORD_AT">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.IT_NORD_AT
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.IT_NORD_CH">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.IT_NORD_CH
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.IT_NORD_FR">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.IT_NORD_FR
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.IT_NORD_SI">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.IT_NORD_SI
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.IT_PRGP">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.IT_PRGP
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.IT_ROSN">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.IT_ROSN
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.IT_SACO_AC">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.IT_SACO_AC
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.IT_SACO_DC">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.IT_SACO_DC
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.IT_SARD">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.IT_SARD
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.IT_SICI">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.IT_SICI
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.IT_SUD">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.IT_SUD
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.LT">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.LT
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.LU">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.LU
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.LU_BZN">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.LU_BZN
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.LV">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.LV
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.MD">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.MD
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.ME">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.ME
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.MK">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.MK
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.MT">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.MT
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.NL">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.NL
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.NO">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.NO
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.NO_1">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.NO_1
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.NO_1A">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.NO_1A
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.NO_2">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.NO_2
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.NO_2A">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.NO_2A
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.NO_2_NSL">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.NO_2_NSL
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.NO_3">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.NO_3
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.NO_4">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.NO_4
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.NO_5">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.NO_5
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.PL">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.PL
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.PL_CZ">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.PL_CZ
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.PT">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.PT
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.RO">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.RO
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.RS">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.RS
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.RU">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.RU
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.RU_KGD">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.RU_KGD
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.SE">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.SE
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.SE_1">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.SE_1
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.SE_2">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.SE_2
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.SE_3">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.SE_3
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.SE_4">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.SE_4
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.SI">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.SI
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.SK">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.SK
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.TR">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.TR
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.UA">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.UA
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.UA_BEI">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.UA_BEI
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.UA_DOBTPP">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.UA_DOBTPP
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.UA_IPS">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.UA_IPS
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.UK">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.UK
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.BiddingZone.XK">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         BiddingZone.XK
+        </span>
+       </code>
+      </a>
+     </li>
+    </ul>
+   </li>
    <li class="toc-h3 nav-item toc-entry">
     <a class="reference internal nav-link" href="#openstef.enums.ForecastType">
      <code class="docutils literal notranslate">

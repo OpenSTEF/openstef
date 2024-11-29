@@ -12,6 +12,14 @@ openstef.feature\_engineering.apply\_features module
    :undoc-members:
    :show-inheritance:
 
+openstef.feature\_engineering.bidding\_zone\_to\_country\_mapping module
+------------------------------------------------------------------------
+
+.. automodule:: openstef.feature_engineering.bidding_zone_to_country_mapping
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 openstef.feature\_engineering.data\_preparation module
 ------------------------------------------------------
 
