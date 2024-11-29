@@ -53,7 +53,9 @@ class TestCyclicFeatures:
         # Generate 2 days of data at 15-minute intervals
         num_points = int(24 * 60 / 15 * 2)
         data = pd.DataFrame(
-            index=pd.date_range(start="2023-01-01 00:00:00", freq="15min", periods=num_points)
+            index=pd.date_range(
+                start="2023-01-01 00:00:00", freq="15min", periods=num_points
+            )
         )
 
         # Apply the function with default period (24 hours)
@@ -87,19 +89,25 @@ class TestCyclicFeatures:
         # Test for non-datetime index
         data = pd.DataFrame(index=range(10))
 
-        with pytest.raises(ValueError, match="The DataFrame index must be a DatetimeIndex"):
+        with pytest.raises(
+            ValueError, match="The DataFrame index must be a DatetimeIndex"
+        ):
             add_seasonal_cyclic_features(data)
 
     def test_add_time_cyclic_features_non_datetime_index(self):
         # Test for non-datetime index
         data = pd.DataFrame(index=range(10))
 
-        with pytest.raises(ValueError, match="The DataFrame index must be a DatetimeIndex"):
+        with pytest.raises(
+            ValueError, match="The DataFrame index must be a DatetimeIndex"
+        ):
             add_time_cyclic_features(data)
 
     def test_add_time_cyclic_features_invalid_period(self):
         # Test for invalid period input
         data = pd.DataFrame(index=pd.date_range("2023-01-01", periods=10, freq="h"))
 
-        with pytest.raises(ValueError, match="The 'period' parameter must be greater than 0"):
+        with pytest.raises(
+            ValueError, match="The 'period' parameter must be greater than 0"
+        ):
             add_time_cyclic_features(data, period=-5)
