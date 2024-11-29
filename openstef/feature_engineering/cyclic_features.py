@@ -22,7 +22,7 @@ structlog.configure(
 logger = structlog.get_logger(__name__)
 
 
-def add_temporal_cyclic_features(
+def add_seasonal_cyclic_features(
     data: pd.DataFrame, compute_features: list = None
 ) -> pd.DataFrame:
     """
