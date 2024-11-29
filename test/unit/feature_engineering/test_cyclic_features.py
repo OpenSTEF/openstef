@@ -4,12 +4,10 @@
 import numpy as np
 import pandas as pd
 import pytest
-
 from openstef.feature_engineering.cyclic_features import (
     add_seasonal_cyclic_features,
     add_time_cyclic_features,
 )
-
 
 class TestCyclicFeatures:
     def test_add_seasonal_cyclic_features(self):
@@ -20,34 +18,34 @@ class TestCyclicFeatures:
         output_data = add_seasonal_cyclic_features(data)
 
         # Verify the columns are created
-        assert "season_sin" in output_data.columns
-        assert "season_cos" in output_data.columns
-        assert "dayofweek_sin" in output_data.columns
-        assert "dayofweek_cos" in output_data.columns
-        assert "month_sin" in output_data.columns
-        assert "month_cos" in output_data.columns
+        assert "season_sine" in output_data.columns
+        assert "season_cosine" in output_data.columns
+        assert "day0fweek_sine" in output_data.columns
+        assert "day0fweek_cosine" in output_data.columns
+        assert "month_sine" in output_data.columns
+        assert "month_cosine" in output_data.columns
 
         # Validate the seasonality calculations
         days_in_year = 365.25
-        season_sin_expected = np.sin(2 * np.pi * data.index.dayofyear / days_in_year)
-        season_cos_expected = np.cos(2 * np.pi * data.index.dayofyear / days_in_year)
+        season_sine_expected = np.sin(2 * np.pi * data.index.dayofyear / days_in_year)
+        season_cosine_expected = np.cos(2 * np.pi * data.index.dayofyear / days_in_year)
 
-        assert np.allclose(output_data["season_sin"], season_sin_expected)
-        assert np.allclose(output_data["season_cos"], season_cos_expected)
+        assert np.allclose(output_data["season_sine"], season_sine_expected)
+        assert np.allclose(output_data["season_cosine"], season_cosine_expected)
 
         # Validate the day of week calculations
-        dayofweek_sin_expected = np.sin(2 * np.pi * data.index.day_of_week / 7)
-        dayofweek_cos_expected = np.cos(2 * np.pi * data.index.day_of_week / 7)
+        dayofweek_sine_expected = np.sin(2 * np.pi * data.index.day_of_week / 7)
+        dayofweek_cosine_expected = np.cos(2 * np.pi * data.index.day_of_week / 7)
 
-        assert np.allclose(output_data["dayofweek_sin"], dayofweek_sin_expected)
-        assert np.allclose(output_data["dayofweek_cos"], dayofweek_cos_expected)
+        assert np.allclose(output_data["day0fweek_sine"], dayofweek_sine_expected)
+        assert np.allclose(output_data["day0fweek_cosine"], dayofweek_cosine_expected)
 
         # Validate the month calculations
-        month_sin_expected = np.sin(2 * np.pi * data.index.month / 12)
-        month_cos_expected = np.cos(2 * np.pi * data.index.month / 12)
+        month_sine_expected = np.sin(2 * np.pi * data.index.month / 12)
+        month_cosine_expected = np.cos(2 * np.pi * data.index.month / 12)
 
-        assert np.allclose(output_data["month_sin"], month_sin_expected)
-        assert np.allclose(output_data["month_cos"], month_cos_expected)
+        assert np.allclose(output_data["month_sine"], month_sine_expected)
+        assert np.allclose(output_data["month_cosine"], month_cosine_expected)
 
     def test_add_time_cyclic_features(self):
         # Generate 2 days of data at 15-minute intervals
@@ -58,56 +56,40 @@ class TestCyclicFeatures:
             )
         )
 
-        # Apply the function with default period (24 hours)
-        output_data = add_time_cyclic_features(data, frequency="15min")
+        # Apply the function
+        output_data = add_time_cyclic_features(data)
 
         # Verify the columns are created
-        assert "sin_time" in output_data.columns
-        assert "cos_time" in output_data.columns
+        assert "time0fday_sine" in output_data.columns
+        assert "time0fday_cosine" in output_data.columns
 
         # Validate the sine and cosine time features
-        base_interval_minutes = 15  # Interval in minutes
-        time_in_minutes = data.index.hour * 60 + data.index.minute
-        time_interval = time_in_minutes / base_interval_minutes
+        num_seconds_in_day = 24 * 60 * 60  # Total seconds in a day
+        second_of_the_day = (
+            data.index.second + data.index.minute * 60 + data.index.hour * 60 * 60
+        )
+        period_of_the_day = 2 * np.pi * second_of_the_day / num_seconds_in_day
 
-        intervals_per_cycle = (24 * 60) / base_interval_minutes
+        sin_time_expected = np.sin(period_of_the_day)
+        cos_time_expected = np.cos(period_of_the_day)
 
-        sin_time_expected = np.sin(2 * np.pi * time_interval / intervals_per_cycle)
-        cos_time_expected = np.cos(2 * np.pi * time_interval / intervals_per_cycle)
-
-        assert np.allclose(output_data["sin_time"], sin_time_expected)
-        assert np.allclose(output_data["cos_time"], cos_time_expected)
-
-    def test_add_time_cyclic_features_invalid_frequency(self):
-        # Test for invalid frequency input
-        data = pd.DataFrame(index=pd.date_range("2023-01-01", periods=10, freq="h"))
-
-        with pytest.raises(ValueError, match="Invalid frequency string"):
-            add_time_cyclic_features(data, frequency="invalid_freq")
-
-    def test_add_seasonal_cyclic_features_non_datetime_index(self):
-        # Test for non-datetime index
-        data = pd.DataFrame(index=range(10))
-
-        with pytest.raises(
-            ValueError, match="The DataFrame index must be a DatetimeIndex"
-        ):
-            add_seasonal_cyclic_features(data)
+        assert np.allclose(output_data["time0fday_sine"], sin_time_expected)
+        assert np.allclose(output_data["time0fday_cosine"], cos_time_expected)
 
     def test_add_time_cyclic_features_non_datetime_index(self):
         # Test for non-datetime index
         data = pd.DataFrame(index=range(10))
 
         with pytest.raises(
-            ValueError, match="The DataFrame index must be a DatetimeIndex"
+            ValueError, match="Index should be a pandas DatetimeIndex"
         ):
             add_time_cyclic_features(data)
 
-    def test_add_time_cyclic_features_invalid_period(self):
-        # Test for invalid period input
-        data = pd.DataFrame(index=pd.date_range("2023-01-01", periods=10, freq="h"))
+    def test_add_seasonal_cyclic_features_non_datetime_index(self):
+        # Test for non-datetime index
+        data = pd.DataFrame(index=range(10))
 
         with pytest.raises(
-            ValueError, match="The 'period' parameter must be greater than 0"
+            ValueError, match="The DataFrame index must be a DatetimeIndex."
         ):
-            add_time_cyclic_features(data, period=-5)
+            add_seasonal_cyclic_features(data)
