@@ -25,15 +25,9 @@ logger = structlog.get_logger(__name__)
 def add_seasonal_cyclic_features(
     data: pd.DataFrame, compute_features: list = None
 ) -> pd.DataFrame:
-    """
-    Adds cyclical features to capture seasonal and periodic patterns in time-based data.
+    """Adds cyclical features to capture seasonal and periodic patterns in time-based data.
 
-    Cyclical features include:
-    - Yearly seasonality (using day of the year)
-    - Weekly seasonality (using day of the week)
-    - Monthly seasonality (using month of the year)
-
-    Parameters:
+    Args:
     - data (pd.DataFrame): DataFrame with a DatetimeIndex.
     - compute_features (list): Optional. List of features to compute. Options are:
       ['season', 'dayofweek', 'month']. Default is all features.
@@ -79,10 +73,9 @@ def add_seasonal_cyclic_features(
 def add_time_cyclic_features(
     data: pd.DataFrame, frequency: str = None, period: int = 24
 ) -> pd.DataFrame:
-    """
-    Adds polar time features (sine and cosine) to capture periodic patterns based on the timestamp index.
+    """Adds polar time features (sine and cosine) to capture periodic patterns based on the timestamp index.
 
-    Parameters:
+    Args:
     - data (pd.DataFrame): Input DataFrame with a timestamp index.
     - frequency (str): Frequency of intervals (e.g., '15min', '1H'). Defaults to the frequency inferred from the DataFrame index.
     - period (int): Total number of hours in the periodic cycle (e.g., 24 for daily periodicity).
