@@ -14,7 +14,7 @@ HOLIDAY_CSV_PATH: str = PROJECT_ROOT / "openstef" / "data" / "dutch_holidays.csv
 
 
 def generate_holiday_feature_functions(
-    country: str = "NL",
+    country_code: str = "NL",
     years: list = None,
     path_to_school_holidays_csv: str = HOLIDAY_CSV_PATH,
 ) -> dict:
@@ -69,7 +69,7 @@ def generate_holiday_feature_functions(
             now.year + 1,
         ]
 
-    country_holidays = holidays.country_holidays(country, years=years)
+    country_holidays = holidays.country_holidays(country_code, years=years)
 
     # Make holiday function dict
     holiday_functions = {}
@@ -96,7 +96,7 @@ def generate_holiday_feature_functions(
 
         # Check for bridge day
         holiday_functions, bridge_days = check_for_bridge_day(
-            date, holiday_name, country, years, holiday_functions, bridge_days
+            date, holiday_name, country_code, years, holiday_functions, bridge_days
         )
 
     # Add feature function that includes all bridgedays
@@ -104,32 +104,41 @@ def generate_holiday_feature_functions(
         {"is_bridgeday": lambda x: np.isin(x.index.date, np.array(list(bridge_days)))}
     )
 
-    # Manully generated csv including all dutch schoolholidays for different regions
-    df_holidays = pd.read_csv(path_to_school_holidays_csv, index_col=None)
-    df_holidays["datum"] = pd.to_datetime(df_holidays.datum).apply(lambda x: x.date())
+    # Add school holidays if country is NL
+    if country_code == "NL":
+        # Manully generated csv including all dutch schoolholidays for different regions
+        df_holidays = pd.read_csv(path_to_school_holidays_csv, index_col=None)
+        df_holidays["datum"] = pd.to_datetime(df_holidays.datum).apply(
+            lambda x: x.date()
+        )
 
-    # Add check function that includes all holidays of the provided csv
-    holiday_functions.update(
-        {"is_schoolholiday": lambda x: np.isin(x.index.date, df_holidays.datum.values)}
-    )
-
-    # Loop over list of holidays names
-    for holiday_name in list(set(df_holidays.name)):
-        # Define function explicitely to mitigate 'late binding' problem
-        def make_holiday_func(holidayname=holiday_name):
-            return lambda x: np.isin(
-                x.index.date, df_holidays.datum[df_holidays.name == holidayname].values
-            )
-
-        # Create lag function for each holiday
+        # Add check function that includes all holidays of the provided csv
         holiday_functions.update(
             {
-                "is_"
-                + holiday_name.replace(" ", "_").lower(): make_holiday_func(
-                    holidayname=holiday_name
+                "is_schoolholiday": lambda x: np.isin(
+                    x.index.date, df_holidays.datum.values
                 )
             }
         )
+
+        # Loop over list of holidays names
+        for holiday_name in list(set(df_holidays.name)):
+            # Define function explicitely to mitigate 'late binding' problem
+            def make_holiday_func(holidayname=holiday_name):
+                return lambda x: np.isin(
+                    x.index.date,
+                    df_holidays.datum[df_holidays.name == holidayname].values,
+                )
+
+            # Create lag function for each holiday
+            holiday_functions.update(
+                {
+                    "is_"
+                    + holiday_name.replace(" ", "_").lower(): make_holiday_func(
+                        holidayname=holiday_name
+                    )
+                }
+            )
 
     return holiday_functions
 

@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 
 import unittest
+from openstef.enums import BiddingZone
 from test.unit.utils.base import BaseTestCase
 from test.unit.utils.data import TestData
 
@@ -187,8 +188,15 @@ class TestApplyFeaturesModule(BaseTestCase):
                 "pressure": [3, 4, 5, 6],
             },
         )
+        pj = {
+            "model": "proleaf",
+            "lat": 52.132633,
+            "lon": 5.291266,
+            "electricity_bidding_zone": BiddingZone.NL,
+        }
+
         input_data_with_features = apply_features.apply_features(
-            data=input_data, horizon=24
+            pj=pj, data=input_data, horizon=24
         )
 
         expected = TestData.load("../data/input_data_with_holiday_features.csv")
