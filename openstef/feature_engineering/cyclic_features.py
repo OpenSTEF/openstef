@@ -24,6 +24,7 @@ logger = structlog.get_logger(__name__)
 
 NUM_SECONDS_IN_A_DAY = 24 * 60 * 60
 
+
 def add_time_cyclic_features(
     data: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -96,4 +97,3 @@ def add_seasonal_cyclic_features(
         data["month_cosine"] = np.cos(2 * np.pi * data.index.month / 12)
 
     return data
-

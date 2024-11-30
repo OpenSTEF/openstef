@@ -9,6 +9,7 @@ from openstef.feature_engineering.cyclic_features import (
     add_time_cyclic_features,
 )
 
+
 class TestCyclicFeatures:
     def test_add_seasonal_cyclic_features(self):
         # Generate a year's worth of daily data
@@ -80,9 +81,7 @@ class TestCyclicFeatures:
         # Test for non-datetime index
         data = pd.DataFrame(index=range(10))
 
-        with pytest.raises(
-            ValueError, match="Index should be a pandas DatetimeIndex"
-        ):
+        with pytest.raises(ValueError, match="Index should be a pandas DatetimeIndex"):
             add_time_cyclic_features(data)
 
     def test_add_seasonal_cyclic_features_non_datetime_index(self):
