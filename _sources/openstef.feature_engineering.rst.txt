@@ -20,6 +20,14 @@ openstef.feature\_engineering.bidding\_zone\_to\_country\_mapping module
    :undoc-members:
    :show-inheritance:
 
+openstef.feature\_engineering.cyclic\_features module
+-----------------------------------------------------
+
+.. automodule:: openstef.feature_engineering.cyclic_features
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 openstef.feature\_engineering.data\_preparation module
 ------------------------------------------------------
 

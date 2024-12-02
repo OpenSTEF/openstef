@@ -470,6 +470,49 @@ columns=[label, predictor_1,…, predictor_n]</p>
 <section id="module-openstef.feature_engineering.bidding_zone_to_country_mapping">
 <span id="openstef-feature-engineering-bidding-zone-to-country-mapping-module"></span><h2>openstef.feature_engineering.bidding_zone_to_country_mapping module<a class="headerlink" href="#module-openstef.feature_engineering.bidding_zone_to_country_mapping" title="Link to this heading">¶</a></h2>
 </section>
+<section id="module-openstef.feature_engineering.cyclic_features">
+<span id="openstef-feature-engineering-cyclic-features-module"></span><h2>openstef.feature_engineering.cyclic_features module<a class="headerlink" href="#module-openstef.feature_engineering.cyclic_features" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="openstef.feature_engineering.cyclic_features.add_seasonal_cyclic_features">
+<span class="sig-prename descclassname"><span class="pre">openstef.feature_engineering.cyclic_features.</span></span><span class="sig-name descname"><span class="pre">add_seasonal_cyclic_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compute_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.cyclic_features.add_seasonal_cyclic_features" title="Link to this definition">¶</a></dt>
+<dd><p>Adds cyclical features to capture seasonal and periodic patterns in time-based data.</p>
+<p>Args:
+- data (pd.DataFrame): DataFrame with a DatetimeIndex.
+- compute_features (list): Optional. List of features to compute. Options are:</p>
+<blockquote>
+<div><p>[‘season’, ‘dayofweek’, ‘month’]. Default is all features.</p>
+</div></blockquote>
+<p>Returns:
+- pd.DataFrame: DataFrame with added cyclical features.</p>
+<p>Example:
+&gt;&gt;&gt; data = pd.DataFrame(index=pd.date_range(start=’2023-01-01’, periods=365, freq=’D’))
+&gt;&gt;&gt; data_with_features = add_cyclical_features(data)
+&gt;&gt;&gt; print(data_with_features.head())</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="openstef.feature_engineering.cyclic_features.add_time_cyclic_features">
+<span class="sig-prename descclassname"><span class="pre">openstef.feature_engineering.cyclic_features.</span></span><span class="sig-name descname"><span class="pre">add_time_cyclic_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.cyclic_features.add_time_cyclic_features" title="Link to this definition">¶</a></dt>
+<dd><p>Adds time of the day features cyclically encoded using sine and cosine to the input data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – Dataframe indexed by datetime.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>DataFrame that is the same as input dataframe with extra columns for the added time of the day features.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
 <section id="module-openstef.feature_engineering.data_preparation">
 <span id="openstef-feature-engineering-data-preparation-module"></span><h2>openstef.feature_engineering.data_preparation module<a class="headerlink" href="#module-openstef.feature_engineering.data_preparation" title="Link to this heading">¶</a></h2>
 <dl class="py class">
@@ -1468,6 +1511,31 @@ if the input is numeric; a dict with the calculated moisture indices</p>
   <a class="reference internal nav-link" href="#module-openstef.feature_engineering.bidding_zone_to_country_mapping">
    openstef.feature_engineering.bidding_zone_to_country_mapping module
   </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-openstef.feature_engineering.cyclic_features">
+   openstef.feature_engineering.cyclic_features module
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#openstef.feature_engineering.cyclic_features.add_seasonal_cyclic_features">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       add_seasonal_cyclic_features()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#openstef.feature_engineering.cyclic_features.add_time_cyclic_features">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       add_time_cyclic_features()
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#module-openstef.feature_engineering.data_preparation">
