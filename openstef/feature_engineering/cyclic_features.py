@@ -29,8 +29,10 @@ def add_time_cyclic_features(
     data: pd.DataFrame,
 ) -> pd.DataFrame:
     """Adds time of the day features cyclically encoded using sine and cosine to the input data.
+
     Args:
         data: Dataframe indexed by datetime.
+
     Returns:
         DataFrame that is the same as input dataframe with extra columns for the added time of the day features.
     """
