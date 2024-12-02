@@ -37,6 +37,8 @@ class TestTrainModelTask(TestCase):
 
         # Arrange
         context = MagicMock()
+        test_data = TestData.load("reference_sets/307-train-data.csv")
+        context.database.get_model_input.return_value = test_data
 
         # Act
         train_model_task(self.pj, context)
@@ -45,6 +47,35 @@ class TestTrainModelTask(TestCase):
         self.assertEqual(train_model_pipeline_mock.call_count, 1)
         self.assertEqual(
             train_model_pipeline_mock.call_args_list[0][0][0]["id"], self.pj["id"]
+        )
+        self.assertEqual(
+            len(train_model_pipeline_mock.call_args_list[0][0][1]),
+            len(test_data),
+        )
+
+    @patch("openstef.tasks.train_model.train_model_pipeline")
+    def test_create_train_model_task_data_balancing(self, train_model_pipeline_mock):
+        # Test happy flow of create forecast task
+
+        # Arrange
+        context = MagicMock()
+        test_data = TestData.load("reference_sets/307-train-data.csv")
+        context.database.get_model_input.return_value = test_data
+        pj_with_balancing = self.pj.copy(update={
+            "data_balancing_ratio": 0.5
+        })
+
+        # Act
+        train_model_task(pj_with_balancing, context)
+
+        # Assert
+        self.assertEqual(train_model_pipeline_mock.call_count, 1)
+        self.assertEqual(
+            train_model_pipeline_mock.call_args_list[0][0][0]["id"], self.pj["id"]
+        )
+        self.assertEqual(
+            len(train_model_pipeline_mock.call_args_list[0][0][1]),
+            len(test_data) * 2,
         )
 
     @patch(

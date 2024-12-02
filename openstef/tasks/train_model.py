@@ -116,10 +116,16 @@ def train_model_task(
         return
 
     # Define start and end of the training input data
+    training_period_days_to_fetch = (
+        TRAINING_PERIOD_DAYS
+        if pj.data_balancing_ratio is None else
+        int(pj.data_balancing_ratio * TRAINING_PERIOD_DAYS)
+    )
+
     if datetime_end is None:
         datetime_end = datetime.utcnow()
     if datetime_start is None:
-        datetime_start = datetime_end - timedelta(days=TRAINING_PERIOD_DAYS)
+        datetime_start = datetime_end - timedelta(days=training_period_days_to_fetch)
 
     # Get training input data from database
     input_data = context.database.get_model_input(
@@ -135,7 +141,7 @@ def train_model_task(
         # Because the data is from the past, we can use the data from the "future"
         balanced_datetime_start = datetime_end - timedelta(days=365)
         balanced_datetime_end = balanced_datetime_start + timedelta(
-            days=TRAINING_PERIOD_DAYS
+            days=training_period_days_to_fetch
         )
 
         balanced_input_data = context.database.get_model_input(
