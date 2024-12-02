@@ -474,7 +474,7 @@ def arctan_loss(y_true, y_pred, taus, s=0.1):
     for i, tau in enumerate(taus):
         x = 1 + z[:, i] ** 2
         grad[:, i] = (
-            tau - 0.5 + 1 / np.pi * np.arctan(z[:, i]) + z[:, i] / (np.pi) * x**-1
+            tau - 0.5 + 1 / np.pi * np.arctan(z[:, i]) + z[:, i] / (np.pi) * x ** -1
         )
         hess[:, i] = 2 / (np.pi * s) * x ** (-2)
 

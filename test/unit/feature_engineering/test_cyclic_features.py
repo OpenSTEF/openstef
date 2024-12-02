@@ -3,10 +3,12 @@
 
 import numpy as np
 import pandas as pd
+import datetime
 import pytest
 from openstef.feature_engineering.cyclic_features import (
     add_seasonal_cyclic_features,
     add_time_cyclic_features,
+    add_daylight_terrestrial_feature,
 )
 
 
@@ -92,3 +94,22 @@ class TestCyclicFeatures:
             ValueError, match="The DataFrame index must be a DatetimeIndex."
         ):
             add_seasonal_cyclic_features(data)
+
+    def test_add_daylight_terrestrial_feature_valid_data(self):
+        # Create input data with UTC timezone
+        index = pd.date_range(
+            "2023-01-01 00:00:00", "2023-01-02 12:45:00", freq="15min", tz="UTC"
+        )
+        input_data = pd.DataFrame(index=index)
+
+        # Verify the timezone of the index is UTC
+        assert input_data.index.tzinfo is not None, "Index must have a timezone."
+        assert (
+            input_data.index.tzinfo == datetime.timezone.utc
+        ), "Timezone of the index must be UTC."
+
+        # Call the function
+        output_data = add_daylight_terrestrial_feature(input_data)
+
+        # Verify the output contains the "daylight_continuous" column
+        assert "daylight_continuous" in output_data.columns

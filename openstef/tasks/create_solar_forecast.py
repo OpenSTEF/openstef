@@ -378,7 +378,7 @@ def apply_fit_insol(data, add_to_df=True, hours_delta=None, polynomial=False):
         return coefs[0] * values + coefs[1]
 
     def second_order_poly(coefs, values):
-        return coefs[0] * values**2 + coefs[1] * values + coefs[2]
+        return coefs[0] * values ** 2 + coefs[1] * values + coefs[2]
 
     # Define function to be minimized and subsequently minimize this function
     if polynomial:
