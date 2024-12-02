@@ -34,6 +34,7 @@ def add_time_cyclic_features(
     Returns:
         DataFrame that is the same as input dataframe with extra columns for the added time of the day features.
     """
+    # Ensure the index is a DatetimeIndex
     if not isinstance(data.index, pd.DatetimeIndex):
         raise ValueError("Index should be a pandas DatetimeIndex")
 
