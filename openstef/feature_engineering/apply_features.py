@@ -28,6 +28,11 @@ from openstef.feature_engineering.weather_features import (
     add_humidity_features,
 )
 
+from openstef.feature_engineering.cyclic_features import (
+    add_seasonal_cyclic_features,
+    add_time_cyclic_features,
+)
+
 
 def apply_features(
     data: pd.DataFrame,
@@ -112,6 +117,12 @@ def apply_features(
 
     # Add solar features; when pj is unavailable a default location is used.
     data = add_additional_solar_features(data, pj, feature_names)
+
+    # Adds cyclical features to capture seasonal and periodic patterns in time-based data.
+    data = add_seasonal_cyclic_features(data)
+
+    # Adds polar time features (sine and cosine) to capture periodic patterns based on the timestamp index.
+    data = add_time_cyclic_features(data)
 
     # Return dataframe including all requested features
     return data
