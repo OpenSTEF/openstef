@@ -22,6 +22,8 @@ Example:
 from datetime import datetime, timedelta
 from pathlib import Path
 
+import pandas as pd
+
 from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.enums import ModelType, PipelineType
 from openstef.exceptions import (
@@ -126,6 +128,29 @@ def train_model_task(
         datetime_start=datetime_start,
         datetime_end=datetime_end,
     )
+
+    # If data balancing is enabled, fetch data from 1 year ago and combine it with the
+    # current data
+    if pj.data_balancing_ratio is not None:
+        # Because the data is from the past, we can use the data from the "future"
+        balanced_datetime_start = datetime_end - timedelta(days=365)
+        balanced_datetime_end = balanced_datetime_start + timedelta(
+            days=TRAINING_PERIOD_DAYS
+        )
+
+        balanced_input_data = context.database.get_model_input(
+            pid=pj["id"],
+            location=[pj["lat"], pj["lon"]],
+            datetime_start=balanced_datetime_start,
+            datetime_end=balanced_datetime_end,
+        )
+
+        input_data = pd.concat(
+            [
+                input_data,
+                balanced_input_data,
+            ]
+        )
 
     context.perf_meter.checkpoint("Retrieved timeseries input")
 
