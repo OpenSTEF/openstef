@@ -61,9 +61,7 @@ class TestTrainModelTask(TestCase):
         context = MagicMock()
         test_data = TestData.load("reference_sets/307-train-data.csv")
         context.database.get_model_input.return_value = test_data
-        pj_with_balancing = self.pj.copy(update={
-            "data_balancing_ratio": 0.5
-        })
+        pj_with_balancing = self.pj.copy(update={"data_balancing_ratio": 0.5})
 
         # Act
         train_model_task(pj_with_balancing, context)

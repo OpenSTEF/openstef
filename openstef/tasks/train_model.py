@@ -118,8 +118,8 @@ def train_model_task(
     # Define start and end of the training input data
     training_period_days_to_fetch = (
         TRAINING_PERIOD_DAYS
-        if pj.data_balancing_ratio is None else
-        int(pj.data_balancing_ratio * TRAINING_PERIOD_DAYS)
+        if pj.data_balancing_ratio is None
+        else int(pj.data_balancing_ratio * TRAINING_PERIOD_DAYS)
     )
 
     if datetime_end is None:
