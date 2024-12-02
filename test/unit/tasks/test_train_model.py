@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 import copy
+from datetime import datetime, UTC
+
 from test.unit.utils.data import TestData
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
@@ -11,7 +13,7 @@ import pytest
 
 from openstef.enums import PipelineType
 from openstef.exceptions import InputDataOngoingZeroFlatlinerError
-from openstef.tasks.train_model import main as task_main
+from openstef.tasks.train_model import main as task_main, TRAINING_PERIOD_DAYS
 from openstef.tasks.train_model import train_model_task
 
 
@@ -60,21 +62,34 @@ class TestTrainModelTask(TestCase):
         # Arrange
         context = MagicMock()
         test_data = TestData.load("reference_sets/307-train-data.csv")
-        context.database.get_model_input.return_value = test_data
+
+        def get_model_input(*args, datetime_start=None, datetime_end=None, **kwargs):
+            # Shift test data to datetime_start and datetime_end
+            result = test_data.copy()
+            result.index = pd.date_range(
+                datetime_start, freq="15T", periods=len(result)
+            )
+            return result[datetime_start:datetime_end]
+
+        context.database.get_model_input = get_model_input
         pj_with_balancing = self.pj.copy(update={"data_balancing_ratio": 0.5})
 
+        datetime_end = datetime.now(tz=UTC)
+        # +2 because pandas slicing is inclusive
+        expected_data_points = TRAINING_PERIOD_DAYS * 24 * 4 + 2
+
         # Act
-        train_model_task(pj_with_balancing, context)
+        train_model_task(pj_with_balancing, context, datetime_end=datetime_end)
 
         # Assert
         self.assertEqual(train_model_pipeline_mock.call_count, 1)
         self.assertEqual(
             train_model_pipeline_mock.call_args_list[0][0][0]["id"], self.pj["id"]
         )
-        self.assertEqual(
-            len(train_model_pipeline_mock.call_args_list[0][0][1]),
-            len(test_data) * 2,
-        )
+        input_data = train_model_pipeline_mock.call_args_list[0][0][1]
+        self.assertIn(datetime_end, input_data.index)
+        self.assertIn(datetime_end - pd.Timedelta(days=365), input_data.index)
+        self.assertEqual(len(input_data), expected_data_points)
 
     @patch(
         "openstef.tasks.train_model.train_model_pipeline",

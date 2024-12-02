@@ -153,8 +153,8 @@ def train_model_task(
 
         input_data = pd.concat(
             [
-                input_data,
                 balanced_input_data,
+                input_data,
             ]
         )
 
