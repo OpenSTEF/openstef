@@ -58,15 +58,12 @@ def add_daylight_terrestrial_feature(
     terrestrial_radiation = pd.read_csv(path_to_terrestrial_radiation_csv, index_col=0)
     terrestrial_radiation.index = pd.to_datetime(terrestrial_radiation.index)
 
-    # Create a shifted version of the terrestrial radiation data to align with the input data's year
-    terrestrial_radiation_shifted = terrestrial_radiation.copy()
+    # Align the index with the input data's year
     year_diff = data.index.min().year - terrestrial_radiation.index.min().year
-    terrestrial_radiation_shifted.index += pd.DateOffset(years=year_diff)
+    terrestrial_radiation.index += pd.DateOffset(years=year_diff)
 
-    # Combine original and shifted data, resample to 15-minute intervals, and interpolate missing values
-    terrestrial_radiation = (
-        terrestrial_radiation_shifted.resample("15min").mean().interpolate()
-    )
+    # Resample to 15-minute intervals, and interpolate missing values
+    terrestrial_radiation = terrestrial_radiation.resample("15min").mean().interpolate()
 
     # Normalize the terrestrial radiation values using z-score normalization
     terrestrial_radiation = (
