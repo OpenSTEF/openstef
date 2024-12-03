@@ -77,6 +77,9 @@ def add_daylight_terrestrial_feature(
     ) / terrestrial_radiation.std(axis=0)
     terrestrial_radiation.columns = ["daylight_continuous"]
 
+    # Make a copy of the DataFrame to avoid modifying the original
+    data = data.copy()
+
     # Merge the terrestrial radiation data with the input dataset
     data = data.merge(
         terrestrial_radiation, left_index=True, right_index=True, how="left"
