@@ -30,17 +30,17 @@ NUM_SECONDS_IN_A_DAY = 24 * 60 * 60
 
 
 def add_daylight_terrestrial_feature(
-    data: pd.DataFrame, 
-    path_to_terrestrial_radiation_csv: str = TERRESTRIAL_RADIATION_CSV_PATH
+    data: pd.DataFrame,
+    path_to_terrestrial_radiation_csv: str = TERRESTRIAL_RADIATION_CSV_PATH,
 ) -> pd.DataFrame:
-    """Add daylight terrestrial radiation feature to the input dataset. This function processes terrestrial radiation data and aligns it with the time indices of 
+    """Add daylight terrestrial radiation feature to the input dataset. This function processes terrestrial radiation data and aligns it with the time indices of
     the input dataset. The terrestrial radiation data is normalized, interpolated, and merged with the main dataset to provide a feature representing terrestrial radiation.
 
     Args:
         data (pd.DataFrame):
             The input dataset containing a time-indexed DataFrame.
         path_to_terrestrial_radiation_csv (str):
-            File path to the CSV file containing terrestrial radiation data. The CSV file 
+            File path to the CSV file containing terrestrial radiation data. The CSV file
             should have a time-based index.
 
     Returns:
@@ -48,7 +48,7 @@ def add_daylight_terrestrial_feature(
             The input dataset with an added column for the terrestrial radiation feature.
 
     Notes:
-        - The function assumes the input data and the terrestrial radiation data share 
+        - The function assumes the input data and the terrestrial radiation data share
           the same time zone and frequency alignment.
         - The terrestrial radiation values are normalized using z-score normalization.
     """
@@ -64,20 +64,23 @@ def add_daylight_terrestrial_feature(
     # Combine original and shifted data, resample to 15-minute intervals, and interpolate missing values
     terrestrial_radiation = (
         pd.concat([terrestrial_radiation, terrestrial_radiation_shifted])
-        .resample('15min')
+        .resample("15min")
         .mean()
         .interpolate()
     )
 
     # Normalize the terrestrial radiation values using z-score normalization
-    terrestrial_radiation = (terrestrial_radiation - terrestrial_radiation.mean(axis=0)) / terrestrial_radiation.std(axis=0)
+    terrestrial_radiation = (
+        terrestrial_radiation - terrestrial_radiation.mean(axis=0)
+    ) / terrestrial_radiation.std(axis=0)
     terrestrial_radiation.columns = ["daylight_continuous"]
 
     # Merge the terrestrial radiation data with the input dataset
-    data = data.merge(terrestrial_radiation, left_index=True, right_index=True, how='left')
+    data = data.merge(
+        terrestrial_radiation, left_index=True, right_index=True, how="left"
+    )
 
     return data
-
 
 
 def add_time_cyclic_features(

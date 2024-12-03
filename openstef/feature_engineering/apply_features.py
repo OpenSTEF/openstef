@@ -31,7 +31,7 @@ from openstef.feature_engineering.weather_features import (
 from openstef.feature_engineering.cyclic_features import (
     add_seasonal_cyclic_features,
     add_time_cyclic_features,
-    add_daylight_terrestrial_feature
+    add_daylight_terrestrial_feature,
 )
 
 
