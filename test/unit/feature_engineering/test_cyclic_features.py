@@ -138,9 +138,6 @@ class TestCyclicFeatures:
             not output_data["daylight_continuous"].isnull().any()
         ), "The 'daylight_continuous' column should not have missing values."
 
-        # Optional: Check if the data is correctly aligned with the input data's time index.
-        # For example, check if the column values are valid (optional, requires further domain-specific checks).
-
         # Ensure the length of output matches the input (if desired)
         assert len(output_data) == len(
             input_data
