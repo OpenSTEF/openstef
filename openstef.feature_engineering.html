@@ -473,6 +473,35 @@ columns=[label, predictor_1,…, predictor_n]</p>
 <section id="module-openstef.feature_engineering.cyclic_features">
 <span id="openstef-feature-engineering-cyclic-features-module"></span><h2>openstef.feature_engineering.cyclic_features module<a class="headerlink" href="#module-openstef.feature_engineering.cyclic_features" title="Link to this heading">¶</a></h2>
 <dl class="py function">
+<dt class="sig sig-object py" id="openstef.feature_engineering.cyclic_features.add_daylight_terrestrial_feature">
+<span class="sig-prename descclassname"><span class="pre">openstef.feature_engineering.cyclic_features.</span></span><span class="sig-name descname"><span class="pre">add_daylight_terrestrial_feature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_to_terrestrial_radiation_csv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">PosixPath('/home/runner/work/openstef/openstef/openstef/data/NL_terrestrial_radiation.csv')</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.cyclic_features.add_daylight_terrestrial_feature" title="Link to this definition">¶</a></dt>
+<dd><p>Add daylight terrestrial radiation feature to the input dataset. This function processes terrestrial radiation
+data and aligns it with the time indices of the input dataset. The terrestrial radiation data is normalized,
+interpolated, and merged with the main dataset to provide a feature representing terrestrial radiation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>pd.DataFrame</em>) – The input dataset containing a time-indexed DataFrame.</p></li>
+<li><p><strong>path_to_terrestrial_radiation_csv</strong> (<em>str</em>) – File path to the CSV file containing terrestrial radiation data. The CSV file
+should have a time-based index.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The input dataset with an added column for the terrestrial radiation feature.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>The function assumes the input data and the terrestrial radiation data share
+the same time zone and frequency alignment.</p></li>
+<li><p>The terrestrial radiation values are normalized using z-score normalization.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="openstef.feature_engineering.cyclic_features.add_seasonal_cyclic_features">
 <span class="sig-prename descclassname"><span class="pre">openstef.feature_engineering.cyclic_features.</span></span><span class="sig-name descname"><span class="pre">add_seasonal_cyclic_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compute_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.cyclic_features.add_seasonal_cyclic_features" title="Link to this definition">¶</a></dt>
 <dd><p>Adds cyclical features to capture seasonal and periodic patterns in time-based data.</p>
@@ -1517,6 +1546,15 @@ if the input is numeric; a dict with the calculated moisture indices</p>
    openstef.feature_engineering.cyclic_features module
   </a>
   <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#openstef.feature_engineering.cyclic_features.add_daylight_terrestrial_feature">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       add_daylight_terrestrial_feature()
+      </span>
+     </code>
+    </a>
+   </li>
    <li class="toc-h3 nav-item toc-entry">
     <a class="reference internal nav-link" href="#openstef.feature_engineering.cyclic_features.add_seasonal_cyclic_features">
      <code class="docutils literal notranslate">
