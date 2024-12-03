@@ -3,10 +3,13 @@
 
 import numpy as np
 import pandas as pd
+import datetime
+
 import pytest
 from openstef.feature_engineering.cyclic_features import (
     add_seasonal_cyclic_features,
     add_time_cyclic_features,
+    add_daylight_terrestrial_feature,
 )
 
 
@@ -92,3 +95,50 @@ class TestCyclicFeatures:
             ValueError, match="The DataFrame index must be a DatetimeIndex."
         ):
             add_seasonal_cyclic_features(data)
+
+    def test_add_daylight_terrestrial_feature_valid_data(self):
+        # Create input data with discontinuous timestamps over multiple years
+        index = pd.date_range(
+            start="2024-01-01 00:00:00",
+            end="2025-12-31 12:45:00",
+            freq="15min",
+            tz="UTC",
+        )
+
+        # Introduce gaps in the timestamps to simulate discontinuous data
+        index = index.delete(
+            slice(10, 25)
+        )  # Remove a range to create a gap in the data
+
+        input_data = pd.DataFrame(index=index)
+
+        # Verify the timezone of the index is UTC
+        assert input_data.index.tzinfo is not None, "Index must have a timezone."
+        assert (
+            input_data.index.tzinfo == datetime.timezone.utc
+        ), "Timezone of the index must be UTC."
+
+        # Call the function
+        output_data = add_daylight_terrestrial_feature(input_data)
+
+        # Verify the output contains the "daylight_continuous" column
+        assert (
+            "daylight_continuous" in output_data.columns
+        ), "Output data must contain 'daylight_continuous' column."
+
+        # Verify that the index of the output data is the same as the input data
+        pd.testing.assert_index_equal(
+            output_data.index,
+            input_data.index,
+            "The index of the output data should match the input data.",
+        )
+
+        # Check for any missing values in the 'daylight_continuous' column
+        assert (
+            not output_data["daylight_continuous"].isnull().any()
+        ), "The 'daylight_continuous' column should not have missing values."
+
+        # Ensure the length of output matches the input (if desired)
+        assert len(output_data) == len(
+            input_data
+        ), "The output data should have the same length as the input data."

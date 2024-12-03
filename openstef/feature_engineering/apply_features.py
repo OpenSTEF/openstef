@@ -31,6 +31,7 @@ from openstef.feature_engineering.weather_features import (
 from openstef.feature_engineering.cyclic_features import (
     add_seasonal_cyclic_features,
     add_time_cyclic_features,
+    add_daylight_terrestrial_feature,
 )
 
 
@@ -123,6 +124,9 @@ def apply_features(
 
     # Adds polar time features (sine and cosine) to capture periodic patterns based on the timestamp index.
     data = add_time_cyclic_features(data)
+
+    # Adds daylight terrestrial feature
+    data = add_daylight_terrestrial_feature(data)
 
     # Return dataframe including all requested features
     return data
