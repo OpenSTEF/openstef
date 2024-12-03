@@ -107,7 +107,7 @@ class TestCyclicFeatures:
 
         # Introduce gaps in the timestamps to simulate discontinuous data
         index = index.delete(
-            slice(10, 20)
+            slice(10, 25)
         )  # Remove a range to create a gap in the data
 
         input_data = pd.DataFrame(index=index)
