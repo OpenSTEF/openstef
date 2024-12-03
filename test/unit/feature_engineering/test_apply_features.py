@@ -91,6 +91,7 @@ class TestApplyFeaturesModule(BaseTestCase):
             horizon=24,
             pj={"model": "xgb", "lat": 52.132633, "lon": 5.291266},
         )
+
         expected_output = TestData.load("input_data_with_features.csv")
 
         self.assertDataframeEqual(
@@ -123,6 +124,7 @@ class TestApplyFeaturesModule(BaseTestCase):
             TestData.load("input_data.csv"),
             pj={"model": "proleaf", "lat": 52.132633, "lon": 5.291266},
         )
+
         expected_output = TestData.load("input_data_multi_horizon_features.csv")
 
         self.assertDataframeEqual(
