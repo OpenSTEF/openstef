@@ -16,7 +16,8 @@ from openstef.model.regressors.custom_regressor import (
 )
 
 
-class DummyObjective(RegressorObjective): ...
+class DummyObjective(RegressorObjective):
+    ...
 
 
 class DummyRegressor(CustomOpenstfRegressor):
