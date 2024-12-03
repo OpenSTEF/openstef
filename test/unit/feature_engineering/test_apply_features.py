@@ -141,7 +141,7 @@ class TestApplyFeaturesModule(BaseTestCase):
                     "2020-02-01 11:00:00",
                     "2020-02-01 11:30:00",
                 ]
-            ),
+            ).tz_localize("UTC"),
             data={
                 "load": [10, 15, 20, 15],
                 "APX": [1, 2, 3, 4],
@@ -180,7 +180,7 @@ class TestApplyFeaturesModule(BaseTestCase):
                     "2022-12-26 10:00:00",
                     "2020-04-27 11:00:00",
                 ]
-            ),
+            ).tz_localize("UTC"),
             data={
                 "load": [10, 15, 20, 15],
                 "temp": [9, 9, 9, 9],
