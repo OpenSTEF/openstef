@@ -27,32 +27,15 @@ jobs:
       contents: write
 
     steps:
-      # Checkout
       - name: Checkout
-        uses: actions/checkout@v2
-      # Setup
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+        uses: actions/checkout@v4
+      - name: Check files using the black formatter
+        uses: rickstaa/action-black@v1
+        id: action_black
         with:
-          python-version: ${{ matrix.python-version }}
-      # Install black
-      - name: Install Black
-        run: pip install black==23.9.1 pydocstyle==6.1.1 docformatter==1.5.0 toml==0.10.2
-      # Run black --check
-      - name: Run black --check . and PydocStyle check
-        run: |
-          black --check .
-          pydocstyle .
-      # Run black (if needed)
-      - name: If needed, commit black changes to the pull request
-        if: failure()
-        run: |
-          black .
-          docformatter openstef --recursive --wrap-summaries 120 --in-place
-          git config --global user.name 'black'
-          git config --global user.email 'action@github.com'
-          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY
-          git fetch
-          git checkout ${{ github.head_ref }}
-          git commit --signoff -am "Format Python code with Black"
-          git push
+          black_args: "."
+      - name: Annotate diff changes using reviewdog
+        if: steps.action_black.outputs.is_formatted == 'true'
+        uses: reviewdog/action-suggester@v1
+        with:
+          tool_name: blackfmt

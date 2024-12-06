@@ -7,13 +7,20 @@ from time import perf_counter
 
 
 class PerformanceMeter:
-    def __init__(self, logger):
-        self.logger = logger
-        self.levels = OrderedDict()
+    def __init__(self,  logger):
+        self.logger  =  logger
+
+        self.levels  =     OrderedDict()
+
+
         self.level_timers = []
         self.checkpoint_timers = []
 
-    def start_level(self, level_label: str, level_name: str, **kwargs):
+    def start_level(self, level_label: str, 
+                    
+                    
+                    level_name: str, 
+                    **kwargs):
         """Enters a new level in the performance meter and logs it.
 
         This function also creates a checkpoint on the newly created level.
