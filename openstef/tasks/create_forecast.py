@@ -84,7 +84,7 @@ def create_forecast_task(
         datetime_end=datetime_end,
         market_price=pj.electricity_bidding_zone.value,
     )
-    
+
     # Add APX price to the input data for backward compatibility,remove this line when all models are retrained
     if pj.electricity_bidding_zone == BiddingZone.NL:
         input_data["APX"] = input_data["day-ahead-electricity-price"]

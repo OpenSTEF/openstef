@@ -24,7 +24,9 @@ from openstef.feature_engineering.general import (
     remove_non_requested_feature_columns,
 )
 
-LATENCY_CONFIG = {"day-ahead-electricity-price": 24}  # A specific latency is part of a specific feature.
+LATENCY_CONFIG = {
+    "day-ahead-electricity-price": 24
+}  # A specific latency is part of a specific feature.
 
 
 class AbstractFeatureApplicator(ABC):
