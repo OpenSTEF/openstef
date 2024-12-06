@@ -11,7 +11,7 @@ class TestGeneralExtractMinuteFeatures(BaseTestCase):
     def setUp(self):
         super().setUp()
         self.feature_names = [
-            "APX",
+            "day-ahead-electricity-price",
             "clouds",
             "radiation",
             "temp",

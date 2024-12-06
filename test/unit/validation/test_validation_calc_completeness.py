@@ -31,9 +31,9 @@ class CalcCompletenessTest(BaseTestCase):
 
         self.assertEqual(completeness, 1.0)
 
-    def test_APX_missing(self):
-        df = pd.DataFrame(index=range(2 * 96), data={"APX": [np.nan] * 2 * 96})
-        weights = pd.DataFrame(index=["APX"], data={"gain": 1, "weight": 1})
+    def test_day_ahead_electricity_price_missing(self):
+        df = pd.DataFrame(index=range(2 * 96), data={"day-ahead-electricity-price": [np.nan] * 2 * 96})
+        weights = pd.DataFrame(index=["day-ahead-electricity-price"], data={"gain": 1, "weight": 1})
 
         completeness = calc_completeness_features(df, weights, time_delayed=True)
         self.assertEqual(completeness, 1 / 2)

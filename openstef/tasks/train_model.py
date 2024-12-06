@@ -4,7 +4,7 @@
 """This module contains the CRON job that is periodically executed to retrain the prognosis models.
 
 For this the folowing steps are caried out:
-  1. Get historic training data (TDCV, Load, Weather and APX price data)
+  1. Get historic training data (TDCV, Load, Weather and day-ahead-electricity-price price data)
   2. Apply features
   3. Train and Test the new model
   4. Check if new model performs better than the old model
