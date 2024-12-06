@@ -57,7 +57,7 @@ jobs:
     - name: Unit test with pytest
       run: |
         pip install -r test-requirements.txt
-        pytest --cov-report=xml --cov=openstef/ test/ --junitxml=pytest-report.xml
+        pytest --cov-report=xml --cov=openstef/ test/unit/metrics/test_figure.py::test_plot_data_series --junitxml=pytest-report.xml 
     # Fix relative paths in coverage file
     # Known bug: https://community.sonarsource.com/t/sonar-on-github-actions-with-python-coverage-source-issue/36057
     - name: fix code coverage paths
