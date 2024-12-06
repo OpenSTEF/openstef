@@ -24,6 +24,7 @@ from openstef.enums import ModelType, PipelineType
 from openstef.model.serializer import MLflowSerializer
 from openstef.monitoring import teams
 from openstef.pipeline.optimize_hyperparameters import optimize_hyperparameters_pipeline
+from openstef.settings import Settings
 from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstef.tasks.utils.taskcontext import TaskContext
 
@@ -96,6 +97,7 @@ def optimize_hyperparameters_task(
         location=[pj["lat"], pj["lon"]],
         datetime_start=datetime_start,
         datetime_end=datetime_end,
+        weather_sources=Settings.weather_sources,
     )
 
     # Optimize hyperparams

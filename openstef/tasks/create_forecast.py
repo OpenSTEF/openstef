@@ -27,6 +27,7 @@ from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.enums import ModelType, PipelineType
 from openstef.exceptions import InputDataOngoingZeroFlatlinerError
 from openstef.pipeline.create_forecast import create_forecast_pipeline
+from openstef.settings import Settings
 from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstef.tasks.utils.taskcontext import TaskContext
 from openstef.validation.validation import detect_ongoing_zero_flatliner
@@ -82,6 +83,7 @@ def create_forecast_task(
         location=[pj["lat"], pj["lon"]],
         datetime_start=datetime_start,
         datetime_end=datetime_end,
+        weather_sources=Settings.weather_sources,
     )
 
     try:

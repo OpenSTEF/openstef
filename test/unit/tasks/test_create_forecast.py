@@ -1,7 +1,11 @@
 # SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+import os
 from pathlib import Path
+
+from openstef.app_settings import AppSettings
+from openstef.settings import Settings
 from test.unit.utils.data import TestData
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
@@ -285,4 +289,28 @@ class TestCreateForecastTask(TestCase):
                 "type",
                 "algtype",
             ],
+        )
+
+    @patch(
+        "openstef.tasks.create_forecast.create_forecast_pipeline",
+        MagicMock(return_value=FORECAST_MOCK),
+    )
+    def test_create_forecast_task_with_custom_weather_sources(self):
+        """Test happy flow of create forecast task."""
+        # Arrange
+        weather_sources = ["weather_source_1", "weather_source_2"]
+
+        context = MagicMock()
+        context.config.externally_posted_forecasts_pids = None
+        Settings.weather_sources = weather_sources
+
+        # Act
+        create_forecast_task(self.pj, context)
+
+        # Assert
+        self.assertEqual(context.mock_calls[1][0], "database.write_forecast")
+        self.assertEqual(context.mock_calls[1].args[0], FORECAST_MOCK)
+        self.assertEqual(
+            context.database.get_model_input.call_args.kwargs["weather_sources"],
+            weather_sources,
         )

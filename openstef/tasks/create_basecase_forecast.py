@@ -24,6 +24,7 @@ import pandas as pd
 from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.enums import PipelineType
 from openstef.pipeline.create_basecase_forecast import create_basecase_forecast_pipeline
+from openstef.settings import Settings
 from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstef.tasks.utils.taskcontext import TaskContext
 
@@ -77,6 +78,7 @@ def create_basecase_forecast_task(
         location=[pj["lat"], pj["lon"]],
         datetime_start=datetime_start,
         datetime_end=datetime_end,
+        weather_sources=Settings.weather_sources,
     )
 
     # Make basecase forecast using the corresponding pipeline

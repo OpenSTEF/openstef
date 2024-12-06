@@ -36,6 +36,7 @@ from openstef.pipeline.train_model import (
     train_model_pipeline,
     train_pipeline_step_load_model,
 )
+from openstef.settings import Settings
 from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstef.tasks.utils.taskcontext import TaskContext
 
@@ -133,6 +134,7 @@ def train_model_task(
         location=[pj["lat"], pj["lon"]],
         datetime_start=datetime_start,
         datetime_end=datetime_end,
+        weather_sources=Settings.weather_sources,
     )
 
     # If data balancing is enabled, fetch data from 1 year ago and combine it with the
@@ -149,6 +151,7 @@ def train_model_task(
             location=[pj["lat"], pj["lon"]],
             datetime_start=balanced_datetime_start,
             datetime_end=balanced_datetime_end,
+            weather_sources=Settings.weather_sources,
         )
 
         input_data = pd.concat(
