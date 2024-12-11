@@ -24,9 +24,9 @@ jobs:
         python-version: ['3.11']
 
     permissions:
-      # Give the default GITHUB_TOKEN write permission to commit and push the
-      # added or changed files to the repository.
-      contents: write
+      # Give the default GITHUB_TOKEN write permission to the pull request
+      # so that reviewdog can create annotations.
+      pull-requests: write
 
     steps:
       - name: Checkout
