@@ -1,13 +1,15 @@
-# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501
+# SPDX-FileCopyrightText: 2017-2024 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501
 #
 # SPDX-License-Identifier: MPL-2.0
 
-# Copied from https://github.com/psf/black/actions/runs/17913292/workflow
+# Copied from https://github.com/rickstaa/action-black
 
 # GitHub Action that uses Black to reformat the Python code in an incoming pull request.
 # If all Python code in the pull request is compliant with Black then this Action
-# does nothing. Otherwise, Black is run and its changes are committed to the
-# incoming pull request. See https://github.com/cclauss/autoblack for a similar example.
+# does nothing. Otherwise, Black is run and its changes are suggested in the
+# incoming pull request. See 
+# https://github.com/rickstaa/action-black?tab=readme-ov-file#annotate-changes 
+# for a similar example.
 
 name: Black Format Code
 
@@ -29,7 +31,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Check files using the black formatter
+      - name: Check formatting using black
         uses: rickstaa/action-black@v1
         id: action_black
         with:
