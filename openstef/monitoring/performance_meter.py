@@ -10,6 +10,7 @@ class PerformanceMeter:
     def __init__(self, logger):
         self.logger = logger
 
+        self.levels = OrderedDict()
 
         self.level_timers = []
         self.checkpoint_timers = []
