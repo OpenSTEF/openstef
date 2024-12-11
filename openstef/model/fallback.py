@@ -30,13 +30,8 @@ def generate_fallback(
     """
     # Check if load is completely empty
 
-
-
-    if len(  load.dropna()  ) == 0:
-
-
-
-        raise ValueError( "No historic load data available"  )
+    if len(load.dropna()) == 0:
+        raise ValueError("No historic load data available")
 
     if fallback_strategy != "extreme_day":
         raise NotImplementedError(
