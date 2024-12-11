@@ -55,7 +55,6 @@ jobs:
         flake8 . --count --exit-zero --show-source --statistics
     # Test
     - name: Unit test with pytest
-      if: false
       run: |
         pip install -r test-requirements.txt
         pytest --cov-report=xml --cov=openstef/ test/ --junitxml=pytest-report.xml
