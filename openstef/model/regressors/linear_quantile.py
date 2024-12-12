@@ -14,6 +14,7 @@ from sklearn.utils.validation import check_is_fitted
 from openstef.feature_engineering.missing_values_transformer import (
     MissingValuesTransformer,
 )
+from openstef.model.metamodels.feature_clipper import FeatureClipper
 from openstef.model.regressors.regressor import OpenstfRegressor
 
 DEFAULT_QUANTILES: tuple[float, ...] = (0.9, 0.5, 0.1)
@@ -28,6 +29,7 @@ class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
     x_scaler_: StandardScaler
     y_scaler_: StandardScaler
     models_: Dict[float, QuantileRegressor]
+    feature_clipper_: FeatureClipper
 
     is_fitted_: bool = False
 
@@ -51,6 +53,7 @@ class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
         weight_exponent: float = 1,
         weight_floor: float = 0.1,
         no_fill_future_values_features: List[str] = None,
+        clipped_features: List[str] = None,
     ):
         """Initialize LinearQuantileOpenstfRegressor.
 
@@ -89,6 +92,9 @@ class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
                 "Cannot train quantile model as 0.5 is not in requested quantiles!"
             )
 
+        if clipped_features is None:
+            clipped_features = ["APX"]
+
         self.quantiles = quantiles
         self.alpha = alpha
         self.solver = solver
@@ -103,6 +109,7 @@ class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
         )
         self.x_scaler_ = StandardScaler()
         self.y_scaler_ = StandardScaler()
+        self.feature_clipper_ = FeatureClipper(columns=clipped_features)
         self.models_ = {
             quantile: QuantileRegressor(alpha=alpha, quantile=quantile, solver=solver)
             for quantile in quantiles
@@ -177,6 +184,7 @@ class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
             y = pd.Series(np.asarray(y), name="load")
 
         x = self._remove_ignored_features(x)
+        x = self.feature_clipper_.fit_transform(x)
 
         # Fix nan columns
         x, y = self.imputer_.fit_transform(x, y)
@@ -252,6 +260,7 @@ class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
 
         # Preprocess input data
         x = self._remove_ignored_features(x)
+        x = self.feature_clipper_.transform(x)
         x = self.imputer_.transform(x)
         x_scaled = self.x_scaler_.transform(x)
 
