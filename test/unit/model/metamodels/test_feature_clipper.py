@@ -1,6 +1,8 @@
+# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
+#
+# SPDX-License-Identifier: MPL-2.0
 import unittest
 import pandas as pd
-from typing import List, Dict, Tuple, Optional
 
 from openstef.model.metamodels.feature_clipper import FeatureClipper
 
