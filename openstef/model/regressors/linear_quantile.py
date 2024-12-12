@@ -184,7 +184,7 @@ class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
             y = pd.Series(np.asarray(y), name="load")
 
         x = self._remove_ignored_features(x)
-        x = self.feature_clipper_.fit_transform(x)
+        self.feature_clipper_.fit(x)
 
         # Fix nan columns
         x, y = self.imputer_.fit_transform(x, y)
