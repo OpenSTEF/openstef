@@ -4,6 +4,14 @@ openstef.model.metamodels package
 Submodules
 ----------
 
+openstef.model.metamodels.feature\_clipper module
+-------------------------------------------------
+
+.. automodule:: openstef.model.metamodels.feature_clipper
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 openstef.model.metamodels.grouped\_regressor module
 ---------------------------------------------------
 

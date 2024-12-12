@@ -407,6 +407,86 @@
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">¶</a></h2>
 </section>
+<section id="module-openstef.model.metamodels.feature_clipper">
+<span id="openstef-model-metamodels-feature-clipper-module"></span><h2>openstef.model.metamodels.feature_clipper module<a class="headerlink" href="#module-openstef.model.metamodels.feature_clipper" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="openstef.model.metamodels.feature_clipper.FeatureClipper">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef.model.metamodels.feature_clipper.</span></span><span class="sig-name descname"><span class="pre">FeatureClipper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">columns</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.metamodels.feature_clipper.FeatureClipper" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseEstimator</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TransformerMixin</span></code></p>
+<p>A transformer that clips the values of specified columns to the minimum and
+maximum values observed during training. This prevents the model from
+extrapolating beyond these values during prediction.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef.model.metamodels.feature_clipper.FeatureClipper.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.metamodels.feature_clipper.FeatureClipper.fit" title="Link to this definition">¶</a></dt>
+<dd><p>Fits the transformer on the training data by calculating the min and max
+values for the specified columns.</p>
+<section id="parameters">
+<h3>Parameters:<a class="headerlink" href="#parameters" title="Link to this heading">¶</a></h3>
+<dl class="simple">
+<dt>X<span class="classifier">pd.DataFrame</span></dt><dd><p>The input DataFrame containing training data.</p>
+</dd>
+<dt>y<span class="classifier">Optional[pd.Series]</span></dt><dd><p>Ignored. This parameter exists for compatibility with scikit-learn’s pipeline.</p>
+</dd>
+</dl>
+</section>
+<section id="returns">
+<h3>Returns:<a class="headerlink" href="#returns" title="Link to this heading">¶</a></h3>
+<dl class="simple">
+<dt>self<span class="classifier">FeatureClipper</span></dt><dd><p>Fitted transformer.</p>
+</dd>
+</dl>
+</section>
+<section id="raises">
+<h3>Raises:<a class="headerlink" href="#raises" title="Link to this heading">¶</a></h3>
+<dl class="simple">
+<dt>ValueError:</dt><dd><p>If the input is not a pandas DataFrame.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">rtype<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#openstef.model.metamodels.feature_clipper.FeatureClipper" title="openstef.model.metamodels.feature_clipper.FeatureClipper"><code class="xref py py-class docutils literal notranslate"><span class="pre">FeatureClipper</span></code></a></p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef.model.metamodels.feature_clipper.FeatureClipper.transform">
+<span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.metamodels.feature_clipper.FeatureClipper.transform" title="Link to this definition">¶</a></dt>
+<dd><p>Transforms new data by clipping the specified columns’ values to be within
+the min and max range observed during fitting.</p>
+<section id="id1">
+<h3>Parameters:<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h3>
+<dl class="simple">
+<dt>X<span class="classifier">pd.DataFrame</span></dt><dd><p>The input DataFrame containing new data to be transformed.</p>
+</dd>
+</dl>
+</section>
+<section id="id2">
+<h3>Returns:<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h3>
+<dl class="simple">
+<dt><a href="#id4"><span class="problematic" id="id5">X_</span></a><span class="classifier">pd.DataFrame</span></dt><dd><p>A copy of the input DataFrame with clipped values in the specified columns.</p>
+</dd>
+</dl>
+</section>
+<section id="id3">
+<h3>Raises:<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h3>
+<dl class="simple">
+<dt>ValueError:</dt><dd><p>If the input is not a pandas DataFrame.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">rtype<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+</dd></dl>
+
+</section>
 <section id="module-openstef.model.metamodels.grouped_regressor">
 <span id="openstef-model-metamodels-grouped-regressor-module"></span><h2>openstef.model.metamodels.grouped_regressor module<a class="headerlink" href="#module-openstef.model.metamodels.grouped_regressor" title="Link to this heading">¶</a></h2>
 <p>This module defines the grouped regressor.</p>
@@ -712,7 +792,7 @@ Pipeline that chains the imputer and the regressor.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef.model.metamodels.missing_values_handler.MissingValuesHandler.feature_importances_">
 <span class="sig-name descname"><span class="pre">feature_importances_</span></span><a class="headerlink" href="#openstef.model.metamodels.missing_values_handler.MissingValuesHandler.feature_importances_" title="Link to this definition">¶</a></dt>
-<dd><p>ndarray (<a href="#id1"><span class="problematic" id="id2">n_features_in_</span></a>, )
+<dd><p>ndarray (<a href="#id6"><span class="problematic" id="id7">n_features_in_</span></a>, )
 The feature importances from the regressor for valid features and zero otherwise.</p>
 </dd></dl>
 
@@ -898,6 +978,42 @@ sub-estimator of a meta-estimator, e.g. used inside a
   <a class="reference internal nav-link" href="#submodules">
    Submodules
   </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-openstef.model.metamodels.feature_clipper">
+   openstef.model.metamodels.feature_clipper module
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#openstef.model.metamodels.feature_clipper.FeatureClipper">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       FeatureClipper
+      </span>
+     </code>
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.model.metamodels.feature_clipper.FeatureClipper.fit">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         FeatureClipper.fit()
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.model.metamodels.feature_clipper.FeatureClipper.transform">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         FeatureClipper.transform()
+        </span>
+       </code>
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#module-openstef.model.metamodels.grouped_regressor">
