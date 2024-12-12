@@ -176,30 +176,34 @@ class TestLinearQuantile(BaseTestCase):
     def test_feature_clipper(self):
         """Test the feature clipping functionality of LinearQuantileOpenstfRegressor"""
         # Create a sample dataset with a feature to be clipped
-        X = pd.DataFrame({
-            'A': [1.0, 2.0, 3.0, 4.0, 5.0],
-            'B': [10.0, 20.0, 30.0, 40.0, 50.0],
-            'APX': [-10.0, 0.0, 50.0, 100.0, 200.0]  # Feature to be clipped
-        })
+        X = pd.DataFrame(
+            {
+                "A": [1.0, 2.0, 3.0, 4.0, 5.0],
+                "B": [10.0, 20.0, 30.0, 40.0, 50.0],
+                "APX": [-10.0, 0.0, 50.0, 100.0, 200.0],  # Feature to be clipped
+            }
+        )
         y = pd.Series([1, 2, 3, 4, 5])
 
         # Initialize the model with clipping for 'APX' feature
-        model = LinearQuantileOpenstfRegressor(clipped_features=['APX'])
+        model = LinearQuantileOpenstfRegressor(clipped_features=["APX"])
 
         # Fit the model
         model.fit(X, y)
 
         # Create test data with values outside the training range
-        X_test = pd.DataFrame({
-            'A': [2.5, 3.5],
-            'B': [25.0, 35.0],
-            'APX': [-20.0, 250.0]  # Values outside the training range
-        })
+        X_test = pd.DataFrame(
+            {
+                "A": [2.5, 3.5],
+                "B": [25.0, 35.0],
+                "APX": [-20.0, 250.0],  # Values outside the training range
+            }
+        )
 
         # Check if the 'APX' feature was clipped during prediction
         clipped_X = model.feature_clipper_.transform(X_test)
-        self.assertTrue(clipped_X['APX'].min() >= -10.0)
-        self.assertTrue(clipped_X['APX'].max() <= 200.0)
+        self.assertTrue(clipped_X["APX"].min() >= -10.0)
+        self.assertTrue(clipped_X["APX"].max() <= 200.0)
 
         # Make predictions
         y_pred = model.predict(X_test)
