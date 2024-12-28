@@ -93,7 +93,7 @@ class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
             )
 
         if clipped_features is None:
-            clipped_features = ["APX"]
+            clipped_features = ["day-ahead-electricity-price"]
 
         self.quantiles = quantiles
         self.alpha = alpha
