@@ -25,7 +25,7 @@ from openstef.feature_engineering.general import (
 )
 
 LATENCY_CONFIG = {
-    "day-ahead-electricity-price": 24
+    "day_ahead_electricity_price": 24
 }  # A specific latency is part of a specific feature.
 
 
@@ -96,7 +96,7 @@ class TrainFeatureApplicator(AbstractFeatureApplicator):
                 if not specified a default location is used
             latency_config: (Optional) Invalidate certain features that are not
                 available for a specific horizon due to data latency. Defaults to
-                ``{"day-ahead-electricity-price": 24}``.
+                ``{"day_ahead_electricity_price": 24}``.
 
         Returns:
             Input DataFrame with an extra column for every added feature and sorted on the datetime index.

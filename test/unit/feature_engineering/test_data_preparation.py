@@ -20,7 +20,7 @@ class TestDataPreparation(TestCase):
         self.input_data.iloc[-5:, 0] = np.nan
 
         self.model = MagicMock()
-        self.model.feature_names = ["day-ahead-electricity-price"]
+        self.model.feature_names = ["day_ahead_electricity_price"]
 
     def test_legacy_prepare_forecast_no_model(self):
         # Test the error if no model is provided for forecast

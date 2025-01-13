@@ -6,7 +6,7 @@
 This code assumes trained models are available from the persistent storage. If these
 are not available run model_train.py to train all models.
 To provide the prognoses the folowing steps are carried out:
-  1. Get historic training data (TDCV, Load, Weather and day-ahead-electricity-price price data)
+  1. Get historic training data (TDCV, Load, Weather and day_ahead_electricity_price price data)
   2. Apply features
   3. Load model
   4. Make prediction
@@ -87,7 +87,7 @@ def create_forecast_task(
 
     # Add APX price to the input data for backward compatibility,remove this line when all models are retrained
     if pj.electricity_bidding_zone == BiddingZone.NL:
-        input_data["APX"] = input_data["day-ahead-electricity-price"]
+        input_data["APX"] = input_data["day_ahead_electricity_price"]
 
     try:
         # Make forecast with the forecast pipeline

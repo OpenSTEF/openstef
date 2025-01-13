@@ -33,10 +33,10 @@ class CalcCompletenessTest(BaseTestCase):
 
     def test_day_ahead_electricity_price_missing(self):
         df = pd.DataFrame(
-            index=range(2 * 96), data={"day-ahead-electricity-price": [np.nan] * 2 * 96}
+            index=range(2 * 96), data={"day_ahead_electricity_price": [np.nan] * 2 * 96}
         )
         weights = pd.DataFrame(
-            index=["day-ahead-electricity-price"], data={"gain": 1, "weight": 1}
+            index=["day_ahead_electricity_price"], data={"gain": 1, "weight": 1}
         )
 
         completeness = calc_completeness_features(df, weights, time_delayed=True)

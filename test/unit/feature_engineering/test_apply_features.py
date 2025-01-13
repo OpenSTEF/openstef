@@ -146,7 +146,7 @@ class TestApplyFeaturesModule(BaseTestCase):
             ).tz_localize("UTC"),
             data={
                 "load": [10, 15, 20, 15],
-                "day-ahead-electricity-price": [1, 2, 3, 4],
+                "day_ahead_electricity_price": [1, 2, 3, 4],
             },
         )
         horizons = [0.25, 47]
@@ -160,7 +160,7 @@ class TestApplyFeaturesModule(BaseTestCase):
         # Skip first row, since T-30min not available for first row
         self.assertTrue(
             input_data_with_features.loc[
-                horizon == 47, ["day-ahead-electricity-price", "T-30min"]
+                horizon == 47, ["day_ahead_electricity_price", "T-30min"]
             ]
             .iloc[1:,]
             .isna()
@@ -169,7 +169,7 @@ class TestApplyFeaturesModule(BaseTestCase):
         )
         self.assertFalse(
             input_data_with_features.loc[
-                horizon == 0.25, ["day-ahead-electricity-price", "T-30min"]
+                horizon == 0.25, ["day_ahead_electricity_price", "T-30min"]
             ]
             .iloc[1:,]
             .isna()
