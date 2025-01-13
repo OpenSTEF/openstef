@@ -25,7 +25,7 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2">
 
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=796348d33e8b1d947c94">
@@ -387,14 +387,14 @@ Below, code snippets are shown for different types of tasks that demonstrate the
 <p>Note that, apart from the imports, the implementation is the same for each type of task. The <cite>config</cite> object is a <cite>pydantic.BaseSettings</cite> object holding all relevanyt configuration such as usernames, secrets and hosts etc.</p>
 <section id="train-model-task-implementation">
 <h3>Train model task implementation<a class="headerlink" href="#train-model-task-implementation" title="Link to this heading">¶</a></h3>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
-<span class="kn">from</span> <span class="nn">openstef.tasks</span> <span class="kn">import</span> <span class="n">train_model</span> <span class="k">as</span> <span class="n">task</span>
-<span class="kn">from</span> <span class="nn">openstef_dbc.database</span> <span class="kn">import</span> <span class="n">DataBase</span>
-<span class="kn">from</span> <span class="nn">openstef_dbc.log</span> <span class="kn">import</span> <span class="n">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef.tasks</span><span class="w"> </span><span class="kn">import</span> <span class="n">train_model</span> <span class="k">as</span> <span class="n">task</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_dbc.database</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataBase</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_dbc.log</span><span class="w"> </span><span class="kn">import</span> <span class="n">logging</span>
 
-<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
     <span class="c1"># Initialize logging</span>
     <span class="n">logging</span><span class="o">.</span><span class="n">configure_logging</span><span class="p">(</span><span class="n">loglevel</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">loglevel</span><span class="p">,</span> <span class="n">runtime_env</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">env</span><span class="p">)</span>
     <span class="c1"># Initialize database connection</span>
@@ -409,14 +409,14 @@ Below, code snippets are shown for different types of tasks that demonstrate the
 </section>
 <section id="create-forecast-task-implementation">
 <h3>Create forecast task implementation<a class="headerlink" href="#create-forecast-task-implementation" title="Link to this heading">¶</a></h3>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
-<span class="kn">from</span> <span class="nn">openstef.tasks</span> <span class="kn">import</span> <span class="n">create_forecast</span> <span class="k">as</span> <span class="n">task</span>
-<span class="kn">from</span> <span class="nn">openstef_dbc.database</span> <span class="kn">import</span> <span class="n">DataBase</span>
-<span class="kn">from</span> <span class="nn">openstef_dbc.log</span> <span class="kn">import</span> <span class="n">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef.tasks</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_forecast</span> <span class="k">as</span> <span class="n">task</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_dbc.database</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataBase</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_dbc.log</span><span class="w"> </span><span class="kn">import</span> <span class="n">logging</span>
 
-<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
     <span class="c1"># Initialize logging</span>
     <span class="n">logging</span><span class="o">.</span><span class="n">configure_logging</span><span class="p">(</span><span class="n">loglevel</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">loglevel</span><span class="p">,</span> <span class="n">runtime_env</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">env</span><span class="p">)</span>
     <span class="c1"># Initialize database connection</span>
@@ -431,13 +431,13 @@ Below, code snippets are shown for different types of tasks that demonstrate the
 </section>
 <section id="optimize-hyperparameters-task-implementation">
 <h3>Optimize hyperparameters task implementation<a class="headerlink" href="#optimize-hyperparameters-task-implementation" title="Link to this heading">¶</a></h3>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
-<span class="kn">from</span> <span class="nn">openstef.tasks</span> <span class="kn">import</span> <span class="n">optimize_hyperparameters</span> <span class="k">as</span> <span class="n">task</span>
-<span class="kn">from</span> <span class="nn">openstef_dbc.database</span> <span class="kn">import</span> <span class="n">DataBase</span>
-<span class="kn">from</span> <span class="nn">openstef_dbc.log</span> <span class="kn">import</span> <span class="n">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef.tasks</span><span class="w"> </span><span class="kn">import</span> <span class="n">optimize_hyperparameters</span> <span class="k">as</span> <span class="n">task</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_dbc.database</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataBase</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_dbc.log</span><span class="w"> </span><span class="kn">import</span> <span class="n">logging</span>
 
-<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
     <span class="c1"># Initialize logging</span>
     <span class="n">logging</span><span class="o">.</span><span class="n">configure_logging</span><span class="p">(</span><span class="n">loglevel</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">loglevel</span><span class="p">,</span> <span class="n">runtime_env</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">env</span><span class="p">)</span>
     <span class="c1"># Initialize database connection</span>
@@ -452,13 +452,13 @@ Below, code snippets are shown for different types of tasks that demonstrate the
 </section>
 <section id="create-components-forecast-task-implementation">
 <h3>Create components forecast task implementation<a class="headerlink" href="#create-components-forecast-task-implementation" title="Link to this heading">¶</a></h3>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
-<span class="kn">from</span> <span class="nn">openstef.tasks</span> <span class="kn">import</span> <span class="n">create_components_forecast</span> <span class="k">as</span> <span class="n">task</span>
-<span class="kn">from</span> <span class="nn">openstef_dbc.database</span> <span class="kn">import</span> <span class="n">DataBase</span>
-<span class="kn">from</span> <span class="nn">openstef_dbc.log</span> <span class="kn">import</span> <span class="n">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef.tasks</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_components_forecast</span> <span class="k">as</span> <span class="n">task</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_dbc.database</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataBase</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_dbc.log</span><span class="w"> </span><span class="kn">import</span> <span class="n">logging</span>
 
-<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
     <span class="c1"># Initialize logging</span>
     <span class="n">logging</span><span class="o">.</span><span class="n">configure_logging</span><span class="p">(</span><span class="n">loglevel</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">loglevel</span><span class="p">,</span> <span class="n">runtime_env</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">env</span><span class="p">)</span>
     <span class="c1"># Initialize database connection</span>
@@ -473,13 +473,13 @@ Below, code snippets are shown for different types of tasks that demonstrate the
 </section>
 <section id="create-base-case-forecast-task-implementation">
 <h3>Create base case forecast task implementation<a class="headerlink" href="#create-base-case-forecast-task-implementation" title="Link to this heading">¶</a></h3>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
-<span class="kn">from</span> <span class="nn">openstef.tasks</span> <span class="kn">import</span> <span class="n">create_basecase_forecast</span> <span class="k">as</span> <span class="n">task</span>
-<span class="kn">from</span> <span class="nn">openstef_dbc.database</span> <span class="kn">import</span> <span class="n">DataBase</span>
-<span class="kn">from</span> <span class="nn">openstef_dbc.log</span> <span class="kn">import</span> <span class="n">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef.tasks</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_basecase_forecast</span> <span class="k">as</span> <span class="n">task</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_dbc.database</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataBase</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_dbc.log</span><span class="w"> </span><span class="kn">import</span> <span class="n">logging</span>
 
-<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
     <span class="c1"># Initialize logging</span>
     <span class="n">logging</span><span class="o">.</span><span class="n">configure_logging</span><span class="p">(</span><span class="n">loglevel</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">loglevel</span><span class="p">,</span> <span class="n">runtime_env</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">env</span><span class="p">)</span>
     <span class="c1"># Initialize database connection</span>
@@ -503,25 +503,25 @@ is to expose the OpenSTEF pipeline functionality through an API,
 for instance by using the <a class="reference external" href="https://fastapi.tiangolo.com/">FastAPI framework</a>.
 The code snippet below shows how OpenSTEF pipelines can be integrated into an API using the
 <a class="reference external" href="https://mpuig.github.io/Notes/fastapi_basics/02.repository_pattern/">repository pattern</a>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
 
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">from</span> <span class="nn">openstef.data_classes.model_specifications</span> <span class="kn">import</span> <span class="n">ModelSpecificationDataClass</span>
-<span class="kn">from</span> <span class="nn">openstef.data_classes.prediction_job</span> <span class="kn">import</span> <span class="n">PredictionJobDataClass</span>
-<span class="kn">from</span> <span class="nn">openstef.metrics.reporter</span> <span class="kn">import</span> <span class="n">Report</span>
-<span class="kn">from</span> <span class="nn">openstef.model.regressors.regressor</span> <span class="kn">import</span> <span class="n">OpenstfRegressor</span>
-<span class="kn">from</span> <span class="nn">openstef.pipeline.create_basecase_forecast</span> <span class="kn">import</span> <span class="n">create_basecase_forecast_pipeline</span>
-<span class="kn">from</span> <span class="nn">openstef.pipeline.create_forecast</span> <span class="kn">import</span> <span class="n">create_forecast_pipeline_core</span>
-<span class="kn">from</span> <span class="nn">openstef.pipeline.optimize_hyperparameters</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef.data_classes.model_specifications</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelSpecificationDataClass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef.data_classes.prediction_job</span><span class="w"> </span><span class="kn">import</span> <span class="n">PredictionJobDataClass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef.metrics.reporter</span><span class="w"> </span><span class="kn">import</span> <span class="n">Report</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef.model.regressors.regressor</span><span class="w"> </span><span class="kn">import</span> <span class="n">OpenstfRegressor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef.pipeline.create_basecase_forecast</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_basecase_forecast_pipeline</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef.pipeline.create_forecast</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_forecast_pipeline_core</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef.pipeline.optimize_hyperparameters</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">optimize_hyperparameters_pipeline_core</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">openstef.pipeline.train_model</span> <span class="kn">import</span> <span class="n">train_model_pipeline_core</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef.pipeline.train_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">train_model_pipeline_core</span>
 
 
-<span class="k">class</span> <span class="nc">OpenstefRepository</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">OpenstefRepository</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Repository that exposes function to interact with OpenSTEF pipelines.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">forecast_pipeline</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">forecast_pipeline</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">prediction_job</span><span class="p">:</span> <span class="n">PredictionJobDataClass</span><span class="p">,</span>
         <span class="n">input_data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
@@ -535,7 +535,7 @@ The code snippet below shows how OpenSTEF pipelines can be integrated into an AP
             <span class="n">prediction_job</span><span class="p">,</span> <span class="n">input_data</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">modelspecs</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">basecase_forecast_pipeline</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">basecase_forecast_pipeline</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">prediction_job</span><span class="p">:</span> <span class="n">PredictionJobDataClass</span><span class="p">,</span>
         <span class="n">input_data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
@@ -545,7 +545,7 @@ The code snippet below shows how OpenSTEF pipelines can be integrated into an AP
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">create_basecase_forecast_pipeline</span><span class="p">(</span><span class="n">prediction_job</span><span class="p">,</span> <span class="n">input_data</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">train_pipeline</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">train_pipeline</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">prediction_job</span><span class="p">:</span> <span class="n">PredictionJobDataClass</span><span class="p">,</span>
         <span class="n">modelspecs</span><span class="p">:</span> <span class="n">ModelSpecificationDataClass</span><span class="p">,</span>
@@ -569,7 +569,7 @@ The code snippet below shows how OpenSTEF pipelines can be integrated into an AP
             <span class="n">horizons</span><span class="o">=</span><span class="n">horizons</span><span class="p">,</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">optimize_hyperparameters_pipeline</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">optimize_hyperparameters_pipeline</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">prediction_job</span><span class="p">:</span> <span class="n">PredictionJobDataClass</span><span class="p">,</span>
         <span class="n">input_data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
