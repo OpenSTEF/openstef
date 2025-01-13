@@ -24,7 +24,7 @@ from datetime import datetime, timedelta, UTC
 from pathlib import Path
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
-from openstef.enums import MLModelType, PipelineType
+from openstef.enums import ModelType, PipelineType
 from openstef.exceptions import InputDataOngoingZeroFlatlinerError
 from openstef.pipeline.create_forecast import create_forecast_pipeline
 from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
@@ -34,7 +34,9 @@ from openstef.validation.validation import detect_ongoing_zero_flatliner
 T_BEHIND_DAYS: int = 14
 
 
-def create_forecast_task(pj: PredictionJobDataClass, context: TaskContext) -> None:
+def create_forecast_task(
+    pj: PredictionJobDataClass, context: TaskContext, t_behind_days: int = T_BEHIND_DAYS
+) -> None:
     """Top level task that creates a forecast.
 
     On this task level all database and context manager dependencies are resolved.
@@ -45,6 +47,7 @@ def create_forecast_task(pj: PredictionJobDataClass, context: TaskContext) -> No
     Args:
         pj: Prediction job
         context: Contect object that holds a config manager and a database connection
+        t_behind_days: number of days included as history. This is used to generated lagged features for the to-be-forecasted period
 
     """
     # Check pipeline types
@@ -70,7 +73,7 @@ def create_forecast_task(pj: PredictionJobDataClass, context: TaskContext) -> No
     mlflow_tracking_uri = context.config.paths_mlflow_tracking_uri
 
     # Define datetime range for input data
-    datetime_start = datetime.now(tz=UTC) - timedelta(days=T_BEHIND_DAYS)
+    datetime_start = datetime.now(tz=UTC) - timedelta(days=t_behind_days)
     datetime_end = datetime.now(tz=UTC) + timedelta(seconds=pj.horizon_minutes * 60)
 
     # Retrieve input data
@@ -115,7 +118,7 @@ def create_forecast_task(pj: PredictionJobDataClass, context: TaskContext) -> No
     context.database.write_forecast(forecast, t_ahead_series=True)
 
 
-def main(model_type=None, config=None, database=None):
+def main(model_type=None, config=None, database=None, **kwargs):
     taskname = Path(__file__).name.replace(".py", "")
 
     if database is None or config is None:
@@ -126,10 +129,10 @@ def main(model_type=None, config=None, database=None):
 
     with TaskContext(taskname, config, database) as context:
         if model_type is None:
-            model_type = [ml.value for ml in MLModelType]
+            model_type = [ml.value for ml in ModelType]
 
         PredictionJobLoop(context, model_type=model_type).map(
-            create_forecast_task, context
+            create_forecast_task, context, **kwargs
         )
 
 

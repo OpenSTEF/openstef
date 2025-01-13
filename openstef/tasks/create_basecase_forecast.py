@@ -32,7 +32,10 @@ T_AHEAD_DAYS: int = 14
 
 
 def create_basecase_forecast_task(
-    pj: PredictionJobDataClass, context: TaskContext
+    pj: PredictionJobDataClass,
+    context: TaskContext,
+    t_behind_days=T_BEHIND_DAYS,
+    t_ahead_days=T_AHEAD_DAYS,
 ) -> None:
     """Top level task that creates a basecase forecast.
 
@@ -41,6 +44,8 @@ def create_basecase_forecast_task(
     Args:
         pj: Prediction job
         context: Contect object that holds a config manager and a database connection
+        t_behind_days: number of days included as history. This is used to generated lagged features for the to-be-forecasted period
+        t_ahead_days: number of days a basecase forecast is created for
 
     """
     # Check pipeline types
@@ -63,8 +68,8 @@ def create_basecase_forecast_task(
         return
 
     # Define datetime range for input data
-    datetime_start = datetime.now(tz=UTC) - timedelta(days=T_BEHIND_DAYS)
-    datetime_end = datetime.now(tz=UTC) + timedelta(days=T_AHEAD_DAYS)
+    datetime_start = datetime.now(tz=UTC) - timedelta(days=t_behind_days)
+    datetime_end = datetime.now(tz=UTC) + timedelta(days=t_ahead_days)
 
     # Retrieve input data
     input_data = context.database.get_model_input(
@@ -77,11 +82,14 @@ def create_basecase_forecast_task(
     # Make basecase forecast using the corresponding pipeline
     basecase_forecast = create_basecase_forecast_pipeline(pj, input_data)
 
-    # Do not store basecase forecasts for moments within next 48 hours.
+    # Do not store basecase forecasts for moments within the prediction job's horizon.
     # Those should be updated by regular forecast process.
     basecase_forecast = basecase_forecast.loc[
         basecase_forecast.index
-        > (pd.to_datetime(datetime.now(tz=UTC), utc=True) + timedelta(hours=48)),
+        > (
+            pd.to_datetime(datetime.now(tz=UTC), utc=True)
+            + timedelta(minutes=pj.horizon_minutes)
+        ),
         :,
     ]
 
@@ -89,7 +97,7 @@ def create_basecase_forecast_task(
     context.database.write_forecast(basecase_forecast, t_ahead_series=True)
 
 
-def main(config: object = None, database: object = None):
+def main(config: object = None, database: object = None, **kwargs):
     taskname = Path(__file__).name.replace(".py", "")
 
     if database is None or config is None:
@@ -102,7 +110,7 @@ def main(config: object = None, database: object = None):
         model_type = ["xgb", "xgb_quantile", "lgb"]
 
         PredictionJobLoop(context, model_type=model_type).map(
-            create_basecase_forecast_task, context
+            create_basecase_forecast_task, context, **kwargs
         )
 
 

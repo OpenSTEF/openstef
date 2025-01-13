@@ -243,8 +243,8 @@ def detect_ongoing_zero_flatliner(
 
     """
     # remove all timestamps in the future
-    load = load[load.index<= datetime.now(tz=UTC)]
-    latest_measurement_time = load.index.max()
+    load = load[load.index.tz_localize(None) <= datetime.now(tz=UTC)]
+    latest_measurement_time = load.dropna().index.max()
     latest_measurements = load[
         latest_measurement_time - timedelta(minutes=duration_threshold_minutes) :
     ].dropna()
@@ -297,7 +297,8 @@ def calc_completeness_dataframe(
         # timecols: {delay:number of points expected to be missing}
         # number of points expected to be missing = numberOfPointsUpToTwoDaysAhead - numberOfPointsAvailable
         timecols = {
-            column: len(df) - eval(column[2:].replace("min", "/60").replace("d", "*24.0")) / 0.25
+            column: len(df)
+            - eval(column[2:].replace("min", "/60").replace("d", "*24.0")) / 0.25
             for column in df.columns
             if column.startswith("T-")
         }

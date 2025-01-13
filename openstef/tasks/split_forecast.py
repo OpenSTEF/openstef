@@ -33,7 +33,7 @@ import structlog
 
 import openstef.monitoring.teams as monitoring
 from openstef.data_classes.prediction_job import PredictionJobDataClass
-from openstef.enums import MLModelType
+from openstef.enums import ModelType
 from openstef.settings import Settings
 from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstef.tasks.utils.taskcontext import TaskContext
@@ -51,7 +51,7 @@ def main(config=None, database=None):
         )
 
     with TaskContext(taskname, config, database) as context:
-        model_type = [ml.value for ml in MLModelType]
+        model_type = [ml.value for ml in ModelType]
 
         PredictionJobLoop(
             context,

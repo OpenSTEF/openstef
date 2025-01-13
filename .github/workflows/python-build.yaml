@@ -11,21 +11,21 @@ on:
 
 jobs:
   build:
-
+    name: Python Build
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.9]
+        python-version: [3.11]
 
     steps:
     # Checkout
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
     # Setup
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
     # Restore
@@ -63,13 +63,6 @@ jobs:
     - name: fix code coverage paths
       run: |
         sed -i 's/\/home\/runner\/work\/openstef\/openstef\//\/github\/workspace\//g' coverage.xml
-    # Sonar cloud scan
-    - name: SonarCloud Scan
-      if: ${{ github.actor != 'dependabot[bot]' }}
-      uses: sonarsource/sonarcloud-github-action@master
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     # Build
     - name: Build Python package
       run: |

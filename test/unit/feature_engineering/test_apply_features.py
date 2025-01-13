@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 
 import unittest
+from openstef.enums import BiddingZone
 from test.unit.utils.base import BaseTestCase
 from test.unit.utils.data import TestData
 
@@ -90,6 +91,7 @@ class TestApplyFeaturesModule(BaseTestCase):
             horizon=24,
             pj={"model": "xgb", "lat": 52.132633, "lon": 5.291266},
         )
+
         expected_output = TestData.load("input_data_with_features.csv")
 
         self.assertDataframeEqual(
@@ -122,6 +124,7 @@ class TestApplyFeaturesModule(BaseTestCase):
             TestData.load("input_data.csv"),
             pj={"model": "proleaf", "lat": 52.132633, "lon": 5.291266},
         )
+
         expected_output = TestData.load("input_data_multi_horizon_features.csv")
 
         self.assertDataframeEqual(
@@ -140,7 +143,7 @@ class TestApplyFeaturesModule(BaseTestCase):
                     "2020-02-01 11:00:00",
                     "2020-02-01 11:30:00",
                 ]
-            ),
+            ).tz_localize("UTC"),
             data={
                 "load": [10, 15, 20, 15],
                 "APX": [1, 2, 3, 4],
@@ -179,7 +182,7 @@ class TestApplyFeaturesModule(BaseTestCase):
                     "2022-12-26 10:00:00",
                     "2020-04-27 11:00:00",
                 ]
-            ),
+            ).tz_localize("UTC"),
             data={
                 "load": [10, 15, 20, 15],
                 "temp": [9, 9, 9, 9],
@@ -187,8 +190,15 @@ class TestApplyFeaturesModule(BaseTestCase):
                 "pressure": [3, 4, 5, 6],
             },
         )
+        pj = {
+            "model": "proleaf",
+            "lat": 52.132633,
+            "lon": 5.291266,
+            "electricity_bidding_zone": BiddingZone.NL,
+        }
+
         input_data_with_features = apply_features.apply_features(
-            data=input_data, horizon=24
+            pj=pj, data=input_data, horizon=24
         )
 
         expected = TestData.load("../data/input_data_with_holiday_features.csv")

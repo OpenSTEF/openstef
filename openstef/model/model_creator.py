@@ -6,14 +6,19 @@ from typing import Union
 
 import structlog
 
-from openstef.enums import MLModelType
+from openstef.enums import ModelType
 from openstef.model.regressors.arima import ARIMAOpenstfRegressor
 from openstef.model.regressors.custom_regressor import is_custom_type, load_custom_model
 from openstef.model.regressors.lgbm import LGBMOpenstfRegressor
 from openstef.model.regressors.linear import LinearOpenstfRegressor
+from openstef.model.regressors.linear_quantile import LinearQuantileOpenstfRegressor
 from openstef.model.regressors.regressor import OpenstfRegressor
+from openstef.model.regressors.flatliner import FlatlinerRegressor
 from openstef.model.regressors.xgb import XGBOpenstfRegressor
 from openstef.model.regressors.xgb_quantile import XGBQuantileOpenstfRegressor
+from openstef.model.regressors.xgb_multioutput_quantile import (
+    XGBMultiOutputQuantileOpenstfRegressor,
+)
 from openstef.settings import Settings
 
 structlog.configure(
@@ -24,7 +29,7 @@ structlog.configure(
 logger = structlog.get_logger(__name__)
 
 valid_model_kwargs = {
-    MLModelType.XGB: [
+    ModelType.XGB: [
         "n_estimators",
         "objective",
         "max_depth",
@@ -55,7 +60,7 @@ valid_model_kwargs = {
         "validate_parameters",
         "early_stopping_rounds",
     ],
-    MLModelType.LGB: [
+    ModelType.LGB: [
         "boosting_type",
         "objective",
         "num_leaves",
@@ -77,7 +82,7 @@ valid_model_kwargs = {
         "importance_type",
         "early_stopping_rounds",
     ],
-    MLModelType.XGB_QUANTILE: [
+    ModelType.XGB_QUANTILE: [
         "quantiles",
         "gamma",
         "colsample_bytree",
@@ -86,12 +91,37 @@ valid_model_kwargs = {
         "max_depth",
         "early_stopping_rounds",
     ],
-    MLModelType.LINEAR: [
+    ModelType.XGB_MULTIOUTPUT_QUANTILE: [
+        "quantiles",
+        "gamma",
+        "colsample_bytree",
+        "subsample",
+        "min_child_weight",
+        "max_depth",
+        "early_stopping_rounds",
+        "arctan_smoothing",
+    ],
+    ModelType.LINEAR: [
         "missing_values",
         "imputation_strategy",
         "fill_value",
     ],
-    MLModelType.ARIMA: [
+    ModelType.FLATLINER: [
+        "quantiles",
+    ],
+    ModelType.LINEAR_QUANTILE: [
+        "alpha",
+        "quantiles",
+        "solver",
+        "missing_values",
+        "imputation_strategy",
+        "fill_value",
+        "weight_scale_percentile",
+        "weight_exponent",
+        "weight_floor",
+        "no_fill_future_values_features",
+    ],
+    ModelType.ARIMA: [
         "backtest_max_horizon",
         "order",
         "seasonal_order",
@@ -105,15 +135,18 @@ class ModelCreator:
 
     # Set object mapping
     MODEL_CONSTRUCTORS = {
-        MLModelType.XGB: XGBOpenstfRegressor,
-        MLModelType.LGB: LGBMOpenstfRegressor,
-        MLModelType.XGB_QUANTILE: XGBQuantileOpenstfRegressor,
-        MLModelType.LINEAR: LinearOpenstfRegressor,
-        MLModelType.ARIMA: ARIMAOpenstfRegressor,
+        ModelType.XGB: XGBOpenstfRegressor,
+        ModelType.LGB: LGBMOpenstfRegressor,
+        ModelType.XGB_QUANTILE: XGBQuantileOpenstfRegressor,
+        ModelType.XGB_MULTIOUTPUT_QUANTILE: XGBMultiOutputQuantileOpenstfRegressor,
+        ModelType.LINEAR: LinearOpenstfRegressor,
+        ModelType.LINEAR_QUANTILE: LinearQuantileOpenstfRegressor,
+        ModelType.ARIMA: ARIMAOpenstfRegressor,
+        ModelType.FLATLINER: FlatlinerRegressor,
     }
 
     @staticmethod
-    def create_model(model_type: Union[MLModelType, str], **kwargs) -> OpenstfRegressor:
+    def create_model(model_type: Union[ModelType, str], **kwargs) -> OpenstfRegressor:
         """Create a machine learning model based on model type.
 
         Args:
@@ -134,7 +167,7 @@ class ModelCreator:
                 model_class = load_custom_model(model_type)
                 valid_kwargs = model_class.valid_kwargs()
             else:
-                model_type = MLModelType(model_type)
+                model_type = ModelType(model_type)
                 model_class = ModelCreator.MODEL_CONSTRUCTORS[model_type]
                 valid_kwargs = valid_model_kwargs[model_type]
                 # Check if model as imported
@@ -145,7 +178,7 @@ class ModelCreator:
                         "Please refer to the ReadMe for instructions"
                     )
         except ValueError as e:
-            valid_types = [t.value for t in MLModelType]
+            valid_types = [t.value for t in ModelType]
             raise NotImplementedError(
                 f"No constructor for '{model_type}', "
                 f"valid model_types are: {valid_types} "

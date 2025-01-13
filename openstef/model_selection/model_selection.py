@@ -106,7 +106,7 @@ def split_data_train_validation_test(
     validation_fraction: float = 0.15,
     back_test: bool = False,
     stratification_min_max: bool = True,
-) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Split input data into train, test and validation set.
 
     Function for splitting data with features in a train, test and
@@ -230,7 +230,9 @@ def split_data_train_validation_test(
         for date_set in [max_dates, min_dates, other_dates]:
             n_days_val = max(1, int(validation_fraction * len(date_set)))
             val_dates += list(
-                np.random.default_rng().choice(list(date_set), n_days_val, replace=False)
+                np.random.default_rng().choice(
+                    list(date_set), n_days_val, replace=False
+                )
             )
             train_dates += [x for x in date_set if x not in val_dates]
 

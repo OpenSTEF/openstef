@@ -5,7 +5,7 @@
 import sys
 from unittest import TestCase
 
-from openstef.enums import MLModelType
+from openstef.enums import ModelType
 from openstef.model.model_creator import ModelCreator
 from openstef.model.regressors.regressor import OpenstfRegressor
 from openstef.model.regressors.xgb_quantile import XGBQuantileOpenstfRegressor
@@ -14,16 +14,22 @@ from openstef.model.regressors.xgb_quantile import XGBQuantileOpenstfRegressor
 class TestModelCreator(TestCase):
     def test_create_model_happy_flow(self):
         # Test happy flow (both str and enum model_type arguments)
-        valid_types = [t.value for t in MLModelType] + [t for t in MLModelType]
+        valid_types = [t.value for t in ModelType] + [t for t in ModelType]
         for model_type in valid_types:
             model = ModelCreator.create_model(model_type)
             self.assertIsInstance(model, OpenstfRegressor)
             self.assertTrue(hasattr(model, "can_predict_quantiles"))
             if model_type in [
                 "xgb_quantile",
-                MLModelType("xgb_quantile"),
+                ModelType("xgb_quantile"),
                 "arima",
-                MLModelType("arima"),
+                ModelType("arima"),
+                "linear_quantile",
+                ModelType("linear_quantile"),
+                "xgb_multioutput_quantile",
+                ModelType("xgb_multioutput_quantile"),
+                "flatliner",
+                ModelType("flatliner"),
             ]:
                 self.assertTrue(model.can_predict_quantiles)
             else:
@@ -33,7 +39,7 @@ class TestModelCreator(TestCase):
 
     def test_create_model_quantile_model(self):
         # Test if quantile model is properly returned
-        model_type = MLModelType.XGB_QUANTILE
+        model_type = ModelType.XGB_QUANTILE
         quantiles = tuple([0.5, 0.2, 0.5])
         # Create relevant model
         model = ModelCreator.create_model(model_type, quantiles=quantiles)

@@ -8,7 +8,7 @@ from typing import Any, Callable, Optional
 import optuna
 import pandas as pd
 
-from openstef.enums import MLModelType
+from openstef.enums import ModelType
 from openstef.metrics import metrics
 from openstef.metrics.reporter import Report, Reporter
 from openstef.model.regressors.regressor import OpenstfRegressor
@@ -245,7 +245,7 @@ class RegressorObjective:
 class XGBRegressorObjective(RegressorObjective):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.model_type = MLModelType.XGB
+        self.model_type = ModelType.XGB
 
     # extend the parameters with the model specific ones per implementation
     def get_params(self, trial: optuna.trial.FrozenTrial) -> dict:
@@ -282,7 +282,7 @@ class XGBRegressorObjective(RegressorObjective):
 class LGBRegressorObjective(RegressorObjective):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.model_type = MLModelType.LGB
+        self.model_type = ModelType.LGB
 
     def get_params(self, trial: optuna.trial.FrozenTrial) -> dict:
         """Get parameters for LGB Regressor Objective with objective specific parameters.
@@ -323,7 +323,7 @@ class LGBRegressorObjective(RegressorObjective):
 class XGBQuantileRegressorObjective(RegressorObjective):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.model_type = MLModelType.XGB_QUANTILE
+        self.model_type = ModelType.XGB_QUANTILE
 
     def get_params(self, trial: optuna.trial.FrozenTrial) -> dict:
         """Get parameters for XGBQuantile Regressor Objective with objective specific parameters.
@@ -349,10 +349,40 @@ class XGBQuantileRegressorObjective(RegressorObjective):
         )
 
 
+class XGBMultioutputQuantileRegressorObjective(RegressorObjective):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.model_type = ModelType.XGB_QUANTILE
+
+    def get_params(self, trial: optuna.trial.FrozenTrial) -> dict:
+        """Get parameters for XGB Multioutput Quantile Regressor Objective with objective specific parameters.
+
+        Args: trial
+
+        Returns:
+            Dictionary with hyperparameter name as key and hyperparamer value as value.
+
+        """
+        # Filtered default parameters
+        model_params = super().get_params(trial)
+
+        # XGB specific parameters
+        params = {
+            "gamma": trial.suggest_float("gamma", 1e-8, 1.0),
+            "arctan_smoothing": trial.suggest_float("arctan_smoothing", 0.025, 0.15),
+        }
+        return {**model_params, **params}
+
+    def get_pruning_callback(self, trial: optuna.trial.FrozenTrial):
+        return optuna.integration.XGBoostPruningCallback(
+            trial, observation_key=f"validation_1-{self.eval_metric}"
+        )
+
+
 class LinearRegressorObjective(RegressorObjective):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.model_type = MLModelType.LINEAR
+        self.model_type = ModelType.LINEAR
 
     def get_params(self, trial: optuna.trial.FrozenTrial) -> dict:
         """Get parameters for Linear Regressor Objective with objective specific parameters.
@@ -375,7 +405,7 @@ class LinearRegressorObjective(RegressorObjective):
 class ARIMARegressorObjective(RegressorObjective):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.model_type = MLModelType.ARIMA
+        self.model_type = ModelType.ARIMA
 
     def get_params(self, trial: optuna.trial.FrozenTrial) -> dict:
         """Get parameters for ARIMA Regressor Objective with objective specific parameters.

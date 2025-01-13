@@ -185,7 +185,7 @@ def fides(data: pd.DataFrame, all_forecasts: bool = False):
     data = pd.DataFrame(index = index,
                         data = dict(load=np.sin(index.hour/24*np.pi)*np.random.uniform(0.7,1.7, 300)))
     data['insolation'] = data.load * np.random.uniform(0.8, 1.2, len(index)) + 0.1
-    data.loc[int(len(index)/3*2):,"load"] = np.NaN
+    data.loc[int(len(index)/3*2):,"load"] = np.nan
 
     """
     insolation_forecast = apply_fit_insol(data, add_to_df=False)
@@ -215,7 +215,7 @@ def fides(data: pd.DataFrame, all_forecasts: bool = False):
     return forecast
 
 
-def main(config=None, database=None):
+def main(config=None, database=None, **kwargs):
     taskname = Path(__file__).name.replace(".py", "")
 
     if database is None or config is None:
@@ -244,7 +244,7 @@ def main(config=None, database=None):
             )
 
         PredictionJobLoop(context, prediction_jobs=prediction_jobs).map(
-            make_solar_prediction_pj, context
+            make_solar_prediction_pj, context, kwargs=kwargs
         )
 
 
@@ -356,7 +356,7 @@ def apply_fit_insol(data, add_to_df=True, hours_delta=None, polynomial=False):
     data = pd.DataFrame(index = index,
                         data = dict(load=np.sin(index.hour/24*np.pi)*np.random.uniform(0.7,1.7, len(index))))
     data['insolation'] = data.load * np.random.uniform(0.8, 1.2, len(index)) + 0.1
-    data.loc[int(len(index)/3*2):,"load"] = np.NaN
+    data.loc[int(len(index)/3*2):,"load"] = np.nan
 
     """
     colname = list(data)[0]

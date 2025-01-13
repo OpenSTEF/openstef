@@ -42,16 +42,12 @@ expected_keys = [
 class GeneralTest(BaseTestCase):
     def test_create_holiday_functions(self):
         holiday_functions = generate_holiday_feature_functions(
-            country="NL", years=[2023]
+            country_code="NL", years=[2023]
         )
 
         # Assert for every holiday a function is available and no extra functions are generated
-        self.assertTrue(
-            all([key in holiday_functions.keys() for key in expected_keys])
-        )
-        self.assertTrue(
-            all([key in expected_keys for key in holiday_functions.keys()])
-        )
+        self.assertTrue(all([key in holiday_functions.keys() for key in expected_keys]))
+        self.assertTrue(all([key in expected_keys for key in holiday_functions.keys()]))
 
 
 if __name__ == "__main__":

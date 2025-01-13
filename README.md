@@ -26,7 +26,7 @@ OpenSTEF is a Python package designed for generating short-term forecasts in the
 - [OpenSTEF](#openstef)
 - [Table of contents](#table-of-contents)
 - [External information sources](#external-information-sources)
-- [Installation](#install)
+- [Installation](#installation)
 - [Usage](#usage)
     - [Example notebooks](#example-notebooks)
     - [Reference Implementation](#reference-implementation)
@@ -41,7 +41,6 @@ OpenSTEF is a Python package designed for generating short-term forecasts in the
 - [Linux Foundation project page](https://www.lfenergy.org/projects/openstef/);
 - [Documentation on dashboard](https://raw.githack.com/OpenSTEF/.github/main/profile/html/openstef_dashboard_doc.html);
 - [Video about OpenSTEF](https://www.lfenergy.org/forecasting-to-create-a-more-resilient-optimized-grid/);
-- [Teams channel](https://teams.microsoft.com/l/team/19%3ac08a513650524fc988afb296cd0358cc%40thread.tacv2/conversations?groupId=bfcb763a-3a97-4938-81d7-b14512aa537d&tenantId=697f104b-d7cb-48c8-ac9f-bd87105bafdc)
 
 # Installation
 
@@ -51,13 +50,26 @@ OpenSTEF is a Python package designed for generating short-term forecasts in the
 pip install openstef
 ```
 
-### Remark regarding installation within a **conda environment on Windows**:
+### Remark regarding installation within a **conda environment on Windows**
 
 A version of the pywin32 package will be installed as a secondary dependency along with the installation of the openstef package. Since conda relies on an old version of pywin32, the new installation can break conda's functionality. The following command can solve this issue:
 ```shell
 pip install pywin32==300
 ```
 For more information on this issue see the [readme of pywin32](https://github.com/mhammond/pywin32#installing-via-pip) or [this Github issue](https://github.com/mhammond/pywin32/issues/1865#issue-1212752696).
+
+## Remark regarding installation on Apple Silicon
+
+If you want to install the `openstef` package on Apple Silicon (Mac with M1-chip or newer), you can encounter issues with the dependencies, such as `xgboost`. Solution:
+
+1. Run `brew install libomp` (if you haven’t installed Homebrew: [follow instructions here](https://brew.sh/))
+2. If your interpreter can not find the `libomp` installation in `/usr/local/bin`, it is probably in `/opt/brew/Cellar`. Run:
+```sh
+mkdir -p /usr/local/opt/libomp/
+ln -s /opt/brew/Cellar/libomp/{your_version}/lib /usr/local/opt/libomp/lib
+```
+3. Uninstall `xgboost` with `pip` (`pip uninstall xgboost`) and install with `conda-forge` (`conda install -c conda-forge xgboost`)
+4. If you encounter similar issues with `lightgbm`: uninstall `lightgbm` with `pip` (`pip uninstall lightgbm`) and install later version with `conda-forge` (`conda install -c conda-forge 'lightgbm>=4.2.0'`)
 
 # Usage
 
@@ -91,3 +103,4 @@ Please read [CODE_OF_CONDUCT.md](https://github.com/OpenSTEF/.github/blob/main/C
 
 # Contact
 Please read [SUPPORT.md](https://github.com/OpenSTEF/.github/blob/main/SUPPORT.md) for how to connect and get into contact with the OpenSTEF project
+ 

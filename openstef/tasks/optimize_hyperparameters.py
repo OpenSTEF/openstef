@@ -20,7 +20,7 @@ from datetime import datetime, timedelta, UTC
 from pathlib import Path
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
-from openstef.enums import MLModelType, PipelineType
+from openstef.enums import ModelType, PipelineType
 from openstef.model.serializer import MLflowSerializer
 from openstef.monitoring import teams
 from openstef.pipeline.optimize_hyperparameters import optimize_hyperparameters_pipeline
@@ -89,7 +89,7 @@ def optimize_hyperparameters_task(
         return
 
     datetime_start = datetime.now(tz=UTC) - timedelta(days=DEFAULT_TRAINING_PERIOD_DAYS)
-    datetime_end = datetime..now(tz=UTC)
+    datetime_end = datetime.now(tz=UTC)
 
     input_data = context.database.get_model_input(
         pid=pj["id"],
@@ -124,7 +124,7 @@ def main(config=None, database=None):
         )
 
     with TaskContext(taskname, config, database) as context:
-        model_type = [ml.value for ml in MLModelType]
+        model_type = [ml.value for ml in ModelType]
 
         PredictionJobLoop(context, model_type=model_type).map(
             optimize_hyperparameters_task, context
