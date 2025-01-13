@@ -239,7 +239,7 @@ class TestMLflowSerializer(BaseTestCase):
             data={
                 "run_id": [1],
                 "artifact_uri": ["path1"],
-                "end_time": [datetime..now(tz=UTC) - timedelta(days=2)],
+                "end_time": [datetime.now(tz=UTC) - timedelta(days=2)],
             }
         )
         mock_find_models.return_value = models_df
@@ -256,7 +256,10 @@ class TestMLflowSerializer(BaseTestCase):
             data={
                 "run_id": [1, 2],
                 "artifact_uri": ["path1", "path2"],
-                "end_time": [datetime.now(tz=UTC) - timedelta(days=8), datetime.now(tz=UTC)],
+                "end_time": [
+                    datetime.now(tz=UTC) - timedelta(days=8),
+                    datetime.now(tz=UTC),
+                ],
             }
         )
         mock_find_models.return_value = models_df

@@ -15,7 +15,7 @@ from openstef.tasks.create_basecase_forecast import create_basecase_forecast_tas
 # Make sure this has a datetime of at least NOW+48hours,
 # since this is filtered in the task
 FORECAST_MOCK = pd.DataFrame(
-    index=pd.to_datetime([datetime..now(tz=UTC)]) + timedelta(days=3),
+    index=pd.to_datetime([datetime.now(tz=UTC)]) + timedelta(days=3),
     data=dict(forecast=[10.0]),
 )
 FORECAST_NEAR_FUTURE_MOCK = pd.DataFrame(
