@@ -202,7 +202,7 @@ class TestApplyFeaturesModule(BaseTestCase):
         }
 
         input_data_with_features = apply_features.apply_features(
-            pj=pj, data=input_data, horizon=24
+            pj=pj, data=input_data, horizon=24, years=[2020, 2021, 2022, 2023]
         )
 
         expected = TestData.load("../data/input_data_with_holiday_features.csv")
