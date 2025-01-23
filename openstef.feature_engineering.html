@@ -421,12 +421,12 @@
 </dl>
 <dl class="py function">
 <dt class="sig sig-object py" id="openstef.feature_engineering.apply_features.apply_features">
-<span class="sig-prename descclassname"><span class="pre">openstef.feature_engineering.apply_features.</span></span><span class="sig-name descname"><span class="pre">apply_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pj</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feature_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">horizon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">24.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.apply_features.apply_features" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">openstef.feature_engineering.apply_features.</span></span><span class="sig-name descname"><span class="pre">apply_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pj</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feature_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">horizon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">24.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">years</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.apply_features.apply_features" title="Link to this definition">¶</a></dt>
 <dd><p>Applies the feature functions defined in <code class="docutils literal notranslate"><span class="pre">feature_functions.py</span></code> and returns the complete dataframe.</p>
 <p>Features requiring more recent label-data are omitted.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>For the time deriven features only the onces in the features list will be added. But for the weather features all will be added at present.
+<p>For the time derived features only the ones in the features list will be added. But for the weather features all will be added at present.
 These unrequested additional features have to be filtered out later.</p>
 </div>
 <dl class="field-list simple">
@@ -441,8 +441,9 @@ columns=[label, predictor_1,…, predictor_n]</p>
 <p>)</p>
 </p></li>
 <li><p><strong>pj</strong> (<a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass" title="openstef.data_classes.prediction_job.PredictionJobDataClass"><em>PredictionJobDataClass</em></a>) – Prediction job.</p></li>
-<li><p><strong>feature_names</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – list of reuqested features</p></li>
+<li><p><strong>feature_names</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – list of requested features</p></li>
 <li><p><strong>horizon</strong> (<em>float</em>) – Forecast horizon limit in hours.</p></li>
+<li><p><strong>years</strong> (<em>list</em><em>[</em><em>int</em><em>] </em><em>| </em><em>None</em>) – years for which to create holiday features.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -1041,8 +1042,9 @@ The official following official ducth holidays are included untill 2023:</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>country</strong> – Country for which to create holiday features.</p></li>
-<li><p><strong>years</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>) – years for which to create holiday features.</p></li>
+<li><p><strong>country_code</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Country for which to create holiday features.</p></li>
+<li><p><strong>years</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]]) – years for which to create holiday features. If None,
+the last 4 years, the current and next year are used.</p></li>
 <li><p><strong>path_to_school_holidays_csv</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Filepath to csv with school holidays.</p></li>
 <li><p><strong>NOTE</strong> – Dutch holidays csv file is only until January 2026.</p></li>
 </ul>
