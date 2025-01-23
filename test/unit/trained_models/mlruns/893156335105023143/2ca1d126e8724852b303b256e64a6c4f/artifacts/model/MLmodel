@@ -17,7 +17,7 @@ mlflow_version: 2.3.0
 model_uuid: 07228c27f4df4878aabb24931faf321e
 run_id: 2ca1d126e8724852b303b256e64a6c4f
 signature:
-  inputs: '[{"name": "day-ahead-electricity-price", "type": "double"}, {"name": "IsSunday", "type": "boolean"},
+  inputs: '[{"name": "day_ahead_electricity_price", "type": "double"}, {"name": "IsSunday", "type": "boolean"},
     {"name": "IsWeekDay", "type": "boolean"}, {"name": "IsWeekendDay", "type": "boolean"},
     {"name": "Month", "type": "integer"}, {"name": "Quarter", "type": "integer"},
     {"name": "T-1020min", "type": "double"}, {"name": "T-1080min", "type": "double"},
