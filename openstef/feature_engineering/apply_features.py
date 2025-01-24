@@ -40,13 +40,14 @@ def apply_features(
     pj: PredictionJobDataClass = None,
     feature_names: list[str] = None,
     horizon: float = 24.0,
+    years: list[int] | None = None,
 ) -> pd.DataFrame:
     """Applies the feature functions defined in ``feature_functions.py`` and returns the complete dataframe.
 
     Features requiring more recent label-data are omitted.
 
     .. note::
-        For the time deriven features only the onces in the features list will be added. But for the weather features all will be added at present.
+        For the time derived features only the ones in the features list will be added. But for the weather features all will be added at present.
         These unrequested additional features have to be filtered out later.
 
     Args:
@@ -56,8 +57,9 @@ def apply_features(
                                         columns=[label, predictor_1,..., predictor_n]
                                     )
         pj (PredictionJobDataClass): Prediction job.
-        feature_names (list[str]): list of reuqested features
+        feature_names (list[str]): list of requested features
         horizon (float): Forecast horizon limit in hours.
+        years (list[int] | None): years for which to create holiday features.
 
     Returns:
         pd.DataFrame(index = datetime, columns = [label, predictor_1,..., predictor_n, feature_1, ..., feature_m])
@@ -100,7 +102,7 @@ def apply_features(
 
     # Get holiday feature functions
     feature_functions.update(
-        generate_holiday_feature_functions(country_code=country_code)
+        generate_holiday_feature_functions(country_code=country_code, years=years)
     )
 
     # Add the features to the dataframe using previously defined feature functions
