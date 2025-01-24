@@ -15,7 +15,7 @@ HOLIDAY_CSV_PATH: str = PROJECT_ROOT / "openstef" / "data" / "dutch_holidays.csv
 
 def generate_holiday_feature_functions(
     country_code: str = "NL",
-    years: list = None,
+    years: list[int] | None = None,
     path_to_school_holidays_csv: str = HOLIDAY_CSV_PATH,
 ) -> dict:
     """Generates functions for creating holiday feature.
@@ -48,9 +48,11 @@ def generate_holiday_feature_functions(
     The 'Brugdagen' are updated untill dec 2020. (Generated using agenda)
 
     Args:
-        country: Country for which to create holiday features.
-        years: years for which to create holiday features.
+        country_code: Country for which to create holiday features.
+        years: years for which to create holiday features. If None,
+            the last 4 years, the current and next year are used.
         path_to_school_holidays_csv: Filepath to csv with school holidays.
+
         NOTE: Dutch holidays csv file is only until January 2026.
 
     Returns:
