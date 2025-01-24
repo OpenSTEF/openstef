@@ -65,7 +65,7 @@ def generate_fallback(
             .merge(
                 highest_daily_loadprofile, left_on="time", right_on="time", how="outer"
             )
-            .set_index(forecast.index)
+            .set_index("index")
         )
 
     # Rename so column is called forecast
