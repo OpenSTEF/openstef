@@ -1,13 +1,15 @@
-# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501
+# SPDX-FileCopyrightText: 2017-2024 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501
 #
 # SPDX-License-Identifier: MPL-2.0
 
-# Copied from https://github.com/psf/black/actions/runs/17913292/workflow
+# Copied from https://github.com/rickstaa/action-black
 
 # GitHub Action that uses Black to reformat the Python code in an incoming pull request.
 # If all Python code in the pull request is compliant with Black then this Action
-# does nothing. Otherwise, Black is run and its changes are committed to the
-# incoming pull request. See https://github.com/cclauss/autoblack for a similar example.
+# does nothing. Otherwise, Black is run and its changes are suggested in the
+# incoming pull request. See 
+# https://github.com/rickstaa/action-black?tab=readme-ov-file#annotate-changes 
+# for a similar example.
 
 name: Black Format Code
 
@@ -21,33 +23,21 @@ jobs:
       matrix:
         python-version: ['3.11']
 
+    permissions:
+      # Give the default GITHUB_TOKEN write permission to the pull request
+      # so that reviewdog can create annotations.
+      pull-requests: write
+
     steps:
-      # Checkout
       - name: Checkout
-        uses: actions/checkout@v2
-      # Setup
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+        uses: actions/checkout@v4
+      - name: Check formatting using black
+        uses: rickstaa/action-black@v1
+        id: action_black
         with:
-          python-version: ${{ matrix.python-version }}
-      # Install black
-      - name: Install Black
-        run: pip install black==23.9.1 pydocstyle==6.1.1 docformatter==1.5.0 toml==0.10.2
-      # Run black --check
-      - name: Run black --check . and PydocStyle check
-        run: |
-          black --check .
-          pydocstyle .
-      # Run black (if needed)
-      - name: If needed, commit black changes to the pull request
-        if: failure()
-        run: |
-          black .
-          docformatter openstef --recursive --wrap-summaries 120 --in-place
-          git config --global user.name 'black'
-          git config --global user.email 'action@github.com'
-          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY
-          git fetch
-          git checkout ${{ github.head_ref }}
-          git commit --signoff -am "Format Python code with Black"
-          git push
+          black_args: "."
+      - name: Annotate diff changes using reviewdog
+        if: steps.action_black.outputs.is_formatted == 'true'
+        uses: reviewdog/action-suggester@v1
+        with:
+          tool_name: blackfmt

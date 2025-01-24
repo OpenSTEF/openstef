@@ -9,7 +9,7 @@ from pydantic.v1 import BaseModel
 from openstef.data_classes.data_prep import DataPrepDataClass
 from openstef.data_classes.model_specifications import ModelSpecificationDataClass
 from openstef.data_classes.split_function import SplitFuncDataClass
-from openstef.enums import PipelineType
+from openstef.enums import PipelineType, BiddingZone
 
 
 class PredictionJobDataClass(BaseModel):
@@ -54,6 +54,8 @@ class PredictionJobDataClass(BaseModel):
     lon: Optional[float] = 5.291266
     """Longitude of the forecasted location in degrees. Used for fetching weather data in tasks, calculating derrived features and component splitting."""
     name: str
+    """Bidding zone is used to determine the electricity price. It is also used to determine the holidays that should be used. Currently only ENTSO-E bidding zones are supported."""
+    electricity_bidding_zone: Optional[BiddingZone] = BiddingZone.NL
     """Name of the forecast, e.g. the location name."""
     train_components: Optional[bool]
     """Whether splitting the forecasts in wind, solar, rest is desired."""
@@ -77,6 +79,9 @@ class PredictionJobDataClass(BaseModel):
     """Minimum length (in rows) of the forecast input for making a regular forecast."""
     flatliner_threshold_minutes: int = 1440
     """Number of minutes that the load has to be constant to detect a flatliner. """
+    data_balancing_ratio: Optional[float] = None
+    """If data balancing is enabled, the data will be balanced with data from 1 year 
+    ago in the future."""
     depends_on: Optional[list[Union[int, str]]]
     """Link to another prediction job on which this prediction job might depend."""
     sid: Optional[str]

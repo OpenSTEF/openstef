@@ -7,9 +7,11 @@ from unittest.mock import MagicMock
 import numpy as np
 import pandas as pd
 import sklearn
+import pickle
 from sklearn.utils.estimator_checks import check_estimator
 
 from openstef.feature_engineering.apply_features import apply_features
+from openstef.model.model_creator import ModelCreator
 from openstef.model.regressors.linear_quantile import LinearQuantileOpenstfRegressor
 from test.unit.utils.base import BaseTestCase
 from test.unit.utils.data import TestData
@@ -55,11 +57,14 @@ class TestLinearQuantile(BaseTestCase):
         # Arrange
         n_sample = train_input.shape[0]
         X = train_input.iloc[:, 1:].copy(deep=True)
-        sp = np.ones(n_sample)
-        sp[-1] = np.nan
-        X["Sparse"] = sp
+        X["sparse"] = np.ones(n_sample)
+        X.loc[X.index[-2], "sparse"] = np.nan
+        X["sparse_2"] = np.ones(n_sample)
+        X.loc[X.index[-1], "sparse_2"] = np.nan
         model1 = LinearQuantileOpenstfRegressor(imputation_strategy=None)
-        model2 = LinearQuantileOpenstfRegressor(imputation_strategy="mean")
+        model2 = LinearQuantileOpenstfRegressor(
+            imputation_strategy="mean", no_fill_future_values_features=["sparse_2"]
+        )
 
         # Act
         # Model should give error if nan values are present.
@@ -74,6 +79,10 @@ class TestLinearQuantile(BaseTestCase):
 
         X_ = pd.DataFrame(model2.imputer_.transform(X), columns=X.columns)
         self.assertTrue((model2.predict(X_) == model2.predict(X)).all())
+
+        # check if last row is removed because of trailing null values
+        X_transformed, _ = model2.imputer_.fit_transform(X)
+        self.assertEqual(X_transformed.shape[0], n_sample - 1)
 
     def test_value_error_raised(self):
         # Check if Value Error is raised when 0.5 is not in the requested quantiles list
@@ -144,3 +153,61 @@ class TestLinearQuantile(BaseTestCase):
         self.assertNotIn("E1B_AMI_I", input_data_filtered.columns)
         self.assertNotIn("E4A_I", input_data_filtered.columns)
         self.assertIn("load", input_data_filtered.columns)
+
+    def test_create_model(self):
+        # Arrange
+        kwargs = {
+            "weight_scale_percentile": 50,
+            "weight_exponent": 2,
+        }
+
+        # Act
+        model = ModelCreator.create_model(
+            model_type="linear_quantile",
+            quantiles=[0.5],
+            **kwargs,
+        )
+
+        # Assert
+        self.assertIsInstance(model, LinearQuantileOpenstfRegressor)
+        self.assertEqual(model.weight_scale_percentile, 50)
+        self.assertEqual(model.weight_exponent, 2)
+
+    def test_feature_clipper(self):
+        """Test the feature clipping functionality of LinearQuantileOpenstfRegressor"""
+        # Create a sample dataset with a feature to be clipped
+        X = pd.DataFrame(
+            {
+                "A": [1.0, 2.0, 3.0, 4.0, 5.0],
+                "B": [10.0, 20.0, 30.0, 40.0, 50.0],
+                "APX": [-10.0, 0.0, 50.0, 100.0, 200.0],  # Feature to be clipped
+            }
+        )
+        y = pd.Series([1, 2, 3, 4, 5])
+
+        # Initialize the model with clipping for 'APX' feature
+        model = LinearQuantileOpenstfRegressor(clipped_features=["APX"])
+
+        # Fit the model
+        model.fit(X, y)
+
+        # Create test data with values outside the training range
+        X_test = pd.DataFrame(
+            {
+                "A": [2.5, 3.5],
+                "B": [25.0, 35.0],
+                "APX": [-20.0, 250.0],  # Values outside the training range
+            }
+        )
+
+        # Check if the 'APX' feature was clipped during prediction
+        clipped_X = model.feature_clipper_.transform(X_test)
+        self.assertTrue(clipped_X["APX"].min() >= -10.0)
+        self.assertTrue(clipped_X["APX"].max() <= 200.0)
+
+        # Make predictions
+        y_pred = model.predict(X_test)
+
+        # Ensure the prediction was made using the clipped values
+        self.assertEqual(len(y_pred), 2)
+        self.assertIsNotNone(y_pred)

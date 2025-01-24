@@ -2,18 +2,19 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 import re
-from typing import Dict, Union, Set, Optional
+from typing import Dict, Union, Set, Optional, List
 
 import numpy as np
 import pandas as pd
 from sklearn.base import RegressorMixin
 from sklearn.linear_model import QuantileRegressor
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import StandardScaler
 from sklearn.utils.validation import check_is_fitted
 
 from openstef.feature_engineering.missing_values_transformer import (
     MissingValuesTransformer,
 )
+from openstef.model.metamodels.feature_clipper import FeatureClipper
 from openstef.model.regressors.regressor import OpenstfRegressor
 
 DEFAULT_QUANTILES: tuple[float, ...] = (0.9, 0.5, 0.1)
@@ -25,9 +26,10 @@ class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
     solver: str
 
     imputer_: MissingValuesTransformer
-    x_scaler_: MinMaxScaler
-    y_scaler_: MinMaxScaler
+    x_scaler_: StandardScaler
+    y_scaler_: StandardScaler
     models_: Dict[float, QuantileRegressor]
+    feature_clipper_: FeatureClipper
 
     is_fitted_: bool = False
 
@@ -47,6 +49,11 @@ class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
         missing_values: Union[int, float, str, None] = np.nan,
         imputation_strategy: Optional[str] = "mean",
         fill_value: Union[str, int, float] = None,
+        weight_scale_percentile: int = 95,
+        weight_exponent: float = 1,
+        weight_floor: float = 0.1,
+        no_fill_future_values_features: List[str] = None,
+        clipped_features: List[str] = None,
     ):
         """Initialize LinearQuantileOpenstfRegressor.
 
@@ -69,6 +76,12 @@ class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
             missing_values: Value to be considered as missing value
             imputation_strategy: Imputation strategy
             fill_value: Fill value
+            weight_scale_percentile: Percentile used in scaling of the samples
+            weight_exponent: Exponent used in sample weighing
+            weight_floor: Minimum weight for samples
+            no_fill_future_values_features: The features for which it does not make sense
+                to fill future values. Rows that contain trailing null values for these
+                features will be removed from the data.
 
         """
         super().__init__()
@@ -79,16 +92,24 @@ class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
                 "Cannot train quantile model as 0.5 is not in requested quantiles!"
             )
 
+        if clipped_features is None:
+            clipped_features = ["APX"]
+
         self.quantiles = quantiles
         self.alpha = alpha
         self.solver = solver
+        self.weight_scale_percentile = weight_scale_percentile
+        self.weight_exponent = weight_exponent
+        self.weight_floor = weight_floor
         self.imputer_ = MissingValuesTransformer(
             missing_values=missing_values,
             imputation_strategy=imputation_strategy,
             fill_value=fill_value,
+            no_fill_future_values_features=no_fill_future_values_features,
         )
-        self.x_scaler_ = MinMaxScaler(feature_range=(-1, 1))
-        self.y_scaler_ = MinMaxScaler(feature_range=(-1, 1))
+        self.x_scaler_ = StandardScaler()
+        self.y_scaler_ = StandardScaler()
+        self.feature_clipper_ = FeatureClipper(columns=clipped_features)
         self.models_ = {
             quantile: QuantileRegressor(alpha=alpha, quantile=quantile, solver=solver)
             for quantile in quantiles
@@ -163,9 +184,10 @@ class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
             y = pd.Series(np.asarray(y), name="load")
 
         x = self._remove_ignored_features(x)
+        self.feature_clipper_.fit(x)
 
         # Fix nan columns
-        x = self.imputer_.fit_transform(x)
+        x, y = self.imputer_.fit_transform(x, y)
         if x.isna().any().any():
             raise ValueError(
                 "There are nan values in the input data. Set "
@@ -177,7 +199,7 @@ class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
         y_scaled = self.y_scaler_.fit_transform(y.to_frame())[:, 0]
 
         # Add more focus on extreme / peak values
-        sample_weight = np.abs(y_scaled)
+        sample_weight = self._calculate_sample_weights(y.values.squeeze())
 
         # Fit quantile regressors
         for quantile in self.quantiles:
@@ -190,6 +212,33 @@ class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
         self.feature_importances_ = self._get_feature_importance_from_linear()
 
         return self
+
+    def _calculate_sample_weights(self, y: np.array):
+        """Calculate sample weights based on the y values of arbitrary scale.
+
+        The resulting weights are in the range [0,1] and are used to put more emphasis
+        on certain samples. The sample weighting function does:
+
+        * Rescale data to a [-1, 1] range using quantile scaling. 90% of the data will
+          be within this range. Rest is outside.
+        * Calculate the weight by taking the exponent of scaled data.
+          * exponent=0: Results in uniform weights for all samples.
+          * exponent=1: Results in linearly increasing weights for samples that are
+            closer to the extremes.
+          * exponent>1: Results in exponentially increasing weights for samples that are
+            closer to the extremes.
+        * Clip the data to [0, 1] range with weight_floor as the minimum weight.
+          * Weight floor is used to make sure that all the samples are considered.
+
+        """
+        return np.clip(
+            _weight_exp(
+                _scale_percentile(y, percentile=self.weight_scale_percentile),
+                exponent=self.weight_exponent,
+            ),
+            a_min=self.weight_floor,
+            a_max=1,
+        )
 
     def predict(self, x: pd.DataFrame, quantile: float = 0.5, **kwargs) -> np.array:
         """Makes a prediction for a desired quantile.
@@ -211,6 +260,7 @@ class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
 
         # Preprocess input data
         x = self._remove_ignored_features(x)
+        x = self.feature_clipper_.transform(x)
         x = self.imputer_.transform(x)
         x_scaled = self.x_scaler_.transform(x)
 
@@ -245,3 +295,11 @@ class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
 
     def __sklearn_is_fitted__(self) -> bool:
         return self.is_fitted_
+
+
+def _scale_percentile(x: np.ndarray, percentile: int = 95):
+    return np.abs(x / np.percentile(np.abs(x), percentile))
+
+
+def _weight_exp(x: np.ndarray, exponent: float = 1):
+    return np.abs(x) ** exponent

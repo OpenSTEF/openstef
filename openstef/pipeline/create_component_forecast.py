@@ -108,7 +108,7 @@ def create_components_forecast_pipeline(
 
     # Make component forecasts
     try:
-        input_data = create_input(pj, input_data, weather_data)
+        dazls_input_data = create_input(pj, input_data, weather_data)
 
         # Save and load the model as .sav file (or as .z file)
         # For the code contact: korte.termijn.prognoses@alliander.com
@@ -119,13 +119,13 @@ def create_components_forecast_pipeline(
 
         # Use the predict function of Dazls model
         # As input data we use the input_data function which takes into consideration what we want as an input for the forecast and what Dazls can accept as an input
-        forecasts = dazls_model.predict(x=input_data)
+        forecasts = dazls_model.predict(x=dazls_input_data)
 
         # Set the columns for the output forecast dataframe
         forecasts = pd.DataFrame(
             forecasts,
             columns=["forecast_wind_on_shore", "forecast_solar"],
-            index=input_data.index,
+            index=dazls_input_data.index,
         )
 
         # Make post-processed forecasts for solar and wind power
@@ -140,18 +140,25 @@ def create_components_forecast_pipeline(
 
         # Make forecast for the component: "forecast_other"
         forecasts["forecast_other"] = (
-            input_data["total_load"]
+            dazls_input_data["total_load"]
             - forecasts["forecast_solar"]
             - forecasts["forecast_wind_on_shore"]
         )
+
+        # Make sure the forecasts have the same form as the input data. Pad with 0 if necessary
+        forecasts = forecasts.reindex(index=input_data.index, fill_value=0)
     except Exception as e:
-        # In case something goes wrong we fall back on aan empty dataframe
+        # In case something goes wrong we fall back on an a zero-filled dataframe
         logger.warning(
             f"Could not make component forecasts: {e}, falling back on series of"
             " zeros!",
             exc_info=e,
         )
-        forecasts = pd.DataFrame()
+        forecasts = pd.DataFrame(
+            data=0,
+            index=input_data.index,
+            columns=["forecast_wind_on_shore", "forecast_solar", "forecast_other"],
+        )
 
     # Prepare for output
     # Add more prediction properties to the forecast ("pid","customer","description","type","algtype)

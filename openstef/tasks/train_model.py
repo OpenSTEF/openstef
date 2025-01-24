@@ -22,8 +22,10 @@ Example:
 from datetime import datetime, timedelta
 from pathlib import Path
 
+import pandas as pd
+
 from openstef.data_classes.prediction_job import PredictionJobDataClass
-from openstef.enums import MLModelType, PipelineType
+from openstef.enums import ModelType, PipelineType
 from openstef.exceptions import (
     InputDataOngoingZeroFlatlinerError,
     SkipSaveTrainingForecasts,
@@ -114,10 +116,16 @@ def train_model_task(
         return
 
     # Define start and end of the training input data
+    training_period_days_to_fetch = (
+        TRAINING_PERIOD_DAYS
+        if pj.data_balancing_ratio is None
+        else int(pj.data_balancing_ratio * TRAINING_PERIOD_DAYS)
+    )
+
     if datetime_end is None:
         datetime_end = datetime.utcnow()
     if datetime_start is None:
-        datetime_start = datetime_end - timedelta(days=TRAINING_PERIOD_DAYS)
+        datetime_start = datetime_end - timedelta(days=training_period_days_to_fetch)
 
     # Get training input data from database
     input_data = context.database.get_model_input(
@@ -126,6 +134,29 @@ def train_model_task(
         datetime_start=datetime_start,
         datetime_end=datetime_end,
     )
+
+    # If data balancing is enabled, fetch data from 1 year ago and combine it with the
+    # current data
+    if pj.data_balancing_ratio is not None:
+        # Because the data is from the past, we can use the data from the "future"
+        balanced_datetime_start = datetime_end - timedelta(days=365)
+        balanced_datetime_end = balanced_datetime_start + timedelta(
+            days=training_period_days_to_fetch
+        )
+
+        balanced_input_data = context.database.get_model_input(
+            pid=pj["id"],
+            location=[pj["lat"], pj["lon"]],
+            datetime_start=balanced_datetime_start,
+            datetime_end=balanced_datetime_end,
+        )
+
+        input_data = pd.concat(
+            [
+                balanced_input_data,
+                input_data,
+            ]
+        )
 
     context.perf_meter.checkpoint("Retrieved timeseries input")
 
@@ -179,7 +210,7 @@ def main(model_type=None, config=None, database=None):
         )
 
     if model_type is None:
-        model_type = [ml.value for ml in MLModelType]
+        model_type = [ml.value for ml in ModelType]
 
     taskname = Path(__file__).name.replace(".py", "")
     datetime_now = datetime.utcnow()

@@ -33,7 +33,6 @@ OpenSTEF contains:
 * **Machine learning**: is called by pipelines to perform training, forecasting, or evaluation based on the configuration from the prediction job (e.g. train an XGB quantile model).
 * **Model storage**: is called by pipelines to store or fetch trained machine learning model with MLFlow (e.g. store model locally in disk/database/s3_bucket on AWS).
 * **Post processing**: is called by pipelines to post process forecasting (e.g. combine forecast dataframe with extra configuration information from prediction job or split load forecast into solar, wind, and energy usage forecast).
-* **Post processing**: is called by pipelines to post process forecasting (e.g. combine forecast dataframe with extra configuration information from prediction job or split load forecast into solar, wind, and energy usage forecast).
 
 
 Tasks are provided in a separate Python package called `openstef-dbc <https://pypi.org/project/openstef-dbc/>`_. If you need to use tasks, the openstef-dbc package is required in order to interface to databases for reading/writing.
