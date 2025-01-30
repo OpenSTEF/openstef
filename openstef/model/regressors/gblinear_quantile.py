@@ -325,15 +325,6 @@ class GBLinearQuantileOpenstfRegressor(OpenstfRegressor):
     def __sklearn_is_fitted__(self) -> bool:
         return self.is_fitted_
 
-    @property
-    def feature_names(self):
-        return self._Booster.feature_names
-
-    @property
-    def can_predict_quantiles(self):
-        return True
-
-
 def _scale_percentile(x: np.ndarray, percentile: int = 95):
     return np.abs(x / np.percentile(np.abs(x), percentile))
 
