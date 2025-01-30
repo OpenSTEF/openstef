@@ -26,6 +26,8 @@ class TestModelCreator(TestCase):
                 ModelType("arima"),
                 "linear_quantile",
                 ModelType("linear_quantile"),
+                "gblinear_quantile",
+                ModelType("gblinear_quantile"),
                 "xgb_multioutput_quantile",
                 ModelType("xgb_multioutput_quantile"),
                 "flatliner",

@@ -28,6 +28,7 @@ class ObjectiveCreator:
         ModelType.XGB_MULTIOUTPUT_QUANTILE: XGBMultioutputQuantileRegressorObjective,
         ModelType.LINEAR: LinearRegressorObjective,
         ModelType.LINEAR_QUANTILE: LinearRegressorObjective,
+        ModelType.GBLINEAR_QUANTILE: LinearRegressorObjective,
         ModelType.ARIMA: ARIMARegressorObjective,
     }
 
