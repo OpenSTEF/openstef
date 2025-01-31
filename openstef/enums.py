@@ -115,6 +115,7 @@ class ModelType(Enum):
     LGB = "lgb"
     LINEAR = "linear"
     LINEAR_QUANTILE = "linear_quantile"
+    GBLINEAR_QUANTILE = "gblinear_quantile"
     ARIMA = "arima"
     FLATLINER = "flatliner"
 
