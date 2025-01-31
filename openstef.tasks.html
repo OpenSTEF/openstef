@@ -586,7 +586,7 @@ If these are not available run model_train.py to train all models.
 To provide the prognoses the following steps are carried out:</p>
 <blockquote>
 <div><ol class="arabic simple">
-<li><p>Get historic training data (TDCV, Load, Weather and APX price data)</p></li>
+<li><p>Get historic training data (TDCV, Load, Weather and day_ahead_electricity_price price data)</p></li>
 <li><p>Apply features</p></li>
 <li><p>Load model</p></li>
 <li><p>Make component prediction</p></li>
@@ -639,7 +639,7 @@ are not available run model_train.py to train all models.
 To provide the prognoses the folowing steps are carried out:</p>
 <blockquote>
 <div><ol class="arabic simple">
-<li><p>Get historic training data (TDCV, Load, Weather and APX price data)</p></li>
+<li><p>Get historic training data (TDCV, Load, Weather and day_ahead_electricity_price price data)</p></li>
 <li><p>Apply features</p></li>
 <li><p>Load model</p></li>
 <li><p>Make prediction</p></li>
@@ -1038,7 +1038,7 @@ in exactly this order: [load, wind_ref, pv_ref, mulitple tdcv colums]</p></li>
 <p>This module contains the CRON job that is periodically executed to retrain the prognosis models.</p>
 <dl class="simple">
 <dt>For this the folowing steps are caried out:</dt><dd><ol class="arabic simple">
-<li><p>Get historic training data (TDCV, Load, Weather and APX price data)</p></li>
+<li><p>Get historic training data (TDCV, Load, Weather and day_ahead_electricity_price price data)</p></li>
 <li><p>Apply features</p></li>
 <li><p>Train and Test the new model</p></li>
 <li><p>Check if new model performs better than the old model</p></li>
