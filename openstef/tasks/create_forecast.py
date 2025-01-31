@@ -6,7 +6,7 @@
 This code assumes trained models are available from the persistent storage. If these
 are not available run model_train.py to train all models.
 To provide the prognoses the folowing steps are carried out:
-  1. Get historic training data (TDCV, Load, Weather and APX price data)
+  1. Get historic training data (TDCV, Load, Weather and day_ahead_electricity_price price data)
   2. Apply features
   3. Load model
   4. Make prediction
@@ -24,7 +24,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
-from openstef.enums import ModelType, PipelineType
+from openstef.enums import BiddingZone, ModelType, PipelineType
 from openstef.exceptions import InputDataOngoingZeroFlatlinerError
 from openstef.pipeline.create_forecast import create_forecast_pipeline
 from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
@@ -82,7 +82,12 @@ def create_forecast_task(
         location=[pj["lat"], pj["lon"]],
         datetime_start=datetime_start,
         datetime_end=datetime_end,
+        market_price=pj.electricity_bidding_zone.value,
     )
+
+    # Add APX price to the input data for backward compatibility,remove this line when all models are retrained
+    if pj.electricity_bidding_zone == BiddingZone.NL:
+        input_data["APX"] = input_data["day_ahead_electricity_price"]
 
     try:
         # Make forecast with the forecast pipeline

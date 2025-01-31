@@ -6,7 +6,7 @@
 This code assumes trained models are available from the persistent storage.
 If these are not available run model_train.py to train all models.
 To provide the prognoses the following steps are carried out:
-  1. Get historic training data (TDCV, Load, Weather and APX price data)
+  1. Get historic training data (TDCV, Load, Weather and day_ahead_electricity_price price data)
   2. Apply features
   3. Load model
   4. Make component prediction
