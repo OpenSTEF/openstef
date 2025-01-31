@@ -36,6 +36,14 @@ openstef.model.regressors.flatliner module
    :undoc-members:
    :show-inheritance:
 
+openstef.model.regressors.gblinear\_quantile module
+---------------------------------------------------
+
+.. automodule:: openstef.model.regressors.gblinear_quantile
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 openstef.model.regressors.lgbm module
 -------------------------------------
 
