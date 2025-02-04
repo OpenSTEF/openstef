@@ -26,7 +26,6 @@ class PredictionJobDataClass(BaseModel):
         - ``"lgb"``
         - ``"linear"``
         - ``"linear_quantile"``
-        - ``"gblinear_quantile"``
         - ``"xgb_multioutput_quantile"``
         - ``"flatliner"``
 
@@ -83,6 +82,8 @@ class PredictionJobDataClass(BaseModel):
     data_balancing_ratio: Optional[float] = None
     """If data balancing is enabled, the data will be balanced with data from 1 year 
     ago in the future."""
+    use_rolling_aggregate_features: bool = False
+    """If True, rolling aggregate of load will be used as features in the model."""
     depends_on: Optional[list[Union[int, str]]]
     """Link to another prediction job on which this prediction job might depend."""
     sid: Optional[str]
