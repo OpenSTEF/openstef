@@ -22,6 +22,7 @@ from openstef.feature_engineering.lag_features import generate_lag_feature_funct
 from openstef.feature_engineering.bidding_zone_to_country_mapping import (
     BIDDING_ZONE_TO_COUNTRY_CODE_MAPPING,
 )
+from openstef.feature_engineering.rolling_features import add_rolling_aggregate_features
 from openstef.feature_engineering.weather_features import (
     add_additional_solar_features,
     add_additional_wind_features,
@@ -129,6 +130,9 @@ def apply_features(
 
     # Adds daylight terrestrial feature
     data = add_daylight_terrestrial_feature(data)
+
+    if pj.get("rolling_aggregate_features") is not None:
+        data = add_rolling_aggregate_features(data, pj=pj)
 
     # Return dataframe including all requested features
     return data

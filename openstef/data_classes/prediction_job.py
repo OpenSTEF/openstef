@@ -9,7 +9,7 @@ from pydantic.v1 import BaseModel
 from openstef.data_classes.data_prep import DataPrepDataClass
 from openstef.data_classes.model_specifications import ModelSpecificationDataClass
 from openstef.data_classes.split_function import SplitFuncDataClass
-from openstef.enums import PipelineType, BiddingZone
+from openstef.enums import PipelineType, BiddingZone, AggregateFunction
 
 
 class PredictionJobDataClass(BaseModel):
@@ -83,6 +83,8 @@ class PredictionJobDataClass(BaseModel):
     data_balancing_ratio: Optional[float] = None
     """If data balancing is enabled, the data will be balanced with data from 1 year 
     ago in the future."""
+    rolling_aggregate_features: Optional[list[AggregateFunction]] = None
+    """If not None, rolling aggregate(s) of load will be used as features in the model."""
     depends_on: Optional[list[Union[int, str]]]
     """Link to another prediction job on which this prediction job might depend."""
     sid: Optional[str]
