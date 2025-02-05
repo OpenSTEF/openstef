@@ -37,7 +37,7 @@ def add_rolling_aggregate_features(
     rolling_window_load = data["load"].rolling(window=rolling_window)
 
     for aggregate_func in pj["rolling_aggregate_features"]:
-        data[f"rolling_{aggregate_func.value}_load_{rolling_window}"] = (
-            rolling_window_load.aggregate(aggregate_func.value)
-        )
+        data[
+            f"rolling_{aggregate_func.value}_load_{rolling_window}"
+        ] = rolling_window_load.aggregate(aggregate_func.value)
     return data
