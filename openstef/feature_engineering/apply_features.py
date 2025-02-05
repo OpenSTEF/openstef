@@ -131,8 +131,8 @@ def apply_features(
     # Adds daylight terrestrial feature
     data = add_daylight_terrestrial_feature(data)
 
-    if pj.get("use_rolling_aggregate_features", False):
-        data = add_rolling_aggregate_features(data)
+    if pj.get("rolling_aggregate_features") is not None:
+        data = add_rolling_aggregate_features(data, pj=pj)
 
     # Return dataframe including all requested features
     return data

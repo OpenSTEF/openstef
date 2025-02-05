@@ -5,7 +5,7 @@
 import unittest
 from unittest.mock import MagicMock
 
-from openstef.enums import BiddingZone
+from openstef.enums import BiddingZone, AggregateFunction
 from test.unit.utils.base import BaseTestCase
 from test.unit.utils.data import TestData
 
@@ -303,7 +303,11 @@ class TestApplyFeaturesModule(BaseTestCase):
 
     def test_add_rolling_aggregate_features(self):
         pj = {
-            "use_rolling_aggregate_features": True,
+            "rolling_aggregate_features": [
+                AggregateFunction.MEAN,
+                AggregateFunction.MAX,
+                AggregateFunction.MIN,
+            ],
             "electricity_bidding_zone": BiddingZone.NL,
         }
 
@@ -319,9 +323,36 @@ class TestApplyFeaturesModule(BaseTestCase):
             pj=pj,
         )
 
-        self.assertIn("rolling_median_load_24h", input_data_with_features.columns)
-        self.assertIn("rolling_max_load_24h", input_data_with_features.columns)
-        self.assertIn("rolling_min_load_24h", input_data_with_features.columns)
+        self.assertIn(
+            "rolling_mean_load_1 day, 0:00:00", input_data_with_features.columns
+        )
+        self.assertIn(
+            "rolling_max_load_1 day, 0:00:00", input_data_with_features.columns
+        )
+        self.assertIn(
+            "rolling_min_load_1 day, 0:00:00", input_data_with_features.columns
+        )
+
+    def test_add_rolling_aggregate_features_when_none(self):
+        pj = {
+            "rolling_aggregate_features": None,
+            "electricity_bidding_zone": BiddingZone.NL,
+        }
+
+        input_data = pd.DataFrame(
+            index=pd.date_range(
+                start="2023-01-01 00:00:00", freq="15min", periods=100, tz="UTC"
+            )
+        )
+        input_data["load"] = list(range(100))
+
+        input_data_with_features = apply_features.apply_features(
+            data=input_data,
+            pj=pj,
+        )
+        self.assertTrue(
+            all(["rolling" not in x for x in input_data_with_features.columns])
+        )
 
 
 if __name__ == "__main__":

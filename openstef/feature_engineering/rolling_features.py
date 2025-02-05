@@ -1,12 +1,17 @@
 # SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+from datetime import timedelta
 
 import pandas as pd
 
+from openstef.data_classes.prediction_job import PredictionJobDataClass
+
 
 def add_rolling_aggregate_features(
-    data: pd.DataFrame, rolling_window: str = "24h"
+    data: pd.DataFrame,
+    pj: PredictionJobDataClass,
+    rolling_window: timedelta = timedelta(hours=24),
 ) -> pd.DataFrame:
     """
     Adds rolling aggregate features to the input dataframe.
@@ -17,8 +22,8 @@ def add_rolling_aggregate_features(
 
     Args:
         data: Input dataframe to which the rolling features will be added.
-        rolling_window: Rolling window size in str format following
-            https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offset-aliases
+        pj: Prediction job data.
+        rolling_window: Rolling window size for the aggregation.
 
     Returns:
         DataFrame with added rolling features.
@@ -30,7 +35,9 @@ def add_rolling_aggregate_features(
     if "load" not in data.columns:
         raise ValueError("The DataFrame must contain a 'load' column.")
     rolling_window_load = data["load"].rolling(window=rolling_window)
-    data[f"rolling_median_load_{rolling_window}"] = rolling_window_load.median()
-    data[f"rolling_max_load_{rolling_window}"] = rolling_window_load.max()
-    data[f"rolling_min_load_{rolling_window}"] = rolling_window_load.min()
+
+    for aggregate_func in pj["rolling_aggregate_features"]:
+        data[f"rolling_{aggregate_func.value}_load_{rolling_window}"] = (
+            rolling_window_load.aggregate(aggregate_func.value)
+        )
     return data

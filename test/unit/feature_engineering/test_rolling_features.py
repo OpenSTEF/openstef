@@ -1,15 +1,17 @@
 # SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+from datetime import timedelta
 
 import numpy as np
 import pandas as pd
 import pytest
 
+from openstef.enums import AggregateFunction
 from openstef.feature_engineering.rolling_features import add_rolling_aggregate_features
 
 
-@pytest.mark.parametrize("rolling_window", ["1h", "24h"])
+@pytest.mark.parametrize("rolling_window", [timedelta(days=1), timedelta(hours=24)])
 def test_add_rolling_aggregate_features(rolling_window):
     # Generate 2 days of data at 15-minute intervals
     num_points = int(24 * 60 / 15 * 2)
@@ -20,8 +22,18 @@ def test_add_rolling_aggregate_features(rolling_window):
     )
     data["load"] = list(range(num_points))
 
+    pj = {
+        "rolling_aggregate_features": [
+            AggregateFunction.MEDIAN,
+            AggregateFunction.MAX,
+            AggregateFunction.MIN,
+        ]
+    }
+
     # Apply the function
-    output_data = add_rolling_aggregate_features(data, rolling_window=rolling_window)
+    output_data = add_rolling_aggregate_features(
+        data, pj=pj, rolling_window=rolling_window
+    )
 
     # Verify the columns are created
     assert f"rolling_median_load_{rolling_window}" in output_data.columns
@@ -55,20 +67,27 @@ def test_add_rolling_aggregate_features_flatline():
     )
     all_ones = [1.0] * num_points
     data["load"] = all_ones
+    pj = {
+        "rolling_aggregate_features": [
+            AggregateFunction.MEDIAN,
+            AggregateFunction.MAX,
+            AggregateFunction.MIN,
+        ]
+    }
 
     # Apply the function
-    output_data = add_rolling_aggregate_features(data)
+    output_data = add_rolling_aggregate_features(data, pj=pj)
 
     # Verify the columns are created
-    assert "rolling_median_load_24h" in output_data.columns
-    assert "rolling_max_load_24h" in output_data.columns
-    assert "rolling_min_load_24h" in output_data.columns
+    rolling_window = timedelta(hours=24)
+    assert "rolling_median_load_1 day, 0:00:00" in output_data.columns
+    assert "rolling_max_load_1 day, 0:00:00" in output_data.columns
+    assert "rolling_min_load_1 day, 0:00:00" in output_data.columns
 
     # Validate the rolling features
-    rolling_window = "24h"
-    assert np.all(output_data[f"rolling_median_load_{rolling_window}"] == all_ones)
-    assert np.all(output_data[f"rolling_max_load_{rolling_window}"] == all_ones)
-    assert np.all(output_data[f"rolling_min_load_{rolling_window}"] == all_ones)
+    assert np.all(output_data[f"rolling_median_load_1 day, 0:00:00"] == all_ones)
+    assert np.all(output_data[f"rolling_max_load_1 day, 0:00:00"] == all_ones)
+    assert np.all(output_data[f"rolling_min_load_1 day, 0:00:00"] == all_ones)
 
 
 def test_add_rolling_aggregate_features_nans():
@@ -83,20 +102,34 @@ def test_add_rolling_aggregate_features_nans():
     # Add NaNs to the data
     data["load"] = [1, 2, np.nan, 4, 5, 6, 7, 8]
 
+    pj = {
+        "rolling_aggregate_features": [
+            AggregateFunction.MEDIAN,
+            AggregateFunction.MAX,
+            AggregateFunction.MIN,
+        ]
+    }
+
     # Apply the function
-    output_data = add_rolling_aggregate_features(data, rolling_window="1h")
+    output_data = add_rolling_aggregate_features(
+        data, pj=pj, rolling_window=timedelta(hours=1)
+    )
 
     # Verify the columns are created
-    assert "rolling_median_load_1h" in output_data.columns
-    assert "rolling_max_load_1h" in output_data.columns
-    assert "rolling_min_load_1h" in output_data.columns
+    assert "rolling_median_load_1:00:00" in output_data.columns
+    assert "rolling_max_load_1:00:00" in output_data.columns
+    assert "rolling_min_load_1:00:00" in output_data.columns
 
     # Validate the rolling features
     assert np.allclose(
-        output_data["rolling_median_load_1h"], [1, 1.5, 1.5, 2, 4, 5, 5.5, 6.5]
+        output_data["rolling_median_load_1:00:00"], [1, 1.5, 1.5, 2, 4, 5, 5.5, 6.5]
     )
-    assert np.allclose(output_data["rolling_max_load_1h"], [1, 2, 2, 4, 5, 6, 7, 8])
-    assert np.allclose(output_data["rolling_min_load_1h"], [1, 1, 1, 1, 2, 4, 4, 5])
+    assert np.allclose(
+        output_data["rolling_max_load_1:00:00"], [1, 2, 2, 4, 5, 6, 7, 8]
+    )
+    assert np.allclose(
+        output_data["rolling_min_load_1:00:00"], [1, 1, 1, 1, 2, 4, 4, 5]
+    )
 
 
 def test_add_rolling_aggregate_features_non_datetime_index():
@@ -106,7 +139,7 @@ def test_add_rolling_aggregate_features_non_datetime_index():
     with pytest.raises(
         ValueError, match="The DataFrame index must be a DatetimeIndex."
     ):
-        add_rolling_aggregate_features(data)
+        add_rolling_aggregate_features(data, pj={})
 
 
 def test_add_rolling_aggregate_features_no_load_column():
@@ -117,4 +150,4 @@ def test_add_rolling_aggregate_features_no_load_column():
     )
 
     with pytest.raises(ValueError, match="The DataFrame must contain a 'load' column."):
-        add_rolling_aggregate_features(data)
+        add_rolling_aggregate_features(data, pj={})
