@@ -5,7 +5,6 @@
 import unittest
 from unittest.mock import MagicMock
 
-from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.enums import BiddingZone
 from test.unit.utils.base import BaseTestCase
 from test.unit.utils.data import TestData
