@@ -84,6 +84,14 @@ openstef.feature\_engineering.missing\_values\_transformer module
    :undoc-members:
    :show-inheritance:
 
+openstef.feature\_engineering.rolling\_features module
+------------------------------------------------------
+
+.. automodule:: openstef.feature_engineering.rolling_features
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 openstef.feature\_engineering.weather\_features module
 ------------------------------------------------------
 

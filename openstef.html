@@ -457,6 +457,7 @@
 <li class="toctree-l4"><a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass.pipelines_to_run"><code class="docutils literal notranslate"><span class="pre">PredictionJobDataClass.pipelines_to_run</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass.quantiles"><code class="docutils literal notranslate"><span class="pre">PredictionJobDataClass.quantiles</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass.resolution_minutes"><code class="docutils literal notranslate"><span class="pre">PredictionJobDataClass.resolution_minutes</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass.rolling_aggregate_features"><code class="docutils literal notranslate"><span class="pre">PredictionJobDataClass.rolling_aggregate_features</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass.save_train_forecasts"><code class="docutils literal notranslate"><span class="pre">PredictionJobDataClass.save_train_forecasts</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass.sid"><code class="docutils literal notranslate"><span class="pre">PredictionJobDataClass.sid</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass.train_components"><code class="docutils literal notranslate"><span class="pre">PredictionJobDataClass.train_components</span></code></a></li>
@@ -575,6 +576,10 @@
 <li class="toctree-l4"><a class="reference internal" href="openstef.feature_engineering.html#openstef.feature_engineering.missing_values_transformer.MissingValuesTransformer.transform"><code class="docutils literal notranslate"><span class="pre">MissingValuesTransformer.transform()</span></code></a></li>
 </ul>
 </li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="openstef.feature_engineering.html#module-openstef.feature_engineering.rolling_features">openstef.feature_engineering.rolling_features module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="openstef.feature_engineering.html#openstef.feature_engineering.rolling_features.add_rolling_aggregate_features"><code class="docutils literal notranslate"><span class="pre">add_rolling_aggregate_features()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="openstef.feature_engineering.html#module-openstef.feature_engineering.weather_features">openstef.feature_engineering.weather_features module</a><ul>
@@ -989,6 +994,32 @@
 </section>
 <section id="module-openstef.enums">
 <span id="openstef-enums-module"></span><h2>openstef.enums module<a class="headerlink" href="#module-openstef.enums" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="openstef.enums.AggregateFunction">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef.enums.</span></span><span class="sig-name descname"><span class="pre">AggregateFunction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.enums.AggregateFunction" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.AggregateFunction.MAX">
+<span class="sig-name descname"><span class="pre">MAX</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'max'</span></em><a class="headerlink" href="#openstef.enums.AggregateFunction.MAX" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.AggregateFunction.MEAN">
+<span class="sig-name descname"><span class="pre">MEAN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'mean'</span></em><a class="headerlink" href="#openstef.enums.AggregateFunction.MEAN" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.AggregateFunction.MEDIAN">
+<span class="sig-name descname"><span class="pre">MEDIAN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'median'</span></em><a class="headerlink" href="#openstef.enums.AggregateFunction.MEDIAN" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.AggregateFunction.MIN">
+<span class="sig-name descname"><span class="pre">MIN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'min'</span></em><a class="headerlink" href="#openstef.enums.AggregateFunction.MIN" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="openstef.enums.BiddingZone">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef.enums.</span></span><span class="sig-name descname"><span class="pre">BiddingZone</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.enums.BiddingZone" title="Link to this definition">¶</a></dt>
@@ -1786,6 +1817,53 @@
    openstef.enums module
   </a>
   <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#openstef.enums.AggregateFunction">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       AggregateFunction
+      </span>
+     </code>
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.AggregateFunction.MAX">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         AggregateFunction.MAX
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.AggregateFunction.MEAN">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         AggregateFunction.MEAN
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.AggregateFunction.MEDIAN">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         AggregateFunction.MEDIAN
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.AggregateFunction.MIN">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         AggregateFunction.MIN
+        </span>
+       </code>
+      </a>
+     </li>
+    </ul>
+   </li>
    <li class="toc-h3 nav-item toc-entry">
     <a class="reference internal nav-link" href="#openstef.enums.BiddingZone">
      <code class="docutils literal notranslate">

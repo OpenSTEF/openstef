@@ -687,6 +687,12 @@ ago in the future.</p>
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.data_classes.prediction_job.PredictionJobDataClass.rolling_aggregate_features">
+<span class="sig-name descname"><span class="pre">rolling_aggregate_features</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="openstef.html#openstef.enums.AggregateFunction" title="openstef.enums.AggregateFunction"><span class="pre">AggregateFunction</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.rolling_aggregate_features" title="Link to this definition">¶</a></dt>
+<dd><p>If not None, rolling aggregate(s) of load will be used as features in the model.</p>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="openstef.data_classes.prediction_job.PredictionJobDataClass.save_train_forecasts">
 <span class="sig-name descname"><span class="pre">save_train_forecasts</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.save_train_forecasts" title="Link to this definition">¶</a></dt>
 <dd><p>Indicate wether the forecasts produced during the training process should be saved.</p>
@@ -1171,6 +1177,15 @@ otherwise just return them from the instance attributes.</p>
        <code class="docutils literal notranslate">
         <span class="pre">
          PredictionJobDataClass.resolution_minutes
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.data_classes.prediction_job.PredictionJobDataClass.rolling_aggregate_features">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         PredictionJobDataClass.rolling_aggregate_features
         </span>
        </code>
       </a>

@@ -428,6 +428,8 @@
 </li>
       <li><a href="openstef.postprocessing.html#openstef.postprocessing.postprocessing.add_prediction_job_properties_to_forecast">add_prediction_job_properties_to_forecast() (in module openstef.postprocessing.postprocessing)</a>
 </li>
+      <li><a href="openstef.feature_engineering.html#openstef.feature_engineering.rolling_features.add_rolling_aggregate_features">add_rolling_aggregate_features() (in module openstef.feature_engineering.rolling_features)</a>
+</li>
       <li><a href="openstef.feature_engineering.html#openstef.feature_engineering.cyclic_features.add_seasonal_cyclic_features">add_seasonal_cyclic_features() (in module openstef.feature_engineering.cyclic_features)</a>
 </li>
       <li><a href="openstef.feature_engineering.html#openstef.feature_engineering.cyclic_features.add_time_cyclic_features">add_time_cyclic_features() (in module openstef.feature_engineering.cyclic_features)</a>
@@ -438,6 +440,8 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="openstef.html#openstef.enums.AggregateFunction">AggregateFunction (class in openstef.enums)</a>
+</li>
       <li><a href="openstef.html#openstef.enums.BiddingZone.AL">AL (openstef.enums.BiddingZone attribute)</a>
 </li>
       <li><a href="openstef.model.regressors.html#openstef.model.regressors.linear_quantile.LinearQuantileOpenstfRegressor.alpha">alpha (openstef.model.regressors.linear_quantile.LinearQuantileOpenstfRegressor attribute)</a>
@@ -1142,9 +1146,17 @@
 </li>
       <li><a href="openstef.tasks.utils.html#openstef.tasks.utils.predictionjobloop.PredictionJobLoop.map">map() (openstef.tasks.utils.predictionjobloop.PredictionJobLoop method)</a>
 </li>
+      <li><a href="openstef.html#openstef.enums.AggregateFunction.MAX">MAX (openstef.enums.AggregateFunction attribute)</a>
+</li>
       <li><a href="openstef.html#openstef.enums.BiddingZone.MD">MD (openstef.enums.BiddingZone attribute)</a>
 </li>
       <li><a href="openstef.html#openstef.enums.BiddingZone.ME">ME (openstef.enums.BiddingZone attribute)</a>
+</li>
+      <li><a href="openstef.html#openstef.enums.AggregateFunction.MEAN">MEAN (openstef.enums.AggregateFunction attribute)</a>
+</li>
+      <li><a href="openstef.html#openstef.enums.AggregateFunction.MEDIAN">MEDIAN (openstef.enums.AggregateFunction attribute)</a>
+</li>
+      <li><a href="openstef.html#openstef.enums.AggregateFunction.MIN">MIN (openstef.enums.AggregateFunction attribute)</a>
 </li>
       <li><a href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass.minimal_table_length">minimal_table_length (openstef.data_classes.prediction_job.PredictionJobDataClass attribute)</a>
 </li>
@@ -1219,6 +1231,8 @@
         <li><a href="openstef.feature_engineering.html#module-openstef.feature_engineering.lag_features">openstef.feature_engineering.lag_features</a>
 </li>
         <li><a href="openstef.feature_engineering.html#module-openstef.feature_engineering.missing_values_transformer">openstef.feature_engineering.missing_values_transformer</a>
+</li>
+        <li><a href="openstef.feature_engineering.html#module-openstef.feature_engineering.rolling_features">openstef.feature_engineering.rolling_features</a>
 </li>
         <li><a href="openstef.feature_engineering.html#module-openstef.feature_engineering.weather_features">openstef.feature_engineering.weather_features</a>
 </li>
@@ -1559,6 +1573,13 @@
 
       <ul>
         <li><a href="openstef.feature_engineering.html#module-openstef.feature_engineering.missing_values_transformer">module</a>
+</li>
+      </ul></li>
+      <li>
+    openstef.feature_engineering.rolling_features
+
+      <ul>
+        <li><a href="openstef.feature_engineering.html#module-openstef.feature_engineering.rolling_features">module</a>
 </li>
       </ul></li>
       <li>
@@ -2160,10 +2181,10 @@
 </li>
       <li><a href="openstef.model.html#openstef.model.serializer.MLflowSerializer.remove_old_models">remove_old_models() (openstef.model.serializer.MLflowSerializer method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="openstef.preprocessing.html#openstef.preprocessing.preprocessing.replace_repeated_values_with_nan">replace_repeated_values_with_nan() (in module openstef.preprocessing.preprocessing)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="openstef.model.regressors.html#openstef.model.regressors.xgb_multioutput_quantile.replicate_for_multioutput">replicate_for_multioutput() (in module openstef.model.regressors.xgb_multioutput_quantile)</a>
 </li>
       <li><a href="openstef.metrics.html#openstef.metrics.reporter.Report">Report (class in openstef.metrics.reporter)</a>
@@ -2177,6 +2198,8 @@
       <li><a href="openstef.metrics.html#openstef.metrics.metrics.rmse">rmse() (in module openstef.metrics.metrics)</a>
 </li>
       <li><a href="openstef.html#openstef.enums.BiddingZone.RO">RO (openstef.enums.BiddingZone attribute)</a>
+</li>
+      <li><a href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass.rolling_aggregate_features">rolling_aggregate_features (openstef.data_classes.prediction_job.PredictionJobDataClass attribute)</a>
 </li>
       <li><a href="openstef.html#openstef.enums.BiddingZone.RS">RS (openstef.enums.BiddingZone attribute)</a>
 </li>
