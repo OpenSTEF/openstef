@@ -302,10 +302,10 @@ class TestApplyFeaturesModule(BaseTestCase):
         self.assertAlmostEqual(power_output, expected_power_output)
 
     def test_add_rolling_aggregate_features(self):
-        pj = MagicMock(
-            use_rolling_aggregate_features=True,
-        )
-        pj.get.return_value = BiddingZone.NL
+        pj = {
+            "use_rolling_aggregate_features": True,
+            "electricity_bidding_zone": BiddingZone.NL,
+        }
 
         input_data = pd.DataFrame(
             index=pd.date_range(
