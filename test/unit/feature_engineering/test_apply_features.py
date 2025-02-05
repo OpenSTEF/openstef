@@ -3,6 +3,9 @@
 # SPDX-License-Identifier: MPL-2.0
 
 import unittest
+from unittest.mock import MagicMock
+
+from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.enums import BiddingZone
 from test.unit.utils.base import BaseTestCase
 from test.unit.utils.data import TestData
@@ -298,6 +301,28 @@ class TestApplyFeaturesModule(BaseTestCase):
         )
         expected_power_output = 0.8698915256370021
         self.assertAlmostEqual(power_output, expected_power_output)
+
+    def test_add_rolling_aggregate_features(self):
+        pj = MagicMock(
+            use_rolling_aggregate_features=True,
+        )
+        pj.get.return_value = BiddingZone.NL
+
+        input_data = pd.DataFrame(
+            index=pd.date_range(
+                start="2023-01-01 00:00:00", freq="15min", periods=100, tz="UTC"
+            )
+        )
+        input_data["load"] = list(range(100))
+
+        input_data_with_features = apply_features.apply_features(
+            data=input_data,
+            pj=pj,
+        )
+
+        self.assertIn("rolling_median_load_24h", input_data_with_features.columns)
+        self.assertIn("rolling_max_load_24h", input_data_with_features.columns)
+        self.assertIn("rolling_min_load_24h", input_data_with_features.columns)
 
 
 if __name__ == "__main__":
