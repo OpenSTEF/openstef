@@ -79,7 +79,6 @@ def test_add_rolling_aggregate_features_flatline():
     output_data = add_rolling_aggregate_features(data, pj=pj)
 
     # Verify the columns are created
-    rolling_window = timedelta(hours=24)
     assert "rolling_median_load_1 day, 0:00:00" in output_data.columns
     assert "rolling_max_load_1 day, 0:00:00" in output_data.columns
     assert "rolling_min_load_1 day, 0:00:00" in output_data.columns
