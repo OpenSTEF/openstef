@@ -32,7 +32,7 @@ class TestLinearOpenstfRegressor(BaseTestCase):
         self.assertIsNone(sklearn.utils.validation.check_is_fitted(model))
 
         # check if model is sklearn compatible
-        self.assertTrue(isinstance(model, sklearn.base.BaseEstimator))
+        self.assertIsInstance(model, sklearn.base.BaseEstimator)
 
     def test_non_null_columns_retrieval(self):
         n_sample = self.train_input.shape[0]

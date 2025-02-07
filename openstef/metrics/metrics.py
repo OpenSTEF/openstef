@@ -9,7 +9,7 @@
 #
 # SPDX-License-Identifier: MIT
 """This module contains all metrics to assess forecast quality."""
-from typing import Callable
+from typing import Callable, Optional, Tuple
 
 import numpy as np
 import pandas as pd
@@ -299,12 +299,15 @@ def skill_score_positive_peaks(
 
 
 def franks_skill_score(
-    realised: pd.Series, forecast: pd.Series, basecase: pd.Series, range_: float = 1.0
+    realised: pd.Series,
+    forecast: pd.Series,
+    basecase: pd.Series,
+    range_: Optional[float] = None,
 ) -> float:
     """Calculate Franks skill score."""
     # Combine series in one DataFrame
     combined = pd.concat([realised, forecast], axis=1)
-    if range_ == 1.0:
+    if not range_:
         range_ = (
             combined[realised.name].max() - combined[realised.name].min()
             if (combined[realised.name].max() - combined[realised.name].min()) != 0
@@ -360,7 +363,7 @@ def franks_skill_score_peaks(
 
 def xgb_quantile_eval(
     preds: np.ndarray, dmatrix: xgboost.DMatrix, quantile: float = 0.2
-) -> str:
+) -> Tuple:
     """Customized evaluational metric that equals to quantile regression loss (also known as pinball loss).
 
     Quantile regression is regression that estimates a specified quantile of target's distribution conditional on given features.

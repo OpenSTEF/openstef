@@ -137,7 +137,7 @@ class ConfidenceIntervalApplicator:
             # Determine now, rounded on 15 minutes,
             # Rounding helps to prevent fractional t_aheads
             now = (
-                pd.Series(datetime.utcnow().replace(tzinfo=forecast_copy.index.tzinfo))
+                pd.Series(datetime.now(tz=forecast_copy.index.tzinfo))
                 .min()
                 .round(f"{minimal_resolution}T")
                 .to_pydatetime()

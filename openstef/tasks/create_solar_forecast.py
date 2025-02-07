@@ -12,7 +12,7 @@ Example:
         $ python create_solar_forecast
 
 """
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from pathlib import Path
 
 import numpy as np
@@ -23,7 +23,6 @@ from openstef import PROJECT_ROOT
 from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstef.tasks.utils.taskcontext import TaskContext
 
-# TODO move to config
 PV_COEFS_FILEPATH = PROJECT_ROOT / "openstef" / "data" / "pv_single_coefs.csv"
 
 
@@ -231,7 +230,7 @@ def main(config=None, database=None, **kwargs):
         num_prediction_jobs = len(prediction_jobs)
 
         # only make customer = Provincie once an hour
-        utc_now_minute = datetime.utcnow().minute
+        utc_now_minute = datetime.now(tz=UTC)().minute
         if utc_now_minute >= 15:
             prediction_jobs = [
                 pj for pj in prediction_jobs if str(pj["name"]).startswith("Provincie")

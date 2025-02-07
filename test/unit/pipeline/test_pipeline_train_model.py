@@ -5,7 +5,7 @@ import copy
 import glob
 import os
 import unittest
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from test.unit.utils.base import BaseTestCase
 from test.unit.utils.data import TestData
 from unittest.mock import MagicMock, patch
@@ -48,8 +48,8 @@ class DummyRegressor(CustomOpenstfRegressor):
     def valid_kwargs():
         return []
 
-    @property
-    def objective(self):
+    @staticmethod
+    def objective():
         return DummyObjective
 
     @property
@@ -89,8 +89,8 @@ class TestTrainModelPipeline(BaseTestCase):
         self.pj, self.model_specs = TestData.get_prediction_job_and_modelspecs(pid=307)
         # Set n_estimators to a small number to speed up training
         self.model_specs.hyper_params["n_estimators"] = 3
-        datetime_start = datetime.utcnow() - timedelta(days=90)
-        datetime_end = datetime.utcnow()
+        datetime_start = datetime.now(tz=UTC) - timedelta(days=90)
+        datetime_end = datetime.now(tz=UTC)
         self.data_table = TestData.load("input_data_train.csv").head(8641)
         self.data = pd.DataFrame(
             index=pd.date_range(datetime_start, datetime_end, freq="15T")
@@ -167,10 +167,10 @@ class TestTrainModelPipeline(BaseTestCase):
                 self.assertIsNotNone(model.feature_names)
 
                 # check if model is sklearn compatible
-                self.assertTrue(isinstance(model, sklearn.base.BaseEstimator))
+                self.assertIsInstance(model, sklearn.base.BaseEstimator)
 
                 # check if report is a Report
-                self.assertTrue(isinstance(report, Report))
+                self.assertIsInstance(report, Report)
 
                 # Validate and clean data
                 validated_data = validation.drop_target_na(
@@ -237,10 +237,10 @@ class TestTrainModelPipeline(BaseTestCase):
                 self.assertIsNotNone(model.feature_names)
 
                 # check if model is sklearn compatible
-                self.assertTrue(isinstance(model, sklearn.base.BaseEstimator))
+                self.assertIsInstance(model, sklearn.base.BaseEstimator)
 
                 # check if report is a Report
-                self.assertTrue(isinstance(report, Report))
+                self.assertIsInstance(report, Report)
 
                 # Validate and clean data
                 validated_data = validation.drop_target_na(
@@ -280,7 +280,7 @@ class TestTrainModelPipeline(BaseTestCase):
         pj.default_modelspecs = model_specs
 
         train_input = self.train_input.iloc[::50, :]
-        model, report, modelspecs, _ = train_model_pipeline_core(
+        model, report, _, _ = train_model_pipeline_core(
             pj=pj, model_specs=model_specs, input_data=train_input
         )
 
@@ -289,13 +289,13 @@ class TestTrainModelPipeline(BaseTestCase):
 
         # check if the model has a feature_names property
         self.assertIsNotNone(model.feature_names)
-        self.assertTrue(dummy_feature in model.feature_names)
+        self.assertIn(dummy_feature, model.feature_names)
 
         # check if model is sklearn compatible
-        self.assertTrue(isinstance(model, sklearn.base.BaseEstimator))
+        self.assertIsInstance(model, sklearn.base.BaseEstimator)
 
         # check if report is a Report
-        self.assertTrue(isinstance(report, Report))
+        self.assertIsInstance(report, Report)
 
     @patch("openstef.pipeline.train_model.MLflowSerializer")
     def test_train_model_pipeline_with_default_modelspecs(self, mock_serializer):

@@ -21,7 +21,7 @@ Example:
 import logging
 
 # Import builtins
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from pathlib import Path
 
 import numpy as np
@@ -56,8 +56,8 @@ def main(model_type: ModelType = None, config=None, database=None) -> None:
 
     with TaskContext(taskname, config, database) as context:
         # Set start and end time
-        start_time = datetime.utcnow() - timedelta(days=1)
-        end_time = datetime.utcnow()
+        end_time = datetime.now(tz=UTC)
+        start_time = end_time - timedelta(days=1)
 
         PredictionJobLoop(context, model_type=model_type).map(
             check_kpi_task,
@@ -77,9 +77,9 @@ def check_kpi_task(
 ) -> None:
     # Apply default parameters if none are provided
     if start_time is None:
-        start_time = datetime.utcnow() - timedelta(days=1)
+        start_time = datetime.now(tz=UTC) - timedelta(days=1)
     if end_time is None:
-        end_time = datetime.utcnow()
+        end_time = datetime.now(tz=UTC)
 
     # Get realised load data
     realised = context.database.get_load_pid(pj["id"], start_time, end_time, "15T")

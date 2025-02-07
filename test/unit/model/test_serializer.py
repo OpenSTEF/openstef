@@ -4,7 +4,7 @@
 
 import glob
 import tempfile
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from distutils.dir_util import copy_tree
 from pathlib import Path
 from test.unit.utils.base import BaseTestCase
@@ -71,8 +71,8 @@ class TestMLflowSerializer(BaseTestCase):
                 "run_id": [1, 2],
                 "artifact_uri": ["path1", "path2"],
                 "end_time": [
-                    datetime.utcnow() - timedelta(days=2),
-                    datetime.utcnow() - timedelta(days=3),
+                    datetime.now(tz=UTC) - timedelta(days=2),
+                    datetime.now(tz=UTC) - timedelta(days=3),
                 ],
             }
         )
@@ -97,8 +97,8 @@ class TestMLflowSerializer(BaseTestCase):
                 # give wrong feature_name type, something else than a str of a list or dict
                 "tags.feature_names": [1, 2],
                 "end_time": [
-                    datetime.utcnow() - timedelta(days=2),
-                    datetime.utcnow() - timedelta(days=3),
+                    datetime.now(tz=UTC) - timedelta(days=2),
+                    datetime.now(tz=UTC) - timedelta(days=3),
                 ],
             }
         )
@@ -123,8 +123,8 @@ class TestMLflowSerializer(BaseTestCase):
                 # give wrong feature_name type, something else than a str of a list or dict
                 "tags.feature_names": ["feature1", "feature1"],
                 "end_time": [
-                    datetime.utcnow() - timedelta(days=2),
-                    datetime.utcnow() - timedelta(days=3),
+                    datetime.now(tz=UTC) - timedelta(days=2),
+                    datetime.now(tz=UTC) - timedelta(days=3),
                 ],
             }
         )
@@ -150,8 +150,8 @@ class TestMLflowSerializer(BaseTestCase):
                 # give wrong feature_module type, something else than a str of a list or dict
                 "tags.feature_modules": [1, 2],
                 "end_time": [
-                    datetime.utcnow() - timedelta(days=2),
-                    datetime.utcnow() - timedelta(days=3),
+                    datetime.now(tz=UTC) - timedelta(days=2),
+                    datetime.now(tz=UTC) - timedelta(days=3),
                 ],
             }
         )
@@ -176,8 +176,8 @@ class TestMLflowSerializer(BaseTestCase):
                 # give wrong feature_module type, something else than a str of a list or dict
                 "tags.feature_modules": ["feature_module1", "feature_module1"],
                 "end_time": [
-                    datetime.utcnow() - timedelta(days=2),
-                    datetime.utcnow() - timedelta(days=3),
+                    datetime.now(tz=UTC) - timedelta(days=2),
+                    datetime.now(tz=UTC) - timedelta(days=3),
                 ],
             }
         )
@@ -239,7 +239,7 @@ class TestMLflowSerializer(BaseTestCase):
             data={
                 "run_id": [1],
                 "artifact_uri": ["path1"],
-                "end_time": [datetime.utcnow() - timedelta(days=2)],
+                "end_time": [datetime.now(tz=UTC) - timedelta(days=2)],
             }
         )
         mock_find_models.return_value = models_df
@@ -256,7 +256,10 @@ class TestMLflowSerializer(BaseTestCase):
             data={
                 "run_id": [1, 2],
                 "artifact_uri": ["path1", "path2"],
-                "end_time": [datetime.utcnow() - timedelta(days=8), datetime.utcnow()],
+                "end_time": [
+                    datetime.now(tz=UTC) - timedelta(days=8),
+                    datetime.now(tz=UTC),
+                ],
             }
         )
         mock_find_models.return_value = models_df
