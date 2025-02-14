@@ -39,8 +39,7 @@ from openstef.pipeline.train_model import (
 from openstef.validation import validation
 
 
-class DummyObjective(RegressorObjective):
-    ...
+class DummyObjective(RegressorObjective): ...
 
 
 class DummyRegressor(CustomOpenstfRegressor):
@@ -117,7 +116,7 @@ class TestTrainModelPipeline(BaseTestCase):
             artifact_folder="./test/unit/trained_models",
         )
 
-    def test_train_model_pipeline_core_happy_flow(self):
+    def _train_model_pipeline_core_happy_flow(self, data_prep_class):
         """Test happy flow of the train model pipeline
 
         NOTE this does not explain WHY this is the case?
@@ -139,22 +138,24 @@ class TestTrainModelPipeline(BaseTestCase):
                 train_input = self.train_input.iloc[:150, :]
 
                 # Use default parameters
-                model_specs.hyper_params = {}
-                model_specs.hyper_params["max_epochs"] = 1
+                model_specs.hyper_params = {"max_epochs": 1}
 
                 # For Linear model we need to choose an imputation strategy to handle missing value
                 if model_type == ModelType.LINEAR:
                     model_specs.hyper_params["imputation_strategy"] = "mean"
 
                 if model_type == ModelType.ARIMA:
-                    pj.data_prep_class = DataPrepDataClass(
-                        klass=ARDataPreparation,
-                        arguments={},
-                    )
-                    pj.train_split_func = SplitFuncDataClass(
-                        function=split_dummy_arima,
-                        arguments={},
-                    )
+                    if data_prep_class == LegacyDataPreparation:
+                        continue
+                    else:
+                        pj.data_prep_class = DataPrepDataClass(
+                            klass=data_prep_class,
+                            arguments={},
+                        )
+                        pj.train_split_func = SplitFuncDataClass(
+                            function=split_dummy_arima,
+                            arguments={},
+                        )
 
                 model, report, modelspecs, _ = train_model_pipeline_core(
                     pj=pj, model_specs=model_specs, input_data=train_input
@@ -197,76 +198,14 @@ class TestTrainModelPipeline(BaseTestCase):
 
                 importance = model.set_feature_importance()
                 self.assertIsInstance(importance, pd.DataFrame)
+
+    def test_train_model_pipeline_core_happy_flow(self):
+        """Test happy flow of the train model pipeline with the abstract data prep class."""
+        self._train_model_pipeline_core_happy_flow(ARDataPreparation)
 
     def test_train_model_pipeline_core_happy_flow_with_legacy_data_prep(self):
         """Test happy flow of the train model pipeline with the legacy data prep class."""
-        # Select 50 data points to speedup test
-        train_input = self.train_input.iloc[::50, :]
-        for model_type in list(ModelType) + [__name__ + ".DummyRegressor"]:
-            with self.subTest(model_type=model_type):
-                # Skip the arima model because it does not use legacy data prep
-                if model_type == ModelType.ARIMA:
-                    continue
-                pj = self.pj
-                pj.data_prep_class = DataPrepDataClass(
-                    klass=LegacyDataPreparation,
-                    arguments={},
-                )
-                pj["model"] = (
-                    model_type.value if hasattr(model_type, "value") else model_type
-                )
-                model_specs = self.model_specs
-                train_input = self.train_input
-
-                # Use default parameters
-                model_specs.hyper_params = {}
-                model_specs.hyper_params["max_epochs"] = 1
-
-                # For Linear model we need to choose an imputation strategy to handle missing value
-                if model_type == ModelType.LINEAR:
-                    model_specs.hyper_params["imputation_strategy"] = "mean"
-
-                model, report, modelspecs, _ = train_model_pipeline_core(
-                    pj=pj, model_specs=model_specs, input_data=train_input
-                )
-
-                # check if the model was fitted (raises NotFittedError when not fitted)
-                self.assertIsNone(sklearn.utils.validation.check_is_fitted(model))
-
-                # check if the model has a feature_names property
-                self.assertIsNotNone(model.feature_names)
-
-                # check if model is sklearn compatible
-                self.assertTrue(isinstance(model, sklearn.base.BaseEstimator))
-
-                # check if report is a Report
-                self.assertTrue(isinstance(report, Report))
-
-                # Validate and clean data
-                validated_data = validation.drop_target_na(
-                    validation.validate(
-                        pj["id"],
-                        train_input,
-                        flatliner_threshold_minutes=360,
-                        resolution_minutes=15,
-                    )
-                )
-
-                # Add features
-                data_with_features = TrainFeatureApplicator(
-                    horizons=[0.25, 47.0], feature_names=model_specs.feature_names
-                ).add_features(validated_data, pj=pj)
-
-                # Split data
-                (
-                    train_data,
-                    validation_data,
-                    test_data,
-                    operational_score_data,
-                ) = split_data_train_validation_test(data_with_features)
-
-                importance = model.set_feature_importance()
-                self.assertIsInstance(importance, pd.DataFrame)
+        self._train_model_pipeline_core_happy_flow(LegacyDataPreparation)
 
     def test_train_model_pipeline_with_featureAdders(self):
         pj = self.pj
