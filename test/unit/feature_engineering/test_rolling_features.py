@@ -8,7 +8,23 @@ import pandas as pd
 import pytest
 
 from openstef.enums import AggregateFunction
-from openstef.feature_engineering.rolling_features import add_rolling_aggregate_features
+from openstef.feature_engineering.rolling_features import (
+    add_rolling_aggregate_features,
+    convert_timedelta_to_isoformat,
+)
+
+
+@pytest.mark.parametrize(
+    "td, expected_str",
+    [
+        (timedelta(days=1), "P1D"),
+        (timedelta(hours=24), "P1D"),
+        (timedelta(hours=1), "PT1H"),
+        (timedelta(minutes=15), "PT15M"),
+    ],
+)
+def test_convert_timedelta_to_isoformat(td, expected_str):
+    assert convert_timedelta_to_isoformat(td) == expected_str
 
 
 @pytest.mark.parametrize("rolling_window", [timedelta(days=1), timedelta(hours=24)])
@@ -36,9 +52,9 @@ def test_add_rolling_aggregate_features(rolling_window):
     )
 
     # Verify the columns are created
-    assert f"rolling_median_load_{rolling_window}" in output_data.columns
-    assert f"rolling_max_load_{rolling_window}" in output_data.columns
-    assert f"rolling_min_load_{rolling_window}" in output_data.columns
+    assert "rolling_median_load_P1D" in output_data.columns
+    assert "rolling_max_load_P1D" in output_data.columns
+    assert "rolling_min_load_P1D" in output_data.columns
 
     # Validate the rolling features
     rolling_window_load = data["load"].rolling(window=rolling_window)
@@ -46,15 +62,9 @@ def test_add_rolling_aggregate_features(rolling_window):
     rolling_max_expected = rolling_window_load.max()
     rolling_min_expected = rolling_window_load.min()
 
-    assert np.allclose(
-        output_data[f"rolling_median_load_{rolling_window}"], rolling_median_expected
-    )
-    assert np.allclose(
-        output_data[f"rolling_max_load_{rolling_window}"], rolling_max_expected
-    )
-    assert np.allclose(
-        output_data[f"rolling_min_load_{rolling_window}"], rolling_min_expected
-    )
+    assert np.allclose(output_data["rolling_median_load_P1D"], rolling_median_expected)
+    assert np.allclose(output_data["rolling_max_load_P1D"], rolling_max_expected)
+    assert np.allclose(output_data["rolling_min_load_P1D"], rolling_min_expected)
 
 
 def test_add_rolling_aggregate_features_flatline():
@@ -79,14 +89,14 @@ def test_add_rolling_aggregate_features_flatline():
     output_data = add_rolling_aggregate_features(data, pj=pj)
 
     # Verify the columns are created
-    assert "rolling_median_load_1 day, 0:00:00" in output_data.columns
-    assert "rolling_max_load_1 day, 0:00:00" in output_data.columns
-    assert "rolling_min_load_1 day, 0:00:00" in output_data.columns
+    assert "rolling_median_load_P1D" in output_data.columns
+    assert "rolling_max_load_P1D" in output_data.columns
+    assert "rolling_min_load_P1D" in output_data.columns
 
     # Validate the rolling features
-    assert np.all(output_data[f"rolling_median_load_1 day, 0:00:00"] == all_ones)
-    assert np.all(output_data[f"rolling_max_load_1 day, 0:00:00"] == all_ones)
-    assert np.all(output_data[f"rolling_min_load_1 day, 0:00:00"] == all_ones)
+    assert np.all(output_data[f"rolling_median_load_P1D"] == all_ones)
+    assert np.all(output_data[f"rolling_max_load_P1D"] == all_ones)
+    assert np.all(output_data[f"rolling_min_load_P1D"] == all_ones)
 
 
 def test_add_rolling_aggregate_features_nans():
@@ -115,20 +125,16 @@ def test_add_rolling_aggregate_features_nans():
     )
 
     # Verify the columns are created
-    assert "rolling_median_load_1:00:00" in output_data.columns
-    assert "rolling_max_load_1:00:00" in output_data.columns
-    assert "rolling_min_load_1:00:00" in output_data.columns
+    assert "rolling_median_load_PT1H" in output_data.columns
+    assert "rolling_max_load_PT1H" in output_data.columns
+    assert "rolling_min_load_PT1H" in output_data.columns
 
     # Validate the rolling features
     assert np.allclose(
-        output_data["rolling_median_load_1:00:00"], [1, 1.5, 1.5, 2, 4, 5, 5.5, 6.5]
+        output_data["rolling_median_load_PT1H"], [1, 1.5, 1.5, 2, 4, 5, 5.5, 6.5]
     )
-    assert np.allclose(
-        output_data["rolling_max_load_1:00:00"], [1, 2, 2, 4, 5, 6, 7, 8]
-    )
-    assert np.allclose(
-        output_data["rolling_min_load_1:00:00"], [1, 1, 1, 1, 2, 4, 4, 5]
-    )
+    assert np.allclose(output_data["rolling_max_load_PT1H"], [1, 2, 2, 4, 5, 6, 7, 8])
+    assert np.allclose(output_data["rolling_min_load_PT1H"], [1, 1, 1, 1, 2, 4, 4, 5])
 
 
 def test_add_rolling_aggregate_features_non_datetime_index():

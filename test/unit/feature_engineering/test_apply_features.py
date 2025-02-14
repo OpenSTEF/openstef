@@ -323,15 +323,9 @@ class TestApplyFeaturesModule(BaseTestCase):
             pj=pj,
         )
 
-        self.assertIn(
-            "rolling_mean_load_1 day, 0:00:00", input_data_with_features.columns
-        )
-        self.assertIn(
-            "rolling_max_load_1 day, 0:00:00", input_data_with_features.columns
-        )
-        self.assertIn(
-            "rolling_min_load_1 day, 0:00:00", input_data_with_features.columns
-        )
+        self.assertIn("rolling_mean_load_P1D", input_data_with_features.columns)
+        self.assertIn("rolling_max_load_P1D", input_data_with_features.columns)
+        self.assertIn("rolling_min_load_P1D", input_data_with_features.columns)
 
     def test_add_rolling_aggregate_features_when_none(self):
         pj = {

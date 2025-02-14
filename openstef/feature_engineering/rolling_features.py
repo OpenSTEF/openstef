@@ -6,6 +6,21 @@ from datetime import timedelta
 import pandas as pd
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
+from pydantic import TypeAdapter
+
+
+def convert_timedelta_to_isoformat(td: timedelta) -> str:
+    """
+    Converts a timedelta to an ISO 8601 formatted period string.
+
+    Args:
+        td: timedelta object to convert.
+
+    Returns:
+        ISO 8601 formatted period string.
+    """
+    timedelta_adapter = TypeAdapter(timedelta)
+    return timedelta_adapter.dump_python(td, mode="json")
 
 
 def add_rolling_aggregate_features(
@@ -38,6 +53,6 @@ def add_rolling_aggregate_features(
 
     for aggregate_func in pj["rolling_aggregate_features"]:
         data[
-            f"rolling_{aggregate_func.value}_load_{rolling_window}"
+            f"rolling_{aggregate_func.value}_load_{convert_timedelta_to_isoformat(rolling_window)}"
         ] = rolling_window_load.aggregate(aggregate_func.value)
     return data
