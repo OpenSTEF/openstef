@@ -1235,6 +1235,23 @@ or not.</p>
 </dl>
 </dd></dl>
 
+<dl class="py function">
+<dt class="sig sig-object py" id="openstef.feature_engineering.rolling_features.convert_timedelta_to_isoformat">
+<span class="sig-prename descclassname"><span class="pre">openstef.feature_engineering.rolling_features.</span></span><span class="sig-name descname"><span class="pre">convert_timedelta_to_isoformat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.feature_engineering.rolling_features.convert_timedelta_to_isoformat" title="Link to this definition">¶</a></dt>
+<dd><p>Converts a timedelta to an ISO 8601 formatted period string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>td</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">timedelta</span></code>) – timedelta object to convert.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ISO 8601 formatted period string.</p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 <section id="module-openstef.feature_engineering.weather_features">
 <span id="openstef-feature-engineering-weather-features-module"></span><h2>openstef.feature_engineering.weather_features module<a class="headerlink" href="#module-openstef.feature_engineering.weather_features" title="Link to this heading">¶</a></h2>
@@ -2079,6 +2096,15 @@ if the input is numeric; a dict with the calculated moisture indices</p>
      <code class="docutils literal notranslate">
       <span class="pre">
        add_rolling_aggregate_features()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#openstef.feature_engineering.rolling_features.convert_timedelta_to_isoformat">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       convert_timedelta_to_isoformat()
       </span>
      </code>
     </a>
