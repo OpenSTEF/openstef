@@ -77,7 +77,7 @@ class LegacyDataPreparation(AbstractDataPreparation):
             feature_names=self.model.feature_names,
             feature_modules=self.model_specs.feature_modules,
         )
-        data_with_features = features_applicator.add_features(data)
+        data_with_features = features_applicator.add_features(data, pj=self.pj)
 
         # Prep forecast input by selecting only the forecast datetime interval (this is much smaller than the input range)
         # Also drop the load column

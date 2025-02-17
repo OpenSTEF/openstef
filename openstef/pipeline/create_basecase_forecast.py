@@ -74,7 +74,7 @@ def create_basecase_forecast_pipeline(
             "T-7d",
             "T-14d",
         ],  # Generate features for load 7 days ago and load 14 days ago these are the same as the basecase forecast.
-    ).add_features(input_data)
+    ).add_features(input_data, pj=pj)
 
     forecast_input = data_with_features[forecast_start:forecast_end]
 
