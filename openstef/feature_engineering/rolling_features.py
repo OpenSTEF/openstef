@@ -49,10 +49,14 @@ def add_rolling_aggregate_features(
 
     if "load" not in data.columns:
         raise ValueError("The DataFrame must contain a 'load' column.")
-    rolling_window_load = data["load"].rolling(window=rolling_window)
+
+    # remove rows with NaN values in the load column for rolling window calculation
+    rolling_window_load = data["load"].dropna().rolling(window=rolling_window)
 
     for aggregate_func in pj["rolling_aggregate_features"]:
-        data[
-            f"rolling_{aggregate_func.value}_load_{convert_timedelta_to_isoformat(rolling_window)}"
-        ] = rolling_window_load.aggregate(aggregate_func.value)
+        col_name = f"rolling_{aggregate_func.value}_load_{convert_timedelta_to_isoformat(rolling_window)}"
+        data[col_name] = rolling_window_load.aggregate(aggregate_func.value)
+        # Fill missing values with the last known value
+        data[col_name] = data[col_name].ffill()
+
     return data
