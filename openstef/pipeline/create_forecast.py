@@ -120,7 +120,7 @@ def create_forecast_pipeline_core(
             horizons=[pj["resolution_minutes"] / 60.0],
             feature_names=model.feature_names,
             feature_modules=model_specs.feature_modules,
-        ).add_features(validated_data)
+        ).add_features(validated_data, pj=pj)
 
         # Prep forecast input by selecting only the forecast datetime interval (this is much smaller than the input range)
         # Also drop the load column
