@@ -24,10 +24,7 @@ DEFAULT_QUANTILES: tuple[float, ...] = (0.9, 0.5, 0.1)
 class GBLinearQuantileOpenstfRegressor(OpenstfRegressor):
     is_fitted_: bool = False
 
-    TO_KEEP_FEATURES: List[str] = [
-        "T-7d",
-        "T-1d",
-    ]
+    TO_KEEP_FEATURES: List[str] = []
     TO_IGNORE_FEATURES: List[str] = [
         "Month",
         "Quarter",
