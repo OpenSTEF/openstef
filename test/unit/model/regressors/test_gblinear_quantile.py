@@ -131,7 +131,9 @@ class TestGBLinearQuantile(BaseTestCase):
         input_data_engineered["E1B_AMI_I"] = 1
         input_data_engineered["E4A_I"] = 1
 
-        self.assertIn("T-1d", input_data_engineered.columns)
+        for feat in model.TO_KEEP_FEATURES:
+            self.assertIn(feat, input_data_engineered.columns)
+        self.assertIn("T-7d", input_data_engineered.columns)
         self.assertIn("is_eerste_kerstdag", input_data_engineered.columns)
         self.assertIn("Month", input_data_engineered.columns)
         self.assertIn("load", input_data_engineered.columns)
@@ -142,7 +144,8 @@ class TestGBLinearQuantile(BaseTestCase):
         input_data_filtered = model._remove_ignored_features(input_data_engineered)
 
         # Assert
-        self.assertIn("T-1d", input_data_filtered.columns)  # T-1d should be kept
+        for feat in model.TO_KEEP_FEATURES:
+            self.assertIn(feat, input_data_filtered.columns)
         self.assertNotIn("is_eerste_kerstdag", input_data_filtered.columns)
         self.assertNotIn("Month", input_data_filtered.columns)
         self.assertNotIn("E1B_AMI_I", input_data_filtered.columns)
