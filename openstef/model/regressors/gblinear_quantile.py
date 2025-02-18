@@ -26,7 +26,6 @@ class GBLinearQuantileOpenstfRegressor(OpenstfRegressor):
 
     TO_KEEP_FEATURES: List[str] = [
         "T-7d",
-        "T-1d",
     ]
     TO_IGNORE_FEATURES: List[str] = [
         "Month",
