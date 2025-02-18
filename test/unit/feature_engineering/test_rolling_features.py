@@ -100,16 +100,15 @@ def test_add_rolling_aggregate_features_flatline():
 
 
 def test_add_rolling_aggregate_features_nans():
-    # Generate 2 hours of data
-    num_points = 8
+    # Generate data with NaNs in middle and at the end
+    load = [1, 2, np.nan, 4, 5, 6, 7, 8, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan]
+    num_points = len(load)
     data = pd.DataFrame(
         index=pd.date_range(
             start="2023-01-01 00:00:00", freq="15min", periods=num_points
         )
     )
-
-    # Add NaNs to the data
-    data["load"] = [1, 2, np.nan, 4, 5, 6, 7, 8]
+    data["load"] = load
 
     pj = {
         "rolling_aggregate_features": [
@@ -131,10 +130,15 @@ def test_add_rolling_aggregate_features_nans():
 
     # Validate the rolling features
     assert np.allclose(
-        output_data["rolling_median_load_PT1H"], [1, 1.5, 1.5, 2, 4, 5, 5.5, 6.5]
+        output_data["rolling_median_load_PT1H"],
+        [1, 1.5, 1.5, 2, 4, 5, 5.5, 6.5, 6.5, 6.5, 6.5, 6.5, 6.5, 6.5],
     )
-    assert np.allclose(output_data["rolling_max_load_PT1H"], [1, 2, 2, 4, 5, 6, 7, 8])
-    assert np.allclose(output_data["rolling_min_load_PT1H"], [1, 1, 1, 1, 2, 4, 4, 5])
+    assert np.allclose(
+        output_data["rolling_max_load_PT1H"], [1, 2, 2, 4, 5, 6, 7, 8, 8, 8, 8, 8, 8, 8]
+    )
+    assert np.allclose(
+        output_data["rolling_min_load_PT1H"], [1, 1, 1, 1, 2, 4, 4, 5, 5, 5, 5, 5, 5, 5]
+    )
 
 
 def test_add_rolling_aggregate_features_non_datetime_index():
