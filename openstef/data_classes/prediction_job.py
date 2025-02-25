@@ -132,16 +132,6 @@ class PredictionJobDataClass(BaseModel):
         None, description="The import string for the custom data prep class"
     )
 
-    class Config:
-        """Pydantic model configuration.
-
-        This following configuration is needed to prevent ids in "depends_on" to be converted from int to str when we
-        use integer ids.
-
-        """
-
-        smart_union = True
-
     def __getitem__(self, item: str) -> Any:
         """Allows us to use subscription to get the items from the object."""
         return getattr(self, item)
