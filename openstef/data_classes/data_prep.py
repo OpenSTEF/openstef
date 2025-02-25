@@ -2,12 +2,13 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 """Specifies the split function dataclass."""
+
 import inspect
 import json
 from importlib import import_module
 from typing import Any, Sequence, TypeVar, Union
 
-from pydantic.v1 import BaseModel
+from pydantic import BaseModel, Field
 
 DataPrepClass = TypeVar("DataPrepClass")
 
@@ -15,10 +16,14 @@ DataPrepClass = TypeVar("DataPrepClass")
 class DataPrepDataClass(BaseModel):
     """Class that allows to specify a custom class to prepare the data (feature engineering , etc ...)."""
 
-    klass: Union[str, type[DataPrepClass]]
-    arguments: Union[
-        str, dict[str, Any]
-    ]  # JSON string holding the function parameters or dict
+    klass: Union[str, type[DataPrepClass]] = Field(
+        ...,
+        description="The class that should be used to prepare the data. Can be a string with the path to the class or the class itself.",
+    )
+    arguments: Union[str, dict[str, Any]] = Field(
+        default=None,
+        description="The arguments that should be passed to the class. Can be a JSON string holding the function parameters or dict.",
+    )
 
     def __getitem__(self, key: str):
         """Allows us to use subscription to get the items from the object."""

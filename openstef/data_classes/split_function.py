@@ -2,27 +2,28 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 """Specifies the split function dataclass."""
+
 import inspect
 import json
 from importlib import import_module
 from typing import Any, Callable, Sequence, Union
 
-from pydantic.v1 import BaseModel
+from pydantic import BaseModel, Field
 
 
 class SplitFuncDataClass(BaseModel):
     """Class that allows to specify a custom function to generate a train, test and validation set."""
 
-    function: Union[str, Callable]
-    arguments: Union[
-        str, dict[str, Any]
-    ]  # JSON string holding the function parameters or dict
+    function: Union[str, Callable] = Field(..., description="The split function")
+    arguments: Union[str, dict[str, Any]] = Field(
+        ..., description="JSON string holding the function parameters or dict"
+    )
 
     def __getitem__(self, key: str):
         """Allows us to use subscription to get the items from the object."""
         return getattr(self, key)
 
-    def __setitem__(self, key: str, value: any):
+    def __setitem__(self, key: str, value: Any):
         """Allows us to use subscription to set the items in the object."""
         if hasattr(self, key):
             self.__dict__[key] = value
