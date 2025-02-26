@@ -52,7 +52,7 @@ class PredictionJobDataClass(BaseModel):
 
     electricity_bidding_zone: Optional[BiddingZone] = Field(
         BiddingZone.NL,
-        description="The bidding zone of the forecasted location. Used for fetching electricity prices in tasks.",
+        description="The bidding zone of the forecasted location. Used for fetching electricity prices in tasks. It is also used to determine the holidays that should be used. Currently only ENTSO-E bidding zones are supported.",
     )
     train_components: Optional[bool] = Field(
         None,

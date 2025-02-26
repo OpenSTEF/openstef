@@ -23,9 +23,11 @@ class ModelSpecificationDataClass(BaseModel):
     )
 
     def __getitem__(self, item: str) -> Any:
+        """Allows us to use subscription to get the items from the object."""
         return getattr(self, item)
 
     def __setitem__(self, key: str, value: Any) -> None:
+        """Allows us to use subscription to set the items in the object."""
         if hasattr(self, key):
             self.__dict__[key] = value
         else:
