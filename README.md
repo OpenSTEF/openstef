@@ -81,9 +81,9 @@ ln -s /opt/brew/Cellar/libomp/{your_version}/lib /usr/local/opt/libomp/lib
 3. Uninstall `xgboost` with `pip` (`pip uninstall xgboost`) and install with `conda-forge` (`conda install -c conda-forge xgboost`)
 4. If you encounter similar issues with `lightgbm`: uninstall `lightgbm` with `pip` (`pip uninstall lightgbm`) and install later version with `conda-forge` (`conda install -c conda-forge 'lightgbm>=4.2.0'`)
 
-### InsRemark regarding installation with minimal Xgboost dependency
+### Remark regarding installation with minimal XGBoost dependency
 
-It is possible to install openSTEF with a minimal XGboost (CPU-only) package. This only works on x86_64 (amd64) Linux and Windows platforms. Advantage is that significantly smaller dependencies are installed. In that case run:
+It is possible to install openSTEF with a minimal XGBoost (CPU-only) package. This only works on x86_64 (amd64) Linux and Windows platforms. Advantage is that significantly smaller dependencies are installed. In that case run:
 
 ```shell
 pip install openstef[cpu]
