@@ -306,7 +306,7 @@ class GBLinearQuantileOpenstfRegressor(OpenstfRegressor):
         feature_names = booster.feature_names
 
         # Get importance
-        feature_importance = [score.get(f, 0.0) for f in feature_names]
+        feature_importance = [np.abs(score.get(f, 0.0)) for f in feature_names]
         # Convert to array
         features_importance_array = np.array(feature_importance, dtype=np.float32)
 
