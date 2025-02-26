@@ -19,7 +19,9 @@ def read_requirements_from_file():
             if len(line) == 0:
                 continue
             if "xgboost" in line:
-                line = line + '; extra == "gpu"'
+                line = (
+                    line + '; extra == "gpu"'
+                )  # make sure xgboost is installed with GPU support when not specifying options
             requirements.append(line)
         return requirements
 
