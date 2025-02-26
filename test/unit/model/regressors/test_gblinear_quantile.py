@@ -22,7 +22,7 @@ class MockBooster:
     feature_names = ["a", "b", "c"]
 
     def get_score(self, importance_type):
-        return {"a": 0.2, "b": 0.5, "c": 0.3}
+        return {"a": -0.1, "b": 0.5, "c": 0.6}
 
 
 class TestGBLinearQuantile(BaseTestCase):
@@ -103,7 +103,7 @@ class TestGBLinearQuantile(BaseTestCase):
         # Assert
         self.assertIsInstance(importance_names, dict)
 
-    def test_get_feature_names_from_gblinear(self):
+    def test_get_feature_importance_from_gblinear(self):
         # Arrange
         model = GBLinearQuantileOpenstfRegressor(quantiles=(0.2, 0.3, 0.5, 0.6, 0.7))
         model.imputer_ = MagicMock()
@@ -115,10 +115,12 @@ class TestGBLinearQuantile(BaseTestCase):
 
         # Act
         feature_importance = model._get_feature_importances_from_booster(model.model_)
+        abs_score = np.abs(list(model.model_.get_score("weight").values()))
+        expected_feature_importance = abs_score / abs_score.sum()
 
         # Assert
-        self.assertTrue(
-            (feature_importance == np.array([0.2, 0.5, 0.3], dtype=np.float32)).all()
+        np.testing.assert_array_almost_equal(
+            feature_importance, expected_feature_importance
         )
 
     def test_ignore_features(self):
