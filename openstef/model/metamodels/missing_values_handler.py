@@ -90,7 +90,7 @@ class MissingValuesHandler(BaseEstimator, RegressorMixin, MetaEstimatorMixin):
     def fit(self, x, y):
         """Fit model."""
         _, y = check_X_y(x, y, force_all_finite="allow-nan", y_numeric=True)
-        if type(x) != pd.DataFrame:
+        if not isinstance(x, pd.DataFrame):
             x = pd.DataFrame(np.asarray(x))
         self.feature_in_names_ = list(x.columns)
         self.n_features_in_ = x.shape[1]
@@ -133,6 +133,6 @@ class MissingValuesHandler(BaseEstimator, RegressorMixin, MetaEstimatorMixin):
             x,
             force_all_finite="allow-nan",
         )
-        if type(x) != pd.DataFrame:
+        if not isinstance(x, pd.DataFrame):
             x = pd.DataFrame(np.array(x))
         return self.pipeline_.predict(x[self.non_null_columns_])

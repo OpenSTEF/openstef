@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from test.unit.utils.data import TestData
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
@@ -15,11 +15,11 @@ from openstef.tasks.create_basecase_forecast import create_basecase_forecast_tas
 # Make sure this has a datetime of at least NOW+48hours,
 # since this is filtered in the task
 FORECAST_MOCK = pd.DataFrame(
-    index=pd.to_datetime([datetime.utcnow()], utc=True) + timedelta(days=3),
+    index=pd.to_datetime([datetime.now(tz=UTC)]) + timedelta(days=3),
     data=dict(forecast=[10.0]),
 )
 FORECAST_NEAR_FUTURE_MOCK = pd.DataFrame(
-    index=pd.to_datetime([datetime.utcnow()], utc=True) + timedelta(days=1),
+    index=pd.to_datetime([datetime.now(tz=UTC)]) + timedelta(days=1),
     data=dict(forecast=[10.0]),
 )
 

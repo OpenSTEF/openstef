@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-from datetime import datetime
+from datetime import datetime, UTC
 
 import pandas as pd
 
@@ -43,9 +43,7 @@ def generate_fallback(
 
         # Find most extreme historic day (do not count today as it is incomplete)
         day_with_highest_load_date = (
-            load[load.index.tz_localize(None).date != datetime.utcnow().date()]
-            .idxmax()
-            .load.date()
+            load[load.index < datetime.now(tz=UTC)].idxmax().load.date()
         )
         # generate datetime range of the day with the highest load
         from_datetime = pd.Timestamp(day_with_highest_load_date, tz=load.index.tz)

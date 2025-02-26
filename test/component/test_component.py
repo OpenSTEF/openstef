@@ -78,6 +78,6 @@ class TestComponent(unittest.TestCase):
         forecast["horizon"] = forecast_data.iloc[:, -1]
 
         # Verify forecast works correctly
-        self.assertTrue("forecast" in forecast.columns)
-        self.assertTrue("realised" in forecast.columns)
-        self.assertTrue("horizon" in forecast.columns)
+        self.assertIn("forecast", forecast.columns)
+        self.assertIn("realised", forecast.columns)
+        self.assertIn("horizon", forecast.columns)

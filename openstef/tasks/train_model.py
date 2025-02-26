@@ -19,7 +19,7 @@ Example:
         $ python model_train.py
 
 """
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from pathlib import Path
 
 import pandas as pd
@@ -123,7 +123,7 @@ def train_model_task(
     )
 
     if datetime_end is None:
-        datetime_end = datetime.utcnow()
+        datetime_end = datetime.now(tz=UTC)
     if datetime_start is None:
         datetime_start = datetime_end - timedelta(days=training_period_days_to_fetch)
 
@@ -184,9 +184,9 @@ def train_model_task(
                     "'save_train_forecasts option was activated.'"
                 )
             context.database.write_train_forecasts(pj, data_sets)
-            context.logger.debug(f"Saved Forecasts from trained model on datasets")
+            context.logger.debug("Saved Forecasts from trained model on datasets")
     except SkipSaveTrainingForecasts:
-        context.logger.debug(f"Skip saving forecasts")
+        context.logger.debug("Skip saving forecasts")
     except InputDataOngoingZeroFlatlinerError:
         if (
             context.config.known_zero_flatliners
@@ -213,7 +213,7 @@ def main(model_type=None, config=None, database=None):
         model_type = [ml.value for ml in ModelType]
 
     taskname = Path(__file__).name.replace(".py", "")
-    datetime_now = datetime.utcnow()
+    datetime_now = datetime.now(tz=UTC)
     with TaskContext(taskname, config, database) as context:
         PredictionJobLoop(context, model_type=model_type).map(
             train_model_task, context, datetime_end=datetime_now

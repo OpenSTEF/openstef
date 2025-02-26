@@ -112,7 +112,7 @@ class TestConfidenceIntervalApplicator(TestCase):
         actual_stdev_forecast = ConfidenceIntervalApplicator(
             MockModel(), self.stdev_forecast
         )._add_standard_deviation_to_forecast(forecast)
-        self.assertTrue("stdev" in actual_stdev_forecast.columns)
+        self.assertIn("stdev", actual_stdev_forecast.columns)
         self.assertEqual(actual_stdev_forecast["stdev"][0], 2.9)
         self.assertEqual(actual_stdev_forecast["stdev"][1], 2.9)
         self.assertEqual(actual_stdev_forecast["stdev"][2], 1.6)
@@ -180,7 +180,7 @@ class TestConfidenceIntervalApplicator(TestCase):
         actual_stdev_forecast = ConfidenceIntervalApplicator(
             MockModelMultiHorizonStdev(), self.stdev_forecast
         )._add_standard_deviation_to_forecast(forecast)
-        self.assertTrue("stdev" in actual_stdev_forecast.columns)
+        self.assertIn("stdev", actual_stdev_forecast.columns)
         self.assertGreaterEqual(
             actual_stdev_forecast["stdev"].min(), 0.1
         )  # => MockModel.standard_deviation.stdev.min()

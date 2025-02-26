@@ -26,7 +26,7 @@ class TestARIMAOpenstfRegressor(BaseTestCase):
         self.assertIsNone(sklearn.utils.validation.check_is_fitted(model))
 
         # check if model is sklearn compatible
-        self.assertTrue(isinstance(model, sklearn.base.BaseEstimator))
+        self.assertIsInstance(model, sklearn.base.BaseEstimator)
 
     def test_update_historic_data(self):
         """Test happy flow of the update of historic data"""
@@ -40,7 +40,7 @@ class TestARIMAOpenstfRegressor(BaseTestCase):
         self.assertIsNone(sklearn.utils.validation.check_is_fitted(model))
 
         # check if model is sklearn compatible
-        self.assertTrue(isinstance(model, sklearn.base.BaseEstimator))
+        self.assertIsInstance(model, sklearn.base.BaseEstimator)
 
     def test_predict_wrong_historic(self):
         """Test the prediction with the wrong historic (missing data)"""
@@ -100,5 +100,5 @@ class TestARIMAOpenstfRegressor(BaseTestCase):
         score_r2 = model.score(
             self.train_input.iloc[:150, 1:], self.train_input.iloc[:150, 0]
         )
-        self.assertTrue(score_r2 <= 1.0)
-        self.assertTrue(score_r2 >= 0.5)
+        self.assertLessEqual(score_r2, 1.0)
+        self.assertGreaterEqual(score_r2, 0.5)

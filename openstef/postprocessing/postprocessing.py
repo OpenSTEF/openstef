@@ -239,11 +239,6 @@ def add_prediction_job_properties_to_forecast(
     if forecast_quality is not None:
         forecast["quality"] = forecast_quality
 
-    # TODO rename prediction job typ to type
-    # TODO algtype = model_file_path, perhaps we can find a more logical name
-    # TODO perhaps better to make a forecast its own class!
-    # TODO double check and sync this with make_basecase_forecast (other fields are added)
-    # !!!!! TODO fix the requirement for customer
     forecast["pid"] = pj["id"]
     forecast["customer"] = pj["name"]
     forecast["description"] = pj["description"]

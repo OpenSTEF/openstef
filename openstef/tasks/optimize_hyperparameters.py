@@ -16,7 +16,7 @@ Example:
         $ python optimize_hyperparameters.py
 
 """
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from pathlib import Path
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
@@ -88,8 +88,8 @@ def optimize_hyperparameters_task(
         )
         return
 
-    datetime_start = datetime.utcnow() - timedelta(days=DEFAULT_TRAINING_PERIOD_DAYS)
-    datetime_end = datetime.utcnow()
+    datetime_start = datetime.now(tz=UTC) - timedelta(days=DEFAULT_TRAINING_PERIOD_DAYS)
+    datetime_end = datetime.now(tz=UTC)
 
     input_data = context.database.get_model_input(
         pid=pj["id"],

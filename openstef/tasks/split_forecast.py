@@ -23,7 +23,7 @@ Example:
 
 """
 import logging
-from datetime import datetime
+from datetime import datetime, UTC
 from pathlib import Path
 
 import numpy as np
@@ -93,7 +93,6 @@ def split_forecast_task(
     components, coefdict = find_components(input_split_function)
 
     # Calculate mean absolute error (MAE)
-    # TODO: use a standard metric function for this
     error = components[["load", "Inschatting"]].diff(axis=1).iloc[:, 1]
     mae = error.abs().mean()
     coefdict.update({"MAE": mae})
@@ -183,7 +182,7 @@ def convert_coefdict_to_coefsdf(
         pj["id"],
         input_split_function.index.min().date(),
         input_split_function.index.max().date(),
-        datetime.utcnow(),
+        datetime.now(tz=UTC),
     ]
     coefsdf = pd.DataFrame(
         {"coef_name": list(coefdict.keys()), "coef_value": list(coefdict.values())}
@@ -237,7 +236,7 @@ def find_components(
 
     # Carry out fitting
     # See https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.curve_fit.html # noqa
-    coefs, cov = scipy.optimize.curve_fit(
+    coefs, _ = scipy.optimize.curve_fit(
         weighted_sum,
         xdata=df.iloc[:, 1:].values.T,
         ydata=load.values,
