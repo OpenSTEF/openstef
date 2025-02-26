@@ -3,7 +3,9 @@
 # SPDX-License-Identifier: MPL-2.0
 
 import unittest
-from openstef.enums import BiddingZone
+from unittest.mock import MagicMock
+
+from openstef.enums import BiddingZone, AggregateFunction
 from test.unit.utils.base import BaseTestCase
 from test.unit.utils.data import TestData
 
@@ -146,7 +148,7 @@ class TestApplyFeaturesModule(BaseTestCase):
             ).tz_localize("UTC"),
             data={
                 "load": [10, 15, 20, 15],
-                "APX": [1, 2, 3, 4],
+                "day_ahead_electricity_price": [1, 2, 3, 4],
             },
         )
         horizons = [0.25, 47]
@@ -159,14 +161,18 @@ class TestApplyFeaturesModule(BaseTestCase):
 
         # Skip first row, since T-30min not available for first row
         self.assertTrue(
-            input_data_with_features.loc[horizon == 47, ["APX", "T-30min"]]
+            input_data_with_features.loc[
+                horizon == 47, ["day_ahead_electricity_price", "T-30min"]
+            ]
             .iloc[1:,]
             .isna()
             .all()
             .all()
         )
         self.assertFalse(
-            input_data_with_features.loc[horizon == 0.25, ["APX", "T-30min"]]
+            input_data_with_features.loc[
+                horizon == 0.25, ["day_ahead_electricity_price", "T-30min"]
+            ]
             .iloc[1:,]
             .isna()
             .any()
@@ -294,6 +300,53 @@ class TestApplyFeaturesModule(BaseTestCase):
         )
         expected_power_output = 0.8698915256370021
         self.assertAlmostEqual(power_output, expected_power_output)
+
+    def test_add_rolling_aggregate_features(self):
+        pj = {
+            "rolling_aggregate_features": [
+                AggregateFunction.MEAN,
+                AggregateFunction.MAX,
+                AggregateFunction.MIN,
+            ],
+            "electricity_bidding_zone": BiddingZone.NL,
+        }
+
+        input_data = pd.DataFrame(
+            index=pd.date_range(
+                start="2023-01-01 00:00:00", freq="15min", periods=100, tz="UTC"
+            )
+        )
+        input_data["load"] = list(range(100))
+
+        input_data_with_features = apply_features.apply_features(
+            data=input_data,
+            pj=pj,
+        )
+
+        self.assertIn("rolling_mean_load_P1D", input_data_with_features.columns)
+        self.assertIn("rolling_max_load_P1D", input_data_with_features.columns)
+        self.assertIn("rolling_min_load_P1D", input_data_with_features.columns)
+
+    def test_add_rolling_aggregate_features_when_none(self):
+        pj = {
+            "rolling_aggregate_features": None,
+            "electricity_bidding_zone": BiddingZone.NL,
+        }
+
+        input_data = pd.DataFrame(
+            index=pd.date_range(
+                start="2023-01-01 00:00:00", freq="15min", periods=100, tz="UTC"
+            )
+        )
+        input_data["load"] = list(range(100))
+
+        input_data_with_features = apply_features.apply_features(
+            data=input_data,
+            pj=pj,
+        )
+        self.assertTrue(
+            all(["rolling" not in x for x in input_data_with_features.columns])
+        )
 
 
 if __name__ == "__main__":

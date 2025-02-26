@@ -1,5 +1,4 @@
-
-# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501
+# SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501
 #
 # SPDX-License-Identifier: MPL-2.0
 # Automatically label PRs, config in ../pr-labler.yml
@@ -10,9 +9,12 @@ on:
 
 jobs:
   pr-labeler:
+    permissions:
+        contents: read # To read config file
+        pull-requests: write # To add labels
     runs-on: ubuntu-latest
     steps:
-      - uses: TimonVS/pr-labeler-action@v3
+      - uses: TimonVS/pr-labeler-action@v5
         with:
           configuration-path: .github/pr-labeler.yml # optional, .github/pr-labeler.yml is the default value
         env:

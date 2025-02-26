@@ -108,6 +108,13 @@ class BiddingZone(Enum):
     DE_AMP_LU = "DE_AMP_LU"
 
 
+class AggregateFunction(Enum):
+    MEAN = "mean"
+    MEDIAN = "median"
+    MAX = "max"
+    MIN = "min"
+
+
 class ModelType(Enum):
     XGB = "xgb"
     XGB_QUANTILE = "xgb_quantile"
@@ -115,6 +122,7 @@ class ModelType(Enum):
     LGB = "lgb"
     LINEAR = "linear"
     LINEAR_QUANTILE = "linear_quantile"
+    GBLINEAR_QUANTILE = "gblinear_quantile"
     ARIMA = "arima"
     FLATLINER = "flatliner"
 

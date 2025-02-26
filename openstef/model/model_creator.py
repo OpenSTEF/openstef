@@ -9,6 +9,7 @@ import structlog
 from openstef.enums import ModelType
 from openstef.model.regressors.arima import ARIMAOpenstfRegressor
 from openstef.model.regressors.custom_regressor import is_custom_type, load_custom_model
+from openstef.model.regressors.gblinear_quantile import GBLinearQuantileOpenstfRegressor
 from openstef.model.regressors.lgbm import LGBMOpenstfRegressor
 from openstef.model.regressors.linear import LinearOpenstfRegressor
 from openstef.model.regressors.linear_quantile import LinearQuantileOpenstfRegressor
@@ -121,6 +122,25 @@ valid_model_kwargs = {
         "weight_floor",
         "no_fill_future_values_features",
     ],
+    ModelType.GBLINEAR_QUANTILE: [
+        "quantiles",
+        "missing_values",
+        "imputation_strategy",
+        "fill_value",
+        "weight_scale_percentile",
+        "weight_exponent",
+        "weight_floor",
+        "no_fill_future_values_features",
+        "clipped_features",
+        "learning_rate",
+        "num_boost_round",
+        "early_stopping_rounds",
+        "reg_alpha",
+        "reg_lambda",
+        "updater",
+        "feature_selector",
+        "top_k",
+    ],
     ModelType.ARIMA: [
         "backtest_max_horizon",
         "order",
@@ -141,6 +161,7 @@ class ModelCreator:
         ModelType.XGB_MULTIOUTPUT_QUANTILE: XGBMultiOutputQuantileOpenstfRegressor,
         ModelType.LINEAR: LinearOpenstfRegressor,
         ModelType.LINEAR_QUANTILE: LinearQuantileOpenstfRegressor,
+        ModelType.GBLINEAR_QUANTILE: GBLinearQuantileOpenstfRegressor,
         ModelType.ARIMA: ARIMAOpenstfRegressor,
         ModelType.FLATLINER: FlatlinerRegressor,
     }

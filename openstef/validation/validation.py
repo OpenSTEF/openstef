@@ -314,9 +314,9 @@ def calc_completeness_dataframe(
                     expected_numbers_timedelayed=value,
                 )
 
-        # Correct for APX being only expected to be available up to 24h
-        if "APX" in non_na_count.index:
-            non_na_count["APX"] += max([len(df) - 96, 0])
+        # Correct for day_ahead_electricity_price being only expected to be available up to 24h
+        if "day_ahead_electricity_price" in non_na_count.index:
+            non_na_count["day_ahead_electricity_price"] += max([len(df) - 96, 0])
 
         completeness_per_column_dataframe = non_na_count / (len(df))
 
