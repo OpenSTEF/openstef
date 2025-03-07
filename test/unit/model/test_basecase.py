@@ -19,12 +19,7 @@ class TestBaseCaseForecast(BaseTestCase):
         forecast_input = TestData.load("reference_sets/307-test-data.csv")
         # Shift example data to match current time interval as code expects data
         # available relative to the current time.
-        utc_now = (
-            pd.Series(datetime.now(tz=UTC))
-            .min()
-            .round("15T")
-            .to_pydatetime()
-        )
+        utc_now = pd.Series(datetime.now(tz=UTC)).min().round("15T").to_pydatetime()
         most_recent_date = forecast_input.index.max().round("15T").to_pydatetime()
         delta = utc_now - most_recent_date + timedelta(3)
 
@@ -38,12 +33,7 @@ class TestBaseCaseForecast(BaseTestCase):
         forecast_input = TestData.load("reference_sets/307-test-data.csv")
         # Shift example data to match current time interval as code expects data
         # available relative to the current time.
-        utc_now = (
-            pd.Series(datetime.now(tz=UTC))
-            .min()
-            .round("15T")
-            .to_pydatetime()
-        )
+        utc_now = pd.Series(datetime.now(tz=UTC)).min().round("15T").to_pydatetime()
         most_recent_date = forecast_input.index.max().round("15T").to_pydatetime()
         delta = (
             utc_now - most_recent_date + timedelta(35)

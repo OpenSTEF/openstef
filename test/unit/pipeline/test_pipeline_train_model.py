@@ -39,7 +39,8 @@ from test.unit.utils.base import BaseTestCase
 from test.unit.utils.data import TestData
 
 
-class DummyObjective(RegressorObjective): ...
+class DummyObjective(RegressorObjective):
+    ...
 
 
 class DummyRegressor(CustomOpenstfRegressor):

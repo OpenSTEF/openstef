@@ -30,7 +30,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
     # Restore
     - name: Restore pip cache
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
         # This path is specific to Ubuntu
         path: ~/.cache/pip
