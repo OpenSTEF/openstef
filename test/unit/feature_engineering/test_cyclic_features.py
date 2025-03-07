@@ -1,15 +1,16 @@
 # SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com>
 # SPDX-License-Identifier: MPL-2.0
 
-import numpy as np
-import pandas as pd
 import datetime
 
+import numpy as np
+import pandas as pd
 import pytest
+
 from openstef.feature_engineering.cyclic_features import (
+    add_daylight_terrestrial_feature,
     add_seasonal_cyclic_features,
     add_time_cyclic_features,
-    add_daylight_terrestrial_feature,
 )
 
 

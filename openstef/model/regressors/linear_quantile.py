@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 import re
-from typing import Dict, Union, Set, Optional, List
+from typing import Dict, List, Optional, Set, Union
 
 import numpy as np
 import pandas as pd

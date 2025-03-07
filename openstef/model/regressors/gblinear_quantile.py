@@ -3,12 +3,12 @@
 # SPDX-License-Identifier: MPL-2.0
 import math
 import re
-from typing import Union, Optional, List
+from typing import List, Optional, Union
 
 import numpy as np
 import pandas as pd
-from sklearn.model_selection import train_test_split
 import xgboost as xgb
+from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.utils.validation import check_is_fitted
 

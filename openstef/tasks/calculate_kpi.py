@@ -18,21 +18,19 @@ Example:
         $ python calculate_kpi.py
 
 """
-import logging
 
 # Import builtins
-from datetime import datetime, timedelta, UTC
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
-import structlog
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.enums import ModelType
 from openstef.exceptions import NoPredictedLoadError, NoRealisedLoadError
+from openstef.logging.logger_factory import get_logger
 from openstef.metrics import metrics
-from openstef.settings import Settings
 from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstef.tasks.utils.taskcontext import TaskContext
 from openstef.validation import validation
@@ -158,12 +156,7 @@ def calc_kpi_for_specific_pid(
     COMPLETENESS_REALISED_THRESHOLDS = 0.7
     COMPLETENESS_PREDICTED_LOAD_THRESHOLD = 0.7
 
-    structlog.configure(
-        wrapper_class=structlog.make_filtering_bound_logger(
-            logging.getLevelName(Settings.log_level)
-        )
-    )
-    logger = structlog.get_logger(__name__)
+    logger = get_logger(__name__)
 
     # If predicted is empty
     if len(predicted_load) == 0:

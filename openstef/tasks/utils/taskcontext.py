@@ -1,16 +1,13 @@
 # SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-import logging
 import traceback
 from typing import Callable
 
-import structlog
-
 from openstef.exceptions import PredictionJobException
+from openstef.logging.logger_factory import get_logger
 from openstef.monitoring.performance_meter import PerformanceMeter
 from openstef.monitoring.teams import post_teams
-from openstef.settings import Settings
 
 
 class TaskContext:
@@ -64,12 +61,7 @@ class TaskContext:
         self.database = database
 
     def __enter__(self):
-        structlog.configure(
-            wrapper_class=structlog.make_filtering_bound_logger(
-                logging.getLevelName(Settings.log_level)
-            )
-        )
-        self.logger = structlog.get_logger(__name__).bind(task=self.name)
+        self.logger = get_logger(__name__)
 
         self.perf_meter = PerformanceMeter(self.logger)
 

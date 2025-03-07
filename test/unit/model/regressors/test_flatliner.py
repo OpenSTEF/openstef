@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 import unittest
+from test.unit.utils.base import BaseTestCase
+from test.unit.utils.data import TestData
 from unittest.mock import MagicMock
 
 import numpy as np
@@ -11,8 +13,6 @@ from sklearn.utils.estimator_checks import check_estimator
 
 from openstef.feature_engineering.apply_features import apply_features
 from openstef.model.regressors.flatliner import FlatlinerRegressor
-from test.unit.utils.base import BaseTestCase
-from test.unit.utils.data import TestData
 
 train_input = TestData.load("reference_sets/307-train-data.csv")
 

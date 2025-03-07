@@ -1,13 +1,11 @@
 # SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-import logging
 import os
 from typing import Any
 
 import optuna
 import pandas as pd
-import structlog
 
 from openstef.data_classes.model_specifications import ModelSpecificationDataClass
 from openstef.data_classes.prediction_job import PredictionJobDataClass
@@ -16,6 +14,7 @@ from openstef.exceptions import (
     InputDataWrongColumnOrderError,
 )
 from openstef.feature_engineering.feature_applicator import TrainFeatureApplicator
+from openstef.logging.logger_factory import get_logger
 from openstef.metrics.reporter import Report, Reporter
 from openstef.model.model_creator import ModelCreator
 from openstef.model.objective import RegressorObjective
@@ -27,18 +26,12 @@ from openstef.pipeline.train_model import (
     DEFAULT_TRAIN_HORIZONS_HOURS,
     train_model_pipeline_core,
 )
-from openstef.settings import Settings
 from openstef.validation import validation
 
 optuna.logging.enable_propagation()  # Propagate logs to the root logger.
 optuna.logging.disable_default_handler()  # Stop showing logs in sys.stderr.
 
-structlog.configure(
-    wrapper_class=structlog.make_filtering_bound_logger(
-        logging.getLevelName(Settings.log_level)
-    )
-)
-logger = structlog.get_logger(__name__)
+logger = get_logger(__name__)
 
 # See https://optuna.readthedocs.io/en/stable/reference/generated/optuna.study.Study.html#optuna.study.Study.optimize
 N_TRIALS: int = 100  # The number of trials.

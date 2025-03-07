@@ -16,7 +16,7 @@ Example:
         $ python optimize_hyperparameters.py
 
 """
-from datetime import datetime, timedelta, UTC
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass

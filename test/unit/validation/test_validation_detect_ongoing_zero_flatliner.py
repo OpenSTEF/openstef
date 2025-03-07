@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-from datetime import datetime, timedelta, UTC
+from datetime import UTC, datetime, timedelta
 from test.unit.utils.base import BaseTestCase
 
 import numpy as np
