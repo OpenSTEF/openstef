@@ -120,7 +120,7 @@ class ARDataPreparation(AbstractDataPreparation):
     def prepare_forecast_data(
         self, data: pd.DataFrame
     ) -> tuple[pd.DataFrame, pd.DataFrame]:
-        logger = get_logger()
+        logger = get_logger(__name__)
         self.check_model()
         # Prep forecast input by selecting only the forecast datetime interval (this is much smaller than the input range)
         # Also drop the load column

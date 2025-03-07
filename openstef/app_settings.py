@@ -5,6 +5,8 @@
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from openstef.logging.logger_factory import LoggerType
+
 
 class AppSettings(BaseSettings):
     """Global app settings."""
@@ -13,9 +15,9 @@ class AppSettings(BaseSettings):
         env_prefix="openstef_", env_file=".env", extra="ignore"
     )
 
-    logger_type: str = Field(
-        "structlog",
-        description="The type of logger to use. Options: 'logging' or 'structlog'.",
+    logger_type: LoggerType = Field(
+        LoggerType.STRUCTLOG,
+        description="The type of logger to use.",
     )
 
     post_teams_messages: bool = True

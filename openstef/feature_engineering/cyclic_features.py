@@ -12,7 +12,7 @@ import pandas as pd
 from openstef import PROJECT_ROOT
 from openstef.logging.logger_factory import get_logger
 
-logger = get_logger()
+logger = get_logger(__file__)
 
 TERRESTRIAL_RADIATION_CSV_PATH: str = (
     PROJECT_ROOT / "openstef" / "data" / "NL_terrestrial_radiation.csv"

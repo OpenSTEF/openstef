@@ -61,7 +61,7 @@ class TaskContext:
         self.database = database
 
     def __enter__(self):
-        self.logger = get_logger()
+        self.logger = get_logger(__name__)
 
         self.perf_meter = PerformanceMeter(self.logger)
 

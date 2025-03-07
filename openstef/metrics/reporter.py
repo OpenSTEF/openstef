@@ -167,7 +167,7 @@ class Reporter:
     def write_report_to_disk(report: Report, report_folder: str):
         """Write report to disk; e.g. for viewing report of latest models using grafana."""
         # Initialize logger and serializer
-        logger = get_logger()
+        logger = get_logger(__name__)
         if report_folder:
             # create path if does not exist
             if not os.path.exists(report_folder):

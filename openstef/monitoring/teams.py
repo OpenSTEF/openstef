@@ -43,7 +43,7 @@ def post_teams(
     if not Settings.post_teams_messages:
         return
 
-    logger = get_logger()
+    logger = get_logger(__file__)
     # If no url is passed, give warning and don't send teams message
     if url is None:
         logger.warning("Can't post Teams message, no url given.")

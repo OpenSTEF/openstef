@@ -219,7 +219,7 @@ def add_prediction_job_properties_to_forecast(
         Dataframe with added metadata.
 
     """
-    logger = get_logger()
+    logger = get_logger(__file__)
 
     logger.info("Postproces in preparation of storing")
     if forecast_type is None:

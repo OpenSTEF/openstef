@@ -42,7 +42,7 @@ def create_basecase_forecast_pipeline(
         NoRealisedLoadError: When no realised load for given datetime range.
 
     """
-    logger = get_logger()
+    logger = get_logger(__file__)
     logger.info("Preprocessing data for basecase forecast")
 
     forecast_start, forecast_end = generate_forecast_datetime_range(input_data)

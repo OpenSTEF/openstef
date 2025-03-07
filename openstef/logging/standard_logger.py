@@ -9,7 +9,7 @@ from openstef.settings import Settings
 
 
 class StandardLogger(BaseLogger):
-    def __init__(self, name: str = __file__):
+    def __init__(self, name: str):
         self.logger = logging.getLogger(name)
         logging.basicConfig(level=Settings.log_level)
 

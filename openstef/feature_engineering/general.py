@@ -32,7 +32,7 @@ def add_missing_feature_columns(
         Input dataframe with missing columns filled with ``np.N=nan``.
 
     """
-    logger = get_logger()
+    logger = get_logger(__file__)
 
     if features is None:
         features = []
@@ -63,7 +63,7 @@ def remove_non_requested_feature_columns(
         Model input data with features.
 
     """
-    logger = get_logger()
+    logger = get_logger(__file__)
 
     if requested_features is None:
         requested_features = []

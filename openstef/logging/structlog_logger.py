@@ -2,15 +2,16 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+import logging
+
 import structlog
 
 from openstef.logging.base_logger import BaseLogger
-import logging
 from openstef.settings import Settings
 
 
 class StructlogLogger(BaseLogger):
-    def __init__(self, name: str = __file__):
+    def __init__(self, name: str):
         structlog.configure(
             wrapper_class=structlog.make_filtering_bound_logger(
                 logging.getLevelName(Settings.log_level)
@@ -32,6 +33,6 @@ class StructlogLogger(BaseLogger):
 
     def exception(self, message: str, **kwargs):
         self.logger.exception(message, **kwargs)
-    
+
     def bind(self, **kwargs):
         return self.logger.bind(**kwargs)

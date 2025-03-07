@@ -19,7 +19,7 @@ from openstef.model.regressors.xgb_multioutput_quantile import (
 )
 from openstef.model.regressors.xgb_quantile import XGBQuantileOpenstfRegressor
 
-logger = get_logger()
+logger = get_logger(__file__)
 
 valid_model_kwargs = {
     ModelType.XGB: [
