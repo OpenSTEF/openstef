@@ -26,7 +26,7 @@ from openstef.settings import Settings
 
 class MLflowSerializer:
     def __init__(self, mlflow_tracking_uri: str):
-        logger = get_logger(self.__class__.__name__)
+        self.logger = get_logger(self.__class__.__name__)
         mlflow.set_tracking_uri(mlflow_tracking_uri)
         self.logger.debug(f"MLflow tracking uri at init= {mlflow_tracking_uri}")
         self.experiment_name_prefix = (
