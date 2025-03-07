@@ -600,7 +600,6 @@ class TestTrainModelPipeline(BaseTestCase):
         self.assertEqual(len(serializer_mock_instance.load_model.method_calls), 0)
         self.assertEqual(len(df1_old_model.columns), 49)
 
-
         # Because start_with_new_model is set to True, pj's default model specs will be taken into account
         df1_new_model, df2_new_model, df3_new_model = train_model_pipeline(
             pj=self.pj,
