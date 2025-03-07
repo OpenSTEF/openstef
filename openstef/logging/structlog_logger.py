@@ -32,5 +32,6 @@ class StructlogLogger(BaseLogger):
 
     def exception(self, message: str, **kwargs):
         self.logger.exception(message, **kwargs)
+
     def bind(self, **kwargs):
         return self.logger.bind(**kwargs)
