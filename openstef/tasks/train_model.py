@@ -19,8 +19,10 @@ Example:
         $ python model_train.py
 
 """
-from datetime import datetime, timedelta, UTC
+
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
+from typing import Optional
 
 import pandas as pd
 
@@ -41,14 +43,16 @@ from openstef.tasks.utils.taskcontext import TaskContext
 
 TRAINING_PERIOD_DAYS: int = 120
 DEFAULT_CHECK_MODEL_AGE: bool = True
+DEFAULT_IGNORE_EXISTING_MODELS: bool = False
 
 
 def train_model_task(
     pj: PredictionJobDataClass,
     context: TaskContext,
     check_old_model_age: bool = DEFAULT_CHECK_MODEL_AGE,
-    datetime_start: datetime = None,
-    datetime_end: datetime = None,
+    datetime_start: Optional[datetime] = None,
+    datetime_end: Optional[datetime] = None,
+    ignore_existing_models: bool = DEFAULT_IGNORE_EXISTING_MODELS,
 ) -> None:
     """Train model task.
 
@@ -104,7 +108,9 @@ def train_model_task(
     serializer = MLflowSerializer(mlflow_tracking_uri=mlflow_tracking_uri)
 
     # Get old model and age
-    _, _, old_model_age = train_pipeline_step_load_model(pj, serializer)
+    _, _, old_model_age = train_pipeline_step_load_model(
+        pj, serializer, ignore_existing_models
+    )
 
     # Check old model age and continue yes/no
     if (old_model_age < MAXIMUM_MODEL_AGE) and check_old_model_age:
@@ -168,6 +174,7 @@ def train_model_task(
             check_old_model_age=check_old_model_age,
             mlflow_tracking_uri=mlflow_tracking_uri,
             artifact_folder=artifact_folder,
+            ignore_existing_models=ignore_existing_models,
         )
 
         if data_sets:
