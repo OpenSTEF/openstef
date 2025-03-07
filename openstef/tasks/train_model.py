@@ -43,7 +43,7 @@ from openstef.tasks.utils.taskcontext import TaskContext
 
 TRAINING_PERIOD_DAYS: int = 120
 DEFAULT_CHECK_MODEL_AGE: bool = True
-DEFAULT_START_WITH_NEW_MODEL: bool = False
+DEFAULT_IGNORE_EXISTING_MODELS: bool = False
 
 
 def train_model_task(
@@ -52,7 +52,7 @@ def train_model_task(
     check_old_model_age: bool = DEFAULT_CHECK_MODEL_AGE,
     datetime_start: Optional[datetime] = None,
     datetime_end: Optional[datetime] = None,
-    start_with_new_model: bool = DEFAULT_START_WITH_NEW_MODEL,
+    ignore_existing_models: bool = DEFAULT_IGNORE_EXISTING_MODELS,
 ) -> None:
     """Train model task.
 
@@ -109,7 +109,7 @@ def train_model_task(
 
     # Get old model and age
     _, _, old_model_age = train_pipeline_step_load_model(
-        pj, serializer, start_with_new_model
+        pj, serializer, ignore_existing_models
     )
 
     # Check old model age and continue yes/no
@@ -174,7 +174,7 @@ def train_model_task(
             check_old_model_age=check_old_model_age,
             mlflow_tracking_uri=mlflow_tracking_uri,
             artifact_folder=artifact_folder,
-            start_with_new_model=start_with_new_model,
+            ignore_existing_models=ignore_existing_models,
         )
 
         if data_sets:
