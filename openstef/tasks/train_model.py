@@ -174,7 +174,7 @@ def train_model_task(
             check_old_model_age=check_old_model_age,
             mlflow_tracking_uri=mlflow_tracking_uri,
             artifact_folder=artifact_folder,
-            start_with_new_model=False,
+            start_with_new_model=start_with_new_model,
         )
 
         if data_sets:

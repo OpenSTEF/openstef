@@ -564,12 +564,9 @@ class TestTrainModelPipeline(BaseTestCase):
         )
         self.assertEqual(len(serializer_mock_instance.method_calls), 3)
 
-    @patch("openstef.model.serializer.MLflowSerializer.save_model")
     @patch("openstef.pipeline.train_model.MLflowSerializer")
-    def test_train_model_start_with_new_model(self, serializer_mock, save_model_mock):
-        # Mock an old model which is better than the new one.
-
-        # Mock an old model which is better than the new one.
+    def test_train_model_start_with_new_model(self, serializer_mock):
+        # Mock an old model
         old_model_mock = MagicMock()
         old_model_mock.age = 8
         old_model_mock.modelspecs = self.model_specs
@@ -582,11 +579,15 @@ class TestTrainModelPipeline(BaseTestCase):
         serializer_mock.return_value = serializer_mock_instance
         old_model_mock.score.return_value = 0.001
 
+        #Define specific model specs for pj
         self.pj["save_train_forecasts"] = True
         _, self.pj["default_modelspecs"] = TestData.get_prediction_job_and_modelspecs(
             pid=307
         )
         self.pj["default_modelspecs"].feature_names = ["windspeed", "T-7d", "T-5d"]
+
+        # start_with_new_model is set to False - pj's default model specs will not be taken into account
+        # because old model exists
         df1_old_model, df2_old_model, df3_old_model = train_model_pipeline(
             pj=self.pj,
             input_data=self.train_input,
@@ -599,6 +600,8 @@ class TestTrainModelPipeline(BaseTestCase):
         self.assertEqual(len(serializer_mock_instance.load_model.method_calls), 0)
         self.assertEqual(len(df1_old_model.columns), 49)
 
+
+        # Because start_with_new_model is set to True, pj's default model specs will be taken into account
         df1_new_model, df2_new_model, df3_new_model = train_model_pipeline(
             pj=self.pj,
             input_data=self.train_input,
