@@ -27,3 +27,7 @@ class StandardLogger(BaseLogger):
 
     def exception(self, message: str, **kwargs):
         self.logger.exception(message, extra=kwargs)
+
+    def bind(self, **kwargs):
+        """Not implemented for StandardLogger"""
+        return self

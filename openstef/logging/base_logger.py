@@ -28,3 +28,7 @@ class BaseLogger(ABC):
     @abstractmethod
     def exception(self, message: str, **kwargs: Any) -> None:
         pass
+
+    @abstractmethod
+    def bind(self, **kwargs: Any) -> 'BaseLogger':
+        pass
