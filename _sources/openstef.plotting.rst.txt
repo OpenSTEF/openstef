@@ -1,0 +1,21 @@
+openstef.plotting package
+=========================
+
+Submodules
+----------
+
+openstef.plotting.load\_forecast\_plotter module
+------------------------------------------------
+
+.. automodule:: openstef.plotting.load_forecast_plotter
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: openstef.plotting
+   :members:
+   :undoc-members:
+   :show-inheritance:

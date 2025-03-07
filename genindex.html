@@ -576,11 +576,15 @@
 </li>
       <li><a href="openstef.tasks.html#openstef.tasks.calculate_kpi.check_kpi_task">check_kpi_task() (in module openstef.tasks.calculate_kpi)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="openstef.feature_engineering.html#openstef.feature_engineering.data_preparation.AbstractDataPreparation.check_model">check_model() (openstef.feature_engineering.data_preparation.AbstractDataPreparation method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="openstef.monitoring.html#openstef.monitoring.performance_meter.PerformanceMeter.checkpoint">checkpoint() (openstef.monitoring.performance_meter.PerformanceMeter method)</a>
+</li>
+      <li><a href="openstef.plotting.html#openstef.plotting.load_forecast_plotter.LoadForecastPlotter.colormap">colormap (openstef.plotting.load_forecast_plotter.LoadForecastPlotter attribute)</a>
+</li>
+      <li><a href="openstef.plotting.html#openstef.plotting.load_forecast_plotter.LoadForecastPlotter.colormap_range">colormap_range (openstef.plotting.load_forecast_plotter.LoadForecastPlotter attribute)</a>
 </li>
       <li><a href="openstef.tasks.html#openstef.tasks.create_solar_forecast.combine_forecasts">combine_forecasts() (in module openstef.tasks.create_solar_forecast)</a>
 </li>
@@ -767,6 +771,8 @@
       <li><a href="openstef.html#openstef.enums.BiddingZone.FI">FI (openstef.enums.BiddingZone attribute)</a>
 </li>
       <li><a href="openstef.tasks.html#openstef.tasks.create_solar_forecast.fides">fides() (in module openstef.tasks.create_solar_forecast)</a>
+</li>
+      <li><a href="openstef.plotting.html#openstef.plotting.load_forecast_plotter.LoadForecastPlotter.fill_opacity">fill_opacity (openstef.plotting.load_forecast_plotter.LoadForecastPlotter attribute)</a>
 </li>
       <li><a href="openstef.tasks.html#openstef.tasks.split_forecast.find_components">find_components() (in module openstef.tasks.split_forecast)</a>
 </li>
@@ -1086,10 +1092,10 @@
 </li>
       <li><a href="openstef.model.regressors.html#openstef.model.regressors.linear.LinearRegressor">LinearRegressor (class in openstef.model.regressors.linear)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="openstef.model.html#openstef.model.objective.LinearRegressorObjective">LinearRegressorObjective (class in openstef.model.objective)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="openstef.data_classes.html#openstef.data_classes.data_prep.DataPrepDataClass.load">load() (openstef.data_classes.data_prep.DataPrepDataClass method)</a>
 
       <ul>
@@ -1099,6 +1105,8 @@
       <li><a href="openstef.model.regressors.html#openstef.model.regressors.custom_regressor.load_custom_model">load_custom_model() (in module openstef.model.regressors.custom_regressor)</a>
 </li>
       <li><a href="openstef.model.html#openstef.model.serializer.MLflowSerializer.load_model">load_model() (openstef.model.serializer.MLflowSerializer method)</a>
+</li>
+      <li><a href="openstef.plotting.html#openstef.plotting.load_forecast_plotter.LoadForecastPlotter">LoadForecastPlotter (class in openstef.plotting.load_forecast_plotter)</a>
 </li>
       <li><a href="openstef.html#openstef.app_settings.AppSettings.log_level">log_level (openstef.app_settings.AppSettings attribute)</a>
 </li>
@@ -1184,6 +1192,8 @@
         <li><a href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass.model_config">(openstef.data_classes.prediction_job.PredictionJobDataClass attribute)</a>
 </li>
         <li><a href="openstef.data_classes.html#openstef.data_classes.split_function.SplitFuncDataClass.model_config">(openstef.data_classes.split_function.SplitFuncDataClass attribute)</a>
+</li>
+        <li><a href="openstef.plotting.html#openstef.plotting.load_forecast_plotter.LoadForecastPlotter.model_config">(openstef.plotting.load_forecast_plotter.LoadForecastPlotter attribute)</a>
 </li>
       </ul></li>
       <li><a href="openstef.model.html#openstef.model.model_creator.ModelCreator.MODEL_CONSTRUCTORS">MODEL_CONSTRUCTORS (openstef.model.model_creator.ModelCreator attribute)</a>
@@ -1333,6 +1343,10 @@
         <li><a href="openstef.pipeline.html#module-openstef.pipeline.train_model">openstef.pipeline.train_model</a>
 </li>
         <li><a href="openstef.pipeline.html#module-openstef.pipeline.utils">openstef.pipeline.utils</a>
+</li>
+        <li><a href="openstef.plotting.html#module-openstef.plotting">openstef.plotting</a>
+</li>
+        <li><a href="openstef.plotting.html#module-openstef.plotting.load_forecast_plotter">openstef.plotting.load_forecast_plotter</a>
 </li>
         <li><a href="openstef.postprocessing.html#module-openstef.postprocessing">openstef.postprocessing</a>
 </li>
@@ -1755,8 +1769,6 @@
         <li><a href="openstef.model.regressors.html#module-openstef.model.regressors.lgbm">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     openstef.model.regressors.linear
 
@@ -1764,6 +1776,8 @@
         <li><a href="openstef.model.regressors.html#module-openstef.model.regressors.linear">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     openstef.model.regressors.linear_quantile
 
@@ -1902,6 +1916,20 @@
 
       <ul>
         <li><a href="openstef.pipeline.html#module-openstef.pipeline.utils">module</a>
+</li>
+      </ul></li>
+      <li>
+    openstef.plotting
+
+      <ul>
+        <li><a href="openstef.plotting.html#module-openstef.plotting">module</a>
+</li>
+      </ul></li>
+      <li>
+    openstef.plotting.load_forecast_plotter
+
+      <ul>
+        <li><a href="openstef.plotting.html#module-openstef.plotting.load_forecast_plotter">module</a>
 </li>
       </ul></li>
       <li>
@@ -2086,6 +2114,8 @@
       <li><a href="openstef.html#openstef.enums.BiddingZone.PL">PL (openstef.enums.BiddingZone attribute)</a>
 </li>
       <li><a href="openstef.html#openstef.enums.BiddingZone.PL_CZ">PL_CZ (openstef.enums.BiddingZone attribute)</a>
+</li>
+      <li><a href="openstef.plotting.html#openstef.plotting.load_forecast_plotter.LoadForecastPlotter.plot">plot() (openstef.plotting.load_forecast_plotter.LoadForecastPlotter method)</a>
 </li>
       <li><a href="openstef.metrics.html#openstef.metrics.figure.plot_data_series">plot_data_series() (in module openstef.metrics.figure)</a>
 </li>
@@ -2370,6 +2400,10 @@
       <li><a href="openstef.model.html#openstef.model.standard_deviation_generator.StandardDeviationGenerator">StandardDeviationGenerator (class in openstef.model.standard_deviation_generator)</a>
 </li>
       <li><a href="openstef.monitoring.html#openstef.monitoring.performance_meter.PerformanceMeter.start_level">start_level() (openstef.monitoring.performance_meter.PerformanceMeter method)</a>
+</li>
+      <li><a href="openstef.plotting.html#openstef.plotting.load_forecast_plotter.LoadForecastPlotter.stroke_opacity">stroke_opacity (openstef.plotting.load_forecast_plotter.LoadForecastPlotter attribute)</a>
+</li>
+      <li><a href="openstef.plotting.html#openstef.plotting.load_forecast_plotter.LoadForecastPlotter.stroke_width">stroke_width (openstef.plotting.load_forecast_plotter.LoadForecastPlotter attribute)</a>
 </li>
   </ul></td>
 </tr></table>

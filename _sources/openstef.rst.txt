@@ -14,6 +14,7 @@ Subpackages
    openstef.model_selection
    openstef.monitoring
    openstef.pipeline
+   openstef.plotting
    openstef.postprocessing
    openstef.preprocessing
    openstef.tasks

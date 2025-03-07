@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>openstef.model_selection package &#8212; OpenSTEF  documentation</title>
+    <title>openstef.plotting package &#8212; OpenSTEF  documentation</title>
   
   
   
@@ -34,12 +34,12 @@
     <script src="_static/documentation_options.js?v=8a448e45"></script>
     <script src="_static/doctools.js?v=9a2dae69"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'openstef.model_selection';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'openstef.plotting';</script>
     <link rel="icon" href="_static/openstef.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="openstef.monitoring package" href="openstef.monitoring.html" />
-    <link rel="prev" title="openstef.model.regressors package" href="openstef.model.regressors.html" />
+    <link rel="next" title="openstef.postprocessing package" href="openstef.postprocessing.html" />
+    <link rel="prev" title="openstef.pipeline package" href="openstef.pipeline.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="docsearch:language" content="en">
   </head>
@@ -361,10 +361,10 @@
 <li class="toctree-l2"><a class="reference internal" href="openstef.model.regressors.html">openstef.model.regressors package</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">openstef.model_selection package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openstef.model_selection.html">openstef.model_selection package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="openstef.monitoring.html">openstef.monitoring package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="openstef.pipeline.html">openstef.pipeline package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="openstef.plotting.html">openstef.plotting package</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">openstef.plotting package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="openstef.postprocessing.html">openstef.postprocessing package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="openstef.preprocessing.html">openstef.preprocessing package</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="openstef.tasks.html">openstef.tasks package</a><input checked class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
@@ -403,153 +403,78 @@
             
             <article class="bd-article" role="main">
               
-  <section id="openstef-model-selection-package">
-<h1>openstef.model_selection package<a class="headerlink" href="#openstef-model-selection-package" title="Link to this heading">¶</a></h1>
+  <section id="openstef-plotting-package">
+<h1>openstef.plotting package<a class="headerlink" href="#openstef-plotting-package" title="Link to this heading">¶</a></h1>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">¶</a></h2>
 </section>
-<section id="module-openstef.model_selection.model_selection">
-<span id="openstef-model-selection-model-selection-module"></span><h2>openstef.model_selection.model_selection module<a class="headerlink" href="#module-openstef.model_selection.model_selection" title="Link to this heading">¶</a></h2>
-<dl class="py function">
-<dt class="sig sig-object py" id="openstef.model_selection.model_selection.backtest_split_default">
-<span class="sig-prename descclassname"><span class="pre">openstef.model_selection.model_selection.</span></span><span class="sig-name descname"><span class="pre">backtest_split_default</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_folds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_fraction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stratification_min_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">randomize_fold_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model_selection.model_selection.backtest_split_default" title="Link to this definition">¶</a></dt>
-<dd><p>Default cross validation strategy.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>)</p></li>
-<li><p><strong>n_folds</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>)</p></li>
-<li><p><strong>test_fraction</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>)</p></li>
-<li><p><strong>stratification_min_max</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>)</p></li>
-<li><p><strong>randomize_fold_split</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>)</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>]]</p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Iterable on train, val, test splits</p>
-</dd>
-</dl>
-<p class="rubric">Notes</p>
-<p>We use a generator in order to have lazy estimation and avoid multiple copy of the data.</p>
+<section id="module-openstef.plotting.load_forecast_plotter">
+<span id="openstef-plotting-load-forecast-plotter-module"></span><h2>openstef.plotting.load_forecast_plotter module<a class="headerlink" href="#module-openstef.plotting.load_forecast_plotter" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="openstef.plotting.load_forecast_plotter.LoadForecastPlotter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef.plotting.load_forecast_plotter.</span></span><span class="sig-name descname"><span class="pre">LoadForecastPlotter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.plotting.load_forecast_plotter.LoadForecastPlotter" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.plotting.load_forecast_plotter.LoadForecastPlotter.colormap">
+<span class="sig-name descname"><span class="pre">colormap</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#openstef.plotting.load_forecast_plotter.LoadForecastPlotter.colormap" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.plotting.load_forecast_plotter.LoadForecastPlotter.colormap_range">
+<span class="sig-name descname"><span class="pre">colormap_range</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#openstef.plotting.load_forecast_plotter.LoadForecastPlotter.colormap_range" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.plotting.load_forecast_plotter.LoadForecastPlotter.fill_opacity">
+<span class="sig-name descname"><span class="pre">fill_opacity</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#openstef.plotting.load_forecast_plotter.LoadForecastPlotter.fill_opacity" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.plotting.load_forecast_plotter.LoadForecastPlotter.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">ConfigDict</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#openstef.plotting.load_forecast_plotter.LoadForecastPlotter.model_config" title="Link to this definition">¶</a></dt>
+<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="openstef.model_selection.model_selection.group_kfold">
-<span class="sig-prename descclassname"><span class="pre">openstef.model_selection.model_selection.</span></span><span class="sig-name descname"><span class="pre">group_kfold</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_folds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">randomize_fold_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model_selection.model_selection.group_kfold" title="Link to this definition">¶</a></dt>
-<dd><p>Function to group data into groups, according to the date and the number of folds.</p>
-<p>Each date gets assigned a number between 0 and n_folds.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef.plotting.load_forecast_plotter.LoadForecastPlotter.plot">
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">realized</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantiles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.plotting.load_forecast_plotter.LoadForecastPlotter.plot" title="Link to this definition">¶</a></dt>
+<dd><p>Create a plot showing forecast quantiles and realized values.</p>
+<p>Generates an interactive plotly figure displaying the forecast distribution
+through quantile bands, the median forecast, and the actual realized values.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>input_data</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – Input data</p></li>
-<li><p><strong>n_folds</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Number of folds</p></li>
-<li><p><strong>randomize_fold_split</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Indicates if random split needs to be applied</p></li>
+<li><p><strong>realized</strong> (<em>pd.Series</em>) – Time series of realized (actual) values.</p></li>
+<li><p><strong>forecast</strong> (<em>pd.Series</em>) – Time series of forecast values (typically the median).</p></li>
+<li><p><strong>quantiles</strong> (<em>pd.DataFrame</em>) – DataFrame containing quantile predictions.
+Column names should follow the format ‘quantile_P{percentile:02d}’,
+e.g., ‘quantile_P10’, ‘quantile_P90’.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A plotly figure object with the configured visualization.</p>
 </dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Grouped data</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="openstef.model_selection.model_selection.random_sample">
-<span class="sig-prename descclassname"><span class="pre">openstef.model_selection.model_selection.</span></span><span class="sig-name descname"><span class="pre">random_sample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">all_peaks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model_selection.model_selection.random_sample" title="Link to this definition">¶</a></dt>
-<dd><p>Random sampling of numbers out of a np.array.</p>
-<p>Implemented due to security sonar cloud not accepting the random built-in functions.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>all_peaks</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code>) – List with numbers to sample from</p></li>
-<li><p><strong>k</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Number of wanted samples</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Sorted array with the random samples (dates from the peaks)</p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>go.Figure</p>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="openstef.model_selection.model_selection.sample_indices_train_val">
-<span class="sig-prename descclassname"><span class="pre">openstef.model_selection.model_selection.</span></span><span class="sig-name descname"><span class="pre">sample_indices_train_val</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peaks</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model_selection.model_selection.sample_indices_train_val" title="Link to this definition">¶</a></dt>
-<dd><p>Sample indices of given period length assuming the peaks are evenly spreaded.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – Clean data with features</p></li>
-<li><p><strong>peaks</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – Data frame of selected peaks to sample the dates from</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code>]</p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p>List with the start point of each peak</p></li>
-<li><p>Sorted list with the indices corresponding to the peak</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.plotting.load_forecast_plotter.LoadForecastPlotter.stroke_opacity">
+<span class="sig-name descname"><span class="pre">stroke_opacity</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#openstef.plotting.load_forecast_plotter.LoadForecastPlotter.stroke_opacity" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="openstef.model_selection.model_selection.split_data_train_validation_test">
-<span class="sig-prename descclassname"><span class="pre">openstef.model_selection.model_selection.</span></span><span class="sig-name descname"><span class="pre">split_data_train_validation_test</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_fraction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validation_fraction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">back_test</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stratification_min_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model_selection.model_selection.split_data_train_validation_test" title="Link to this definition">¶</a></dt>
-<dd><p>Split input data into train, test and validation set.</p>
-<p>Function for splitting data with features in a train, test and
-validation dataset. In an operational setting the following sequence is
-returned (when using stratification):</p>
-<p>Train &gt;&gt; Validation (and the test is the Train and Validation combined.)</p>
-<p>For a back test (indicated with argument “back_test”) the following sequence
-is returned:</p>
-<p>Train &gt;&gt; Validation &gt;&gt; Test</p>
-<p>The ratios of the different types can be set with test_fraction and
-validation fraction.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> – Cleaned data with features</p></li>
-<li><p><strong>test_fraction</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Number between 0 and 1 that indicates the desired
-fraction of test data.</p></li>
-<li><p><strong>validation_fraction</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Number between 0 and 1 that indicates the
-desired fraction of validation data.</p></li>
-<li><p><strong>back_test</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Indicates if data is intended for a back test.</p></li>
-<li><p><strong>stratification_min_max</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Indicates if validation data must be sampled as
-periods, using stratification on min and max values per day.
-If True, ‘extreme days’ are ensured to be included in the validation and train sets,
-ensuring the validation set to be representative of the train set.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>]</p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p>Train data.</p></li>
-<li><p>Validation data.</p></li>
-<li><p>Test data.</p></li>
-</ul>
-</p>
-</dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>ValueError</strong> – When the test and validation fractions are too high.</p>
-</dd>
-</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.plotting.load_forecast_plotter.LoadForecastPlotter.stroke_width">
+<span class="sig-name descname"><span class="pre">stroke_width</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#openstef.plotting.load_forecast_plotter.LoadForecastPlotter.stroke_width" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 </section>
-<section id="module-openstef.model_selection">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-openstef.model_selection" title="Link to this heading">¶</a></h2>
+<section id="module-openstef.plotting">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-openstef.plotting" title="Link to this heading">¶</a></h2>
 </section>
 </section>
 
@@ -561,17 +486,17 @@ ensuring the validation set to be representative of the train set.</p></li>
             <footer class="bd-footer-article">
                 <!-- Previous / next buttons -->
 <div class='prev-next-area'>
-  <a class='left-prev' id="prev-link" href="openstef.model.regressors.html" title="previous page">
+  <a class='left-prev' id="prev-link" href="openstef.pipeline.html" title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
           <p class="prev-next-subtitle">previous</p>
-          <p class="prev-next-title">openstef.model.regressors package</p>
+          <p class="prev-next-title">openstef.pipeline package</p>
       </div>
   </a>
-  <a class='right-next' id="next-link" href="openstef.monitoring.html" title="next page">
+  <a class='right-next' id="next-link" href="openstef.postprocessing.html" title="next page">
   <div class="prev-next-info">
       <p class="prev-next-subtitle">next</p>
-      <p class="prev-next-title">openstef.monitoring package</p>
+      <p class="prev-next-title">openstef.postprocessing package</p>
   </div>
   <i class="fa-solid fa-angle-right"></i>
   </a>
@@ -597,59 +522,88 @@ ensuring the validation set to be representative of the train set.</p></li>
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-openstef.model_selection.model_selection">
-   openstef.model_selection.model_selection module
+  <a class="reference internal nav-link" href="#module-openstef.plotting.load_forecast_plotter">
+   openstef.plotting.load_forecast_plotter module
   </a>
   <ul class="nav section-nav flex-column">
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#openstef.model_selection.model_selection.backtest_split_default">
+    <a class="reference internal nav-link" href="#openstef.plotting.load_forecast_plotter.LoadForecastPlotter">
      <code class="docutils literal notranslate">
       <span class="pre">
-       backtest_split_default()
+       LoadForecastPlotter
       </span>
      </code>
     </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#openstef.model_selection.model_selection.group_kfold">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       group_kfold()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#openstef.model_selection.model_selection.random_sample">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       random_sample()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#openstef.model_selection.model_selection.sample_indices_train_val">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       sample_indices_train_val()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#openstef.model_selection.model_selection.split_data_train_validation_test">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       split_data_train_validation_test()
-      </span>
-     </code>
-    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.plotting.load_forecast_plotter.LoadForecastPlotter.colormap">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         LoadForecastPlotter.colormap
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.plotting.load_forecast_plotter.LoadForecastPlotter.colormap_range">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         LoadForecastPlotter.colormap_range
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.plotting.load_forecast_plotter.LoadForecastPlotter.fill_opacity">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         LoadForecastPlotter.fill_opacity
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.plotting.load_forecast_plotter.LoadForecastPlotter.model_config">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         LoadForecastPlotter.model_config
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.plotting.load_forecast_plotter.LoadForecastPlotter.plot">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         LoadForecastPlotter.plot()
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.plotting.load_forecast_plotter.LoadForecastPlotter.stroke_opacity">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         LoadForecastPlotter.stroke_opacity
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.plotting.load_forecast_plotter.LoadForecastPlotter.stroke_width">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         LoadForecastPlotter.stroke_width
+        </span>
+       </code>
+      </a>
+     </li>
+    </ul>
    </li>
   </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-openstef.model_selection">
+  <a class="reference internal nav-link" href="#module-openstef.plotting">
    Module contents
   </a>
  </li>
@@ -670,7 +624,7 @@ ensuring the validation set to be representative of the train set.</p></li>
 <div class="toc-item">
   
 <div class="tocsection sourcelink">
-    <a href="_sources/openstef.model_selection.rst.txt">
+    <a href="_sources/openstef.plotting.rst.txt">
         <i class="fa-solid fa-file-lines"></i> Show Source
     </a>
 </div>
