@@ -17,7 +17,7 @@ class ConfidenceIntervalApplicator:
     def __init__(self, model: RegressorMixin, forecast_input_data: pd.DataFrame):
         self.model = model
         self.forecast_input_data = forecast_input_data
-        self.logger = get_logger(__name__)
+        self.logger = get_logger(self.__class__.__name__)
 
     def add_confidence_interval(
         self,

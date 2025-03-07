@@ -86,7 +86,7 @@ def create_forecast_pipeline_core(
         InputDataOngoingZeroFlatlinerError: When all recent load measurements are zero.
 
     """
-    logger = get_logger(__file__)
+    logger = get_logger(__name__)
 
     fallback_strategy = "extreme_day"  # this can later be expanded
 

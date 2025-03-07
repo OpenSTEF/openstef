@@ -156,7 +156,7 @@ def calc_kpi_for_specific_pid(
     COMPLETENESS_REALISED_THRESHOLDS = 0.7
     COMPLETENESS_PREDICTED_LOAD_THRESHOLD = 0.7
 
-    logger = get_logger(__file__)
+    logger = get_logger(__name__)
 
     # If predicted is empty
     if len(predicted_load) == 0:

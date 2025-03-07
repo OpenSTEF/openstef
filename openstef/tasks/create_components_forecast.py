@@ -61,7 +61,7 @@ def create_components_forecast_task(
          (less than 30 minutes in advance)
 
     """
-    logger = get_logger(__file__)
+    logger = get_logger(__name__)
     if pj["train_components"] == 0:
         context.logger.info(
             "Skip prediction job", train_components=pj["train_components"]

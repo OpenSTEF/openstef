@@ -31,7 +31,7 @@ from openstef.validation import validation
 optuna.logging.enable_propagation()  # Propagate logs to the root logger.
 optuna.logging.disable_default_handler()  # Stop showing logs in sys.stderr.
 
-logger = get_logger(__file__)
+logger = get_logger(__name__)
 
 # See https://optuna.readthedocs.io/en/stable/reference/generated/optuna.study.Study.html#optuna.study.Study.optimize
 N_TRIALS: int = 100  # The number of trials.

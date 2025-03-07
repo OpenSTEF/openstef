@@ -30,7 +30,7 @@ MAXIMUM_MODEL_AGE: int = 7
 DEFAULT_EARLY_STOPPING_ROUNDS: int = 10
 PENALTY_FACTOR_OLD_MODEL: float = 1.2
 
-logger = get_logger(__file__)
+logger = get_logger(__name__)
 
 
 def train_model_pipeline(

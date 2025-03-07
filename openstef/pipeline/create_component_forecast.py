@@ -95,7 +95,7 @@ def create_components_forecast_pipeline(
         "algtype"
 
     """
-    logger = get_logger(__file__)
+    logger = get_logger(__name__)
     logger.info("Make components prediction", pid=pj["id"])
 
     # Make component forecasts

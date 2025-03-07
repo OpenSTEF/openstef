@@ -70,7 +70,7 @@ def split_forecast_task(
         Energy splitting coefficients.
 
     """
-    logger = get_logger(__file__)
+    logger = get_logger(__name__)
 
     logger.info("Start splitting energy", pid=pj["id"])
 

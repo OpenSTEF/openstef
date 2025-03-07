@@ -13,7 +13,7 @@ from pvlib.location import Location
 from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.logging.logger_factory import get_logger
 
-logger = get_logger(__file__)
+logger = get_logger(__name__)
 
 
 # Set some (nameless) constants for the Antoine equation:
