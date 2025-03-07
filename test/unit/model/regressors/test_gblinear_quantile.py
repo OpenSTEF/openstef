@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 import unittest
+from test.unit.utils.base import BaseTestCase
+from test.unit.utils.data import TestData
 from unittest.mock import MagicMock
 
 import numpy as np
@@ -12,8 +14,6 @@ from xgboost import Booster
 from openstef.feature_engineering.apply_features import apply_features
 from openstef.model.model_creator import ModelCreator
 from openstef.model.regressors.gblinear_quantile import GBLinearQuantileOpenstfRegressor
-from test.unit.utils.base import BaseTestCase
-from test.unit.utils.data import TestData
 
 train_input: pd.DataFrame = TestData.load("reference_sets/307-train-data.csv")
 

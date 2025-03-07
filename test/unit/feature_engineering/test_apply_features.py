@@ -3,15 +3,14 @@
 # SPDX-License-Identifier: MPL-2.0
 
 import unittest
-from unittest.mock import MagicMock
-
-from openstef.enums import BiddingZone, AggregateFunction
 from test.unit.utils.base import BaseTestCase
 from test.unit.utils.data import TestData
+from unittest.mock import MagicMock
 
 import numpy as np
 import pandas as pd
 
+from openstef.enums import AggregateFunction, BiddingZone
 from openstef.feature_engineering import apply_features, weather_features
 from openstef.feature_engineering.feature_applicator import TrainFeatureApplicator
 from openstef.feature_engineering.lag_features import (

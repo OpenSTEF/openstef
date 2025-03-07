@@ -12,7 +12,7 @@ Example:
         $ python create_solar_forecast
 
 """
-from datetime import datetime, timedelta, UTC
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import numpy as np

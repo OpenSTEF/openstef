@@ -3,24 +3,17 @@
 # SPDX-License-Identifier: MPL-2.0
 
 """This module contains all wheather related functions used for feature engineering."""
-import logging
 from typing import Union
 
 import numpy as np
 import pandas as pd
 import pvlib
-import structlog
 from pvlib.location import Location
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
-from openstef.settings import Settings
+from openstef.logging.logger_factory import get_logger
 
-structlog.configure(
-    wrapper_class=structlog.make_filtering_bound_logger(
-        logging.getLevelName(Settings.log_level)
-    )
-)
-logger = structlog.get_logger(__name__)
+logger = get_logger()
 
 
 # Set some (nameless) constants for the Antoine equation:

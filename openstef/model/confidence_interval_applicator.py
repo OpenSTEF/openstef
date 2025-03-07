@@ -1,30 +1,23 @@
 # SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-import logging
 from datetime import datetime
 
 import numpy as np
 import pandas as pd
-import structlog
 from scipy import stats
 from sklearn.base import RegressorMixin
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.exceptions import ModelWithoutStDev
-from openstef.settings import Settings
+from openstef.logging.logger_factory import get_logger
 
 
 class ConfidenceIntervalApplicator:
     def __init__(self, model: RegressorMixin, forecast_input_data: pd.DataFrame):
         self.model = model
         self.forecast_input_data = forecast_input_data
-        structlog.configure(
-            wrapper_class=structlog.make_filtering_bound_logger(
-                logging.getLevelName(Settings.log_level)
-            )
-        )
-        self.logger = structlog.get_logger(self.__class__.__name__)
+        logger = get_logger()
 
     def add_confidence_interval(
         self,

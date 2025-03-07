@@ -13,6 +13,11 @@ class AppSettings(BaseSettings):
         env_prefix="openstef_", env_file=".env", extra="ignore"
     )
 
+    logger_type: str = Field(
+        "structlog",
+        description="The type of logger to use. Options: 'logging' or 'structlog'.",
+    )
+
     post_teams_messages: bool = True
 
     # Logging settings.

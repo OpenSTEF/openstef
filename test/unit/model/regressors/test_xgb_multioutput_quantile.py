@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 import unittest
-
 from test.unit.model.regressors.test_xgb_quantile import MockBooster
 from test.unit.utils.base import BaseTestCase
 from test.unit.utils.data import TestData
@@ -15,7 +14,6 @@ from sklearn.utils.estimator_checks import check_estimator
 from openstef.model.regressors.xgb_multioutput_quantile import (
     XGBMultiOutputQuantileOpenstfRegressor,
 )
-
 
 train_input = TestData.load("reference_sets/307-train-data.csv")
 

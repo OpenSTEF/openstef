@@ -10,9 +10,9 @@ from openstef.model.objective import (
     LGBRegressorObjective,
     LinearRegressorObjective,
     RegressorObjective,
+    XGBMultioutputQuantileRegressorObjective,
     XGBQuantileRegressorObjective,
     XGBRegressorObjective,
-    XGBMultioutputQuantileRegressorObjective,
 )
 from openstef.model.regressors.custom_regressor import (
     create_custom_objective,

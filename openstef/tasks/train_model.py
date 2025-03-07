@@ -19,7 +19,7 @@ Example:
         $ python model_train.py
 
 """
-from datetime import datetime, timedelta, UTC
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import pandas as pd

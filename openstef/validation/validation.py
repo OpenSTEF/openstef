@@ -1,19 +1,17 @@
 # SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-import logging
 import math
-from datetime import datetime, timedelta, UTC
+from datetime import UTC, datetime, timedelta
 from typing import Union
 
 import numpy as np
 import pandas as pd
-import structlog
 
 from openstef.exceptions import InputDataOngoingZeroFlatlinerError
+from openstef.logging.logger_factory import get_logger
 from openstef.model.regressors.regressor import OpenstfRegressor
 from openstef.preprocessing.preprocessing import replace_repeated_values_with_nan
-from openstef.settings import Settings
 
 
 def validate(
@@ -43,12 +41,7 @@ def validate(
         InputDataOngoingZeroFlatlinerError: If all recent load measurements are zero.
 
     """
-    structlog.configure(
-        wrapper_class=structlog.make_filtering_bound_logger(
-            logging.getLevelName(Settings.log_level)
-        )
-    )
-    logger = structlog.get_logger(__name__)
+    logger = get_logger()
 
     if not isinstance(data.index, pd.DatetimeIndex):
         raise ValueError("Input dataframe does not have a datetime index.")
@@ -91,12 +84,7 @@ def validate(
 
 
 def drop_target_na(data: pd.DataFrame) -> pd.DataFrame:
-    structlog.configure(
-        wrapper_class=structlog.make_filtering_bound_logger(
-            logging.getLevelName(Settings.log_level)
-        )
-    )
-    logger = structlog.get_logger(__name__)
+    logger = get_logger()
     len_original = len(data)
     # Remove where load is NA, NaN features are preserved
     data = data.loc[np.isnan(data.iloc[:, 0]) != True, :]  # noqa E712
@@ -134,12 +122,7 @@ def is_data_sufficient(
     else:
         weights = model.feature_importance_dataframe
 
-    structlog.configure(
-        wrapper_class=structlog.make_filtering_bound_logger(
-            logging.getLevelName(Settings.log_level)
-        )
-    )
-    logger = structlog.get_logger(__name__)
+    logger = get_logger()
     # Set output variable
     is_sufficient = True
 
@@ -271,12 +254,7 @@ def calc_completeness_dataframe(
         Dataframe with fraction of completeness per column
 
     """
-    structlog.configure(
-        wrapper_class=structlog.make_filtering_bound_logger(
-            logging.getLevelName(Settings.log_level)
-        )
-    )
-    logger = structlog.get_logger(__name__)
+    logger = get_logger()
 
     if homogenise and isinstance(df.index, pd.DatetimeIndex) and len(df) > 0:
         median_timediff = int(

@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 import unittest
+
 import pandas as pd
 
 from openstef.model.metamodels.feature_clipper import FeatureClipper
