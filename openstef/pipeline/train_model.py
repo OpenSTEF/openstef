@@ -107,6 +107,7 @@ def train_model_pipeline(
             input_data,
             old_model,
             horizons=horizons,
+            start_with_new_model=start_with_new_model,
         )
     except OldModelHigherScoreError as OMHSE:
         logger.error("Old model is better than new model", pid=pj["id"], exc_info=OMHSE)
@@ -156,6 +157,7 @@ def train_model_pipeline_core(
     input_data: pd.DataFrame,
     old_model: OpenstfRegressor = None,
     horizons: list[float] = DEFAULT_TRAIN_HORIZONS_HOURS,
+    start_with_new_model: bool = False,
 ) -> Tuple[
     OpenstfRegressor,
     Report,
@@ -221,20 +223,21 @@ def train_model_pipeline_core(
         # Try to compare new model to old model.
         # If this does not success, for example since the feature names of the
         # old model differ from the new model, the new model is considered better
-        try:
-            score_old_model = old_model.score(x_data, y_data)
+        if not start_with_new_model:
+            try:
+                score_old_model = old_model.score(x_data, y_data)
 
-            # Check if R^2 is better for old model
-            if score_old_model > score_new_model * PENALTY_FACTOR_OLD_MODEL:
-                raise OldModelHigherScoreError(
-                    f"Old model is better than new model for {pj['id']}."
+                # Check if R^2 is better for old model
+                if score_old_model > score_new_model * PENALTY_FACTOR_OLD_MODEL:
+                    raise OldModelHigherScoreError(
+                        f"Old model is better than new model for {pj['id']}."
+                    )
+
+                logger.info(
+                    "New model is better than old model, continuing with training procces"
                 )
-
-            logger.info(
-                "New model is better than old model, continuing with training procces"
-            )
-        except ValueError as e:
-            logger.info("Could not compare to old model", pid=pj["id"], exc_info=e)
+            except ValueError as e:
+                logger.info("Could not compare to old model", pid=pj["id"], exc_info=e)
 
     return model, report, model_specs, (train_data, validation_data, test_data)
 
