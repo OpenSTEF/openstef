@@ -206,7 +206,7 @@ def train_model_pipeline_core(
     model_specs.feature_names = list(train_data.columns)
 
     # Check if new model is better than old model
-    if old_model:
+    if old_model and not start_with_new_model:
         combined = pd.concat([train_data, validation_data])
         # skip the forecast column added at the end of dataframes
         if pj.save_train_forecasts:
@@ -223,21 +223,21 @@ def train_model_pipeline_core(
         # Try to compare new model to old model.
         # If this does not success, for example since the feature names of the
         # old model differ from the new model, the new model is considered better
-        if not start_with_new_model:
-            try:
-                score_old_model = old_model.score(x_data, y_data)
 
-                # Check if R^2 is better for old model
-                if score_old_model > score_new_model * PENALTY_FACTOR_OLD_MODEL:
-                    raise OldModelHigherScoreError(
-                        f"Old model is better than new model for {pj['id']}."
-                    )
+        try:
+            score_old_model = old_model.score(x_data, y_data)
 
-                logger.info(
-                    "New model is better than old model, continuing with training procces"
+            # Check if R^2 is better for old model
+            if score_old_model > score_new_model * PENALTY_FACTOR_OLD_MODEL:
+                raise OldModelHigherScoreError(
+                    f"Old model is better than new model for {pj['id']}."
                 )
-            except ValueError as e:
-                logger.info("Could not compare to old model", pid=pj["id"], exc_info=e)
+
+            logger.info(
+                "New model is better than old model, continuing with training procces"
+            )
+        except ValueError as e:
+            logger.info("Could not compare to old model", pid=pj["id"], exc_info=e)
 
     return model, report, model_specs, (train_data, validation_data, test_data)
 
