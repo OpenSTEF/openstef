@@ -5,13 +5,18 @@
 import structlog
 
 from openstef.logging.base_logger import BaseLogger
+import logging
 from openstef.settings import Settings
 
 
 class StructlogLogger(BaseLogger):
     def __init__(self, name: str = __file__):
+        structlog.configure(
+            wrapper_class=structlog.make_filtering_bound_logger(
+                logging.getLevelName(Settings.log_level)
+            )
+        )
         self.logger = structlog.get_logger(name)
-        structlog.stdlib.set_log_level(Settings.log_level)
 
     def debug(self, message: str, **kwargs):
         self.logger.debug(message, **kwargs)
