@@ -30,5 +30,5 @@ class BaseLogger(ABC):
         pass
 
     @abstractmethod
-    def bind(self, **kwargs: Any) -> 'BaseLogger':
+    def bind(self, **kwargs: Any) -> "BaseLogger":
         pass
