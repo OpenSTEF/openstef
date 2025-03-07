@@ -153,7 +153,6 @@ class TestApplyFeaturesModule(BaseTestCase):
         )
 
         expected_output = TestData.load("input_data_multi_horizon_features.csv")
-        expected_output.drop(columns=["windspeed_100mExtrapolated", "windPowerFit_extrapolated"], inplace=True)
         self.assertDataframeEqual(
             input_data_with_features,
             expected_output,
