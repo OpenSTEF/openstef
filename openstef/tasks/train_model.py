@@ -22,6 +22,7 @@ Example:
 
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
+from typing import Optional
 
 import pandas as pd
 
@@ -49,8 +50,8 @@ def train_model_task(
     pj: PredictionJobDataClass,
     context: TaskContext,
     check_old_model_age: bool = DEFAULT_CHECK_MODEL_AGE,
-    datetime_start: datetime = None,
-    datetime_end: datetime = None,
+    datetime_start: Optional[datetime] = None,
+    datetime_end: Optional[datetime] = None,
     start_with_new_model: bool = DEFAULT_START_WITH_NEW_MODEL,
 ) -> None:
     """Train model task.
