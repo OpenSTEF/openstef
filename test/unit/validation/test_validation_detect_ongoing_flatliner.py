@@ -141,3 +141,45 @@ class TestDetectOngoingFlatliners(BaseTestCase):
 
         # Assert
         assert flatliner_ongoing == True
+
+    def test_flatliner_hovering_around_median_within_rtol(self):
+        # Scenario: A flatliner pattern of hovering around a value
+        # within the tolerance.
+
+        # Arrange
+        load = pd.Series(
+            index=self.three_hour_range,
+            data=[
+                self.flatline_value + (-1) ** i * 1e-6 * self.flatline_value
+                for i in range(13)
+            ],
+        )
+
+        duration_threshold = 120
+
+        # Act
+        flatliner_ongoing = detect_ongoing_flatliner(load, duration_threshold)
+
+        # Assert
+        assert flatliner_ongoing == True
+
+    def test_flatliner_hovering_around_median_outside_rtol(self):
+        # Scenario: A flatliner pattern of hovering around a value
+        # outside the tolerance.
+
+        # Arrange
+        load = pd.Series(
+            index=self.three_hour_range,
+            data=[
+                self.flatline_value + (-1) ** i * 1e-4 * self.flatline_value
+                for i in range(13)
+            ],
+        )
+
+        duration_threshold = 120
+
+        # Act
+        flatliner_ongoing = detect_ongoing_flatliner(load, duration_threshold)
+
+        # Assert
+        assert flatliner_ongoing == False
