@@ -249,9 +249,12 @@ def detect_ongoing_flatliner(
         latest_measurement_time - timedelta(minutes=duration_threshold_minutes) :
     ].dropna()
 
-    # check if all consecutive values are within a tolerance of each other
+    # check if all consecutive values are within a relative tolerance of each other
     flatline_condition = np.isclose(
-        latest_measurements.shift().iloc[1:], latest_measurements.iloc[1:], atol=0
+        latest_measurements.shift().iloc[1:],
+        latest_measurements.iloc[1:],
+        atol=0,
+        rtol=1e-5,
     ).all()
     non_empty_condition = not latest_measurements.empty
 
