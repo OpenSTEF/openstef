@@ -12,7 +12,7 @@ import pandas as pd
 import pytest
 
 from openstef.enums import PipelineType
-from openstef.exceptions import InputDataOngoingZeroFlatlinerError
+from openstef.exceptions import InputDataOngoingFlatlinerError
 from openstef.tasks.train_model import main as task_main, TRAINING_PERIOD_DAYS
 from openstef.tasks.train_model import train_model_task
 
@@ -93,7 +93,7 @@ class TestTrainModelTask(TestCase):
 
     @patch(
         "openstef.tasks.train_model.train_model_pipeline",
-        MagicMock(side_effect=InputDataOngoingZeroFlatlinerError()),
+        MagicMock(side_effect=InputDataOngoingFlatlinerError()),
     )
     def test_train_model_known_zero_flatliner(self):
         """Test that training a model is skipped for known zero flatliners."""
@@ -114,7 +114,7 @@ class TestTrainModelTask(TestCase):
 
     @patch(
         "openstef.tasks.train_model.train_model_pipeline",
-        MagicMock(side_effect=InputDataOngoingZeroFlatlinerError()),
+        MagicMock(side_effect=InputDataOngoingFlatlinerError()),
     )
     def test_train_model_unexpected_zero_flatliner(self):
         """Test that there is an informative error message for unexpected zero flatliners."""
@@ -124,7 +124,7 @@ class TestTrainModelTask(TestCase):
         context.config.known_zero_flatliners = None
 
         # Act & Assert
-        with pytest.raises(InputDataOngoingZeroFlatlinerError) as e:
+        with pytest.raises(InputDataOngoingFlatlinerError) as e:
             train_model_task(self.pj, context)
         self.assertEqual(
             e.value.args[0],

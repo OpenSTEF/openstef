@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 import structlog
 
-from openstef.exceptions import InputDataOngoingZeroFlatlinerError
+from openstef.exceptions import InputDataOngoingFlatlinerError
 from openstef.model.regressors.regressor import OpenstfRegressor
 from openstef.preprocessing.preprocessing import replace_repeated_values_with_nan
 from openstef.settings import Settings
@@ -57,13 +57,13 @@ def validate(
         logger.info("Skipping validation of input data", pj_id=pj_id)
         return data
 
-    zero_flatliner_ongoing = detect_ongoing_zero_flatliner(
+    zero_flatliner_ongoing = detect_ongoing_flatliner(
         load=data.iloc[:, 0], duration_threshold_minutes=flatliner_threshold_minutes
     )
 
     if zero_flatliner_ongoing:
-        raise InputDataOngoingZeroFlatlinerError(
-            "All recent load measurements are zero."
+        raise InputDataOngoingFlatlinerError(
+            "All recent load measurements are constant."
         )
 
     flatliner_threshold_repetitions = math.ceil(
@@ -228,7 +228,7 @@ def calc_completeness_features(
     return completeness
 
 
-def detect_ongoing_zero_flatliner(
+def detect_ongoing_flatliner(
     load: pd.Series,
     duration_threshold_minutes: int,
 ) -> bool:
@@ -249,7 +249,13 @@ def detect_ongoing_zero_flatliner(
         latest_measurement_time - timedelta(minutes=duration_threshold_minutes) :
     ].dropna()
 
-    return (latest_measurements == 0).all() & (not latest_measurements.empty)
+    # check if all consecutive values are within a tolerance of each other
+    flatline_condition = np.isclose(
+        latest_measurements.shift().iloc[1:], latest_measurements.iloc[1:], atol=0
+    ).all()
+    non_empty_condition = not latest_measurements.empty
+
+    return flatline_condition & non_empty_condition
 
 
 def calc_completeness_dataframe(

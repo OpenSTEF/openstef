@@ -8,7 +8,7 @@ import pandas as pd
 import structlog
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
-from openstef.exceptions import InputDataOngoingZeroFlatlinerError, NoRealisedLoadError
+from openstef.exceptions import NoRealisedLoadError
 from openstef.feature_engineering.feature_applicator import (
     OperationalPredictFeatureApplicator,
 )
@@ -58,12 +58,12 @@ def create_basecase_forecast_pipeline(
     if not isinstance(input_data.index, pd.DatetimeIndex):
         raise ValueError("Input dataframe does not have a datetime index.")
 
-    zero_flatliner_ongoing = validation.detect_ongoing_zero_flatliner(
+    flatliner_ongoing = validation.detect_ongoing_flatliner(
         load=input_data.iloc[:, 0],
         duration_threshold_minutes=pj.flatliner_threshold_minutes,
     )
 
-    if zero_flatliner_ongoing:
+    if flatliner_ongoing:
         # Set historic load to zero to force the basecase forecasts to be zero.
         input_data.loc[input_data.index < forecast_start, "load"] = 0
 

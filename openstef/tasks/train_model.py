@@ -27,7 +27,7 @@ import pandas as pd
 from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.enums import ModelType, PipelineType
 from openstef.exceptions import (
-    InputDataOngoingZeroFlatlinerError,
+    InputDataOngoingFlatlinerError,
     SkipSaveTrainingForecasts,
 )
 from openstef.model.serializer import MLflowSerializer
@@ -187,18 +187,18 @@ def train_model_task(
             context.logger.debug("Saved Forecasts from trained model on datasets")
     except SkipSaveTrainingForecasts:
         context.logger.debug("Skip saving forecasts")
-    except InputDataOngoingZeroFlatlinerError:
+    except InputDataOngoingFlatlinerError:
         if (
             context.config.known_zero_flatliners
             and pj.id in context.config.known_zero_flatliners
         ):
             context.logger.info(
-                "No model was trained for this known zero flatliner. No model needs to be trained either, since the fallback forecasts are sufficient."
+                "No model was trained for this known flatliner. No model needs to be trained either, since the fallback forecasts are sufficient."
             )
             return
         else:
-            raise InputDataOngoingZeroFlatlinerError(
-                'All recent load measurements are zero. Check the load profile of this pid as well as related/neighbouring prediction jobs. Afterwards, consider adding this pid to the "known_zero_flatliners" app_setting and possibly removing other pids from the same app_setting.'
+            raise InputDataOngoingFlatlinerError(
+                'All recent load measurements are constant. Check the load profile of this pid as well as related/neighbouring prediction jobs. Afterwards, consider adding this pid to the "known_zero_flatliners" app_setting and possibly removing other pids from the same app_setting.'
             )
 
 

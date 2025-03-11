@@ -10,7 +10,7 @@ import pytest
 
 import openstef.tasks.create_forecast as task
 from openstef.enums import PipelineType
-from openstef.exceptions import InputDataOngoingZeroFlatlinerError
+from openstef.exceptions import InputDataOngoingFlatlinerError
 from openstef.model.serializer import MLflowSerializer
 from openstef.tasks.create_forecast import create_forecast_task
 
@@ -95,7 +95,7 @@ class TestCreateForecastTask(TestCase):
 
     @patch(
         "openstef.tasks.create_forecast.create_forecast_pipeline",
-        MagicMock(side_effect=InputDataOngoingZeroFlatlinerError()),
+        MagicMock(side_effect=InputDataOngoingFlatlinerError()),
     )
     def test_create_forecast_known_zero_flatliner(self):
         """Test that making a forecast is skipped for known zero flatliners."""
@@ -143,7 +143,7 @@ class TestCreateForecastTask(TestCase):
 
     @patch(
         "openstef.tasks.create_forecast.create_forecast_pipeline",
-        MagicMock(side_effect=InputDataOngoingZeroFlatlinerError()),
+        MagicMock(side_effect=InputDataOngoingFlatlinerError()),
     )
     def test_create_forecast_unexpected_zero_flatliner(self):
         """Test that there is an informative error message for unexpected zero flatliners."""
@@ -153,7 +153,7 @@ class TestCreateForecastTask(TestCase):
         context.config.known_zero_flatliners = None
 
         # Act & Assert
-        with pytest.raises(InputDataOngoingZeroFlatlinerError) as e:
+        with pytest.raises(InputDataOngoingFlatlinerError) as e:
             create_forecast_task(self.pj, context)
 
         assert (

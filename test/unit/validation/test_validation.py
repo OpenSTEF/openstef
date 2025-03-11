@@ -8,7 +8,7 @@ from test.unit.utils.data import TestData
 import numpy as np
 import pytest
 
-from openstef.exceptions import InputDataOngoingZeroFlatlinerError
+from openstef.exceptions import InputDataOngoingFlatlinerError
 from openstef.validation import validation
 
 
@@ -109,7 +109,7 @@ class TestDataValidation(BaseTestCase):
         resolution_minutes = 15
 
         # Act & assert
-        with pytest.raises(InputDataOngoingZeroFlatlinerError):
+        with pytest.raises(InputDataOngoingFlatlinerError):
             validation.validate(
                 self.pj["id"],
                 input_data,
