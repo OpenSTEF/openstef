@@ -101,18 +101,45 @@ class TestDataValidation(BaseTestCase):
                 resolution_minutes=15,
             )
 
-    def test_validate_ongoing_zero_flatliner(self):
+    def test_validate_ongoing_flatliner(self):
+        test_cases = [
+            (3.14, True),
+            (0, True),
+            (0, False),
+        ]
+
+        for flatliner_value, detect_non_zero_flatliner in test_cases:
+            # Arrange
+            input_data = self.data_train
+            flatliner_threshold_minutes = 360
+            resolution_minutes = 15
+            input_data.iloc[-80:, 0] = flatliner_value
+
+            # Act & assert
+            with pytest.raises(InputDataOngoingFlatlinerError):
+                validation.validate(
+                    self.pj["id"],
+                    input_data,
+                    flatliner_threshold_minutes,
+                    resolution_minutes,
+                    detect_non_zero_flatliner=detect_non_zero_flatliner,
+                )
+
+    def test_validate_ongoing_nonzero_flatliner_detect_false(self):
         # Arrange
         input_data = self.data_train
-        input_data.iloc[-80:, 0] = 0
+        input_data.iloc[-80:, 0] = 3.14
         flatliner_threshold_minutes = 360
         resolution_minutes = 15
 
-        # Act & assert
-        with pytest.raises(InputDataOngoingFlatlinerError):
-            validation.validate(
-                self.pj["id"],
-                input_data,
-                flatliner_threshold_minutes,
-                resolution_minutes,
-            )
+        # Act
+        res = validation.validate(
+            self.pj["id"],
+            input_data,
+            flatliner_threshold_minutes,
+            resolution_minutes,
+            detect_non_zero_flatliner=False,
+        )
+
+        # Assert
+        self.assertTrue(res["load"][-80:].isna().all())

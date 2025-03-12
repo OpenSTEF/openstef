@@ -177,7 +177,7 @@ def train_model_pipeline_core(
         InputDataInsufficientError: when input data is insufficient.
         InputDataWrongColumnOrderError: when input data has a invalid column order.
         OldModelHigherScoreError: When old model is better than new model.
-        InputDataOngoingZeroFlatlinerError: when all recent load measurements are zero.
+        InputDataOngoingFlatlinerError: when all recent load measurements are zero.
 
     Returns:
         - Fitted_model (OpenstfRegressor)
@@ -272,7 +272,7 @@ def train_pipeline_common(
         InputDataInsufficientError: when input data is insufficient.
         InputDataWrongColumnOrderError: when input data has a invalid column order.
             'load' column should be first and 'horizon' column last.
-        InputDataOngoingZeroFlatlinerError: when all recent load measurements are zero.
+        InputDataOngoingFlatlinerError: when all recent load measurements are zero.
 
     """
     data_with_features = train_pipeline_step_compute_features(
@@ -363,7 +363,7 @@ def train_pipeline_step_compute_features(
         InputDataInsufficientError: when input data is insufficient.
         InputDataWrongColumnOrderError: when input data has a invalid column order.
         ValueError: when the horizon is a string and the corresponding column in not in the input data
-        InputDataOngoingZeroFlatlinerError: when all recent load measurements are zero.
+        InputDataOngoingFlatlinerError: when all recent load measurements are zero.
 
     """
     if input_data.empty:
@@ -389,6 +389,7 @@ def train_pipeline_step_compute_features(
             input_data,
             pj["flatliner_threshold_minutes"],
             pj["resolution_minutes"],
+            detect_non_zero_flatliner=pj["detect_non_zero_flatliner"],
         )
     )
     # Check if sufficient data is left after cleaning

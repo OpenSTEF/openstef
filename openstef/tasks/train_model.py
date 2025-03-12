@@ -67,7 +67,7 @@ def train_model_task(
 
     Raises:
         SkipSaveTrainingForecasts: If old model is better or too young, you don't need to save the traing forcast.
-        InputDataOngoingZeroFlatlinerError: If all recent load measurements are zero.
+        InputDataOngoingFlatlinerError: If all recent load measurements are zero.
 
     """
     # Check pipeline types

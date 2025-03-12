@@ -7,7 +7,6 @@ from test.unit.utils.base import BaseTestCase
 
 import numpy as np
 import pandas as pd
-from freezegun import freeze_time
 
 from openstef.validation.validation import detect_ongoing_flatliner
 
@@ -27,15 +26,20 @@ class TestDetectOngoingFlatliners(BaseTestCase):
         self.flatline_value = 3.14
 
     def test_all_flatline_value(self):
-        # Arrange
-        load = pd.Series(index=self.three_hour_range, data=[self.flatline_value] * 13)
-        duration_threshold = 120
+        for detection in [True, False]:
+            # Arrange
+            load = pd.Series(
+                index=self.three_hour_range, data=[self.flatline_value] * 13
+            )
+            duration_threshold = 120
 
-        # Act
-        flatliner_ongoing = detect_ongoing_flatliner(load, duration_threshold)
+            # Act
+            flatliner_ongoing = detect_ongoing_flatliner(
+                load, duration_threshold, detect_non_zero_flatliner=detection
+            )
 
-        # Assert
-        assert flatliner_ongoing == True
+            # Assert
+            assert flatliner_ongoing == detection
 
     def test_all_different(self):
         # Arrange
@@ -43,7 +47,9 @@ class TestDetectOngoingFlatliners(BaseTestCase):
         duration_threshold = 120
 
         # Act
-        flatliner_ongoing = detect_ongoing_flatliner(load, duration_threshold)
+        flatliner_ongoing = detect_ongoing_flatliner(
+            load, duration_threshold, detect_non_zero_flatliner=True
+        )
 
         # Assert
         assert flatliner_ongoing == False
@@ -60,7 +66,9 @@ class TestDetectOngoingFlatliners(BaseTestCase):
         duration_threshold = 120
 
         # Act
-        flatliner_ongoing = detect_ongoing_flatliner(load, duration_threshold)
+        flatliner_ongoing = detect_ongoing_flatliner(
+            load, duration_threshold, detect_non_zero_flatliner=True
+        )
 
         # Assert
         assert flatliner_ongoing == False
@@ -77,7 +85,9 @@ class TestDetectOngoingFlatliners(BaseTestCase):
         duration_threshold = 120
 
         # Act
-        flatliner_ongoing = detect_ongoing_flatliner(load, duration_threshold)
+        flatliner_ongoing = detect_ongoing_flatliner(
+            load, duration_threshold, detect_non_zero_flatliner=True
+        )
 
         # Assert
         assert flatliner_ongoing == False
@@ -91,7 +101,9 @@ class TestDetectOngoingFlatliners(BaseTestCase):
         duration_threshold = 120
 
         # Act
-        flatliner_ongoing = detect_ongoing_flatliner(load, duration_threshold)
+        flatliner_ongoing = detect_ongoing_flatliner(
+            load, duration_threshold, detect_non_zero_flatliner=True
+        )
 
         # Assert
         assert flatliner_ongoing == True
@@ -108,7 +120,9 @@ class TestDetectOngoingFlatliners(BaseTestCase):
         duration_threshold = 120
 
         # Act
-        flatliner_ongoing = detect_ongoing_flatliner(load, duration_threshold)
+        flatliner_ongoing = detect_ongoing_flatliner(
+            load, duration_threshold, detect_non_zero_flatliner=True
+        )
 
         # Assert
         assert flatliner_ongoing == True
@@ -119,7 +133,9 @@ class TestDetectOngoingFlatliners(BaseTestCase):
         duration_threshold = 120
 
         # Act
-        flatliner_ongoing = detect_ongoing_flatliner(load, duration_threshold)
+        flatliner_ongoing = detect_ongoing_flatliner(
+            load, duration_threshold, detect_non_zero_flatliner=True
+        )
 
         # Assert
         assert flatliner_ongoing == False
@@ -137,7 +153,9 @@ class TestDetectOngoingFlatliners(BaseTestCase):
         duration_threshold = 60
 
         # Act
-        flatliner_ongoing = detect_ongoing_flatliner(load, duration_threshold)
+        flatliner_ongoing = detect_ongoing_flatliner(
+            load, duration_threshold, detect_non_zero_flatliner=True
+        )
 
         # Assert
         assert flatliner_ongoing == True
@@ -158,7 +176,9 @@ class TestDetectOngoingFlatliners(BaseTestCase):
         duration_threshold = 120
 
         # Act
-        flatliner_ongoing = detect_ongoing_flatliner(load, duration_threshold)
+        flatliner_ongoing = detect_ongoing_flatliner(
+            load, duration_threshold, detect_non_zero_flatliner=True
+        )
 
         # Assert
         assert flatliner_ongoing == True
@@ -179,7 +199,9 @@ class TestDetectOngoingFlatliners(BaseTestCase):
         duration_threshold = 120
 
         # Act
-        flatliner_ongoing = detect_ongoing_flatliner(load, duration_threshold)
+        flatliner_ongoing = detect_ongoing_flatliner(
+            load, duration_threshold, detect_non_zero_flatliner=True
+        )
 
         # Assert
         assert flatliner_ongoing == False
