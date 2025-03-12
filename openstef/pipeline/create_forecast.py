@@ -45,7 +45,7 @@ def create_forecast_pipeline(
         DataFrame with the forecast
 
     Raises:
-        InputDataOngoingZeroFlatlinerError: When all recent load measurements are zero.
+        InputDataOngoingFlatlinerError: When all recent load measurements are constant.
         LookupError: When no model is found for the given prediction job in MLflow.
 
     """
@@ -85,7 +85,7 @@ def create_forecast_pipeline_core(
         Forecast
 
     Raises:
-        InputDataOngoingZeroFlatlinerError: When all recent load measurements are zero.
+        InputDataOngoingFlatlinerError: When all recent load measurements are constant.
 
     """
     structlog.configure(
@@ -103,6 +103,7 @@ def create_forecast_pipeline_core(
         input_data,
         pj["flatliner_threshold_minutes"],
         pj["resolution_minutes"],
+        detect_non_zero_flatliner=pj["detect_non_zero_flatliner"],
     )
 
     # Custom data prep or legacy behavior

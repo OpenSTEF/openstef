@@ -12,7 +12,7 @@ import pandas as pd
 import pytest
 
 from openstef.enums import PipelineType
-from openstef.exceptions import InputDataOngoingZeroFlatlinerError
+from openstef.exceptions import InputDataOngoingFlatlinerError
 from openstef.tasks.train_model import main as task_main, TRAINING_PERIOD_DAYS
 from openstef.tasks.train_model import train_model_task
 
@@ -93,7 +93,7 @@ class TestTrainModelTask(TestCase):
 
     @patch(
         "openstef.tasks.train_model.train_model_pipeline",
-        MagicMock(side_effect=InputDataOngoingZeroFlatlinerError()),
+        MagicMock(side_effect=InputDataOngoingFlatlinerError()),
     )
     def test_train_model_known_zero_flatliner(self):
         """Test that training a model is skipped for known zero flatliners."""
@@ -109,12 +109,12 @@ class TestTrainModelTask(TestCase):
         self.assertEqual(self.pj.id, context.config.known_zero_flatliners[0])
         self.assertEqual(
             context.mock_calls[-1].args[0],
-            "No model was trained for this known zero flatliner. No model needs to be trained either, since the fallback forecasts are sufficient.",
+            "No model was trained for this known flatliner. No model needs to be trained either, since the fallback forecasts are sufficient.",
         )
 
     @patch(
         "openstef.tasks.train_model.train_model_pipeline",
-        MagicMock(side_effect=InputDataOngoingZeroFlatlinerError()),
+        MagicMock(side_effect=InputDataOngoingFlatlinerError()),
     )
     def test_train_model_unexpected_zero_flatliner(self):
         """Test that there is an informative error message for unexpected zero flatliners."""
@@ -124,11 +124,11 @@ class TestTrainModelTask(TestCase):
         context.config.known_zero_flatliners = None
 
         # Act & Assert
-        with pytest.raises(InputDataOngoingZeroFlatlinerError) as e:
+        with pytest.raises(InputDataOngoingFlatlinerError) as e:
             train_model_task(self.pj, context)
         self.assertEqual(
             e.value.args[0],
-            'All recent load measurements are zero. Check the load profile of this pid as well as related/neighbouring prediction jobs. Afterwards, consider adding this pid to the "known_zero_flatliners" app_setting and possibly removing other pids from the same app_setting.',
+            'All recent load measurements are constant. Check the load profile of this pid as well as related/neighbouring prediction jobs. Afterwards, consider adding this pid to the "known_zero_flatliners" app_setting and possibly removing other pids from the same app_setting.',
         )
 
     @patch("openstef.model.serializer.MLflowSerializer.save_model")

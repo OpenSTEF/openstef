@@ -132,7 +132,7 @@ def optimize_hyperparameters_pipeline_core(
         InputDataInsufficientError: If the input dataframe is empty.
         InputDataWrongColumnOrderError: If the load column is missing in the input dataframe.
         OldModelHigherScoreError: When old model is better than new model.
-        InputDataOngoingZeroFlatlinerError: When all recent load measurements are zero.
+        InputDataOngoingFlatlinerError: If all recent load measurements are constant.
 
     Returns:
         - Best model,
@@ -157,6 +157,7 @@ def optimize_hyperparameters_pipeline_core(
             input_data,
             pj["flatliner_threshold_minutes"],
             pj["resolution_minutes"],
+            detect_non_zero_flatliner=pj["detect_non_zero_flatliner"],
         )
     )
 

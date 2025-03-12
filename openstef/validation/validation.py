@@ -10,7 +10,8 @@ import numpy as np
 import pandas as pd
 import structlog
 
-from openstef.exceptions import InputDataOngoingZeroFlatlinerError
+from openstef.data_classes.prediction_job import PredictionJobDataClass
+from openstef.exceptions import InputDataOngoingFlatlinerError
 from openstef.model.regressors.regressor import OpenstfRegressor
 from openstef.preprocessing.preprocessing import replace_repeated_values_with_nan
 from openstef.settings import Settings
@@ -21,12 +22,15 @@ def validate(
     data: pd.DataFrame,
     flatliner_threshold_minutes: Union[int, None],
     resolution_minutes: int,
+    *,
+    detect_non_zero_flatliner: bool = False,
 ) -> pd.DataFrame:
     """Validate prediction job and timeseries data.
 
     Steps:
     1. Check if input dataframe has a datetime index.
-    1. Check if a zero flatliner pattern is ongoing (i.e. all recent measurements are zero).
+    1. Check if a flatliner pattern is ongoing (i.e. all recent measurements are constant,
+        0 in case detect_non_zero_flatliner = True).
     2. Replace repeated values for longer than flatliner_threshold_minutes with NaN.
 
     Args:
@@ -35,12 +39,14 @@ def validate(
         flatliner_threshold_minutes: int indicating the number of minutes after which constant load is considered a flatline.
             if None, the validation is effectively skipped
         resolution_minutes: The forecasting resolution in minutes.
+        detect_non_zero_flatliner: If True, a flatliner is detected for non-zero values. If False,
+            a flatliner is detected for zero values only.
 
     Returns:
         Dataframe where repeated values are set to None
 
     Raises:
-        InputDataOngoingZeroFlatlinerError: If all recent load measurements are zero.
+        InputDataOngoingFlatlinerError: If all recent load measurements are constant.
 
     """
     structlog.configure(
@@ -57,13 +63,15 @@ def validate(
         logger.info("Skipping validation of input data", pj_id=pj_id)
         return data
 
-    zero_flatliner_ongoing = detect_ongoing_zero_flatliner(
-        load=data.iloc[:, 0], duration_threshold_minutes=flatliner_threshold_minutes
+    flatliner_ongoing = detect_ongoing_flatliner(
+        load=data.iloc[:, 0],
+        duration_threshold_minutes=flatliner_threshold_minutes,
+        detect_non_zero_flatliner=detect_non_zero_flatliner,
     )
 
-    if zero_flatliner_ongoing:
-        raise InputDataOngoingZeroFlatlinerError(
-            "All recent load measurements are zero."
+    if flatliner_ongoing:
+        raise InputDataOngoingFlatlinerError(
+            "All recent load measurements are constant."
         )
 
     flatliner_threshold_repetitions = math.ceil(
@@ -228,18 +236,22 @@ def calc_completeness_features(
     return completeness
 
 
-def detect_ongoing_zero_flatliner(
+def detect_ongoing_flatliner(
     load: pd.Series,
     duration_threshold_minutes: int,
+    *,
+    detect_non_zero_flatliner: bool = False,
 ) -> bool:
-    """Detects if the latest measurements follow a zero flatliner pattern.
+    """Detects if the latest measurements follow a flatliner pattern.
 
     Args:
         load (pd.Series): A timeseries of measured load with a datetime index.
-        duration_threshold_minutes (int): A zero flatliner is only detected if it exceeds the threshold duration.
+        duration_threshold_minutes (int): A flatliner is only detected if it exceeds the threshold duration.
+        detect_non_zero_flatliner (bool): If True, a flatliner is detected for non-zero values. If False,
+            a flatliner is detected for zero values only.
 
     Returns:
-        bool: Indicating whether or not there is a zero flatliner ongoing for the given load.
+        bool: Indicating whether or not there is a flatliner ongoing for the given load.
 
     """
     # remove all timestamps in the future
@@ -249,7 +261,18 @@ def detect_ongoing_zero_flatliner(
         latest_measurement_time - timedelta(minutes=duration_threshold_minutes) :
     ].dropna()
 
-    return (latest_measurements == 0).all() & (not latest_measurements.empty)
+    flatliner_value = latest_measurements.median() if detect_non_zero_flatliner else 0
+
+    # check if all values are within a relative tolerance of each other
+    flatline_condition = np.isclose(
+        latest_measurements,
+        flatliner_value,
+        atol=0,
+        rtol=1e-5,
+    ).all()
+    non_empty_condition = not latest_measurements.empty
+
+    return flatline_condition & non_empty_condition
 
 
 def calc_completeness_dataframe(

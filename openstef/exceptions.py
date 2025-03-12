@@ -44,8 +44,8 @@ class InputDataWrongColumnOrderError(InputDataInvalidError):
     """Wrong column order input data."""
 
 
-class InputDataOngoingZeroFlatlinerError(InputDataInvalidError):
-    """All recent load measurements are zero."""
+class InputDataOngoingFlatlinerError(InputDataInvalidError):
+    """All recent load measurements are constant."""
 
 
 class OldModelHigherScoreError(Exception):
