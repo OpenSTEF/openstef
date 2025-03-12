@@ -531,7 +531,7 @@ the given prediction job.</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
-<li><p><a class="reference internal" href="openstef.html#openstef.exceptions.InputDataOngoingZeroFlatlinerError" title="openstef.exceptions.InputDataOngoingZeroFlatlinerError"><strong>InputDataOngoingZeroFlatlinerError</strong></a> – When all recent load measurements are zero.</p></li>
+<li><p><a class="reference internal" href="openstef.html#openstef.exceptions.InputDataOngoingFlatlinerError" title="openstef.exceptions.InputDataOngoingFlatlinerError"><strong>InputDataOngoingFlatlinerError</strong></a> – When all recent load measurements are constant.</p></li>
 <li><p><strong>LookupError</strong> – When no model is found for the given prediction job in MLflow.</p></li>
 </ul>
 </dd>
@@ -564,7 +564,7 @@ This pipeline has no database or persisitent storage dependencies.</p>
 <dd class="field-odd"><p>Forecast</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="openstef.html#openstef.exceptions.InputDataOngoingZeroFlatlinerError" title="openstef.exceptions.InputDataOngoingZeroFlatlinerError"><strong>InputDataOngoingZeroFlatlinerError</strong></a> – When all recent load measurements are zero.</p>
+<dd class="field-even"><p><a class="reference internal" href="openstef.html#openstef.exceptions.InputDataOngoingFlatlinerError" title="openstef.exceptions.InputDataOngoingFlatlinerError"><strong>InputDataOngoingFlatlinerError</strong></a> – When all recent load measurements are constant.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -625,7 +625,7 @@ This pipeline has no database or persisitent storage dependencies.</p>
 <li><p><a class="reference internal" href="openstef.html#openstef.exceptions.InputDataInsufficientError" title="openstef.exceptions.InputDataInsufficientError"><strong>InputDataInsufficientError</strong></a> – If the input dataframe is empty.</p></li>
 <li><p><a class="reference internal" href="openstef.html#openstef.exceptions.InputDataWrongColumnOrderError" title="openstef.exceptions.InputDataWrongColumnOrderError"><strong>InputDataWrongColumnOrderError</strong></a> – If the load column is missing in the input dataframe.</p></li>
 <li><p><a class="reference internal" href="openstef.html#openstef.exceptions.OldModelHigherScoreError" title="openstef.exceptions.OldModelHigherScoreError"><strong>OldModelHigherScoreError</strong></a> – When old model is better than new model.</p></li>
-<li><p><a class="reference internal" href="openstef.html#openstef.exceptions.InputDataOngoingZeroFlatlinerError" title="openstef.exceptions.InputDataOngoingZeroFlatlinerError"><strong>InputDataOngoingZeroFlatlinerError</strong></a> – When all recent load measurements are zero.</p></li>
+<li><p><a class="reference internal" href="openstef.html#openstef.exceptions.InputDataOngoingFlatlinerError" title="openstef.exceptions.InputDataOngoingFlatlinerError"><strong>InputDataOngoingFlatlinerError</strong></a> – If all recent load measurements are constant.</p></li>
 </ul>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -717,7 +717,7 @@ These horizons are also used to make predictions (one for every horizon)</p></li
 <li><p><a class="reference internal" href="openstef.html#openstef.exceptions.InputDataInsufficientError" title="openstef.exceptions.InputDataInsufficientError"><strong>InputDataInsufficientError</strong></a> – when input data is insufficient.</p></li>
 <li><p><a class="reference internal" href="openstef.html#openstef.exceptions.InputDataWrongColumnOrderError" title="openstef.exceptions.InputDataWrongColumnOrderError"><strong>InputDataWrongColumnOrderError</strong></a> – when input data has a invalid column order.</p></li>
 <li><p><strong>ValueError</strong> – when the horizon is a string and the corresponding column in not in the input data</p></li>
-<li><p><a class="reference internal" href="openstef.html#openstef.exceptions.InputDataOngoingZeroFlatlinerError" title="openstef.exceptions.InputDataOngoingZeroFlatlinerError"><strong>InputDataOngoingZeroFlatlinerError</strong></a> – when all recent load measurements are zero.</p></li>
+<li><p><a class="reference internal" href="openstef.html#openstef.exceptions.InputDataOngoingFlatlinerError" title="openstef.exceptions.InputDataOngoingFlatlinerError"><strong>InputDataOngoingFlatlinerError</strong></a> – If all recent load measurements are constant.</p></li>
 </ul>
 </dd>
 </dl>
@@ -823,7 +823,7 @@ This pipeline has no database or persistent storage dependencies.</p>
 <li><p><a class="reference internal" href="openstef.html#openstef.exceptions.InputDataInsufficientError" title="openstef.exceptions.InputDataInsufficientError"><strong>InputDataInsufficientError</strong></a> – when input data is insufficient.</p></li>
 <li><p><a class="reference internal" href="openstef.html#openstef.exceptions.InputDataWrongColumnOrderError" title="openstef.exceptions.InputDataWrongColumnOrderError"><strong>InputDataWrongColumnOrderError</strong></a> – when input data has a invalid column order.</p></li>
 <li><p><a class="reference internal" href="openstef.html#openstef.exceptions.OldModelHigherScoreError" title="openstef.exceptions.OldModelHigherScoreError"><strong>OldModelHigherScoreError</strong></a> – When old model is better than new model.</p></li>
-<li><p><a class="reference internal" href="openstef.html#openstef.exceptions.InputDataOngoingZeroFlatlinerError" title="openstef.exceptions.InputDataOngoingZeroFlatlinerError"><strong>InputDataOngoingZeroFlatlinerError</strong></a> – when all recent load measurements are zero.</p></li>
+<li><p><a class="reference internal" href="openstef.html#openstef.exceptions.InputDataOngoingFlatlinerError" title="openstef.exceptions.InputDataOngoingFlatlinerError"><strong>InputDataOngoingFlatlinerError</strong></a> – If all recent load measurements are constant.</p></li>
 </ul>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -876,7 +876,7 @@ This pipeline has no database or persistent storage dependencies.</p>
 <li><p><a class="reference internal" href="openstef.html#openstef.exceptions.InputDataInsufficientError" title="openstef.exceptions.InputDataInsufficientError"><strong>InputDataInsufficientError</strong></a> – when input data is insufficient.</p></li>
 <li><p><a class="reference internal" href="openstef.html#openstef.exceptions.InputDataWrongColumnOrderError" title="openstef.exceptions.InputDataWrongColumnOrderError"><strong>InputDataWrongColumnOrderError</strong></a> – when input data has a invalid column order.
     ‘load’ column should be first and ‘horizon’ column last.</p></li>
-<li><p><a class="reference internal" href="openstef.html#openstef.exceptions.InputDataOngoingZeroFlatlinerError" title="openstef.exceptions.InputDataOngoingZeroFlatlinerError"><strong>InputDataOngoingZeroFlatlinerError</strong></a> – when all recent load measurements are zero.</p></li>
+<li><p><a class="reference internal" href="openstef.html#openstef.exceptions.InputDataOngoingFlatlinerError" title="openstef.exceptions.InputDataOngoingFlatlinerError"><strong>InputDataOngoingFlatlinerError</strong></a> – If all recent load measurements are constant.</p></li>
 </ul>
 </dd>
 </dl>
@@ -906,7 +906,7 @@ This pipeline has no database or persistent storage dependencies.</p>
 <li><p><a class="reference internal" href="openstef.html#openstef.exceptions.InputDataInsufficientError" title="openstef.exceptions.InputDataInsufficientError"><strong>InputDataInsufficientError</strong></a> – when input data is insufficient.</p></li>
 <li><p><a class="reference internal" href="openstef.html#openstef.exceptions.InputDataWrongColumnOrderError" title="openstef.exceptions.InputDataWrongColumnOrderError"><strong>InputDataWrongColumnOrderError</strong></a> – when input data has a invalid column order.</p></li>
 <li><p><strong>ValueError</strong> – when the horizon is a string and the corresponding column in not in the input data</p></li>
-<li><p><a class="reference internal" href="openstef.html#openstef.exceptions.InputDataOngoingZeroFlatlinerError" title="openstef.exceptions.InputDataOngoingZeroFlatlinerError"><strong>InputDataOngoingZeroFlatlinerError</strong></a> – when all recent load measurements are zero.</p></li>
+<li><p><a class="reference internal" href="openstef.html#openstef.exceptions.InputDataOngoingFlatlinerError" title="openstef.exceptions.InputDataOngoingFlatlinerError"><strong>InputDataOngoingFlatlinerError</strong></a> – If all recent load measurements are constant.</p></li>
 </ul>
 </dd>
 </dl>

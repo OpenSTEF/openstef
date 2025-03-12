@@ -442,6 +442,7 @@
 <li class="toctree-l4"><a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass.default_modelspecs"><code class="docutils literal notranslate"><span class="pre">PredictionJobDataClass.default_modelspecs</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass.depends_on"><code class="docutils literal notranslate"><span class="pre">PredictionJobDataClass.depends_on</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass.description"><code class="docutils literal notranslate"><span class="pre">PredictionJobDataClass.description</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass.detect_non_zero_flatliner"><code class="docutils literal notranslate"><span class="pre">PredictionJobDataClass.detect_non_zero_flatliner</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass.electricity_bidding_zone"><code class="docutils literal notranslate"><span class="pre">PredictionJobDataClass.electricity_bidding_zone</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass.flatliner_threshold_minutes"><code class="docutils literal notranslate"><span class="pre">PredictionJobDataClass.flatliner_threshold_minutes</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass.forecast_type"><code class="docutils literal notranslate"><span class="pre">PredictionJobDataClass.forecast_type</span></code></a></li>
@@ -974,7 +975,7 @@
 <li class="toctree-l2"><a class="reference internal" href="openstef.validation.html#module-openstef.validation.validation">openstef.validation.validation module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="openstef.validation.html#openstef.validation.validation.calc_completeness_dataframe"><code class="docutils literal notranslate"><span class="pre">calc_completeness_dataframe()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef.validation.html#openstef.validation.validation.calc_completeness_features"><code class="docutils literal notranslate"><span class="pre">calc_completeness_features()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="openstef.validation.html#openstef.validation.validation.detect_ongoing_zero_flatliner"><code class="docutils literal notranslate"><span class="pre">detect_ongoing_zero_flatliner()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="openstef.validation.html#openstef.validation.validation.detect_ongoing_flatliner"><code class="docutils literal notranslate"><span class="pre">detect_ongoing_flatliner()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef.validation.html#openstef.validation.validation.drop_target_na"><code class="docutils literal notranslate"><span class="pre">drop_target_na()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef.validation.html#openstef.validation.validation.is_data_sufficient"><code class="docutils literal notranslate"><span class="pre">is_data_sufficient()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef.validation.html#openstef.validation.validation.validate"><code class="docutils literal notranslate"><span class="pre">validate()</span></code></a></li>
@@ -1678,10 +1679,10 @@
 </dd></dl>
 
 <dl class="py exception">
-<dt class="sig sig-object py" id="openstef.exceptions.InputDataOngoingZeroFlatlinerError">
-<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef.exceptions.</span></span><span class="sig-name descname"><span class="pre">InputDataOngoingZeroFlatlinerError</span></span><a class="headerlink" href="#openstef.exceptions.InputDataOngoingZeroFlatlinerError" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="openstef.exceptions.InputDataOngoingFlatlinerError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef.exceptions.</span></span><span class="sig-name descname"><span class="pre">InputDataOngoingFlatlinerError</span></span><a class="headerlink" href="#openstef.exceptions.InputDataOngoingFlatlinerError" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#openstef.exceptions.InputDataInvalidError" title="openstef.exceptions.InputDataInvalidError"><code class="xref py py-class docutils literal notranslate"><span class="pre">InputDataInvalidError</span></code></a></p>
-<p>All recent load measurements are zero.</p>
+<p>All recent load measurements are constant.</p>
 </dd></dl>
 
 <dl class="py exception">
@@ -3019,10 +3020,10 @@
     </a>
    </li>
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#openstef.exceptions.InputDataOngoingZeroFlatlinerError">
+    <a class="reference internal nav-link" href="#openstef.exceptions.InputDataOngoingFlatlinerError">
      <code class="docutils literal notranslate">
       <span class="pre">
-       InputDataOngoingZeroFlatlinerError
+       InputDataOngoingFlatlinerError
       </span>
      </code>
     </a>
