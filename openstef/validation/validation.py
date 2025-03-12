@@ -29,7 +29,8 @@ def validate(
 
     Steps:
     1. Check if input dataframe has a datetime index.
-    1. Check if a zero flatliner pattern is ongoing (i.e. all recent measurements are zero).
+    1. Check if a flatliner pattern is ongoing (i.e. all recent measurements are constant,
+        0 in case detect_non_zero_flatliner = True).
     2. Replace repeated values for longer than flatliner_threshold_minutes with NaN.
 
     Args:
@@ -45,7 +46,7 @@ def validate(
         Dataframe where repeated values are set to None
 
     Raises:
-        InputDataOngoingFlatlinerError: If all recent load measurements are zero.
+        InputDataOngoingFlatlinerError: If all recent load measurements are constant.
 
     """
     structlog.configure(

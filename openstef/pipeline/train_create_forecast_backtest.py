@@ -60,7 +60,7 @@ def train_model_and_forecast_back_test(
         InputDataInsufficientError: when input data is insufficient.
         InputDataWrongColumnOrderError: when input data has a invalid column order.
         ValueError: when the horizon is a string and the corresponding column in not in the input data
-        InputDataOngoingFlatlinerError: when all recent load measurements are zero.
+        InputDataOngoingFlatlinerError: If all recent load measurements are constant.
 
     """
     if pj.backtest_split_func is None:
