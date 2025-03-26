@@ -12,7 +12,8 @@ import pytest
 
 from openstef.enums import PipelineType
 from openstef.exceptions import InputDataOngoingFlatlinerError
-from openstef.tasks.train_model import main as task_main, TRAINING_PERIOD_DAYS
+from openstef.tasks.train_model import TRAINING_PERIOD_DAYS
+from openstef.tasks.train_model import main as task_main
 from openstef.tasks.train_model import train_model_task
 
 
