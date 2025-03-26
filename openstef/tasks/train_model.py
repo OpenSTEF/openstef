@@ -19,15 +19,17 @@ Example:
         $ python model_train.py
 
 """
+
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
+from typing import Optional
 
 import pandas as pd
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.enums import ModelType, PipelineType
 from openstef.exceptions import (
-    InputDataOngoingZeroFlatlinerError,
+    InputDataOngoingFlatlinerError,
     SkipSaveTrainingForecasts,
 )
 from openstef.model.serializer import MLflowSerializer
@@ -41,14 +43,16 @@ from openstef.tasks.utils.taskcontext import TaskContext
 
 TRAINING_PERIOD_DAYS: int = 120
 DEFAULT_CHECK_MODEL_AGE: bool = True
+DEFAULT_IGNORE_EXISTING_MODELS: bool = False
 
 
 def train_model_task(
     pj: PredictionJobDataClass,
     context: TaskContext,
     check_old_model_age: bool = DEFAULT_CHECK_MODEL_AGE,
-    datetime_start: datetime = None,
-    datetime_end: datetime = None,
+    datetime_start: Optional[datetime] = None,
+    datetime_end: Optional[datetime] = None,
+    ignore_existing_models: bool = DEFAULT_IGNORE_EXISTING_MODELS,
 ) -> None:
     """Train model task.
 
@@ -67,7 +71,7 @@ def train_model_task(
 
     Raises:
         SkipSaveTrainingForecasts: If old model is better or too young, you don't need to save the traing forcast.
-        InputDataOngoingZeroFlatlinerError: If all recent load measurements are zero.
+        InputDataOngoingFlatlinerError: If all recent load measurements are constant.
 
     """
     # Check pipeline types
@@ -104,7 +108,9 @@ def train_model_task(
     serializer = MLflowSerializer(mlflow_tracking_uri=mlflow_tracking_uri)
 
     # Get old model and age
-    _, _, old_model_age = train_pipeline_step_load_model(pj, serializer)
+    _, _, old_model_age = train_pipeline_step_load_model(
+        pj, serializer, ignore_existing_models
+    )
 
     # Check old model age and continue yes/no
     if (old_model_age < MAXIMUM_MODEL_AGE) and check_old_model_age:
@@ -168,6 +174,7 @@ def train_model_task(
             check_old_model_age=check_old_model_age,
             mlflow_tracking_uri=mlflow_tracking_uri,
             artifact_folder=artifact_folder,
+            ignore_existing_models=ignore_existing_models,
         )
 
         if data_sets:
@@ -187,18 +194,18 @@ def train_model_task(
             context.logger.debug("Saved Forecasts from trained model on datasets")
     except SkipSaveTrainingForecasts:
         context.logger.debug("Skip saving forecasts")
-    except InputDataOngoingZeroFlatlinerError:
+    except InputDataOngoingFlatlinerError:
         if (
             context.config.known_zero_flatliners
             and pj.id in context.config.known_zero_flatliners
         ):
             context.logger.info(
-                "No model was trained for this known zero flatliner. No model needs to be trained either, since the fallback forecasts are sufficient."
+                "No model was trained for this known flatliner. No model needs to be trained either, since the fallback forecasts are sufficient."
             )
             return
         else:
-            raise InputDataOngoingZeroFlatlinerError(
-                'All recent load measurements are zero. Check the load profile of this pid as well as related/neighbouring prediction jobs. Afterwards, consider adding this pid to the "known_zero_flatliners" app_setting and possibly removing other pids from the same app_setting.'
+            raise InputDataOngoingFlatlinerError(
+                'All recent load measurements are constant. Check the load profile of this pid as well as related/neighbouring prediction jobs. Afterwards, consider adding this pid to the "known_zero_flatliners" app_setting and possibly removing other pids from the same app_setting.'
             )
 
 

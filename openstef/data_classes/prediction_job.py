@@ -96,6 +96,10 @@ class PredictionJobDataClass(BaseModel):
         1440,
         description="Number of minutes that the load has to be constant to detect a flatliner.",
     )
+    detect_non_zero_flatliner: bool = Field(
+        False,
+        description="If True, flatliners are also detected on non-zero values (median of the load).",
+    )
     data_balancing_ratio: Optional[float] = Field(
         None,
         description="If data balancing is enabled, the data will be balanced with data from 1 year ago in the future.",

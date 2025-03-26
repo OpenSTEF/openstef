@@ -39,6 +39,7 @@ def train_model_pipeline(
     check_old_model_age: bool,
     mlflow_tracking_uri: str,
     artifact_folder: str,
+    ignore_existing_models: bool = False,
 ) -> Optional[tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]]:
     """Middle level pipeline that takes care of all persistent storage dependencies.
 
@@ -72,7 +73,7 @@ def train_model_pipeline(
 
     # Get old model and age
     old_model, model_specs, old_model_age = train_pipeline_step_load_model(
-        pj, serializer
+        pj, serializer, ignore_existing_models
     )
 
     # Check old model age and continue yes/no
@@ -99,6 +100,7 @@ def train_model_pipeline(
             input_data,
             old_model,
             horizons=horizons,
+            ignore_existing_models=ignore_existing_models,
         )
     except OldModelHigherScoreError as OMHSE:
         logger.error("Old model is better than new model", pid=pj["id"], exc_info=OMHSE)
@@ -148,6 +150,7 @@ def train_model_pipeline_core(
     input_data: pd.DataFrame,
     old_model: OpenstfRegressor = None,
     horizons: list[float] = DEFAULT_TRAIN_HORIZONS_HOURS,
+    ignore_existing_models: bool = False,
 ) -> Tuple[
     OpenstfRegressor,
     Report,
@@ -170,7 +173,7 @@ def train_model_pipeline_core(
         InputDataInsufficientError: when input data is insufficient.
         InputDataWrongColumnOrderError: when input data has a invalid column order.
         OldModelHigherScoreError: When old model is better than new model.
-        InputDataOngoingZeroFlatlinerError: when all recent load measurements are zero.
+        InputDataOngoingFlatlinerError: If all recent load measurements are constant.
 
     Returns:
         - Fitted_model (OpenstfRegressor)
@@ -196,7 +199,7 @@ def train_model_pipeline_core(
     model_specs.feature_names = list(train_data.columns)
 
     # Check if new model is better than old model
-    if old_model:
+    if old_model and not ignore_existing_models:
         combined = pd.concat([train_data, validation_data])
         # skip the forecast column added at the end of dataframes
         if pj.save_train_forecasts:
@@ -213,6 +216,7 @@ def train_model_pipeline_core(
         # Try to compare new model to old model.
         # If this does not success, for example since the feature names of the
         # old model differ from the new model, the new model is considered better
+
         try:
             score_old_model = old_model.score(x_data, y_data)
 
@@ -265,7 +269,7 @@ def train_pipeline_common(
         InputDataInsufficientError: when input data is insufficient.
         InputDataWrongColumnOrderError: when input data has a invalid column order.
             'load' column should be first and 'horizon' column last.
-        InputDataOngoingZeroFlatlinerError: when all recent load measurements are zero.
+        InputDataOngoingFlatlinerError: If all recent load measurements are constant.
 
     """
     data_with_features = train_pipeline_step_compute_features(
@@ -308,25 +312,31 @@ def train_pipeline_common(
 
 
 def train_pipeline_step_load_model(
-    pj: PredictionJobDataClass, serializer: MLflowSerializer
+    pj: PredictionJobDataClass,
+    serializer: MLflowSerializer,
+    ignore_existing_models: bool = False,
 ) -> Tuple[OpenstfRegressor, ModelSpecificationDataClass, Union[int, float]]:
     old_model: Optional[OpenstfRegressor]
-    try:
-        old_model, model_specs = serializer.load_model(experiment_name=str(pj.id))
-        old_model_age = old_model.age  # Age attribute is openstef specific
-        return old_model, model_specs, old_model_age
-    except (AttributeError, FileNotFoundError, LookupError):
-        logger.warning("No old model found, training new model", pid=pj.id)
-    except Exception:
-        logger.exception("Old model could not be loaded, training new model", pid=pj.id)
+
+    if not ignore_existing_models:
+        try:
+            old_model, model_specs = serializer.load_model(experiment_name=str(pj.id))
+            old_model_age = old_model.age  # Age attribute is openstef specific
+            return old_model, model_specs, old_model_age
+        except (AttributeError, FileNotFoundError, LookupError):
+            logger.warning("No old model found, training new model", pid=pj.id)
+        except Exception:
+            logger.exception(
+                "Old model could not be loaded, training new model", pid=pj.id
+            )
+
     old_model = None
     old_model_age = float("inf")
     if pj["default_modelspecs"] is not None:
         model_specs = pj["default_modelspecs"]
         if model_specs.id != pj.id:
             raise RuntimeError(
-                "The id of the prediction job and its default model_specs do not"
-                " match."
+                "The id of the prediction job and its default model_specs do not match."
             )
     else:
         # create basic model_specs
@@ -356,7 +366,7 @@ def train_pipeline_step_compute_features(
         InputDataInsufficientError: when input data is insufficient.
         InputDataWrongColumnOrderError: when input data has a invalid column order.
         ValueError: when the horizon is a string and the corresponding column in not in the input data
-        InputDataOngoingZeroFlatlinerError: when all recent load measurements are zero.
+        InputDataOngoingFlatlinerError: If all recent load measurements are constant.
 
     """
     if input_data.empty:
@@ -382,6 +392,7 @@ def train_pipeline_step_compute_features(
             input_data,
             pj["flatliner_threshold_minutes"],
             pj["resolution_minutes"],
+            detect_non_zero_flatliner=pj["detect_non_zero_flatliner"],
         )
     )
     # Check if sufficient data is left after cleaning
