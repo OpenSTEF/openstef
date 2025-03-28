@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: MPL-2.0
 
 import unittest
-from openstef.enums import BiddingZone, AggregateFunction
 from test.unit.utils.base import BaseTestCase
 from test.unit.utils.data import TestData
 from unittest.mock import MagicMock
@@ -95,7 +94,10 @@ class TestApplyFeaturesModule(BaseTestCase):
         )
 
         expected_output = TestData.load("input_data_with_features.csv")
-        expected_output.drop(columns=["windspeed_100mExtrapolated", "windPowerFit_extrapolated"], inplace=True)
+        expected_output.drop(
+            columns=["windspeed_100mExtrapolated", "windPowerFit_extrapolated"],
+            inplace=True,
+        )
         self.assertDataframeEqual(
             input_data_with_features,
             expected_output,
@@ -121,7 +123,9 @@ class TestApplyFeaturesModule(BaseTestCase):
         )
 
         expected_output = TestData.load("input_data_with_features.csv")
-        expected_output.drop(columns=["windspeed_100m", "windpowerFit_harm_arome"], inplace=True)
+        expected_output.drop(
+            columns=["windspeed_100m", "windpowerFit_harm_arome"], inplace=True
+        )
         self.assertDataframeEqual(
             input_data_with_features,
             expected_output,
