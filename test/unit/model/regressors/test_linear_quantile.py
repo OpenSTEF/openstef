@@ -1,20 +1,20 @@
 # SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
+import pickle
 import unittest
+from test.unit.utils.base import BaseTestCase
+from test.unit.utils.data import TestData
 from unittest.mock import MagicMock
 
 import numpy as np
 import pandas as pd
 import sklearn
-import pickle
 from sklearn.utils.estimator_checks import check_estimator
 
 from openstef.feature_engineering.apply_features import apply_features
 from openstef.model.model_creator import ModelCreator
 from openstef.model.regressors.linear_quantile import LinearQuantileOpenstfRegressor
-from test.unit.utils.base import BaseTestCase
-from test.unit.utils.data import TestData
 
 train_input = TestData.load("reference_sets/307-train-data.csv")
 

@@ -3,12 +3,10 @@
 # SPDX-License-Identifier: MPL-2.0
 """This modelu contains various helper functions."""
 
-import logging
-
 import numpy as np
 import pandas as pd
-import structlog
 
+from openstef.logging.logger_factory import get_logger
 from openstef.settings import Settings
 
 
@@ -34,12 +32,7 @@ def add_missing_feature_columns(
         Input dataframe with missing columns filled with ``np.N=nan``.
 
     """
-    structlog.configure(
-        wrapper_class=structlog.make_filtering_bound_logger(
-            logging.getLevelName(Settings.log_level)
-        )
-    )
-    logger = structlog.get_logger(__name__)
+    logger = get_logger(__name__)
 
     if features is None:
         features = []
@@ -70,12 +63,7 @@ def remove_non_requested_feature_columns(
         Model input data with features.
 
     """
-    structlog.configure(
-        wrapper_class=structlog.make_filtering_bound_logger(
-            logging.getLevelName(Settings.log_level)
-        )
-    )
-    logger = structlog.get_logger(__name__)
+    logger = get_logger(__name__)
 
     if requested_features is None:
         requested_features = []

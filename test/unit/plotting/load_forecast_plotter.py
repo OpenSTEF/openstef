@@ -3,9 +3,10 @@
 # SPDX-License-Identifier: MPL-2.0
 
 import unittest
-import pandas as pd
-import numpy as np
 from datetime import datetime, timedelta
+
+import numpy as np
+import pandas as pd
 
 from openstef.plotting.load_forecast_plotter import LoadForecastPlotter
 

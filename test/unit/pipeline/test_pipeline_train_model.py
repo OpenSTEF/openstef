@@ -6,6 +6,8 @@ import glob
 import os
 import unittest
 from datetime import UTC, datetime, timedelta
+from test.unit.utils.base import BaseTestCase
+from test.unit.utils.data import TestData
 from unittest.mock import MagicMock, patch
 
 import pandas as pd
@@ -35,8 +37,6 @@ from openstef.pipeline.train_model import (
     train_pipeline_common,
 )
 from openstef.validation import validation
-from test.unit.utils.base import BaseTestCase
-from test.unit.utils.data import TestData
 
 
 class DummyObjective(RegressorObjective):

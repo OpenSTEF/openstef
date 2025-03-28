@@ -2,19 +2,16 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-import logging
-
 import joblib
 import numpy as np
 import pandas as pd
-import structlog
 
 import openstef.postprocessing.postprocessing as postprocessing
 from openstef import PROJECT_ROOT
 from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.enums import ForecastType
+from openstef.logging.logger_factory import get_logger
 from openstef.model.regressors.dazls import Dazls
-from openstef.settings import Settings
 
 # Set the path for the Dazls stored model
 DAZLS_STORED = str(
@@ -98,12 +95,7 @@ def create_components_forecast_pipeline(
         "algtype"
 
     """
-    structlog.configure(
-        wrapper_class=structlog.make_filtering_bound_logger(
-            logging.getLevelName(Settings.log_level)
-        )
-    )
-    logger = structlog.get_logger(__name__)
+    logger = get_logger(__name__)
     logger.info("Make components prediction", pid=pj["id"])
 
     # Make component forecasts

@@ -1,16 +1,15 @@
 # SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-import logging
 
 import pandas as pd
-import structlog
 
 from openstef.data_classes.model_specifications import ModelSpecificationDataClass
 from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.feature_engineering.feature_applicator import (
     OperationalPredictFeatureApplicator,
 )
+from openstef.logging.logger_factory import get_logger
 from openstef.model.confidence_interval_applicator import ConfidenceIntervalApplicator
 from openstef.model.fallback import generate_fallback
 from openstef.model.regressors.regressor import OpenstfRegressor
@@ -20,7 +19,6 @@ from openstef.postprocessing.postprocessing import (
     add_prediction_job_properties_to_forecast,
     sort_quantiles,
 )
-from openstef.settings import Settings
 from openstef.validation import validation
 
 
@@ -88,12 +86,7 @@ def create_forecast_pipeline_core(
         InputDataOngoingFlatlinerError: When all recent load measurements are constant.
 
     """
-    structlog.configure(
-        wrapper_class=structlog.make_filtering_bound_logger(
-            logging.getLevelName(Settings.log_level)
-        )
-    )
-    logger = structlog.get_logger(__name__)
+    logger = get_logger(__name__)
 
     fallback_strategy = "extreme_day"  # this can later be expanded
 

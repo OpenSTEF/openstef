@@ -1,14 +1,13 @@
 # SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-import logging
 from typing import Union
 
 import pandas as pd
 import pymsteams
-import structlog
 from pymsteams import cardsection
 
+from openstef.logging.logger_factory import get_logger
 from openstef.settings import Settings
 
 
@@ -44,12 +43,7 @@ def post_teams(
     if not Settings.post_teams_messages:
         return
 
-    structlog.configure(
-        wrapper_class=structlog.make_filtering_bound_logger(
-            logging.getLevelName(Settings.log_level)
-        )
-    )
-    logger = structlog.get_logger(__name__)
+    logger = get_logger(__name__)
     # If no url is passed, give warning and don't send teams message
     if url is None:
         logger.warning("Can't post Teams message, no url given.")

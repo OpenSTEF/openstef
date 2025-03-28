@@ -5,7 +5,7 @@ import json
 import logging
 import os
 import shutil
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from json import JSONDecodeError
 from typing import Optional, Union
 from urllib.parse import unquote, urlparse
@@ -13,12 +13,12 @@ from urllib.parse import unquote, urlparse
 import mlflow
 import numpy as np
 import pandas as pd
-import structlog
 from mlflow.exceptions import MlflowException
 from mlflow.store.artifact.artifact_repository_registry import get_artifact_repository
 from xgboost import XGBModel  # Temporary for backward compatibility
 
 from openstef.data_classes.model_specifications import ModelSpecificationDataClass
+from openstef.logging.logger_factory import get_logger
 from openstef.metrics.reporter import Report
 from openstef.model.regressors.regressor import OpenstfRegressor
 from openstef.settings import Settings
@@ -26,12 +26,7 @@ from openstef.settings import Settings
 
 class MLflowSerializer:
     def __init__(self, mlflow_tracking_uri: str):
-        structlog.configure(
-            wrapper_class=structlog.make_filtering_bound_logger(
-                logging.getLevelName(Settings.log_level)
-            )
-        )
-        self.logger = structlog.get_logger(self.__class__.__name__)
+        self.logger = get_logger(self.__class__.__name__)
         mlflow.set_tracking_uri(mlflow_tracking_uri)
         self.logger.debug(f"MLflow tracking uri at init= {mlflow_tracking_uri}")
         self.experiment_name_prefix = (

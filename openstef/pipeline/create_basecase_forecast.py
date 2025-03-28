@@ -1,17 +1,16 @@
 # SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-import logging
 from pathlib import Path
 
 import pandas as pd
-import structlog
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.exceptions import NoRealisedLoadError
 from openstef.feature_engineering.feature_applicator import (
     OperationalPredictFeatureApplicator,
 )
+from openstef.logging.logger_factory import get_logger
 from openstef.model.basecase import BaseCaseModel
 from openstef.model.confidence_interval_applicator import ConfidenceIntervalApplicator
 from openstef.pipeline.utils import generate_forecast_datetime_range
@@ -19,7 +18,6 @@ from openstef.postprocessing.postprocessing import (
     add_components_base_case_forecast,
     add_prediction_job_properties_to_forecast,
 )
-from openstef.settings import Settings
 from openstef.validation import validation
 
 MODEL_LOCATION = Path(".")
@@ -44,13 +42,7 @@ def create_basecase_forecast_pipeline(
         NoRealisedLoadError: When no realised load for given datetime range.
 
     """
-    structlog.configure(
-        wrapper_class=structlog.make_filtering_bound_logger(
-            logging.getLevelName(Settings.log_level)
-        )
-    )
-    logger = structlog.get_logger(__name__)
-
+    logger = get_logger(__name__)
     logger.info("Preprocessing data for basecase forecast")
 
     forecast_start, forecast_end = generate_forecast_datetime_range(input_data)

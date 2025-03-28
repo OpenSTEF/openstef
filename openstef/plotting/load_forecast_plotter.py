@@ -2,13 +2,13 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-from typing import Tuple, Optional
+from typing import Optional, Tuple
 
 import numpy as np
-from pydantic import BaseModel
 import pandas as pd
-import plotly.graph_objects as go
 import plotly.express as px
+import plotly.graph_objects as go
+from pydantic import BaseModel
 
 
 class LoadForecastPlotter(BaseModel):

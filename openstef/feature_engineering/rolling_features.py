@@ -4,9 +4,9 @@
 from datetime import timedelta
 
 import pandas as pd
+from pydantic import TypeAdapter
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
-from pydantic import TypeAdapter
 
 
 def convert_timedelta_to_isoformat(td: timedelta) -> str:

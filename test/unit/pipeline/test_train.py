@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 import unittest
-from datetime import datetime, timedelta, UTC
+from datetime import UTC, datetime, timedelta
 from test.unit.utils.base import BaseTestCase
 from test.unit.utils.data import TestData
 

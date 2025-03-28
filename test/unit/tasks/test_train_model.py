@@ -2,8 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 import copy
-from datetime import datetime, UTC
-
+from datetime import UTC, datetime
 from test.unit.utils.data import TestData
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
@@ -13,7 +12,8 @@ import pytest
 
 from openstef.enums import PipelineType
 from openstef.exceptions import InputDataOngoingFlatlinerError
-from openstef.tasks.train_model import main as task_main, TRAINING_PERIOD_DAYS
+from openstef.tasks.train_model import TRAINING_PERIOD_DAYS
+from openstef.tasks.train_model import main as task_main
 from openstef.tasks.train_model import train_model_task
 
 

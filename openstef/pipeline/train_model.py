@@ -1,12 +1,10 @@
 # SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-import logging
 import os
 from typing import Optional, Tuple, Union
 
 import pandas as pd
-import structlog
 
 from openstef.data_classes.model_specifications import ModelSpecificationDataClass
 from openstef.data_classes.prediction_job import PredictionJobDataClass
@@ -17,13 +15,13 @@ from openstef.exceptions import (
     SkipSaveTrainingForecasts,
 )
 from openstef.feature_engineering.feature_applicator import TrainFeatureApplicator
+from openstef.logging.logger_factory import get_logger
 from openstef.metrics.reporter import Report, Reporter
 from openstef.model.model_creator import ModelCreator
 from openstef.model.regressors.regressor import OpenstfRegressor
 from openstef.model.serializer import MLflowSerializer
 from openstef.model.standard_deviation_generator import StandardDeviationGenerator
 from openstef.model_selection.model_selection import split_data_train_validation_test
-from openstef.settings import Settings
 from openstef.validation import validation
 
 DEFAULT_TRAIN_HORIZONS_HOURS: list[float] = [0.25, 47.0]
@@ -32,12 +30,7 @@ MAXIMUM_MODEL_AGE: int = 7
 DEFAULT_EARLY_STOPPING_ROUNDS: int = 10
 PENALTY_FACTOR_OLD_MODEL: float = 1.2
 
-structlog.configure(
-    wrapper_class=structlog.make_filtering_bound_logger(
-        logging.getLevelName(Settings.log_level)
-    )
-)
-logger = structlog.get_logger(__name__)
+logger = get_logger(__name__)
 
 
 def train_model_pipeline(
@@ -495,7 +488,7 @@ def train_pipeline_step_train_model(
     # Temporary fix to allow xgboost version upgrade -> set n_estimators if present and None
     if not valid_hyper_parameters.get("n_estimators", True):
         valid_hyper_parameters.update(dict(n_estimators=100))
-        logging.info("Deprecation warning: n_estimators=None found, overwriting.")
+        logger.info("Deprecation warning: n_estimators=None found, overwriting.")
 
     model.set_params(**valid_hyper_parameters)
     model.fit(
@@ -507,7 +500,7 @@ def train_pipeline_step_train_model(
     # Gets the feature importance df or None if we don't have feature importance
     model.feature_importance_dataframe = model.set_feature_importance()
 
-    logging.info("Fitted a new model, not yet stored")
+    logger.info("Fitted a new model, not yet stored")
 
     # Do confidence interval determination
     model = StandardDeviationGenerator(

@@ -9,19 +9,10 @@
 import numpy as np
 import pandas as pd
 
-import structlog
-import logging
-
-from openstef.settings import Settings
 from openstef import PROJECT_ROOT
+from openstef.logging.logger_factory import get_logger
 
-
-structlog.configure(
-    wrapper_class=structlog.make_filtering_bound_logger(
-        logging.getLevelName(Settings.log_level)
-    )
-)
-logger = structlog.get_logger(__name__)
+logger = get_logger(__name__)
 
 TERRESTRIAL_RADIATION_CSV_PATH: str = (
     PROJECT_ROOT / "openstef" / "data" / "NL_terrestrial_radiation.csv"

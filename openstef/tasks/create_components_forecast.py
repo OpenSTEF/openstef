@@ -21,20 +21,18 @@ Example:
         $ python create_components_forecast.py
 
 """
-import logging
-from datetime import datetime, timedelta, UTC
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import pandas as pd
-import structlog
 
 from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.enums import ModelType
 from openstef.exceptions import ComponentForecastTooShortHorizonError
+from openstef.logging.logger_factory import get_logger
 from openstef.pipeline.create_component_forecast import (
     create_components_forecast_pipeline,
 )
-from openstef.settings import Settings
 from openstef.tasks.utils.predictionjobloop import PredictionJobLoop
 from openstef.tasks.utils.taskcontext import TaskContext
 
@@ -63,12 +61,7 @@ def create_components_forecast_task(
          (less than 30 minutes in advance)
 
     """
-    structlog.configure(
-        wrapper_class=structlog.make_filtering_bound_logger(
-            logging.getLevelName(Settings.log_level)
-        )
-    )
-    logger = structlog.get_logger(__name__)
+    logger = get_logger(__name__)
     if pj["train_components"] == 0:
         context.logger.info(
             "Skip prediction job", train_components=pj["train_components"]
