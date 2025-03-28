@@ -1,0 +1,53 @@
+openstef.logging package
+========================
+
+Submodules
+----------
+
+openstef.logging.base\_logger module
+------------------------------------
+
+.. automodule:: openstef.logging.base_logger
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+openstef.logging.logger\_factory module
+---------------------------------------
+
+.. automodule:: openstef.logging.logger_factory
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+openstef.logging.logger\_types module
+-------------------------------------
+
+.. automodule:: openstef.logging.logger_types
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+openstef.logging.standard\_logger module
+----------------------------------------
+
+.. automodule:: openstef.logging.standard_logger
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+openstef.logging.structlog\_logger module
+-----------------------------------------
+
+.. automodule:: openstef.logging.structlog_logger
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: openstef.logging
+   :members:
+   :undoc-members:
+   :show-inheritance:

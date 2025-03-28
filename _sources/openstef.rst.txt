@@ -9,6 +9,7 @@ Subpackages
 
    openstef.data_classes
    openstef.feature_engineering
+   openstef.logging
    openstef.metrics
    openstef.model
    openstef.model_selection
