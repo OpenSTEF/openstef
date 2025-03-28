@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: MPL-2.0
 
 import unittest
-from unittest.mock import MagicMock
 
 from openstef.enums import BiddingZone, AggregateFunction
 from test.unit.utils.base import BaseTestCase
@@ -79,7 +78,7 @@ class TestApplyFeaturesModule(BaseTestCase):
         additional_minute_lags_list = generate_non_trivial_lag_times(input_data)
         self.assertEqual(len(additional_minute_lags_list), 0)
 
-    def test_apply_features(self):
+    def test_apply_features_with_windspeed_100m(self):
         """Test the 'apply_features' function.
 
             Test if the returned data frame with the generated and added features is
@@ -95,7 +94,33 @@ class TestApplyFeaturesModule(BaseTestCase):
         )
 
         expected_output = TestData.load("input_data_with_features.csv")
+        expected_output.drop(columns=["windspeed_100mExtrapolated", "windPowerFit_extrapolated"], inplace=True)
+        self.assertDataframeEqual(
+            input_data_with_features,
+            expected_output,
+            check_like=True,  # ignore the order of index & columns
+            check_dtype=False,
+        )
 
+    def test_apply_features_without_windspeed_100m(self):
+        """Test the 'apply_features' function.
+
+            Test if the returned data frame with the generated and added features is
+            equal to a previously saved data frame.
+
+        Raises:
+            AssertionError: When the returned data frame is not equal to the expected one
+        """
+
+        full_input_data = TestData.load("input_data.csv")
+        input_data_with_features = apply_features.apply_features(
+            data=full_input_data.drop(columns=["windspeed_100m"]),
+            horizon=24,
+            pj={"model": "xgb", "lat": 52.132633, "lon": 5.291266},
+        )
+
+        expected_output = TestData.load("input_data_with_features.csv")
+        expected_output.drop(columns=["windspeed_100m", "windpowerFit_harm_arome"], inplace=True)
         self.assertDataframeEqual(
             input_data_with_features,
             expected_output,
@@ -121,14 +146,13 @@ class TestApplyFeaturesModule(BaseTestCase):
         assert "gti" in list(input_data_with_features.columns)
         assert "dni" in list(input_data_with_features.columns)
 
-    def test_train_feature_applicator(self):
+    def test_train_feature_applicator_with_windspeed_100m(self):
         input_data_with_features = TrainFeatureApplicator(horizons=[0.25]).add_features(
             TestData.load("input_data.csv"),
             pj={"model": "proleaf", "lat": 52.132633, "lon": 5.291266},
         )
 
         expected_output = TestData.load("input_data_multi_horizon_features.csv")
-
         self.assertDataframeEqual(
             input_data_with_features,
             expected_output,

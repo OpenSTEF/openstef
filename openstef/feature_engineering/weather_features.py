@@ -353,8 +353,11 @@ def add_additional_wind_features(
             for x in feature_names
         )
 
-    # Add add_additional_wind_features
-    if "windspeed" in data.columns and additional_wind_features:
+    if (
+        "windspeed_100m" not in data.columns
+        and "windspeed" in data.columns
+        and additional_wind_features
+    ):
         data["windspeed_100mExtrapolated"] = calculate_windspeed_at_hubheight(
             data["windspeed"]
         )
@@ -363,7 +366,6 @@ def add_additional_wind_features(
             data["windspeed_100mExtrapolated"]
         )
 
-    # Do extra check
     if "windspeed_100m" in data.columns and additional_wind_features:
         data["windpowerFit_harm_arome"] = calculate_windturbine_power_output(
             data["windspeed_100m"].astype(float)
