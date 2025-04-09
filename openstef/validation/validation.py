@@ -283,7 +283,7 @@ def calc_completeness_dataframe(
         median_timediff = int(
             df.reset_index().iloc[:, 0].diff().median().total_seconds() / 60.0
         )
-        df = df.resample("{:d}T".format(median_timediff)).mean()
+        df = df.resample("{:d}min".format(median_timediff)).mean()
 
     if time_delayed is False:
         # Calculate completeness
