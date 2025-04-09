@@ -132,7 +132,7 @@ class ConfidenceIntervalApplicator:
             now = (
                 pd.Series(datetime.now(tz=forecast_copy.index.tzinfo))
                 .min()
-                .round(f"{minimal_resolution}T")
+                .round(f"{minimal_resolution}min")
                 .to_pydatetime()
             )
             # Determine t_aheads by subtracting with now
