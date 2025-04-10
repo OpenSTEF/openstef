@@ -7,6 +7,8 @@ from typing import Any, Callable, Optional
 
 import optuna
 import pandas as pd
+from lightgbm import early_stopping
+from xgboost.callback import EarlyStopping
 
 from openstef.enums import ModelType
 from openstef.metrics import metrics
@@ -136,20 +138,22 @@ class RegressorObjective:
         # insert parameters into model
         self.model.set_params(**hyper_params)
 
+        callbacks = []
+
+        early_stopping_callback = self.get_early_stopping_callback()
+        if early_stopping_callback is not None:
+            callbacks.append(early_stopping_callback)
+
         # create the specific pruning callback
         pruning_callback = self.get_pruning_callback(trial)
-        if pruning_callback is None:
-            callbacks = None
-        else:
-            callbacks = [pruning_callback]
+        if pruning_callback is not None:
+            callbacks.append(pruning_callback)
 
         # validation_0 and validation_1 are available
         self.model.fit(
             train_x,
             train_y,
             eval_set=eval_set,
-            early_stopping_rounds=EARLY_STOPPING_ROUNDS,
-            verbose=self.verbose,
             eval_metric=self.eval_metric,
             callbacks=callbacks,
         )
@@ -201,6 +205,9 @@ class RegressorObjective:
         return params
 
     def get_pruning_callback(self, trial: optuna.trial.FrozenTrial):
+        return None
+
+    def get_early_stopping_callback(self):
         return None
 
     def get_trial_track(self) -> dict:
@@ -272,6 +279,10 @@ class XGBRegressorObjective(RegressorObjective):
             trial, observation_key=f"validation_1-{self.eval_metric}"
         )
 
+    # TODO: Check other arguments of early stopping...
+    def get_early_stopping_callback(self):
+        return EarlyStopping(rounds=EARLY_STOPPING_ROUNDS)
+
     @classmethod
     def get_default_values(cls) -> dict:
         default_parameter_values = super().get_default_values()
@@ -318,6 +329,10 @@ class LGBRegressorObjective(RegressorObjective):
         return optuna.integration.LightGBMPruningCallback(
             trial, metric=metric, valid_name="valid_1"
         )
+
+    # TODO: Check other arguments of early stopping
+    def get_early_stopping_callback(self):
+        return early_stopping(stopping_rounds=EARLY_STOPPING_ROUNDS)
 
 
 class XGBQuantileRegressorObjective(RegressorObjective):
