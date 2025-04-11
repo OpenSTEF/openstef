@@ -150,6 +150,11 @@ class RegressorObjective:
         if pruning_callback is not None:
             callbacks.append(pruning_callback)
 
+        # Pass verbose argument to fit call if model is not LGB
+        fit_kwargs = {}
+        if self.model_type != ModelType.LGB:
+            fit_kwargs["verbose"] = self.verbose
+
         # validation_0 and validation_1 are available
         self.model.fit(
             train_x,
@@ -157,6 +162,7 @@ class RegressorObjective:
             eval_set=eval_set,
             eval_metric=self.eval_metric,
             callbacks=callbacks,
+            **fit_kwargs,
         )
 
         self.model.feature_importance_dataframe = self.model.set_feature_importance()
@@ -280,14 +286,14 @@ class XGBRegressorObjective(RegressorObjective):
             trial, observation_key=f"validation_1-{self.eval_metric}"
         )
 
-    def get_early_stopping_callback(self):
-        return EarlyStopping(
-            rounds=EARLY_STOPPING_ROUNDS,
-            metric_name=self.eval_metric,
-            data_name=f"validation_1",
-            maximize=False,
-            save_best=True,
-        )
+    # def get_early_stopping_callback(self):
+    #     return EarlyStopping(
+    #         rounds=EARLY_STOPPING_ROUNDS,
+    #         metric_name=self.eval_metric,
+    #         data_name=f"validation_1",
+    #         maximize=False,
+    #         save_best=True,
+    #     )
 
     @classmethod
     def get_default_values(cls) -> dict:
