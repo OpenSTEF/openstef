@@ -29,7 +29,7 @@ N_TRIALS = 2
 
 class TestRegressorObjective(BaseTestCase):
     def test_call(self):
-        model_type = "flatliner"
+        model_type = "xgb"
         model = ModelCreator.create_model(model_type)
 
         objective = RegressorObjective(
