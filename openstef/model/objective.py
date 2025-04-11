@@ -8,6 +8,7 @@ from typing import Any, Callable, Optional
 import optuna
 import pandas as pd
 from lightgbm import early_stopping
+from xgboost.callback import EarlyStopping
 
 from openstef.enums import ModelType
 from openstef.metrics import metrics
