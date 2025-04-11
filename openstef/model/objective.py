@@ -150,9 +150,10 @@ class RegressorObjective:
         if pruning_callback is not None:
             callbacks.append(pruning_callback)
 
-        # Pass verbose argument to fit call if model is not LGB
+        # early_stopping_rounds and verbose are not available for LGB
         fit_kwargs = {}
         if self.model_type != ModelType.LGB:
+            fit_kwargs["early_stopping_rounds"] = EARLY_STOPPING_ROUNDS
             fit_kwargs["verbose"] = self.verbose
 
         # validation_0 and validation_1 are available
@@ -284,15 +285,6 @@ class XGBRegressorObjective(RegressorObjective):
     def get_pruning_callback(self, trial: optuna.trial.FrozenTrial):
         return optuna.integration.XGBoostPruningCallback(
             trial, observation_key=f"validation_1-{self.eval_metric}"
-        )
-
-    def get_early_stopping_callback(self):
-        return EarlyStopping(
-            rounds=EARLY_STOPPING_ROUNDS,
-            metric_name=self.eval_metric,
-            data_name=f"validation_1",
-            maximize=False,
-            save_best=True,
         )
 
     @classmethod
