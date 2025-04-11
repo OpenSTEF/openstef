@@ -495,7 +495,6 @@ def train_pipeline_step_train_model(
         train_x,
         train_y,
         eval_set=eval_set,
-        verbose=False,
     )
     # Gets the feature importance df or None if we don't have feature importance
     model.feature_importance_dataframe = model.set_feature_importance()

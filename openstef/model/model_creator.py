@@ -73,7 +73,6 @@ valid_model_kwargs = {
         "n_jobs",
         "silent",
         "importance_type",
-        "early_stopping_rounds",
     ],
     ModelType.XGB_QUANTILE: [
         "quantiles",
