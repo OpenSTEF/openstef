@@ -132,19 +132,20 @@ class RegressorObjective:
         # Configure evals for early stopping
         eval_set = [(train_x, train_y), (valid_x, valid_y)]
 
-        # get the parameters used in this trial
+        # Get the parameters used in this trial
         hyper_params = self.get_params(trial)
 
-        # insert parameters into model
+        # Insert parameters into model
         self.model.set_params(**hyper_params)
 
         callbacks = []
 
+        # Create the early stopping callback
         early_stopping_callback = self.get_early_stopping_callback()
         if early_stopping_callback is not None:
             callbacks.append(early_stopping_callback)
 
-        # create the specific pruning callback
+        # Create the specific pruning callback
         pruning_callback = self.get_pruning_callback(trial)
         if pruning_callback is not None:
             callbacks.append(pruning_callback)

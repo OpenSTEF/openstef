@@ -51,7 +51,6 @@ valid_model_kwargs = {
         "importance_type",
         "gpu_id",
         "validate_parameters",
-        # TODO: Can be removed from params?
         "early_stopping_rounds",
     ],
     ModelType.LGB: [
@@ -74,6 +73,7 @@ valid_model_kwargs = {
         "n_jobs",
         "silent",
         "importance_type",
+        # TODO: Can be removed from params?
         "early_stopping_rounds",
     ],
     ModelType.XGB_QUANTILE: [
