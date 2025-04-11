@@ -281,7 +281,13 @@ class XGBRegressorObjective(RegressorObjective):
         )
 
     def get_early_stopping_callback(self):
-        return EarlyStopping(rounds=EARLY_STOPPING_ROUNDS, metric_name=self.eval_metric, data_name=f"validation_1", maximize=False, save_best=True)
+        return EarlyStopping(
+            rounds=EARLY_STOPPING_ROUNDS,
+            metric_name=self.eval_metric,
+            data_name=f"validation_1",
+            maximize=False,
+            save_best=True,
+        )
 
     @classmethod
     def get_default_values(cls) -> dict:
@@ -331,7 +337,9 @@ class LGBRegressorObjective(RegressorObjective):
         )
 
     def get_early_stopping_callback(self):
-        return early_stopping(stopping_rounds=EARLY_STOPPING_ROUNDS, verbose=self.verbose)
+        return early_stopping(
+            stopping_rounds=EARLY_STOPPING_ROUNDS, verbose=self.verbose
+        )
 
 
 class XGBQuantileRegressorObjective(RegressorObjective):
