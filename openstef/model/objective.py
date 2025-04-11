@@ -280,9 +280,8 @@ class XGBRegressorObjective(RegressorObjective):
             trial, observation_key=f"validation_1-{self.eval_metric}"
         )
 
-    # TODO: Check other arguments of early stopping...
     def get_early_stopping_callback(self):
-        return EarlyStopping(rounds=EARLY_STOPPING_ROUNDS)
+        return EarlyStopping(rounds=EARLY_STOPPING_ROUNDS, metric_name=self.eval_metric, data_name=f"validation_1", maximize=False, save_best=True)
 
     @classmethod
     def get_default_values(cls) -> dict:
@@ -331,9 +330,8 @@ class LGBRegressorObjective(RegressorObjective):
             trial, metric=metric, valid_name="valid_1"
         )
 
-    # TODO: Check other arguments of early stopping
     def get_early_stopping_callback(self):
-        return early_stopping(stopping_rounds=EARLY_STOPPING_ROUNDS)
+        return early_stopping(stopping_rounds=EARLY_STOPPING_ROUNDS, verbose=self.verbose)
 
 
 class XGBQuantileRegressorObjective(RegressorObjective):
