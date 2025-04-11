@@ -286,14 +286,14 @@ class XGBRegressorObjective(RegressorObjective):
             trial, observation_key=f"validation_1-{self.eval_metric}"
         )
 
-    # def get_early_stopping_callback(self):
-    #     return EarlyStopping(
-    #         rounds=EARLY_STOPPING_ROUNDS,
-    #         metric_name=self.eval_metric,
-    #         data_name=f"validation_1",
-    #         maximize=False,
-    #         save_best=True,
-    #     )
+    def get_early_stopping_callback(self):
+        return EarlyStopping(
+            rounds=EARLY_STOPPING_ROUNDS,
+            metric_name=self.eval_metric,
+            data_name=f"validation_1",
+            maximize=False,
+            save_best=True,
+        )
 
     @classmethod
     def get_default_values(cls) -> dict:
