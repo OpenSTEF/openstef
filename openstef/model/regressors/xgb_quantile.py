@@ -137,7 +137,6 @@ class XGBQuantileOpenstfRegressor(OpenstfRegressor):
                 obj=xgb_quantile_obj_this_quantile,
                 feval=xgb_quantile_eval_this_quantile,
                 verbose_eval=False,
-                # TODO: Also use callback for this?
                 early_stopping_rounds=early_stopping_rounds,
             )
 

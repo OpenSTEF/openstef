@@ -152,7 +152,9 @@ class RegressorObjective:
 
         # Pass verbose argument to fit call if model is not LGB
         fit_kwargs = {}
-        if self.model_type != ModelType.LGB:
+        if self.model_type not in [ModelType.XGB, ModelType.LGB]:
+            fit_kwargs["early_stopping_rounds"] = EARLY_STOPPING_ROUNDS
+        elif self.model_type != ModelType.LGB:
             fit_kwargs["verbose"] = self.verbose
 
         # validation_0 and validation_1 are available
