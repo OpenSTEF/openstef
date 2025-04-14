@@ -59,7 +59,7 @@ class OpenstfRegressor(BaseEstimator):
         """
 
     @abstractmethod
-    def fit(self, x: np.array, y: np.array, **kwargs) -> RegressorMixin:
+    def fit(self, x: pd.DataFrame, y: pd.DataFrame, **kwargs) -> RegressorMixin:
         """Fits the regressor.
 
         Args:
@@ -72,7 +72,7 @@ class OpenstfRegressor(BaseEstimator):
 
         """
 
-    def set_feature_importance(self) -> Union[pd.DataFrame, None]:
+    def get_feature_importance(self) -> Union[pd.DataFrame, None]:
         """Get feature importance.
 
         Returns:

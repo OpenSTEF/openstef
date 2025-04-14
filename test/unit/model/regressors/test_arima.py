@@ -87,7 +87,7 @@ class TestARIMAOpenstfRegressor(BaseTestCase):
 
         params = model.results_.params
         pvalues = model.results_.pvalues
-        importances = model.set_feature_importance()
+        importances = model.get_feature_importance()
 
         # check the retrieval of feature importance
         self.assertTrue(np.allclose(params, importances["weight"]))

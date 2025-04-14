@@ -154,7 +154,7 @@ class RegressorObjective:
             callbacks=callbacks,
         )
 
-        self.model.feature_importance_dataframe = self.model.set_feature_importance()
+        self.model.feature_importance_dataframe = self.model.get_feature_importance()
 
         # Do confidence interval determination
         self.model = StandardDeviationGenerator(

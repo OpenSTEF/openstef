@@ -126,7 +126,7 @@ class ARIMAOpenstfRegressor(OpenstfRegressor):
             predictions = self.predict_quantile(start, end, exog=x, quantile=quantile)
         return predictions
 
-    def set_feature_importance(self):
+    def get_feature_importance(self):
         """Because report needs 'weight' and 'gain' as importance metrics, we set the values to these names.
 
         - 'weight' is corresponding to the coefficients values
