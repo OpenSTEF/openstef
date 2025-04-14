@@ -1,0 +1,94 @@
+from test.unit.utils.base import BaseTestCase
+from test.unit.utils.data import TestData
+
+import numpy as np
+import pandas as pd
+
+from openstef.model.regressors.median import MedianRegressor
+
+
+class TestMedianRegressor(BaseTestCase):
+    def setUp(self):
+        self.train_input = TestData.load("reference_sets/307-train-data.csv")
+
+    def test_median_returns_median(self):
+        # Arrange
+        model = MedianRegressor()
+        training_data = pd.DataFrame(
+            {
+                "T-1": [1, 2, 3],
+                "T-2": [4, 5, 6],
+                "T-3": [7, 8, 9],
+                "unrelated_feautre": [10, 11, 12],
+            }
+        )
+        expected_median = pd.Series([4, 5, 6])
+
+        # Act
+        model.fit(training_data, training_data)
+        predictions = model.predict(training_data)
+
+        # Assert
+        # Check if the predictions are equal to the expected median
+        np.testing.assert_allclose(predictions, expected_median)
+        # Check that the feature names were captured correctly
+        self.assertEqual(model.feature_names_, ["T-1", "T-2", "T-3"])
+        # Check that the feature importances were set correctly
+        self.assertIsNotNone(model.feature_importances_)
+        self.assertEqual(model.feature_importances_.shape, (3,))
+        np.testing.assert_allclose(
+            model.feature_importances_, np.array([1 / 3, 1 / 3, 1 / 3])
+        )
+
+    def test_median_handles_some_missing_data(self):
+        # Arrange
+        model = MedianRegressor()
+        training_data = pd.DataFrame(
+            {
+                "T-1": [1, 2, np.nan],
+                "T-2": [np.nan, 5, 6],
+                "T-3": [3, 8, np.nan],
+            }
+        )
+        expected_median = pd.Series([2, 5, 6])
+
+        # Act
+        model.fit(training_data, training_data)
+        predictions = model.predict(training_data)
+
+        # Assert
+        np.testing.assert_allclose(predictions, expected_median)
+
+    def test_median_handles_all_missing_data(self):
+        # Arrange
+        model = MedianRegressor()
+        training_data = pd.DataFrame(
+            {
+                "T-1": [2, np.nan, np.nan],
+                "T-2": [2, np.nan, np.nan],
+                "T-3": [5, np.nan, np.nan],
+            }
+        )
+        expected_median = pd.Series([2, np.nan, np.nan])
+
+        # Act
+        model.fit(training_data, training_data)
+        predictions = model.predict(training_data)
+
+        # Assert
+        np.testing.assert_allclose(predictions, expected_median)
+
+    def test_median_fit_with_no_lag_features_raises(self):
+        # Arrange
+        model = MedianRegressor()
+        training_data = pd.DataFrame(
+            {
+                "unrelated_feature": [1, 2, 3],
+            }
+        )
+
+        # Act
+        with self.assertRaisesRegex(
+            ValueError, "No lag features found in the input data."
+        ):
+            model.fit(training_data, training_data)

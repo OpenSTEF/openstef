@@ -21,7 +21,7 @@ class PredictionJobDataClass(BaseModel):
     )
     model: str = Field(
         ...,
-        description="The model type that should be used. Options are: 'xgb', 'xgb_quantile', 'lgb', 'linear', 'linear_quantile', 'gblinear_quantile', 'xgb_multioutput_quantile', 'flatliner'.",
+        description="The model type that should be used. Options are: 'xgb', 'xgb_quantile', 'lgb', 'linear', 'linear_quantile', 'gblinear_quantile', 'xgb_multioutput_quantile', 'flatliner', 'median'.",
     )
 
     model_kwargs: Optional[dict] = Field(
