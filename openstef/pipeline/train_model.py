@@ -498,7 +498,7 @@ def train_pipeline_step_train_model(
         verbose=False,
     )
     # Gets the feature importance df or None if we don't have feature importance
-    model.feature_importance_dataframe = model.set_feature_importance()
+    model.feature_importance_dataframe = model.get_feature_importance()
 
     logger.info("Fitted a new model, not yet stored")
 
