@@ -462,6 +462,16 @@ This update can be performed by the method <cite>update_historic_data</cite>.</p
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="openstef.model.regressors.arima.ARIMAOpenstfRegressor.get_feature_importance">
+<span class="sig-name descname"><span class="pre">get_feature_importance</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.regressors.arima.ARIMAOpenstfRegressor.get_feature_importance" title="Link to this definition">¶</a></dt>
+<dd><p>Because report needs ‘weight’ and ‘gain’ as importance metrics, we set the values to these names.</p>
+<ul class="simple">
+<li><p>‘weight’ is corresponding to the coefficients values</p></li>
+<li><p>‘gain’ is corresponding to the pvalue for the nullity test of each coefficient</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="openstef.model.regressors.arima.ARIMAOpenstfRegressor.predict">
 <span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.regressors.arima.ARIMAOpenstfRegressor.predict" title="Link to this definition">¶</a></dt>
 <dd><p>Makes a prediction. Only available after the model has been trained.</p>
@@ -515,16 +525,6 @@ Default is the last observation in the sample.</p></li>
 returns first k folds as train set and the (k+1)th fold as test set in the kth split.
 (see <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.TimeSeriesSplit.html">https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.TimeSeriesSplit.html</a>)</p>
 <p>It needs to update the historic data with (x_past, y_past) for each split.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="openstef.model.regressors.arima.ARIMAOpenstfRegressor.set_feature_importance">
-<span class="sig-name descname"><span class="pre">set_feature_importance</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.regressors.arima.ARIMAOpenstfRegressor.set_feature_importance" title="Link to this definition">¶</a></dt>
-<dd><p>Because report needs ‘weight’ and ‘gain’ as importance metrics, we set the values to these names.</p>
-<ul class="simple">
-<li><p>‘weight’ is corresponding to the coefficients values</p></li>
-<li><p>‘gain’ is corresponding to the pvalue for the nullity test of each coefficient</p></li>
-</ul>
 </dd></dl>
 
 <dl class="py method">
@@ -2041,8 +2041,8 @@ definition. Common functionality which is required for the automated pipelines i
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>x</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code>) – Feature matrix</p></li>
-<li><p><strong>y</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code>) – Labels</p></li>
+<li><p><strong>x</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – Feature matrix</p></li>
+<li><p><strong>y</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – Labels</p></li>
 <li><p><strong>kwargs</strong> – model-specific keywords</p></li>
 </ul>
 </dd>
@@ -2051,6 +2051,20 @@ definition. Common functionality which is required for the automated pipelines i
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Fitted model</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef.model.regressors.regressor.OpenstfRegressor.get_feature_importance">
+<span class="sig-name descname"><span class="pre">get_feature_importance</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.regressors.regressor.OpenstfRegressor.get_feature_importance" title="Link to this definition">¶</a></dt>
+<dd><p>Get feature importance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>]</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>DataFrame with feature importance.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -2079,20 +2093,6 @@ definition. Common functionality which is required for the automated pipelines i
 <dt class="sig sig-object py" id="openstef.model.regressors.regressor.OpenstfRegressor.score">
 <span class="sig-name descname"><span class="pre">score</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.regressors.regressor.OpenstfRegressor.score" title="Link to this definition">¶</a></dt>
 <dd><p>Makes <cite>score</cite> method from RegressorMixin available.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="openstef.model.regressors.regressor.OpenstfRegressor.set_feature_importance">
-<span class="sig-name descname"><span class="pre">set_feature_importance</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.regressors.regressor.OpenstfRegressor.set_feature_importance" title="Link to this definition">¶</a></dt>
-<dd><p>Get feature importance.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>]</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>DataFrame with feature importance.</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -2878,6 +2878,15 @@ sub-estimator of a meta-estimator, e.g. used inside a
       </a>
      </li>
      <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.model.regressors.arima.ARIMAOpenstfRegressor.get_feature_importance">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         ARIMAOpenstfRegressor.get_feature_importance()
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
       <a class="reference internal nav-link" href="#openstef.model.regressors.arima.ARIMAOpenstfRegressor.predict">
        <code class="docutils literal notranslate">
         <span class="pre">
@@ -2900,15 +2909,6 @@ sub-estimator of a meta-estimator, e.g. used inside a
        <code class="docutils literal notranslate">
         <span class="pre">
          ARIMAOpenstfRegressor.score()
-        </span>
-       </code>
-      </a>
-     </li>
-     <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#openstef.model.regressors.arima.ARIMAOpenstfRegressor.set_feature_importance">
-       <code class="docutils literal notranslate">
-        <span class="pre">
-         ARIMAOpenstfRegressor.set_feature_importance()
         </span>
        </code>
       </a>
@@ -3681,6 +3681,15 @@ sub-estimator of a meta-estimator, e.g. used inside a
       </a>
      </li>
      <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.model.regressors.regressor.OpenstfRegressor.get_feature_importance">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         OpenstfRegressor.get_feature_importance()
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
       <a class="reference internal nav-link" href="#openstef.model.regressors.regressor.OpenstfRegressor.predict">
        <code class="docutils literal notranslate">
         <span class="pre">
@@ -3694,15 +3703,6 @@ sub-estimator of a meta-estimator, e.g. used inside a
        <code class="docutils literal notranslate">
         <span class="pre">
          OpenstfRegressor.score()
-        </span>
-       </code>
-      </a>
-     </li>
-     <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#openstef.model.regressors.regressor.OpenstfRegressor.set_feature_importance">
-       <code class="docutils literal notranslate">
-        <span class="pre">
-         OpenstfRegressor.set_feature_importance()
         </span>
        </code>
       </a>
