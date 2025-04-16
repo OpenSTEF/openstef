@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 import unittest
+from openstef.enums import ModelType
 from test.unit.utils.base import BaseTestCase
 from test.unit.utils.data import TestData
 
@@ -29,13 +30,14 @@ N_TRIALS = 2
 
 class TestRegressorObjective(BaseTestCase):
     def test_call(self):
-        model_type = "xgb"
+        model_type = ModelType.XGB
         model = ModelCreator.create_model(model_type)
 
         objective = RegressorObjective(
             model,
             input_data_with_features,
         )
+        objective.model_type = model_type  # Setting model_type is done in subclasses
 
         study = optuna.create_study(
             study_name=model_type,

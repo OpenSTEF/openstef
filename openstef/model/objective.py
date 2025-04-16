@@ -7,6 +7,8 @@ from typing import Any, Callable, Optional
 
 import optuna
 import pandas as pd
+from lightgbm import early_stopping
+from xgboost.callback import EarlyStopping
 
 from openstef.enums import ModelType
 from openstef.metrics import metrics
@@ -130,28 +132,39 @@ class RegressorObjective:
         # Configure evals for early stopping
         eval_set = [(train_x, train_y), (valid_x, valid_y)]
 
-        # get the parameters used in this trial
+        # Get the parameters used in this trial
         hyper_params = self.get_params(trial)
 
-        # insert parameters into model
+        # Insert parameters into model
         self.model.set_params(**hyper_params)
 
-        # create the specific pruning callback
+        callbacks = []
+
+        # Create the early stopping callback
+        early_stopping_callback = self.get_early_stopping_callback()
+        if early_stopping_callback is not None:
+            callbacks.append(early_stopping_callback)
+
+        # Create the specific pruning callback
         pruning_callback = self.get_pruning_callback(trial)
-        if pruning_callback is None:
-            callbacks = None
-        else:
-            callbacks = [pruning_callback]
+        if pruning_callback is not None:
+            callbacks.append(pruning_callback)
+
+        # Pass verbose argument to fit call if model is not LGB
+        fit_kwargs = {}
+        if self.model_type not in [ModelType.XGB, ModelType.LGB]:
+            fit_kwargs["early_stopping_rounds"] = EARLY_STOPPING_ROUNDS
+        elif self.model_type != ModelType.LGB:
+            fit_kwargs["verbose"] = self.verbose
 
         # validation_0 and validation_1 are available
         self.model.fit(
             train_x,
             train_y,
             eval_set=eval_set,
-            early_stopping_rounds=EARLY_STOPPING_ROUNDS,
-            verbose=self.verbose,
             eval_metric=self.eval_metric,
             callbacks=callbacks,
+            **fit_kwargs,
         )
 
         self.model.feature_importance_dataframe = self.model.get_feature_importance()
@@ -201,6 +214,9 @@ class RegressorObjective:
         return params
 
     def get_pruning_callback(self, trial: optuna.trial.FrozenTrial):
+        return None
+
+    def get_early_stopping_callback(self):
         return None
 
     def get_trial_track(self) -> dict:
@@ -272,6 +288,15 @@ class XGBRegressorObjective(RegressorObjective):
             trial, observation_key=f"validation_1-{self.eval_metric}"
         )
 
+    def get_early_stopping_callback(self):
+        return EarlyStopping(
+            rounds=EARLY_STOPPING_ROUNDS,
+            metric_name=self.eval_metric,
+            data_name=f"validation_1",
+            maximize=False,
+            save_best=True,
+        )
+
     @classmethod
     def get_default_values(cls) -> dict:
         default_parameter_values = super().get_default_values()
@@ -317,6 +342,11 @@ class LGBRegressorObjective(RegressorObjective):
             metric = "l1"
         return optuna.integration.LightGBMPruningCallback(
             trial, metric=metric, valid_name="valid_1"
+        )
+
+    def get_early_stopping_callback(self):
+        return early_stopping(
+            stopping_rounds=EARLY_STOPPING_ROUNDS, verbose=self.verbose
         )
 
 

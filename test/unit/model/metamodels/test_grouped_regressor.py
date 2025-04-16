@@ -75,7 +75,6 @@ class TestGroupedRegressor(BaseTestCase):
             self.train_x,
             self.train_y,
             eval_set=[(self.train_x, self.train_y)],
-            verbose=False,
         )
         self.assertIsNone(sklearn.utils.validation.check_is_fitted(model_lgb))
         res = model_lgb.predict(self.train_x, raw_score=True)
