@@ -19,7 +19,7 @@ from openstef.metrics.reporter import Report, Reporter
 from openstef.model.model_creator import ModelCreator
 from openstef.model.objective import RegressorObjective
 from openstef.model.objective_creator import ObjectiveCreator
-from openstef.model.regressors.regressor import OpenstfRegressor
+from openstef.model.regressors.regressor import OpenstefRegressor
 from openstef.model.serializer import MLflowSerializer
 from openstef.model_selection.model_selection import split_data_train_validation_test
 from openstef.pipeline.train_model import (
@@ -108,7 +108,7 @@ def optimize_hyperparameters_pipeline_core(
     horizons: list[float] = DEFAULT_TRAIN_HORIZONS_HOURS,
     n_trials: int = N_TRIALS,
 ) -> tuple[
-    OpenstfRegressor, ModelSpecificationDataClass, Report, dict, int, dict[str, Any]
+    OpenstefRegressor, ModelSpecificationDataClass, Report, dict, int, dict[str, Any]
 ]:
     """Optimize hyperparameters pipeline core.
 

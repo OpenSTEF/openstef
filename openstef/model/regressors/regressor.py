@@ -9,7 +9,7 @@ import pandas as pd
 from sklearn.base import BaseEstimator, RegressorMixin
 
 
-class OpenstfRegressor(BaseEstimator):
+class OpenstefRegressor(BaseEstimator):
     """This class defines the interface to which all ML models within OpenSTEF should adhere.
 
     Required methods are indicated by abstractmethods, for which concrete implementations of ML models should have a
@@ -41,7 +41,7 @@ class OpenstfRegressor(BaseEstimator):
     def can_predict_quantiles(self) -> bool:
         """Attribute that indicates if the model predict particular quantiles.
 
-        e.g. XGBQuantileOpenstfRegressor
+        e.g. XGBQuantileOpenstefRegressor
 
         """
 

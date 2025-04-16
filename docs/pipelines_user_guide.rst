@@ -158,7 +158,7 @@ The code snippet below shows how OpenSTEF pipelines can be integrated into an AP
     from openstef.data_classes.model_specifications import ModelSpecificationDataClass
     from openstef.data_classes.prediction_job import PredictionJobDataClass
     from openstef.metrics.reporter import Report
-    from openstef.model.regressors.regressor import OpenstfRegressor
+    from openstef.model.regressors.regressor import OpenstefRegressor
     from openstef.pipeline.create_basecase_forecast import create_basecase_forecast_pipeline
     from openstef.pipeline.create_forecast import create_forecast_pipeline_core
     from openstef.pipeline.optimize_hyperparameters import (
@@ -174,7 +174,7 @@ The code snippet below shows how OpenSTEF pipelines can be integrated into an AP
             self,
             prediction_job: PredictionJobDataClass,
             input_data: pd.DataFrame,
-            model: OpenstfRegressor,
+            model: OpenstefRegressor,
             modelspecs: ModelSpecificationDataClass,
         ) -> pd.DataFrame:
             """Wrapper around the forecast pipeline of OpenSTEF.
@@ -200,9 +200,9 @@ The code snippet below shows how OpenSTEF pipelines can be integrated into an AP
             modelspecs: ModelSpecificationDataClass,
             input_data: pd.DataFrame,
             horizons: List[float] = None,
-            old_model: OpenstfRegressor = None,
+            old_model: OpenstefRegressor = None,
         ) -> Tuple[
-            OpenstfRegressor,
+            OpenstefRegressor,
             Report,
             ModelSpecificationDataClass,
             Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame],
@@ -225,7 +225,7 @@ The code snippet below shows how OpenSTEF pipelines can be integrated into an AP
             n_trials: int,
             horizons: List[float] = None,
         ) -> Tuple[
-            OpenstfRegressor, ModelSpecificationDataClass, Report, dict, int, dict[str, Any]
+            OpenstefRegressor, ModelSpecificationDataClass, Report, dict, int, dict[str, Any]
         ]:
             """Wrapper around the optimize hyperparameters pipeline of OpenSTEF.
             The input_data should contain a `load` column.

@@ -4,10 +4,10 @@
 
 from lightgbm import LGBMRegressor
 
-from openstef.model.regressors.regressor import OpenstfRegressor
+from openstef.model.regressors.regressor import OpenstefRegressor
 
 
-class LGBMOpenstfRegressor(LGBMRegressor, OpenstfRegressor):
+class LGBMOpenstefRegressor(LGBMRegressor, OpenstefRegressor):
     """LGBM Regressor which implements the Openstf regressor API."""
 
     gain_importance_name = "gain"

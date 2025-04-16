@@ -9,12 +9,12 @@ from sklearn.utils.validation import check_array, check_is_fitted, check_X_y
 from xgboost import Booster
 
 import openstef.metrics.metrics as metrics
-from openstef.model.regressors.regressor import OpenstfRegressor
+from openstef.model.regressors.regressor import OpenstefRegressor
 
 DEFAULT_QUANTILES: tuple[float, ...] = (0.9, 0.5, 0.1)
 
 
-class XGBQuantileOpenstfRegressor(OpenstfRegressor):
+class XGBQuantileOpenstefRegressor(OpenstefRegressor):
     @staticmethod
     def _get_importance_names():
         return {
@@ -75,7 +75,7 @@ class XGBQuantileOpenstfRegressor(OpenstfRegressor):
         self.colsample_bytree = colsample_bytree
         self.learning_rate = learning_rate
 
-    def fit(self, x: np.array, y: np.array, **kwargs) -> OpenstfRegressor:
+    def fit(self, x: np.array, y: np.array, **kwargs) -> OpenstefRegressor:
         """Fits xgb quantile model.
 
         Args:

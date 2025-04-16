@@ -18,7 +18,7 @@ from openstef.feature_engineering.feature_applicator import TrainFeatureApplicat
 from openstef.logging.logger_factory import get_logger
 from openstef.metrics.reporter import Report, Reporter
 from openstef.model.model_creator import ModelCreator
-from openstef.model.regressors.regressor import OpenstfRegressor
+from openstef.model.regressors.regressor import OpenstefRegressor
 from openstef.model.serializer import MLflowSerializer
 from openstef.model.standard_deviation_generator import StandardDeviationGenerator
 from openstef.model_selection.model_selection import split_data_train_validation_test
@@ -148,11 +148,11 @@ def train_model_pipeline_core(
     pj: PredictionJobDataClass,
     model_specs: ModelSpecificationDataClass,
     input_data: pd.DataFrame,
-    old_model: OpenstfRegressor = None,
+    old_model: OpenstefRegressor = None,
     horizons: list[float] = DEFAULT_TRAIN_HORIZONS_HOURS,
     ignore_existing_models: bool = False,
 ) -> Tuple[
-    OpenstfRegressor,
+    OpenstefRegressor,
     Report,
     ModelSpecificationDataClass,
     tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame],
@@ -176,7 +176,7 @@ def train_model_pipeline_core(
         InputDataOngoingFlatlinerError: If all recent load measurements are constant.
 
     Returns:
-        - Fitted_model (OpenstfRegressor)
+        - Fitted_model (OpenstefRegressor)
         - Report (Report)
         - Modelspecs (ModelSpecificationDataClass)
         - Datasets (tuple[pd.DataFrmae, pd.DataFrame, pd.Dataframe): The train, validation and test sets
@@ -244,7 +244,7 @@ def train_pipeline_common(
     backtest: bool = False,
     test_data_predefined: pd.DataFrame = pd.DataFrame(),
 ) -> tuple[
-    OpenstfRegressor, Report, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame
+    OpenstefRegressor, Report, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame
 ]:
     """Common pipeline shared with operational training and backtest training.
 
@@ -315,8 +315,8 @@ def train_pipeline_step_load_model(
     pj: PredictionJobDataClass,
     serializer: MLflowSerializer,
     ignore_existing_models: bool = False,
-) -> Tuple[OpenstfRegressor, ModelSpecificationDataClass, Union[int, float]]:
-    old_model: Optional[OpenstfRegressor]
+) -> Tuple[OpenstefRegressor, ModelSpecificationDataClass, Union[int, float]]:
+    old_model: Optional[OpenstefRegressor]
 
     if not ignore_existing_models:
         try:
@@ -429,7 +429,7 @@ def train_pipeline_step_train_model(
     model_specs: ModelSpecificationDataClass,
     train_data: pd.DataFrame,
     validation_data: pd.DataFrame,
-) -> OpenstfRegressor:
+) -> OpenstefRegressor:
     """Train the model.
 
     Args:

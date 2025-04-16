@@ -3,12 +3,12 @@
 # SPDX-License-Identifier: MPL-2.0
 from test.unit.utils.base import BaseTestCase
 
-from openstef.model.regressors.lgbm import LGBMOpenstfRegressor
+from openstef.model.regressors.lgbm import LGBMOpenstefRegressor
 
 
 class TestXGB(BaseTestCase):
     def setUp(self) -> None:
-        self.model = LGBMOpenstfRegressor()
+        self.model = LGBMOpenstefRegressor()
 
     def test_importance_names(self):
         self.assertIsInstance(self.model._get_importance_names(), dict)

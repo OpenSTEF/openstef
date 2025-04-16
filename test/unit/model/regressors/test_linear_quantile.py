@@ -14,7 +14,7 @@ from sklearn.utils.estimator_checks import check_estimator
 
 from openstef.feature_engineering.apply_features import apply_features
 from openstef.model.model_creator import ModelCreator
-from openstef.model.regressors.linear_quantile import LinearQuantileOpenstfRegressor
+from openstef.model.regressors.linear_quantile import LinearQuantileOpenstefRegressor
 
 train_input = TestData.load("reference_sets/307-train-data.csv")
 
@@ -32,12 +32,12 @@ class TestLinearQuantile(BaseTestCase):
         # Use sklearn build in check, this will raise an exception if some check fails
         # During these tests the fit and predict methods are elaborately tested
         # More info: https://scikit-learn.org/stable/modules/generated/sklearn.utils.estimator_checks.check_estimator.html
-        check_estimator(LinearQuantileOpenstfRegressor(quantiles=tuple(self.quantiles)))
+        check_estimator(LinearQuantileOpenstefRegressor(quantiles=tuple(self.quantiles)))
 
     def test_quantile_fit(self):
         """Test happy flow of the training of model"""
         # Arrange
-        model = LinearQuantileOpenstfRegressor()
+        model = LinearQuantileOpenstefRegressor()
 
         # Act
         model.fit(train_input.iloc[:, 1:], train_input.iloc[:, 0])
@@ -61,8 +61,8 @@ class TestLinearQuantile(BaseTestCase):
         X.loc[X.index[-2], "sparse"] = np.nan
         X["sparse_2"] = np.ones(n_sample)
         X.loc[X.index[-1], "sparse_2"] = np.nan
-        model1 = LinearQuantileOpenstfRegressor(imputation_strategy=None)
-        model2 = LinearQuantileOpenstfRegressor(
+        model1 = LinearQuantileOpenstefRegressor(imputation_strategy=None)
+        model2 = LinearQuantileOpenstefRegressor(
             imputation_strategy="mean", no_fill_future_values_features=["sparse_2"]
         )
 
@@ -87,11 +87,11 @@ class TestLinearQuantile(BaseTestCase):
     def test_value_error_raised(self):
         # Check if Value Error is raised when 0.5 is not in the requested quantiles list
         with self.assertRaises(ValueError):
-            LinearQuantileOpenstfRegressor((0.2, 0.3, 0.6, 0.7))
+            LinearQuantileOpenstefRegressor((0.2, 0.3, 0.6, 0.7))
 
     def test_predict_raises_valueerror_no_model_trained_for_quantile(self):
         # Arrange
-        model = LinearQuantileOpenstfRegressor((0.2, 0.3, 0.5, 0.6, 0.7))
+        model = LinearQuantileOpenstefRegressor((0.2, 0.3, 0.5, 0.6, 0.7))
 
         # Act
         # Test if value error is raised when model is not available
@@ -100,7 +100,7 @@ class TestLinearQuantile(BaseTestCase):
 
     def test_importance_names(self):
         # Arrange
-        model = LinearQuantileOpenstfRegressor(tuple(self.quantiles))
+        model = LinearQuantileOpenstefRegressor(tuple(self.quantiles))
 
         # Act
         importance_names = model._get_importance_names()
@@ -110,7 +110,7 @@ class TestLinearQuantile(BaseTestCase):
 
     def test_get_feature_names_from_linear(self):
         # Arrange
-        model = LinearQuantileOpenstfRegressor(quantiles=(0.2, 0.3, 0.5, 0.6, 0.7))
+        model = LinearQuantileOpenstefRegressor(quantiles=(0.2, 0.3, 0.5, 0.6, 0.7))
         model.imputer_ = MagicMock()
         model.imputer_.in_feature_names = ["a", "b", "c"]
         model.imputer_.non_null_feature_names = ["a", "b", "c"]
@@ -128,7 +128,7 @@ class TestLinearQuantile(BaseTestCase):
 
     def test_ignore_features(self):
         # Arrange
-        model = LinearQuantileOpenstfRegressor(quantiles=(0.2, 0.3, 0.5, 0.6, 0.7))
+        model = LinearQuantileOpenstefRegressor(quantiles=(0.2, 0.3, 0.5, 0.6, 0.7))
 
         input_data_engineered = apply_features(train_input)
 
@@ -169,12 +169,12 @@ class TestLinearQuantile(BaseTestCase):
         )
 
         # Assert
-        self.assertIsInstance(model, LinearQuantileOpenstfRegressor)
+        self.assertIsInstance(model, LinearQuantileOpenstefRegressor)
         self.assertEqual(model.weight_scale_percentile, 50)
         self.assertEqual(model.weight_exponent, 2)
 
     def test_feature_clipper(self):
-        """Test the feature clipping functionality of LinearQuantileOpenstfRegressor"""
+        """Test the feature clipping functionality of LinearQuantileOpenstefRegressor"""
         # Create a sample dataset with a feature to be clipped
         X = pd.DataFrame(
             {
@@ -192,7 +192,7 @@ class TestLinearQuantile(BaseTestCase):
         y = pd.Series([1, 2, 3, 4, 5])
 
         # Initialize the model with clipping for 'day_ahead_electricity_price' feature
-        model = LinearQuantileOpenstfRegressor(
+        model = LinearQuantileOpenstefRegressor(
             clipped_features=["day_ahead_electricity_price"]
         )
 

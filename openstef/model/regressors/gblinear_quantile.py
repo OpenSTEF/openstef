@@ -16,12 +16,12 @@ from openstef.feature_engineering.missing_values_transformer import (
     MissingValuesTransformer,
 )
 from openstef.model.metamodels.feature_clipper import FeatureClipper
-from openstef.model.regressors.regressor import OpenstfRegressor
+from openstef.model.regressors.regressor import OpenstefRegressor
 
 DEFAULT_QUANTILES: tuple[float, ...] = (0.9, 0.5, 0.1)
 
 
-class GBLinearQuantileOpenstfRegressor(OpenstfRegressor):
+class GBLinearQuantileOpenstefRegressor(OpenstefRegressor):
     is_fitted_: bool = False
 
     TO_KEEP_FEATURES: List[str] = [
@@ -147,7 +147,7 @@ class GBLinearQuantileOpenstfRegressor(OpenstfRegressor):
         """
         return x.drop(columns=[c for c in x.columns if self._is_feature_ignored(c)])
 
-    def fit(self, x: pd.DataFrame, y: pd.Series, **kwargs) -> OpenstfRegressor:
+    def fit(self, x: pd.DataFrame, y: pd.Series, **kwargs) -> OpenstefRegressor:
         if not isinstance(y, pd.Series):
             y = pd.Series(np.asarray(y), name="load")
 

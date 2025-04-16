@@ -14,12 +14,12 @@ from sklearn.utils.validation import check_array, check_is_fitted, check_X_y
 from xgboost import Booster
 
 import openstef.metrics.metrics as metrics
-from openstef.model.regressors.regressor import OpenstfRegressor
+from openstef.model.regressors.regressor import OpenstefRegressor
 
 DEFAULT_QUANTILES: tuple[float, ...] = (0.9, 0.5, 0.1)
 
 
-class XGBMultiOutputQuantileOpenstfRegressor(OpenstfRegressor):
+class XGBMultiOutputQuantileOpenstefRegressor(OpenstefRegressor):
     r"""Model that provides multioutput quantile regression with XGBoost by default using the arctan loss function.
 
     Arctan loss:
@@ -149,7 +149,7 @@ class XGBMultiOutputQuantileOpenstfRegressor(OpenstfRegressor):
         eval_set: Optional[Sequence[Tuple[np.array, np.array]]] = None,
         verbose: Optional[Union[bool, int]] = 0,
         **kwargs
-    ) -> OpenstfRegressor:
+    ) -> OpenstefRegressor:
         """Fits xgb quantile model.
 
         Args:

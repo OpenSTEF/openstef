@@ -7,7 +7,7 @@ from sklearn.linear_model import LinearRegression
 from sklearn.utils.validation import check_is_fitted
 
 from openstef.model.metamodels.missing_values_handler import MissingValuesHandler
-from openstef.model.regressors.regressor import OpenstfRegressor
+from openstef.model.regressors.regressor import OpenstefRegressor
 
 
 class LinearRegressor(MissingValuesHandler):
@@ -53,7 +53,7 @@ class LinearRegressor(MissingValuesHandler):
         )
 
 
-class LinearOpenstfRegressor(LinearRegressor, OpenstfRegressor):
+class LinearOpenstefRegressor(LinearRegressor, OpenstefRegressor):
     """Linear Regressor which implements the Openstf regressor API."""
 
     @staticmethod

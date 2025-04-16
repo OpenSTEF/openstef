@@ -12,7 +12,7 @@ from openstef.feature_engineering.feature_applicator import (
 from openstef.logging.logger_factory import get_logger
 from openstef.model.confidence_interval_applicator import ConfidenceIntervalApplicator
 from openstef.model.fallback import generate_fallback
-from openstef.model.regressors.regressor import OpenstfRegressor
+from openstef.model.regressors.regressor import OpenstefRegressor
 from openstef.model.serializer import MLflowSerializer
 from openstef.pipeline.utils import generate_forecast_datetime_range
 from openstef.postprocessing.postprocessing import (
@@ -62,7 +62,7 @@ def create_forecast_pipeline(
 def create_forecast_pipeline_core(
     pj: PredictionJobDataClass,
     input_data: pd.DataFrame,
-    model: OpenstfRegressor,
+    model: OpenstefRegressor,
     model_specs: ModelSpecificationDataClass,
 ) -> pd.DataFrame:
     """Create forecast pipeline (core).

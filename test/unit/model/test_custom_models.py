@@ -10,7 +10,7 @@ from openstef.model.model_creator import ModelCreator
 from openstef.model.objective import RegressorObjective
 from openstef.model.objective_creator import ObjectiveCreator
 from openstef.model.regressors.custom_regressor import (
-    CustomOpenstfRegressor,
+    CustomOpenstefRegressor,
     create_custom_objective,
     load_custom_model,
 )
@@ -20,7 +20,7 @@ class DummyObjective(RegressorObjective):
     ...
 
 
-class DummyRegressor(CustomOpenstfRegressor):
+class DummyRegressor(CustomOpenstefRegressor):
     @staticmethod
     def valid_kwargs() -> list[str]:
         return []

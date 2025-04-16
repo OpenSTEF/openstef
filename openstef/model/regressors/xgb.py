@@ -7,10 +7,10 @@ import numpy as np
 from sklearn.base import RegressorMixin
 from xgboost import XGBRegressor
 
-from openstef.model.regressors.regressor import OpenstfRegressor
+from openstef.model.regressors.regressor import OpenstefRegressor
 
 
-class XGBOpenstfRegressor(XGBRegressor, OpenstfRegressor):
+class XGBOpenstefRegressor(XGBRegressor, OpenstefRegressor):
     """XGB Regressor which implements the Openstf regressor API."""
 
     gain_importance_name = "total_gain"

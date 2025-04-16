@@ -7,7 +7,7 @@ import pandas as pd
 from openstef.data_classes.model_specifications import ModelSpecificationDataClass
 from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.model.confidence_interval_applicator import ConfidenceIntervalApplicator
-from openstef.model.regressors.regressor import OpenstfRegressor
+from openstef.model.regressors.regressor import OpenstefRegressor
 from openstef.model_selection.model_selection import backtest_split_default
 from openstef.pipeline import train_model
 from openstef.postprocessing.postprocessing import (
@@ -26,7 +26,7 @@ def train_model_and_forecast_back_test(
     n_folds: int = 1,
 ) -> tuple[
     pd.DataFrame,
-    list[OpenstfRegressor],
+    list[OpenstefRegressor],
     list[pd.DataFrame],
     list[pd.DataFrame],
     list[pd.DataFrame],
@@ -51,7 +51,7 @@ def train_model_and_forecast_back_test(
 
     Returns:
         - Forecast (pandas.DataFrame)
-        - Fitted models (list[OpenStfRegressor])
+        - Fitted models (list[OpenstefRegressor])
         - Train data sets (list[pd.DataFrame])
         - Validation data sets (list[pd.DataFrame])
         - Test data sets (list[pd.DataFrame])
@@ -116,7 +116,7 @@ def train_model_and_forecast_test_core(
     train_data: pd.DataFrame,
     validation_data: pd.DataFrame,
     test_data: pd.DataFrame,
-) -> tuple[OpenstfRegressor, pd.DataFrame]:
+) -> tuple[OpenstefRegressor, pd.DataFrame]:
     """Trains the model and forecast on the test set.
 
     Args:

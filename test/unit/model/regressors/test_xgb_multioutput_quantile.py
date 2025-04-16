@@ -12,7 +12,7 @@ import sklearn
 from sklearn.utils.estimator_checks import check_estimator
 
 from openstef.model.regressors.xgb_multioutput_quantile import (
-    XGBMultiOutputQuantileOpenstfRegressor,
+    XGBMultiOutputQuantileOpenstefRegressor,
 )
 
 train_input = TestData.load("reference_sets/307-train-data.csv")
@@ -27,15 +27,15 @@ class TestXgbMultiOutputQuantile(BaseTestCase):
         # Use sklearn build in check, this will raise an exception if some check fails
         # During these tests the fit and predict methods are elaborately tested
         # More info: https://scikit-learn.org/stable/modules/generated/sklearn.utils.estimator_checks.check_estimator.html
-        check_estimator(XGBMultiOutputQuantileOpenstfRegressor(tuple(self.quantiles)))
+        check_estimator(XGBMultiOutputQuantileOpenstefRegressor(tuple(self.quantiles)))
 
     def test_quantile_loading(self):
-        model = XGBMultiOutputQuantileOpenstfRegressor(tuple(self.quantiles))
+        model = XGBMultiOutputQuantileOpenstefRegressor(tuple(self.quantiles))
         self.assertEqual(model.quantiles, tuple(self.quantiles))
 
     def test_quantile_fit(self):
         """Test happy flow of the training of model"""
-        model = XGBMultiOutputQuantileOpenstfRegressor()
+        model = XGBMultiOutputQuantileOpenstefRegressor()
         model.fit(train_input.iloc[:, 1:], train_input.iloc[:, 0])
 
         # check if the model was fitted (raises NotFittedError when not fitted)
@@ -53,7 +53,7 @@ class TestXgbMultiOutputQuantile(BaseTestCase):
 
     def test_quantile_predict(self):
         """Test happy flow of the training of model"""
-        model = XGBMultiOutputQuantileOpenstfRegressor()
+        model = XGBMultiOutputQuantileOpenstefRegressor()
         model.fit(train_input.iloc[:, 1:], train_input.iloc[:, 0])
 
         result = model.predict(train_input.iloc[150:155, 1:], quantile=0.5)
@@ -63,18 +63,18 @@ class TestXgbMultiOutputQuantile(BaseTestCase):
     def test_value_error_raised(self):
         # Check if Value Error is raised when 0.5 is not in the requested quantiles list
         with self.assertRaises(ValueError):
-            XGBMultiOutputQuantileOpenstfRegressor((0.2, 0.3, 0.6, 0.7))
+            XGBMultiOutputQuantileOpenstefRegressor((0.2, 0.3, 0.6, 0.7))
 
     def test_predict_raises_valueerror_no_model_trained_for_quantile(self):
         # Test if value error is raised when model is not available
         with self.assertRaises(ValueError):
-            model = XGBMultiOutputQuantileOpenstfRegressor((0.2, 0.3, 0.5, 0.6, 0.7))
+            model = XGBMultiOutputQuantileOpenstefRegressor((0.2, 0.3, 0.5, 0.6, 0.7))
             model.predict("test_data", quantile=0.8)
 
     def test_set_params(self):
         # Check hyperparameters are set correctly and do not cause errors
 
-        model = XGBMultiOutputQuantileOpenstfRegressor(
+        model = XGBMultiOutputQuantileOpenstefRegressor(
             quantiles=(0.2, 0.3, 0.5, 0.6, 0.7),
             arctan_smoothing=0.42,
         )
@@ -101,5 +101,5 @@ class TestXgbMultiOutputQuantile(BaseTestCase):
         self.assertFalse(hasattr(model, "training_period_days"))
 
     def test_importance_names(self):
-        model = XGBMultiOutputQuantileOpenstfRegressor(tuple(self.quantiles))
+        model = XGBMultiOutputQuantileOpenstefRegressor(tuple(self.quantiles))
         self.assertIsInstance(model._get_importance_names(), dict)

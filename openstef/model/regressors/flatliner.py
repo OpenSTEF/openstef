@@ -9,10 +9,10 @@ import pandas as pd
 from sklearn.base import RegressorMixin
 from sklearn.utils.validation import check_is_fitted
 
-from openstef.model.regressors.regressor import OpenstfRegressor
+from openstef.model.regressors.regressor import OpenstefRegressor
 
 
-class FlatlinerRegressor(OpenstfRegressor, RegressorMixin):
+class FlatlinerRegressor(OpenstefRegressor, RegressorMixin):
     feature_names_: List[str] = []
 
     def __init__(self, quantiles=None):

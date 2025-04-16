@@ -15,7 +15,7 @@ from plotly.graph_objects import Figure
 from openstef.logging.logger_factory import get_logger
 from openstef.metrics import figure
 from openstef.metrics.metrics import bias, mae, nsme, r_mae, rmse
-from openstef.model.regressors.regressor import OpenstfRegressor
+from openstef.model.regressors.regressor import OpenstefRegressor
 
 
 @dataclass
@@ -70,7 +70,7 @@ class Reporter:
 
     def generate_report(
         self,
-        model: OpenstfRegressor,
+        model: OpenstefRegressor,
     ) -> Report:
         """Generate a report on a given model.
 
@@ -183,7 +183,7 @@ class Reporter:
                 if figure:  # only write if figure is not none
                     figure.write_html(os.path.join(report_folder, f"{name}.html"))
 
-    def _make_data_series_figures(self, model: OpenstfRegressor) -> dict:
+    def _make_data_series_figures(self, model: OpenstefRegressor) -> dict:
         """Make data series figures."""
         # Make model predictions
         for data_set in self.input_data_list:

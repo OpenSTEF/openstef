@@ -11,7 +11,7 @@ import pandas as pd
 from openstef.enums import ModelType
 from openstef.metrics import metrics
 from openstef.metrics.reporter import Report, Reporter
-from openstef.model.regressors.regressor import OpenstfRegressor
+from openstef.model.regressors.regressor import OpenstefRegressor
 from openstef.model.standard_deviation_generator import StandardDeviationGenerator
 from openstef.model_selection.model_selection import split_data_train_validation_test
 
@@ -45,7 +45,7 @@ class RegressorObjective:
 
     def __init__(
         self,
-        model: OpenstfRegressor,
+        model: OpenstefRegressor,
         input_data: pd.DataFrame,
         split_func: Optional[Callable] = None,
         split_args: Optional[dict[str, Any]] = None,
@@ -212,11 +212,11 @@ class RegressorObjective:
         """
         return self.track_trials
 
-    def create_report(self, model: OpenstfRegressor) -> Report:
+    def create_report(self, model: OpenstefRegressor) -> Report:
         """Generate a report from the data available inside the objective function.
 
         Args:
-            model: OpenstfRegressor, model to create a report on
+            model: OpenstefRegressor, model to create a report on
 
         Returns:
             Report about the model

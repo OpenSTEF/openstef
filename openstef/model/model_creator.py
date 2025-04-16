@@ -5,19 +5,19 @@ from typing import Union
 
 from openstef.enums import ModelType
 from openstef.logging.logger_factory import get_logger
-from openstef.model.regressors.arima import ARIMAOpenstfRegressor
+from openstef.model.regressors.arima import ARIMAOpenstefRegressor
 from openstef.model.regressors.custom_regressor import is_custom_type, load_custom_model
 from openstef.model.regressors.flatliner import FlatlinerRegressor
-from openstef.model.regressors.gblinear_quantile import GBLinearQuantileOpenstfRegressor
-from openstef.model.regressors.lgbm import LGBMOpenstfRegressor
-from openstef.model.regressors.linear import LinearOpenstfRegressor
-from openstef.model.regressors.linear_quantile import LinearQuantileOpenstfRegressor
-from openstef.model.regressors.regressor import OpenstfRegressor
-from openstef.model.regressors.xgb import XGBOpenstfRegressor
+from openstef.model.regressors.gblinear_quantile import GBLinearQuantileOpenstefRegressor
+from openstef.model.regressors.lgbm import LGBMOpenstefRegressor
+from openstef.model.regressors.linear import LinearOpenstefRegressor
+from openstef.model.regressors.linear_quantile import LinearQuantileOpenstefRegressor
+from openstef.model.regressors.regressor import OpenstefRegressor
+from openstef.model.regressors.xgb import XGBOpenstefRegressor
 from openstef.model.regressors.xgb_multioutput_quantile import (
-    XGBMultiOutputQuantileOpenstfRegressor,
+    XGBMultiOutputQuantileOpenstefRegressor,
 )
-from openstef.model.regressors.xgb_quantile import XGBQuantileOpenstfRegressor
+from openstef.model.regressors.xgb_quantile import XGBQuantileOpenstefRegressor
 
 logger = get_logger(__name__)
 
@@ -147,19 +147,19 @@ class ModelCreator:
 
     # Set object mapping
     MODEL_CONSTRUCTORS = {
-        ModelType.XGB: XGBOpenstfRegressor,
-        ModelType.LGB: LGBMOpenstfRegressor,
-        ModelType.XGB_QUANTILE: XGBQuantileOpenstfRegressor,
-        ModelType.XGB_MULTIOUTPUT_QUANTILE: XGBMultiOutputQuantileOpenstfRegressor,
-        ModelType.LINEAR: LinearOpenstfRegressor,
-        ModelType.LINEAR_QUANTILE: LinearQuantileOpenstfRegressor,
-        ModelType.GBLINEAR_QUANTILE: GBLinearQuantileOpenstfRegressor,
-        ModelType.ARIMA: ARIMAOpenstfRegressor,
+        ModelType.XGB: XGBOpenstefRegressor,
+        ModelType.LGB: LGBMOpenstefRegressor,
+        ModelType.XGB_QUANTILE: XGBQuantileOpenstefRegressor,
+        ModelType.XGB_MULTIOUTPUT_QUANTILE: XGBMultiOutputQuantileOpenstefRegressor,
+        ModelType.LINEAR: LinearOpenstefRegressor,
+        ModelType.LINEAR_QUANTILE: LinearQuantileOpenstefRegressor,
+        ModelType.GBLINEAR_QUANTILE: GBLinearQuantileOpenstefRegressor,
+        ModelType.ARIMA: ARIMAOpenstefRegressor,
         ModelType.FLATLINER: FlatlinerRegressor,
     }
 
     @staticmethod
-    def create_model(model_type: Union[ModelType, str], **kwargs) -> OpenstfRegressor:
+    def create_model(model_type: Union[ModelType, str], **kwargs) -> OpenstefRegressor:
         """Create a machine learning model based on model type.
 
         Args:

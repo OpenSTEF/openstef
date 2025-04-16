@@ -18,7 +18,7 @@ from openstef.feature_engineering.general import (
     remove_non_requested_feature_columns,
 )
 from openstef.logging.logger_factory import get_logger
-from openstef.model.regressors.regressor import OpenstfRegressor
+from openstef.model.regressors.regressor import OpenstefRegressor
 from openstef.pipeline.utils import generate_forecast_datetime_range
 
 
@@ -27,7 +27,7 @@ class AbstractDataPreparation(ABC):
         self,
         pj: PredictionJobDataClass,
         model_specs: ModelSpecificationDataClass,
-        model: Optional[OpenstfRegressor] = None,
+        model: Optional[OpenstefRegressor] = None,
         horizons: Optional[list[float]] = None,
     ) -> None:
         super().__init__()
@@ -94,7 +94,7 @@ class ARDataPreparation(AbstractDataPreparation):
         self,
         pj: PredictionJobDataClass,
         model_specs: ModelSpecificationDataClass,
-        model: Optional[OpenstfRegressor] = None,
+        model: Optional[OpenstefRegressor] = None,
         horizons: Optional[list[float]] = None,
         historical_depth: Optional[int] = None,
     ) -> None:

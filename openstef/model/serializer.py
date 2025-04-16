@@ -20,7 +20,7 @@ from xgboost import XGBModel  # Temporary for backward compatibility
 from openstef.data_classes.model_specifications import ModelSpecificationDataClass
 from openstef.logging.logger_factory import get_logger
 from openstef.metrics.reporter import Report
-from openstef.model.regressors.regressor import OpenstfRegressor
+from openstef.model.regressors.regressor import OpenstefRegressor
 from openstef.settings import Settings
 
 
@@ -37,7 +37,7 @@ class MLflowSerializer:
 
     def save_model(
         self,
-        model: OpenstfRegressor,
+        model: OpenstefRegressor,
         experiment_name: str,
         model_type: str,
         model_specs: ModelSpecificationDataClass,
@@ -63,7 +63,7 @@ class MLflowSerializer:
 
     def _log_model_with_mlflow(
         self,
-        model: OpenstfRegressor,
+        model: OpenstefRegressor,
         experiment_name: str,
         model_type: str,
         model_specs: ModelSpecificationDataClass,
@@ -143,7 +143,7 @@ class MLflowSerializer:
     def load_model(
         self,
         experiment_name: str,
-    ) -> tuple[OpenstfRegressor, ModelSpecificationDataClass]:
+    ) -> tuple[OpenstefRegressor, ModelSpecificationDataClass]:
         """Load sklearn compatible model from MLFlow.
 
         Args:
@@ -217,7 +217,7 @@ class MLflowSerializer:
     def _get_model_specs(
         self,
         experiment_name: str,
-        loaded_model: OpenstfRegressor,
+        loaded_model: OpenstefRegressor,
         latest_run: pd.Series,
     ) -> ModelSpecificationDataClass:
         """Get model specifications from existing model."""
@@ -330,7 +330,7 @@ class MLflowSerializer:
         experiment_name: str,
         latest_run: pd.Series,
         model_specs: ModelSpecificationDataClass,
-        loaded_model: OpenstfRegressor,
+        loaded_model: OpenstefRegressor,
     ) -> list:
         """Get the feature_names from MLflow or the old model."""
         error_message = "feature_names not loaded and using None, because it"
@@ -375,7 +375,7 @@ class MLflowSerializer:
         experiment_name: str,
         latest_run: pd.Series,
         model_specs: ModelSpecificationDataClass,
-        loaded_model: OpenstfRegressor,
+        loaded_model: OpenstefRegressor,
     ) -> list:
         """Get the feature_modules from MLflow or the old model."""
         error_message = "feature_modules not loaded and using None, because it"

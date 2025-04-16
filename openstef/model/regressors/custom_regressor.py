@@ -15,10 +15,10 @@ from openstef.model.objective import (
     VALIDATION_FRACTION,
     RegressorObjective,
 )
-from openstef.model.regressors.regressor import OpenstfRegressor
+from openstef.model.regressors.regressor import OpenstefRegressor
 
 
-class CustomOpenstfRegressor(OpenstfRegressor):
+class CustomOpenstefRegressor(OpenstefRegressor):
     """A custom regressor allows to load any custom model that is not included with openSTEF."""
 
     @staticmethod
@@ -32,7 +32,7 @@ class CustomOpenstfRegressor(OpenstfRegressor):
         ...
 
 
-def load_custom_model(custom_model_path) -> CustomOpenstfRegressor:
+def load_custom_model(custom_model_path) -> CustomOpenstefRegressor:
     """Load the external custom model."""
     path_elements = custom_model_path.split(".")
     module_path = ".".join(path_elements[:-1])
@@ -43,11 +43,11 @@ def load_custom_model(custom_model_path) -> CustomOpenstfRegressor:
     if (
         not inspect.isclass(model_class)
         or inspect.isabstract(model_class)
-        or not issubclass(model_class, CustomOpenstfRegressor)
+        or not issubclass(model_class, CustomOpenstefRegressor)
     ):
         raise ValueError(
             f"The path {custom_model_path!r} does not correspond to a concrete"
-            " CustomOpenstfRegressor subclass"
+            " CustomOpenstefRegressor subclass"
         )
 
     return model_class

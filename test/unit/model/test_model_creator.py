@@ -7,8 +7,8 @@ from unittest import TestCase
 
 from openstef.enums import ModelType
 from openstef.model.model_creator import ModelCreator
-from openstef.model.regressors.regressor import OpenstfRegressor
-from openstef.model.regressors.xgb_quantile import XGBQuantileOpenstfRegressor
+from openstef.model.regressors.regressor import OpenstefRegressor
+from openstef.model.regressors.xgb_quantile import XGBQuantileOpenstefRegressor
 
 
 class TestModelCreator(TestCase):
@@ -17,7 +17,7 @@ class TestModelCreator(TestCase):
         valid_types = [t.value for t in ModelType] + [t for t in ModelType]
         for model_type in valid_types:
             model = ModelCreator.create_model(model_type)
-            self.assertIsInstance(model, OpenstfRegressor)
+            self.assertIsInstance(model, OpenstefRegressor)
             self.assertTrue(hasattr(model, "can_predict_quantiles"))
             if model_type in [
                 "xgb_quantile",
@@ -46,8 +46,8 @@ class TestModelCreator(TestCase):
         # Create relevant model
         model = ModelCreator.create_model(model_type, quantiles=quantiles)
 
-        self.assertIsInstance(model, OpenstfRegressor)
-        self.assertIsInstance(model, XGBQuantileOpenstfRegressor)
+        self.assertIsInstance(model, OpenstefRegressor)
+        self.assertIsInstance(model, XGBQuantileOpenstefRegressor)
         self.assertEqual(model.quantiles, quantiles)
 
     def test_create_model_unknown_model(self):

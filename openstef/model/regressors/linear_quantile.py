@@ -15,12 +15,12 @@ from openstef.feature_engineering.missing_values_transformer import (
     MissingValuesTransformer,
 )
 from openstef.model.metamodels.feature_clipper import FeatureClipper
-from openstef.model.regressors.regressor import OpenstfRegressor
+from openstef.model.regressors.regressor import OpenstefRegressor
 
 DEFAULT_QUANTILES: tuple[float, ...] = (0.9, 0.5, 0.1)
 
 
-class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
+class LinearQuantileOpenstefRegressor(OpenstefRegressor, RegressorMixin):
     quantiles: tuple[float, ...]
     alpha: float
     solver: str
@@ -55,7 +55,7 @@ class LinearQuantileOpenstfRegressor(OpenstfRegressor, RegressorMixin):
         no_fill_future_values_features: List[str] = None,
         clipped_features: List[str] = None,
     ):
-        """Initialize LinearQuantileOpenstfRegressor.
+        """Initialize LinearQuantileOpenstefRegressor.
 
         Model that provides quantile regression with SKLearn QuantileRegressor.
         For each desired quantile an QuantileRegressor model is trained,

@@ -13,7 +13,7 @@ from xgboost import Booster
 
 from openstef.feature_engineering.apply_features import apply_features
 from openstef.model.model_creator import ModelCreator
-from openstef.model.regressors.gblinear_quantile import GBLinearQuantileOpenstfRegressor
+from openstef.model.regressors.gblinear_quantile import GBLinearQuantileOpenstefRegressor
 
 train_input: pd.DataFrame = TestData.load("reference_sets/307-train-data.csv")
 
@@ -32,7 +32,7 @@ class TestGBLinearQuantile(BaseTestCase):
     def test_quantile_fit(self):
         """Test happy flow of the training of model"""
         # Arrange
-        model = GBLinearQuantileOpenstfRegressor()
+        model = GBLinearQuantileOpenstefRegressor()
 
         # Act
         model.fit(train_input.iloc[:, 1:], train_input.iloc[:, 0])
@@ -56,8 +56,8 @@ class TestGBLinearQuantile(BaseTestCase):
         X.loc[X.index[-2], "sparse"] = np.nan
         X["sparse_2"] = np.ones(n_sample)
         X.loc[X.index[-1], "sparse_2"] = np.nan
-        model1 = GBLinearQuantileOpenstfRegressor(imputation_strategy=None)
-        model2 = GBLinearQuantileOpenstfRegressor(
+        model1 = GBLinearQuantileOpenstefRegressor(imputation_strategy=None)
+        model2 = GBLinearQuantileOpenstefRegressor(
             imputation_strategy="mean", no_fill_future_values_features=["sparse_2"]
         )
 
@@ -82,11 +82,11 @@ class TestGBLinearQuantile(BaseTestCase):
     def test_value_error_raised(self):
         # Check if Value Error is raised when 0.5 is not in the requested quantiles list
         with self.assertRaises(ValueError):
-            GBLinearQuantileOpenstfRegressor((0.2, 0.3, 0.6, 0.7))
+            GBLinearQuantileOpenstefRegressor((0.2, 0.3, 0.6, 0.7))
 
     def test_predict_raises_valueerror_no_model_trained_for_quantile(self):
         # Arrange
-        model = GBLinearQuantileOpenstfRegressor((0.2, 0.3, 0.5, 0.6, 0.7))
+        model = GBLinearQuantileOpenstefRegressor((0.2, 0.3, 0.5, 0.6, 0.7))
 
         # Act
         # Test if value error is raised when model is not available
@@ -95,7 +95,7 @@ class TestGBLinearQuantile(BaseTestCase):
 
     def test_importance_names(self):
         # Arrange
-        model = GBLinearQuantileOpenstfRegressor(tuple(self.quantiles))
+        model = GBLinearQuantileOpenstefRegressor(tuple(self.quantiles))
 
         # Act
         importance_names = model._get_importance_names()
@@ -105,7 +105,7 @@ class TestGBLinearQuantile(BaseTestCase):
 
     def test_get_feature_importance_from_gblinear(self):
         # Arrange
-        model = GBLinearQuantileOpenstfRegressor(quantiles=(0.2, 0.3, 0.5, 0.6, 0.7))
+        model = GBLinearQuantileOpenstefRegressor(quantiles=(0.2, 0.3, 0.5, 0.6, 0.7))
         model.imputer_ = MagicMock()
         model.imputer_.in_feature_names = ["a", "b", "c"]
         model.imputer_.non_null_feature_names = ["a", "b", "c"]
@@ -125,7 +125,7 @@ class TestGBLinearQuantile(BaseTestCase):
 
     def test_ignore_features(self):
         # Arrange
-        model = GBLinearQuantileOpenstfRegressor(quantiles=(0.2, 0.3, 0.5, 0.6, 0.7))
+        model = GBLinearQuantileOpenstefRegressor(quantiles=(0.2, 0.3, 0.5, 0.6, 0.7))
 
         input_data_engineered = apply_features(train_input)
 
@@ -169,12 +169,12 @@ class TestGBLinearQuantile(BaseTestCase):
         )
 
         # Assert
-        self.assertIsInstance(model, GBLinearQuantileOpenstfRegressor)
+        self.assertIsInstance(model, GBLinearQuantileOpenstefRegressor)
         self.assertEqual(model.weight_scale_percentile, 50)
         self.assertEqual(model.weight_exponent, 2)
 
     def test_feature_clipper(self):
-        """Test the feature clipping functionality of LinearQuantileOpenstfRegressor"""
+        """Test the feature clipping functionality of LinearQuantileOpenstefRegressor"""
         # Create a sample dataset with a feature to be clipped
         X = pd.DataFrame(
             {
@@ -186,7 +186,7 @@ class TestGBLinearQuantile(BaseTestCase):
         y = pd.Series([1, 2, 3, 4, 5])
 
         # Initialize the model with clipping for 'APX' feature
-        model = GBLinearQuantileOpenstfRegressor(clipped_features=["APX"])
+        model = GBLinearQuantileOpenstefRegressor(clipped_features=["APX"])
 
         # Fit the model
         model.fit(X, y)

@@ -8,10 +8,10 @@ import statsmodels.api as sm
 from sklearn.metrics import r2_score
 from sklearn.model_selection import TimeSeriesSplit
 
-from openstef.model.regressors.regressor import OpenstfRegressor
+from openstef.model.regressors.regressor import OpenstefRegressor
 
 
-class ARIMAOpenstfRegressor(OpenstfRegressor):
+class ARIMAOpenstefRegressor(OpenstefRegressor):
     """Wrapper around statmodels implementation of (S)ARIMA(X) model.
 
     The fit of an ARIMA statsmodels produces a result object which is used to perform the various computations around forecasting.
