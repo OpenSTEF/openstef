@@ -54,7 +54,7 @@ class LinearRegressor(MissingValuesHandler):
 
 
 class LinearOpenstefRegressor(LinearRegressor, OpenstefRegressor):
-    """Linear Regressor which implements the Openstf regressor API."""
+    """Linear Regressor which implements the Openstef regressor API."""
 
     @staticmethod
     def _get_importance_names():

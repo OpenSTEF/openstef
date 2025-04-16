@@ -11,7 +11,7 @@ from openstef.model.regressors.regressor import OpenstefRegressor
 
 
 class XGBOpenstefRegressor(XGBRegressor, OpenstefRegressor):
-    """XGB Regressor which implements the Openstf regressor API."""
+    """XGB Regressor which implements the Openstef regressor API."""
 
     gain_importance_name = "total_gain"
     weight_importance_name = "weight"

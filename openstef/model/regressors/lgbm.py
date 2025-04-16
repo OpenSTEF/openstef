@@ -8,7 +8,7 @@ from openstef.model.regressors.regressor import OpenstefRegressor
 
 
 class LGBMOpenstefRegressor(LGBMRegressor, OpenstefRegressor):
-    """LGBM Regressor which implements the Openstf regressor API."""
+    """LGBM Regressor which implements the Openstef regressor API."""
 
     gain_importance_name = "gain"
     weight_importance_name = "split"
