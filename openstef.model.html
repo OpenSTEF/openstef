@@ -954,6 +954,11 @@ it is usually done via statistical analysis and heuristics.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef.model.objective.</span></span><span class="sig-name descname"><span class="pre">LGBRegressorObjective</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.objective.LGBRegressorObjective" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#openstef.model.objective.RegressorObjective" title="openstef.model.objective.RegressorObjective"><code class="xref py py-class docutils literal notranslate"><span class="pre">RegressorObjective</span></code></a></p>
 <dl class="py method">
+<dt class="sig sig-object py" id="openstef.model.objective.LGBRegressorObjective.get_early_stopping_callback">
+<span class="sig-name descname"><span class="pre">get_early_stopping_callback</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.objective.LGBRegressorObjective.get_early_stopping_callback" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="openstef.model.objective.LGBRegressorObjective.get_params">
 <span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trial</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.objective.LGBRegressorObjective.get_params" title="Link to this definition">¶</a></dt>
 <dd><p>Get parameters for LGB Regressor Objective with objective specific parameters.</p>
@@ -1038,6 +1043,11 @@ Next the instance will be called by he optuna study during optimization.</p>
 </dd>
 </dl>
 </dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef.model.objective.RegressorObjective.get_early_stopping_callback">
+<span class="sig-name descname"><span class="pre">get_early_stopping_callback</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.objective.RegressorObjective.get_early_stopping_callback" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="openstef.model.objective.RegressorObjective.get_params">
@@ -1140,6 +1150,11 @@ Next the instance will be called by he optuna study during optimization.</p>
 </dd>
 </dl>
 </dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef.model.objective.XGBRegressorObjective.get_early_stopping_callback">
+<span class="sig-name descname"><span class="pre">get_early_stopping_callback</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.objective.XGBRegressorObjective.get_early_stopping_callback" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="openstef.model.objective.XGBRegressorObjective.get_params">
@@ -1525,6 +1540,15 @@ For each hour of the day the std of the difference is calculated.</p>
     </a>
     <ul class="nav section-nav flex-column">
      <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.model.objective.LGBRegressorObjective.get_early_stopping_callback">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         LGBRegressorObjective.get_early_stopping_callback()
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
       <a class="reference internal nav-link" href="#openstef.model.objective.LGBRegressorObjective.get_params">
        <code class="docutils literal notranslate">
         <span class="pre">
@@ -1587,6 +1611,15 @@ For each hour of the day the std of the difference is calculated.</p>
        <code class="docutils literal notranslate">
         <span class="pre">
          RegressorObjective.get_default_values()
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.model.objective.RegressorObjective.get_early_stopping_callback">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         RegressorObjective.get_early_stopping_callback()
         </span>
        </code>
       </a>
@@ -1692,6 +1725,15 @@ For each hour of the day the std of the difference is calculated.</p>
        <code class="docutils literal notranslate">
         <span class="pre">
          XGBRegressorObjective.get_default_values()
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.model.objective.XGBRegressorObjective.get_early_stopping_callback">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         XGBRegressorObjective.get_early_stopping_callback()
         </span>
        </code>
       </a>
