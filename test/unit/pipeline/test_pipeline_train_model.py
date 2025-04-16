@@ -157,6 +157,11 @@ class TestTrainModelPipeline(BaseTestCase):
                             function=split_dummy_arima,
                             arguments={},
                         )
+                
+                if model_type == ModelType.MEDIAN:
+                    # The median model depends solely on the lag features
+                    # and will not run with a DataPrep class that does not provide them.
+                    continue
 
                 model, report, modelspecs, _ = train_model_pipeline_core(
                     pj=pj, model_specs=model_specs, input_data=train_input
