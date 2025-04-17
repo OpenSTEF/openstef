@@ -92,3 +92,39 @@ class TestMedianRegressor(BaseTestCase):
             ValueError, "No lag features found in the input data."
         ):
             model.fit(training_data, training_data)
+
+    def test_predicting_without_fitting_raises(self):
+        # Arrange
+        model = MedianRegressor()
+        training_data = pd.DataFrame(
+            {
+                "T-1": [1, 2, 3],
+                "T-2": [4, 5, 6],
+                "T-3": [7, 8, 9],
+            }
+        )
+
+        # Act & Assert
+        with self.assertRaisesRegex(
+            AttributeError,
+            "This MedianRegressor instance is not fitted yet. Call 'fit' with appropriate arguments before using this estimator.",
+        ):
+            model.predict(training_data)
+
+    def test_median_fit_returns_fitted_model(self):
+        # Arrange
+        model = MedianRegressor()
+        training_data = pd.DataFrame(
+            {
+                "T-1": [1, 2, 3],
+                "T-2": [4, 5, 6],
+                "T-3": [7, 8, 9],
+            }
+        )
+
+        # Act
+        fitted_model = model.fit(training_data, training_data)
+
+        # Assert
+        self.assertIsInstance(fitted_model, MedianRegressor)
+        self.assertEqual(fitted_model.feature_names_, ["T-1", "T-2", "T-3"])

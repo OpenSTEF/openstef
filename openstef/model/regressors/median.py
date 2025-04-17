@@ -34,7 +34,7 @@ class MedianRegressor(OpenstfRegressor, RegressorMixin):
             The list of feature names
 
         """
-        check_is_fitted(self)
+        check_is_fitted(self, "feature_names_")
         return self.feature_names_
 
     @property
@@ -53,6 +53,7 @@ class MedianRegressor(OpenstfRegressor, RegressorMixin):
             If any lag feature is NaN, this will be ignored.
             If all lag features are NaN, the regressor will return NaN.
         """
+
         lag_df = x.loc[:, self.feature_names]
         median = lag_df.median(axis=1, skipna=True)
 
@@ -71,7 +72,7 @@ class MedianRegressor(OpenstfRegressor, RegressorMixin):
         self.feature_importances_ = np.ones(len(self.feature_names_)) / (
             len(self.feature_names_) or 1.0
         )
-        return RegressorMixin()
+        return self
 
     def __sklearn_is_fitted__(self) -> bool:
         return True
