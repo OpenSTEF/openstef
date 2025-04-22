@@ -1,5 +1,4 @@
 from test.unit.utils.base import BaseTestCase
-from test.unit.utils.data import TestData
 
 import numpy as np
 import pandas as pd
@@ -8,8 +7,6 @@ from openstef.model.regressors.median import MedianRegressor
 
 
 class TestMedianRegressor(BaseTestCase):
-    def setUp(self):
-        self.train_input = TestData.load("reference_sets/307-train-data.csv")
 
     def test_median_returns_median(self):
         # Arrange
