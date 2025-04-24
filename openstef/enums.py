@@ -125,6 +125,7 @@ class ModelType(Enum):
     GBLINEAR_QUANTILE = "gblinear_quantile"
     ARIMA = "arima"
     FLATLINER = "flatliner"
+    MEDIAN = "median"
 
 
 class ForecastType(Enum):

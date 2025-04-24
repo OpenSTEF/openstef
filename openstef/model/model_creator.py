@@ -17,6 +17,7 @@ from openstef.model.regressors.xgb import XGBOpenstfRegressor
 from openstef.model.regressors.xgb_multioutput_quantile import (
     XGBMultiOutputQuantileOpenstfRegressor,
 )
+from openstef.model.regressors.median import MedianRegressor
 from openstef.model.regressors.xgb_quantile import XGBQuantileOpenstfRegressor
 
 logger = get_logger(__name__)
@@ -138,6 +139,9 @@ valid_model_kwargs = {
         "seasonal_order",
         "trend",
     ],
+    ModelType.MEDIAN: [
+        # This model does not have any parameters
+    ],
 }
 
 
@@ -155,6 +159,7 @@ class ModelCreator:
         ModelType.GBLINEAR_QUANTILE: GBLinearQuantileOpenstfRegressor,
         ModelType.ARIMA: ARIMAOpenstfRegressor,
         ModelType.FLATLINER: FlatlinerRegressor,
+        ModelType.MEDIAN: MedianRegressor,
     }
 
     @staticmethod
