@@ -68,6 +68,14 @@ openstef.model.regressors.linear\_quantile module
    :undoc-members:
    :show-inheritance:
 
+openstef.model.regressors.median module
+---------------------------------------
+
+.. automodule:: openstef.model.regressors.median
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 openstef.model.regressors.regressor module
 ------------------------------------------
 

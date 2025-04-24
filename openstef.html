@@ -723,6 +723,7 @@
 <li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#module-openstef.model.regressors.lgbm">openstef.model.regressors.lgbm module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#module-openstef.model.regressors.linear">openstef.model.regressors.linear module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#module-openstef.model.regressors.linear_quantile">openstef.model.regressors.linear_quantile module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#module-openstef.model.regressors.median">openstef.model.regressors.median module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#module-openstef.model.regressors.regressor">openstef.model.regressors.regressor module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#module-openstef.model.regressors.xgb">openstef.model.regressors.xgb module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef.model.regressors.html#module-openstef.model.regressors.xgb_multioutput_quantile">openstef.model.regressors.xgb_multioutput_quantile module</a></li>
@@ -1675,6 +1676,11 @@
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef.enums.ModelType.LINEAR_QUANTILE">
 <span class="sig-name descname"><span class="pre">LINEAR_QUANTILE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'linear_quantile'</span></em><a class="headerlink" href="#openstef.enums.ModelType.LINEAR_QUANTILE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.ModelType.MEDIAN">
+<span class="sig-name descname"><span class="pre">MEDIAN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'median'</span></em><a class="headerlink" href="#openstef.enums.ModelType.MEDIAN" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -2985,6 +2991,15 @@
        <code class="docutils literal notranslate">
         <span class="pre">
          ModelType.LINEAR_QUANTILE
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.ModelType.MEDIAN">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         ModelType.MEDIAN
         </span>
        </code>
       </a>
