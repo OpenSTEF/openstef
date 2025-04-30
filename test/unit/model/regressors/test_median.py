@@ -132,11 +132,12 @@ class TestMedianRegressor(BaseTestCase):
         )
         # Remove the second row to create a small gap
         training_data = training_data[training_data.index != "2023-01-01 00:01:00"]
-        # TODO: Set the expected median based on the remaining data
         expected_median = pd.Series([3, 3, 3, 3])
+
         # Act
         model.fit(training_data, training_data)
         predictions = model.predict(training_data)
+
         # Assert
         np.testing.assert_allclose(predictions, expected_median)
 
@@ -160,11 +161,12 @@ class TestMedianRegressor(BaseTestCase):
             index=pd.date_range("2023-01-02T00:10", periods=3, freq="min"),
         )
         training_data = pd.concat([training_data_1, training_data_2])
-        # TODO: Set the expected median based on the remaining data
         expected_median = pd.Series([4, 5, 6, 13, 14, 15])
+
         # Act
         model.fit(training_data, training_data)
         predictions = model.predict(training_data)
+
         # Assert
         np.testing.assert_allclose(predictions, expected_median)
 
@@ -180,8 +182,8 @@ class TestMedianRegressor(BaseTestCase):
             index=pd.date_range("2023-01-01", periods=3, freq="min"),
         )
         model.fit(training_data, training_data)
-        # Act & Assert
 
+        # Act & Assert
         with self.assertRaisesRegex(
             ValueError,
             "The input data is missing the following lag features: {'T-3min'}",
@@ -197,7 +199,7 @@ class TestMedianRegressor(BaseTestCase):
             }
         )
 
-        # Act
+        # Act & Assert
         with self.assertRaisesRegex(
             ValueError, "No lag features found in the input data."
         ):
@@ -216,7 +218,7 @@ class TestMedianRegressor(BaseTestCase):
             index=pd.date_range("2023-01-01", periods=3, freq="min"),
         )
 
-        # Act
+        # Act & Assert
         with self.assertRaisesRegex(
             ValueError,
             "Lag features are not evenly spaced",
@@ -235,7 +237,7 @@ class TestMedianRegressor(BaseTestCase):
             index=pd.date_range("2023-01-01", periods=3, freq=pd.Timedelta(hours=1)),
         )
 
-        # Act
+        # Act & Assert
         with self.assertRaisesRegex(
             ValueError,
             "does not match the model frequency.",
