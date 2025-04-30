@@ -200,7 +200,7 @@ class MedianRegressor(OpenstfRegressor, RegressorMixin):
             if feature.endswith("min"):
                 lag_in_min = int(feature.split("-")[1].split("min")[0])
             elif feature.endswith("d"):
-                lag_in_min = int(feature.split("-")[1].split("d")[0]) * 60 * 2
+                lag_in_min = int(feature.split("-")[1].split("d")[0]) * 60 * 24
             else:
                 raise ValueError(
                     f"Feature name '{feature}' does not follow the expected format."
