@@ -1,0 +1,19 @@
+# SPDX-FileCopyrightText: 2017-2025 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com>
+#
+# SPDX-License-Identifier: MPL-2.0
+
+cff-version: 1.2.0
+message: "If you are using OpenSTEF in your research work, please consider citing our library as below."
+
+title: "OpenSTEF/openstef"
+url: "https://github.com/OpenSTEF/openstef"
+# doi: ""
+license: "MPL-2.0"
+authors:
+  - family-names: "Pleiter"
+    given-names: "Bart"
+    email: "Bart.Pleiter@Alliander.com"
+    affiliation: "Alliander"
+contact:
+  - name: "Team mailbox OpenSTEF"
+    email: "short.term.energy.forecasts@alliander.com"
