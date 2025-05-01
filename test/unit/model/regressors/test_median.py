@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2017-2025 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com>
+#
+# SPDX-License-Identifier: MPL-2.0
+
 from test.unit.utils.base import BaseTestCase
 
 import numpy as np
