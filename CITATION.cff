@@ -7,7 +7,7 @@ message: "If you are using OpenSTEF in your research work, please consider citin
 
 title: "OpenSTEF/openstef"
 url: "https://github.com/OpenSTEF/openstef"
-doi: ""
+# doi: ""
 license: "MPL-2.0"
 authors:
   - family-names: "Pleiter"
