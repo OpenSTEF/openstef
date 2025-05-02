@@ -320,7 +320,7 @@ def train_pipeline_step_load_model(
 
     if not ignore_existing_models:
         try:
-            old_model, model_specs = serializer.load_model(experiment_name=str(pj.id))
+            old_model, model_specs = serializer.load_model(pj)
             old_model_age = old_model.age  # Age attribute is openstef specific
             return old_model, model_specs, old_model_age
         except (AttributeError, FileNotFoundError, LookupError):

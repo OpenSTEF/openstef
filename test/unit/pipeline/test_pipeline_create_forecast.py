@@ -34,7 +34,7 @@ class TestCreateForecastPipeline(BaseTestCase):
         # Note that this model was trained using xgboost v1.6.1
         # in time, this should be replaced by a model trained by a newer version, so temporary fixes
         # in loading of the model (serializer.py) can be removed.
-        self.model, self.model_specs = self.serializer.load_model(experiment_name="307")
+        self.model, self.model_specs = self.serializer.load_model(self.pj)
 
     def test_generate_forecast_datetime_range_single_null_values_target_column(self):
         """Test if correct forecast window is made with single range of nulls."""
@@ -104,7 +104,7 @@ class TestCreateForecastPipeline(BaseTestCase):
         col_name = forecast_data.columns[0]
         forecast_data.loc["2020-11-28 00:00:00":"2020-12-01", col_name] = None
 
-        model, model_specs = self.serializer.load_model(str(self.pj["id"]))
+        model, model_specs = self.serializer.load_model(self.pj)
         if not hasattr(model, "standard_deviation"):  # Renamed the attribute
             model.standard_deviation = model.confidence_interval
 
@@ -127,7 +127,7 @@ class TestCreateForecastPipeline(BaseTestCase):
         forecast_data.loc["2020-11-28 00:00:00":"2020-12-01", col_name] = None
 
         # Load model
-        model, model_specs = self.serializer.load_model(str(self.pj["id"]))
+        model, model_specs = self.serializer.load_model(self.pj)
         model_specs.feature_names = forecast_data.columns[1:]
 
         if not hasattr(model, "standard_deviation"):  # Renamed the attribute
@@ -154,7 +154,7 @@ class TestCreateForecastPipeline(BaseTestCase):
         forecast_data.loc["2020-11-26 00:00:00":"2020-12-01", col_name] = None
 
         # Load model
-        model, model_specs = self.serializer.load_model(str(self.pj["id"]))
+        model, model_specs = self.serializer.load_model(self.pj)
         model_specs.feature_names = forecast_data.columns[1:]
 
         if not hasattr(model, "standard_deviation"):  # Renamed the attribute
@@ -181,7 +181,7 @@ class TestCreateForecastPipeline(BaseTestCase):
         forecast_data.loc["2020-11-25 00:00:00":"2020-12-01", col_name] = None
 
         # Load model
-        model, model_specs = self.serializer.load_model(str(self.pj["id"]))
+        model, model_specs = self.serializer.load_model(self.pj)
         model_specs.feature_names = forecast_data.columns[1:]
 
         if not hasattr(model, "standard_deviation"):  # Renamed the attribute

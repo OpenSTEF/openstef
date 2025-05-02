@@ -18,6 +18,7 @@ from mlflow.store.artifact.artifact_repository_registry import get_artifact_repo
 from xgboost import XGBModel  # Temporary for backward compatibility
 
 from openstef.data_classes.model_specifications import ModelSpecificationDataClass
+from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.logging.logger_factory import get_logger
 from openstef.metrics.reporter import Report
 from openstef.model.regressors.regressor import OpenstfRegressor
@@ -142,20 +143,31 @@ class MLflowSerializer:
 
     def load_model(
         self,
-        experiment_name: str,
+        pj: PredictionJobDataClass,
     ) -> tuple[OpenstfRegressor, ModelSpecificationDataClass]:
-        """Load sklearn compatible model from MLFlow.
+        """ Load an sklearn-compatible model from MLflow.
 
-        Args:
-            experiment_name: Name of the experiment, often the id of the predition job.
+        This method retrieves a trained model and its specifications from MLflow 
+        based on the provided PredictionJobDataClass instance. It supports loading 
+        a specific model run if a run number is provided.
 
-        Raises:
-            LookupError: If model is not found in MLflow.
+            pj (PredictionJobDataClass): The prediction job data containing the 
+                experiment ID and optional model run number.
+
+        Returns:
+            tuple[OpenstfRegressor, ModelSpecificationDataClass]: A tuple containing 
+                the loaded model and its specifications.
+
+            LookupError: If the model is not found in MLflow or if an error occurs 
+                during the loading process.
 
         """
+        # Set the experiment name based on the prediction job ID
+        experiment_name = str(pj.id)
+
         try:
             models_df = self._find_models(
-                self.experiment_name_prefix + experiment_name, max_results=1
+                self.experiment_name_prefix + experiment_name, max_results=1, model_run_id=pj.get("model_run_id")
             )  # return the latest finished run of the model
             if not models_df.empty:
                 latest_run = models_df.iloc[0]  # Use .iloc[0] to only get latest run
@@ -172,7 +184,7 @@ class MLflowSerializer:
             )  # Path without file:///
             self.logger.info("Model successfully loaded with MLflow")
             return loaded_model, model_specs
-        except (AttributeError, MlflowException, OSError) as exception:
+        except (AttributeError, MlflowException, OSError) as exception:            
             raise LookupError("Model not found. First train a model!") from exception
 
     def get_model_age(
@@ -205,8 +217,13 @@ class MLflowSerializer:
         experiment_name: str,
         max_results: Optional[int] = 100,
         filter_string: str = "attribute.status = 'FINISHED'",
+        model_run_id: Optional[int] = None,
     ) -> pd.DataFrame:
         """Finds trained models for specific experiment_name sorted by age in descending order."""
+
+        if model_run_id is not None:
+            filter_string += f" AND attributes.run_id = '{model_run_id}'"
+
         models_df = mlflow.search_runs(
             experiment_names=[experiment_name],
             max_results=max_results,

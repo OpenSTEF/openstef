@@ -31,7 +31,7 @@ class TestCreateForecastTask(TestCase):
         rel_path = "test/unit/trained_models/mlruns/893156335105023143/2ca1d126e8724852b303b256e64a6c4f/artifacts/model"
         _get_model_uri_mock.return_value = Path(rel_path).absolute().as_uri()
         # Use MLflowSerializer to load a model
-        self.model, _ = self.serializer.load_model(experiment_name="307")
+        self.model, _ = self.serializer.load_model(self.pj)
 
     def test_mocked_model_path(self):
         """This test explicitely tests if the model path is mocked correctly"""
