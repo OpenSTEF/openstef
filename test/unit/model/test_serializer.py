@@ -53,7 +53,7 @@ class TestMLflowSerializer(BaseTestCase):
 
         loaded_model, _ = MLflowSerializer(
             mlflow_tracking_uri="./test/unit/trained_models/mlruns"
-        ).load_model(self.pj)
+        ).load_model(str(self.pj["id"]))
         # Check model path
         assert (
             loaded_model.path.replace("\\", "/")
@@ -80,7 +80,7 @@ class TestMLflowSerializer(BaseTestCase):
         type(mock_load.return_value).feature_names = PropertyMock(return_value=None)
         loaded_model, modelspecs = MLflowSerializer(
             mlflow_tracking_uri="./test/unit/trained_models/mlruns"
-        ).load_model(self.pj)
+        ).load_model(str(self.pj["id"]))
         self.assertIsInstance(modelspecs, ModelSpecificationDataClass)
         self.assertEqual(modelspecs.feature_names, None)
 
@@ -106,7 +106,7 @@ class TestMLflowSerializer(BaseTestCase):
         type(mock_load.return_value).feature_names = PropertyMock(return_value=None)
         loaded_model, modelspecs = MLflowSerializer(
             mlflow_tracking_uri="./test/unit/trained_models/mlruns"
-        ).load_model(self.pj)
+        ).load_model(str(self.pj["id"]))
         self.assertIsInstance(modelspecs, ModelSpecificationDataClass)
         self.assertEqual(modelspecs.feature_names, None)
 
@@ -133,7 +133,7 @@ class TestMLflowSerializer(BaseTestCase):
         type(mock_load.return_value).feature_names = PropertyMock(return_value=None)
         loaded_model, modelspecs = MLflowSerializer(
             mlflow_tracking_uri="./test/unit/trained_models/mlruns"
-        ).load_model(self.pj)
+        ).load_model(str(self.pj["id"]))
         self.assertIsInstance(modelspecs, ModelSpecificationDataClass)
         self.assertEqual(modelspecs.feature_names, None)
 
@@ -159,7 +159,7 @@ class TestMLflowSerializer(BaseTestCase):
         type(mock_load.return_value).feature_modules = PropertyMock(return_value=[])
         loaded_model, modelspecs = MLflowSerializer(
             mlflow_tracking_uri="./test/unit/trained_models/mlruns"
-        ).load_model(self.pj)
+        ).load_model(str(self.pj["id"]))
         self.assertIsInstance(modelspecs, ModelSpecificationDataClass)
         self.assertFalse(modelspecs.feature_modules)
 
@@ -186,7 +186,7 @@ class TestMLflowSerializer(BaseTestCase):
         type(mock_load.return_value).feature_modules = PropertyMock(return_value=[])
         loaded_model, modelspecs = MLflowSerializer(
             mlflow_tracking_uri="./test/unit/trained_models/mlruns"
-        ).load_model(self.pj)
+        ).load_model(str(self.pj["id"]))
         self.assertIsInstance(modelspecs, ModelSpecificationDataClass)
         self.assertFalse(modelspecs.feature_modules)
 
@@ -196,7 +196,7 @@ class TestMLflowSerializer(BaseTestCase):
         self.assertRaises(
             LookupError,
             MLflowSerializer(mlflow_tracking_uri="/").load_model,
-            self.pj,
+            str(self.pj["id"]),
         )
 
     @patch("mlflow.sklearn.log_model")

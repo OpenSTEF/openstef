@@ -143,7 +143,8 @@ class MLflowSerializer:
 
     def load_model(
         self,
-        pj: PredictionJobDataClass,
+        experiment_name: str,
+        model_run_id: Optional[str] = None,
     ) -> tuple[OpenstfRegressor, ModelSpecificationDataClass]:
         """ Load an sklearn-compatible model from MLflow.
 
@@ -162,17 +163,10 @@ class MLflowSerializer:
                 during the loading process.
 
         """
-        # Set the experiment name based on the prediction job ID
-        experiment_name = str(pj.id)
-            
-        # Use the alternative forecast model if it's specify in the pj
-        if pj.alternative_forecast_model_pid:
-            experiment_name = str(pj.alternative_forecast_model_pid)
-
         try:
             models_df = self._find_models(
-                self.experiment_name_prefix + experiment_name, max_results=1, model_run_id=pj.get("model_run_id")
-            )  # return the latest finished run of the model
+                self.experiment_name_prefix + experiment_name, max_results=1, model_run_id=model_run_id)
+             # return the latest finished run of the model
             if not models_df.empty:
                 latest_run = models_df.iloc[0]  # Use .iloc[0] to only get latest run
             else:
