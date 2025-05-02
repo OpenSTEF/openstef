@@ -133,52 +133,84 @@ class MedianRegressor(OpenstfRegressor, RegressorMixin):
             raise ValueError(
                 f"The input data is missing the following lag features: {missing_features}"
             )
-        largest_lag = self.lags_to_time_deltas_[self.feature_names[-1]]
-        smallest_lag = self.lags_to_time_deltas_[self.feature_names[0]]
 
-        # Reindex the input data to ensure there are no gaps
-        # The returned values need to be the original index
+        # Reindex the input data to ensure there are no gaps in the time series.
+        # This is important for the autoregressive logic that follows.
+        # Store the original index to return predictions aligned with the input.
         original_index = x.index.copy()
         first_index = x.index[0]
         last_index = x.index[-1]
         freq = pd.Timedelta(minutes=self.frequency)
+        # Create a new date range with the expected frequency.
         new_index = pd.date_range(first_index, last_index, freq=freq)
+        # Reindex the input DataFrame, filling any new timestamps with NaN.
         x = x.reindex(new_index, fill_value=np.nan)
 
-        # Put the lag features in the right column order
+        # Select only the lag feature columns in the specified order.
         lag_df = x[self.feature_names]
+        
+        # Convert the lag DataFrame and its index to NumPy arrays for faster processing.
+        lag_array = lag_df.to_numpy()
+        time_index = lag_df.index.to_numpy()
+        # Initialize the prediction array with NaNs.
+        prediction = np.full(lag_array.shape[0], np.nan)
 
-        prediction = []
-        for index, time_step in enumerate(lag_df.index):
-            current_lags = lag_df.iloc[index]
-            median = np.nanmedian(current_lags, axis=0)            
-            prediction.append(median)
+        # Calculate the time step size based on the model frequency.
+        step_size = pd.Timedelta(minutes=self.frequency)
+        # Determine the number of steps corresponding to the smallest and largest lags.
+        smallest_lag_steps = int(self.lags_to_time_deltas_[self.feature_names[0]] / step_size)
+        largest_lag_steps = int(self.lags_to_time_deltas_[self.feature_names[-1]] / step_size)
 
-            # Fill the future lags with the median value, if this is not nan
-            if median is np.nan:
+        # Iterate through each time step in the reindexed data.
+        for i in range(lag_array.shape[0]):
+            # Get the lag features for the current time step.
+            current_lags = lag_array[i]
+            # Calculate the median of the available lag features, ignoring NaNs.
+            median = np.nanmedian(current_lags)
+            # Store the calculated median in the prediction array.
+            prediction[i] = median
+
+            # If the median calculation resulted in NaN (e.g., all lags were NaN), skip the autoregression step.
+            if np.isnan(median):
                 continue
-            slice_start = time_step + smallest_lag
-            slice_end = time_step + largest_lag
-            diagonal_matrix = lag_df.loc[slice_start:slice_end].copy().to_numpy()
-            np.fill_diagonal(diagonal_matrix, median)
-            df_to_fill_from = pd.DataFrame(
-                diagonal_matrix,
-                index=lag_df.loc[slice_start:slice_end].index,
-                columns=lag_df.columns,
-            )
 
-            # Fill in any nan values in lag_df with the values from the diagonal matrix
-            lag_df.loc[slice_start:slice_end] = lag_df.loc[
-                slice_start:slice_end
-            ].combine_first(df_to_fill_from)
+            # --- Autoregressive Step ---
+            # Use the calculated median to fill in future lag values where this prediction would be used as input.
+            # Calculate the start and end indices in the future time steps that will be affected.
+            start, end = i + smallest_lag_steps, i + largest_lag_steps + 1            
 
-        prediction_df = pd.DataFrame(
-            prediction,
-            index=lag_df.index,
-            columns=["median"],
-        )
+            # If the start index is beyond the array bounds, no future updates are needed from this step.
+            if start >= lag_array.shape[0]:
+                continue
+
+            # Ensure the end index does not exceed the array bounds.
+            end = min(end, lag_array.shape[0])
+              
+            # Get a view of the sub-array where the diagonal needs to be filled.
+            # The slice represents future time steps (rows) and corresponding lag features (columns).
+            # Rows: from 'start' up to (but not including) 'end'
+            # Columns: from 0 up to (but not including) 'end - start'
+            # This selects the part of the array where lag_array[start + k, k] resides for k in range(end - start).
+            view = lag_array[start:end, 0:(end - start)]           
+
+
+            # Create a mask for NaNs on the diagonal            
+            diagonal_nan_mask = np.isnan(np.diag(view))
+            
+            # Only update if there are NaNs on the diagonal
+            if np.any(diagonal_nan_mask):
+                # Create a temporary array to hold the new diagonal
+                updated_diagonal = np.diag(view).copy()
+                updated_diagonal[diagonal_nan_mask] = median
+                np.fill_diagonal(view, updated_diagonal)
+
+
+        # Convert the prediction array back to a pandas DataFrame using the reindexed time index.
+        prediction_df = pd.DataFrame(prediction, index=time_index, columns=["median"])
+        # Select only the predictions corresponding to the original input index.
         prediction = prediction_df.loc[original_index].to_numpy().flatten()
 
+        # Return the final predictions as a flattened NumPy array.
         return prediction
 
     def fit(self, x: pd.DataFrame, y: pd.DataFrame, **kwargs) -> RegressorMixin:
