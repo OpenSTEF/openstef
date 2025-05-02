@@ -68,10 +68,23 @@ class MedianRegressor(OpenstfRegressor, RegressorMixin):
     def can_predict_quantiles(self) -> bool:
         return False
     
+
+    @staticmethod
+    def _get_importance_names():
+        # This function does not do much, but needs to be implemented
+        # in order to get the feature importances from the regressor.
+        # Keys need to be these specific strings, values van be anything
+        return {
+            "gain_importance_name": "exists",
+            "weight_importance_name": "exists",
+        }
+    
     @staticmethod
     def _infer_frequency(index: pd.DatetimeIndex) -> pd.Timedelta:
         """
         Infer the frequency of a pandas DatetimeIndex if the freq attribute is not set.
+        This method calculates the most common time difference between consecutive timestamps,
+        which is more permissive of missing chunks of data than the pandas infer_freq method.
 
         Args:
             index (pd.DatetimeIndex): The datetime index to infer the frequency from.
@@ -162,13 +175,13 @@ class MedianRegressor(OpenstfRegressor, RegressorMixin):
         largest_lag_steps = int(self.lags_to_time_deltas_[self.feature_names[-1]] / step_size)
 
         # Iterate through each time step in the reindexed data.
-        for i in range(lag_array.shape[0]):
+        for time_step in range(lag_array.shape[0]):
             # Get the lag features for the current time step.
-            current_lags = lag_array[i]
+            current_lags = lag_array[time_step]
             # Calculate the median of the available lag features, ignoring NaNs.
             median = np.nanmedian(current_lags)
             # Store the calculated median in the prediction array.
-            prediction[i] = median
+            prediction[time_step] = median
 
             # If the median calculation resulted in NaN (e.g., all lags were NaN), skip the autoregression step.
             if np.isnan(median):
@@ -177,7 +190,7 @@ class MedianRegressor(OpenstfRegressor, RegressorMixin):
             # --- Autoregressive Step ---
             # Use the calculated median to fill in future lag values where this prediction would be used as input.
             # Calculate the start and end indices in the future time steps that will be affected.
-            start, end = i + smallest_lag_steps, i + largest_lag_steps + 1            
+            start, end = time_step + smallest_lag_steps, time_step + largest_lag_steps + 1            
 
             # If the start index is beyond the array bounds, no future updates are needed from this step.
             if start >= lag_array.shape[0]:
@@ -192,7 +205,6 @@ class MedianRegressor(OpenstfRegressor, RegressorMixin):
             # Columns: from 0 up to (but not including) 'end - start'
             # This selects the part of the array where lag_array[start + k, k] resides for k in range(end - start).
             view = lag_array[start:end, 0:(end - start)]           
-
 
             # Create a mask for NaNs on the diagonal            
             diagonal_nan_mask = np.isnan(np.diag(view))
