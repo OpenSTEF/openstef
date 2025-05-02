@@ -55,7 +55,7 @@ def create_forecast_pipeline(
     # Load most recent model for the given pid
     model, model_specs = MLflowSerializer(
         mlflow_tracking_uri=mlflow_tracking_uri
-    ).load_model(experiment_name=str(prediction_model_pid))
+    ).load_model(pj)
     return create_forecast_pipeline_core(pj, input_data, model, model_specs)
 
 
