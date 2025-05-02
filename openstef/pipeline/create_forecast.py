@@ -47,11 +47,6 @@ def create_forecast_pipeline(
         LookupError: When no model is found for the given prediction job in MLflow.
 
     """
-    prediction_model_pid = pj["id"]
-    # Use the alternative forecast model if it's specify in the pj
-    if pj.alternative_forecast_model_pid:
-        prediction_model_pid = pj.alternative_forecast_model_pid
-
     # Load most recent model for the given pid
     model, model_specs = MLflowSerializer(
         mlflow_tracking_uri=mlflow_tracking_uri

@@ -164,6 +164,10 @@ class MLflowSerializer:
         """
         # Set the experiment name based on the prediction job ID
         experiment_name = str(pj.id)
+            
+        # Use the alternative forecast model if it's specify in the pj
+        if pj.alternative_forecast_model_pid:
+            experiment_name = str(pj.alternative_forecast_model_pid)
 
         try:
             models_df = self._find_models(
