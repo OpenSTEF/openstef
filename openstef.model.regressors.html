@@ -2005,7 +2005,9 @@ sub-estimator of a meta-estimator, e.g. used inside a
 <dt class="sig sig-object py" id="openstef.model.regressors.median.MedianRegressor">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef.model.regressors.median.</span></span><span class="sig-name descname"><span class="pre">MedianRegressor</span></span><a class="headerlink" href="#openstef.model.regressors.median.MedianRegressor" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#openstef.model.regressors.regressor.OpenstfRegressor" title="openstef.model.regressors.regressor.OpenstfRegressor"><code class="xref py py-class docutils literal notranslate"><span class="pre">OpenstfRegressor</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">RegressorMixin</span></code></p>
-<p>Median regressor implementing the OpenSTEF regressor API.</p>
+<p>Median regressor implementing the OpenSTEF regressor API.
+Note that this is a autoregressive model, meaning that it uses the previous
+predictions to predict the next value.</p>
 <p>This regressor is good for predicting two types of signals:
 - Signals with very slow dynamics compared to the sampling rate, possibly</p>
 <blockquote>
@@ -2017,6 +2019,26 @@ sub-estimator of a meta-estimator, e.g. used inside a
 <p>depend on unknown features, but tend to be stable in each state. An example of
 this may be waste heat delivered from an industrial process. Using a median
 over the last few timesteps adds some hysterisis to avoid triggering on noise.</p>
+<p>Tips for using this regressor:
+- Set the lags to be evenly spaced and at a frequency mathching the</p>
+<blockquote>
+<div><p>frequency of the input data. For example, if the input data is at 15
+minute intervals, set the lags to be at 15 minute intervals as well.</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>Use a small training dataset, since there are no actual parameters to train.</p></li>
+<li><p>Set the frequency of the input data index to avoid inferring it. Inference might be</p></li>
+</ul>
+<p>a problem if we get very small chunks of data in training or validation sets.
+- Use only one training horizon, since the regressor will use the same lags for all</p>
+<blockquote>
+<div><p>training horizons.</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>Allow for missing data by setting completeness_threshold to 0. If the prediction horizon
+is larger than the context window there will be a lot of nans in the input data, but
+the autoregression solves that.</p></li>
+</ul>
 <dl class="py property">
 <dt class="sig sig-object py" id="openstef.model.regressors.median.MedianRegressor.can_predict_quantiles">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">can_predict_quantiles</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#openstef.model.regressors.median.MedianRegressor.can_predict_quantiles" title="Link to this definition">¶</a></dt>
@@ -2047,11 +2069,28 @@ over the last few timesteps adds some hysterisis to avoid triggering on noise.</
 <dt class="sig sig-object py" id="openstef.model.regressors.median.MedianRegressor.fit">
 <span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.regressors.median.MedianRegressor.fit" title="Link to this definition">¶</a></dt>
 <dd><p>This model does not have any hyperparameters to fit,
-but it does need to know the feature names of the lag features.</p>
+but it does need to know the feature names of the lag features and the order of these.</p>
+<p>Lag features are expected to be evently spaced and match the frequency of the input data.
+The lag features are expected to be named in the format T-&lt;lag_in_minutes&gt; or T-&lt;lag_in_days&gt;d.
+For example, T-1min, T-2min, T-3min or T-1d, T-2d.</p>
 <p>Which lag features are used is determined by the feature engineering step.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">RegressorMixin</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="openstef.model.regressors.median.MedianRegressor.frequency">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">frequency</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#openstef.model.regressors.median.MedianRegressor.frequency" title="Link to this definition">¶</a></dt>
+<dd><p>Retrieve the model input frequency.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The frequency of the model input</p>
 </dd>
 </dl>
 </dd></dl>
@@ -3834,6 +3873,15 @@ sub-estimator of a meta-estimator, e.g. used inside a
        <code class="docutils literal notranslate">
         <span class="pre">
          MedianRegressor.fit()
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.model.regressors.median.MedianRegressor.frequency">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         MedianRegressor.frequency
         </span>
        </code>
       </a>
