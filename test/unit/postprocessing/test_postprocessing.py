@@ -158,6 +158,7 @@ class TestSortValuesByRow(unittest.TestCase):
                 "quantile_P95": [2, 0, 6],
                 "quantile_P50": [1.5, 5, 1],
                 "Other_column": [1, 0, 3],
+                "forecast": [1.5, 5, 1],
             }
         )
 
@@ -168,6 +169,7 @@ class TestSortValuesByRow(unittest.TestCase):
                 "quantile_P95": [2, 5, 6],
                 "quantile_P50": [1.5, 3, 5],
                 "Other_column": [1, 0, 3],
+                "forecast": [1.5, 3, 5],
             }
         )
 
