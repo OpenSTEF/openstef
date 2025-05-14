@@ -261,6 +261,6 @@ def sort_quantiles(
     forecast.loc[:, p_columns] = forecast[p_columns].apply(sorted, axis=1).to_list()
 
     # Set the forecast columun equal to the median
-    forecast["forecast"] = forecast["quantile_P50"]
+    forecast["forecast"] = forecast[f"{quantile_col_start}50"]
 
     return forecast
