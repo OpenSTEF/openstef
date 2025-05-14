@@ -1,4 +1,4 @@
-artifact_uri: /Users/marnix.van.lieshout/Code/STEF/OpenSTEF/openstef/mlflow_trained_models/245086199943716459/de3f1dae27204c4f94462a19f0ea0a99/artifacts
+artifact_uri: test/unit/trained_models/mlruns/245086199943716459/de3f1dae27204c4f94462a19f0ea0a99/artifacts
 end_time: 1746789257803
 entry_point_name: ''
 experiment_id: '245086199943716459'

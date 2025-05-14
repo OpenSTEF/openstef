@@ -1,4 +1,4 @@
-artifact_location: /Users/marnix.van.lieshout/Code/STEF/OpenSTEF/openstef/mlflow_trained_models/245086199943716459
+artifact_location: ./test/unit/trained_models/mlruns/245086199943716459
 creation_time: 1746789251786
 experiment_id: '245086199943716459'
 last_update_time: 1746789251786
