@@ -7,7 +7,6 @@ from unittest.mock import patch
 
 import numpy as np
 import pandas as pd
-from scipy import stats
 
 from openstef.model.confidence_interval_applicator import ConfidenceIntervalApplicator
 
