@@ -116,16 +116,17 @@ class AggregateFunction(Enum):
 
 
 class ModelType(Enum):
-    XGB = "xgb"
-    XGB_QUANTILE = "xgb_quantile"
-    XGB_MULTIOUTPUT_QUANTILE = "xgb_multioutput_quantile"
+    ARIMA = "arima"
+    BAGGING = "bagging"
+    FLATLINER = "flatliner"
+    GBLINEAR_QUANTILE = "gblinear_quantile"
     LGB = "lgb"
     LINEAR = "linear"
     LINEAR_QUANTILE = "linear_quantile"
-    GBLINEAR_QUANTILE = "gblinear_quantile"
-    ARIMA = "arima"
-    FLATLINER = "flatliner"
     MEDIAN = "median"
+    XGB = "xgb"
+    XGB_MULTIOUTPUT_QUANTILE = "xgb_multioutput_quantile"
+    XGB_QUANTILE = "xgb_quantile"
 
 
 class ForecastType(Enum):

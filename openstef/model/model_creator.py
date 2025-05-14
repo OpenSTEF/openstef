@@ -6,6 +6,7 @@ from typing import Union
 from openstef.enums import ModelType
 from openstef.logging.logger_factory import get_logger
 from openstef.model.regressors.arima import ARIMAOpenstfRegressor
+from openstef.model.regressors.bagging import BaggingOpenstfRegressor
 from openstef.model.regressors.custom_regressor import is_custom_type, load_custom_model
 from openstef.model.regressors.flatliner import FlatlinerRegressor
 from openstef.model.regressors.gblinear_quantile import GBLinearQuantileOpenstfRegressor
@@ -142,6 +143,19 @@ valid_model_kwargs = {
     ModelType.MEDIAN: [
         # This model does not have any parameters
     ],
+    ModelType.BAGGING: [
+        "estimator",
+        "n_estimators",
+        "max_samples",
+        "max_features",
+        "bootstrap",
+        "bootstrap_features",
+        "warm_start",
+        "oob_score",
+        "n_jobs",
+        "random_state",
+        "verbose",
+    ],
 }
 
 
@@ -160,6 +174,7 @@ class ModelCreator:
         ModelType.ARIMA: ARIMAOpenstfRegressor,
         ModelType.FLATLINER: FlatlinerRegressor,
         ModelType.MEDIAN: MedianRegressor,
+        ModelType.BAGGING: BaggingOpenstfRegressor,
     }
 
     @staticmethod
