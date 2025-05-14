@@ -3,6 +3,8 @@
 # SPDX-License-Identifier: MPL-2.0
 from datetime import datetime as dt
 from pathlib import Path
+
+import pandas as pd
 from test.unit.utils.base import BaseTestCase
 from test.unit.utils.data import TestData
 from unittest.mock import MagicMock, patch
@@ -295,4 +297,12 @@ class TestCreateForecastPipelineQuantileModel(BaseTestCase):
             self.pj, forecast_data, model, model_specs
         )
 
-        # TODO: Verify forecast works correctly
+        self.assertEqual(len(forecast), 193)
+        self.assertEqual(len(forecast.columns), 15)
+        self.assertGreater(forecast.forecast.min(), -5)
+        self.assertLess(forecast.forecast.max(), 12)
+
+        # Verify forecast column is equal to quantile_P50 column
+        pd.testing.assert_series_equal(
+            forecast.forecast, forecast.quantile_P50, check_names=False
+        )

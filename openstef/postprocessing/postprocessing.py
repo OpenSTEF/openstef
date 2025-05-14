@@ -255,9 +255,12 @@ def sort_quantiles(
     if len(p_columns) == 0:
         return forecast
 
-    # sort the columns
+    # Sort the columns
     p_columns = np.sort(p_columns)
 
     forecast.loc[:, p_columns] = forecast[p_columns].apply(sorted, axis=1).to_list()
+
+    # Set the forecast columun equal to the median
+    forecast["forecast"] = forecast["quantile_P50"]
 
     return forecast
