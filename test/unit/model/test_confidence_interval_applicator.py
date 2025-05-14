@@ -198,14 +198,6 @@ class TestConfidenceIntervalApplicator(TestCase):
             MockModel(), "TEST"
         )._add_quantiles_to_forecast_default(self.stdev_forecast, pj["quantiles"])
 
-        # expected_new_columns = [
-        #     f"quantile_P{int(q * 100):02d}" for q in pj["quantiles"]
-        # ]
-
-        # for expected_column in expected_new_columns:
-        #     self.assertTrue(expected_column in pp_forecast.columns)
-
-        # TODO: Add asserts on values of the quantiles
         pd.testing.assert_frame_equal(expected_result, pp_forecast)
 
     def test_add_standard_deviation_to_forecast_in_past(self):
