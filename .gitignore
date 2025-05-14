@@ -19,6 +19,7 @@ test/component/307
 test/unit/trained_models/307
 test/unit/trained_models/mlruns/*
 !test/unit/trained_models/mlruns/893156335105023143/
+!test/unit/trained_models/mlruns/245086199943716459/
 
 # Ignore these files
 .DS_Store

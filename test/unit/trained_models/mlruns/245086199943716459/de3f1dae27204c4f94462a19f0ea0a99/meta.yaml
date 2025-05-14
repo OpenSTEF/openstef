@@ -1,0 +1,15 @@
+artifact_uri: test/unit/trained_models/mlruns/245086199943716459/de3f1dae27204c4f94462a19f0ea0a99/artifacts
+end_time: 1746789257803
+entry_point_name: ''
+experiment_id: '245086199943716459'
+lifecycle_stage: active
+run_id: de3f1dae27204c4f94462a19f0ea0a99
+run_name: '308'
+run_uuid: de3f1dae27204c4f94462a19f0ea0a99
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1746789252091
+status: 3
+tags: []
+user_id: marnix.van.lieshout

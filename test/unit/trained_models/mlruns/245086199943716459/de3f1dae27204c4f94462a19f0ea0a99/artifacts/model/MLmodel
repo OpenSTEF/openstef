@@ -1,0 +1,109 @@
+artifact_path: model
+flavors:
+  python_function:
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.sklearn
+    model_path: model.pkl
+    predict_fn: predict
+    python_version: 3.13.2
+  sklearn:
+    code: null
+    pickled_model: model.pkl
+    serialization_format: cloudpickle
+    sklearn_version: 1.5.2
+is_signature_from_type_hint: false
+mlflow_version: 2.21.3
+model_size_bytes: 3252181
+model_uuid: ec8834a804cb433c891cabacd4b60617
+prompts: null
+run_id: de3f1dae27204c4f94462a19f0ea0a99
+signature:
+  inputs: '[{"type": "boolean", "name": "IsSunday", "required": true}, {"type": "boolean",
+    "name": "IsWeekDay", "required": true}, {"type": "boolean", "name": "IsWeekendDay",
+    "required": true}, {"type": "integer", "name": "Month", "required": true}, {"type":
+    "integer", "name": "Quarter", "required": true}, {"type": "double", "name": "T-1020min",
+    "required": false}, {"type": "double", "name": "T-1080min", "required": false},
+    {"type": "double", "name": "T-10d", "required": false}, {"type": "double", "name":
+    "T-1140min", "required": false}, {"type": "double", "name": "T-11d", "required":
+    false}, {"type": "double", "name": "T-1200min", "required": false}, {"type": "double",
+    "name": "T-120min", "required": false}, {"type": "double", "name": "T-1260min",
+    "required": false}, {"type": "double", "name": "T-12d", "required": false}, {"type":
+    "double", "name": "T-1320min", "required": false}, {"type": "double", "name":
+    "T-1380min", "required": false}, {"type": "double", "name": "T-13d", "required":
+    false}, {"type": "double", "name": "T-14d", "required": false}, {"type": "double",
+    "name": "T-15min", "required": false}, {"type": "double", "name": "T-180min",
+    "required": false}, {"type": "double", "name": "T-1d", "required": false}, {"type":
+    "double", "name": "T-240min", "required": false}, {"type": "double", "name": "T-2d",
+    "required": false}, {"type": "double", "name": "T-300min", "required": false},
+    {"type": "double", "name": "T-30min", "required": false}, {"type": "double", "name":
+    "T-360min", "required": false}, {"type": "double", "name": "T-3d", "required":
+    false}, {"type": "double", "name": "T-420min", "required": false}, {"type": "double",
+    "name": "T-45min", "required": false}, {"type": "double", "name": "T-480min",
+    "required": false}, {"type": "double", "name": "T-4d", "required": false}, {"type":
+    "double", "name": "T-540min", "required": false}, {"type": "double", "name": "T-5d",
+    "required": false}, {"type": "double", "name": "T-600min", "required": false},
+    {"type": "double", "name": "T-60min", "required": false}, {"type": "double", "name":
+    "T-660min", "required": false}, {"type": "double", "name": "T-6d", "required":
+    false}, {"type": "double", "name": "T-720min", "required": false}, {"type": "double",
+    "name": "T-780min", "required": false}, {"type": "double", "name": "T-7d", "required":
+    false}, {"type": "double", "name": "T-840min", "required": false}, {"type": "double",
+    "name": "T-8d", "required": false}, {"type": "double", "name": "T-900min", "required":
+    false}, {"type": "double", "name": "T-960min", "required": false}, {"type": "double",
+    "name": "T-9d", "required": false}, {"type": "double", "name": "air_density",
+    "required": true}, {"type": "double", "name": "clearSky_dlf", "required": true},
+    {"type": "double", "name": "clearSky_ulf", "required": true}, {"type": "double",
+    "name": "clouds", "required": true}, {"type": "double", "name": "day0fweek_cosine",
+    "required": true}, {"type": "double", "name": "day0fweek_sine", "required": true},
+    {"type": "double", "name": "day_ahead_electricity_price", "required": false},
+    {"type": "double", "name": "daylight_continuous", "required": true}, {"type":
+    "double", "name": "dewpoint", "required": true}, {"type": "double", "name": "dni",
+    "required": true}, {"type": "double", "name": "gti", "required": true}, {"type":
+    "double", "name": "humidity", "required": true}, {"type": "boolean", "name": "is_bevrijdingsdag",
+    "required": true}, {"type": "boolean", "name": "is_bouwvakmidden", "required":
+    true}, {"type": "boolean", "name": "is_bouwvaknoord", "required": true}, {"type":
+    "boolean", "name": "is_bouwvakzuid", "required": true}, {"type": "boolean", "name":
+    "is_bridgeday", "required": true}, {"type": "boolean", "name": "is_eerste_kerstdag",
+    "required": true}, {"type": "boolean", "name": "is_eerste_paasdag", "required":
+    true}, {"type": "boolean", "name": "is_eerste_pinksterdag", "required": true},
+    {"type": "boolean", "name": "is_goede_vrijdag", "required": true}, {"type": "boolean",
+    "name": "is_hemelvaart", "required": true}, {"type": "boolean", "name": "is_herfstvakantiemidden",
+    "required": true}, {"type": "boolean", "name": "is_herfstvakantienoord", "required":
+    true}, {"type": "boolean", "name": "is_herfstvakantiezuid", "required": true},
+    {"type": "boolean", "name": "is_kerstvakantie", "required": true}, {"type": "boolean",
+    "name": "is_koningsdag", "required": true}, {"type": "boolean", "name": "is_meivakantie",
+    "required": true}, {"type": "boolean", "name": "is_national_holiday", "required":
+    true}, {"type": "boolean", "name": "is_nieuwjaarsdag", "required": true}, {"type":
+    "boolean", "name": "is_schoolholiday", "required": true}, {"type": "boolean",
+    "name": "is_tweede_kerstdag", "required": true}, {"type": "boolean", "name": "is_tweede_paasdag",
+    "required": true}, {"type": "boolean", "name": "is_tweede_pinksterdag", "required":
+    true}, {"type": "boolean", "name": "is_voorjaarsvakantiemidden", "required": true},
+    {"type": "boolean", "name": "is_voorjaarsvakantienoord", "required": true}, {"type":
+    "boolean", "name": "is_voorjaarsvakantiezuid", "required": true}, {"type": "boolean",
+    "name": "is_zomervakantiemidden", "required": true}, {"type": "boolean", "name":
+    "is_zomervakantienoord", "required": true}, {"type": "boolean", "name": "is_zomervakantiezuid",
+    "required": true}, {"type": "double", "name": "month_cosine", "required": true},
+    {"type": "double", "name": "month_sine", "required": true}, {"type": "double",
+    "name": "mxlD", "required": true}, {"type": "double", "name": "pressure", "required":
+    true}, {"type": "double", "name": "radiation", "required": true}, {"type": "double",
+    "name": "rain", "required": true}, {"type": "double", "name": "saturation_pressure",
+    "required": true}, {"type": "double", "name": "season_cosine", "required": true},
+    {"type": "double", "name": "season_sine", "required": true}, {"type": "double",
+    "name": "sjv_E1A", "required": true}, {"type": "double", "name": "sjv_E1B", "required":
+    true}, {"type": "double", "name": "sjv_E1C", "required": true}, {"type": "double",
+    "name": "sjv_E2A", "required": true}, {"type": "double", "name": "sjv_E2B", "required":
+    true}, {"type": "double", "name": "sjv_E3A", "required": true}, {"type": "double",
+    "name": "sjv_E3B", "required": true}, {"type": "double", "name": "sjv_E3C", "required":
+    true}, {"type": "double", "name": "sjv_E3D", "required": true}, {"type": "double",
+    "name": "sjv_E4A", "required": true}, {"type": "long", "name": "snowDepth", "required":
+    true}, {"type": "double", "name": "temp", "required": true}, {"type": "double",
+    "name": "time0fday_cosine", "required": true}, {"type": "double", "name": "time0fday_sine",
+    "required": true}, {"type": "double", "name": "vapour_pressure", "required": true},
+    {"type": "double", "name": "winddeg", "required": true}, {"type": "double", "name":
+    "windpowerFit_harm_arome", "required": true}, {"type": "double", "name": "windspeed",
+    "required": true}, {"type": "double", "name": "windspeed_100m", "required": true}]'
+  outputs: '[{"type": "double", "name": "load", "required": true}]'
+  params: null
+type_hint_from_example: false
+utc_time_created: '2025-05-09 11:14:12.139806'
