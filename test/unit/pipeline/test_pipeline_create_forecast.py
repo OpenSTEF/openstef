@@ -205,7 +205,7 @@ class TestCreateForecastPipeline(BaseTestCase):
     ):
         """Test the forecast_pid parameter of th pj with a wrong pid."""
 
-        def side_effects(experiment_name):
+        def side_effects(experiment_name, model_run_id=None):
             if experiment_name == "307":
                 return self.model, self.model_specs
             raise MlflowException("Wrong pid")
@@ -230,7 +230,7 @@ class TestCreateForecastPipeline(BaseTestCase):
     ):
         """Test the forecast_pid parameter of th pj with a valid pid."""
 
-        def side_effects(experiment_name):
+        def side_effects(experiment_name, model_run_id=None):
             if experiment_name == "3070":
                 return self.model, self.model_specs
             raise MlflowException("Wrong pid")
