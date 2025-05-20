@@ -36,7 +36,7 @@ class TestCreateForecastPipeline(BaseTestCase):
         # Note that this model was trained using xgboost v1.6.1
         # in time, this should be replaced by a model trained by a newer version, so temporary fixes
         # in loading of the model (serializer.py) can be removed.
-        self.model, self.model_specs = self.serializer.load_model(experiment_name="307")
+        self.model, self.model_specs = self.serializer.load_model(str(self.pj["id"]))
 
     def test_generate_forecast_datetime_range_single_null_values_target_column(self):
         """Test if correct forecast window is made with single range of nulls."""
@@ -207,7 +207,7 @@ class TestCreateForecastPipeline(BaseTestCase):
     ):
         """Test the forecast_pid parameter of th pj with a wrong pid."""
 
-        def side_effects(experiment_name):
+        def side_effects(experiment_name, model_run_id=None):
             if experiment_name == "307":
                 return self.model, self.model_specs
             raise MlflowException("Wrong pid")
@@ -232,7 +232,7 @@ class TestCreateForecastPipeline(BaseTestCase):
     ):
         """Test the forecast_pid parameter of th pj with a valid pid."""
 
-        def side_effects(experiment_name):
+        def side_effects(experiment_name, model_run_id=None):
             if experiment_name == "3070":
                 return self.model, self.model_specs
             raise MlflowException("Wrong pid")
