@@ -168,6 +168,7 @@ def train_model_pipeline_core(
         input_data: Input data
         old_model: Old model to compare to. Defaults to None.
         horizons: Horizons to train on in hours, relevant for feature engineering.
+        ignore_existing_models: If True, all existing models, including, hyperparameters are ignored and defsault values are used. 
 
     Raises:
         InputDataInsufficientError: when input data is insufficient.
@@ -319,8 +320,9 @@ def train_pipeline_step_load_model(
     old_model: Optional[OpenstfRegressor]
 
     if not ignore_existing_models:
+        model_run_id = pj.get("model_run_id", None)
         try:
-            old_model, model_specs = serializer.load_model(str(pj.id))
+            old_model, model_specs = serializer.load_model(str(pj.id), model_run_id=model_run_id)
             old_model_age = old_model.age  # Age attribute is openstef specific
             return old_model, model_specs, old_model_age
         except (AttributeError, FileNotFoundError, LookupError):

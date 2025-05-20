@@ -152,8 +152,9 @@ class MLflowSerializer:
         based on the provided PredictionJobDataClass instance. It supports loading 
         a specific model run if a run number is provided.
 
-            pj (PredictionJobDataClass): The prediction job data containing the 
-                experiment ID and optional model run number.
+            
+                experiment_name (str): Name of the experiment, often the id of the predition job.
+                model_run_id (Optional[str]): The specific model run number that should be used for the forecast.
 
         Returns:
             tuple[OpenstfRegressor, ModelSpecificationDataClass]: A tuple containing 

@@ -135,7 +135,7 @@ class PredictionJobDataClass(BaseModel):
     data_prep_class: Optional[DataPrepDataClass] = Field(
         None, description="The import string for the custom data prep class"
     )
-    model_run_id: Optional[int] = Field(
+    model_run_id: Optional[str] = Field(
         None,
         description="The specific model run number that should be used for the forecast. If not set, the latest model run will be used.",
     )
