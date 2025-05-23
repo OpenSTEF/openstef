@@ -34,6 +34,8 @@ def generate_fallback(
     if len(load.dropna()) == 0:
         raise ValueError("No historic load data available")
 
+    if fallback_strategy is not in [FallbackStrategy.RAISE_ERROR, FallbackStrategy.EXTREME_DAY]:
+        raise NotImplementedError("Fallback strategy not implemented")
    
     if fallback_strategy == FallbackStrategy.RAISE_ERROR:      
         # Raise error if not enough data is available
