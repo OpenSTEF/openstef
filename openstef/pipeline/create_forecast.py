@@ -20,6 +20,7 @@ from openstef.postprocessing.postprocessing import (
     sort_quantiles,
 )
 from openstef.validation import validation
+from openstef.enums import FallbackStrategy
 
 
 def create_forecast_pipeline(
@@ -88,7 +89,7 @@ def create_forecast_pipeline_core(
     """
     logger = get_logger(__name__)
 
-    fallback_strategy = "extreme_day"  # this can later be expanded
+    fallback_strategy = pj.get("fallback_strategy", FallbackStrategy.EXTREME_DAY)
 
     # Validate and clean data
     validated_data = validation.validate(

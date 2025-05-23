@@ -139,3 +139,7 @@ class PipelineType(Enum):
     FORECAST = "forecast"
     TRAIN = "train"
     HYPER_PARMATERS = "hyper_parameters"
+
+class FallbackStrategy(Enum):
+    EXTREME_DAY = "extreme_day"
+    RAISE_ERROR = "raise_error"
