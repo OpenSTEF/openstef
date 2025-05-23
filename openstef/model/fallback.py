@@ -5,11 +5,12 @@ from datetime import UTC, datetime
 
 import pandas as pd
 
+from openstef.enums import FallbackStrategy
 
 def generate_fallback(
     forecast_input: pd.DataFrame,
     load: pd.DataFrame,
-    fallback_strategy: str = "extreme_day",
+    fallback_strategy: FallbackStrategy = FallbackStrategy.EXTREME_DAY,
 ) -> pd.DataFrame:
     """Make a fall back forecast, Set the value of the forecast 'quality' column to 'substituted'.
 
@@ -20,6 +21,7 @@ def generate_fallback(
         load: index=datetime, columns=['load']
         fallback_strategy: strategy to determine fallback. options:
             - extreme_day: use daily profile of most extreme day
+            - raise_error: raise error if not enough data is available
     Returns:
         Fallback forecast DataFrame with columns; 'forecast', 'quality'
 
@@ -32,12 +34,12 @@ def generate_fallback(
     if len(load.dropna()) == 0:
         raise ValueError("No historic load data available")
 
-    if fallback_strategy != "extreme_day":
-        raise NotImplementedError(
-            f'fallback_strategy should be "extreme_day", received:{fallback_strategy}'
-        )
-
-    if fallback_strategy == "extreme_day":
+   
+    if fallback_strategy == FallbackStrategy.RAISE_ERROR:      
+        # Raise error if not enough data is available
+            raise ValueError("Not enough load data available to generate forecast")
+    
+    if fallback_strategy == FallbackStrategy.EXTREME_DAY:
         # Execute this fallback strategy
         # Find most extreme historic day and merge it by time-of-day to the requested moments
 
