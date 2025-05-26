@@ -10,7 +10,12 @@ from pydantic import BaseModel, Field
 from openstef.data_classes.data_prep import DataPrepDataClass
 from openstef.data_classes.model_specifications import ModelSpecificationDataClass
 from openstef.data_classes.split_function import SplitFuncDataClass
-from openstef.enums import AggregateFunction, BiddingZone, PipelineType, FallbackStrategy
+from openstef.enums import (
+    AggregateFunction,
+    BiddingZone,
+    PipelineType,
+    FallbackStrategy,
+)
 
 
 class PredictionJobDataClass(BaseModel):

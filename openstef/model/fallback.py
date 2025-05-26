@@ -7,6 +7,7 @@ import pandas as pd
 
 from openstef.enums import FallbackStrategy
 
+
 def generate_fallback(
     forecast_input: pd.DataFrame,
     load: pd.DataFrame,
@@ -34,13 +35,16 @@ def generate_fallback(
     if len(load.dropna()) == 0:
         raise ValueError("No historic load data available")
 
-    if fallback_strategy not in [FallbackStrategy.RAISE_ERROR, FallbackStrategy.EXTREME_DAY]:
+    if fallback_strategy not in [
+        FallbackStrategy.RAISE_ERROR,
+        FallbackStrategy.EXTREME_DAY,
+    ]:
         raise NotImplementedError("Fallback strategy not implemented")
-   
-    if fallback_strategy == FallbackStrategy.RAISE_ERROR:      
+
+    if fallback_strategy == FallbackStrategy.RAISE_ERROR:
         # Raise error if not enough data is available
-            raise ValueError("Not enough load data available to generate forecast")
-    
+        raise ValueError("Not enough load data available to generate forecast")
+
     if fallback_strategy == FallbackStrategy.EXTREME_DAY:
         # Execute this fallback strategy
         # Find most extreme historic day and merge it by time-of-day to the requested moments
