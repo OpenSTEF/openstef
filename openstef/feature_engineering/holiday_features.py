@@ -1,8 +1,8 @@
 # SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
-"""This module contains all holiday related features."""
 from datetime import datetime, timedelta
+import collections
 
 import holidays
 import numpy as np
@@ -26,7 +26,6 @@ def generate_holiday_feature_functions(
         2022-12-24 - 2023-01-08 is the 'Kerstvakantie'
         2022-10-15 - 2022-10-23 is the 'HerfstvakantieNoord'
 
-
     The holidays are based on a manually generated csv file.
     The information is collected using:
     https://www.schoolvakanties-nederland.nl/ and the python holiday function
@@ -43,7 +42,6 @@ def generate_holiday_feature_functions(
         - Hemelvaart
         - Pinksteren
         - Kerst
-
 
     The 'Brugdagen' are updated untill dec 2020. (Generated using agenda)
 
@@ -83,23 +81,34 @@ def generate_holiday_feature_functions(
             )
         }
     )
+
     # Define empty list to keep track of bridgedays
     bridge_days = []
-    # Loop over list of holidays names
+
+    # Group holiday dates by name
+    holiday_dates_by_name = collections.defaultdict(list)
     for date, holiday_name in sorted(country_holidays.items()):
-        # Define function explicitely to mitigate 'late binding' problem
-        def make_holiday_func(requested_date):
-            return lambda x: np.isin(x.index.date, np.array([requested_date]))
+        holiday_dates_by_name[holiday_name].append(date)
 
-        # Create lag function for each holiday
+    # Create one function per holiday name that checks all dates for that holiday
+    for holiday_name, dates in holiday_dates_by_name.items():
+        # Use a default argument to capture the dates at definition time
         holiday_functions.update(
-            {"is_" + holiday_name.replace(" ", "_").lower(): make_holiday_func(date)}
+            {
+                "is_"
+                + holiday_name.replace(
+                    " ", "_"
+                ).lower(): lambda x, dates_local=dates: np.isin(
+                    x.index.date, np.array(dates_local)
+                )
+            }
         )
 
-        # Check for bridge day
-        holiday_functions, bridge_days = check_for_bridge_day(
-            date, holiday_name, country_code, years, holiday_functions, bridge_days
-        )
+        # Check for bridge days for each date of this holiday
+        for date in dates:
+            holiday_functions, bridge_days = check_for_bridge_day(
+                date, holiday_name, country_code, years, holiday_functions, bridge_days
+            )
 
     # Add feature function that includes all bridgedays
     holiday_functions.update(
@@ -108,7 +117,7 @@ def generate_holiday_feature_functions(
 
     # Add school holidays if country is NL
     if country_code == "NL":
-        # Manully generated csv including all dutch schoolholidays for different regions
+        # Manually generated csv including all dutch schoolholidays for different regions
         df_holidays = pd.read_csv(path_to_school_holidays_csv, index_col=None)
         df_holidays["datum"] = pd.to_datetime(df_holidays.datum).apply(
             lambda x: x.date()
@@ -125,19 +134,17 @@ def generate_holiday_feature_functions(
 
         # Loop over list of holidays names
         for holiday_name in list(set(df_holidays.name)):
-            # Define function explicitely to mitigate 'late binding' problem
-            def make_holiday_func(holidayname=holiday_name):
-                return lambda x: np.isin(
-                    x.index.date,
-                    df_holidays.datum[df_holidays.name == holidayname].values,
-                )
-
-            # Create lag function for each holiday
+            # Use the holidayname as a default argument to capture it at definition time
             holiday_functions.update(
                 {
                     "is_"
-                    + holiday_name.replace(" ", "_").lower(): make_holiday_func(
-                        holidayname=holiday_name
+                    + holiday_name.replace(
+                        " ", "_"
+                    ).lower(): lambda x, holiday_name_local=holiday_name: np.isin(
+                        x.index.date,
+                        df_holidays.datum[
+                            df_holidays.name == holiday_name_local
+                        ].values,
                     )
                 }
             )
@@ -178,9 +185,10 @@ def check_for_bridge_day(
     if date in country_holidays:
         return holiday_functions, bridge_days
 
-    # Define function explicitely to mitigate 'late binding' problem
+    # Define function explicitly to mitigate 'late binding' problem
+    # Use a default argument to capture the date at definition time
     def make_holiday_func(requested_date):
-        return lambda x: np.isin(x.index.date, np.array([requested_date]))
+        return lambda x, dt=requested_date: np.isin(x.index.date, np.array([dt]))
 
     # Looking forward: If day after tomorow is a national holiday or
     # a saturday check if tomorow is not a national holiday
