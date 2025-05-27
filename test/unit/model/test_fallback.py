@@ -9,6 +9,7 @@ from test.unit.utils.data import TestData
 import numpy as np
 
 from openstef.model.fallback import generate_fallback
+from openstef.enums import FallbackStrategy
 
 
 class TestFallback(BaseTestCase):
@@ -21,7 +22,7 @@ class TestFallback(BaseTestCase):
         fallback_forecast = generate_fallback(
             forecast_input=forc_section,
             load=load,
-            fallback_strategy="extreme_day",
+            fallback_strategy=FallbackStrategy.EXTREME_DAY,
         )
 
         self.assertDataframeEqual(
@@ -50,6 +51,19 @@ class TestFallback(BaseTestCase):
             forecast_input=forc_section,
             load=load,
             fallback_strategy="SomeWeirdNotImplementedStrategy",
+        )
+
+    def test_generate_fallback_raise_error(self):
+        """Test if exception is raised if load is empty"""
+        load = TestData.load("fallback_load.csv")
+        load *= np.nan
+        forc_section = TestData.load("fallback_index.csv")
+        self.assertRaises(
+            ValueError,
+            generate_fallback,
+            forecast_input=forc_section.index,
+            load=load,
+            fallback_strategy=FallbackStrategy.RAISE_ERROR,
         )
 
 

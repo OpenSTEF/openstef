@@ -10,7 +10,12 @@ from pydantic import BaseModel, Field
 from openstef.data_classes.data_prep import DataPrepDataClass
 from openstef.data_classes.model_specifications import ModelSpecificationDataClass
 from openstef.data_classes.split_function import SplitFuncDataClass
-from openstef.enums import AggregateFunction, BiddingZone, PipelineType
+from openstef.enums import (
+    AggregateFunction,
+    BiddingZone,
+    PipelineType,
+    FallbackStrategy,
+)
 
 
 class PredictionJobDataClass(BaseModel):
@@ -134,6 +139,11 @@ class PredictionJobDataClass(BaseModel):
     )
     data_prep_class: Optional[DataPrepDataClass] = Field(
         None, description="The import string for the custom data prep class"
+    )
+
+    fallback_strategy: Optional[FallbackStrategy] = Field(
+        FallbackStrategy.EXTREME_DAY,
+        description="The fallback strategy to use when not enough input data is available.",
     )
 
     def __getitem__(self, item: str) -> Any:
