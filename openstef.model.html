@@ -1252,17 +1252,29 @@ Next the instance will be called by he optuna study during optimization.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="openstef.model.serializer.MLflowSerializer.load_model">
-<span class="sig-name descname"><span class="pre">load_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.serializer.MLflowSerializer.load_model" title="Link to this definition">¶</a></dt>
-<dd><p>Load sklearn compatible model from MLFlow.</p>
+<span class="sig-name descname"><span class="pre">load_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_run_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.serializer.MLflowSerializer.load_model" title="Link to this definition">¶</a></dt>
+<dd><p>Load an sklearn-compatible model from MLflow.</p>
+<p>This method retrieves a trained model and its specifications from MLflow
+based on the provided PredictionJobDataClass instance. It supports loading
+a specific model run if a run number is provided.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>experiment_name</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Name of the experiment, often the id of the predition job.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>experiment_name</strong> (<em>str</em>) – Name of the experiment, often the id of the predition job.</p></li>
+<li><p><strong>model_run_id</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – The specific model run number that should be used for the forecast.</p></li>
+</ul>
 </dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>LookupError</strong> – If model is not found in MLflow.</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A tuple containing</dt><dd><p>the loaded model and its specifications.</p>
+</dd>
+<dt>LookupError: If the model is not found in MLflow or if an error occurs</dt><dd><p>during the loading process.</p>
+</dd>
+</dl>
+</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<a class="reference internal" href="openstef.model.regressors.html#openstef.model.regressors.regressor.OpenstfRegressor" title="openstef.model.regressors.regressor.OpenstfRegressor"><code class="xref py py-class docutils literal notranslate"><span class="pre">OpenstfRegressor</span></code></a>, <a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.model_specifications.ModelSpecificationDataClass" title="openstef.data_classes.model_specifications.ModelSpecificationDataClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSpecificationDataClass</span></code></a>]</p>
+<dd class="field-odd"><p>tuple[<a class="reference internal" href="openstef.model.regressors.html#openstef.model.regressors.regressor.OpenstfRegressor" title="openstef.model.regressors.regressor.OpenstfRegressor">OpenstfRegressor</a>, <a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.model_specifications.ModelSpecificationDataClass" title="openstef.data_classes.model_specifications.ModelSpecificationDataClass">ModelSpecificationDataClass</a>]</p>
 </dd>
 </dl>
 </dd></dl>

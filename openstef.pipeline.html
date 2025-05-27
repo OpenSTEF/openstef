@@ -774,6 +774,7 @@ These horizons are also used to make predictions (one for every horizon)</p></li
 <li><p><strong>check_old_model_age</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Check if training should be skipped because the model is too young</p></li>
 <li><p><strong>mlflow_tracking_uri</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Tracking URI for MLFlow</p></li>
 <li><p><strong>artifact_folder</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Path where artifacts, such as trained models, are stored</p></li>
+<li><p><strong>ignore_existing_models</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – If True, a new model is trained as if no old model exists.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -817,6 +818,7 @@ This pipeline has no database or persistent storage dependencies.</p>
 <li><p><strong>input_data</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – Input data</p></li>
 <li><p><strong>old_model</strong> (<a class="reference internal" href="openstef.model.regressors.html#openstef.model.regressors.regressor.OpenstfRegressor" title="openstef.model.regressors.regressor.OpenstfRegressor"><code class="xref py py-class docutils literal notranslate"><span class="pre">OpenstfRegressor</span></code></a>) – Old model to compare to. Defaults to None.</p></li>
 <li><p><strong>horizons</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]) – Horizons to train on in hours, relevant for feature engineering.</p></li>
+<li><p><strong>ignore_existing_models</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – If True, all existing models, including, hyperparameters are ignored and defsault values are used.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
