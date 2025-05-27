@@ -54,11 +54,6 @@ class TestHolidayDetection(BaseTestCase):
             / 24,
         }
 
-        # Print all holiday counts for inspection
-        print("Holiday counts for 2023:")
-        for holiday, count in holiday_counts.items():
-            print(f"{holiday}: {count} days")
-
         # Expected counts for 2023
         expected_counts = {
             "nieuwjaarsdag": 1,
@@ -136,10 +131,6 @@ class TestHolidayDetection(BaseTestCase):
         results["is_koningsdag"] = test_data.iloc[:, [0]].apply(
             holiday_functions["is_koningsdag"]
         )
-
-        # Print the results for inspection
-        print("\nDirect holiday function results:")
-        print(results)
 
         # Test that all New Year's days are detected correctly
         new_years_days = results.iloc[:6]
