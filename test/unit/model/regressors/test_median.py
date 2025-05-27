@@ -11,7 +11,6 @@ from openstef.model.regressors.median import MedianRegressor
 
 
 class TestMedianRegressor(BaseTestCase):
-
     def test_median_returns_median(self):
         # Arrange
         model = MedianRegressor()
@@ -119,7 +118,6 @@ class TestMedianRegressor(BaseTestCase):
         predictions = model.predict(training_data)
         # Assert
         np.testing.assert_allclose(predictions, excepted_median)
-
 
     def test_median_handles_small_gap(self):
         # Arrange
@@ -248,7 +246,6 @@ class TestMedianRegressor(BaseTestCase):
         ):
             model.fit(training_data, training_data)
 
-
     def test_predicting_without_fitting_raises(self):
         # Arrange
         model = MedianRegressor()
@@ -286,4 +283,3 @@ class TestMedianRegressor(BaseTestCase):
         # Assert
         self.assertIsInstance(fitted_model, MedianRegressor)
         self.assertEqual(fitted_model.feature_names_, ["T-1min", "T-2min", "T-3min"])
-

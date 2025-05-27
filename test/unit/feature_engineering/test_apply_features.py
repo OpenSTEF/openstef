@@ -245,6 +245,17 @@ class TestApplyFeaturesModule(BaseTestCase):
             check_dtype=False,
         )
 
+        koningsdag_row = input_data_with_features.loc["2020-04-27 11:00:00+00:00"]
+        self.assertTrue(koningsdag_row["is_koningsdag"])
+        self.assertTrue(koningsdag_row["is_national_holiday"])
+
+        christmas_row = input_data_with_features.loc["2022-12-26 10:00:00+00:00"]
+        self.assertTrue(christmas_row["is_tweede_kerstdag"])
+
+        regular_day = input_data_with_features.loc["2020-02-01 10:00:00+00:00"]
+        self.assertFalse(regular_day["is_koningsdag"])
+        self.assertFalse(regular_day["is_national_holiday"])
+
     def test_calculate_windspeed_at_hubheight_realistic_input(self):
         windspeed = 20
         from_height = 10

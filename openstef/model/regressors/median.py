@@ -304,9 +304,11 @@ class MedianRegressor(OpenstfRegressor, RegressorMixin):
 
         Which lag features are used is determined by the feature engineering step.
         """
-        feature_names, frequency, feature_to_lags_in_min = (
-            self._extract_and_validate_lags(x)
-        )
+        (
+            feature_names,
+            frequency,
+            feature_to_lags_in_min,
+        ) = self._extract_and_validate_lags(x)
 
         self.feature_names_ = list(feature_names)
         self.frequency_ = frequency

@@ -39,7 +39,8 @@ from openstef.pipeline.train_model import (
 from openstef.validation import validation
 
 
-class DummyObjective(RegressorObjective): ...
+class DummyObjective(RegressorObjective):
+    ...
 
 
 class DummyRegressor(CustomOpenstfRegressor):
@@ -156,7 +157,7 @@ class TestTrainModelPipeline(BaseTestCase):
                             function=split_dummy_arima,
                             arguments={},
                         )
-                
+
                 if model_type == ModelType.MEDIAN:
                     # The median model depends solely on the lag features
                     # and will not run with a DataPrep class that does not provide them.
