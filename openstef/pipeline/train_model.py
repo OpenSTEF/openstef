@@ -52,6 +52,7 @@ def train_model_pipeline(
         check_old_model_age: Check if training should be skipped because the model is too young
         mlflow_tracking_uri: Tracking URI for MLFlow
         artifact_folder: Path where artifacts, such as trained models, are stored
+        ignore_existing_models: If True, a new model is trained as if no old model exists.
 
     Returns:
         If pj.save_train_forecasts is False, None is returned

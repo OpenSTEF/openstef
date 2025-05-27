@@ -151,8 +151,8 @@ class MLflowSerializer:
         This method retrieves a trained model and its specifications from MLflow 
         based on the provided PredictionJobDataClass instance. It supports loading 
         a specific model run if a run number is provided.
-
             
+        Args:
                 experiment_name (str): Name of the experiment, often the id of the predition job.
                 model_run_id (Optional[str]): The specific model run number that should be used for the forecast.
 
