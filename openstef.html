@@ -445,6 +445,7 @@
 <li class="toctree-l4"><a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass.description"><code class="docutils literal notranslate"><span class="pre">PredictionJobDataClass.description</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass.detect_non_zero_flatliner"><code class="docutils literal notranslate"><span class="pre">PredictionJobDataClass.detect_non_zero_flatliner</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass.electricity_bidding_zone"><code class="docutils literal notranslate"><span class="pre">PredictionJobDataClass.electricity_bidding_zone</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass.fallback_strategy"><code class="docutils literal notranslate"><span class="pre">PredictionJobDataClass.fallback_strategy</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass.flatliner_threshold_minutes"><code class="docutils literal notranslate"><span class="pre">PredictionJobDataClass.flatliner_threshold_minutes</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass.forecast_type"><code class="docutils literal notranslate"><span class="pre">PredictionJobDataClass.forecast_type</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef.data_classes.html#openstef.data_classes.prediction_job.PredictionJobDataClass.get"><code class="docutils literal notranslate"><span class="pre">PredictionJobDataClass.get()</span></code></a></li>
@@ -1614,6 +1615,22 @@
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef.enums.BiddingZone.XK">
 <span class="sig-name descname"><span class="pre">XK</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'XK'</span></em><a class="headerlink" href="#openstef.enums.BiddingZone.XK" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="openstef.enums.FallbackStrategy">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef.enums.</span></span><span class="sig-name descname"><span class="pre">FallbackStrategy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.enums.FallbackStrategy" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.FallbackStrategy.EXTREME_DAY">
+<span class="sig-name descname"><span class="pre">EXTREME_DAY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'extreme_day'</span></em><a class="headerlink" href="#openstef.enums.FallbackStrategy.EXTREME_DAY" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.enums.FallbackStrategy.RAISE_ERROR">
+<span class="sig-name descname"><span class="pre">RAISE_ERROR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'raise_error'</span></em><a class="headerlink" href="#openstef.enums.FallbackStrategy.RAISE_ERROR" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -2879,6 +2896,35 @@
        <code class="docutils literal notranslate">
         <span class="pre">
          BiddingZone.XK
+        </span>
+       </code>
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#openstef.enums.FallbackStrategy">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       FallbackStrategy
+      </span>
+     </code>
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.FallbackStrategy.EXTREME_DAY">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         FallbackStrategy.EXTREME_DAY
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.enums.FallbackStrategy.RAISE_ERROR">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         FallbackStrategy.RAISE_ERROR
         </span>
        </code>
       </a>

@@ -871,7 +871,7 @@ regression or the default method.</p>
 <span id="openstef-model-fallback-module"></span><h2>openstef.model.fallback module<a class="headerlink" href="#module-openstef.model.fallback" title="Link to this heading">¶</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="openstef.model.fallback.generate_fallback">
-<span class="sig-prename descclassname"><span class="pre">openstef.model.fallback.</span></span><span class="sig-name descname"><span class="pre">generate_fallback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">forecast_input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">load</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fallback_strategy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'extreme_day'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.fallback.generate_fallback" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">openstef.model.fallback.</span></span><span class="sig-name descname"><span class="pre">generate_fallback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">forecast_input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">load</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fallback_strategy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">FallbackStrategy.EXTREME_DAY</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.fallback.generate_fallback" title="Link to this definition">¶</a></dt>
 <dd><p>Make a fall back forecast, Set the value of the forecast ‘quality’ column to ‘substituted’.</p>
 <p>Currently only fallback_strategy=extreme day is implemented which return historic profile of most extreme day.</p>
 <dl class="field-list simple">
@@ -879,8 +879,9 @@ regression or the default method.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>forecast_input</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – dataframe desired for the forecast</p></li>
 <li><p><strong>load</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – index=datetime, columns=[‘load’]</p></li>
-<li><p><strong>fallback_strategy</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – strategy to determine fallback. options:
-- extreme_day: use daily profile of most extreme day</p></li>
+<li><p><strong>fallback_strategy</strong> (<a class="reference internal" href="openstef.html#openstef.enums.FallbackStrategy" title="openstef.enums.FallbackStrategy"><code class="xref py py-class docutils literal notranslate"><span class="pre">FallbackStrategy</span></code></a>) – strategy to determine fallback. options:
+- extreme_day: use daily profile of most extreme day
+- raise_error: raise error if not enough data is available</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
