@@ -205,10 +205,10 @@ def calc_completeness_features(
         df_copy = df_copy[list_features]  # Reorder the df to match weights index (list)
         weights = weights.weight
 
-    if length_weights != length_features:
-        raise ValueError(
-            "Input data is not sufficient, number of features used in model is unequal to amount of columns in data"
-        )
+    # if length_weights != length_features:
+    #     raise ValueError(
+    #         "Input data is not sufficient, number of features used in model is unequal to amount of columns in data"
+    #     )
     completeness_per_column_dataframe = calc_completeness_dataframe(
         df_copy, time_delayed, homogenise
     )
