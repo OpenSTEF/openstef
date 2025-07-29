@@ -1,3 +1,8 @@
+<!--
+SPDX-FileCopyrightText: 2017-2025 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com>
+
+SPDX-License-Identifier: MPL-2.0
+-->
 ---
 name: OpenSTEF 4.0 Project Story
 about: Describe this issue template's purpose here.
