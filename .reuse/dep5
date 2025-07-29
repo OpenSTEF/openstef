@@ -4,3 +4,9 @@ Upstream-Name: openstef
 Files: test/unit/trained_models/*
 Copyright: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com>
 License: MPL-2.0
+
+Files: .github/**/*
+Copyright: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com>
+License: MPL-2.0
+
+
