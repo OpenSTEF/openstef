@@ -296,8 +296,8 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "openstef-beam", virtual = "packages/openstef-beam" },
-    { name = "openstef-models", virtual = "packages/openstef-models" },
+    { name = "openstef-beam", editable = "packages/openstef-beam" },
+    { name = "openstef-models", editable = "packages/openstef-models" },
 ]
 
 [package.metadata.requires-dev]
@@ -315,7 +315,7 @@ dev = [
 [[package]]
 name = "openstef-beam"
 version = "0.0.0"
-source = { virtual = "packages/openstef-beam" }
+source = { editable = "packages/openstef-beam" }
 dependencies = [
     { name = "pydantic" },
 ]
@@ -329,7 +329,7 @@ dev = []
 [[package]]
 name = "openstef-models"
 version = "0.0.0"
-source = { virtual = "packages/openstef-models" }
+source = { editable = "packages/openstef-models" }
 
 [[package]]
 name = "packaging"

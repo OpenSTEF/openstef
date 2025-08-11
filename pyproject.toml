@@ -121,7 +121,16 @@ sort = "-Miss"
 omit = [ "tests/*" ]
 
 [tool.coverage.run]
-omit = [ "tests/*", "examples/*", "packages/*/src/tests/*", "packages/*/src/examples/*" ]
+source = [
+  "packages/openstef-beam/src",
+  "packages/openstef-models/src",
+]
+omit = [
+  "tests/*",
+  "examples/*",
+  "packages/*/src/tests/*",
+  "packages/*/src/examples/*",
+]
 
 [tool.pyright]
 include = [
@@ -176,7 +185,7 @@ cmd = "pyright"
 
 [tool.poe.tasks.tests]
 help = "Run pytest with xdist, marker filtering, and coverage"
-cmd = "pytest --numprocesses=auto ${markers:+ -m $markers} --cov=packages --cov-report=term-missing"
+cmd = "pytest --numprocesses=auto ${markers:+ -m $markers} --cov --cov-report=term-missing --cov-report=xml:coverage.xml"
 args = [
   { name = "markers", type = "string", default = "", help = "Only run tests matching the given pytest markers expression" },
 ]
@@ -189,6 +198,7 @@ cmd = "pytest --numprocesses=auto --doctest-modules packages/*/src --maxfail=1 -
 help = "Generate coverage report. Will use data from a previous cover command."
 sequence = [
   { cmd = "coverage report", help = "Generate a coverage report" },
+  { cmd = "coverage xml -o coverage.xml", help = "Generate XML coverage report for CI integration" },
   { cmd = "coverage report --fail-under 98 --include='packages/*/tests/*' --omit='cheese'", help = "Check if all written tests are actually run." },
 ]
 

@@ -49,7 +49,7 @@ cover/
 pytest-report.xml
 .tox/
 .nox/
-converage.xml
+coverage.xml
 
 # Hypothesis
 .hypothesis/
