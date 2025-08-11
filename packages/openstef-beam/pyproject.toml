@@ -22,7 +22,9 @@ classifiers = [
   "Programming Language :: Python :: 3.13",
 ]
 
-dependencies = [  ]
+dependencies = [
+  "pydantic>=2.11.7",
+]
 
 urls.Documentation = "https://openstef.github.io/openstef/index.html"
 urls.Homepage = "https://lfenergy.org/projects/openstef/"

@@ -59,21 +59,24 @@ output-format = "concise"
 format.preview = true
 lint.select = [ "ALL" ]
 lint.ignore = [
-  "COM812",
+  "COM812", # Conflicting rules (a), ruff itself suggest disabling them.
   "CPY001", # Reuse covers copyright checks.
-  "D203",
-  "D213",   # Conflicting rules, ruff itself suggest disabling them.
+  "D203",   # Conflicting rules (a), ruff itself suggest disabling them.
+  "D213",   # Conflicting rules (a), ruff itself suggest disabling them.
   "EM101",  # do not enforce message in variable when raising an exception.
   "TC006",  # Let's not force quoting the first param of typing.cast
   "TRY003", # simplify exception messages
 ]
-lint.per-file-ignores."../packages/*/tests/*" = [
+lint.per-file-ignores."./packages/*/tests/*" = [
+  "ARG",     # Unused function args -> fixtures nevertheless are functionally relevant...
   "D",       # All docstring rules
   "E501",    # Line too long (test names can be descriptive)
+  "FBT",     # Allow booleans as positional arguments in tests, e.g. via @pytest.mark.parametrize()
   "PLR2004", # Magic value used in comparison
+  "S101",    # asserts allowed in tests...
   "S311",    # Standard pseudo-random generators
 ]
-lint.per-file-ignores."../tools/*" = [
+lint.per-file-ignores."./tools/*" = [
   "T201", # tools are cli scripts and are allowed to use print
 ]
 lint.fixable = [ "ALL" ]
@@ -121,10 +124,19 @@ omit = [ "tests/*" ]
 omit = [ "tests/*", "examples/*", "packages/*/src/tests/*", "packages/*/src/examples/*" ]
 
 [tool.pyright]
-include = [ "tools", "examples" ]
+include = [
+  "tools/**/*.py",
+  "examples/**/*.py",
+  "packages/*/src/**/*.py",
+  "packages/*/examples/**/*.py",
+]
 typeCheckingMode = "strict"
 reportPrivateImportUsage = false
 reportMissingTypeStubs = false
+
+[[tool.pyright.overrides]]
+files = [ "packages/*/src/tests" ]
+typeCheckingMode = "strict"
 
 [tool.uv.sources]
 openstef-models = { workspace = true }
