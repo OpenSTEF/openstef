@@ -8,7 +8,16 @@ concurrency:
   # An in progress job will carry on, but old pending jobs will be replaced by the new one.
   group: ${{ github.workflow }}
 
-on: [push, pull_request]
+on:
+  # push:
+    # push to the base branch (the branch to be merged into)
+    # branches: [main, develop] # Uncomment when v4.0.0 is merged into main.
+
+  pull_request:
+    # synchronize: HEAD branch is updated.
+    # Aka: push to the branch *to be merged* (NOT to the base branch, aka the branch to be merged into)
+    # PR merged is done in trigger_acc_prd.yaml
+    types: [opened, synchronize, reopened, closed]
 
 permissions:
   id-token: write
