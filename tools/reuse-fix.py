@@ -4,8 +4,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-"""
-reuse-fix: Ensure (and optionally repair) REUSE compliance metadata.
+"""reuse-fix: Ensure (and optionally repair) REUSE compliance metadata.
 
 Modernised for Python >=3.12 with:
 - Full static typing
@@ -23,19 +22,21 @@ Exit codes:
     1 - Operational error (invalid path, misuse, unexpected exception)
     2 - Non-compliant after attempted fix (or check-only found issues)
 """
+
 from __future__ import annotations
 
-from dataclasses import dataclass
-from enum import IntEnum
-from pathlib import Path
-from typing import Iterable, Sequence, Tuple
 import argparse
 import subprocess
 import sys
+from collections.abc import Iterable, Sequence
+from dataclasses import dataclass
+from enum import IntEnum
+from pathlib import Path
 
 # Third-party (reuse)
 from reuse.project import Project
 from reuse.report import ProjectReport
+
 
 # ---------------------------------------------------------------------------
 # Exit codes
@@ -62,6 +63,7 @@ class CLIConfig:
 # ---------------------------------------------------------------------------
 # REUSE helpers
 # ---------------------------------------------------------------------------
+
 
 def run_reuse_annotate(
     file_path: Path,
@@ -143,6 +145,7 @@ def validate_project_setup(project_root: Path) -> bool:
 # Core operations
 # ---------------------------------------------------------------------------
 
+
 def annotate_files(
     files: Iterable[Path],
     *,
@@ -150,7 +153,7 @@ def annotate_files(
     license_id: str,
     year: str | None,
     dry_run: bool,
-) -> Tuple[int, int]:
+) -> tuple[int, int]:
     """Annotate all given files. Returns (success_count, total)."""
     success = 0
     file_list = sorted(files)
@@ -174,6 +177,7 @@ def annotate_files(
 # ---------------------------------------------------------------------------
 # Argument parsing
 # ---------------------------------------------------------------------------
+
 
 def parse_args(argv: Sequence[str]) -> CLIConfig:
     parser = argparse.ArgumentParser(
@@ -237,6 +241,7 @@ Examples:
 # Main orchestration
 # ---------------------------------------------------------------------------
 
+
 def run(config: CLIConfig) -> ExitCode:
     # Basic path validation
     if not config.project_root.exists():
@@ -260,9 +265,7 @@ def run(config: CLIConfig) -> ExitCode:
 
     # Gather missing annotation files
     print("\nScanning for files missing annotations...")
-    files_without_licenses, files_without_copyright = get_files_missing_annotations(
-        config.project_root
-    )
+    files_without_licenses, files_without_copyright = get_files_missing_annotations(config.project_root)
     to_fix = files_without_licenses | files_without_copyright
 
     if not to_fix:

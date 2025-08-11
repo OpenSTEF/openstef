@@ -1,0 +1,42 @@
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+#
+# SPDX-License-Identifier: MPL-2.0
+
+target-version = "py312"
+line-length = 120
+output-format = "concise"
+
+[format]
+preview = true
+
+[lint]
+preview = true
+select = ["ALL"]
+ignore = [
+    "COM812", "D203", "D213", # Conflicting rules, ruff itself suggest disabling them.
+    "CPY001", # Reuse covers copyright checks.
+    "EM101", # do not enforce message in variable when raising an exception.
+    "TC006", # Let's not force quoting the first param of typing.cast
+    "TRY003", # simplify exception messages
+]
+fixable = ["ALL"]
+
+[lint.per-file-ignores]
+"../tools/*" = [
+    "T201", # tools are cli scripts and are allowed to use print
+]
+
+[lint.isort]
+known-first-party = ["src", "tests", "examples"] # Useful if ruff does not run from the actual root of the project and to import form tests
+
+[lint.pydocstyle]
+convention = "google"
+
+[lint.flake8-annotations]
+suppress-none-returning = true # do not require annotation if None is returned/there is no return
+suppress-dummy-args = true # do not type _ arguments/variables
+allow-star-arg-any = true # *args and **kwargs are allowed to be Any
+
+[lint.pylint]
+max-args = 7 # the default of 5 is a bit limiting. 7 should be enough for nearly all cases
+allow-dunder-method-names = ["__pydantic_init_subclass__", "__get_pydantic_core_schema__"] # valid pydantic name

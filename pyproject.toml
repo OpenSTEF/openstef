@@ -35,6 +35,7 @@ Documentation = "https://openstef.github.io/openstef/index.html"
 dev = [
     "poethepoet>=0.36.0",
     "reuse>=5.0.2",
+    "ruff>=0.12.8",
 ]
 
 [tool.uv.sources]
@@ -53,10 +54,24 @@ typeCheckingMode = "strict"
 reportPrivateImportUsage = false
 reportMissingTypeStubs = false
 
-[tool.poe.tasks.reuse-lint]
-cmd = "reuse lint"
-help = "Check REUSE compliance for the project"
+[tool.ruff]
+extend = "./tools/ruff.toml"
+include = ["examples/**/*.py"]
+src = ["examples"]
 
-[tool.poe.tasks.reuse-fix]
-cmd = "uv run tools/reuse-fix.py --license \"MPL-2.0\" --copyright \"Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>\""
-help = "Automatically fix REUSE compliance issues"
+[tool.poe]
+include = "tools/poe.toml"
+
+[tool.poe.tasks.reuse]
+help = "Check REUSE compliance (with optional fix)"
+args = [{name = "fix", type = "boolean", help = "Automatically fix REUSE compliance issues before lint check"}]
+control.expr = "fix"
+switch = [
+    {case = "True", cmd = "uv run tools/reuse-fix.py --license \"MPL-2.0\" --copyright \"Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>\""},
+    {cmd = "reuse lint"}
+]
+
+[tool.poe.tasks.all]
+help = "Run all CI calls"
+sequence = ["reuse", "format", "lint", "lock"]
+ignore_fail = "return_non_zero"
