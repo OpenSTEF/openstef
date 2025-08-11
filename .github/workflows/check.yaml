@@ -44,7 +44,7 @@ jobs:
           enable-cache: true
       - name: Install dependencies
         if: ${{ always() }}
-        run: uv sync --frozen --no-install-project --all-groups
+        run: uv sync --frozen --no-install-project --all-groups --all-extras
 
       # Run quality checks
       - name: reuse
@@ -68,6 +68,12 @@ jobs:
       - name: doctests
         if: ${{ always() }}
         run: poe doctests
+
+      - name: Upload coverage report for GitHub Checks
+        uses: github/codeql-action/upload-code-coverage@v2
+        with:
+          coverage_format: cobertura
+          path_to_coverage: coverage.xml
 
       - name: Stop if any quality step failed
         # All tests are run with always() not to stop on the first error. This step makes the workflow fail if any quality step failed.
