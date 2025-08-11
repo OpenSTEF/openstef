@@ -5,6 +5,14 @@
 target-version = "py312"
 line-length = 120
 output-format = "concise"
+include = [
+    "../examples/**/*.py",
+    "../packages/**/*.py",
+]
+src = [
+    "examples",
+    "packages/*/src",
+]
 
 [format]
 preview = true
@@ -25,9 +33,19 @@ fixable = ["ALL"]
 "../tools/*" = [
     "T201", # tools are cli scripts and are allowed to use print
 ]
+"../packages/*/tests/*" = [
+    "PLR2004",   # Magic value used in comparison
+    "S311",      # Standard pseudo-random generators
+    "E501",      # Line too long (test names can be descriptive)
+    "D",         # All docstring rules
+]
 
 [lint.isort]
-known-first-party = ["src", "tests", "examples"] # Useful if ruff does not run from the actual root of the project and to import form tests
+known-first-party = [
+    "src", 
+    "tests", 
+    "examples"
+] # Useful if ruff does not run from the actual root of the project and to import form tests
 
 [lint.pydocstyle]
 convention = "google"

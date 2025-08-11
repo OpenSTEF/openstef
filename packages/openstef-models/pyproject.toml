@@ -27,9 +27,3 @@ Homepage = "https://lfenergy.org/projects/openstef/"
 Repository = "https://github.com/OpenSTEF/openstef"
 Issues = "https://github.com/OpenSTEF/openstef/issues"
 Documentation = "https://openstef.github.io/openstef/index.html"
-
-[tool.pyright]
-include = ["src", "examples", "tests"]
-typeCheckingMode = "strict"
-reportPrivateImportUsage = false
-reportMissingTypeStubs = false

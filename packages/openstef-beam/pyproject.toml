@@ -29,17 +29,4 @@ Issues = "https://github.com/OpenSTEF/openstef/issues"
 Documentation = "https://openstef.github.io/openstef/index.html"
 
 [dependency-groups]
-dev = [
-    "ruff>=0.12.8",
-]
-
-[tool.pyright]
-include = ["src", "examples", "tests"]
-typeCheckingMode = "strict"
-reportPrivateImportUsage = false
-reportMissingTypeStubs = false
-
-[tool.ruff]
-extend = "../../tools/ruff.toml"
-include = ["src/**/*.py", "tests/**/*.py", "examples/**/*.py"]
-src = ["src", "tests", "examples"] # Needed for ruff to find the files.
+dev = []
