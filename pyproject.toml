@@ -181,6 +181,10 @@ args = [
   { name = "markers", type = "string", default = "", help = "Only run tests matching the given pytest markers expression" },
 ]
 
+[tool.poe.tasks.doctests]
+help = "Run all docstring examples via pytest’s doctest plugin"
+cmd = "pytest --numprocesses=auto --doctest-modules packages/*/src --maxfail=1 --disable-warnings"
+
 [tool.poe.tasks.report]
 help = "Generate coverage report. Will use data from a previous cover command."
 sequence = [
@@ -211,6 +215,7 @@ switch = [
     "lock",
     "type",
     "tests",
+    "doctests",
   ], ignore_fail = "return_non_zero" },
   { sequence = [
     "reuse --fix",
@@ -220,5 +225,6 @@ switch = [
     "lock",
     "type",
     "tests",
+    "doctests",
   ], ignore_fail = "return_non_zero" },
 ]

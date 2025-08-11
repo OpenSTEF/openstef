@@ -55,6 +55,14 @@ def write_yaml_config(config: BaseConfig, path: Path) -> None:
     Args:
         config: The configuration object to serialize.
         path: Destination path for the YAML file (will be overwritten).
+
+    Example:
+        >>> from pathlib import Path
+        >>> from pydantic import BaseModel
+        >>> class MyConfig(BaseModel):
+        ...     foo: int
+        >>> cfg = MyConfig(foo=123)
+        >>> write_yaml_config(cfg, Path("/tmp/test.yaml"))
     """
     with path.open("w", encoding="utf-8") as f:
         yaml.dump(config.model_dump(mode="json"), f, allow_unicode=True)
