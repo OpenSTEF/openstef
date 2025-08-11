@@ -25,10 +25,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  id-token: write
   contents: read
-  packages: read
-  pull-requests: read # to read pr via gh
 
 jobs:
   quality:
