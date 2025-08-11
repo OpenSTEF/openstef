@@ -18,6 +18,11 @@ on:
     # Aka: push to the branch *to be merged* (NOT to the base branch, aka the branch to be merged into)
     # PR merged is done in trigger_acc_prd.yaml
     types: [opened, synchronize, reopened, closed]
+  
+  # Run pipeline from another workflow
+  workflow_call:
+  # Run this workflow manually from the Actions tab
+  workflow_dispatch:
 
 permissions:
   id-token: write
