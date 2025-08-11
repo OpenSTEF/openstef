@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+#
+# SPDX-License-Identifier: MPL-2.0
+
 [project]
 name = "openstef"
 version = "0.0.0"
@@ -27,6 +31,12 @@ Repository = "https://github.com/OpenSTEF/openstef"
 Issues = "https://github.com/OpenSTEF/openstef/issues"
 Documentation = "https://openstef.github.io/openstef/index.html"
 
+[dependency-groups]
+dev = [
+    "poethepoet>=0.36.0",
+    "reuse>=5.0.2",
+]
+
 [tool.uv.sources]
 openstef-models = { workspace = true }
 openstef-beam = { workspace = true }
@@ -36,3 +46,7 @@ members = [
     "packages/openstef-models",
     "packages/openstef-beam",
 ]
+
+[tool.poe.tasks.reuse-lint]
+cmd = "reuse lint"
+help = "Check REUSE compliance for the project"
