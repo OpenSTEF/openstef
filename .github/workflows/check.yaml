@@ -1,0 +1,60 @@
+name: Quality Checks
+concurrency:
+  # means: only one run with this name (the workflow name) can run in parallel.
+  # An in progress job will carry on, but old pending jobs will be replaced by the new one.
+  group: ${{ github.workflow }}
+
+on: [push, pull_request]
+
+permissions:
+  id-token: write
+  contents: read
+  packages: read
+  pull-requests: read # to read pr via gh
+
+jobs:
+  quality:
+    name: Quality Checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout # Must be done before using composite actions
+        uses: actions/checkout@v4
+        with:
+          show-progress: false # very verbose for not much
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        # uv is needed for qa and deploy, so is kinda always needed. No need to skip it.
+        with:
+          activate-environment: true
+          enable-cache: true
+      - name: Install dependencies
+        if: ${{ always() }}
+        run: uv sync --frozen --no-install-project --all-groups
+
+      # Run quality checks
+      - name: reuse
+        if: ${{ always() }}
+        run: poe reuse
+      - name: lint
+        if: ${{ always() }}
+        run: poe lint --check
+      - name: format
+        if: ${{ always() }}
+        run: poe format --check
+      - name: format-pyproject
+        if: ${{ always() }}
+        run: poe format-pyproject --check
+      - name: typing
+        if: ${{ always() }}
+        run: poe type
+      - name: tests
+        if: ${{ always() }}
+        run: poe tests
+      - name: doctests
+        if: ${{ always() }}
+        run: poe doctests
+
+      - name: Stop if any quality step failed
+        # All tests are run with always() not to stop on the first error. This step makes the workflow fail if any quality step failed.
+        if: ${{ failure() }}
+        run: exit 1
