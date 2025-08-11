@@ -7,126 +7,107 @@ name = "openstef"
 version = "0.0.0"
 description = "Open Short Term Energy forecasting library"
 readme = "README.md"
-requires-python = ">=3.12,<4.0"
+keywords = [ "energy", "forecasting", "machinelearning" ]
 license = { text = "MPL-2.0" }
 authors = [
-  { name = "Alliander N.V", email = "short.term.energy.forecasts@alliander.com" }
+  { name = "Alliander N.V", email = "short.term.energy.forecasts@alliander.com" },
 ]
-keywords = ["energy", "forecasting", "machinelearning"]
+requires-python = ">=3.12,<4.0"
 classifiers = [
   "Development Status :: 5 - Production/Stable",
   "Intended Audience :: Developers",
   "License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)",
+  "Programming Language :: Python :: 3 :: Only",
   "Programming Language :: Python :: 3.12",
 ]
 
 dependencies = [
-  "openstef-models",
   "openstef-beam",
+  "openstef-models",
 ]
 
-[project.urls]
-Homepage = "https://lfenergy.org/projects/openstef/"
-Repository = "https://github.com/OpenSTEF/openstef"
-Issues = "https://github.com/OpenSTEF/openstef/issues"
-Documentation = "https://openstef.github.io/openstef/index.html"
+urls.Documentation = "https://openstef.github.io/openstef/index.html"
+urls.Homepage = "https://lfenergy.org/projects/openstef/"
+urls.Issues = "https://github.com/OpenSTEF/openstef/issues"
+urls.Repository = "https://github.com/OpenSTEF/openstef"
 
 [dependency-groups]
 dev = [
-    "poethepoet>=0.36.0",
-    "pyright>=1.1.403",
-    "pytest>=8.4.1",
-    "pytest-cov>=6.2.1",
-    "pytest-xdist>=3.8.0",
-    "reuse>=5.0.2",
-    "ruff>=0.12.8",
+  "poethepoet>=0.36",
+  "pyproject-fmt>=2.6",
+  "pyright>=1.1.403",
+  "pytest>=8.4.1",
+  "pytest-cov>=6.2.1",
+  "pytest-xdist>=3.8",
+  "reuse>=5.0.2",
+  "ruff>=0.12.8",
 ]
-
-[tool.uv.sources]
-openstef-models = { workspace = true }
-openstef-beam = { workspace = true }
-
-[tool.uv.workspace]
-members = [
-    "packages/openstef-models",
-    "packages/openstef-beam",
-]
-
-[tool.pyright]
-include = ["tools", "examples"]
-typeCheckingMode = "strict"
-reportPrivateImportUsage = false
-reportMissingTypeStubs = false
 
 [tool.ruff]
 target-version = "py312"
 line-length = 120
-output-format = "concise"
-include = [
-    "examples/**/*.py",
-    "packages/**/*.py",
-]
 src = [
-    "examples",
-    "packages/*/src",
+  "examples",
+  "packages/*/src",
 ]
 
-
-[tool.ruff.format]
-preview = true
-
-[tool.ruff.lint]
-preview = true
-select = ["ALL"]
-ignore = [
-    "COM812", "D203", "D213", # Conflicting rules, ruff itself suggest disabling them.
-    "CPY001", # Reuse covers copyright checks.
-    "EM101", # do not enforce message in variable when raising an exception.
-    "TC006", # Let's not force quoting the first param of typing.cast
-    "TRY003", # simplify exception messages
+include = [
+  "examples/**/*.py",
+  "packages/**/*.py",
 ]
-fixable = ["ALL"]
-
-[tool.ruff.lint.per-file-ignores]
-"../tools/*" = [
-    "T201", # tools are cli scripts and are allowed to use print
+output-format = "concise"
+format.preview = true
+lint.select = [ "ALL" ]
+lint.ignore = [
+  "COM812",
+  "CPY001", # Reuse covers copyright checks.
+  "D203",
+  "D213",   # Conflicting rules, ruff itself suggest disabling them.
+  "EM101",  # do not enforce message in variable when raising an exception.
+  "TC006",  # Let's not force quoting the first param of typing.cast
+  "TRY003", # simplify exception messages
 ]
-"../packages/*/tests/*" = [
-    "PLR2004",   # Magic value used in comparison
-    "S311",      # Standard pseudo-random generators
-    "E501",      # Line too long (test names can be descriptive)
-    "D",         # All docstring rules
+lint.per-file-ignores."../packages/*/tests/*" = [
+  "D",       # All docstring rules
+  "E501",    # Line too long (test names can be descriptive)
+  "PLR2004", # Magic value used in comparison
+  "S311",    # Standard pseudo-random generators
 ]
-
-[tool.ruff.lint.isort]
-known-first-party = [
-    "src", 
-    "tests", 
-    "examples"
+lint.per-file-ignores."../tools/*" = [
+  "T201", # tools are cli scripts and are allowed to use print
+]
+lint.fixable = [ "ALL" ]
+lint.flake8-annotations.allow-star-arg-any = true # *args and **kwargs are allowed to be Any
+lint.flake8-annotations.suppress-dummy-args = true # do not type _ arguments/variables
+lint.flake8-annotations.suppress-none-returning = true # do not require annotation if None is returned/there is no return
+lint.isort.known-first-party = [
+  "src",
+  "tests",
+  "examples",
 ] # Useful if ruff does not run from the actual root of the project and to import form tests
+lint.pydocstyle.convention = "google"
+lint.pylint.allow-dunder-method-names = [
+  "__get_pydantic_core_schema__",
+  "__pydantic_init_subclass__",
+] # valid pydantic name
+lint.pylint.max-args = 7 # the default of 5 is a bit limiting. 7 should be enough for nearly all cases
+lint.preview = true
 
-[tool.ruff.lint.pydocstyle]
-convention = "google"
-
-[tool.ruff.lint.flake8-annotations]
-suppress-none-returning = true # do not require annotation if None is returned/there is no return
-suppress-dummy-args = true # do not type _ arguments/variables
-allow-star-arg-any = true # *args and **kwargs are allowed to be Any
-
-[tool.ruff.lint.pylint]
-max-args = 7 # the default of 5 is a bit limiting. 7 should be enough for nearly all cases
-allow-dunder-method-names = ["__pydantic_init_subclass__", "__get_pydantic_core_schema__"] # valid pydantic name
+[tool.pyproject-fmt]
+column_width = 120
+indent = 2
+max_supported_python = "3.12"
 
 [tool.pytest.ini_options]
-testpaths = ["packages/*/tests", "tests"]
-python_files = ["test_*.py", "*_test.py"]
+testpaths = [ "packages/*/tests", "tests" ]
+python_files = [ "test_*.py", "*_test.py" ]
 addopts = [
-    "--import-mode=importlib", # modern way to import tests
-    "--strict-markers", # Force defining marks here (in a markers setting) to prevent typos
+  "--import-mode=importlib", # modern way to import tests
+  "--strict-markers",        # Force defining marks here (in a markers setting) to prevent typos
 ]
 markers = [
   "integration: marks integration tests",
-  "slow: marks slow-running tests"
+  "slow: marks slow-running tests",
 ]
 
 [tool.coverage.report]
@@ -134,23 +115,44 @@ fail_under = 20
 show_missing = true
 skip_covered = true
 sort = "-Miss"
-omit = ["tests/*"]
+omit = [ "tests/*" ]
 
 [tool.coverage.run]
-omit = ["tests/*", "examples/*", "packages/*/src/tests/*", "packages/*/src/examples/*"]
+omit = [ "tests/*", "examples/*", "packages/*/src/tests/*", "packages/*/src/examples/*" ]
+
+[tool.pyright]
+include = [ "tools", "examples" ]
+typeCheckingMode = "strict"
+reportPrivateImportUsage = false
+reportMissingTypeStubs = false
+
+[tool.uv.sources]
+openstef-models = { workspace = true }
+openstef-beam = { workspace = true }
+
+[tool.uv.workspace]
+members = [
+  "packages/openstef-models",
+  "packages/openstef-beam",
+]
 
 [tool.poe.tasks.lint]
 help = "Lint code (with ruff)"
 cmd = 'ruff check --fix --show-fixes ${check:+ --no-fix} ${unsafe:+ --unsafe-fixes}'
-args=[
-    {name = "check", type="boolean", help= "Does not correct files, only warns"},
-    {name = "unsafe", type="boolean", help= "Enables unsafe fixes, which may change the code in a way that is not reversible. Use with care."}
+args = [
+  { name = "check", type = "boolean", help = "Does not correct files, only warns" },
+  { name = "unsafe", type = "boolean", help = "Enables unsafe fixes, which may change the code in a way that is not reversible. Use with care." },
 ]
 
 [tool.poe.tasks.format]
 help = "Format code (with ruff)"
 cmd = 'ruff format ${check:+ --diff}'
-args=[{name = "check", type="boolean", help= "Does not correct files, only warns"}]
+args = [ { name = "check", type = "boolean", help = "Does not correct files, only warns" } ]
+
+[tool.poe.tasks.format-pyproject]
+help = "Format pyproject.toml (with pyproject-fmt)"
+cmd = 'pyproject-fmt ${check:+ --check} -n pyproject.toml packages/*/pyproject.toml'
+args = [ { name = "check", type = "boolean", help = "Does not correct files, only warns" } ]
 
 [tool.poe.tasks.lock]
 help = "Asserts that dependencies are locked"
@@ -170,25 +172,41 @@ args = [
 [tool.poe.tasks.report]
 help = "Generate coverage report. Will use data from a previous cover command."
 sequence = [
-    {cmd="coverage report", help = "Generate a coverage report"},
-    {cmd="coverage report --fail-under 98 --include='packages/*/tests/*' --omit='cheese'", help = "Check if all written tests are actually run."}
+  { cmd = "coverage report", help = "Generate a coverage report" },
+  { cmd = "coverage report --fail-under 98 --include='packages/*/tests/*' --omit='cheese'", help = "Check if all written tests are actually run." },
 ]
 
 [tool.poe.tasks.reuse]
 help = "Check REUSE compliance (with optional fix)"
-args = [{name = "fix", type = "boolean", help = "Automatically fix REUSE compliance issues before lint check"}]
+args = [ { name = "fix", type = "boolean", help = "Automatically fix REUSE compliance issues before lint check" } ]
 control.expr = "fix"
 switch = [
-    {case = "True", cmd = "uv run tools/reuse-fix.py --license \"MPL-2.0\" --copyright \"Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>\""},
-    {cmd = "reuse lint"}
+  { case = "True", cmd = "uv run tools/reuse-fix.py --license \"MPL-2.0\" --copyright \"Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>\"" },
+  { cmd = "reuse lint" },
 ]
 
 [tool.poe.tasks.all]
 help = "Run all CI calls"
-control.expr = "check" # There is no pass through option (yet?) so use a control expression to pass --check option to tasks when relevant
-args = [{name = "check", type="boolean", help= "Does not correct files, only warns"}]
+control.expr = "check"                                                                       # There is no pass through option (yet?) so use a control expression to pass --check option to tasks when relevant
+args = [ { name = "check", type = "boolean", help = "Does not correct files, only warns" } ]
 # NB: ruff needs the linter (which will sort imports) to run before the formatter (which cannot sort imports).
 switch = [
-  {case = "check", sequence = ["reuse", "lint --check", "format --check", "lock", "type", "tests"], ignore_fail = "return_non_zero"},
-  {sequence = ["reuse --fix", "lint", "format", "lock", "type", "tests"], ignore_fail = "return_non_zero"}
+  { case = "check", sequence = [
+    "reuse",
+    "lint --check",
+    "format --check",
+    "format-pyproject --check",
+    "lock",
+    "type",
+    "tests",
+  ], ignore_fail = "return_non_zero" },
+  { sequence = [
+    "reuse --fix",
+    "lint",
+    "format",
+    "format-pyproject",
+    "lock",
+    "type",
+    "tests",
+  ], ignore_fail = "return_non_zero" },
 ]
