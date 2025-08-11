@@ -1,0 +1,38 @@
+[project]
+name = "openstef"
+version = "0.0.0"
+description = "Open Short Term Energy forecasting library"
+readme = "README.md"
+requires-python = ">=3.12,<4.0"
+license = { text = "MPL-2.0" }
+authors = [
+  { name = "Alliander N.V", email = "short.term.energy.forecasts@alliander.com" }
+]
+keywords = ["energy", "forecasting", "machinelearning"]
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)",
+  "Programming Language :: Python :: 3.12",
+]
+
+dependencies = [
+  "openstef-models",
+  "openstef-beam",
+]
+
+[project.urls]
+Homepage = "https://lfenergy.org/projects/openstef/"
+Repository = "https://github.com/OpenSTEF/openstef"
+Issues = "https://github.com/OpenSTEF/openstef/issues"
+Documentation = "https://openstef.github.io/openstef/index.html"
+
+[tool.uv.sources]
+openstef-models = { workspace = true }
+openstef-beam = { workspace = true }
+
+[tool.uv.workspace]
+members = [
+    "packages/openstef-models",
+    "packages/openstef-beam",
+]
