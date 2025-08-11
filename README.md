@@ -32,11 +32,11 @@ OpenSTEF is a Python package designed for generating short-term forecasts in the
 - [Table of contents](#table-of-contents)
 - [External information sources](#external-information-sources)
 - [Installation](#installation)
-- [Usage](#usage)
-  - [Example notebooks](#example-notebooks)
-  - [Reference Implementation](#reference-implementation)
-  - [Database connector for OpenSTEF](#database-connector-for-openstef)
-- [License](license)
+  - [Install the openstef package](#install-the-openstef-package)
+  - [Remark regarding installation on Apple Silicon](#remark-regarding-installation-on-apple-silicon)
+    - [Remark regarding installation with minimal XGBoost dependency](#remark-regarding-installation-with-minimal-xgboost-dependency)
+- [License](#license)
+  - [Licenses third-party libraries](#licenses-third-party-libraries)
 - [Contributing](#contributing)
 - [Contact](#contact)
 
@@ -55,16 +55,6 @@ OpenSTEF is a Python package designed for generating short-term forecasts in the
 ```shell
 pip install openstef
 ```
-
-### Remark regarding installation within a **conda environment on Windows**
-
-A version of the pywin32 package will be installed as a secondary dependency along with the installation of the openstef package. Since conda relies on an old version of pywin32, the new installation can break conda's functionality. The following command can solve this issue:
-
-```shell
-pip install pywin32==300
-```
-
-For more information on this issue see the [readme of pywin32](https://github.com/mhammond/pywin32#installing-via-pip) or [this Github issue](https://github.com/mhammond/pywin32/issues/1865#issue-1212752696).
 
 ## Remark regarding installation on Apple Silicon
 
@@ -88,30 +78,6 @@ It is possible to install openSTEF with a minimal XGBoost (CPU-only) package. Th
 ```shell
 pip install openstef[cpu]
 ```
-
-# Usage
-
-## Example notebooks
-
-To help you get started, a set of fundamental example notebooks has been created. You can access these offline examples [here](https://github.com/OpenSTEF/openstef-offline-example).
-
-## Reference Implementation
-
-A complete implementation including databases, user interface, example data, etc. is available at: https://github.com/OpenSTEF/openstef-reference
-
-![screenshot](https://user-images.githubusercontent.com/60883372/146760483-29af3ac7-62af-4f13-98c7-982a79c517d1.jpg)
-Screenshot of the operational dashboard showing the key functionality of OpenSTEF.
-Dashboard documentation can be found [here](https://raw.githack.com/OpenSTEF/.github/main/profile/html/openstef_dashboard_doc.html).
-
-To run a task use:
-
-```shell
-python -m openstef task <task_name>
-```
-
-## Database connector for openstef
-
-This repository provides an interface to OpenSTEF (reference) databases. The repository can be found [here](https://github.com/OpenSTEF/openstef-dbc).
 
 # License
 
