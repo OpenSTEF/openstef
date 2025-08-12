@@ -1,0 +1,62 @@
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+#
+# SPDX-License-Identifier: MPL-2.0
+
+name: Quality Check
+on:
+  workflow_call:
+    inputs:
+      # _SKIP*: sometimes you want to quickly test something, without having the whole suite kicking in.
+      # This is a lazy way to switch on and off steps. But never set it to true in main.
+      _SKIP_QUALITY:
+        type: boolean
+        default: false
+        description: for debug purposes only - if true skip all quality checks.
+
+jobs:
+  builder:
+    name: Quality Checks
+    # Avoid duplicate runs: run on push (same-repo branches) OR on pull_request only if from a fork
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout # Must be done before using composite actions
+        uses: actions/checkout@v4
+        with:
+          show-progress: false # very verbose for not much
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        # uv is needed for qa and deploy, so is kinda always needed. No need to skip it.
+        with:
+          activate-environment: true
+          enable-cache: true
+      - name: Install dependencies
+        if: ${{ always() }}
+        run: uv sync --frozen --no-install-project --all-groups --all-extras
+
+      # Run quality checks
+      - name: reuse
+        if: ${{ ! inputs._SKIP_QUALITY && always() }}
+        run: poe reuse
+      - name: lint
+        if: ${{ ! inputs._SKIP_QUALITY && always() }}
+        run: poe lint --check
+      - name: format
+        if: ${{ ! inputs._SKIP_QUALITY && always() }}
+        run: poe format --check
+      - name: format-pyproject
+        if: ${{ ! inputs._SKIP_QUALITY && always() }}
+        run: poe format-pyproject --check
+      - name: typing
+        if: ${{ ! inputs._SKIP_QUALITY && always() }}
+        run: poe type
+      - name: tests
+        if: ${{ ! inputs._SKIP_QUALITY && always() }}
+        run: poe tests
+      - name: doctests
+        if: ${{ ! inputs._SKIP_QUALITY && always() }}
+        run: poe doctests
+
+      - name: Stop if any quality step failed
+        # All tests are run with always() not to stop on the first error. This step makes the workflow fail if any quality step failed.
+        if: ${{ failure() }}
+        run: exit 1

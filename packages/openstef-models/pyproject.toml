@@ -2,13 +2,18 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+[build-system]
+build-backend = "hatchling.build"
+
+requires = [ "hatchling" ]
+
 [project]
 name = "openstef-models"
 version = "0.0.0"
 description = "Core models for OpenSTEF"
 readme = "README.md"
 keywords = [ "energy", "forecasting", "machinelearning" ]
-license = { text = "MPL-2.0" }
+license = "MPL-2.0"
 authors = [
   { name = "Alliander N.V", email = "short.term.energy.forecasts@alliander.com" },
 ]
@@ -16,7 +21,6 @@ requires-python = ">=3.12,<4.0"
 classifiers = [
   "Development Status :: 5 - Production/Stable",
   "Intended Audience :: Developers",
-  "License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)",
   "Programming Language :: Python :: 3 :: Only",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
@@ -28,3 +32,6 @@ urls.Documentation = "https://openstef.github.io/openstef/index.html"
 urls.Homepage = "https://lfenergy.org/projects/openstef/"
 urls.Issues = "https://github.com/OpenSTEF/openstef/issues"
 urls.Repository = "https://github.com/OpenSTEF/openstef"
+
+[tool.hatch.build.targets.wheel]
+packages = [ "src/openstef_models" ]

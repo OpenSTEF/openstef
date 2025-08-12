@@ -1,0 +1,65 @@
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-License-Identifier: MPL-2.0
+
+name: Dev Release
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches: ['release/v4.0.0']
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    name: Quality Checks
+    uses: ./.github/workflows/_job_quality_check.yaml
+
+  deploy-dev:
+    name: Release Dev Version
+    needs: quality
+    runs-on: ubuntu-latest
+    if: ${{ needs.quality.result == 'success' }}
+    permissions:
+      # IMPORTANT: this permission is mandatory for trusted publishing
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          show-progress: false
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          activate-environment: true
+          enable-cache: true
+      - name: Install build dependencies
+        run: uv sync --frozen --no-install-project --all-groups --all-extras
+
+      # Start of release steps
+      - name: Compute ephemeral dev version
+        id: ver
+        run: |
+          set -euo pipefail
+          BASE_VERSION="4.0.0"
+          TS=$(date -u +%Y%m%d%H%M)
+          HASH=$(git rev-parse --short=8 HEAD)
+          VERSION="${BASE_VERSION}.dev${TS}+g${HASH}"
+          echo "Computed version: $VERSION"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+      - name: Apply version
+        run: poe version --version '${{ steps.ver.outputs.version }}'
+      - name: Build all packages
+        run: poe build
+      - name: Publish packages
+        if: false # Set to true once mvp is ready.
+        env:
+          UV_PUBLISH_USERNAME: ${{ secrets.PYPI_USERNAME }}
+          UV_PUBLISH_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+        run: uv publish
+      - name: Summary
+        run: echo "Published version ${{ steps.ver.outputs.version }}"

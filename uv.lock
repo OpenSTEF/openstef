@@ -276,14 +276,27 @@ wheels = [
 [[package]]
 name = "openstef"
 version = "0.0.0"
-source = { virtual = "." }
+source = { editable = "." }
 dependencies = [
+    { name = "openstef-models" },
+]
+
+[package.optional-dependencies]
+all = [
     { name = "openstef-beam" },
+    { name = "openstef-models" },
+]
+beam = [
+    { name = "openstef-beam" },
+]
+models = [
     { name = "openstef-models" },
 ]
 
 [package.dev-dependencies]
 dev = [
+    { name = "openstef-beam" },
+    { name = "openstef-models" },
     { name = "poethepoet" },
     { name = "pyproject-fmt" },
     { name = "pyright" },
@@ -296,12 +309,18 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "openstef-beam", virtual = "packages/openstef-beam" },
-    { name = "openstef-models", virtual = "packages/openstef-models" },
+    { name = "openstef-beam", marker = "extra == 'all'", editable = "packages/openstef-beam" },
+    { name = "openstef-beam", marker = "extra == 'beam'", editable = "packages/openstef-beam" },
+    { name = "openstef-models", editable = "packages/openstef-models" },
+    { name = "openstef-models", marker = "extra == 'all'", editable = "packages/openstef-models" },
+    { name = "openstef-models", marker = "extra == 'models'", editable = "packages/openstef-models" },
 ]
+provides-extras = ["models", "beam", "all"]
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "openstef-beam", editable = "packages/openstef-beam" },
+    { name = "openstef-models", editable = "packages/openstef-models" },
     { name = "poethepoet", specifier = ">=0.36" },
     { name = "pyproject-fmt", specifier = ">=2.6" },
     { name = "pyright", specifier = ">=1.1.403" },
@@ -315,7 +334,7 @@ dev = [
 [[package]]
 name = "openstef-beam"
 version = "0.0.0"
-source = { virtual = "packages/openstef-beam" }
+source = { editable = "packages/openstef-beam" }
 dependencies = [
     { name = "pydantic" },
 ]
@@ -329,7 +348,7 @@ dev = []
 [[package]]
 name = "openstef-models"
 version = "0.0.0"
-source = { virtual = "packages/openstef-models" }
+source = { editable = "packages/openstef-models" }
 
 [[package]]
 name = "packaging"
