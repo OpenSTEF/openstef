@@ -66,6 +66,8 @@ dmypy.json
 
 # Sphinx
 docs/_build/
+docs/source/api/generated/
+
 # docs/_doctrees/
 # docs/_static_gen/
 

@@ -28,6 +28,7 @@ classifiers = [
 
 dependencies = [
   "pydantic>=2.11.7",
+  "pyyaml>=6.0.2",
 ]
 
 urls.Documentation = "https://openstef.github.io/openstef/index.html"

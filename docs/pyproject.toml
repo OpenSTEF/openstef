@@ -1,0 +1,32 @@
+[project]
+name = "openstef-docs"
+version = "0.0.0"
+description = "Open Short Term Energy forecasting library"
+readme = "../README.md"
+keywords = [ "energy", "forecasting", "machinelearning" ]
+license = "MPL-2.0"
+authors = [
+  { name = "Alliander N.V", email = "short.term.energy.forecasts@alliander.com" },
+]
+requires-python = ">=3.12,<4.0"
+dependencies = [
+  "sphinx-pyproject>=0.3.0",
+  "ipython>=9.4.0",
+  "matplotlib>=3.10.5",
+  "numpydoc>=1.9.0",
+  "openstef-models",
+  "pydata-sphinx-theme>=0.16.1",
+  "sphinx>=8.2.3",
+  "sphinx-copybutton>=0.5.2",
+  "sphinx-design>=0.6.1",
+  "sphinx-gallery>=0.19.0",
+  "sphinx-prompt>=1.10.0",
+  "openstef-beam",
+  "openstef",
+  "sphinx-autobuild>=2024.10.3",
+]
+
+[tool.uv.sources]
+openstef-beam = { workspace = true }
+openstef-models = { workspace = true }
+openstef = { workspace = true }

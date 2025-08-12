@@ -48,6 +48,7 @@ urls.Repository = "https://github.com/OpenSTEF/openstef"
 dev = [
   "openstef-beam",
   "openstef-models",
+  "openstef-docs",
   "poethepoet>=0.36",
   "pyproject-fmt>=2.6",
   "pyright>=1.1.403",
@@ -168,11 +169,13 @@ typeCheckingMode = "strict"
 [tool.uv.sources]
 openstef-beam = { workspace = true }
 openstef-models = { workspace = true }
+openstef-docs = { workspace = true }
 
 [tool.uv.workspace]
 members = [
   "packages/openstef-models",
   "packages/openstef-beam",
+  "docs",
 ]
 
 [tool.poe.tasks.lint]
@@ -279,4 +282,15 @@ help = "Build all packages"
 sequence = [
   { cmd = "uv build --all-packages" },
   { cmd = "uv build .", help = "Build root meta package separately (not part of --all-packages)" },
+]
+
+[tool.poe.tasks.docs]
+help = "Build the documentation"
+control.expr = "serve"
+switch = [
+  { case = "True", cmd = "sphinx-autobuild docs/source docs/build/html" },
+  { cmd = "sphinx-build -b html docs/source docs/build/html" },
+]
+args = [
+  { name = "serve", type = "boolean", default = false, help = "Serve the documentation with live reload" },
 ]
