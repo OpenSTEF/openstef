@@ -1,7 +1,7 @@
 [project]
-name = "openstef"
+name = "openstef-beam"
 version = "0.0.0"
-description = "Open Short Term Energy forecasting library"
+description = "Backtesting, Evaluation, Analysis and Metrics (BEAM) library for OpenSTEF"
 readme = "README.md"
 requires-python = ">=3.12,<4.0"
 license = { text = "MPL-2.0" }
@@ -16,23 +16,10 @@ classifiers = [
   "Programming Language :: Python :: 3.12",
 ]
 
-dependencies = [
-  "openstef-models",
-  "openstef-beam",
-]
+dependencies = []
 
 [project.urls]
 Homepage = "https://lfenergy.org/projects/openstef/"
 Repository = "https://github.com/OpenSTEF/openstef"
 Issues = "https://github.com/OpenSTEF/openstef/issues"
 Documentation = "https://openstef.github.io/openstef/index.html"
-
-[tool.uv.sources]
-openstef-models = { workspace = true }
-openstef-beam = { workspace = true }
-
-[tool.uv.workspace]
-members = [
-    "packages/openstef-models",
-    "packages/openstef-beam",
-]
