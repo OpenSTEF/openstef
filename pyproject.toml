@@ -265,7 +265,9 @@ sequence = [
   { cmd = "uv version --package openstef-beam ${version} --frozen" },
   { cmd = "uv version --package openstef-models ${version} --frozen" },
   # Pin these versions in the root pyproject.toml
-  { cmd = "uv add openstef-beam==${version}" },
+  { cmd = "uv add openstef-beam==${version} --optional beam" },
+  { cmd = "uv add openstef-models==${version} --optional models" },
+  { cmd = "uv add openstef-models==${version} openstef-beam==${version} --optional all" },
   { cmd = "uv add openstef-models==${version}" },
 ]
 args = [
