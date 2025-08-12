@@ -117,7 +117,7 @@ lint.preview = true
 [tool.pyproject-fmt]
 column_width = 120
 indent = 2
-max_supported_python = "3.12"
+max_supported_python = "3.13"
 
 [tool.pytest.ini_options]
 testpaths = [ "packages/*/tests", "tests" ]
