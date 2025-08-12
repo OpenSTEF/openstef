@@ -9,14 +9,11 @@ concurrency:
   group: ${{ github.workflow }}
 
 on:
-  # push:
-    # push to the base branch (the branch to be merged into)
-    # branches: [main, develop] # Uncomment when v4.0.0 is merged into main.
-
+  push:
+    branches:
+      - release/v4.0.0  # enable dev deploys when merging into the release branch
+  
   pull_request:
-    # synchronize: HEAD branch is updated.
-    # Aka: push to the branch *to be merged* (NOT to the base branch, aka the branch to be merged into)
-    # PR merged is done in trigger_acc_prd.yaml
     types: [opened, synchronize, reopened, closed]
   
   # Run pipeline from another workflow
@@ -73,3 +70,81 @@ jobs:
         # All tests are run with always() not to stop on the first error. This step makes the workflow fail if any quality step failed.
         if: ${{ failure() }}
         run: exit 1
+
+  deploy-dev:
+    name: Publish dev release
+    needs: quality
+    # Only on direct pushes (merge commits) to the release/v4.0.0 branch, and only if quality passed.
+    if: >-
+      ${{ github.ref == 'refs/heads/release/v4.0.0' && github.event_name == 'push' && needs.quality.result == 'success' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          show-progress: false
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          activate-environment: true
+          enable-cache: true
+      - name: Install build dependencies (for publish auth)
+        run: uv sync --frozen --no-install-project --all-groups --all-extras
+      - name: Compute ephemeral dev version
+        id: ver
+        run: |
+          set -euo pipefail
+          BASE_VERSION="4.0.0"
+          TS=$(date -u +%Y%m%d%H%M%S)          # digits only for devN
+          HASH=$(git rev-parse --short=8 HEAD) # short hash for local segment
+          VERSION="${BASE_VERSION}.dev${TS}+g${HASH}"
+          echo "Computed version: $VERSION";
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+      - name: Apply version
+        run: poe version '${{ steps.ver.outputs.version }}'
+      - name: Build all packages
+        run: poe build
+      - name: Publish packages (dev)
+        if: false # Disabled for testing reasons
+        run: uv publish
+      - name: Summary
+        run: echo "Published version ${{ steps.ver.outputs.version }}"
+
+  release:
+    name: Publish release
+    needs: quality
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          activate-environment: true
+      - name: Install build dependencies
+        run: uv sync --frozen --no-install-project --all-groups --all-extras
+      - name: Set release version from tag
+        id: ver
+        run: |
+          set -euo pipefail
+          RAW_TAG="${GITHUB_REF_NAME:-${GITHUB_HEAD_REF}}"
+          VERSION="${RAW_TAG#v}"
+          echo "Computed version: $VERSION";
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+      - name: Apply version
+        run: poe version '${{ steps.ver.outputs.version }}'
+      - name: Build all packages
+        run: poe build
+      - name: Publish packages (dev)
+        if: false # Disabled for testing reasons
+        run: uv publish
+      - name: Summary
+        run: echo "Released version ${{ steps.ver.outputs.version }}"

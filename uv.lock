@@ -276,7 +276,7 @@ wheels = [
 [[package]]
 name = "openstef"
 version = "0.0.0"
-source = { virtual = "." }
+source = { editable = "." }
 dependencies = [
     { name = "openstef-beam" },
     { name = "openstef-models" },

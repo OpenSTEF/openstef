@@ -13,7 +13,7 @@ version = "0.0.0"
 description = "Backtesting, Evaluation, Analysis and Metrics (BEAM) library for OpenSTEF"
 readme = "README.md"
 keywords = [ "energy", "forecasting", "machinelearning" ]
-license = { text = "MPL-2.0" }
+license = "MPL-2.0"
 authors = [
   { name = "Alliander N.V", email = "short.term.energy.forecasts@alliander.com" },
 ]
@@ -21,7 +21,6 @@ requires-python = ">=3.12,<4.0"
 classifiers = [
   "Development Status :: 5 - Production/Stable",
   "Intended Audience :: Developers",
-  "License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)",
   "Programming Language :: Python :: 3 :: Only",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
