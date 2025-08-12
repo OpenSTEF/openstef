@@ -249,9 +249,13 @@ switch = [
 [tool.poe.tasks.version]
 help = "Set the release version in pyproject.toml and packages' pyproject.toml files"
 sequence = [
+  # Bumps the version in all pyproject.toml files
   { cmd = "uv version ${version} --frozen" },
   { cmd = "uv version --package openstef-beam ${version} --frozen" },
   { cmd = "uv version --package openstef-models ${version} --frozen" },
+  # Pin these versions in the root pyproject.toml
+  { cmd = "uv add openstef-beam==${version}" },
+  { cmd = "uv add openstef-models==${version}" },
 ]
 args = [
   { name = "version", type = "string", help = "The version to set, e.g. 4.0.0" },

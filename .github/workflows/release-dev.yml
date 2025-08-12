@@ -15,6 +15,7 @@ permissions:
 
 jobs:
   quality:
+    name: Quality Checks
     uses: ./.github/workflows/_job_quality_check.yaml
 
   deploy-dev:
@@ -42,7 +43,7 @@ jobs:
         run: |
           set -euo pipefail
           BASE_VERSION="4.0.0"
-          TS=$(date -u +%Y%m%d%H%M%S)
+          TS=$(date -u +%Y%m%d%H%M)
           HASH=$(git rev-parse --short=8 HEAD)
           VERSION="${BASE_VERSION}.dev${TS}+g${HASH}"
           echo "Computed version: $VERSION"
