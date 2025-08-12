@@ -56,6 +56,7 @@ jobs:
       - name: Build all packages
         run: poe build
       - name: Publish packages
+        if: false # Set to true once mvp is ready.
         env:
           UV_PUBLISH_USERNAME: ${{ secrets.PYPI_USERNAME }}
           UV_PUBLISH_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
