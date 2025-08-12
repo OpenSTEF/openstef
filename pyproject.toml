@@ -23,6 +23,7 @@ classifiers = [
   "Intended Audience :: Developers",
   "Programming Language :: Python :: 3 :: Only",
   "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
 ]
 
 dependencies = [
@@ -47,8 +48,8 @@ urls.Repository = "https://github.com/OpenSTEF/openstef"
 [dependency-groups]
 dev = [
   "openstef-beam",
-  "openstef-models",
   "openstef-docs",
+  "openstef-models",
   "poethepoet>=0.36",
   "pyproject-fmt>=2.6",
   "pyright>=1.1.403",
