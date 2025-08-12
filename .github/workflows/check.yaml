@@ -1,150 +1,21 @@
 # SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
-#
 # SPDX-License-Identifier: MPL-2.0
 
-name: Quality Checks
-concurrency:
-  # means: only one run with this name (the workflow name) can run in parallel.
-  # An in progress job will carry on, but old pending jobs will be replaced by the new one.
-  group: ${{ github.workflow }}
+name: Quality Check
 
 on:
-  push:
-    branches:
-      - release/v4.0.0  # enable dev deploys when merging into the release branch
-  
+  # push: # Disabled until release of v4.0.0
+  #   branches: ['main']
   pull_request:
     types: [opened, synchronize, reopened, closed]
-  
-  # Run pipeline from another workflow
-  workflow_call:
-  # Run this workflow manually from the Actions tab
-  workflow_dispatch:
 
 permissions:
   contents: read
 
+concurrency:
+  group: check-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   quality:
-    name: Quality Checks
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout # Must be done before using composite actions
-        uses: actions/checkout@v4
-        with:
-          show-progress: false # very verbose for not much
-      - name: Install uv
-        uses: astral-sh/setup-uv@v6
-        # uv is needed for qa and deploy, so is kinda always needed. No need to skip it.
-        with:
-          activate-environment: true
-          enable-cache: true
-      - name: Install dependencies
-        if: ${{ always() }}
-        run: uv sync --frozen --no-install-project --all-groups --all-extras
-
-      # Run quality checks
-      - name: reuse
-        if: ${{ always() }}
-        run: poe reuse
-      - name: lint
-        if: ${{ always() }}
-        run: poe lint --check
-      - name: format
-        if: ${{ always() }}
-        run: poe format --check
-      - name: format-pyproject
-        if: ${{ always() }}
-        run: poe format-pyproject --check
-      - name: typing
-        if: ${{ always() }}
-        run: poe type
-      - name: tests
-        if: ${{ always() }}
-        run: poe tests
-      - name: doctests
-        if: ${{ always() }}
-        run: poe doctests
-
-      - name: Stop if any quality step failed
-        # All tests are run with always() not to stop on the first error. This step makes the workflow fail if any quality step failed.
-        if: ${{ failure() }}
-        run: exit 1
-
-  deploy-dev:
-    name: Publish dev release
-    needs: quality
-    # Only on direct pushes (merge commits) to the release/v4.0.0 branch, and only if quality passed.
-    if: >-
-      ${{ github.ref == 'refs/heads/release/v4.0.0' && github.event_name == 'push' && needs.quality.result == 'success' }}
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          show-progress: false
-      - name: Install uv
-        uses: astral-sh/setup-uv@v6
-        with:
-          activate-environment: true
-          enable-cache: true
-      - name: Install build dependencies (for publish auth)
-        run: uv sync --frozen --no-install-project --all-groups --all-extras
-      - name: Compute ephemeral dev version
-        id: ver
-        run: |
-          set -euo pipefail
-          BASE_VERSION="4.0.0"
-          TS=$(date -u +%Y%m%d%H%M%S)          # digits only for devN
-          HASH=$(git rev-parse --short=8 HEAD) # short hash for local segment
-          VERSION="${BASE_VERSION}.dev${TS}+g${HASH}"
-          echo "Computed version: $VERSION";
-          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
-      - name: Apply version
-        run: poe version '${{ steps.ver.outputs.version }}'
-      - name: Build all packages
-        run: poe build
-      - name: Publish packages (dev)
-        if: false # Disabled for testing reasons
-        run: uv publish
-      - name: Summary
-        run: echo "Published version ${{ steps.ver.outputs.version }}"
-
-  release:
-    name: Publish release
-    needs: quality
-    if: ${{ false }}
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Install uv
-        uses: astral-sh/setup-uv@v6
-        with:
-          activate-environment: true
-      - name: Install build dependencies
-        run: uv sync --frozen --no-install-project --all-groups --all-extras
-      - name: Set release version from tag
-        id: ver
-        run: |
-          set -euo pipefail
-          RAW_TAG="${GITHUB_REF_NAME:-${GITHUB_HEAD_REF}}"
-          VERSION="${RAW_TAG#v}"
-          echo "Computed version: $VERSION";
-          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
-      - name: Apply version
-        run: poe version '${{ steps.ver.outputs.version }}'
-      - name: Build all packages
-        run: poe build
-      - name: Publish packages (dev)
-        if: false # Disabled for testing reasons
-        run: uv publish
-      - name: Summary
-        run: echo "Released version ${{ steps.ver.outputs.version }}"
+      uses: ./.github/workflows/jobs/_quality_check_job.yaml
