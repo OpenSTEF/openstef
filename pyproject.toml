@@ -26,10 +26,19 @@ classifiers = [
 ]
 
 dependencies = [
-  "openstef-beam",
   "openstef-models",
 ]
 
+optional-dependencies.all = [
+  "openstef-beam",
+  "openstef-models",
+]
+optional-dependencies.beam = [
+  "openstef-beam",
+]
+optional-dependencies.models = [
+  "openstef-models",
+]
 urls.Documentation = "https://openstef.github.io/openstef/index.html"
 urls.Homepage = "https://lfenergy.org/projects/openstef/"
 urls.Issues = "https://github.com/OpenSTEF/openstef/issues"
@@ -37,6 +46,8 @@ urls.Repository = "https://github.com/OpenSTEF/openstef"
 
 [dependency-groups]
 dev = [
+  "openstef-beam",
+  "openstef-models",
   "poethepoet>=0.36",
   "pyproject-fmt>=2.6",
   "pyright>=1.1.403",
@@ -155,8 +166,8 @@ files = [ "packages/*/src/tests" ]
 typeCheckingMode = "strict"
 
 [tool.uv.sources]
-openstef-models = { workspace = true }
 openstef-beam = { workspace = true }
+openstef-models = { workspace = true }
 
 [tool.uv.workspace]
 members = [
