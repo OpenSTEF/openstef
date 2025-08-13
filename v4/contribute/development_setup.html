@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>API Reference &#8212; OpenSTEF 0.0.0 documentation</title>
+    <title>Setting up OpenSTEF for development &#8212; OpenSTEF 0.0.0 documentation</title>
   
   
   
@@ -47,7 +47,7 @@
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=97f0b27d"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'api/index';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'contribute/development_setup';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = '_static/versions.json';
@@ -58,8 +58,8 @@
     <link rel="icon" href="../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="openstef_beam.core" href="generated/openstef_beam.core.html" />
-    <link rel="prev" title="External resources" href="../user_guide/external_resources.html" />
+    <link rel="next" title="Development workflow" href="development_workflow.html" />
+    <link rel="prev" title="Contributing guide" href="contributing_guide.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="0.0.0" />
@@ -151,8 +151,8 @@
 </li>
 
 
-<li class="nav-item current active">
-  <a class="nav-link nav-internal" href="#">
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api/index.html">
     API
   </a>
 </li>
@@ -165,8 +165,8 @@
 </li>
 
 
-<li class="nav-item ">
-  <a class="nav-link nav-internal" href="../contribute/index.html">
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
     Contributing
   </a>
 </li>
@@ -303,8 +303,8 @@
 </li>
 
 
-<li class="nav-item current active">
-  <a class="nav-link nav-internal" href="#">
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api/index.html">
     API
   </a>
 </li>
@@ -317,8 +317,8 @@
 </li>
 
 
-<li class="nav-item ">
-  <a class="nav-link nav-internal" href="../contribute/index.html">
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
     Contributing
   </a>
 </li>
@@ -393,7 +393,22 @@
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="generated/openstef_beam.core.html">openstef_beam.core</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing_guide.html">Contributing guide</a></li>
+</ul>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Setting up OpenSTEF for development</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="development_workflow.html">Development workflow</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="code_style_guide.html">Style Guide</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="document.html">Documentation Guide</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="code_of_conduct.html">Code of Conduct</a></li>
 </ul>
 </div>
 </nav></div>
@@ -434,7 +449,10 @@
         <i class="fa-solid fa-home"></i>
       </a>
     </li>
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">API Reference</span></li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Contribute</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Setting up OpenSTEF for development</span></li>
   </ul>
 </nav>
 </div>
@@ -451,25 +469,166 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="api-reference">
-<h1>API Reference<a class="headerlink" href="#api-reference" title="Link to this heading">#</a></h1>
-<section id="models-package">
-<h2>Models Package<a class="headerlink" href="#models-package" title="Link to this heading">#</a></h2>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
-<tbody>
-</tbody>
-</table>
+  <section id="setting-up-openstef-for-development">
+<span id="development-setup"></span><h1>Setting up OpenSTEF for development<a class="headerlink" href="#setting-up-openstef-for-development" title="Link to this heading">#</a></h1>
+<p>This guide will help you set up a development environment for OpenSTEF 4.0,
+which uses a modern Python development stack with uv and a monorepo workspace structure.</p>
+<section id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading">#</a></h2>
+<section id="python-version">
+<h3>Python version<a class="headerlink" href="#python-version" title="Link to this heading">#</a></h3>
+<p>OpenSTEF 4.0 requires Python 3.12 or higher. You can check your Python version with:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>--version
+</pre></div>
 </div>
 </section>
-<section id="beam-package">
-<h2>Beam Package<a class="headerlink" href="#beam-package" title="Link to this heading">#</a></h2>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/openstef_beam.core.html#module-openstef_beam.core" title="openstef_beam.core"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core</span></code></a></p></td>
-<td><p>Core functionality for OpenSTEF Beam.</p></td>
-</tr>
-</tbody>
-</table>
+</section>
+<section id="installing-uv">
+<h2>Installing uv<a class="headerlink" href="#installing-uv" title="Link to this heading">#</a></h2>
+<p>OpenSTEF 4.0 uses <a class="reference external" href="https://docs.astral.sh/uv/">uv</a> as the primary dependency manager and
+Python project manager. uv is a fast, Rust-based Python package manager that handles both
+dependency resolution and virtual environments.</p>
+<p>Install uv using the recommended method for your platform:</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-0">
+macOS and Linux</label><div class="sd-tab-content docutils">
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>-LsSf<span class="w"> </span>https://astral.sh/uv/install.sh<span class="w"> </span><span class="p">|</span><span class="w"> </span>sh
+</pre></div>
+</div>
+</div>
+<input id="sd-tab-item-1" name="sd-tab-set-0" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-1">
+Windows</label><div class="sd-tab-content docutils">
+<div class="highlight-powershell notranslate"><div class="highlight"><pre><span></span><span class="n">powershell</span> <span class="n">-ExecutionPolicy</span> <span class="n">ByPass</span> <span class="n">-c</span> <span class="s2">&quot;irm https://astral.sh/uv/install.ps1 | iex&quot;</span>
+</pre></div>
+</div>
+</div>
+<input id="sd-tab-item-2" name="sd-tab-set-0" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-2">
+pipx</label><div class="sd-tab-content docutils">
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pipx<span class="w"> </span>install<span class="w"> </span>uv
+</pre></div>
+</div>
+</div>
+<input id="sd-tab-item-3" name="sd-tab-set-0" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-3">
+pip</label><div class="sd-tab-content docutils">
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>uv
+</pre></div>
+</div>
+</div>
+</div>
+<p>For more installation options, see the <a class="reference external" href="https://docs.astral.sh/uv/getting-started/installation/">uv installation guide</a>.</p>
+</section>
+<section id="cloning-the-repository">
+<h2>Cloning the repository<a class="headerlink" href="#cloning-the-repository" title="Link to this heading">#</a></h2>
+<p>Clone the OpenSTEF repository and navigate to the project directory:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/OpenSTEF/openstef.git
+<span class="nb">cd</span><span class="w"> </span>openstef
+</pre></div>
+</div>
+</section>
+<section id="setting-up-the-development-environment">
+<h2>Setting up the development environment<a class="headerlink" href="#setting-up-the-development-environment" title="Link to this heading">#</a></h2>
+<p>OpenSTEF 4.0 uses a workspace structure with multiple packages:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">openstef-models</span></code>: Core forecasting models, feature engineering, and data processing</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">openstef-beam</span></code>: Backtesting, evaluation, analysis and metrics</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">docs</span></code>: Documentation source</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">openstef-compatibility</span></code>: Compatibility layer for OpenSTEF 3.x (coming soon)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">openstef-foundational-models</span></code>: Deep learning and foundational models (coming soon)</p></li>
+</ul>
+<p>Install the development dependencies using uv:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>sync<span class="w"> </span>--all-groups<span class="w"> </span>--all-extras
+</pre></div>
+</div>
+<p>This will:</p>
+<ol class="arabic simple">
+<li><p>Create a virtual environment (if one doesn’t exist)</p></li>
+<li><p>Install all workspace packages in development mode</p></li>
+<li><p>Install all development dependencies including testing, linting, and documentation tools</p></li>
+<li><p>Install all optional extras for comprehensive development</p></li>
+</ol>
+</section>
+<section id="understanding-the-workspace-structure">
+<h2>Understanding the workspace structure<a class="headerlink" href="#understanding-the-workspace-structure" title="Link to this heading">#</a></h2>
+<p>OpenSTEF 4.0 uses a monorepo workspace structure defined in <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code>:</p>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[tool.uv.workspace]</span>
+<span class="n">members</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="s2">&quot;packages/openstef-models&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="s2">&quot;packages/openstef-beam&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="s2">&quot;docs&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<p>This means:</p>
+<ul class="simple">
+<li><p>All packages are developed together in a single repository</p></li>
+<li><p>Dependencies between packages are automatically resolved</p></li>
+<li><p>You can work on multiple packages simultaneously</p></li>
+<li><p>Changes in one package are immediately available to other packages</p></li>
+</ul>
+</section>
+<section id="verifying-your-installation">
+<h2>Verifying your installation<a class="headerlink" href="#verifying-your-installation" title="Link to this heading">#</a></h2>
+<p>Test that your environment is set up correctly:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check that uv is working</span>
+uv<span class="w"> </span>--version
+
+<span class="c1"># Check that you can run the task runner</span>
+uv<span class="w"> </span>run<span class="w"> </span>poe<span class="w"> </span>--help
+
+<span class="c1"># Run a quick test to verify everything works</span>
+uv<span class="w"> </span>run<span class="w"> </span>poe<span class="w"> </span>all<span class="w"> </span>--check
+</pre></div>
+</div>
+<p>If everything is working correctly, the last command should run all linting, formatting,
+type checking, and tests without errors.</p>
+</section>
+<section id="next-steps">
+<h2>Next steps<a class="headerlink" href="#next-steps" title="Link to this heading">#</a></h2>
+<p>Now that you have a working development environment, you can:</p>
+<ol class="arabic simple">
+<li><p>Read the <a class="reference internal" href="development_workflow.html"><span class="doc">Development workflow</span></a> guide to understand how to contribute</p></li>
+<li><p>Explore the <a class="reference internal" href="document.html"><span class="doc">Documentation Guide</span></a> guide if you want to contribute to documentation</p></li>
+<li><p>Look at the <a class="reference external" href="https://github.com/OpenSTEF/openstef/labels/good%20first%20issue">good first issues</a>
+to find something to work on</p></li>
+</ol>
+</section>
+<section id="development-tools-overview">
+<h2>Development tools overview<a class="headerlink" href="#development-tools-overview" title="Link to this heading">#</a></h2>
+<p>Note that also OpenSTEF 4.0 uses several modern development tools:</p>
+<ul class="simple">
+<li><p><strong>uv</strong>: Package manager and virtual environment handler (<a class="reference external" href="https://docs.astral.sh/uv/">uv website</a>)</p></li>
+<li><p><strong>Poe the Poet</strong>: Task runner for common development tasks (<a class="reference external" href="https://poethepoet.natn.io/">poethepoet website</a>)</p></li>
+<li><p><strong>Ruff</strong>: Lightning-fast linting and formatting (<a class="reference external" href="https://docs.astral.sh/ruff/">ruff website</a>)</p></li>
+<li><p><strong>Pyright</strong>: Type checking (<a class="reference external" href="https://microsoft.github.io/pyright/">pyright website</a>)</p></li>
+<li><p><strong>pytest</strong>: Testing framework with coverage reporting (<a class="reference external" href="https://pytest.org/">pytest website</a>)</p></li>
+<li><p><strong>Sphinx</strong>: Documentation generation (<a class="reference external" href="https://www.sphinx-doc.org/">sphinx website</a>)</p></li>
+<li><p><strong>REUSE</strong>: License compliance checking (<a class="reference external" href="https://reuse.software/">reuse website</a>)</p></li>
+</ul>
+<p>All these tools are configured and ready to use through the <code class="docutils literal notranslate"><span class="pre">poe</span></code> task runner.
+See <code class="docutils literal notranslate"><span class="pre">poe</span> <span class="pre">--help</span></code> for available commands.</p>
+</section>
+<section id="building-documentation">
+<h2>Building documentation<a class="headerlink" href="#building-documentation" title="Link to this heading">#</a></h2>
+<p>To build the documentation locally:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Build the documentation</span>
+poe<span class="w"> </span>docs
+
+<span class="c1"># Build and serve with live reload (recommended for editing)</span>
+poe<span class="w"> </span>docs<span class="w"> </span>--serve
+
+<span class="c1"># Clean previous builds</span>
+poe<span class="w"> </span>docs-clean
+</pre></div>
+</div>
+<p>The built documentation will be available at <code class="docutils literal notranslate"><span class="pre">docs/build/html/index.html</span></code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Building documentation requires additional dependencies that are included in the
+development environment. Make sure you’ve run <code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">sync</span> <span class="pre">--all-groups</span> <span class="pre">--all-extras</span></code> first.</p>
 </div>
 </section>
 </section>
@@ -485,20 +644,20 @@
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="../user_guide/external_resources.html"
+       href="contributing_guide.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">External resources</p>
+        <p class="prev-next-title">Contributing guide</p>
       </div>
     </a>
     <a class="right-next"
-       href="generated/openstef_beam.core.html"
+       href="development_workflow.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">openstef_beam.core</p>
+        <p class="prev-next-title">Development workflow</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -521,8 +680,18 @@
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#models-package">Models Package</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#beam-package">Beam Package</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#prerequisites">Prerequisites</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#python-version">Python version</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installing-uv">Installing uv</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cloning-the-repository">Cloning the repository</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#setting-up-the-development-environment">Setting up the development environment</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#understanding-the-workspace-structure">Understanding the workspace structure</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#verifying-your-installation">Verifying your installation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#next-steps">Next steps</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#development-tools-overview">Development tools overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#building-documentation">Building documentation</a></li>
 </ul>
   </nav></div>
 
@@ -530,7 +699,7 @@
 
   
   <div class="tocsection editthispage">
-    <a href="https://github.com/OpenSTEF/openstef/edit/main/docs/source/api/index.rst">
+    <a href="https://github.com/OpenSTEF/openstef/edit/main/docs/source/contribute/development_setup.rst">
       <i class="fa-solid fa-pencil"></i>
       
       
@@ -546,7 +715,7 @@
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/api/index.rst.txt"
+      <li><a href="../_sources/contribute/development_setup.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div></div>

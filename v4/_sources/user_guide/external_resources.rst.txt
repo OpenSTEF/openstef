@@ -2,12 +2,12 @@
 ..
 .. SPDX-License-Identifier: MPL-2.0
 
-.. _getting_started:
+.. _external_resources:
 
-===============
-Getting Started
-===============
+******************
+External resources
+******************
 
-.. toctree::
-   :numbered:
-   :maxdepth: 3
+======
+Videos
+======
