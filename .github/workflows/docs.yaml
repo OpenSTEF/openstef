@@ -1,0 +1,61 @@
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+#
+# SPDX-License-Identifier: MPL-2.0
+
+name: Deploy V4 Documentation
+
+on:
+  push:
+    branches: [ release/v4.0.0, feature/STEF-2300-contributing-guide ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  deploy-v4-docs:
+    name: Build and Deploy V4 Documentation
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout release/v4.0.0 branch
+        uses: actions/checkout@v4
+        with:
+          show-progress: false
+      
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          activate-environment: true
+          enable-cache: true
+      
+      - name: Install dependencies
+        run: uv sync --frozen --no-install-project --all-groups --all-extras
+      
+      - name: Build Sphinx documentation
+        run: poe docs
+      
+      - name: Checkout gh-pages branch for deployment
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: gh-pages-repo
+          show-progress: false
+      
+      - name: Update v4 documentation
+        run: |
+          # Create or update the v4 directory
+          mkdir -p gh-pages-repo/v4
+          
+          # Remove old v4 content and copy new content
+          rm -rf gh-pages-repo/v4/*
+          cp -r docs/build/html/* gh-pages-repo/v4/
+      
+      - name: Push changes to gh-pages
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: gh-pages
+          directory: gh-pages-repo
