@@ -112,6 +112,7 @@ instance/
 celerybeat-schedule
 celerybeat.pid
 *.sage.py
+tmp/
 
 # PyInstaller
 *.manifest

@@ -2,12 +2,10 @@
 ..
 .. SPDX-License-Identifier: MPL-2.0
 
-.. _user_guide:
+.. _code_of_conduct:
 
-==========
-User Guide
-==========
+Code of Conduct
+===============
 
-.. toctree::
-   :numbered:
-   :maxdepth: 3
+.. include:: ../../../.github/CODE_OF_CONDUCT.md
+    :parser: myst_parser.sphinx_   

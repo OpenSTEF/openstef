@@ -2,12 +2,18 @@
 ..
 .. SPDX-License-Identifier: MPL-2.0
 
-.. _contributing:
-
-============
-Contributing
-============
+.. _user_guide:
 
 .. toctree::
-   :numbered:
-   :maxdepth: 3
+    :hidden:
+
+    installation
+    quick_start
+    intro/index
+    tutorials
+    external_resources
+
+==========
+User Guide
+==========
+
