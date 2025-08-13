@@ -17,7 +17,6 @@ dependencies = [
   "sphinx-pyproject>=0.3.0",
   "ipython>=9.4.0",
   "matplotlib>=3.10.5",
-  "numpydoc>=1.9.0",
   "openstef-models",
   "pydata-sphinx-theme>=0.16.1",
   "sphinx>=8.2.3",
@@ -28,6 +27,8 @@ dependencies = [
   "openstef-beam",
   "openstef",
   "sphinx-autobuild>=2024.10.3",
+  "sphinx-autodoc-typehints>=3.2.0",
+  "myst-parser>=4.0.1",
 ]
 
 [tool.uv.sources]

@@ -295,3 +295,7 @@ switch = [
 args = [
   { name = "serve", type = "boolean", default = false, help = "Serve the documentation with live reload" },
 ]
+
+[tool.poe.tasks.docs-clean]
+help = "Clean the documentation build artifacts"
+cmd = "rm -rf docs/build/html/*"

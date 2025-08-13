@@ -5,10 +5,28 @@
 API Reference
 =============
 
+Models Package
+--------------
+
+.. currentmodule:: openstef_models
+
 .. autosummary::
    :toctree: generated/
    :recursive:
+   :template: custom_module.rst
 
-   openstef_models
-   openstef_beam
+   
+
+
+Beam Package
+------------
+
+.. currentmodule:: openstef_beam
+
+.. autosummary::
+   :toctree: generated/
+   :recursive:
+   :template: custom_module.rst
+
+   core
 

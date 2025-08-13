@@ -27,12 +27,13 @@ extensions = [
     'sphinx.ext.autosummary',
     'sphinx.ext.doctest',
     'sphinx.ext.intersphinx',
+    'sphinx_autodoc_typehints',
     'sphinx.ext.mathjax',
     'sphinx.ext.napoleon',
     'sphinx.ext.viewcode',
+    'myst_parser',
     'sphinx_design',
     'sphinx_copybutton',
-    'numpydoc',
     'matplotlib.sphinxext.plot_directive',
 ]
 
@@ -52,12 +53,42 @@ copybutton_exclude = "style"
 
 # Autosummary settings (SciPy style)
 autosummary_generate = True
-autodoc_typehints = "description"
-autodoc_typehints_description_target = "documented"
+autosummary_generate_overwrite = True
+autosummary_imported_members = False
+
+# Autodoc settings for better docstring rendering
+autodoc_default_options = {
+    'members': True,
+    'member-order': 'bysource',
+    'special-members': '__init__',
+    'undoc-members': False, # Only document explicitly defined members
+    'exclude-members': '__weakref__',
+    'imported-members': False,
+}
+
+# Better type hints handling
+autodoc_typehints = 'description'
+autodoc_typehints_description_target = 'documented'
+autodoc_preserve_defaults = True
+autodoc_typehints_format = 'short'
+autodoc_typehints_signature = True
+
+autodoc_inherit_docstrings = True
+autodoc_member_order = 'bysource'
+
+# Respect __all__ definitions
+automodule_skip_lines = 0
+
+# Configure the typehints extension
+typehints_fully_qualified = False  # Use short names like 'str' instead of 'builtins.str'
+typehints_document_rtype = True    # Document return types
+typehints_use_signature = True     # Show in signatures
+typehints_use_signature_return = True  # Include return type in signature
+always_document_param_types = True # Always show param types even without docstring
 
 # Napoleon settings for NumPy-style docstrings
-napoleon_google_docstring = False
-napoleon_numpy_docstring = True
+napoleon_google_docstring = True
+napoleon_numpy_docstring = False  # Disable NumPy style
 napoleon_include_init_with_doc = False
 napoleon_include_private_with_doc = False
 napoleon_include_special_with_doc = True
@@ -67,6 +98,16 @@ napoleon_use_admonition_for_references = False
 napoleon_use_ivar = False
 napoleon_use_param = True
 napoleon_use_rtype = True
+napoleon_preprocess_types = False
+napoleon_type_aliases = None
+napoleon_attr_annotations = True
+
+# Configure MyST for docstrings
+myst_enable_extensions = [
+    "deflist",
+    "tasklist", 
+    "colon_fence",
+]
 
 # Sphinx version switcher
 config = SphinxConfig("../../pyproject.toml", globalns=globals())
@@ -108,7 +149,7 @@ html_theme_options = {
             "type": "fontawesome",
         },
     ],
-    "show_prev_next": False,
+    "show_prev_next": True,
     "search_bar_text": "Search the docs ...",
     "navigation_with_keys": False,
     "collapse_navigation": False,
