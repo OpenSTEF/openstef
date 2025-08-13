@@ -52,6 +52,25 @@ jobs:
           # Remove old v4 content and copy new content
           rm -rf gh-pages-repo/v4/*
           cp -r docs/build/html/* gh-pages-repo/v4/
+
+      - name: Configure git, stage, and commit changes
+        run: |
+            cd gh-pages-repo
+            
+            # Configure git
+            git config --local user.email "action@github.com"
+            git config --local user.name "GitHub Action"
+            
+            # Stage changes
+            git add v4/
+            
+            # Check if there are staged changes and commit if so
+            if ! git diff --staged --quiet; then
+                git commit -m "Deploy v4.0.0 documentation from $(echo $GITHUB_SHA | cut -c1-7)"
+                echo "✅ Changes committed successfully"
+            else
+                echo "ℹ️ No changes to commit"
+            fi
       
       - name: Push changes to gh-pages
         uses: ad-m/github-push-action@master
