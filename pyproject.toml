@@ -23,6 +23,7 @@ classifiers = [
   "Intended Audience :: Developers",
   "Programming Language :: Python :: 3 :: Only",
   "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
 ]
 
 dependencies = [
@@ -47,6 +48,7 @@ urls.Repository = "https://github.com/OpenSTEF/openstef"
 [dependency-groups]
 dev = [
   "openstef-beam",
+  "openstef-docs",
   "openstef-models",
   "poethepoet>=0.36",
   "pyproject-fmt>=2.6",
@@ -117,7 +119,7 @@ lint.preview = true
 [tool.pyproject-fmt]
 column_width = 120
 indent = 2
-max_supported_python = "3.12"
+max_supported_python = "3.13"
 
 [tool.pytest.ini_options]
 testpaths = [ "packages/*/tests", "tests" ]
@@ -168,11 +170,13 @@ typeCheckingMode = "strict"
 [tool.uv.sources]
 openstef-beam = { workspace = true }
 openstef-models = { workspace = true }
+openstef-docs = { workspace = true }
 
 [tool.uv.workspace]
 members = [
   "packages/openstef-models",
   "packages/openstef-beam",
+  "docs",
 ]
 
 [tool.poe.tasks.lint]
@@ -280,3 +284,18 @@ sequence = [
   { cmd = "uv build --all-packages" },
   { cmd = "uv build .", help = "Build root meta package separately (not part of --all-packages)" },
 ]
+
+[tool.poe.tasks.docs]
+help = "Build the documentation"
+control.expr = "serve"
+switch = [
+  { case = "True", cmd = "sphinx-autobuild docs/source docs/build/html" },
+  { cmd = "sphinx-build -b html docs/source docs/build/html" },
+]
+args = [
+  { name = "serve", type = "boolean", default = false, help = "Serve the documentation with live reload" },
+]
+
+[tool.poe.tasks.docs-clean]
+help = "Clean the documentation build artifacts"
+cmd = "rm -rf docs/build/html/*"

@@ -72,6 +72,7 @@ def read_yaml_config[T: BaseConfig, U](path: Path, class_type: type[T] | TypeAda
     """Read a configuration object from a YAML file.
 
     This function supports two kinds of targets:
+
     * A subclass of `BaseConfig`, in which case Pydantic's `model_validate` is used.
     * A `TypeAdapter` instance for more advanced / non-`BaseModel` schema validation.
 
@@ -90,3 +91,10 @@ def read_yaml_config[T: BaseConfig, U](path: Path, class_type: type[T] | TypeAda
         return class_type.validate_python(data)
 
     return class_type.model_validate(data)
+
+
+__all__ = [
+    "BaseConfig",
+    "read_yaml_config",
+    "write_yaml_config",
+]
