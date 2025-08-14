@@ -21,7 +21,7 @@ maintainers to see what you've done and why, we recommend the following:
 * Create a new *feature branch* for each feature or bug fix — "one task, one branch"
 * Name your branch descriptively — e.g. ``feature/123-add-neural-network-model`` or ``bugfix/456-fix-data-validation``
 * Use ``poe all`` to check your code before committing
-* If you get stuck, reach out on the `LF Energy Slack workspace <https://slack.lfenergy.org/>`__
+* If you get stuck, reach out on the `LF Energy Slack workspace <https://slack.lfenergy.org/>`__ (#openstef channel)
 
 Overview
 --------
@@ -319,9 +319,9 @@ Working with the monorepo
 
 OpenSTEF 4.0 uses a monorepo structure with multiple packages. When making changes:
 
-* **Changes in ``openstef-models``** affect the core forecasting functionality
-* **Changes in ``openstef-beam``** affect evaluation and analysis tools
-* **Changes in ``docs``** affect documentation
+* **Changes in** ``openstef-models`` **affect the core forecasting functionality**
+* **Changes in** ``openstef-beam`` **affect evaluation and analysis tools**
+* **Changes in** ``docs`` **affect documentation**
 
 If your changes span multiple packages, make sure to:
 

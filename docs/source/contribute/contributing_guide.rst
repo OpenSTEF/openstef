@@ -36,7 +36,7 @@ Ways to contribute
       open a new issue to inform us of the problem you observed and discuss the best approach
       to fix it. If your contributions would not be captured on GitHub (social media,
       communication, educational content), you can also reach out to us on our 
-      `LF Energy Slack workspace <https://slack.lfenergy.org/>`__ or attend our four-weekly 
+      `LF Energy Slack workspace <https://slack.lfenergy.org/>`__ (#openstef channel) or attend our four-weekly 
       co-coding meetings.
 
     * **You are not a regular OpenSTEF user but a domain expert: you know about
@@ -90,7 +90,7 @@ our code consistent and mitigating the impact of changes.
 
 Code is contributed through pull requests, so we recommend that you start at
 :ref:`how-to-pull-request`. If you get stuck, please reach out on the
-`LF Energy Slack workspace <https://slack.lfenergy.org/>`__ or join our four-weekly co-coding meetings.
+`LF Energy Slack workspace <https://slack.lfenergy.org/>`__ (#openstef channel) or join our four-weekly co-coding meetings.
 
 .. _contribute_documentation:
 
@@ -135,7 +135,7 @@ Documentation is contributed through pull requests, so we recommend that you sta
 at :ref:`how-to-pull-request`. If that feels intimidating, we encourage you to
 `open an issue`_ describing what improvements you would make. If you get stuck,
 please reach out on the `LF Energy Slack workspace <https://slack.lfenergy.org/>`__ 
-or see our :doc:`/project/support` page for more ways to connect.
+(#openstef channel) or see our :doc:`/project/support` page for more ways to connect.
 
 .. _other_ways_to_contribute:
 
@@ -145,7 +145,7 @@ Community
 OpenSTEF's community is built by its members! You can help by:
 
 * Participating in our four-weekly community meetings (see :doc:`../project/support`)
-* Joining discussions on the `LF Energy Slack workspace <https://slack.lfenergy.org/>`_
+* Joining discussions on the `LF Energy Slack workspace <https://slack.lfenergy.org/>`_ (#openstef channel)
 * Contributing to documentation and examples
 
 It helps us if you spread the word: reference the project from your blog
@@ -229,14 +229,9 @@ Get connected
 When in doubt, we recommend going together! Get connected with our community of
 active contributors, many of whom felt just like you when they started out and
 are happy to welcome you and support you as you get to know how we work, and
-where things are. You can reach out through:
+where things are.
 
-* **Slack**: Join our `LF Energy Slack workspace <https://slack.lfenergy.org/>`_ (#openstef channel)
-* **GitHub**: Comment on issues or start discussions
-* **Community meetings**: Attend our four-weekly co-coding sessions
-* **Email**: Contact us at ``short.term.energy.forecasts@alliander.com``
-
-For more details, see our :doc:`/project/support` page.
+.. include:: _getting_help.rst
 
 .. _managing_issues_prs:
 
@@ -274,7 +269,7 @@ then submit a "pull request" (PR). To work on a pull request:
 #. **Finally** follow up with maintainers on the PR if waiting more than a few days for
    feedback. Update the pull request as needed.
 
-If you have questions of any sort, reach out on the `LF Energy Slack workspace <https://slack.lfenergy.org/>`__ and consider
+If you have questions of any sort, reach out on the `LF Energy Slack workspace <https://slack.lfenergy.org/>`__ (#openstef channel) and consider
 joining our :ref:`four-weekly co-coding meetings <quarterly_meetings>`.
 
 .. _`open an issue`: https://github.com/OpenSTEF/openstef/issues/new/choose

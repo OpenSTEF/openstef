@@ -42,7 +42,7 @@ context that may be necessary for resolving the issue:
 
       Thank you for your help in keeping bug reports targeted and descriptive.
 
-      .. button-link:: https://github.com/OpenSTEF/openstef/issues/new/choose
+      .. button-link:: https://github.com/OpenSTEF/openstef/issues/new?template=bug_report.md
             :expand:
             :color: primary
 
@@ -56,7 +56,7 @@ context that may be necessary for resolving the issue:
 
       Thank you for your help in keeping feature requests well defined and tightly scoped.
 
-      .. button-link:: https://github.com/OpenSTEF/openstef/issues/new/choose
+      .. button-link:: https://github.com/OpenSTEF/openstef/issues/new?template=feature_request.md
          :expand:
          :color: primary
 
