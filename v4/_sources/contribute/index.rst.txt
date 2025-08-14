@@ -171,10 +171,10 @@ and managing a development environment and workflow:
 Policies and guidelines
 =======================
 
-These policies and guidelines help us maintain consistency in the various types
-of maintenance work. If you are writing code or documentation, following these policies
-helps maintainers more easily review your work. If you are helping triage, community
-manage, or release manage, these guidelines describe how our current process works.
+These policies and guidelines help us maintain consistency and quality in our
+development work. If you are writing code or documentation, following these policies
+helps maintainers more easily review your work and ensures OpenSTEF remains
+maintainable and user-friendly.
 
 .. grid:: 1 1 2 2
    :class-row: sf-fs-1
