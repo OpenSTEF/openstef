@@ -8,7 +8,7 @@ Support
 ----------------------------
 There are a few ways to connect with the OpenSTEF project:
 
-* Join the **#openstef Slack channel**, which is part of the `LF Energy Slack workspace <https://slack.lfenergy.org/>`_.
+* Join the **#openstef channel**, which is part of the `LF Energy Slack workspace <https://slack.lfenergy.org/>`_.
   * Depending on your work e-mail address, you may need to be invited in order to join the Slack workspace. If this is the case, please e-mail ``short.term.energy.forecasts@alliander.com``. We are happy to invite you.
 * Send a **direct message** to one of the most recent `contributors <https://github.com/OpenSTEF/openstef/graphs/contributors>`_.
 * Submit an **issue** at `GitHub <https://github.com/OpenSTEF/openstef/issues>`_.
