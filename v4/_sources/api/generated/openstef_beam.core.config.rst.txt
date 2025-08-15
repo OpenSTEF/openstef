@@ -1,0 +1,19 @@
+openstef\_beam.core.config
+==========================
+
+.. automodule:: openstef_beam.core.config
+
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      read_yaml_config
+      write_yaml_config
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      BaseConfig
+   
