@@ -1,5 +1,5 @@
 version = 1
-revision = 2
+revision = 3
 requires-python = ">=3.12, <4.0"
 
 [manifest]
@@ -881,7 +881,7 @@ provides-extras = ["all", "beam", "models"]
 [package.metadata.requires-dev]
 dev = [
     { name = "openstef-beam", editable = "packages/openstef-beam" },
-    { name = "openstef-docs", virtual = "docs" },
+    { name = "openstef-docs", editable = "docs" },
     { name = "openstef-models", editable = "packages/openstef-models" },
     { name = "poethepoet", specifier = ">=0.36" },
     { name = "pyproject-fmt", specifier = ">=2.6" },
@@ -914,7 +914,7 @@ dev = []
 [[package]]
 name = "openstef-docs"
 version = "0.0.0"
-source = { virtual = "docs" }
+source = { editable = "docs" }
 dependencies = [
     { name = "ipython" },
     { name = "matplotlib" },

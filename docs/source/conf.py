@@ -242,8 +242,8 @@ html_theme_options = {
     "pygments_dark_style": "monokai",
     "logo": {
         "alt_text": "OpenSTEF homepage",
-        "image_light": "logo_openstef_small.png",
-        "image_dark": "logo_openstef_small.png",
+        "image_light": "logos/openstef-horizontal-color.svg",
+        "image_dark": "logos/openstef-horizontal-white.svg",
     },
     "surface_warnings": True,
 }
@@ -254,7 +254,11 @@ html_short_title = "openstef"
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ["images", "css", "js", "_static"]
+html_static_path = ["images", "js", "_static"]
+
+html_css_files = [
+    "css/custom.css",  # Custom CSS for styling
+]
 
 # Custom sidebar templates, maps document names to template names.
 # Workaround for removing the left sidebar on pages without TOC
