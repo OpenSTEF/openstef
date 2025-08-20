@@ -1,0 +1,13 @@
+openstef\_models.core.pydantic
+==============================
+
+.. automodule:: openstef_models.core.pydantic
+
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      BaseConfig
+      BaseModel
+   

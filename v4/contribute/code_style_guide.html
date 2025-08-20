@@ -857,35 +857,398 @@ poe<span class="w"> </span>all<span class="w"> </span>--check
 </pre></div>
 </div>
 </section>
-<section id="logging-practices">
-<h3>Logging practices<a class="headerlink" href="#logging-practices" title="Link to this heading">#</a></h3>
-<p>Use Python’s logging module for debug and info messages:</p>
+</section>
+<section id="logging-for-contributors">
+<span id="id4"></span><h2>Logging for Contributors<a class="headerlink" href="#logging-for-contributors" title="Link to this heading">#</a></h2>
+<p>OpenSTEF uses Python’s standard logging library with a <code class="docutils literal notranslate"><span class="pre">NullHandler</span></code> by default,
+allowing users to configure logging as needed. Contributors should follow these
+practices for consistent and useful logging throughout the codebase.</p>
+<section id="getting-a-logger">
+<h3>Getting a logger<a class="headerlink" href="#getting-a-logger" title="Link to this heading">#</a></h3>
+<p>Always use <code class="docutils literal notranslate"><span class="pre">logging.getLogger(__name__)</span></code> to get a logger instance:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 
-<span class="n">_log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">train_forecaster</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">TimeseriesDataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ForecastModel</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Train a forecasting model.&quot;&quot;&quot;</span>
 
-    <span class="n">_log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Training model with </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="si">}</span><span class="s2"> samples&quot;</span><span class="p">)</span>
-    <span class="n">_log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Feature columns: </span><span class="si">{</span><span class="n">data</span><span class="o">.</span><span class="n">feature_columns</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Training model with </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="si">}</span><span class="s2"> samples&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Feature columns: </span><span class="si">{</span><span class="n">data</span><span class="o">.</span><span class="n">feature_columns</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="k">try</span><span class="p">:</span>
         <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit_model</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-        <span class="n">_log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Model training completed successfully&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Model training completed successfully&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">model</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="n">_log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Model training failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Model training failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">raise</span> <span class="n">ModelTrainingError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Training failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
 </pre></div>
 </div>
-<p>Logging guidelines:</p>
+<p><strong>Why use ``__name__``?</strong></p>
+<p>The <code class="docutils literal notranslate"><span class="pre">__name__</span></code> variable contains the full module path (e.g., <code class="docutils literal notranslate"><span class="pre">openstef_models.forecasting.xgboost</span></code>),
+which provides several benefits:</p>
 <ul class="simple">
-<li><p>Use <code class="docutils literal notranslate"><span class="pre">_log.debug()</span></code> for detailed diagnostic information</p></li>
-<li><p>Use <code class="docutils literal notranslate"><span class="pre">_log.info()</span></code> for important operational information</p></li>
-<li><p>Use <code class="docutils literal notranslate"><span class="pre">_log.warning()</span></code> for recoverable issues</p></li>
-<li><p>Use <code class="docutils literal notranslate"><span class="pre">_log.error()</span></code> for serious problems</p></li>
-<li><p>Avoid pre-computed f-strings in log messages for performance</p></li>
+<li><p><strong>Package-level control</strong>: Users can disable logging for entire packages like <code class="docutils literal notranslate"><span class="pre">openstef_models</span></code></p></li>
+<li><p><strong>Module-level granularity</strong>: Users can control logging for specific modules like <code class="docutils literal notranslate"><span class="pre">openstef_models.feature_engineering</span></code></p></li>
+<li><p><strong>Hierarchical structure</strong>: Follows Python logging’s hierarchical naming convention</p></li>
+<li><p><strong>Easy filtering</strong>: Log output clearly shows which module generated each message</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>OpenSTEF also provides a more advanced logging system through the main <code class="docutils literal notranslate"><span class="pre">openstef</span></code> package
+with support for structured logging. However, individual packages (<code class="docutils literal notranslate"><span class="pre">openstef-models</span></code>,
+<code class="docutils literal notranslate"><span class="pre">openstef-beam</span></code>, etc.) use standard Python logging with <code class="docutils literal notranslate"><span class="pre">NullHandler</span></code> by default to
+give users complete control over logging configuration. See the <a class="reference internal" href="../user_guide/logging.html"><span class="doc">Logging</span></a>
+guide for details on both approaches.</p>
+</div>
+</section>
+<section id="logging-levels-and-usage">
+<h3>Logging levels and usage<a class="headerlink" href="#logging-levels-and-usage" title="Link to this heading">#</a></h3>
+<p>Use appropriate logging levels for different types of information:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">process_data</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Process time series data.&quot;&quot;&quot;</span>
+
+    <span class="c1"># DEBUG: Detailed diagnostic information</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Processing data with shape </span><span class="si">{</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Data columns: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Date range: </span><span class="si">{</span><span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># INFO: Important operational information</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Starting data processing for </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="si">}</span><span class="s2"> samples&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Check for potential issues</span>
+    <span class="n">missing_count</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">missing_count</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="c1"># WARNING: Something unexpected but recoverable</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found </span><span class="si">{</span><span class="n">missing_count</span><span class="si">}</span><span class="s2"> missing values, will interpolate&quot;</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">interpolate</span><span class="p">()</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">processed_data</span> <span class="o">=</span> <span class="n">_apply_transformations</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Data processing completed successfully&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">processed_data</span>
+    <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="c1"># ERROR: Serious problem that prevents completion</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Data processing failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">DataProcessingError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Processing failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+</pre></div>
+</div>
+<p><strong>Logging level guidelines:</strong></p>
+<ul class="simple">
+<li><p><strong>DEBUG</strong>: Detailed diagnostic information (data shapes, column names, internal states)</p></li>
+<li><p><strong>INFO</strong>: Important operational milestones (processing started/completed, model trained)</p></li>
+<li><p><strong>WARNING</strong>: Unexpected situations that don’t prevent execution (missing data, deprecated usage)</p></li>
+<li><p><strong>ERROR</strong>: Serious problems that prevent a function from completing</p></li>
+<li><p><strong>CRITICAL</strong>: Very serious errors that may crash the application (rarely used)</p></li>
+</ul>
+</section>
+<section id="adding-context-with-extras">
+<h3>Adding context with extras<a class="headerlink" href="#adding-context-with-extras" title="Link to this heading">#</a></h3>
+<p>Enhance log messages with structured context using the <code class="docutils literal notranslate"><span class="pre">extra</span></code> parameter:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">train_model</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">TimeseriesDataset</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">ModelConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TrainedModel</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Train a forecasting model with detailed logging context.&quot;&quot;&quot;</span>
+
+    <span class="c1"># Add extra context to log messages</span>
+    <span class="n">training_context</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;model_type&quot;</span><span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">model_type</span><span class="p">,</span>
+        <span class="s2">&quot;training_samples&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">),</span>
+        <span class="s2">&quot;feature_count&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">feature_columns</span><span class="p">),</span>
+        <span class="s2">&quot;horizon&quot;</span><span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">horizon</span><span class="p">,</span>
+        <span class="s2">&quot;validation_split&quot;</span><span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">validation_split</span>
+    <span class="p">}</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;Starting model training with </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">model_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">extra</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;training_info&quot;</span><span class="p">:</span> <span class="n">training_context</span><span class="p">}</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Log performance metrics with context</span>
+    <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">_fit_model</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+    <span class="n">training_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span>
+
+    <span class="n">performance_context</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;training_time_seconds&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">training_time</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+        <span class="s2">&quot;model_size_mb&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">_get_model_size</span><span class="p">(</span><span class="n">model</span><span class="p">)</span> <span class="o">/</span> <span class="mi">1024</span> <span class="o">/</span> <span class="mi">1024</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+        <span class="s2">&quot;convergence_iterations&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s1">&#39;n_estimators_&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="p">}</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+        <span class="s2">&quot;Model training completed&quot;</span><span class="p">,</span>
+        <span class="n">extra</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;performance_info&quot;</span><span class="p">:</span> <span class="n">performance_context</span><span class="p">}</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">model</span>
+</pre></div>
+</div>
+<p><strong>Benefits of using extras:</strong></p>
+<ul class="simple">
+<li><p><strong>Structured logging</strong>: Context can be extracted by log processors</p></li>
+<li><p><strong>Better filtering</strong>: Users can filter logs based on model type, data size, etc.</p></li>
+<li><p><strong>Monitoring integration</strong>: Production systems can alert on specific conditions</p></li>
+<li><p><strong>Debugging</strong>: Rich context helps identify issues without code changes</p></li>
+</ul>
+</section>
+<section id="using-loggeradapter-for-consistent-context">
+<h3>Using LoggerAdapter for consistent context<a class="headerlink" href="#using-loggeradapter-for-consistent-context" title="Link to this heading">#</a></h3>
+<p>When you need to use the same context across multiple log messages or throughout
+a function/class, use <code class="docutils literal notranslate"><span class="pre">logging.LoggerAdapter</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">FeatureEngineeringPipeline</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Feature engineering pipeline with consistent logging context.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">FeatureConfig</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span>
+
+        <span class="c1"># Create adapter with consistent context</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">LoggerAdapter</span><span class="p">(</span>
+            <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+            <span class="n">extra</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;pipeline_id&quot;</span><span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">pipeline_id</span><span class="p">,</span>
+                <span class="s2">&quot;feature_types&quot;</span><span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">feature_types</span><span class="p">,</span>
+                <span class="s2">&quot;transform_count&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">transforms</span><span class="p">)</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">fit_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">TimeseriesDataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TimeseriesDataset</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply feature engineering transformations.&quot;&quot;&quot;</span>
+
+        <span class="c1"># All log messages will include the adapter&#39;s extra context</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Starting feature engineering on </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="si">}</span><span class="s2"> samples&quot;</span><span class="p">)</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="n">data</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">transform</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">transforms</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Applying transform </span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">transform</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">transform</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Transform </span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2"> completed, output shape: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="c1"># Extra context automatically included</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Transform </span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2"> failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">raise</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Feature engineering completed, output shape: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">process_multiple_datasets</span><span class="p">(</span><span class="n">datasets</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">TimeseriesDataset</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">TimeseriesDataset</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Process multiple datasets with batch context.&quot;&quot;&quot;</span>
+
+    <span class="c1"># Create adapter for batch processing context</span>
+    <span class="n">batch_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">LoggerAdapter</span><span class="p">(</span>
+        <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+        <span class="n">extra</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;batch_size&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">datasets</span><span class="p">),</span>
+            <span class="s2">&quot;batch_id&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;batch_</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;processing_mode&quot;</span><span class="p">:</span> <span class="s2">&quot;parallel&quot;</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+
+    <span class="n">batch_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Starting batch processing&quot;</span><span class="p">)</span>
+
+    <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">dataset</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">datasets</span><span class="p">):</span>
+        <span class="c1"># Create per-dataset adapter that inherits batch context</span>
+        <span class="n">dataset_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">LoggerAdapter</span><span class="p">(</span>
+            <span class="n">logger</span><span class="o">=</span><span class="n">batch_logger</span><span class="p">,</span>  <span class="c1"># Chain adapters for nested context</span>
+            <span class="n">extra</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;dataset_index&quot;</span><span class="p">:</span> <span class="n">i</span><span class="p">,</span>
+                <span class="s2">&quot;dataset_size&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+
+        <span class="n">dataset_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Processing dataset&quot;</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">_process_single_dataset</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+        <span class="n">dataset_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Dataset processing completed&quot;</span><span class="p">)</span>
+        <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+
+    <span class="n">batch_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Batch processing completed&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">results</span>
+</pre></div>
+</div>
+<p><strong>When to use LoggerAdapter:</strong></p>
+<ul class="simple">
+<li><p><strong>Class-level context</strong>: When a class needs consistent context across methods</p></li>
+<li><p><strong>Function-level context</strong>: When a function performs multiple operations with shared context</p></li>
+<li><p><strong>Nested operations</strong>: When you need to add context at multiple levels (batch → dataset → operation)</p></li>
+<li><p><strong>Long-running processes</strong>: When tracking context throughout extended operations</p></li>
+</ul>
+</section>
+<section id="performance-considerations">
+<h3>Performance considerations<a class="headerlink" href="#performance-considerations" title="Link to this heading">#</a></h3>
+<p>Follow these practices to ensure logging doesn’t impact performance:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">performance_sensitive_function</span><span class="p">(</span><span class="n">large_data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Function that processes large amounts of data efficiently.&quot;&quot;&quot;</span>
+
+    <span class="c1"># Good: Log level is checked before expensive operations</span>
+    <span class="k">if</span> <span class="n">logger</span><span class="o">.</span><span class="n">isEnabledFor</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Processing data with columns: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">large_data</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Memory usage: </span><span class="si">{</span><span class="n">large_data</span><span class="o">.</span><span class="n">memory_usage</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">1024</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">1024</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> MB&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Good: Use lazy evaluation for expensive string formatting</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Processing started for </span><span class="si">%d</span><span class="s2"> samples&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">large_data</span><span class="p">))</span>
+
+    <span class="c1"># Avoid: Expensive operations in log arguments that are always evaluated</span>
+    <span class="c1"># logger.debug(f&quot;Data summary: {large_data.describe().to_string()}&quot;)  # Bad!</span>
+
+    <span class="c1"># Good: Conditional expensive logging</span>
+    <span class="k">if</span> <span class="n">logger</span><span class="o">.</span><span class="n">isEnabledFor</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Data summary: </span><span class="si">{</span><span class="n">large_data</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span><span class="o">.</span><span class="n">to_string</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">_process_in_chunks</span><span class="p">(</span><span class="n">large_data</span><span class="p">):</span>
+        <span class="c1"># Good: Minimal context for frequent operations</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Processed chunk of size </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">chunk</span><span class="p">))</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Processing completed&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">processed_data</span>
+</pre></div>
+</div>
+<p><strong>Performance guidelines:</strong></p>
+<ul class="simple">
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">logger.isEnabledFor(level)</span></code> for expensive debug operations</p></li>
+<li><p>Prefer <code class="docutils literal notranslate"><span class="pre">%</span></code> formatting or <code class="docutils literal notranslate"><span class="pre">.format()</span></code> over f-strings in log calls for lazy evaluation</p></li>
+<li><p>Avoid expensive computations in log message arguments</p></li>
+<li><p>Use appropriate log levels to control output volume</p></li>
+<li><p>Consider using logging filters for fine-grained performance control</p></li>
+</ul>
+</section>
+<section id="error-handling-with-logging">
+<h3>Error handling with logging<a class="headerlink" href="#error-handling-with-logging" title="Link to this heading">#</a></h3>
+<p>Combine proper exception handling with informative logging:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">robust_data_loading</span><span class="p">(</span><span class="n">file_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TimeseriesDataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load data with comprehensive error handling and logging.&quot;&quot;&quot;</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loading data from </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># Validate file exists and is readable</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">file_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Data file not found: </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File size: </span><span class="si">{</span><span class="n">file_path</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">1024</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">1024</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> MB&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Attempt to load data</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Successfully loaded </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="si">}</span><span class="s2"> rows, </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span><span class="si">}</span><span class="s2"> columns&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Validate data structure</span>
+        <span class="n">_validate_data_structure</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">TimeseriesDataset</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+    <span class="k">except</span> <span class="ne">FileNotFoundError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File not found: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">DataLoadingError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot load data: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+
+    <span class="k">except</span> <span class="n">pd</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">EmptyDataError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File is empty: </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">DataLoadingError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Empty data file: </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+
+    <span class="k">except</span> <span class="n">pd</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">ParserError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to parse CSV file: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="c1"># Include file context in error</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File path: </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;file_info&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">file_path</span><span class="p">),</span>
+            <span class="s2">&quot;size_bytes&quot;</span><span class="p">:</span> <span class="n">file_path</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span> <span class="k">if</span> <span class="n">file_path</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="k">else</span> <span class="mi">0</span>
+        <span class="p">}})</span>
+        <span class="k">raise</span> <span class="n">DataLoadingError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid CSV format: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="c1"># Catch-all with full context</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unexpected error loading data: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;error_context&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;file_path&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">file_path</span><span class="p">),</span>
+                <span class="s2">&quot;error_type&quot;</span><span class="p">:</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+                <span class="s2">&quot;file_exists&quot;</span><span class="p">:</span> <span class="n">file_path</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+            <span class="p">}</span>
+        <span class="p">})</span>
+        <span class="k">raise</span> <span class="n">DataLoadingError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to load data from </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+</pre></div>
+</div>
+<p><strong>Error logging guidelines:</strong></p>
+<ul class="simple">
+<li><p>Always log errors before raising exceptions</p></li>
+<li><p>Include relevant context in error messages</p></li>
+<li><p>Use exception chaining (<code class="docutils literal notranslate"><span class="pre">raise</span> <span class="pre">...</span> <span class="pre">from</span> <span class="pre">e</span></code>) to preserve stack traces</p></li>
+<li><p>Provide actionable error messages when possible</p></li>
+<li><p>Use structured logging for error context that might be analyzed programmatically</p></li>
+</ul>
+</section>
+<section id="testing-logging-behavior">
+<h3>Testing logging behavior<a class="headerlink" href="#testing-logging-behavior" title="Link to this heading">#</a></h3>
+<p>Write tests to verify logging behavior in your code:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">unittest.mock</span><span class="w"> </span><span class="kn">import</span> <span class="n">patch</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_successful_training_logs_info_messages</span><span class="p">(</span><span class="n">caplog</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Test that successful training produces expected log messages.&quot;&quot;&quot;</span>
+
+    <span class="k">with</span> <span class="n">caplog</span><span class="o">.</span><span class="n">at_level</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">):</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">train_forecaster</span><span class="p">(</span><span class="n">sample_data</span><span class="p">,</span> <span class="n">sample_config</span><span class="p">)</span>
+
+    <span class="c1"># Verify expected log messages</span>
+    <span class="k">assert</span> <span class="s2">&quot;Starting model training&quot;</span> <span class="ow">in</span> <span class="n">caplog</span><span class="o">.</span><span class="n">text</span>
+    <span class="k">assert</span> <span class="s2">&quot;Model training completed successfully&quot;</span> <span class="ow">in</span> <span class="n">caplog</span><span class="o">.</span><span class="n">text</span>
+
+    <span class="c1"># Verify log levels</span>
+    <span class="n">info_messages</span> <span class="o">=</span> <span class="p">[</span><span class="n">record</span> <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">caplog</span><span class="o">.</span><span class="n">records</span> <span class="k">if</span> <span class="n">record</span><span class="o">.</span><span class="n">levelno</span> <span class="o">==</span> <span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">info_messages</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_training_failure_logs_error_with_context</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Test that training failures log appropriate error messages.&quot;&quot;&quot;</span>
+
+    <span class="n">invalid_config</span> <span class="o">=</span> <span class="n">ModelConfig</span><span class="p">(</span><span class="n">learning_rate</span><span class="o">=-</span><span class="mf">1.0</span><span class="p">)</span>  <span class="c1"># Invalid config</span>
+
+    <span class="k">with</span> <span class="n">pytest</span><span class="o">.</span><span class="n">raises</span><span class="p">(</span><span class="n">ModelTrainingError</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">patch</span><span class="p">(</span><span class="s1">&#39;openstef_models.logger&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">mock_logger</span><span class="p">:</span>
+            <span class="n">train_forecaster</span><span class="p">(</span><span class="n">sample_data</span><span class="p">,</span> <span class="n">invalid_config</span><span class="p">)</span>
+
+    <span class="c1"># Verify error was logged</span>
+    <span class="n">mock_logger</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">assert_called</span><span class="p">()</span>
+    <span class="n">error_call</span> <span class="o">=</span> <span class="n">mock_logger</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">call_args</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="s2">&quot;training failed&quot;</span> <span class="ow">in</span> <span class="n">error_call</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_logger_adapter_includes_context</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Test that LoggerAdapter includes expected context in log messages.&quot;&quot;&quot;</span>
+
+    <span class="k">with</span> <span class="n">patch</span><span class="p">(</span><span class="s1">&#39;openstef_models.logger&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">mock_logger</span><span class="p">:</span>
+        <span class="n">pipeline</span> <span class="o">=</span> <span class="n">FeatureEngineeringPipeline</span><span class="p">(</span><span class="n">sample_config</span><span class="p">)</span>
+        <span class="n">pipeline</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">sample_data</span><span class="p">)</span>
+
+    <span class="c1"># Verify logger adapter was used with correct context</span>
+    <span class="n">adapter_calls</span> <span class="o">=</span> <span class="p">[</span><span class="n">call</span> <span class="k">for</span> <span class="n">call</span> <span class="ow">in</span> <span class="n">mock_logger</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">call_args_list</span>
+                    <span class="k">if</span> <span class="s1">&#39;pipeline_id&#39;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">call</span><span class="p">)]</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">adapter_calls</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+</pre></div>
+</div>
+<p><strong>Testing guidelines:</strong></p>
+<ul class="simple">
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">caplog</span></code> fixture to capture log messages in tests</p></li>
+<li><p>Test both successful operations and error conditions</p></li>
+<li><p>Verify log levels are appropriate for different scenarios</p></li>
+<li><p>Test that structured context is included in log messages</p></li>
+<li><p>Mock loggers when testing complex logging logic</p></li>
 </ul>
 </section>
 </section>
@@ -975,7 +1338,7 @@ poe<span class="w"> </span>doctests<span class="w">           </span><span class
 </section>
 </section>
 <section id="performance-guidelines">
-<span id="id4"></span><h2>Performance Guidelines<a class="headerlink" href="#performance-guidelines" title="Link to this heading">#</a></h2>
+<span id="id5"></span><h2>Performance Guidelines<a class="headerlink" href="#performance-guidelines" title="Link to this heading">#</a></h2>
 <section id="pandas-and-numpy-optimization">
 <h3>Pandas and NumPy optimization<a class="headerlink" href="#pandas-and-numpy-optimization" title="Link to this heading">#</a></h3>
 <p>Follow efficient pandas patterns:</p>
@@ -1024,7 +1387,7 @@ poe<span class="w"> </span>doctests<span class="w">           </span><span class
 </section>
 </section>
 <section id="backwards-compatibility">
-<span id="id5"></span><h2>Backwards Compatibility<a class="headerlink" href="#backwards-compatibility" title="Link to this heading">#</a></h2>
+<span id="id6"></span><h2>Backwards Compatibility<a class="headerlink" href="#backwards-compatibility" title="Link to this heading">#</a></h2>
 <section id="api-design">
 <h3>API design<a class="headerlink" href="#api-design" title="Link to this heading">#</a></h3>
 <p>Design stable public APIs:</p>
@@ -1176,7 +1539,16 @@ poe<span class="w"> </span>doctests<span class="w">           </span><span class
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#error-handling-and-logging">Error Handling and Logging</a><ul class="visible nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#exception-handling">Exception handling</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#custom-exceptions">Custom exceptions</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#logging-practices">Logging practices</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#logging-for-contributors">Logging for Contributors</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#getting-a-logger">Getting a logger</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#logging-levels-and-usage">Logging levels and usage</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#adding-context-with-extras">Adding context with extras</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#using-loggeradapter-for-consistent-context">Using LoggerAdapter for consistent context</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#performance-considerations">Performance considerations</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#error-handling-with-logging">Error handling with logging</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#testing-logging-behavior">Testing logging behavior</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#testing-and-code-quality">Testing and Code Quality</a><ul class="visible nav section-nav flex-column">

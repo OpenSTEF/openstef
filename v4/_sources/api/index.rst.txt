@@ -15,6 +15,13 @@ Models Package
    :recursive:
    :template: custom_module.rst
 
+   core
+   feature_engineering
+   models
+   pipelines
+   postprocessing
+   explainability
+
    
 
 
