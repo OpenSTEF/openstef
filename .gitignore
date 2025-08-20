@@ -76,14 +76,6 @@ docs/source/api/generated/
 
 # Editors: VS Code (allow shared configs)
 .vscode/*
-!.vscode/extensions.json
-!.vscode/extensions.json.license
-!.vscode/settings.json
-!.vscode/settings.json.license
-!.vscode/tasks.json
-!.vscode/tasks.json.license
-!.vscode/launch.json
-!.vscode/launch.json.license
 
 # Jupyter / IPython
 .ipynb_checkpoints

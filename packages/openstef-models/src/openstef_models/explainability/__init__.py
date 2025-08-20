@@ -4,7 +4,5 @@
 
 """Explainability utilities for OpenSTEF.
 
-Tools for feature importance, attribution and model interpretation. Keep
-integration adapters small; heavy dependencies (e.g. SHAP) should be
-optional extras and imported lazily.
+Tools for feature importance, attribution and model interpretation.
 """
