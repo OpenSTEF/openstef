@@ -27,12 +27,14 @@ classifiers = [
 ]
 
 dependencies = [
+  "openstef-core",
   "openstef-models",
 ]
 
 optional-dependencies.all = [
   "openstef-beam",
   "openstef-compatibility",
+  "openstef-core",
   "openstef-models",
 ]
 optional-dependencies.beam = [
@@ -52,6 +54,7 @@ urls.Repository = "https://github.com/OpenSTEF/openstef"
 [dependency-groups]
 dev = [
   "openstef-beam",
+  "openstef-core",
   "openstef-docs",
   "openstef-models",
   "poethepoet>=0.36",
@@ -148,6 +151,7 @@ omit = [ "tests/*" ]
 source = [
   "packages/openstef-beam/src",
   "packages/openstef-models/src",
+  "packages/openstef-core/src",
   "packages/openstef-compatibility/src",
 ]
 omit = [
@@ -177,6 +181,7 @@ openstef-beam = { workspace = true }
 openstef-models = { workspace = true }
 openstef-compatibility = { workspace = true }
 openstef-docs = { workspace = true }
+openstef-core = { workspace = true }
 
 [tool.uv.workspace]
 members = [
@@ -184,6 +189,7 @@ members = [
   "packages/openstef-beam",
   "packages/openstef-compatibility",
   "docs",
+  "packages/openstef-core",
 ]
 
 [tool.poe.tasks.lint]
@@ -275,11 +281,13 @@ sequence = [
   { cmd = "uv version ${version} --frozen" },
   { cmd = "uv version --package openstef-beam ${version} --frozen" },
   { cmd = "uv version --package openstef-models ${version} --frozen" },
+  { cmd = "uv version --package openstef-core ${version} --frozen" },
   # Pin these versions in the root pyproject.toml
   { cmd = "uv add openstef-beam==${version} --optional beam" },
   { cmd = "uv add openstef-models==${version} --optional models" },
-  { cmd = "uv add openstef-models==${version} openstef-beam==${version} --optional all" },
-  { cmd = "uv add openstef-models==${version}" },
+  { cmd = "uv add openstef-core==${version} --optional core" },
+  { cmd = "uv add openstef-models==${version} openstef-beam==${version} openstef-core==${version} --optional all" },
+  { cmd = "uv add openstef-models==${version} openstef-core==${version}" },
 ]
 args = [
   { name = "version", type = "string", help = "The version to set, e.g. 4.0.0" },
