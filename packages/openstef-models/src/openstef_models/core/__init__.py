@@ -15,10 +15,3 @@ Design highlights
 - Minimal dependencies: core should remain dependency-light to ease
   reuse across tooling.
 """
-
-import contextlib
-
-with contextlib.suppress(ImportError):
-    from . import exceptions, io, types
-
-__all__ = ["exceptions", "io", "types"]
