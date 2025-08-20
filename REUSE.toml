@@ -9,3 +9,11 @@ path = [
 precedence = "override"
 SPDX-FileCopyrightText = "2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>"
 SPDX-License-Identifier = "MPL-2.0"
+
+[[annotations]]  # __pycache__ directories since reuse tool doesn't handle them well from gitignore
+path = [
+    "**/__pycache__/**",
+]
+precedence = "override"
+SPDX-FileCopyrightText = "2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>"
+SPDX-License-Identifier = "MPL-2.0"

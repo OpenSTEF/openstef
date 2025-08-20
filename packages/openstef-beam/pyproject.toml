@@ -27,8 +27,14 @@ classifiers = [
 ]
 
 dependencies = [
+  "jaxtyping>=0.3.2",
+  "numpy>=2.3.2",
+  "pandas>=2.3.1",
+  "plotly>=6.3",
+  "pyarrow>=21",
   "pydantic>=2.11.7",
   "pyyaml>=6.0.2",
+  "scoringrules>=0.8",
 ]
 
 urls.Documentation = "https://openstef.github.io/openstef/index.html"
@@ -37,7 +43,9 @@ urls.Issues = "https://github.com/OpenSTEF/openstef/issues"
 urls.Repository = "https://github.com/OpenSTEF/openstef"
 
 [dependency-groups]
-dev = [  ]
+dev = [
+  "pandas-stubs>=2.3.0.250703",
+]
 
 [tool.hatch.build.targets.wheel]
 packages = [ "src/openstef_beam" ]

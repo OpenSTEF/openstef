@@ -2,22 +2,25 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-"""Configuration utilities for OpenSTEF Beam.
+"""Core Pydantic models and configuration for OpenSTEF BEAM.
 
-This module provides a `BaseConfig` class extending Pydantic's `BaseModel`
-with convenience helpers for reading from and writing to YAML files. It also
-exposes two helper functions `write_yaml_config` and `read_yaml_config` that
-operate on arbitrary config instances or Pydantic models / adapters.
+This module provides base classes for Pydantic models used throughout the OpenSTEF BEAM project,
+ensuring consistent configuration and serialization behavior.
 """
 
 from pathlib import Path
 from typing import Self
 
 import yaml
-from pydantic import BaseModel, ConfigDict, TypeAdapter
+from pydantic import BaseModel as BaseModelPydantic
+from pydantic import ConfigDict, TypeAdapter
 
 
-class BaseConfig(BaseModel):
+class BaseModel(BaseModelPydantic):
+    model_config = ConfigDict(protected_namespaces=(), arbitrary_types_allowed=True, ser_json_inf_nan="null")
+
+
+class BaseConfig(BaseModelPydantic):
     """Base configuration model.
 
     It configures Pydantic model for safe YAML serialization / deserialization.
@@ -26,6 +29,7 @@ class BaseConfig(BaseModel):
     model_config = ConfigDict(
         protected_namespaces=(),
         extra="ignore",
+        arbitrary_types_allowed=False,
     )
 
     @classmethod
@@ -95,6 +99,7 @@ def read_yaml_config[T: BaseConfig, U](path: Path, class_type: type[T] | TypeAda
 
 __all__ = [
     "BaseConfig",
+    "BaseModel",
     "read_yaml_config",
     "write_yaml_config",
 ]
