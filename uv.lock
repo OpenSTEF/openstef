@@ -6,6 +6,7 @@ requires-python = ">=3.12, <4.0"
 members = [
     "openstef",
     "openstef-beam",
+    "openstef-compatibility",
     "openstef-docs",
     "openstef-models",
 ]
@@ -844,10 +845,14 @@ dependencies = [
 [package.optional-dependencies]
 all = [
     { name = "openstef-beam" },
+    { name = "openstef-compatibility" },
     { name = "openstef-models" },
 ]
 beam = [
     { name = "openstef-beam" },
+]
+compatibility = [
+    { name = "openstef-compatibility" },
 ]
 models = [
     { name = "openstef-models" },
@@ -872,11 +877,13 @@ dev = [
 requires-dist = [
     { name = "openstef-beam", marker = "extra == 'all'", editable = "packages/openstef-beam" },
     { name = "openstef-beam", marker = "extra == 'beam'", editable = "packages/openstef-beam" },
+    { name = "openstef-compatibility", marker = "extra == 'all'", editable = "packages/openstef-compatibility" },
+    { name = "openstef-compatibility", marker = "extra == 'compatibility'", editable = "packages/openstef-compatibility" },
     { name = "openstef-models", editable = "packages/openstef-models" },
     { name = "openstef-models", marker = "extra == 'all'", editable = "packages/openstef-models" },
     { name = "openstef-models", marker = "extra == 'models'", editable = "packages/openstef-models" },
 ]
-provides-extras = ["all", "beam", "models"]
+provides-extras = ["all", "beam", "models", "compatibility"]
 
 [package.metadata.requires-dev]
 dev = [
@@ -910,6 +917,11 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = []
+
+[[package]]
+name = "openstef-compatibility"
+version = "0.0.0"
+source = { editable = "packages/openstef-compatibility" }
 
 [[package]]
 name = "openstef-docs"

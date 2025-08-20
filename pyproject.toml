@@ -32,10 +32,14 @@ dependencies = [
 
 optional-dependencies.all = [
   "openstef-beam",
+  "openstef-compatibility",
   "openstef-models",
 ]
 optional-dependencies.beam = [
   "openstef-beam",
+]
+optional-dependencies.compatibility = [
+  "openstef-compatibility",
 ]
 optional-dependencies.models = [
   "openstef-models",
@@ -144,6 +148,7 @@ omit = [ "tests/*" ]
 source = [
   "packages/openstef-beam/src",
   "packages/openstef-models/src",
+  "packages/openstef-compatibility/src",
 ]
 omit = [
   "tests/*",
@@ -170,12 +175,14 @@ typeCheckingMode = "strict"
 [tool.uv.sources]
 openstef-beam = { workspace = true }
 openstef-models = { workspace = true }
+openstef-compatibility = { workspace = true }
 openstef-docs = { workspace = true }
 
 [tool.uv.workspace]
 members = [
   "packages/openstef-models",
   "packages/openstef-beam",
+  "packages/openstef-compatibility",
   "docs",
 ]
 
@@ -289,7 +296,7 @@ sequence = [
 help = "Build the documentation"
 control.expr = "serve"
 switch = [
-  { case = "True", cmd = "sphinx-autobuild docs/source docs/build/html" },
+  { case = "True", cmd = "sphinx-autobuild docs/source docs/build/html --watch packages" },
   { cmd = "sphinx-build -b html docs/source docs/build/html" },
 ]
 args = [

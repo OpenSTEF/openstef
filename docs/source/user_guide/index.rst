@@ -10,6 +10,7 @@
     installation
     quick_start
     intro/index
+    logging
     tutorials
     external_resources
 

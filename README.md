@@ -36,13 +36,20 @@ SPDX-License-Identifier: MPL-2.0
 
 ## 📚 Table of Contents
 
-- [🚀 Quick Start](#-quick-start)
-- [📦 Package Architecture](#-package-architecture) 
-- [💾 Installation](#-installation)
-- [🛠️ Documentation](#️-documentation)
-- [🤝 Contributing](#-contributing)
-- [📄 License](#-license)
-- [📞 Contact & Support](#-contact--support)
+- [OpenSTEF](#openstef)
+  - [✨ What's New in 4.0](#-whats-new-in-40)
+  - [📚 Table of Contents](#-table-of-contents)
+  - [🚀 Quick Start](#-quick-start)
+  - [📦 Package Architecture](#-package-architecture)
+  - [💾 Installation](#-installation)
+    - [Requirements](#requirements)
+    - [Basic Installation](#basic-installation)
+    - [Modern Package Managers](#modern-package-managers)
+  - [🛠️ Documentation](#️-documentation)
+  - [🤝 Contributing](#-contributing)
+    - [Quick Development Setup](#quick-development-setup)
+  - [📄 License](#-license)
+  - [📞 Contact \& Support](#-contact--support)
 
 ## 🚀 Quick Start
 
@@ -146,3 +153,4 @@ This project includes third-party libraries licensed under their respective Open
 - **💬 [GitHub Discussions](https://github.com/OpenSTEF/openstef/discussions)** - community Q&A and discussions
 - **🐛 [Issue Tracker](https://github.com/OpenSTEF/openstef/issues)** - bug reports and feature requests
 - **🌐 [LF Energy OpenSTEF](https://www.lfenergy.org/projects/openstef/)** - project homepage
+

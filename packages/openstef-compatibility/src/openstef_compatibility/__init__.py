@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2017-2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
 #
 # SPDX-License-Identifier: MPL-2.0
-"""Backtesting, Evaluation, Analysis and Metrics (BEAM) library for OpenSTEF."""
+"""OpenSTEF 3.0 compatibility layer for OpenSTEF 4.0 interfaces."""
 
 import logging
 
