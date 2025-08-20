@@ -15,6 +15,8 @@ Models Package
    :recursive:
    :template: custom_module.rst
 
+   feature_engineering
+
    
 
 

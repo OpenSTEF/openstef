@@ -296,7 +296,7 @@ sequence = [
 help = "Build the documentation"
 control.expr = "serve"
 switch = [
-  { case = "True", cmd = "sphinx-autobuild docs/source docs/build/html" },
+  { case = "True", cmd = "sphinx-autobuild docs/source docs/build/html --watch packages" },
   { cmd = "sphinx-build -b html docs/source docs/build/html" },
 ]
 args = [
