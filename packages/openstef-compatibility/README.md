@@ -4,4 +4,4 @@ SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.en
 SPDX-License-Identifier: MPL-2.0
 -->
 
-# openstef-model
+# openstef-compatibility
