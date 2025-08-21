@@ -2,14 +2,17 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+
 """This module provides the CyclicFeatures transform, which generates cyclic
 features from datetime indices in time series datasets based on sine and cosine
 components.
 """
+
 from typing import Literal
 
 import numpy as np
 import pandas as pd
+from pydantic import Field
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
@@ -20,10 +23,15 @@ NUM_MONTHS_IN_YEAR = 12
 NUM_DAYS_IN_WEEK = 7
 NUM_SECONDS_IN_A_DAY = 24 * 60 * 60
 
+
 class CyclicFeaturesConfig(BaseConfig):
-    included_features: list[Literal["timeOfDay", "season", "dayOfWeek", "month"]] = [
-        "timeOfDay", "season", "dayOfWeek", "month"
-    ]
+    """Configuration for the CyclicFeatures transform.
+    By default, all cyclic features are included.
+    """
+
+    included_features: list[Literal["timeOfDay", "season", "dayOfWeek", "month"]] = Field(
+        default_factory=lambda: ["timeOfDay", "season", "dayOfWeek", "month"]
+    )
 
 
 class CyclicFeatures(TimeSeriesTransform):
@@ -43,7 +51,7 @@ class CyclicFeatures(TimeSeriesTransform):
         >>> import pandas as pd
         >>> from datetime import timedelta
         >>> from openstef_core.datasets import TimeSeriesDataset
-        >>> from openstef_core.feature_engineering.temporal_transforms.cyclic_features import CyclicFeatures, CyclicFeaturesConfig
+        >>> from openstef_core.feature_engineering.temporal_transforms.cyclic_features import CyclicFeatures, CyclicFeaturesConfig  # noqa: E501
         >>>
         >>> # Create sample dataset
         >>> data = pd.DataFrame({
@@ -63,12 +71,14 @@ class CyclicFeatures(TimeSeriesTransform):
         >>> 'month_sine' in transformed.data.columns
         False
     """
+
     cyclic_features: pd.DataFrame = pd.DataFrame()
 
     def __init__(
         self,
         config: CyclicFeaturesConfig,
     ):
+        """Initialize the CyclicFeatures transform with a configuration."""
         self.config = config
 
     @staticmethod
@@ -174,7 +184,7 @@ class CyclicFeatures(TimeSeriesTransform):
         Args:
             data: Time series dataset with DatetimeIndex.
         """
-        feature_dataframes = []
+        feature_dataframes: list[pd.DataFrame] = []
 
         if "season" in self.config.included_features:
             feature_dataframes.append(self._compute_seasonal_feature(data.index))
