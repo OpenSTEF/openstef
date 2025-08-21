@@ -116,15 +116,6 @@ class TimeSeriesDataset(TimeSeriesMixin):
         """
         return cast(pd.DatetimeIndex, self.data.index)
 
-    def add_feature(self, feature_name: str, feature_data: pd.Series) -> None:
-        if feature_name in self._data.columns:
-            _logger.warning(f"Feature '{feature_name}' already exists. Overwriting it.")
-        if not isinstance(feature_data, pd.Series):
-            raise TypeError("Feature data must be a pandas Series.")
-        if feature_data.index != self._data.index:
-            raise ValueError("Feature data index must match the dataset index.")
-        self._data[feature_name] = feature_data
-
     def to_parquet(
         self,
         path: Path,

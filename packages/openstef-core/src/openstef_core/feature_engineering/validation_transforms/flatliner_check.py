@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.transforms.base import TimeSeriesTransform
+from openstef_core.datasets.transforms import TimeSeriesTransform
 
 
 class FlatlinerCheck(TimeSeriesTransform):
