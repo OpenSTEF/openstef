@@ -14,10 +14,15 @@ from pathlib import Path
 from typing import Self
 
 import yaml
-from pydantic import BaseModel, ConfigDict, TypeAdapter
+from pydantic import BaseModel as PydanticBaseModel
+from pydantic import ConfigDict, TypeAdapter
 
 
-class BaseConfig(BaseModel):
+class BaseModel(PydanticBaseModel):
+    model_config = ConfigDict(protected_namespaces=(), arbitrary_types_allowed=True, ser_json_inf_nan="null")
+
+
+class BaseConfig(PydanticBaseModel):
     """Base configuration model.
 
     It configures Pydantic model for safe YAML serialization / deserialization.
@@ -26,6 +31,7 @@ class BaseConfig(BaseModel):
     model_config = ConfigDict(
         protected_namespaces=(),
         extra="ignore",
+        arbitrary_types_allowed=False,
     )
 
     @classmethod
