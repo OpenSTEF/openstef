@@ -1,0 +1,13 @@
+openstef\_core.utils.pydantic
+=============================
+
+.. automodule:: openstef_core.utils.pydantic
+
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      timedelta_from_isoformat
+      timedelta_to_isoformat
+   

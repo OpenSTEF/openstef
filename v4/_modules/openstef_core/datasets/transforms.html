@@ -7,7 +7,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>openstef_models.core.pydantic &#8212; OpenSTEF 0.0.0 documentation</title>
+    <title>openstef_core.datasets.transforms &#8212; OpenSTEF 0.0.0 documentation</title>
   
   
   
@@ -47,7 +47,7 @@
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../../_static/copybutton.js?v=97f0b27d"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/openstef_models/core/pydantic';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/openstef_core/datasets/transforms';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = '_static/versions.json';
@@ -421,7 +421,7 @@
     
     <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">openstef_models.core.pydantic</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">openstef_core.datasets.transforms</span></li>
   </ul>
 </nav>
 </div>
@@ -438,44 +438,193 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <h1>Source code for openstef_models.core.pydantic</h1><div class="highlight"><pre>
+  <h1>Source code for openstef_core.datasets.transforms</h1><div class="highlight"><pre>
 <span></span><span class="c1"># SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project &lt;short.term.energy.forecasts@alliander.com&gt;</span>
 <span class="c1">#</span>
 <span class="c1"># SPDX-License-Identifier: MPL-2.0</span>
-<span class="sd">&quot;&quot;&quot;Core Pydantic models and configuration for OpenSTEF.</span>
 
-<span class="sd">This module provides base classes for Pydantic models used throughout the OpenSTEF project,</span>
-<span class="sd">ensuring consistent configuration and serialization behavior.</span>
+<span class="sd">&quot;&quot;&quot;Transform base classes for time series data processing.</span>
+
+<span class="sd">This module provides abstract base classes for implementing data transformations</span>
+<span class="sd">on both simple and versioned time series datasets. Transforms follow the</span>
+<span class="sd">scikit-learn pattern with separate fit and transform phases.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span> <span class="k">as</span> <span class="n">BaseModelPydantic</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConfigDict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">abstractmethod</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">TimeSeriesDataset</span><span class="p">,</span> <span class="n">VersionedTimeseriesDataset</span>
 
 
-<div class="viewcode-block" id="BaseModel">
-<a class="viewcode-back" href="../../../api/generated/openstef_models.core.pydantic.html#openstef_models.core.pydantic.BaseModel">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">BaseModel</span><span class="p">(</span><span class="n">BaseModelPydantic</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base model for OpenSTEF components.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="TimeSeriesTransform">
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.transforms.html#openstef_core.datasets.transforms.TimeSeriesTransform">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TimeSeriesTransform</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract base class for transforming regular time series datasets.</span>
 
-    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">protected_namespaces</span><span class="o">=</span><span class="p">(),</span> <span class="n">arbitrary_types_allowed</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ser_json_inf_nan</span><span class="o">=</span><span class="s2">&quot;null&quot;</span><span class="p">)</span></div>
+<span class="sd">    This class defines the interface for data transformations that operate on</span>
+<span class="sd">    TimeSeriesDataset instances. Transforms follow the scikit-learn pattern</span>
+<span class="sd">    with separate fit and transform phases, allowing for stateful transformations</span>
+<span class="sd">    that learn parameters from training data.</span>
 
+<span class="sd">    Subclasses must implement the transform method and optionally override</span>
+<span class="sd">    the fit method if the transformation requires learning parameters from data.</span>
 
+<span class="sd">    Example:</span>
+<span class="sd">        Implement a simple scaling transform:</span>
 
-<div class="viewcode-block" id="BaseConfig">
-<a class="viewcode-back" href="../../../api/generated/openstef_models.core.pydantic.html#openstef_models.core.pydantic.BaseConfig">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">BaseConfig</span><span class="p">(</span><span class="n">BaseModelPydantic</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base configuration model.</span>
-
-<span class="sd">    It configures Pydantic model for safe serialization / deserialization.</span>
+<span class="sd">        &gt;&gt;&gt; class ScaleTransform(TimeSeriesTransform):</span>
+<span class="sd">        ...     def __init__(self):</span>
+<span class="sd">        ...         self.scale_factor = 1.0</span>
+<span class="sd">        ...</span>
+<span class="sd">        ...     def fit(self, data):</span>
+<span class="sd">        ...         self.scale_factor = data.data.max().max()</span>
+<span class="sd">        ...</span>
+<span class="sd">        ...     def transform(self, data):</span>
+<span class="sd">        ...         scaled_data = data.data / self.scale_factor</span>
+<span class="sd">        ...         return TimeSeriesDataset(scaled_data, data.sample_interval)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">protected_namespaces</span><span class="o">=</span><span class="p">(),</span> <span class="n">extra</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">arbitrary_types_allowed</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+<div class="viewcode-block" id="TimeSeriesTransform.fit">
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.transforms.html#openstef_core.datasets.transforms.TimeSeriesTransform.fit">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">TimeSeriesDataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Fit the transform to the input time series data.</span>
+
+<span class="sd">        This method should be called before applying the transform to the data.</span>
+<span class="sd">        It allows the transform to learn any necessary parameters from the data.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data: The input time series data to fit the transform on.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="TimeSeriesTransform.transform">
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.transforms.html#openstef_core.datasets.transforms.TimeSeriesTransform.transform">[docs]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">TimeSeriesDataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TimeSeriesDataset</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Transform the input time series data.</span>
+
+<span class="sd">        This method should apply a transformation to the input data and return a new instance of TimeSeriesDataset.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data: The input time series data to be transformed.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A new instance of TimeSeriesDataset containing the transformed data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+
+<div class="viewcode-block" id="TimeSeriesTransform.fit_transform">
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.transforms.html#openstef_core.datasets.transforms.TimeSeriesTransform.fit_transform">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fit_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">TimeSeriesDataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TimeSeriesDataset</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Fit the transform to the data and then transform it.</span>
+
+<span class="sd">        This method combines fitting and transforming into a single step.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data: The input time series data to fit and transform.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A new instance of TimeSeriesDataset containing the transformed data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TimeSeriesVersionedTransform">
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.transforms.html#openstef_core.datasets.transforms.TimeSeriesVersionedTransform">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TimeSeriesVersionedTransform</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract base class for transforming versioned time series datasets.</span>
+
+<span class="sd">    This class defines the interface for data transformations that operate on</span>
+<span class="sd">    VersionedTimeseriesDataset instances. Like TimeSeriesTransform, it follows</span>
+<span class="sd">    the scikit-learn pattern but handles datasets with versioning information.</span>
+
+<span class="sd">    Transforms on versioned datasets must preserve the timestamp and availability</span>
+<span class="sd">    columns while transforming the feature data. This ensures that the versioning</span>
+<span class="sd">    semantics are maintained through the transformation pipeline.</span>
+
+<span class="sd">    Subclasses must implement the transform method and optionally override</span>
+<span class="sd">    the fit method if the transformation requires learning parameters from data.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        Implement a normalization transform for versioned data:</span>
+
+<span class="sd">        &gt;&gt;&gt; class VersionedNormalizeTransform(TimeSeriesVersionedTransform):</span>
+<span class="sd">        ...     def __init__(self):</span>
+<span class="sd">        ...         self.mean = None</span>
+<span class="sd">        ...         self.std = None</span>
+<span class="sd">        ...</span>
+<span class="sd">        ...     def fit(self, data):</span>
+<span class="sd">        ...         feature_data = data.data[data.feature_names]</span>
+<span class="sd">        ...         self.mean = feature_data.mean()</span>
+<span class="sd">        ...         self.std = feature_data.std()</span>
+<span class="sd">        ...</span>
+<span class="sd">        ...     def transform(self, data):</span>
+<span class="sd">        ...         normalized_data = data.data.copy()</span>
+<span class="sd">        ...         normalized_data[data.feature_names] = (</span>
+<span class="sd">        ...             (data.data[data.feature_names] - self.mean) / self.std</span>
+<span class="sd">        ...         )</span>
+<span class="sd">        ...         return VersionedTimeseriesDataset(</span>
+<span class="sd">        ...             normalized_data, data.sample_interval</span>
+<span class="sd">        ...         )</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TimeSeriesVersionedTransform.fit">
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.transforms.html#openstef_core.datasets.transforms.TimeSeriesVersionedTransform.fit">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">VersionedTimeseriesDataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Fit the transform to the input versioned time series data.</span>
+
+<span class="sd">        This method should be called before applying the transform to the data.</span>
+<span class="sd">        It allows the transform to learn any necessary parameters from the data.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data: The input versioned time series data to fit the transform on.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="TimeSeriesVersionedTransform.transform">
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.transforms.html#openstef_core.datasets.transforms.TimeSeriesVersionedTransform.transform">[docs]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">VersionedTimeseriesDataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VersionedTimeseriesDataset</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Transform the input versioned time series data.</span>
+
+<span class="sd">        This method should apply a transformation to the input data and return</span>
+<span class="sd">        a new instance of VersionedTimeseriesDataset.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data: The input versioned time series data to be transformed.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A new instance of VersionedTimeseriesDataset containing the</span>
+<span class="sd">            transformed data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+
+<div class="viewcode-block" id="TimeSeriesVersionedTransform.fit_transform">
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.transforms.html#openstef_core.datasets.transforms.TimeSeriesVersionedTransform.fit_transform">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fit_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">VersionedTimeseriesDataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VersionedTimeseriesDataset</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Fit the transform to the data and then transform it.</span>
+
+<span class="sd">        This method combines fitting and transforming into a single step.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data: The input versioned time series data to fit and transform.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A new instance of VersionedTimeseriesDataset containing the transformed data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
+</div>
 
 
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">&quot;BaseConfig&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;BaseModel&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;TimeSeriesTransform&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;TimeSeriesVersionedTransform&quot;</span><span class="p">,</span>
 <span class="p">]</span>
 </pre></div>
 

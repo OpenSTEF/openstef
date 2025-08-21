@@ -1,0 +1,12 @@
+openstef\_core.datasets.versioned\_timeseries\_dataset
+======================================================
+
+.. automodule:: openstef_core.datasets.versioned_timeseries_dataset
+
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      VersionedTimeseriesDataset
+   

@@ -1,0 +1,13 @@
+openstef\_core.datasets.transforms
+==================================
+
+.. automodule:: openstef_core.datasets.transforms
+
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      TimeSeriesTransform
+      TimeSeriesVersionedTransform
+   

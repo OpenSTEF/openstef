@@ -2,10 +2,10 @@
 ..
 .. SPDX-License-Identifier: MPL-2.0
 
-openstef\_models.core
-=====================
+openstef\_core.utils
+====================
 
-.. automodule:: openstef_models.core
+.. automodule:: openstef_core.utils
 
    
    

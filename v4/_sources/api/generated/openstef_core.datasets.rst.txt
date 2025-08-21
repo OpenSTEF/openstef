@@ -2,10 +2,10 @@
 ..
 .. SPDX-License-Identifier: MPL-2.0
 
-openstef\_beam.core
-===================
+openstef\_core.datasets
+=======================
 
-.. automodule:: openstef_beam.core
+.. automodule:: openstef_core.datasets
 
    
    
@@ -27,6 +27,11 @@ openstef\_beam.core
       :toctree:
       :recursive:
    
-      config
+      mixins
+      timeseries_dataset
+      transforms
+      validation
+      versioned_timeseries_accessors
+      versioned_timeseries_dataset
    
    

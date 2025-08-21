@@ -5,6 +5,21 @@
 API Reference
 =============
 
+Core Package
+--------------
+
+.. currentmodule:: openstef_core
+
+.. autosummary::
+   :toctree: generated/
+   :recursive:
+   :template: custom_module.rst
+
+   datasets
+   utils
+
+
+
 Models Package
 --------------
 
@@ -15,7 +30,6 @@ Models Package
    :recursive:
    :template: custom_module.rst
 
-   core
    feature_engineering
    models
    pipelines
@@ -35,5 +49,4 @@ Beam Package
    :recursive:
    :template: custom_module.rst
 
-   core
 

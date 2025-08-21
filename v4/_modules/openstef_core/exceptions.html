@@ -6,9 +6,8 @@
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
-
-    <title>openstef_models.core.pydantic &#8212; OpenSTEF 0.0.0 documentation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>openstef_core.exceptions &#8212; OpenSTEF 0.0.0 documentation</title>
   
   
   
@@ -48,7 +47,7 @@
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../_static/copybutton.js?v=97f0b27d"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'api/generated/openstef_models.core.pydantic';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/openstef_core/exceptions';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = '_static/versions.json';
@@ -59,8 +58,6 @@
     <link rel="icon" href="../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="openstef_models.feature_engineering" href="openstef_models.feature_engineering.html" />
-    <link rel="prev" title="openstef_models.core" href="openstef_models.core.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="0.0.0" />
@@ -152,8 +149,8 @@
 </li>
 
 
-<li class="nav-item current active">
-  <a class="nav-link nav-internal" href="../index.html">
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
     API
   </a>
 </li>
@@ -267,10 +264,6 @@
   
 
   
-    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
-      <span class="fa-solid fa-outdent"></span>
-    </button>
-  
 </div>
 
     </header>
@@ -281,8 +274,10 @@
       
       
       
+        
+      
       <dialog id="pst-primary-sidebar-modal"></dialog>
-      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
         
 
   
@@ -304,8 +299,8 @@
 </li>
 
 
-<li class="nav-item current active">
-  <a class="nav-link nav-internal" href="../index.html">
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
     API
   </a>
 </li>
@@ -388,26 +383,6 @@
     
   </div>
   
-    <div class="sidebar-primary-items__start sidebar-primary__section">
-        <div class="sidebar-primary-item">
-<nav class="bd-docs-nav bd-links"
-     aria-label="Section Navigation">
-  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
-  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
-<li class="toctree-l1 current active"><a class="reference internal" href="openstef_models.core.html">openstef_models.core</a></li>
-<li class="toctree-l1"><a class="reference internal" href="openstef_models.feature_engineering.html">openstef_models.feature_engineering</a></li>
-<li class="toctree-l1"><a class="reference internal" href="openstef_models.models.html">openstef_models.models</a></li>
-<li class="toctree-l1"><a class="reference internal" href="openstef_models.pipelines.html">openstef_models.pipelines</a></li>
-<li class="toctree-l1"><a class="reference internal" href="openstef_models.postprocessing.html">openstef_models.postprocessing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="openstef_models.explainability.html">openstef_models.explainability</a></li>
-</ul>
-<ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="openstef_beam.core.html">openstef_beam.core</a></li>
-</ul>
-</div>
-</nav></div>
-    </div>
-  
   
   <div class="sidebar-primary-items__end sidebar-primary__section">
       <div class="sidebar-primary-item">
@@ -444,12 +419,9 @@
       </a>
     </li>
     
-    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">API Reference</a></li>
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Module code</a></li>
     
-    
-    <li class="breadcrumb-item"><a href="openstef_models.core.html" class="nav-link">openstef_models.core</a></li>
-    
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">openstef_models.core.pydantic</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">openstef_core.exceptions</span></li>
   </ul>
 </nav>
 </div>
@@ -466,60 +438,51 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="module-openstef_models.core.pydantic">
-<span id="openstef-models-core-pydantic"></span><h1>openstef_models.core.pydantic<a class="headerlink" href="#module-openstef_models.core.pydantic" title="Link to this heading">#</a></h1>
-<p>Core Pydantic models and configuration for OpenSTEF.</p>
-<p>This module provides base classes for Pydantic models used throughout the OpenSTEF project,
-ensuring consistent configuration and serialization behavior.</p>
-<p class="rubric">Classes</p>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#openstef_models.core.pydantic.BaseConfig" title="openstef_models.core.pydantic.BaseConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BaseConfig</span></code></a>(**data)</p></td>
-<td><p>Base configuration model.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#openstef_models.core.pydantic.BaseModel" title="openstef_models.core.pydantic.BaseModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BaseModel</span></code></a>(**data)</p></td>
-<td><p>Base model for OpenSTEF components.</p></td>
-</tr>
-</tbody>
-</table>
+  <h1>Source code for openstef_core.exceptions</h1><div class="highlight"><pre>
+<span></span><span class="c1"># SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project &lt;short.term.energy.forecasts@alliander.com&gt;</span>
+<span class="c1">#</span>
+<span class="c1"># SPDX-License-Identifier: MPL-2.0</span>
+
+<span class="sd">&quot;&quot;&quot;Custom exceptions for OpenSTEF core functionality.</span>
+
+<span class="sd">This module defines specific exception types used throughout the OpenSTEF core</span>
+<span class="sd">package to provide clear error reporting and handling for common failure cases.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">MissingColumnsError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Exception raised when required columns are missing from a DataFrame.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">missing_columns</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the exception with the list of missing columns.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            missing_columns: List of column names that are missing from the DataFrame.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">missing_columns</span> <span class="o">=</span> <span class="n">missing_columns</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Missing required columns: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">missing_columns</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="TimeSeriesValidationError">
+<a class="viewcode-back" href="../../api/generated/openstef_core.datasets.validation.html#openstef_core.datasets.validation.TimeSeriesValidationError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TimeSeriesValidationError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Exception raised for validation errors in time series datasets.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TimeSeriesValidationError.__init__">
+<a class="viewcode-back" href="../../api/generated/openstef_core.datasets.validation.html#openstef_core.datasets.validation.TimeSeriesValidationError.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the exception with a descriptive error message.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            message: Human-readable description of the validation error.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">)</span></div>
 </div>
-<dl class="py class">
-<dt class="sig sig-object py" id="openstef_models.core.pydantic.BaseConfig">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef_models.core.pydantic.</span></span><span class="sig-name descname"><span class="pre">BaseConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/openstef_models/core/pydantic.html#BaseConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_models.core.pydantic.BaseConfig" title="Link to this definition">#</a></dt>
-<dd><p>Base configuration model.</p>
-<p>It configures Pydantic model for safe serialization / deserialization.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>data</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></span>)</p>
-</dd>
-</dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="openstef_models.core.pydantic.BaseConfig.model_config">
-<span class="sig-name descname"><span class="pre">model_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar[ConfigDict]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'arbitrary_types_allowed':</span> <span class="pre">False,</span> <span class="pre">'extra':</span> <span class="pre">'ignore',</span> <span class="pre">'protected_namespaces':</span> <span class="pre">()}</span></em><a class="headerlink" href="#openstef_models.core.pydantic.BaseConfig.model_config" title="Link to this definition">#</a></dt>
-<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
-</dd></dl>
 
-</dd></dl>
 
-<dl class="py class">
-<dt class="sig sig-object py" id="openstef_models.core.pydantic.BaseModel">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef_models.core.pydantic.</span></span><span class="sig-name descname"><span class="pre">BaseModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/openstef_models/core/pydantic.html#BaseModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_models.core.pydantic.BaseModel" title="Link to this definition">#</a></dt>
-<dd><p>Base model for OpenSTEF components.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>data</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></span>)</p>
-</dd>
-</dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="openstef_models.core.pydantic.BaseModel.model_config">
-<span class="sig-name descname"><span class="pre">model_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar[ConfigDict]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'arbitrary_types_allowed':</span> <span class="pre">True,</span> <span class="pre">'protected_namespaces':</span> <span class="pre">(),</span> <span class="pre">'ser_json_inf_nan':</span> <span class="pre">'null'}</span></em><a class="headerlink" href="#openstef_models.core.pydantic.BaseModel.model_config" title="Link to this definition">#</a></dt>
-<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
-</dd></dl>
 
-</dd></dl>
-
-</section>
-
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;MissingColumnsError&quot;</span><span class="p">,</span> <span class="s2">&quot;TimeSeriesValidationError&quot;</span><span class="p">]</span>
+</pre></div>
 
                 </article>
               
@@ -530,80 +493,12 @@ ensuring consistent configuration and serialization behavior.</p>
                 <footer class="prev-next-footer d-print-none">
                   
 <div class="prev-next-area">
-    <a class="left-prev"
-       href="openstef_models.core.html"
-       title="previous page">
-      <i class="fa-solid fa-angle-left"></i>
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">openstef_models.core</p>
-      </div>
-    </a>
-    <a class="right-next"
-       href="openstef_models.feature_engineering.html"
-       title="next page">
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">openstef_models.feature_engineering</p>
-      </div>
-      <i class="fa-solid fa-angle-right"></i>
-    </a>
 </div>
                 </footer>
               
             </div>
             
             
-              
-                <dialog id="pst-secondary-sidebar-modal"></dialog>
-                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
-
-
-  <div class="sidebar-secondary-item">
-<div
-    id="pst-page-navigation-heading-2"
-    class="page-toc tocsection onthispage">
-    <i class="fa-solid fa-list"></i> On this page
-  </div>
-  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
-    <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.core.pydantic.BaseConfig"><code class="docutils literal notranslate"><span class="pre">BaseConfig</span></code></a><ul class="visible nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.core.pydantic.BaseConfig.model_config"><code class="docutils literal notranslate"><span class="pre">BaseConfig.model_config</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.core.pydantic.BaseModel"><code class="docutils literal notranslate"><span class="pre">BaseModel</span></code></a><ul class="visible nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.core.pydantic.BaseModel.model_config"><code class="docutils literal notranslate"><span class="pre">BaseModel.model_config</span></code></a></li>
-</ul>
-</li>
-</ul>
-  </nav></div>
-
-  <div class="sidebar-secondary-item">
-
-  
-  <div class="tocsection editthispage">
-    <a href="https://github.com/OpenSTEF/openstef/edit/main/docs/source/api/generated/openstef_models.core.pydantic.rst">
-      <i class="fa-solid fa-pencil"></i>
-      
-      
-        
-          Edit on GitHub
-        
-      
-    </a>
-  </div>
-</div>
-
-  <div class="sidebar-secondary-item">
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="../../_sources/api/generated/openstef_models.core.pydantic.rst.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div></div>
-
-</div></div>
               
             
           </div>

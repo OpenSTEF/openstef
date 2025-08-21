@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>openstef_models.core &#8212; OpenSTEF 0.0.0 documentation</title>
+    <title>openstef_core.utils &#8212; OpenSTEF 0.0.0 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../_static/copybutton.js?v=97f0b27d"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'api/generated/openstef_models.core';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/generated/openstef_core.utils';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = '_static/versions.json';
@@ -59,8 +59,8 @@
     <link rel="icon" href="../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="openstef_models.core.pydantic" href="openstef_models.core.pydantic.html" />
-    <link rel="prev" title="API Reference" href="../index.html" />
+    <link rel="next" title="openstef_core.utils.pydantic" href="openstef_core.utils.pydantic.html" />
+    <link rel="prev" title="openstef_core.datasets.versioned_timeseries_dataset" href="openstef_core.datasets.versioned_timeseries_dataset.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="0.0.0" />
@@ -394,15 +394,15 @@
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">openstef_models.core</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openstef_core.datasets.html">openstef_core.datasets</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">openstef_core.utils</a></li>
+</ul>
+<ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="openstef_models.feature_engineering.html">openstef_models.feature_engineering</a></li>
 <li class="toctree-l1"><a class="reference internal" href="openstef_models.models.html">openstef_models.models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="openstef_models.pipelines.html">openstef_models.pipelines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="openstef_models.postprocessing.html">openstef_models.postprocessing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="openstef_models.explainability.html">openstef_models.explainability</a></li>
-</ul>
-<ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="openstef_beam.core.html">openstef_beam.core</a></li>
 </ul>
 </div>
 </nav></div>
@@ -446,7 +446,7 @@
     
     <li class="breadcrumb-item"><a href="../index.html" class="nav-link">API Reference</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">openstef_models.core</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">openstef_core.utils</span></li>
   </ul>
 </nav>
 </div>
@@ -463,31 +463,86 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="module-openstef_models.core">
-<span id="openstef-models-core"></span><h1>openstef_models.core<a class="headerlink" href="#module-openstef_models.core" title="Link to this heading">#</a></h1>
-<p>Core types and utilities for OpenSTEF.</p>
-<p>Lightweight package containing foundational abstractions used across the
-project (dataset types, model state containers, common exceptions and
-small helpers). Keep API minimal and stable so higher-level packages can
-rely on well-typed primitives.</p>
-<p>Design highlights
-- Typed primitives: prefer small, well-documented classes (e.g.</p>
-<blockquote>
-<div><p>TimeSeriesDataset, ModelState) that encapsulate validation and I/O.</p>
-</div></blockquote>
-<ul class="simple">
-<li><p>Minimal dependencies: core should remain dependency-light to ease
-reuse across tooling.</p></li>
-</ul>
+  <section id="module-openstef_core.utils">
+<span id="openstef-core-utils"></span><h1>openstef_core.utils<a class="headerlink" href="#module-openstef_core.utils" title="Link to this heading">#</a></h1>
+<p>Utility functions and helpers for OpenSTEF core functionality.</p>
+<p>This package provides common utilities used throughout the OpenSTEF core library,
+including data serialization helpers, type conversion functions, and other
+general-purpose tools.</p>
 <p class="rubric">Submodules</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="openstef_models.core.pydantic.html#module-openstef_models.core.pydantic" title="openstef_models.core.pydantic"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pydantic</span></code></a></p></td>
-<td><p>Core Pydantic models and configuration for OpenSTEF.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="openstef_core.utils.pydantic.html#module-openstef_core.utils.pydantic" title="openstef_core.utils.pydantic"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pydantic</span></code></a></p></td>
+<td><p>Pydantic-based utility functions for data serialization.</p></td>
 </tr>
 </tbody>
 </table>
 </div>
+<dl class="py function">
+<dt class="sig sig-object py" id="openstef_core.utils.timedelta_from_isoformat">
+<span class="sig-prename descclassname"><span class="pre">openstef_core.utils.</span></span><span class="sig-name descname"><span class="pre">timedelta_from_isoformat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="openstef_core.datasets.versioned_timeseries_accessors.html#openstef_core.datasets.versioned_timeseries_accessors.timedelta" title="datetime.timedelta"><span class="pre">timedelta</span></a></span></span><a class="reference internal" href="../../_modules/openstef_core/utils/pydantic.html#timedelta_from_isoformat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.utils.timedelta_from_isoformat" title="Link to this definition">#</a></dt>
+<dd><p>Convert ISO 8601 string format to timedelta.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>s</strong> (<em>str</em>) – ISO 8601 duration string to parse.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Python timedelta object representing the duration.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="openstef_core.datasets.versioned_timeseries_accessors.html#openstef_core.datasets.versioned_timeseries_accessors.timedelta" title="datetime.timedelta"><em>timedelta</em></a></p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<p>Parse a 15-minute interval:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">td</span> <span class="o">=</span> <span class="n">timedelta_from_isoformat</span><span class="p">(</span><span class="s1">&#39;PT15M&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">td</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
+<span class="go">900.0</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>s</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="openstef_core.datasets.versioned_timeseries_accessors.html#openstef_core.datasets.versioned_timeseries_accessors.timedelta" title="datetime.timedelta"><code class="xref py py-class docutils literal notranslate"><span class="pre">timedelta</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="openstef_core.utils.timedelta_to_isoformat">
+<span class="sig-prename descclassname"><span class="pre">openstef_core.utils.</span></span><span class="sig-name descname"><span class="pre">timedelta_to_isoformat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="openstef_core.datasets.versioned_timeseries_accessors.html#openstef_core.datasets.versioned_timeseries_accessors.timedelta" title="datetime.timedelta"><span class="pre">timedelta</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../../_modules/openstef_core/utils/pydantic.html#timedelta_to_isoformat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.utils.timedelta_to_isoformat" title="Link to this definition">#</a></dt>
+<dd><p>Convert timedelta to ISO 8601 string format.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>td</strong> (<a class="reference internal" href="openstef_core.datasets.versioned_timeseries_accessors.html#openstef_core.datasets.versioned_timeseries_accessors.timedelta" title="datetime.timedelta"><em>timedelta</em></a>) – The timedelta object to convert.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>ISO 8601 duration string representation (e.g., ‘PT15M’ for 15 minutes).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<p>Convert a 15-minute interval:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">timedelta</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">td</span> <span class="o">=</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">timedelta_to_isoformat</span><span class="p">(</span><span class="n">td</span><span class="p">)</span>
+<span class="go">&#39;PT15M&#39;</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>td</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="openstef_core.datasets.versioned_timeseries_accessors.html#openstef_core.datasets.versioned_timeseries_accessors.timedelta" title="datetime.timedelta"><code class="xref py py-class docutils literal notranslate"><span class="pre">timedelta</span></code></a></span>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 
 
@@ -501,20 +556,20 @@ reuse across tooling.</p></li>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="../index.html"
+       href="openstef_core.datasets.versioned_timeseries_dataset.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">API Reference</p>
+        <p class="prev-next-title">openstef_core.datasets.versioned_timeseries_dataset</p>
       </div>
     </a>
     <a class="right-next"
-       href="openstef_models.core.pydantic.html"
+       href="openstef_core.utils.pydantic.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">openstef_models.core.pydantic</p>
+        <p class="prev-next-title">openstef_core.utils.pydantic</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -530,10 +585,23 @@ reuse across tooling.</p></li>
 
 
   <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.utils.timedelta_from_isoformat"><code class="docutils literal notranslate"><span class="pre">timedelta_from_isoformat()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.utils.timedelta_to_isoformat"><code class="docutils literal notranslate"><span class="pre">timedelta_to_isoformat()</span></code></a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
 
   
   <div class="tocsection editthispage">
-    <a href="https://github.com/OpenSTEF/openstef/edit/main/docs/source/api/generated/openstef_models.core.rst">
+    <a href="https://github.com/OpenSTEF/openstef/edit/main/docs/source/api/generated/openstef_core.utils.rst">
       <i class="fa-solid fa-pencil"></i>
       
       
@@ -549,7 +617,7 @@ reuse across tooling.</p></li>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../../_sources/api/generated/openstef_models.core.rst.txt"
+      <li><a href="../../_sources/api/generated/openstef_core.utils.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div></div>

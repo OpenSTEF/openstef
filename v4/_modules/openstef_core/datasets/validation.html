@@ -7,7 +7,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>openstef_beam.core.config &#8212; OpenSTEF 0.0.0 documentation</title>
+    <title>openstef_core.datasets.validation &#8212; OpenSTEF 0.0.0 documentation</title>
   
   
   
@@ -47,7 +47,7 @@
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../../_static/copybutton.js?v=97f0b27d"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/openstef_beam/core/config';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/openstef_core/datasets/validation';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = '_static/versions.json';
@@ -421,7 +421,7 @@
     
     <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">openstef_beam.core.config</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">openstef_core.datasets.validation</span></li>
   </ul>
 </nav>
 </div>
@@ -438,122 +438,67 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <h1>Source code for openstef_beam.core.config</h1><div class="highlight"><pre>
+  <h1>Source code for openstef_core.datasets.validation</h1><div class="highlight"><pre>
 <span></span><span class="c1"># SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project &lt;short.term.energy.forecasts@alliander.com&gt;</span>
 <span class="c1">#</span>
 <span class="c1"># SPDX-License-Identifier: MPL-2.0</span>
 
-<span class="sd">&quot;&quot;&quot;Configuration utilities for OpenSTEF Beam.</span>
+<span class="sd">&quot;&quot;&quot;Validation utilities for time series datasets.</span>
 
-<span class="sd">This module provides a `BaseConfig` class extending Pydantic&#39;s `BaseModel`</span>
-<span class="sd">with convenience helpers for reading from and writing to YAML files. It also</span>
-<span class="sd">exposes two helper functions `write_yaml_config` and `read_yaml_config` that</span>
-<span class="sd">operate on arbitrary config instances or Pydantic models / adapters.</span>
+<span class="sd">This module provides functions to validate dataset compatibility and integrity,</span>
+<span class="sd">particularly for operations that combine multiple datasets.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Self</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">functools</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">operator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">Counter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">ConfigDict</span><span class="p">,</span> <span class="n">TypeAdapter</span>
-
-
-<div class="viewcode-block" id="BaseConfig">
-<a class="viewcode-back" href="../../../api/generated/openstef_beam.core.config.html#openstef_beam.core.config.BaseConfig">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">BaseConfig</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base configuration model.</span>
-
-<span class="sd">    It configures Pydantic model for safe YAML serialization / deserialization.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span>
-        <span class="n">protected_namespaces</span><span class="o">=</span><span class="p">(),</span>
-        <span class="n">extra</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-
-<div class="viewcode-block" id="BaseConfig.read_yaml">
-<a class="viewcode-back" href="../../../api/generated/openstef_beam.core.config.html#openstef_beam.core.config.BaseConfig.read_yaml">[docs]</a>
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">read_yaml</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create an instance from a YAML file.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            path: Path to the YAML file to read.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            An instance of the config class populated with the file contents.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">read_yaml_config</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">class_type</span><span class="o">=</span><span class="bp">cls</span><span class="p">)</span></div>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets.mixins</span><span class="w"> </span><span class="kn">import</span> <span class="n">TimeSeriesMixin</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TimeSeriesValidationError</span>
 
 
-<div class="viewcode-block" id="BaseConfig.write_yaml">
-<a class="viewcode-back" href="../../../api/generated/openstef_beam.core.config.html#openstef_beam.core.config.BaseConfig.write_yaml">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">write_yaml</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Write this configuration to a YAML file.</span>
+<div class="viewcode-block" id="check_features_are_disjoint">
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.versioned_timeseries_accessors.html#openstef_core.datasets.validation.check_features_are_disjoint">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_features_are_disjoint</span><span class="p">(</span><span class="n">datasets</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">TimeSeriesMixin</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if the datasets have overlapping feature names.</span>
 
-<span class="sd">        Args:</span>
-<span class="sd">            path: Destination path for the YAML file (will be overwritten).</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">write_yaml_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span></div>
-</div>
-
-
-
-<div class="viewcode-block" id="write_yaml_config">
-<a class="viewcode-back" href="../../../api/generated/openstef_beam.core.config.html#openstef_beam.core.config.write_yaml_config">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">write_yaml_config</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">BaseConfig</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Write the config to a YAML file.</span>
+<span class="sd">    Validates that all datasets have completely disjoint feature sets,</span>
+<span class="sd">    ensuring no feature appears in multiple datasets.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        config: The configuration object to serialize.</span>
-<span class="sd">        path: Destination path for the YAML file (will be overwritten).</span>
+<span class="sd">        datasets: Sequence of time series datasets to validate.</span>
 
-<span class="sd">    Example:</span>
-<span class="sd">        &gt;&gt;&gt; from pathlib import Path</span>
-<span class="sd">        &gt;&gt;&gt; from pydantic import BaseModel</span>
-<span class="sd">        &gt;&gt;&gt; class MyConfig(BaseModel):</span>
-<span class="sd">        ...     foo: int</span>
-<span class="sd">        &gt;&gt;&gt; cfg = MyConfig(foo=123)</span>
-<span class="sd">        &gt;&gt;&gt; write_yaml_config(cfg, Path(&quot;/tmp/test.yaml&quot;))</span>
+<span class="sd">    Raises:</span>
+<span class="sd">        TimeSeriesValidationError: If any feature name appears in multiple datasets.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">with</span> <span class="n">path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-        <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">model_dump</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;json&quot;</span><span class="p">),</span> <span class="n">f</span><span class="p">,</span> <span class="n">allow_unicode</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+    <span class="n">all_features</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">functools</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">iadd</span><span class="p">,</span> <span class="p">[</span><span class="n">d</span><span class="o">.</span><span class="n">feature_names</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">datasets</span><span class="p">],</span> <span class="p">[])</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_features</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">all_features</span><span class="p">)):</span>
+        <span class="n">duplicate_features</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span> <span class="k">for</span> <span class="n">item</span><span class="p">,</span> <span class="n">count</span> <span class="ow">in</span> <span class="n">Counter</span><span class="p">(</span><span class="n">all_features</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">count</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="k">raise</span> <span class="n">TimeSeriesValidationError</span><span class="p">(</span><span class="s2">&quot;Datasets have overlapping feature names: &quot;</span> <span class="o">+</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">duplicate_features</span><span class="p">))</span></div>
 
 
 
-<div class="viewcode-block" id="read_yaml_config">
-<a class="viewcode-back" href="../../../api/generated/openstef_beam.core.config.html#openstef_beam.core.config.read_yaml_config">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">read_yaml_config</span><span class="p">[</span><span class="n">T</span><span class="p">:</span> <span class="n">BaseConfig</span><span class="p">,</span> <span class="n">U</span><span class="p">](</span><span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">class_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">T</span><span class="p">]</span> <span class="o">|</span> <span class="n">TypeAdapter</span><span class="p">[</span><span class="n">U</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">T</span> <span class="o">|</span> <span class="n">U</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read a configuration object from a YAML file.</span>
+<div class="viewcode-block" id="check_sample_intervals">
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.versioned_timeseries_accessors.html#openstef_core.datasets.validation.check_sample_intervals">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_sample_intervals</span><span class="p">(</span><span class="n">datasets</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">TimeSeriesMixin</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if the datasets have the same sample interval.</span>
 
-<span class="sd">    This function supports two kinds of targets:</span>
-
-<span class="sd">    * A subclass of `BaseConfig`, in which case Pydantic&#39;s `model_validate` is used.</span>
-<span class="sd">    * A `TypeAdapter` instance for more advanced / non-`BaseModel` schema validation.</span>
+<span class="sd">    Validates that all datasets use identical sampling intervals, which is</span>
+<span class="sd">    required for safe concatenation and combination operations.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        path: Path to the YAML file to read.</span>
-<span class="sd">        class_type: The target type (a `BaseConfig` subclass) or a `TypeAdapter`.</span>
+<span class="sd">        datasets: Sequence of time series datasets to validate.</span>
 
-<span class="sd">    Returns:</span>
-<span class="sd">        A validated configuration instance (either ``T`` or ``U`` depending on</span>
-<span class="sd">        the provided ``class_type``).</span>
+<span class="sd">    Raises:</span>
+<span class="sd">        TimeSeriesValidationError: If datasets have different sample intervals.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">with</span> <span class="n">path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="n">sample_intervals</span> <span class="o">=</span> <span class="p">{</span><span class="n">d</span><span class="o">.</span><span class="n">sample_interval</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">datasets</span><span class="p">}</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sample_intervals</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">TimeSeriesValidationError</span><span class="p">(</span>
+            <span class="s2">&quot;Datasets have different sample intervals: &quot;</span> <span class="o">+</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">sample_intervals</span><span class="p">))</span>
+        <span class="p">)</span></div>
 
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">class_type</span><span class="p">,</span> <span class="n">TypeAdapter</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">class_type</span><span class="o">.</span><span class="n">validate_python</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">class_type</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
-
-
-
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">&quot;BaseConfig&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;read_yaml_config&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;write_yaml_config&quot;</span><span class="p">,</span>
-<span class="p">]</span>
 </pre></div>
 
                 </article>
