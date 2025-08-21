@@ -7,7 +7,7 @@ from pathlib import Path
 import yaml
 from pydantic import TypeAdapter
 
-from openstef_beam.core.config import BaseConfig, read_yaml_config, write_yaml_config
+from openstef_core.base_model import BaseConfig, read_yaml_config, write_yaml_config
 
 
 class SampleConfig(BaseConfig):

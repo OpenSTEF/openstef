@@ -16,8 +16,8 @@ _logger = logging.getLogger(__name__)
 
 
 class TimeSeriesDataset(TimeSeriesMixin):
+    data: pd.DataFrame
     _sample_interval: timedelta
-    _data: pd.DataFrame
 
     def __init__(
         self,
@@ -34,11 +34,11 @@ class TimeSeriesDataset(TimeSeriesMixin):
             data.attrs["is_sorted"] = True
 
         self._sample_interval = sample_interval
-        self._data = data
+        self.data = data
 
     @property
     def feature_names(self) -> list[str]:
-        return self._data.columns.tolist()
+        return self.data.columns.tolist()
 
     @property
     def sample_interval(self) -> timedelta:
@@ -46,15 +46,15 @@ class TimeSeriesDataset(TimeSeriesMixin):
 
     @property
     def index(self) -> pd.DatetimeIndex:
-        return cast(pd.DatetimeIndex, self._data.index)
+        return cast(pd.DatetimeIndex, self.data.index)
 
     def to_parquet(
         self,
         path: Path,
     ) -> None:
-        self._data.attrs["sample_interval"] = timedelta_to_isoformat(self._sample_interval)
-        self._data.attrs["is_sorted"] = True
-        self._data.to_parquet(path)
+        self.data.attrs["sample_interval"] = timedelta_to_isoformat(self._sample_interval)
+        self.data.attrs["is_sorted"] = True
+        self.data.to_parquet(path)
 
     @classmethod
     def from_parquet(

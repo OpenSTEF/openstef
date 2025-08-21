@@ -76,7 +76,7 @@ class RestrictedHorizonVersionedTimeSeries(VersionedTimeSeriesMixin):
 
     def get_window(self, start: datetime, end: datetime, available_before: datetime | None = None) -> pd.DataFrame:
         if available_before is not None and available_before > self._horizon:
-            msg = f"Available before {available_before} is greater than the horizon."
+            msg: str = f"Available before {available_before} is greater than the horizon."
             raise ValueError(msg)
 
         return self._dataset.get_window(start=start, end=end, available_before=available_before or self._horizon)
