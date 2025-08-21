@@ -2,6 +2,13 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+"""Abstract base classes for time series dataset functionality.
+
+This module provides mixins that define the core interfaces for time series
+datasets in OpenSTEF. The mixins separate concerns between basic time series
+operations and versioned data access capabilities.
+"""
+
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta
 
@@ -9,6 +16,17 @@ import pandas as pd
 
 
 class TimeSeriesMixin(ABC):
+    """Abstract base class for time series dataset functionality.
+
+    This mixin defines the essential interface that all time series datasets
+    must implement. It provides access to feature metadata, temporal properties,
+    and the dataset's temporal index.
+
+    Classes implementing this mixin must provide feature names, sample interval,
+    and datetime index information. This interface enables consistent access
+    patterns across different time series dataset implementations.
+    """
+
     @property
     @abstractmethod
     def feature_names(self) -> list[str]:
@@ -44,6 +62,25 @@ class TimeSeriesMixin(ABC):
 
 
 class VersionedAccessMixin(ABC):
+    """Abstract base class for versioned data access functionality.
+
+    This mixin defines the interface for datasets that track data availability
+    over time. It provides methods to retrieve data windows while respecting
+    when each data point became available, which is essential for realistic
+    backtesting scenarios.
+
+    The key concept is that data points have both a timestamp (when they
+    occurred) and an availability time (when they became available for use).
+    This separation allows for accurate simulation of real-world forecasting
+    constraints where data arrives with delays or gets revised.
+
+    Implementers must ensure that the get_window method correctly handles:
+    - Time range filtering [start, end)
+    - Availability-based filtering using available_before parameter
+    - Latest version selection when multiple versions exist
+    - Consistent sample interval maintenance
+    """
+
     @abstractmethod
     def get_window(self, start: datetime, end: datetime, available_before: datetime | None = None) -> pd.DataFrame:
         """Get a window of data from the dataset that is available before or at the specified time.

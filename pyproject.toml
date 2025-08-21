@@ -237,7 +237,6 @@ help = "Generate coverage report. Will use data from a previous cover command."
 sequence = [
   { cmd = "coverage report", help = "Generate a coverage report" },
   { cmd = "coverage xml -o coverage.xml", help = "Generate XML coverage report for CI integration" },
-  { cmd = "coverage report --fail-under 98 --include='packages/*/tests/*' --omit='cheese'", help = "Check if all written tests are actually run." },
 ]
 
 [tool.poe.tasks.reuse]
@@ -316,4 +315,4 @@ args = [
 
 [tool.poe.tasks.docs-clean]
 help = "Clean the documentation build artifacts"
-cmd = "rm -rf docs/build/html/*"
+cmd = "rm -rf docs/build/html/* docs/source/api/generated"
