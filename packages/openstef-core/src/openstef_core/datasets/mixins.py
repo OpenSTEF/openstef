@@ -68,7 +68,7 @@ class VersionedAccessMixin(ABC):
         raise NotImplementedError
 
 
-class VersionedTimeseriesMixin(TimeSeriesMixin, VersionedAccessMixin, ABC):
+class VersionedTimeSeriesMixin(TimeSeriesMixin, VersionedAccessMixin, ABC):
     """A mixin that combines time series and versioned access functionality.
 
     This mixin provides the necessary properties and methods to handle time series data
@@ -76,4 +76,4 @@ class VersionedTimeseriesMixin(TimeSeriesMixin, VersionedAccessMixin, ABC):
     """
 
 
-__all__ = ["TimeSeriesMixin", "VersionedAccessMixin", "VersionedTimeseriesMixin"]
+__all__ = ["TimeSeriesMixin", "VersionedAccessMixin", "VersionedTimeSeriesMixin"]

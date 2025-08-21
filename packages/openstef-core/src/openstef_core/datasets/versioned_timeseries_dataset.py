@@ -10,7 +10,7 @@ from typing import Self, cast
 import numpy as np
 import pandas as pd
 
-from openstef_core.datasets.mixins import VersionedTimeseriesMixin
+from openstef_core.datasets.mixins import VersionedTimeSeriesMixin
 from openstef_core.exceptions import MissingColumnsError
 from openstef_core.utils import (
     timedelta_from_isoformat,
@@ -20,7 +20,7 @@ from openstef_core.utils import (
 _logger = logging.getLogger(__name__)
 
 
-class VersionedTimeseriesDataset(VersionedTimeseriesMixin):
+class VersionedTimeseriesDataset(VersionedTimeSeriesMixin):
     data: pd.DataFrame
     _sample_interval: timedelta
     _index: pd.DatetimeIndex

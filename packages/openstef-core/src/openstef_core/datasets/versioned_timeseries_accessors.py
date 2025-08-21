@@ -9,14 +9,14 @@ from typing import Literal, cast
 
 import pandas as pd
 
-from openstef_core.datasets.mixins import VersionedTimeseriesMixin
+from openstef_core.datasets.mixins import VersionedTimeSeriesMixin
 from openstef_core.datasets.validation import check_features_are_disjoint, check_sample_intervals
 
 type ConcatMode = Literal["left", "outer", "inner"]
 
 
-class ConcatenatedVersionedTimeSeries(VersionedTimeseriesMixin):
-    def __init__(self, datasets: list[VersionedTimeseriesMixin], mode: ConcatMode) -> None:
+class ConcatenatedVersionedTimeSeries(VersionedTimeSeriesMixin):
+    def __init__(self, datasets: list[VersionedTimeSeriesMixin], mode: ConcatMode) -> None:
         if len(datasets) < 2:  # noqa: PLR2004
             msg = "At least two datasets are required for ConcatFeaturewise."
             raise ValueError(msg)
@@ -53,8 +53,8 @@ class ConcatenatedVersionedTimeSeries(VersionedTimeseriesMixin):
         return pd.concat(dataframes, axis=1)
 
 
-class RestrictedHorizonVersionedTimeSeries(VersionedTimeseriesMixin):
-    def __init__(self, dataset: VersionedTimeseriesMixin, horizon: datetime) -> None:
+class RestrictedHorizonVersionedTimeSeries(VersionedTimeSeriesMixin):
+    def __init__(self, dataset: VersionedTimeSeriesMixin, horizon: datetime) -> None:
         self._dataset = dataset
         self._horizon = horizon
 
@@ -84,12 +84,12 @@ class RestrictedHorizonVersionedTimeSeries(VersionedTimeseriesMixin):
 
 class VersionedTimeSeriesAccessors:
     @staticmethod
-    def concat_featurewise(datasets: list[VersionedTimeseriesMixin], mode: ConcatMode) -> VersionedTimeseriesMixin:
+    def concat_featurewise(datasets: list[VersionedTimeSeriesMixin], mode: ConcatMode) -> VersionedTimeSeriesMixin:
         if len(datasets) == 1:
             return datasets[0]
 
         return ConcatenatedVersionedTimeSeries(datasets=datasets, mode=mode)
 
     @staticmethod
-    def restrict_horizon(dataset: VersionedTimeseriesMixin, horizon: datetime) -> VersionedTimeseriesMixin:
+    def restrict_horizon(dataset: VersionedTimeSeriesMixin, horizon: datetime) -> VersionedTimeSeriesMixin:
         return RestrictedHorizonVersionedTimeSeries(dataset, horizon)
