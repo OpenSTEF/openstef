@@ -2,3 +2,12 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 """Backtesting, Evaluation, Analysis and Metrics (BEAM) library for OpenSTEF."""
+
+import logging
+
+# Set up logging configuration
+root_logger = logging.getLogger(name=__name__)
+if not root_logger.handlers:
+    root_logger.addHandler(logging.NullHandler())
+
+__all__ = []

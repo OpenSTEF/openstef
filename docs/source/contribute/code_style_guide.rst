@@ -442,38 +442,417 @@ Define domain-specific exceptions for clear error categorization:
         """Raised when model training fails."""
         pass
 
-Logging practices
------------------
+.. _logging-for-contributors:
 
-Use Python's logging module for debug and info messages:
+Logging for Contributors
+========================
+
+OpenSTEF uses Python's standard logging library with a ``NullHandler`` by default, 
+allowing users to configure logging as needed. Contributors should follow these 
+practices for consistent and useful logging throughout the codebase.
+
+Getting a logger
+----------------
+
+Always use ``logging.getLogger(__name__)`` to get a logger instance:
 
 .. code-block:: python
 
     import logging
 
-    _log = logging.getLogger(__name__)
+    logger = logging.getLogger(__name__)
 
     def train_forecaster(data: TimeseriesDataset) -> ForecastModel:
         """Train a forecasting model."""
         
-        _log.info(f"Training model with {len(data)} samples")
-        _log.debug(f"Feature columns: {data.feature_columns}")
+        logger.info(f"Training model with {len(data)} samples")
+        logger.debug(f"Feature columns: {data.feature_columns}")
         
         try:
             model = self._fit_model(data)
-            _log.info("Model training completed successfully")
+            logger.info("Model training completed successfully")
             return model
         except Exception as e:
-            _log.error(f"Model training failed: {e}")
+            logger.error(f"Model training failed: {e}")
             raise ModelTrainingError(f"Training failed: {e}") from e
 
-Logging guidelines:
+**Why use ``__name__``?**
 
-* Use ``_log.debug()`` for detailed diagnostic information
-* Use ``_log.info()`` for important operational information  
-* Use ``_log.warning()`` for recoverable issues
-* Use ``_log.error()`` for serious problems
-* Avoid pre-computed f-strings in log messages for performance
+The ``__name__`` variable contains the full module path (e.g., ``openstef_models.forecasting.xgboost``), 
+which provides several benefits:
+
+* **Package-level control**: Users can disable logging for entire packages like ``openstef_models``
+* **Module-level granularity**: Users can control logging for specific modules like ``openstef_models.feature_engineering``
+* **Hierarchical structure**: Follows Python logging's hierarchical naming convention
+* **Easy filtering**: Log output clearly shows which module generated each message
+
+.. note::
+   
+   OpenSTEF also provides a more advanced logging system through the main ``openstef`` package 
+   with support for structured logging. However, individual packages (``openstef-models``, 
+   ``openstef-beam``, etc.) use standard Python logging with ``NullHandler`` by default to 
+   give users complete control over logging configuration. See the :doc:`../user_guide/logging` 
+   guide for details on both approaches.
+
+Logging levels and usage
+------------------------
+
+Use appropriate logging levels for different types of information:
+
+.. code-block:: python
+
+    import logging
+
+    logger = logging.getLogger(__name__)
+
+    def process_data(data: pd.DataFrame) -> pd.DataFrame:
+        """Process time series data."""
+        
+        # DEBUG: Detailed diagnostic information
+        logger.debug(f"Processing data with shape {data.shape}")
+        logger.debug(f"Data columns: {list(data.columns)}")
+        logger.debug(f"Date range: {data.index.min()} to {data.index.max()}")
+        
+        # INFO: Important operational information
+        logger.info(f"Starting data processing for {len(data)} samples")
+        
+        # Check for potential issues
+        missing_count = data.isnull().sum().sum()
+        if missing_count > 0:
+            # WARNING: Something unexpected but recoverable
+            logger.warning(f"Found {missing_count} missing values, will interpolate")
+            data = data.interpolate()
+        
+        try:
+            processed_data = _apply_transformations(data)
+            logger.info("Data processing completed successfully")
+            return processed_data
+        except ValueError as e:
+            # ERROR: Serious problem that prevents completion
+            logger.error(f"Data processing failed: {e}")
+            raise DataProcessingError(f"Processing failed: {e}") from e
+
+**Logging level guidelines:**
+
+* **DEBUG**: Detailed diagnostic information (data shapes, column names, internal states)
+* **INFO**: Important operational milestones (processing started/completed, model trained)
+* **WARNING**: Unexpected situations that don't prevent execution (missing data, deprecated usage)
+* **ERROR**: Serious problems that prevent a function from completing
+* **CRITICAL**: Very serious errors that may crash the application (rarely used)
+
+Adding context with extras
+--------------------------
+
+Enhance log messages with structured context using the ``extra`` parameter:
+
+.. code-block:: python
+
+    import logging
+
+    logger = logging.getLogger(__name__)
+
+    def train_model(data: TimeseriesDataset, config: ModelConfig) -> TrainedModel:
+        """Train a forecasting model with detailed logging context."""
+        
+        # Add extra context to log messages
+        training_context = {
+            "model_type": config.model_type,
+            "training_samples": len(data),
+            "feature_count": len(data.feature_columns),
+            "horizon": config.horizon,
+            "validation_split": config.validation_split
+        }
+        
+        logger.info(
+            f"Starting model training with {config.model_type}",
+            extra={"training_info": training_context}
+        )
+        
+        # Log performance metrics with context
+        start_time = time.time()
+        model = _fit_model(data, config)
+        training_time = time.time() - start_time
+        
+        performance_context = {
+            "training_time_seconds": round(training_time, 2),
+            "model_size_mb": round(_get_model_size(model) / 1024 / 1024, 2),
+            "convergence_iterations": getattr(model, 'n_estimators_', None)
+        }
+        
+        logger.info(
+            "Model training completed",
+            extra={"performance_info": performance_context}
+        )
+        
+        return model
+
+**Benefits of using extras:**
+
+* **Structured logging**: Context can be extracted by log processors
+* **Better filtering**: Users can filter logs based on model type, data size, etc.
+* **Monitoring integration**: Production systems can alert on specific conditions
+* **Debugging**: Rich context helps identify issues without code changes
+
+Using LoggerAdapter for consistent context
+------------------------------------------
+
+When you need to use the same context across multiple log messages or throughout 
+a function/class, use ``logging.LoggerAdapter``:
+
+.. code-block:: python
+
+    import logging
+
+    logger = logging.getLogger(__name__)
+
+    class FeatureEngineeringPipeline:
+        """Feature engineering pipeline with consistent logging context."""
+        
+        def __init__(self, config: FeatureConfig):
+            self.config = config
+            
+            # Create adapter with consistent context
+            self.logger = logging.LoggerAdapter(
+                logger=logger,
+                extra={
+                    "pipeline_id": config.pipeline_id,
+                    "feature_types": config.feature_types,
+                    "transform_count": len(config.transforms)
+                }
+            )
+        
+        def fit_transform(self, data: TimeseriesDataset) -> TimeseriesDataset:
+            """Apply feature engineering transformations."""
+            
+            # All log messages will include the adapter's extra context
+            self.logger.info(f"Starting feature engineering on {len(data)} samples")
+            
+            result = data
+            for i, transform in enumerate(self.config.transforms):
+                self.logger.debug(f"Applying transform {i+1}: {transform.__class__.__name__}")
+                
+                try:
+                    result = transform.fit_transform(result)
+                    self.logger.debug(f"Transform {i+1} completed, output shape: {result.shape}")
+                except Exception as e:
+                    # Extra context automatically included
+                    self.logger.error(f"Transform {i+1} failed: {e}")
+                    raise
+            
+            self.logger.info(f"Feature engineering completed, output shape: {result.shape}")
+            return result
+
+    def process_multiple_datasets(datasets: List[TimeseriesDataset]) -> List[TimeseriesDataset]:
+        """Process multiple datasets with batch context."""
+        
+        # Create adapter for batch processing context
+        batch_logger = logging.LoggerAdapter(
+            logger=logger,
+            extra={
+                "batch_size": len(datasets),
+                "batch_id": f"batch_{int(time.time())}",
+                "processing_mode": "parallel"
+            }
+        )
+        
+        batch_logger.info("Starting batch processing")
+        
+        results = []
+        for i, dataset in enumerate(datasets):
+            # Create per-dataset adapter that inherits batch context
+            dataset_logger = logging.LoggerAdapter(
+                logger=batch_logger,  # Chain adapters for nested context
+                extra={
+                    "dataset_index": i,
+                    "dataset_size": len(dataset)
+                }
+            )
+            
+            dataset_logger.debug("Processing dataset")
+            result = _process_single_dataset(dataset)
+            dataset_logger.debug("Dataset processing completed")
+            results.append(result)
+        
+        batch_logger.info("Batch processing completed")
+        return results
+
+**When to use LoggerAdapter:**
+
+* **Class-level context**: When a class needs consistent context across methods
+* **Function-level context**: When a function performs multiple operations with shared context
+* **Nested operations**: When you need to add context at multiple levels (batch → dataset → operation)
+* **Long-running processes**: When tracking context throughout extended operations
+
+Performance considerations
+---------------------------
+
+Follow these practices to ensure logging doesn't impact performance:
+
+.. code-block:: python
+
+    import logging
+
+    logger = logging.getLogger(__name__)
+
+    def performance_sensitive_function(large_data: pd.DataFrame) -> pd.DataFrame:
+        """Function that processes large amounts of data efficiently."""
+        
+        # Good: Log level is checked before expensive operations
+        if logger.isEnabledFor(logging.DEBUG):
+            logger.debug(f"Processing data with columns: {list(large_data.columns)}")
+            logger.debug(f"Memory usage: {large_data.memory_usage(deep=True).sum() / 1024 / 1024:.2f} MB")
+        
+        # Good: Use lazy evaluation for expensive string formatting
+        logger.info("Processing started for %d samples", len(large_data))
+        
+        # Avoid: Expensive operations in log arguments that are always evaluated
+        # logger.debug(f"Data summary: {large_data.describe().to_string()}")  # Bad!
+        
+        # Good: Conditional expensive logging
+        if logger.isEnabledFor(logging.DEBUG):
+            logger.debug(f"Data summary: {large_data.describe().to_string()}")
+        
+        for chunk in _process_in_chunks(large_data):
+            # Good: Minimal context for frequent operations
+            logger.debug("Processed chunk of size %d", len(chunk))
+        
+        logger.info("Processing completed")
+        return processed_data
+
+**Performance guidelines:**
+
+* Use ``logger.isEnabledFor(level)`` for expensive debug operations
+* Prefer ``%`` formatting or ``.format()`` over f-strings in log calls for lazy evaluation
+* Avoid expensive computations in log message arguments
+* Use appropriate log levels to control output volume
+* Consider using logging filters for fine-grained performance control
+
+Error handling with logging
+---------------------------
+
+Combine proper exception handling with informative logging:
+
+.. code-block:: python
+
+    import logging
+
+    logger = logging.getLogger(__name__)
+
+    def robust_data_loading(file_path: Path) -> TimeseriesDataset:
+        """Load data with comprehensive error handling and logging."""
+        
+        logger.info(f"Loading data from {file_path}")
+        
+        try:
+            # Validate file exists and is readable
+            if not file_path.exists():
+                raise FileNotFoundError(f"Data file not found: {file_path}")
+            
+            logger.debug(f"File size: {file_path.stat().st_size / 1024 / 1024:.2f} MB")
+            
+            # Attempt to load data
+            data = pd.read_csv(file_path)
+            logger.info(f"Successfully loaded {len(data)} rows, {len(data.columns)} columns")
+            
+            # Validate data structure
+            _validate_data_structure(data)
+            
+            return TimeseriesDataset(data)
+            
+        except FileNotFoundError as e:
+            logger.error(f"File not found: {e}")
+            raise DataLoadingError(f"Cannot load data: {e}") from e
+        
+        except pd.errors.EmptyDataError as e:
+            logger.error(f"File is empty: {file_path}")
+            raise DataLoadingError(f"Empty data file: {file_path}") from e
+        
+        except pd.errors.ParserError as e:
+            logger.error(f"Failed to parse CSV file: {e}")
+            # Include file context in error
+            logger.error(f"File path: {file_path}", extra={"file_info": {
+                "path": str(file_path),
+                "size_bytes": file_path.stat().st_size if file_path.exists() else 0
+            }})
+            raise DataLoadingError(f"Invalid CSV format: {e}") from e
+        
+        except Exception as e:
+            # Catch-all with full context
+            logger.error(f"Unexpected error loading data: {e}", extra={
+                "error_context": {
+                    "file_path": str(file_path),
+                    "error_type": type(e).__name__,
+                    "file_exists": file_path.exists()
+                }
+            })
+            raise DataLoadingError(f"Failed to load data from {file_path}: {e}") from e
+
+**Error logging guidelines:**
+
+* Always log errors before raising exceptions
+* Include relevant context in error messages
+* Use exception chaining (``raise ... from e``) to preserve stack traces
+* Provide actionable error messages when possible
+* Use structured logging for error context that might be analyzed programmatically
+
+Testing logging behavior
+------------------------
+
+Write tests to verify logging behavior in your code:
+
+.. code-block:: python
+
+    import logging
+    import pytest
+    from unittest.mock import patch
+
+    def test_successful_training_logs_info_messages(caplog):
+        """Test that successful training produces expected log messages."""
+        
+        with caplog.at_level(logging.INFO):
+            model = train_forecaster(sample_data, sample_config)
+        
+        # Verify expected log messages
+        assert "Starting model training" in caplog.text
+        assert "Model training completed successfully" in caplog.text
+        
+        # Verify log levels
+        info_messages = [record for record in caplog.records if record.levelno == logging.INFO]
+        assert len(info_messages) >= 2
+
+    def test_training_failure_logs_error_with_context():
+        """Test that training failures log appropriate error messages."""
+        
+        invalid_config = ModelConfig(learning_rate=-1.0)  # Invalid config
+        
+        with pytest.raises(ModelTrainingError):
+            with patch('openstef_models.logger') as mock_logger:
+                train_forecaster(sample_data, invalid_config)
+        
+        # Verify error was logged
+        mock_logger.error.assert_called()
+        error_call = mock_logger.error.call_args[0][0]
+        assert "training failed" in error_call.lower()
+
+    def test_logger_adapter_includes_context():
+        """Test that LoggerAdapter includes expected context in log messages."""
+        
+        with patch('openstef_models.logger') as mock_logger:
+            pipeline = FeatureEngineeringPipeline(sample_config)
+            pipeline.fit_transform(sample_data)
+        
+        # Verify logger adapter was used with correct context
+        adapter_calls = [call for call in mock_logger.info.call_args_list 
+                        if 'pipeline_id' in str(call)]
+        assert len(adapter_calls) > 0
+
+**Testing guidelines:**
+
+* Use ``caplog`` fixture to capture log messages in tests
+* Test both successful operations and error conditions  
+* Verify log levels are appropriate for different scenarios
+* Test that structured context is included in log messages
+* Mock loggers when testing complex logging logic
 
 .. _testing-guidelines:
 

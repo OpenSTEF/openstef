@@ -84,7 +84,7 @@ appreciated! Our library source code is found in:
 Because many people use and work on OpenSTEF, we have guidelines for keeping
 our code consistent and mitigating the impact of changes.
 
-* :doc:`code_style_guide` - Coding standards and conventions
+* :doc:`code_style_guide` - Coding standards and conventions (including logging practices)
 * :doc:`development_workflow` - Pull request workflow and guidelines
 * :doc:`document` - Documentation writing guidelines
 
