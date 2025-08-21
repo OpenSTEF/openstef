@@ -2,6 +2,11 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+"""This module provides the CyclicFeatures transform, which generates cyclic
+features from datetime indices in time series datasets based on sine and cosine
+components.
+"""
+
 import numpy as np
 import pandas as pd
 
@@ -9,8 +14,9 @@ from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.datasets.transforms import TimeSeriesTransform
 
 NUM_DAYS_IN_YEAR = 365.25
-NUM_DAYS_IN_WEEK = 7
 NUM_MONTHS_IN_YEAR = 12
+NUM_DAYS_IN_WEEK = 7
+NUM_SECONDS_IN_A_DAY = 24 * 60 * 60
 
 
 class CyclicFeatures(TimeSeriesTransform):
@@ -42,7 +48,7 @@ class CyclicFeatures(TimeSeriesTransform):
         >>> transform.fit(dataset)
         >>> transformed = transform.transform(dataset)
         >>> len(transformed.feature_names)
-        7
+        9
         >>> 'season_sine' in transformed.feature_names
         True
     """
@@ -92,24 +98,7 @@ class CyclicFeatures(TimeSeriesTransform):
             index=index,
         )
 
-    def _compute_weekday_feature(self, index: pd.DatetimeIndex) -> pd.DataFrame:
-        """Compute weekday features based on day of week.
-
-        Args:
-            index: DatetimeIndex to extract day of week from.
-
-        Returns:
-            DataFrame with day0fweek_sine and day0fweek_cosine columns.
-        """
-        return pd.DataFrame(
-            {
-                "day0fweek_sine": self._compute_sine(index.day_of_week, NUM_DAYS_IN_WEEK),
-                "day0fweek_cosine": self._compute_cosine(index.day_of_week, NUM_DAYS_IN_WEEK),
-            },
-            index=index,
-        )
-
-    def _compute_monthly_feature(self, index: pd.DatetimeIndex) -> pd.DataFrame:
+    def _compute_monthly_features(self, index: pd.DatetimeIndex) -> pd.DataFrame:
         """Compute monthly features based on month of year.
 
         Args:
@@ -126,6 +115,43 @@ class CyclicFeatures(TimeSeriesTransform):
             index=index,
         )
 
+    def _compute_weekday_features(self, index: pd.DatetimeIndex) -> pd.DataFrame:
+        """Compute weekday features based on day of week.
+
+        Args:
+            index: DatetimeIndex to extract day of week from.
+
+        Returns:
+            DataFrame with day0fweek_sine and day0fweek_cosine columns.
+        """
+        return pd.DataFrame(
+            {
+                "day0fweek_sine": self._compute_sine(index.day_of_week, NUM_DAYS_IN_WEEK),
+                "day0fweek_cosine": self._compute_cosine(index.day_of_week, NUM_DAYS_IN_WEEK),
+            },
+            index=index,
+        )
+
+    def _compute_time_of_day_features(self, index: pd.DatetimeIndex) -> pd.DataFrame:
+        """Compute time of day features based on seconds in the day.
+
+        Args:
+            index: DatetimeIndex to extract time of day from.
+
+        Returns:
+            DataFrame with time0fday_sine and time0fday_cosine columns.
+        """
+        seconds_in_day = index.second + index.minute * 60 + index.hour * 60 * 60
+        period_of_day = 2 * np.pi * seconds_in_day / NUM_SECONDS_IN_A_DAY
+
+        return pd.DataFrame(
+            {
+                "time0fday_sine": self._compute_sine(period_of_day, NUM_SECONDS_IN_A_DAY),
+                "time0fday_cosine": self._compute_cosine(period_of_day, NUM_SECONDS_IN_A_DAY),
+            },
+            index=index,
+        )
+
     def fit(self, data: TimeSeriesDataset) -> None:
         """Fit the transform by computing cyclic features from the dataset's index.
 
@@ -135,8 +161,9 @@ class CyclicFeatures(TimeSeriesTransform):
         self.cyclic_features = pd.concat(
             [
                 self._compute_seasonal_feature(data.index),
-                self._compute_weekday_feature(data.index),
-                self._compute_monthly_feature(data.index),
+                self._compute_weekday_features(data.index),
+                self._compute_monthly_features(data.index),
+                self._compute_time_of_day_features(data.index),
             ],
             axis=1,
         )

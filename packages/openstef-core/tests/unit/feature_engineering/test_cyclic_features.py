@@ -63,6 +63,8 @@ def test_fit_creates_all_features(sample_dataset: TimeSeriesDataset):
         "day0fweek_cosine",
         "month_sine",
         "month_cosine",
+        "time0fday_sine",
+        "time0fday_cosine",
     ]
 
     assert not transform.cyclic_features.empty
@@ -78,7 +80,7 @@ def test_transform_adds_features(sample_dataset: TimeSeriesDataset):
 
     # Check structure
     assert isinstance(result, TimeSeriesDataset)
-    assert len(result.feature_names) == len(sample_dataset.feature_names) + 6
+    assert len(result.feature_names) == len(sample_dataset.feature_names) + 8
     assert result.sample_interval == sample_dataset.sample_interval
 
     # Check that original features are preserved
@@ -120,4 +122,4 @@ def test_empty_dataset():
     result = transform.transform(dataset)
 
     assert len(result.data) == 0
-    assert len(result.feature_names) == 7  # 1 original + 6 cyclic columns
+    assert len(result.feature_names) == 9  # 1 original + 8 cyclic columns
