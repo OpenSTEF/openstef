@@ -7,6 +7,4 @@
 
 .. currentmodule:: {{ module }}
 
-.. autoclass:: {{ objname }}
-   :show-inheritance:
-   :members:
+.. autofunction:: {{ objname }}

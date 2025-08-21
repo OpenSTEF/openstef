@@ -44,7 +44,7 @@ def simple_dataset() -> VersionedTimeseriesDataset:
 
 @pytest.fixture
 def partial_dataset() -> VersionedTimeseriesDataset:
-    # Create a dataset with some missing timestampspoe
+    # Create a dataset with some missing timestamps
     data = pd.DataFrame({
         "timestamp": [
             datetime.fromisoformat("2024-01-01T10:00:00"),

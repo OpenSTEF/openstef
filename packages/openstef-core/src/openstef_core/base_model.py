@@ -19,6 +19,8 @@ from pydantic import ConfigDict, TypeAdapter
 
 
 class BaseModel(PydanticBaseModel):
+    """Base model class for OpenSTEF components."""
+
     model_config = ConfigDict(protected_namespaces=(), arbitrary_types_allowed=True, ser_json_inf_nan="null")
 
 
@@ -101,6 +103,7 @@ def read_yaml_config[T: BaseConfig, U](path: Path, class_type: type[T] | TypeAda
 
 __all__ = [
     "BaseConfig",
+    "BaseModel",
     "read_yaml_config",
     "write_yaml_config",
 ]
