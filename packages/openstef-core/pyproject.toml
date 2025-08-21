@@ -26,7 +26,11 @@ classifiers = [
   "Programming Language :: Python :: 3.13",
 ]
 
-dependencies = [  ]
+dependencies = [
+  "numpy>=2.3.2",
+  "pandas>=2.3.1",
+  "pyarrow>=21",
+]
 
 urls.Documentation = "https://openstef.github.io/openstef/index.html"
 urls.Homepage = "https://lfenergy.org/projects/openstef/"
@@ -34,4 +38,4 @@ urls.Issues = "https://github.com/OpenSTEF/openstef/issues"
 urls.Repository = "https://github.com/OpenSTEF/openstef"
 
 [tool.hatch.build.targets.wheel]
-packages = [ "src/openstef_models" ]
+packages = [ "src/openstef_core" ]
