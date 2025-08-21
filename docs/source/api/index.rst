@@ -49,5 +49,4 @@ Beam Package
    :recursive:
    :template: custom_module.rst
 
-   core
 

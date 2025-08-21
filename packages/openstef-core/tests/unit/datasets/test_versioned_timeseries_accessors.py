@@ -3,12 +3,12 @@
 # SPDX-License-Identifier: MPL-2.0
 
 from datetime import datetime, timedelta
+from typing import TYPE_CHECKING
 
 import numpy as np
 import pandas as pd
 import pytest
 
-from openstef_core.datasets.mixins import VersionedTimeSeriesMixin
 from openstef_core.datasets.versioned_timeseries_accessors import (
     ConcatenatedVersionedTimeSeries,
     ConcatMode,
@@ -17,6 +17,9 @@ from openstef_core.datasets.versioned_timeseries_accessors import (
 )
 from openstef_core.datasets.versioned_timeseries_dataset import VersionedTimeseriesDataset
 from openstef_core.exceptions import TimeSeriesValidationError
+
+if TYPE_CHECKING:
+    from openstef_core.datasets.mixins import VersionedTimeSeriesMixin
 
 
 @pytest.fixture
@@ -41,7 +44,7 @@ def simple_dataset() -> VersionedTimeseriesDataset:
 
 @pytest.fixture
 def partial_dataset() -> VersionedTimeseriesDataset:
-    """Create a dataset with some missing timestamps"""
+    # Create a dataset with some missing timestampspoe
     data = pd.DataFrame({
         "timestamp": [
             datetime.fromisoformat("2024-01-01T10:00:00"),
