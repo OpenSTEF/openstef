@@ -463,8 +463,6 @@
 <span class="nb">type</span> <span class="n">ConcatMode</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="s2">&quot;outer&quot;</span><span class="p">,</span> <span class="s2">&quot;inner&quot;</span><span class="p">]</span>
 
 
-<div class="viewcode-block" id="ConcatenatedVersionedTimeSeries">
-<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.versioned_timeseries_accessors.html#openstef_core.datasets.ConcatenatedVersionedTimeSeries">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ConcatenatedVersionedTimeSeries</span><span class="p">(</span><span class="n">VersionedTimeSeriesMixin</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A composite dataset that concatenates features from multiple versioned datasets.</span>
 
@@ -485,8 +483,6 @@
 <span class="sd">            incompatible sample intervals.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="ConcatenatedVersionedTimeSeries.__init__">
-<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.versioned_timeseries_accessors.html#openstef_core.datasets.ConcatenatedVersionedTimeSeries.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">datasets</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">VersionedTimeSeriesMixin</span><span class="p">],</span> <span class="n">mode</span><span class="p">:</span> <span class="n">ConcatMode</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the concatenated dataset.</span>
 
@@ -517,8 +513,7 @@
             <span class="k">case</span> <span class="s2">&quot;outer&quot;</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_index</span> <span class="o">=</span> <span class="n">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">cast</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">y</span><span class="p">)),</span> <span class="n">indexes</span><span class="p">)</span>
             <span class="k">case</span> <span class="s2">&quot;inner&quot;</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_index</span> <span class="o">=</span> <span class="n">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="n">indexes</span><span class="p">)</span></div>
-
+                <span class="bp">self</span><span class="o">.</span><span class="n">_index</span> <span class="o">=</span> <span class="n">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="n">indexes</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">index</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">:</span>
@@ -535,8 +530,6 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Sample interval inherited from the constituent datasets.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_datasets</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">sample_interval</span>
 
-<div class="viewcode-block" id="ConcatenatedVersionedTimeSeries.get_window">
-<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.versioned_timeseries_accessors.html#openstef_core.datasets.ConcatenatedVersionedTimeSeries.get_window">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_window</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">end</span><span class="p">:</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">available_before</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get concatenated data window from all datasets.</span>
 
@@ -544,13 +537,9 @@
 <span class="sd">            DataFrame with horizontally concatenated features from all constituent datasets.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">dataframes</span> <span class="o">=</span> <span class="p">[</span><span class="n">d</span><span class="o">.</span><span class="n">get_window</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">end</span><span class="p">,</span> <span class="n">available_before</span><span class="o">=</span><span class="n">available_before</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_datasets</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">dataframes</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div>
-</div>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">dataframes</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
 
-
-<div class="viewcode-block" id="RestrictedHorizonVersionedTimeSeries">
-<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.versioned_timeseries_accessors.html#openstef_core.datasets.RestrictedHorizonVersionedTimeSeries">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">RestrictedHorizonVersionedTimeSeries</span><span class="p">(</span><span class="n">VersionedTimeSeriesMixin</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A dataset wrapper that restricts data availability to a specific horizon.</span>
 
@@ -563,8 +552,6 @@
 <span class="sd">    calls, ensuring it never exceeds the configured horizon.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="RestrictedHorizonVersionedTimeSeries.__init__">
-<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.versioned_timeseries_accessors.html#openstef_core.datasets.RestrictedHorizonVersionedTimeSeries.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">VersionedTimeSeriesMixin</span><span class="p">,</span> <span class="n">horizon</span><span class="p">:</span> <span class="n">datetime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the horizon-restricted dataset.</span>
 
@@ -573,8 +560,7 @@
 <span class="sd">            horizon: Maximum time for data availability cutoff.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span> <span class="o">=</span> <span class="n">dataset</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_horizon</span> <span class="o">=</span> <span class="n">horizon</span></div>
-
+        <span class="bp">self</span><span class="o">.</span><span class="n">_horizon</span> <span class="o">=</span> <span class="n">horizon</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">feature_names</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
@@ -596,8 +582,6 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The horizon cutoff time for data availability.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_horizon</span>
 
-<div class="viewcode-block" id="RestrictedHorizonVersionedTimeSeries.get_window">
-<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.versioned_timeseries_accessors.html#openstef_core.datasets.RestrictedHorizonVersionedTimeSeries.get_window">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_window</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">end</span><span class="p">:</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">available_before</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get data window with horizon restriction enforced.</span>
 
@@ -617,13 +601,11 @@
             <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Available before </span><span class="si">{</span><span class="n">available_before</span><span class="si">}</span><span class="s2"> is greater than the horizon.&quot;</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">get_window</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">end</span><span class="p">,</span> <span class="n">available_before</span><span class="o">=</span><span class="n">available_before</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_horizon</span><span class="p">)</span></div>
-</div>
-
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">get_window</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">end</span><span class="p">,</span> <span class="n">available_before</span><span class="o">=</span><span class="n">available_before</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_horizon</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="VersionedTimeSeriesAccessors">
-<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.versioned_timeseries_accessors.html#openstef_core.datasets.VersionedTimeSeriesAccessors">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.VersionedTimeSeriesAccessors.html#openstef_core.datasets.VersionedTimeSeriesAccessors">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">VersionedTimeSeriesAccessors</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Utility class providing static methods for dataset operations.</span>
 
@@ -632,7 +614,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="VersionedTimeSeriesAccessors.concat_featurewise">
-<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.versioned_timeseries_accessors.html#openstef_core.datasets.VersionedTimeSeriesAccessors.concat_featurewise">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.VersionedTimeSeriesAccessors.html#openstef_core.datasets.VersionedTimeSeriesAccessors.concat_featurewise">[docs]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">concat_featurewise</span><span class="p">(</span><span class="n">datasets</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">VersionedTimeSeriesMixin</span><span class="p">],</span> <span class="n">mode</span><span class="p">:</span> <span class="n">ConcatMode</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VersionedTimeSeriesMixin</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Concatenate multiple datasets by combining their features.</span>
@@ -685,7 +667,7 @@
 
 
 <div class="viewcode-block" id="VersionedTimeSeriesAccessors.restrict_horizon">
-<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.versioned_timeseries_accessors.html#openstef_core.datasets.VersionedTimeSeriesAccessors.restrict_horizon">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.VersionedTimeSeriesAccessors.html#openstef_core.datasets.VersionedTimeSeriesAccessors.restrict_horizon">[docs]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">restrict_horizon</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span> <span class="n">VersionedTimeSeriesMixin</span><span class="p">,</span> <span class="n">horizon</span><span class="p">:</span> <span class="n">datetime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VersionedTimeSeriesMixin</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Restrict dataset access to data available before a specific horizon.</span>

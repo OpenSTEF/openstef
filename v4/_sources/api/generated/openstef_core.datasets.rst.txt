@@ -2,36 +2,55 @@
 ..
 .. SPDX-License-Identifier: MPL-2.0
 
-openstef\_core.datasets
-=======================
+openstef_core.datasets
+======================
+
+.. currentmodule:: openstef_core.datasets
 
 .. automodule:: openstef_core.datasets
+   :no-members:
+   :no-inherited-members:
 
-   
-   
-   
 
-   
-   
-   
 
-   
-   
-   
 
-   
-   
-   .. rubric:: Submodules
 
-   .. autosummary::
-      :toctree:
-      :recursive:
-   
-      mixins
-      timeseries_dataset
-      transforms
-      validation
-      versioned_timeseries_accessors
-      versioned_timeseries_dataset
-   
-   
+
+
+
+
+
+
+Submodules
+----------
+
+
+.. autosummary::
+   :toctree: .
+   :template: module_overview.rst
+
+   openstef_core.datasets.mixins
+
+
+
+
+
+
+Classes
+-------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_class.rst
+
+   TimeSeriesDataset
+   VersionedTimeSeriesAccessors
+   VersionedTimeseriesDataset
+
+
+
+
+
+
+
+

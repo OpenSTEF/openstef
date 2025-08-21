@@ -471,7 +471,7 @@
 
 
 <div class="viewcode-block" id="VersionedTimeseriesDataset">
-<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.versioned_timeseries_dataset.html#openstef_core.datasets.VersionedTimeseriesDataset">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.VersionedTimeseriesDataset.html#openstef_core.datasets.VersionedTimeseriesDataset">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">VersionedTimeseriesDataset</span><span class="p">(</span><span class="n">VersionedTimeSeriesMixin</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A time series dataset that tracks data availability over time.</span>
 
@@ -520,7 +520,7 @@
     <span class="n">_feature_names</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
 
 <div class="viewcode-block" id="VersionedTimeseriesDataset.__init__">
-<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.versioned_timeseries_dataset.html#openstef_core.datasets.VersionedTimeseriesDataset.__init__">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.VersionedTimeseriesDataset.html#openstef_core.datasets.VersionedTimeseriesDataset.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
@@ -584,7 +584,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_index</span>
 
 <div class="viewcode-block" id="VersionedTimeseriesDataset.get_window">
-<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.versioned_timeseries_dataset.html#openstef_core.datasets.VersionedTimeseriesDataset.get_window">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.VersionedTimeseriesDataset.html#openstef_core.datasets.VersionedTimeseriesDataset.get_window">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_window</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">end</span><span class="p">:</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">available_before</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve a time window of data that was available before a specified time.</span>
 
@@ -650,7 +650,7 @@
 
 
 <div class="viewcode-block" id="VersionedTimeseriesDataset.to_parquet">
-<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.versioned_timeseries_dataset.html#openstef_core.datasets.VersionedTimeseriesDataset.to_parquet">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.VersionedTimeseriesDataset.html#openstef_core.datasets.VersionedTimeseriesDataset.to_parquet">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">to_parquet</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
@@ -675,7 +675,7 @@
 
 
 <div class="viewcode-block" id="VersionedTimeseriesDataset.from_parquet">
-<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.versioned_timeseries_dataset.html#openstef_core.datasets.VersionedTimeseriesDataset.from_parquet">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.VersionedTimeseriesDataset.html#openstef_core.datasets.VersionedTimeseriesDataset.from_parquet">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">from_parquet</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">,</span>

@@ -2,23 +2,31 @@
 ..
 .. SPDX-License-Identifier: MPL-2.0
 
-openstef\_models.postprocessing
-===============================
+openstef_models.postprocessing
+==============================
+
+.. currentmodule:: openstef_models.postprocessing
 
 .. automodule:: openstef_models.postprocessing
+   :no-members:
+   :no-inherited-members:
 
-   
-   
-   
 
-   
-   
-   
 
-   
-   
-   
 
-   
-   
-   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

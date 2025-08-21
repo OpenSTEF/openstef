@@ -2,31 +2,39 @@
 ..
 .. SPDX-License-Identifier: MPL-2.0
 
-openstef\_core.utils
-====================
+openstef_core.utils
+===================
+
+.. currentmodule:: openstef_core.utils
 
 .. automodule:: openstef_core.utils
+   :no-members:
+   :no-inherited-members:
 
-   
-   
-   
 
-   
-   
-   
 
-   
-   
-   
 
-   
-   
-   .. rubric:: Submodules
 
-   .. autosummary::
-      :toctree:
-      :recursive:
-   
-      pydantic
-   
-   
+
+
+
+
+
+Functions
+---------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_function.rst
+
+   timedelta_from_isoformat
+   timedelta_to_isoformat
+
+
+
+
+
+
+
+
+

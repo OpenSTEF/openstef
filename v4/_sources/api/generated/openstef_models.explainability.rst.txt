@@ -2,23 +2,31 @@
 ..
 .. SPDX-License-Identifier: MPL-2.0
 
-openstef\_models.explainability
-===============================
+openstef_models.explainability
+==============================
+
+.. currentmodule:: openstef_models.explainability
 
 .. automodule:: openstef_models.explainability
+   :no-members:
+   :no-inherited-members:
 
-   
-   
-   
 
-   
-   
-   
 
-   
-   
-   
 
-   
-   
-   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

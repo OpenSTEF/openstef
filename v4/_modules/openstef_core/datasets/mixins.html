@@ -457,7 +457,7 @@
 
 
 <div class="viewcode-block" id="TimeSeriesMixin">
-<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.validation.html#openstef_core.datasets.TimeSeriesMixin">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.mixins.TimeSeriesMixin.html#openstef_core.datasets.mixins.TimeSeriesMixin">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TimeSeriesMixin</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract base class for time series dataset functionality.</span>
 
@@ -506,7 +506,7 @@
 
 
 <div class="viewcode-block" id="VersionedAccessMixin">
-<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.mixins.html#openstef_core.datasets.VersionedAccessMixin">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.mixins.VersionedAccessMixin.html#openstef_core.datasets.mixins.VersionedAccessMixin">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">VersionedAccessMixin</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract base class for versioned data access functionality.</span>
 
@@ -528,7 +528,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="VersionedAccessMixin.get_window">
-<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.mixins.html#openstef_core.datasets.VersionedAccessMixin.get_window">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.mixins.VersionedAccessMixin.html#openstef_core.datasets.mixins.VersionedAccessMixin.get_window">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_window</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">end</span><span class="p">:</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">available_before</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get a window of data from the dataset that is available before or at the specified time.</span>
@@ -556,7 +556,7 @@
 
 
 <div class="viewcode-block" id="VersionedTimeSeriesMixin">
-<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.versioned_timeseries_accessors.html#openstef_core.datasets.VersionedTimeSeriesMixin">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.mixins.VersionedTimeSeriesMixin.html#openstef_core.datasets.mixins.VersionedTimeSeriesMixin">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">VersionedTimeSeriesMixin</span><span class="p">(</span><span class="n">TimeSeriesMixin</span><span class="p">,</span> <span class="n">VersionedAccessMixin</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A mixin that combines time series and versioned access functionality.</span>
 

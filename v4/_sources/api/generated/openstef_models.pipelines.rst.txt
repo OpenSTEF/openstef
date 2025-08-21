@@ -2,23 +2,31 @@
 ..
 .. SPDX-License-Identifier: MPL-2.0
 
-openstef\_models.pipelines
-==========================
+openstef_models.pipelines
+=========================
+
+.. currentmodule:: openstef_models.pipelines
 
 .. automodule:: openstef_models.pipelines
+   :no-members:
+   :no-inherited-members:
 
-   
-   
-   
 
-   
-   
-   
 
-   
-   
-   
 
-   
-   
-   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

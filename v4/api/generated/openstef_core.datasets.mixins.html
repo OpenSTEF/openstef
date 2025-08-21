@@ -59,7 +59,7 @@
     <link rel="icon" href="../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="openstef_core.datasets.timeseries_dataset" href="openstef_core.datasets.timeseries_dataset.html" />
+    <link rel="next" title="TimeSeriesMixin" href="openstef_core.datasets.mixins.TimeSeriesMixin.html" />
     <link rel="prev" title="openstef_core.datasets" href="openstef_core.datasets.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -394,8 +394,35 @@
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
-<li class="toctree-l1 current active"><a class="reference internal" href="openstef_core.datasets.html">openstef_core.datasets</a></li>
-<li class="toctree-l1"><a class="reference internal" href="openstef_core.utils.html">openstef_core.utils</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="openstef_core.datasets.html">openstef_core.datasets</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active has-children"><a class="current reference internal" href="#">openstef_core.datasets.mixins</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="openstef_core.datasets.mixins.TimeSeriesMixin.html">TimeSeriesMixin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="openstef_core.datasets.mixins.VersionedAccessMixin.html">VersionedAccessMixin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="openstef_core.datasets.mixins.VersionedTimeSeriesMixin.html">VersionedTimeSeriesMixin</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_core.datasets.TimeSeriesDataset.html">TimeSeriesDataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_core.datasets.VersionedTimeSeriesAccessors.html">VersionedTimeSeriesAccessors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_core.datasets.VersionedTimeseriesDataset.html">VersionedTimeseriesDataset</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="openstef_core.utils.html">openstef_core.utils</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="openstef_core.utils.timedelta_from_isoformat.html">timedelta_from_isoformat</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_core.utils.timedelta_to_isoformat.html">timedelta_to_isoformat</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="openstef_core.base_model.html">openstef_core.base_model</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="openstef_core.base_model.read_yaml_config.html">read_yaml_config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_core.base_model.write_yaml_config.html">write_yaml_config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_core.base_model.BaseConfig.html">BaseConfig</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_core.base_model.BaseModel.html">BaseModel</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="openstef_core.exceptions.html">openstef_core.exceptions</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.MissingColumnsError.html">MissingColumnsError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.TimeSeriesValidationError.html">TimeSeriesValidationError</a></li>
+</ul>
+</details></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="openstef_models.feature_engineering.html">openstef_models.feature_engineering</a></li>
@@ -403,6 +430,15 @@
 <li class="toctree-l1"><a class="reference internal" href="openstef_models.pipelines.html">openstef_models.pipelines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="openstef_models.postprocessing.html">openstef_models.postprocessing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="openstef_models.explainability.html">openstef_models.explainability</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="openstef_models.exceptions.html">openstef_models.exceptions</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="openstef_models.exceptions.__builtins__.html">__builtins__</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_models.exceptions.__cached__.html">__cached__</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_models.exceptions.__doc__.html">__doc__</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_models.exceptions.__file__.html">__file__</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_models.exceptions.__name__.html">__name__</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_models.exceptions.__package__.html">__package__</a></li>
+</ul>
+</details></li>
 </ul>
 </div>
 </nav></div>
@@ -472,137 +508,23 @@
 <p>This module provides mixins that define the core interfaces for time series
 datasets in OpenSTEF. The mixins separate concerns between basic time series
 operations and versioned data access capabilities.</p>
-<p class="rubric">Classes</p>
+<section id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#openstef_core.datasets.mixins.TimeSeriesMixin" title="openstef_core.datasets.mixins.TimeSeriesMixin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TimeSeriesMixin</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="openstef_core.datasets.mixins.TimeSeriesMixin.html#openstef_core.datasets.mixins.TimeSeriesMixin" title="openstef_core.datasets.mixins.TimeSeriesMixin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TimeSeriesMixin</span></code></a>()</p></td>
 <td><p>Abstract base class for time series dataset functionality.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#openstef_core.datasets.mixins.VersionedAccessMixin" title="openstef_core.datasets.mixins.VersionedAccessMixin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VersionedAccessMixin</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="openstef_core.datasets.mixins.VersionedAccessMixin.html#openstef_core.datasets.mixins.VersionedAccessMixin" title="openstef_core.datasets.mixins.VersionedAccessMixin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VersionedAccessMixin</span></code></a>()</p></td>
 <td><p>Abstract base class for versioned data access functionality.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#openstef_core.datasets.mixins.VersionedTimeSeriesMixin" title="openstef_core.datasets.mixins.VersionedTimeSeriesMixin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VersionedTimeSeriesMixin</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="openstef_core.datasets.mixins.VersionedTimeSeriesMixin.html#openstef_core.datasets.mixins.VersionedTimeSeriesMixin" title="openstef_core.datasets.mixins.VersionedTimeSeriesMixin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VersionedTimeSeriesMixin</span></code></a>()</p></td>
 <td><p>A mixin that combines time series and versioned access functionality.</p></td>
 </tr>
 </tbody>
 </table>
 </div>
-<dl class="py class">
-<dt class="sig sig-object py" id="openstef_core.datasets.mixins.TimeSeriesMixin">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef_core.datasets.mixins.</span></span><span class="sig-name descname"><span class="pre">TimeSeriesMixin</span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/mixins.html#TimeSeriesMixin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.mixins.TimeSeriesMixin" title="Link to this definition">#</a></dt>
-<dd><p>Abstract base class for time series dataset functionality.</p>
-<p>This mixin defines the essential interface that all time series datasets
-must implement. It provides access to feature metadata, temporal properties,
-and the dataset’s temporal index.</p>
-<p>Classes implementing this mixin must provide feature names, sample interval,
-and datetime index information. This interface enables consistent access
-patterns across different time series dataset implementations.</p>
-<dl class="py property">
-<dt class="sig sig-object py" id="openstef_core.datasets.mixins.TimeSeriesMixin.feature_names">
-<em class="property"><span class="k"><span class="pre">abstract</span></span><span class="w"> </span><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">feature_names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#openstef_core.datasets.mixins.TimeSeriesMixin.feature_names" title="Link to this definition">#</a></dt>
-<dd><p>Returns the list of feature names available in the dataset.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Names of all available features, excluding metadata columns.</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>list[str]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="openstef_core.datasets.mixins.TimeSeriesMixin.sample_interval">
-<em class="property"><span class="k"><span class="pre">abstract</span></span><span class="w"> </span><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sample_interval</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="openstef_core.datasets.versioned_timeseries_accessors.html#openstef_core.datasets.versioned_timeseries_accessors.timedelta" title="datetime.timedelta"><span class="pre">timedelta</span></a></em><a class="headerlink" href="#openstef_core.datasets.mixins.TimeSeriesMixin.sample_interval" title="Link to this definition">#</a></dt>
-<dd><p>Returns the time interval between consecutive data points.</p>
-<p>This property defines the temporal resolution of the dataset and
-should remain constant throughout the dataset.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The fixed interval between consecutive samples.</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="openstef_core.datasets.versioned_timeseries_accessors.html#openstef_core.datasets.versioned_timeseries_accessors.timedelta" title="openstef_core.datasets.versioned_timeseries_accessors.timedelta">timedelta</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="openstef_core.datasets.mixins.TimeSeriesMixin.index">
-<em class="property"><span class="k"><span class="pre">abstract</span></span><span class="w"> </span><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">index</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">DatetimeIndex</span></em><a class="headerlink" href="#openstef_core.datasets.mixins.TimeSeriesMixin.index" title="Link to this definition">#</a></dt>
-<dd><p>Returns the temporal index of the dataset.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Datetime index representing all timestamps in the dataset.</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>pd.DatetimeIndex</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="openstef_core.datasets.mixins.VersionedAccessMixin">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef_core.datasets.mixins.</span></span><span class="sig-name descname"><span class="pre">VersionedAccessMixin</span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/mixins.html#VersionedAccessMixin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.mixins.VersionedAccessMixin" title="Link to this definition">#</a></dt>
-<dd><p>Abstract base class for versioned data access functionality.</p>
-<p>This mixin defines the interface for datasets that track data availability
-over time. It provides methods to retrieve data windows while respecting
-when each data point became available, which is essential for realistic
-backtesting scenarios.</p>
-<p>The key concept is that data points have both a timestamp (when they
-occurred) and an availability time (when they became available for use).
-This separation allows for accurate simulation of real-world forecasting
-constraints where data arrives with delays or gets revised.</p>
-<p>Implementers must ensure that the get_window method correctly handles:
-- Time range filtering [start, end)
-- Availability-based filtering using available_before parameter
-- Latest version selection when multiple versions exist
-- Consistent sample interval maintenance</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="openstef_core.datasets.mixins.VersionedAccessMixin.get_window">
-<em class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_window</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="openstef_core.datasets.versioned_timeseries_accessors.html#openstef_core.datasets.versioned_timeseries_accessors.datetime" title="datetime.datetime"><span class="pre">datetime</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="openstef_core.datasets.versioned_timeseries_accessors.html#openstef_core.datasets.versioned_timeseries_accessors.datetime" title="datetime.datetime"><span class="pre">datetime</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">available_before</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="openstef_core.datasets.versioned_timeseries_accessors.html#openstef_core.datasets.versioned_timeseries_accessors.datetime" title="datetime.datetime"><span class="pre">datetime</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/mixins.html#VersionedAccessMixin.get_window"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.mixins.VersionedAccessMixin.get_window" title="Link to this definition">#</a></dt>
-<dd><p>Get a window of data from the dataset that is available before or at the specified time.</p>
-<p>Implementers must ensure that:</p>
-<ol class="arabic simple">
-<li><p>Only data within [start, end) is returned</p></li>
-<li><p>If available_before is specified, only data available at or before that time is included</p></li>
-<li><p>The returned data maintains the dataset’s sample interval</p></li>
-<li><p>When multiple versions of a timestamp exist, selects the latest available version</p></li>
-</ol>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>start</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="openstef_core.datasets.versioned_timeseries_accessors.html#openstef_core.datasets.versioned_timeseries_accessors.datetime" title="datetime.datetime"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code></a></span>) – The inclusive start time of the window.</p></li>
-<li><p><strong>end</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="openstef_core.datasets.versioned_timeseries_accessors.html#openstef_core.datasets.versioned_timeseries_accessors.datetime" title="datetime.datetime"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code></a></span>) – The exclusive end time of the window.</p></li>
-<li><p><strong>available_before</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="openstef_core.datasets.versioned_timeseries_accessors.html#openstef_core.datasets.versioned_timeseries_accessors.datetime" title="datetime.datetime"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code></a> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Optional timestamp that filters data to only include
-points available at or before this time. If None, all data is included.</p></li>
-<li><p><strong>start</strong></p></li>
-<li><p><strong>end</strong></p></li>
-<li><p><strong>available_before</strong></p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A DataFrame containing the data in the specified time window. Timestamps with unavailable data are filled
-with NaN.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></span></p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="openstef_core.datasets.mixins.VersionedTimeSeriesMixin">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef_core.datasets.mixins.</span></span><span class="sig-name descname"><span class="pre">VersionedTimeSeriesMixin</span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/mixins.html#VersionedTimeSeriesMixin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.mixins.VersionedTimeSeriesMixin" title="Link to this definition">#</a></dt>
-<dd><p>A mixin that combines time series and versioned access functionality.</p>
-<p>This mixin provides the necessary properties and methods to handle time series data
-with versioning capabilities, allowing access to historical data points based on their availability.</p>
-</dd></dl>
-
+</section>
 </section>
 
 
@@ -625,11 +547,11 @@ with versioning capabilities, allowing access to historical data points based on
       </div>
     </a>
     <a class="right-next"
-       href="openstef_core.datasets.timeseries_dataset.html"
+       href="openstef_core.datasets.mixins.TimeSeriesMixin.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">openstef_core.datasets.timeseries_dataset</p>
+        <p class="prev-next-title">TimeSeriesMixin</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -652,17 +574,7 @@ with versioning capabilities, allowing access to historical data points based on
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.datasets.mixins.TimeSeriesMixin"><code class="docutils literal notranslate"><span class="pre">TimeSeriesMixin</span></code></a><ul class="visible nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.datasets.mixins.TimeSeriesMixin.feature_names"><code class="docutils literal notranslate"><span class="pre">TimeSeriesMixin.feature_names</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.datasets.mixins.TimeSeriesMixin.sample_interval"><code class="docutils literal notranslate"><span class="pre">TimeSeriesMixin.sample_interval</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.datasets.mixins.TimeSeriesMixin.index"><code class="docutils literal notranslate"><span class="pre">TimeSeriesMixin.index</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.datasets.mixins.VersionedAccessMixin"><code class="docutils literal notranslate"><span class="pre">VersionedAccessMixin</span></code></a><ul class="visible nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.datasets.mixins.VersionedAccessMixin.get_window"><code class="docutils literal notranslate"><span class="pre">VersionedAccessMixin.get_window()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.datasets.mixins.VersionedTimeSeriesMixin"><code class="docutils literal notranslate"><span class="pre">VersionedTimeSeriesMixin</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 </ul>
   </nav></div>
 

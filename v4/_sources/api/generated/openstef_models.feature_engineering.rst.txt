@@ -2,23 +2,31 @@
 ..
 .. SPDX-License-Identifier: MPL-2.0
 
-openstef\_models.feature\_engineering
-=====================================
+openstef_models.feature_engineering
+===================================
+
+.. currentmodule:: openstef_models.feature_engineering
 
 .. automodule:: openstef_models.feature_engineering
+   :no-members:
+   :no-inherited-members:
 
-   
-   
-   
 
-   
-   
-   
 
-   
-   
-   
 
-   
-   
-   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

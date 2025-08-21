@@ -450,9 +450,13 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 
+<div class="viewcode-block" id="MissingColumnsError">
+<a class="viewcode-back" href="../../api/generated/openstef_core.exceptions.MissingColumnsError.html#openstef_core.exceptions.MissingColumnsError">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">MissingColumnsError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Exception raised when required columns are missing from a DataFrame.&quot;&quot;&quot;</span>
 
+<div class="viewcode-block" id="MissingColumnsError.__init__">
+<a class="viewcode-back" href="../../api/generated/openstef_core.exceptions.MissingColumnsError.html#openstef_core.exceptions.MissingColumnsError.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">missing_columns</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the exception with the list of missing columns.</span>
 
@@ -460,16 +464,18 @@
 <span class="sd">            missing_columns: List of column names that are missing from the DataFrame.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">missing_columns</span> <span class="o">=</span> <span class="n">missing_columns</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Missing required columns: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">missing_columns</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Missing required columns: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">missing_columns</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+</div>
+
 
 
 <div class="viewcode-block" id="TimeSeriesValidationError">
-<a class="viewcode-back" href="../../api/generated/openstef_core.datasets.validation.html#openstef_core.datasets.validation.TimeSeriesValidationError">[docs]</a>
+<a class="viewcode-back" href="../../api/generated/openstef_core.exceptions.TimeSeriesValidationError.html#openstef_core.exceptions.TimeSeriesValidationError">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TimeSeriesValidationError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Exception raised for validation errors in time series datasets.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="TimeSeriesValidationError.__init__">
-<a class="viewcode-back" href="../../api/generated/openstef_core.datasets.validation.html#openstef_core.datasets.validation.TimeSeriesValidationError.__init__">[docs]</a>
+<a class="viewcode-back" href="../../api/generated/openstef_core.exceptions.TimeSeriesValidationError.html#openstef_core.exceptions.TimeSeriesValidationError.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the exception with a descriptive error message.</span>
 
