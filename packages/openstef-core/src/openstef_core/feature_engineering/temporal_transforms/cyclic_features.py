@@ -6,10 +6,12 @@
 features from datetime indices in time series datasets based on sine and cosine
 components.
 """
+from typing import Literal
 
 import numpy as np
 import pandas as pd
 
+from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.datasets.transforms import TimeSeriesTransform
 
@@ -17,6 +19,11 @@ NUM_DAYS_IN_YEAR = 365.25
 NUM_MONTHS_IN_YEAR = 12
 NUM_DAYS_IN_WEEK = 7
 NUM_SECONDS_IN_A_DAY = 24 * 60 * 60
+
+class CyclicFeaturesConfig(BaseConfig):
+    included_features: list[Literal["timeOfDay", "season", "dayOfWeek", "month"]] = [
+        "timeOfDay", "season", "dayOfWeek", "month"
+    ]
 
 
 class CyclicFeatures(TimeSeriesTransform):
@@ -26,16 +33,17 @@ class CyclicFeatures(TimeSeriesTransform):
     the periodic nature of time. This encoding ensures temporal boundaries
     (e.g., end of day/week/year) are properly connected.
 
-    Generates 6 features:
-        - season_sine, season_cosine: Based on day of year (365.25 day cycle)
-        - day0fweek_sine, day0fweek_cosine: Based on day of week (7 day cycle)
-        - month_sine, month_cosine: Based on month of year (12 month cycle)
+    The features generated depend on the included_features configuration:
+        - season: season_sine, season_cosine (based on day of year, 365.25 day cycle)
+        - dayOfWeek: day0fweek_sine, day0fweek_cosine (based on day of week, 7 day cycle)
+        - month: month_sine, month_cosine (based on month of year, 12 month cycle)
+        - timeOfDay: time0fday_sine, time0fday_cosine (based on seconds in day, 24 hour cycle)
 
     Example:
         >>> import pandas as pd
         >>> from datetime import timedelta
         >>> from openstef_core.datasets import TimeSeriesDataset
-        >>> from openstef_core.feature_engineering.temporal_transforms.cyclic_features import CyclicFeatures
+        >>> from openstef_core.feature_engineering.temporal_transforms.cyclic_features import CyclicFeatures, CyclicFeaturesConfig
         >>>
         >>> # Create sample dataset
         >>> data = pd.DataFrame({
@@ -43,17 +51,25 @@ class CyclicFeatures(TimeSeriesTransform):
         ... }, index=pd.date_range('2025-01-01', periods=3, freq='1h'))
         >>> dataset = TimeSeriesDataset(data, timedelta(hours=1))
         >>>
-        >>> # Apply cyclic features
-        >>> transform = CyclicFeatures()
+        >>> # Apply cyclic features with custom configuration
+        >>> config = CyclicFeaturesConfig(included_features=["season", "timeOfDay"])
+        >>> transform = CyclicFeatures(config)
         >>> transform.fit(dataset)
         >>> transformed = transform.transform(dataset)
-        >>> len(transformed.feature_names)
-        9
-        >>> 'season_sine' in transformed.feature_names
+        >>> 'season_sine' in transformed.data.columns
         True
+        >>> 'time0fday_sine' in transformed.data.columns
+        True
+        >>> 'month_sine' in transformed.data.columns
+        False
     """
-
     cyclic_features: pd.DataFrame = pd.DataFrame()
+
+    def __init__(
+        self,
+        config: CyclicFeaturesConfig,
+    ):
+        self.config = config
 
     @staticmethod
     def _compute_sine(phase: pd.Index, period: float) -> np.ndarray:
@@ -158,15 +174,25 @@ class CyclicFeatures(TimeSeriesTransform):
         Args:
             data: Time series dataset with DatetimeIndex.
         """
-        self.cyclic_features = pd.concat(
-            [
-                self._compute_seasonal_feature(data.index),
-                self._compute_weekday_features(data.index),
-                self._compute_monthly_features(data.index),
-                self._compute_time_of_day_features(data.index),
-            ],
-            axis=1,
-        )
+        feature_dataframes = []
+
+        if "season" in self.config.included_features:
+            feature_dataframes.append(self._compute_seasonal_feature(data.index))
+
+        if "dayOfWeek" in self.config.included_features:
+            feature_dataframes.append(self._compute_weekday_features(data.index))
+
+        if "month" in self.config.included_features:
+            feature_dataframes.append(self._compute_monthly_features(data.index))
+
+        if "timeOfDay" in self.config.included_features:
+            feature_dataframes.append(self._compute_time_of_day_features(data.index))
+
+        if feature_dataframes:
+            self.cyclic_features = pd.concat(feature_dataframes, axis=1)
+        else:
+            # Create empty DataFrame with the same index if no features are selected
+            self.cyclic_features = pd.DataFrame(index=data.index)
 
     def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
         """Transform dataset by adding cyclic features as new columns.
@@ -175,7 +201,8 @@ class CyclicFeatures(TimeSeriesTransform):
             data: Time series dataset to transform.
 
         Returns:
-            New TimeSeriesDataset with original data plus 6 cyclic features.
+            New TimeSeriesDataset with original data plus cyclic features
+            (number depends on included_features configuration).
         """
         return TimeSeriesDataset(
             data=pd.concat(

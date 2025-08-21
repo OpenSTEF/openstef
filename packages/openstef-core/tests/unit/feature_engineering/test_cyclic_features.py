@@ -11,7 +11,7 @@ import pandas as pd
 import pytest
 
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.feature_engineering.temporal_transforms.cyclic_features import CyclicFeatures
+from openstef_core.feature_engineering.temporal_transforms.cyclic_features import CyclicFeatures, CyclicFeaturesConfig
 
 
 @pytest.fixture
@@ -28,7 +28,8 @@ def sample_dataset() -> TimeSeriesDataset:
 
 def test_cyclic_features_initialization():
     """Test CyclicFeatures can be initialized properly."""
-    transform = CyclicFeatures()
+    config = CyclicFeaturesConfig()
+    transform = CyclicFeatures(config)
     assert hasattr(transform, "cyclic_features")
     assert transform.cyclic_features.empty
 
@@ -53,7 +54,8 @@ def test_sine_cosine_computation():
 
 def test_fit_creates_all_features(sample_dataset: TimeSeriesDataset):
     """Test that fit creates all expected cyclic features."""
-    transform = CyclicFeatures()
+    config = CyclicFeaturesConfig()
+    transform = CyclicFeatures(config)
     transform.fit(sample_dataset)
 
     expected_columns = [
@@ -74,7 +76,8 @@ def test_fit_creates_all_features(sample_dataset: TimeSeriesDataset):
 
 def test_transform_adds_features(sample_dataset: TimeSeriesDataset):
     """Test that transform adds cyclic features to the dataset."""
-    transform = CyclicFeatures()
+    config = CyclicFeaturesConfig()
+    transform = CyclicFeatures(config)
     transform.fit(sample_dataset)
     result = transform.transform(sample_dataset)
 
@@ -91,7 +94,8 @@ def test_transform_adds_features(sample_dataset: TimeSeriesDataset):
 
 def test_feature_value_ranges(sample_dataset: TimeSeriesDataset):
     """Test that all cyclic features are within expected [-1, 1] range."""
-    transform = CyclicFeatures()
+    config = CyclicFeaturesConfig()
+    transform = CyclicFeatures(config)
     transform.fit(sample_dataset)
     result = transform.transform(sample_dataset)
 
@@ -102,6 +106,8 @@ def test_feature_value_ranges(sample_dataset: TimeSeriesDataset):
         "day0fweek_cosine",
         "month_sine",
         "month_cosine",
+        "time0fday_sine",
+        "time0fday_cosine",
     ]
 
     for col in cyclic_columns:
@@ -117,9 +123,57 @@ def test_empty_dataset():
     data.index = pd.DatetimeIndex([])
     dataset = TimeSeriesDataset(data, timedelta(hours=1))
 
-    transform = CyclicFeatures()
+    config = CyclicFeaturesConfig()
+    transform = CyclicFeatures(config)
     transform.fit(dataset)
     result = transform.transform(dataset)
 
     assert len(result.data) == 0
     assert len(result.feature_names) == 9  # 1 original + 8 cyclic columns
+
+
+def test_custom_configuration_subset_features(sample_dataset: TimeSeriesDataset):
+    """Test that custom configuration with subset of features works correctly."""
+    # Test with only season and timeOfDay features
+    config = CyclicFeaturesConfig(included_features=["season", "timeOfDay"])
+    transform = CyclicFeatures(config)
+    transform.fit(sample_dataset)
+    result = transform.transform(sample_dataset)
+
+    # Should only have 4 cyclic features (2 pairs of sine/cosine)
+    expected_cyclic_columns = [
+        "season_sine",
+        "season_cosine",
+        "time0fday_sine",
+        "time0fday_cosine",
+    ]
+
+    cyclic_features = [col for col in result.data.columns if col != "load"]
+    assert len(cyclic_features) == 4
+    assert set(cyclic_features) == set(expected_cyclic_columns)
+
+    # Verify excluded features are not present
+    excluded_features = ["day0fweek_sine", "day0fweek_cosine", "month_sine", "month_cosine"]
+    for feature in excluded_features:
+        assert feature not in result.data.columns
+
+
+def test_empty_configuration(sample_dataset: TimeSeriesDataset):
+    """Test that empty configuration creates no cyclic features."""
+    config = CyclicFeaturesConfig(included_features=[])
+    transform = CyclicFeatures(config)
+    transform.fit(sample_dataset)
+    result = transform.transform(sample_dataset)
+
+    # Should only have original features, no cyclic features added
+    assert len(result.feature_names) == len(sample_dataset.feature_names)
+    assert list(result.data.columns) == ["load"]
+
+    # Original data should be preserved
+    pd.testing.assert_frame_equal(result.data, sample_dataset.data)
+
+
+def test_invalid_configuration():
+    """Test invalid configuration raises error"""
+    with pytest.raises(ValueError, match="1 validation error for CyclicFeaturesConfig"):
+        CyclicFeaturesConfig(included_features=["invalid_feature"])
