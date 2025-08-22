@@ -8,14 +8,13 @@ from datetime import datetime, timedelta
 
 from pydantic import Field
 
-from openstef_core.base_model import BaseConfig, BaseModel
+from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset, VersionedTimeSeriesDataset
 from openstef_core.datasets.versioned_timeseries_accessors import RestrictedHorizonVersionedTimeSeries
 
 
 class BacktestForecasterConfig(BaseConfig):
     requires_training: bool = Field(description="Whether the model needs to be trained.")
-    batch_size: int | None = Field(default=None, description="Batch size for training or prediction.")
 
     predict_sample_interval: timedelta = Field(
         default=timedelta(minutes=15), description="Time interval between prediction samples."
@@ -34,7 +33,7 @@ class BacktestForecasterConfig(BaseConfig):
     )
 
 
-class BacktestForecasterMixin(BaseModel):
+class BacktestForecasterMixin:
     """Mixin defining the interface for forecasting models for backtesting.
 
     Defines the contract for model training and prediction operations.
@@ -45,7 +44,7 @@ class BacktestForecasterMixin(BaseModel):
        - Consistent error handling patterns
     """
 
-    config: BacktestForecasterConfig = Field(description="Configuration for the backtest forecaster.")
+    config: BacktestForecasterConfig
 
     @property
     @abstractmethod
@@ -97,8 +96,8 @@ class BacktestForecasterMixin(BaseModel):
         )
 
 
-class BacktestBatchForecasterMixin(BaseModel):
-    batch_size: int = Field(description="Batch size for training or prediction.")
+class BacktestBatchForecasterMixin:
+    batch_size: int | None = Field(..., description="Batch size for prediction.")
 
     def predict_batch(self, batch: list[RestrictedHorizonVersionedTimeSeries]) -> Sequence[TimeSeriesDataset | None]:
         """Handles batch prediction across multiple HorizonTransform instances.

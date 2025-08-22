@@ -61,6 +61,7 @@ class BacktestPipeline:
         predictors: VersionedTimeSeriesDataset,
         start: datetime | None,
         end: datetime | None,
+        *,
         show_progress: bool = True,
     ) -> VersionedTimeSeriesDataset:
         min_start = ground_truth.index.min().to_pydatetime()  # type: ignore[reportUnknownMemberType]
@@ -86,8 +87,12 @@ class BacktestPipeline:
         )
 
         # Determine batch processing approach
-        batch_size = self.forecaster.config.batch_size
-        supports_batching = batch_size is not None and batch_size > 1
+        if isinstance(self.forecaster, BacktestBatchForecasterMixin):
+            batch_size = self.forecaster.batch_size
+            supports_batching = batch_size is not None and batch_size > 1
+        else:
+            batch_size = None
+            supports_batching = False
 
         _logger.info("Starting the backtest pipeline")
         prediction_list: list[VersionedTimeSeriesDataset] = []
@@ -169,6 +174,7 @@ class BacktestPipeline:
         event_factory: BacktestEventGenerator,
         dataset: VersionedTimeSeriesMixin,
         batch_size: int | None,
+        *,
         show_progress: bool = True,
     ) -> list[VersionedTimeSeriesDataset]:
         """Process events using the factory's batching logic."""

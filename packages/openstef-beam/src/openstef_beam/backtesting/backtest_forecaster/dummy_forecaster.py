@@ -4,16 +4,19 @@
 
 from datetime import timedelta
 
-from pydantic import Field
-
 from openstef_beam.backtesting.backtest_forecaster.mixins import BacktestForecasterConfig, BacktestForecasterMixin
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.datasets.versioned_timeseries_accessors import RestrictedHorizonVersionedTimeSeries
 
 
 class DummyForecaster(BacktestForecasterMixin):
-    config: BacktestForecasterConfig = Field(
-        default_factory=lambda: BacktestForecasterConfig(
+    def __init__(
+        self,
+        config: BacktestForecasterConfig | None = None,
+        predict_quantiles: list[float] | None = None,
+    ) -> None:
+        super().__init__()
+        self.config = config or BacktestForecasterConfig(
             requires_training=False,
             horizon_length=timedelta(days=7),
             horizon_min_length=timedelta(days=0),
@@ -23,9 +26,7 @@ class DummyForecaster(BacktestForecasterMixin):
             training_context_min_coverage=0.0,
             predict_sample_interval=timedelta(minutes=15),
         )
-    )
-
-    predict_quantiles: list[float] = Field(default=[0.05, 0.1, 0.3, 0.5, 0.7, 0.9, 0.95], alias="predict_quantiles")
+        self.predict_quantiles = predict_quantiles or [0.05, 0.1, 0.3, 0.5, 0.7, 0.9, 0.95]
 
     @property
     def quantiles(self) -> list[float]:
