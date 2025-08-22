@@ -27,8 +27,10 @@ classifiers = [
 ]
 
 dependencies = [
+  "openstef-core",
   "pydantic>=2.11.7",
   "pyyaml>=6.0.2",
+  "tqdm>=4.67.1",
 ]
 
 urls.Documentation = "https://openstef.github.io/openstef/index.html"
@@ -41,3 +43,6 @@ dev = [  ]
 
 [tool.hatch.build.targets.wheel]
 packages = [ "src/openstef_beam" ]
+
+[tool.uv.sources]
+openstef-core = { workspace = true }

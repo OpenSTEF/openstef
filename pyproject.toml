@@ -101,6 +101,7 @@ lint.per-file-ignores."./docs/*" = [
 lint.per-file-ignores."./packages/*/tests/*" = [
   "ARG",     # Unused function args -> fixtures nevertheless are functionally relevant...
   "D",       # All docstring rules
+  "DOC",     # All docstring rules
   "E501",    # Line too long (test names can be descriptive)
   "FBT",     # Allow booleans as positional arguments in tests, e.g. via @pytest.mark.parametrize()
   "PLR2004", # Magic value used in comparison

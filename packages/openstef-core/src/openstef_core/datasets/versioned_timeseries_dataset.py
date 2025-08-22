@@ -4,7 +4,7 @@
 
 """Versioned time series dataset for tracking data availability over time.
 
-This module provides the VersionedTimeseriesDataset class, which extends basic
+This module provides the VersionedTimeSeriesDataset class, which extends basic
 time series functionality to track when each data point became available. This
 is crucial for realistic dataset construction for both backtesting and
 forecasting, allowing for accurate simulation of real-time data availability
@@ -20,6 +20,7 @@ import numpy as np
 import pandas as pd
 
 from openstef_core.datasets.mixins import VersionedTimeSeriesMixin
+from openstef_core.datasets.versioned_timeseries_accessors import VersionedTimeSeriesAccessorsMixin
 from openstef_core.exceptions import MissingColumnsError
 from openstef_core.utils import (
     timedelta_from_isoformat,
@@ -29,7 +30,7 @@ from openstef_core.utils import (
 _logger = logging.getLogger(__name__)
 
 
-class VersionedTimeseriesDataset(VersionedTimeSeriesMixin):
+class VersionedTimeSeriesDataset(VersionedTimeSeriesMixin, VersionedTimeSeriesAccessorsMixin):
     """A time series dataset that tracks data availability over time.
 
     This dataset extends the basic time series concept by maintaining version
@@ -60,7 +61,7 @@ class VersionedTimeseriesDataset(VersionedTimeSeriesMixin):
         ...                      datetime.fromisoformat('2025-01-01T10:30:00')],  # Later revision
         ...     'load': [100.0, 120.0, 105.0]  # 105.0 is revised value for 10:00
         ... })
-        >>> dataset = VersionedTimeseriesDataset(data, timedelta(minutes=15))
+        >>> dataset = VersionedTimeSeriesDataset(data, timedelta(minutes=15))
         >>> dataset.feature_names
         ['load']
 
@@ -83,7 +84,7 @@ class VersionedTimeseriesDataset(VersionedTimeSeriesMixin):
         timestamp_column: str = "timestamp",
         available_at_column: str = "available_at",
     ) -> None:
-        """Initialize a VersionedTimeseriesDataset with the given data and configuration.
+        """Initialize a VersionedTimeSeriesDataset with the given data and configuration.
 
         Args:
             data: DataFrame containing the time series data.
@@ -172,7 +173,7 @@ class VersionedTimeseriesDataset(VersionedTimeSeriesMixin):
             ...                      datetime.fromisoformat('2025-01-01T10:35:00')],
             ...     'load': [100.0, 120.0, 110.0]
             ... })
-            >>> dataset = VersionedTimeseriesDataset(data, timedelta(minutes=15))
+            >>> dataset = VersionedTimeSeriesDataset(data, timedelta(minutes=15))
             >>> window = dataset.get_window(
             ...     start=datetime.fromisoformat('2025-01-01T10:00:00'),
             ...     end=datetime.fromisoformat('2025-01-01T10:30:00'),
@@ -227,7 +228,7 @@ class VersionedTimeseriesDataset(VersionedTimeSeriesMixin):
         cls,
         path: Path,
     ) -> Self:
-        """Create a VersionedTimeseriesDataset from a parquet file.
+        """Create a VersionedTimeSeriesDataset from a parquet file.
 
         Loads a complete versioned dataset from a parquet file created with
         the `to_parquet` method. Handles missing metadata gracefully with
@@ -237,7 +238,7 @@ class VersionedTimeseriesDataset(VersionedTimeSeriesMixin):
             path: Path to the parquet file to load.
 
         Returns:
-            New VersionedTimeseriesDataset instance reconstructed from the file.
+            New VersionedTimeSeriesDataset instance reconstructed from the file.
 
         Example:
             Save and reload a versioned dataset:
@@ -254,12 +255,12 @@ class VersionedTimeseriesDataset(VersionedTimeSeriesMixin):
             ...                      datetime.fromisoformat('2025-01-01T10:20:00')],
             ...     'load': [100.0, 120.0]
             ... })
-            >>> dataset = VersionedTimeseriesDataset(data, timedelta(minutes=15))
+            >>> dataset = VersionedTimeSeriesDataset(data, timedelta(minutes=15))
             >>> # Test save/load cycle
             >>> with tempfile.TemporaryDirectory() as tmpdir:
             ...     file_path = Path(tmpdir) / "versioned_data.parquet"
             ...     dataset.to_parquet(file_path)
-            ...     loaded = VersionedTimeseriesDataset.from_parquet(file_path)
+            ...     loaded = VersionedTimeSeriesDataset.from_parquet(file_path)
             ...     loaded.feature_names == dataset.feature_names
             True
 
@@ -285,4 +286,4 @@ class VersionedTimeseriesDataset(VersionedTimeSeriesMixin):
         )
 
 
-__all__ = ["VersionedTimeseriesDataset"]
+__all__ = ["VersionedTimeSeriesDataset"]
