@@ -9,12 +9,18 @@ including data serialization helpers, type conversion functions, and other
 general-purpose tools.
 """
 
+from openstef_core.utils.datetime import (
+    align_datetime,
+    align_datetime_to_time,
+)
 from openstef_core.utils.pydantic import (
     timedelta_from_isoformat,
     timedelta_to_isoformat,
 )
 
 __all__ = [
+    "align_datetime",
+    "align_datetime_to_time",
     "timedelta_from_isoformat",
     "timedelta_to_isoformat",
 ]

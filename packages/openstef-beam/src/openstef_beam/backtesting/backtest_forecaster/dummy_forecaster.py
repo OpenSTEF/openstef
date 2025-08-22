@@ -6,7 +6,7 @@ from datetime import timedelta
 
 from openstef_beam.backtesting.backtest_forecaster.mixins import BacktestForecasterConfig, BacktestForecasterMixin
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.datasets.versioned_timeseries_accessors import RestrictedHorizonVersionedTimeSeries
+from openstef_core.datasets.versioned_timeseries.accessors import RestrictedHorizonVersionedTimeSeries
 
 
 class DummyForecaster(BacktestForecasterMixin):

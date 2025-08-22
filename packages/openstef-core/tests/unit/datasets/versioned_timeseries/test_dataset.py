@@ -63,8 +63,8 @@ def test_initialization_with_valid_data(sample_data: pd.DataFrame):
 
     # Assert
     assert dataset.sample_interval == sample_interval
-    assert dataset._timestamp_column == "timestamp"
-    assert dataset._available_at_column == "available_at"
+    assert dataset.timestamp_column == "timestamp"
+    assert dataset.available_at_column == "available_at"
     assert isinstance(dataset.index, pd.DatetimeIndex)
 
 
@@ -106,8 +106,8 @@ def test_custom_column_names():
     )
 
     # Assert
-    assert dataset._timestamp_column == "custom_ts"
-    assert dataset._available_at_column == "custom_avail"
+    assert dataset.timestamp_column == "custom_ts"
+    assert dataset.available_at_column == "custom_avail"
     assert dataset.feature_names == ["value"]
 
 
@@ -256,6 +256,6 @@ def test_from_parquet(tmp_path: Path):
 
     # Assert
     assert dataset.sample_interval == timedelta(hours=1)
-    assert dataset._timestamp_column == "timestamp"
-    assert dataset._available_at_column == "available_at"
+    assert dataset.timestamp_column == "timestamp"
+    assert dataset.available_at_column == "available_at"
     pd.testing.assert_frame_equal(dataset.data, data)

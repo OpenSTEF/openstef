@@ -16,6 +16,7 @@ from openstef_beam.backtesting.backtest_forecaster.mixins import BacktestBatchFo
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import VersionedTimeSeriesDataset
 from openstef_core.datasets.mixins import VersionedTimeSeriesMixin
+from openstef_core.datasets.versioned_timeseries import concat_featurewise, restrict_horizon
 
 _logger = logging.getLogger(__name__)
 
@@ -68,7 +69,7 @@ class BacktestPipeline:
         max_end = ground_truth.index.max().to_pydatetime()  # type: ignore[reportUnknownMemberType]
 
         # Prepare the input data
-        dataset = VersionedTimeSeriesDataset.concat_featurewise(
+        dataset = concat_featurewise(
             datasets=[ground_truth, predictors],
             mode="outer",
         )
@@ -123,7 +124,7 @@ class BacktestPipeline:
 
     def _process_train_event(self, event: BacktestEvent, dataset: VersionedTimeSeriesMixin) -> None:
         """Process a single training event."""
-        horizon_dataset = VersionedTimeSeriesDataset.restrict_horizon(dataset=dataset, horizon=event.timestamp)
+        horizon_dataset = restrict_horizon(dataset=dataset, horizon=event.timestamp)
         self.forecaster.fit(horizon_dataset)
         _logger.debug("Processed train event", extra={"event": event})
 
@@ -131,7 +132,7 @@ class BacktestPipeline:
         self, event: BacktestEvent, dataset: VersionedTimeSeriesMixin
     ) -> list[VersionedTimeSeriesDataset]:
         """Process a single prediction event."""
-        horizon_dataset = VersionedTimeSeriesDataset.restrict_horizon(dataset=dataset, horizon=event.timestamp)
+        horizon_dataset = restrict_horizon(dataset=dataset, horizon=event.timestamp)
         prediction = self.forecaster.predict_versioned(horizon_dataset)
 
         if prediction is not None:
@@ -149,10 +150,7 @@ class BacktestPipeline:
             return []
 
         # Process batch
-        horizon_datasets = [
-            VersionedTimeSeriesDataset.restrict_horizon(dataset=dataset, horizon=event.timestamp)
-            for event in batch_events
-        ]
+        horizon_datasets = [restrict_horizon(dataset=dataset, horizon=event.timestamp) for event in batch_events]
 
         batch_predictions = cast(BacktestBatchForecasterMixin, self.forecaster).predict_batch_versioned(
             horizon_datasets

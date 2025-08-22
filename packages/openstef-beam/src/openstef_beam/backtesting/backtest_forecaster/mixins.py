@@ -10,7 +10,7 @@ from pydantic import Field
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset, VersionedTimeSeriesDataset
-from openstef_core.datasets.versioned_timeseries_accessors import RestrictedHorizonVersionedTimeSeries
+from openstef_core.datasets.versioned_timeseries.accessors import RestrictedHorizonVersionedTimeSeries
 
 
 class BacktestForecasterConfig(BaseConfig):

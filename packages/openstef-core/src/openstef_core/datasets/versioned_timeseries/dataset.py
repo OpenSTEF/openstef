@@ -20,7 +20,6 @@ import numpy as np
 import pandas as pd
 
 from openstef_core.datasets.mixins import VersionedTimeSeriesMixin
-from openstef_core.datasets.versioned_timeseries_accessors import VersionedTimeSeriesAccessorsMixin
 from openstef_core.exceptions import MissingColumnsError
 from openstef_core.utils import (
     timedelta_from_isoformat,
@@ -30,7 +29,7 @@ from openstef_core.utils import (
 _logger = logging.getLogger(__name__)
 
 
-class VersionedTimeSeriesDataset(VersionedTimeSeriesMixin, VersionedTimeSeriesAccessorsMixin):
+class VersionedTimeSeriesDataset(VersionedTimeSeriesMixin):
     """A time series dataset that tracks data availability over time.
 
     This dataset extends the basic time series concept by maintaining version
@@ -71,10 +70,10 @@ class VersionedTimeSeriesDataset(VersionedTimeSeriesMixin, VersionedTimeSeriesAc
     """
 
     data: pd.DataFrame
+    timestamp_column: str
+    available_at_column: str
     _sample_interval: timedelta
     _index: pd.DatetimeIndex
-    _timestamp_column: str
-    _available_at_column: str
     _feature_names: list[str]
 
     def __init__(
@@ -105,11 +104,11 @@ class VersionedTimeSeriesDataset(VersionedTimeSeriesMixin, VersionedTimeSeriesAc
             data.attrs["is_sorted"] = True
 
         self.data = data
+        self.timestamp_column = timestamp_column
+        self.available_at_column = available_at_column
         self._sample_interval = sample_interval
         self._index = cast(pd.DatetimeIndex, pd.DatetimeIndex(self.data[timestamp_column]))
-        self._timestamp_column = timestamp_column
-        self._available_at_column = available_at_column
-        self._feature_names = list(set(self.data.columns) - {self._timestamp_column, self._available_at_column})
+        self._feature_names = list(set(self.data.columns) - {self.timestamp_column, self.available_at_column})
 
     @property
     def feature_names(self) -> list[str]:
@@ -186,18 +185,18 @@ class VersionedTimeSeriesDataset(VersionedTimeSeriesMixin, VersionedTimeSeriesAc
             The returned DataFrame excludes the availability timestamp column
             and uses the timestamp column as the index.
         """
-        start_idx = self.data[self._timestamp_column].searchsorted(start, side="left")
-        end_idx = self.data[self._timestamp_column].searchsorted(end, side="left")
+        start_idx = self.data[self.timestamp_column].searchsorted(start, side="left")
+        end_idx = self.data[self.timestamp_column].searchsorted(end, side="left")
         subset = self.data.iloc[start_idx:end_idx]
 
         if available_before is not None:
-            subset = subset[subset[self._available_at_column] <= available_before]
+            subset = subset[subset[self.available_at_column] <= available_before]
 
         window_range = pd.date_range(start=start, end=end, freq=self._sample_interval, inclusive="left")
         return (
-            subset.drop_duplicates(subset=[self._timestamp_column], keep="last")
-            .drop(columns=[self._available_at_column])
-            .set_index(self._timestamp_column)
+            subset.drop_duplicates(subset=[self.timestamp_column], keep="last")
+            .drop(columns=[self.available_at_column])
+            .set_index(self.timestamp_column)
             .reindex(window_range, fill_value=np.nan)
         )
 
@@ -218,8 +217,8 @@ class VersionedTimeSeriesDataset(VersionedTimeSeriesMixin, VersionedTimeSeriesAc
             column name, availability column name, and sort status.
         """
         self.data.attrs["sample_interval"] = timedelta_to_isoformat(self._sample_interval)
-        self.data.attrs["timestamp_column"] = self._timestamp_column
-        self.data.attrs["available_at_column"] = self._available_at_column
+        self.data.attrs["timestamp_column"] = self.timestamp_column
+        self.data.attrs["available_at_column"] = self.available_at_column
         self.data.attrs["is_sorted"] = True
         self.data.to_parquet(path)
 

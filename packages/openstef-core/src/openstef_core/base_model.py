@@ -11,11 +11,12 @@ operate on arbitrary config instances or Pydantic models / adapters.
 """
 
 from pathlib import Path
-from typing import Self
+from typing import Annotated, Any, Self
 
 import yaml
 from pydantic import BaseModel as PydanticBaseModel
-from pydantic import ConfigDict, TypeAdapter
+from pydantic import BeforeValidator, ConfigDict, GetCoreSchemaHandler, TypeAdapter
+from pydantic_core import core_schema
 
 
 class BaseModel(PydanticBaseModel):
@@ -101,9 +102,63 @@ def read_yaml_config[T: BaseConfig, U](path: Path, class_type: type[T] | TypeAda
     return class_type.model_validate(data)
 
 
+class PydanticStringPrimitive:
+    """Base class for Pydantic-compatible types with string serialization."""
+
+    def __str__(self) -> str:
+        """Convert to string representation."""
+        raise NotImplementedError("Subclasses must implement __str__")
+
+    @classmethod
+    def from_string(cls, s: str) -> Self:
+        """Create an instance from string representation."""
+        raise NotImplementedError("Subclasses must implement from_string")
+
+    @classmethod
+    def validate(cls, v: Any, _info: Any = None) -> Self:  # noqa: ANN401
+        """Validate and convert input to this type."""
+        if isinstance(v, cls):
+            return v
+        if isinstance(v, str):
+            return cls.from_string(v)
+
+        # Subclasses should handle their specific types
+        error_message = f"Cannot convert {v} to {cls.__name__}"
+        raise ValueError(error_message)
+
+    @classmethod
+    def __get_pydantic_core_schema__(
+        cls, _source_type: type[Any], _handler: GetCoreSchemaHandler
+    ) -> core_schema.CoreSchema:
+        """Define Pydantic validation and serialization behavior."""
+        return core_schema.with_info_plain_validator_function(
+            function=cls.validate, serialization=core_schema.plain_serializer_function_ser_schema(cls.__str__)
+        )
+
+    def __eq__(self, other: object) -> bool:
+        """Check equality based on string representation."""
+        if not isinstance(other, self.__class__):
+            return NotImplemented
+        return str(self) == str(other)
+
+    def __hash__(self) -> int:
+        """Return hash based on string representation."""
+        return hash(str(self))
+
+
+def _convert_none_to_nan(v: float | None) -> float:
+    if v is None:
+        return float("nan")
+    return v
+
+
+FloatOrNan = Annotated[float, BeforeValidator(_convert_none_to_nan)]
+
 __all__ = [
     "BaseConfig",
     "BaseModel",
+    "FloatOrNan",
+    "PydanticStringPrimitive",
     "read_yaml_config",
     "write_yaml_config",
 ]

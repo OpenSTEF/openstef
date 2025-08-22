@@ -9,8 +9,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from openstef_core.datasets import VersionedTimeSeriesDataset
-from openstef_core.datasets.versioned_timeseries_accessors import (
+from openstef_core.datasets.versioned_timeseries import VersionedTimeSeriesDataset, concat_featurewise, restrict_horizon
+from openstef_core.datasets.versioned_timeseries.accessors import (
     ConcatenatedVersionedTimeSeries,
     ConcatMode,
     RestrictedHorizonVersionedTimeSeries,
@@ -170,8 +170,8 @@ def test_versioned_timeseries_accessors_factory(simple_dataset: VersionedTimeSer
     )
 
     # Act
-    horizon_transform = VersionedTimeSeriesDataset.restrict_horizon(simple_dataset, horizon)
-    concat_transform = VersionedTimeSeriesDataset.concat_featurewise([simple_dataset, second_dataset], mode="left")
+    horizon_transform = restrict_horizon(simple_dataset, horizon)
+    concat_transform = concat_featurewise([simple_dataset, second_dataset], mode="left")
 
     # Assert
     assert isinstance(horizon_transform, RestrictedHorizonVersionedTimeSeries)

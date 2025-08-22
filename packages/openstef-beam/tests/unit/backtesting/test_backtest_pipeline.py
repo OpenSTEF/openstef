@@ -15,7 +15,7 @@ from openstef_beam.backtesting.backtest_forecaster.mixins import (
     BacktestForecasterMixin,
 )
 from openstef_core.datasets import TimeSeriesDataset, VersionedTimeSeriesDataset
-from openstef_core.datasets.versioned_timeseries_accessors import RestrictedHorizonVersionedTimeSeries
+from openstef_core.datasets.versioned_timeseries.accessors import RestrictedHorizonVersionedTimeSeries
 
 
 class MockForecaster(BacktestForecasterMixin):
