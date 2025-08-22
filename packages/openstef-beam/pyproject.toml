@@ -30,6 +30,7 @@ dependencies = [
   "openstef-core",
   "pydantic>=2.11.7",
   "pyyaml>=6.0.2",
+  "scoringrules>=0.8",
   "tqdm>=4.67.1",
 ]
 
@@ -37,9 +38,6 @@ urls.Documentation = "https://openstef.github.io/openstef/index.html"
 urls.Homepage = "https://lfenergy.org/projects/openstef/"
 urls.Issues = "https://github.com/OpenSTEF/openstef/issues"
 urls.Repository = "https://github.com/OpenSTEF/openstef"
-
-[dependency-groups]
-dev = [  ]
 
 [tool.hatch.build.targets.wheel]
 packages = [ "src/openstef_beam" ]
