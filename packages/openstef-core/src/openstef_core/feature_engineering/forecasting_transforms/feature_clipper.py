@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+#
+# SPDX-License-Identifier: MPL-2.0
+
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.datasets.transforms import TimeSeriesTransform
 
@@ -18,26 +22,28 @@ class FeatureClipper(TimeSeriesTransform):
         ...     'load': [100, 120, 110, 130, 125],
         ...     'temperature': [20, 22, 21, 23, 24]
         ... }, index=pd.date_range('2025-01-01', periods=5, freq='1h'))
-        >>> training_dataset = TimeSeriesDataset(data, timedelta(hours=1))
+        >>> training_dataset = TimeSeriesDataset(training_data, timedelta(hours=1))
         >>> test_data = pd.DataFrame({
         ...     'load': [90, 140, 115],
         ...     'temperature': [19, 25, 22]
         ... }, index=pd.date_range('2025-01-06', periods=3,
         ... freq='1h'))
-        >>> test_dataset = TimeSeriesDataset(data, timedelta(hours=1))
+        >>> test_dataset = TimeSeriesDataset(test_data, timedelta(hours=1))
         >>> # Initialize and apply transform
         >>> clipper = FeatureClipper(column_names=['load', 'temperature'])
         >>> clipper.fit(training_dataset)
-        >>> transformed_dataset = clipper.transform(test_data)
+        >>> transformed_dataset = clipper.transform(test_dataset)
         >>> transformed_dataset.data['load'].tolist()
         [100, 130, 115]
         >>> transformed_dataset.data['temperature'].tolist()
-        [20,  24, 22]
+        [20, 24, 22]
 
     """
+
     def __init__(self, column_names: list[str]) -> None:
         """Initialize the FeatureClipper with specified column names and
-        a dictionary containing the feature range."""
+        a dictionary containing the feature range.
+        """
         self.column_names: list[str] = column_names
         self.feature_ranges: dict[str, tuple[float, float]] = {}
 
@@ -68,7 +74,4 @@ class FeatureClipper(TimeSeriesTransform):
                 min_val, max_val = self.feature_ranges[col]
                 transformed_data[col] = transformed_data[col].clip(lower=min_val, upper=max_val)
 
-        return TimeSeriesDataset(
-            data=transformed_data,
-            sample_interval=data.sample_interval
-        )
+        return TimeSeriesDataset(data=transformed_data, sample_interval=data.sample_interval)

@@ -2,7 +2,10 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-import holidays
+try:
+    import holidays
+except ImportError:
+    raise ImportError("The 'holidays' package is required for holiday features. ")
 
 print(holidays.country_holidays("NL", years=[2026], categories=["optional"]))
 print(holidays.country_holidays("NL", years=[2026], categories=["public"]))

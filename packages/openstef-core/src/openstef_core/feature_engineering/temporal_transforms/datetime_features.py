@@ -99,9 +99,6 @@ class DatetimeFeatures(TimeSeriesTransform):
             New TimeSeriesDataset with original data plus datetime features.
         """
         return TimeSeriesDataset(
-            pd.concat(
-                [data.data, self.datetime_features],
-                axis=1
-            ),
+            pd.concat([data.data, self.datetime_features], axis=1),
             sample_interval=data.sample_interval,
         )

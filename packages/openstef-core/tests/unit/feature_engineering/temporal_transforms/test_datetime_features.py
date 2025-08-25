@@ -37,7 +37,7 @@ def week_spanning_dataset() -> TimeSeriesDataset:
     # Start from Monday 2025-01-06
     data = pd.DataFrame(
         {"load": [100.0, 110.0, 120.0, 130.0, 140.0, 150.0, 160.0]},
-        index=pd.date_range("2025-01-06", periods=7, freq="D")
+        index=pd.date_range("2025-01-06", periods=7, freq="D"),
     )
     return TimeSeriesDataset(data, timedelta(days=1))
 
@@ -52,7 +52,7 @@ def quarterly_dataset() -> TimeSeriesDataset:
     """
     data = pd.DataFrame(
         {"load": [100.0, 110.0, 120.0, 130.0, 140.0, 150.0]},
-        index=pd.date_range("2025-01-01", periods=6, freq="MS")  # Month start
+        index=pd.date_range("2025-01-01", periods=6, freq="MS"),  # Month start
     )
     return TimeSeriesDataset(data, timedelta(days=30))
 
@@ -241,7 +241,7 @@ def test_leap_year_handling():
     # Test February 29 in a leap year
     data = pd.DataFrame(
         {"load": [100.0, 110.0]},
-        index=pd.DatetimeIndex(["2024-02-28", "2024-02-29"])  # 2024 is a leap year
+        index=pd.DatetimeIndex(["2024-02-28", "2024-02-29"]),  # 2024 is a leap year
     )
     dataset = TimeSeriesDataset(data, timedelta(days=1))
 

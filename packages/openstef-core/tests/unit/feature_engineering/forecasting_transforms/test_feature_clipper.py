@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+#
+# SPDX-License-Identifier: MPL-2.0
+
 from datetime import timedelta
 
 import pandas as pd
@@ -12,9 +16,9 @@ def train_dataset():
     return TimeSeriesDataset(
         data=pd.DataFrame(
             {"A": [1.0, 2.0, 3.0], "B": [10.0, 20.0, 30.0], "C": [100.0, 200.0, 300.0]},
-            index=pd.date_range('2025-01-01', periods=3, freq='1h'),
+            index=pd.date_range("2025-01-01", periods=3, freq="1h"),
         ),
-        sample_interval=timedelta(hours=1)
+        sample_interval=timedelta(hours=1),
     )
 
 
@@ -23,9 +27,9 @@ def test_dataset():
     return TimeSeriesDataset(
         data=pd.DataFrame(
             {"A": [0.5, 4.0], "B": [5.0, 35.0], "C": [150.0, 350.0]},
-            index=pd.date_range('2025-01-06', periods=2, freq='1h')
+            index=pd.date_range("2025-01-06", periods=2, freq="1h"),
         ),
-        sample_interval=timedelta(hours=1)
+        sample_interval=timedelta(hours=1),
     )
 
 
@@ -42,7 +46,9 @@ def test_feature_clipper_fit(clipper: FeatureClipper, train_dataset: TimeSeriesD
     assert "D" not in clipper.feature_ranges
 
 
-def test_feature_clipper_transform(clipper: FeatureClipper, train_dataset: TimeSeriesDataset, test_dataset: TimeSeriesDataset):
+def test_feature_clipper_transform(
+    clipper: FeatureClipper, train_dataset: TimeSeriesDataset, test_dataset: TimeSeriesDataset
+):
     """Test if the transform method correctly clips values."""
     clipper.fit(train_dataset)
     transformed_dataset = clipper.transform(test_dataset)
@@ -52,7 +58,7 @@ def test_feature_clipper_transform(clipper: FeatureClipper, train_dataset: TimeS
             "B": [10.0, 30.0],  # Clipped to range [10.0, 30.0]
             "C": [150.0, 350.0],  # Unchanged
         },
-        index=test_dataset.index
+        index=test_dataset.index,
     )
     pd.testing.assert_frame_equal(transformed_dataset.data, expected_df)
     assert transformed_dataset.sample_interval == test_dataset.sample_interval
