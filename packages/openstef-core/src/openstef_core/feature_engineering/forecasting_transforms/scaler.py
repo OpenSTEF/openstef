@@ -18,19 +18,13 @@ except ImportError:
     )
 
 
-class ScalerMode(StrEnum):
+class ScalingMethod(StrEnum):
     """Scaling methods from sklearn.preprocessing."""
 
     MinMax = "min-max"
     MaxAbs = "max-abs"
     Standard = "standard"
     Robust = "robust"
-
-
-class ScalerConfig(BaseConfig):
-    """Configuration for the Scaler transform."""
-
-    method: ScalerMode
 
 
 class Scaler(TimeSeriesTransform):
@@ -45,7 +39,7 @@ class Scaler(TimeSeriesTransform):
         >>> import pandas as pd
         >>> from datetime import timedelta
         >>> from openstef_core.datasets import TimeSeriesDataset
-        >>> from openstef_core.feature_engineering.forecasting_transforms.scaler import Scaler, ScalerConfig, ScalerMode
+        >>> from openstef_core.feature_engineering.forecasting_transforms.scaler import Scaler, ScalerConfig, ScalingMethod
         >>>
         >>> # Create sample dataset
         >>> data = pd.DataFrame({
@@ -55,7 +49,7 @@ class Scaler(TimeSeriesTransform):
         >>> dataset = TimeSeriesDataset(data, timedelta(hours=1))
         >>>
         >>> # Initialize and apply transform
-        >>> config = ScalerConfig(method=ScalerMode.Standard)
+        >>> config = ScalerConfig(method=ScalingMethod.Standard)
         >>> scaler = Scaler(config)
         >>> scaler.fit(dataset)
         >>> transformed_dataset = scaler.transform(dataset)
@@ -70,30 +64,29 @@ class Scaler(TimeSeriesTransform):
         1.0
     """
 
-    def __init__(self, config: ScalerConfig):
+    def __init__(self, method: ScalingMethod):
         """Initialize the Scaler transform with the scaler
         specified in the configuration.
         """
-        self.config = config
-        match self.config.method:
-            case ScalerMode.MinMax:
+        match method:
+            case ScalingMethod.MinMax:
                 from sklearn.preprocessing import MinMaxScaler
 
                 self.scaler = MinMaxScaler()
-            case ScalerMode.MaxAbs:
+            case ScalingMethod.MaxAbs:
                 from sklearn.preprocessing import MaxAbsScaler
 
                 self.scaler = MaxAbsScaler()
-            case ScalerMode.Standard:
+            case ScalingMethod.Standard:
                 from sklearn.preprocessing import StandardScaler
 
                 self.scaler = StandardScaler()
-            case ScalerMode.Robust:
+            case ScalingMethod.Robust:
                 from sklearn.preprocessing import RobustScaler
 
                 self.scaler = RobustScaler()
             case _:
-                raise ValueError(f"Unsupported normalization method: {self.config.method}")
+                raise ValueError(f"Unsupported normalization method: {method}")
 
     def fit(self, data: TimeSeriesDataset) -> None:
         """Fit the scaler to the input time series data.
