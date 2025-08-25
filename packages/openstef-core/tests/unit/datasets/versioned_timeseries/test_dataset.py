@@ -235,7 +235,7 @@ def test_get_window_reindex_with_missing_timestamps():
     assert window.loc[pd.Timestamp.fromisoformat("2023-01-01T12:00:00"), "value"] == 30
 
 
-def test_from_parquet(tmp_path: Path):
+def test_read_parquet(tmp_path: Path):
     # Arrange
     data = pd.DataFrame({
         "timestamp": [datetime.fromisoformat("2023-01-01T10:00:00"), datetime.fromisoformat("2023-01-01T11:00:00")],
@@ -252,7 +252,7 @@ def test_from_parquet(tmp_path: Path):
     data.to_parquet(parquet_path)
 
     # Act
-    dataset = VersionedTimeSeriesDataset.from_parquet(path=parquet_path)
+    dataset = VersionedTimeSeriesDataset.read_parquet(path=parquet_path)
 
     # Assert
     assert dataset.sample_interval == timedelta(hours=1)

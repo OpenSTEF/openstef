@@ -11,6 +11,7 @@ from pydantic import TypeAdapter
 from openstef_beam.evaluation.models.subset import EvaluationSubset, SubsetMetric
 from openstef_beam.evaluation.models.window import Filtering
 from openstef_core.base_model import BaseModel
+from openstef_core.datasets import TimeSeriesDataset
 
 
 class EvaluationSubsetReport(BaseModel):
@@ -24,7 +25,7 @@ class EvaluationSubsetReport(BaseModel):
         self.subset.to_parquet(path)
 
     @classmethod
-    def from_parquet(cls, path: Path) -> Self:
+    def read_parquet(cls, path: Path) -> Self:
         metrics = TypeAdapter[list[SubsetMetric]](list[SubsetMetric]).validate_json(
             (path / "metrics.json").read_bytes()
         )
@@ -46,9 +47,9 @@ class EvaluationSubsetReport(BaseModel):
 
     def get_measurements(self) -> pd.Series:
         """Extract measurements Series from the report for the given target."""
-        return self.subset.ground_truth["load"]
+        return self.subset.ground_truth.data["load"]
 
-    def get_quantile_predictions(self) -> pd.DataFrame:
+    def get_quantile_predictions(self) -> TimeSeriesDataset:
         """Extract forecasted quantiles from the report."""
         return self.subset.predictions
 
@@ -68,11 +69,11 @@ class EvaluationReport(BaseModel):
             subset_report.to_parquet(path / str(subset_report.filtering))
 
     @classmethod
-    def from_parquet(cls, path: Path) -> Self:
+    def read_parquet(cls, path: Path) -> Self:
         subset_reports: list[EvaluationSubsetReport] = []
         for subset_path in path.iterdir():
             if subset_path.is_dir():
-                subset_report = EvaluationSubsetReport.from_parquet(subset_path)
+                subset_report = EvaluationSubsetReport.read_parquet(subset_path)
                 subset_reports.append(subset_report)
 
         return cls(subset_reports=subset_reports)

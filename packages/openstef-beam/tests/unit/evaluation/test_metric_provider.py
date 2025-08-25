@@ -8,8 +8,9 @@ from unittest.mock import patch
 import pandas as pd
 import pytest
 
-from openstef_beam.evaluation.metric_provider import RMAEPeakHoursProvider
+from openstef_beam.evaluation.metric_providers import RMAEPeakHoursProvider
 from openstef_beam.evaluation.models import EvaluationSubset
+from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.types import Quantile
 
 
@@ -30,11 +31,17 @@ def test_peak_hours_filtering(start_peak_hours: int, end_peak_hours: int, num_ti
     times = [start_time + timedelta(minutes=i) for i in range(0, 1440, 15)]
     index = pd.DatetimeIndex(times)
 
-    predictions = pd.DataFrame({"quantile_P50": range(len(times))}, index=index)
-    ground_truth = pd.DataFrame({"value": range(len(times))}, index=index)
-    subset = EvaluationSubset(predictions=predictions, ground_truth=ground_truth, sample_interval=timedelta(minutes=15))
+    predictions = TimeSeriesDataset(
+        data=pd.DataFrame({"quantile_P50": range(len(times))}, index=index),
+        sample_interval=timedelta(minutes=15),
+    )
+    ground_truth = TimeSeriesDataset(
+        data=pd.DataFrame({"value": range(len(times))}, index=index),
+        sample_interval=timedelta(minutes=15),
+    )
+    subset = EvaluationSubset(predictions=predictions, ground_truth=ground_truth)
     # Act
-    with patch("openstef_beam.evaluation.metric_provider.rmae", return_value=0.1) as mock_rmae:
+    with patch("openstef_beam.evaluation.metric_providers.rmae", return_value=0.1) as mock_rmae:
         result = provider(subset)
 
     # Assert

@@ -5,59 +5,64 @@
 from collections import defaultdict
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Literal, Self, cast
+from typing import Literal, Self
 
 import pandas as pd
 
 from openstef_beam.evaluation.models.window import Window
 from openstef_core.base_model import BaseModel, FloatOrNan
+from openstef_core.datasets import TimeSeriesDataset
+from openstef_core.datasets.validation import check_sample_intervals
+from openstef_core.exceptions import TimeSeriesValidationError
 from openstef_core.types import Quantile
-from openstef_core.utils import timedelta_from_isoformat, timedelta_to_isoformat
 
 
 class EvaluationSubset:
-    ground_truth: pd.DataFrame
-    predictions: pd.DataFrame
-    sample_interval: timedelta
+    ground_truth: TimeSeriesDataset
+    predictions: TimeSeriesDataset
 
     def __init__(
         self,
-        ground_truth: pd.DataFrame,
-        predictions: pd.DataFrame,
-        sample_interval: timedelta,
+        ground_truth: TimeSeriesDataset,
+        predictions: TimeSeriesDataset,
     ):
         super().__init__()
         if not ground_truth.index.equals(predictions.index):  # type: ignore[reportUnknownMemberType]
-            raise ValueError("Ground truth and predictions must have the same index.")
+            raise TimeSeriesValidationError("Ground truth and predictions must have the same index.")
+
+        check_sample_intervals([ground_truth, predictions])
 
         self.ground_truth = ground_truth
         self.predictions = predictions
-        self.sample_interval = sample_interval
-
-        sample_interval_str = timedelta_to_isoformat(self.sample_interval)
-        self.ground_truth.attrs["sample_interval"] = sample_interval_str
-        self.predictions.attrs["sample_interval"] = sample_interval_str
 
     @property
     def index(self) -> pd.DatetimeIndex:
-        return cast(pd.DatetimeIndex, self.ground_truth.index)
+        return self.ground_truth.index
+
+    @property
+    def sample_interval(self) -> timedelta:
+        return self.ground_truth.sample_interval
 
     @classmethod
     def create(
         cls,
-        ground_truth: pd.DataFrame,
-        predictions: pd.DataFrame,
-        sample_interval: timedelta,
+        ground_truth: TimeSeriesDataset,
+        predictions: TimeSeriesDataset,
         index: pd.DatetimeIndex | None = None,
     ) -> Self:
-        combined_index = cast(pd.DatetimeIndex, ground_truth.index.intersection(predictions.index))
+        combined_index = ground_truth.index.intersection(predictions.index)
         if index is not None:
             combined_index = combined_index.intersection(index)
 
         return cls(
-            ground_truth=ground_truth.loc[combined_index],
-            predictions=predictions.loc[combined_index],
-            sample_interval=sample_interval,
+            ground_truth=TimeSeriesDataset(
+                data=ground_truth.data.loc[combined_index],
+                sample_interval=ground_truth.sample_interval,
+            ),
+            predictions=TimeSeriesDataset(
+                data=predictions.data.loc[combined_index],
+                sample_interval=predictions.sample_interval,
+            ),
         )
 
     def to_parquet(self, path: Path):
@@ -67,13 +72,11 @@ class EvaluationSubset:
 
     @classmethod
     def from_parquet(cls, path: Path) -> Self:
-        ground_truth = pd.read_parquet(path / "ground_truth.parquet")
-        predictions = pd.read_parquet(path / "predictions.parquet")
-        sample_interval = timedelta_from_isoformat(ground_truth.attrs.get("sample_interval", "PT15M"))
+        ground_truth = TimeSeriesDataset.read_parquet(path / "ground_truth.parquet")
+        predictions = TimeSeriesDataset.read_parquet(path / "predictions.parquet")
         return cls(
             ground_truth=ground_truth,
             predictions=predictions,
-            sample_interval=sample_interval,
         )
 
 

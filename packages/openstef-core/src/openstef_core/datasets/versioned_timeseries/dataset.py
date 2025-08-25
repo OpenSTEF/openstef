@@ -223,7 +223,7 @@ class VersionedTimeSeriesDataset(VersionedTimeSeriesMixin):
         self.data.to_parquet(path)
 
     @classmethod
-    def from_parquet(
+    def read_parquet(
         cls,
         path: Path,
     ) -> Self:
@@ -259,7 +259,7 @@ class VersionedTimeSeriesDataset(VersionedTimeSeriesMixin):
             >>> with tempfile.TemporaryDirectory() as tmpdir:
             ...     file_path = Path(tmpdir) / "versioned_data.parquet"
             ...     dataset.to_parquet(file_path)
-            ...     loaded = VersionedTimeSeriesDataset.from_parquet(file_path)
+            ...     loaded = VersionedTimeSeriesDataset.read_parquet(file_path)
             ...     loaded.feature_names == dataset.feature_names
             True
 

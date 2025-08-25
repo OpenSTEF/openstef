@@ -4,9 +4,10 @@
 
 import re
 from datetime import timedelta
-from typing import Any, NewType, Self, override
+from typing import Any, Self, override
 
-from pydantic import TypeAdapter
+from pydantic import GetCoreSchemaHandler, TypeAdapter
+from pydantic_core import CoreSchema, core_schema
 
 from openstef_core.base_model import PydanticStringPrimitive
 
@@ -94,21 +95,33 @@ class AvailableAt(PydanticStringPrimitive):
         return super().validate(v, _info)
 
 
-Quantile = NewType("Quantile", float)
+class Quantile(float):
+    """A float subclass representing a quantile value between 0 and 1."""
 
+    def __new__(cls, value: float):
+        if not 0 <= value <= 1:
+            raise ValueError(f"Quantile must be between 0 and 1, got {value}")
+        return super().__new__(cls, value)
 
-def format_quantile(quantile: float) -> str:
-    value = quantile * 100
+    @classmethod
+    def __get_pydantic_core_schema__(cls, source_type: Any, handler: GetCoreSchemaHandler) -> CoreSchema:
+        return core_schema.no_info_after_validator_function(cls, handler(float))
 
-    # Check if the value is a whole number
-    if value.is_integer():
-        return f"quantile_P{int(value):02d}"
-    # Format with one decimal place for non-integer values
-    return f"quantile_P{value:.1f}"
+    def format(self) -> str:
+        """Instance method to format the quantile as a string."""
+        value = self * 100
 
+        # Check if the value is a whole number
+        if value.is_integer():
+            return f"quantile_P{int(value):02d}"
+        # Format with one decimal place for non-integer values
+        return f"quantile_P{value:.1f}"
 
-def parse_quantile(quantile_str: str) -> float:
-    if not quantile_str.startswith("quantile_P"):
-        msg = f"Invalid quantile string: {quantile_str}"
-        raise ValueError(msg)
-    return float(quantile_str.split("_P")[1]) / 100
+    @staticmethod
+    def parse(quantile_str: str) -> "Quantile":
+        """Static method to parse a quantile string back to a Quantile object."""
+        if not quantile_str.startswith("quantile_P"):
+            msg = f"Invalid quantile string: {quantile_str}"
+            raise ValueError(msg)
+        value = float(quantile_str.split("_P")[1]) / 100
+        return Quantile(value)

@@ -22,7 +22,7 @@ from openstef_beam.metrics import (
     rmae,
 )
 from openstef_core.base_model import BaseConfig
-from openstef_core.types import Quantile, parse_quantile
+from openstef_core.types import Quantile
 
 
 class MetricProvider(BaseConfig):
@@ -45,9 +45,9 @@ class MetricProvider(BaseConfig):
         Extracts predictions and ground truth from the subset, then computes
         metrics for all relevant quantiles.
         """
-        quantiles = np.array([parse_quantile(quantile) for quantile in subset.predictions.columns])
-        y_true: npt.NDArray[np.floating] = cast(pd.Series, subset.ground_truth.squeeze()).to_numpy()
-        y_pred: npt.NDArray[np.floating] = subset.predictions.to_numpy()
+        quantiles = np.array([Quantile.parse(quantile) for quantile in subset.predictions.feature_names])
+        y_true: npt.NDArray[np.floating] = cast(pd.Series, subset.ground_truth.data.squeeze()).to_numpy()
+        y_pred: npt.NDArray[np.floating] = subset.predictions.data.to_numpy()
 
         return self.compute_probabilistic(y_true, y_pred, quantiles)
 
@@ -246,9 +246,9 @@ class RMAEPeakHoursProvider(MetricProvider):
         Extracts predictions and ground truth from the subset, then computes
         metrics for all relevant quantiles.
         """
-        quantiles = np.array([parse_quantile(quantile) for quantile in subset.predictions.columns])
-        y_true: npt.NDArray[np.floating] = cast(pd.Series, subset.ground_truth.squeeze()).to_numpy()
-        y_pred: npt.NDArray[np.floating] = subset.predictions.to_numpy()
+        quantiles = np.array([Quantile.parse(quantile) for quantile in subset.predictions.feature_names])
+        y_true: npt.NDArray[np.floating] = cast(pd.Series, subset.ground_truth.data.squeeze()).to_numpy()
+        y_pred: npt.NDArray[np.floating] = subset.predictions.data.to_numpy()
 
         hours = subset.index.hour
         peak_hours_mask = (hours >= self.start_peak_hours) & (hours < self.end_peak_hours)

@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 import pandas as pd
 import pytest
 
-from openstef_beam.evaluation.data_collator import get_timeseries_coverage
+from openstef_core.datasets import TimeSeriesDataset
 
 
 @pytest.mark.parametrize(
@@ -41,21 +41,15 @@ from openstef_beam.evaluation.data_collator import get_timeseries_coverage
         ),
     ],
 )
-def test_get_timeseries_coverage(data: pd.DataFrame, sample_interval: timedelta, expected: timedelta):
+def test_get_timeseries_coverage(data: pd.Series, sample_interval: timedelta, expected: timedelta):
     # Arrange - done in parametrize
+    dataset = TimeSeriesDataset(
+        data=data.to_frame(name="value"),
+        sample_interval=sample_interval,
+    )
 
     # Act
-    result = get_timeseries_coverage(data, sample_interval)
+    result = dataset.calculate_time_coverage()
 
     # Assert
     assert result == expected
-
-
-def test_get_timeseries_coverage_raises_error():
-    # Arrange
-    data = pd.Series([1, 2, 3], index=[1, 2, 3])  # Not a DatetimeIndex
-    sample_interval = timedelta(days=1)
-
-    # Act / Assert
-    with pytest.raises(TypeError, match="DataFrame index must be a DatetimeIndex"):
-        get_timeseries_coverage(data, sample_interval)

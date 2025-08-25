@@ -4,11 +4,11 @@
 
 from collections.abc import Iterator
 from datetime import datetime, timedelta
-from typing import cast
 
 import pandas as pd
 
 from openstef_beam.evaluation.models import EvaluationSubset, Window
+from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.utils import align_datetime
 
 
@@ -72,16 +72,18 @@ def iterate_subsets_by_window(
         window=window,
         sample_interval=subset.sample_interval,
     ):
-        mutual_index = window_index.intersection(cast(pd.DatetimeIndex, subset.ground_truth.index)).intersection(
-            cast(pd.DatetimeIndex, subset.predictions.index)
+        mutual_index = window_index.intersection(subset.ground_truth.index).intersection(subset.predictions.index)
+        window_ground_truth = TimeSeriesDataset(
+            data=subset.ground_truth.data.loc[mutual_index],
+            sample_interval=subset.sample_interval,
         )
-        window_ground_truth = subset.ground_truth.loc[mutual_index]
-        window_predictions = subset.predictions.loc[mutual_index]
+        window_predictions = TimeSeriesDataset(
+            data=subset.predictions.data.loc[mutual_index],
+            sample_interval=subset.sample_interval,
+        )
 
         # If there is not enough data in the window, then skip it
-        window_coverage = (
-            get_timeseries_coverage(data=window_ground_truth, sample_interval=subset.sample_interval) / window.size
-        )
+        window_coverage = window_ground_truth.calculate_time_coverage() / window.size
         if window_coverage < window.minimum_coverage:
             continue
 
@@ -90,37 +92,11 @@ def iterate_subsets_by_window(
             EvaluationSubset.create(
                 ground_truth=window_ground_truth,
                 predictions=window_predictions,
-                sample_interval=subset.sample_interval,
             ),
         )
 
 
-def get_timeseries_coverage(data: pd.DataFrame | pd.Series, sample_interval: timedelta) -> timedelta:
-    """Calculates the total time span covered by a time series dataset.
-
-    Guarantees:
-    - Returns the product of unique timestamps count and sample interval
-    - Operates only on data with DatetimeIndex
-
-    Args:
-        data: Time series data with DatetimeIndex
-        sample_interval: Time interval between samples
-
-    Returns:
-        Total time coverage as a timedelta
-
-    Raises:
-        TypeError: If data.index is not a DatetimeIndex
-    """
-    if not isinstance(data.index, pd.DatetimeIndex):
-        msg = "DataFrame index must be a DatetimeIndex"
-        raise TypeError(msg)
-
-    return len(data.index.unique()) * sample_interval
-
-
 __all__ = [
-    "get_timeseries_coverage",
     "iterate_by_window",
     "iterate_subsets_by_window",
 ]
