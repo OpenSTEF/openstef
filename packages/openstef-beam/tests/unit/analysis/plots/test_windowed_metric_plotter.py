@@ -11,7 +11,7 @@ from openstef_beam.analysis.plots import WindowedMetricPlotter
 
 
 @pytest.fixture
-def sample_datetime_series():
+def sample_datetime_series() -> list[datetime]:
     """Returns a small series of datetime objects."""
     return [
         datetime.fromisoformat("2023-01-01T00:00:00"),

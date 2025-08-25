@@ -23,7 +23,7 @@ class SummaryTablePlotter:
             str: A formatted HTML table
         """
         # Apply basic styling to the HTML table
-        styled_html = (
+        return (
             self.data.style.set_table_attributes('class="dataframe"')
             .set_properties(**{"text-align": "left", "padding": "5px", "border": "1px solid #ddd"})  # type: ignore[arg-type]
             .set_table_styles([
@@ -40,8 +40,6 @@ class SummaryTablePlotter:
             .hide(axis="index")
             .to_html()
         )
-
-        return styled_html
 
 
 __all__ = ["SummaryTablePlotter"]

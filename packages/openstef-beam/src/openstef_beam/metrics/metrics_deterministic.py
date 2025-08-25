@@ -147,6 +147,7 @@ class PrecisionRecall(NamedTuple):
 
 def precision_recall(
     cm: ConfusionMatrix,
+    *,
     effective: bool = False,
 ) -> PrecisionRecall:
     """Calculate precision and recall metrics from a confusion matrix.

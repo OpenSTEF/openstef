@@ -203,7 +203,8 @@ class VisualizationProvider(BaseConfig):
     def _validate_aggregation_support(self, aggregation: AnalysisAggregation) -> None:
         """Validate that the aggregation type is supported by this provider."""
         if aggregation not in self.supported_aggregations:
-            raise ValueError(f"Aggregation {aggregation} is not supported by this provider.")
+            msg = f"Aggregation {aggregation} is not supported by this provider."
+            raise ValueError(msg)
 
 
 def _validate_same_run_names(

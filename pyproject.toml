@@ -32,7 +32,7 @@ dependencies = [
 ]
 
 optional-dependencies.all = [
-  "openstef-beam",
+  "openstef-beam[boto]",
   "openstef-compatibility",
   "openstef-core",
   "openstef-models",
@@ -53,6 +53,7 @@ urls.Repository = "https://github.com/OpenSTEF/openstef"
 
 [dependency-groups]
 dev = [
+  "moto[s3,server]>=5.1.11",
   "openstef-beam",
   "openstef-core",
   "openstef-docs",

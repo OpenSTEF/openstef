@@ -80,8 +80,8 @@ def test_plot_with_models():
 
     # Assert
     assert isinstance(fig, go.Figure)
-    assert len(fig.data) == 2  # type: ignore
-    assert fig.layout.title.text == "Test Plot"  # type: ignore
+    assert len(fig.data) == 2
+    assert fig.layout.title.text == "Test Plot"
 
 
 def test_model_chaining():

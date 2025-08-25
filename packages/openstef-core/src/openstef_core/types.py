@@ -98,9 +98,10 @@ class AvailableAt(PydanticStringPrimitive):
 class Quantile(float):
     """A float subclass representing a quantile value between 0 and 1."""
 
-    def __new__(cls, value: float):
+    def __new__(cls, value: float) -> Self:
         if not 0 <= value <= 1:
-            raise ValueError(f"Quantile must be between 0 and 1, got {value}")
+            msg = f"Quantile must be between 0 and 1, got {value}"
+            raise ValueError(msg)
         return super().__new__(cls, value)
 
     @classmethod

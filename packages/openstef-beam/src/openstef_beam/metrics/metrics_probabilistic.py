@@ -23,7 +23,7 @@ def crps(
     Returns:
         float: The Continuous Ranked Probability Score.
     """
-    import scoringrules as sr
+    import scoringrules as sr  # noqa: PLC0415 - import is quite slow, so we delay it until this function is called
 
     return float(np.average(sr.crps_quantile(y_true, y_pred, quantiles), weights=sample_weights))
 

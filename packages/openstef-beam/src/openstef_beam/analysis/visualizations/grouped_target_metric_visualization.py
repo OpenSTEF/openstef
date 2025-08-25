@@ -147,7 +147,8 @@ class GroupedTargetMetricVisualization(VisualizationProvider):
         targets, _metric_values = self._collect_target_metrics(reports)
 
         if not targets:
-            raise ValueError(f"No valid metric data found for '{self.metric}'")
+            msg = f"No valid metric data found for '{self.metric}'"
+            raise ValueError(msg)
 
         plotter = GroupedTargetMetricPlotter()
         self._process_reports_and_add_to_plotter(
@@ -177,7 +178,8 @@ class GroupedTargetMetricVisualization(VisualizationProvider):
         # Check if any valid data was processed
         has_valid_data = any(bool(self._collect_target_metrics(run_reports)[0]) for run_reports in reports.values())
         if not has_valid_data:
-            raise ValueError(f"No valid metric data found for '{self.metric}'")
+            msg = f"No valid metric data found for '{self.metric}'"
+            raise ValueError(msg)
 
         title = self._create_plot_title("by Run")
         figure = plotter.plot(title=title, metric_name=self.metric)
@@ -213,7 +215,8 @@ class GroupedTargetMetricVisualization(VisualizationProvider):
             bool(self._collect_target_metrics(run_group_reports)[0]) for run_group_reports in reports.values()
         )
         if not has_valid_data:
-            raise ValueError(f"No valid metric data found for '{self.metric}'")
+            msg = f"No valid metric data found for '{self.metric}'"
+            raise ValueError(msg)
 
         if target_to_group_map:
             plotter.set_target_groups(target_to_group_map)
@@ -242,7 +245,8 @@ class GroupedTargetMetricVisualization(VisualizationProvider):
         # Check if any valid data was processed
         has_valid_data = any(bool(self._collect_target_metrics(group_reports)[0]) for group_reports in reports.values())
         if not has_valid_data:
-            raise ValueError(f"No valid metric data found for '{self.metric}'")
+            msg = f"No valid metric data found for '{self.metric}'"
+            raise ValueError(msg)
 
         if target_to_group_map:
             plotter.set_target_groups(target_to_group_map)

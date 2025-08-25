@@ -58,8 +58,8 @@ class BacktestPipeline:
 
     def run(
         self,
-        ground_truth: VersionedTimeSeriesDataset,
-        predictors: VersionedTimeSeriesDataset,
+        ground_truth: VersionedTimeSeriesMixin,
+        predictors: VersionedTimeSeriesMixin,
         start: datetime | None,
         end: datetime | None,
         *,

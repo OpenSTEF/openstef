@@ -72,9 +72,9 @@ def test_plot_creates_correct_figure_type(use_target_groups: bool, expected_plot
     # Assert
     assert isinstance(fig, go.Figure)
     if expected_plot_type == "bar":
-        assert any(trace.type == "bar" for trace in fig.data)  # type: ignore
+        assert any(trace.type == "bar" for trace in fig.data)
     elif expected_plot_type == "box":
-        assert any(trace.type == "box" for trace in fig.data)  # type: ignore
+        assert any(trace.type == "box" for trace in fig.data)
 
 
 def test_plot_with_multiple_models():
@@ -88,7 +88,7 @@ def test_plot_with_multiple_models():
 
     # Assert
     assert isinstance(fig, go.Figure)
-    assert len(fig.data) == 2  # Two traces for two models  # type: ignore
+    assert len(fig.data) == 2  # Two traces for two models
 
 
 def test_plot_with_no_data():

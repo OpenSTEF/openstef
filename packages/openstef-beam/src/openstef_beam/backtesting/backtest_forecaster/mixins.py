@@ -11,6 +11,7 @@ from pydantic import Field
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset, VersionedTimeSeriesDataset
 from openstef_core.datasets.versioned_timeseries.accessors import RestrictedHorizonVersionedTimeSeries
+from openstef_core.types import Quantile
 
 
 class BacktestForecasterConfig(BaseConfig):
@@ -48,7 +49,7 @@ class BacktestForecasterMixin:
 
     @property
     @abstractmethod
-    def quantiles(self) -> list[float]:
+    def quantiles(self) -> list[Quantile]:
         raise NotImplementedError
 
     def fit(self, data: RestrictedHorizonVersionedTimeSeries) -> None:

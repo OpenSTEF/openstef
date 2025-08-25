@@ -35,6 +35,9 @@ dependencies = [
   "tqdm>=4.67.1",
 ]
 
+optional-dependencies.boto = [
+  "s3fs>=2025.5.1",
+]
 urls.Documentation = "https://openstef.github.io/openstef/index.html"
 urls.Homepage = "https://lfenergy.org/projects/openstef/"
 urls.Issues = "https://github.com/OpenSTEF/openstef/issues"

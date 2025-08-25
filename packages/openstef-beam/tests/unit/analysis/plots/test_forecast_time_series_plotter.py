@@ -180,7 +180,7 @@ def test_plot_with_only_measurements():
     # Assert
     assert isinstance(fig, go.Figure)
     # Should have one trace for the measurements
-    assert len(fig.data) == 1  # type: ignore
+    assert len(fig.data) == 1
 
 
 def test_plot_with_forecasts_and_no_quantiles():
@@ -206,7 +206,7 @@ def test_plot_with_forecasts_and_no_quantiles():
 
     # Assert
     # Should have two traces, one for each forecast
-    assert len(fig.data) == 2  # type: ignore
+    assert len(fig.data) == 2
 
 
 def test_plot_with_measurements_and_forecasts():
@@ -230,7 +230,7 @@ def test_plot_with_measurements_and_forecasts():
 
     # Assert
     # Should have two traces: measurements and forecast
-    assert len(fig.data) == 2  # type: ignore
+    assert len(fig.data) == 2
 
 
 def test_plot_with_forecasts_and_quantiles():
@@ -305,7 +305,7 @@ def test_plot_with_measurements_forecasts_and_quantiles_multiple_models():
 
     # Assert
     # 1 measurement trace, 2 forecast traces, 2*2 quantile traces (one band per model, each band = 2 traces)
-    assert len(fig.data) == 7  # type: ignore
+    assert len(fig.data) == 7
 
 
 def test_custom_title():
@@ -344,7 +344,7 @@ def test_plot_with_only_quantiles_includes_50th():
 
     # Assert
     # Should have quantile bands (2 traces for 10/90) plus 50th quantile line (1 trace): total 3
-    assert len(fig.data) == 3  # type: ignore
-    names: list[str] = [trace.name for trace in fig.data]  # type: ignore
+    assert len(fig.data) == 3
+    names: list[str] = [trace.name for trace in fig.data]
     assert any("Quantile (50th)" in n for n in names)
     assert any("10%-90%" in n for n in names)

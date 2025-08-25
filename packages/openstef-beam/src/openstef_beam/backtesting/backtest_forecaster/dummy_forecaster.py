@@ -7,13 +7,14 @@ from datetime import timedelta
 from openstef_beam.backtesting.backtest_forecaster.mixins import BacktestForecasterConfig, BacktestForecasterMixin
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.datasets.versioned_timeseries.accessors import RestrictedHorizonVersionedTimeSeries
+from openstef_core.types import Q, Quantile
 
 
 class DummyForecaster(BacktestForecasterMixin):
     def __init__(
         self,
         config: BacktestForecasterConfig | None = None,
-        predict_quantiles: list[float] | None = None,
+        predict_quantiles: list[Quantile] | None = None,
     ) -> None:
         super().__init__()
         self.config = config or BacktestForecasterConfig(
@@ -26,10 +27,10 @@ class DummyForecaster(BacktestForecasterMixin):
             training_context_min_coverage=0.0,
             predict_sample_interval=timedelta(minutes=15),
         )
-        self.predict_quantiles = predict_quantiles or [0.05, 0.1, 0.3, 0.5, 0.7, 0.9, 0.95]
+        self.predict_quantiles = predict_quantiles or [Q(0.05), Q(0.1), Q(0.3), Q(0.5), Q(0.7), Q(0.9), Q(0.95)]
 
     @property
-    def quantiles(self) -> list[float]:
+    def quantiles(self) -> list[Quantile]:
         return self.predict_quantiles
 
     def predict(self, data: RestrictedHorizonVersionedTimeSeries) -> TimeSeriesDataset | None:
