@@ -27,6 +27,7 @@ classifiers = [
 ]
 
 dependencies = [
+  "holidays>=0.79",
   "numpy>=2.3.2",
   "pandas>=2.3.1",
   "pyarrow>=21",

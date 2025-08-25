@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+#
+# SPDX-License-Identifier: MPL-2.0
+
 from datetime import timedelta
 from enum import StrEnum
 
@@ -18,8 +22,7 @@ class AggregationFunction(StrEnum):
 
 
 class RollingAggregateFeaturesConfig(BaseConfig):
-    """Configuration for the RollingAggregateFeatures transform.
-    """
+    """Configuration for the RollingAggregateFeatures transform."""
 
     rolling_window_size: timedelta = Field(
         default=timedelta(hours=24),
@@ -27,7 +30,7 @@ class RollingAggregateFeaturesConfig(BaseConfig):
     )
     aggregation_functions: list[AggregationFunction] = Field(
         default_factory=lambda: [AggregationFunction.MEDIAN, AggregationFunction.MIN, AggregationFunction.MAX],
-        description="List of aggregation functions to compute over the rolling window. "
+        description="List of aggregation functions to compute over the rolling window. ",
     )
 
 
@@ -61,7 +64,7 @@ class RollingAggregateFeatures(TimeSeriesTransform):
         ...     aggregation_functions=[AggregationFunction.MEAN, AggregationFunction.MAX]
         ... )
         >>> transform = RollingAggregateFeatures(config=config)
-        >>> transformed_dataset = transform.transform(dataset)
+        >>> transformed_dataset = transform.fit_transform(dataset)
         >>> 'rolling_mean_load_PT2H' in transformed_dataset.data.columns
         True
         >>> 'rolling_max_load_PT2H' in transformed_dataset.data.columns
@@ -89,12 +92,10 @@ class RollingAggregateFeatures(TimeSeriesTransform):
             raise ValueError("The DataFrame must contain a 'load' column.")
 
         rolling_window_load = data.data["load"].dropna().rolling(window=self.config.rolling_window_size)
-        self.rolling_aggregate_features = pd.DataFrame(
-            {
-                self._get_rolling_aggregate_feature_name(func): rolling_window_load.aggregate(func.value)
-                for func in self.config.aggregation_functions
-            }
-        )
+        self.rolling_aggregate_features = pd.DataFrame({
+            self._get_rolling_aggregate_feature_name(func): rolling_window_load.aggregate(func.value)
+            for func in self.config.aggregation_functions
+        })
 
     def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
         """Transform the input time series data by adding rolling aggregate features.

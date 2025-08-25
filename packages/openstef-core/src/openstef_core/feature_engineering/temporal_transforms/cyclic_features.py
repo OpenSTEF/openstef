@@ -64,8 +64,7 @@ class CyclicFeatures(TimeSeriesTransform):
         >>> # Apply cyclic features with custom configuration
         >>> config = CyclicFeaturesConfig(included_features=["season", "timeOfDay"])
         >>> transform = CyclicFeatures(config)
-        >>> transform.fit(dataset)
-        >>> transformed = transform.transform(dataset)
+        >>> transformed = transform.fit_transform(dataset)
         >>> 'season_sine' in transformed.data.columns
         True
         >>> 'time0fday_sine' in transformed.data.columns
