@@ -16,3 +16,9 @@ class DummyMetricProvider(MetricProvider):
     def __call__(self, subset: EvaluationSubset) -> QuantileMetricsDict:
         # Return metrics for global since test is not using actual quantile data
         return cast(QuantileMetricsDict, {"global": {"dummy_metric": self.value}})
+
+
+class MockFigure:
+    def __init__(self):
+        self.data = []
+        self.layout = type("Layout", (), {"title": type("Title", (), {"text": "Test Plot"})})()

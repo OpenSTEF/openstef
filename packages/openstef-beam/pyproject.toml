@@ -28,6 +28,7 @@ classifiers = [
 
 dependencies = [
   "openstef-core",
+  "plotly>=6.3",
   "pydantic>=2.11.7",
   "pyyaml>=6.0.2",
   "scoringrules>=0.8",

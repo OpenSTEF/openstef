@@ -125,3 +125,6 @@ class Quantile(float):
             raise ValueError(msg)
         value = float(quantile_str.split("_P")[1]) / 100
         return Quantile(value)
+
+
+Q = Quantile  # Alias for easier imports

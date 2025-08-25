@@ -4,13 +4,14 @@
 
 from openstef_beam.evaluation import metric_providers
 from openstef_beam.evaluation.evaluation_pipeline import EvaluationConfig, EvaluationPipeline
-from openstef_beam.evaluation.models import EvaluationReport, EvaluationSubsetReport, SubsetMetric, Window
+from openstef_beam.evaluation.models import EvaluationReport, EvaluationSubsetReport, Filtering, SubsetMetric, Window
 
 __all__ = [
     "EvaluationConfig",
     "EvaluationPipeline",
     "EvaluationReport",
     "EvaluationSubsetReport",
+    "Filtering",
     "SubsetMetric",
     "Window",
     "metric_providers",
