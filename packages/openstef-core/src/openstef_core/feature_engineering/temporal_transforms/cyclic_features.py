@@ -30,7 +30,9 @@ class CyclicFeaturesConfig(BaseConfig):
     """
 
     included_features: list[Literal["timeOfDay", "season", "dayOfWeek", "month"]] = Field(
-        default_factory=lambda: ["timeOfDay", "season", "dayOfWeek", "month"]
+        default_factory=lambda: ["timeOfDay", "season", "dayOfWeek", "month"],
+        description="List of cyclic features to include in the transformation. "
+        "Options are 'timeOfDay', 'season', 'dayOfWeek', and 'month'.",
     )
 
 
@@ -72,14 +74,13 @@ class CyclicFeatures(TimeSeriesTransform):
         False
     """
 
-    cyclic_features: pd.DataFrame = pd.DataFrame()
-
     def __init__(
         self,
         config: CyclicFeaturesConfig,
     ):
         """Initialize the CyclicFeatures transform with a configuration."""
         self.config = config
+        self.cyclic_features: pd.DataFrame = pd.DataFrame()
 
     @staticmethod
     def _compute_sine(phase: pd.Index, period: float) -> np.ndarray:
