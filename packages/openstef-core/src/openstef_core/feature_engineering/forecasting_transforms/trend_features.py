@@ -80,8 +80,7 @@ class RollingAggregateFeatures(TimeSeriesTransform):
     def fit(self, data: TimeSeriesDataset) -> None:
         """Fit the transform to the input time series `load` column.
         This method computes the rolling aggregate features based on the specified
-        rolling window and aggregation functions. Missing values are forward-filled
-        to account for lags in the data.
+        rolling window and aggregation functions.
 
         Args:
             data: Time series dataset with DatetimeIndex.
@@ -92,7 +91,7 @@ class RollingAggregateFeatures(TimeSeriesTransform):
         rolling_window_load = data.data["load"].dropna().rolling(window=self.config.rolling_window_size)
         self.rolling_aggregate_features = pd.DataFrame(
             {
-                self._get_rolling_aggregate_feature_name(func): rolling_window_load.aggregate(func.value).ffill()
+                self._get_rolling_aggregate_feature_name(func): rolling_window_load.aggregate(func.value)
                 for func in self.config.aggregation_functions
             }
         )
@@ -101,7 +100,8 @@ class RollingAggregateFeatures(TimeSeriesTransform):
         """Transform the input time series data by adding rolling aggregate features.
 
         This method adds the precomputed rolling aggregate features to the input dataset.
-        If the transform has not been fitted yet, it raises an error.
+        Missing values are forward-filled to account for lags in the data and preventing
+        NaNs in the output.
 
         Args:
             data: The input time series data to be transformed.
@@ -112,11 +112,11 @@ class RollingAggregateFeatures(TimeSeriesTransform):
         Raises:
             ValueError: If the transform has not been fitted yet.
         """
-        # # Align the rolling features with the input data index
-        # aligned_features = self.rolling_aggregate_features.reindex(data.data.index).ffill()
+        aligned_features = self.rolling_aggregate_features.reindex(data.data.index).ffill()
+
         return TimeSeriesDataset(
             data=pd.concat(
-                [data.data, self.rolling_aggregate_features],
+                [data.data, aligned_features],
                 axis=1,
             ),
             sample_interval=data.sample_interval,
