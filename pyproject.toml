@@ -29,6 +29,7 @@ classifiers = [
 dependencies = [
   "openstef-core",
   "openstef-models",
+  "scikit-learn>=1.7.1",
 ]
 
 optional-dependencies.all = [
