@@ -152,7 +152,7 @@ class MissingValuesTransform(TimeSeriesTransform):
                 Trailing null rows will be automatically removed before fitting.
         """
         fit_data = self._remove_trailing_null_rows(data)
-        self.imputer_ = self.imputer_.fit(fit_data)
+        self.imputer_.fit(fit_data)
 
     def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
         """Transform the input dataset by removing trailing null rows and imputing missing values.
