@@ -81,17 +81,25 @@ def test_constant_imputation(sample_dataset: TimeSeriesDataset):
     assert result.data.loc[result.data.index[3], "wind_speed"] == 999.0
 
 
-def test_remove_trailing_null_rows(sample_dataset: TimeSeriesDataset):
+def test_remove_trailing_null_rows():
     # Arrange
-    sample_dataset.data["radiation"] = [100.0, 110.0, np.nan, np.nan]
+    data = pd.DataFrame(
+        {
+            "radiation": [100.0, 110.0, np.nan, np.nan],
+            "temperature": [20.0, 21.0, np.nan, 23.0],
+            "wind_speed": [5.0, 6.0, 8.0, np.nan],
+        },
+        index=pd.date_range(datetime.fromisoformat("2025-01-01T00:00:00"), periods=4, freq="1h"),
+    )
+    dataset = TimeSeriesDataset(data, timedelta(hours=1))
     config = MissingValuesTransformConfig(
         imputation_strategy=ImputationStrategy.MEAN, no_fill_future_values_features=["radiation"]
     )
     transform = MissingValuesTransform(config)
 
     # Act
-    transform.fit(sample_dataset)
-    result = transform.transform(sample_dataset)
+    transform.fit(dataset)
+    result = transform.transform(dataset)
 
     # Assert
     assert len(result.data) == 2
@@ -99,19 +107,26 @@ def test_remove_trailing_null_rows(sample_dataset: TimeSeriesDataset):
     assert result.data["radiation"].tolist() == [100.0, 110.0]
 
 
-def test_remove_trailing_nulls_multiple_features(sample_dataset: TimeSeriesDataset):
+def test_remove_trailing_nulls_multiple_features():
     # Arrange
-    sample_dataset.data = sample_dataset.data.iloc[:3]
-    sample_dataset.data["price"] = [10.0, np.nan, np.nan]
-    sample_dataset.data["radiation"] = [100.0, 110.0, np.nan]
+    data = pd.DataFrame(
+        {
+            "radiation": [100.0, 110.0, np.nan],
+            "temperature": [20.0, 21.0, np.nan],
+            "wind_speed": [5.0, 6.0, 8.0],
+            "price": [10.0, np.nan, np.nan],
+        },
+        index=pd.date_range(datetime.fromisoformat("2025-01-01T00:00:00"), periods=3, freq="1h"),
+    )
+    dataset = TimeSeriesDataset(data, timedelta(hours=1))
     config = MissingValuesTransformConfig(
         imputation_strategy=ImputationStrategy.MEAN, no_fill_future_values_features=["radiation", "price"]
     )
     transform = MissingValuesTransform(config)
 
     # Act
-    transform.fit(sample_dataset)
-    result = transform.transform(sample_dataset)
+    transform.fit(dataset)
+    result = transform.transform(dataset)
 
     # Assert
     assert len(result.data) == 1  # Only first row remains
@@ -139,16 +154,24 @@ def test_no_trailing_nulls_removal_when_feature_not_in_data(
     assert "Feature 'nonexistent_feature' not found in dataset columns." in caplog.text
 
 
-def test_empty_feature_removal(sample_dataset: TimeSeriesDataset):
+def test_empty_feature_removal():
     # Arrange
-    sample_dataset.data = sample_dataset.data.iloc[:3]
-    sample_dataset.data["empty_feature"] = [np.nan, np.nan, np.nan]
+    data = pd.DataFrame(
+        {
+            "radiation": [100.0, np.nan, 110.0],
+            "temperature": [20.0, 21.0, np.nan],
+            "wind_speed": [5.0, 6.0, 8.0],
+            "empty_feature": [np.nan, np.nan, np.nan],
+        },
+        index=pd.date_range(datetime.fromisoformat("2025-01-01T00:00:00"), periods=3, freq="1h"),
+    )
+    dataset = TimeSeriesDataset(data, timedelta(hours=1))
     config = MissingValuesTransformConfig(imputation_strategy=ImputationStrategy.MEAN)
     transform = MissingValuesTransform(config)
 
     # Act
-    transform.fit(sample_dataset)
-    result = transform.transform(sample_dataset)
+    transform.fit(dataset)
+    result = transform.transform(dataset)
 
     # Assert
     assert "empty_feature" not in result.data.columns
@@ -156,34 +179,46 @@ def test_empty_feature_removal(sample_dataset: TimeSeriesDataset):
     assert not result.data.isna().any().any()
 
 
-def test_no_missing_values(sample_dataset: TimeSeriesDataset):
+def test_no_missing_values():
     # Arrange
-    sample_dataset.data = sample_dataset.data.iloc[:3]
-    sample_dataset.data = sample_dataset.data.dropna()  # pyright: ignore[reportUnknownMemberType]
-    original_data = sample_dataset.data.copy()
+    data = pd.DataFrame(
+        {
+            "radiation": [100.0, 110.0, 120.0],
+            "temperature": [20.0, 21.0, 23.0],
+            "wind_speed": [5.0, 6.0, 8.0],
+        },
+        index=pd.date_range(datetime.fromisoformat("2025-01-01T00:00:00"), periods=3, freq="1h"),
+    )
+    dataset = TimeSeriesDataset(data, timedelta(hours=1))
+    original_data = dataset.data.copy()
     config = MissingValuesTransformConfig(imputation_strategy=ImputationStrategy.MEAN)
     transform = MissingValuesTransform(config)
 
     # Act
-    transform.fit(sample_dataset)
-    result = transform.transform(sample_dataset)
+    transform.fit(dataset)
+    result = transform.transform(dataset)
 
     # Assert
     pd.testing.assert_frame_equal(result.data, original_data)
 
 
-def test_custom_missing_value_placeholder(sample_dataset: TimeSeriesDataset):
+def test_custom_missing_value_placeholder():
     # Arrange
-    sample_dataset.data = sample_dataset.data.iloc[:3]
-    sample_dataset.data["radiation"] = [100.0, -999.0, 120.0]
-    sample_dataset.data["temperature"] = [20.0, 21.0, -999.0]
-    sample_dataset.data["wind_speed"] = [5.0, 6.0, 7.0]
+    data = pd.DataFrame(
+        {
+            "radiation": [100.0, -999.0, 120.0],
+            "temperature": [20.0, 21.0, -999.0],
+            "wind_speed": [5.0, 6.0, 7.0],
+        },
+        index=pd.date_range(datetime.fromisoformat("2025-01-01T00:00:00"), periods=3, freq="1h"),
+    )
+    dataset = TimeSeriesDataset(data, timedelta(hours=1))
     config = MissingValuesTransformConfig(missing_value=-999.0, imputation_strategy=ImputationStrategy.MEAN)
     transform = MissingValuesTransform(config)
 
     # Act
-    transform.fit(sample_dataset)
-    result = transform.transform(sample_dataset)
+    transform.fit(dataset)
+    result = transform.transform(dataset)
 
     # Assert
     assert not (result.data == -999.0).any().any()
@@ -191,11 +226,17 @@ def test_custom_missing_value_placeholder(sample_dataset: TimeSeriesDataset):
     assert result.data.loc[result.data.index[2], "temperature"] == 20.5
 
 
-def test_all_null_dataset_with_trailing_removal(sample_dataset: TimeSeriesDataset, caplog: LogCaptureFixture):
+def test_all_null_dataset_with_trailing_removal(caplog: LogCaptureFixture):
     # Arrange
-    sample_dataset.data = sample_dataset.data.iloc[:3]
-    sample_dataset.data["radiation"] = [np.nan, np.nan, np.nan]
-    sample_dataset.data["temperature"] = [20.0, 21.0, 22.0]
+    data = pd.DataFrame(
+        {
+            "radiation": [np.nan, np.nan, np.nan],
+            "temperature": [20.0, 21.0, 22.0],
+            "wind_speed": [5.0, 6.0, 8.0],
+        },
+        index=pd.date_range(datetime.fromisoformat("2025-01-01T00:00:00"), periods=3, freq="1h"),
+    )
+    dataset = TimeSeriesDataset(data, timedelta(hours=1))
     config = MissingValuesTransformConfig(
         imputation_strategy=ImputationStrategy.CONSTANT, fill_value=0.0, no_fill_future_values_features=["radiation"]
     )
@@ -203,9 +244,9 @@ def test_all_null_dataset_with_trailing_removal(sample_dataset: TimeSeriesDatase
 
     # Act
     with caplog.at_level(logging.WARNING):
-        transform.fit(sample_dataset)
+        transform.fit(dataset)
 
-    result = transform.transform(sample_dataset)
+    result = transform.transform(dataset)
 
     # Assert
     assert len(result.data) == 3  # One row removed
