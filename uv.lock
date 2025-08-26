@@ -482,19 +482,6 @@ wheels = [
 ]
 
 [[package]]
-name = "icalendar"
-version = "6.3.1"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "python-dateutil" },
-    { name = "tzdata" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/08/13/e5899c916dcf1343ea65823eb7278d3e1a1d679f383f6409380594b5f322/icalendar-6.3.1.tar.gz", hash = "sha256:a697ce7b678072941e519f2745704fc29d78ef92a2dc53d9108ba6a04aeba466", size = 177169, upload-time = "2025-05-20T07:42:50.683Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/6c/25/b5fc00e85d2dfaf5c806ac8b5f1de072fa11630c5b15b4ae5bbc228abd51/icalendar-6.3.1-py3-none-any.whl", hash = "sha256:7ea1d1b212df685353f74cdc6ec9646bf42fa557d1746ea645ce8779fdfbecdd", size = 242349, upload-time = "2025-05-20T07:42:48.589Z" },
-]
-
-[[package]]
 name = "idna"
 version = "3.10"
 source = { registry = "https://pypi.org/simple" }
@@ -1021,9 +1008,6 @@ ml = [
 pvlib = [
     { name = "pvlib" },
 ]
-schoolholidays = [
-    { name = "icalendar" },
-]
 
 [package.metadata]
 requires-dist = [
@@ -1035,8 +1019,7 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 ml = [{ name = "scikit-learn", specifier = ">=1.7.1" }]
-pvlib = [{ name = "pvlib", specifier = ">=0.13.0" }]
-schoolholidays = [{ name = "icalendar", specifier = ">=6.3.1" }]
+pvlib = [{ name = "pvlib", specifier = ">=0.13" }]
 
 [[package]]
 name = "openstef-docs"

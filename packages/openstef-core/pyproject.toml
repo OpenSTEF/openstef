@@ -45,9 +45,6 @@ ml = [
 pvlib = [
   "pvlib>=0.13",
 ]
-schoolholidays = [
-  "icalendar>=6.3.1",
-]
 
 [tool.hatch.build.targets.wheel]
 packages = [ "src/openstef_core" ]
