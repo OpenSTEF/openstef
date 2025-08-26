@@ -116,7 +116,18 @@ class PydanticStringPrimitive:
 
     @classmethod
     def validate(cls, v: Any, _info: Any = None) -> Self:  # noqa: ANN401
-        """Validate and convert input to this type."""
+        """Validate and convert input to this type.
+
+        Args:
+            v: Input value to validate.
+            _info: Additional validation info (unused).
+
+        Returns:
+            Validated instance of this type.
+
+        Raises:
+            ValueError: If input cannot be converted to this type.
+        """
         if isinstance(v, cls):
             return v
         if isinstance(v, str):
@@ -130,13 +141,21 @@ class PydanticStringPrimitive:
     def __get_pydantic_core_schema__(
         cls, _source_type: type[Any], _handler: GetCoreSchemaHandler
     ) -> core_schema.CoreSchema:
-        """Define Pydantic validation and serialization behavior."""
+        """Define Pydantic validation and serialization behavior.
+
+        Returns:
+            Core schema for Pydantic validation and serialization.
+        """
         return core_schema.with_info_plain_validator_function(
             function=cls.validate, serialization=core_schema.plain_serializer_function_ser_schema(cls.__str__)
         )
 
     def __eq__(self, other: object) -> bool:
-        """Check equality based on string representation."""
+        """Check equality based on string representation.
+
+        Returns:
+            True if both objects have the same string representation, False otherwise.
+        """
         if not isinstance(other, self.__class__):
             return NotImplemented
         return str(self) == str(other)

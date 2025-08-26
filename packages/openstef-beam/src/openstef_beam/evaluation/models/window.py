@@ -2,6 +2,13 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+"""Time window definition for sliding window analysis.
+
+Provides structured representation of temporal analysis windows with configurable
+lag, size, and stride parameters. Supports serialization for consistent window
+specification across evaluation pipelines.
+"""
+
 import re
 from datetime import timedelta
 from typing import Any, Self, override
@@ -27,6 +34,14 @@ class Window(PydanticStringPrimitive):
     def __init__(
         self, lag: timedelta, size: timedelta, stride: timedelta = timedelta(days=1), minimum_coverage: float = 0.5
     ):
+        """Initialize a time window with the specified parameters.
+
+        Args:
+            lag: How far back from the reference point to start the window.
+            size: The duration of the window.
+            stride: How much to advance for the next window.
+            minimum_coverage: Minimum required data coverage (0.0-1.0).
+        """
         self.lag = lag
         self.size = size
         self.stride = stride
@@ -36,6 +51,9 @@ class Window(PydanticStringPrimitive):
         """Converts to string in '(lag=X,size=Y,stride=Z)' format.
 
         Timedeltas are serialized in ISO 8601 format.
+
+        Returns:
+            String representation of the window parameters.
         """
         lag_str, size_str, stride_str = TypeAdapter(tuple[timedelta, timedelta, timedelta]).dump_python(
             (self.lag, self.size, self.stride), mode="json"
@@ -46,7 +64,14 @@ class Window(PydanticStringPrimitive):
     def from_string(cls, s: str) -> Self:
         """Creates an instance from a string in '(lag=X,size=Y,stride=Z)' format.
 
-        Raises ValueError if the string format is invalid.
+        Args:
+            s: String representation to parse.
+
+        Returns:
+            Window instance parsed from the string.
+
+        Raises:
+            ValueError: If the string format is invalid.
         """
         match = re.findall(r"\(lag=(.*),size=(.*),stride=(.*)\)", s)
         if not match:
@@ -59,7 +84,15 @@ class Window(PydanticStringPrimitive):
     @classmethod
     @override
     def validate(cls, v: Self | str | dict[str, Any], _info: Any = None) -> Self:
-        """Validates and converts various input types to Window."""
+        """Validates and converts various input types to Window.
+
+        Args:
+            v: Input value to validate (Window, string, or dict).
+            _info: Additional validation info (unused).
+
+        Returns:
+            Validated Window instance.
+        """
         if isinstance(v, dict):
             minimum_coverage = v.get("minimum_coverage", 0.5)
             lag, size, stride = TypeAdapter(tuple[timedelta, timedelta, timedelta]).validate_python((

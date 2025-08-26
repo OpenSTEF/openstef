@@ -2,13 +2,32 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+"""Datetime manipulation utilities for time series alignment and processing.
+
+Provides functions for aligning timestamps to specific intervals or times of day,
+commonly used in energy forecasting workflows where data must be synchronized
+to regular time grids or specific analysis windows.
+"""
+
 import math
 from datetime import datetime, time, timedelta
 from typing import Literal
 
 
 def align_datetime(timestamp: datetime, interval: timedelta, mode: Literal["ceil", "floor"] = "ceil") -> datetime:
-    """Align timestamp using modulo approach."""
+    """Align timestamp using modulo approach.
+
+    Args:
+        timestamp: The datetime to align.
+        interval: Time interval to align to.
+        mode: Alignment direction - "ceil" for next interval, "floor" for previous.
+
+    Returns:
+        Aligned datetime matching the specified interval boundary.
+
+    Raises:
+        ValueError: If mode is not "ceil" or "floor".
+    """
     timestamp_epoch_seconds = timestamp.timestamp()
     interval_seconds = interval.total_seconds()
 
@@ -40,9 +59,6 @@ def align_datetime_to_time(timestamp: datetime, align_time: time, mode: Literal[
 
     Returns:
         Aligned datetime with the same timezone as the original timestamp.
-
-    Raises:
-        ValueError: If mode is not "ceil" or "floor".
 
     Example:
         >>> from datetime import datetime, time

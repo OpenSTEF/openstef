@@ -2,6 +2,13 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+"""Standard interfaces for integrating forecasting models with backtesting.
+
+Establishes the contract between any forecasting model and the backtesting
+framework, ensuring consistent behavior across different model types while
+supporting both single and batch prediction modes.
+"""
+
 from abc import abstractmethod
 from collections.abc import Sequence
 from datetime import datetime, timedelta
@@ -15,6 +22,13 @@ from openstef_core.types import Quantile
 
 
 class BacktestForecasterConfig(BaseConfig):
+    """Configuration parameters for backtesting forecasting models.
+
+    Defines the operational constraints and requirements for a forecasting model
+    during backtesting simulations. Controls data availability requirements,
+    prediction horizons, and training schedules.
+    """
+
     requires_training: bool = Field(description="Whether the model needs to be trained.")
 
     predict_sample_interval: timedelta = Field(
@@ -50,6 +64,7 @@ class BacktestForecasterMixin:
     @property
     @abstractmethod
     def quantiles(self) -> list[Quantile]:
+        """Return the list of quantiles that this forecaster predicts."""
         raise NotImplementedError
 
     def fit(self, data: RestrictedHorizonVersionedTimeSeries) -> None:
@@ -98,6 +113,16 @@ class BacktestForecasterMixin:
 
 
 class BacktestBatchForecasterMixin:
+    """Extension mixin for forecasters that support batch prediction operations.
+
+    Enables efficient processing of multiple prediction requests simultaneously,
+    which can significantly improve performance for models that benefit from
+    batch operations (e.g., neural networks, GPU-accelerated models).
+
+    Attributes:
+        batch_size: Maximum number of predictions to process in a single batch.
+    """
+
     batch_size: int | None = Field(..., description="Batch size for prediction.")
 
     def predict_batch(self, batch: list[RestrictedHorizonVersionedTimeSeries]) -> Sequence[TimeSeriesDataset | None]:

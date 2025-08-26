@@ -2,6 +2,13 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+"""Window-based iteration utilities for evaluation data segmentation.
+
+Provides functions to create sliding time windows and filter evaluation subsets
+across different time dimensions. Enables systematic analysis of model performance
+over rolling time periods.
+"""
+
 from collections.abc import Iterator
 from datetime import datetime, timedelta
 
@@ -30,7 +37,7 @@ def iterate_by_window(
         window: Window specification with size, stride parameters
         sample_interval: Time interval between consecutive samples
 
-    Returns:
+    Yields:
         Iterator of (window end time, window DatetimeIndex) tuples
     """
     for end in pd.date_range(
@@ -64,7 +71,7 @@ def iterate_subsets_by_window(
         subset: The evaluation subset to iterate over
         window: Window specification with size, stride, and minimum coverage parameters
 
-    Returns:
+    Yields:
         Iterator of (window end time, windowed evaluation subset) tuples
     """
     for window_timestamp, window_index in iterate_by_window(

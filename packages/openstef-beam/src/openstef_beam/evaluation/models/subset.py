@@ -2,6 +2,13 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+"""Data models for evaluation subsets and metrics.
+
+Provides structures for organizing forecast evaluation data into meaningful subsets
+with their corresponding ground truth and predictions. Includes metric containers
+that support both quantile-specific and global performance measurements.
+"""
+
 from collections import defaultdict
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -18,6 +25,13 @@ from openstef_core.types import Quantile
 
 
 class EvaluationSubset:
+    """A paired dataset of ground truth and predictions for evaluation.
+
+    Ensures temporal alignment between ground truth measurements and forecast
+    predictions to enable accurate performance assessment. Validates index
+    consistency and sample intervals for reliable metric computation.
+    """
+
     ground_truth: TimeSeriesDataset
     predictions: TimeSeriesDataset
 
@@ -26,6 +40,15 @@ class EvaluationSubset:
         ground_truth: TimeSeriesDataset,
         predictions: TimeSeriesDataset,
     ):
+        """Initialize evaluation subset with aligned ground truth and predictions.
+
+        Args:
+            ground_truth: Historical measurements dataset.
+            predictions: Forecast predictions dataset.
+
+        Raises:
+            TimeSeriesValidationError: If indices don't match or sample intervals differ.
+        """
         super().__init__()
         if not ground_truth.index.equals(predictions.index):  # type: ignore[reportUnknownMemberType]
             raise TimeSeriesValidationError("Ground truth and predictions must have the same index.")
@@ -37,10 +60,20 @@ class EvaluationSubset:
 
     @property
     def index(self) -> pd.DatetimeIndex:
+        """Get the common temporal index for both datasets.
+
+        Returns:
+            DatetimeIndex shared by ground truth and predictions.
+        """
         return self.ground_truth.index
 
     @property
     def sample_interval(self) -> timedelta:
+        """Get the sampling interval of the datasets.
+
+        Returns:
+            Temporal resolution of the time series data.
+        """
         return self.ground_truth.sample_interval
 
     @classmethod
@@ -50,6 +83,16 @@ class EvaluationSubset:
         predictions: TimeSeriesDataset,
         index: pd.DatetimeIndex | None = None,
     ) -> Self:
+        """Create an evaluation subset with optional index filtering.
+
+        Args:
+            ground_truth: Historical measurements dataset.
+            predictions: Forecast predictions dataset.
+            index: Optional index to filter both datasets.
+
+        Returns:
+            New EvaluationSubset with aligned and optionally filtered data.
+        """
         combined_index = ground_truth.index.intersection(predictions.index)
         if index is not None:
             combined_index = combined_index.intersection(index)
@@ -66,12 +109,25 @@ class EvaluationSubset:
         )
 
     def to_parquet(self, path: Path):
+        """Save the evaluation subset to parquet files.
+
+        Args:
+            path: Directory where to save ground truth and predictions data.
+        """
         path.mkdir(parents=True, exist_ok=True)
         self.ground_truth.to_parquet(path / "ground_truth.parquet")
         self.predictions.to_parquet(path / "predictions.parquet")
 
     @classmethod
     def from_parquet(cls, path: Path) -> Self:
+        """Load an evaluation subset from parquet files.
+
+        Args:
+            path: Directory containing saved ground truth and predictions data.
+
+        Returns:
+            Loaded EvaluationSubset instance.
+        """
         ground_truth = TimeSeriesDataset.read_parquet(path / "ground_truth.parquet")
         predictions = TimeSeriesDataset.read_parquet(path / "predictions.parquet")
         return cls(
@@ -87,17 +143,35 @@ QuantileMetricsDict = dict[QuantileOrGlobal, MetricsDict]
 
 
 class SubsetMetric(BaseModel):
+    """Container for evaluation metrics computed on a data subset.
+
+    Stores performance metrics organized by quantile and window, enabling
+    detailed analysis of forecast quality across different probability levels
+    and temporal periods.
+    """
+
     window: Window | Literal["global"]
     timestamp: datetime
     metrics: QuantileMetricsDict
 
     def get_quantiles(self) -> list[Quantile]:
-        """Return a list of quantiles present in the metrics."""
+        """Return a list of quantiles present in the metrics.
+
+        Returns:
+            Sorted list of quantile values (excluding 'global').
+        """
         return sorted([q for q in self.metrics if q != "global"])
 
 
 def merge_quantile_metrics(metrics_list: list[QuantileMetricsDict]) -> QuantileMetricsDict:
-    """Merge multiple quantile metrics dictionaries into a single one."""
+    """Merge multiple quantile metrics dictionaries into a single one.
+
+    Args:
+        metrics_list: List of quantile metrics dictionaries to merge.
+
+    Returns:
+        Combined dictionary with all metrics from input dictionaries.
+    """
     merged_metrics: QuantileMetricsDict = defaultdict(dict)
     for metrics in metrics_list:
         for quantile, metric_dict in metrics.items():

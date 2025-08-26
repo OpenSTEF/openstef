@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-from typing import cast, override
+from typing import Any, cast, override
 
 import pandas as pd
 from pydantic import ConfigDict
@@ -55,7 +55,7 @@ class MockTargetProvider(TargetProvider[BenchmarkTarget, None]):
     metrics: list[MetricProvider]
 
     @override
-    def get_targets(self, filter_args=None) -> list[BenchmarkTarget]:
+    def get_targets(self, filter_args: Any = None) -> list[BenchmarkTarget]:
         targets = self.targets
         if filter_args is not None:
             targets = [t for t in targets if t.name == filter_args.name]

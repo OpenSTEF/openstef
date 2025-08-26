@@ -38,7 +38,7 @@ class MockVisualizationProvider(VisualizationProvider):
     def create(
         self, reports: list[tuple[TargetMetadata, EvaluationSubsetReport]], aggregation: AnalysisAggregation
     ) -> VisualizationOutput:
-        self.create_calls.append((reports, aggregation))  # type: ignore
+        self.create_calls.append((reports, aggregation))
         return VisualizationOutput(
             name=f"{self.name}_{aggregation.value}.html",
             html=f"<html>Mock visualization for {aggregation.value}</html>",

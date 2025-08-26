@@ -105,6 +105,8 @@ lint.per-file-ignores."./packages/*/tests/*" = [
   "DOC",     # All docstring rules
   "E501",    # Line too long (test names can be descriptive)
   "FBT",     # Allow booleans as positional arguments in tests, e.g. via @pytest.mark.parametrize()
+  "PLR0913", # Pytests can have a lot of fixtures, ignore too many arguments
+  "PLR0917", # Pytests can have a lot of fixtures, ignore too many arguments
   "PLR2004", # Magic value used in comparison
   "S101",    # asserts allowed in tests...
   "S311",    # Standard pseudo-random generators

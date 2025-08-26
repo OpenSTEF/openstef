@@ -2,6 +2,12 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+"""Data models for evaluation pipeline components.
+
+Provides structured representations for evaluation results, subset filtering,
+and time window configurations used throughout the evaluation process.
+"""
+
 from openstef_beam.evaluation.models.report import EvaluationReport, EvaluationSubsetReport
 from openstef_beam.evaluation.models.subset import EvaluationSubset, SubsetMetric
 from openstef_beam.evaluation.models.window import Filtering, Window

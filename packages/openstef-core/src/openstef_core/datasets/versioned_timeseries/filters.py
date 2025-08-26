@@ -2,6 +2,13 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+"""Filtering functions for versioned time series datasets.
+
+Provides utilities to filter versioned forecasts by availability time, lead time,
+and other temporal criteria. Essential for creating realistic evaluation scenarios
+that respect information availability constraints in operational forecasting.
+"""
+
 import pandas as pd
 
 from openstef_core.datasets.timeseries_dataset import TimeSeriesDataset

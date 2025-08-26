@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 
 from datetime import datetime, timedelta
+from typing import TYPE_CHECKING
 from unittest.mock import MagicMock, Mock, call, patch
 
 import pandas as pd
@@ -20,16 +21,18 @@ from openstef_beam.benchmarking import (
     BenchmarkTarget,
 )
 from openstef_beam.evaluation import EvaluationConfig, EvaluationReport, EvaluationSubsetReport, SubsetMetric
-from openstef_beam.evaluation.metric_providers import MetricProvider
 from openstef_beam.evaluation.models import EvaluationSubset
 from openstef_core.datasets import VersionedTimeSeriesDataset
 from openstef_core.types import AvailableAt
 from tests.utils.mocks import MockForecaster, MockMetricsProvider, MockTargetProvider
 
+if TYPE_CHECKING:
+    from openstef_beam.evaluation.metric_providers import MetricProvider
+
 
 # Test fixtures
 @pytest.fixture
-def test_targets():
+def test_targets() -> list[BenchmarkTarget]:
     """Create test targets with realistic date ranges."""
     return [
         BenchmarkTarget(
@@ -138,7 +141,7 @@ def mock_eval_run():
 
 
 @pytest.fixture
-def forecaster_config():
+def forecaster_config() -> BacktestForecasterConfig:
     """Create a realistic model interface config with all required fields."""
     return BacktestForecasterConfig(
         requires_training=True,
@@ -298,7 +301,7 @@ def test_benchmark_runner_storage_integration(
         metrics=[],
     )
 
-    def forecaster_factory(context: BenchmarkContext, target: BenchmarkTarget):
+    def forecaster_factory(context: BenchmarkContext, target: BenchmarkTarget) -> MockForecaster:
         return MockForecaster(config=forecaster_config)
 
     runner = BenchmarkPipeline(
@@ -388,7 +391,7 @@ def test_benchmark_runner_skips_cached_results(
     mock_storage.load_backtest_output.return_value = mock_backtest_run.return_value
     mock_storage.load_evaluation_output.return_value = mock_eval_run.return_value
 
-    def forecaster_factory(context: BenchmarkContext, target: BenchmarkTarget):
+    def forecaster_factory(context: BenchmarkContext, target: BenchmarkTarget) -> MockForecaster:
         return MockForecaster(config=forecaster_config)
 
     runner = BenchmarkPipeline(

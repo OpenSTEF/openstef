@@ -111,6 +111,23 @@ class BacktestPipeline:
         *,
         show_progress: bool = True,
     ) -> VersionedTimeSeriesDataset:
+        """Execute the backtesting simulation and return predictions.
+
+        Runs the complete backtesting process by generating events, processing
+        training and prediction operations in chronological order, and collecting
+        all predictions into a single versioned dataset.
+
+        Args:
+            ground_truth: Historical target values with timestamps.
+            predictors: Feature data for model predictions.
+            start: Start datetime for backtesting. Uses data minimum if None.
+            end: End datetime for backtesting. Uses data maximum if None.
+            show_progress: Whether to display progress bar during execution.
+
+        Returns:
+            VersionedTimeSeriesDataset containing all predictions with timestamps
+            and availability information. Empty dataset if no predictions made.
+        """
         min_start = ground_truth.index.min().to_pydatetime()  # type: ignore[reportUnknownMemberType]
         max_end = ground_truth.index.max().to_pydatetime()  # type: ignore[reportUnknownMemberType]
 
@@ -177,7 +194,15 @@ class BacktestPipeline:
     def _process_single_prediction(
         self, event: BacktestEvent, dataset: VersionedTimeSeriesMixin
     ) -> list[VersionedTimeSeriesDataset]:
-        """Process a single prediction event."""
+        """Process a single prediction event.
+
+        Args:
+            event: Prediction event to process.
+            dataset: Time series data for prediction.
+
+        Returns:
+            List containing single prediction dataset if successful, empty list otherwise.
+        """
         horizon_dataset = restrict_horizon(dataset=dataset, horizon=event.timestamp)
         prediction = self.forecaster.predict_versioned(horizon_dataset)
 
@@ -191,7 +216,15 @@ class BacktestPipeline:
     def _process_batch_prediction(
         self, batch_events: list[BacktestEvent], dataset: VersionedTimeSeriesMixin
     ) -> list[VersionedTimeSeriesDataset]:
-        """Process a batch of prediction events and return valid predictions."""
+        """Process a batch of prediction events and return valid predictions.
+
+        Args:
+            batch_events: List of prediction events to process as a batch.
+            dataset: Time series data for predictions.
+
+        Returns:
+            List of valid prediction datasets, excluding any None results.
+        """
         if not batch_events:
             return []
 
@@ -221,7 +254,17 @@ class BacktestPipeline:
         *,
         show_progress: bool = True,
     ) -> list[VersionedTimeSeriesDataset]:
-        """Process events using the factory's batching logic."""
+        """Process events using the factory's batching logic.
+
+        Args:
+            event_factory: Generator for creating backtest events.
+            dataset: Time series data for processing.
+            batch_size: Maximum batch size for predictions, None for single processing.
+            show_progress: Whether to display progress bar.
+
+        Returns:
+            List of all prediction datasets generated during processing.
+        """
         predictions: list[VersionedTimeSeriesDataset] = []
 
         # Get total count for progress bar
@@ -230,7 +273,7 @@ class BacktestPipeline:
         pbar = tqdm(total=total_events, smoothing=0.0, disable=not show_progress)
 
         try:
-            for event_batch in event_factory.iterate_batched(events=events, batch_size=batch_size):
+            for event_batch in BacktestEventGenerator.iterate_batched(events=events, batch_size=batch_size):
                 if event_batch.is_training:
                     self._process_train_event(event_batch.events[0], dataset)
                 elif event_batch.is_prediction:

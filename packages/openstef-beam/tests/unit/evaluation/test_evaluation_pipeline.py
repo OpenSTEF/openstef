@@ -41,7 +41,7 @@ def minimal_ground_truth_dataset() -> VersionedTimeSeriesDataset:
 
 
 @pytest.fixture
-def minimal_config():
+def minimal_config() -> EvaluationConfig:
     return EvaluationConfig(
         available_ats=[AvailableAt.from_string("D-1T00:00")],
         lead_times=[LeadTime.from_string("PT1H")],

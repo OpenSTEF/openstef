@@ -2,6 +2,13 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+"""Event scheduling engine for realistic backtesting simulations.
+
+Determines when training and prediction events should occur during backtesting,
+respecting data availability constraints and operational scheduling requirements.
+Acts as the temporal coordinator between data availability and model operations.
+"""
+
 from collections.abc import Iterator
 from datetime import datetime, time, timedelta
 
@@ -85,8 +92,8 @@ class BacktestEventGenerator(BaseModel):
         Creates predict events that have sufficient forecast context coverage
         and occur at regular intervals as specified by predict_interval.
 
-        Returns:
-           An iterator of prediction events.
+        Yields:
+           BacktestEvent: Prediction events with sufficient context coverage.
         """
         end_time = self.end
         current_time = align_datetime_to_time(self.start, self.align_time, mode="ceil")
@@ -110,8 +117,8 @@ class BacktestEventGenerator(BaseModel):
         Creates train events that have sufficient training context coverage
         and occur at regular intervals as specified by train_interval.
 
-        Returns:
-           An iterator of training events.
+        Yields:
+           BacktestEvent: Training events with sufficient context coverage.
         """
         end_time = self.end
         current_time = align_datetime_to_time(self.start, self.align_time, mode="ceil")
@@ -146,9 +153,8 @@ class BacktestEventGenerator(BaseModel):
         coverage = self.index[(self.index >= pd.Timestamp(start)) & (self.index < pd.Timestamp(end))]
         return len(coverage) / num_window_samples
 
-    def iterate_batched(
-        self, events: list[BacktestEvent], batch_size: int | None = None
-    ) -> Iterator[BacktestEventBatch]:
+    @staticmethod
+    def iterate_batched(events: list[BacktestEvent], batch_size: int | None = None) -> Iterator[BacktestEventBatch]:
         """Creates an iterator of batched backtest events for efficient processing.
 
         Groups prediction events into batches up to batch_size, while keeping
@@ -156,11 +162,12 @@ class BacktestEventGenerator(BaseModel):
         for batch-aware processing without mixing concerns.
 
         Args:
+            events: List of BacktestEvent objects to be processed in batches.
             batch_size: Maximum number of prediction events per batch.
                        If None, all events are returned as individual batches.
 
-        Returns:
-            An iterator of BacktestEventBatch objects ready for processing.
+        Yields:
+            BacktestEventBatch: Batched events ready for processing.
         """
         if batch_size is None or batch_size <= 1:
             # Return individual events as single-element batches

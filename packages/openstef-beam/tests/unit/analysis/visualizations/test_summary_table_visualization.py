@@ -179,7 +179,7 @@ def test_visualization_creation_methods_produce_html_output(
     # Act
     with patch.object(SummaryTablePlotter, "plot", return_value="<table>Mock HTML</table>"):
         method = getattr(viz, method_name)
-        result = method(*args)  # type: ignore
+        result = method(*args)
 
     # Assert - Verify consistent output structure
     assert result.name == viz.name

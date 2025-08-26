@@ -13,7 +13,7 @@ from openstef_beam.backtesting.backtest_forecaster.mixins import BacktestForecas
 
 
 @pytest.fixture
-def config():
+def config() -> BacktestForecasterConfig:
     return BacktestForecasterConfig(
         requires_training=True,
         horizon_length=timedelta(hours=24),

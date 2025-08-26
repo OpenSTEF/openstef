@@ -36,12 +36,11 @@ def assert_can_roundtrip_data[T](
 ) -> T:
     """Helper function to test save/load roundtrip functionality."""
     save_func(target, data)
-    loaded_data = load_func(target)
-    return loaded_data
+    return load_func(target)
 
 
 @pytest.fixture
-def target():
+def target() -> BenchmarkTarget:
     """Create a test target."""
     return BenchmarkTarget(
         name="test_target",
@@ -56,7 +55,7 @@ def target():
 
 
 @pytest.fixture
-def predictions():
+def predictions() -> VersionedTimeSeriesDataset:
     """Create test predictions."""
     return VersionedTimeSeriesDataset(
         data=pd.DataFrame({
@@ -69,7 +68,7 @@ def predictions():
 
 
 @pytest.fixture
-def evaluation_report():
+def evaluation_report() -> EvaluationReport:
     """Create a test evaluation report."""
     index = pd.date_range("2023-01-07", periods=2, freq="1h")
     return EvaluationReport(

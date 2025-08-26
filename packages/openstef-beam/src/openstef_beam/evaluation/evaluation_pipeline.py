@@ -2,6 +2,13 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+"""Comprehensive evaluation pipeline for probabilistic forecasting models.
+
+Segments prediction data across multiple dimensions (availability times, lead times,
+time windows) and computes performance metrics for each subset. Enables detailed
+analysis of how model performance varies across different operational conditions.
+"""
+
 import logging
 from collections.abc import Iterator
 from datetime import timedelta
@@ -77,6 +84,15 @@ class EvaluationPipeline:
 
         Automatically adds ObservedProbabilityProvider to global metrics to ensure
         calibration is always evaluated.
+
+        Args:
+            config: Configuration for evaluation pipeline with time dimensions.
+            quantiles: List of quantiles to evaluate, must include 0.5 (median).
+            window_metric_providers: Metrics to compute for time windows.
+            global_metric_providers: Metrics to compute for entire dataset.
+
+        Raises:
+            ValueError: If quantiles list does not include 0.5 (median quantile).
         """
         if 0.5 not in quantiles:  # noqa: PLR2004 0.5 is the median quantile
             raise ValueError("Quantiles must include 0.5 for median evaluation.")
@@ -101,9 +117,18 @@ class EvaluationPipeline:
         Segments data by available_at and lead_time configurations, then computes
         metrics for each subset.
 
+        Args:
+            predictions: Forecasted values with versioning information.
+            ground_truth: Actual observed values for comparison.
+            evaluation_mask: Optional datetime index to limit evaluation period.
+
+        Returns:
+            EvaluationReport containing metrics for each subset, organized by
+            filtering criteria such as lead time windows and availability timestamps.
+
         Raises:
-            ValueError: If predictions and ground truth have different sample intervals or
-                if any configured quantile columns are missing from predictions.
+            ValueError: If predictions and ground truth have different sample intervals.
+            MissingColumnsError: If any configured quantile columns are missing from predictions.
         """
         # Validate that the predictions and ground truth datasets have the same sample interval
         if predictions.sample_interval != ground_truth.sample_interval:

@@ -59,7 +59,7 @@ class S3BenchmarkStorage(BenchmarkStorage):
 
             self.fs = s3fs.S3FileSystem(**self.s3fs_kwargs)
         except ImportError as e:
-            _logger.error("s3fs not installed. Please install with 'pip install s3fs'")
+            _logger.exception("s3fs not installed. Please install with 'pip install s3fs'")
             raise ImportError("s3fs package is required for S3StorageCallback") from e
 
     def save_backtest_output(self, target: BenchmarkTarget, output: VersionedTimeSeriesDataset) -> None:

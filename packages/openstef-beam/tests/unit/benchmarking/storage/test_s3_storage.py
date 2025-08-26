@@ -24,11 +24,11 @@ from openstef_core.types import AvailableAt
 
 
 @pytest.fixture(scope="session")
-def moto_server():
+def moto_server() -> Iterator[str]:
     """Start ThreadedMotoServer for the test session."""
     # Arrange
     os.environ["AWS_ACCESS_KEY_ID"] = "testing"
-    os.environ["AWS_SECRET_ACCESS_KEY"] = "testing"
+    os.environ["AWS_SECRET_ACCESS_KEY"] = "testing"  # noqa: S105 - Not a real secret
     os.environ["AWS_DEFAULT_REGION"] = "us-east-1"
 
     server = ThreadedMotoServer(port=0, verbose=False)
@@ -41,17 +41,17 @@ def moto_server():
 
 
 @pytest.fixture
-def s3_setup(moto_server: str):
+def s3_setup(moto_server: str) -> tuple[s3fs.S3FileSystem, str]:
     """Setup S3 filesystem pointing to moto server."""
     # Arrange
-    fs = s3fs.S3FileSystem(client_kwargs={"endpoint_url": moto_server}, key="testing", secret="testing")
+    fs = s3fs.S3FileSystem(client_kwargs={"endpoint_url": moto_server}, key="testing", secret="testing")  # noqa: S106 - Not a real secret
     bucket_name = f"test-bucket-{uuid.uuid4().hex[:8]}"
     fs.makedirs(bucket_name, exist_ok=True)
     return fs, bucket_name
 
 
 @pytest.fixture
-def target():
+def target() -> BenchmarkTarget:
     """Create a test target."""
     return BenchmarkTarget(
         name="test_target",
@@ -66,7 +66,7 @@ def target():
 
 
 @pytest.fixture
-def predictions():
+def predictions() -> VersionedTimeSeriesDataset:
     """Create test predictions."""
     return VersionedTimeSeriesDataset(
         data=pd.DataFrame({
@@ -79,7 +79,7 @@ def predictions():
 
 
 @pytest.fixture
-def evaluation_report():
+def evaluation_report() -> EvaluationReport:
     """Create a test evaluation report."""
     index = pd.date_range("2023-01-07", periods=2, freq="1h")
     return EvaluationReport(
@@ -168,7 +168,7 @@ def test_s3_upload_on_save(
     moto_server: str,
     operation: str,
     method_name: str,
-):
+) -> None:
     """Test that files are uploaded to S3 during save operations."""
     # Arrange
     fs: s3fs.S3FileSystem

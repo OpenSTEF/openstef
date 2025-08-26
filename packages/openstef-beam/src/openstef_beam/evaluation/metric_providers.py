@@ -2,6 +2,13 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+"""Metric computation providers for forecast evaluation.
+
+Implements various metric providers that compute performance measures
+for probabilistic forecasts. Each provider handles specific metric types
+and can be configured to work with specific quantiles or all available quantiles.
+"""
+
 from typing import cast, override
 
 import numpy as np
@@ -44,6 +51,12 @@ class MetricProvider(BaseConfig):
 
         Extracts predictions and ground truth from the subset, then computes
         metrics for all relevant quantiles.
+
+        Args:
+            subset: Evaluation subset containing predictions and ground truth data.
+
+        Returns:
+            QuantileMetricsDict mapping quantile keys to computed metric values.
         """
         quantiles = np.array([Quantile.parse(quantile) for quantile in subset.predictions.feature_names])
         y_true: npt.NDArray[np.floating] = cast(pd.Series, subset.ground_truth.data.squeeze()).to_numpy()
@@ -62,10 +75,13 @@ class MetricProvider(BaseConfig):
         Default behaviour is to call compute_deterministic for each quantile and returns the metrics prefixed by
         the quantile value.
 
-        Parameters:
+        Args:
             y_true: True values, 1D array of shape (num_samples,).
             y_pred: Predicted values, 2D array of shape (num_samples, num_quantiles).
             quantiles: Quantiles used for prediction, 1D array of shape (num_quantiles,).
+
+        Returns:
+            QuantileMetricsDict mapping quantile-prefixed metric names to computed values.
         """
         metrics: QuantileMetricsDict = {}
         for i, quantile in enumerate(quantiles.tolist()):
@@ -164,10 +180,15 @@ class RCRPSProvider(MetricProvider):
         y_pred: npt.NDArray[np.floating],
         quantiles: npt.NDArray[np.floating],
     ) -> QuantileMetricsDict:
-        """Parameters:
-        y_true: True values, 1D array of shape (num_samples,).
-        y_pred: Predicted values, 2D array of shape (num_samples, num_quantiles).
-        quantiles: Quantiles used for prediction, 1D array of shape (num_quantiles,).
+        """Compute rCRPS metric for probabilistic forecasts.
+
+        Args:
+            y_true: True values, 1D array of shape (num_samples,).
+            y_pred: Predicted values, 2D array of shape (num_samples, num_quantiles).
+            quantiles: Quantiles used for prediction, 1D array of shape (num_quantiles,).
+
+        Returns:
+            QuantileMetricsDict containing global rCRPS metric value.
         """
         return {
             "global": {
@@ -245,6 +266,12 @@ class RMAEPeakHoursProvider(MetricProvider):
 
         Extracts predictions and ground truth from the subset, then computes
         metrics for all relevant quantiles.
+
+        Args:
+            subset: Evaluation subset containing predictions and ground truth data.
+
+        Returns:
+            QuantileMetricsDict mapping peak/off-peak periods to computed metric values.
         """
         quantiles = np.array([Quantile.parse(quantile) for quantile in subset.predictions.feature_names])
         y_true: npt.NDArray[np.floating] = cast(pd.Series, subset.ground_truth.data.squeeze()).to_numpy()
@@ -327,10 +354,15 @@ class MeanAbsoluteCalibrationErrorProvider(MetricProvider):
         y_pred: npt.NDArray[np.floating],
         quantiles: npt.NDArray[np.floating],
     ) -> QuantileMetricsDict:
-        """Parameters:
-        y_true: True values, 1D array of shape (num_samples,).
-        y_pred: Predicted values, 2D array of shape (num_samples, num_quantiles).
-        quantiles: Quantiles used for prediction, 1D array of shape (num_quantiles,).
+        """Compute mean absolute calibration error for probabilistic forecasts.
+
+        Args:
+            y_true: True values, 1D array of shape (num_samples,).
+            y_pred: Predicted values, 2D array of shape (num_samples, num_quantiles).
+            quantiles: Quantiles used for prediction, 1D array of shape (num_quantiles,).
+
+        Returns:
+            QuantileMetricsDict containing global mean absolute calibration error metric.
         """
         return {
             "global": {

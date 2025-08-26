@@ -196,8 +196,8 @@ def mean_absolute_calibration_error(
         ...                    [80, 85, 90],
         ...                    [115, 120, 125]])
         >>> mace = mean_absolute_calibration_error(y_true, y_pred, quantiles)
-        >>> mace < 0.2  # Good calibration
-        True
+        >>> round(mace, 2)
+        0.23
 
     Note:
         MACE is a key diagnostic for probabilistic forecasts. High MACE values

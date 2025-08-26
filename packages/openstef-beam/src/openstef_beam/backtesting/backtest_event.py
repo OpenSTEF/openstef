@@ -2,6 +2,13 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+"""Core event types that drive backtesting simulations.
+
+Events represent discrete training and prediction operations that occur
+during backtesting, capturing when each operation should happen and
+enabling batch processing for efficiency.
+"""
+
 from datetime import datetime
 from typing import Literal
 
