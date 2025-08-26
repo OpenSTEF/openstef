@@ -264,7 +264,6 @@ def test_drop_empty_feature_with_custom_missing_value(caplog: LogCaptureFixture)
         },
         index=pd.date_range(datetime.fromisoformat("2025-01-01T00:00:00"), periods=3, freq="1h"),
     )
-    dataset = TimeSeriesDataset(data, timedelta(hours=1))
     config = MissingValuesTransformConfig(
         missing_value=-999.0, imputation_strategy=ImputationStrategy.CONSTANT, fill_value=0.0
     )
@@ -272,10 +271,10 @@ def test_drop_empty_feature_with_custom_missing_value(caplog: LogCaptureFixture)
     # Act
     with caplog.at_level(logging.WARNING):
         transform = MissingValuesTransform(config)
-        result = transform._drop_empty_features(dataset)
+        result = transform._drop_empty_features(data)
 
     # Assert
-    assert "radiation" not in result.data.columns
-    assert "temperature" in result.data.columns
-    assert "wind_speed" in result.data.columns
+    assert "radiation" not in result.columns
+    assert "temperature" in result.columns
+    assert "wind_speed" in result.columns
     assert "Dropped column 'radiation' from dataset because it contains only missing values." in caplog.text
