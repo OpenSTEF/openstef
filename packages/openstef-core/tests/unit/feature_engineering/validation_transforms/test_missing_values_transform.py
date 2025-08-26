@@ -3,6 +3,8 @@
 # SPDX-License-Identifier: MPL-2.0
 
 from datetime import datetime, timedelta
+import logging
+from _pytest.logging import LogCaptureFixture
 
 import numpy as np
 import pandas as pd
@@ -117,7 +119,7 @@ def test_remove_trailing_nulls_multiple_features(sample_dataset: TimeSeriesDatas
     assert result.data["price"].iloc[0] == 10.0
 
 
-def test_no_trailing_nulls_removal_when_feature_not_in_data(sample_dataset: TimeSeriesDataset):
+def test_no_trailing_nulls_removal_when_feature_not_in_data(sample_dataset: TimeSeriesDataset, caplog: LogCaptureFixture):
     # Arrange
     config = MissingValuesTransformConfig(
         imputation_strategy=ImputationStrategy.MEAN, no_fill_future_values_features=["nonexistent_feature"]
@@ -125,16 +127,15 @@ def test_no_trailing_nulls_removal_when_feature_not_in_data(sample_dataset: Time
     transform = MissingValuesTransform(config)
 
     # Act
-    transform.fit(sample_dataset)
-    result = transform.transform(sample_dataset)
+    with caplog.at_level(logging.WARNING):
+        transform.fit(sample_dataset)
+        result = transform.transform(sample_dataset)
 
     # Assert
     assert len(result.data) == 4  # No rows removed
     assert not result.data.isna().any().any()  # All values imputed
-    # assert warning was raised
-    with pytest.warns(Warning, match="Feature 'nonexistent_feature' not found in dataset columns."):
-        transform.fit(sample_dataset)
-        transform.transform(sample_dataset)
+    assert "Feature 'nonexistent_feature' not found in dataset columns." in caplog.text
+
 
 
 def test_empty_feature_removal(sample_dataset: TimeSeriesDataset):
@@ -188,8 +189,8 @@ def test_custom_missing_value_placeholder(sample_dataset: TimeSeriesDataset):
     assert result.data.loc[result.data.index[1], "radiation"] == 110.0
     assert result.data.loc[result.data.index[2], "temperature"] == 20.5
 
-
-def test_all_null_dataset_with_trailing_removal(sample_dataset: TimeSeriesDataset):
+# TODO: Instead, raise a warning, drop the column before and raise a warning...
+def test_all_null_dataset_with_trailing_removal(sample_dataset: TimeSeriesDataset, caplog: LogCaptureFixture):
     # Arrange
     sample_dataset.data = sample_dataset.data.iloc[:3]
     sample_dataset.data["radiation"] = [np.nan, np.nan, np.nan]
@@ -198,9 +199,41 @@ def test_all_null_dataset_with_trailing_removal(sample_dataset: TimeSeriesDatase
         imputation_strategy=ImputationStrategy.CONSTANT, fill_value=0.0, no_fill_future_values_features=["radiation"]
     )
     transform = MissingValuesTransform(config)
-    transform.fit(sample_dataset)
 
-    # Act & Assert
-    # Should raise ValueError when trying to fit on empty dataset after trailing removal
-    with pytest.raises(ValueError, match="Found array with 0 sample"):
+    # Act
+    with caplog.at_level(logging.WARNING):
         transform.fit(sample_dataset)
+
+    result = transform.transform(sample_dataset)
+
+    # Assert
+    assert len(result.data) == 3  # One row removed
+    assert "Dropped column 'radiation' from dataset because it contains only missing values." in caplog.text
+    assert "Feature 'radiation' not found in dataset columns." in caplog.text
+
+
+def test_drop_empty_feature_with_custom_missing_value():
+    # Create dataset with custom missing value (-999.0)
+    data = pd.DataFrame(
+        {
+            "radiation": [-999.0, -999.0, -999.0],  # All missing
+            "temperature": [20.0, 21.0, 22.0],      # No missing
+            "wind_speed": [5.0, -999.0, 8.0],       # Some missing
+        },
+        index=pd.date_range(datetime.fromisoformat("2025-01-01T00:00:00"), periods=3, freq="1h"),
+    )
+    dataset = TimeSeriesDataset(data, timedelta(hours=1))
+
+    config = MissingValuesTransformConfig(
+        missing_value=-999.0,
+        imputation_strategy=ImputationStrategy.CONSTANT,
+        fill_value=0.0
+    )
+    transform = MissingValuesTransform(config)
+
+    result = transform._drop_empty_features(dataset)
+
+    # Should have dropped 'radiation' column
+    assert 'radiation' not in result.data.columns
+    assert 'temperature' in result.data.columns
+    assert 'wind_speed' in result.data.columns

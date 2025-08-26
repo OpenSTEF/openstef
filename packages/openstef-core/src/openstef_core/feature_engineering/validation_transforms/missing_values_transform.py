@@ -8,6 +8,7 @@ This module provides functionality for handling missing values in time series da
 through various imputation strategies and data cleaning operations.
 """
 
+import logging
 import warnings
 from enum import Enum
 
@@ -19,6 +20,7 @@ from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.datasets.transforms import TimeSeriesTransform
 
+_logger = logging.getLogger(__name__)
 
 class ImputationStrategy(Enum):
     """Enumeration of available imputation strategies for missing values."""
@@ -100,6 +102,28 @@ class MissingValuesTransform(TimeSeriesTransform):
         )
         self.imputer.set_output(transform="pandas")  # pyright: ignore[reportUnknownMemberType]
 
+    def _drop_empty_features(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
+        """Drop features that contain only missing values.
+
+        Args:
+            data: The input time series dataset.
+
+        Returns:
+            A TimeSeriesDataset with empty features removed.
+        """
+        if np.isnan(self.config.missing_value):
+            all_missing_mask = data.data.isna().all()
+        else:
+            all_missing_mask = (data.data == self.config.missing_value).all()
+        
+        for col in data.data.columns[all_missing_mask]:
+            _logger.warning(f"Dropped column '{col}' from dataset because it contains only missing values.")
+
+        non_empty_columns = data.data.columns[~all_missing_mask]
+        filtered_data = data.data[non_empty_columns]
+
+        return TimeSeriesDataset(data=filtered_data, sample_interval=data.sample_interval)
+
     def _remove_trailing_null_rows(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
         """Remove trailing rows that contain null values in specified features.
 
@@ -123,7 +147,7 @@ class MissingValuesTransform(TimeSeriesTransform):
         features_to_check = [f for f in self.config.no_fill_future_values_features if f in data.data.columns]
         for feature in self.config.no_fill_future_values_features:
             if feature not in data.data.columns:
-                warnings.warn(f"Feature '{feature}' not found in dataset columns.")
+                _logger.warning(f"Feature '{feature}' not found in dataset columns.")
 
         if not features_to_check:
             return data
@@ -145,7 +169,8 @@ class MissingValuesTransform(TimeSeriesTransform):
             data: The time series dataset to fit the transformer on.
                 Trailing null rows will be automatically removed before fitting.
         """
-        fit_data = self._remove_trailing_null_rows(data)
+        fit_data = self._drop_empty_features(data)
+        fit_data = self._remove_trailing_null_rows(fit_data)
         self.imputer.fit(fit_data.data)  # pyright: ignore[reportUnknownMemberType]
 
     def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
@@ -164,7 +189,8 @@ class MissingValuesTransform(TimeSeriesTransform):
                 missing values imputed. The original dataset structure is preserved with
                 only the data attribute modified.
         """
-        transformed_data = self._remove_trailing_null_rows(data)
+        transformed_data = self._drop_empty_features(data)
+        transformed_data = self._remove_trailing_null_rows(transformed_data)
         transformed_data = self.imputer.transform(transformed_data.data)
 
         return TimeSeriesDataset(data=transformed_data, sample_interval=data.sample_interval)  # pyright: ignore[reportArgumentType]
