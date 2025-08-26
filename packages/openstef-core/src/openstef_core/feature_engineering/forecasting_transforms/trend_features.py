@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+#
+# SPDX-License-Identifier: MPL-2.0
+
 from datetime import timedelta
 from enum import StrEnum
 
@@ -18,8 +22,7 @@ class AggregationFunction(StrEnum):
 
 
 class RollingAggregateFeaturesConfig(BaseConfig):
-    """Configuration for the RollingAggregateFeatures transform.
-    """
+    """Configuration for the RollingAggregateFeatures transform."""
 
     rolling_window_size: timedelta = Field(
         default=timedelta(hours=24),
@@ -27,7 +30,7 @@ class RollingAggregateFeaturesConfig(BaseConfig):
     )
     aggregation_functions: list[AggregationFunction] = Field(
         default_factory=lambda: [AggregationFunction.MEDIAN, AggregationFunction.MIN, AggregationFunction.MAX],
-        description="List of aggregation functions to compute over the rolling window. "
+        description="List of aggregation functions to compute over the rolling window. ",
     )
 
 
@@ -61,7 +64,7 @@ class RollingAggregateFeatures(TimeSeriesTransform):
         ...     aggregation_functions=[AggregationFunction.MEAN, AggregationFunction.MAX]
         ... )
         >>> transform = RollingAggregateFeatures(config=config)
-        >>> transformed_dataset = transform.transform(dataset)
+        >>> transformed_dataset = transform.fit_transform(dataset)
         >>> 'rolling_mean_load_PT2H' in transformed_dataset.data.columns
         True
         >>> 'rolling_max_load_PT2H' in transformed_dataset.data.columns
@@ -80,8 +83,7 @@ class RollingAggregateFeatures(TimeSeriesTransform):
     def fit(self, data: TimeSeriesDataset) -> None:
         """Fit the transform to the input time series `load` column.
         This method computes the rolling aggregate features based on the specified
-        rolling window and aggregation functions. Missing values are forward-filled
-        to account for lags in the data.
+        rolling window and aggregation functions.
 
         Args:
             data: Time series dataset with DatetimeIndex.
@@ -90,18 +92,17 @@ class RollingAggregateFeatures(TimeSeriesTransform):
             raise ValueError("The DataFrame must contain a 'load' column.")
 
         rolling_window_load = data.data["load"].dropna().rolling(window=self.config.rolling_window_size)
-        self.rolling_aggregate_features = pd.DataFrame(
-            {
-                self._get_rolling_aggregate_feature_name(func): rolling_window_load.aggregate(func.value).ffill()
-                for func in self.config.aggregation_functions
-            }
-        )
+        self.rolling_aggregate_features = pd.DataFrame({
+            self._get_rolling_aggregate_feature_name(func): rolling_window_load.aggregate(func.value)
+            for func in self.config.aggregation_functions
+        })
 
     def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
         """Transform the input time series data by adding rolling aggregate features.
 
         This method adds the precomputed rolling aggregate features to the input dataset.
-        If the transform has not been fitted yet, it raises an error.
+        Missing values are forward-filled to account for lags in the data and preventing
+        NaNs in the output.
 
         Args:
             data: The input time series data to be transformed.
@@ -112,11 +113,11 @@ class RollingAggregateFeatures(TimeSeriesTransform):
         Raises:
             ValueError: If the transform has not been fitted yet.
         """
-        # # Align the rolling features with the input data index
-        # aligned_features = self.rolling_aggregate_features.reindex(data.data.index).ffill()
+        aligned_features = self.rolling_aggregate_features.reindex(data.data.index).ffill()
+
         return TimeSeriesDataset(
             data=pd.concat(
-                [data.data, self.rolling_aggregate_features],
+                [data.data, aligned_features],
                 axis=1,
             ),
             sample_interval=data.sample_interval,

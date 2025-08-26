@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 2
 requires-python = ">=3.12, <4.0"
 
 [manifest]
@@ -446,6 +446,18 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/01/ee/02a2c011bdab74c6fb3c75474d40b3052059d95df7e73351460c8588d963/h11-0.16.0.tar.gz", hash = "sha256:4e35b956cf45792e4caa5885e69fba00bdbc6ffafbfa020300e549b208ee5ff1", size = 101250, upload-time = "2025-04-24T03:35:25.427Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/04/4b/29cac41a4d98d144bf5f6d33995617b185d14b22401f75ca86f384e87ff1/h11-0.16.0-py3-none-any.whl", hash = "sha256:63cf8bbe7522de3bf65932fda1d9c2772064ffb3dae62d55932da54b31cb6c86", size = 37515, upload-time = "2025-04-24T03:35:24.344Z" },
+]
+
+[[package]]
+name = "holidays"
+version = "0.79"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "python-dateutil" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/87/45/59e53d1a7d5dc3ad0a8b0cde098e85851f65f10c93c51a080189cca1d6a8/holidays-0.79.tar.gz", hash = "sha256:e30cfda034277d42fd965dd5a1b295b179b74f1974f2e272f58777f5991d1f50", size = 748632, upload-time = "2025-08-18T18:41:53.261Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/2e/c8/6b40b830cc749b43172c824e3ab8a76cefcb96b311a18d0e12af3526d922/holidays-0.79-py3-none-any.whl", hash = "sha256:b1b385271500d34086173738956ed61f4f4dfc786fe13bde7432be462bf2d830", size = 1230251, upload-time = "2025-08-18T18:41:51.421Z" },
 ]
 
 [[package]]
@@ -953,6 +965,7 @@ name = "openstef-core"
 version = "0.0.0"
 source = { editable = "packages/openstef-core" }
 dependencies = [
+    { name = "holidays" },
     { name = "numpy" },
     { name = "pandas" },
     { name = "pyarrow" },
@@ -960,9 +973,10 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
+    { name = "holidays", specifier = ">=0.79" },
     { name = "numpy", specifier = ">=2.3.2" },
     { name = "pandas", specifier = ">=2.3.1" },
-    { name = "pyarrow", specifier = ">=21.0.0" },
+    { name = "pyarrow", specifier = ">=21" },
 ]
 
 [[package]]
