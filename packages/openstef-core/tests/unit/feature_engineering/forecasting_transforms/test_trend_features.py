@@ -28,7 +28,13 @@ def rolling_aggregate_config() -> RollingAggregateFeaturesConfig:
     )
 
 
-@pytest.mark.parametrize("rolling_window", [timedelta(days=1), timedelta(hours=24)])
+@pytest.mark.parametrize(
+    "rolling_window",
+    [
+        pytest.param(timedelta(days=1), id="1 day"),
+        pytest.param(timedelta(hours=24), id="24 hours"),
+    ],
+)
 def test_rolling_aggregate_features(rolling_window: timedelta):
     # Arrange
     num_points = int(24 * 60 / 15 * 2)  # 2 days of data at 15-minute intervals

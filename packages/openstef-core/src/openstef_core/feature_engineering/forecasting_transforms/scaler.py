@@ -18,11 +18,11 @@ from openstef_core.datasets.transforms import TimeSeriesTransform
 
 try:
     from sklearn.preprocessing import MaxAbsScaler, MinMaxScaler, RobustScaler, StandardScaler
-except ImportError:
+except ImportError as e:
     raise ImportError(
         "scikit-learn is required for the Scaler transform. Please install it via "
         "`uv sync --group ml --package openstef-core` or `uv sync --all-groups --package openstef-core`."
-    ) from None
+    ) from e
 
 
 class ScalingMethod(StrEnum):

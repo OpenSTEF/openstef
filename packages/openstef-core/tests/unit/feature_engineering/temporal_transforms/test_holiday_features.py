@@ -59,16 +59,13 @@ def test_holiday_features_initialization():
 @pytest.mark.parametrize(
     ("country_code", "include_individual"),
     [
-        ("NL", True),
-        ("US", False),
-        ("DE", True),
+        pytest.param("NL", True, id="nl_individual"),
+        pytest.param("US", False, id="us_no_individual"),
+        pytest.param("DE", True, id="germany_individual"),
     ],
 )
 def test_holiday_features_initialization_parameters(country_code: str, include_individual: bool):
     """Test HolidayFeatures initialization with different parameters."""
-    # Arrange
-    # Parameters provided by pytest.mark.parametrize
-
     # Act
     transform = HolidayFeatures(country_code=country_code, include_individual_holiday_features=include_individual)
 
@@ -80,11 +77,11 @@ def test_holiday_features_initialization_parameters(country_code: str, include_i
 @pytest.mark.parametrize(
     ("input_name", "expected_output"),
     [
-        ("Christmas Day", "christmas_day"),
-        ("New Year's Day", "new_year_s_day"),
-        ("St. Patrick's Day", "st_patrick_s_day"),
-        ("INDEPENDENCE DAY", "independence_day"),
-        ("Labor Day (May Day)", "labor_day_may_day"),
+        pytest.param("Christmas Day", "christmas_day", id="christmas_day"),
+        pytest.param("New Year's Day", "new_year_s_day", id="new_years_day"),
+        pytest.param("St. Patrick's Day", "st_patrick_s_day", id="st_patrick_s_day"),
+        pytest.param("INDEPENDENCE DAY", "independence_day", id="independence_day"),
+        pytest.param("Labor Day (May Day)", "labor_day_may_day", id="labor_day_may_day"),
     ],
 )
 def test_sanitize_holiday_name(input_name: str, expected_output: str):
@@ -253,10 +250,10 @@ def test_empty_holidays_dict(sample_dataset: TimeSeriesDataset):
 @pytest.mark.parametrize(
     ("holiday_name", "expected_feature"),
     [
-        ("Christmas Day", "is_christmas_day"),
-        ("New Year's Day", "is_new_year_s_day"),
-        ("Independence Day", "is_independence_day"),
-        ("Labor Day", "is_labor_day"),
+        pytest.param("Christmas Day", "is_christmas_day", id="christmas_day"),
+        pytest.param("New Year's Day", "is_new_year_s_day", id="new_years_day"),
+        pytest.param("Independence Day", "is_independence_day", id="independence_day"),
+        pytest.param("Labor Day", "is_labor_day", id="labor_day"),
     ],
 )
 def test_holiday_name_to_feature_mapping(holiday_name: str, expected_feature: str):

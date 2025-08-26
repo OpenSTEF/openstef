@@ -2,7 +2,13 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-"""Transform that adds holiday features to time series data."""
+"""Transform that adds holiday features to time series data.
+
+This module provides functionality to compute holiday features based on the
+datetime index of time series datasets. It uses the `holidays` library to identify
+public holidays for a specified country and adds binary features indicating
+whether a date is a holiday or a specific holiday.
+"""
 
 from datetime import date
 from pathlib import Path
