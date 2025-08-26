@@ -121,11 +121,11 @@ class MissingValuesTransform(TimeSeriesTransform):
         trailing nulls indicate incomplete data.
 
         Args:
-            data (TimeSeriesDataset): The input time series dataset containing the data
+            data: The input time series dataset containing the data
                 to be processed.
 
         Returns:
-            pd.DataFrame: A DataFrame with trailing null rows removed for the specified
+            A DataFrame with trailing null rows removed for the specified
                 features. If no features are configured for checking or none of the
                 configured features exist in the data, returns the original data unchanged.
         """
@@ -148,7 +148,7 @@ class MissingValuesTransform(TimeSeriesTransform):
         transform datasets with missing values.
 
         Args:
-            data (TimeSeriesDataset): The time series dataset to fit the transformer on.
+            data: The time series dataset to fit the transformer on.
                 Trailing null rows will be automatically removed before fitting.
         """
         fit_data = self._remove_trailing_null_rows(data)
@@ -162,11 +162,11 @@ class MissingValuesTransform(TimeSeriesTransform):
         2. Applies the configured imputer to fill remaining missing values in the data
 
         Args:
-            data (TimeSeriesDataset): The input time series dataset containing data to be transformed.
+            data: The input time series dataset containing data to be transformed.
                 The dataset's data attribute should be a pandas DataFrame or similar structure.
 
         Returns:
-            TimeSeriesDataset: The transformed dataset with trailing null rows removed and
+            The transformed TimeSeriesDataset with trailing null rows removed and
                 missing values imputed. The original dataset structure is preserved with
                 only the data attribute modified.
         """
