@@ -254,7 +254,7 @@ def test_all_null_dataset_with_trailing_removal(caplog: LogCaptureFixture):
     assert "Feature 'radiation' not found in dataset columns." in caplog.text
 
 
-def test_drop_empty_feature_with_custom_missing_value():
+def test_drop_empty_feature_with_custom_missing_value(caplog: LogCaptureFixture):
     # Arrange
     data = pd.DataFrame(
         {
@@ -270,10 +270,12 @@ def test_drop_empty_feature_with_custom_missing_value():
     )
 
     # Act
-    transform = MissingValuesTransform(config)
-    result = transform._drop_empty_features(dataset)
+    with caplog.at_level(logging.WARNING):
+        transform = MissingValuesTransform(config)
+        result = transform._drop_empty_features(dataset)
 
     # Assert
     assert "radiation" not in result.data.columns
     assert "temperature" in result.data.columns
     assert "wind_speed" in result.data.columns
+    assert "Dropped column 'radiation' from dataset because it contains only missing values." in caplog.text
