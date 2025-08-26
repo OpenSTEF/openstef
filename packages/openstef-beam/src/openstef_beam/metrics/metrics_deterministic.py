@@ -2,6 +2,18 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+"""Metrics for forecasts that predict single values instead of probability distributions.
+
+Deterministic forecasts predict one specific value (e.g., "consumption will be 100 MW").
+These metrics measure how close predicted values are to actual values, with special
+attention to peak consumption events that are critical for energy system operations.
+
+Key focus areas:
+    - Scale-invariant errors: Compare accuracy across different consumption levels
+    - Peak detection: Identify when consumption will exceed operational thresholds
+    - Operational effectiveness: Ensure predictions support actionable decisions
+"""
+
 from typing import NamedTuple
 
 import numpy as np
@@ -18,15 +30,40 @@ def rmae(
 ) -> float:
     """Calculate the relative Mean Absolute Error (rMAE) using percentiles for range calculation.
 
-    Parameters:
-        y_true: True values, 1D array of shape (num_samples,).
-        y_pred: Predicted values, 1D array of shape (num_samples,).
-        lower_quantile: Lower quantile for range calculation (default: 5th percentile).
-        upper_quantile: Upper quantile for range calculation (default: 95th percentile).
-        sample_weights: Optional sample weights, 1D array of shape (num_samples,).
+    The rMAE normalizes the Mean Absolute Error by the range of true values,
+    making it scale-invariant and suitable for comparing errors across different
+    datasets or time periods.
+
+    Args:
+        y_true: Ground truth values with shape (num_samples,).
+        y_pred: Predicted values with shape (num_samples,).
+        lower_quantile: Lower quantile for range calculation. Must be in [0, 1].
+        upper_quantile: Upper quantile for range calculation. Must be in [0, 1]
+            and greater than lower_quantile.
+        sample_weights: Optional weights for each sample with shape (num_samples,).
+            If None, all samples are weighted equally.
 
     Returns:
-        The relative Mean Absolute Error (rMAE).
+        The relative Mean Absolute Error as a float. Returns NaN if the range
+        between quantiles is zero.
+
+    Example:
+        Basic usage with energy consumption data:
+
+        >>> import numpy as np
+        >>> y_true = np.array([100, 120, 110, 130, 105])
+        >>> y_pred = np.array([98, 122, 108, 135, 107])
+        >>> error = rmae(y_true, y_pred)
+        >>> round(error, 3)
+        0.096
+
+        With custom quantiles and weights:
+
+        >>> weights = np.array([1, 2, 1, 2, 1])
+        >>> error = rmae(y_true, y_pred, lower_quantile=0.1,
+        ...               upper_quantile=0.9, sample_weights=weights)
+        >>> isinstance(error, float)
+        True
     """
     # Ensure inputs are numpy arrays
     y_true = np.array(y_true)
@@ -54,12 +91,34 @@ def mape(
 ) -> float:
     """Calculate the Mean Absolute Percentage Error (MAPE).
 
-    Parameters:
-        y_true: True values, 1D array of shape (num_samples,).
-        y_pred: Predicted values, 1D array of shape (num_samples,).
+    MAPE measures the average magnitude of errors in percentage terms,
+    making it scale-independent and easily interpretable. However, it
+    can be undefined or inflated when true values are near zero.
+
+    Args:
+        y_true: Ground truth values with shape (num_samples,). Should not contain
+            values close to zero to avoid division issues.
+        y_pred: Predicted values with shape (num_samples,).
 
     Returns:
-        The Mean Absolute Percentage Error (MAPE).
+        The Mean Absolute Percentage Error as a float. May return inf or
+        extremely large values if y_true contains values close to zero.
+
+    Example:
+        Basic usage with energy consumption data:
+
+        >>> import numpy as np
+        >>> y_true = np.array([100, 120, 110, 130, 105])
+        >>> y_pred = np.array([98, 122, 108, 135, 107])
+        >>> error = mape(y_true, y_pred)
+        >>> round(error, 4)
+        0.0225
+
+        With perfect predictions:
+
+        >>> perfect_pred = np.array([100, 120, 110, 130, 105])
+        >>> mape(y_true, perfect_pred)
+        0.0
     """
     # Ensure inputs are numpy arrays
     y_true = np.array(y_true)
@@ -72,23 +131,25 @@ def mape(
 
 
 class ConfusionMatrix(NamedTuple):
-    """Named tuple representing a confusion matrix for peak detection evaluations.
+    """Confusion matrix components for peak detection in energy forecasting.
+
+    This class represents the results of classifying energy consumption peaks
+    versus non-peaks, with additional effectiveness metrics to account for
+    the direction and magnitude of prediction errors.
 
     Attributes:
-        true_positives: Boolean array indicating correctly predicted peaks,
-                       shape (num_samples,).
-        true_negatives: Boolean array indicating correctly predicted non-peaks,
-                       shape (num_samples,).
-        false_positives: Boolean array indicating incorrectly predicted peaks,
-                        shape (num_samples,).
-        false_negatives: Boolean array indicating incorrectly missed peaks,
-                        shape (num_samples,).
-        effective_true_positives: Boolean array indicating true positives that are effective
-                                 (peak is correctly predicted and is also high enough),
-                                 shape (num_samples,).
-        ineffective_true_positives: Boolean array indicating true positives that are ineffective
-                                   (peak is correctly predicted, but is not high enough),
-                                   shape (num_samples,).
+        true_positives: Boolean array indicating correctly predicted peaks.
+        true_negatives: Boolean array indicating correctly predicted non-peaks.
+        false_positives: Boolean array indicating incorrectly predicted peaks.
+        false_negatives: Boolean array indicating missed peaks.
+        effective_true_positives: Boolean array indicating true positives that
+            are effective (peak correctly predicted with appropriate magnitude/direction).
+        ineffective_true_positives: Boolean array indicating true positives that
+            are ineffective (peak correctly predicted but with wrong magnitude/direction).
+
+    Note:
+        All arrays have shape (num_samples,) and correspond to the same time points
+        in the original forecast evaluation.
     """
 
     true_positives: npt.NDArray[np.bool_]
@@ -106,20 +167,41 @@ def confusion_matrix(
     limit_pos: float,
     limit_neg: float,
 ) -> ConfusionMatrix:
-    """Calculate the confusion matrix for peak detection.
+    """Calculate confusion matrix for peak detection in energy consumption.
 
-    A peak is defined as a value that is either above the positive limit
-    or below the negative limit.
+    A peak is defined as a value that exceeds the positive limit or falls below
+    the negative limit. This function evaluates both the accuracy of peak detection
+    and the effectiveness of predictions based on error direction.
 
-    Parameters:
-        y_true: True values, 1D array of shape (num_samples,).
-        y_pred: Predicted values, 1D array of shape (num_samples,).
-        limit_pos: Positive threshold to define peaks.
-        limit_neg: Negative threshold to define peaks.
+    Args:
+        y_true: Ground truth energy consumption values with shape (num_samples,).
+        y_pred: Predicted energy consumption values with shape (num_samples,).
+        limit_pos: Positive threshold defining high consumption peaks.
+            Values >= limit_pos are considered positive peaks.
+        limit_neg: Negative threshold defining low consumption peaks.
+            Values <= limit_neg are considered negative peaks.
 
     Returns:
-        ConfusionMatrix: A NamedTuple containing the components of the confusion matrix.
-                        All boolean arrays have shape (num_samples,).
+        ConfusionMatrix containing boolean arrays for all classification outcomes
+        and effectiveness metrics.
+
+    Example:
+        Peak detection for energy consumption data:
+
+        >>> import numpy as np
+        >>> y_true = np.array([100, 150, 80, 200, 90])  # 150 and 200 are peaks
+        >>> y_pred = np.array([105, 145, 85, 195, 95])
+        >>> cm = confusion_matrix(y_true, y_pred, limit_pos=120, limit_neg=85)
+        >>> int(cm.true_positives.sum())  # Successfully detected peaks
+        3
+        >>> int(cm.false_positives.sum())  # Incorrectly predicted peaks
+        0
+
+    Note:
+        Effective true positives require that high peaks are predicted even higher
+        (positive error) and low peaks are predicted even lower (negative error).
+        This captures whether the forecast provides actionable information for
+        energy system operators.
     """
     true_peaks_y: npt.NDArray[np.bool_] = (y_true >= limit_pos) | (y_true <= limit_neg)
     pred_peaks_y: npt.NDArray[np.bool_] = (y_pred >= limit_pos) | (y_pred <= limit_neg)
@@ -141,6 +223,22 @@ def confusion_matrix(
 
 
 class PrecisionRecall(NamedTuple):
+    """Container for precision and recall metrics.
+
+    This class holds the fundamental classification metrics used to evaluate
+    peak detection performance in energy forecasting applications.
+
+    Attributes:
+        precision: The fraction of predicted peaks that were actual peaks.
+            Range [0, 1] where 1.0 is perfect precision.
+        recall: The fraction of actual peaks that were correctly predicted.
+            Range [0, 1] where 1.0 is perfect recall.
+
+    Note:
+        High precision means few false alarms, while high recall means
+        few missed peaks. There is often a trade-off between these metrics.
+    """
+
     precision: float
     recall: float
 
@@ -152,12 +250,37 @@ def precision_recall(
 ) -> PrecisionRecall:
     """Calculate precision and recall metrics from a confusion matrix.
 
-    Parameters:
-        cm: Confusion matrix calculated with the confusion_matrix function.
-        effective: If True, use effective true positives for precision and recall.
+    These metrics evaluate the quality of peak detection by measuring
+    how many predicted peaks were correct (precision) and how many
+    actual peaks were detected (recall).
+
+    Args:
+        cm: Confusion matrix from the confusion_matrix function containing
+            all classification outcomes.
+        effective: If True, uses effective true positives which account for
+            prediction direction and magnitude. If False, uses standard
+            true positives for calculation.
 
     Returns:
-        PrecisionRecall: A NamedTuple containing precision and recall metrics.
+        PrecisionRecall containing precision and recall values, each in range [0, 1].
+
+    Example:
+        Calculate standard precision and recall:
+
+        >>> import numpy as np
+        >>> y_true = np.array([100, 150, 80, 200, 90])
+        >>> y_pred = np.array([105, 145, 85, 195, 95])
+        >>> cm = confusion_matrix(y_true, y_pred, limit_pos=120, limit_neg=85)
+        >>> pr = precision_recall(cm)
+        >>> float(pr.precision)
+        1.0
+        >>> float(pr.recall)
+        1.0
+
+    Note:
+        When effective=True, the metrics focus on predictions that provide
+        actionable information (correct magnitude and direction) rather than
+        just correct classification.
     """
     relevant = np.sum(cm.true_positives) + np.sum(cm.false_negatives)
     retrieved = np.sum(cm.true_positives) + np.sum(cm.false_positives)
@@ -180,14 +303,40 @@ def fbeta(
     beta: float = 2.0,
 ) -> float:
     """Calculate the F-beta score from precision and recall metrics.
-    The F-beta score is a weighted harmonic mean of precision and recall.
 
-    Parameters:
-        precision_recall: A NamedTuple containing precision and recall metrics.
-        beta: The weight of recall in the F-beta score.
+    The F-beta score is a weighted harmonic mean of precision and recall,
+    allowing for different emphasis on recall versus precision based on
+    the beta parameter.
+
+    Args:
+        precision_recall: Container with precision and recall values from
+            the precision_recall function.
+        beta: Weight parameter controlling the relative importance of recall.
+            Values > 1 favor recall, values < 1 favor precision.
+            Common values: 0.5 (favor precision), 1.0 (balanced F1), 2.0 (favor recall).
 
     Returns:
-        float: The F-beta score.
+        The F-beta score as a float in range [0, 1]. Returns 0.0 if both
+        precision and recall are zero.
+
+    Example:
+        Calculate F2 score (favoring recall):
+
+        >>> pr = PrecisionRecall(precision=0.8, recall=0.9)
+        >>> score = fbeta(pr, beta=2.0)
+        >>> round(score, 3)
+        0.878
+
+        Calculate F1 score (balanced):
+
+        >>> score = fbeta(pr, beta=1.0)
+        >>> round(score, 3)
+        0.847
+
+    Note:
+        F-beta scores are particularly useful for imbalanced datasets where
+        the cost of false positives and false negatives differs significantly.
+        In energy forecasting, beta > 1 is often preferred to minimize missed peaks.
     """
     precision = precision_recall.precision
     recall = precision_recall.recall

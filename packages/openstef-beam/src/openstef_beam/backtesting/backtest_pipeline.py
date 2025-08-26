@@ -2,6 +2,14 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+"""Backtesting pipeline for evaluating energy forecasting models.
+
+Simulates realistic forecasting scenarios by replaying historical data with
+proper temporal constraints. Executes prediction and retraining schedules
+that mirror operational deployment conditions, ensuring evaluation results
+accurately reflect real-world model performance.
+"""
+
 import logging
 from datetime import datetime, time, timedelta
 from typing import cast
@@ -22,19 +30,47 @@ _logger = logging.getLogger(__name__)
 
 
 class BacktestConfig(BaseConfig):
+    """Configuration for backtesting energy forecasting models."""
+
     prediction_sample_interval: timedelta = Field(
         default=timedelta(minutes=15),
-        description="Time interval between prediction samples.",
+        description="Time interval between prediction samples in the output forecast",
     )
-    predict_interval: timedelta = Field(default=timedelta(hours=6), description="Interval between predictions.")
-    train_interval: timedelta = Field(default=timedelta(days=7), description="Interval between retrains.")
+    predict_interval: timedelta = Field(
+        default=timedelta(hours=6),
+        description="Time interval between generating new predictions during backtesting",
+    )
+    train_interval: timedelta = Field(
+        default=timedelta(days=7),
+        description="Time interval between model retraining events",
+    )
     align_time: time = Field(
         default=time.fromisoformat("00:00+00"),
-        description="Time alignment for predictions, ensuring they are aligned to this interval.",
+        description="Reference time for aligning prediction schedules to regular intervals",
     )
 
 
 class BacktestPipeline:
+    """Pipeline for conducting realistic backtesting of energy forecasting models.
+
+    This class orchestrates the backtesting process by simulating the operational
+    environment where forecasts are generated at regular intervals with limited
+    historical data availability. It supports both single and batch prediction modes
+    and handles periodic model retraining.
+
+    Attributes:
+        config: Configuration parameters for the backtesting process.
+        forecaster: The forecasting model implementing either BacktestForecasterMixin
+            or BacktestBatchForecasterMixin interface.
+        start: Start datetime for the backtesting period.
+        end: End datetime for the backtesting period.
+
+    Note:
+        The pipeline ensures temporal consistency by preventing data leakage and
+        respecting the operational constraints that would exist in a real-time
+        forecasting system.
+    """
+
     config: BacktestConfig
     forecaster: BacktestForecasterMixin
     start: datetime
@@ -45,6 +81,16 @@ class BacktestPipeline:
         config: BacktestConfig,
         forecaster: BacktestForecasterMixin,
     ) -> None:
+        """Initialize the backtesting pipeline.
+
+        Args:
+            config: Backtesting configuration including prediction and training intervals.
+            forecaster: Model implementing the required forecasting interface.
+
+        Raises:
+            ValueError: If the prediction sample intervals don't match between
+                config and forecaster.
+        """
         if config.prediction_sample_interval != forecaster.config.predict_sample_interval:
             raise ValueError(
                 "The prediction sample interval of the backtest config must match the model interface's predict sample "

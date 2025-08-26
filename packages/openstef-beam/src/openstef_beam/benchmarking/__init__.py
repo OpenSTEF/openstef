@@ -2,6 +2,21 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+"""Runs complete model comparison studies across multiple energy consumption targets.
+
+Comparing forecasting models properly requires testing them on many different energy
+consumption patterns (different buildings, regions, seasons). This module automates
+the entire process: training models, running backtests, calculating metrics, generating
+reports, and storing results for comparison.
+
+The complete workflow:
+    - Model training: Train different forecasting approaches on each target
+    - Backtesting: Test all models under realistic conditions
+    - Evaluation: Calculate performance metrics across different scenarios
+    - Analysis: Generate comparison reports and visualizations
+    - Storage: Save results for later analysis and sharing
+"""
+
 from openstef_beam.benchmarking.benchmark_comparison_pipeline import BenchmarkComparisonPipeline
 from openstef_beam.benchmarking.benchmark_pipeline import (
     BenchmarkContext,

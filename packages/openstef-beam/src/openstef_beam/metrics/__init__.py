@@ -2,6 +2,20 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+"""Metrics for measuring how well energy forecasting models perform.
+
+Energy forecasting models can predict either single values (deterministic) or probability
+distributions (probabilistic). This module provides specialized metrics for both types,
+with particular focus on the operational challenges of energy systems like peak detection
+and scale differences between high and low consumption periods.
+
+What you can measure:
+    - Forecast accuracy: How close are predictions to actual values?
+    - Peak detection: Can the model identify critical high/low consumption events?
+    - Uncertainty quality: For probabilistic forecasts, are confidence intervals reliable?
+    - Cross-period comparison: Compare model performance across seasons, times, etc.
+"""
+
 from openstef_beam.metrics.metrics_deterministic import (
     ConfusionMatrix,
     PrecisionRecall,
