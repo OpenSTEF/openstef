@@ -255,7 +255,7 @@ def test_all_null_dataset_with_trailing_removal(caplog: LogCaptureFixture):
 
 
 def test_drop_empty_feature_with_custom_missing_value():
-    # Create dataset with custom missing value (-999.0)
+    # Arrange
     data = pd.DataFrame(
         {
             "radiation": [-999.0, -999.0, -999.0],  # All missing
@@ -265,15 +265,15 @@ def test_drop_empty_feature_with_custom_missing_value():
         index=pd.date_range(datetime.fromisoformat("2025-01-01T00:00:00"), periods=3, freq="1h"),
     )
     dataset = TimeSeriesDataset(data, timedelta(hours=1))
-
     config = MissingValuesTransformConfig(
         missing_value=-999.0, imputation_strategy=ImputationStrategy.CONSTANT, fill_value=0.0
     )
-    transform = MissingValuesTransform(config)
 
+    # Act
+    transform = MissingValuesTransform(config)
     result = transform._drop_empty_features(dataset)
 
-    # Should have dropped 'radiation' column
+    # Assert
     assert "radiation" not in result.data.columns
     assert "temperature" in result.data.columns
     assert "wind_speed" in result.data.columns
