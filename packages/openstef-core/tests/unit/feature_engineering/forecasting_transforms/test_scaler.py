@@ -22,18 +22,21 @@ def sample_dataset() -> TimeSeriesDataset:
     Returns:
         TimeSeriesDataset: A dataset with realistic energy load and temperature data.
     """
-    data = pd.DataFrame({
-        "load": [100.0, 120.0, 110.0, 130.0, 125.0],
-        "temperature": [20.0, 22.0, 21.0, 23.0, 24.0],
-        "wind_speed": [5.0, 8.0, 6.0, 10.0, 7.0]
-    }, index=pd.date_range("2025-01-01", periods=5, freq="1h"))
+    data = pd.DataFrame(
+        {
+            "load": [100.0, 120.0, 110.0, 130.0, 125.0],
+            "temperature": [20.0, 22.0, 21.0, 23.0, 24.0],
+            "wind_speed": [5.0, 8.0, 6.0, 10.0, 7.0],
+        },
+        index=pd.date_range("2025-01-01", periods=5, freq="1h"),
+    )
     return TimeSeriesDataset(data, timedelta(hours=1))
 
 
 def test_scaler_invalid_method():
     """Test Scaler raises ValueError for unsupported scaling method."""
-    with pytest.raises(ValueError, match="Unsupported normalization method:"):
-        Scaler(method="invalid_method")  # type: ignore
+    with pytest.raises(ValueError, match="Unsupported normalization method"):
+        Scaler(method="invalid_method")
 
 
 def test_standard_scaler_fit_transform(sample_dataset: TimeSeriesDataset):
@@ -124,17 +127,23 @@ def test_different_datasets_fit_transform():
     """Test fitting on one dataset and transforming another."""
     # Arrange
     # Training dataset
-    train_data = pd.DataFrame({
-        "load": [100.0, 200.0],  # Range: 100
-        "temperature": [10.0, 30.0]  # Range: 20
-    }, index=pd.date_range("2025-01-01", periods=2, freq="1h"))
+    train_data = pd.DataFrame(
+        {
+            "load": [100.0, 200.0],  # Range: 100
+            "temperature": [10.0, 30.0],  # Range: 20
+        },
+        index=pd.date_range("2025-01-01", periods=2, freq="1h"),
+    )
     train_dataset = TimeSeriesDataset(train_data, timedelta(hours=1))
 
     # Test dataset with different range
-    test_data = pd.DataFrame({
-        "load": [150.0, 250.0],  # Different values
-        "temperature": [20.0, 40.0]  # Different values
-    }, index=pd.date_range("2025-01-02", periods=2, freq="1h"))
+    test_data = pd.DataFrame(
+        {
+            "load": [150.0, 250.0],  # Different values
+            "temperature": [20.0, 40.0],  # Different values
+        },
+        index=pd.date_range("2025-01-02", periods=2, freq="1h"),
+    )
     test_dataset = TimeSeriesDataset(test_data, timedelta(hours=1))
 
     # Act

@@ -2,6 +2,13 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+"""Transform for extracting trend features from time series data.
+
+This module provides functionality to compute trend-based features that capture
+long-term patterns and movements in time series data, helping improve forecasting
+accuracy by identifying underlying trends.
+"""
+
 from datetime import timedelta
 from enum import StrEnum
 
@@ -15,6 +22,8 @@ from openstef_core.utils import timedelta_to_isoformat
 
 
 class AggregationFunction(StrEnum):
+    """Enum of supported aggregation functions for rolling aggregates."""
+
     MEAN = "mean"
     MEDIAN = "median"
     MAX = "max"
@@ -77,25 +86,41 @@ class RollingAggregateFeatures(TimeSeriesTransform):
         self.rolling_aggregate_features: pd.DataFrame = pd.DataFrame()
 
     def _get_rolling_aggregate_feature_name(self, aggregation_function: AggregationFunction) -> str:
-        """Generate the feature name for the rolling aggregate based on config."""
+        """Generate the feature name for the rolling aggregate based on config.
+
+        Args:
+            aggregation_function: The aggregation function used (e.g., mean, median).
+
+        Returns:
+            The generated feature name as a string.
+        """
         return f"rolling_{aggregation_function.value}_load_{timedelta_to_isoformat(td=self.config.rolling_window_size)}"
 
     def fit(self, data: TimeSeriesDataset) -> None:
         """Fit the transform to the input time series `load` column.
+
         This method computes the rolling aggregate features based on the specified
         rolling window and aggregation functions.
 
         Args:
             data: Time series dataset with DatetimeIndex.
+
+        Raises:
+            ValueError: If the 'load' column is not present in the dataset.
         """
         if "load" not in data.data.columns:
             raise ValueError("The DataFrame must contain a 'load' column.")
 
         rolling_window_load = data.data["load"].dropna().rolling(window=self.config.rolling_window_size)
-        self.rolling_aggregate_features = pd.DataFrame({
-            self._get_rolling_aggregate_feature_name(func): rolling_window_load.aggregate(func.value)
+
+        rolling_aggregate_features: dict[str, pd.Series] = {
+            self._get_rolling_aggregate_feature_name(func): rolling_window_load.aggregate(func.value)  # type: ignore[reportUnknownMemberType]
             for func in self.config.aggregation_functions
-        })
+        }
+
+        self.rolling_aggregate_features = pd.DataFrame(
+            data=rolling_aggregate_features,
+        )
 
     def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
         """Transform the input time series data by adding rolling aggregate features.
@@ -109,9 +134,6 @@ class RollingAggregateFeatures(TimeSeriesTransform):
 
         Returns:
             A new instance of TimeSeriesDataset containing the original and new rolling aggregate features.
-
-        Raises:
-            ValueError: If the transform has not been fitted yet.
         """
         aligned_features = self.rolling_aggregate_features.reindex(data.data.index).ffill()
 

@@ -42,6 +42,9 @@ urls.Repository = "https://github.com/OpenSTEF/openstef"
 ml = [
   "scikit-learn>=1.7.1",
 ]
+schoolholidays = [
+  "icalendar>=6.3.1",
+]
 
 [tool.hatch.build.targets.wheel]
 packages = [ "src/openstef_core" ]

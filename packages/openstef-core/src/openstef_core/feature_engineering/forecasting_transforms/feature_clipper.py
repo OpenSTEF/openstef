@@ -2,12 +2,20 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+"""Transform for clipping feature values to observed ranges.
+
+This module provides functionality to clip feature values to their observed
+minimum and maximum ranges during training, preventing out-of-range values
+during inference and improving model robustness.
+"""
+
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.datasets.transforms import TimeSeriesTransform
 
 
 class FeatureClipper(TimeSeriesTransform):
     """Transform that clips specified features to their observed min and max values.
+
     This transform learns the minimum and maximum values of specified features
     during the fit phase and clips any values outside this range during the transform phase.
 
@@ -41,8 +49,10 @@ class FeatureClipper(TimeSeriesTransform):
     """
 
     def __init__(self, column_names: list[str]) -> None:
-        """Initialize the FeatureClipper with specified column names and
-        a dictionary containing the feature range.
+        """Initialize the FeatureClipper.
+
+        Initializes with specified column names and a dictionary containing
+        the feature range.
         """
         self.column_names: list[str] = column_names
         self.feature_ranges: dict[str, tuple[float, float]] = {}
@@ -58,8 +68,7 @@ class FeatureClipper(TimeSeriesTransform):
                 self.feature_ranges[col] = (data.data[col].min(), data.data[col].max())
 
     def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
-        """Transform the input time series data by clipping specified features
-        to their learned min and max values.
+        """Transform the input time series data by clipping specified features to their learned min and max values.
 
         Args:
             data: Time series dataset.

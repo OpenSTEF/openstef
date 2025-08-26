@@ -12,7 +12,7 @@ from openstef_core.feature_engineering.forecasting_transforms.feature_clipper im
 
 
 @pytest.fixture
-def train_dataset():
+def train_dataset() -> TimeSeriesDataset:
     return TimeSeriesDataset(
         data=pd.DataFrame(
             {"A": [1.0, 2.0, 3.0], "B": [10.0, 20.0, 30.0], "C": [100.0, 200.0, 300.0]},
@@ -23,7 +23,7 @@ def train_dataset():
 
 
 @pytest.fixture
-def test_dataset():
+def test_dataset() -> TimeSeriesDataset:
     return TimeSeriesDataset(
         data=pd.DataFrame(
             {"A": [0.5, 4.0], "B": [5.0, 35.0], "C": [150.0, 350.0]},
@@ -34,7 +34,7 @@ def test_dataset():
 
 
 @pytest.fixture
-def clipper():
+def clipper() -> FeatureClipper:
     return FeatureClipper(column_names=["A", "B", "D"])
 
 

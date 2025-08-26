@@ -17,7 +17,7 @@ from openstef_core.feature_engineering.forecasting_transforms.trend_features imp
 
 
 @pytest.fixture
-def rolling_aggregate_config():
+def rolling_aggregate_config() -> RollingAggregateFeaturesConfig:
     return RollingAggregateFeaturesConfig(
         rolling_window_size=timedelta(hours=24),
         aggregation_functions=[
@@ -153,5 +153,5 @@ def test_rolling_aggregate_features_no_load_column():
     )
     dataset = TimeSeriesDataset(data, sample_interval=timedelta(minutes=15))
 
-    with pytest.raises(ValueError, match="The DataFrame must contain a 'load' column."):
+    with pytest.raises(ValueError, match="The DataFrame must contain a 'load' column"):
         RollingAggregateFeatures(config=RollingAggregateFeaturesConfig()).fit(dataset)

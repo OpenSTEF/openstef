@@ -2,20 +2,27 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+"""Transform for scaling features in time series data.
+
+This module provides data scaling functionality using various scaling methods
+from scikit-learn to normalize and standardize features in time series datasets
+for improved machine learning model performance.
+"""
+
 from enum import StrEnum
 
 import pandas as pd
 
-from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.datasets.transforms import TimeSeriesTransform
 
 try:
-    import sklearn
+    from sklearn.preprocessing import MaxAbsScaler, MinMaxScaler, RobustScaler, StandardScaler
 except ImportError:
     raise ImportError(
-        "scikit-learn is required for the Scaler transform. Please install it via `uv sync --group ml --package openstef-core` or `uv sync --all-groups --package openstef-core`."
-    )
+        "scikit-learn is required for the Scaler transform. Please install it via "
+        "`uv sync --group ml --package openstef-core` or `uv sync --all-groups --package openstef-core`."
+    ) from None
 
 
 class ScalingMethod(StrEnum):
@@ -28,8 +35,9 @@ class ScalingMethod(StrEnum):
 
 
 class Scaler(TimeSeriesTransform):
-    """Transform that scales time series data using various scikit-learn
-    scaling methods. Available methods include:
+    """Transform that scales time series data using various scikit-learn scaling methods.
+
+    Available methods include:
         - MinMaxScaler: Scales features based on min/max of training set (between 0 and 1).
         - MaxAbs: Scales features by their maximum absolute value (between -1 and 1).
         - Standard: Standardizes features by removing the mean and scaling to unit variance (0 mean, 1 std).
@@ -39,7 +47,7 @@ class Scaler(TimeSeriesTransform):
         >>> import pandas as pd
         >>> from datetime import timedelta
         >>> from openstef_core.datasets import TimeSeriesDataset
-        >>> from openstef_core.feature_engineering.forecasting_transforms.scaler import Scaler, ScalerConfig, ScalingMethod
+        >>> from openstef_core.feature_engineering.forecasting_transforms.scaler import Scaler, ScalingMethod
         >>>
         >>> # Create sample dataset
         >>> data = pd.DataFrame({
@@ -49,8 +57,7 @@ class Scaler(TimeSeriesTransform):
         >>> dataset = TimeSeriesDataset(data, timedelta(hours=1))
         >>>
         >>> # Initialize and apply transform
-        >>> config = ScalerConfig(method=ScalingMethod.Standard)
-        >>> scaler = Scaler(config)
+        >>> scaler = Scaler(method=ScalingMethod.Standard)
         >>> scaler.fit(dataset)
         >>> transformed_dataset = scaler.transform(dataset)
         >>> abs(float(transformed_dataset.data['load'].mean().round(6)))
@@ -65,28 +72,26 @@ class Scaler(TimeSeriesTransform):
     """
 
     def __init__(self, method: ScalingMethod):
-        """Initialize the Scaler transform with the scaler
-        specified in the configuration.
+        """Initialize the Scaler transform with the scaler method.
+
+        Args:
+            method: Scaling method to use.
+
+        Raises:
+            ValueError: If an unsupported scaling method is provided.
         """
         match method:
             case ScalingMethod.MinMax:
-                from sklearn.preprocessing import MinMaxScaler
-
                 self.scaler = MinMaxScaler()
             case ScalingMethod.MaxAbs:
-                from sklearn.preprocessing import MaxAbsScaler
-
                 self.scaler = MaxAbsScaler()
             case ScalingMethod.Standard:
-                from sklearn.preprocessing import StandardScaler
-
                 self.scaler = StandardScaler()
             case ScalingMethod.Robust:
-                from sklearn.preprocessing import RobustScaler
-
                 self.scaler = RobustScaler()
             case _:
-                raise ValueError(f"Unsupported normalization method: {method}")
+                msg = f"Unsupported normalization method: {method}"
+                raise ValueError(msg)
 
     def fit(self, data: TimeSeriesDataset) -> None:
         """Fit the scaler to the input time series data.
@@ -94,7 +99,7 @@ class Scaler(TimeSeriesTransform):
         Args:
             data: Time series dataset.
         """
-        self.scaler.fit(data.data)
+        self.scaler.fit(data.data)  # type: ignore[reportUnknownMemberType]
 
     def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
         """Transform the input time series data using the fitted scaler.
@@ -106,7 +111,7 @@ class Scaler(TimeSeriesTransform):
             A new TimeSeriesDataset instance containing the scaled data.
         """
         scaled_data = pd.DataFrame(
-            data=self.scaler.transform(data.data),
+            data=self.scaler.transform(data.data),  # type: ignore[reportUnknownMemberType]
             columns=data.data.columns,
             index=data.data.index,
         )

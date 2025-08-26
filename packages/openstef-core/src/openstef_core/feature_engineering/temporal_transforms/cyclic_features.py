@@ -3,7 +3,9 @@
 # SPDX-License-Identifier: MPL-2.0
 
 
-"""This module provides the CyclicFeatures transform, which generates cyclic
+"""Transform for extracting cyclic features from time series data.
+
+This module provides the CyclicFeatures transform, which generates cyclic
 features from datetime indices in time series datasets based on sine and cosine
 components.
 """
@@ -26,6 +28,7 @@ NUM_SECONDS_IN_A_DAY = 24 * 60 * 60
 
 class CyclicFeaturesConfig(BaseConfig):
     """Configuration for the CyclicFeatures transform.
+
     By default, all cyclic features are included.
     """
 
@@ -53,7 +56,9 @@ class CyclicFeatures(TimeSeriesTransform):
         >>> import pandas as pd
         >>> from datetime import timedelta
         >>> from openstef_core.datasets import TimeSeriesDataset
-        >>> from openstef_core.feature_engineering.temporal_transforms.cyclic_features import CyclicFeatures, CyclicFeaturesConfig  # noqa: E501
+        >>> from openstef_core.feature_engineering.temporal_transforms.cyclic_features import (
+        ...     CyclicFeatures, CyclicFeaturesConfig
+        ... )
         >>>
         >>> # Create sample dataset
         >>> data = pd.DataFrame({
