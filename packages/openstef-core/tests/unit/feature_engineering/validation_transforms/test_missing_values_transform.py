@@ -168,7 +168,7 @@ def test_determine_trailing_null_rows():
 def test_no_missing_values(sample_dataset: TimeSeriesDataset):
     # Arrange
     sample_dataset.data = sample_dataset.data.iloc[:3]
-    sample_dataset.data = sample_dataset.data.dropna()  # Remove any NaN values
+    sample_dataset.data = sample_dataset.data.dropna() # pyright: ignore[reportUnknownMemberType]
     original_data = sample_dataset.data.copy()
     config = MissingValuesTransformConfig(imputation_strategy=ImputationStrategy.MEAN)
     transform = MissingValuesTransform(config)
