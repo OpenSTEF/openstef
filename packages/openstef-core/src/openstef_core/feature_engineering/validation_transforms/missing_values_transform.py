@@ -98,7 +98,7 @@ class MissingValuesTransform(TimeSeriesTransform):
             missing_values=self.config.missing_value,
             keep_empty_features=False,
         )
-        self.imputer_.set_output(transform="pandas")
+        self.imputer_.set_output(transform="pandas")  # pyright: ignore[reportUnknownMemberType]
 
     @staticmethod
     def _determine_trailing_null_rows(x: pd.DataFrame) -> pd.Series:
@@ -152,7 +152,7 @@ class MissingValuesTransform(TimeSeriesTransform):
                 Trailing null rows will be automatically removed before fitting.
         """
         fit_data = self._remove_trailing_null_rows(data)
-        self.imputer_.fit(fit_data)
+        self.imputer_.fit(fit_data)  # pyright: ignore[reportUnknownMemberType]
 
     def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
         """Transform the input dataset by removing trailing null rows and imputing missing values.
@@ -171,5 +171,5 @@ class MissingValuesTransform(TimeSeriesTransform):
                 only the data attribute modified.
         """
         data.data = self._remove_trailing_null_rows(data)
-        data.data = self.imputer_.transform(data.data)
+        data.data = self.imputer_.transform(data.data)  # pyright: ignore[reportAttributeAccessIssue,reportUnknownMemberType]
         return data
