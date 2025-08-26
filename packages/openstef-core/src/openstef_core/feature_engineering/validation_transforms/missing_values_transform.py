@@ -9,7 +9,6 @@ through various imputation strategies and data cleaning operations.
 """
 
 import logging
-import warnings
 from enum import Enum
 
 import numpy as np
@@ -21,6 +20,7 @@ from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.datasets.transforms import TimeSeriesTransform
 
 _logger = logging.getLogger(__name__)
+
 
 class ImputationStrategy(Enum):
     """Enumeration of available imputation strategies for missing values."""
@@ -115,9 +115,9 @@ class MissingValuesTransform(TimeSeriesTransform):
             all_missing_mask = data.data.isna().all()
         else:
             all_missing_mask = (data.data == self.config.missing_value).all()
-        
+
         for col in data.data.columns[all_missing_mask]:
-            _logger.warning(f"Dropped column '{col}' from dataset because it contains only missing values.")
+            _logger.warning("Dropped column '%s' from dataset because it contains only missing values.", col)
 
         non_empty_columns = data.data.columns[~all_missing_mask]
         filtered_data = data.data[non_empty_columns]
@@ -147,7 +147,7 @@ class MissingValuesTransform(TimeSeriesTransform):
         features_to_check = [f for f in self.config.no_fill_future_values_features if f in data.data.columns]
         for feature in self.config.no_fill_future_values_features:
             if feature not in data.data.columns:
-                _logger.warning(f"Feature '{feature}' not found in dataset columns.")
+                _logger.warning("Feature '%s' not found in dataset columns.", feature)
 
         if not features_to_check:
             return data
@@ -189,8 +189,8 @@ class MissingValuesTransform(TimeSeriesTransform):
                 missing values imputed. The original dataset structure is preserved with
                 only the data attribute modified.
         """
-        transformed_data = self._drop_empty_features(data)
-        transformed_data = self._remove_trailing_null_rows(transformed_data)
-        transformed_data = self.imputer.transform(transformed_data.data)
+        data_cleaned = self._drop_empty_features(data)
+        data_cleaned = self._remove_trailing_null_rows(data_cleaned)
+        data_transformed = self.imputer.transform(data_cleaned.data)  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
 
-        return TimeSeriesDataset(data=transformed_data, sample_interval=data.sample_interval)  # pyright: ignore[reportArgumentType]
+        return TimeSeriesDataset(data=data_transformed, sample_interval=data.sample_interval)  # pyright: ignore[reportArgumentType]

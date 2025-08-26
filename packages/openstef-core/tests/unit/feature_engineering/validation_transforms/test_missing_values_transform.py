@@ -2,13 +2,13 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-from datetime import datetime, timedelta
 import logging
-from _pytest.logging import LogCaptureFixture
+from datetime import datetime, timedelta
 
 import numpy as np
 import pandas as pd
 import pytest
+from _pytest.logging import LogCaptureFixture
 
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.feature_engineering.validation_transforms.missing_values_transform import (
@@ -119,7 +119,9 @@ def test_remove_trailing_nulls_multiple_features(sample_dataset: TimeSeriesDatas
     assert result.data["price"].iloc[0] == 10.0
 
 
-def test_no_trailing_nulls_removal_when_feature_not_in_data(sample_dataset: TimeSeriesDataset, caplog: LogCaptureFixture):
+def test_no_trailing_nulls_removal_when_feature_not_in_data(
+    sample_dataset: TimeSeriesDataset, caplog: LogCaptureFixture
+):
     # Arrange
     config = MissingValuesTransformConfig(
         imputation_strategy=ImputationStrategy.MEAN, no_fill_future_values_features=["nonexistent_feature"]
@@ -135,7 +137,6 @@ def test_no_trailing_nulls_removal_when_feature_not_in_data(sample_dataset: Time
     assert len(result.data) == 4  # No rows removed
     assert not result.data.isna().any().any()  # All values imputed
     assert "Feature 'nonexistent_feature' not found in dataset columns." in caplog.text
-
 
 
 def test_empty_feature_removal(sample_dataset: TimeSeriesDataset):
@@ -189,7 +190,7 @@ def test_custom_missing_value_placeholder(sample_dataset: TimeSeriesDataset):
     assert result.data.loc[result.data.index[1], "radiation"] == 110.0
     assert result.data.loc[result.data.index[2], "temperature"] == 20.5
 
-# TODO: Instead, raise a warning, drop the column before and raise a warning...
+
 def test_all_null_dataset_with_trailing_removal(sample_dataset: TimeSeriesDataset, caplog: LogCaptureFixture):
     # Arrange
     sample_dataset.data = sample_dataset.data.iloc[:3]
@@ -217,23 +218,21 @@ def test_drop_empty_feature_with_custom_missing_value():
     data = pd.DataFrame(
         {
             "radiation": [-999.0, -999.0, -999.0],  # All missing
-            "temperature": [20.0, 21.0, 22.0],      # No missing
-            "wind_speed": [5.0, -999.0, 8.0],       # Some missing
+            "temperature": [20.0, 21.0, 22.0],  # No missing
+            "wind_speed": [5.0, -999.0, 8.0],  # Some missing
         },
         index=pd.date_range(datetime.fromisoformat("2025-01-01T00:00:00"), periods=3, freq="1h"),
     )
     dataset = TimeSeriesDataset(data, timedelta(hours=1))
 
     config = MissingValuesTransformConfig(
-        missing_value=-999.0,
-        imputation_strategy=ImputationStrategy.CONSTANT,
-        fill_value=0.0
+        missing_value=-999.0, imputation_strategy=ImputationStrategy.CONSTANT, fill_value=0.0
     )
     transform = MissingValuesTransform(config)
 
     result = transform._drop_empty_features(dataset)
 
     # Should have dropped 'radiation' column
-    assert 'radiation' not in result.data.columns
-    assert 'temperature' in result.data.columns
-    assert 'wind_speed' in result.data.columns
+    assert "radiation" not in result.data.columns
+    assert "temperature" in result.data.columns
+    assert "wind_speed" in result.data.columns
