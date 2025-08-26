@@ -2,6 +2,13 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+"""S3-backed storage implementation for benchmark results.
+
+Provides a hybrid storage approach that combines local file system operations
+with S3 cloud storage synchronization. All operations use local storage for
+performance while automatically syncing to S3 for durability and sharing.
+"""
+
 import logging
 from pathlib import Path, PurePosixPath
 from typing import Any
@@ -55,7 +62,7 @@ class S3BenchmarkStorage(BenchmarkStorage):
 
         # Lazy import s3fs to keep it as an optional dependency
         try:
-            import s3fs
+            import s3fs  # noqa: PLC0415
 
             self.fs = s3fs.S3FileSystem(**self.s3fs_kwargs)
         except ImportError as e:
@@ -63,36 +70,64 @@ class S3BenchmarkStorage(BenchmarkStorage):
             raise ImportError("s3fs package is required for S3StorageCallback") from e
 
     def save_backtest_output(self, target: BenchmarkTarget, output: VersionedTimeSeriesDataset) -> None:
+        """Save backtest predictions locally and sync to S3."""
         self.local_storage.save_backtest_output(target, output)
 
         output_path = self.local_storage.get_predictions_path_for_target(target)
         self._put_path_to_s3(local_path=output_path, artifact_name=self._get_s3_path(output_path))
 
     def load_backtest_output(self, target: BenchmarkTarget) -> VersionedTimeSeriesDataset:
+        """Load backtest predictions from local storage.
+
+        Returns:
+            VersionedTimeSeriesDataset: The loaded prediction data.
+        """
         return self.local_storage.load_backtest_output(target)
 
     def has_backtest_output(self, target: BenchmarkTarget) -> bool:
+        """Check if backtest output exists in local storage.
+
+        Returns:
+            bool: True if backtest output exists locally.
+        """
         return self.local_storage.has_backtest_output(target)
 
     def save_evaluation_output(self, target: BenchmarkTarget, output: EvaluationReport) -> None:
+        """Save evaluation report locally and sync to S3."""
         self.local_storage.save_evaluation_output(target, output)
 
         output_path = self.local_storage.get_evaluations_path_for_target(target)
         self._put_path_to_s3(local_path=output_path, artifact_name=self._get_s3_path(output_path))
 
     def load_evaluation_output(self, target: BenchmarkTarget) -> EvaluationReport:
+        """Load evaluation report from local storage.
+
+        Returns:
+            EvaluationReport: The loaded evaluation report.
+        """
         return self.local_storage.load_evaluation_output(target)
 
     def has_evaluation_output(self, target: BenchmarkTarget) -> bool:
+        """Check if evaluation output exists in local storage.
+
+        Returns:
+            bool: True if evaluation output exists locally.
+        """
         return self.local_storage.has_evaluation_output(target)
 
     def save_analysis_output(self, output: AnalysisOutput) -> None:
+        """Save analysis visualizations locally and sync to S3."""
         self.local_storage.save_analysis_output(output)
 
         output_dir = self.local_storage.get_analysis_path(output.scope)
         self._put_path_to_s3(local_path=output_dir, artifact_name=self._get_s3_path(output_dir))
 
     def has_analysis_output(self, scope: AnalysisScope) -> bool:
+        """Check if analysis output exists in local storage.
+
+        Returns:
+            bool: True if analysis output exists locally.
+        """
         return self.local_storage.has_analysis_output(scope)
 
     def _put_path_to_s3(self, local_path: Path, artifact_name: str) -> None:
@@ -127,6 +162,9 @@ class S3BenchmarkStorage(BenchmarkStorage):
         """Construct the S3 path for a given local path.
 
         Uses pathlib for cleaner path manipulation and proper S3 URI construction.
+
+        Returns:
+            str: The full S3 URI for the given local path.
         """
         # Get relative path from output directory
         relative_path = local_path.relative_to(self.local_storage.base_path)

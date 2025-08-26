@@ -2,6 +2,14 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+"""Benchmark target models for defining forecasting evaluation scenarios.
+
+Provides base classes and data structures for representing benchmark targets,
+which define the scope, timing, and characteristics of forecasting evaluation
+tasks. Each target represents a specific forecasting challenge with defined
+training and evaluation periods.
+"""
+
 from datetime import datetime
 
 from pydantic import Field, field_validator
@@ -35,6 +43,18 @@ class BenchmarkTarget(BaseConfig):
     @field_validator("benchmark_end")
     @classmethod
     def validate_benchmark_end(cls, v: datetime, info: ValidationInfo) -> datetime:
+        """Validate that benchmark_end occurs after benchmark_start.
+
+        Args:
+            v: The benchmark_end value to validate.
+            info: Validation context containing other field values.
+
+        Returns:
+            The validated benchmark_end datetime.
+
+        Raises:
+            ValueError: If benchmark_end is not after benchmark_start.
+        """
         benchmark_start = info.data.get("benchmark_start")
         if benchmark_start and v <= benchmark_start:
             raise ValueError("benchmark_end must be after benchmark_start")
@@ -43,6 +63,18 @@ class BenchmarkTarget(BaseConfig):
     @field_validator("train_start")
     @classmethod
     def validate_train_start(cls, v: datetime, info: ValidationInfo) -> datetime:
+        """Validate that train_start occurs before benchmark_start.
+
+        Args:
+            v: The train_start value to validate.
+            info: Validation context containing other field values.
+
+        Returns:
+            The validated train_start datetime.
+
+        Raises:
+            ValueError: If train_start is not before benchmark_start.
+        """
         benchmark_start = info.data.get("benchmark_start")
         if benchmark_start and v >= benchmark_start:
             raise ValueError("train_start must be before benchmark_start")

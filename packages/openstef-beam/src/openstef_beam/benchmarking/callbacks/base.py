@@ -64,21 +64,7 @@ class BenchmarkCallback:
         ...     def on_error(self, runner, target, error):
         ...         self.logger.error(f"Error processing {target.name}: {error}")
 
-    Integration with external systems:
-
-        >>> class DatabaseCallback(BenchmarkCallback):
-        ...     def __init__(self, db_client):
-        ...         self.db = db_client
-        ...
-        ...     def on_evaluation_complete(self, runner, target, report):
-        ...         # Store results in external database
-        ...         self.db.save_evaluation_metrics(
-        ...             target_name=target.name,
-        ...             metrics=report.get_summary_metrics(),
-        ...             timestamp=datetime.now()
-        ...         )
-
-    Early termination based on conditions:
+        Early termination based on conditions:
 
         >>> class QualityGateCallback(BenchmarkCallback):
         ...     def __init__(self, max_mae_threshold=100.0):
@@ -104,7 +90,11 @@ class BenchmarkCallback:
         return True
 
     def on_target_start(self, runner: "BenchmarkPipeline[Any, Any]", target: BenchmarkTarget) -> bool:
-        """Called when processing a target begins."""
+        """Called when processing a target begins.
+
+        Returns:
+            bool: True if target processing should start, False to skip.
+        """
         _ = self, runner, target  # Suppress unused variable warning
         return True
 
@@ -164,6 +154,11 @@ class BenchmarkCallbackManager(BenchmarkCallback):
     """Group of callbacks that can be used to aggregate multiple callbacks."""
 
     def __init__(self, callbacks: list[BenchmarkCallback] | None = None):
+        """Initialize the callback manager.
+
+        Args:
+            callbacks: List of callbacks to manage. If None, starts with empty list.
+        """
         self.callbacks = callbacks or []
 
     def add_callback(self, callback: BenchmarkCallback) -> None:

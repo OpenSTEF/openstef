@@ -257,11 +257,19 @@ class SimpleTargetProvider[T: BenchmarkTarget, F](TargetProvider[T, F]):
         return self.metrics
 
     def get_measurements_path_for_target(self, target: T) -> Path:
-        """Build file path for target measurements using configured template."""
+        """Build file path for target measurements using configured template.
+
+        Returns:
+            Path: Path to the measurements file for the target.
+        """
         return self.data_dir / str(target.group_name) / self.measurements_path_template.format(name=target.name)
 
     def get_measurements_for_target(self, target: T) -> VersionedTimeSeriesDataset:
-        """Load ground truth measurements from target-specific Parquet file."""
+        """Load ground truth measurements from target-specific Parquet file.
+
+        Returns:
+            VersionedTimeSeriesDataset: The loaded measurements data.
+        """
         return VersionedTimeSeriesDataset.read_parquet(
             path=self.get_measurements_path_for_target(target),
         )
@@ -271,6 +279,9 @@ class SimpleTargetProvider[T: BenchmarkTarget, F](TargetProvider[T, F]):
 
         Concatenates datasets feature-wise with inner join to ensure temporal alignment.
         Only includes datasets that are enabled via configuration flags.
+
+        Returns:
+            VersionedTimeSeriesMixin: Combined predictor dataset with all enabled features.
         """
         datasets: list[VersionedTimeSeriesMixin] = [
             self.get_weather_for_target(target),
@@ -285,23 +296,39 @@ class SimpleTargetProvider[T: BenchmarkTarget, F](TargetProvider[T, F]):
         return concat_featurewise(datasets=datasets, mode="inner")
 
     def get_weather_path_for_target(self, target: T) -> Path:
-        """Build file path for target weather data using configured template."""
+        """Build file path for target weather data using configured template.
+
+        Returns:
+            Path: Path to the weather data file for the target.
+        """
         return self.data_dir / str(target.group_name) / self.weather_path_template.format(name=target.name)
 
     def get_weather_for_target(self, target: T) -> VersionedTimeSeriesDataset:
-        """Load weather features from target-specific Parquet file."""
+        """Load weather features from target-specific Parquet file.
+
+        Returns:
+            VersionedTimeSeriesDataset: The loaded weather data.
+        """
         return VersionedTimeSeriesDataset.read_parquet(
             path=self.get_weather_path_for_target(target),
         )
 
     def get_profiles(self) -> VersionedTimeSeriesDataset:
-        """Load shared energy profiles data from configured Parquet file."""
+        """Load shared energy profiles data from configured Parquet file.
+
+        Returns:
+            VersionedTimeSeriesDataset: The loaded energy profiles data.
+        """
         return VersionedTimeSeriesDataset.read_parquet(
             path=self.data_dir / self.profiles_path,
         )
 
     def get_prices(self) -> VersionedTimeSeriesDataset:
-        """Load shared energy pricing data from configured Parquet file."""
+        """Load shared energy pricing data from configured Parquet file.
+
+        Returns:
+            VersionedTimeSeriesDataset: The loaded energy pricing data.
+        """
         return VersionedTimeSeriesDataset.read_parquet(
             path=self.data_dir / self.prices_path,
         )

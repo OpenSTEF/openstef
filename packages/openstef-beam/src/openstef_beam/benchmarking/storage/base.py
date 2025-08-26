@@ -232,11 +232,20 @@ class InMemoryBenchmarkStorage(BenchmarkStorage):
 
     @override
     def has_analysis_output(self, scope: AnalysisScope) -> bool:
-        """Always returns False - analysis output is not supported in memory storage."""
+        """Check if analysis output exists for the given scope.
+
+        Returns:
+            bool: True if analysis output exists for the scope, False otherwise.
+        """
         return scope in self._analytics_outputs
 
     @property
     def analysis_data(self) -> dict[AnalysisScope, AnalysisOutput]:
+        """Get all stored analysis outputs.
+
+        Returns:
+            dict: Mapping from analysis scopes to their corresponding outputs.
+        """
         return self._analytics_outputs
 
 
