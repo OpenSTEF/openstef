@@ -40,7 +40,6 @@ class MissingValuesTransformConfig(BaseConfig):
         description="List of feature names for which trailing NaN values should not be filled."
     )
 
-
 class MissingValuesTransform(TimeSeriesTransform):
     """Transform that checks for, imputes and drops missing values in time series data.
     
@@ -79,9 +78,9 @@ class MissingValuesTransform(TimeSeriesTransform):
     >>> transform.transform(dataset)
     >>> int(dataset.data.isnull().sum().sum()) == 0
     True
-    >>> dataset.data.shape[0] == 3
+    >>> dataset.data.shape[0] == 3 # Last row dropped
     True
-    >>> dataset.data.shape[1] == 3
+    >>> dataset.data.shape[1] == 3 # Empty feature column dropped
     True
     """
 
