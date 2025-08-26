@@ -8,10 +8,10 @@ This module provides functionality for handling missing values in time series da
 through various imputation strategies and data cleaning operations.
 """
 
+import warnings
 from enum import Enum
 
 import numpy as np
-import pandas as pd
 from pydantic import Field
 from sklearn.impute import SimpleImputer
 
@@ -64,7 +64,7 @@ class MissingValuesTransform(TimeSeriesTransform):
     ... )
     >>> data = pd.DataFrame(
     ...     {
-    ...         "load": [100, np.nan, 110, np.nan],
+    ...         "radiation": [100, np.nan, 110, np.nan],
     ...         "temperature": [20, np.nan, 24, 21],
     ...         "wind_speed": [5, 6, np.nan, np.nan],
     ...         "empty_feature": [np.nan, np.nan, np.nan, np.nan]
@@ -75,7 +75,7 @@ class MissingValuesTransform(TimeSeriesTransform):
     >>> config = MissingValuesTransformConfig(
     ...     imputation_strategy=ImputationStrategy.MEAN,
     ...     missing_value=np.nan,
-    ...     no_fill_future_values_features=["load"]
+    ...     no_fill_future_values_features=["radiation"]
     ... )
     >>> transform = MissingValuesTransform(config)
     >>> transform.fit(dataset)
@@ -92,27 +92,15 @@ class MissingValuesTransform(TimeSeriesTransform):
         """Initialize the MissingValuesTransform with the given configuration."""
         self.config = config
 
-        self.imputer_: SimpleImputer = SimpleImputer(
+        self.imputer: SimpleImputer = SimpleImputer(
             strategy=self.config.imputation_strategy.value,
             fill_value=self.config.fill_value,
             missing_values=self.config.missing_value,
             keep_empty_features=False,
         )
-        self.imputer_.set_output(transform="pandas")  # pyright: ignore[reportUnknownMemberType]
+        self.imputer.set_output(transform="pandas")  # pyright: ignore[reportUnknownMemberType]
 
-    @staticmethod
-    def _determine_trailing_null_rows(x: pd.DataFrame) -> pd.Series:
-        """Determine rows with trailing null values in a DataFrame.
-
-        Args:
-            x: DataFrame to check for trailing null values
-
-        Returns:
-            Boolean Series where True indicates rows to keep (non-trailing null rows)
-        """
-        return ~x.bfill().isna().any(axis="columns")
-
-    def _remove_trailing_null_rows(self, data: TimeSeriesDataset) -> pd.DataFrame:
+    def _remove_trailing_null_rows(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
         """Remove trailing rows that contain null values in specified features.
 
         This method removes rows from the end of the dataset where specified features
@@ -125,20 +113,26 @@ class MissingValuesTransform(TimeSeriesTransform):
                 to be processed.
 
         Returns:
-            A DataFrame with trailing null rows removed for the specified
+            A TimeSeriesDataset with trailing null rows removed for the specified
                 features. If no features are configured for checking or none of the
                 configured features exist in the data, returns the original data unchanged.
         """
         if not self.config.no_fill_future_values_features:
-            return data.data
+            return data
 
         features_to_check = [f for f in self.config.no_fill_future_values_features if f in data.data.columns]
+        for feature in self.config.no_fill_future_values_features:
+            if feature not in data.data.columns:
+                warnings.warn(f"Feature '{feature}' not found in dataset columns.")
+
         if not features_to_check:
-            return data.data
+            return data
 
         subset_df = data.data[features_to_check]
-        non_trailing_null_rows = self._determine_trailing_null_rows(subset_df)
-        return data.data.loc[non_trailing_null_rows]
+        mask = ~subset_df.bfill().isna().any(axis="columns")
+        filtered_data = data.data.loc[mask]
+
+        return TimeSeriesDataset(data=filtered_data, sample_interval=data.sample_interval)
 
     def fit(self, data: TimeSeriesDataset) -> None:
         """Fit the missing values transformer to the provided time series data.
@@ -152,7 +146,7 @@ class MissingValuesTransform(TimeSeriesTransform):
                 Trailing null rows will be automatically removed before fitting.
         """
         fit_data = self._remove_trailing_null_rows(data)
-        self.imputer_.fit(fit_data)  # pyright: ignore[reportUnknownMemberType]
+        self.imputer.fit(fit_data.data)  # pyright: ignore[reportUnknownMemberType]
 
     def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
         """Transform the input dataset by removing trailing null rows and imputing missing values.
@@ -170,6 +164,7 @@ class MissingValuesTransform(TimeSeriesTransform):
                 missing values imputed. The original dataset structure is preserved with
                 only the data attribute modified.
         """
-        data.data = self._remove_trailing_null_rows(data)
-        data.data = self.imputer_.transform(data.data)  # pyright: ignore[reportAttributeAccessIssue,reportUnknownMemberType]
-        return data
+        transformed_data = self._remove_trailing_null_rows(data)
+        transformed_data = self.imputer.transform(transformed_data.data)
+
+        return TimeSeriesDataset(data=transformed_data, sample_interval=data.sample_interval)  # pyright: ignore[reportArgumentType]

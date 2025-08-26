@@ -131,6 +131,10 @@ def test_no_trailing_nulls_removal_when_feature_not_in_data(sample_dataset: Time
     # Assert
     assert len(result.data) == 4  # No rows removed
     assert not result.data.isna().any().any()  # All values imputed
+    # assert warning was raised
+    with pytest.warns(Warning, match="Feature 'nonexistent_feature' not found in dataset columns."):
+        transform.fit(sample_dataset)
+        transform.transform(sample_dataset)
 
 
 def test_empty_feature_removal(sample_dataset: TimeSeriesDataset):
@@ -150,25 +154,10 @@ def test_empty_feature_removal(sample_dataset: TimeSeriesDataset):
     assert not result.data.isna().any().any()
 
 
-def test_determine_trailing_null_rows():
-    # Arrange
-    data = pd.DataFrame({
-        "a": [1.0, 2.0, np.nan, np.nan],
-        "b": [10.0, np.nan, np.nan, np.nan],
-    })
-
-    # Act
-    result = MissingValuesTransform._determine_trailing_null_rows(data)
-
-    # Assert
-    expected = pd.Series([True, False, False, False])
-    pd.testing.assert_series_equal(result, expected)
-
-
 def test_no_missing_values(sample_dataset: TimeSeriesDataset):
     # Arrange
     sample_dataset.data = sample_dataset.data.iloc[:3]
-    sample_dataset.data = sample_dataset.data.dropna() # pyright: ignore[reportUnknownMemberType]
+    sample_dataset.data = sample_dataset.data.dropna()  # pyright: ignore[reportUnknownMemberType]
     original_data = sample_dataset.data.copy()
     config = MissingValuesTransformConfig(imputation_strategy=ImputationStrategy.MEAN)
     transform = MissingValuesTransform(config)
@@ -209,6 +198,7 @@ def test_all_null_dataset_with_trailing_removal(sample_dataset: TimeSeriesDatase
         imputation_strategy=ImputationStrategy.CONSTANT, fill_value=0.0, no_fill_future_values_features=["radiation"]
     )
     transform = MissingValuesTransform(config)
+    transform.fit(sample_dataset)
 
     # Act & Assert
     # Should raise ValueError when trying to fit on empty dataset after trailing removal
