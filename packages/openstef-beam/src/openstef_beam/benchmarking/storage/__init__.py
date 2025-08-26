@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+"""Storage backends for benchmark results and analysis outputs."""
+
 from openstef_beam.benchmarking.storage.base import BenchmarkStorage, InMemoryBenchmarkStorage
 from openstef_beam.benchmarking.storage.local_storage import LocalBenchmarkStorage
 from openstef_beam.benchmarking.storage.s3_storage import S3BenchmarkStorage

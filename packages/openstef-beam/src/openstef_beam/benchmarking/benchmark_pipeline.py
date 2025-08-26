@@ -2,6 +2,26 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+"""Benchmark pipeline for systematic forecasting model evaluation.
+
+Provides a standardized framework for running comprehensive forecasting benchmarks
+across multiple targets, models, and evaluation metrics. Coordinates backtesting,
+evaluation, and analysis phases while managing parallel execution and result storage.
+
+The benchmark pipeline follows a consistent workflow:
+1. Target acquisition from configurable providers
+2. Model training and backtesting for each target
+3. Evaluation against ground truth with configurable metrics
+4. Analysis and visualization of results
+5. Storage of results for comparison and reporting
+
+Key components:
+- BenchmarkPipeline: Main orchestrator for benchmark execution
+- ForecasterFactory: Factory pattern for creating target-specific models
+- BenchmarkStorage: Pluggable storage backends for results
+- BenchmarkCallback: Extensible event handling for monitoring and customization
+"""
+
 import logging
 from collections.abc import Callable, Sequence
 from functools import partial
@@ -26,6 +46,12 @@ _logger = logging.getLogger(__name__)
 
 
 class BenchmarkContext(BaseConfig):
+    """Context information passed to forecaster factories during benchmark execution.
+
+    Provides runtime context that forecaster factories can use to customize
+    model creation based on the benchmark environment and configuration.
+    """
+
     run_name: str = "default"
 
 
@@ -33,23 +59,70 @@ type ForecasterFactory[T] = Callable[[BenchmarkContext, T], BacktestForecasterMi
 
 
 class BenchmarkPipeline[T: BenchmarkTarget, F]:
-    """Base class for benchmark pipelines.
+    """Orchestrates comprehensive forecasting model benchmarks across multiple targets.
 
-    Benchmark pipelines coordinate running backtests and evaluations for a set of targets
-    provided by a target provider. They establish a standardized workflow that:
+    Provides a standardized framework for systematic evaluation of forecasting models.
+    Coordinates the entire benchmark workflow from data preparation through analysis,
+    ensuring consistent evaluation methodology and result comparability.
 
-    1. Retrieves targets from a target provider, optionally filtered
-    2. For each target:
-       a. Creates a model interface using a provided factory
-       b. Runs a backtest to generate predictions
-       c. Evaluates the predictions against ground truth
-       d. Stores results in a consistent structure
+    Core workflow:
+    1. Target retrieval: Gets targets from configurable providers with optional filtering
+    2. Model creation: Uses factory pattern to create target-specific forecasters
+    3. Backtesting: Generates predictions using historical data with proper validation
+    4. Evaluation: Computes performance metrics against ground truth
+    5. Analysis: Creates visualizations and comparative reports
+    6. Storage: Persists results for future analysis and comparison
 
-    The runner manages parallel execution, logging, and result storage, ensuring
-    consistent behavior across benchmark implementations.
+    Key features:
+    - Parallel execution support for efficient processing of large target sets
+    - Pluggable storage backends (local filesystem, cloud storage, in-memory)
+    - Extensible callback system for monitoring and custom processing
+    - Automatic handling of data dependencies and validation
+    - Consistent error handling and recovery mechanisms
 
-    Subclasses must implement get_metrics_for_target() to specify which metrics to use
-    for evaluation, and may override other methods to customize behavior.
+    Example:
+        Basic benchmark setup and execution:
+
+        >>> from openstef_beam.benchmarking import BenchmarkPipeline
+        >>> from openstef_beam.backtesting import BacktestConfig
+        >>> from openstef_beam.evaluation import EvaluationConfig
+        >>> from openstef_beam.analysis import AnalysisConfig
+        >>> from openstef_beam.evaluation.metric_providers import RMAEProvider, RCRPSProvider
+        >>> from openstef_beam.analysis.visualizations import SummaryTableVisualization
+        >>> from openstef_beam.benchmarking.storage.local_storage import LocalBenchmarkStorage
+        >>> from datetime import timedelta
+        >>> from pathlib import Path
+        >>>
+        >>> # Configure components
+        >>> storage = LocalBenchmarkStorage(base_path=Path("./results"))
+        >>> backtest_config = BacktestConfig(
+        ...     horizon=timedelta(hours=24),
+        ...     window_step=timedelta(days=1)
+        ... )
+        >>> evaluation_config = EvaluationConfig()
+        >>> analysis_config = AnalysisConfig(
+        ...     visualization_providers=[SummaryTableVisualization(name="summary")]
+        ... )
+        >>> # Create benchmark pipeline with target provider
+        >>> pipeline = BenchmarkPipeline(
+        ...     backtest_config=backtest_config,
+        ...     evaluation_config=evaluation_config,
+        ...     analysis_config=analysis_config,
+        ...     storage=storage,
+        ...     target_provider=...  # Your custom provider
+        ... )
+        >>>
+        >>> # Define forecaster factory for target-specific models
+        >>> def create_forecaster(context, target):
+        ...     # Customize model configuration per target
+        ...     return MyForecaster(config=target.get_model_config())
+        >>>
+        >>> # Execute complete benchmark with parallel processing
+        >>> #pipeline.run(
+        >>> #    forecaster_factory=create_forecaster,
+        >>> #    run_name="baseline_comparison",
+        >>> #    n_processes=4
+        >>> #)
     """
 
     def __init__(
@@ -94,8 +167,8 @@ class BenchmarkPipeline[T: BenchmarkTarget, F]:
         4. For each target, creates a model interface and runs backtest and evaluation
 
         Args:
-            model_factory: Factory function that creates a model interface for a target.
-                           This allows customizing the model for each target.
+            forecaster_factory: Factory function that creates a model interface for a target.
+                               This allows customizing the model for each target.
             run_name: Name of the benchmark run, used for logging and result storage.
             filter_args: Optional filter criteria for targets. If provided, only targets
                         matching these criteria will be processed.
@@ -109,7 +182,7 @@ class BenchmarkPipeline[T: BenchmarkTarget, F]:
         if not self.callback_manager.on_benchmark_start(runner=self, targets=cast(list[BenchmarkTarget], targets)):
             return
 
-        _logger.info(f"Running benchmark in parallel with {n_processes} processes")
+        _logger.info("Running benchmark in parallel with %d processes", n_processes)
         run_parallel(
             process_fn=partial(self._run_for_target, context, forecaster_factory),
             items=targets,
@@ -169,7 +242,7 @@ class BenchmarkPipeline[T: BenchmarkTarget, F]:
     def run_backtest_for_target(self, target: T, forecaster: BacktestForecasterMixin):
         """Runs the backtest for a single target and stores predictions."""
         if not self.callback_manager.on_backtest_start(runner=self, target=target):
-            _logger.info("Skipping backtest for target", extra={"name": target.name})
+            _logger.info("Skipping backtest for target", extra={"target_name": target.name})
             return
 
         pipeline = BacktestPipeline(
@@ -193,7 +266,7 @@ class BenchmarkPipeline[T: BenchmarkTarget, F]:
     ) -> None:
         """Runs evaluation for a single target and stores results."""
         if not self.callback_manager.on_evaluation_start(runner=self, target=target):
-            _logger.info("Skipping evaluation for target", extra={"name": target.name})
+            _logger.info("Skipping evaluation for target", extra={"target_name": target.name})
             return
 
         metrics = self.target_provider.get_metrics_for_target(target)
@@ -217,6 +290,13 @@ class BenchmarkPipeline[T: BenchmarkTarget, F]:
         target: T,
         report: EvaluationReport,
     ):
+        """Run analysis pipeline for a single target's evaluation results.
+
+        Args:
+            context: Benchmark execution context containing run metadata.
+            target: Target that was evaluated.
+            report: Evaluation report containing computed metrics.
+        """
         pipeline = AnalysisPipeline(
             config=self.analysis_config,
         )
@@ -279,6 +359,21 @@ class BenchmarkPipeline[T: BenchmarkTarget, F]:
 def read_evaluation_reports[T: BenchmarkTarget](
     targets: Sequence[T], storage: BenchmarkStorage, run_name: RunName, *, strict: bool = True
 ) -> list[tuple[TargetMetadata, EvaluationReport]]:
+    """Load evaluation reports for multiple targets from storage.
+
+    Utility function for retrieving evaluation results from benchmark storage
+    and formatting them for analysis workflows.
+
+    Args:
+        targets: Sequence of benchmark targets to load reports for.
+        storage: Storage backend containing the evaluation outputs.
+        run_name: Name of the benchmark run to load reports from.
+        strict: If True, raises an error if any target's report is missing.
+               If False, skips missing reports.
+
+    Returns:
+        List of tuples containing target metadata and evaluation reports.
+    """
     return [
         (
             TargetMetadata(

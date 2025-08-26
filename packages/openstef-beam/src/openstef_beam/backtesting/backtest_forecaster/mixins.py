@@ -49,14 +49,73 @@ class BacktestForecasterConfig(BaseConfig):
 
 
 class BacktestForecasterMixin:
-    """Mixin defining the interface for forecasting models for backtesting.
+    """Mixin defining the interface for forecasting models in backtesting frameworks.
 
-    Defines the contract for model training and prediction operations.
-    Concrete implementations must provide training and prediction logic.
+    Provides the essential contract for models that can be used in backtesting pipelines.
+    Implementations must handle training on historical data and generating predictions
+    with proper timestamp and availability metadata.
+
+    Key responsibilities:
+    - Train models on historical time series data with proper context windows
+    - Generate probabilistic forecasts across specified quantiles
+    - Handle missing data gracefully and return None when predictions aren't possible
+    - Provide consistent output formatting for downstream evaluation
+
+    Implementation requirements:
+    - Must implement quantiles property to specify which quantiles are predicted
+    - Must implement predict() method for core forecasting logic
+    - Should implement fit() method for model training (optional for some models)
+    - Output predictions must include quantile columns formatted as [quantile_PXX]
+
+    Example:
+        Basic implementation for a simple forecasting model:
+
+        >>> from openstef_beam.backtesting.backtest_forecaster import BacktestForecasterMixin
+        >>> from openstef_core.types import Quantile
+        >>> import pandas as pd
+        >>>
+        >>> class SimpleForecaster(BacktestForecasterMixin):
+        ...     def __init__(self, config):
+        ...         self.config = config
+        ...         self._quantiles = [Quantile(0.1), Quantile(0.5), Quantile(0.9)]
+        ...
+        ...     @property
+        ...     def quantiles(self):
+        ...         return self._quantiles
+        ...
+        ...     def fit(self, data):
+        ...         # Train model on historical data
+        ...         self.model_params = self._extract_patterns(data)
+        ...
+        ...     def predict(self, data):
+        ...         # Generate predictions for the forecast horizon
+        ...         if not self._has_sufficient_data(data):
+        ...             return None
+        ...
+        ...         predictions = self._generate_forecasts(data)
+        ...         return self._format_output(predictions)
+
+    Integration with benchmarking:
+        Forecaster implementations are typically created by factory functions
+        that customize the model for specific targets:
+
+        >>> def create_forecaster(context, target):
+        ...     config = BacktestForecasterConfig(
+        ...         predict_context_length=timedelta(days=7),
+        ...         training_context_length=timedelta(days=365),
+        ...         # ... other config parameters
+        ...     )
+        ...     return SimpleForecaster(config)
+        >>>
+        >>> # Use in benchmark pipeline
+        >>> # benchmark = BenchmarkPipeline(...)
+        >>> # benchmark.run(forecaster_factory=create_forecaster)
 
     Guarantees:
-       - Properly formatted prediction output with timestamp and available_at fields
-       - Consistent error handling patterns
+    - Returns None when prediction cannot be performed reliably
+    - Provides properly formatted prediction output with timestamp metadata
+    - Handles edge cases and missing data gracefully
+    - Maintains consistent error handling patterns across implementations
     """
 
     config: BacktestForecasterConfig

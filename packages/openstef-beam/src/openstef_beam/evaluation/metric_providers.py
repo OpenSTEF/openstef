@@ -35,10 +35,36 @@ from openstef_core.types import Quantile
 class MetricProvider(BaseConfig):
     """Base class for forecast metric computation.
 
-    Handles processing of probabilistic forecasts across multiple quantiles.
-    Subclasses should implement compute_deterministic to provide specific metrics.
+    Provides a standardized interface for computing performance metrics on probabilistic
+    forecasts. Handles processing across multiple quantiles and allows filtering to
+    specific quantiles of interest.
 
-    If quantiles are specified, metrics are computed only for those quantiles.
+    Subclasses implement compute_deterministic() to provide specific metric calculations
+    for individual quantiles. The base class handles the iteration and organization.
+
+    Example:
+        Creating a custom metric provider:
+
+        >>> from openstef_beam.evaluation.metric_providers import MetricProvider
+        >>> from openstef_core.types import Quantile
+        >>> import numpy as np
+        >>>
+        >>> class CustomMaeProvider(MetricProvider):
+        ...     def compute_deterministic(self, y_true, y_pred, quantile):
+        ...         return {"mae": float(np.mean(np.abs(y_true - y_pred)))}
+        >>>
+        >>> # Use with specific quantiles only
+        >>> provider = CustomMaeProvider(quantiles=[Quantile(0.1), Quantile(0.9)])
+        >>>
+        >>> # Or process all available quantiles
+        >>> provider_all = CustomMaeProvider()
+
+    Implementation guide:
+        Subclasses should override compute_deterministic() to return a dictionary
+        mapping metric names to computed values for a single quantile.
+
+        For global metrics that don't depend on individual quantiles, override
+        compute_probabilistic() instead to process all quantiles together.
     """
 
     quantiles: list[Quantile] | None = Field(

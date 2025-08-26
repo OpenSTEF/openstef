@@ -2,6 +2,17 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+"""Target provider interfaces and implementations for benchmark execution.
+
+Target providers are responsible for loading benchmark targets and their associated datasets
+(measurements, predictors, and evaluation configuration). They ensure data consistency,
+temporal alignment, and provide a standardized interface for accessing benchmark data
+across different sources and formats.
+
+The module supports both simple file-based providers and complex database-backed
+implementations through abstract interfaces that guarantee consistent behavior.
+"""
+
 from abc import abstractmethod
 from datetime import timedelta
 from pathlib import Path
@@ -23,6 +34,17 @@ class TargetProviderConfig(BaseConfig):
 
     Path templates support {name} placeholder for target-specific file generation.
     All paths are resolved relative to data_dir.
+
+    Examples:
+        Basic configuration with default templates:
+
+        >>> config = TargetProviderConfig()
+        >>> # Uses default values, can be extended by specific providers
+
+        Custom path configuration:
+
+        >>> config = TargetProviderConfig()
+        >>> # Provider-specific configs inherit from this base
     """
 
 
@@ -32,6 +54,57 @@ class TargetProvider[T: BenchmarkTarget, F](BaseConfig):
     Guarantees consistent access to targets, measurements, and predictor data across
     different benchmark implementations. All returned datasets maintain temporal
     alignment and consistent sampling intervals.
+
+    Examples:
+        Complete custom provider implementation:
+
+        >>> from pathlib import Path
+        >>> from datetime import datetime, timedelta
+        >>> from openstef_beam.benchmarking.models.benchmark_target import BenchmarkTarget
+        >>> from openstef_beam.evaluation.metric_providers import RMAEProvider
+        >>> class EnergyTargetProvider(TargetProvider[BenchmarkTarget, None]):
+        ...     def __init__(self, data_path: Path, region: str):
+        ...         super().__init__()
+        ...         self.data_path = data_path
+        ...         self.region = region
+        ...
+        ...     def get_targets(self, filter_args=None):
+        ...         # Load from database or config files
+        ...         return [
+        ...             BenchmarkTarget(
+        ...                 name=f"building_{i:03d}",
+        ...                 description=f"Energy consumption for building {i}",
+        ...                 group_name=self.region,
+        ...                 latitude=52.0 + i * 0.001,
+        ...                 longitude=4.0 + i * 0.001,
+        ...                 limit=100.0 + i * 10,
+        ...                 benchmark_start=datetime(2024, 1, 1),
+        ...                 benchmark_end=datetime(2024, 3, 1),
+        ...                 train_start=datetime(2022, 1, 1)
+        ...             ) for i in range(1, 11)
+        ...         ]
+        ...
+        ...     def get_measurements_for_target(self, target):
+        ...         # Load actual consumption data from parquet files
+        ...         return VersionedTimeSeriesDataset.read_parquet(
+        ...             self.data_path / f"{target.group_name}/{target.name}_consumption.parquet"
+        ...         )
+        ...
+        ...     def get_predictors_for_target(self, target):
+        ...         # Combine weather, profiles, and building characteristics
+        ...         datasets = [
+        ...             self.load_weather_data(target),
+        ...             self.load_building_profiles(target),
+        ...             self.load_price_data()
+        ...         ]
+        ...         return concat_featurewise(datasets, mode="inner")
+        ...
+        ...     def get_metrics_for_target(self, target):
+        ...         # Target-specific metrics based on building type
+        ...         base_metrics = [RMAEProvider(), RCRPSProvider()]
+        ...         if target.limit > 500:  # Large buildings get additional metrics
+        ...             base_metrics.append(MAPEProvider())
+        ...         return base_metrics
     """
 
     @abstractmethod
@@ -106,6 +179,32 @@ class SimpleTargetProvider[T: BenchmarkTarget, F](TargetProvider[T, F]):
     Implements standardized file loading with consistent path resolution and
     dataset concatenation. Ensures all datasets maintain identical sampling
     intervals and temporal alignment.
+
+    Directory structure expected by SimpleTargetProvider:
+
+    The provider expects a hierarchical directory structure:
+    - Root directory contains shared data files and target definitions
+    - Group subdirectories contain target-specific measurement and weather files
+    - Path templates use {name} placeholder for target-specific file naming
+
+    Examples:
+        Complete provider setup with data loading:
+
+        >>> from pathlib import Path
+        >>> from datetime import timedelta
+        >>> from openstef_beam.evaluation.metric_providers import RMAEProvider, RCRPSProvider
+        >>> provider = SimpleTargetProvider(
+        ...     data_dir=Path("./benchmark_data"),
+        ...     measurements_path_template="demand_{name}.parquet",
+        ...     weather_path_template="weather_{name}.parquet",
+        ...     profiles_path="standard_profiles.parquet",
+        ...     prices_path="energy_prices.parquet",
+        ...     targets_file="energy_targets.yaml",
+        ...     data_sample_interval=timedelta(minutes=15),
+        ...     metrics=[RMAEProvider(), RCRPSProvider()],
+        ...     use_profiles=True,
+        ...     use_prices=True
+        ... )
     """
 
     data_dir: Path = Field(description="Root directory containing all benchmark data files")
@@ -158,14 +257,21 @@ class SimpleTargetProvider[T: BenchmarkTarget, F](TargetProvider[T, F]):
         return self.metrics
 
     def get_measurements_path_for_target(self, target: T) -> Path:
+        """Build file path for target measurements using configured template."""
         return self.data_dir / str(target.group_name) / self.measurements_path_template.format(name=target.name)
 
     def get_measurements_for_target(self, target: T) -> VersionedTimeSeriesDataset:
+        """Load ground truth measurements from target-specific Parquet file."""
         return VersionedTimeSeriesDataset.read_parquet(
             path=self.get_measurements_path_for_target(target),
         )
 
     def get_predictors_for_target(self, target: T) -> VersionedTimeSeriesMixin:
+        """Combine weather, profiles, and prices into aligned predictor dataset.
+
+        Concatenates datasets feature-wise with inner join to ensure temporal alignment.
+        Only includes datasets that are enabled via configuration flags.
+        """
         datasets: list[VersionedTimeSeriesMixin] = [
             self.get_weather_for_target(target),
         ]
@@ -179,19 +285,23 @@ class SimpleTargetProvider[T: BenchmarkTarget, F](TargetProvider[T, F]):
         return concat_featurewise(datasets=datasets, mode="inner")
 
     def get_weather_path_for_target(self, target: T) -> Path:
+        """Build file path for target weather data using configured template."""
         return self.data_dir / str(target.group_name) / self.weather_path_template.format(name=target.name)
 
     def get_weather_for_target(self, target: T) -> VersionedTimeSeriesDataset:
+        """Load weather features from target-specific Parquet file."""
         return VersionedTimeSeriesDataset.read_parquet(
             path=self.get_weather_path_for_target(target),
         )
 
     def get_profiles(self) -> VersionedTimeSeriesDataset:
+        """Load shared energy profiles data from configured Parquet file."""
         return VersionedTimeSeriesDataset.read_parquet(
             path=self.data_dir / self.profiles_path,
         )
 
     def get_prices(self) -> VersionedTimeSeriesDataset:
+        """Load shared energy pricing data from configured Parquet file."""
         return VersionedTimeSeriesDataset.read_parquet(
             path=self.data_dir / self.prices_path,
         )
