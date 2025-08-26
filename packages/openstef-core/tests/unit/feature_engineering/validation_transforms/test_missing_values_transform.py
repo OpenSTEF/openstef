@@ -15,9 +15,14 @@ from openstef_core.feature_engineering.validation_transforms.missing_values_tran
     MissingValuesTransformConfig,
 )
 
+
 @pytest.fixture
 def sample_dataset() -> TimeSeriesDataset:
-    """Create a sample dataset with missing values."""
+    """Create a sample dataset with missing values.
+
+    Returns:
+        TimeSeriesDataset: A sample dataset containing missing values for testing.
+    """
     data = pd.DataFrame(
         {
             "load": [100.0, np.nan, 110.0, 120.0],
@@ -28,69 +33,69 @@ def sample_dataset() -> TimeSeriesDataset:
     )
     return TimeSeriesDataset(data, timedelta(hours=1))
 
+
 @pytest.mark.parametrize(
-    "strategy,expected_load_value,expected_temperature_value, expected_wind_speed_value",
+    ("strategy", "expected_load_value", "expected_temperature_value", "expected_wind_speed_value"),
     [
         pytest.param(ImputationStrategy.MEAN, 110.0, 21.33, 6.33, id="mean_imputation"),
         pytest.param(ImputationStrategy.MEDIAN, 110.0, 21.0, 6.0, id="median_imputation"),
-    ]
+    ],
 )
 def test_basic_imputation_strategies(
-    sample_dataset: TimeSeriesDataset, 
-    strategy: ImputationStrategy, 
-    expected_load_value: float, 
+    sample_dataset: TimeSeriesDataset,
+    strategy: ImputationStrategy,
+    expected_load_value: float,
     expected_temperature_value: float,
-    expected_wind_speed_value: float
+    expected_wind_speed_value: float,
 ):
     # Arrange
     config = MissingValuesTransformConfig(imputation_strategy=strategy)
     transform = MissingValuesTransform(config)
-    
+
     # Act
     transform.fit(sample_dataset)
     result = transform.transform(sample_dataset)
-    
+
     # Assert
-    assert not result.data.isnull().any().any()
+    assert not result.data.isna().any().any()
     assert result.data.loc[result.data.index[1], "load"] == expected_load_value
-    assert abs(result.data.loc[result.data.index[2], "temperature"] - expected_temperature_value) < 0.01 # type: ignore[arg-type]
-    assert abs(result.data.loc[result.data.index[3], "wind_speed"] - expected_wind_speed_value) < 0.01 # type: ignore[arg-type]
+    assert abs(result.data.loc[result.data.index[2], "temperature"] - expected_temperature_value) < 0.01  # type: ignore[arg-type]
+    assert abs(result.data.loc[result.data.index[3], "wind_speed"] - expected_wind_speed_value) < 0.01  # type: ignore[arg-type]
+
 
 def test_constant_imputation(sample_dataset: TimeSeriesDataset):
     # Arrange
-    config = MissingValuesTransformConfig(
-        imputation_strategy=ImputationStrategy.CONSTANT,
-        fill_value=999.0
-    )
+    config = MissingValuesTransformConfig(imputation_strategy=ImputationStrategy.CONSTANT, fill_value=999.0)
     transform = MissingValuesTransform(config)
-    
+
     # Act
     transform.fit(sample_dataset)
     result = transform.transform(sample_dataset)
-    
+
     # Assert
-    assert not result.data.isnull().any().any()
+    assert not result.data.isna().any().any()
     assert result.data.loc[result.data.index[1], "load"] == 999.0
     assert result.data.loc[result.data.index[2], "temperature"] == 999.0
     assert result.data.loc[result.data.index[3], "wind_speed"] == 999.0
+
 
 def test_remove_trailing_null_rows(sample_dataset: TimeSeriesDataset):
     # Arrange
     sample_dataset.data["load"] = [100.0, 110.0, np.nan, np.nan]
     config = MissingValuesTransformConfig(
-        imputation_strategy=ImputationStrategy.MEAN,
-        no_fill_future_values_features=["load"]
+        imputation_strategy=ImputationStrategy.MEAN, no_fill_future_values_features=["load"]
     )
     transform = MissingValuesTransform(config)
-    
+
     # Act
     transform.fit(sample_dataset)
     result = transform.transform(sample_dataset)
-    
+
     # Assert
     assert len(result.data) == 2
-    assert not result.data["load"].isnull().any()
+    assert not result.data["load"].isna().any()
     assert result.data["load"].tolist() == [100.0, 110.0]
+
 
 def test_remove_trailing_nulls_multiple_features(sample_dataset: TimeSeriesDataset):
     # Arrange
@@ -98,35 +103,35 @@ def test_remove_trailing_nulls_multiple_features(sample_dataset: TimeSeriesDatas
     sample_dataset.data["price"] = [10.0, np.nan, np.nan]
     sample_dataset.data["load"] = [100.0, 110.0, np.nan]
     config = MissingValuesTransformConfig(
-        imputation_strategy=ImputationStrategy.MEAN,
-        no_fill_future_values_features=["load", "price"]
+        imputation_strategy=ImputationStrategy.MEAN, no_fill_future_values_features=["load", "price"]
     )
     transform = MissingValuesTransform(config)
-    
+
     # Act
     transform.fit(sample_dataset)
     result = transform.transform(sample_dataset)
-    
+
     # Assert
     assert len(result.data) == 1  # Only first row remains
     assert result.data["load"].iloc[0] == 100.0
     assert result.data["price"].iloc[0] == 10.0
 
+
 def test_no_trailing_nulls_removal_when_feature_not_in_data(sample_dataset: TimeSeriesDataset):
     # Arrange
     config = MissingValuesTransformConfig(
-        imputation_strategy=ImputationStrategy.MEAN,
-        no_fill_future_values_features=["nonexistent_feature"]
+        imputation_strategy=ImputationStrategy.MEAN, no_fill_future_values_features=["nonexistent_feature"]
     )
     transform = MissingValuesTransform(config)
-    
+
     # Act
     transform.fit(sample_dataset)
     result = transform.transform(sample_dataset)
-    
+
     # Assert
     assert len(result.data) == 4  # No rows removed
-    assert not result.data.isnull().any().any()  # All values imputed
+    assert not result.data.isna().any().any()  # All values imputed
+
 
 def test_empty_feature_removal(sample_dataset: TimeSeriesDataset):
     # Arrange
@@ -134,15 +139,16 @@ def test_empty_feature_removal(sample_dataset: TimeSeriesDataset):
     sample_dataset.data["empty_feature"] = [np.nan, np.nan, np.nan]
     config = MissingValuesTransformConfig(imputation_strategy=ImputationStrategy.MEAN)
     transform = MissingValuesTransform(config)
-    
+
     # Act
     transform.fit(sample_dataset)
     result = transform.transform(sample_dataset)
-    
+
     # Assert
     assert "empty_feature" not in result.data.columns
     assert list(result.data.columns) == ["load", "temperature", "wind_speed"]
-    assert not result.data.isnull().any().any()
+    assert not result.data.isna().any().any()
+
 
 def test_determine_trailing_null_rows():
     # Arrange
@@ -150,13 +156,14 @@ def test_determine_trailing_null_rows():
         "a": [1.0, 2.0, np.nan, np.nan],
         "b": [10.0, np.nan, np.nan, np.nan],
     })
-    
+
     # Act
     result = MissingValuesTransform._determine_trailing_null_rows(data)
-    
+
     # Assert
     expected = pd.Series([True, False, False, False])
     pd.testing.assert_series_equal(result, expected)
+
 
 def test_no_missing_values(sample_dataset: TimeSeriesDataset):
     # Arrange
@@ -165,13 +172,14 @@ def test_no_missing_values(sample_dataset: TimeSeriesDataset):
     original_data = sample_dataset.data.copy()
     config = MissingValuesTransformConfig(imputation_strategy=ImputationStrategy.MEAN)
     transform = MissingValuesTransform(config)
-    
+
     # Act
     transform.fit(sample_dataset)
     result = transform.transform(sample_dataset)
-    
+
     # Assert
     pd.testing.assert_frame_equal(result.data, original_data)
+
 
 def test_custom_missing_value_placeholder(sample_dataset: TimeSeriesDataset):
     # Arrange
@@ -179,20 +187,18 @@ def test_custom_missing_value_placeholder(sample_dataset: TimeSeriesDataset):
     sample_dataset.data["load"] = [100.0, -999.0, 120.0]
     sample_dataset.data["temperature"] = [20.0, 21.0, -999.0]
     sample_dataset.data["wind_speed"] = [5.0, 6.0, 7.0]
-    config = MissingValuesTransformConfig(
-        missing_value=-999.0,
-        imputation_strategy=ImputationStrategy.MEAN
-    )
+    config = MissingValuesTransformConfig(missing_value=-999.0, imputation_strategy=ImputationStrategy.MEAN)
     transform = MissingValuesTransform(config)
-    
+
     # Act
     transform.fit(sample_dataset)
     result = transform.transform(sample_dataset)
-    
+
     # Assert
     assert not (result.data == -999.0).any().any()
-    assert result.data.loc[result.data.index[1], "load"] == 110.0 
-    assert result.data.loc[result.data.index[2], "temperature"] == 20.5 
+    assert result.data.loc[result.data.index[1], "load"] == 110.0
+    assert result.data.loc[result.data.index[2], "temperature"] == 20.5
+
 
 def test_all_null_dataset_with_trailing_removal(sample_dataset: TimeSeriesDataset):
     # Arrange
@@ -200,12 +206,10 @@ def test_all_null_dataset_with_trailing_removal(sample_dataset: TimeSeriesDatase
     sample_dataset.data["load"] = [np.nan, np.nan, np.nan]
     sample_dataset.data["temperature"] = [20.0, 21.0, 22.0]
     config = MissingValuesTransformConfig(
-        imputation_strategy=ImputationStrategy.CONSTANT,
-        fill_value=0.0,
-        no_fill_future_values_features=["load"]
+        imputation_strategy=ImputationStrategy.CONSTANT, fill_value=0.0, no_fill_future_values_features=["load"]
     )
     transform = MissingValuesTransform(config)
-    
+
     # Act & Assert
     # Should raise ValueError when trying to fit on empty dataset after trailing removal
     with pytest.raises(ValueError, match="Found array with 0 sample"):
