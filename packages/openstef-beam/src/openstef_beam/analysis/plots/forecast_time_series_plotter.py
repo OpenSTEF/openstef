@@ -2,6 +2,12 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+"""Time series plotting for forecast data visualization.
+
+This module provides comprehensive time series plotting capabilities for comparing
+forecasts, measurements, and uncertainty quantiles across multiple models.
+"""
+
 from typing import Any, ClassVar, TypedDict, cast
 
 import numpy as np
@@ -42,7 +48,48 @@ class BandData(TypedDict):
 
 
 class ForecastTimeSeriesPlotter:
-    """A class for plotting time series data for measurements, forecasts and quantiles of multiple models."""
+    """Creates interactive time series charts comparing forecasts, measurements, and uncertainty bands.
+
+    This plotter visualizes forecast performance over time by overlaying multiple models'
+    predictions, actual measurements, and uncertainty quantiles on a single chart. The
+    resulting interactive plots help answer questions like:
+
+    - How do different models' forecasts compare to actual values over time?
+    - Which model provides the most accurate short-term vs long-term predictions?
+    - How well do uncertainty bands capture actual forecast errors?
+    - Are there seasonal or temporal patterns in model performance?
+
+    The plots include:
+    - Line charts for measurements (actual values) and model forecasts
+    - Shaded confidence bands showing forecast uncertainty (quantiles)
+    - Color-coded models for easy visual comparison
+    - Interactive hover information and zooming capabilities
+
+    Example:
+        Basic usage comparing forecast to measurements:
+
+        >>> from openstef_core.datasets import TimeSeriesDataset
+        >>> import pandas as pd
+        >>> from datetime import timedelta
+        >>> # Create sample data
+        >>> dates = pd.date_range('2024-01-01', periods=10, freq='h')
+        >>> measurements = TimeSeriesDataset(
+        ...     data=pd.DataFrame({'load': range(10)}, index=dates),
+        ...     sample_interval=timedelta(hours=1)
+        ... )
+        >>> forecast_data = TimeSeriesDataset(
+        ...     data=pd.DataFrame({'load': range(1, 11)}, index=dates),
+        ...     sample_interval=timedelta(hours=1)
+        ... )
+
+        >>> # Create and configure plotter
+        >>> plotter = ForecastTimeSeriesPlotter()
+        >>> _ = plotter.add_measurements(measurements)
+        >>> _ = plotter.add_model("XGBoost", forecast=forecast_data)
+        >>> fig = plotter.plot(title="Energy Forecast Comparison")
+        >>> type(fig).__name__
+        'Figure'
+    """
 
     MEDIAN_QUANTILE: ClassVar[float] = 50.0
 
@@ -76,6 +123,9 @@ class ForecastTimeSeriesPlotter:
 
         Returns:
             ForecastTimeSeriesPlotter: The current instance for method chaining.
+
+        Raises:
+            ValueError: If measurements dataset contains more than one feature/column.
         """
         if len(measurements.feature_names) > 1:
             msg = "Measurements dataset must contain exactly one feature/column."
@@ -101,6 +151,10 @@ class ForecastTimeSeriesPlotter:
 
         Returns:
             ForecastTimeSeriesPlotter: The current instance for method chaining.
+
+        Raises:
+            ValueError: If neither forecast nor quantiles are provided, or if quantile
+                column names don't follow the expected format.
         """
         if forecast is None and quantiles is None:
             msg = "At least one of forecast or quantiles must be provided."
@@ -205,9 +259,6 @@ class ForecastTimeSeriesPlotter:
             upper_quantile (float): The percentile value of the upper quantile.
             model_name (str): The name of the model for which the quantile band is being added.
             model_index (int): The index of the model in the models_data list.
-
-        Returns:
-            None: The figure is modified in place.
         """
         # Create polygon shape for the quantile band in counterclockwise order
         lower_quantile_index_list = lower_quantile_data.index.to_list()
@@ -265,7 +316,11 @@ class ForecastTimeSeriesPlotter:
         )
 
     def _prepare_quantile_bands(self) -> list[BandData]:
-        """Prepare quantile band data for plotting."""
+        """Prepare quantile band data for plotting.
+
+        Returns:
+            List of BandData dictionaries with quantile band information.
+        """
         bands: list[BandData] = []
         for model_index, model_data in enumerate(self.models_data):
             if model_data["quantiles"] is None:
@@ -298,7 +353,11 @@ class ForecastTimeSeriesPlotter:
         return bands
 
     def _prepare_forecast_lines(self) -> list[LineData]:
-        """Prepare forecast line data for plotting."""
+        """Prepare forecast line data for plotting.
+
+        Returns:
+            List of LineData dictionaries with forecast line information.
+        """
         lines: list[LineData] = []
         for model_index, model_data in enumerate(self.models_data):
             model_name = model_data["model_name"]
@@ -316,7 +375,11 @@ class ForecastTimeSeriesPlotter:
         return lines
 
     def _prepare_quantile_50th_lines(self) -> list[LineData]:
-        """Prepare 50th quantile line data for plotting (only when no forecast is provided)."""
+        """Prepare 50th quantile line data for plotting (only when no forecast is provided).
+
+        Returns:
+            List of LineData dictionaries with 50th quantile line information.
+        """
         lines: list[LineData] = []
         for model_index, model_data in enumerate(self.models_data):
             model_name = model_data["model_name"]
@@ -398,7 +461,8 @@ class ForecastTimeSeriesPlotter:
                 annotation_position="top right",
             )
 
-    def _configure_figure_layout(self, figure: go.Figure, title: str) -> None:
+    @staticmethod
+    def _configure_figure_layout(figure: go.Figure, title: str) -> None:
         """Configure the figure layout and styling."""
         figure.update_layout(  # type: ignore[reportUnknownMemberType]
             title=title,
@@ -416,6 +480,9 @@ class ForecastTimeSeriesPlotter:
 
         Returns:
             plotly.graph_objects.Figure: The time series plot.
+
+        Raises:
+            ValueError: If no data has been added to the plotter.
         """
         if not self.models_data and self.measurements is None:
             msg = "No data has been added. Use add_measurements or add_model first."
@@ -441,7 +508,7 @@ class ForecastTimeSeriesPlotter:
 
         # Add limits and configure layout
         self._add_limits_to_figure(figure)
-        self._configure_figure_layout(figure, title)
+        ForecastTimeSeriesPlotter._configure_figure_layout(figure, title)
 
         return figure
 

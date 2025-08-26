@@ -2,6 +2,12 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+"""Precision-recall curve visualization provider.
+
+This module provides visualization for precision-recall curves, useful for
+evaluating binary classification performance at different threshold levels.
+"""
+
 from openstef_beam.analysis.models import AnalysisAggregation, RunName, TargetMetadata, VisualizationOutput
 from openstef_beam.analysis.plots import PrecisionRecallCurvePlotter
 from openstef_beam.analysis.visualizations.base import ReportTuple, VisualizationProvider
@@ -10,12 +16,52 @@ from openstef_core.types import Quantile
 
 
 class PrecisionRecallCurveVisualization(VisualizationProvider):
-    """Visualization for precision-recall curves across different aggregation levels."""
+    """Creates precision-recall curves for evaluating binary classification performance.
+
+    Displays the classic precision-recall trade-off as a curve where each point represents
+    performance at a different probability threshold. The closer the curve to the top-right
+    corner, the better the model performs across all thresholds.
+
+    Two evaluation modes:
+    - Standard: Traditional precision/recall based on binary classification accuracy
+    - Effective: Specialized for congestion management, evaluating whether forecasts
+      provide actionable insights for grid operators (correct direction + sufficient magnitude)
+
+    What you'll see:
+    - Curve plotting precision (Y-axis) vs recall (X-axis)
+    - Each point represents a different probability threshold
+    - Area under curve (AUC-PR) as overall performance metric
+    - Multiple curves when comparing models or targets
+    - Reference lines showing random classifier performance
+
+    Interpretation guide:
+    - High precision: Few false alarms when predicting events
+    - High recall: Catches most actual events that occur
+    - Effective mode: Focuses on operationally useful predictions for grid management
+
+    Example:
+        >>> from openstef_beam.analysis import AnalysisConfig
+        >>> from openstef_beam.analysis.visualizations import PrecisionRecallCurveVisualization
+        >>>
+        >>> analysis_config = AnalysisConfig(
+        ...     visualization_providers=[
+        ...         PrecisionRecallCurveVisualization(
+        ...             name="precision_recall",
+        ...             effective_precision_recall=True,  # For congestion management
+        ...         ),
+        ...     ]
+        ... )
+    """
 
     effective_precision_recall: bool = False
 
     @property
     def supported_aggregations(self) -> set[AnalysisAggregation]:
+        """Return the set of aggregation types supported by this provider.
+
+        Returns:
+            Set of supported AnalysisAggregation values.
+        """
         return {
             AnalysisAggregation.NONE,
             AnalysisAggregation.RUN_AND_NONE,
@@ -80,6 +126,15 @@ class PrecisionRecallCurveVisualization(VisualizationProvider):
         report: EvaluationSubsetReport,
         metadata: TargetMetadata,
     ) -> VisualizationOutput:
+        """Create precision-recall curve for a single target from a single run.
+
+        Args:
+            report: Evaluation report containing precision and recall metrics.
+            metadata: Target metadata with run and target information.
+
+        Returns:
+            Visualization output with precision-recall curve.
+        """
         plotter = PrecisionRecallCurvePlotter()
         precision_values, recall_values, quantiles = self._extract_precision_recall_values(report)
 
@@ -96,6 +151,14 @@ class PrecisionRecallCurveVisualization(VisualizationProvider):
         return VisualizationOutput(name=self.name, figure=figure)
 
     def create_by_run_and_none(self, reports: dict[RunName, list[ReportTuple]]) -> VisualizationOutput:
+        """Create precision-recall curves comparing different model runs.
+
+        Args:
+            reports: Dictionary mapping run names to their report lists.
+
+        Returns:
+            Visualization output with multiple precision-recall curves.
+        """
         plotter = PrecisionRecallCurvePlotter()
 
         # Get the first run name for the title (since we're aggregating by run)
@@ -121,6 +184,14 @@ class PrecisionRecallCurveVisualization(VisualizationProvider):
         self,
         reports: list[ReportTuple],
     ) -> VisualizationOutput:
+        """Create precision-recall curves comparing different targets.
+
+        Args:
+            reports: List of (metadata, report) tuples for each target.
+
+        Returns:
+            Visualization output with precision-recall curves for each target.
+        """
         plotter = PrecisionRecallCurvePlotter()
 
         # Get the run name from the first target metadata for the title

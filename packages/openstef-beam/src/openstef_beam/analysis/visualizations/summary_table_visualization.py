@@ -27,14 +27,45 @@ class MetricAggregation(NamedTuple):
 
 
 class SummaryTableVisualization(VisualizationProvider):
-    """Visualization for displaying metrics in summary tables across different aggregation levels.
+    """Creates comprehensive HTML tables summarizing evaluation metrics.
 
-    Provides tabular representations of evaluation metrics with support for
-    single values, aggregated statistics, and multi-dimensional comparisons.
+    Generates sortable HTML tables presenting evaluation metrics organized by quantiles,
+    targets, and model runs. Tables automatically aggregate statistics and provide
+    formatted overviews for reports and documentation.
+
+    What you'll see:
+    - Sortable columns showing metrics with mean, min, max, and median aggregations
+    - Color-coded formatting for easy comparison
+    - Automatic organization by quantiles (when applicable) and targets
+    - Export-ready HTML format
+
+    Aggregation behavior:
+    - Single target: Simple metric table with quantile breakdown
+    - Multiple targets: Comparative statistics across targets
+    - Multiple runs: Model comparison with aggregated performance
+    - Target groups: Hierarchical organization by categories
+
+    Example:
+        >>> from openstef_beam.analysis import AnalysisConfig
+        >>> from openstef_beam.analysis.visualizations import SummaryTableVisualization
+        >>> analysis_config = AnalysisConfig(
+        ...     visualization_providers=[
+        ...         SummaryTableVisualization(name="performance_summary"),
+        ...     ]
+        ... )
+        >>> # Tables will show all available metrics organized by:
+        >>> # - Quantile levels (0.1, 0.5, 0.9, global)
+        >>> # - Performance metrics (MAE, RMSE, rCRPS, etc.)
+        >>> # - Target groupings and model runs
     """
 
     @property
     def supported_aggregations(self) -> set[AnalysisAggregation]:
+        """Return the set of aggregation types supported by this provider.
+
+        Returns:
+            Set of supported AnalysisAggregation values.
+        """
         return {
             AnalysisAggregation.NONE,
             AnalysisAggregation.RUN_AND_NONE,
@@ -44,7 +75,8 @@ class SummaryTableVisualization(VisualizationProvider):
             AnalysisAggregation.RUN_AND_TARGET,
         }
 
-    def _aggregate_metric_values(self, values: list[float]) -> MetricAggregation:
+    @staticmethod
+    def _aggregate_metric_values(values: list[float]) -> MetricAggregation:
         """Compute statistical aggregations for a collection of metric values.
 
         Args:
@@ -64,7 +96,8 @@ class SummaryTableVisualization(VisualizationProvider):
             median=float(series.median()),
         )
 
-    def _format_quantile(self, quantile: QuantileOrGlobal) -> str:
+    @staticmethod
+    def _format_quantile(quantile: QuantileOrGlobal) -> str:
         """Format quantile values for display by removing trailing zeros.
 
         Args:
@@ -100,9 +133,8 @@ class SummaryTableVisualization(VisualizationProvider):
                     })
         return rows
 
-    def _create_sorted_dataframe(
-        self, rows: list[dict[str, Any]], columns: list[str], sort_by: list[str]
-    ) -> pd.DataFrame:
+    @staticmethod
+    def _create_sorted_dataframe(rows: list[dict[str, Any]], columns: list[str], sort_by: list[str]) -> pd.DataFrame:
         """Create and sort a DataFrame from metric rows.
 
         Args:
@@ -133,7 +165,7 @@ class SummaryTableVisualization(VisualizationProvider):
             VisualizationOutput containing the generated HTML table
         """
         rows = self._extract_metrics_from_report(report)
-        dataframe = self._create_sorted_dataframe(
+        dataframe = SummaryTableVisualization._create_sorted_dataframe(
             rows=rows, columns=["Quantile|Global", "Metric", "Value"], sort_by=["Metric", "Quantile|Global"]
         )
 
@@ -160,7 +192,7 @@ class SummaryTableVisualization(VisualizationProvider):
                 row["Target"] = metadata.name
                 rows.append(row)
 
-        dataframe = self._create_sorted_dataframe(
+        dataframe = SummaryTableVisualization._create_sorted_dataframe(
             rows=rows,
             columns=["Target", "Quantile|Global", "Metric", "Value"],
             sort_by=["Metric", "Quantile|Global", "Target"],
@@ -202,7 +234,7 @@ class SummaryTableVisualization(VisualizationProvider):
                 "Median": agg.median,
             })
 
-        dataframe = self._create_sorted_dataframe(
+        dataframe = SummaryTableVisualization._create_sorted_dataframe(
             rows=rows,
             columns=["Group", "Quantile|Global", "Metric", "Mean", "Min", "Max", "Median"],
             sort_by=["Metric", "Quantile|Global", "Group"],
@@ -230,7 +262,7 @@ class SummaryTableVisualization(VisualizationProvider):
                     row["Run"] = run_name
                     rows.append(row)
 
-        dataframe = self._create_sorted_dataframe(
+        dataframe = SummaryTableVisualization._create_sorted_dataframe(
             rows=rows,
             columns=["Target", "Quantile|Global", "Metric", "Run", "Value"],
             sort_by=["Metric", "Quantile|Global", "Target", "Run"],
@@ -243,6 +275,14 @@ class SummaryTableVisualization(VisualizationProvider):
         self,
         reports: dict[RunName, list[ReportTuple]],
     ) -> VisualizationOutput:
+        """Create summary table comparing different runs on the same targets.
+
+        Args:
+            reports: Dictionary mapping run names to their report lists.
+
+        Returns:
+            Visualization output with summary table comparing runs.
+        """
         return self.create_by_run_and_none(
             reports=reports,
         )

@@ -2,6 +2,13 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+"""Base classes for analysis visualization providers.
+
+This module provides the foundation for creating visualization providers that
+transform evaluation reports into interactive plots and charts. The base classes
+define the interface and common functionality for all visualization providers.
+"""
+
 from abc import abstractmethod
 
 from pydantic import Field
@@ -201,7 +208,11 @@ class VisualizationProvider(BaseConfig):
         raise NotImplementedError
 
     def _validate_aggregation_support(self, aggregation: AnalysisAggregation) -> None:
-        """Validate that the aggregation type is supported by this provider."""
+        """Validate that the aggregation type is supported by this provider.
+
+        Raises:
+            ValueError: If aggregation is not supported by this provider.
+        """
         if aggregation not in self.supported_aggregations:
             msg = f"Aggregation {aggregation} is not supported by this provider."
             raise ValueError(msg)
@@ -210,7 +221,11 @@ class VisualizationProvider(BaseConfig):
 def _validate_same_run_names(
     reports: list[ReportTuple],
 ) -> None:
-    """Validate that all reports have the same run name."""
+    """Validate that all reports have the same run name.
+
+    Raises:
+        ValueError: If reports have different run names.
+    """
     run_names = [metadata.run_name for metadata, _ in reports]
     if not is_all_same(run_names):
         raise ValueError("All reports must have the same run name.")
@@ -219,7 +234,11 @@ def _validate_same_run_names(
 def _validate_same_group_names(
     reports: list[ReportTuple],
 ) -> None:
-    """Validate that all reports have the same group name."""
+    """Validate that all reports have the same group name.
+
+    Raises:
+        ValueError: If reports have different group names.
+    """
     group_names = [metadata.group_name for metadata, _ in reports]
     if not is_all_same(group_names):
         raise ValueError("All reports must have the same group.")

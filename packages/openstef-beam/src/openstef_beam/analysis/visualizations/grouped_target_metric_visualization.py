@@ -2,6 +2,13 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+"""Grouped target metric visualization provider.
+
+This module provides visualization for comparing performance metrics across
+different targets, grouped by various criteria like target groups, model runs,
+or combinations thereof.
+"""
+
 from openstef_beam.analysis.models import AnalysisAggregation, GroupName, RunName, VisualizationOutput
 from openstef_beam.analysis.plots import GroupedTargetMetricPlotter
 from openstef_beam.analysis.visualizations.base import ReportTuple, VisualizationProvider
@@ -11,7 +18,54 @@ from openstef_core.types import Quantile
 
 
 class GroupedTargetMetricVisualization(VisualizationProvider):
-    """Visualization for grouped target metrics across different aggregation levels."""
+    """Creates bar charts and box plots for comparing metrics across targets and groups.
+
+    Generates interactive charts comparing performance metrics across different targets,
+    model runs, or target groups. Supports deterministic metrics (MAE, RMSE) and
+    quantile-based metrics (quantile losses) for comprehensive performance comparisons.
+
+    Key features:
+    - Bar charts for individual target comparisons
+    - Box plots for grouped target analysis
+    - Support for selector-based metrics (e.g., show metric at best-performing quantile)
+    - Color-coded grouping for easy identification
+    - Interactive tooltips with detailed metric values
+
+    Use cases:
+    - Identify which targets are hardest to predict
+    - Compare model performance across target categories
+    - Analyze performance variations within target groups
+    - Evaluate model consistency across different scenarios
+
+    Example:
+        Comparing RMAE across targets for different models:
+
+        >>> from openstef_beam.analysis import AnalysisConfig
+        >>> from openstef_beam.analysis.visualizations import GroupedTargetMetricVisualization
+        >>> from openstef_core.types import Quantile
+        >>>
+        >>> analysis_config = AnalysisConfig(
+        ...     visualization_providers=[
+        ...         # Compare median forecast accuracy
+        ...         GroupedTargetMetricVisualization(
+        ...             name="rmae_comparison",
+        ...             metric="rMAE",
+        ...             quantile=Quantile(0.5),
+        ...         ),
+        ...         # Compare overall probabilistic performance
+        ...         GroupedTargetMetricVisualization(
+        ...             name="rcrps_comparison",
+        ...             metric="rCRPS",  # Global metric, no quantile needed
+        ...         ),
+        ...         # Show metric at best-performing quantile
+        ...         GroupedTargetMetricVisualization(
+        ...             name="adaptive_accuracy",
+        ...             metric="rMAE",
+        ...             selector_metric="rCRPS",  # Find quantile with best rCRPS
+        ...         ),
+        ...     ]
+        ... )
+    """
 
     metric: str
     quantile: Quantile | None = None
@@ -19,6 +73,11 @@ class GroupedTargetMetricVisualization(VisualizationProvider):
 
     @property
     def supported_aggregations(self) -> set[AnalysisAggregation]:
+        """Return the set of aggregation types supported by this provider.
+
+        Returns:
+            Set of supported AnalysisAggregation values.
+        """
         return {
             AnalysisAggregation.TARGET,
             AnalysisAggregation.GROUP,
@@ -28,18 +87,30 @@ class GroupedTargetMetricVisualization(VisualizationProvider):
         }
 
     def _is_selector_metric(self) -> bool:
-        """Check if this is a selector-based metric."""
+        """Check if this is a selector-based metric.
+
+        Returns:
+            True if this uses a selector metric, False otherwise.
+        """
         return self.selector_metric is not None
 
     def _get_metric_name(self) -> str:
-        """Get the metric name to display."""
+        """Get the metric name to display.
+
+        Returns:
+            The name of the metric to display.
+        """
         return self.metric
 
     def _find_best_quantile_for_selector(
         self,
         report: EvaluationSubsetReport,
     ) -> QuantileOrGlobal | None:
-        """Find the quantile with the best (highest) value for the selector metric."""
+        """Find the quantile with the best (highest) value for the selector metric.
+
+        Returns:
+            The quantile with the highest selector metric value, or None if not found.
+        """
         if not self._is_selector_metric() or self.selector_metric is None:
             return None
 
@@ -64,7 +135,11 @@ class GroupedTargetMetricVisualization(VisualizationProvider):
         self,
         report: EvaluationSubsetReport,
     ) -> float | None:
-        """Extract metric value from evaluation report."""
+        """Extract metric value from evaluation report.
+
+        Returns:
+            The metric value for the specified quantile/selector, or None if not found.
+        """
         global_metric = report.get_global_metric()
         if global_metric is None:
             return None
@@ -85,7 +160,11 @@ class GroupedTargetMetricVisualization(VisualizationProvider):
         return global_metric.metrics.get("global", {}).get(self.metric)
 
     def _collect_target_metrics(self, reports: list[ReportTuple]) -> tuple[list[str], list[float]]:
-        """Collect target names and their corresponding metric values."""
+        """Collect target names and their corresponding metric values.
+
+        Returns:
+            Tuple of (target_names, metric_values) lists.
+        """
         targets: list[str] = []
         metric_values: list[float] = []
 
@@ -98,7 +177,11 @@ class GroupedTargetMetricVisualization(VisualizationProvider):
         return targets, metric_values
 
     def _create_plot_title(self, suffix: str) -> str:
-        """Create a formatted title for the plot."""
+        """Create a formatted title for the plot.
+
+        Returns:
+            Formatted plot title with metric and suffix information.
+        """
         if self._is_selector_metric() and self.selector_metric is not None:
             base_title = f"{self.metric} (best {self.selector_metric} quantile)"
         elif self.quantile is not None:
@@ -107,12 +190,16 @@ class GroupedTargetMetricVisualization(VisualizationProvider):
             base_title = self.metric
         return f"{base_title} {suffix}"
 
+    @staticmethod
     def _create_unique_target_identifiers(
-        self,
         targets: list[str],
         group_name: GroupName,
     ) -> list[str]:
-        """Create unique target identifiers that include group information."""
+        """Create unique target identifiers that include group information.
+
+        Returns:
+            List of unique target identifiers prefixed with group name.
+        """
         return [f"({group_name}) {target_name}" for target_name in targets]
 
     def _process_reports_and_add_to_plotter(
@@ -144,6 +231,17 @@ class GroupedTargetMetricVisualization(VisualizationProvider):
         )
 
     def create_by_target(self, reports: list[ReportTuple]) -> VisualizationOutput:
+        """Create visualization comparing metric values across different targets.
+
+        Args:
+            reports: List of (metadata, report) tuples for each target.
+
+        Returns:
+            Visualization output showing target comparison.
+
+        Raises:
+            ValueError: If no valid metric data is found.
+        """
         targets, _metric_values = self._collect_target_metrics(reports)
 
         if not targets:
@@ -166,6 +264,17 @@ class GroupedTargetMetricVisualization(VisualizationProvider):
         self,
         reports: dict[RunName, list[ReportTuple]],
     ) -> VisualizationOutput:
+        """Create visualization comparing different model runs.
+
+        Args:
+            reports: Dictionary mapping run names to their report lists.
+
+        Returns:
+            Visualization output showing run comparison.
+
+        Raises:
+            ValueError: If no valid metric data is found.
+        """
         plotter = GroupedTargetMetricPlotter()
 
         for run_name, run_reports in reports.items():
@@ -190,6 +299,14 @@ class GroupedTargetMetricVisualization(VisualizationProvider):
         self,
         reports: dict[RunName, list[ReportTuple]],
     ) -> VisualizationOutput:
+        """Create visualization comparing different runs on the same targets.
+
+        Args:
+            reports: Dictionary mapping run names to their report lists.
+
+        Returns:
+            Visualization output showing run comparison on targets.
+        """
         return self.create_by_run_and_none(
             reports=reports,
         )
@@ -198,6 +315,17 @@ class GroupedTargetMetricVisualization(VisualizationProvider):
         self,
         reports: dict[tuple[RunName, GroupName], list[ReportTuple]],
     ) -> VisualizationOutput:
+        """Create visualization comparing runs across target groups.
+
+        Args:
+            reports: Dictionary mapping (run_name, group_name) to report lists.
+
+        Returns:
+            Visualization output showing run and group comparison.
+
+        Raises:
+            ValueError: If no valid metric data is found.
+        """
         plotter = GroupedTargetMetricPlotter()
         target_to_group_map: dict[str, GroupName] = {}
 
@@ -230,6 +358,17 @@ class GroupedTargetMetricVisualization(VisualizationProvider):
         self,
         reports: dict[GroupName, list[ReportTuple]],
     ) -> VisualizationOutput:
+        """Create visualization comparing different target groups.
+
+        Args:
+            reports: Dictionary mapping group names to their report lists.
+
+        Returns:
+            Visualization output showing group comparison.
+
+        Raises:
+            ValueError: If no valid metric data is found.
+        """
         plotter = GroupedTargetMetricPlotter()
         target_to_group_map: dict[str, GroupName] = {}
 

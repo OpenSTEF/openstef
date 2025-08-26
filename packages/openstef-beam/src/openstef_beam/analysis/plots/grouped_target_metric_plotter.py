@@ -2,15 +2,61 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+"""Plotting utilities for grouped target metrics visualization.
+
+This module provides plotting capabilities for comparing metrics across
+multiple targets and models with optional grouping support.
+"""
+
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
 
 class GroupedTargetMetricPlotter:
-    """Class to plot metrics across different targets with support for grouping."""
+    """Creates bar charts and box plots comparing model metrics across multiple targets.
+
+    This plotter visualizes how different models perform across various forecasting
+    targets, making it easy to identify which models work best for specific targets
+    or target groups. The resulting charts help answer questions like:
+
+    - Which model has the lowest error for residential vs commercial targets?
+    - How consistent is model performance across similar target types?
+    - Are there target-specific patterns in model accuracy?
+
+    The plotter can create either grouped bar charts (when no target groups are defined)
+    or box plots (when targets are grouped by type/category), providing flexibility
+    for different analysis needs.
+
+    Example:
+        Basic usage comparing RMSE across targets:
+
+        >>> plotter = GroupedTargetMetricPlotter()
+        >>> _ = plotter.add_model("XGBoost",
+        ...                       targets=["target_A", "target_B", "target_C"],
+        ...                       metric_values=[0.12, 0.15, 0.18])
+        >>> _ = plotter.add_model("Random Forest",
+        ...                       targets=["target_A", "target_B", "target_C"],
+        ...                       metric_values=[0.14, 0.13, 0.20])
+        >>> fig = plotter.plot(title="RMSE by Target", metric_name="RMSE")
+        >>> type(fig).__name__
+        'Figure'
+
+        With target grouping:
+
+        >>> plotter2 = GroupedTargetMetricPlotter()
+        >>> _ = plotter2.add_model("XGBoost",
+        ...                        targets=["target_A", "target_B"],
+        ...                        metric_values=[0.12, 0.15])
+        >>> _ = plotter2.set_target_groups({"target_A": "Residential",
+        ...                                 "target_B": "Commercial"})
+        >>> fig2 = plotter2.plot(title="RMSE by Target Group", metric_name="RMSE")
+        >>> type(fig2).__name__
+        'Figure'
+    """
 
     def __init__(self):
+        """Initialize the plotter with empty data containers."""
         # Models data contains the model name, targets, and metric values
         self.models_data: list[dict[str, str | list[str] | list[float]]] = []
         # Optional mapping from target to target group
@@ -31,6 +77,9 @@ class GroupedTargetMetricPlotter:
 
         Returns:
             GroupedTargetMetricPlotter: The current instance for method chaining.
+
+        Raises:
+            ValueError: If targets and metric_values have different lengths.
         """
         if len(targets) != len(metric_values):
             msg = "Targets and metric values must have the same length"
@@ -69,6 +118,10 @@ class GroupedTargetMetricPlotter:
 
         Returns:
             plotly.graph_objects.Figure: The resulting plot.
+
+        Raises:
+            ValueError: If no model data has been added or if models contain
+                targets that are not in the target groups mapping.
         """
         if not self.models_data:
             msg = "No model data has been added. Use add_model first."
@@ -88,9 +141,9 @@ class GroupedTargetMetricPlotter:
 
         # Add target groups if provided
         if self.target_groups:
-            models_df["target_group"] = models_df["target"].map(self.target_groups)  # type: ignore
+            models_df["target_group"] = models_df["target"].map(self.target_groups)
             # Check if any targets weren't in the mapping
-            missing_targets = models_df[models_df["target_group"].isna()]["target"].unique()  # type: ignore
+            missing_targets = models_df[models_df["target_group"].isna()]["target"].unique()
             if len(missing_targets) > 0:
                 msg = f"Some targets are missing from the target group mapping: {missing_targets}"
                 raise ValueError(msg)

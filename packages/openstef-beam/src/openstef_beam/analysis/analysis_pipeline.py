@@ -2,6 +2,13 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+"""Analysis pipeline for generating visualizations from evaluation reports.
+
+This module provides the core pipeline that orchestrates visualization generation
+from evaluation reports at different aggregation levels. It integrates with the
+benchmarking framework to provide consistent analysis outputs across benchmark runs.
+"""
+
 from collections import defaultdict
 from collections.abc import Sequence
 
@@ -46,13 +53,27 @@ class AnalysisPipeline:
         self,
         config: AnalysisConfig,
     ) -> None:
+        """Initialize the analysis pipeline with configuration.
+
+        Args:
+            config: Analysis configuration containing visualization providers.
+        """
         super().__init__()
         self.config = config
 
+    @staticmethod
     def _group_by_filtering(
-        self, reports: Sequence[tuple[TargetMetadata, EvaluationReport]]
+        reports: Sequence[tuple[TargetMetadata, EvaluationReport]],
     ) -> dict[Filtering, list[ReportTuple]]:
-        """Group reports by their filtering conditions."""
+        """Group reports by their lead time filtering conditions.
+
+        Organizes evaluation reports based on their lead time criteria (e.g.,
+        1-hour ahead vs 24-hour ahead forecasts), enabling comparison of model
+        performance across different forecasting horizons.
+
+        Returns:
+            Dictionary mapping lead time filtering conditions to lists of report tuples.
+        """
         return groupby(
             (subset.filtering, (base_metadata.with_filtering(subset.filtering), subset))
             for base_metadata, report in reports
@@ -95,6 +116,21 @@ class AnalysisPipeline:
         reports: Sequence[tuple[TargetMetadata, EvaluationReport]],
         scope: AnalysisScope,
     ) -> AnalysisOutput:
+        """Generate visualizations for evaluation reports within a specific scope.
+
+        Groups reports by lead time filtering conditions and generates visualizations
+        for each group using all configured visualization providers that support the
+        scope's aggregation level. This enables comparing model performance across
+        different forecasting horizons (e.g., short-term vs long-term predictions).
+
+        Args:
+            reports: List of (metadata, evaluation_report) tuples to visualize.
+            scope: Analysis scope defining aggregation level and context.
+
+        Returns:
+            Analysis output containing all generated visualizations grouped by
+            lead time filtering conditions.
+        """
         grouped = self._group_by_filtering(reports)
 
         result: dict[Filtering, list[VisualizationOutput]] = defaultdict(list)

@@ -2,6 +2,12 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+"""Quantile probability visualization provider.
+
+This module provides visualization for quantile probability analysis, comparing
+observed vs forecasted probabilities to evaluate probabilistic forecast calibration.
+"""
+
 from typing import NamedTuple
 
 from openstef_beam.analysis.models import AnalysisAggregation, RunName, TargetMetadata, VisualizationOutput
@@ -21,13 +27,48 @@ class ProbabilityData(NamedTuple):
 
 
 class QuantileProbabilityVisualization(VisualizationProvider):
-    """Visualization for quantile probability analysis across different aggregation levels.
+    """Creates calibration plots comparing observed vs forecasted probabilities.
 
-    Compares observed vs forecasted probabilities to evaluate probabilistic forecast calibration.
+    Evaluates calibration quality of probabilistic forecasts by plotting observed
+    frequencies against forecasted probabilities for different quantile levels.
+    Perfect calibration shows points along the diagonal where observed probability
+    equals forecasted probability.
+
+    Identifies forecast issues:
+    - Overconfident predictions (points below diagonal)
+    - Underconfident predictions (points above diagonal)
+    - Systematic biases in uncertainty estimation
+    - Overall forecast reliability across quantile ranges
+
+    Supports comparison across different model runs, targets, and aggregation levels
+    to evaluate which models provide better calibrated uncertainty estimates.
+
+    Example:
+        Basic usage in analysis pipeline:
+
+        >>> from openstef_beam.analysis import AnalysisConfig
+        >>> from openstef_beam.analysis.visualizations import QuantileProbabilityVisualization
+        >>>
+        >>> # Configure probability calibration analysis
+        >>> analysis_config = AnalysisConfig(
+        ...     visualization_providers=[
+        ...         QuantileProbabilityVisualization(
+        ...             name="probability_calibration",
+        ...         ),
+        ...     ]
+        ... )
+        >>>
+        >>> # The visualization will generate calibration plots showing
+        >>> # observed vs forecasted probabilities for model evaluation
     """
 
     @property
     def supported_aggregations(self) -> set[AnalysisAggregation]:
+        """Return the set of aggregation types supported by this provider.
+
+        Returns:
+            Set of supported AnalysisAggregation values.
+        """
         return {
             AnalysisAggregation.NONE,
             AnalysisAggregation.RUN_AND_NONE,
@@ -35,7 +76,8 @@ class QuantileProbabilityVisualization(VisualizationProvider):
             AnalysisAggregation.TARGET,
         }
 
-    def _extract_probabilities_from_report(self, report: EvaluationSubsetReport) -> ProbabilityData:
+    @staticmethod
+    def _extract_probabilities_from_report(report: EvaluationSubsetReport) -> ProbabilityData:
         """Extract observed and forecasted probability metrics from the report's global metrics.
 
         Args:
@@ -68,7 +110,8 @@ class QuantileProbabilityVisualization(VisualizationProvider):
 
         return ProbabilityData(observed_probs=observed_probs, forecasted_probs=forecasted_probs)
 
-    def _create_plot_title(self, base_title: str, target_name: str = "") -> str:
+    @staticmethod
+    def _create_plot_title(base_title: str, target_name: str = "") -> str:
         """Create a formatted title for the plot.
 
         Args:
@@ -84,7 +127,8 @@ class QuantileProbabilityVisualization(VisualizationProvider):
             return f"Quantile Probability for {target_name}"
         return f"Quantile Probability {base_title}"
 
-    def _validate_probability_data(self, prob_data: ProbabilityData) -> None:
+    @staticmethod
+    def _validate_probability_data(prob_data: ProbabilityData) -> None:
         """Validate that probability data is consistent and complete.
 
         Args:
@@ -104,6 +148,15 @@ class QuantileProbabilityVisualization(VisualizationProvider):
         report: EvaluationSubsetReport,
         metadata: TargetMetadata,
     ) -> VisualizationOutput:
+        """Create quantile probability plot for a single target from a single run.
+
+        Args:
+            report: Evaluation report containing probability metrics.
+            metadata: Target metadata with run and target information.
+
+        Returns:
+            Visualization output with quantile probability plot.
+        """
         prob_data = self._extract_probabilities_from_report(report)
         self._validate_probability_data(prob_data)
 
@@ -120,6 +173,14 @@ class QuantileProbabilityVisualization(VisualizationProvider):
         return VisualizationOutput(name=self.name, figure=figure)
 
     def create_by_run_and_none(self, reports: dict[RunName, list[ReportTuple]]) -> VisualizationOutput:
+        """Create quantile probability plots comparing different model runs.
+
+        Args:
+            reports: Dictionary mapping run names to their report lists.
+
+        Returns:
+            Visualization output with multiple quantile probability plots.
+        """
         plotter = QuantileProbabilityPlotter()
 
         for run_name, report_pairs in reports.items():
@@ -142,6 +203,14 @@ class QuantileProbabilityVisualization(VisualizationProvider):
         self,
         reports: dict[RunName, list[ReportTuple]],
     ) -> VisualizationOutput:
+        """Create quantile probability plots comparing runs on the same targets.
+
+        Args:
+            reports: Dictionary mapping run names to their report lists.
+
+        Returns:
+            Visualization output comparing runs on targets.
+        """
         return self.create_by_run_and_none(
             reports=reports,
         )
@@ -150,6 +219,17 @@ class QuantileProbabilityVisualization(VisualizationProvider):
         self,
         reports: list[ReportTuple],
     ) -> VisualizationOutput:
+        """Create quantile probability plots comparing different targets.
+
+        Args:
+            reports: List of (metadata, report) tuples for each target.
+
+        Returns:
+            Visualization output with probability plots for each target.
+
+        Raises:
+            ValueError: If no reports are provided.
+        """
         if not reports:
             raise ValueError("No reports provided for target-based visualization.")
 

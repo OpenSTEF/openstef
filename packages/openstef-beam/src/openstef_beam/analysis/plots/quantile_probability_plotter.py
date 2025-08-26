@@ -2,6 +2,12 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+"""Probability calibration plotting for forecast uncertainty validation.
+
+This module provides specialized plotting for validating probabilistic forecasts
+by comparing predicted probabilities with observed frequencies.
+"""
+
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
@@ -10,9 +16,43 @@ from openstef_core.types import Quantile
 
 
 class QuantileProbabilityPlotter:
-    """Class to plot observed probabilities against forecasted probabilities."""
+    """Creates calibration plots comparing forecasted vs observed probabilities.
+
+    This plotter validates probabilistic forecasts by examining whether predicted
+    uncertainty levels match actual outcomes. The resulting plots help answer:
+
+    - Are 90% confidence intervals correct 90% of the time?
+    - Do models over-estimate or under-estimate forecast uncertainty?
+    - Which model provides the most reliable uncertainty quantification?
+    - How well-calibrated are different quantile predictions?
+
+    The plots show:
+    - Scatter plots of forecasted vs observed probabilities
+    - Perfect calibration diagonal line for reference
+    - Model-specific calibration curves
+    - Visual indicators of over/under-confidence
+
+    Well-calibrated models will have points close to the diagonal line, while
+    systematic deviations indicate bias in uncertainty estimation.
+
+    Example:
+        Validating forecast calibration:
+
+        >>> from openstef_core.types import Quantile
+        >>> plotter = QuantileProbabilityPlotter()
+        >>>
+        >>> # Add model calibration data
+        >>> forecasted = [Quantile(0.1), Quantile(0.3), Quantile(0.5), Quantile(0.9)]
+        >>> observed = [Quantile(0.12), Quantile(0.28), Quantile(0.52), Quantile(0.88)]
+        >>> _ = plotter.add_model("XGBoost", forecasted, observed)
+        >>> # Generate calibration plot
+        >>> fig = plotter.plot(title="Forecast Calibration Analysis")
+        >>> type(fig).__name__
+        'Figure'
+    """
 
     def __init__(self):
+        """Initialize the plotter with empty model data storage."""
         # Model data contains the model name, forecasted probabilities, and observed probabilities
         self.models_data: list[dict[str, str | list[Quantile]]] = []
 
@@ -31,6 +71,9 @@ class QuantileProbabilityPlotter:
 
         Returns:
             QuantileProbabilityPlotter: The current instance for method chaining.
+
+        Raises:
+            ValueError: If forecasted and observed probability lists have different lengths.
         """
         if len(forecasted_probs) != len(observed_probs):
             msg = "Forecasted probabilities and observed probabilities must have the same length"
@@ -53,6 +96,9 @@ class QuantileProbabilityPlotter:
 
         Returns:
             plotly.graph_objects.Figure: The resulting plot.
+
+        Raises:
+            ValueError: If no model data has been added.
         """
         if not self.models_data:
             msg = "No model data has been added. Use add_model first."

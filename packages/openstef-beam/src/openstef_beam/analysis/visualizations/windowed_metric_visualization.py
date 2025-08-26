@@ -2,6 +2,12 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+"""Windowed metric visualization provider.
+
+This module provides visualization for windowed metrics over time, showing
+how performance metrics evolve across different time windows.
+"""
+
 import operator
 from datetime import datetime
 from typing import Literal
@@ -16,13 +22,52 @@ from openstef_core.types import Quantile
 
 
 class WindowedMetricVisualization(VisualizationProvider):
-    """Visualization for windowed metrics over time across different aggregation levels."""
+    """Creates time series plots showing metric evolution across evaluation windows.
+
+    Displays how evaluation metrics change over time by plotting metric values on a
+    timeline where each point represents performance over a specific time window.
+    The visualization reveals performance trends, seasonal patterns, and helps identify
+    periods where model accuracy degrades or improves.
+
+    What you'll see:
+    - Time series line plot with metric values on Y-axis and time on X-axis
+    - Each point shows metric computed over a sliding evaluation window
+    - Multiple lines when comparing across targets or model runs
+    - Clear trends showing model performance stability over time
+
+    Useful for identifying:
+    - Performance degradation patterns over time
+    - Seasonal effects in forecasting accuracy
+    - Model stability across different periods
+    - Optimal retraining intervals based on performance drops
+
+    Example:
+        >>> from openstef_beam.analysis import AnalysisConfig
+        >>> from openstef_beam.analysis.visualizations import WindowedMetricVisualization
+        >>> from openstef_beam.evaluation import Window
+        >>> from datetime import timedelta
+        >>>
+        >>> analysis_config = AnalysisConfig(
+        ...     visualization_providers=[
+        ...         WindowedMetricVisualization(
+        ...             name="mae_evolution",
+        ...             metric="MAE",
+        ...             window=Window(lag=timedelta(hours=0), size=timedelta(days=7)),
+        ...         ),
+        ...     ]
+        ... )
+    """
 
     metric: MetricIdentifier
     window: Window
 
     @property
     def supported_aggregations(self) -> set[AnalysisAggregation]:
+        """Return the set of aggregation types supported by this provider.
+
+        Returns:
+            Set of supported AnalysisAggregation values.
+        """
         return {
             AnalysisAggregation.NONE,
             AnalysisAggregation.RUN_AND_NONE,
@@ -96,6 +141,18 @@ class WindowedMetricVisualization(VisualizationProvider):
         report: EvaluationSubsetReport,
         metadata: TargetMetadata,
     ) -> VisualizationOutput:
+        """Create windowed metric visualization for a single target from a single run.
+
+        Args:
+            report: Evaluation report containing windowed metrics.
+            metadata: Target metadata with run and target information.
+
+        Returns:
+            Visualization output with windowed metric plot.
+
+        Raises:
+            ValueError: If no windowed metrics are found for the specified window and metric.
+        """
         metric_name, quantile_or_global = self._get_metric_info()
         time_value_pairs = self._extract_windowed_metric_values(report, metric_name, quantile_or_global)
 
@@ -119,6 +176,14 @@ class WindowedMetricVisualization(VisualizationProvider):
         return VisualizationOutput(name=self.name, figure=figure)
 
     def create_by_run_and_none(self, reports: dict[RunName, list[ReportTuple]]) -> VisualizationOutput:
+        """Create windowed metric visualization comparing different model runs.
+
+        Args:
+            reports: Dictionary mapping run names to their report lists.
+
+        Returns:
+            Visualization output with windowed metric comparison.
+        """
         metric_name, quantile_or_global = self._get_metric_info()
         plotter = WindowedMetricPlotter()
 
@@ -150,6 +215,14 @@ class WindowedMetricVisualization(VisualizationProvider):
         self,
         reports: list[ReportTuple],
     ) -> VisualizationOutput:
+        """Create windowed metric visualization comparing different targets.
+
+        Args:
+            reports: List of (metadata, report) tuples for each target.
+
+        Returns:
+            Visualization output with windowed metrics for each target.
+        """
         metric_name, quantile_or_global = self._get_metric_info()
         plotter = WindowedMetricPlotter()
 

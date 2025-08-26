@@ -2,6 +2,12 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+"""Visualization providers for analysis pipeline.
+
+This package contains specialized visualization implementations that generate
+plots and reports from evaluation data at different aggregation levels.
+"""
+
 from openstef_beam.analysis.visualizations.base import MetricIdentifier, ReportTuple, VisualizationProvider
 from openstef_beam.analysis.visualizations.grouped_target_metric_visualization import GroupedTargetMetricVisualization
 from openstef_beam.analysis.visualizations.precision_recall_curve_visualization import PrecisionRecallCurveVisualization

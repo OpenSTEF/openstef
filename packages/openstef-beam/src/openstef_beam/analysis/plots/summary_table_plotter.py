@@ -2,11 +2,45 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+"""Summary table generation for evaluation metrics display.
+
+This module provides formatted HTML table generation from evaluation metrics,
+creating professional-looking summary reports for model comparison.
+"""
+
 import pandas as pd
 
 
 class SummaryTablePlotter:
-    """Class to plot summary tables."""
+    """Creates formatted HTML tables from evaluation metrics data.
+
+    This plotter transforms evaluation metrics into HTML tables suitable for
+    reports and dashboards. The tables help answer questions like:
+
+    - Which model has the best overall performance across all metrics?
+    - How do metric values compare between different targets or runs?
+    - What are the summary statistics for forecast accuracy?
+
+    The generated tables include:
+    - Styled headers and borders for professional appearance
+    - Left-aligned text for readability
+    - Consistent formatting across all metrics
+    - HTML output suitable for embedding in reports
+
+    Example:
+        Creating a summary table from metrics:
+
+        >>> import pandas as pd
+        >>> metrics_data = pd.DataFrame({
+        ...     'Model': ['XGBoost', 'Random Forest', 'LSTM'],
+        ...     'RMSE': [0.12, 0.15, 0.14],
+        ...     'MAE': [0.08, 0.11, 0.10],
+        ...     'R²': [0.85, 0.78, 0.82]
+        ... })
+        >>> plotter = SummaryTablePlotter(metrics_data)
+        >>> html_table = plotter.plot()
+        >>> # html_table contains styled HTML ready for display
+    """
 
     def __init__(self, data: pd.DataFrame):
         """Initialize the SummaryTablePlotter with data.

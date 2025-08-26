@@ -2,6 +2,12 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+"""Precision-recall curve plotting for model performance evaluation.
+
+This module provides visualization tools for comparing model performance
+across different probability thresholds and quantile levels.
+"""
+
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
@@ -10,9 +16,43 @@ from openstef_core.types import Quantile
 
 
 class PrecisionRecallCurvePlotter:
-    """Class to plot the precision against the recall for each quantile, for each model."""
+    """Creates precision-recall curves for model performance across quantiles.
+
+    This plotter evaluates forecast performance at different probability thresholds
+    by visualizing the trade-off between precision and recall for each model.
+
+    The plots help answer:
+    - Which model provides the best precision-recall trade-off?
+    - How does performance vary across different quantile thresholds?
+    - What quantile levels achieve optimal model performance?
+
+    The resulting curves show:
+    - Precision vs recall curves for each model
+    - Interactive hover data showing quantile values
+    - Comparative model performance visualization
+
+    Higher curves (closer to top-right) indicate better overall performance,
+    while specific points help identify optimal operating thresholds.
+
+    Example:
+        Comparing model performance across quantiles:
+
+        >>> from openstef_core.types import Quantile
+        >>> plotter = PrecisionRecallCurvePlotter()
+        >>>
+        >>> # Add model performance data
+        >>> precision = [0.8, 0.75, 0.7, 0.65]
+        >>> recall = [0.6, 0.7, 0.8, 0.85]
+        >>> quantiles = [Quantile(0.1), Quantile(0.3), Quantile(0.5), Quantile(0.9)]
+        >>> _ = plotter.add_model("XGBoost", precision, recall, quantiles)
+        >>> # Generate precision-recall curve
+        >>> fig = plotter.plot(title="Model Performance Analysis")
+        >>> type(fig).__name__
+        'Figure'
+    """
 
     def __init__(self):
+        """Initialize the plotter with empty model data storage."""
         # Model data contains the model name, precision values, recall values, and quantile values
         self.models_data: list[dict[str, str | list[float] | list[Quantile]]] = []
 
@@ -33,6 +73,10 @@ class PrecisionRecallCurvePlotter:
 
         Returns:
             PrecisionRecallCurvePlotter: The current instance for method chaining.
+
+        Raises:
+            ValueError: If precision and recall lists have different lengths, or if
+                quantiles list has different length than precision/recall lists.
         """
         if len(precision_values) != len(recall_values):
             msg = "Precision and recall lists must have the same length"
@@ -57,11 +101,12 @@ class PrecisionRecallCurvePlotter:
 
         Args:
             title (str): Title of the plot.
-            width (int): Width of the plot in pixels.
-            height (int): Height of the plot in pixels.
 
         Returns:
             plotly.graph_objects.Figure: The precision-recall curve plot.
+
+        Raises:
+            ValueError: If no model data has been added.
         """
         if not self.models_data:
             msg = "No model data has been added. Use add_model first."
