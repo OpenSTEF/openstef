@@ -9,6 +9,7 @@ from unittest.mock import Mock, patch
 
 import pandas as pd
 import pytest
+pvlib = pytest.importorskip("pvlib")
 
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.feature_engineering.temporal_transforms.daylight_features import DaylightFeatures
@@ -241,9 +242,6 @@ def test_empty_dataset() -> None:
 )
 def test_pvlib_location_creation_with_timezone(latitude: float, longitude: float, timezone: str) -> None:
     """Test that pvlib Location object can be correctly created with timezone objects."""
-    # Arrange
-    pvlib = pytest.importorskip("pvlib")
-
     # Act
     location = pvlib.location.Location(latitude, longitude, tz=timezone)
 
@@ -256,8 +254,6 @@ def test_pvlib_location_creation_with_timezone(latitude: float, longitude: float
 def test_pvlib_integration_with_real_data() -> None:
     """Test complete DaylightFeatures workflow with real pvlib calls."""
     # Arrange
-    pytest.importorskip("pvlib")
-
     data = pd.DataFrame(
         {"load": [100.0, 110.0, 120.0]},
         index=pd.date_range("2025-06-01 10:00", periods=3, freq="2h", tz="Europe/Amsterdam"),
@@ -293,8 +289,6 @@ def test_pvlib_integration_with_real_data() -> None:
 def test_pvlib_different_timezones_integration(timezone: str) -> None:
     """Test DaylightFeatures with real pvlib calls across different timezones."""
     # Arrange
-    pytest.importorskip("pvlib")
-
     data = pd.DataFrame(
         {"load": [100.0, 110.0]}, index=pd.date_range("2025-06-01 12:00", periods=2, freq="1h", tz=timezone)
     )
