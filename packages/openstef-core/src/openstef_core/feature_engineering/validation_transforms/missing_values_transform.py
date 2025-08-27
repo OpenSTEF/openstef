@@ -10,12 +10,14 @@ through various imputation strategies and data cleaning operations.
 
 import logging
 from enum import Enum
-from typing import cast
+from typing import Any, cast
 
 import numpy as np
 import pandas as pd
+from pydantic import Field, ValidationInfo, field_validator
 from sklearn.impute import SimpleImputer
 
+from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.datasets.transforms import TimeSeriesTransform
 
@@ -31,7 +33,7 @@ class ImputationStrategy(Enum):
     CONSTANT = "constant"
 
 
-class MissingValuesTransform(TimeSeriesTransform):
+class MissingValuesTransform(TimeSeriesTransform, BaseConfig):
     """Transform that checks for, imputes and drops missing values in time series data.
 
     This transform applies imputation strategies to handle missing values in the dataset.
@@ -73,27 +75,54 @@ class MissingValuesTransform(TimeSeriesTransform):
     True
     """
 
-    def __init__(
-        self,
-        imputation_strategy: ImputationStrategy,
-        missing_value: float = np.nan,
-        fill_value: float | str | None = None,
-        no_fill_future_values_features: list[str] | None = None,
-    ):
-        """Initialize the MissingValuesTransform with the given configuration.
+    imputation_strategy: ImputationStrategy = Field(
+        ...,
+        description="The strategy to use for imputation",
+    )
+    missing_value: float = Field(
+        default_factory=lambda: np.nan,
+        description="The placeholder for missing values that should be imputed",
+    )
+    fill_value: float | str | None = Field(
+        default=None,
+        description="Value to use when imputation_strategy is CONSTANT",
+    )
+    no_fill_future_values_features: list[str] = Field(
+        default_factory=list,
+        description="List of feature names for which trailing NaN values should not be filled",
+    )
+
+    imputer: SimpleImputer = Field(exclude=True, default_factory=lambda: SimpleImputer())
+
+    class Config:
+        """Pydantic configuration for MissingValuesTransform."""
+
+        arbitrary_types_allowed = True
+
+    @field_validator("fill_value")
+    @classmethod
+    def validate_fill_value_with_strategy(cls, v: float | str | None, info: ValidationInfo) -> float | str | None:
+        """Validate that fill_value is provided when strategy is CONSTANT.
 
         Args:
-            imputation_strategy: The strategy to use for imputation.
-            missing_value: The placeholder for missing values that should be imputed.
-            fill_value: Value to use when imputation_strategy is CONSTANT.
-            no_fill_future_values_features: List of feature names for which trailing NaN values should not be filled.
-        """
-        self.missing_value = missing_value
-        self.imputation_strategy = imputation_strategy
-        self.fill_value = fill_value
-        self.no_fill_future_values_features = no_fill_future_values_features or []
+            v: The fill_value to validate.
+            info: Validation info containing other field values.
 
-        self.imputer: SimpleImputer = SimpleImputer(
+        Returns:
+            The validated fill_value.
+
+        Raises:
+            ValueError: If imputation_strategy is CONSTANT but fill_value is None.
+        """
+        if info.data.get("imputation_strategy") == ImputationStrategy.CONSTANT and v is None:
+            raise ValueError("fill_value must be provided when imputation_strategy is CONSTANT")
+        return v
+
+    def __init__(self, **data: Any):
+        """Initialize the MissingValuesTransform with the given configuration."""
+        super().__init__(**data)
+
+        self.imputer = SimpleImputer(
             strategy=self.imputation_strategy.value,
             fill_value=self.fill_value,
             missing_values=self.missing_value,
