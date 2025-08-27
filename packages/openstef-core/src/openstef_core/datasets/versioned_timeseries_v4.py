@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Self, Sequence, cast, overload, override
 
 import pandas as pd
-from pydantic import FilePath
+from pydantic import DirectoryPath, FilePath
 
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.exceptions import InvalidColumnTypeError, MissingColumnsError, TimeSeriesValidationError
@@ -143,7 +143,7 @@ class VersionedTimeSeriesDataset(VerionedTimeSeriesMixin):
     def __init__(
         self,
         data_parts: list[VersionedTimeSeriesPart],
-        index: pd.DatetimeIndex,
+        index: pd.DatetimeIndex | None = None,
     ) -> None:
         if not data_parts:
             raise TimeSeriesValidationError("At least one data part must be provided.")
@@ -153,8 +153,24 @@ class VersionedTimeSeriesDataset(VerionedTimeSeriesMixin):
 
         self.data_parts = data_parts
         self.sample_interval = data_parts[0].sample_interval
-        self.index = index
+        self.index = index or functools.reduce(operator.or_, [part.index for part in data_parts], pd.DatetimeIndex([]))
         self.feature_names = functools.reduce(operator.iadd, [part.feature_names for part in data_parts], [])
+
+    @classmethod
+    def from_dataframe(
+        cls,
+        data: pd.DataFrame,
+        sample_interval: timedelta,
+        timestamp_column: str = "timestamp",
+        available_at_column: str = "available_at",
+    ) -> Self:
+        part = VersionedTimeSeriesPart(
+            data=data,
+            sample_interval=sample_interval,
+            timestamp_column=timestamp_column,
+            available_at_column=available_at_column,
+        )
+        return cls(data_parts=[part])
 
     @override
     def filter_by_range(self, start: datetime | None = None, end: datetime | None = None) -> Self:
@@ -187,11 +203,6 @@ class VersionedTimeSeriesDataset(VerionedTimeSeriesMixin):
         selected_parts = [part.select_version(available_before).data for part in self.data_parts]
         combined_data = pd.concat(selected_parts, axis=1).loc[self.index]
         return TimeSeriesDataset(data=combined_data, sample_interval=self.sample_interval)
-
-    def to_parquet(self, path: Path) -> None: ...
-
-    @classmethod
-    def read_parquet(cls, path: Path) -> Self: ...
 
 
 def _validate_disjoint_columns(dfs: Sequence[VersionedTimeSeriesPart]) -> None:
