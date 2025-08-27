@@ -10,6 +10,7 @@ through various imputation strategies and data cleaning operations.
 
 import logging
 from enum import Enum
+from typing import cast
 
 import numpy as np
 import pandas as pd
@@ -98,7 +99,7 @@ class MissingValuesTransform(TimeSeriesTransform):
             missing_values=self.missing_value,
             keep_empty_features=False,
         )
-        self.imputer.set_output(transform="pandas")  # pyright: ignore[reportUnknownMemberType]
+        self.imputer.set_output(transform="pandas")
 
     def _drop_empty_features(self, data: pd.DataFrame) -> pd.DataFrame:
         """Drop features that contain only missing values.
@@ -162,7 +163,7 @@ class MissingValuesTransform(TimeSeriesTransform):
         """
         fit_data = self._drop_empty_features(data.data)
         fit_data = self._remove_trailing_null_rows(fit_data)
-        self.imputer.fit(fit_data)  # pyright: ignore[reportUnknownMemberType]
+        self.imputer.fit(fit_data)
 
     def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
         """Transform the input dataset by removing trailing null rows and imputing missing values.
@@ -182,6 +183,6 @@ class MissingValuesTransform(TimeSeriesTransform):
         """
         data_cleaned = self._drop_empty_features(data.data)
         data_cleaned = self._remove_trailing_null_rows(data_cleaned)
-        data_transformed = self.imputer.transform(data_cleaned)  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
+        data_transformed = cast(pd.DataFrame, self.imputer.transform(data_cleaned))
 
-        return TimeSeriesDataset(data=data_transformed, sample_interval=data.sample_interval)  # pyright: ignore[reportArgumentType]
+        return TimeSeriesDataset(data=data_transformed, sample_interval=data.sample_interval)
