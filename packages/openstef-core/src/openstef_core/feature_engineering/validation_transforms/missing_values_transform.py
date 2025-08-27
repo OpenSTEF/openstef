@@ -92,7 +92,7 @@ class MissingValuesTransform(TimeSeriesTransform, BaseConfig):
         description="List of feature names for which trailing NaN values should not be filled",
     )
 
-    imputer: SimpleImputer = Field(exclude=True, default_factory=lambda: SimpleImputer())
+    imputer: SimpleImputer = Field(exclude=True, default_factory=SimpleImputer)
 
     class Config:
         """Pydantic configuration for MissingValuesTransform."""
