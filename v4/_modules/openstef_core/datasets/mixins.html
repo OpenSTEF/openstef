@@ -501,7 +501,21 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            pd.DatetimeIndex: Datetime index representing all timestamps in the dataset.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+<div class="viewcode-block" id="TimeSeriesMixin.calculate_time_coverage">
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.mixins.TimeSeriesMixin.html#openstef_core.datasets.mixins.TimeSeriesMixin.calculate_time_coverage">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculate_time_coverage</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">timedelta</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculates the total time span covered by the dataset.</span>
+
+<span class="sd">        This method computes the total duration represented by the dataset</span>
+<span class="sd">        based on its unique timestamps and sample interval.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            timedelta: Total time coverage of the dataset.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_interval</span></div>
+</div>
 
 
 

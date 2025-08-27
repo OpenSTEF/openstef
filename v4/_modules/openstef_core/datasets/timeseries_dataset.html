@@ -585,10 +585,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="TimeSeriesDataset.from_parquet">
-<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset.from_parquet">[docs]</a>
+<div class="viewcode-block" id="TimeSeriesDataset.read_parquet">
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset.read_parquet">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_parquet</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read_parquet</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">,</span>
         <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
@@ -621,7 +621,7 @@
 <span class="sd">            &gt;&gt;&gt; with tempfile.TemporaryDirectory() as tmpdir:</span>
 <span class="sd">            ...     file_path = Path(tmpdir) / &quot;data.parquet&quot;</span>
 <span class="sd">            ...     dataset.to_parquet(file_path)</span>
-<span class="sd">            ...     loaded = TimeSeriesDataset.from_parquet(file_path)</span>
+<span class="sd">            ...     loaded = TimeSeriesDataset.read_parquet(file_path)</span>
 <span class="sd">            ...     loaded.feature_names == dataset.feature_names</span>
 <span class="sd">            True</span>
 

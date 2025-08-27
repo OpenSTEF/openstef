@@ -2,11 +2,11 @@
 ..
 .. SPDX-License-Identifier: MPL-2.0
 
-VersionedTimeSeriesAccessors
-============================
+BenchmarkComparisonPipeline
+===========================
 
-.. currentmodule:: openstef_core.datasets
+.. currentmodule:: openstef_beam.benchmarking
 
-.. autoclass:: VersionedTimeSeriesAccessors
+.. autoclass:: BenchmarkComparisonPipeline
    :show-inheritance:
    :members:

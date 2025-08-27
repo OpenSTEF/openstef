@@ -27,6 +27,9 @@ Functions
    :toctree: .
    :template: custom_function.rst
 
+   align_datetime
+   align_datetime_to_time
+   run_parallel
    timedelta_from_isoformat
    timedelta_to_isoformat
 

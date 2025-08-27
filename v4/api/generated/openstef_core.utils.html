@@ -59,8 +59,8 @@
     <link rel="icon" href="../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="timedelta_from_isoformat" href="openstef_core.utils.timedelta_from_isoformat.html" />
-    <link rel="prev" title="VersionedTimeseriesDataset" href="openstef_core.datasets.VersionedTimeseriesDataset.html" />
+    <link rel="next" title="align_datetime" href="openstef_core.utils.align_datetime.html" />
+    <link rel="prev" title="VersionedTimeSeriesDataset" href="openstef_core.datasets.VersionedTimeSeriesDataset.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="0.0.0" />
@@ -402,11 +402,13 @@
 </ul>
 </details></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.datasets.TimeSeriesDataset.html">TimeSeriesDataset</a></li>
-<li class="toctree-l2"><a class="reference internal" href="openstef_core.datasets.VersionedTimeSeriesAccessors.html">VersionedTimeSeriesAccessors</a></li>
-<li class="toctree-l2"><a class="reference internal" href="openstef_core.datasets.VersionedTimeseriesDataset.html">VersionedTimeseriesDataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_core.datasets.VersionedTimeSeriesDataset.html">VersionedTimeSeriesDataset</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">openstef_core.utils</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="openstef_core.utils.align_datetime.html">align_datetime</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_core.utils.align_datetime_to_time.html">align_datetime_to_time</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_core.utils.run_parallel.html">run_parallel</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.utils.timedelta_from_isoformat.html">timedelta_from_isoformat</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.utils.timedelta_to_isoformat.html">timedelta_to_isoformat</a></li>
 </ul>
@@ -416,6 +418,7 @@
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.base_model.write_yaml_config.html">write_yaml_config</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.base_model.BaseConfig.html">BaseConfig</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.base_model.BaseModel.html">BaseModel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_core.base_model.PydanticStringPrimitive.html">PydanticStringPrimitive</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="openstef_core.exceptions.html">openstef_core.exceptions</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -437,6 +440,62 @@
 <li class="toctree-l2"><a class="reference internal" href="openstef_models.exceptions.__file__.html">__file__</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_models.exceptions.__name__.html">__name__</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_models.exceptions.__package__.html">__package__</a></li>
+</ul>
+</details></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="openstef_beam.metrics.html">openstef_beam.metrics</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.confusion_matrix.html">confusion_matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.crps.html">crps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.fbeta.html">fbeta</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.mape.html">mape</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.mean_absolute_calibration_error.html">mean_absolute_calibration_error</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.observed_probability.html">observed_probability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.precision_recall.html">precision_recall</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.rcrps.html">rcrps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.rmae.html">rmae</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.ConfusionMatrix.html">ConfusionMatrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.PrecisionRecall.html">PrecisionRecall</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="openstef_beam.backtesting.html">openstef_beam.backtesting</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="openstef_beam.backtesting.BacktestConfig.html">BacktestConfig</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_beam.backtesting.BacktestPipeline.html">BacktestPipeline</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="openstef_beam.analysis.html">openstef_beam.analysis</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="openstef_beam.analysis.AnalysisConfig.html">AnalysisConfig</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_beam.analysis.AnalysisOutput.html">AnalysisOutput</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_beam.analysis.AnalysisPipeline.html">AnalysisPipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_beam.analysis.AnalysisScope.html">AnalysisScope</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_beam.analysis.VisualizationOutput.html">VisualizationOutput</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="openstef_beam.evaluation.html">openstef_beam.evaluation</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="openstef_beam.evaluation.EvaluationConfig.html">EvaluationConfig</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_beam.evaluation.EvaluationPipeline.html">EvaluationPipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_beam.evaluation.EvaluationReport.html">EvaluationReport</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_beam.evaluation.EvaluationSubset.html">EvaluationSubset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_beam.evaluation.EvaluationSubsetReport.html">EvaluationSubsetReport</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_beam.evaluation.SubsetMetric.html">SubsetMetric</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_beam.evaluation.Window.html">Window</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="openstef_beam.benchmarking.html">openstef_beam.benchmarking</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="openstef_beam.benchmarking.read_evaluation_reports.html">read_evaluation_reports</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_beam.benchmarking.BenchmarkCallback.html">BenchmarkCallback</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_beam.benchmarking.BenchmarkCallbackManager.html">BenchmarkCallbackManager</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_beam.benchmarking.BenchmarkComparisonPipeline.html">BenchmarkComparisonPipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_beam.benchmarking.BenchmarkContext.html">BenchmarkContext</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_beam.benchmarking.BenchmarkPipeline.html">BenchmarkPipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_beam.benchmarking.BenchmarkStorage.html">BenchmarkStorage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_beam.benchmarking.BenchmarkTarget.html">BenchmarkTarget</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_beam.benchmarking.InMemoryBenchmarkStorage.html">InMemoryBenchmarkStorage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_beam.benchmarking.LocalBenchmarkStorage.html">LocalBenchmarkStorage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_beam.benchmarking.S3BenchmarkStorage.html">S3BenchmarkStorage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_beam.benchmarking.StrictExecutionCallback.html">StrictExecutionCallback</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_beam.benchmarking.TargetProvider.html">TargetProvider</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_beam.benchmarking.TargetProviderConfig.html">TargetProviderConfig</a></li>
 </ul>
 </details></li>
 </ul>
@@ -509,10 +568,19 @@ general-purpose tools.</p>
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="openstef_core.utils.timedelta_from_isoformat.html#openstef_core.utils.timedelta_from_isoformat" title="openstef_core.utils.timedelta_from_isoformat"><code class="xref py py-obj docutils literal notranslate"><span class="pre">timedelta_from_isoformat</span></code></a>(s)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="openstef_core.utils.align_datetime.html#openstef_core.utils.align_datetime" title="openstef_core.utils.align_datetime"><code class="xref py py-obj docutils literal notranslate"><span class="pre">align_datetime</span></code></a>(timestamp, interval[, mode])</p></td>
+<td><p>Align timestamp using modulo approach.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="openstef_core.utils.align_datetime_to_time.html#openstef_core.utils.align_datetime_to_time" title="openstef_core.utils.align_datetime_to_time"><code class="xref py py-obj docutils literal notranslate"><span class="pre">align_datetime_to_time</span></code></a>(timestamp, align_time)</p></td>
+<td><p>Align timestamp to the nearest occurrence of a specific time of day.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="openstef_core.utils.run_parallel.html#openstef_core.utils.run_parallel" title="openstef_core.utils.run_parallel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run_parallel</span></code></a>(process_fn, items[, n_processes])</p></td>
+<td><p>Execute a function in parallel across multiple processes.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="openstef_core.utils.timedelta_from_isoformat.html#openstef_core.utils.timedelta_from_isoformat" title="openstef_core.utils.timedelta_from_isoformat"><code class="xref py py-obj docutils literal notranslate"><span class="pre">timedelta_from_isoformat</span></code></a>(s)</p></td>
 <td><p>Convert ISO 8601 string format to timedelta.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="openstef_core.utils.timedelta_to_isoformat.html#openstef_core.utils.timedelta_to_isoformat" title="openstef_core.utils.timedelta_to_isoformat"><code class="xref py py-obj docutils literal notranslate"><span class="pre">timedelta_to_isoformat</span></code></a>(td)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="openstef_core.utils.timedelta_to_isoformat.html#openstef_core.utils.timedelta_to_isoformat" title="openstef_core.utils.timedelta_to_isoformat"><code class="xref py py-obj docutils literal notranslate"><span class="pre">timedelta_to_isoformat</span></code></a>(td)</p></td>
 <td><p>Convert timedelta to ISO 8601 string format.</p></td>
 </tr>
 </tbody>
@@ -532,20 +600,20 @@ general-purpose tools.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="openstef_core.datasets.VersionedTimeseriesDataset.html"
+       href="openstef_core.datasets.VersionedTimeSeriesDataset.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">VersionedTimeseriesDataset</p>
+        <p class="prev-next-title">VersionedTimeSeriesDataset</p>
       </div>
     </a>
     <a class="right-next"
-       href="openstef_core.utils.timedelta_from_isoformat.html"
+       href="openstef_core.utils.align_datetime.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">timedelta_from_isoformat</p>
+        <p class="prev-next-title">align_datetime</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

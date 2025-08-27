@@ -44,8 +44,7 @@ Classes
    :template: custom_class.rst
 
    TimeSeriesDataset
-   VersionedTimeSeriesAccessors
-   VersionedTimeseriesDataset
+   VersionedTimeSeriesDataset
 
 
 

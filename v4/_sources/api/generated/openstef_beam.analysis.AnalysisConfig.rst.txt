@@ -2,11 +2,11 @@
 ..
 .. SPDX-License-Identifier: MPL-2.0
 
-VersionedTimeseriesDataset
-==========================
+AnalysisConfig
+==============
 
-.. currentmodule:: openstef_core.datasets
+.. currentmodule:: openstef_beam.analysis
 
-.. autoclass:: VersionedTimeseriesDataset
+.. autoclass:: AnalysisConfig
    :show-inheritance:
    :members:
