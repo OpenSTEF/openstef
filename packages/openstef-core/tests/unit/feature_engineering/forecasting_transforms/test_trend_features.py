@@ -12,20 +12,7 @@ from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.feature_engineering.forecasting_transforms.trend_features import (
     AggregationFunction,
     RollingAggregateFeatures,
-    RollingAggregateFeaturesConfig,
 )
-
-
-@pytest.fixture
-def rolling_aggregate_config() -> RollingAggregateFeaturesConfig:
-    return RollingAggregateFeaturesConfig(
-        rolling_window_size=timedelta(hours=24),
-        aggregation_functions=[
-            AggregationFunction.MEDIAN,
-            AggregationFunction.MIN,
-            AggregationFunction.MAX,
-        ],
-    )
 
 
 @pytest.mark.parametrize(
@@ -44,7 +31,7 @@ def test_rolling_aggregate_features(rolling_window: timedelta):
     )
     dataset = TimeSeriesDataset(data, sample_interval=timedelta(minutes=15))
 
-    config = RollingAggregateFeaturesConfig(
+    transform = RollingAggregateFeatures(
         rolling_window_size=rolling_window,
         aggregation_functions=[
             AggregationFunction.MEDIAN,
@@ -52,8 +39,6 @@ def test_rolling_aggregate_features(rolling_window: timedelta):
             AggregationFunction.MAX,
         ],
     )
-
-    transform = RollingAggregateFeatures(config=config)
 
     # Act
     transformed_dataset = transform.fit_transform(dataset)
@@ -86,7 +71,7 @@ def test_rolling_aggregate_features_flatline():
     )
     dataset = TimeSeriesDataset(data, sample_interval=timedelta(minutes=15))
 
-    config = RollingAggregateFeaturesConfig(
+    transform = RollingAggregateFeatures(
         rolling_window_size=timedelta(hours=24),
         aggregation_functions=[
             AggregationFunction.MEDIAN,
@@ -94,8 +79,6 @@ def test_rolling_aggregate_features_flatline():
             AggregationFunction.MAX,
         ],
     )
-
-    transform = RollingAggregateFeatures(config=config)
 
     # Act
     transformed_dataset = transform.fit_transform(dataset)
@@ -122,7 +105,7 @@ def test_rolling_aggregate_features_nans():
     )
     dataset = TimeSeriesDataset(data, sample_interval=timedelta(minutes=15))
 
-    config = RollingAggregateFeaturesConfig(
+    transform = RollingAggregateFeatures(
         rolling_window_size=timedelta(hours=1),
         aggregation_functions=[
             AggregationFunction.MEDIAN,
@@ -130,8 +113,6 @@ def test_rolling_aggregate_features_nans():
             AggregationFunction.MAX,
         ],
     )
-
-    transform = RollingAggregateFeatures(config=config)
 
     # Act
     transformed_dataset = transform.fit_transform(dataset)
@@ -160,4 +141,4 @@ def test_rolling_aggregate_features_no_load_column():
     dataset = TimeSeriesDataset(data, sample_interval=timedelta(minutes=15))
 
     with pytest.raises(ValueError, match="The DataFrame must contain a 'load' column"):
-        RollingAggregateFeatures(config=RollingAggregateFeaturesConfig()).fit(dataset)
+        RollingAggregateFeatures().fit(dataset)

@@ -9,11 +9,12 @@ minimum and maximum ranges during training, preventing out-of-range values
 during inference and improving model robustness.
 """
 
+from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.datasets.transforms import TimeSeriesTransform
 
 
-class FeatureClipper(TimeSeriesTransform):
+class FeatureClipper(BaseConfig, TimeSeriesTransform):
     """Transform that clips specified features to their observed min and max values.
 
     This transform learns the minimum and maximum values of specified features
@@ -48,14 +49,16 @@ class FeatureClipper(TimeSeriesTransform):
 
     """
 
-    def __init__(self, column_names: list[str]) -> None:
-        """Initialize the FeatureClipper.
+    column_names: list[str]
 
-        Initializes with specified column names and a dictionary containing
-        the feature range.
+    def __init__(self, **kwargs: list[str]) -> None:
+        """Initialize the FeatureClipper transform.
+
+        Args:
+            **kwargs: Configuration parameters for the transform.
         """
-        self.column_names: list[str] = column_names
-        self.feature_ranges: dict[str, tuple[float, float]] = {}
+        super().__init__(**kwargs)
+        self._feature_ranges: dict[str, tuple[float, float]] = {}
 
     def fit(self, data: TimeSeriesDataset) -> None:
         """Fit the transform to the data by learning the min and max values.
@@ -65,7 +68,7 @@ class FeatureClipper(TimeSeriesTransform):
         """
         for col in self.column_names:
             if col in data.data.columns:
-                self.feature_ranges[col] = (data.data[col].min(), data.data[col].max())
+                self._feature_ranges[col] = (data.data[col].min(), data.data[col].max())
 
     def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
         """Transform the input time series data by clipping specified features to their learned min and max values.
@@ -78,9 +81,9 @@ class FeatureClipper(TimeSeriesTransform):
         """
         transformed_data = data.data.copy()
 
-        for col in self.feature_ranges:
+        for col in self._feature_ranges:
             if col in transformed_data.columns:
-                min_val, max_val = self.feature_ranges[col]
+                min_val, max_val = self._feature_ranges[col]
                 transformed_data[col] = transformed_data[col].clip(lower=min_val, upper=max_val)
 
         return TimeSeriesDataset(data=transformed_data, sample_interval=data.sample_interval)

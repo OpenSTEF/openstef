@@ -11,7 +11,7 @@ import pandas as pd
 import pytest
 
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.feature_engineering.temporal_transforms.cyclic_features import CyclicFeatures, CyclicFeaturesConfig
+from openstef_core.feature_engineering.temporal_transforms.cyclic_features import CyclicFeatures
 
 
 @pytest.fixture
@@ -24,14 +24,6 @@ def sample_dataset() -> TimeSeriesDataset:
     """
     data = pd.DataFrame({"load": [100.0, 110.0, 120.0, 130.0]}, index=pd.date_range("2025-01-01", periods=4, freq="6h"))
     return TimeSeriesDataset(data, timedelta(hours=6))
-
-
-def test_cyclic_features_initialization():
-    """Test CyclicFeatures can be initialized properly."""
-    config = CyclicFeaturesConfig()
-    transform = CyclicFeatures(config)
-    assert hasattr(transform, "cyclic_features")
-    assert transform.cyclic_features.empty
 
 
 def test_sine_cosine_computation():
@@ -54,8 +46,7 @@ def test_sine_cosine_computation():
 
 def test_fit_creates_all_features(sample_dataset: TimeSeriesDataset):
     """Test that fit creates all expected cyclic features."""
-    config = CyclicFeaturesConfig()
-    transform = CyclicFeatures(config)
+    transform = CyclicFeatures()
     transform.fit(sample_dataset)
 
     expected_columns = [
@@ -69,15 +60,14 @@ def test_fit_creates_all_features(sample_dataset: TimeSeriesDataset):
         "time0fday_cosine",
     ]
 
-    assert not transform.cyclic_features.empty
-    assert list(transform.cyclic_features.columns) == expected_columns
-    assert len(transform.cyclic_features) == len(sample_dataset.index)
+    assert not transform._cyclic_features.empty
+    assert list(transform._cyclic_features.columns) == expected_columns
+    assert len(transform._cyclic_features) == len(sample_dataset.index)
 
 
 def test_transform_adds_features(sample_dataset: TimeSeriesDataset):
     """Test that transform adds cyclic features to the dataset."""
-    config = CyclicFeaturesConfig()
-    transform = CyclicFeatures(config)
+    transform = CyclicFeatures()
     transform.fit(sample_dataset)
     result = transform.transform(sample_dataset)
 
@@ -94,8 +84,7 @@ def test_transform_adds_features(sample_dataset: TimeSeriesDataset):
 
 def test_feature_value_ranges(sample_dataset: TimeSeriesDataset):
     """Test that all cyclic features are within expected [-1, 1] range."""
-    config = CyclicFeaturesConfig()
-    transform = CyclicFeatures(config)
+    transform = CyclicFeatures()
     transform.fit(sample_dataset)
     result = transform.transform(sample_dataset)
 
@@ -123,8 +112,7 @@ def test_empty_dataset():
     data.index = pd.DatetimeIndex([])
     dataset = TimeSeriesDataset(data, timedelta(hours=1))
 
-    config = CyclicFeaturesConfig()
-    transform = CyclicFeatures(config)
+    transform = CyclicFeatures()
     transform.fit(dataset)
     result = transform.transform(dataset)
 
@@ -135,8 +123,7 @@ def test_empty_dataset():
 def test_custom_configuration_subset_features(sample_dataset: TimeSeriesDataset):
     """Test that custom configuration with subset of features works correctly."""
     # Test with only season and timeOfDay features
-    config = CyclicFeaturesConfig(included_features=["season", "timeOfDay"])
-    transform = CyclicFeatures(config)
+    transform = CyclicFeatures(included_features=["season", "timeOfDay"])
     transform.fit(sample_dataset)
     result = transform.transform(sample_dataset)
 
@@ -160,8 +147,7 @@ def test_custom_configuration_subset_features(sample_dataset: TimeSeriesDataset)
 
 def test_empty_configuration(sample_dataset: TimeSeriesDataset):
     """Test that empty configuration creates no cyclic features."""
-    config = CyclicFeaturesConfig(included_features=[])
-    transform = CyclicFeatures(config)
+    transform = CyclicFeatures(included_features=[])
     transform.fit(sample_dataset)
     result = transform.transform(sample_dataset)
 
@@ -175,5 +161,5 @@ def test_empty_configuration(sample_dataset: TimeSeriesDataset):
 
 def test_invalid_configuration():
     """Test invalid configuration raises error"""
-    with pytest.raises(ValueError, match="1 validation error for CyclicFeaturesConfig"):
-        CyclicFeaturesConfig(included_features=["invalid_feature"])
+    with pytest.raises(ValueError, match="1 validation error for CyclicFeatures"):
+        CyclicFeatures(included_features=["invalid_feature"])

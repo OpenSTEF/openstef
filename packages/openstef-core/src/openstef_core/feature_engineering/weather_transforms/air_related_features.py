@@ -13,26 +13,14 @@ from openstef_core.datasets.transforms import TimeSeriesTransform
 
 class AirRelatedFeaturesConfig:
     """Configuration for AirRelatedFeatures transform."""
-    included_features: list[
-        Literal[
-            "saturation_pressure",
-            "vapour_pressure",
-            "dewpoint",
-            "air_density"
-        ]
-    ] = Field(
-        default_factory=lambda: [
-            "saturation_pressure",
-            "vapour_pressure",
-            "dewpoint",
-            "air_density"
-        ],
+
+    included_features: list[Literal["saturation_pressure", "vapour_pressure", "dewpoint", "air_density"]] = Field(
+        default_factory=lambda: ["saturation_pressure", "vapour_pressure", "dewpoint", "air_density"],
         description="List of air related features to include.",
     )
 
 
 class AirRelatedFeatures(TimeSeriesTransform):
-
     def __init__(self, config: AirRelatedFeaturesConfig) -> None:
         """Initialize the AirRelatedFeatures transform."""
         self.config = config
@@ -79,12 +67,14 @@ class AirRelatedFeatures(TimeSeriesTransform):
         Returns:
             Dewpoint temperature in degrees Celsius.
         """
-        A =
-        M =
-        TN =
-        return
+        A = 1
+        M = 1
+        TN = 1
+        return A + M + TN
 
-    def _calculate_air_density(self, temperature: pd.Series, pressure: pd.Series, relative_humidity: pd.Series) -> pd.Series:
+    def _calculate_air_density(
+        self, temperature: pd.Series, pressure: pd.Series, relative_humidity: pd.Series
+    ) -> pd.Series:
         """Calculate air density.
 
         Args:
@@ -95,14 +85,12 @@ class AirRelatedFeatures(TimeSeriesTransform):
         Returns:
             Air density in kg/m³.
         """
-        import numpy as np
         R_d = 287.05
         R_v = 461.495
         T_k = temperature + 273.15
         e = self._calculate_vapour_pressure(relative_humidity, self._calulate_saturation_pressure(temperature))
         p = pressure * 100
-        return (p - e * 100) / (R_d * T_k) + \
-                (e * 100) / (R_v * T_k)
+        return (p - e * 100) / (R_d * T_k) + (e * 100) / (R_v * T_k)
 
     def fit(self, data: TimeSeriesDataset) -> None:
         pass

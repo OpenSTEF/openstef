@@ -8,6 +8,7 @@ This module provides functionality to compute datetime features that indicate
 temporal patterns like weekdays, weekends, and other time-based characteristics
 from the datetime index of time series datasets.
 """
+
 from typing import cast
 
 import numpy as np
@@ -61,7 +62,7 @@ class DatetimeFeatures(TimeSeriesTransform):
 
     def __init__(self) -> None:
         """Initialize the DatetimeFeatures transform."""
-        self.datetime_features: pd.DataFrame = pd.DataFrame()
+        self._datetime_features: pd.DataFrame = pd.DataFrame()
 
     @staticmethod
     def _is_weekend_day(index: pd.DatetimeIndex) -> npt.NDArray[np.int64]:
@@ -109,8 +110,7 @@ class DatetimeFeatures(TimeSeriesTransform):
         Returns:
             Numpy array of months corresponding to each date in the index.
         """
-        return cast(pd.Series[int], index.month).to_numpy()
-
+        return cast(pd.Series, index.month).to_numpy()
 
     @staticmethod
     def _quarter_of_year(index: pd.DatetimeIndex) -> npt.NDArray[np.int64]:
@@ -122,7 +122,7 @@ class DatetimeFeatures(TimeSeriesTransform):
         Returns:
             Numpy array of quarters corresponding to each date in the index.
         """
-        return cast(pd.Series[int], index.quarter).to_numpy()
+        return cast(pd.Series, index.quarter).to_numpy()
 
     def fit(self, data: TimeSeriesDataset) -> None:
         """Fit the transform by computing datetime features from the data's index.
@@ -130,7 +130,7 @@ class DatetimeFeatures(TimeSeriesTransform):
         Args:
             data: Time series dataset with DatetimeIndex.
         """
-        self.datetime_features = pd.DataFrame(
+        self._datetime_features = pd.DataFrame(
             {
                 "is_week_day": self._is_weekday(data.index).astype(int),
                 "is_weekend_day": self._is_weekend_day(data.index).astype(int),
@@ -151,6 +151,6 @@ class DatetimeFeatures(TimeSeriesTransform):
             New TimeSeriesDataset with original data plus datetime features.
         """
         return TimeSeriesDataset(
-            pd.concat([data.data, self.datetime_features], axis=1),
+            pd.concat([data.data, self._datetime_features], axis=1),
             sample_interval=data.sample_interval,
         )

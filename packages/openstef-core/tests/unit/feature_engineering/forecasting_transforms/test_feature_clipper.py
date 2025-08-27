@@ -41,9 +41,9 @@ def clipper() -> FeatureClipper:
 def test_feature_clipper_fit(clipper: FeatureClipper, train_dataset: TimeSeriesDataset):
     """Test if the fit method correctly computes min and max values."""
     clipper.fit(train_dataset)
-    assert clipper.feature_ranges["A"] == (1.0, 3.0)
-    assert clipper.feature_ranges["B"] == (10.0, 30.0)
-    assert "D" not in clipper.feature_ranges
+    assert clipper._feature_ranges["A"] == (1.0, 3.0)
+    assert clipper._feature_ranges["B"] == (10.0, 30.0)
+    assert "D" not in clipper._feature_ranges
 
 
 def test_feature_clipper_transform(
@@ -68,7 +68,7 @@ def test_feature_clipper_invalid_column(clipper: FeatureClipper, train_dataset: 
     """Test behavior when a column that doesn't exist is specified."""
     clipper_with_invalid_column = FeatureClipper(column_names=["E"])
     clipper_with_invalid_column.fit(train_dataset)
-    assert "E" not in clipper_with_invalid_column.feature_ranges
+    assert "E" not in clipper_with_invalid_column._feature_ranges
 
 
 def test_feature_clipper_transform_without_fit(clipper: FeatureClipper, test_dataset: TimeSeriesDataset):

@@ -11,6 +11,7 @@ accuracy by identifying underlying trends.
 
 from datetime import timedelta
 from enum import StrEnum
+from typing import Any
 
 import pandas as pd
 from pydantic import Field
@@ -30,20 +31,7 @@ class AggregationFunction(StrEnum):
     MIN = "min"
 
 
-class RollingAggregateFeaturesConfig(BaseConfig):
-    """Configuration for the RollingAggregateFeatures transform."""
-
-    rolling_window_size: timedelta = Field(
-        default=timedelta(hours=24),
-        description="Rolling window size for the aggregation.",
-    )
-    aggregation_functions: list[AggregationFunction] = Field(
-        default_factory=lambda: [AggregationFunction.MEDIAN, AggregationFunction.MIN, AggregationFunction.MAX],
-        description="List of aggregation functions to compute over the rolling window. ",
-    )
-
-
-class RollingAggregateFeatures(TimeSeriesTransform):
+class RollingAggregateFeatures(BaseConfig, TimeSeriesTransform):
     """Transform that adds rolling aggregate features to time series data.
 
     This transform computes rolling aggregate statistics (e.g., mean, median, min, max)
@@ -56,9 +44,8 @@ class RollingAggregateFeatures(TimeSeriesTransform):
         >>> import pandas as pd
         >>> from datetime import timedelta
         >>> from openstef_core.datasets import TimeSeriesDataset
-        >>> from openstef_core.feature_engineering.forecasting_transforms.trend_features import (  # noqa: E501
+        >>> from openstef_core.feature_engineering.forecasting_transforms.trend_features import (
         ...     RollingAggregateFeatures,
-        ...     RollingAggregateFeaturesConfig,
         ... )
         >>>
         >>> # Create sample dataset
@@ -68,11 +55,10 @@ class RollingAggregateFeatures(TimeSeriesTransform):
         >>> dataset = TimeSeriesDataset(data, timedelta(hours=1))
         >>>
         >>> # Initialize and apply transform
-        >>> config = RollingAggregateFeaturesConfig(
+        >>> transform = RollingAggregateFeatures(
         ...     rolling_window_size=timedelta(hours=2),
         ...     aggregation_functions=[AggregationFunction.MEAN, AggregationFunction.MAX]
         ... )
-        >>> transform = RollingAggregateFeatures(config=config)
         >>> transformed_dataset = transform.fit_transform(dataset)
         >>> 'rolling_mean_load_PT2H' in transformed_dataset.data.columns
         True
@@ -80,10 +66,23 @@ class RollingAggregateFeatures(TimeSeriesTransform):
         True
     """
 
-    def __init__(self, config: RollingAggregateFeaturesConfig):
-        """Initialize the RollingAggregateFeatures transform with a configuration."""
-        self.config = config
-        self.rolling_aggregate_features: pd.DataFrame = pd.DataFrame()
+    rolling_window_size: timedelta = Field(
+        default=timedelta(hours=24),
+        description="Rolling window size for the aggregation.",
+    )
+    aggregation_functions: list[AggregationFunction] = Field(
+        default_factory=lambda: [AggregationFunction.MEDIAN, AggregationFunction.MIN, AggregationFunction.MAX],
+        description="List of aggregation functions to compute over the rolling window. ",
+    )
+
+    def __init__(self, **kwargs: Any):
+        """Initialize the RollingAggregateFeatures transform with a configuration.
+
+        Args:
+            **kwargs: Configuration parameters for the transform.
+        """
+        super().__init__(**kwargs)
+        self._rolling_aggregate_features: pd.DataFrame = pd.DataFrame()
 
     def _get_rolling_aggregate_feature_name(self, aggregation_function: AggregationFunction) -> str:
         """Generate the feature name for the rolling aggregate based on config.
@@ -94,7 +93,7 @@ class RollingAggregateFeatures(TimeSeriesTransform):
         Returns:
             The generated feature name as a string.
         """
-        return f"rolling_{aggregation_function.value}_load_{timedelta_to_isoformat(td=self.config.rolling_window_size)}"
+        return f"rolling_{aggregation_function.value}_load_{timedelta_to_isoformat(td=self.rolling_window_size)}"
 
     def fit(self, data: TimeSeriesDataset) -> None:
         """Fit the transform to the input time series `load` column.
@@ -111,14 +110,14 @@ class RollingAggregateFeatures(TimeSeriesTransform):
         if "load" not in data.data.columns:
             raise ValueError("The DataFrame must contain a 'load' column.")
 
-        rolling_window_load = data.data["load"].dropna().rolling(window=self.config.rolling_window_size)
+        rolling_window_load = data.data["load"].dropna().rolling(window=self.rolling_window_size)
 
         rolling_aggregate_features: dict[str, pd.Series] = {
             self._get_rolling_aggregate_feature_name(func): rolling_window_load.aggregate(func.value)  # type: ignore[reportUnknownMemberType]
-            for func in self.config.aggregation_functions
+            for func in self.aggregation_functions
         }
 
-        self.rolling_aggregate_features = pd.DataFrame(
+        self._rolling_aggregate_features = pd.DataFrame(
             data=rolling_aggregate_features,
         )
 
@@ -135,7 +134,7 @@ class RollingAggregateFeatures(TimeSeriesTransform):
         Returns:
             A new instance of TimeSeriesDataset containing the original and new rolling aggregate features.
         """
-        aligned_features = self.rolling_aggregate_features.reindex(data.data.index).ffill()
+        aligned_features = self._rolling_aggregate_features.reindex(data.data.index).ffill()
 
         return TimeSeriesDataset(
             data=pd.concat(
