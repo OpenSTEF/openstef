@@ -14,7 +14,7 @@ from typing import Any, cast
 
 import numpy as np
 import pandas as pd
-from pydantic import Field, ValidationInfo, field_validator
+from pydantic import ConfigDict, Field, model_validator
 from sklearn.impute import SimpleImputer
 
 from openstef_core.base_model import BaseConfig
@@ -94,29 +94,21 @@ class MissingValuesTransform(TimeSeriesTransform, BaseConfig):
 
     imputer: SimpleImputer = Field(exclude=True, default_factory=SimpleImputer)
 
-    class Config:
-        """Pydantic configuration for MissingValuesTransform."""
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
-        arbitrary_types_allowed = True
-
-    @field_validator("fill_value")
-    @classmethod
-    def validate_fill_value_with_strategy(cls, v: float | str | None, info: ValidationInfo) -> float | str | None:
+    @model_validator(mode="after")
+    def validate_fill_value_with_strategy(self) -> "MissingValuesTransform":
         """Validate that fill_value is provided when strategy is CONSTANT.
 
-        Args:
-            v: The fill_value to validate.
-            info: Validation info containing other field values.
-
         Returns:
-            The validated fill_value.
+            The validated model instance.
 
         Raises:
             ValueError: If imputation_strategy is CONSTANT but fill_value is None.
         """
-        if info.data.get("imputation_strategy") == ImputationStrategy.CONSTANT and v is None:
+        if self.imputation_strategy == ImputationStrategy.CONSTANT and self.fill_value is None:
             raise ValueError("fill_value must be provided when imputation_strategy is CONSTANT")
-        return v
+        return self
 
     def __init__(self, **data: Any):
         """Initialize the MissingValuesTransform with the given configuration."""

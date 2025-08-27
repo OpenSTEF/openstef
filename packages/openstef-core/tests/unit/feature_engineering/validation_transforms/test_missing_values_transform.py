@@ -9,6 +9,8 @@ import numpy as np
 import pandas as pd
 import pytest
 from _pytest.logging import LogCaptureFixture
+from pydantic import ValidationError
+from sklearn.impute import SimpleImputer
 
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.feature_engineering.validation_transforms.missing_values_transform import (
@@ -33,6 +35,29 @@ def sample_dataset() -> TimeSeriesDataset:
         index=pd.date_range(datetime.fromisoformat("2025-01-01T00:00:00"), periods=4, freq="1h"),
     )
     return TimeSeriesDataset(data, timedelta(hours=1))
+
+
+def test_initialization_with_required_parameters():
+    """Test normal initialization with required parameters."""
+    # Act
+    transform = MissingValuesTransform(imputation_strategy=ImputationStrategy.MEAN)
+
+    # Assert
+    assert transform.imputation_strategy == ImputationStrategy.MEAN
+    assert np.isnan(transform.missing_value)
+    assert transform.fill_value is None
+    assert transform.no_fill_future_values_features == []
+    assert isinstance(transform.imputer, SimpleImputer)
+
+
+def test_validation_constant_strategy_without_fill_value():
+    """Test that CONSTANT strategy without fill_value raises ValidationError."""
+
+    # Act & Assert
+    with pytest.raises(ValidationError) as exc_info:
+        MissingValuesTransform(imputation_strategy=ImputationStrategy.CONSTANT)
+
+    assert "fill_value must be provided when imputation_strategy is CONSTANT" in str(exc_info.value)
 
 
 @pytest.mark.parametrize(
