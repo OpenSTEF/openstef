@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from openstef_core.datasets.versioned_timeseries_dataset import VersionedTimeseriesDataset
+from openstef_core.datasets import VersionedTimeSeriesDataset
 from openstef_core.exceptions import MissingColumnsError
 
 
@@ -40,8 +40,8 @@ def sample_data() -> pd.DataFrame:
 
 
 @pytest.fixture
-def dataset(sample_data: pd.DataFrame) -> VersionedTimeseriesDataset:
-    return VersionedTimeseriesDataset(
+def dataset(sample_data: pd.DataFrame) -> VersionedTimeSeriesDataset:
+    return VersionedTimeSeriesDataset(
         data=sample_data,
         sample_interval=timedelta(hours=1),
         timestamp_column="timestamp",
@@ -54,7 +54,7 @@ def test_initialization_with_valid_data(sample_data: pd.DataFrame):
     sample_interval = timedelta(hours=1)
 
     # Act
-    dataset = VersionedTimeseriesDataset(
+    dataset = VersionedTimeSeriesDataset(
         data=sample_data,
         sample_interval=sample_interval,
         timestamp_column="timestamp",
@@ -63,8 +63,8 @@ def test_initialization_with_valid_data(sample_data: pd.DataFrame):
 
     # Assert
     assert dataset.sample_interval == sample_interval
-    assert dataset._timestamp_column == "timestamp"
-    assert dataset._available_at_column == "available_at"
+    assert dataset.timestamp_column == "timestamp"
+    assert dataset.available_at_column == "available_at"
     assert isinstance(dataset.index, pd.DatetimeIndex)
 
 
@@ -81,7 +81,7 @@ def test_initialization_with_missing_columns(sample_data: pd.DataFrame, missing_
 
     # Act & Assert
     with pytest.raises(MissingColumnsError):
-        VersionedTimeseriesDataset(
+        VersionedTimeSeriesDataset(
             data=data,
             sample_interval=timedelta(hours=1),
             timestamp_column="timestamp",
@@ -98,7 +98,7 @@ def test_custom_column_names():
     })
 
     # Act
-    dataset = VersionedTimeseriesDataset(
+    dataset = VersionedTimeSeriesDataset(
         data=data,
         sample_interval=timedelta(hours=1),
         timestamp_column="custom_ts",
@@ -106,12 +106,12 @@ def test_custom_column_names():
     )
 
     # Assert
-    assert dataset._timestamp_column == "custom_ts"
-    assert dataset._available_at_column == "custom_avail"
+    assert dataset.timestamp_column == "custom_ts"
+    assert dataset.available_at_column == "custom_avail"
     assert dataset.feature_names == ["value"]
 
 
-def test_feature_names_property(dataset: VersionedTimeseriesDataset):
+def test_feature_names_property(dataset: VersionedTimeSeriesDataset):
     # Arrange
     expected_features = ["value1", "value2"]
 
@@ -122,7 +122,7 @@ def test_feature_names_property(dataset: VersionedTimeseriesDataset):
     assert sorted(features) == sorted(expected_features)
 
 
-def test_index_property(dataset: VersionedTimeseriesDataset, sample_data: pd.DataFrame):
+def test_index_property(dataset: VersionedTimeSeriesDataset, sample_data: pd.DataFrame):
     # Arrange
     expected_index = pd.DatetimeIndex(sample_data["timestamp"])
 
@@ -133,7 +133,7 @@ def test_index_property(dataset: VersionedTimeseriesDataset, sample_data: pd.Dat
     pd.testing.assert_index_equal(index, expected_index)
 
 
-def test_data_property(dataset: VersionedTimeseriesDataset, sample_data: pd.DataFrame):
+def test_data_property(dataset: VersionedTimeSeriesDataset, sample_data: pd.DataFrame):
     # Arrange
     expected_data = sample_data
 
@@ -144,7 +144,7 @@ def test_data_property(dataset: VersionedTimeseriesDataset, sample_data: pd.Data
     pd.testing.assert_frame_equal(data, expected_data)
 
 
-def test_get_window_basic_filtering(dataset: VersionedTimeseriesDataset):
+def test_get_window_basic_filtering(dataset: VersionedTimeSeriesDataset):
     # Arrange
     start = datetime.fromisoformat("2023-01-01T10:00:00")
     end = datetime.fromisoformat("2023-01-01T13:00:00")
@@ -160,7 +160,7 @@ def test_get_window_basic_filtering(dataset: VersionedTimeseriesDataset):
     assert "available_at" not in window.columns
 
 
-def test_get_window_with_availability_filtering(dataset: VersionedTimeseriesDataset):
+def test_get_window_with_availability_filtering(dataset: VersionedTimeSeriesDataset):
     # Arrange
     start = datetime.fromisoformat("2023-01-01T10:00:00")
     end = datetime.fromisoformat("2023-01-01T15:00:00")
@@ -186,7 +186,7 @@ def test_get_window_with_availability_filtering(dataset: VersionedTimeseriesData
     pd.testing.assert_frame_equal(window[["value1"]], expected, check_freq=False)
 
 
-def test_get_window_duplicates_keep_latest(dataset: VersionedTimeseriesDataset):
+def test_get_window_duplicates_keep_latest(dataset: VersionedTimeSeriesDataset):
     # Arrange
     start = datetime.fromisoformat("2023-01-01T13:00:00")
     end = datetime.fromisoformat("2023-01-01T15:00:00")
@@ -215,7 +215,7 @@ def test_get_window_reindex_with_missing_timestamps():
         "value": [10, 30],
     })
 
-    gapped_dataset = VersionedTimeseriesDataset(
+    gapped_dataset = VersionedTimeSeriesDataset(
         data=data,
         sample_interval=timedelta(hours=1),
         timestamp_column="timestamp",
@@ -235,7 +235,7 @@ def test_get_window_reindex_with_missing_timestamps():
     assert window.loc[pd.Timestamp.fromisoformat("2023-01-01T12:00:00"), "value"] == 30
 
 
-def test_from_parquet(tmp_path: Path):
+def test_read_parquet(tmp_path: Path):
     # Arrange
     data = pd.DataFrame({
         "timestamp": [datetime.fromisoformat("2023-01-01T10:00:00"), datetime.fromisoformat("2023-01-01T11:00:00")],
@@ -252,10 +252,10 @@ def test_from_parquet(tmp_path: Path):
     data.to_parquet(parquet_path)
 
     # Act
-    dataset = VersionedTimeseriesDataset.from_parquet(path=parquet_path)
+    dataset = VersionedTimeSeriesDataset.read_parquet(path=parquet_path)
 
     # Assert
     assert dataset.sample_interval == timedelta(hours=1)
-    assert dataset._timestamp_column == "timestamp"
-    assert dataset._available_at_column == "available_at"
+    assert dataset.timestamp_column == "timestamp"
+    assert dataset.available_at_column == "available_at"
     pd.testing.assert_frame_equal(dataset.data, data)

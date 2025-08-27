@@ -4,7 +4,7 @@
 
 """Versioned time series dataset for tracking data availability over time.
 
-This module provides the VersionedTimeseriesDataset class, which extends basic
+This module provides the VersionedTimeSeriesDataset class, which extends basic
 time series functionality to track when each data point became available. This
 is crucial for realistic dataset construction for both backtesting and
 forecasting, allowing for accurate simulation of real-time data availability
@@ -29,7 +29,7 @@ from openstef_core.utils import (
 _logger = logging.getLogger(__name__)
 
 
-class VersionedTimeseriesDataset(VersionedTimeSeriesMixin):
+class VersionedTimeSeriesDataset(VersionedTimeSeriesMixin):
     """A time series dataset that tracks data availability over time.
 
     This dataset extends the basic time series concept by maintaining version
@@ -60,7 +60,7 @@ class VersionedTimeseriesDataset(VersionedTimeSeriesMixin):
         ...                      datetime.fromisoformat('2025-01-01T10:30:00')],  # Later revision
         ...     'load': [100.0, 120.0, 105.0]  # 105.0 is revised value for 10:00
         ... })
-        >>> dataset = VersionedTimeseriesDataset(data, timedelta(minutes=15))
+        >>> dataset = VersionedTimeSeriesDataset(data, timedelta(minutes=15))
         >>> dataset.feature_names
         ['load']
 
@@ -70,10 +70,10 @@ class VersionedTimeseriesDataset(VersionedTimeSeriesMixin):
     """
 
     data: pd.DataFrame
+    timestamp_column: str
+    available_at_column: str
     _sample_interval: timedelta
     _index: pd.DatetimeIndex
-    _timestamp_column: str
-    _available_at_column: str
     _feature_names: list[str]
 
     def __init__(
@@ -83,7 +83,7 @@ class VersionedTimeseriesDataset(VersionedTimeSeriesMixin):
         timestamp_column: str = "timestamp",
         available_at_column: str = "available_at",
     ) -> None:
-        """Initialize a VersionedTimeseriesDataset with the given data and configuration.
+        """Initialize a VersionedTimeSeriesDataset with the given data and configuration.
 
         Args:
             data: DataFrame containing the time series data.
@@ -104,11 +104,11 @@ class VersionedTimeseriesDataset(VersionedTimeSeriesMixin):
             data.attrs["is_sorted"] = True
 
         self.data = data
+        self.timestamp_column = timestamp_column
+        self.available_at_column = available_at_column
         self._sample_interval = sample_interval
         self._index = cast(pd.DatetimeIndex, pd.DatetimeIndex(self.data[timestamp_column]))
-        self._timestamp_column = timestamp_column
-        self._available_at_column = available_at_column
-        self._feature_names = list(set(self.data.columns) - {self._timestamp_column, self._available_at_column})
+        self._feature_names = list(set(self.data.columns) - {self.timestamp_column, self.available_at_column})
 
     @property
     def feature_names(self) -> list[str]:
@@ -172,7 +172,7 @@ class VersionedTimeseriesDataset(VersionedTimeSeriesMixin):
             ...                      datetime.fromisoformat('2025-01-01T10:35:00')],
             ...     'load': [100.0, 120.0, 110.0]
             ... })
-            >>> dataset = VersionedTimeseriesDataset(data, timedelta(minutes=15))
+            >>> dataset = VersionedTimeSeriesDataset(data, timedelta(minutes=15))
             >>> window = dataset.get_window(
             ...     start=datetime.fromisoformat('2025-01-01T10:00:00'),
             ...     end=datetime.fromisoformat('2025-01-01T10:30:00'),
@@ -185,18 +185,18 @@ class VersionedTimeseriesDataset(VersionedTimeSeriesMixin):
             The returned DataFrame excludes the availability timestamp column
             and uses the timestamp column as the index.
         """
-        start_idx = self.data[self._timestamp_column].searchsorted(start, side="left")
-        end_idx = self.data[self._timestamp_column].searchsorted(end, side="left")
+        start_idx = self.data[self.timestamp_column].searchsorted(start, side="left")
+        end_idx = self.data[self.timestamp_column].searchsorted(end, side="left")
         subset = self.data.iloc[start_idx:end_idx]
 
         if available_before is not None:
-            subset = subset[subset[self._available_at_column] <= available_before]
+            subset = subset[subset[self.available_at_column] <= available_before]
 
         window_range = pd.date_range(start=start, end=end, freq=self._sample_interval, inclusive="left")
         return (
-            subset.drop_duplicates(subset=[self._timestamp_column], keep="last")
-            .drop(columns=[self._available_at_column])
-            .set_index(self._timestamp_column)
+            subset.drop_duplicates(subset=[self.timestamp_column], keep="last")
+            .drop(columns=[self.available_at_column])
+            .set_index(self.timestamp_column)
             .reindex(window_range, fill_value=np.nan)
         )
 
@@ -217,17 +217,17 @@ class VersionedTimeseriesDataset(VersionedTimeSeriesMixin):
             column name, availability column name, and sort status.
         """
         self.data.attrs["sample_interval"] = timedelta_to_isoformat(self._sample_interval)
-        self.data.attrs["timestamp_column"] = self._timestamp_column
-        self.data.attrs["available_at_column"] = self._available_at_column
+        self.data.attrs["timestamp_column"] = self.timestamp_column
+        self.data.attrs["available_at_column"] = self.available_at_column
         self.data.attrs["is_sorted"] = True
         self.data.to_parquet(path)
 
     @classmethod
-    def from_parquet(
+    def read_parquet(
         cls,
         path: Path,
     ) -> Self:
-        """Create a VersionedTimeseriesDataset from a parquet file.
+        """Create a VersionedTimeSeriesDataset from a parquet file.
 
         Loads a complete versioned dataset from a parquet file created with
         the `to_parquet` method. Handles missing metadata gracefully with
@@ -237,7 +237,7 @@ class VersionedTimeseriesDataset(VersionedTimeSeriesMixin):
             path: Path to the parquet file to load.
 
         Returns:
-            New VersionedTimeseriesDataset instance reconstructed from the file.
+            New VersionedTimeSeriesDataset instance reconstructed from the file.
 
         Example:
             Save and reload a versioned dataset:
@@ -254,12 +254,12 @@ class VersionedTimeseriesDataset(VersionedTimeSeriesMixin):
             ...                      datetime.fromisoformat('2025-01-01T10:20:00')],
             ...     'load': [100.0, 120.0]
             ... })
-            >>> dataset = VersionedTimeseriesDataset(data, timedelta(minutes=15))
+            >>> dataset = VersionedTimeSeriesDataset(data, timedelta(minutes=15))
             >>> # Test save/load cycle
             >>> with tempfile.TemporaryDirectory() as tmpdir:
             ...     file_path = Path(tmpdir) / "versioned_data.parquet"
             ...     dataset.to_parquet(file_path)
-            ...     loaded = VersionedTimeseriesDataset.from_parquet(file_path)
+            ...     loaded = VersionedTimeSeriesDataset.read_parquet(file_path)
             ...     loaded.feature_names == dataset.feature_names
             True
 
@@ -285,4 +285,4 @@ class VersionedTimeseriesDataset(VersionedTimeSeriesMixin):
         )
 
 
-__all__ = ["VersionedTimeseriesDataset"]
+__all__ = ["VersionedTimeSeriesDataset"]

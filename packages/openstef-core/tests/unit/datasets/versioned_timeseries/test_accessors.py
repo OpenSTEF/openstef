@@ -9,13 +9,12 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from openstef_core.datasets.versioned_timeseries_accessors import (
+from openstef_core.datasets.versioned_timeseries import VersionedTimeSeriesDataset, concat_featurewise, restrict_horizon
+from openstef_core.datasets.versioned_timeseries.accessors import (
     ConcatenatedVersionedTimeSeries,
     ConcatMode,
     RestrictedHorizonVersionedTimeSeries,
-    VersionedTimeSeriesAccessors,
 )
-from openstef_core.datasets.versioned_timeseries_dataset import VersionedTimeseriesDataset
 from openstef_core.exceptions import TimeSeriesValidationError
 
 if TYPE_CHECKING:
@@ -23,8 +22,8 @@ if TYPE_CHECKING:
 
 
 @pytest.fixture
-def simple_dataset() -> VersionedTimeseriesDataset:
-    return VersionedTimeseriesDataset(
+def simple_dataset() -> VersionedTimeSeriesDataset:
+    return VersionedTimeSeriesDataset(
         data=pd.DataFrame({
             "timestamp": [
                 datetime.fromisoformat("2024-01-01T10:00:00"),
@@ -43,7 +42,7 @@ def simple_dataset() -> VersionedTimeseriesDataset:
 
 
 @pytest.fixture
-def partial_dataset() -> VersionedTimeseriesDataset:
+def partial_dataset() -> VersionedTimeSeriesDataset:
     # Create a dataset with some missing timestamps
     data = pd.DataFrame({
         "timestamp": [
@@ -58,10 +57,10 @@ def partial_dataset() -> VersionedTimeseriesDataset:
         "third_value": [1000.0, 3000.0],
     })
 
-    return VersionedTimeseriesDataset(data=data, sample_interval=timedelta(hours=1))
+    return VersionedTimeSeriesDataset(data=data, sample_interval=timedelta(hours=1))
 
 
-def test_restricted_horizon_basic(simple_dataset: VersionedTimeseriesDataset):
+def test_restricted_horizon_basic(simple_dataset: VersionedTimeSeriesDataset):
     # Arrange
     horizon = datetime.fromisoformat("2024-01-01T12:00:00")
     start = datetime.fromisoformat("2024-01-01T10:00:00")
@@ -82,7 +81,7 @@ def test_restricted_horizon_basic(simple_dataset: VersionedTimeseriesDataset):
     pd.testing.assert_frame_equal(window, expected, check_freq=False)
 
 
-def test_restricted_horizon_validation(simple_dataset: VersionedTimeseriesDataset):
+def test_restricted_horizon_validation(simple_dataset: VersionedTimeSeriesDataset):
     # Arrange
     horizon = datetime.fromisoformat("2024-01-01T12:00:00")
     start = datetime.fromisoformat("2024-01-01T10:00:00")
@@ -105,12 +104,12 @@ def test_restricted_horizon_validation(simple_dataset: VersionedTimeseriesDatase
     ],
 )
 def test_concatenated_versioned_timeseries_basic(
-    simple_dataset: VersionedTimeseriesDataset, mode: ConcatMode, expected_length: int
+    simple_dataset: VersionedTimeSeriesDataset, mode: ConcatMode, expected_length: int
 ):
     # Arrange
     start = datetime.fromisoformat("2024-01-01T10:00:00")
     end = datetime.fromisoformat("2024-01-01T13:00:00")
-    second_dataset = VersionedTimeseriesDataset(
+    second_dataset = VersionedTimeSeriesDataset(
         data=simple_dataset.data.rename(columns={"value": "other_value"}),
         sample_interval=simple_dataset.sample_interval,
     )
@@ -127,7 +126,7 @@ def test_concatenated_versioned_timeseries_basic(
 
 
 def test_concatenated_versioned_timeseries_with_partial(
-    simple_dataset: VersionedTimeseriesDataset, partial_dataset: VersionedTimeseriesDataset
+    simple_dataset: VersionedTimeSeriesDataset, partial_dataset: VersionedTimeSeriesDataset
 ):
     # Arrange
     start = datetime.fromisoformat("2024-01-01T10:00:00")
@@ -153,7 +152,7 @@ def test_concatenated_versioned_timeseries_validation_error():
         ConcatenatedVersionedTimeSeries(invalid_datasets, mode="left")
 
 
-def test_concatenated_versioned_timeseries_overlapping_features(simple_dataset: VersionedTimeseriesDataset):
+def test_concatenated_versioned_timeseries_overlapping_features(simple_dataset: VersionedTimeSeriesDataset):
     # Arrange - both datasets have "value" column
 
     # Act & Assert
@@ -162,17 +161,17 @@ def test_concatenated_versioned_timeseries_overlapping_features(simple_dataset: 
 
 
 # VersionedTimeSeriesAccessors Factory Tests
-def test_versioned_timeseries_accessors_factory(simple_dataset: VersionedTimeseriesDataset):
+def test_versioned_timeseries_accessors_factory(simple_dataset: VersionedTimeSeriesDataset):
     # Arrange
     horizon = datetime.fromisoformat("2024-01-01T12:00:00")
-    second_dataset = VersionedTimeseriesDataset(
+    second_dataset = VersionedTimeSeriesDataset(
         data=simple_dataset.data.rename(columns={"value": "other_value"}),
         sample_interval=simple_dataset.sample_interval,
     )
 
     # Act
-    horizon_transform = VersionedTimeSeriesAccessors.restrict_horizon(simple_dataset, horizon)
-    concat_transform = VersionedTimeSeriesAccessors.concat_featurewise([simple_dataset, second_dataset], mode="left")
+    horizon_transform = restrict_horizon(simple_dataset, horizon)
+    concat_transform = concat_featurewise([simple_dataset, second_dataset], mode="left")
 
     # Assert
     assert isinstance(horizon_transform, RestrictedHorizonVersionedTimeSeries)

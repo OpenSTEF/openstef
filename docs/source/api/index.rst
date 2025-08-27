@@ -7,7 +7,7 @@ API Reference
 
 This is the complete API reference for OpenSTEF. The API is organized into several packages:
 
-.. grid:: 1 1 2 2
+.. grid:: 1 1 3 3
     :gutter: 4
     :padding: 2 2 0 0
     :class-container: sd-text-center
@@ -23,6 +23,12 @@ This is the complete API reference for OpenSTEF. The API is organized into sever
         :link-type: ref
         
         Machine learning models and feature engineering
+
+    .. grid-item-card:: :fa:`chart-line` BEAM Package
+        :link: beam-api
+        :link-type: ref
+        
+        Backtesting, evaluation, analysis and metrics for forecasting models
 
 .. _core-api:
 
@@ -61,5 +67,24 @@ Models Package (:mod:`openstef_models`)
    postprocessing
    explainability
    exceptions
+
+.. _beam-api:
+
+BEAM Package (:mod:`openstef_beam`)
+-----------------------------------
+
+.. currentmodule:: openstef_beam
+
+**BEAM Modules:**
+
+.. autosummary::
+   :toctree: generated/
+   :template: package_overview.rst
+
+   metrics
+   backtesting
+   analysis
+   evaluation
+   benchmarking
 
 

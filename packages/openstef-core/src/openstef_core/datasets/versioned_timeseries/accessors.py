@@ -163,96 +163,96 @@ class RestrictedHorizonVersionedTimeSeries(VersionedTimeSeriesMixin):
         return self._dataset.get_window(start=start, end=end, available_before=available_before or self._horizon)
 
 
-class VersionedTimeSeriesAccessors:
-    """Utility class providing static methods for dataset operations.
+def concat_featurewise(datasets: list[VersionedTimeSeriesMixin], mode: ConcatMode) -> VersionedTimeSeriesMixin:
+    """Concatenate multiple datasets by combining their features.
 
-    This class contains factory methods for creating composite datasets
-    and applying transformations to versioned time series data.
+    Combines datasets horizontally by concatenating their feature columns.
+    Validates that datasets have disjoint feature sets and compatible
+    sample intervals before creating the composite dataset.
+
+    Args:
+        datasets: List of versioned datasets to combine. Must have
+            disjoint feature sets and identical sample intervals.
+        mode: Index alignment strategy for concatenation:
+            - 'left': Use index from first dataset
+            - 'outer': Union of all dataset indices
+            - 'inner': Intersection of all dataset indices
+
+    Returns:
+        Composite dataset providing unified access to all features.
+        If only one dataset is provided, returns it unchanged.
+
+    Example:
+        Combine temperature and load datasets:
+
+        >>> from datetime import datetime, timedelta
+        >>> import pandas as pd
+        >>> from openstef_core.datasets.versioned_timeseries import VersionedTimeSeriesDataset, concat_featurewise
+        >>> # Create two simple test datasets
+        >>> temp_data = pd.DataFrame({
+        ...     'timestamp': [datetime.fromisoformat('2025-01-01T10:00:00')],
+        ...     'available_at': [datetime.fromisoformat('2025-01-01T10:05:00')],
+        ...     'temperature': [20.0]
+        ... })
+        >>> load_data = pd.DataFrame({
+        ...     'timestamp': [datetime.fromisoformat('2025-01-01T10:00:00')],
+        ...     'available_at': [datetime.fromisoformat('2025-01-01T10:05:00')],
+        ...     'load': [100.0]
+        ... })
+        >>> temp_dataset = VersionedTimeSeriesDataset(temp_data, timedelta(minutes=15))
+        >>> load_dataset = VersionedTimeSeriesDataset(load_data, timedelta(minutes=15))
+        >>> combined = concat_featurewise(
+        ...     [temp_dataset, load_dataset], mode='outer'
+        ... )
+        >>> sorted(combined.feature_names)
+        ['load', 'temperature']
     """
+    if len(datasets) == 1:
+        return datasets[0]
 
-    @staticmethod
-    def concat_featurewise(datasets: list[VersionedTimeSeriesMixin], mode: ConcatMode) -> VersionedTimeSeriesMixin:
-        """Concatenate multiple datasets by combining their features.
+    return ConcatenatedVersionedTimeSeries(datasets=datasets, mode=mode)
 
-        Combines datasets horizontally by concatenating their feature columns.
-        Validates that datasets have disjoint feature sets and compatible
-        sample intervals before creating the composite dataset.
 
-        Args:
-            datasets: List of versioned datasets to combine. Must have
-                disjoint feature sets and identical sample intervals.
-            mode: Index alignment strategy for concatenation:
-                - 'left': Use index from first dataset
-                - 'outer': Union of all dataset indices
-                - 'inner': Intersection of all dataset indices
+def restrict_horizon(dataset: VersionedTimeSeriesMixin, horizon: datetime) -> "RestrictedHorizonVersionedTimeSeries":
+    """Restrict dataset access to data available before a specific horizon.
 
-        Returns:
-            Composite dataset providing unified access to all features.
-            If only one dataset is provided, returns it unchanged.
+    Creates a wrapper that enforces a maximum horizon for data availability,
+    useful for backtesting scenarios where you need to simulate real-time
+    data constraints.
 
-        Example:
-            Combine temperature and load datasets:
+    Args:
+        dataset: The dataset to apply the horizon restriction to.
+        horizon: Maximum time for data availability cutoff.
 
-            >>> from datetime import datetime, timedelta
-            >>> import pandas as pd
-            >>> from openstef_core.datasets.versioned_timeseries_dataset import VersionedTimeseriesDataset
-            >>> # Create two simple test datasets
-            >>> temp_data = pd.DataFrame({
-            ...     'timestamp': [datetime.fromisoformat('2025-01-01T10:00:00')],
-            ...     'available_at': [datetime.fromisoformat('2025-01-01T10:05:00')],
-            ...     'temperature': [20.0]
-            ... })
-            >>> load_data = pd.DataFrame({
-            ...     'timestamp': [datetime.fromisoformat('2025-01-01T10:00:00')],
-            ...     'available_at': [datetime.fromisoformat('2025-01-01T10:05:00')],
-            ...     'load': [100.0]
-            ... })
-            >>> temp_dataset = VersionedTimeseriesDataset(temp_data, timedelta(minutes=15))
-            >>> load_dataset = VersionedTimeseriesDataset(load_data, timedelta(minutes=15))
-            >>> combined = VersionedTimeSeriesAccessors.concat_featurewise(
-            ...     [temp_dataset, load_dataset], mode='outer'
-            ... )
-            >>> sorted(combined.feature_names)
-            ['load', 'temperature']
-        """
-        if len(datasets) == 1:
-            return datasets[0]
+    Returns:
+        Wrapped dataset with horizon restriction enforced.
 
-        return ConcatenatedVersionedTimeSeries(datasets=datasets, mode=mode)
+    Example:
+        Restrict dataset for backtesting:
 
-    @staticmethod
-    def restrict_horizon(dataset: VersionedTimeSeriesMixin, horizon: datetime) -> VersionedTimeSeriesMixin:
-        """Restrict dataset access to data available before a specific horizon.
+        >>> from datetime import datetime, timedelta
+        >>> import pandas as pd
+        >>> from openstef_core.datasets.versioned_timeseries import VersionedTimeSeriesDataset, restrict_horizon
+        >>> # Create test dataset
+        >>> data = pd.DataFrame({
+        ...     'timestamp': [datetime.fromisoformat('2025-01-01T10:00:00')],
+        ...     'available_at': [datetime.fromisoformat('2025-01-01T12:00:00')],
+        ...     'load': [100.0]
+        ... })
+        >>> dataset = VersionedTimeSeriesDataset(data, timedelta(minutes=15))
+        >>> backtest_cutoff = datetime.fromisoformat('2025-01-01T11:00:00')
+        >>> restricted = restrict_horizon(
+        ...     dataset, backtest_cutoff
+        ... )
+        >>> isinstance(restricted, RestrictedHorizonVersionedTimeSeries)
+        True
+    """
+    return RestrictedHorizonVersionedTimeSeries(dataset, horizon)
 
-        Creates a wrapper that enforces a maximum horizon for data availability,
-        useful for backtesting scenarios where you need to simulate real-time
-        data constraints.
 
-        Args:
-            dataset: The dataset to apply the horizon restriction to.
-            horizon: Maximum time for data availability cutoff.
-
-        Returns:
-            Wrapped dataset with horizon restriction enforced.
-
-        Example:
-            Restrict dataset for backtesting:
-
-            >>> from datetime import datetime, timedelta
-            >>> import pandas as pd
-            >>> from openstef_core.datasets.versioned_timeseries_dataset import VersionedTimeseriesDataset
-            >>> # Create test dataset
-            >>> data = pd.DataFrame({
-            ...     'timestamp': [datetime.fromisoformat('2025-01-01T10:00:00')],
-            ...     'available_at': [datetime.fromisoformat('2025-01-01T12:00:00')],
-            ...     'load': [100.0]
-            ... })
-            >>> dataset = VersionedTimeseriesDataset(data, timedelta(minutes=15))
-            >>> backtest_cutoff = datetime.fromisoformat('2025-01-01T11:00:00')
-            >>> restricted = VersionedTimeSeriesAccessors.restrict_horizon(
-            ...     dataset, backtest_cutoff
-            ... )
-            >>> isinstance(restricted, RestrictedHorizonVersionedTimeSeries)
-            True
-        """
-        return RestrictedHorizonVersionedTimeSeries(dataset, horizon)
+__all__ = [
+    "ConcatenatedVersionedTimeSeries",
+    "RestrictedHorizonVersionedTimeSeries",
+    "concat_featurewise",
+    "restrict_horizon",
+]
