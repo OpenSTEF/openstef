@@ -13,8 +13,8 @@ import pytest
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.feature_engineering.temporal_transforms.daylight_features import DaylightFeatures
 
-
 pvlib = pytest.importorskip("pvlib")
+
 
 @pytest.fixture
 def sample_dataset() -> TimeSeriesDataset:
