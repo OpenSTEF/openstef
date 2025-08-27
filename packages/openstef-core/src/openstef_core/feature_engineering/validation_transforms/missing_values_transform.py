@@ -80,7 +80,7 @@ class MissingValuesTransform(TimeSeriesTransform, BaseConfig):
         description="The strategy to use for imputation",
     )
     missing_value: float = Field(
-        default_factory=lambda: np.nan,
+        default=np.nan,
         description="The placeholder for missing values that should be imputed",
     )
     fill_value: float | str | None = Field(
