@@ -156,13 +156,10 @@ class MissingValuesTransform(TimeSeriesTransform, BaseConfig):
             return data
 
         features_to_check = [f for f in self.no_fill_future_values_features if f in data.columns]
-        for feature in self.no_fill_future_values_features:
-            if feature not in data.columns:
-                _logger.warning("Feature '%s' not found in dataset columns.", feature)
-
-        if not features_to_check:
-            return data
-
+        missing_columns = set(self.no_fill_future_values_features) - set(data.columns)
+        if missing_columns:
+            missing_features_str = "', '".join(sorted(missing_columns))
+            _logger.warning("Features '%s' not found in dataset columns.", missing_features_str)
         subset_df = data[features_to_check]
         mask = ~subset_df.bfill().isna().any(axis="columns")
         return data.loc[mask]

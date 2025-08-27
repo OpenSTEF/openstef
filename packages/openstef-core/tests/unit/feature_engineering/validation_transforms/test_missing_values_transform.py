@@ -170,7 +170,7 @@ def test_no_trailing_nulls_removal_when_feature_not_in_data(
     # Assert
     assert len(result.data) == 4  # No rows removed
     assert not result.data.isna().any().any()  # All values imputed
-    assert "Feature 'nonexistent_feature' not found in dataset columns." in caplog.text
+    assert "Features 'nonexistent_feature' not found in dataset columns." in caplog.text
 
 
 def test_empty_feature_removal():
@@ -266,7 +266,7 @@ def test_all_null_dataset_with_trailing_removal(caplog: LogCaptureFixture):
     # Assert
     assert len(result.data) == 3  # One row removed
     assert "Dropped column 'radiation' from dataset because it contains only missing values." in caplog.text
-    assert "Feature 'radiation' not found in dataset columns." in caplog.text
+    assert "Features 'radiation' not found in dataset columns." in caplog.text
 
 
 def test_drop_empty_feature_with_custom_missing_value(caplog: LogCaptureFixture):
