@@ -9,11 +9,12 @@ from unittest.mock import Mock, patch
 
 import pandas as pd
 import pytest
-pvlib = pytest.importorskip("pvlib")
 
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.feature_engineering.temporal_transforms.daylight_features import DaylightFeatures
 
+
+pvlib = pytest.importorskip("pvlib")
 
 @pytest.fixture
 def sample_dataset() -> TimeSeriesDataset:
