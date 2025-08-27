@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 
 import logging
-from typing import Literal
+from typing import Literal, cast
 
 import pandas as pd
 from pydantic import Field
@@ -121,7 +121,7 @@ class RadiationDerivedFeatures(TimeSeriesTransform):
         surface_tilt: float = 34.0,
         surface_azimuth: float = 180.0,
     ) -> pd.Series:
-        return pvlib.irradiance.get_total_irradiance(
+        return pvlib.irradiance.get_total_irradiance(  # type: ignore[reportUnknownMemberType]
             surface_tilt=surface_tilt,
             surface_azimuth=surface_azimuth,
             solar_zenith=solar_position["apparent_zenith"],
@@ -137,12 +137,12 @@ class RadiationDerivedFeatures(TimeSeriesTransform):
         clearsky_radiation: pd.DataFrame,
         ghi: pd.Series,
     ) -> pd.Series:
-        return pvlib.irradiance.dni(
+        return cast(pd.Series, pvlib.irradiance.dni(  # type: ignore[reportUnknownMemberType]
             ghi=ghi,
             dhi=clearsky_radiation["dhi"],
             zenith=solar_position["apparent_zenith"],
             dni_clear=clearsky_radiation["dni"],
-        ).fillna(0.0)
+        )).fillna(0.0)
 
     def fit(self, data: TimeSeriesDataset) -> None:
         if not data.index.tz:
@@ -167,13 +167,13 @@ class RadiationDerivedFeatures(TimeSeriesTransform):
             tz=str(data.index.tz),
         )
 
-        solar_position: pd.DataFrame = pvlib.solarposition.get_solarposition(
+        solar_position: pd.DataFrame = pvlib.solarposition.get_solarposition(  # type: ignore[reportUnknownMemberType]
             time=data.index,
             latitude=location.latitude,
             longitude=location.longitude,
         )
 
-        clearsky_radiation: pd.DataFrame = location.get_clearsky(data.index)
+        clearsky_radiation: pd.DataFrame = location.get_clearsky(data.index)  # type: ignore[reportUnknownMemberType]
 
         dni = self._calculate_dni(
             solar_position=solar_position,

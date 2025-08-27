@@ -8,6 +8,7 @@ This module provides functionality to compute the daylight feature (terrestrial 
 based on geographical location and datetime indices
 of time series datasets.
 """
+from typing import cast
 
 import pandas as pd
 
@@ -72,7 +73,7 @@ class DaylightFeatures(TimeSeriesTransform):
         if not data.index.tz:
             raise ValueError("The datetime index must be timezone-aware.")
         location = pvlib.location.Location(self.latitude, self.longitude, tz=str(data.index.tz))
-        clearsky_radiation: pd.DataFrame = location.get_clearsky(data.index)  # type: ignore[reportUnknownVariableType]
+        clearsky_radiation: pd.DataFrame = location.get_clearsky(data.index)  # type: ignore[reportUnknownMemberType]
         self.daylight_continuous = clearsky_radiation[["ghi"]].rename(columns={"ghi": "daylight_continuous"})
 
     def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:

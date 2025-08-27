@@ -10,6 +10,7 @@ for improved machine learning model performance.
 """
 
 from enum import StrEnum
+from typing import cast
 
 import pandas as pd
 
@@ -111,7 +112,7 @@ class Scaler(TimeSeriesTransform):
             A new TimeSeriesDataset instance containing the scaled data.
         """
         scaled_data = pd.DataFrame(
-            data=self.scaler.transform(data.data),  # type: ignore[reportUnknownMemberType]
+            data=cast(pd.DataFrame, self.scaler.transform(data.data)),
             columns=data.data.columns,
             index=data.data.index,
         )

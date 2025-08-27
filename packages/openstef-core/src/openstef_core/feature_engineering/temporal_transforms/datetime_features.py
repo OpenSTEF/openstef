@@ -8,8 +8,10 @@ This module provides functionality to compute datetime features that indicate
 temporal patterns like weekdays, weekends, and other time-based characteristics
 from the datetime index of time series datasets.
 """
+from typing import cast
 
 import numpy as np
+import numpy.typing as npt
 import pandas as pd
 
 from openstef_core.datasets import TimeSeriesDataset
@@ -62,7 +64,7 @@ class DatetimeFeatures(TimeSeriesTransform):
         self.datetime_features: pd.DataFrame = pd.DataFrame()
 
     @staticmethod
-    def _is_weekend_day(index: pd.DatetimeIndex) -> np.ndarray:
+    def _is_weekend_day(index: pd.DatetimeIndex) -> npt.NDArray[np.int64]:
         """Check if the day is a weekend day (Saturday or Sunday).
 
         Args:
@@ -74,7 +76,7 @@ class DatetimeFeatures(TimeSeriesTransform):
         return (index.weekday >= MIN_WEEKEND_IDX).astype(int)
 
     @staticmethod
-    def _is_weekday(index: pd.DatetimeIndex) -> np.ndarray:
+    def _is_weekday(index: pd.DatetimeIndex) -> npt.NDArray[np.int64]:
         """Check if the day is a weekday (Monday to Friday).
 
         Args:
@@ -86,7 +88,7 @@ class DatetimeFeatures(TimeSeriesTransform):
         return (index.weekday < MIN_WEEKEND_IDX).astype(int)
 
     @staticmethod
-    def _is_sunday(index: pd.DatetimeIndex) -> np.ndarray:
+    def _is_sunday(index: pd.DatetimeIndex) -> npt.NDArray[np.int64]:
         """Check if the day is a Sunday.
 
         Args:
@@ -98,7 +100,7 @@ class DatetimeFeatures(TimeSeriesTransform):
         return (index.weekday == SUNDAY_IDX).astype(int)
 
     @staticmethod
-    def _month_of_year(index: pd.DatetimeIndex) -> np.ndarray:
+    def _month_of_year(index: pd.DatetimeIndex) -> npt.NDArray[np.int64]:
         """Get the month of the year (1 to 12).
 
         Args:
@@ -107,10 +109,11 @@ class DatetimeFeatures(TimeSeriesTransform):
         Returns:
             Numpy array of months corresponding to each date in the index.
         """
-        return index.month.to_numpy()  # type: ignore[reportUnknownMemberType]
+        return cast(pd.Series[int], index.month).to_numpy()
+
 
     @staticmethod
-    def _quarter_of_year(index: pd.DatetimeIndex) -> np.ndarray:
+    def _quarter_of_year(index: pd.DatetimeIndex) -> npt.NDArray[np.int64]:
         """Get the quarter of the year (1 to 4).
 
         Args:
@@ -119,7 +122,7 @@ class DatetimeFeatures(TimeSeriesTransform):
         Returns:
             Numpy array of quarters corresponding to each date in the index.
         """
-        return index.quarter.to_numpy()  # type: ignore[reportUnknownMemberType]
+        return cast(pd.Series[int], index.quarter).to_numpy()
 
     def fit(self, data: TimeSeriesDataset) -> None:
         """Fit the transform by computing datetime features from the data's index.
