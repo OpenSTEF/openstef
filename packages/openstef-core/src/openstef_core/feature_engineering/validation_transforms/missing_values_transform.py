@@ -14,7 +14,7 @@ from typing import Any, cast
 
 import numpy as np
 import pandas as pd
-from pydantic import ConfigDict, Field, model_validator
+from pydantic import Field, model_validator
 from sklearn.impute import SimpleImputer
 
 from openstef_core.base_model import BaseConfig
@@ -92,10 +92,6 @@ class MissingValuesTransform(TimeSeriesTransform, BaseConfig):
         description="List of feature names for which trailing NaN values should not be filled",
     )
 
-    imputer: SimpleImputer = Field(exclude=True, default_factory=SimpleImputer)
-
-    model_config = ConfigDict(arbitrary_types_allowed=True)
-
     @model_validator(mode="after")
     def validate_fill_value_with_strategy(self) -> "MissingValuesTransform":
         """Validate that fill_value is provided when strategy is CONSTANT.
@@ -114,13 +110,13 @@ class MissingValuesTransform(TimeSeriesTransform, BaseConfig):
         """Initialize the MissingValuesTransform with the given configuration."""
         super().__init__(**data)
 
-        self.imputer = SimpleImputer(
+        self._imputer = SimpleImputer(
             strategy=self.imputation_strategy.value,
             fill_value=self.fill_value,
             missing_values=self.missing_value,
             keep_empty_features=False,
         )
-        self.imputer.set_output(transform="pandas")
+        self._imputer.set_output(transform="pandas")
 
     def _drop_empty_features(self, data: pd.DataFrame) -> pd.DataFrame:
         """Drop features that contain only missing values.
@@ -184,7 +180,7 @@ class MissingValuesTransform(TimeSeriesTransform, BaseConfig):
         """
         fit_data = self._drop_empty_features(data.data)
         fit_data = self._remove_trailing_null_rows(fit_data)
-        self.imputer.fit(fit_data)
+        self._imputer.fit(fit_data)
 
     def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
         """Transform the input dataset by removing trailing null rows and imputing missing values.
@@ -204,6 +200,6 @@ class MissingValuesTransform(TimeSeriesTransform, BaseConfig):
         """
         data_cleaned = self._drop_empty_features(data.data)
         data_cleaned = self._remove_trailing_null_rows(data_cleaned)
-        data_transformed = cast(pd.DataFrame, self.imputer.transform(data_cleaned))
+        data_transformed = cast(pd.DataFrame, self._imputer.transform(data_cleaned))
 
         return TimeSeriesDataset(data=data_transformed, sample_interval=data.sample_interval)

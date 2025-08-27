@@ -47,7 +47,7 @@ def test_initialization_with_required_parameters():
     assert np.isnan(transform.missing_value)
     assert transform.fill_value is None
     assert transform.no_fill_future_values_features == []
-    assert isinstance(transform.imputer, SimpleImputer)
+    assert isinstance(transform._imputer, SimpleImputer)
 
 
 def test_validation_constant_strategy_without_fill_value():
