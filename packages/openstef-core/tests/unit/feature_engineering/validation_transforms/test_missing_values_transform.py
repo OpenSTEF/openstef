@@ -14,7 +14,6 @@ from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.feature_engineering.validation_transforms.missing_values_transform import (
     ImputationStrategy,
     MissingValuesTransform,
-    MissingValuesTransformConfig,
 )
 
 
@@ -51,8 +50,7 @@ def test_basic_imputation_strategies(
     expected_wind_speed_value: float,
 ):
     # Arrange
-    config = MissingValuesTransformConfig(imputation_strategy=strategy)
-    transform = MissingValuesTransform(config)
+    transform = MissingValuesTransform(imputation_strategy=strategy)
 
     # Act
     transform.fit(sample_dataset)
@@ -67,8 +65,7 @@ def test_basic_imputation_strategies(
 
 def test_constant_imputation(sample_dataset: TimeSeriesDataset):
     # Arrange
-    config = MissingValuesTransformConfig(imputation_strategy=ImputationStrategy.CONSTANT, fill_value=999.0)
-    transform = MissingValuesTransform(config)
+    transform = MissingValuesTransform(imputation_strategy=ImputationStrategy.CONSTANT, fill_value=999.0)
 
     # Act
     transform.fit(sample_dataset)
@@ -92,10 +89,9 @@ def test_remove_trailing_null_rows():
         index=pd.date_range(datetime.fromisoformat("2025-01-01T00:00:00"), periods=4, freq="1h"),
     )
     dataset = TimeSeriesDataset(data, timedelta(hours=1))
-    config = MissingValuesTransformConfig(
+    transform = MissingValuesTransform(
         imputation_strategy=ImputationStrategy.MEAN, no_fill_future_values_features=["radiation"]
     )
-    transform = MissingValuesTransform(config)
 
     # Act
     transform.fit(dataset)
@@ -119,10 +115,9 @@ def test_remove_trailing_nulls_multiple_features():
         index=pd.date_range(datetime.fromisoformat("2025-01-01T00:00:00"), periods=3, freq="1h"),
     )
     dataset = TimeSeriesDataset(data, timedelta(hours=1))
-    config = MissingValuesTransformConfig(
+    transform = MissingValuesTransform(
         imputation_strategy=ImputationStrategy.MEAN, no_fill_future_values_features=["radiation", "price"]
     )
-    transform = MissingValuesTransform(config)
 
     # Act
     transform.fit(dataset)
@@ -138,10 +133,9 @@ def test_no_trailing_nulls_removal_when_feature_not_in_data(
     sample_dataset: TimeSeriesDataset, caplog: LogCaptureFixture
 ):
     # Arrange
-    config = MissingValuesTransformConfig(
+    transform = MissingValuesTransform(
         imputation_strategy=ImputationStrategy.MEAN, no_fill_future_values_features=["nonexistent_feature"]
     )
-    transform = MissingValuesTransform(config)
 
     # Act
     with caplog.at_level(logging.WARNING):
@@ -166,8 +160,7 @@ def test_empty_feature_removal():
         index=pd.date_range(datetime.fromisoformat("2025-01-01T00:00:00"), periods=3, freq="1h"),
     )
     dataset = TimeSeriesDataset(data, timedelta(hours=1))
-    config = MissingValuesTransformConfig(imputation_strategy=ImputationStrategy.MEAN)
-    transform = MissingValuesTransform(config)
+    transform = MissingValuesTransform(imputation_strategy=ImputationStrategy.MEAN)
 
     # Act
     transform.fit(dataset)
@@ -191,8 +184,7 @@ def test_no_missing_values():
     )
     dataset = TimeSeriesDataset(data, timedelta(hours=1))
     original_data = dataset.data.copy()
-    config = MissingValuesTransformConfig(imputation_strategy=ImputationStrategy.MEAN)
-    transform = MissingValuesTransform(config)
+    transform = MissingValuesTransform(imputation_strategy=ImputationStrategy.MEAN)
 
     # Act
     transform.fit(dataset)
@@ -213,8 +205,7 @@ def test_custom_missing_value_placeholder():
         index=pd.date_range(datetime.fromisoformat("2025-01-01T00:00:00"), periods=3, freq="1h"),
     )
     dataset = TimeSeriesDataset(data, timedelta(hours=1))
-    config = MissingValuesTransformConfig(missing_value=-999.0, imputation_strategy=ImputationStrategy.MEAN)
-    transform = MissingValuesTransform(config)
+    transform = MissingValuesTransform(missing_value=-999.0, imputation_strategy=ImputationStrategy.MEAN)
 
     # Act
     transform.fit(dataset)
@@ -237,10 +228,9 @@ def test_all_null_dataset_with_trailing_removal(caplog: LogCaptureFixture):
         index=pd.date_range(datetime.fromisoformat("2025-01-01T00:00:00"), periods=3, freq="1h"),
     )
     dataset = TimeSeriesDataset(data, timedelta(hours=1))
-    config = MissingValuesTransformConfig(
+    transform = MissingValuesTransform(
         imputation_strategy=ImputationStrategy.CONSTANT, fill_value=0.0, no_fill_future_values_features=["radiation"]
     )
-    transform = MissingValuesTransform(config)
 
     # Act
     with caplog.at_level(logging.WARNING):
@@ -264,13 +254,12 @@ def test_drop_empty_feature_with_custom_missing_value(caplog: LogCaptureFixture)
         },
         index=pd.date_range(datetime.fromisoformat("2025-01-01T00:00:00"), periods=3, freq="1h"),
     )
-    config = MissingValuesTransformConfig(
+    transform = MissingValuesTransform(
         missing_value=-999.0, imputation_strategy=ImputationStrategy.CONSTANT, fill_value=0.0
     )
 
     # Act
     with caplog.at_level(logging.WARNING):
-        transform = MissingValuesTransform(config)
         result = transform._drop_empty_features(data)
 
     # Assert

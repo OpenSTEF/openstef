@@ -13,10 +13,8 @@ from enum import Enum
 
 import numpy as np
 import pandas as pd
-from pydantic import Field
 from sklearn.impute import SimpleImputer
 
-from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.datasets.transforms import TimeSeriesTransform
 
@@ -30,21 +28,6 @@ class ImputationStrategy(Enum):
     MEDIAN = "median"
     MOST_FREQUENT = "most_frequent"
     CONSTANT = "constant"
-
-
-class MissingValuesTransformConfig(BaseConfig):
-    """Configuration class for MissingValuesTransform."""
-
-    missing_value: float = Field(
-        default=np.nan, description="The placeholder for missing values that should be imputed."
-    )
-    imputation_strategy: ImputationStrategy = Field(description="The strategy to use for imputation.")
-    fill_value: int | float | str | None = Field(
-        default=None, description="Value to use when imputation_strategy is CONSTANT."
-    )
-    no_fill_future_values_features: list[str] = Field(
-        default_factory=list, description="List of feature names for which trailing NaN values should not be filled."
-    )
 
 
 class MissingValuesTransform(TimeSeriesTransform):
@@ -63,7 +46,6 @@ class MissingValuesTransform(TimeSeriesTransform):
     >>> from openstef_core.feature_engineering.validation_transforms.missing_values_transform import (
     ...     ImputationStrategy,
     ...     MissingValuesTransform,
-    ...     MissingValuesTransformConfig,
     ... )
     >>> data = pd.DataFrame(
     ...     {
@@ -75,12 +57,11 @@ class MissingValuesTransform(TimeSeriesTransform):
     ...     index=pd.date_range("2025-01-01", periods=4, freq="1h"),
     ... )
     >>> dataset = TimeSeriesDataset(data, timedelta(hours=1))
-    >>> config = MissingValuesTransformConfig(
+    >>> transform = MissingValuesTransform(
     ...     imputation_strategy=ImputationStrategy.MEAN,
     ...     missing_value=np.nan,
     ...     no_fill_future_values_features=["radiation"]
     ... )
-    >>> transform = MissingValuesTransform(config)
     >>> transform.fit(dataset)
     >>> result = transform.transform(dataset)
     >>> int(result.data.isna().sum().sum()) == 0
@@ -91,14 +72,30 @@ class MissingValuesTransform(TimeSeriesTransform):
     True
     """
 
-    def __init__(self, config: MissingValuesTransformConfig):
-        """Initialize the MissingValuesTransform with the given configuration."""
-        self.config = config
+    def __init__(
+        self,
+        imputation_strategy: ImputationStrategy,
+        missing_value: float = np.nan,
+        fill_value: float | str | None = None,
+        no_fill_future_values_features: list[str] | None = None,
+    ):
+        """Initialize the MissingValuesTransform with the given configuration.
+
+        Args:
+            imputation_strategy: The strategy to use for imputation.
+            missing_value: The placeholder for missing values that should be imputed.
+            fill_value: Value to use when imputation_strategy is CONSTANT.
+            no_fill_future_values_features: List of feature names for which trailing NaN values should not be filled.
+        """
+        self.missing_value = missing_value
+        self.imputation_strategy = imputation_strategy
+        self.fill_value = fill_value
+        self.no_fill_future_values_features = no_fill_future_values_features or []
 
         self.imputer: SimpleImputer = SimpleImputer(
-            strategy=self.config.imputation_strategy.value,
-            fill_value=self.config.fill_value,
-            missing_values=self.config.missing_value,
+            strategy=self.imputation_strategy.value,
+            fill_value=self.fill_value,
+            missing_values=self.missing_value,
             keep_empty_features=False,
         )
         self.imputer.set_output(transform="pandas")  # pyright: ignore[reportUnknownMemberType]
@@ -112,10 +109,7 @@ class MissingValuesTransform(TimeSeriesTransform):
         Returns:
             A DataFrame with empty features removed.
         """
-        if np.isnan(self.config.missing_value):
-            all_missing_mask = data.isna().all()
-        else:
-            all_missing_mask = (data == self.config.missing_value).all()
+        all_missing_mask = data.isna().all() if np.isnan(self.missing_value) else (data == self.missing_value).all()
 
         for col in data.columns[all_missing_mask]:
             _logger.warning("Dropped column '%s' from dataset because it contains only missing values.", col)
@@ -127,7 +121,7 @@ class MissingValuesTransform(TimeSeriesTransform):
         """Remove trailing rows that contain null values in specified features.
 
         This method removes rows from the end of the dataset where specified features
-        (defined in config.no_fill_future_values_features) contain null values. This
+        (defined in no_fill_future_values_features) contain null values. This
         is useful for cleaning datasets where future values should not be filled and
         trailing nulls indicate incomplete data.
 
@@ -140,11 +134,11 @@ class MissingValuesTransform(TimeSeriesTransform):
                 features. If no features are configured for checking or none of the
                 configured features exist in the data, returns the original data unchanged.
         """
-        if not self.config.no_fill_future_values_features:
+        if not self.no_fill_future_values_features:
             return data
 
-        features_to_check = [f for f in self.config.no_fill_future_values_features if f in data.columns]
-        for feature in self.config.no_fill_future_values_features:
+        features_to_check = [f for f in self.no_fill_future_values_features if f in data.columns]
+        for feature in self.no_fill_future_values_features:
             if feature not in data.columns:
                 _logger.warning("Feature '%s' not found in dataset columns.", feature)
 
