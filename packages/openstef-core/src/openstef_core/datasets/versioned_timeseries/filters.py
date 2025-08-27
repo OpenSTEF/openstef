@@ -28,11 +28,11 @@ def filter_by_available_at(
     - Result is ordered and indexed by timestamp
 
     Args:
-    dataset: The dataset to filter
-    available_at: Availability constraint with lag information
+        dataset: The dataset to filter
+        available_at: Availability constraint with lag information
 
     Returns:
-    DataFrame with timestamp as index
+        DataFrame with timestamp as index
     """
     data = dataset.data
     cutoff = data[dataset.timestamp_column].dt.floor("D") - pd.Timedelta(available_at.lag_from_day)

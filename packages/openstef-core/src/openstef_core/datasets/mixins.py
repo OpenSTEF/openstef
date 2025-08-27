@@ -93,7 +93,11 @@ class VersionedAccessMixin(ABC):
     """
 
     @abstractmethod
-    def get_window(self, start: datetime, end: datetime, available_before: datetime | None = None) -> pd.DataFrame:
+    def get_window(
+        self, start: datetime | None = None, 
+        end: datetime | None = None, 
+        available_before: datetime | None = None
+    ) -> pd.DataFrame:
         """Get a window of data from the dataset that is available before or at the specified time.
 
         Implementers must ensure that:

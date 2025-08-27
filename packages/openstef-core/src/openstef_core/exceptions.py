@@ -22,6 +22,24 @@ class MissingColumnsError(Exception):
         super().__init__(f"Missing required columns: {', '.join(missing_columns)}")
 
 
+class InvalidColumnTypeError(Exception):
+    """Exception raised when a DataFrame column has an invalid type."""
+
+    def __init__(self, column: str, expected_type: str, actual_type: str):
+        """Initialize the exception with details about the type mismatch.
+
+        Args:
+            column: Name of the column with the invalid type.
+            expected_type: The expected data type for the column.
+            actual_type: The actual data type found in the column.
+        """
+        message = (
+            f"Invalid type for column '{column}': expected {expected_type}, "
+            f"but got {actual_type}."
+        )
+        super().__init__(message)
+
+
 class TimeSeriesValidationError(Exception):
     """Exception raised for validation errors in time series datasets."""
 

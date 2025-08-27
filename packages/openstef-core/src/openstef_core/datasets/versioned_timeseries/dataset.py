@@ -137,7 +137,12 @@ class VersionedTimeSeriesDataset(VersionedTimeSeriesMixin):
         """
         return self._index
 
-    def get_window(self, start: datetime, end: datetime, available_before: datetime | None = None) -> pd.DataFrame:
+    def get_window(
+            self,
+            start: datetime | None = None,
+            end: datetime | None = None,
+            available_before: datetime | None = None
+        ) -> pd.DataFrame:
         """Retrieve a time window of data that was available before a specified time.
 
         Returns data points within the specified time range, considering only data
@@ -185,20 +190,24 @@ class VersionedTimeSeriesDataset(VersionedTimeSeriesMixin):
             The returned DataFrame excludes the availability timestamp column
             and uses the timestamp column as the index.
         """
-        start_idx = self.data[self.timestamp_column].searchsorted(start, side="left")
-        end_idx = self.data[self.timestamp_column].searchsorted(end, side="left")
+        start_idx = self.data[self.timestamp_column].searchsorted(start, side="left") if start else 0
+        end_idx = self.data[self.timestamp_column].searchsorted(end, side="left") if end else len(self.data)
         subset = self.data.iloc[start_idx:end_idx]
 
         if available_before is not None:
             subset = subset[subset[self.available_at_column] <= available_before]
 
-        window_range = pd.date_range(start=start, end=end, freq=self._sample_interval, inclusive="left")
-        return (
+        flattened_data = (
             subset.drop_duplicates(subset=[self.timestamp_column], keep="last")
             .drop(columns=[self.available_at_column])
             .set_index(self.timestamp_column)
-            .reindex(window_range, fill_value=np.nan)
         )
+
+        if not start or not end:
+            return flattened_data
+
+        window_range = pd.date_range(start=start, end=end, freq=self._sample_interval, inclusive="left")
+        return flattened_data.reindex(window_range, fill_value=np.nan)
 
     def to_parquet(
         self,

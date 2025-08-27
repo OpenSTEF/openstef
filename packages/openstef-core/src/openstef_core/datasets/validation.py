@@ -15,6 +15,7 @@ from collections.abc import Sequence
 
 from openstef_core.datasets.mixins import TimeSeriesMixin
 from openstef_core.exceptions import TimeSeriesValidationError
+import pandas as pd
 
 
 def check_features_are_disjoint(datasets: Sequence[TimeSeriesMixin]) -> None:
