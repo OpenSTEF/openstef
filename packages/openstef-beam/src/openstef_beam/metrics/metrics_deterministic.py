@@ -4,13 +4,13 @@
 
 """Metrics for forecasts that predict single values instead of probability distributions.
 
-Deterministic forecasts predict one specific value (e.g., "consumption will be 100 MW").
+Deterministic forecasts predict one specific value (e.g., "load will be 100 MW").
 These metrics measure how close predicted values are to actual values, with special
-attention to peak consumption events that are critical for energy system operations.
+attention to peak load events that are critical for energy system operations.
 
 Key focus areas:
-    - Scale-invariant errors: Compare accuracy across different consumption levels
-    - Peak detection: Identify when consumption will exceed operational thresholds
+    - Scale-invariant errors: Compare accuracy across different load levels
+    - Peak detection: Identify when load will exceed operational thresholds
     - Operational effectiveness: Ensure predictions support actionable decisions
 """
 
@@ -48,7 +48,7 @@ def rmae(
         between quantiles is zero.
 
     Example:
-        Basic usage with energy consumption data:
+        Basic usage with energy load data:
 
         >>> import numpy as np
         >>> y_true = np.array([100, 120, 110, 130, 105])
@@ -105,7 +105,7 @@ def mape(
         extremely large values if y_true contains values close to zero.
 
     Example:
-        Basic usage with energy consumption data:
+        Basic usage with energy load data:
 
         >>> import numpy as np
         >>> y_true = np.array([100, 120, 110, 130, 105])
@@ -133,7 +133,7 @@ def mape(
 class ConfusionMatrix(NamedTuple):
     """Confusion matrix components for peak detection in energy forecasting.
 
-    This class represents the results of classifying energy consumption peaks
+    This class represents the results of classifying energy load peaks
     versus non-peaks, with additional effectiveness metrics to account for
     the direction and magnitude of prediction errors.
 
@@ -167,18 +167,18 @@ def confusion_matrix(
     limit_pos: float,
     limit_neg: float,
 ) -> ConfusionMatrix:
-    """Calculate confusion matrix for peak detection in energy consumption.
+    """Calculate confusion matrix for peak detection in energy load.
 
     A peak is defined as a value that exceeds the positive limit or falls below
     the negative limit. This function evaluates both the accuracy of peak detection
     and the effectiveness of predictions based on error direction.
 
     Args:
-        y_true: Ground truth energy consumption values with shape (num_samples,).
-        y_pred: Predicted energy consumption values with shape (num_samples,).
-        limit_pos: Positive threshold defining high consumption peaks.
+        y_true: Ground truth energy load values with shape (num_samples,).
+        y_pred: Predicted energy load values with shape (num_samples,).
+        limit_pos: Positive threshold defining high load peaks.
             Values >= limit_pos are considered positive peaks.
-        limit_neg: Negative threshold defining low consumption peaks.
+        limit_neg: Negative threshold defining low load peaks.
             Values <= limit_neg are considered negative peaks.
 
     Returns:
@@ -186,7 +186,7 @@ def confusion_matrix(
         and effectiveness metrics.
 
     Example:
-        Peak detection for energy consumption data:
+        Peak detection for energy load data:
 
         >>> import numpy as np
         >>> y_true = np.array([100, 150, 80, 200, 90])  # 150 and 200 are peaks

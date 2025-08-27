@@ -142,7 +142,7 @@ def mock_eval_run():
 
 @pytest.fixture
 def forecaster_config() -> BacktestForecasterConfig:
-    """Create a realistic model interface config with all required fields."""
+    """Create a realistic forecaster config with all required fields."""
     return BacktestForecasterConfig(
         requires_training=True,
         horizon_length=timedelta(hours=24),
@@ -200,7 +200,7 @@ def test_benchmark_runner_end_to_end(
     callback.on_backtest_start.return_value = True  # Return True to proceed with backtest
     callback.on_evaluation_start.return_value = True  # Return True to proceed with evaluation
 
-    # Set up model factory to create a mock model interface for each target
+    # Set up model factory to create a mock forecaster for each target
     def forecaster_factory(context: BenchmarkContext, target: BenchmarkTarget) -> MockForecaster:
         return MockForecaster(config=forecaster_config)
 

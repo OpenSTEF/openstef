@@ -164,10 +164,10 @@ class BenchmarkPipeline[T: BenchmarkTarget, F]:
         1. Gets all available targets from the target provider
         2. Optionally filters them based on provided criteria
         3. Processes each target sequentially or in parallel
-        4. For each target, creates a model interface and runs backtest and evaluation
+        4. For each target, creates a forecastser and runs backtest and evaluation
 
         Args:
-            forecaster_factory: Factory function that creates a model interface for a target.
+            forecaster_factory: Factory function that creates a forecaster for a target.
                                This allows customizing the model for each target.
             run_name: Name of the benchmark run, used for logging and result storage.
             filter_args: Optional filter criteria for targets. If provided, only targets

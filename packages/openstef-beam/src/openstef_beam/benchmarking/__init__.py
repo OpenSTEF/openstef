@@ -2,12 +2,12 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-"""Runs complete model comparison studies across multiple energy consumption targets.
+"""Runs complete model comparison studies across multiple forecasting targets.
 
-Comparing forecasting models properly requires testing them on many different energy
-consumption patterns (different buildings, regions, seasons). This module automates
-the entire process: training models, running backtests, calculating metrics, generating
-reports, and storing results for comparison.
+Comparing forecasting models properly requires testing them on many different forecasting
+scenarios (equipment types, consumption/prosumption, solar/wind parks, regions, seasons).
+This module automates the entire process: training models, running backtests, calculating
+metrics, generating reports, and storing results for comparison.
 
 The complete workflow:
     - Model training: Train different forecasting approaches on each target

@@ -93,7 +93,7 @@ class BacktestPipeline:
         """
         if config.prediction_sample_interval != forecaster.config.predict_sample_interval:
             raise ValueError(
-                "The prediction sample interval of the backtest config must match the model interface's predict sample "
+                "The prediction sample interval of the backtest config must match the forecaster's predict sample "
                 "interval.",
                 config.prediction_sample_interval,
                 forecaster.config.predict_sample_interval,

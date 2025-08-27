@@ -72,8 +72,8 @@ class TargetProvider[T: BenchmarkTarget, F](BaseConfig):
         ...         # Load from database or config files
         ...         return [
         ...             BenchmarkTarget(
-        ...                 name=f"building_{i:03d}",
-        ...                 description=f"Energy consumption for building {i}",
+        ...                 name=f"substation_{i:03d}",
+        ...                 description=f"Energy load for substation {i}",
         ...                 group_name=self.region,
         ...                 latitude=52.0 + i * 0.001,
         ...                 longitude=4.0 + i * 0.001,
@@ -85,9 +85,9 @@ class TargetProvider[T: BenchmarkTarget, F](BaseConfig):
         ...         ]
         ...
         ...     def get_measurements_for_target(self, target):
-        ...         # Load actual consumption data from parquet files
+        ...         # Load actual load data from parquet files
         ...         return VersionedTimeSeriesDataset.read_parquet(
-        ...             self.data_path / f"{target.group_name}/{target.name}_consumption.parquet"
+        ...             self.data_path / f"{target.group_name}/{target.name}_load.parquet"
         ...         )
         ...
         ...     def get_predictors_for_target(self, target):

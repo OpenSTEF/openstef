@@ -4,9 +4,9 @@
 
 """Metrics for forecasts that predict probability distributions instead of single values.
 
-Unlike deterministic forecasts that predict one value (e.g., "consumption will be 100 MW"),
+Unlike deterministic forecasts that predict one value (e.g., "load will be 100 MW"),
 probabilistic forecasts predict a range of possible outcomes with their likelihoods
-(e.g., "80% chance consumption will be between 90-110 MW"). These metrics evaluate both
+(e.g., "80% chance load will be between 90-110 MW"). These metrics evaluate both
 how accurate these probability estimates are and how well-calibrated they are.
 
 Key concepts:
@@ -45,7 +45,7 @@ def crps(
         better forecast quality.
 
     Example:
-        Evaluate quantile forecasts for energy consumption:
+        Evaluate quantile forecasts for energy load:
 
         >>> import numpy as np
         >>> y_true = np.array([100, 120, 110])
@@ -99,7 +99,7 @@ def rcrps(
         Compare forecast quality across different scales:
 
         >>> import numpy as np
-        >>> # High consumption period
+        >>> # High load period
         >>> y_true_high = np.array([1000, 1200, 1100])
         >>> quantiles = np.array([0.1, 0.5, 0.9])
         >>> y_pred_high = np.array([[950, 1000, 1050],
@@ -111,7 +111,7 @@ def rcrps(
 
     Note:
         rCRPS allows fair comparison of forecast quality between periods with
-        different consumption levels, such as summer vs. winter energy demand.
+        different load levels, such as summer vs. winter energy demand.
     """
     y_range = np.quantile(y_true, q=upper_quantile) - np.quantile(y_true, q=lower_quantile)
     if y_range == 0:
