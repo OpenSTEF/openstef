@@ -53,6 +53,7 @@ urls.Repository = "https://github.com/OpenSTEF/openstef"
 
 [dependency-groups]
 dev = [
+  "microsoft-python-type-stubs",
   "openstef-beam",
   "openstef-core",
   "openstef-docs",
@@ -185,6 +186,7 @@ openstef-models = { workspace = true }
 openstef-compatibility = { workspace = true }
 openstef-docs = { workspace = true }
 openstef-core = { workspace = true }
+microsoft-python-type-stubs = { git = "git+https://github.com/microsoft/python-type-stubs.git" }
 
 [tool.uv.workspace]
 members = [
