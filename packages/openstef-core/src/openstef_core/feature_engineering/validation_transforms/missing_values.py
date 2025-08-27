@@ -46,7 +46,7 @@ class MissingValuesTransform(TimeSeriesTransform, BaseConfig):
     >>> import numpy as np
     >>> import pandas as pd
     >>> from openstef_core.datasets import TimeSeriesDataset
-    >>> from openstef_core.feature_engineering.validation_transforms.missing_values_transform import (
+    >>> from openstef_core.feature_engineering.validation_transforms.missing_values import (
     ...     ImputationStrategy,
     ...     MissingValuesTransform,
     ... )
