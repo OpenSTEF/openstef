@@ -1,15 +1,27 @@
 # SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
 #
 # SPDX-License-Identifier: MPL-2.0
+
+"""Transform for extracting datetime-based features from time series data.
+
+This module provides functionality to compute datetime features that indicate
+temporal patterns like weekdays, weekends, and other time-based characteristics
+from the datetime index of time series datasets.
+"""
+
 import numpy as np
 import pandas as pd
 
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.datasets.transforms import TimeSeriesTransform
 
+MIN_WEEKEND_IDX: int = 5  # Saturday
+SUNDAY_IDX: int = 6
+
 
 class DatetimeFeatures(TimeSeriesTransform):
     """Transform that adds datetime features to time series data.
+
     Computes features that are derived from the datetime index of the dataset.
 
     The features added are:
@@ -25,7 +37,9 @@ class DatetimeFeatures(TimeSeriesTransform):
         >>> import pandas as pd
         >>> from datetime import timedelta
         >>> from openstef_core.datasets import TimeSeriesDataset
-        >>> from openstef_core.feature_engineering.temporal_transforms.datetime_features import DatetimeFeatures  # noqa: E501
+        >>> from openstef_core.feature_engineering.temporal_transforms.datetime_features import (
+        ...     DatetimeFeatures
+        ... )
         >>>
         >>> # Create sample dataset
         >>> data = pd.DataFrame({
@@ -49,28 +63,63 @@ class DatetimeFeatures(TimeSeriesTransform):
 
     @staticmethod
     def _is_weekend_day(index: pd.DatetimeIndex) -> np.ndarray:
-        """Check if the day is a weekend day (Saturday or Sunday)."""
-        return (index.weekday >= 5).astype(int)
+        """Check if the day is a weekend day (Saturday or Sunday).
+
+        Args:
+            index: DatetimeIndex to check for weekend days.
+
+        Returns:
+            Numpy array where 1 indicates a weekend day and 0 otherwise.
+        """
+        return (index.weekday >= MIN_WEEKEND_IDX).astype(int)
 
     @staticmethod
     def _is_weekday(index: pd.DatetimeIndex) -> np.ndarray:
-        """Check if the day is a weekday (Monday to Friday)."""
-        return (index.weekday < 5).astype(int)
+        """Check if the day is a weekday (Monday to Friday).
+
+        Args:
+            index: DatetimeIndex to check for weekdays.
+
+        Returns:
+            Numpy array where 1 indicates a weekday and 0 otherwise.
+        """
+        return (index.weekday < MIN_WEEKEND_IDX).astype(int)
 
     @staticmethod
     def _is_sunday(index: pd.DatetimeIndex) -> np.ndarray:
-        """Check if the day is a Sunday."""
-        return (index.weekday == 6).astype(int)
+        """Check if the day is a Sunday.
+
+        Args:
+            index: DatetimeIndex to check for Sundays.
+
+        Returns:
+            Numpy array where 1 indicates Sunday and 0 otherwise.
+        """
+        return (index.weekday == SUNDAY_IDX).astype(int)
 
     @staticmethod
     def _month_of_year(index: pd.DatetimeIndex) -> np.ndarray:
-        """Get the month of the year (1 to 12)."""
-        return index.month.to_numpy()
+        """Get the month of the year (1 to 12).
+
+        Args:
+            index: DatetimeIndex to extract the month from.
+
+        Returns:
+            Numpy array of months corresponding to each date in the index.
+        """
+        return index.month.to_numpy()  # type: ignore[reportUnknownMemberType]
 
     @staticmethod
     def _quarter_of_year(index: pd.DatetimeIndex) -> np.ndarray:
-        """Get the quarter of the year (1 to 4)."""
-        return index.quarter.to_numpy()
+        """Get the quarter of the year (1 to 4).
+
+        Args:
+            index: DatetimeIndex to extract the quarter from.
+
+        Returns:
+            Numpy array of quarters corresponding to each date in the index.
+        """
+        return index.quarter.to_numpy()  # type: ignore[reportUnknownMemberType]
 
     def fit(self, data: TimeSeriesDataset) -> None:
         """Fit the transform by computing datetime features from the data's index.
@@ -99,9 +148,6 @@ class DatetimeFeatures(TimeSeriesTransform):
             New TimeSeriesDataset with original data plus datetime features.
         """
         return TimeSeriesDataset(
-            pd.concat(
-                [data.data, self.datetime_features],
-                axis=1
-            ),
+            pd.concat([data.data, self.datetime_features], axis=1),
             sample_interval=data.sample_interval,
         )

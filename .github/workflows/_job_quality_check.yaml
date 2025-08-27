@@ -31,7 +31,7 @@ jobs:
           enable-cache: true
       - name: Install dependencies
         if: ${{ always() }}
-        run: uv sync --frozen --no-install-project --all-groups --all-extras
+        run: uv sync --frozen --no-install-project --all-groups --all-extras --all-packages
 
       # Run quality checks
       - name: reuse

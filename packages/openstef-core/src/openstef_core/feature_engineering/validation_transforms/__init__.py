@@ -2,9 +2,9 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-"""Data validation and quality transforms for OpenSTEF.
+"""Validation feature transforms for time series data.
 
-This package provides transforms for validating and improving data quality in
-time series datasets, including flatliner detection, missing value imputation,
-and other data quality checks used in energy forecasting pipelines.
+This module provides transforms for data validation and quality assurance in time series
+datasets, including data integrity checks and validation transformations that ensure
+data quality before model training and inference.
 """
