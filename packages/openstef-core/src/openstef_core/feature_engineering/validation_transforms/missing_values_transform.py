@@ -121,9 +121,7 @@ class MissingValuesTransform(TimeSeriesTransform):
             _logger.warning("Dropped column '%s' from dataset because it contains only missing values.", col)
 
         non_empty_columns = data.columns[~all_missing_mask]
-        filtered_data = data[non_empty_columns]
-
-        return filtered_data
+        return data[non_empty_columns]
 
     def _remove_trailing_null_rows(self, data: pd.DataFrame) -> pd.DataFrame:
         """Remove trailing rows that contain null values in specified features.
@@ -155,9 +153,7 @@ class MissingValuesTransform(TimeSeriesTransform):
 
         subset_df = data[features_to_check]
         mask = ~subset_df.bfill().isna().any(axis="columns")
-        filtered_data = data.loc[mask]
-
-        return filtered_data
+        return data.loc[mask]
 
     def fit(self, data: TimeSeriesDataset) -> None:
         """Fit the missing values transformer to the provided time series data.
