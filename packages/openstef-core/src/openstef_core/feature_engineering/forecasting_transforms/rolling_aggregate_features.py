@@ -56,7 +56,7 @@ class RollingAggregateFeatures(TimeSeriesTransform):
         >>> import pandas as pd
         >>> from datetime import timedelta
         >>> from openstef_core.datasets import TimeSeriesDataset
-        >>> from openstef_core.feature_engineering.forecasting_transforms.rolling_aggregate_features import (  # noqa: E501
+        >>> from openstef_core.feature_engineering.forecasting_transforms.rolling_aggregate_features import (
         ...     RollingAggregateFeatures,
         ...     RollingAggregateFeaturesConfig,
         ... )

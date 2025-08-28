@@ -53,8 +53,8 @@ urls.Repository = "https://github.com/OpenSTEF/openstef"
 
 [dependency-groups]
 dev = [
-  "moto[s3,server]>=5.1.11",
   "microsoft-python-type-stubs",
+  "moto[s3,server]>=5.1.11",
   "openstef-beam",
   "openstef-core",
   "openstef-docs",
