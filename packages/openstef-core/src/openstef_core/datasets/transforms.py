@@ -11,7 +11,7 @@ scikit-learn pattern with separate fit and transform phases.
 
 from abc import abstractmethod
 
-from openstef_core.datasets import TimeSeriesDataset, VersionedTimeseriesDataset
+from openstef_core.datasets import TimeSeriesDataset, VersionedTimeSeriesDataset
 
 
 class TimeSeriesTransform:
@@ -83,7 +83,7 @@ class TimeSeriesVersionedTransform:
     """Abstract base class for transforming versioned time series datasets.
 
     This class defines the interface for data transformations that operate on
-    VersionedTimeseriesDataset instances. Like TimeSeriesTransform, it follows
+    VersionedTimeSeriesDataset instances. Like TimeSeriesTransform, it follows
     the scikit-learn pattern but handles datasets with versioning information.
 
     Transforms on versioned datasets must preserve the timestamp and availability
@@ -111,12 +111,12 @@ class TimeSeriesVersionedTransform:
         ...         normalized_data[data.feature_names] = (
         ...             (data.data[data.feature_names] - self.mean) / self.std
         ...         )
-        ...         return VersionedTimeseriesDataset(
+        ...         return VersionedTimeSeriesDataset(
         ...             normalized_data, data.sample_interval
         ...         )
     """
 
-    def fit(self, data: VersionedTimeseriesDataset) -> None:
+    def fit(self, data: VersionedTimeSeriesDataset) -> None:
         """Fit the transform to the input versioned time series data.
 
         This method should be called before applying the transform to the data.
@@ -127,22 +127,22 @@ class TimeSeriesVersionedTransform:
         """
 
     @abstractmethod
-    def transform(self, data: VersionedTimeseriesDataset) -> VersionedTimeseriesDataset:
+    def transform(self, data: VersionedTimeSeriesDataset) -> VersionedTimeSeriesDataset:
         """Transform the input versioned time series data.
 
         This method should apply a transformation to the input data and return
-        a new instance of VersionedTimeseriesDataset.
+        a new instance of VersionedTimeSeriesDataset.
 
         Args:
             data: The input versioned time series data to be transformed.
 
         Returns:
-            A new instance of VersionedTimeseriesDataset containing the
+            A new instance of VersionedTimeSeriesDataset containing the
             transformed data.
         """
         raise NotImplementedError
 
-    def fit_transform(self, data: VersionedTimeseriesDataset) -> VersionedTimeseriesDataset:
+    def fit_transform(self, data: VersionedTimeSeriesDataset) -> VersionedTimeSeriesDataset:
         """Fit the transform to the data and then transform it.
 
         This method combines fitting and transforming into a single step.
@@ -151,7 +151,7 @@ class TimeSeriesVersionedTransform:
             data: The input versioned time series data to fit and transform.
 
         Returns:
-            A new instance of VersionedTimeseriesDataset containing the transformed data.
+            A new instance of VersionedTimeSeriesDataset containing the transformed data.
         """
         self.fit(data)
         return self.transform(data)

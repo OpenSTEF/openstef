@@ -15,16 +15,13 @@ The module supports:
     - Feature concatenation and horizon restriction operations
 """
 
-from openstef_core.datasets.mixins import TimeSeriesMixin, VersionedAccessMixin, VersionedTimeSeriesMixin
+from openstef_core.datasets import mixins, versioned_timeseries
 from openstef_core.datasets.timeseries_dataset import TimeSeriesDataset
-from openstef_core.datasets.versioned_timeseries_accessors import VersionedTimeSeriesAccessors
-from openstef_core.datasets.versioned_timeseries_dataset import VersionedTimeseriesDataset
+from openstef_core.datasets.versioned_timeseries import VersionedTimeSeriesDataset
 
 __all__ = [
     "TimeSeriesDataset",
-    "TimeSeriesMixin",
-    "VersionedAccessMixin",
-    "VersionedTimeSeriesAccessors",
-    "VersionedTimeSeriesMixin",
-    "VersionedTimeseriesDataset",
+    "VersionedTimeSeriesDataset",
+    "mixins",
+    "versioned_timeseries",
 ]
