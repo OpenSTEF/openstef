@@ -22,7 +22,7 @@ try:
     import pvlib
 except ImportError as e:
     raise ImportError(
-        "pvlib is required for the DaylightFeatures transform. Please install it via "
+        "pvlib is required for the RadiationDerivedFeatures transform. Please install it via "
         "`uv sync --group pvlib --package openstef-core` or `uv sync --all-groups --package openstef-core`."
     ) from e
 
@@ -65,7 +65,7 @@ class RadiationDerivedFeatures(BaseConfig, TimeSeriesTransform):
         ['radiation', 'dni', 'gti']
         >>> transformed_dataset.data["dni"].round(2).tolist()
         [0.0, 0.0, 0.0]
-        >>> transformed_dataset.data["gti"].round(2).tolist()
+        >>> transformed_dataset.data["gti"].round(2).tolist()  # TODO: find out non-zero nightly values?
         [0.0, 0.0, 0.0]
     """
 
@@ -111,18 +111,11 @@ class RadiationDerivedFeatures(BaseConfig, TimeSeriesTransform):
         self._derived_features: pd.DataFrame = pd.DataFrame()
 
     @staticmethod
-    def _check_feature_exists(data: TimeSeriesDataset, feature_name: str) -> bool:
-        if feature_name not in data.feature_names:
-            logger.warning("Skipping calculation because feature `%s` is missing.", feature_name)
-            return False
-        return True
-
-    @staticmethod
     def _calculate_gti(
         solar_position: pd.DataFrame,
-        dni: pd.Series,
-        ghi: pd.Series,
         clearsky_radiation: pd.DataFrame,
+        ghi: pd.Series,
+        dni: pd.Series,
         surface_tilt: float = 34.0,
         surface_azimuth: float = 180.0,
     ) -> pd.Series:
@@ -184,10 +177,10 @@ class RadiationDerivedFeatures(BaseConfig, TimeSeriesTransform):
             logger.warning("No radiation derived features selected to include.")
             return
 
-        radiation = data.data["radiation"]
+        radiation: pd.Series = data.data["radiation"]
 
-        # Convert radiation from J/m² to kWh/m²
-        ghi = radiation / 3600
+        # Convert radiation from J/m² to kWh/m² and rename to 'ghi'
+        ghi = (radiation / 3600).rename("ghi")
 
         location = pvlib.location.Location(
             latitude=self.latitude,
@@ -218,13 +211,16 @@ class RadiationDerivedFeatures(BaseConfig, TimeSeriesTransform):
             surface_azimuth=self.surface_azimuth,
         )
 
-        self._derived_features = pd.concat(
-            [
-                dni.rename("dni") if "dni" in self.included_features else pd.Series(dtype=float),
-                gti.rename("gti") if "gti" in self.included_features else pd.Series(dtype=float),
-            ],
-            axis=1,
-        )
+        # Create derived features DataFrame with proper handling of included features
+        derived_data = {}
+
+        if "dni" in self.included_features and not dni.empty:
+            derived_data["dni"] = dni
+
+        if "gti" in self.included_features and not gti.empty:
+            derived_data["gti"] = gti
+
+        self._derived_features = pd.DataFrame(derived_data, index=data.index)
 
     def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
         """Transform the input time series data by adding radiation derived features.

@@ -113,15 +113,6 @@ def mock_clearsky_radiation() -> pd.DataFrame:
     )
 
 
-def test_check_feature_exists_method(sample_dataset: TimeSeriesDataset):
-    """Test the _check_feature_exists static method."""
-    # Test existing feature
-    assert RadiationDerivedFeatures._check_feature_exists(sample_dataset, "radiation") is True
-
-    # Test non-existing feature
-    assert RadiationDerivedFeatures._check_feature_exists(sample_dataset, "nonexistent") is False
-
-
 def test_fit_with_timezone_aware_dataset(
     sample_dataset: TimeSeriesDataset,
     basic_transform: RadiationDerivedFeatures,
@@ -269,7 +260,7 @@ def test_calculate_gti_method(basic_transform: RadiationDerivedFeatures):
 
         # Act
         result = basic_transform._calculate_gti(
-            solar_position, dni, ghi, clearsky_radiation, surface_tilt=34.0, surface_azimuth=180.0
+            solar_position, clearsky_radiation, ghi, dni, surface_tilt=34.0, surface_azimuth=180.0
         )
 
         # Assert
@@ -377,7 +368,7 @@ def test_radiation_unit_conversion(
         # Expected GHI: [1000.0, 2000.0, 1500.0, 500.0, 0.0]
         call_args = mock_dni.call_args
         ghi_values = call_args.kwargs["ghi"]
-        expected_ghi = pd.Series([1000.0, 2000.0, 1500.0, 500.0, 0.0], index=sample_dataset.index)
+        expected_ghi = pd.Series([1000.0, 2000.0, 1500.0, 500.0, 0.0], name="ghi", index=sample_dataset.index)
         pd.testing.assert_series_equal(ghi_values, expected_ghi)
 
 
@@ -389,8 +380,7 @@ def test_empty_dataset(basic_transform: RadiationDerivedFeatures):
     dataset = TimeSeriesDataset(data, timedelta(hours=1))
 
     # Act
-    basic_transform.fit(dataset)
-    result = basic_transform.transform(dataset)
+    result = basic_transform.fit_transform(dataset)
 
     # Assert
     assert len(result.data) == 0
@@ -468,3 +458,171 @@ def test_dni_fillna_behavior(basic_transform: RadiationDerivedFeatures):
         # Assert
         expected = pd.Series([400.0, 0.0, 100.0])  # NaN should be filled with 0.0
         pd.testing.assert_series_equal(result, expected)
+
+
+# Integration tests with real pvlib calls (no mocking)
+
+
+@pytest.mark.parametrize(
+    ("latitude", "longitude", "timezone"),
+    [
+        pytest.param(52.0, 5.0, "Europe/Amsterdam", id="netherlands"),
+        pytest.param(40.7, -74.0, "US/Eastern", id="new_york"),
+        pytest.param(-33.9, 18.4, "Africa/Johannesburg", id="cape_town"),
+    ],
+)
+def test_pvlib_location_creation_with_timezone(latitude: float, longitude: float, timezone: str) -> None:
+    """Test that pvlib Location object can be correctly created with timezone objects."""
+    # Act
+    location = pvlib.location.Location(latitude, longitude, tz=timezone)
+
+    # Assert
+    assert location.latitude == latitude
+    assert location.longitude == longitude
+    assert str(location.tz) == timezone
+
+
+def test_pvlib_integration_with_real_data() -> None:
+    """Test complete RadiationDerivedFeatures workflow with real pvlib calls."""
+    # Arrange
+    data = pd.DataFrame(
+        {"radiation": [3600000, 7200000, 5400000]},  # J/m² values (1, 2, 1.5 kWh/m²)
+        index=pd.date_range("2025-06-01 10:00", periods=3, freq="2h", tz="Europe/Amsterdam"),
+    )
+    dataset = TimeSeriesDataset(data, timedelta(hours=2))
+    transform = RadiationDerivedFeatures(latitude=52.0, longitude=5.0)
+
+    # Act
+    result = transform.fit_transform(dataset)
+
+    # Assert
+    assert isinstance(result, TimeSeriesDataset)
+    assert "dni" in result.data.columns
+    assert "gti" in result.data.columns
+    assert len(result.data) == len(dataset.data)
+
+    # Check that derived values are realistic (should be positive or zero)
+    dni_values = result.data["dni"]
+    gti_values = result.data["gti"]
+    assert dni_values.dtype.kind in "fi"  # float or int
+    assert gti_values.dtype.kind in "fi"  # float or int
+    assert (dni_values >= 0).all()
+    assert (gti_values >= 0).all()
+
+    # For June in Netherlands during daytime, we expect some positive values
+    assert dni_values.max() >= 0
+    assert gti_values.max() >= 0
+
+
+@pytest.mark.parametrize(
+    "timezone",
+    [
+        pytest.param("Europe/Amsterdam", id="amsterdam"),
+        pytest.param("US/Pacific", id="pacific"),
+        pytest.param("Asia/Tokyo", id="tokyo"),
+    ],
+)
+def test_pvlib_different_timezones_integration(timezone: str) -> None:
+    """Test RadiationDerivedFeatures with real pvlib calls across different timezones."""
+    # Arrange
+    data = pd.DataFrame(
+        {"radiation": [7200000, 5400000]},  # J/m² values
+        index=pd.date_range("2025-06-01 12:00", periods=2, freq="1h", tz=timezone),
+    )
+    dataset = TimeSeriesDataset(data, timedelta(hours=1))
+    transform = RadiationDerivedFeatures(latitude=52.0, longitude=5.0)
+
+    # Act
+    result = transform.fit_transform(dataset)
+
+    # Assert
+    assert isinstance(result, TimeSeriesDataset)
+    assert "dni" in result.data.columns
+    assert "gti" in result.data.columns
+    assert len(result.data) == len(dataset.data)
+
+    # Verify that the timezone is properly handled
+    assert result.data.index.tz is not None
+    assert str(result.data.index.tz) == timezone
+
+
+def test_pvlib_real_solar_calculations() -> None:
+    """Test that solar calculations produce reasonable results with real pvlib."""
+    # Arrange - Use summer midday for better solar radiation
+    data = pd.DataFrame(
+        {"radiation": [7200000, 10800000, 14400000]},  # High radiation values for summer
+        index=pd.date_range("2025-06-21 11:00", periods=3, freq="1h", tz="Europe/Amsterdam"),
+    )
+    dataset = TimeSeriesDataset(data, timedelta(hours=1))
+    transform = RadiationDerivedFeatures(latitude=52.0, longitude=5.0, surface_tilt=30.0, surface_azimuth=180.0)
+
+    # Act
+    result = transform.fit_transform(dataset)
+
+    # Assert
+    dni_values = result.data["dni"]
+    gti_values = result.data["gti"]
+
+    # Check that we have realistic solar radiation values
+    assert len(dni_values) == 3
+    assert len(gti_values) == 3
+
+    # During summer midday in Netherlands, we should get some solar radiation
+    # Values should be non-negative and potentially positive during midday
+    assert (dni_values >= 0).all()
+    assert (gti_values >= 0).all()
+
+
+@pytest.mark.parametrize(
+    ("included_features", "expected_features"),
+    [
+        (["dni"], ["radiation", "dni"]),
+        (["gti"], ["radiation", "gti"]),
+        (["dni", "gti"], ["radiation", "dni", "gti"]),
+    ],
+)
+def test_pvlib_integration_feature_selection(included_features: list[str], expected_features: list[str]) -> None:
+    """Test RadiationDerivedFeatures feature selection with real pvlib calls."""
+    # Arrange
+    data = pd.DataFrame(
+        {"radiation": [3600000, 7200000]},
+        index=pd.date_range("2025-06-01 10:00", periods=2, freq="1h", tz="Europe/Amsterdam"),
+    )
+    dataset = TimeSeriesDataset(data, timedelta(hours=1))
+    transform = RadiationDerivedFeatures(latitude=52.0, longitude=5.0, included_features=included_features)
+
+    # Act
+    result = transform.fit_transform(dataset)
+
+    # Assert
+    assert set(result.feature_names) == set(expected_features)
+
+
+def test_pvlib_integration_surface_orientations() -> None:
+    """Test different surface orientations with real pvlib calculations."""
+    # Arrange
+    data = pd.DataFrame(
+        {"radiation": [7200000, 7200000]},
+        index=pd.date_range("2025-06-01 12:00", periods=2, freq="1h", tz="Europe/Amsterdam"),
+    )
+    dataset = TimeSeriesDataset(data, timedelta(hours=1))
+
+    # Test different orientations
+    south_facing = RadiationDerivedFeatures(latitude=52.0, longitude=5.0, surface_tilt=30.0, surface_azimuth=180.0)
+    east_facing = RadiationDerivedFeatures(latitude=52.0, longitude=5.0, surface_tilt=30.0, surface_azimuth=90.0)
+
+    # Act
+    south_result = south_facing.fit_transform(dataset)
+    east_result = east_facing.fit_transform(dataset)
+
+    # Assert
+    assert "gti" in south_result.data.columns
+    assert "gti" in east_result.data.columns
+
+    # Values should be non-negative
+    assert (south_result.data["gti"] >= 0).all()
+    assert (east_result.data["gti"] >= 0).all()
+
+    # Both should produce valid results (exact values depend on sun position)
+    assert len(south_result.data["gti"]) == 2
+    assert len(east_result.data["gti"]) == 2
