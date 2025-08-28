@@ -14,12 +14,11 @@ from typing import Any, cast
 
 import numpy as np
 import pandas as pd
-from pydantic import PrivateAttr
+from pydantic import Field, PrivateAttr
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.datasets.transforms import TimeSeriesTransform
-from openstef_core.feature_engineering.validation_transforms.missing_values import Field
 
 
 class FlatlinerCheckTransform(TimeSeriesTransform, BaseConfig):
