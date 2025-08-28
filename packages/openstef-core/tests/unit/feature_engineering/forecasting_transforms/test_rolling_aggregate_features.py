@@ -9,7 +9,7 @@ import pandas as pd
 import pytest
 
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.feature_engineering.forecasting_transforms.trend_features import (
+from openstef_core.feature_engineering.forecasting_transforms.rolling_aggregate_features import (
     AggregationFunction,
     RollingAggregateFeatures,
     RollingAggregateFeaturesConfig,
