@@ -17,11 +17,12 @@ The module supports:
 
 from openstef_core.datasets import mixins, versioned_timeseries
 from openstef_core.datasets.timeseries_dataset import TimeSeriesDataset
-from openstef_core.datasets.versioned_timeseries import VersionedTimeSeriesDataset
+from openstef_core.datasets.versioned_timeseries import VersionedTimeSeriesDataset, VersionedTimeSeriesPart
 
 __all__ = [
     "TimeSeriesDataset",
     "VersionedTimeSeriesDataset",
+    "VersionedTimeSeriesPart",
     "mixins",
     "versioned_timeseries",
 ]

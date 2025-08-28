@@ -11,8 +11,14 @@ operations and versioned data access capabilities.
 
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta
+from typing import TYPE_CHECKING, Self
 
 import pandas as pd
+
+from openstef_core.types import AvailableAt, LeadTime
+
+if TYPE_CHECKING:
+    from openstef_core.datasets import TimeSeriesDataset
 
 
 class TimeSeriesMixin(ABC):
@@ -22,43 +28,19 @@ class TimeSeriesMixin(ABC):
     must implement. It provides access to feature metadata, temporal properties,
     and the dataset's temporal index.
 
-    Classes implementing this mixin must provide feature names, sample interval,
-    and datetime index information. This interface enables consistent access
-    patterns across different time series dataset implementations.
+    Classes implementing this mixin must set the required attributes in their __init__ method.
+    This interface enables consistent access patterns across different time series
+    dataset implementations.
+
+    Attributes:
+        feature_names: Names of all available features, excluding metadata columns.
+        sample_interval: The fixed interval between consecutive samples.
+        index: Datetime index representing all timestamps in the dataset.
     """
 
-    @property
-    @abstractmethod
-    def feature_names(self) -> list[str]:
-        """Returns the list of feature names available in the dataset.
-
-        Returns:
-            list[str]: Names of all available features, excluding metadata columns.
-        """
-        raise NotImplementedError
-
-    @property
-    @abstractmethod
-    def sample_interval(self) -> timedelta:
-        """Returns the time interval between consecutive data points.
-
-        This property defines the temporal resolution of the dataset and
-        should remain constant throughout the dataset.
-
-        Returns:
-            timedelta: The fixed interval between consecutive samples.
-        """
-        raise NotImplementedError
-
-    @property
-    @abstractmethod
-    def index(self) -> pd.DatetimeIndex:
-        """Returns the temporal index of the dataset.
-
-        Returns:
-            pd.DatetimeIndex: Datetime index representing all timestamps in the dataset.
-        """
-        raise NotImplementedError
+    feature_names: list[str]
+    sample_interval: timedelta
+    index: pd.DatetimeIndex
 
     def calculate_time_coverage(self) -> timedelta:
         """Calculates the total time span covered by the dataset.
@@ -72,60 +54,89 @@ class TimeSeriesMixin(ABC):
         return len(self.index.unique()) * self.sample_interval
 
 
-class VersionedAccessMixin(ABC):
-    """Abstract base class for versioned data access functionality.
+class VersionedTimeSeriesMixin(TimeSeriesMixin):
+    """Abstract base class for versioned time series dataset functionality.
 
     This mixin defines the interface for datasets that track data availability
-    over time. It provides methods to retrieve data windows while respecting
-    when each data point became available, which is essential for realistic
-    backtesting scenarios.
+    over time. It provides methods to filter datasets by time ranges, availability,
+    and lead times, as well as select specific versions of the data.
 
     The key concept is that data points have both a timestamp (when they
     occurred) and an availability time (when they became available for use).
     This separation allows for accurate simulation of real-world forecasting
     constraints where data arrives with delays or gets revised.
 
-    Implementers must ensure that the get_window method correctly handles:
-    - Time range filtering [start, end)
-    - Availability-based filtering using available_before parameter
-    - Latest version selection when multiple versions exist
-    - Consistent sample interval maintenance
+    Classes implementing this mixin should provide:
+    - Time range filtering capabilities
+    - Availability-based filtering using AvailableAt specifications
+    - Lead time-based filtering using LeadTime specifications
+    - Version selection for point-in-time data reconstruction
     """
 
     @abstractmethod
-    def get_window(
-        self, start: datetime | None = None, 
-        end: datetime | None = None, 
-        available_before: datetime | None = None
-    ) -> pd.DataFrame:
-        """Get a window of data from the dataset that is available before or at the specified time.
-
-        Implementers must ensure that:
-
-        1. Only data within [start, end) is returned
-        2. If available_before is specified, only data available at or before that time is included
-        3. The returned data maintains the dataset's sample interval
-        4. When multiple versions of a timestamp exist, selects the latest available version
+    def filter_by_range(self, start: datetime | None = None, end: datetime | None = None) -> Self:
+        """Filter the dataset to include only data within the specified time range.
 
         Args:
-            start: The inclusive start time of the window.
-            end: The exclusive end time of the window.
-            available_before: Optional timestamp that filters data to only include
-                points available at or before this time. If None, all data is included.
+            start: The inclusive start time of the range. If None, no start boundary is applied.
+            end: The exclusive end time of the range. If None, no end boundary is applied.
 
         Returns:
-            A DataFrame containing the data in the specified time window. Timestamps with unavailable data are filled
-            with NaN.
+            A new instance of the same type containing only data within [start, end).
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def filter_by_available_at(self, available_at: AvailableAt) -> Self:
+        """Filter the dataset to include only data available according to the AvailableAt specification.
+
+        This method filters data based on realistic availability constraints,
+        considering when data typically becomes available relative to the end of each day.
+
+        Args:
+            available_at: Specification defining when data becomes available.
+
+        Returns:
+            A new instance of the same type containing only data that would be available
+            according to the specified availability pattern.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def filter_by_lead_time(self, lead_time: LeadTime) -> Self:
+        """Filter the dataset to include only data available with the specified lead time.
+
+        This method ensures that only data points that were available at least
+        `lead_time` before their timestamp are included, simulating real-world
+        constraints where predictions must be made with limited recent data.
+
+        Args:
+            lead_time: The minimum time gap required between data availability and timestamp.
+
+        Returns:
+            A new instance of the same type containing only data available with the required lead time.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def select_version(self, available_before: datetime | None) -> "TimeSeriesDataset":
+        """Select a specific version of the data based on availability cutoff.
+
+        This method creates a point-in-time view of the dataset, including only
+        data that was available before the specified cutoff time. When multiple
+        versions of the same timestamp exist, it selects the latest version
+        available before the cutoff.
+
+        Args:
+            available_before: Optional cutoff time for data availability.
+                Only data available at or before this time is included.
+                If None, the most recent version of all data is selected.
+
+        Returns:
+            A TimeSeriesDataset containing the selected version of the data,
+            with availability metadata removed and timestamp as index.
         """
         raise NotImplementedError
 
 
-class VersionedTimeSeriesMixin(TimeSeriesMixin, VersionedAccessMixin, ABC):
-    """A mixin that combines time series and versioned access functionality.
-
-    This mixin provides the necessary properties and methods to handle time series data
-    with versioning capabilities, allowing access to historical data points based on their availability.
-    """
-
-
-__all__ = ["TimeSeriesMixin", "VersionedAccessMixin", "VersionedTimeSeriesMixin"]
+__all__ = ["TimeSeriesMixin", "VersionedTimeSeriesMixin"]

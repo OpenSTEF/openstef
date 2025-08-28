@@ -24,7 +24,6 @@ from openstef_beam.backtesting.backtest_forecaster.mixins import BacktestBatchFo
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import VersionedTimeSeriesDataset
 from openstef_core.datasets.mixins import VersionedTimeSeriesMixin
-from openstef_core.datasets.versioned_timeseries import concat_featurewise, restrict_horizon
 
 _logger = logging.getLogger(__name__)
 
