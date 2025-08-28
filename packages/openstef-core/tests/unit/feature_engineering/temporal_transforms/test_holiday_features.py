@@ -52,7 +52,6 @@ def test_holiday_features_initialization():
 
     # Assert
     assert transform.country_code == "NL"
-    assert transform.include_individual_holidays is True
     assert transform._holiday_features.empty
 
 

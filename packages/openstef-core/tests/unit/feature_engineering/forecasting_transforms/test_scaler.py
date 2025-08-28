@@ -9,6 +9,7 @@ from datetime import timedelta
 import numpy as np
 import pandas as pd
 import pytest
+from pydantic import ValidationError
 
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.feature_engineering.forecasting_transforms.scaler import Scaler, ScalingMethod
@@ -35,7 +36,7 @@ def sample_dataset() -> TimeSeriesDataset:
 
 def test_scaler_invalid_method():
     """Test Scaler raises ValueError for unsupported scaling method."""
-    with pytest.raises(ValueError, match="Unsupported normalization method"):
+    with pytest.raises(ValidationError):
         Scaler(method="invalid_method")
 
 
