@@ -9,6 +9,8 @@ minimum and maximum ranges during training, preventing out-of-range values
 during inference and improving model robustness.
 """
 
+import pandas as pd
+
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.datasets.transforms import TimeSeriesTransform
@@ -42,6 +44,10 @@ class FeatureClipper(BaseConfig, TimeSeriesTransform):
         >>> clipper = FeatureClipper(column_names=['load', 'temperature'])
         >>> clipper.fit(training_dataset)
         >>> transformed_dataset = clipper.transform(test_dataset)
+        >>> clipper._feature_mins.to_dict()
+        {'load': 100, 'temperature': 20}
+        >>> clipper._feature_maxs.to_dict()
+        {'load': 130, 'temperature': 24}
         >>> transformed_dataset.data['load'].tolist()
         [100, 130, 115]
         >>> transformed_dataset.data['temperature'].tolist()
@@ -58,7 +64,8 @@ class FeatureClipper(BaseConfig, TimeSeriesTransform):
             **kwargs: Configuration parameters for the transform.
         """
         super().__init__(**kwargs)
-        self._feature_ranges: dict[str, tuple[float, float]] = {}
+        self._feature_mins: pd.Series = pd.Series()
+        self._feature_maxs: pd.Series = pd.Series()
 
     def fit(self, data: TimeSeriesDataset) -> None:
         """Fit the transform to the data by learning the min and max values.
@@ -66,9 +73,8 @@ class FeatureClipper(BaseConfig, TimeSeriesTransform):
         Args:
             data: Time series dataset.
         """
-        for col in self.column_names:
-            if col in data.data.columns:
-                self._feature_ranges[col] = (data.data[col].min(), data.data[col].max())
+        self._feature_mins = data.data.reindex(self.column_names, axis=1).min()
+        self._feature_maxs = data.data.reindex(self.column_names, axis=1).max()
 
     def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
         """Transform the input time series data by clipping specified features to their learned min and max values.
@@ -79,11 +85,9 @@ class FeatureClipper(BaseConfig, TimeSeriesTransform):
         Returns:
             Transformed time series dataset with clipped features.
         """
-        transformed_data = data.data.copy()
+        min_aligned = self._feature_mins.reindex(data.feature_names)
+        max_aligned = self._feature_maxs.reindex(data.feature_names)
 
-        for col in self._feature_ranges:
-            if col in transformed_data.columns:
-                min_val, max_val = self._feature_ranges[col]
-                transformed_data[col] = transformed_data[col].clip(lower=min_val, upper=max_val)
+        transformed_data = data.data.clip(lower=min_aligned, upper=max_aligned, axis=1)
 
         return TimeSeriesDataset(data=transformed_data, sample_interval=data.sample_interval)

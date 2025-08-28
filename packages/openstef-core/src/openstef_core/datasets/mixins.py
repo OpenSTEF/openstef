@@ -60,6 +60,17 @@ class TimeSeriesMixin(ABC):
         """
         raise NotImplementedError
 
+    def calculate_time_coverage(self) -> timedelta:
+        """Calculates the total time span covered by the dataset.
+
+        This method computes the total duration represented by the dataset
+        based on its unique timestamps and sample interval.
+
+        Returns:
+            timedelta: Total time coverage of the dataset.
+        """
+        return len(self.index.unique()) * self.sample_interval
+
 
 class VersionedAccessMixin(ABC):
     """Abstract base class for versioned data access functionality.
