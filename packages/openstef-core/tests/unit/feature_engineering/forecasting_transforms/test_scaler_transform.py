@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-"""Unit tests for the Scaler transform."""
+"""Unit tests for the ScalerTransform transform."""
 
 from datetime import timedelta
 
@@ -11,7 +11,7 @@ import pandas as pd
 import pytest
 
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.feature_engineering.forecasting_transforms.scaler import Scaler, ScalingMethod
+from openstef_core.feature_engineering.forecasting_transforms.scaler_transform import ScalerTransform, ScalingMethod
 
 
 @pytest.fixture
@@ -34,15 +34,15 @@ def sample_dataset() -> TimeSeriesDataset:
 
 
 def test_scaler_invalid_method():
-    """Test Scaler raises ValueError for unsupported scaling method."""
+    """Test ScalerTransform raises ValueError for unsupported scaling method."""
     with pytest.raises(ValueError, match="Unsupported normalization method"):
-        Scaler(method="invalid_method")
+        ScalerTransform(method="invalid_method")
 
 
 def test_standard_scaler_fit_transform(sample_dataset: TimeSeriesDataset):
     """Test StandardScaler produces zero mean and unit variance."""
     # Arrange
-    scaler = Scaler(method=ScalingMethod.Standard)
+    scaler = ScalerTransform(method=ScalingMethod.Standard)
 
     # Act
     scaler.fit(sample_dataset)
@@ -63,7 +63,7 @@ def test_standard_scaler_fit_transform(sample_dataset: TimeSeriesDataset):
 def test_minmax_scaler_fit_transform(sample_dataset: TimeSeriesDataset):
     """Test MinMaxScaler produces values between 0 and 1."""
     # Arrange
-    scaler = Scaler(method=ScalingMethod.MinMax)
+    scaler = ScalerTransform(method=ScalingMethod.MinMax)
 
     # Act
     scaler.fit(sample_dataset)
@@ -85,7 +85,7 @@ def test_minmax_scaler_fit_transform(sample_dataset: TimeSeriesDataset):
 def test_maxabs_scaler_fit_transform(sample_dataset: TimeSeriesDataset):
     """Test MaxAbsScaler produces values between -1 and 1."""
     # Arrange
-    scaler = Scaler(method=ScalingMethod.MaxAbs)
+    scaler = ScalerTransform(method=ScalingMethod.MaxAbs)
 
     # Act
     scaler.fit(sample_dataset)
@@ -106,7 +106,7 @@ def test_maxabs_scaler_fit_transform(sample_dataset: TimeSeriesDataset):
 def test_robust_scaler_fit_transform(sample_dataset: TimeSeriesDataset):
     """Test RobustScaler uses median and IQR for scaling."""
     # Arrange
-    scaler = Scaler(method=ScalingMethod.Robust)
+    scaler = ScalerTransform(method=ScalingMethod.Robust)
 
     # Act
     scaler.fit(sample_dataset)
@@ -147,7 +147,7 @@ def test_different_datasets_fit_transform():
     test_dataset = TimeSeriesDataset(test_data, timedelta(hours=1))
 
     # Act
-    scaler = Scaler(method=ScalingMethod.MinMax)
+    scaler = ScalerTransform(method=ScalingMethod.MinMax)
     scaler.fit(train_dataset)
     result = scaler.transform(test_dataset)
 

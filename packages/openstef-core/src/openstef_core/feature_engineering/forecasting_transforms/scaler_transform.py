@@ -20,7 +20,7 @@ try:
     from sklearn.preprocessing import MaxAbsScaler, MinMaxScaler, RobustScaler, StandardScaler
 except ImportError as e:
     raise ImportError(
-        "scikit-learn is required for the Scaler transform. Please install it via "
+        "scikit-learn is required for the ScalerTransform transform. Please install it via "
         "`uv sync --group ml --package openstef-core` or `uv sync --all-groups --package openstef-core`."
     ) from e
 
@@ -34,7 +34,7 @@ class ScalingMethod(StrEnum):
     Robust = "robust"
 
 
-class Scaler(TimeSeriesTransform):
+class ScalerTransform(TimeSeriesTransform):
     """Transform that scales time series data using various scikit-learn scaling methods.
 
     Available methods include:
@@ -47,7 +47,9 @@ class Scaler(TimeSeriesTransform):
         >>> import pandas as pd
         >>> from datetime import timedelta
         >>> from openstef_core.datasets import TimeSeriesDataset
-        >>> from openstef_core.feature_engineering.forecasting_transforms.scaler import Scaler, ScalingMethod
+        >>> from openstef_core.feature_engineering.forecasting_transforms.scaler_transform import (
+        ...     ScalerTransform, ScalingMethod
+        ... )
         >>>
         >>> # Create sample dataset
         >>> data = pd.DataFrame({
@@ -57,7 +59,7 @@ class Scaler(TimeSeriesTransform):
         >>> dataset = TimeSeriesDataset(data, timedelta(hours=1))
         >>>
         >>> # Initialize and apply transform
-        >>> scaler = Scaler(method=ScalingMethod.Standard)
+        >>> scaler = ScalerTransform(method=ScalingMethod.Standard)
         >>> scaler.fit(dataset)
         >>> transformed_dataset = scaler.transform(dataset)
         >>> abs(float(transformed_dataset.data['load'].mean().round(6)))
@@ -72,7 +74,7 @@ class Scaler(TimeSeriesTransform):
     """
 
     def __init__(self, method: ScalingMethod):
-        """Initialize the Scaler transform with the scaler method.
+        """Initialize the ScalerTransform transform with the scaler method.
 
         Args:
             method: Scaling method to use.
