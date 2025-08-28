@@ -98,7 +98,6 @@ class FlatlinerCheckTransform(TimeSeriesTransform, BaseConfig):
 
         flatliner_value = latest_measurements.median() if self.detect_non_zero_flatliner else 0
 
-        # check if all values are within a relative tolerance of each other
         flatline_condition = np.isclose(
             a=latest_measurements,
             b=flatliner_value,
