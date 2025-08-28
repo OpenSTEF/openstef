@@ -1,0 +1,61 @@
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+#
+# SPDX-License-Identifier: MPL-2.0
+
+from datetime import datetime, timedelta
+
+import numpy as np
+import pandas as pd
+import pytest
+
+from openstef_core.datasets import TimeSeriesDataset
+from openstef_core.feature_engineering.validation_transforms.completeness_check import (
+    CompletenessCheckTransform,
+)
+
+
+@pytest.mark.parametrize(
+    ("weights", "threshold", "expected_completeness", "expected_sufficiently_complete"),
+    [
+        pytest.param(
+            {"radiation": 1.0, "temperature": 1.0, "wind_speed": 1.0}, 0.5, 0.75, True, id="sufficient_equal_weights"
+        ),
+        pytest.param(
+            {"radiation": 1.0, "temperature": 1.0, "wind_speed": 1.0}, 0.8, 0.75, False, id="insufficient_equal_weights"
+        ),
+        pytest.param(
+            {"radiation": 1.0, "temperature": 3.0, "wind_speed": 1.0}, 0.5, 0.65, True, id="sufficient_unequal_weights"
+        ),
+    ],
+)
+def test_calculate_completeness(
+    weights: dict[str, float], threshold: float, expected_completeness: float, expected_sufficiently_complete: bool
+):
+    data = pd.DataFrame(
+        {
+            "radiation": [100, 110, 110, np.nan],
+            "temperature": [20, np.nan, np.nan, 21],
+            "wind_speed": [5, 6, 6, 3],
+        },
+        index=pd.date_range("2025-01-01", periods=4, freq="15min"),
+    )
+    dataset = TimeSeriesDataset(data, timedelta(minutes=15))
+    transform = CompletenessCheckTransform(weights=weights, completeness_threshold=threshold)
+    transform.fit(dataset)
+
+    assert transform.completeness == expected_completeness
+    assert transform.sufficiently_complete is expected_sufficiently_complete
+
+
+def test_transform_returns_input() -> None:
+    # Arrange
+    idx = [datetime.fromisoformat("2025-01-01T00:00:00")]
+    df = pd.DataFrame({"radiation": [1]}, index=idx)
+    dataset = TimeSeriesDataset(df, timedelta(minutes=1))
+    transform = CompletenessCheckTransform()
+
+    # Act
+    result = transform.transform(dataset)
+
+    # Assert
+    assert result is dataset

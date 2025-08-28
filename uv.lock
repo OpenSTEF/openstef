@@ -1,5 +1,5 @@
 version = 1
-revision = 2
+revision = 3
 requires-python = ">=3.12, <4.0"
 
 [manifest]
@@ -796,6 +796,11 @@ wheels = [
 ]
 
 [[package]]
+name = "microsoft-python-type-stubs"
+version = "0"
+source = { git = "https://github.com/microsoft/python-type-stubs.git#692c37c3969d22612b295ddf7e7af5907204a386" }
+
+[[package]]
 name = "myst-parser"
 version = "4.0.1"
 source = { registry = "https://pypi.org/simple" }
@@ -921,6 +926,7 @@ models = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "microsoft-python-type-stubs" },
     { name = "openstef-beam" },
     { name = "openstef-core" },
     { name = "openstef-docs" },
@@ -952,6 +958,7 @@ provides-extras = ["all", "beam", "compatibility", "models"]
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "microsoft-python-type-stubs", git = "https://github.com/microsoft/python-type-stubs.git" },
     { name = "openstef-beam", editable = "packages/openstef-beam" },
     { name = "openstef-core", editable = "packages/openstef-core" },
     { name = "openstef-docs", editable = "docs" },

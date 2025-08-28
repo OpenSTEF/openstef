@@ -9,12 +9,10 @@ A flatliner is defined as a period where the load remains constant for a specifi
 malfunction, data transmission errors, or other anomalies in energy forecasting datasets.
 """
 
-from datetime import timedelta
-from typing import Any, cast
+from typing import Any
 
-import numpy as np
 import pandas as pd
-from pydantic import PrivateAttr
+from pydantic import Field, PrivateAttr
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
@@ -28,57 +26,104 @@ class CompletenessCheckTransform(TimeSeriesTransform, BaseConfig):
     This class can detect both zero and non-zero flatliners, depending on configuration.
 
     Example:
-    >>> from datetime import timedelta
+    >>> from datetime import datetime, timedelta
     >>> import numpy as np
     >>> import pandas as pd
     >>> from openstef_core.datasets import TimeSeriesDataset
-    >>> from openstef_core.feature_engineering.validation_transforms.flatliner_check import (
-    ...     FlatlinerCheckTransform,
+    >>> from openstef_core.feature_engineering.validation_transforms.completeness_check import (
+    ...     CompletenessCheckTransform,
     ... )
-    >>> data = pd.DataFrame(
-    ...     {
-    ...         "load": [100, 110, 110, 110],
-    ...     },
-    ...     index=pd.date_range("2025-01-01", periods=4, freq="1h"),
-    ... )
-    >>> dataset = TimeSeriesDataset(data, timedelta(hours=1))
-    >>> transform = CompletenessCheckTransform(
-    ...     flatliner_threshold_minutes=120,
-    ...     detect_non_zero_flatliner=True,
-    ...     relative_tolerance=1e-5
-    ... )
+    >>> data = pd.DataFrame({
+    ...     'radiation': [100, 110, 110, np.nan],
+    ...     'temperature': [20, np.nan, 24, 21],
+    ...     'wind_speed': [5, 6, np.nan, 3],
+    ... },
+    ... index=pd.date_range("2025-01-01", periods=4, freq="15min"))
+    >>> dataset = TimeSeriesDataset(data, timedelta(minutes=15))
+    >>> transform = CompletenessCheckTransform()
     >>> transform.fit(dataset)
-    >>> transform.flatliner_indicator == True
-    True
+    >>> transform.completeness
+    0.75
     """
-    # TODO: How do we want to determine completeness. Look at OpenSTEF v3
-    _completeness: dict = PrivateAttr(default=False)
+
+    columns: list[str] | None = Field(
+        default=None,
+        description="List of columns to check for completeness. If None, all columns are checked.",
+    )
+    weights: dict[str, float] | None = Field(
+        default=None,
+        description="Weights for each column to adjust their importance in the completeness calculation.",
+    )
+    completeness_threshold: float = Field(
+        default=0.5,
+        description="Threshold for completeness below which the data is considered insufficiently complete.",
+    )
+    _completeness: float = PrivateAttr(default=False)
+    _sufficiently_complete: bool = PrivateAttr(default=False)
 
     @property
-    def completeness(self) -> dict:
+    def completeness(self) -> float:
         """Indicates how complete the data is."""
         return self._completeness
+
+    @property
+    def sufficiently_complete(self) -> bool:
+        """Indicates whether the data is sufficiently complete."""
+        return self._sufficiently_complete
 
     def __init__(self, **data: Any):
         """Initializes the CompletenessCheckTransform with the given configuration."""
         super().__init__(**data)
 
-    def check_completeness(self, data: pd.DataFrame) -> dict:
-        """Checks how complete the input DataFrame is.
+    def _calculate_sufficiently_complete(self, data: pd.DataFrame) -> bool:
+        """Check if the DataFrame is sufficiently complete.
 
         Args:
             data: The input DataFrame to check.
 
         Returns:
-            A dictionary containing completeness information.
+            True if the DataFrame is sufficiently complete, False otherwise.
         """
-        return NotImplementedError
+        completeness = self._calculate_completeness(data)
+        return completeness >= self.completeness_threshold
 
+    def _calculate_completeness(self, data: pd.DataFrame) -> float:
+        """Calculate how complete the input DataFrame is.
+
+        Args:
+            data: The input DataFrame to check.
+
+        Returns:
+            A float indicating the completeness of the DataFrame.
+        """
+        if self.columns:
+            data = data[self.columns]
+
+        if not self.weights:
+            self.weights = dict.fromkeys(data.columns, 1.0)
+
+        # NOTE: This could also be done using a dict per column. Do we want that?
+        weighted_completeness = 0.0
+        total_weight = 0.0
+
+        for col in data.columns:
+            weight = self.weights.get(col, 1.0)
+            col_completeness = 1.0 - (data[col].isna().sum() / len(data)) if len(data) > 0 else 0.0
+            weighted_completeness += weight * col_completeness
+            total_weight += weight
+
+        return float(weighted_completeness / total_weight if total_weight > 0 else 0.0)
 
     def fit(self, data: TimeSeriesDataset) -> None:
+        """Calculates and stores the completeness metrics for the provided time series dataset.
+
+        Args:
+            data: The dataset containing time series data to evaluate.
         """
-        """
-        self._completeness = self.check_completeness(
+        self._completeness = self._calculate_completeness(
+            data=data.data,
+        )
+        self._sufficiently_complete = self._calculate_sufficiently_complete(
             data=data.data,
         )
 
