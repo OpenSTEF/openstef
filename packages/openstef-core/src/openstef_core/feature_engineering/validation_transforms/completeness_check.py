@@ -102,7 +102,6 @@ class CompletenessCheckTransform(TimeSeriesTransform, BaseConfig):
         if not self.weights:
             self.weights = dict.fromkeys(data.columns, 1.0)
 
-        # NOTE: This could also be done using a dict per column. Do we want that?
         weighted_completeness = 0.0
         total_weight = 0.0
 
