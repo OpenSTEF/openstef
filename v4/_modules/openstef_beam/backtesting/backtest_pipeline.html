@@ -462,10 +462,10 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.backtesting.backtest_event</span><span class="w"> </span><span class="kn">import</span> <span class="n">BacktestEvent</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.backtesting.backtest_event_generator</span><span class="w"> </span><span class="kn">import</span> <span class="n">BacktestEventGenerator</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.backtesting.backtest_forecaster.mixins</span><span class="w"> </span><span class="kn">import</span> <span class="n">BacktestBatchForecasterMixin</span><span class="p">,</span> <span class="n">BacktestForecasterMixin</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.backtesting.restricted_horizon_timeseries</span><span class="w"> </span><span class="kn">import</span> <span class="n">RestrictedHorizonVersionedTimeSeries</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.base_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseConfig</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">VersionedTimeSeriesDataset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">VersionedTimeSeriesDataset</span><span class="p">,</span> <span class="n">VersionedTimeSeriesPart</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets.mixins</span><span class="w"> </span><span class="kn">import</span> <span class="n">VersionedTimeSeriesMixin</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets.versioned_timeseries</span><span class="w"> </span><span class="kn">import</span> <span class="n">concat_featurewise</span><span class="p">,</span> <span class="n">restrict_horizon</span>
 
 <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -555,13 +555,13 @@
 <a class="viewcode-back" href="../../../api/generated/openstef_beam.backtesting.BacktestPipeline.html#openstef_beam.backtesting.BacktestPipeline.run">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">ground_truth</span><span class="p">:</span> <span class="n">VersionedTimeSeriesMixin</span><span class="p">,</span>
-        <span class="n">predictors</span><span class="p">:</span> <span class="n">VersionedTimeSeriesMixin</span><span class="p">,</span>
+        <span class="n">ground_truth</span><span class="p">:</span> <span class="n">VersionedTimeSeriesDataset</span><span class="p">,</span>
+        <span class="n">predictors</span><span class="p">:</span> <span class="n">VersionedTimeSeriesDataset</span><span class="p">,</span>
         <span class="n">start</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">end</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">show_progress</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VersionedTimeSeriesDataset</span><span class="p">:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VersionedTimeSeriesPart</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Execute the backtesting simulation and return predictions.</span>
 
 <span class="sd">        Runs the complete backtesting process by generating events, processing</span>
@@ -579,14 +579,11 @@
 <span class="sd">            VersionedTimeSeriesDataset containing all predictions with timestamps</span>
 <span class="sd">            and availability information. Empty dataset if no predictions made.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">min_start</span> <span class="o">=</span> <span class="n">ground_truth</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">to_pydatetime</span><span class="p">()</span>  <span class="c1"># type: ignore[reportUnknownMemberType]</span>
-        <span class="n">max_end</span> <span class="o">=</span> <span class="n">ground_truth</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">to_pydatetime</span><span class="p">()</span>  <span class="c1"># type: ignore[reportUnknownMemberType]</span>
+        <span class="n">min_start</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;pd.Series[pd.Timestamp]&quot;</span><span class="p">,</span> <span class="n">ground_truth</span><span class="o">.</span><span class="n">index</span><span class="p">)</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">to_pydatetime</span><span class="p">()</span>
+        <span class="n">max_end</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;pd.Series[pd.Timestamp]&quot;</span><span class="p">,</span> <span class="n">ground_truth</span><span class="o">.</span><span class="n">index</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">to_pydatetime</span><span class="p">()</span>
 
         <span class="c1"># Prepare the input data</span>
-        <span class="n">dataset</span> <span class="o">=</span> <span class="n">concat_featurewise</span><span class="p">(</span>
-            <span class="n">datasets</span><span class="o">=</span><span class="p">[</span><span class="n">ground_truth</span><span class="p">,</span> <span class="n">predictors</span><span class="p">],</span>
-            <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;outer&quot;</span><span class="p">,</span>
-        <span class="p">)</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">VersionedTimeSeriesDataset</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">ground_truth</span><span class="p">,</span> <span class="n">predictors</span><span class="p">],</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;outer&quot;</span><span class="p">)</span>
         <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Initialized backtest dataset with </span><span class="si">%d</span><span class="s2"> features&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">feature_names</span><span class="p">))</span>
 
         <span class="c1"># Prepare backtesting events with batch awareness</span>
@@ -610,7 +607,7 @@
             <span class="n">supports_batching</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Starting the backtest pipeline&quot;</span><span class="p">)</span>
-        <span class="n">prediction_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">VersionedTimeSeriesDataset</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">prediction_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">VersionedTimeSeriesPart</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="n">prediction_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_process_events</span><span class="p">(</span>
@@ -623,7 +620,7 @@
 
         <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Finished backtest pipeline&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">prediction_list</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">VersionedTimeSeriesDataset</span><span class="p">(</span>
+            <span class="k">return</span> <span class="n">VersionedTimeSeriesPart</span><span class="p">(</span>
                 <span class="n">data</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
                     <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;datetime64[ns]&quot;</span><span class="p">),</span>
                     <span class="s2">&quot;available_at&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;datetime64[ns]&quot;</span><span class="p">),</span>
@@ -631,7 +628,7 @@
                 <span class="n">sample_interval</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">prediction_sample_interval</span><span class="p">,</span>
             <span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">VersionedTimeSeriesDataset</span><span class="p">(</span>
+        <span class="k">return</span> <span class="n">VersionedTimeSeriesPart</span><span class="p">(</span>
             <span class="n">data</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">pred</span><span class="o">.</span><span class="n">data</span> <span class="k">for</span> <span class="n">pred</span> <span class="ow">in</span> <span class="n">prediction_list</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
             <span class="n">sample_interval</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">prediction_sample_interval</span><span class="p">,</span>
         <span class="p">)</span></div>
@@ -639,13 +636,13 @@
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_process_train_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">BacktestEvent</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">VersionedTimeSeriesMixin</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Process a single training event.&quot;&quot;&quot;</span>
-        <span class="n">horizon_dataset</span> <span class="o">=</span> <span class="n">restrict_horizon</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="n">horizon</span><span class="o">=</span><span class="n">event</span><span class="o">.</span><span class="n">timestamp</span><span class="p">)</span>
+        <span class="n">horizon_dataset</span> <span class="o">=</span> <span class="n">RestrictedHorizonVersionedTimeSeries</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="n">horizon</span><span class="o">=</span><span class="n">event</span><span class="o">.</span><span class="n">timestamp</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">forecaster</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">horizon_dataset</span><span class="p">)</span>
         <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Processed train event&quot;</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;event&quot;</span><span class="p">:</span> <span class="n">event</span><span class="p">})</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_process_single_prediction</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">BacktestEvent</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">VersionedTimeSeriesMixin</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">VersionedTimeSeriesDataset</span><span class="p">]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">VersionedTimeSeriesPart</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Process a single prediction event.</span>
 
 <span class="sd">        Args:</span>
@@ -655,7 +652,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            List containing single prediction dataset if successful, empty list otherwise.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">horizon_dataset</span> <span class="o">=</span> <span class="n">restrict_horizon</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="n">horizon</span><span class="o">=</span><span class="n">event</span><span class="o">.</span><span class="n">timestamp</span><span class="p">)</span>
+        <span class="n">horizon_dataset</span> <span class="o">=</span> <span class="n">RestrictedHorizonVersionedTimeSeries</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="n">horizon</span><span class="o">=</span><span class="n">event</span><span class="o">.</span><span class="n">timestamp</span><span class="p">)</span>
         <span class="n">prediction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">forecaster</span><span class="o">.</span><span class="n">predict_versioned</span><span class="p">(</span><span class="n">horizon_dataset</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">prediction</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -667,7 +664,7 @@
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_process_batch_prediction</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">batch_events</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">BacktestEvent</span><span class="p">],</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">VersionedTimeSeriesMixin</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">VersionedTimeSeriesDataset</span><span class="p">]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">VersionedTimeSeriesPart</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Process a batch of prediction events and return valid predictions.</span>
 
 <span class="sd">        Args:</span>
@@ -681,7 +678,9 @@
             <span class="k">return</span> <span class="p">[]</span>
 
         <span class="c1"># Process batch</span>
-        <span class="n">horizon_datasets</span> <span class="o">=</span> <span class="p">[</span><span class="n">restrict_horizon</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="n">horizon</span><span class="o">=</span><span class="n">event</span><span class="o">.</span><span class="n">timestamp</span><span class="p">)</span> <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">batch_events</span><span class="p">]</span>
+        <span class="n">horizon_datasets</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">RestrictedHorizonVersionedTimeSeries</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="n">horizon</span><span class="o">=</span><span class="n">event</span><span class="o">.</span><span class="n">timestamp</span><span class="p">)</span> <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">batch_events</span>
+        <span class="p">]</span>
 
         <span class="n">batch_predictions</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">BacktestBatchForecasterMixin</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">forecaster</span><span class="p">)</span><span class="o">.</span><span class="n">predict_batch_versioned</span><span class="p">(</span>
             <span class="n">horizon_datasets</span>
@@ -705,7 +704,7 @@
         <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">show_progress</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">VersionedTimeSeriesDataset</span><span class="p">]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">VersionedTimeSeriesPart</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Process events using the factory&#39;s batching logic.</span>
 
 <span class="sd">        Args:</span>
@@ -717,7 +716,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            List of all prediction datasets generated during processing.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">predictions</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">VersionedTimeSeriesDataset</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">predictions</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">VersionedTimeSeriesPart</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="c1"># Get total count for progress bar</span>
         <span class="n">events</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">event_factory</span><span class="o">.</span><span class="n">iterate</span><span class="p">())</span>

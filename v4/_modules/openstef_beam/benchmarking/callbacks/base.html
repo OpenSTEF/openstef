@@ -462,7 +462,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.analysis</span><span class="w"> </span><span class="kn">import</span> <span class="n">AnalysisOutput</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.benchmarking.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">BenchmarkTarget</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.evaluation</span><span class="w"> </span><span class="kn">import</span> <span class="n">EvaluationReport</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">VersionedTimeSeriesDataset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">VersionedTimeSeriesPart</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.benchmarking.benchmark_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">BenchmarkPipeline</span>
@@ -562,7 +562,7 @@
 <div class="viewcode-block" id="BenchmarkCallback.on_backtest_complete">
 <a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.BenchmarkCallback.html#openstef_beam.benchmarking.BenchmarkCallback.on_backtest_complete">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">on_backtest_complete</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">runner</span><span class="p">:</span> <span class="s2">&quot;BenchmarkPipeline[Any, Any]&quot;</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">,</span> <span class="n">predictions</span><span class="p">:</span> <span class="n">VersionedTimeSeriesDataset</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">runner</span><span class="p">:</span> <span class="s2">&quot;BenchmarkPipeline[Any, Any]&quot;</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">,</span> <span class="n">predictions</span><span class="p">:</span> <span class="n">VersionedTimeSeriesPart</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Called after backtest completes.&quot;&quot;&quot;</span>
         <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="p">,</span> <span class="n">runner</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">predictions</span>  <span class="c1"># Suppress unused variable warning</span></div>
@@ -679,7 +679,7 @@
 <a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.BenchmarkCallbackManager.html#openstef_beam.benchmarking.BenchmarkCallbackManager.on_backtest_complete">[docs]</a>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">on_backtest_complete</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">runner</span><span class="p">:</span> <span class="s2">&quot;BenchmarkPipeline[Any, Any]&quot;</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">,</span> <span class="n">predictions</span><span class="p">:</span> <span class="n">VersionedTimeSeriesDataset</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">runner</span><span class="p">:</span> <span class="s2">&quot;BenchmarkPipeline[Any, Any]&quot;</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">,</span> <span class="n">predictions</span><span class="p">:</span> <span class="n">VersionedTimeSeriesPart</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">callbacks</span><span class="p">:</span>
             <span class="n">callback</span><span class="o">.</span><span class="n">on_backtest_complete</span><span class="p">(</span><span class="n">runner</span><span class="o">=</span><span class="n">runner</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">,</span> <span class="n">predictions</span><span class="o">=</span><span class="n">predictions</span><span class="p">)</span></div>

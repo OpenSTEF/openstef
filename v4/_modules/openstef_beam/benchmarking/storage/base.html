@@ -461,7 +461,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.analysis</span><span class="w"> </span><span class="kn">import</span> <span class="n">AnalysisOutput</span><span class="p">,</span> <span class="n">AnalysisScope</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.benchmarking.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">BenchmarkTarget</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.evaluation</span><span class="w"> </span><span class="kn">import</span> <span class="n">EvaluationReport</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">VersionedTimeSeriesDataset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">VersionedTimeSeriesPart</span>
 
 
 <div class="viewcode-block" id="BenchmarkStorage">
@@ -549,7 +549,7 @@
 <div class="viewcode-block" id="BenchmarkStorage.save_backtest_output">
 <a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.BenchmarkStorage.html#openstef_beam.benchmarking.BenchmarkStorage.save_backtest_output">[docs]</a>
     <span class="nd">@abstractmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">save_backtest_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">,</span> <span class="n">output</span><span class="p">:</span> <span class="n">VersionedTimeSeriesDataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save_backtest_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">,</span> <span class="n">output</span><span class="p">:</span> <span class="n">VersionedTimeSeriesPart</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Save the backtest output for a specific benchmark target.</span>
 
 <span class="sd">        Stores the results of a backtest execution, associating it with the target</span>
@@ -561,11 +561,11 @@
 <div class="viewcode-block" id="BenchmarkStorage.load_backtest_output">
 <a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.BenchmarkStorage.html#openstef_beam.benchmarking.BenchmarkStorage.load_backtest_output">[docs]</a>
     <span class="nd">@abstractmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">load_backtest_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VersionedTimeSeriesDataset</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_backtest_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VersionedTimeSeriesPart</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Load previously saved backtest output for a benchmark target.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            The stored backtest results as a VersionedTimeSeriesDataset.</span>
+<span class="sd">            The stored backtest results as a VersionedTimeSeriesPart.</span>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            KeyError: When no backtest output exists for the given target.</span>
@@ -670,7 +670,7 @@
 <a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.InMemoryBenchmarkStorage.html#openstef_beam.benchmarking.InMemoryBenchmarkStorage.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize empty in-memory storage containers.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_backtest_outputs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">VersionedTimeSeriesDataset</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_backtest_outputs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">VersionedTimeSeriesPart</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_evaluation_outputs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">EvaluationReport</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_analytics_outputs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">AnalysisScope</span><span class="p">,</span> <span class="n">AnalysisOutput</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span></div>
 
@@ -678,14 +678,14 @@
 <div class="viewcode-block" id="InMemoryBenchmarkStorage.save_backtest_output">
 <a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.InMemoryBenchmarkStorage.html#openstef_beam.benchmarking.InMemoryBenchmarkStorage.save_backtest_output">[docs]</a>
     <span class="nd">@override</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">save_backtest_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">,</span> <span class="n">output</span><span class="p">:</span> <span class="n">VersionedTimeSeriesDataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save_backtest_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">,</span> <span class="n">output</span><span class="p">:</span> <span class="n">VersionedTimeSeriesPart</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_backtest_outputs</span><span class="p">[</span><span class="n">target</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">output</span></div>
 
 
 <div class="viewcode-block" id="InMemoryBenchmarkStorage.load_backtest_output">
 <a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.InMemoryBenchmarkStorage.html#openstef_beam.benchmarking.InMemoryBenchmarkStorage.load_backtest_output">[docs]</a>
     <span class="nd">@override</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">load_backtest_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VersionedTimeSeriesDataset</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_backtest_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VersionedTimeSeriesPart</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_backtest_outputs</span><span class="p">[</span><span class="n">target</span><span class="o">.</span><span class="n">name</span><span class="p">]</span></div>
 
 

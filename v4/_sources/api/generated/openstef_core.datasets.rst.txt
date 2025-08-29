@@ -44,7 +44,10 @@ Classes
    :template: custom_class.rst
 
    TimeSeriesDataset
+   TimeSeriesMixin
    VersionedTimeSeriesDataset
+   VersionedTimeSeriesMixin
+   VersionedTimeSeriesPart
 
 
 

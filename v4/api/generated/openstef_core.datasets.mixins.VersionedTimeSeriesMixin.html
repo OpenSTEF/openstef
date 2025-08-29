@@ -60,7 +60,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="TimeSeriesDataset" href="openstef_core.datasets.TimeSeriesDataset.html" />
-    <link rel="prev" title="VersionedAccessMixin" href="openstef_core.datasets.mixins.VersionedAccessMixin.html" />
+    <link rel="prev" title="TimeSeriesMixin" href="openstef_core.datasets.mixins.TimeSeriesMixin.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="0.0.0" />
@@ -397,12 +397,14 @@
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="openstef_core.datasets.html">openstef_core.datasets</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="openstef_core.datasets.mixins.html">openstef_core.datasets.mixins</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="openstef_core.datasets.mixins.TimeSeriesMixin.html">TimeSeriesMixin</a></li>
-<li class="toctree-l3"><a class="reference internal" href="openstef_core.datasets.mixins.VersionedAccessMixin.html">VersionedAccessMixin</a></li>
 <li class="toctree-l3 current active"><a class="current reference internal" href="#">VersionedTimeSeriesMixin</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.datasets.TimeSeriesDataset.html">TimeSeriesDataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_core.datasets.TimeSeriesMixin.html">TimeSeriesMixin</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.datasets.VersionedTimeSeriesDataset.html">VersionedTimeSeriesDataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_core.datasets.VersionedTimeSeriesMixin.html">VersionedTimeSeriesMixin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_core.datasets.VersionedTimeSeriesPart.html">VersionedTimeSeriesPart</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="openstef_core.utils.html">openstef_core.utils</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -569,10 +571,118 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="openstef_core.datasets.mixins.VersionedTimeSeriesMixin">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef_core.datasets.mixins.</span></span><span class="sig-name descname"><span class="pre">VersionedTimeSeriesMixin</span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/mixins.html#VersionedTimeSeriesMixin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.mixins.VersionedTimeSeriesMixin" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="openstef_core.datasets.mixins.TimeSeriesMixin.html#openstef_core.datasets.mixins.TimeSeriesMixin" title="openstef_core.datasets.mixins.TimeSeriesMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimeSeriesMixin</span></code></a>, <a class="reference internal" href="openstef_core.datasets.mixins.VersionedAccessMixin.html#openstef_core.datasets.mixins.VersionedAccessMixin" title="openstef_core.datasets.mixins.VersionedAccessMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">VersionedAccessMixin</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
-<p>A mixin that combines time series and versioned access functionality.</p>
-<p>This mixin provides the necessary properties and methods to handle time series data
-with versioning capabilities, allowing access to historical data points based on their availability.</p>
+<dd><p>Bases: <a class="reference internal" href="openstef_core.datasets.mixins.TimeSeriesMixin.html#openstef_core.datasets.mixins.TimeSeriesMixin" title="openstef_core.datasets.mixins.TimeSeriesMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimeSeriesMixin</span></code></a></p>
+<p>Abstract base class for versioned time series dataset functionality.</p>
+<p>This mixin defines the interface for datasets that track data availability
+over time. It provides methods to filter datasets by time ranges, availability,
+and lead times, as well as select specific versions of the data.</p>
+<p>The key concept is that data points have both a timestamp (when they
+occurred) and an availability time (when they became available for use).
+This separation allows for accurate simulation of real-world forecasting
+constraints where data arrives with delays or gets revised.</p>
+<p>Classes implementing this mixin should provide:
+- Time range filtering capabilities
+- Availability-based filtering using AvailableAt specifications
+- Lead time-based filtering using LeadTime specifications
+- Version selection for point-in-time data reconstruction</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef_core.datasets.mixins.VersionedTimeSeriesMixin.filter_by_range">
+<em class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">filter_by_range</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">datetime</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">datetime</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Self</span></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/mixins.html#VersionedTimeSeriesMixin.filter_by_range"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.mixins.VersionedTimeSeriesMixin.filter_by_range" title="Link to this definition">#</a></dt>
+<dd><p>Filter the dataset to include only data within the specified time range.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>start</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The inclusive start time of the range. If None, no start boundary is applied.</p></li>
+<li><p><strong>end</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The exclusive end time of the range. If None, no end boundary is applied.</p></li>
+<li><p><strong>start</strong></p></li>
+<li><p><strong>end</strong></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A new instance of the same type containing only data within [start, end).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Self</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef_core.datasets.mixins.VersionedTimeSeriesMixin.filter_by_available_at">
+<em class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">filter_by_available_at</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">available_at</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">AvailableAt</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Self</span></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/mixins.html#VersionedTimeSeriesMixin.filter_by_available_at"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.mixins.VersionedTimeSeriesMixin.filter_by_available_at" title="Link to this definition">#</a></dt>
+<dd><p>Filter the dataset to include only data available according to the AvailableAt specification.</p>
+<p>This method filters data based on realistic availability constraints,
+considering when data typically becomes available relative to the end of each day.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>available_at</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">AvailableAt</span></code></span>) – Specification defining when data becomes available.</p></li>
+<li><p><strong>available_at</strong></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A new instance of the same type containing only data that would be available
+according to the specified availability pattern.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Self</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef_core.datasets.mixins.VersionedTimeSeriesMixin.filter_by_lead_time">
+<em class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">filter_by_lead_time</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lead_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">LeadTime</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Self</span></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/mixins.html#VersionedTimeSeriesMixin.filter_by_lead_time"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.mixins.VersionedTimeSeriesMixin.filter_by_lead_time" title="Link to this definition">#</a></dt>
+<dd><p>Filter the dataset to include only data available with the specified lead time.</p>
+<p>This method ensures that only data points that were available at least
+<cite>lead_time</cite> before their timestamp are included, simulating real-world
+constraints where predictions must be made with limited recent data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lead_time</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">LeadTime</span></code></span>) – The minimum time gap required between data availability and timestamp.</p></li>
+<li><p><strong>lead_time</strong></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A new instance of the same type containing only data available with the required lead time.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Self</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef_core.datasets.mixins.VersionedTimeSeriesMixin.select_version">
+<em class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">select_version</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">available_before</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">datetime</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset" title="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset"><span class="pre">TimeSeriesDataset</span></a></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/mixins.html#VersionedTimeSeriesMixin.select_version"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.mixins.VersionedTimeSeriesMixin.select_version" title="Link to this definition">#</a></dt>
+<dd><p>Select a specific version of the dataset based on data availability.</p>
+<p>Creates a point-in-time snapshot of the dataset containing only data that
+was available before the specified timestamp. This enables realistic
+backtesting by reconstructing what the dataset would have looked like
+at a specific point in time.</p>
+<p>This method is essential for preventing lookahead bias in backtesting.
+Without it, models would appear to have access to future data that
+wasn’t available when the forecast was made.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>available_before</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Cutoff timestamp for data availability. If None,
+uses all available data. Data with availability times after
+this cutoff will be excluded.</p></li>
+<li><p><strong>available_before</strong></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>TimeSeriesDataset containing only data available before the cutoff,
+with the latest available version for each timestamp.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset" title="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimeSeriesDataset</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -588,12 +698,12 @@ with versioning capabilities, allowing access to historical data points based on
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="openstef_core.datasets.mixins.VersionedAccessMixin.html"
+       href="openstef_core.datasets.mixins.TimeSeriesMixin.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">VersionedAccessMixin</p>
+        <p class="prev-next-title">TimeSeriesMixin</p>
       </div>
     </a>
     <a class="right-next"
@@ -624,7 +734,13 @@ with versioning capabilities, allowing access to historical data points based on
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.datasets.mixins.VersionedTimeSeriesMixin"><code class="docutils literal notranslate"><span class="pre">VersionedTimeSeriesMixin</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.datasets.mixins.VersionedTimeSeriesMixin"><code class="docutils literal notranslate"><span class="pre">VersionedTimeSeriesMixin</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.datasets.mixins.VersionedTimeSeriesMixin.filter_by_range"><code class="docutils literal notranslate"><span class="pre">VersionedTimeSeriesMixin.filter_by_range()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.datasets.mixins.VersionedTimeSeriesMixin.filter_by_available_at"><code class="docutils literal notranslate"><span class="pre">VersionedTimeSeriesMixin.filter_by_available_at()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.datasets.mixins.VersionedTimeSeriesMixin.filter_by_lead_time"><code class="docutils literal notranslate"><span class="pre">VersionedTimeSeriesMixin.filter_by_lead_time()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.datasets.mixins.VersionedTimeSeriesMixin.select_version"><code class="docutils literal notranslate"><span class="pre">VersionedTimeSeriesMixin.select_version()</span></code></a></li>
+</ul>
+</li>
 </ul>
   </nav></div>
 

@@ -487,6 +487,8 @@
 </li>
         <li><a href="api/generated/openstef_core.datasets.VersionedTimeSeriesDataset.html#openstef_core.datasets.VersionedTimeSeriesDataset.__init__">(openstef_core.datasets.VersionedTimeSeriesDataset method)</a>
 </li>
+        <li><a href="api/generated/openstef_core.datasets.VersionedTimeSeriesPart.html#openstef_core.datasets.VersionedTimeSeriesPart.__init__">(openstef_core.datasets.VersionedTimeSeriesPart method)</a>
+</li>
         <li><a href="api/generated/openstef_core.exceptions.MissingColumnsError.html#openstef_core.exceptions.MissingColumnsError.__init__">(openstef_core.exceptions.MissingColumnsError method)</a>
 </li>
         <li><a href="api/generated/openstef_core.exceptions.TimeSeriesValidationError.html#openstef_core.exceptions.TimeSeriesValidationError.__init__">(openstef_core.exceptions.TimeSeriesValidationError method)</a>
@@ -534,7 +536,7 @@
 </li>
       <li><a href="api/generated/openstef_beam.analysis.AnalysisScope.html#openstef_beam.analysis.AnalysisScope">AnalysisScope (class in openstef_beam.analysis)</a>
 </li>
-      <li><a href="api/generated/openstef_core.datasets.VersionedTimeSeriesDataset.html#openstef_core.datasets.VersionedTimeSeriesDataset.available_at_column">available_at_column (openstef_core.datasets.VersionedTimeSeriesDataset attribute)</a>
+      <li><a href="api/generated/openstef_core.datasets.VersionedTimeSeriesPart.html#openstef_core.datasets.VersionedTimeSeriesPart.available_at_column">available_at_column (openstef_core.datasets.VersionedTimeSeriesPart attribute)</a>
 </li>
       <li><a href="api/generated/openstef_beam.evaluation.EvaluationConfig.html#openstef_beam.evaluation.EvaluationConfig.available_ats">available_ats (openstef_beam.evaluation.EvaluationConfig attribute)</a>
 </li>
@@ -579,13 +581,19 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/openstef_core.datasets.mixins.TimeSeriesMixin.html#openstef_core.datasets.mixins.TimeSeriesMixin.calculate_time_coverage">calculate_time_coverage() (openstef_core.datasets.mixins.TimeSeriesMixin method)</a>
+
+      <ul>
+        <li><a href="api/generated/openstef_core.datasets.TimeSeriesMixin.html#openstef_core.datasets.TimeSeriesMixin.calculate_time_coverage">(openstef_core.datasets.TimeSeriesMixin method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/generated/openstef_core.datasets.VersionedTimeSeriesDataset.html#openstef_core.datasets.VersionedTimeSeriesDataset.concat">concat() (openstef_core.datasets.VersionedTimeSeriesDataset class method)</a>
 </li>
       <li><a href="api/generated/openstef_beam.backtesting.BacktestPipeline.html#openstef_beam.backtesting.BacktestPipeline.config">config (openstef_beam.backtesting.BacktestPipeline attribute)</a>
 </li>
-      <li><a href="api/generated/openstef_beam.metrics.confusion_matrix.html#openstef_beam.metrics.confusion_matrix">confusion_matrix() (in module openstef_beam.metrics)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/openstef_beam.metrics.confusion_matrix.html#openstef_beam.metrics.confusion_matrix">confusion_matrix() (in module openstef_beam.metrics)</a>
+</li>
       <li><a href="api/generated/openstef_beam.metrics.ConfusionMatrix.html#openstef_beam.metrics.ConfusionMatrix">ConfusionMatrix (class in openstef_beam.metrics)</a>
 </li>
       <li><a href="api/generated/openstef_beam.evaluation.EvaluationSubset.html#openstef_beam.evaluation.EvaluationSubset.create">create() (openstef_beam.evaluation.EvaluationSubset class method)</a>
@@ -601,11 +609,13 @@
       <li><a href="api/generated/openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset.data">data (openstef_core.datasets.TimeSeriesDataset attribute)</a>
 
       <ul>
-        <li><a href="api/generated/openstef_core.datasets.VersionedTimeSeriesDataset.html#openstef_core.datasets.VersionedTimeSeriesDataset.data">(openstef_core.datasets.VersionedTimeSeriesDataset attribute)</a>
+        <li><a href="api/generated/openstef_core.datasets.VersionedTimeSeriesPart.html#openstef_core.datasets.VersionedTimeSeriesPart.data">(openstef_core.datasets.VersionedTimeSeriesPart attribute)</a>
 </li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/openstef_core.datasets.VersionedTimeSeriesDataset.html#openstef_core.datasets.VersionedTimeSeriesDataset.data_parts">data_parts (openstef_core.datasets.VersionedTimeSeriesDataset attribute)</a>
+</li>
       <li><a href="api/generated/openstef_beam.benchmarking.BenchmarkTarget.html#openstef_beam.benchmarking.BenchmarkTarget.description">description (openstef_beam.benchmarking.BenchmarkTarget attribute)</a>
 </li>
   </ul></td>
@@ -642,19 +652,55 @@
 </li>
       <li><a href="api/generated/openstef_beam.metrics.fbeta.html#openstef_beam.metrics.fbeta">fbeta() (in module openstef_beam.metrics)</a>
 </li>
-      <li><a href="api/generated/openstef_core.datasets.mixins.TimeSeriesMixin.html#openstef_core.datasets.mixins.TimeSeriesMixin.feature_names">feature_names (openstef_core.datasets.mixins.TimeSeriesMixin property)</a>
+      <li><a href="api/generated/openstef_core.datasets.mixins.TimeSeriesMixin.html#openstef_core.datasets.mixins.TimeSeriesMixin.feature_names">feature_names (openstef_core.datasets.mixins.TimeSeriesMixin attribute)</a>
 
       <ul>
-        <li><a href="api/generated/openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset.feature_names">(openstef_core.datasets.TimeSeriesDataset property)</a>
+        <li><a href="api/generated/openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset.feature_names">(openstef_core.datasets.TimeSeriesDataset attribute)</a>
 </li>
-        <li><a href="api/generated/openstef_core.datasets.VersionedTimeSeriesDataset.html#openstef_core.datasets.VersionedTimeSeriesDataset.feature_names">(openstef_core.datasets.VersionedTimeSeriesDataset property)</a>
+        <li><a href="api/generated/openstef_core.datasets.TimeSeriesMixin.html#openstef_core.datasets.TimeSeriesMixin.feature_names">(openstef_core.datasets.TimeSeriesMixin attribute)</a>
+</li>
+        <li><a href="api/generated/openstef_core.datasets.VersionedTimeSeriesDataset.html#openstef_core.datasets.VersionedTimeSeriesDataset.feature_names">(openstef_core.datasets.VersionedTimeSeriesDataset attribute)</a>
+</li>
+        <li><a href="api/generated/openstef_core.datasets.VersionedTimeSeriesPart.html#openstef_core.datasets.VersionedTimeSeriesPart.feature_names">(openstef_core.datasets.VersionedTimeSeriesPart attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="api/generated/openstef_core.datasets.mixins.VersionedTimeSeriesMixin.html#openstef_core.datasets.mixins.VersionedTimeSeriesMixin.filter_by_available_at">filter_by_available_at() (openstef_core.datasets.mixins.VersionedTimeSeriesMixin method)</a>
+
+      <ul>
+        <li><a href="api/generated/openstef_core.datasets.VersionedTimeSeriesDataset.html#openstef_core.datasets.VersionedTimeSeriesDataset.filter_by_available_at">(openstef_core.datasets.VersionedTimeSeriesDataset method)</a>
+</li>
+        <li><a href="api/generated/openstef_core.datasets.VersionedTimeSeriesMixin.html#openstef_core.datasets.VersionedTimeSeriesMixin.filter_by_available_at">(openstef_core.datasets.VersionedTimeSeriesMixin method)</a>
+</li>
+        <li><a href="api/generated/openstef_core.datasets.VersionedTimeSeriesPart.html#openstef_core.datasets.VersionedTimeSeriesPart.filter_by_available_at">(openstef_core.datasets.VersionedTimeSeriesPart method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/generated/openstef_core.datasets.mixins.VersionedTimeSeriesMixin.html#openstef_core.datasets.mixins.VersionedTimeSeriesMixin.filter_by_lead_time">filter_by_lead_time() (openstef_core.datasets.mixins.VersionedTimeSeriesMixin method)</a>
+
+      <ul>
+        <li><a href="api/generated/openstef_core.datasets.VersionedTimeSeriesDataset.html#openstef_core.datasets.VersionedTimeSeriesDataset.filter_by_lead_time">(openstef_core.datasets.VersionedTimeSeriesDataset method)</a>
+</li>
+        <li><a href="api/generated/openstef_core.datasets.VersionedTimeSeriesMixin.html#openstef_core.datasets.VersionedTimeSeriesMixin.filter_by_lead_time">(openstef_core.datasets.VersionedTimeSeriesMixin method)</a>
+</li>
+        <li><a href="api/generated/openstef_core.datasets.VersionedTimeSeriesPart.html#openstef_core.datasets.VersionedTimeSeriesPart.filter_by_lead_time">(openstef_core.datasets.VersionedTimeSeriesPart method)</a>
 </li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/openstef_core.datasets.mixins.VersionedTimeSeriesMixin.html#openstef_core.datasets.mixins.VersionedTimeSeriesMixin.filter_by_range">filter_by_range() (openstef_core.datasets.mixins.VersionedTimeSeriesMixin method)</a>
+
+      <ul>
+        <li><a href="api/generated/openstef_core.datasets.VersionedTimeSeriesDataset.html#openstef_core.datasets.VersionedTimeSeriesDataset.filter_by_range">(openstef_core.datasets.VersionedTimeSeriesDataset method)</a>
+</li>
+        <li><a href="api/generated/openstef_core.datasets.VersionedTimeSeriesMixin.html#openstef_core.datasets.VersionedTimeSeriesMixin.filter_by_range">(openstef_core.datasets.VersionedTimeSeriesMixin method)</a>
+</li>
+        <li><a href="api/generated/openstef_core.datasets.VersionedTimeSeriesPart.html#openstef_core.datasets.VersionedTimeSeriesPart.filter_by_range">(openstef_core.datasets.VersionedTimeSeriesPart method)</a>
+</li>
+      </ul></li>
       <li><a href="api/generated/openstef_beam.evaluation.EvaluationSubsetReport.html#openstef_beam.evaluation.EvaluationSubsetReport.filtering">filtering (openstef_beam.evaluation.EvaluationSubsetReport attribute)</a>
 </li>
       <li><a href="api/generated/openstef_beam.backtesting.BacktestPipeline.html#openstef_beam.backtesting.BacktestPipeline.forecaster">forecaster (openstef_beam.backtesting.BacktestPipeline attribute)</a>
+</li>
+      <li><a href="api/generated/openstef_core.datasets.VersionedTimeSeriesDataset.html#openstef_core.datasets.VersionedTimeSeriesDataset.from_dataframe">from_dataframe() (openstef_core.datasets.VersionedTimeSeriesDataset class method)</a>
 </li>
       <li><a href="api/generated/openstef_beam.evaluation.EvaluationSubset.html#openstef_beam.evaluation.EvaluationSubset.from_parquet">from_parquet() (openstef_beam.evaluation.EvaluationSubset class method)</a>
 </li>
@@ -688,10 +734,10 @@
 </li>
       <li><a href="api/generated/openstef_beam.benchmarking.LocalBenchmarkStorage.html#openstef_beam.benchmarking.LocalBenchmarkStorage.get_predictions_path_for_target">get_predictions_path_for_target() (openstef_beam.benchmarking.LocalBenchmarkStorage method)</a>
 </li>
-      <li><a href="api/generated/openstef_beam.benchmarking.TargetProvider.html#openstef_beam.benchmarking.TargetProvider.get_predictors_for_target">get_predictors_for_target() (openstef_beam.benchmarking.TargetProvider method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/openstef_beam.benchmarking.TargetProvider.html#openstef_beam.benchmarking.TargetProvider.get_predictors_for_target">get_predictors_for_target() (openstef_beam.benchmarking.TargetProvider method)</a>
+</li>
       <li><a href="api/generated/openstef_beam.evaluation.EvaluationSubsetReport.html#openstef_beam.evaluation.EvaluationSubsetReport.get_quantile_predictions">get_quantile_predictions() (openstef_beam.evaluation.EvaluationSubsetReport method)</a>
 </li>
       <li><a href="api/generated/openstef_beam.evaluation.SubsetMetric.html#openstef_beam.evaluation.SubsetMetric.get_quantiles">get_quantiles() (openstef_beam.evaluation.SubsetMetric method)</a>
@@ -700,12 +746,6 @@
 </li>
       <li><a href="api/generated/openstef_beam.benchmarking.TargetProvider.html#openstef_beam.benchmarking.TargetProvider.get_targets">get_targets() (openstef_beam.benchmarking.TargetProvider method)</a>
 </li>
-      <li><a href="api/generated/openstef_core.datasets.mixins.VersionedAccessMixin.html#openstef_core.datasets.mixins.VersionedAccessMixin.get_window">get_window() (openstef_core.datasets.mixins.VersionedAccessMixin method)</a>
-
-      <ul>
-        <li><a href="api/generated/openstef_core.datasets.VersionedTimeSeriesDataset.html#openstef_core.datasets.VersionedTimeSeriesDataset.get_window">(openstef_core.datasets.VersionedTimeSeriesDataset method)</a>
-</li>
-      </ul></li>
       <li><a href="api/generated/openstef_beam.evaluation.EvaluationSubsetReport.html#openstef_beam.evaluation.EvaluationSubsetReport.get_windowed_metrics">get_windowed_metrics() (openstef_beam.evaluation.EvaluationSubsetReport method)</a>
 </li>
       <li><a href="api/generated/openstef_beam.evaluation.EvaluationSubset.html#openstef_beam.evaluation.EvaluationSubset.ground_truth">ground_truth (openstef_beam.evaluation.EvaluationSubset attribute)</a>
@@ -763,11 +803,15 @@
       <li><a href="api/generated/openstef_beam.evaluation.EvaluationSubset.html#openstef_beam.evaluation.EvaluationSubset.index">index (openstef_beam.evaluation.EvaluationSubset property)</a>
 
       <ul>
-        <li><a href="api/generated/openstef_core.datasets.mixins.TimeSeriesMixin.html#openstef_core.datasets.mixins.TimeSeriesMixin.index">(openstef_core.datasets.mixins.TimeSeriesMixin property)</a>
+        <li><a href="api/generated/openstef_core.datasets.mixins.TimeSeriesMixin.html#openstef_core.datasets.mixins.TimeSeriesMixin.index">(openstef_core.datasets.mixins.TimeSeriesMixin attribute)</a>
 </li>
-        <li><a href="api/generated/openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset.index">(openstef_core.datasets.TimeSeriesDataset property)</a>
+        <li><a href="api/generated/openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset.index">(openstef_core.datasets.TimeSeriesDataset attribute)</a>
 </li>
-        <li><a href="api/generated/openstef_core.datasets.VersionedTimeSeriesDataset.html#openstef_core.datasets.VersionedTimeSeriesDataset.index">(openstef_core.datasets.VersionedTimeSeriesDataset property)</a>
+        <li><a href="api/generated/openstef_core.datasets.TimeSeriesMixin.html#openstef_core.datasets.TimeSeriesMixin.index">(openstef_core.datasets.TimeSeriesMixin attribute)</a>
+</li>
+        <li><a href="api/generated/openstef_core.datasets.VersionedTimeSeriesDataset.html#openstef_core.datasets.VersionedTimeSeriesDataset.index">(openstef_core.datasets.VersionedTimeSeriesDataset attribute)</a>
+</li>
+        <li><a href="api/generated/openstef_core.datasets.VersionedTimeSeriesPart.html#openstef_core.datasets.VersionedTimeSeriesPart.index">(openstef_core.datasets.VersionedTimeSeriesPart attribute)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -1143,6 +1187,8 @@
 </li>
         <li><a href="api/generated/openstef_core.datasets.VersionedTimeSeriesDataset.html#openstef_core.datasets.VersionedTimeSeriesDataset.read_parquet">(openstef_core.datasets.VersionedTimeSeriesDataset class method)</a>
 </li>
+        <li><a href="api/generated/openstef_core.datasets.VersionedTimeSeriesPart.html#openstef_core.datasets.VersionedTimeSeriesPart.read_parquet">(openstef_core.datasets.VersionedTimeSeriesPart class method)</a>
+</li>
       </ul></li>
       <li><a href="api/generated/openstef_core.base_model.BaseConfig.html#openstef_core.base_model.BaseConfig.read_yaml">read_yaml() (openstef_core.base_model.BaseConfig class method)</a>
 </li>
@@ -1205,11 +1251,15 @@
       <li><a href="api/generated/openstef_beam.evaluation.EvaluationSubset.html#openstef_beam.evaluation.EvaluationSubset.sample_interval">sample_interval (openstef_beam.evaluation.EvaluationSubset property)</a>
 
       <ul>
-        <li><a href="api/generated/openstef_core.datasets.mixins.TimeSeriesMixin.html#openstef_core.datasets.mixins.TimeSeriesMixin.sample_interval">(openstef_core.datasets.mixins.TimeSeriesMixin property)</a>
+        <li><a href="api/generated/openstef_core.datasets.mixins.TimeSeriesMixin.html#openstef_core.datasets.mixins.TimeSeriesMixin.sample_interval">(openstef_core.datasets.mixins.TimeSeriesMixin attribute)</a>
 </li>
-        <li><a href="api/generated/openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset.sample_interval">(openstef_core.datasets.TimeSeriesDataset property)</a>
+        <li><a href="api/generated/openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset.sample_interval">(openstef_core.datasets.TimeSeriesDataset attribute)</a>
 </li>
-        <li><a href="api/generated/openstef_core.datasets.VersionedTimeSeriesDataset.html#openstef_core.datasets.VersionedTimeSeriesDataset.sample_interval">(openstef_core.datasets.VersionedTimeSeriesDataset property)</a>
+        <li><a href="api/generated/openstef_core.datasets.TimeSeriesMixin.html#openstef_core.datasets.TimeSeriesMixin.sample_interval">(openstef_core.datasets.TimeSeriesMixin attribute)</a>
+</li>
+        <li><a href="api/generated/openstef_core.datasets.VersionedTimeSeriesDataset.html#openstef_core.datasets.VersionedTimeSeriesDataset.sample_interval">(openstef_core.datasets.VersionedTimeSeriesDataset attribute)</a>
+</li>
+        <li><a href="api/generated/openstef_core.datasets.VersionedTimeSeriesPart.html#openstef_core.datasets.VersionedTimeSeriesPart.sample_interval">(openstef_core.datasets.VersionedTimeSeriesPart attribute)</a>
 </li>
       </ul></li>
       <li><a href="api/generated/openstef_beam.benchmarking.BenchmarkStorage.html#openstef_beam.benchmarking.BenchmarkStorage.save_analysis_output">save_analysis_output() (openstef_beam.benchmarking.BenchmarkStorage method)</a>
@@ -1246,6 +1296,16 @@
       </ul></li>
       <li><a href="api/generated/openstef_beam.analysis.AnalysisOutput.html#openstef_beam.analysis.AnalysisOutput.scope">scope (openstef_beam.analysis.AnalysisOutput attribute)</a>
 </li>
+      <li><a href="api/generated/openstef_core.datasets.mixins.VersionedTimeSeriesMixin.html#openstef_core.datasets.mixins.VersionedTimeSeriesMixin.select_version">select_version() (openstef_core.datasets.mixins.VersionedTimeSeriesMixin method)</a>
+
+      <ul>
+        <li><a href="api/generated/openstef_core.datasets.VersionedTimeSeriesDataset.html#openstef_core.datasets.VersionedTimeSeriesDataset.select_version">(openstef_core.datasets.VersionedTimeSeriesDataset method)</a>
+</li>
+        <li><a href="api/generated/openstef_core.datasets.VersionedTimeSeriesMixin.html#openstef_core.datasets.VersionedTimeSeriesMixin.select_version">(openstef_core.datasets.VersionedTimeSeriesMixin method)</a>
+</li>
+        <li><a href="api/generated/openstef_core.datasets.VersionedTimeSeriesPart.html#openstef_core.datasets.VersionedTimeSeriesPart.select_version">(openstef_core.datasets.VersionedTimeSeriesPart method)</a>
+</li>
+      </ul></li>
       <li><a href="api/generated/openstef_beam.backtesting.BacktestPipeline.html#openstef_beam.backtesting.BacktestPipeline.start">start (openstef_beam.backtesting.BacktestPipeline attribute)</a>
 </li>
       <li><a href="api/generated/openstef_beam.benchmarking.StrictExecutionCallback.html#openstef_beam.benchmarking.StrictExecutionCallback">StrictExecutionCallback (class in openstef_beam.benchmarking)</a>
@@ -1274,15 +1334,19 @@
 </li>
       <li><a href="api/generated/openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset">TimeSeriesDataset (class in openstef_core.datasets)</a>
 </li>
-      <li><a href="api/generated/openstef_core.datasets.mixins.TimeSeriesMixin.html#openstef_core.datasets.mixins.TimeSeriesMixin">TimeSeriesMixin (class in openstef_core.datasets.mixins)</a>
+      <li><a href="api/generated/openstef_core.datasets.TimeSeriesMixin.html#openstef_core.datasets.TimeSeriesMixin">TimeSeriesMixin (class in openstef_core.datasets)</a>
+
+      <ul>
+        <li><a href="api/generated/openstef_core.datasets.mixins.TimeSeriesMixin.html#openstef_core.datasets.mixins.TimeSeriesMixin">(class in openstef_core.datasets.mixins)</a>
 </li>
+      </ul></li>
       <li><a href="api/generated/openstef_core.exceptions.TimeSeriesValidationError.html#openstef_core.exceptions.TimeSeriesValidationError">TimeSeriesValidationError (class in openstef_core.exceptions)</a>
 </li>
       <li><a href="api/generated/openstef_beam.evaluation.SubsetMetric.html#openstef_beam.evaluation.SubsetMetric.timestamp">timestamp (openstef_beam.evaluation.SubsetMetric attribute)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/generated/openstef_core.datasets.VersionedTimeSeriesDataset.html#openstef_core.datasets.VersionedTimeSeriesDataset.timestamp_column">timestamp_column (openstef_core.datasets.VersionedTimeSeriesDataset attribute)</a>
+      <li><a href="api/generated/openstef_core.datasets.VersionedTimeSeriesPart.html#openstef_core.datasets.VersionedTimeSeriesPart.timestamp_column">timestamp_column (openstef_core.datasets.VersionedTimeSeriesPart attribute)</a>
 </li>
       <li><a href="api/generated/openstef_beam.evaluation.EvaluationReport.html#openstef_beam.evaluation.EvaluationReport.to_parquet">to_parquet() (openstef_beam.evaluation.EvaluationReport method)</a>
 
@@ -1294,6 +1358,8 @@
         <li><a href="api/generated/openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset.to_parquet">(openstef_core.datasets.TimeSeriesDataset method)</a>
 </li>
         <li><a href="api/generated/openstef_core.datasets.VersionedTimeSeriesDataset.html#openstef_core.datasets.VersionedTimeSeriesDataset.to_parquet">(openstef_core.datasets.VersionedTimeSeriesDataset method)</a>
+</li>
+        <li><a href="api/generated/openstef_core.datasets.VersionedTimeSeriesPart.html#openstef_core.datasets.VersionedTimeSeriesPart.to_parquet">(openstef_core.datasets.VersionedTimeSeriesPart method)</a>
 </li>
       </ul></li>
       <li><a href="api/generated/openstef_beam.backtesting.BacktestConfig.html#openstef_beam.backtesting.BacktestConfig.train_interval">train_interval (openstef_beam.backtesting.BacktestConfig attribute)</a>
@@ -1320,13 +1386,17 @@
 </li>
       <li><a href="api/generated/openstef_beam.benchmarking.BenchmarkTarget.html#openstef_beam.benchmarking.BenchmarkTarget.validate_train_start">validate_train_start() (openstef_beam.benchmarking.BenchmarkTarget class method)</a>
 </li>
-      <li><a href="api/generated/openstef_core.datasets.mixins.VersionedAccessMixin.html#openstef_core.datasets.mixins.VersionedAccessMixin">VersionedAccessMixin (class in openstef_core.datasets.mixins)</a>
+      <li><a href="api/generated/openstef_core.datasets.VersionedTimeSeriesDataset.html#openstef_core.datasets.VersionedTimeSeriesDataset">VersionedTimeSeriesDataset (class in openstef_core.datasets)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/generated/openstef_core.datasets.VersionedTimeSeriesDataset.html#openstef_core.datasets.VersionedTimeSeriesDataset">VersionedTimeSeriesDataset (class in openstef_core.datasets)</a>
+      <li><a href="api/generated/openstef_core.datasets.VersionedTimeSeriesMixin.html#openstef_core.datasets.VersionedTimeSeriesMixin">VersionedTimeSeriesMixin (class in openstef_core.datasets)</a>
+
+      <ul>
+        <li><a href="api/generated/openstef_core.datasets.mixins.VersionedTimeSeriesMixin.html#openstef_core.datasets.mixins.VersionedTimeSeriesMixin">(class in openstef_core.datasets.mixins)</a>
 </li>
-      <li><a href="api/generated/openstef_core.datasets.mixins.VersionedTimeSeriesMixin.html#openstef_core.datasets.mixins.VersionedTimeSeriesMixin">VersionedTimeSeriesMixin (class in openstef_core.datasets.mixins)</a>
+      </ul></li>
+      <li><a href="api/generated/openstef_core.datasets.VersionedTimeSeriesPart.html#openstef_core.datasets.VersionedTimeSeriesPart">VersionedTimeSeriesPart (class in openstef_core.datasets)</a>
 </li>
       <li><a href="api/generated/openstef_beam.analysis.AnalysisConfig.html#openstef_beam.analysis.AnalysisConfig.visualization_providers">visualization_providers (openstef_beam.analysis.AnalysisConfig attribute)</a>
 </li>

@@ -469,6 +469,21 @@
 
 
 
+<span class="k">class</span><span class="w"> </span><span class="nc">InvalidColumnTypeError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Exception raised when a DataFrame column has an invalid type.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">expected_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">actual_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the exception with details about the type mismatch.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            column: Name of the column with the invalid type.</span>
+<span class="sd">            expected_type: The expected data type for the column.</span>
+<span class="sd">            actual_type: The actual data type found in the column.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Invalid type for column &#39;</span><span class="si">{</span><span class="n">column</span><span class="si">}</span><span class="s2">&#39;: expected </span><span class="si">{</span><span class="n">expected_type</span><span class="si">}</span><span class="s2">, but got </span><span class="si">{</span><span class="n">actual_type</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+
+
 <div class="viewcode-block" id="TimeSeriesValidationError">
 <a class="viewcode-back" href="../../api/generated/openstef_core.exceptions.TimeSeriesValidationError.html#openstef_core.exceptions.TimeSeriesValidationError">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TimeSeriesValidationError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>

@@ -25,7 +25,6 @@ Classes
    :template: custom_class.rst
 
    TimeSeriesMixin
-   VersionedAccessMixin
    VersionedTimeSeriesMixin
 
 

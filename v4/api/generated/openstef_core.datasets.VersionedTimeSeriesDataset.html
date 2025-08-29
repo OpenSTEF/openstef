@@ -59,8 +59,8 @@
     <link rel="icon" href="../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="openstef_core.utils" href="openstef_core.utils.html" />
-    <link rel="prev" title="TimeSeriesDataset" href="openstef_core.datasets.TimeSeriesDataset.html" />
+    <link rel="next" title="VersionedTimeSeriesMixin" href="openstef_core.datasets.VersionedTimeSeriesMixin.html" />
+    <link rel="prev" title="TimeSeriesMixin" href="openstef_core.datasets.TimeSeriesMixin.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="0.0.0" />
@@ -397,12 +397,14 @@
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="openstef_core.datasets.html">openstef_core.datasets</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2 has-children"><a class="reference internal" href="openstef_core.datasets.mixins.html">openstef_core.datasets.mixins</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="openstef_core.datasets.mixins.TimeSeriesMixin.html">TimeSeriesMixin</a></li>
-<li class="toctree-l3"><a class="reference internal" href="openstef_core.datasets.mixins.VersionedAccessMixin.html">VersionedAccessMixin</a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_core.datasets.mixins.VersionedTimeSeriesMixin.html">VersionedTimeSeriesMixin</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.datasets.TimeSeriesDataset.html">TimeSeriesDataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_core.datasets.TimeSeriesMixin.html">TimeSeriesMixin</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">VersionedTimeSeriesDataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_core.datasets.VersionedTimeSeriesMixin.html">VersionedTimeSeriesMixin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_core.datasets.VersionedTimeSeriesPart.html">VersionedTimeSeriesPart</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="openstef_core.utils.html">openstef_core.utils</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -565,43 +567,197 @@
 <h1>VersionedTimeSeriesDataset<a class="headerlink" href="#versionedtimeseriesdataset" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="openstef_core.datasets.VersionedTimeSeriesDataset">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef_core.datasets.</span></span><span class="sig-name descname"><span class="pre">VersionedTimeSeriesDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_interval</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">timedelta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp_column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'timestamp'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">available_at_column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'available_at'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/versioned_timeseries/dataset.html#VersionedTimeSeriesDataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.VersionedTimeSeriesDataset" title="Link to this definition">#</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef_core.datasets.</span></span><span class="sig-name descname"><span class="pre">VersionedTimeSeriesDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_parts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="openstef_core.datasets.VersionedTimeSeriesPart.html#openstef_core.datasets.VersionedTimeSeriesPart" title="openstef_core.datasets.versioned_timeseries.dataset_part.VersionedTimeSeriesPart"><span class="pre">VersionedTimeSeriesPart</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DatetimeIndex</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/versioned_timeseries/dataset.html#VersionedTimeSeriesDataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.VersionedTimeSeriesDataset" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="openstef_core.datasets.mixins.VersionedTimeSeriesMixin.html#openstef_core.datasets.mixins.VersionedTimeSeriesMixin" title="openstef_core.datasets.mixins.VersionedTimeSeriesMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">VersionedTimeSeriesMixin</span></code></a></p>
-<p>A time series dataset that tracks data availability over time.</p>
-<p>This dataset extends the basic time series concept by maintaining version
-information for each data point, recording when each piece of data became
-available. This enables realistic backtesting by ensuring that only data
-that was actually available at a given time is used for predictions.</p>
-<p>Each row in the dataset represents a data point at a specific timestamp
-along with the time when that data became available. This allows for:</p>
-<ul class="simple">
-<li><p>Accurate simulation of real-time forecasting scenarios</p></li>
-<li><p>Handling of data revisions and late-arriving measurements</p></li>
-<li><p>Point-in-time data reconstruction for backtesting</p></li>
+<p>A versioned time series dataset composed of multiple data parts.</p>
+<p>This class combines multiple VersionedTimeSeriesPart instances into a unified
+dataset that tracks data availability over time. It provides methods to filter
+datasets by time ranges, availability constraints, and lead times, as well as
+select specific versions of the data for point-in-time reconstruction.</p>
+<p>The dataset is particularly useful for realistic backtesting scenarios where
+data arrives with delays or gets revised over time.</p>
+<p>Key motivation: This architecture solves the O(n²) space complexity problem
+that occurs when concatenating DataFrames with misaligned (timestamp, available_at)
+pairs. Instead of immediately combining data, it uses lazy composition that
+delays actual DataFrame concatenation until select_version() is called.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_parts</strong> – List of VersionedTimeSeriesPart instances that compose this dataset.</p></li>
+<li><p><strong>index</strong> – Datetime index representing all timestamps across all data parts.</p></li>
+<li><p><strong>sample_interval</strong> – Fixed time interval between consecutive data points.</p></li>
+<li><p><strong>feature_names</strong> – Names of all available features across all data parts.</p></li>
 </ul>
-<p>The dataset maintains temporal ordering by both timestamp and availability time.</p>
+</dd>
+</dl>
 <p class="rubric">Example</p>
-<p>Create a versioned dataset with energy load data:</p>
+<p>Create a versioned dataset by combining multiple data parts:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
-<span class="gp">... </span>    <span class="s1">&#39;timestamp&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="s1">&#39;2025-01-01T10:00:00&#39;</span><span class="p">),</span>
-<span class="gp">... </span>                  <span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="s1">&#39;2025-01-01T10:15:00&#39;</span><span class="p">),</span>
-<span class="gp">... </span>                  <span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="s1">&#39;2025-01-01T10:00:00&#39;</span><span class="p">)],</span>  <span class="c1"># Revised data</span>
-<span class="gp">... </span>    <span class="s1">&#39;available_at&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="s1">&#39;2025-01-01T10:05:00&#39;</span><span class="p">),</span>
-<span class="gp">... </span>                     <span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="s1">&#39;2025-01-01T10:20:00&#39;</span><span class="p">),</span>
-<span class="gp">... </span>                     <span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="s1">&#39;2025-01-01T10:30:00&#39;</span><span class="p">)],</span>  <span class="c1"># Later revision</span>
-<span class="gp">... </span>    <span class="s1">&#39;load&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">100.0</span><span class="p">,</span> <span class="mf">120.0</span><span class="p">,</span> <span class="mf">105.0</span><span class="p">]</span>  <span class="c1"># 105.0 is revised value for 10:00</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Create weather data part</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">weather_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s1">&#39;timestamp&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2025</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">)],</span>
+<span class="gp">... </span>    <span class="s1">&#39;available_at&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2025</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">0</span><span class="p">)],</span>
+<span class="gp">... </span>    <span class="s1">&#39;temperature&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">20.5</span><span class="p">]</span>
 <span class="gp">... </span><span class="p">})</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">dataset</span> <span class="o">=</span> <span class="n">VersionedTimeSeriesDataset</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="mi">15</span><span class="p">))</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">dataset</span><span class="o">.</span><span class="n">feature_names</span>
-<span class="go">[&#39;load&#39;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">weather_part</span> <span class="o">=</span> <span class="n">VersionedTimeSeriesPart</span><span class="p">(</span><span class="n">weather_data</span><span class="p">,</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Create load data part</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">load_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s1">&#39;timestamp&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2025</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">)],</span>
+<span class="gp">... </span>    <span class="s1">&#39;available_at&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2025</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">0</span><span class="p">)],</span>
+<span class="gp">... </span>    <span class="s1">&#39;load&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">150.0</span><span class="p">]</span>
+<span class="gp">... </span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">load_part</span> <span class="o">=</span> <span class="n">VersionedTimeSeriesPart</span><span class="p">(</span><span class="n">load_data</span><span class="p">,</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Combine into versioned dataset</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dataset</span> <span class="o">=</span> <span class="n">VersionedTimeSeriesDataset</span><span class="p">([</span><span class="n">weather_part</span><span class="p">,</span> <span class="n">load_part</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">sorted</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">feature_names</span><span class="p">)</span>
+<span class="go">[&#39;load&#39;, &#39;temperature&#39;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dataset</span><span class="o">.</span><span class="n">sample_interval</span>
+<span class="go">datetime.timedelta(seconds=3600)</span>
+</pre></div>
+</div>
+<p>Get point-in-time snapshot of data available at specific time:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">snapshot</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">select_version</span><span class="p">(</span><span class="n">available_before</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2025</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">sorted</span><span class="p">(</span><span class="n">snapshot</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+<span class="go">[&#39;load&#39;, &#39;temperature&#39;]</span>
 </pre></div>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>When multiple versions of the same timestamp exist, <cite>get_window</cite> will
-return the latest version available before the specified time.</p>
+<p>All data parts must have identical sample intervals and disjoint feature sets.
+The final dataset index is the union of all part indices, enabling flexible
+composition of data sources with different coverage periods.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_parts</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<a class="reference internal" href="openstef_core.datasets.VersionedTimeSeriesPart.html#openstef_core.datasets.VersionedTimeSeriesPart" title="openstef_core.datasets.versioned_timeseries.dataset_part.VersionedTimeSeriesPart"><code class="xref py py-class docutils literal notranslate"><span class="pre">VersionedTimeSeriesPart</span></code></a>]</span>)</p></li>
+<li><p><strong>index</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">DatetimeIndex</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef_core.datasets.VersionedTimeSeriesDataset.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_parts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="openstef_core.datasets.VersionedTimeSeriesPart.html#openstef_core.datasets.VersionedTimeSeriesPart" title="openstef_core.datasets.versioned_timeseries.dataset_part.VersionedTimeSeriesPart"><span class="pre">VersionedTimeSeriesPart</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DatetimeIndex</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/versioned_timeseries/dataset.html#VersionedTimeSeriesDataset.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.VersionedTimeSeriesDataset.__init__" title="Link to this definition">#</a></dt>
+<dd><p>Initialize a VersionedTimeSeriesDataset from multiple data parts.</p>
+<p>Combines multiple VersionedTimeSeriesPart instances into a unified dataset
+that maintains versioning information across all parts. Validates that
+parts have compatible configurations before combining.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_parts</strong> (<em>list</em><em>[</em><a class="reference internal" href="openstef_core.datasets.VersionedTimeSeriesPart.html#openstef_core.datasets.VersionedTimeSeriesPart" title="openstef_core.datasets.versioned_timeseries.dataset_part.VersionedTimeSeriesPart"><em>VersionedTimeSeriesPart</em></a><em>]</em>) – List of VersionedTimeSeriesPart instances to combine.
+Must have at least one part with disjoint feature sets and
+identical sample intervals.</p></li>
+<li><p><strong>index</strong> (<em>DatetimeIndex</em><em> | </em><em>None</em>) – Optional predefined datetime index covering all parts.
+If None, computed as union of all part indices.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="openstef_core.exceptions.TimeSeriesValidationError.html#openstef_core.exceptions.TimeSeriesValidationError" title="openstef_core.exceptions.TimeSeriesValidationError"><strong>TimeSeriesValidationError</strong></a> – If no data parts provided, or if parts have
+    overlapping features or incompatible sample intervals.</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<p>Combine temperature and load data parts:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Create separate data parts for different features</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">temp_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s1">&#39;timestamp&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="s1">&#39;2025-01-01T10:00:00&#39;</span><span class="p">)],</span>
+<span class="gp">... </span>    <span class="s1">&#39;available_at&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="s1">&#39;2025-01-01T10:05:00&#39;</span><span class="p">)],</span>
+<span class="gp">... </span>    <span class="s1">&#39;temperature&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">20.0</span><span class="p">]</span>
+<span class="gp">... </span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">load_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s1">&#39;timestamp&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="s1">&#39;2025-01-01T10:00:00&#39;</span><span class="p">)],</span>
+<span class="gp">... </span>    <span class="s1">&#39;available_at&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="s1">&#39;2025-01-01T10:10:00&#39;</span><span class="p">)],</span>
+<span class="gp">... </span>    <span class="s1">&#39;load&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">100.0</span><span class="p">]</span>
+<span class="gp">... </span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">temp_part</span> <span class="o">=</span> <span class="n">VersionedTimeSeriesPart</span><span class="p">(</span><span class="n">temp_data</span><span class="p">,</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="mi">15</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">load_part</span> <span class="o">=</span> <span class="n">VersionedTimeSeriesPart</span><span class="p">(</span><span class="n">load_data</span><span class="p">,</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="mi">15</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dataset</span> <span class="o">=</span> <span class="n">VersionedTimeSeriesDataset</span><span class="p">([</span><span class="n">temp_part</span><span class="p">,</span> <span class="n">load_part</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">sorted</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">feature_names</span><span class="p">)</span>
+<span class="go">[&#39;load&#39;, &#39;temperature&#39;]</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_parts</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<a class="reference internal" href="openstef_core.datasets.VersionedTimeSeriesPart.html#openstef_core.datasets.VersionedTimeSeriesPart" title="openstef_core.datasets.versioned_timeseries.dataset_part.VersionedTimeSeriesPart"><code class="xref py py-class docutils literal notranslate"><span class="pre">VersionedTimeSeriesPart</span></code></a>]</span>)</p></li>
+<li><p><strong>index</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">DatetimeIndex</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef_core.datasets.VersionedTimeSeriesDataset.data_parts">
+<span class="sig-name descname"><span class="pre">data_parts</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code><span class="pre">[</span><a class="reference internal" href="openstef_core.datasets.VersionedTimeSeriesPart.html#openstef_core.datasets.VersionedTimeSeriesPart" title="openstef_core.datasets.versioned_timeseries.dataset_part.VersionedTimeSeriesPart"><code class="xref py py-class docutils literal notranslate"><span class="pre">VersionedTimeSeriesPart</span></code></a><span class="pre">]</span></em><a class="headerlink" href="#openstef_core.datasets.VersionedTimeSeriesDataset.data_parts" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef_core.datasets.VersionedTimeSeriesDataset.sample_interval">
+<span class="sig-name descname"><span class="pre">sample_interval</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">timedelta</span></code></em><a class="headerlink" href="#openstef_core.datasets.VersionedTimeSeriesDataset.sample_interval" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef_core.datasets.VersionedTimeSeriesDataset.index">
+<span class="sig-name descname"><span class="pre">index</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">DatetimeIndex</span></code></em><a class="headerlink" href="#openstef_core.datasets.VersionedTimeSeriesDataset.index" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef_core.datasets.VersionedTimeSeriesDataset.feature_names">
+<span class="sig-name descname"><span class="pre">feature_names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><a class="headerlink" href="#openstef_core.datasets.VersionedTimeSeriesDataset.feature_names" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef_core.datasets.VersionedTimeSeriesDataset.from_dataframe">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dataframe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_interval</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">timedelta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp_column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'timestamp'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">available_at_column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'available_at'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Self</span></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/versioned_timeseries/dataset.html#VersionedTimeSeriesDataset.from_dataframe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.VersionedTimeSeriesDataset.from_dataframe" title="Link to this definition">#</a></dt>
+<dd><p>Create a VersionedTimeSeriesDataset from a single DataFrame.</p>
+<p>Convenience constructor for creating a versioned dataset from a single
+DataFrame containing all features. The DataFrame is wrapped in a single
+VersionedTimeSeriesPart before creating the dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>DataFrame</em>) – DataFrame containing versioned time series data with timestamp
+and available_at columns.</p></li>
+<li><p><strong>sample_interval</strong> (<em>timedelta</em>) – The regular interval between consecutive data points.</p></li>
+<li><p><strong>timestamp_column</strong> (<em>str</em>) – Name of the column containing timestamps. Default is ‘timestamp’.</p></li>
+<li><p><strong>available_at_column</strong> (<em>str</em>) – Name of the column indicating when data became available.
+Default is ‘available_at’.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>New VersionedTimeSeriesDataset instance containing the data.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>Self</em></p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<p>Create dataset from a single DataFrame:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s1">&#39;timestamp&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="s1">&#39;2025-01-01T10:00:00&#39;</span><span class="p">),</span>
+<span class="gp">... </span>                  <span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="s1">&#39;2025-01-01T10:15:00&#39;</span><span class="p">)],</span>
+<span class="gp">... </span>    <span class="s1">&#39;available_at&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="s1">&#39;2025-01-01T10:05:00&#39;</span><span class="p">),</span>
+<span class="gp">... </span>                     <span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="s1">&#39;2025-01-01T10:20:00&#39;</span><span class="p">)],</span>
+<span class="gp">... </span>    <span class="s1">&#39;load&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">100.0</span><span class="p">,</span> <span class="mf">120.0</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s1">&#39;temperature&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">20.0</span><span class="p">,</span> <span class="mf">22.0</span><span class="p">]</span>
+<span class="gp">... </span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dataset</span> <span class="o">=</span> <span class="n">VersionedTimeSeriesDataset</span><span class="o">.</span><span class="n">from_dataframe</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="mi">15</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">sorted</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">feature_names</span><span class="p">)</span>
+<span class="go">[&#39;load&#39;, &#39;temperature&#39;]</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This is equivalent to creating a VersionedTimeSeriesPart and then
+wrapping it in a VersionedTimeSeriesDataset, but more convenient
+for simple cases.</p>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -612,228 +768,182 @@ return the latest version available before the specified time.</p>
 <li><p><strong>available_at_column</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>)</p></li>
 </ul>
 </dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="openstef_core.datasets.VersionedTimeSeriesDataset.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_interval</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">timedelta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp_column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'timestamp'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">available_at_column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'available_at'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/versioned_timeseries/dataset.html#VersionedTimeSeriesDataset.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.VersionedTimeSeriesDataset.__init__" title="Link to this definition">#</a></dt>
-<dd><p>Initialize a VersionedTimeSeriesDataset with the given data and configuration.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></span>) – DataFrame containing the time series data.</p></li>
-<li><p><strong>sample_interval</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">timedelta</span></code></span>) – The regular interval between consecutive data points.</p></li>
-<li><p><strong>timestamp_column</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Name of the column containing timestamps. Default is ‘timestamp’.</p></li>
-<li><p><strong>available_at_column</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Name of the column indicating when data became available.
-Default is ‘available_at’.</p></li>
-<li><p><strong>data</strong></p></li>
-<li><p><strong>sample_interval</strong></p></li>
-<li><p><strong>timestamp_column</strong></p></li>
-<li><p><strong>available_at_column</strong></p></li>
-</ul>
-</dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="openstef_core.exceptions.MissingColumnsError.html#openstef_core.exceptions.MissingColumnsError" title="openstef_core.exceptions.MissingColumnsError"><strong>MissingColumnsError</strong></a> – If the required timestamp_column or available_at_column are missing.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="openstef_core.datasets.VersionedTimeSeriesDataset.data">
-<span class="sig-name descname"><span class="pre">data</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></em><a class="headerlink" href="#openstef_core.datasets.VersionedTimeSeriesDataset.data" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="openstef_core.datasets.VersionedTimeSeriesDataset.timestamp_column">
-<span class="sig-name descname"><span class="pre">timestamp_column</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#openstef_core.datasets.VersionedTimeSeriesDataset.timestamp_column" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="openstef_core.datasets.VersionedTimeSeriesDataset.available_at_column">
-<span class="sig-name descname"><span class="pre">available_at_column</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#openstef_core.datasets.VersionedTimeSeriesDataset.available_at_column" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="openstef_core.datasets.VersionedTimeSeriesDataset.feature_names">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">feature_names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#openstef_core.datasets.VersionedTimeSeriesDataset.feature_names" title="Link to this definition">#</a></dt>
-<dd><p>Names of feature columns excluding timestamp and availability columns.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>List of column names that contain actual feature data.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="openstef_core.datasets.VersionedTimeSeriesDataset.sample_interval">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sample_interval</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">timedelta</span></em><a class="headerlink" href="#openstef_core.datasets.VersionedTimeSeriesDataset.sample_interval" title="Link to this definition">#</a></dt>
-<dd><p>Fixed time interval between consecutive data points.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The sampling interval for this time series.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="openstef_core.datasets.VersionedTimeSeriesDataset.index">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">index</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">DatetimeIndex</span></em><a class="headerlink" href="#openstef_core.datasets.VersionedTimeSeriesDataset.index" title="Link to this definition">#</a></dt>
-<dd><p>Datetime index based on timestamp column.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DatetimeIndex derived from the timestamp column values.</p>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Self</span></code></span></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="openstef_core.datasets.VersionedTimeSeriesDataset.get_window">
-<span class="sig-name descname"><span class="pre">get_window</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">datetime</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">datetime</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">available_before</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">datetime</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/versioned_timeseries/dataset.html#VersionedTimeSeriesDataset.get_window"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.VersionedTimeSeriesDataset.get_window" title="Link to this definition">#</a></dt>
-<dd><p>Retrieve a time window of data that was available before a specified time.</p>
-<p>Returns data points within the specified time range, considering only data
-that was available before the given availability cutoff. When multiple
-versions of the same timestamp exist, returns the latest version available
-before the cutoff.</p>
+<dt class="sig sig-object py" id="openstef_core.datasets.VersionedTimeSeriesDataset.filter_by_range">
+<span class="sig-name descname"><span class="pre">filter_by_range</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">datetime</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">datetime</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Self</span></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/versioned_timeseries/dataset.html#VersionedTimeSeriesDataset.filter_by_range"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.VersionedTimeSeriesDataset.filter_by_range" title="Link to this definition">#</a></dt>
+<dd><p>Filter the dataset to include only data within the specified time range.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>start</strong> (<em>datetime</em>) – Inclusive start time of the desired window.</p></li>
-<li><p><strong>end</strong> (<em>datetime</em>) – Exclusive end time of the desired window.</p></li>
-<li><p><strong>available_before</strong> (<em>datetime</em><em> | </em><em>None</em>) – Optional cutoff time for data availability.
-Only data available at or before this time is included.
-If None, all data is considered available.</p></li>
+<li><p><strong>start</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The inclusive start time of the range. If None, no start boundary is applied.</p></li>
+<li><p><strong>end</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – The exclusive end time of the range. If None, no end boundary is applied.</p></li>
+<li><p><strong>start</strong></p></li>
+<li><p><strong>end</strong></p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>DataFrame with timestamp index containing feature data for the
-requested window. Missing timestamps are filled with NaN values
-to maintain regular intervals.</p>
+<dd class="field-even"><p>A new instance of the same type containing only data within [start, end).</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><em>DataFrame</em></p>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Self</span></code></span></p>
 </dd>
 </dl>
-<p class="rubric">Example</p>
-<p>Get data window considering availability:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Create test data</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
-<span class="gp">... </span>    <span class="s1">&#39;timestamp&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="s1">&#39;2025-01-01T10:00:00&#39;</span><span class="p">),</span>
-<span class="gp">... </span>                  <span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="s1">&#39;2025-01-01T10:15:00&#39;</span><span class="p">),</span>
-<span class="gp">... </span>                  <span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="s1">&#39;2025-01-01T10:30:00&#39;</span><span class="p">)],</span>
-<span class="gp">... </span>    <span class="s1">&#39;available_at&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="s1">&#39;2025-01-01T10:05:00&#39;</span><span class="p">),</span>
-<span class="gp">... </span>                     <span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="s1">&#39;2025-01-01T10:20:00&#39;</span><span class="p">),</span>
-<span class="gp">... </span>                     <span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="s1">&#39;2025-01-01T10:35:00&#39;</span><span class="p">)],</span>
-<span class="gp">... </span>    <span class="s1">&#39;load&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">100.0</span><span class="p">,</span> <span class="mf">120.0</span><span class="p">,</span> <span class="mf">110.0</span><span class="p">]</span>
-<span class="gp">... </span><span class="p">})</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">dataset</span> <span class="o">=</span> <span class="n">VersionedTimeSeriesDataset</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="mi">15</span><span class="p">))</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">window</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get_window</span><span class="p">(</span>
-<span class="gp">... </span>    <span class="n">start</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="s1">&#39;2025-01-01T10:00:00&#39;</span><span class="p">),</span>
-<span class="gp">... </span>    <span class="n">end</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="s1">&#39;2025-01-01T10:30:00&#39;</span><span class="p">),</span>
-<span class="gp">... </span>    <span class="n">available_before</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="s1">&#39;2025-01-01T10:25:00&#39;</span><span class="p">)</span>
-<span class="gp">... </span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">window</span><span class="p">)</span>  <span class="c1"># Should have 2 rows since 10:30 data not available yet</span>
-<span class="go">2</span>
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The returned DataFrame excludes the availability timestamp column
-and uses the timestamp column as the index.</p>
-</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef_core.datasets.VersionedTimeSeriesDataset.filter_by_available_at">
+<span class="sig-name descname"><span class="pre">filter_by_available_at</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">available_at</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">AvailableAt</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Self</span></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/versioned_timeseries/dataset.html#VersionedTimeSeriesDataset.filter_by_available_at"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.VersionedTimeSeriesDataset.filter_by_available_at" title="Link to this definition">#</a></dt>
+<dd><p>Filter the dataset to include only data available according to the AvailableAt specification.</p>
+<p>This method filters data based on realistic availability constraints,
+considering when data typically becomes available relative to the end of each day.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>start</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code></span>)</p></li>
-<li><p><strong>end</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code></span>)</p></li>
-<li><p><strong>available_before</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>)</p></li>
+<li><p><strong>available_at</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">AvailableAt</span></code></span>) – Specification defining when data becomes available.</p></li>
+<li><p><strong>available_at</strong></p></li>
 </ul>
 </dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A new instance of the same type containing only data that would be available
+according to the specified availability pattern.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Self</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef_core.datasets.VersionedTimeSeriesDataset.filter_by_lead_time">
+<span class="sig-name descname"><span class="pre">filter_by_lead_time</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lead_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">LeadTime</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Self</span></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/versioned_timeseries/dataset.html#VersionedTimeSeriesDataset.filter_by_lead_time"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.VersionedTimeSeriesDataset.filter_by_lead_time" title="Link to this definition">#</a></dt>
+<dd><p>Filter the dataset to include only data available with the specified lead time.</p>
+<p>This method ensures that only data points that were available at least
+<cite>lead_time</cite> before their timestamp are included, simulating real-world
+constraints where predictions must be made with limited recent data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lead_time</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">LeadTime</span></code></span>) – The minimum time gap required between data availability and timestamp.</p></li>
+<li><p><strong>lead_time</strong></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A new instance of the same type containing only data available with the required lead time.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Self</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef_core.datasets.VersionedTimeSeriesDataset.select_version">
+<span class="sig-name descname"><span class="pre">select_version</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">available_before</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">datetime</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset" title="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset"><span class="pre">TimeSeriesDataset</span></a></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/versioned_timeseries/dataset.html#VersionedTimeSeriesDataset.select_version"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.VersionedTimeSeriesDataset.select_version" title="Link to this definition">#</a></dt>
+<dd><p>Select a specific version of the dataset based on data availability.</p>
+<p>Creates a point-in-time snapshot of the dataset containing only data that
+was available before the specified timestamp. This enables realistic
+backtesting by reconstructing what the dataset would have looked like
+at a specific point in time.</p>
+<p>This method is essential for preventing lookahead bias in backtesting.
+Without it, models would appear to have access to future data that
+wasn’t available when the forecast was made.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>available_before</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Cutoff timestamp for data availability. If None,
+uses all available data. Data with availability times after
+this cutoff will be excluded.</p></li>
+<li><p><strong>available_before</strong></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>TimeSeriesDataset containing only data available before the cutoff,
+with the latest available version for each timestamp.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset" title="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimeSeriesDataset</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef_core.datasets.VersionedTimeSeriesDataset.concat">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">concat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datasets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">Self</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConcatMode</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Self</span></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/versioned_timeseries/dataset.html#VersionedTimeSeriesDataset.concat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.VersionedTimeSeriesDataset.concat" title="Link to this definition">#</a></dt>
+<dd><p>Concatenate multiple versioned datasets into a single dataset.</p>
+<p>Combines multiple VersionedTimeSeriesDataset instances using the specified
+concatenation mode. Supports different strategies for handling overlapping
+time indices across datasets.</p>
+<p>This method is useful when you have data from different sources or time
+periods that need to be combined while preserving their versioning
+information. For example, combining weather data from different providers
+or merging historical data with recent updates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datasets</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Self</span></code>]</span>) – Sequence of VersionedTimeSeriesDataset instances to concatenate.
+Must contain at least one dataset.</p></li>
+<li><p><strong>mode</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">TypeAliasType</span></code></span>) – Concatenation mode determining how to handle overlapping indices:
+- “left”: Use indices from the first dataset only
+- “outer”: Union of all indices across datasets
+- “inner”: Intersection of all indices across datasets</p></li>
+<li><p><strong>datasets</strong></p></li>
+<li><p><strong>mode</strong></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>New VersionedTimeSeriesDataset containing all data parts from input datasets.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="openstef_core.exceptions.TimeSeriesValidationError.html#openstef_core.exceptions.TimeSeriesValidationError" title="openstef_core.exceptions.TimeSeriesValidationError"><strong>TimeSeriesValidationError</strong></a> – If no datasets are provided for concatenation.</p>
+</dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></span></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Self</span></code></span></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="openstef_core.datasets.VersionedTimeSeriesDataset.to_parquet">
-<span class="sig-name descname"><span class="pre">to_parquet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/versioned_timeseries/dataset.html#VersionedTimeSeriesDataset.to_parquet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.VersionedTimeSeriesDataset.to_parquet" title="Link to this definition">#</a></dt>
-<dd><p>Save the versioned dataset to a parquet file.</p>
-<p>Stores the data and metadata (sample interval, and column configuration)
-in parquet for complete reconstruction.</p>
+<span class="sig-name descname"><span class="pre">to_parquet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">Path</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">PathType</span><span class="p"><span class="pre">(</span></span><span class="n"><span class="pre">path_type</span></span><span class="o"><span class="pre">=</span></span><span class="pre">file</span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/versioned_timeseries/dataset.html#VersionedTimeSeriesDataset.to_parquet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.VersionedTimeSeriesDataset.to_parquet" title="Link to this definition">#</a></dt>
+<dd><p>Save dataset to parquet file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>path</strong> (<em>Path</em>) – File path where the dataset should be saved.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></span>) – File path for saving.</p></li>
+<li><p><strong>path</strong></p></li>
+</ul>
 </dd>
-</dl>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Metadata includes sample interval (as ISO 8601 duration), timestamp
-column name, availability column name, and sort status.</p>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>path</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></span>)</p>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="openstef_core.exceptions.TimeSeriesValidationError.html#openstef_core.exceptions.TimeSeriesValidationError" title="openstef_core.exceptions.TimeSeriesValidationError"><strong>TimeSeriesValidationError</strong></a> – If dataset has multiple data parts.</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="openstef_core.datasets.VersionedTimeSeriesDataset.read_parquet">
-<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">read_parquet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Self</span></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/versioned_timeseries/dataset.html#VersionedTimeSeriesDataset.read_parquet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.VersionedTimeSeriesDataset.read_parquet" title="Link to this definition">#</a></dt>
-<dd><p>Create a VersionedTimeSeriesDataset from a parquet file.</p>
-<p>Loads a complete versioned dataset from a parquet file created with
-the <cite>to_parquet</cite> method. Handles missing metadata gracefully with
-reasonable defaults.</p>
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">read_parquet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">Path</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">PathType</span><span class="p"><span class="pre">(</span></span><span class="n"><span class="pre">path_type</span></span><span class="o"><span class="pre">=</span></span><span class="pre">file</span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Self</span></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/versioned_timeseries/dataset.html#VersionedTimeSeriesDataset.read_parquet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.VersionedTimeSeriesDataset.read_parquet" title="Link to this definition">#</a></dt>
+<dd><p>Load dataset from parquet file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>path</strong> (<em>Path</em>) – Path to the parquet file to load.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></span>) – Path to parquet file.</p></li>
+<li><p><strong>path</strong></p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>New VersionedTimeSeriesDataset instance reconstructed from the file.</p>
+<dd class="field-even"><p>Loaded VersionedTimeSeriesDataset.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><em>Self</em></p>
-</dd>
-</dl>
-<p class="rubric">Example</p>
-<p>Save and reload a versioned dataset:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Create test versioned dataset</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
-<span class="gp">... </span>    <span class="s1">&#39;timestamp&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="s1">&#39;2025-01-01T10:00:00&#39;</span><span class="p">),</span>
-<span class="gp">... </span>                  <span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="s1">&#39;2025-01-01T10:15:00&#39;</span><span class="p">)],</span>
-<span class="gp">... </span>    <span class="s1">&#39;available_at&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="s1">&#39;2025-01-01T10:05:00&#39;</span><span class="p">),</span>
-<span class="gp">... </span>                     <span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="s1">&#39;2025-01-01T10:20:00&#39;</span><span class="p">)],</span>
-<span class="gp">... </span>    <span class="s1">&#39;load&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">100.0</span><span class="p">,</span> <span class="mf">120.0</span><span class="p">]</span>
-<span class="gp">... </span><span class="p">})</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">dataset</span> <span class="o">=</span> <span class="n">VersionedTimeSeriesDataset</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="mi">15</span><span class="p">))</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Test save/load cycle</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmpdir</span><span class="p">:</span>
-<span class="gp">... </span>    <span class="n">file_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmpdir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;versioned_data.parquet&quot;</span>
-<span class="gp">... </span>    <span class="n">dataset</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
-<span class="gp">... </span>    <span class="n">loaded</span> <span class="o">=</span> <span class="n">VersionedTimeSeriesDataset</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
-<span class="gp">... </span>    <span class="n">loaded</span><span class="o">.</span><span class="n">feature_names</span> <span class="o">==</span> <span class="n">dataset</span><span class="o">.</span><span class="n">feature_names</span>
-<span class="go">True</span>
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Missing metadata attributes default to: sample_interval=’PT15M’,
-timestamp_column=’timestamp’, available_at_column=’available_at’.</p>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>path</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></span>)</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Self</span></code></span></p>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Self</span></code></span></p>
 </dd>
 </dl>
 </dd></dl>
@@ -853,20 +963,20 @@ timestamp_column=’timestamp’, available_at_column=’available_at’.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="openstef_core.datasets.TimeSeriesDataset.html"
+       href="openstef_core.datasets.TimeSeriesMixin.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">TimeSeriesDataset</p>
+        <p class="prev-next-title">TimeSeriesMixin</p>
       </div>
     </a>
     <a class="right-next"
-       href="openstef_core.utils.html"
+       href="openstef_core.datasets.VersionedTimeSeriesMixin.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">openstef_core.utils</p>
+        <p class="prev-next-title">VersionedTimeSeriesMixin</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -891,13 +1001,16 @@ timestamp_column=’timestamp’, available_at_column=’available_at’.</p>
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.datasets.VersionedTimeSeriesDataset"><code class="docutils literal notranslate"><span class="pre">VersionedTimeSeriesDataset</span></code></a><ul class="visible nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.datasets.VersionedTimeSeriesDataset.__init__"><code class="docutils literal notranslate"><span class="pre">VersionedTimeSeriesDataset.__init__()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.datasets.VersionedTimeSeriesDataset.data"><code class="docutils literal notranslate"><span class="pre">VersionedTimeSeriesDataset.data</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.datasets.VersionedTimeSeriesDataset.timestamp_column"><code class="docutils literal notranslate"><span class="pre">VersionedTimeSeriesDataset.timestamp_column</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.datasets.VersionedTimeSeriesDataset.available_at_column"><code class="docutils literal notranslate"><span class="pre">VersionedTimeSeriesDataset.available_at_column</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.datasets.VersionedTimeSeriesDataset.feature_names"><code class="docutils literal notranslate"><span class="pre">VersionedTimeSeriesDataset.feature_names</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.datasets.VersionedTimeSeriesDataset.data_parts"><code class="docutils literal notranslate"><span class="pre">VersionedTimeSeriesDataset.data_parts</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.datasets.VersionedTimeSeriesDataset.sample_interval"><code class="docutils literal notranslate"><span class="pre">VersionedTimeSeriesDataset.sample_interval</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.datasets.VersionedTimeSeriesDataset.index"><code class="docutils literal notranslate"><span class="pre">VersionedTimeSeriesDataset.index</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.datasets.VersionedTimeSeriesDataset.get_window"><code class="docutils literal notranslate"><span class="pre">VersionedTimeSeriesDataset.get_window()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.datasets.VersionedTimeSeriesDataset.feature_names"><code class="docutils literal notranslate"><span class="pre">VersionedTimeSeriesDataset.feature_names</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.datasets.VersionedTimeSeriesDataset.from_dataframe"><code class="docutils literal notranslate"><span class="pre">VersionedTimeSeriesDataset.from_dataframe()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.datasets.VersionedTimeSeriesDataset.filter_by_range"><code class="docutils literal notranslate"><span class="pre">VersionedTimeSeriesDataset.filter_by_range()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.datasets.VersionedTimeSeriesDataset.filter_by_available_at"><code class="docutils literal notranslate"><span class="pre">VersionedTimeSeriesDataset.filter_by_available_at()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.datasets.VersionedTimeSeriesDataset.filter_by_lead_time"><code class="docutils literal notranslate"><span class="pre">VersionedTimeSeriesDataset.filter_by_lead_time()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.datasets.VersionedTimeSeriesDataset.select_version"><code class="docutils literal notranslate"><span class="pre">VersionedTimeSeriesDataset.select_version()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.datasets.VersionedTimeSeriesDataset.concat"><code class="docutils literal notranslate"><span class="pre">VersionedTimeSeriesDataset.concat()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.datasets.VersionedTimeSeriesDataset.to_parquet"><code class="docutils literal notranslate"><span class="pre">VersionedTimeSeriesDataset.to_parquet()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.datasets.VersionedTimeSeriesDataset.read_parquet"><code class="docutils literal notranslate"><span class="pre">VersionedTimeSeriesDataset.read_parquet()</span></code></a></li>
 </ul>

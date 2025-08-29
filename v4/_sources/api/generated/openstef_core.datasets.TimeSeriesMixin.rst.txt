@@ -2,11 +2,11 @@
 ..
 .. SPDX-License-Identifier: MPL-2.0
 
-VersionedAccessMixin
-====================
+TimeSeriesMixin
+===============
 
-.. currentmodule:: openstef_core.datasets.mixins
+.. currentmodule:: openstef_core.datasets
 
-.. autoclass:: VersionedAccessMixin
+.. autoclass:: TimeSeriesMixin
    :show-inheritance:
    :members:
