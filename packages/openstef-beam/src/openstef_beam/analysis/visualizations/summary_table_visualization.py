@@ -60,12 +60,8 @@ class SummaryTableVisualization(VisualizationProvider):
     """
 
     @property
+    @override
     def supported_aggregations(self) -> set[AnalysisAggregation]:
-        """Return the set of aggregation types supported by this provider.
-
-        Returns:
-            Set of supported AnalysisAggregation values.
-        """
         return {
             AnalysisAggregation.NONE,
             AnalysisAggregation.RUN_AND_NONE,
@@ -155,15 +151,6 @@ class SummaryTableVisualization(VisualizationProvider):
         report: EvaluationSubsetReport,
         metadata: TargetMetadata,
     ) -> VisualizationOutput:
-        """Create summary table for a single target from a single run.
-
-        Args:
-            report: The evaluation subset report
-            metadata: Target metadata containing run and target information
-
-        Returns:
-            VisualizationOutput containing the generated HTML table
-        """
         rows = self._extract_metrics_from_report(report)
         dataframe = SummaryTableVisualization._create_sorted_dataframe(
             rows=rows, columns=["Quantile|Global", "Metric", "Value"], sort_by=["Metric", "Quantile|Global"]
@@ -172,18 +159,11 @@ class SummaryTableVisualization(VisualizationProvider):
         plotter = SummaryTablePlotter(dataframe)
         return VisualizationOutput(name=self.name, html=plotter.plot())
 
+    @override
     def create_by_target(
         self,
         reports: list[ReportTuple],
     ) -> VisualizationOutput:
-        """Create summary table comparing multiple targets from a single run.
-
-        Args:
-            reports: List of (metadata, report) tuples for different targets
-
-        Returns:
-            VisualizationOutput containing the generated comparison table
-        """
         rows: list[dict[str, Any]] = []
 
         for metadata, report in reports:
@@ -243,15 +223,8 @@ class SummaryTableVisualization(VisualizationProvider):
         plotter = SummaryTablePlotter(dataframe)
         return VisualizationOutput(name=self.name, html=plotter.plot())
 
+    @override
     def create_by_run_and_none(self, reports: dict[RunName, list[ReportTuple]]) -> VisualizationOutput:
-        """Create summary table comparing multiple runs across targets.
-
-        Args:
-            reports: Dictionary mapping run names to lists of (metadata, report) tuples
-
-        Returns:
-            VisualizationOutput containing the generated comparison table
-        """
         rows: list[dict[str, Any]] = []
 
         for run_name, target_reports in reports.items():

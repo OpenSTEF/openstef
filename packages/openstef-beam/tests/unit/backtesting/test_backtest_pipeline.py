@@ -14,8 +14,9 @@ from openstef_beam.backtesting.backtest_forecaster.mixins import (
     BacktestForecasterConfig,
     BacktestForecasterMixin,
 )
-from openstef_core.datasets import TimeSeriesDataset, VersionedTimeSeriesDataset
-from openstef_core.datasets.versioned_timeseries.accessors import RestrictedHorizonVersionedTimeSeries
+from openstef_beam.backtesting.restricted_horizon_timeseries import RestrictedHorizonVersionedTimeSeries
+from openstef_core.datasets import TimeSeriesDataset, VersionedTimeSeriesDataset, VersionedTimeSeriesPart
+from openstef_core.types import Quantile
 
 
 class MockForecaster(BacktestForecasterMixin):
@@ -31,8 +32,8 @@ class MockForecaster(BacktestForecasterMixin):
         )
 
     @property
-    def quantiles(self) -> list[float]:
-        return [0.5]
+    def quantiles(self) -> list[Quantile]:
+        return [Quantile(0.5)]
 
     def fit(self, data: RestrictedHorizonVersionedTimeSeries) -> None:
         self.train_calls.append(data)
@@ -78,12 +79,12 @@ def datasets() -> tuple[VersionedTimeSeriesDataset, VersionedTimeSeriesDataset]:
     """Combined fixture for both ground truth and predictors datasets."""
     timestamps = pd.date_range("2025-01-01", "2025-01-05", freq="1h")
 
-    ground_truth = VersionedTimeSeriesDataset(
+    ground_truth = VersionedTimeSeriesDataset.from_dataframe(
         data=pd.DataFrame({"timestamp": timestamps, "available_at": timestamps, "target": range(len(timestamps))}),
         sample_interval=timedelta(hours=1),
     )
 
-    predictors = VersionedTimeSeriesDataset(
+    predictors = VersionedTimeSeriesDataset.from_dataframe(
         data=pd.DataFrame({
             "timestamp": timestamps,
             "available_at": timestamps,
@@ -135,7 +136,7 @@ def test_run_training_scenarios(
     )
 
     # Assert
-    assert isinstance(result, VersionedTimeSeriesDataset)
+    assert isinstance(result, VersionedTimeSeriesPart)
     assert result.sample_interval == forecaster_config.predict_sample_interval
 
     # Validate call counts
@@ -189,7 +190,7 @@ def test_run_date_boundary_handling(
     )
 
     # Assert
-    assert isinstance(result, VersionedTimeSeriesDataset)
+    assert isinstance(result, VersionedTimeSeriesPart)
 
     # Validate timestamps are within expected bounds
     if len(result.data) > 0:
@@ -243,7 +244,7 @@ def test_run_output_validation_and_concatenation(
     )
 
     # Assert - Basic structure
-    assert isinstance(result, VersionedTimeSeriesDataset)
+    assert isinstance(result, VersionedTimeSeriesPart)
     assert result.sample_interval == mock_forecaster.config.predict_sample_interval
     assert mock_forecaster.predict_call_count >= 2
 
@@ -306,7 +307,7 @@ def test_run_handles_none_predictions(datasets: tuple[VersionedTimeSeriesDataset
     )
 
     # Assert
-    assert isinstance(result, VersionedTimeSeriesDataset)
+    assert isinstance(result, VersionedTimeSeriesPart)
     result_data = result.data
     required_columns = ["timestamp", "available_at"]
     assert all(col in result_data.columns for col in required_columns)
@@ -369,11 +370,11 @@ def test_run_edge_cases(
         start_time = "2025-01-01T18:00:00"
         end_time = "2025-01-01T20:00:00"
 
-    ground_truth = VersionedTimeSeriesDataset(
+    ground_truth = VersionedTimeSeriesDataset.from_dataframe(
         data=pd.DataFrame({"timestamp": timestamps, "available_at": timestamps, "target": range(len(timestamps))}),
         sample_interval=timedelta(hours=1),
     )
-    predictors = VersionedTimeSeriesDataset(
+    predictors = VersionedTimeSeriesDataset.from_dataframe(
         data=pd.DataFrame({"timestamp": timestamps, "available_at": timestamps, "feature1": range(len(timestamps))}),
         sample_interval=timedelta(hours=1),
     )
@@ -388,7 +389,7 @@ def test_run_edge_cases(
     )
 
     # Assert
-    assert isinstance(result, VersionedTimeSeriesDataset)
+    assert isinstance(result, VersionedTimeSeriesPart)
     assert mock_forecaster.predict_call_count == expected_calls
     assert len(result.data) == 0
 

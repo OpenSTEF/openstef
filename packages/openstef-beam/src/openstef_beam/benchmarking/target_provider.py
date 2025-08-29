@@ -25,8 +25,6 @@ from openstef_beam.benchmarking.models import BenchmarkTarget
 from openstef_beam.evaluation.metric_providers import MetricProvider
 from openstef_core.base_model import BaseConfig, read_yaml_config
 from openstef_core.datasets import VersionedTimeSeriesDataset
-from openstef_core.datasets.mixins import VersionedTimeSeriesMixin
-from openstef_core.datasets.versioned_timeseries import concat_featurewise
 
 
 class TargetProviderConfig(BaseConfig):
@@ -137,7 +135,7 @@ class TargetProvider[T: BenchmarkTarget, F](BaseConfig):
         """
 
     @abstractmethod
-    def get_predictors_for_target(self, target: T) -> VersionedTimeSeriesMixin:
+    def get_predictors_for_target(self, target: T) -> VersionedTimeSeriesDataset:
         """Load predictor features for model training and inference.
 
         Args:
@@ -274,7 +272,7 @@ class SimpleTargetProvider[T: BenchmarkTarget, F](TargetProvider[T, F]):
             path=self.get_measurements_path_for_target(target),
         )
 
-    def get_predictors_for_target(self, target: T) -> VersionedTimeSeriesMixin:
+    def get_predictors_for_target(self, target: T) -> VersionedTimeSeriesDataset:
         """Combine weather, profiles, and prices into aligned predictor dataset.
 
         Concatenates datasets feature-wise with inner join to ensure temporal alignment.
@@ -283,7 +281,7 @@ class SimpleTargetProvider[T: BenchmarkTarget, F](TargetProvider[T, F]):
         Returns:
             VersionedTimeSeriesMixin: Combined predictor dataset with all enabled features.
         """
-        datasets: list[VersionedTimeSeriesMixin] = [
+        datasets: list[VersionedTimeSeriesDataset] = [
             self.get_weather_for_target(target),
         ]
 
@@ -293,7 +291,7 @@ class SimpleTargetProvider[T: BenchmarkTarget, F](TargetProvider[T, F]):
         if self.use_prices:
             datasets.append(self.get_prices())
 
-        return concat_featurewise(datasets=datasets, mode="inner")
+        return VersionedTimeSeriesDataset.concat(datasets, mode="inner")
 
     def get_weather_path_for_target(self, target: T) -> Path:
         """Build file path for target weather data using configured template.
