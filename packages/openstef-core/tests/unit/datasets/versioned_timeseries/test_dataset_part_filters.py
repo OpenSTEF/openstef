@@ -142,7 +142,7 @@ def test_filter_by_range_reindex_with_missing_timestamps():
     [
         pytest.param(
             pd.DataFrame({
-                "timestamp": pd.to_datetime(["2023-01-09", "2023-01-10"]),
+                "timestamp": pd.to_datetime(["2023-01-09T00:00", "2023-01-10T00:00"]),
                 "available_at": pd.to_datetime(["2023-01-08T06:00", "2023-01-09T06:00"]),
                 "value": [1, 2],
             }),
@@ -152,7 +152,7 @@ def test_filter_by_range_reindex_with_missing_timestamps():
         ),
         pytest.param(
             pd.DataFrame({
-                "timestamp": pd.to_datetime(["2023-01-09", "2023-01-10"]),
+                "timestamp": pd.to_datetime(["2023-01-09T00:00", "2023-01-10T00:00"]),
                 "available_at": pd.to_datetime(["2023-01-08T05:00", "2023-01-09T07:00"]),  # Second one is too late
                 "value": [1, 2],
             }),
@@ -162,7 +162,12 @@ def test_filter_by_range_reindex_with_missing_timestamps():
         ),
         pytest.param(
             pd.DataFrame({
-                "timestamp": pd.to_datetime(["2023-01-10", "2023-01-10", "2023-01-10", "2023-01-11"]),
+                "timestamp": pd.to_datetime([
+                    "2023-01-10T00:00",
+                    "2023-01-10T00:00",
+                    "2023-01-10T00:00",
+                    "2023-01-11T00:00",
+                ]),
                 "available_at": pd.to_datetime([
                     "2023-01-08T06:00",
                     "2023-01-08T12:00",
@@ -177,7 +182,7 @@ def test_filter_by_range_reindex_with_missing_timestamps():
         ),
         pytest.param(
             pd.DataFrame({
-                "timestamp": pd.to_datetime(["2023-01-09", "2023-01-10"]),
+                "timestamp": pd.to_datetime(["2023-01-09T00:00", "2023-01-10T00:00"]),
                 "available_at": pd.to_datetime(["2023-01-07T12:00", "2023-01-08T12:00"]),
                 "value": [1, 2],
             }),
@@ -211,8 +216,8 @@ def test_filter_by_available_at(data: pd.DataFrame, available_at: AvailableAt, e
     [
         pytest.param(
             pd.DataFrame({
-                "timestamp": pd.to_datetime(["2023-01-09", "2023-01-10"]),
-                "available_at": pd.to_datetime(["2023-01-08", "2023-01-09"]),
+                "timestamp": pd.to_datetime(["2023-01-09T00:00", "2023-01-10T00:00"]),
+                "available_at": pd.to_datetime(["2023-01-08T00:00", "2023-01-09T00:00"]),
                 "value": [1, 2],
             }),
             LeadTime.from_string("PT24H"),
@@ -221,8 +226,8 @@ def test_filter_by_available_at(data: pd.DataFrame, available_at: AvailableAt, e
         ),
         pytest.param(
             pd.DataFrame({
-                "timestamp": pd.to_datetime(["2023-01-10", "2023-01-11"]),
-                "available_at": pd.to_datetime(["2023-01-08", "2023-01-10"]),
+                "timestamp": pd.to_datetime(["2023-01-10T00:00", "2023-01-11T00:00"]),
+                "available_at": pd.to_datetime(["2023-01-08T00:00", "2023-01-10T00:00"]),
                 "value": [1, 2],
             }),
             LeadTime.from_string("PT48H"),
@@ -231,8 +236,18 @@ def test_filter_by_available_at(data: pd.DataFrame, available_at: AvailableAt, e
         ),
         pytest.param(
             pd.DataFrame({
-                "timestamp": pd.to_datetime(["2023-01-10", "2023-01-10", "2023-01-10", "2023-01-11"]),
-                "available_at": pd.to_datetime(["2023-01-08", "2023-01-09", "2023-01-10", "2023-01-10"]),
+                "timestamp": pd.to_datetime([
+                    "2023-01-10T00:00",
+                    "2023-01-10T00:00",
+                    "2023-01-10T00:00",
+                    "2023-01-11T00:00",
+                ]),
+                "available_at": pd.to_datetime([
+                    "2023-01-08T00:00",
+                    "2023-01-09T00:00",
+                    "2023-01-10T00:00",
+                    "2023-01-10T00:00",
+                ]),
                 "value": [1, 2, 3, 4],
             }),
             LeadTime.from_string("PT24H"),
@@ -264,8 +279,8 @@ def test_select_version_basic():
     # Arrange
     dataset_part = VersionedTimeSeriesPart(
         data=pd.DataFrame({
-            "timestamp": pd.to_datetime(["2023-01-01", "2023-01-01", "2023-01-02"]),
-            "available_at": pd.to_datetime(["2022-12-30", "2022-12-31", "2023-01-01"]),
+            "timestamp": pd.to_datetime(["2023-01-01T00:00", "2023-01-01T00:00", "2023-01-02T00:00"]),
+            "available_at": pd.to_datetime(["2022-12-30T00:00", "2022-12-31T00:00", "2023-01-01T00:00"]),
             "value": [1, 2, 3],
         }),
         sample_interval=timedelta(days=1),
@@ -284,8 +299,8 @@ def test_select_version_with_availability_cutoff():
     # Arrange
     dataset_part = VersionedTimeSeriesPart(
         data=pd.DataFrame({
-            "timestamp": pd.to_datetime(["2023-01-01", "2023-01-01", "2023-01-02"]),
-            "available_at": pd.to_datetime(["2022-12-30", "2022-12-31", "2023-01-01"]),
+            "timestamp": pd.to_datetime(["2023-01-01T00:00", "2023-01-01T00:00", "2023-01-02T00:00"]),
+            "available_at": pd.to_datetime(["2022-12-30T00:00", "2022-12-31T00:00", "2023-01-01T00:00"]),
             "value": [1, 2, 3],
         }),
         sample_interval=timedelta(days=1),

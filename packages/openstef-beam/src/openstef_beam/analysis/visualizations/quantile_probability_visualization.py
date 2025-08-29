@@ -8,7 +8,7 @@ This module provides visualization for quantile probability analysis, comparing
 observed vs forecasted probabilities to evaluate probabilistic forecast calibration.
 """
 
-from typing import NamedTuple
+from typing import NamedTuple, override
 
 from openstef_beam.analysis.models import AnalysisAggregation, RunName, TargetMetadata, VisualizationOutput
 from openstef_beam.analysis.plots import (
@@ -63,12 +63,8 @@ class QuantileProbabilityVisualization(VisualizationProvider):
     """
 
     @property
+    @override
     def supported_aggregations(self) -> set[AnalysisAggregation]:
-        """Return the set of aggregation types supported by this provider.
-
-        Returns:
-            Set of supported AnalysisAggregation values.
-        """
         return {
             AnalysisAggregation.NONE,
             AnalysisAggregation.RUN_AND_NONE,
@@ -143,20 +139,12 @@ class QuantileProbabilityVisualization(VisualizationProvider):
         if not prob_data.observed_probs:
             raise ValueError("No probability data found.")
 
+    @override
     def create_by_none(
         self,
         report: EvaluationSubsetReport,
         metadata: TargetMetadata,
     ) -> VisualizationOutput:
-        """Create quantile probability plot for a single target from a single run.
-
-        Args:
-            report: Evaluation report containing probability metrics.
-            metadata: Target metadata with run and target information.
-
-        Returns:
-            Visualization output with quantile probability plot.
-        """
         prob_data = self._extract_probabilities_from_report(report)
         self._validate_probability_data(prob_data)
 
@@ -172,15 +160,8 @@ class QuantileProbabilityVisualization(VisualizationProvider):
 
         return VisualizationOutput(name=self.name, figure=figure)
 
+    @override
     def create_by_run_and_none(self, reports: dict[RunName, list[ReportTuple]]) -> VisualizationOutput:
-        """Create quantile probability plots comparing different model runs.
-
-        Args:
-            reports: Dictionary mapping run names to their report lists.
-
-        Returns:
-            Visualization output with multiple quantile probability plots.
-        """
         plotter = QuantileProbabilityPlotter()
 
         for run_name, report_pairs in reports.items():
@@ -199,37 +180,20 @@ class QuantileProbabilityVisualization(VisualizationProvider):
 
         return VisualizationOutput(name=self.name, figure=figure)
 
+    @override
     def create_by_run_and_target(
         self,
         reports: dict[RunName, list[ReportTuple]],
     ) -> VisualizationOutput:
-        """Create quantile probability plots comparing runs on the same targets.
-
-        Args:
-            reports: Dictionary mapping run names to their report lists.
-
-        Returns:
-            Visualization output comparing runs on targets.
-        """
         return self.create_by_run_and_none(
             reports=reports,
         )
 
+    @override
     def create_by_target(
         self,
         reports: list[ReportTuple],
     ) -> VisualizationOutput:
-        """Create quantile probability plots comparing different targets.
-
-        Args:
-            reports: List of (metadata, report) tuples for each target.
-
-        Returns:
-            Visualization output with probability plots for each target.
-
-        Raises:
-            ValueError: If no reports are provided.
-        """
         if not reports:
             raise ValueError("No reports provided for target-based visualization.")
 

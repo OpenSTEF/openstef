@@ -30,7 +30,7 @@ from openstef_core.datasets.validation import validate_disjoint_columns, validat
 from openstef_core.datasets.versioned_timeseries.dataset_part import VersionedTimeSeriesPart
 from openstef_core.exceptions import TimeSeriesValidationError
 from openstef_core.types import AvailableAt, LeadTime
-from openstef_core.utils.pandas import sorted_range_slice_idxs
+from openstef_core.utils.pandas import unsafe_sorted_range_slice_idxs
 
 _logger = logging.getLogger(__name__)
 
@@ -180,7 +180,7 @@ class VersionedTimeSeriesDataset(VersionedTimeSeriesMixin):
 
     @override
     def filter_by_range(self, start: datetime | None = None, end: datetime | None = None) -> Self:
-        start_idx, end_idx = sorted_range_slice_idxs(data=cast(pd.Series, self.index), start=start, end=end)
+        start_idx, end_idx = unsafe_sorted_range_slice_idxs(data=cast(pd.Series, self.index), start=start, end=end)
         index = self.index[start_idx:end_idx]
 
         return self.__class__(

@@ -6,6 +6,7 @@
 
 from datetime import datetime, timedelta
 
+import numpy as np
 import pandas as pd
 
 from openstef_core.datasets.versioned_timeseries.dataset import VersionedTimeSeriesDataset
@@ -32,11 +33,12 @@ def test_filter_by_range_basic(combined_dataset: VersionedTimeSeriesDataset):
 
     # Check that filtering preserved the correct data values
     result = filtered.select_version(available_before=None)
-    expected_feature_a_values = [22.0, 24.0]  # Values at 11:00 and 12:00
-    expected_feature_b_values = [120.0, 110.0]  # Values at 11:00 and 12:00
+    expected_feature_a_values = np.array([22.0, 24.0], dtype=float)  # Values at 11:00 and 12:00
+    expected_feature_b_values = np.array([120.0, 110.0], dtype=float)  # Values at 11:00 and 12:00
 
-    assert result.data["feature_a"].dropna().tolist() == expected_feature_a_values
-    assert result.data["feature_b"].dropna().tolist() == expected_feature_b_values
+    # Use numpy testing for robust elementwise comparison
+    np.testing.assert_array_equal(result.data["feature_a"].to_numpy(), expected_feature_a_values)
+    np.testing.assert_array_equal(result.data["feature_b"].to_numpy(), expected_feature_b_values)
 
 
 def test_filter_by_range_partial_coverage(combined_dataset: VersionedTimeSeriesDataset):
@@ -54,11 +56,12 @@ def test_filter_by_range_partial_coverage(combined_dataset: VersionedTimeSeriesD
     result = filtered.select_version(available_before=None)
     # feature_a values: 24.0 at 12:00, 23.0 at 13:00, NaN at 14:00 (no data)
     # feature_b values: 110.0 at 12:00, 105.0 at 13:00, 125.0 at 14:00
-    expected_feature_a_values = [24.0, 23.0]  # Only non-NaN values
-    expected_feature_b_values = [110.0, 105.0, 125.0]  # All values available
+    expected_feature_a_values = np.array([24.0, 23.0, np.nan], dtype=float)
+    expected_feature_b_values = np.array([110.0, 105.0, 125.0], dtype=float)
 
-    assert result.data["feature_a"].dropna().tolist() == expected_feature_a_values
-    assert result.data["feature_b"].dropna().tolist() == expected_feature_b_values
+    # Use numpy testing which treats NaNs as equal for elementwise comparison
+    np.testing.assert_array_equal(result.data["feature_a"].to_numpy(), expected_feature_a_values)
+    np.testing.assert_array_equal(result.data["feature_b"].to_numpy(), expected_feature_b_values)
 
 
 def test_filter_by_available_at(combined_dataset: VersionedTimeSeriesDataset):

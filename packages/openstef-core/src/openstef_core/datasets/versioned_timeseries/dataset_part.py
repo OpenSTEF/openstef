@@ -27,7 +27,7 @@ from openstef_core.datasets.validation import validate_datetime_column
 from openstef_core.exceptions import MissingColumnsError
 from openstef_core.types import AvailableAt, LeadTime
 from openstef_core.utils import timedelta_from_isoformat, timedelta_to_isoformat
-from openstef_core.utils.pandas import sorted_range_slice_idxs
+from openstef_core.utils.pandas import unsafe_sorted_range_slice_idxs
 
 _logger = logging.getLogger(__name__)
 
@@ -146,7 +146,7 @@ class VersionedTimeSeriesPart(VersionedTimeSeriesMixin):
 
     @override
     def filter_by_range(self, start: datetime | None = None, end: datetime | None = None) -> Self:
-        start_idx, end_idx = sorted_range_slice_idxs(data=self.data[self.timestamp_column], start=start, end=end)
+        start_idx, end_idx = unsafe_sorted_range_slice_idxs(data=self.data[self.timestamp_column], start=start, end=end)
         data_filtered = self.data.iloc[start_idx:end_idx]
         return self._copy_with_data(data_filtered)
 

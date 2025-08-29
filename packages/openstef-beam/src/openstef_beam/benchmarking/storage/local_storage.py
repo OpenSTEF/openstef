@@ -10,6 +10,7 @@ directory hierarchy that supports efficient retrieval and conditional processing
 """
 
 from pathlib import Path
+from typing import override
 
 from openstef_beam.analysis import AnalysisOutput, AnalysisScope
 from openstef_beam.analysis.models import AnalysisAggregation
@@ -70,12 +71,14 @@ class LocalBenchmarkStorage(BenchmarkStorage):
         self.evaluations_dirname = evaluations_dirname
         self.analysis_dirname = analysis_dirname
 
+    @override
     def save_backtest_output(self, target: BenchmarkTarget, output: VersionedTimeSeriesPart) -> None:
         """Save backtest predictions to a parquet file."""
         predictions_path = self.get_predictions_path_for_target(target)
         predictions_path.parent.mkdir(parents=True, exist_ok=True)
         output.to_parquet(predictions_path)
 
+    @override
     def load_backtest_output(self, target: BenchmarkTarget) -> VersionedTimeSeriesPart:
         """Load backtest predictions from a parquet file.
 
@@ -86,34 +89,23 @@ class LocalBenchmarkStorage(BenchmarkStorage):
             path=self.get_predictions_path_for_target(target),
         )
 
+    @override
     def has_backtest_output(self, target: BenchmarkTarget) -> bool:
-        """Check if backtest output exists for the target.
-
-        Returns:
-            bool: True if backtest output exists and skip_when_existing is True.
-        """
         return self.get_predictions_path_for_target(target).exists() and self.skip_when_existing
 
+    @override
     def save_evaluation_output(self, target: BenchmarkTarget, output: EvaluationReport) -> None:
-        """Save evaluation report to storage."""
         output.to_parquet(path=self.get_evaluations_path_for_target(target))
 
+    @override
     def load_evaluation_output(self, target: BenchmarkTarget) -> EvaluationReport:
-        """Load evaluation report from storage.
-
-        Returns:
-            EvaluationReport: The loaded evaluation report.
-        """
         return EvaluationReport.read_parquet(path=self.get_evaluations_path_for_target(target))
 
+    @override
     def has_evaluation_output(self, target: BenchmarkTarget) -> bool:
-        """Check if evaluation output exists for the target.
-
-        Returns:
-            bool: True if evaluation output exists and skip_when_existing is True.
-        """
         return self.get_evaluations_path_for_target(target).exists() and self.skip_when_existing
 
+    @override
     def save_analysis_output(self, output: AnalysisOutput) -> None:
         """Save analysis visualizations to HTML files."""
         for filtering, visualizations in output.visualizations.items():
@@ -123,12 +115,8 @@ class LocalBenchmarkStorage(BenchmarkStorage):
             for visualization in visualizations:
                 visualization.write_html(output_dir / f"{visualization.name}.html")
 
+    @override
     def has_analysis_output(self, scope: AnalysisScope) -> bool:
-        """Check if analysis output exists for the given scope.
-
-        Returns:
-            bool: True if analysis output exists and skip_when_existing is True.
-        """
         return self.get_analysis_path(scope).exists() and self.skip_when_existing
 
     def get_predictions_path_for_target(self, target: BenchmarkTarget) -> Path:
