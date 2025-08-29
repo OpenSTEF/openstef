@@ -204,26 +204,6 @@ class VersionedTimeSeriesDataset(VersionedTimeSeriesMixin):
 
     @override
     def select_version(self, available_before: datetime | None = None) -> TimeSeriesDataset:
-        """Select a specific version of the dataset based on data availability.
-
-        Creates a point-in-time snapshot of the dataset containing only data that
-        was available before the specified timestamp. This enables realistic
-        backtesting by reconstructing what the dataset would have looked like
-        at a specific point in time.
-
-        This method is essential for preventing lookahead bias in backtesting.
-        Without it, models would appear to have access to future data that
-        wasn't available when the forecast was made.
-
-        Args:
-            available_before: Cutoff timestamp for data availability. If None,
-                uses all available data. Data with availability times after
-                this cutoff will be excluded.
-
-        Returns:
-            TimeSeriesDataset containing only data available before the cutoff,
-            with the latest available version for each timestamp.
-        """
         selected_parts = [part.select_version(available_before).data for part in self.data_parts]
         combined_data = pd.concat(selected_parts, axis=1).reindex(self.index)
         return TimeSeriesDataset(data=combined_data, sample_interval=self.sample_interval)

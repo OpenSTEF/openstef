@@ -120,21 +120,25 @@ class VersionedTimeSeriesMixin(TimeSeriesMixin):
 
     @abstractmethod
     def select_version(self, available_before: datetime | None = None) -> "TimeSeriesDataset":
-        """Select a specific version of the data based on availability cutoff.
+        """Select a specific version of the dataset based on data availability.
 
-        This method creates a point-in-time view of the dataset, including only
-        data that was available before the specified cutoff time. When multiple
-        versions of the same timestamp exist, it selects the latest version
-        available before the cutoff.
+        Creates a point-in-time snapshot of the dataset containing only data that
+        was available before the specified timestamp. This enables realistic
+        backtesting by reconstructing what the dataset would have looked like
+        at a specific point in time.
+
+        This method is essential for preventing lookahead bias in backtesting.
+        Without it, models would appear to have access to future data that
+        wasn't available when the forecast was made.
 
         Args:
-            available_before: Optional cutoff time for data availability.
-                Only data available at or before this time is included.
-                If None, the most recent version of all data is selected.
+            available_before: Cutoff timestamp for data availability. If None,
+                uses all available data. Data with availability times after
+                this cutoff will be excluded.
 
         Returns:
-            A TimeSeriesDataset containing the selected version of the data,
-            with availability metadata removed and timestamp as index.
+            TimeSeriesDataset containing only data available before the cutoff,
+            with the latest available version for each timestamp.
         """
         raise NotImplementedError
 
