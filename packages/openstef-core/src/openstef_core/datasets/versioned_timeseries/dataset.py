@@ -59,6 +59,46 @@ class VersionedTimeSeriesDataset(VersionedTimeSeriesMixin):
         index: Datetime index representing all timestamps across all data parts.
         sample_interval: Fixed time interval between consecutive data points.
         feature_names: Names of all available features across all data parts.
+
+    Example:
+        Create a versioned dataset by combining multiple data parts:
+
+        >>> import pandas as pd
+        >>> from datetime import datetime, timedelta
+        >>>
+        >>> # Create weather data part
+        >>> weather_data = pd.DataFrame({
+        ...     'timestamp': [datetime(2025, 1, 1, 10, 0)],
+        ...     'available_at': [datetime(2025, 1, 1, 16, 0)],
+        ...     'temperature': [20.5]
+        ... })
+        >>> weather_part = VersionedTimeSeriesPart(weather_data, timedelta(hours=1))
+        >>>
+        >>> # Create load data part
+        >>> load_data = pd.DataFrame({
+        ...     'timestamp': [datetime(2025, 1, 1, 10, 0)],
+        ...     'available_at': [datetime(2025, 1, 1, 11, 0)],
+        ...     'load': [150.0]
+        ... })
+        >>> load_part = VersionedTimeSeriesPart(load_data, timedelta(hours=1))
+        >>>
+        >>> # Combine into versioned dataset
+        >>> dataset = VersionedTimeSeriesDataset([weather_part, load_part])
+        >>> sorted(dataset.feature_names)
+        ['load', 'temperature']
+        >>> dataset.sample_interval
+        datetime.timedelta(seconds=3600)
+
+        Get point-in-time snapshot of data available at specific time:
+
+        >>> snapshot = dataset.select_version(available_before=datetime(2025, 1, 1, 18, 0))
+        >>> sorted(snapshot.data.columns.tolist())
+        ['load', 'temperature']
+
+    Note:
+        All data parts must have identical sample intervals and disjoint feature sets.
+        The final dataset index is the union of all part indices, enabling flexible
+        composition of data sources with different coverage periods.
     """
 
     data_parts: list[VersionedTimeSeriesPart]
