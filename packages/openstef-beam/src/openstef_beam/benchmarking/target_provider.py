@@ -24,7 +24,7 @@ from pydantic import Field, TypeAdapter
 from openstef_beam.benchmarking.models import BenchmarkTarget
 from openstef_beam.evaluation.metric_providers import MetricProvider
 from openstef_core.base_model import BaseConfig, read_yaml_config
-from openstef_core.datasets import VersionedTimeSeriesDataset, VersionedTimeSeriesPart
+from openstef_core.datasets import VersionedTimeSeriesDataset
 
 
 class TargetProviderConfig(BaseConfig):
@@ -281,17 +281,17 @@ class SimpleTargetProvider[T: BenchmarkTarget, F](TargetProvider[T, F]):
         Returns:
             VersionedTimeSeriesMixin: Combined predictor dataset with all enabled features.
         """
-        parts: list[VersionedTimeSeriesPart] = [
+        datasets: list[VersionedTimeSeriesDataset] = [
             self.get_weather_for_target(target),
         ]
 
         if self.use_profiles:
-            parts.append(self.get_profiles())
+            datasets.append(self.get_profiles())
 
         if self.use_prices:
-            parts.append(self.get_prices())
+            datasets.append(self.get_prices())
 
-        return VersionedTimeSeriesDataset(data_parts=parts)
+        return VersionedTimeSeriesDataset.concat(datasets, mode="inner")
 
     def get_weather_path_for_target(self, target: T) -> Path:
         """Build file path for target weather data using configured template.
@@ -301,33 +301,33 @@ class SimpleTargetProvider[T: BenchmarkTarget, F](TargetProvider[T, F]):
         """
         return self.data_dir / str(target.group_name) / self.weather_path_template.format(name=target.name)
 
-    def get_weather_for_target(self, target: T) -> VersionedTimeSeriesPart:
+    def get_weather_for_target(self, target: T) -> VersionedTimeSeriesDataset:
         """Load weather features from target-specific Parquet file.
 
         Returns:
-            VersionedTimeSeriesPart: The loaded weather data.
+            VersionedTimeSeriesDataset: The loaded weather data.
         """
-        return VersionedTimeSeriesPart.read_parquet(
+        return VersionedTimeSeriesDataset.read_parquet(
             path=self.get_weather_path_for_target(target),
         )
 
-    def get_profiles(self) -> VersionedTimeSeriesPart:
+    def get_profiles(self) -> VersionedTimeSeriesDataset:
         """Load shared energy profiles data from configured Parquet file.
 
         Returns:
-            VersionedTimeSeriesPart: The loaded energy profiles data.
+            VersionedTimeSeriesDataset: The loaded energy profiles data.
         """
-        return VersionedTimeSeriesPart.read_parquet(
+        return VersionedTimeSeriesDataset.read_parquet(
             path=self.data_dir / self.profiles_path,
         )
 
-    def get_prices(self) -> VersionedTimeSeriesPart:
+    def get_prices(self) -> VersionedTimeSeriesDataset:
         """Load shared energy pricing data from configured Parquet file.
 
         Returns:
-            VersionedTimeSeriesPart: The loaded energy pricing data.
+            VersionedTimeSeriesDataset: The loaded energy pricing data.
         """
-        return VersionedTimeSeriesPart.read_parquet(
+        return VersionedTimeSeriesDataset.read_parquet(
             path=self.data_dir / self.prices_path,
         )
 

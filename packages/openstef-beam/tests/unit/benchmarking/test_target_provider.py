@@ -12,7 +12,7 @@ from pydantic import ValidationError
 
 from openstef_beam.benchmarking.models import BenchmarkTarget
 from openstef_beam.benchmarking.target_provider import SimpleTargetProvider
-from openstef_core.datasets import VersionedTimeSeriesPart
+from openstef_core.datasets import VersionedTimeSeriesDataset
 
 
 @pytest.mark.parametrize(
@@ -86,15 +86,15 @@ def test_get_predictors_for_target(mock_concat: Mock, tmp_path: Path, test_targe
 
     class MockSimpleTargetProvider(SimpleTargetProvider[BenchmarkTarget, None]):
         @override
-        def get_weather_for_target(self, target: BenchmarkTarget) -> VersionedTimeSeriesPart:
+        def get_weather_for_target(self, target: BenchmarkTarget) -> VersionedTimeSeriesDataset:
             return mock_weather
 
         @override
-        def get_profiles(self) -> VersionedTimeSeriesPart:
+        def get_profiles(self) -> VersionedTimeSeriesDataset:
             return mock_profiles
 
         @override
-        def get_prices(self) -> VersionedTimeSeriesPart:
+        def get_prices(self) -> VersionedTimeSeriesDataset:
             return mock_prices
 
     provider = MockSimpleTargetProvider(
@@ -108,7 +108,7 @@ def test_get_predictors_for_target(mock_concat: Mock, tmp_path: Path, test_targe
 
     # Assert
     mock_concat.assert_called_once_with(
-        datasets=[mock_weather, mock_profiles, mock_prices],
+        [mock_weather, mock_profiles, mock_prices],
         mode="inner",
     )
     assert result == mock_result

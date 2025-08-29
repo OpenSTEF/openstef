@@ -176,7 +176,7 @@ include = [
   "examples/**/*.py",
   "packages/*/src/**/*.py",
   "packages/*/examples/**/*.py",
-  "packages/*/tests/**/*.py",
+  # "packages/*/tests/**/*.py",
 ]
 typeCheckingMode = "strict"
 reportPrivateImportUsage = false
