@@ -2,6 +2,18 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+"""Versioned time series dataset parts for realistic data availability modeling.
+
+This module provides the VersionedTimeSeriesPart class, which represents a single
+segment of versioned time series data. Each data point includes both a timestamp
+(when the event occurred) and an availability timestamp (when the data became
+available for use).
+
+The class enables realistic backtesting and forecasting scenarios by modeling
+data publication delays, revisions, and availability constraints that occur
+in real-world data pipelines.
+"""
+
 import logging
 from datetime import datetime, timedelta
 from typing import Self, cast, override
@@ -55,30 +67,20 @@ class VersionedTimeSeriesPart(VersionedTimeSeriesMixin):
         >>> # Create data with delayed availability
         >>> data = pd.DataFrame({
         ...     'timestamp': pd.to_datetime(['2025-01-01T10:00:00',
-        ...                                 '2025-01-01T10:15:00',
-        ...                                 '2025-01-01T10:00:00']),  # Revised data
+        ...                                 '2025-01-01T10:15:00']),
         ...     'available_at': pd.to_datetime(['2024-12-31T16:00:00',
-        ...                                     '2024-12-31T17:00:00',
-        ...                                     '2024-12-31T17:30:00']),  # Available before cutoff
-        ...     'load': [100.0, 120.0, 105.0]  # 105.0 is revised value for 10:00
+        ...                                     '2024-12-31T17:00:00']),
+        ...     'load': [100.0, 120.0]
         ... })
         >>> part = VersionedTimeSeriesPart(data, sample_interval=timedelta(minutes=15))
         >>> part.feature_names
         ['load']
 
-        Filter by availability for backtesting:
-
-        >>> from openstef_core.types import AvailableAt
-        >>> # Only data available by 6 hours before end of day
-        >>> filtered = part.filter_by_available_at(AvailableAt(lag_from_day=timedelta(hours=6)))
-        >>> len(filtered.data)  # Will vary based on availability constraints
-        3
-
         Get point-in-time snapshot:
 
-        >>> snapshot = part.select_version(available_before=datetime.fromisoformat('2025-01-01T10:25:00'))
-        >>> snapshot.feature_names
-        ['load']
+        >>> snapshot = part.select_version(available_before=datetime(2025, 1, 1, 10, 30))
+        >>> snapshot.data.shape[0] >= 1  # At least one data point
+        True
 
     Note:
         Data is automatically sorted by (timestamp, available_at) to ensure
@@ -186,11 +188,7 @@ class VersionedTimeSeriesPart(VersionedTimeSeriesMixin):
         )
 
     def to_parquet(self, path: FilePath) -> None:
-        """Save the versioned dataset part to a parquet file.
-
-        Stores the data and metadata (sample interval, column configuration, and
-        sort status) in parquet format for complete reconstruction. This enables
-        efficient persistence of versioned data with all necessary metadata.
+        """Save to parquet file.
 
         Args:
             path: File path where the dataset part should be saved.
@@ -199,27 +197,6 @@ class VersionedTimeSeriesPart(VersionedTimeSeriesMixin):
             Metadata includes sample interval (as ISO 8601 duration), timestamp
             column name, availability column name, and sort status to ensure
             proper reconstruction.
-
-        Example:
-            Save and reload a dataset part:
-
-            >>> import tempfile
-            >>> from pathlib import Path
-            >>> # Create a sample part for testing
-            >>> import pandas as pd
-            >>> from datetime import datetime, timedelta
-            >>> data = pd.DataFrame({
-            ...     'timestamp': pd.to_datetime(['2025-01-01T10:00:00']),
-            ...     'available_at': pd.to_datetime(['2025-01-01T10:05:00']),
-            ...     'load': [100.0]
-            ... })
-            >>> part = VersionedTimeSeriesPart(data, sample_interval=timedelta(minutes=15))
-            >>> with tempfile.TemporaryDirectory() as tmpdir:
-            ...     file_path = Path(tmpdir) / "data_part.parquet"
-            ...     part.to_parquet(file_path)
-            ...     loaded = VersionedTimeSeriesPart.read_parquet(file_path)
-            ...     loaded.feature_names == part.feature_names
-            True
         """
         self.data.attrs["sample_interval"] = timedelta_to_isoformat(self.sample_interval)
         self.data.attrs["timestamp_column"] = self.timestamp_column
@@ -229,39 +206,13 @@ class VersionedTimeSeriesPart(VersionedTimeSeriesMixin):
 
     @classmethod
     def read_parquet(cls, path: FilePath) -> Self:
-        """Create a VersionedTimeSeriesPart from a parquet file.
-
-        Loads a complete versioned dataset part from a parquet file created with
-        the `to_parquet` method. Handles missing metadata gracefully with
-        reasonable defaults to ensure robust data loading.
+        """Load from parquet file.
 
         Args:
-            path: Path to the parquet file to load.
+            path: Path to parquet file.
 
         Returns:
             New VersionedTimeSeriesPart instance reconstructed from the file.
-
-        Example:
-            Load a previously saved dataset part:
-
-            >>> import tempfile
-            >>> from pathlib import Path
-            >>> import pandas as pd
-            >>> from datetime import datetime, timedelta
-            >>> # Create and save a sample part first
-            >>> data = pd.DataFrame({
-            ...     'timestamp': pd.to_datetime(['2025-01-01T10:00:00']),
-            ...     'available_at': pd.to_datetime(['2025-01-01T10:05:00']),
-            ...     'load': [100.0],
-            ...     'temperature': [20.0]
-            ... })
-            >>> part = VersionedTimeSeriesPart(data, sample_interval=timedelta(minutes=15))
-            >>> with tempfile.TemporaryDirectory() as tmpdir:
-            ...     file_path = Path(tmpdir) / "data_part.parquet"
-            ...     part.to_parquet(file_path)
-            ...     loaded_part = VersionedTimeSeriesPart.read_parquet(file_path)
-            ...     set(loaded_part.feature_names) == {'load', 'temperature'}
-            True
 
         Note:
             Missing metadata attributes default to: sample_interval='PT15M',

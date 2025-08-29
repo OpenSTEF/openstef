@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-"""Versioned time series dataset implementation with improved architecture.
+"""Versioned time series dataset for efficient multi-part composition.
 
 This module provides an enhanced implementation of versioned time series datasets
 that track data availability over time. The new architecture supports composable
@@ -48,6 +48,11 @@ class VersionedTimeSeriesDataset(VersionedTimeSeriesMixin):
 
     The dataset is particularly useful for realistic backtesting scenarios where
     data arrives with delays or gets revised over time.
+
+    Key motivation: This architecture solves the O(n²) space complexity problem
+    that occurs when concatenating DataFrames with misaligned (timestamp, available_at)
+    pairs. Instead of immediately combining data, it uses lazy composition that
+    delays actual DataFrame concatenation until select_version() is called.
 
     Attributes:
         data_parts: List of VersionedTimeSeriesPart instances that compose this dataset.
@@ -199,12 +204,57 @@ class VersionedTimeSeriesDataset(VersionedTimeSeriesMixin):
 
     @override
     def select_version(self, available_before: datetime | None = None) -> TimeSeriesDataset:
+        """Select a specific version of the dataset based on data availability.
+
+        Creates a point-in-time snapshot of the dataset containing only data that
+        was available before the specified timestamp. This enables realistic
+        backtesting by reconstructing what the dataset would have looked like
+        at a specific point in time.
+
+        This method is essential for preventing lookahead bias in backtesting.
+        Without it, models would appear to have access to future data that
+        wasn't available when the forecast was made.
+
+        Args:
+            available_before: Cutoff timestamp for data availability. If None,
+                uses all available data. Data with availability times after
+                this cutoff will be excluded.
+
+        Returns:
+            TimeSeriesDataset containing only data available before the cutoff,
+            with the latest available version for each timestamp.
+        """
         selected_parts = [part.select_version(available_before).data for part in self.data_parts]
         combined_data = pd.concat(selected_parts, axis=1).reindex(self.index)
         return TimeSeriesDataset(data=combined_data, sample_interval=self.sample_interval)
 
     @classmethod
     def concat(cls, datasets: Sequence[Self], mode: ConcatMode) -> Self:
+        """Concatenate multiple versioned datasets into a single dataset.
+
+        Combines multiple VersionedTimeSeriesDataset instances using the specified
+        concatenation mode. Supports different strategies for handling overlapping
+        time indices across datasets.
+
+        This method is useful when you have data from different sources or time
+        periods that need to be combined while preserving their versioning
+        information. For example, combining weather data from different providers
+        or merging historical data with recent updates.
+
+        Args:
+            datasets: Sequence of VersionedTimeSeriesDataset instances to concatenate.
+                Must contain at least one dataset.
+            mode: Concatenation mode determining how to handle overlapping indices:
+                - "left": Use indices from the first dataset only
+                - "outer": Union of all indices across datasets
+                - "inner": Intersection of all indices across datasets
+
+        Returns:
+            New VersionedTimeSeriesDataset containing all data parts from input datasets.
+
+        Raises:
+            TimeSeriesValidationError: If no datasets are provided for concatenation.
+        """
         if not datasets:
             raise TimeSeriesValidationError("At least one dataset must be provided for concatenation.")
 
@@ -223,6 +273,14 @@ class VersionedTimeSeriesDataset(VersionedTimeSeriesMixin):
         )
 
     def to_parquet(self, path: FilePath) -> None:
+        """Save dataset to parquet file.
+
+        Args:
+            path: File path for saving.
+
+        Raises:
+            TimeSeriesValidationError: If dataset has multiple data parts.
+        """
         if len(self.data_parts) > 1:
             raise TimeSeriesValidationError("to_parquet is only supported for datasets with a single data part.")
 
@@ -230,6 +288,14 @@ class VersionedTimeSeriesDataset(VersionedTimeSeriesMixin):
 
     @classmethod
     def read_parquet(cls, path: FilePath) -> Self:
+        """Load dataset from parquet file.
+
+        Args:
+            path: Path to parquet file.
+
+        Returns:
+            Loaded VersionedTimeSeriesDataset.
+        """
         return cls(
             data_parts=[VersionedTimeSeriesPart.read_parquet(path=path)],
         )
