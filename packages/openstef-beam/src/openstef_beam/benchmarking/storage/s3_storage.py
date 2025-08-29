@@ -11,14 +11,14 @@ performance while automatically syncing to S3 for durability and sharing.
 
 import logging
 from pathlib import Path, PurePosixPath
-from typing import Any
+from typing import Any, override
 
 from openstef_beam.analysis import AnalysisOutput, AnalysisScope
 from openstef_beam.benchmarking.models import BenchmarkTarget
 from openstef_beam.benchmarking.storage.base import BenchmarkStorage
 from openstef_beam.benchmarking.storage.local_storage import LocalBenchmarkStorage
 from openstef_beam.evaluation import EvaluationReport
-from openstef_core.datasets import VersionedTimeSeriesDataset
+from openstef_core.datasets import VersionedTimeSeriesPart
 
 _logger = logging.getLogger(__name__)
 
@@ -69,14 +69,16 @@ class S3BenchmarkStorage(BenchmarkStorage):
             _logger.exception("s3fs not installed. Please install with 'pip install s3fs'")
             raise ImportError("s3fs package is required for S3StorageCallback") from e
 
-    def save_backtest_output(self, target: BenchmarkTarget, output: VersionedTimeSeriesDataset) -> None:
+    @override
+    def save_backtest_output(self, target: BenchmarkTarget, output: VersionedTimeSeriesPart) -> None:
         """Save backtest predictions locally and sync to S3."""
         self.local_storage.save_backtest_output(target, output)
 
         output_path = self.local_storage.get_predictions_path_for_target(target)
         self._put_path_to_s3(local_path=output_path, artifact_name=self._get_s3_path(output_path))
 
-    def load_backtest_output(self, target: BenchmarkTarget) -> VersionedTimeSeriesDataset:
+    @override
+    def load_backtest_output(self, target: BenchmarkTarget) -> VersionedTimeSeriesPart:
         """Load backtest predictions from local storage.
 
         Returns:
@@ -84,6 +86,7 @@ class S3BenchmarkStorage(BenchmarkStorage):
         """
         return self.local_storage.load_backtest_output(target)
 
+    @override
     def has_backtest_output(self, target: BenchmarkTarget) -> bool:
         """Check if backtest output exists in local storage.
 
@@ -92,6 +95,7 @@ class S3BenchmarkStorage(BenchmarkStorage):
         """
         return self.local_storage.has_backtest_output(target)
 
+    @override
     def save_evaluation_output(self, target: BenchmarkTarget, output: EvaluationReport) -> None:
         """Save evaluation report locally and sync to S3."""
         self.local_storage.save_evaluation_output(target, output)
@@ -99,6 +103,7 @@ class S3BenchmarkStorage(BenchmarkStorage):
         output_path = self.local_storage.get_evaluations_path_for_target(target)
         self._put_path_to_s3(local_path=output_path, artifact_name=self._get_s3_path(output_path))
 
+    @override
     def load_evaluation_output(self, target: BenchmarkTarget) -> EvaluationReport:
         """Load evaluation report from local storage.
 
@@ -107,6 +112,7 @@ class S3BenchmarkStorage(BenchmarkStorage):
         """
         return self.local_storage.load_evaluation_output(target)
 
+    @override
     def has_evaluation_output(self, target: BenchmarkTarget) -> bool:
         """Check if evaluation output exists in local storage.
 
@@ -115,6 +121,7 @@ class S3BenchmarkStorage(BenchmarkStorage):
         """
         return self.local_storage.has_evaluation_output(target)
 
+    @override
     def save_analysis_output(self, output: AnalysisOutput) -> None:
         """Save analysis visualizations locally and sync to S3."""
         self.local_storage.save_analysis_output(output)
@@ -122,6 +129,7 @@ class S3BenchmarkStorage(BenchmarkStorage):
         output_dir = self.local_storage.get_analysis_path(output.scope)
         self._put_path_to_s3(local_path=output_dir, artifact_name=self._get_s3_path(output_dir))
 
+    @override
     def has_analysis_output(self, scope: AnalysisScope) -> bool:
         """Check if analysis output exists in local storage.
 

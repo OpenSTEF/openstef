@@ -10,7 +10,7 @@ how performance metrics evolve across different time windows.
 
 import operator
 from datetime import datetime
-from typing import Literal
+from typing import Literal, override
 
 from openstef_beam.analysis.models import AnalysisAggregation, RunName, TargetMetadata, VisualizationOutput
 from openstef_beam.analysis.plots import (
@@ -62,12 +62,8 @@ class WindowedMetricVisualization(VisualizationProvider):
     window: Window
 
     @property
+    @override
     def supported_aggregations(self) -> set[AnalysisAggregation]:
-        """Return the set of aggregation types supported by this provider.
-
-        Returns:
-            Set of supported AnalysisAggregation values.
-        """
         return {
             AnalysisAggregation.NONE,
             AnalysisAggregation.RUN_AND_NONE,
@@ -136,23 +132,12 @@ class WindowedMetricVisualization(VisualizationProvider):
         metric_display = f"{metric_name} (q={quantile_or_global})" if quantile_or_global != "global" else metric_name
         return f"Windowed {metric_display} {self.window} over Time {suffix}"
 
+    @override
     def create_by_none(
         self,
         report: EvaluationSubsetReport,
         metadata: TargetMetadata,
     ) -> VisualizationOutput:
-        """Create windowed metric visualization for a single target from a single run.
-
-        Args:
-            report: Evaluation report containing windowed metrics.
-            metadata: Target metadata with run and target information.
-
-        Returns:
-            Visualization output with windowed metric plot.
-
-        Raises:
-            ValueError: If no windowed metrics are found for the specified window and metric.
-        """
         metric_name, quantile_or_global = self._get_metric_info()
         time_value_pairs = self._extract_windowed_metric_values(report, metric_name, quantile_or_global)
 
@@ -175,15 +160,8 @@ class WindowedMetricVisualization(VisualizationProvider):
 
         return VisualizationOutput(name=self.name, figure=figure)
 
+    @override
     def create_by_run_and_none(self, reports: dict[RunName, list[ReportTuple]]) -> VisualizationOutput:
-        """Create windowed metric visualization comparing different model runs.
-
-        Args:
-            reports: Dictionary mapping run names to their report lists.
-
-        Returns:
-            Visualization output with windowed metric comparison.
-        """
         metric_name, quantile_or_global = self._get_metric_info()
         plotter = WindowedMetricPlotter()
 
@@ -211,18 +189,11 @@ class WindowedMetricVisualization(VisualizationProvider):
 
         return VisualizationOutput(name=self.name, figure=figure)
 
+    @override
     def create_by_target(
         self,
         reports: list[ReportTuple],
     ) -> VisualizationOutput:
-        """Create windowed metric visualization comparing different targets.
-
-        Args:
-            reports: List of (metadata, report) tuples for each target.
-
-        Returns:
-            Visualization output with windowed metrics for each target.
-        """
         metric_name, quantile_or_global = self._get_metric_info()
         plotter = WindowedMetricPlotter()
 

@@ -11,7 +11,8 @@ scikit-learn pattern with separate fit and transform phases.
 
 from abc import abstractmethod
 
-from openstef_core.datasets import TimeSeriesDataset, VersionedTimeSeriesDataset
+from openstef_core.datasets import TimeSeriesDataset
+from openstef_core.datasets.versioned_timeseries import VersionedTimeSeriesDataset
 
 
 class TimeSeriesTransform:

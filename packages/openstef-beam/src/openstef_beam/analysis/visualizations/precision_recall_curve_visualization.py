@@ -8,6 +8,8 @@ This module provides visualization for precision-recall curves, useful for
 evaluating binary classification performance at different threshold levels.
 """
 
+from typing import override
+
 from openstef_beam.analysis.models import AnalysisAggregation, RunName, TargetMetadata, VisualizationOutput
 from openstef_beam.analysis.plots import PrecisionRecallCurvePlotter
 from openstef_beam.analysis.visualizations.base import ReportTuple, VisualizationProvider
@@ -56,12 +58,8 @@ class PrecisionRecallCurveVisualization(VisualizationProvider):
     effective_precision_recall: bool = False
 
     @property
+    @override
     def supported_aggregations(self) -> set[AnalysisAggregation]:
-        """Return the set of aggregation types supported by this provider.
-
-        Returns:
-            Set of supported AnalysisAggregation values.
-        """
         return {
             AnalysisAggregation.NONE,
             AnalysisAggregation.RUN_AND_NONE,
@@ -121,20 +119,12 @@ class PrecisionRecallCurveVisualization(VisualizationProvider):
         curve_type = "Effective Precision-Recall" if self.effective_precision_recall else "Precision-Recall"
         return f"{curve_type} Curve for {context}"
 
+    @override
     def create_by_none(
         self,
         report: EvaluationSubsetReport,
         metadata: TargetMetadata,
     ) -> VisualizationOutput:
-        """Create precision-recall curve for a single target from a single run.
-
-        Args:
-            report: Evaluation report containing precision and recall metrics.
-            metadata: Target metadata with run and target information.
-
-        Returns:
-            Visualization output with precision-recall curve.
-        """
         plotter = PrecisionRecallCurvePlotter()
         precision_values, recall_values, quantiles = self._extract_precision_recall_values(report)
 
@@ -150,15 +140,8 @@ class PrecisionRecallCurveVisualization(VisualizationProvider):
 
         return VisualizationOutput(name=self.name, figure=figure)
 
+    @override
     def create_by_run_and_none(self, reports: dict[RunName, list[ReportTuple]]) -> VisualizationOutput:
-        """Create precision-recall curves comparing different model runs.
-
-        Args:
-            reports: Dictionary mapping run names to their report lists.
-
-        Returns:
-            Visualization output with multiple precision-recall curves.
-        """
         plotter = PrecisionRecallCurvePlotter()
 
         # Get the first run name for the title (since we're aggregating by run)
@@ -180,18 +163,11 @@ class PrecisionRecallCurveVisualization(VisualizationProvider):
 
         return VisualizationOutput(name=self.name, figure=figure)
 
+    @override
     def create_by_target(
         self,
         reports: list[ReportTuple],
     ) -> VisualizationOutput:
-        """Create precision-recall curves comparing different targets.
-
-        Args:
-            reports: List of (metadata, report) tuples for each target.
-
-        Returns:
-            Visualization output with precision-recall curves for each target.
-        """
         plotter = PrecisionRecallCurvePlotter()
 
         # Get the run name from the first target metadata for the title

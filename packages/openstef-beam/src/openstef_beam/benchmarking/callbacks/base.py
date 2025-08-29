@@ -21,7 +21,7 @@ from typing import TYPE_CHECKING, Any, override
 from openstef_beam.analysis import AnalysisOutput
 from openstef_beam.benchmarking.models import BenchmarkTarget
 from openstef_beam.evaluation import EvaluationReport
-from openstef_core.datasets import VersionedTimeSeriesDataset
+from openstef_core.datasets import VersionedTimeSeriesPart
 
 if TYPE_CHECKING:
     from openstef_beam.benchmarking.benchmark_pipeline import BenchmarkPipeline
@@ -108,7 +108,7 @@ class BenchmarkCallback:
         return True
 
     def on_backtest_complete(
-        self, runner: "BenchmarkPipeline[Any, Any]", target: BenchmarkTarget, predictions: VersionedTimeSeriesDataset
+        self, runner: "BenchmarkPipeline[Any, Any]", target: BenchmarkTarget, predictions: VersionedTimeSeriesPart
     ) -> None:
         """Called after backtest completes."""
         _ = self, runner, target, predictions  # Suppress unused variable warning
@@ -183,7 +183,7 @@ class BenchmarkCallbackManager(BenchmarkCallback):
 
     @override
     def on_backtest_complete(
-        self, runner: "BenchmarkPipeline[Any, Any]", target: BenchmarkTarget, predictions: VersionedTimeSeriesDataset
+        self, runner: "BenchmarkPipeline[Any, Any]", target: BenchmarkTarget, predictions: VersionedTimeSeriesPart
     ) -> None:
         for callback in self.callbacks:
             callback.on_backtest_complete(runner=runner, target=target, predictions=predictions)
