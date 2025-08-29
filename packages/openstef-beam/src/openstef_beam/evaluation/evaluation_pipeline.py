@@ -28,12 +28,7 @@ from openstef_beam.evaluation.models import (
 from openstef_beam.evaluation.models.subset import merge_quantile_metrics
 from openstef_beam.evaluation.window_iterators import iterate_subsets_by_window
 from openstef_core.base_model import BaseConfig
-from openstef_core.datasets import TimeSeriesDataset, VersionedTimeSeriesDataset
-from openstef_core.datasets.versioned_timeseries import (
-    filter_by_available_at,
-    filter_by_latest_lead_time,
-    filter_by_lead_time,
-)
+from openstef_core.datasets import TimeSeriesDataset, VersionedTimeSeriesMixin
 from openstef_core.exceptions import MissingColumnsError
 from openstef_core.types import AvailableAt, LeadTime, Quantile
 
@@ -108,8 +103,8 @@ class EvaluationPipeline:
 
     def run(
         self,
-        predictions: VersionedTimeSeriesDataset,
-        ground_truth: VersionedTimeSeriesDataset,
+        predictions: VersionedTimeSeriesMixin,
+        ground_truth: VersionedTimeSeriesMixin,
         evaluation_mask: pd.DatetimeIndex | None = None,
     ) -> EvaluationReport:
         """Evaluates predictions against ground truth.
@@ -166,8 +161,8 @@ class EvaluationPipeline:
 
     def _iterate_subsets(
         self,
-        predictions: VersionedTimeSeriesDataset,
-        ground_truth: VersionedTimeSeriesDataset,
+        predictions: VersionedTimeSeriesMixin,
+        ground_truth: VersionedTimeSeriesMixin,
         evaluation_mask: pd.DatetimeIndex | None = None,
     ) -> Iterator[tuple[Filtering, EvaluationSubset]]:
         """Yields evaluation subsets filtered by available_at and lead_time.
@@ -179,13 +174,10 @@ class EvaluationPipeline:
         """
         quantile_columns = [quantile.format() for quantile in self.quantiles]
 
-        ground_truth_data = filter_by_latest_lead_time(ground_truth)
+        ground_truth_data = ground_truth.select_version()
 
         for available_at in self.config.available_ats:
-            predictions_filtered = filter_by_available_at(
-                dataset=predictions,
-                available_at=available_at,
-            )
+            predictions_filtered = predictions.filter_by_available_at(available_at=available_at).select_version()
             yield (
                 available_at,
                 EvaluationSubset.create(
@@ -199,10 +191,7 @@ class EvaluationPipeline:
             )
 
         for lead_time in self.config.lead_times:
-            predictions_filtered = filter_by_lead_time(
-                dataset=predictions,
-                lead_time=lead_time,
-            )
+            predictions_filtered = predictions.filter_by_lead_time(lead_time=lead_time).select_version()
             yield (
                 lead_time,
                 EvaluationSubset.create(

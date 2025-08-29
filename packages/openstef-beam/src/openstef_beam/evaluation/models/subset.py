@@ -19,7 +19,7 @@ import pandas as pd
 from openstef_beam.evaluation.models.window import Window
 from openstef_core.base_model import BaseModel, FloatOrNan
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.datasets.validation import check_sample_intervals
+from openstef_core.datasets.validation import validate_same_sample_intervals
 from openstef_core.exceptions import TimeSeriesValidationError
 from openstef_core.types import Quantile
 
@@ -53,7 +53,7 @@ class EvaluationSubset:
         if not ground_truth.index.equals(predictions.index):  # type: ignore[reportUnknownMemberType]
             raise TimeSeriesValidationError("Ground truth and predictions must have the same index.")
 
-        check_sample_intervals([ground_truth, predictions])
+        validate_same_sample_intervals([ground_truth, predictions])
 
         self.ground_truth = ground_truth
         self.predictions = predictions

@@ -119,7 +119,7 @@ class VersionedTimeSeriesMixin(TimeSeriesMixin):
         raise NotImplementedError
 
     @abstractmethod
-    def select_version(self, available_before: datetime | None) -> "TimeSeriesDataset":
+    def select_version(self, available_before: datetime | None = None) -> "TimeSeriesDataset":
         """Select a specific version of the data based on availability cutoff.
 
         This method creates a point-in-time view of the dataset, including only

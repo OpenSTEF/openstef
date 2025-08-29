@@ -8,11 +8,11 @@ import pandas as pd
 from pydantic import ConfigDict
 
 from openstef_beam.backtesting.backtest_forecaster import BacktestForecasterConfig, BacktestForecasterMixin
+from openstef_beam.backtesting.restricted_horizon_timeseries import RestrictedHorizonVersionedTimeSeries
 from openstef_beam.benchmarking import BenchmarkTarget, TargetProvider
 from openstef_beam.evaluation.metric_providers import MetricProvider, QuantileMetricsDict
 from openstef_beam.evaluation.models import EvaluationSubset
 from openstef_core.datasets import TimeSeriesDataset, VersionedTimeSeriesDataset
-from openstef_core.datasets.versioned_timeseries.accessors import RestrictedHorizonVersionedTimeSeries
 from openstef_core.types import Q, Quantile
 
 
@@ -106,5 +106,5 @@ class MockForecaster(BacktestForecasterMixin):
                 {f"quantile_P{int(q * 100)}": [50.0] for q in self.quantiles},
                 index=pd.DatetimeIndex([data.horizon]),
             ),
-            sample_interval=data.sample_interval,
+            sample_interval=data.dataset.sample_interval,
         )

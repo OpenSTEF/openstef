@@ -62,7 +62,7 @@ def validate_datetime_column(series: pd.Series, column_name: str) -> None:
     Args:
         series: The pandas Series to validate.
         column_name: Name of the column being validated (for error messages).
-    
+
     Raises:
         InvalidColumnTypeError: If the series is not of datetime type.
     """

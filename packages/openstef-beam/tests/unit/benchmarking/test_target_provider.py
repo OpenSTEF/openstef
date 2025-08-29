@@ -12,7 +12,7 @@ from pydantic import ValidationError
 
 from openstef_beam.benchmarking.models import BenchmarkTarget
 from openstef_beam.benchmarking.target_provider import SimpleTargetProvider
-from openstef_core.datasets import VersionedTimeSeriesDataset
+from openstef_core.datasets import VersionedTimeSeriesPart
 
 
 @pytest.mark.parametrize(
@@ -72,7 +72,7 @@ def test_target() -> BenchmarkTarget:
     )
 
 
-@patch("openstef_beam.benchmarking.target_provider.concat_featurewise")
+@patch("openstef_beam.benchmarking.target_provider.VersionedTimeSeriesDataset.concat")
 def test_get_predictors_for_target(mock_concat: Mock, tmp_path: Path, test_target: BenchmarkTarget):
     """Test that predictors are correctly concatenated from multiple sources."""
     # Arrange
@@ -86,15 +86,15 @@ def test_get_predictors_for_target(mock_concat: Mock, tmp_path: Path, test_targe
 
     class MockSimpleTargetProvider(SimpleTargetProvider[BenchmarkTarget, None]):
         @override
-        def get_weather_for_target(self, target: BenchmarkTarget) -> VersionedTimeSeriesDataset:
+        def get_weather_for_target(self, target: BenchmarkTarget) -> VersionedTimeSeriesPart:
             return mock_weather
 
         @override
-        def get_profiles(self) -> VersionedTimeSeriesDataset:
+        def get_profiles(self) -> VersionedTimeSeriesPart:
             return mock_profiles
 
         @override
-        def get_prices(self) -> VersionedTimeSeriesDataset:
+        def get_prices(self) -> VersionedTimeSeriesPart:
             return mock_prices
 
     provider = MockSimpleTargetProvider(

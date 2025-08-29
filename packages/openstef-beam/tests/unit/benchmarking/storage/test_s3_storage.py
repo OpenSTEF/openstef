@@ -19,7 +19,7 @@ from openstef_beam.benchmarking.models import BenchmarkTarget
 from openstef_beam.benchmarking.storage import LocalBenchmarkStorage
 from openstef_beam.evaluation import EvaluationReport, EvaluationSubsetReport, SubsetMetric
 from openstef_beam.evaluation.models import EvaluationSubset
-from openstef_core.datasets import TimeSeriesDataset, VersionedTimeSeriesDataset
+from openstef_core.datasets import TimeSeriesDataset, VersionedTimeSeriesDataset, VersionedTimeSeriesPart
 from openstef_core.types import AvailableAt
 
 
@@ -66,9 +66,9 @@ def target() -> BenchmarkTarget:
 
 
 @pytest.fixture
-def predictions() -> VersionedTimeSeriesDataset:
+def predictions() -> VersionedTimeSeriesPart:
     """Create test predictions."""
-    return VersionedTimeSeriesDataset(
+    return VersionedTimeSeriesPart(
         data=pd.DataFrame({
             "value": [1.0, 2.0],
             "timestamp": pd.date_range("2023-01-07", periods=2, freq="1h"),
@@ -265,7 +265,7 @@ def test_missing_local_files_handling(
 def test_load_operations_delegate_to_local_storage(
     local_storage: LocalBenchmarkStorage,
     target: BenchmarkTarget,
-    predictions: VersionedTimeSeriesDataset,
+    predictions: VersionedTimeSeriesPart,
     evaluation_report: EvaluationReport,
 ):
     """Test that load operations delegate to local storage without accessing S3."""

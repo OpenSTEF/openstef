@@ -10,8 +10,7 @@ by the old implementation. These will redirect to the new V4 implementation.
 
 from datetime import datetime
 
-import pandas as pd
-
+from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.datasets.mixins import VersionedTimeSeriesMixin
 
 
@@ -37,28 +36,15 @@ class RestrictedHorizonVersionedTimeSeries:
         """Get feature names from underlying dataset."""
         return self.dataset.feature_names
 
-    def get_window(
-        self, start: datetime, end: datetime, available_before: datetime | None = None
-    ) -> pd.DataFrame:
+    def get_window(self, start: datetime, end: datetime, available_before: datetime | None = None) -> TimeSeriesDataset:
         """Get data window with horizon restriction.
 
         Returns:
             DataFrame with data from the specified window.
         """
-        raise NotImplementedError("get_window is not implemented in the compatibility wrapper.")
-
-
-
-def restrict_horizon(dataset: VersionedTimeSeriesMixin, horizon: datetime) -> RestrictedHorizonVersionedTimeSeries:
-    """Restrict dataset to horizon.
-    
-    Returns:
-        Wrapped dataset with horizon restriction.
-    """
-    return RestrictedHorizonVersionedTimeSeries(dataset, horizon)
+        return self.dataset.filter_by_range(start=start, end=end).select_version(available_before=available_before)
 
 
 __all__ = [
     "RestrictedHorizonVersionedTimeSeries",
-    "restrict_horizon",
 ]

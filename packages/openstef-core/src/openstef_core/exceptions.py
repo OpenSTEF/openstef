@@ -33,10 +33,7 @@ class InvalidColumnTypeError(Exception):
             expected_type: The expected data type for the column.
             actual_type: The actual data type found in the column.
         """
-        message = (
-            f"Invalid type for column '{column}': expected {expected_type}, "
-            f"but got {actual_type}."
-        )
+        message = f"Invalid type for column '{column}': expected {expected_type}, but got {actual_type}."
         super().__init__(message)
 
 

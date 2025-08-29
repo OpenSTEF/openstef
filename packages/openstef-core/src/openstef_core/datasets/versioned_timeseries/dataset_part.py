@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+#
+# SPDX-License-Identifier: MPL-2.0
+
 import logging
 from datetime import datetime, timedelta
 from typing import Self, cast, override
@@ -134,8 +138,7 @@ class VersionedTimeSeriesPart(VersionedTimeSeriesMixin):
         self.timestamp_column = timestamp_column
         self.available_at_column = available_at_column
         self.index = (
-            index if index is not None
-            else cast(pd.DatetimeIndex, pd.DatetimeIndex(self.data[timestamp_column]))
+            index if index is not None else cast(pd.DatetimeIndex, pd.DatetimeIndex(self.data[timestamp_column]))
         )
         self.feature_names = list(set(self.data.columns) - {self.timestamp_column, self.available_at_column})
 
@@ -158,7 +161,7 @@ class VersionedTimeSeriesPart(VersionedTimeSeriesMixin):
         return self._copy_with_data(data_filtered, reindex=False)
 
     @override
-    def select_version(self, available_before: datetime | None) -> TimeSeriesDataset:
+    def select_version(self, available_before: datetime | None = None) -> TimeSeriesDataset:
         if available_before is not None:
             data = self.data[self.data[self.available_at_column] <= available_before]
         else:
@@ -260,6 +263,6 @@ class VersionedTimeSeriesPart(VersionedTimeSeriesMixin):
             timestamp_column=timestamp_column,
             available_at_column=available_at_column,
         )
-    
+
 
 __all__ = ["VersionedTimeSeriesPart"]

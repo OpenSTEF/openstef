@@ -24,9 +24,7 @@ from pydantic import Field, TypeAdapter
 from openstef_beam.benchmarking.models import BenchmarkTarget
 from openstef_beam.evaluation.metric_providers import MetricProvider
 from openstef_core.base_model import BaseConfig, read_yaml_config
-from openstef_core.datasets import VersionedTimeSeriesDataset
-from openstef_core.datasets.mixins import VersionedTimeSeriesMixin
-from openstef_core.datasets.versioned_timeseries import concat_featurewise
+from openstef_core.datasets import VersionedTimeSeriesDataset, VersionedTimeSeriesPart
 
 
 class TargetProviderConfig(BaseConfig):
@@ -137,7 +135,7 @@ class TargetProvider[T: BenchmarkTarget, F](BaseConfig):
         """
 
     @abstractmethod
-    def get_predictors_for_target(self, target: T) -> VersionedTimeSeriesMixin:
+    def get_predictors_for_target(self, target: T) -> VersionedTimeSeriesDataset:
         """Load predictor features for model training and inference.
 
         Args:
@@ -274,7 +272,7 @@ class SimpleTargetProvider[T: BenchmarkTarget, F](TargetProvider[T, F]):
             path=self.get_measurements_path_for_target(target),
         )
 
-    def get_predictors_for_target(self, target: T) -> VersionedTimeSeriesMixin:
+    def get_predictors_for_target(self, target: T) -> VersionedTimeSeriesDataset:
         """Combine weather, profiles, and prices into aligned predictor dataset.
 
         Concatenates datasets feature-wise with inner join to ensure temporal alignment.
@@ -283,17 +281,17 @@ class SimpleTargetProvider[T: BenchmarkTarget, F](TargetProvider[T, F]):
         Returns:
             VersionedTimeSeriesMixin: Combined predictor dataset with all enabled features.
         """
-        datasets: list[VersionedTimeSeriesMixin] = [
+        parts: list[VersionedTimeSeriesPart] = [
             self.get_weather_for_target(target),
         ]
 
         if self.use_profiles:
-            datasets.append(self.get_profiles())
+            parts.append(self.get_profiles())
 
         if self.use_prices:
-            datasets.append(self.get_prices())
+            parts.append(self.get_prices())
 
-        return concat_featurewise(datasets=datasets, mode="inner")
+        return VersionedTimeSeriesDataset(data_parts=parts)
 
     def get_weather_path_for_target(self, target: T) -> Path:
         """Build file path for target weather data using configured template.
@@ -303,33 +301,33 @@ class SimpleTargetProvider[T: BenchmarkTarget, F](TargetProvider[T, F]):
         """
         return self.data_dir / str(target.group_name) / self.weather_path_template.format(name=target.name)
 
-    def get_weather_for_target(self, target: T) -> VersionedTimeSeriesDataset:
+    def get_weather_for_target(self, target: T) -> VersionedTimeSeriesPart:
         """Load weather features from target-specific Parquet file.
 
         Returns:
-            VersionedTimeSeriesDataset: The loaded weather data.
+            VersionedTimeSeriesPart: The loaded weather data.
         """
-        return VersionedTimeSeriesDataset.read_parquet(
+        return VersionedTimeSeriesPart.read_parquet(
             path=self.get_weather_path_for_target(target),
         )
 
-    def get_profiles(self) -> VersionedTimeSeriesDataset:
+    def get_profiles(self) -> VersionedTimeSeriesPart:
         """Load shared energy profiles data from configured Parquet file.
 
         Returns:
-            VersionedTimeSeriesDataset: The loaded energy profiles data.
+            VersionedTimeSeriesPart: The loaded energy profiles data.
         """
-        return VersionedTimeSeriesDataset.read_parquet(
+        return VersionedTimeSeriesPart.read_parquet(
             path=self.data_dir / self.profiles_path,
         )
 
-    def get_prices(self) -> VersionedTimeSeriesDataset:
+    def get_prices(self) -> VersionedTimeSeriesPart:
         """Load shared energy pricing data from configured Parquet file.
 
         Returns:
-            VersionedTimeSeriesDataset: The loaded energy pricing data.
+            VersionedTimeSeriesPart: The loaded energy pricing data.
         """
-        return VersionedTimeSeriesDataset.read_parquet(
+        return VersionedTimeSeriesPart.read_parquet(
             path=self.data_dir / self.prices_path,
         )
 

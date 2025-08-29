@@ -21,8 +21,9 @@ from tqdm.auto import tqdm
 from openstef_beam.backtesting.backtest_event import BacktestEvent
 from openstef_beam.backtesting.backtest_event_generator import BacktestEventGenerator
 from openstef_beam.backtesting.backtest_forecaster.mixins import BacktestBatchForecasterMixin, BacktestForecasterMixin
+from openstef_beam.backtesting.restricted_horizon_timeseries import RestrictedHorizonVersionedTimeSeries
 from openstef_core.base_model import BaseConfig
-from openstef_core.datasets import VersionedTimeSeriesDataset
+from openstef_core.datasets import VersionedTimeSeriesDataset, VersionedTimeSeriesPart
 from openstef_core.datasets.mixins import VersionedTimeSeriesMixin
 
 _logger = logging.getLogger(__name__)
@@ -103,13 +104,13 @@ class BacktestPipeline:
 
     def run(
         self,
-        ground_truth: VersionedTimeSeriesMixin,
-        predictors: VersionedTimeSeriesMixin,
+        ground_truth: VersionedTimeSeriesDataset,
+        predictors: VersionedTimeSeriesDataset,
         start: datetime | None,
         end: datetime | None,
         *,
         show_progress: bool = True,
-    ) -> VersionedTimeSeriesDataset:
+    ) -> VersionedTimeSeriesPart:
         """Execute the backtesting simulation and return predictions.
 
         Runs the complete backtesting process by generating events, processing
@@ -127,14 +128,11 @@ class BacktestPipeline:
             VersionedTimeSeriesDataset containing all predictions with timestamps
             and availability information. Empty dataset if no predictions made.
         """
-        min_start = ground_truth.index.min().to_pydatetime()  # type: ignore[reportUnknownMemberType]
-        max_end = ground_truth.index.max().to_pydatetime()  # type: ignore[reportUnknownMemberType]
+        min_start = cast("pd.Series[pd.Timestamp]", ground_truth.index).min().to_pydatetime()
+        max_end = cast("pd.Series[pd.Timestamp]", ground_truth.index).max().to_pydatetime()
 
         # Prepare the input data
-        dataset = concat_featurewise(
-            datasets=[ground_truth, predictors],
-            mode="outer",
-        )
+        dataset = VersionedTimeSeriesDataset.concat([ground_truth, predictors], mode="outer")
         _logger.info("Initialized backtest dataset with %d features", len(dataset.feature_names))
 
         # Prepare backtesting events with batch awareness
@@ -158,7 +156,7 @@ class BacktestPipeline:
             supports_batching = False
 
         _logger.info("Starting the backtest pipeline")
-        prediction_list: list[VersionedTimeSeriesDataset] = []
+        prediction_list: list[VersionedTimeSeriesPart] = []
 
         prediction_list.extend(
             self._process_events(
@@ -171,7 +169,7 @@ class BacktestPipeline:
 
         _logger.info("Finished backtest pipeline")
         if not prediction_list:
-            return VersionedTimeSeriesDataset(
+            return VersionedTimeSeriesPart(
                 data=pd.DataFrame({
                     "timestamp": pd.Series(dtype="datetime64[ns]"),
                     "available_at": pd.Series(dtype="datetime64[ns]"),
@@ -179,20 +177,20 @@ class BacktestPipeline:
                 sample_interval=self.config.prediction_sample_interval,
             )
 
-        return VersionedTimeSeriesDataset(
+        return VersionedTimeSeriesPart(
             data=pd.concat([pred.data for pred in prediction_list], axis=0),
             sample_interval=self.config.prediction_sample_interval,
         )
 
     def _process_train_event(self, event: BacktestEvent, dataset: VersionedTimeSeriesMixin) -> None:
         """Process a single training event."""
-        horizon_dataset = restrict_horizon(dataset=dataset, horizon=event.timestamp)
+        horizon_dataset = RestrictedHorizonVersionedTimeSeries(dataset=dataset, horizon=event.timestamp)
         self.forecaster.fit(horizon_dataset)
         _logger.debug("Processed train event", extra={"event": event})
 
     def _process_single_prediction(
         self, event: BacktestEvent, dataset: VersionedTimeSeriesMixin
-    ) -> list[VersionedTimeSeriesDataset]:
+    ) -> list[VersionedTimeSeriesPart]:
         """Process a single prediction event.
 
         Args:
@@ -202,7 +200,7 @@ class BacktestPipeline:
         Returns:
             List containing single prediction dataset if successful, empty list otherwise.
         """
-        horizon_dataset = restrict_horizon(dataset=dataset, horizon=event.timestamp)
+        horizon_dataset = RestrictedHorizonVersionedTimeSeries(dataset=dataset, horizon=event.timestamp)
         prediction = self.forecaster.predict_versioned(horizon_dataset)
 
         if prediction is not None:
@@ -214,7 +212,7 @@ class BacktestPipeline:
 
     def _process_batch_prediction(
         self, batch_events: list[BacktestEvent], dataset: VersionedTimeSeriesMixin
-    ) -> list[VersionedTimeSeriesDataset]:
+    ) -> list[VersionedTimeSeriesPart]:
         """Process a batch of prediction events and return valid predictions.
 
         Args:
@@ -228,7 +226,9 @@ class BacktestPipeline:
             return []
 
         # Process batch
-        horizon_datasets = [restrict_horizon(dataset=dataset, horizon=event.timestamp) for event in batch_events]
+        horizon_datasets = [
+            RestrictedHorizonVersionedTimeSeries(dataset=dataset, horizon=event.timestamp) for event in batch_events
+        ]
 
         batch_predictions = cast(BacktestBatchForecasterMixin, self.forecaster).predict_batch_versioned(
             horizon_datasets
@@ -252,7 +252,7 @@ class BacktestPipeline:
         batch_size: int | None,
         *,
         show_progress: bool = True,
-    ) -> list[VersionedTimeSeriesDataset]:
+    ) -> list[VersionedTimeSeriesPart]:
         """Process events using the factory's batching logic.
 
         Args:
@@ -264,7 +264,7 @@ class BacktestPipeline:
         Returns:
             List of all prediction datasets generated during processing.
         """
-        predictions: list[VersionedTimeSeriesDataset] = []
+        predictions: list[VersionedTimeSeriesPart] = []
 
         # Get total count for progress bar
         events = list(event_factory.iterate())

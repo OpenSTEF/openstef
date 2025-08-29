@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+#
+# SPDX-License-Identifier: MPL-2.0
+
 """Versioned time series dataset implementation with improved architecture.
 
 This module provides an enhanced implementation of versioned time series datasets
@@ -10,32 +14,28 @@ multiple data sources while maintaining versioning information, enabling more
 flexible dataset construction for complex forecasting pipelines.
 """
 
-from enum import StrEnum
 import functools
 import logging
 import operator
-from collections import Counter
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from datetime import datetime, timedelta
-from typing import Self, cast, override
+from typing import Literal, Self, cast, override
 
-from openstef_core.datasets.validation import validate_disjoint_columns, validate_same_sample_intervals
-from openstef_core.datasets.versioned_timeseries.dataset_part import VersionedTimeSeriesPart
-from openstef_core.utils.pandas import sorted_range_slice_idxs
 import pandas as pd
+from pydantic import FilePath
 
 from openstef_core.datasets.mixins import VersionedTimeSeriesMixin
 from openstef_core.datasets.timeseries_dataset import TimeSeriesDataset
-from openstef_core.exceptions import InvalidColumnTypeError, TimeSeriesValidationError
+from openstef_core.datasets.validation import validate_disjoint_columns, validate_same_sample_intervals
+from openstef_core.datasets.versioned_timeseries.dataset_part import VersionedTimeSeriesPart
+from openstef_core.exceptions import TimeSeriesValidationError
 from openstef_core.types import AvailableAt, LeadTime
+from openstef_core.utils.pandas import sorted_range_slice_idxs
 
 _logger = logging.getLogger(__name__)
 
 
-class ConcatMode(StrEnum):
-    LEFT = "left"
-    OUTER = "outer"
-    INNER = "inner"
+type ConcatMode = Literal["left", "outer", "inner"]
 
 
 class VersionedTimeSeriesDataset(VersionedTimeSeriesMixin):
@@ -111,7 +111,11 @@ class VersionedTimeSeriesDataset(VersionedTimeSeriesMixin):
 
         self.data_parts = data_parts
         self.sample_interval = data_parts[0].sample_interval
-        self.index = index or functools.reduce(operator.or_, [part.index for part in data_parts], pd.DatetimeIndex([]))
+        if index is not None:
+            self.index = index
+        else:
+            union_fn = cast(Callable[[pd.DatetimeIndex, pd.DatetimeIndex], pd.DatetimeIndex], pd.DatetimeIndex.union)
+            self.index = functools.reduce(union_fn, [part.index for part in data_parts])
         self.feature_names = functools.reduce(operator.iadd, [part.feature_names for part in data_parts], [])
 
     @classmethod
@@ -171,9 +175,7 @@ class VersionedTimeSeriesDataset(VersionedTimeSeriesMixin):
 
     @override
     def filter_by_range(self, start: datetime | None = None, end: datetime | None = None) -> Self:
-        start_idx, end_idx = sorted_range_slice_idxs(
-            data=cast(pd.Series[pd.Timestamp], self.index), start=start, end=end
-        )
+        start_idx, end_idx = sorted_range_slice_idxs(data=cast(pd.Series, self.index), start=start, end=end)
         index = self.index[start_idx:end_idx]
 
         return self.__class__(
@@ -196,16 +198,43 @@ class VersionedTimeSeriesDataset(VersionedTimeSeriesMixin):
         )
 
     @override
-    def select_version(self, available_before: datetime | None) -> TimeSeriesDataset:
+    def select_version(self, available_before: datetime | None = None) -> TimeSeriesDataset:
         selected_parts = [part.select_version(available_before).data for part in self.data_parts]
-        combined_data = pd.concat(selected_parts, axis=1).loc[self.index]
+        combined_data = pd.concat(selected_parts, axis=1).reindex(self.index)
         return TimeSeriesDataset(data=combined_data, sample_interval=self.sample_interval)
-    
+
     @classmethod
     def concat(cls, datasets: Sequence[Self], mode: ConcatMode) -> Self:
         if not datasets:
             raise TimeSeriesValidationError("At least one dataset must be provided for concatenation.")
 
+        indexes = [d.index for d in datasets]
+        match mode:
+            case "left":
+                index = indexes[0]
+            case "outer":
+                index = functools.reduce(lambda x, y: cast(pd.DatetimeIndex, x.union(y)), indexes)
+            case "inner":
+                index = functools.reduce(lambda x, y: x.intersection(y), indexes)
+
+        return cls(
+            data_parts=[part for dataset in datasets for part in dataset.data_parts],
+            index=index,
+        )
+
+    def to_parquet(self, path: FilePath) -> None:
+        if len(self.data_parts) > 1:
+            raise TimeSeriesValidationError("to_parquet is only supported for datasets with a single data part.")
+
+        self.data_parts[0].to_parquet(path)
+
+    @classmethod
+    def read_parquet(cls, path: FilePath) -> Self:
+        return cls(
+            data_parts=[VersionedTimeSeriesPart.read_parquet(path=path)],
+        )
 
 
-__all__ = ["VersionedTimeSeriesDataset", ]
+__all__ = [
+    "VersionedTimeSeriesDataset",
+]

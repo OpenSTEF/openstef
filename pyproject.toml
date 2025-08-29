@@ -176,15 +176,12 @@ include = [
   "examples/**/*.py",
   "packages/*/src/**/*.py",
   "packages/*/examples/**/*.py",
+  "packages/*/tests/**/*.py",
 ]
 typeCheckingMode = "strict"
 reportPrivateImportUsage = false
 reportMissingTypeStubs = false
 reportPrivateUsage = false
-
-[[tool.pyright.overrides]]
-files = [ "packages/*/src/tests" ]
-typeCheckingMode = "strict"
 
 [tool.uv.sources]
 openstef-beam = { workspace = true }
