@@ -11,7 +11,7 @@ import pandas as pd
 import pytest
 
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.feature_engineering.temporal_transforms.cyclic_features import CyclicFeatures
+from openstef_core.feature_engineering.temporal.cyclic_features import CyclicFeatures
 
 
 @pytest.fixture

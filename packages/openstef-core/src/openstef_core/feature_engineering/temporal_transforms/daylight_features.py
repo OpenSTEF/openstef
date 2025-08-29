@@ -24,7 +24,7 @@ except ImportError as e:
     ) from e
 
 
-class DaylightFeatures(BaseConfig, TimeSeriesTransform):
+class DaylightFeaturesTransform(BaseConfig, TimeSeriesTransform):
     """Transform that adds daylight features to time series data.
 
     Computes features that indicate the amount of daylight based on

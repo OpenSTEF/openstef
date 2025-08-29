@@ -9,7 +9,7 @@ import pandas as pd
 import pytest
 
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.feature_engineering.forecasting_transforms.feature_clipper import FeatureClipper
+from openstef_core.feature_engineering.forecasting.feature_clipper import FeatureClipper
 
 
 @pytest.fixture

@@ -12,7 +12,7 @@ import pytest
 from pydantic import ValidationError
 
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.feature_engineering.forecasting_transforms.scaler_transform import ScalerTransform, ScalingMethod
+from openstef_core.feature_engineering.forecasting.scaler_transform import ScalerTransform, ScalingMethod
 
 
 @pytest.fixture

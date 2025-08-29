@@ -10,7 +10,7 @@ for improved machine learning model performance.
 """
 
 from enum import StrEnum
-from typing import cast
+from typing import cast, override
 
 import pandas as pd
 
@@ -77,7 +77,7 @@ class ScalerTransform(BaseConfig, TimeSeriesTransform):
 
     method: ScalingMethod
 
-    def __init__(self, **kwargs: ScalingMethod):
+    def __init__(self, **kwargs: ScalingMethod):  # TODO: kwarg type doesn't make sense.
         """Initialize the Scaler transform with the scaler method.
 
         Args:
@@ -100,6 +100,7 @@ class ScalerTransform(BaseConfig, TimeSeriesTransform):
                 msg = f"Unsupported normalization method: {self.method}"
                 raise ValueError(msg)
 
+    @override
     def fit(self, data: TimeSeriesDataset) -> None:
         """Fit the scaler to the input time series data.
 
@@ -108,6 +109,7 @@ class ScalerTransform(BaseConfig, TimeSeriesTransform):
         """
         self._scaler.fit(data.data)  # type: ignore[reportUnknownMemberType]
 
+    @override
     def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
         """Transform the input time series data using the fitted scaler.
 

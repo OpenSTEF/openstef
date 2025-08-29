@@ -10,7 +10,7 @@ features from datetime indices in time series datasets based on sine and cosine
 components.
 """
 
-from typing import Any, Literal
+from typing import Any, Literal, override
 
 import numpy as np
 import pandas as pd
@@ -28,7 +28,7 @@ NUM_SECONDS_IN_A_DAY = 24 * 60 * 60
 type CyclicFeatureName = Literal["timeOfDay", "season", "dayOfWeek", "month"]
 
 
-class CyclicFeatures(BaseConfig, TimeSeriesTransform):
+class CyclicFeaturesTransform(BaseConfig, TimeSeriesTransform):
     """Transform that generates cyclic temporal features from datetime indices.
 
     Converts temporal information into sine and cosine components that preserve
@@ -46,7 +46,7 @@ class CyclicFeatures(BaseConfig, TimeSeriesTransform):
         >>> from datetime import timedelta
         >>> from openstef_core.datasets import TimeSeriesDataset
         >>> from openstef_core.feature_engineering.temporal_transforms.cyclic_features import (
-        ...     CyclicFeatures
+        ...     CyclicFeaturesTransform
         ... )
         >>>
         >>> # Create sample dataset
@@ -56,11 +56,11 @@ class CyclicFeatures(BaseConfig, TimeSeriesTransform):
         >>> dataset = TimeSeriesDataset(data, timedelta(hours=1))
         >>>
         >>> # Apply cyclic features with custom configuration
-        >>> transform = CyclicFeatures(included_features=["season", "timeOfDay"])
+        >>> transform = CyclicFeaturesTransform(included_features=["season", "timeOfDay"])
         >>> transformed = transform.fit_transform(dataset)
         >>> 'season_sine' in transformed.data.columns
         True
-        >>> 'time0fday_sine' in transformed.data.columns
+        >>> 'timeOfDay_sine' in transformed.data.columns
         True
         >>> 'month_sine' in transformed.data.columns
         False
@@ -178,6 +178,7 @@ class CyclicFeatures(BaseConfig, TimeSeriesTransform):
             index=index,
         )
 
+    @override
     def fit(self, data: TimeSeriesDataset) -> None:
         """Fit the transform by computing cyclic features from the dataset's index.
 
@@ -204,6 +205,7 @@ class CyclicFeatures(BaseConfig, TimeSeriesTransform):
             # Create empty DataFrame with the same index if no features are selected
             self._cyclic_features = pd.DataFrame(index=data.index)
 
+    @override
     def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
         """Transform dataset by adding cyclic features as new columns.
 

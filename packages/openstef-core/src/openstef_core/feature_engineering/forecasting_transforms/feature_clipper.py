@@ -9,6 +9,8 @@ minimum and maximum ranges during training, preventing out-of-range values
 during inference and improving model robustness.
 """
 
+from typing import override
+
 import pandas as pd
 
 from openstef_core.base_model import BaseConfig
@@ -16,7 +18,7 @@ from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.datasets.transforms import TimeSeriesTransform
 
 
-class FeatureClipper(BaseConfig, TimeSeriesTransform):
+class FeatureClipperTransform(BaseConfig, TimeSeriesTransform):
     """Transform that clips specified features to their observed min and max values.
 
     This transform learns the minimum and maximum values of specified features
@@ -67,6 +69,7 @@ class FeatureClipper(BaseConfig, TimeSeriesTransform):
         self._feature_mins: pd.Series = pd.Series()
         self._feature_maxs: pd.Series = pd.Series()
 
+    @override
     def fit(self, data: TimeSeriesDataset) -> None:
         """Fit the transform to the data by learning the min and max values.
 
@@ -76,6 +79,7 @@ class FeatureClipper(BaseConfig, TimeSeriesTransform):
         self._feature_mins = data.data.reindex(self.column_names, axis=1).min()
         self._feature_maxs = data.data.reindex(self.column_names, axis=1).max()
 
+    @override
     def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
         """Transform the input time series data by clipping specified features to their learned min and max values.
 

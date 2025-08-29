@@ -29,7 +29,7 @@ except ImportError as e:
 logger = logging.getLogger(__name__)
 
 
-class RadiationDerivedFeatures(BaseConfig, TimeSeriesTransform):
+class RadiationDerivedFeaturesTransform(BaseConfig, TimeSeriesTransform):
     """Transform that adds radiation derived features to time series data.
 
     Computes features that are derived from radiation data based on geographical coordinates

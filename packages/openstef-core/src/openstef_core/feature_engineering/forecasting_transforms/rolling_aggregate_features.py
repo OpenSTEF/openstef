@@ -11,7 +11,7 @@ accuracy by identifying underlying trends.
 
 from datetime import timedelta
 from enum import StrEnum
-from typing import Any
+from typing import Any, override
 
 import pandas as pd
 from pydantic import Field
@@ -31,7 +31,7 @@ class AggregationFunction(StrEnum):
     MIN = "min"
 
 
-class RollingAggregateFeatures(BaseConfig, TimeSeriesTransform):
+class RollingAggregateFeaturesTransform(BaseConfig, TimeSeriesTransform):
     """Transform that adds rolling aggregate features to time series data.
 
     This transform computes rolling aggregate statistics (e.g., mean, median, min, max)
@@ -95,6 +95,7 @@ class RollingAggregateFeatures(BaseConfig, TimeSeriesTransform):
         """
         return f"rolling_{aggregation_function.value}_load_{timedelta_to_isoformat(td=self.rolling_window_size)}"
 
+    @override
     def fit(self, data: TimeSeriesDataset) -> None:
         """Fit the transform to the input time series `load` column.
 
@@ -110,6 +111,8 @@ class RollingAggregateFeatures(BaseConfig, TimeSeriesTransform):
         if "load" not in data.data.columns:
             raise ValueError("The DataFrame must contain a 'load' column.")
 
+        # TODO: Do not hardcode 'load' column, make it configurable.
+        # In fact this must be made generic to support any feature or multiple.
         rolling_window_load = data.data["load"].dropna().rolling(window=self.rolling_window_size)
 
         rolling_aggregate_features: dict[str, pd.Series] = {
@@ -121,6 +124,7 @@ class RollingAggregateFeatures(BaseConfig, TimeSeriesTransform):
             data=rolling_aggregate_features,
         )
 
+    @override
     def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
         """Transform the input time series data by adding rolling aggregate features.
 

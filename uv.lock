@@ -1,5 +1,5 @@
 version = 1
-revision = 2
+revision = 3
 requires-python = ">=3.12, <4.0"
 
 [manifest]
@@ -1591,7 +1591,7 @@ dependencies = [
 all = [
     { name = "openstef-beam", extra = ["boto"] },
     { name = "openstef-compatibility" },
-    { name = "openstef-core" },
+    { name = "openstef-core", extra = ["feature-engineering"] },
     { name = "openstef-models" },
 ]
 beam = [
@@ -1630,7 +1630,7 @@ requires-dist = [
     { name = "openstef-compatibility", marker = "extra == 'all'", editable = "packages/openstef-compatibility" },
     { name = "openstef-compatibility", marker = "extra == 'compatibility'", editable = "packages/openstef-compatibility" },
     { name = "openstef-core", editable = "packages/openstef-core" },
-    { name = "openstef-core", marker = "extra == 'all'", editable = "packages/openstef-core" },
+    { name = "openstef-core", extras = ["feature-engineering"], marker = "extra == 'all'", editable = "packages/openstef-core" },
     { name = "openstef-models", editable = "packages/openstef-models" },
     { name = "openstef-models", marker = "extra == 'all'", editable = "packages/openstef-models" },
     { name = "openstef-models", marker = "extra == 'models'", editable = "packages/openstef-models" },
@@ -1696,31 +1696,28 @@ name = "openstef-core"
 version = "0.0.0"
 source = { editable = "packages/openstef-core" }
 dependencies = [
-    { name = "holidays" },
     { name = "numpy" },
     { name = "pandas" },
     { name = "pyarrow" },
 ]
 
-[package.dev-dependencies]
-ml = [
-    { name = "scikit-learn" },
-]
-pvlib = [
+[package.optional-dependencies]
+feature-engineering = [
+    { name = "holidays" },
     { name = "pvlib" },
+    { name = "scikit-learn" },
 ]
 
 [package.metadata]
 requires-dist = [
-    { name = "holidays", specifier = ">=0.79" },
+    { name = "holidays", marker = "extra == 'feature-engineering'", specifier = ">=0.79" },
     { name = "numpy", specifier = ">=2.3.2" },
     { name = "pandas", specifier = ">=2.3.1" },
+    { name = "pvlib", marker = "extra == 'feature-engineering'", specifier = ">=0.13" },
     { name = "pyarrow", specifier = ">=21" },
+    { name = "scikit-learn", marker = "extra == 'feature-engineering'", specifier = ">=1.7.1" },
 ]
-
-[package.metadata.requires-dev]
-ml = [{ name = "scikit-learn", specifier = ">=1.7.1" }]
-pvlib = [{ name = "pvlib", specifier = ">=0.13" }]
+provides-extras = ["feature-engineering"]
 
 [[package]]
 name = "openstef-docs"

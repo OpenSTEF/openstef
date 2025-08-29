@@ -22,7 +22,7 @@ MIN_WEEKEND_IDX: int = 5  # Saturday
 SUNDAY_IDX: int = 6
 
 
-class DatetimeFeatures(TimeSeriesTransform):
+class DatetimeFeaturesTransform(TimeSeriesTransform):
     """Transform that adds datetime features to time series data.
 
     Computes features that are derived from the datetime index of the dataset.

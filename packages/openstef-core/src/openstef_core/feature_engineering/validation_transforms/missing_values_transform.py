@@ -10,7 +10,7 @@ through various imputation strategies and data cleaning operations.
 
 import logging
 from enum import Enum
-from typing import Any, cast
+from typing import Any, cast, override
 
 import numpy as np
 import pandas as pd
@@ -168,6 +168,7 @@ class MissingValuesTransform(BaseConfig, TimeSeriesTransform):
         mask = ~subset_df.bfill().isna().any(axis="columns")
         return data.loc[mask]
 
+    @override
     def fit(self, data: TimeSeriesDataset) -> None:
         """Fit the missing values transformer to the provided time series data.
 
@@ -183,6 +184,7 @@ class MissingValuesTransform(BaseConfig, TimeSeriesTransform):
         fit_data = self._remove_trailing_null_rows(fit_data)
         self._imputer.fit(fit_data)
 
+    @override
     def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
         """Transform the input dataset by removing trailing null rows and imputing missing values.
 
