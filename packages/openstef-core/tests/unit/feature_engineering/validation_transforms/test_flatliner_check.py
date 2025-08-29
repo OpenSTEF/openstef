@@ -13,21 +13,26 @@ from openstef_core.feature_engineering.validation_transforms.flatliner_check imp
 
 
 @pytest.mark.parametrize(
-    ("load_values", "threshold_minutes", "detect_non_zero", "relative_tolerance", "expected"),
+    ("load_values", "threshold_minutes", "detect_non_zero", "absolute_tolerance", "relative_tolerance", "expected"),
     [
-        pytest.param([0, 0, 0, 0], 120, False, 1e-5, True, id="flatliner_all_zeros"),
-        pytest.param([1, 2, 2, 2], 120, True, 1e-5, True, id="flatliner_all_nonzero"),
-        pytest.param([1, 1, 2, 2], 120, True, 1e-5, False, id="no_flatliner_within_threshold_minutes"),
-        pytest.param([1, 2, 3, 4], 120, True, 1e-5, False, id="no_flatliner_all_different"),
-        pytest.param([1, 1, 1, 0.5], 120, True, 0.5, True, id="flatliner_within_tolerance"),
-        pytest.param([0, 0, 0, np.nan], 120, False, 1e-5, True, id="flatliner_trailing_nan"),
-        pytest.param([1, 0, 0, np.nan], 120, False, 1e-5, False, id="no_flatliner_trailing_nan"),
+        pytest.param([0, 0, 0, 0], 180, False, 0, 1e-5, True, id="flatliner_all_zeros"),
+        pytest.param([2, 2, 2, 2], 180, True, 0, 1e-5, True, id="flatliner_all_nonzero"),
+        pytest.param([1, 1, 2, 2], 120, True, 0, 1e-5, False, id="no_flatliner_within_threshold_minutes"),
+        pytest.param([1, 2, 3, 4], 120, True, 0, 1e-5, False, id="no_flatliner_all_different"),
+        pytest.param([1, 1, 1, 0.5], 180, True, 0, 0.5, True, id="flatliner_within_tolerance"),
+        pytest.param([0, 0, 0, np.nan], 180, False, 0, 1e-5, True, id="flatliner_trailing_nan"),
+        pytest.param([1, 0, 0, np.nan], 180, False, 0, 1e-5, False, id="no_flatliner_trailing_nan"),
+        pytest.param([1, 1, 2, 2], 180, True, 1, 0, True, id="flatliner_within_threshold_minutes_absolute_tolerance"),
+        pytest.param([0.5, 1, 2, 2], 180, True, 0.5, 0, False, id="no_flatliner_absolute_tolerance"),
+        pytest.param([1, 2, 3, 2], 180, True, 0.5, 0.5, True, id="flatliner_within_combined_tolerance"),
+        pytest.param([1, 2, 4, 2], 180, True, 0.5, 0.5, False, id="no_flatliner_combined_tolerance"),
     ],
 )
 def test_detect_ongoing_flatliner(
     load_values: list[float],
     threshold_minutes: int,
     detect_non_zero: bool,
+    absolute_tolerance: float,
     relative_tolerance: float,
     expected: bool,
 ) -> None:
@@ -42,6 +47,7 @@ def test_detect_ongoing_flatliner(
     transform = FlatlinerCheckTransform(
         flatliner_threshold_minutes=threshold_minutes,
         detect_non_zero_flatliner=detect_non_zero,
+        absolute_tolerance=absolute_tolerance,
         relative_tolerance=relative_tolerance,
     )
     # Act

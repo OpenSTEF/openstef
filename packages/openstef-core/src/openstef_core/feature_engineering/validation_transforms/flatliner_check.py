@@ -60,6 +60,10 @@ class FlatlinerCheckTransform(TimeSeriesTransform, BaseConfig):
         default=False,
         description="If True, flatliners are also detected on non-zero values (median of the load).",
     )
+    absolute_tolerance: float = Field(
+        default=0.0,
+        description="The absolute tolerance for considering values as equal when detecting flatliners.",
+    )
     relative_tolerance: float = Field(
         default=1e-5,
         description="The relative tolerance for considering values as equal when detecting flatliners.",
@@ -81,6 +85,9 @@ class FlatlinerCheckTransform(TimeSeriesTransform, BaseConfig):
     ) -> bool:
         """Detects if the latest measurements follow a flatliner pattern.
 
+        The following equation is used to test whether two floats are equivalent:
+        absolute(latest_measurement - flatliner_value) <= (atol + rtol * absolute(flatliner_value))
+
         Args:
             data: A timeseries of measured load with a DatetimeIndex.
                 The index must be a pd.DatetimeIndex.
@@ -100,7 +107,7 @@ class FlatlinerCheckTransform(TimeSeriesTransform, BaseConfig):
         flatline_condition = np.isclose(
             a=latest_measurements,
             b=flatliner_value,
-            atol=0,
+            atol=self.absolute_tolerance,
             rtol=self.relative_tolerance,
         ).all()
         non_empty_condition = not latest_measurements.empty
