@@ -531,7 +531,25 @@
 
 
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;MissingColumnsError&quot;</span><span class="p">,</span> <span class="s2">&quot;TimeSeriesValidationError&quot;</span><span class="p">,</span> <span class="s2">&quot;TransformNotFittedError&quot;</span><span class="p">]</span>
+<div class="viewcode-block" id="InsufficientlyCompleteError">
+<a class="viewcode-back" href="../../api/generated/openstef_core.exceptions.InsufficientlyCompleteError.html#openstef_core.exceptions.InsufficientlyCompleteError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">InsufficientlyCompleteError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Exception raised when a dataset is not sufficiently complete.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="InsufficientlyCompleteError.__init__">
+<a class="viewcode-back" href="../../api/generated/openstef_core.exceptions.InsufficientlyCompleteError.html#openstef_core.exceptions.InsufficientlyCompleteError.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the exception with a descriptive error message.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            message: Human-readable description of the completeness error.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">)</span></div>
+</div>
+
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;InsufficientlyCompleteError&quot;</span><span class="p">,</span> <span class="s2">&quot;MissingColumnsError&quot;</span><span class="p">,</span> <span class="s2">&quot;TimeSeriesValidationError&quot;</span><span class="p">,</span> <span class="s2">&quot;TransformNotFittedError&quot;</span><span class="p">]</span>
 </pre></div>
 
                 </article>

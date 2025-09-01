@@ -33,6 +33,7 @@ Classes
    :toctree: .
    :template: custom_class.rst
 
+   InsufficientlyCompleteError
    MissingColumnsError
    TimeSeriesValidationError
    TransformNotFittedError
