@@ -33,7 +33,7 @@ class ImputationStrategy(Enum):
     CONSTANT = "constant"
 
 
-class MissingValuesTransform(TimeSeriesTransform, BaseConfig):
+class MissingValuesTransform(BaseConfig, TimeSeriesTransform):
     """Transform that checks for, imputes and drops missing values in time series data.
 
     This transform applies imputation strategies to handle missing values in the dataset.
@@ -106,9 +106,13 @@ class MissingValuesTransform(TimeSeriesTransform, BaseConfig):
             raise ValueError("fill_value must be provided when imputation_strategy is CONSTANT")
         return self
 
-    def __init__(self, **data: Any):
-        """Initialize the MissingValuesTransform with the given configuration."""
-        super().__init__(**data)
+    def __init__(self, **kwargs: Any):
+        """Initialize the MissingValuesTransform.
+
+        Args:
+            **kwargs: Configuration parameters for the transform.
+        """
+        super().__init__(**kwargs)
 
         self._imputer = SimpleImputer(
             strategy=self.imputation_strategy.value,

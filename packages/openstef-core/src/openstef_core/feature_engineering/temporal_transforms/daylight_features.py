@@ -11,6 +11,7 @@ of time series datasets.
 
 import pandas as pd
 
+from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.datasets.transforms import TimeSeriesTransform
 
@@ -23,7 +24,7 @@ except ImportError as e:
     ) from e
 
 
-class DaylightFeatures(TimeSeriesTransform):
+class DaylightFeatures(BaseConfig, TimeSeriesTransform):
     """Transform that adds daylight features to time series data.
 
     Computes features that indicate the amount of daylight based on
@@ -49,16 +50,17 @@ class DaylightFeatures(TimeSeriesTransform):
         [0.0, 0.0, 0.0]
     """
 
-    def __init__(self, latitude: float, longitude: float) -> None:
+    latitude: float
+    longitude: float
+
+    def __init__(self, **kwargs: float) -> None:
         """Initialize the transform with geographical coordinates.
 
         Args:
-            latitude: Geographical latitude.
-            longitude: Geographical longitude.
+            **kwargs: Configuration parameters for the transform.
         """
-        self.latitude = latitude
-        self.longitude = longitude
-        self.daylight_continuous: pd.DataFrame = pd.DataFrame()
+        super().__init__(**kwargs)
+        self._daylight_continuous: pd.DataFrame = pd.DataFrame()
 
     def fit(self, data: TimeSeriesDataset) -> None:
         """Fit the transform to the given dataset by computing daylight features.
@@ -72,8 +74,8 @@ class DaylightFeatures(TimeSeriesTransform):
         if not data.index.tz:
             raise ValueError("The datetime index must be timezone-aware.")
         location = pvlib.location.Location(self.latitude, self.longitude, tz=str(data.index.tz))
-        clearsky_radiation: pd.DataFrame = location.get_clearsky(data.index)  # type: ignore[reportUnknownVariableType]
-        self.daylight_continuous = clearsky_radiation[["ghi"]].rename(columns={"ghi": "daylight_continuous"})
+        clearsky_radiation: pd.DataFrame = location.get_clearsky(data.index)  # type: ignore[reportUnknownMemberType]
+        self._daylight_continuous = clearsky_radiation[["ghi"]].rename(columns={"ghi": "daylight_continuous"})
 
     def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
         """Transform the given dataset by adding daylight features.
@@ -86,7 +88,7 @@ class DaylightFeatures(TimeSeriesTransform):
         """
         return TimeSeriesDataset(
             data=pd.concat(
-                [data.data, self.daylight_continuous],
+                [data.data, self._daylight_continuous],
                 axis=1,
             ),
             sample_interval=data.sample_interval,

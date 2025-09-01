@@ -118,10 +118,10 @@ def test_fit_creates_all_features(sample_dataset: TimeSeriesDataset):
         "quarter_of_year",
     ]
 
-    assert not transform.datetime_features.empty
-    assert list(transform.datetime_features.columns) == expected_columns
-    assert len(transform.datetime_features) == len(sample_dataset.index)
-    assert transform.datetime_features.index.equals(sample_dataset.index)
+    assert not transform._datetime_features.empty
+    assert list(transform._datetime_features.columns) == expected_columns
+    assert len(transform._datetime_features) == len(sample_dataset.index)
+    assert transform._datetime_features.index.equals(sample_dataset.index)
 
 
 def test_transform_adds_features(sample_dataset: TimeSeriesDataset):

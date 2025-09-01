@@ -52,26 +52,7 @@ def test_holiday_features_initialization():
 
     # Assert
     assert transform.country_code == "NL"
-    assert transform.include_individual_holidays is True
-    assert transform.holiday_features.empty
-
-
-@pytest.mark.parametrize(
-    ("country_code", "include_individual"),
-    [
-        pytest.param("NL", True, id="nl_individual"),
-        pytest.param("US", False, id="us_no_individual"),
-        pytest.param("DE", True, id="germany_individual"),
-    ],
-)
-def test_holiday_features_initialization_parameters(country_code: str, include_individual: bool):
-    """Test HolidayFeatures initialization with different parameters."""
-    # Act
-    transform = HolidayFeatures(country_code=country_code, include_individual_holiday_features=include_individual)
-
-    # Assert
-    assert transform.country_code == country_code
-    assert transform.include_individual_holidays == include_individual
+    assert transform._holiday_features.empty
 
 
 @pytest.mark.parametrize(
@@ -128,10 +109,10 @@ def test_get_country_holidays(mock_country_holidays: MagicMock, sample_dataset: 
     )
 
 
-def test_create_individual_holiday_features_enabled(sample_dataset: TimeSeriesDataset, mock_holidays: dict):
+def test_create_individual_holiday_features(sample_dataset: TimeSeriesDataset, mock_holidays: dict):
     """Test creation of individual holiday features when enabled."""
     # Arrange
-    transform = HolidayFeatures(country_code="NL", include_individual_holiday_features=True)
+    transform = HolidayFeatures(country_code="NL")
     index = sample_dataset.index
 
     # Act
@@ -149,20 +130,6 @@ def test_create_individual_holiday_features_enabled(sample_dataset: TimeSeriesDa
     assert result.loc["2025-12-25", "is_second_day_of_christmas"] == 0
 
 
-def test_create_individual_holiday_features_disabled(sample_dataset: TimeSeriesDataset, mock_holidays: dict):
-    """Test creation of individual holiday features when disabled."""
-    # Arrange
-    transform = HolidayFeatures(country_code="NL", include_individual_holiday_features=False)
-    index = sample_dataset.index
-
-    # Act
-    result = transform._create_individual_holiday_features(index, mock_holidays)
-
-    # Assert
-    assert result.empty
-    assert len(result) == len(sample_dataset.index)
-
-
 @patch("openstef_core.feature_engineering.temporal_transforms.holiday_features.holidays.country_holidays")
 def test_fit_creates_holiday_features(
     mock_country_holidays: MagicMock, sample_dataset: TimeSeriesDataset, mock_holidays: dict
@@ -176,11 +143,11 @@ def test_fit_creates_holiday_features(
     transform.fit(sample_dataset)
 
     # Assert
-    assert not transform.holiday_features.empty
-    assert "is_holiday" in transform.holiday_features.columns
-    assert "is_christmas_day" in transform.holiday_features.columns
-    assert "is_second_day_of_christmas" in transform.holiday_features.columns
-    assert len(transform.holiday_features) == len(sample_dataset.index)
+    assert not transform._holiday_features.empty
+    assert "is_holiday" in transform._holiday_features.columns
+    assert "is_christmas_day" in transform._holiday_features.columns
+    assert "is_second_day_of_christmas" in transform._holiday_features.columns
+    assert len(transform._holiday_features) == len(sample_dataset.index)
 
 
 @patch("openstef_core.feature_engineering.temporal_transforms.holiday_features.holidays.country_holidays")

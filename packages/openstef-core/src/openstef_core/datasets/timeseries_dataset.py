@@ -38,6 +38,12 @@ class TimeSeriesDataset(TimeSeriesMixin):
         - Consistent sampling interval across all data points
         - DateTime index for temporal operations
 
+    Attributes:
+        data: DataFrame with DatetimeIndex containing time series data.
+        sample_interval: Fixed time interval between consecutive data points.
+        index: Datetime index representing all timestamps in the dataset.
+        feature_names: Names of all available features, excluding metadata columns.
+
     Example:
         Create a simple time series dataset:
 
@@ -55,7 +61,9 @@ class TimeSeriesDataset(TimeSeriesMixin):
     """
 
     data: pd.DataFrame
-    _sample_interval: timedelta
+    sample_interval: timedelta
+    index: pd.DatetimeIndex
+    feature_names: list[str]
 
     def __init__(
         self,
@@ -86,35 +94,10 @@ class TimeSeriesDataset(TimeSeriesMixin):
             data = data.sort_index(ascending=True)
             data.attrs["is_sorted"] = True
 
-        self._sample_interval = sample_interval
         self.data = data
-
-    @property
-    def feature_names(self) -> list[str]:
-        """Names of all features (columns) in the dataset.
-
-        Returns:
-            List of column names excluding any metadata columns.
-        """
-        return self.data.columns.tolist()
-
-    @property
-    def sample_interval(self) -> timedelta:
-        """Fixed time interval between consecutive data points.
-
-        Returns:
-            The sampling interval for this time series.
-        """
-        return self._sample_interval
-
-    @property
-    def index(self) -> pd.DatetimeIndex:
-        """Datetime index of the time series.
-
-        Returns:
-            DatetimeIndex representing all timestamps in the dataset.
-        """
-        return cast(pd.DatetimeIndex, self.data.index)
+        self.sample_interval = sample_interval
+        self.index = cast(pd.DatetimeIndex, self.data.index)
+        self.feature_names = self.data.columns.tolist()
 
     def to_parquet(
         self,
@@ -132,12 +115,12 @@ class TimeSeriesDataset(TimeSeriesMixin):
             The sample interval is stored as an ISO 8601 duration string
             in the file's metadata attributes.
         """
-        self.data.attrs["sample_interval"] = timedelta_to_isoformat(self._sample_interval)
+        self.data.attrs["sample_interval"] = timedelta_to_isoformat(self.sample_interval)
         self.data.attrs["is_sorted"] = True
         self.data.to_parquet(path)
 
     @classmethod
-    def from_parquet(
+    def read_parquet(
         cls,
         path: Path,
     ) -> Self:
@@ -170,7 +153,7 @@ class TimeSeriesDataset(TimeSeriesMixin):
             >>> with tempfile.TemporaryDirectory() as tmpdir:
             ...     file_path = Path(tmpdir) / "data.parquet"
             ...     dataset.to_parquet(file_path)
-            ...     loaded = TimeSeriesDataset.from_parquet(file_path)
+            ...     loaded = TimeSeriesDataset.read_parquet(file_path)
             ...     loaded.feature_names == dataset.feature_names
             True
 
