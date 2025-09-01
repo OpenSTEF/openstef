@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>TargetProviderConfig &#8212; OpenSTEF 0.0.0 documentation</title>
+    <title>openstef_models.feature_engineering &#8212; OpenSTEF 0.0.0 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../_static/copybutton.js?v=97f0b27d"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'api/generated/openstef_beam.benchmarking.TargetProviderConfig';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/generated/openstef_models.feature_engineering';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = '_static/versions.json';
@@ -59,8 +59,8 @@
     <link rel="icon" href="../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Community" href="../../project/index.html" />
-    <link rel="prev" title="TargetProvider" href="openstef_beam.benchmarking.TargetProvider.html" />
+    <link rel="next" title="openstef_models.models" href="openstef_models.models.html" />
+    <link rel="prev" title="TransformNotFittedError" href="openstef_core.exceptions.TransformNotFittedError.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="0.0.0" />
@@ -434,8 +434,8 @@
 </ul>
 </details></li>
 </ul>
-<ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="openstef_models.feature_engineering.html">openstef_models.feature_engineering</a></li>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">openstef_models.feature_engineering</a></li>
 <li class="toctree-l1"><a class="reference internal" href="openstef_models.models.html">openstef_models.models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="openstef_models.pipelines.html">openstef_models.pipelines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="openstef_models.postprocessing.html">openstef_models.postprocessing</a></li>
@@ -450,7 +450,7 @@
 </ul>
 </details></li>
 </ul>
-<ul class="current nav bd-sidenav">
+<ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="openstef_beam.metrics.html">openstef_beam.metrics</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.confusion_matrix.html">confusion_matrix</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.crps.html">crps</a></li>
@@ -488,7 +488,7 @@
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.evaluation.Window.html">Window</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="openstef_beam.benchmarking.html">openstef_beam.benchmarking</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l1 has-children"><a class="reference internal" href="openstef_beam.benchmarking.html">openstef_beam.benchmarking</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.benchmarking.read_evaluation_reports.html">read_evaluation_reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.benchmarking.BenchmarkCallback.html">BenchmarkCallback</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.benchmarking.BenchmarkCallbackManager.html">BenchmarkCallbackManager</a></li>
@@ -502,7 +502,7 @@
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.benchmarking.S3BenchmarkStorage.html">S3BenchmarkStorage</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.benchmarking.StrictExecutionCallback.html">StrictExecutionCallback</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.benchmarking.TargetProvider.html">TargetProvider</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">TargetProviderConfig</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_beam.benchmarking.TargetProviderConfig.html">TargetProviderConfig</a></li>
 </ul>
 </details></li>
 </ul>
@@ -548,10 +548,7 @@
     
     <li class="breadcrumb-item"><a href="../index.html" class="nav-link">API Reference</a></li>
     
-    
-    <li class="breadcrumb-item"><a href="openstef_beam.benchmarking.html" class="nav-link">openstef_beam.benchmarking</a></li>
-    
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">TargetProviderConfig</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">openstef_models.feature_engineering</span></li>
   </ul>
 </nav>
 </div>
@@ -568,39 +565,12 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="targetproviderconfig">
-<h1>TargetProviderConfig<a class="headerlink" href="#targetproviderconfig" title="Link to this heading">#</a></h1>
-<dl class="py class">
-<dt class="sig sig-object py" id="openstef_beam.benchmarking.TargetProviderConfig">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef_beam.benchmarking.</span></span><span class="sig-name descname"><span class="pre">TargetProviderConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/openstef_beam/benchmarking/target_provider.html#TargetProviderConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_beam.benchmarking.TargetProviderConfig" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="openstef_core.base_model.BaseConfig.html#openstef_core.base_model.BaseConfig" title="openstef_core.base_model.BaseConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseConfig</span></code></a></p>
-<p>Configuration specifying data locations and path templates for target providers.</p>
-<p>Path templates support {name} placeholder for target-specific file generation.
-All paths are resolved relative to data_dir.</p>
-<p class="rubric">Examples</p>
-<p>Basic configuration with default templates:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">config</span> <span class="o">=</span> <span class="n">TargetProviderConfig</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Uses default values, can be extended by specific providers</span>
-</pre></div>
-</div>
-<p>Custom path configuration:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">config</span> <span class="o">=</span> <span class="n">TargetProviderConfig</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Provider-specific configs inherit from this base</span>
-</pre></div>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>data</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></span>)</p>
-</dd>
-</dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="openstef_beam.benchmarking.TargetProviderConfig.model_config">
-<span class="sig-name descname"><span class="pre">model_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar[ConfigDict]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'arbitrary_types_allowed':</span> <span class="pre">False,</span> <span class="pre">'extra':</span> <span class="pre">'ignore',</span> <span class="pre">'protected_namespaces':</span> <span class="pre">()}</span></em><a class="headerlink" href="#openstef_beam.benchmarking.TargetProviderConfig.model_config" title="Link to this definition">#</a></dt>
-<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
-</dd></dl>
-
-</dd></dl>
-
+  <section id="module-openstef_models.feature_engineering">
+<span id="openstef-models-feature-engineering"></span><h1>openstef_models.feature_engineering<a class="headerlink" href="#module-openstef_models.feature_engineering" title="Link to this heading">#</a></h1>
+<p>Feature engineering utilities for OpenSTEF.</p>
+<p>Top-level package for feature engineering helpers used across models and
+pipelines. Provides subpackages for validation, temporal, forecasting,
+weather and energy-domain feature transforms.</p>
 </section>
 
 
@@ -614,20 +584,20 @@ All paths are resolved relative to data_dir.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="openstef_beam.benchmarking.TargetProvider.html"
+       href="openstef_core.exceptions.TransformNotFittedError.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">TargetProvider</p>
+        <p class="prev-next-title">TransformNotFittedError</p>
       </div>
     </a>
     <a class="right-next"
-       href="../../project/index.html"
+       href="openstef_models.models.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Community</p>
+        <p class="prev-next-title">openstef_models.models</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -643,25 +613,10 @@ All paths are resolved relative to data_dir.</p>
 
 
   <div class="sidebar-secondary-item">
-<div
-    id="pst-page-navigation-heading-2"
-    class="page-toc tocsection onthispage">
-    <i class="fa-solid fa-list"></i> On this page
-  </div>
-  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
-    <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_beam.benchmarking.TargetProviderConfig"><code class="docutils literal notranslate"><span class="pre">TargetProviderConfig</span></code></a><ul class="visible nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_beam.benchmarking.TargetProviderConfig.model_config"><code class="docutils literal notranslate"><span class="pre">TargetProviderConfig.model_config</span></code></a></li>
-</ul>
-</li>
-</ul>
-  </nav></div>
-
-  <div class="sidebar-secondary-item">
 
   
   <div class="tocsection editthispage">
-    <a href="https://github.com/OpenSTEF/openstef/edit/main/docs/source/api/generated/openstef_beam.benchmarking.TargetProviderConfig.rst">
+    <a href="https://github.com/OpenSTEF/openstef/edit/main/docs/source/api/generated/openstef_models.feature_engineering.rst">
       <i class="fa-solid fa-pencil"></i>
       
       
@@ -677,7 +632,7 @@ All paths are resolved relative to data_dir.</p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../../_sources/api/generated/openstef_beam.benchmarking.TargetProviderConfig.rst.txt"
+      <li><a href="../../_sources/api/generated/openstef_models.feature_engineering.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div></div>
