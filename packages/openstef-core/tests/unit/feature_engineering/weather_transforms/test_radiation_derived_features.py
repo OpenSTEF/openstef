@@ -261,9 +261,6 @@ def test_transform_with_missing_custom_radiation_column():
         transform.transform(dataset)
 
 
-# Integration tests with real pvlib calls
-
-
 @pytest.mark.parametrize(
     ("latitude", "longitude", "timezone"),
     [

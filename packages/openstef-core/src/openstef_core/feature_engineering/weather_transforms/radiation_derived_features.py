@@ -26,11 +26,15 @@ logger = logging.getLogger(__name__)
 class RadiationDerivedFeaturesTransform(BaseConfig, TimeSeriesTransform):
     """Transform that adds radiation derived features to time series data.
 
-    Computes features that are derived from radiation data based on geographical coordinates
+    Computes features that are derived from radiation data (in J/m²) based on geographical coordinates
     (latitude and longitude) and solar position.
     The features added can include:
         - dni: Direct Normal Irradiance (DNI) in kWh/m².
         - gti: Global Tilted Irradiance (GTI) in kWh/m² on a tilted surface.
+
+    Note:
+        The input radiation data must be in J/m² units. The transform will automatically
+        convert this to kWh/m² for internal calculations.
 
     Example:
         >>> import pandas as pd
