@@ -10,7 +10,7 @@ malfunction, data transmission errors, or other anomalies in energy forecasting 
 """
 
 from datetime import timedelta
-from typing import cast
+from typing import cast, override
 
 import numpy as np
 import pandas as pd
@@ -125,6 +125,7 @@ class FlatlinerCheckTransform(TimeSeriesTransform, BaseConfig):
 
         return bool(flatline_condition & non_empty_condition)
 
+    @override
     def fit(self, data: TimeSeriesDataset) -> None:
         """Fits the flatliner check by detecting ongoing flatliner patterns.
 
@@ -145,6 +146,7 @@ class FlatlinerCheckTransform(TimeSeriesTransform, BaseConfig):
         if self.error_on_flatliner and self._is_flatliner_detected:
             raise FlatlinerDetectedError("Flatliner detected in the provided load data.")
 
+    @override
     def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
         """Returns the input data unchanged, optionally checking for flatliners.
 
