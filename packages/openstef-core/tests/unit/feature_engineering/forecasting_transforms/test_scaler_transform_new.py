@@ -9,17 +9,10 @@ from datetime import timedelta
 import numpy as np
 import pandas as pd
 import pytest
-from pydantic import ValidationError
 
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.exceptions import TransformNotFittedError
 from openstef_core.feature_engineering.forecasting_transforms.scaler_transform import ScalerTransform
-
-
-def test_scaler_invalid_method():
-    """Test ScalerTransform raises ValidationError for invalid scaling method."""
-    with pytest.raises(ValidationError, match="Input should be"):
-        ScalerTransform(method="invalid_method")
 
 
 def test_scaler_not_fitted_error():

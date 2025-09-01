@@ -34,7 +34,7 @@ dependencies = [
 optional-dependencies.all = [
   "openstef-beam[boto]",
   "openstef-compatibility",
-  "openstef-core",
+  "openstef-core[feature-engineering]",
   "openstef-models",
 ]
 optional-dependencies.beam = [
@@ -177,7 +177,7 @@ include = [
   "examples/**/*.py",
   "packages/*/src/**/*.py",
   "packages/*/examples/**/*.py",
-  # "packages/*/tests/**/*.py",
+  "packages/*/tests/**/*.py",
 ]
 typeCheckingMode = "strict"
 reportPrivateImportUsage = false

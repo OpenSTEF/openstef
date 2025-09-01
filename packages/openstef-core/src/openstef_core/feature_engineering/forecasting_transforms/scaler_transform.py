@@ -10,30 +10,24 @@ for improved machine learning model performance.
 """
 
 from enum import StrEnum
-from typing import cast
+from typing import Any, Literal, cast, override
 
+from openstef_core.exceptions import MissingExtraError, TransformNotFittedError
 import pandas as pd
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.datasets.transforms import TimeSeriesTransform
+from pydantic import Field, PrivateAttr
+from sklearn.base import TransformerMixin
 
 try:
     from sklearn.preprocessing import MaxAbsScaler, MinMaxScaler, RobustScaler, StandardScaler
 except ImportError as e:
-    raise ImportError(
-        "scikit-learn is required for the ScalerTransform transform. Please install it via "
-        "`uv sync --group ml --package openstef-core` or `uv sync --all-groups --package openstef-core`."
-    ) from e
+    raise MissingExtraError("feature_engineering") from e
 
 
-class ScalingMethod(StrEnum):
-    """Scaling methods from sklearn.preprocessing."""
-
-    MinMax = "min-max"
-    MaxAbs = "max-abs"
-    Standard = "standard"
-    Robust = "robust"
+type ScalingMethod = Literal["min-max", "max-abs", "standard", "robust"]
 
 
 class ScalerTransform(BaseConfig, TimeSeriesTransform):
@@ -49,9 +43,7 @@ class ScalerTransform(BaseConfig, TimeSeriesTransform):
         >>> import pandas as pd
         >>> from datetime import timedelta
         >>> from openstef_core.datasets import TimeSeriesDataset
-        >>> from openstef_core.feature_engineering.forecasting_transforms.scaler_transform import (
-        ...     ScalerTransform, ScalingMethod
-        ... )
+        >>> from openstef_core.feature_engineering.forecasting_transforms.scaler_transform import ScalerTransform
         >>>
         >>> # Create sample dataset
         >>> data = pd.DataFrame({
@@ -61,7 +53,7 @@ class ScalerTransform(BaseConfig, TimeSeriesTransform):
         >>> dataset = TimeSeriesDataset(data, timedelta(hours=1))
         >>>
         >>> # Initialize and apply transform
-        >>> scaler = ScalerTransform(method=ScalingMethod.Standard)
+        >>> scaler = ScalerTransform(method="standard)
         >>> scaler.fit(dataset)
         >>> transformed_dataset = scaler.transform(dataset)
         >>> abs(float(transformed_dataset.data['load'].mean().round(6)))
@@ -75,31 +67,24 @@ class ScalerTransform(BaseConfig, TimeSeriesTransform):
         1.0
     """
 
-    method: ScalingMethod
+    method: ScalingMethod = Field(description="Scaling method to use.")
 
-    def __init__(self, **kwargs: ScalingMethod):
-        """Initialize the Scaler transform with the scaler method.
+    _scaler: MinMaxScaler | MaxAbsScaler | StandardScaler | RobustScaler = PrivateAttr()
+    _is_fitted: bool = PrivateAttr(default=False)
 
-        Args:
-            **kwargs: Configuration parameters for the transform.
-
-        Raises:
-            ValueError: If an unsupported scaling method is provided.
-        """
-        super().__init__(**kwargs)
+    @override
+    def model_post_init(self, context: Any) -> None:
         match self.method:
-            case ScalingMethod.MinMax:
+            case "min-max":
                 self._scaler = MinMaxScaler()
-            case ScalingMethod.MaxAbs:
+            case "max-abs":
                 self._scaler = MaxAbsScaler()
-            case ScalingMethod.Standard:
+            case "standard":
                 self._scaler = StandardScaler()
-            case ScalingMethod.Robust:
+            case "robust":
                 self._scaler = RobustScaler()
-            case _:
-                msg = f"Unsupported normalization method: {self.method}"
-                raise ValueError(msg)
 
+    @override
     def fit(self, data: TimeSeriesDataset) -> None:
         """Fit the scaler to the input time series data.
 
@@ -107,16 +92,13 @@ class ScalerTransform(BaseConfig, TimeSeriesTransform):
             data: Time series dataset.
         """
         self._scaler.fit(data.data)  # type: ignore[reportUnknownMemberType]
+        self._is_fitted = True
 
+    @override
     def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
-        """Transform the input time series data using the fitted scaler.
+        if not self._is_fitted:
+            raise TransformNotFittedError(self.__class__.__name__)
 
-        Args:
-            data: Time series dataset to transform.
-
-        Returns:
-            A new TimeSeriesDataset instance containing the scaled data.
-        """
         scaled_data = pd.DataFrame(
             data=cast(pd.DataFrame, self._scaler.transform(data.data)),
             columns=data.data.columns,

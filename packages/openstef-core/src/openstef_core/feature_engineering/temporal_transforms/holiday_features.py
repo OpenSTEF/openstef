@@ -11,8 +11,9 @@ whether a date is a holiday or a specific holiday.
 """
 
 from datetime import date
+from typing import override
 
-import holidays
+import holidays  # TODO: we should either add this to a group, or move the transforms to models module.
 import pandas as pd
 
 from openstef_core.base_model import BaseConfig
@@ -20,7 +21,7 @@ from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.datasets.transforms import TimeSeriesTransform
 
 
-class HolidayFeatures(BaseConfig, TimeSeriesTransform):
+class HolidayFeaturesTransform(BaseConfig, TimeSeriesTransform):
     """Transform that adds holiday features to time series data.
 
     Computes features that indicate whether a date is a holiday
@@ -140,6 +141,7 @@ class HolidayFeatures(BaseConfig, TimeSeriesTransform):
 
         return holiday_features
 
+    @override
     def fit(self, data: TimeSeriesDataset) -> None:
         """Fit the transform to the data by identifying holidays.
 
@@ -155,6 +157,7 @@ class HolidayFeatures(BaseConfig, TimeSeriesTransform):
         # Combine all features
         self._holiday_features = pd.concat([general_feature, individual_features], axis=1)
 
+    @override
     def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
         """Transform the dataset by adding holiday features.
 

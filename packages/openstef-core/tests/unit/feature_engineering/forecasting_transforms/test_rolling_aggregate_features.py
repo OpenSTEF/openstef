@@ -9,136 +9,145 @@ import pandas as pd
 import pytest
 
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.feature_engineering.forecasting_transforms.rolling_aggregate_features import (
-    AggregationFunction,
-    RollingAggregateFeatures,
+from openstef_core.exceptions import MissingColumnsError
+from openstef_core.feature_engineering.forecasting_transforms.rolling_aggregate_transform import (
+    RollingAggregateTransform,
 )
 
 
-@pytest.mark.parametrize(
-    "rolling_window",
-    [
-        pytest.param(timedelta(days=1), id="1 day"),
-        pytest.param(timedelta(hours=24), id="24 hours"),
-    ],
-)
-def test_rolling_aggregate_features(rolling_window: timedelta):
+def test_rolling_aggregate_features_basic():
+    """Test basic rolling aggregation with simple data."""
     # Arrange
-    num_points = int(24 * 60 / 15 * 2)  # 2 days of data at 15-minute intervals
     data = pd.DataFrame(
-        data={"load": list(range(num_points))},
-        index=pd.date_range(start="2023-01-01 00:00:00", freq="15min", periods=num_points),
+        {"load": [1.0, 2.0, 3.0, 4.0, 5.0]},
+        index=pd.date_range("2023-01-01 00:00:00", periods=5, freq="1h"),
     )
-    dataset = TimeSeriesDataset(data, sample_interval=timedelta(minutes=15))
+    dataset = TimeSeriesDataset(data, sample_interval=timedelta(hours=1))
 
-    transform = RollingAggregateFeatures(
-        rolling_window_size=rolling_window,
-        aggregation_functions=[
-            AggregationFunction.MEDIAN,
-            AggregationFunction.MIN,
-            AggregationFunction.MAX,
-        ],
+    transform = RollingAggregateTransform(
+        columns=["load"],
+        rolling_window_size=timedelta(hours=2),  # 2-hour window
+        aggregation_functions=["mean", "max", "min"],
     )
 
     # Act
-    transformed_dataset = transform.fit_transform(dataset)
-    output_data = transformed_dataset.data
+    result = transform.transform(dataset)
 
     # Assert
-    assert transformed_dataset.sample_interval == dataset.sample_interval
-    # Verify the columns are created
-    assert "rolling_median_load_P1D" in output_data.columns
-    assert "rolling_max_load_P1D" in output_data.columns
-    assert "rolling_min_load_P1D" in output_data.columns
+    assert result.sample_interval == dataset.sample_interval
 
-    # Validate the rolling features
-    rolling_window_load = data["load"].rolling(window=rolling_window)
-    rolling_median_expected = rolling_window_load.median()
-    rolling_max_expected = rolling_window_load.max()
-    rolling_min_expected = rolling_window_load.min()
+    # Check columns exist
+    assert "rolling_mean_load_PT2H" in result.data.columns
+    assert "rolling_max_load_PT2H" in result.data.columns
+    assert "rolling_min_load_PT2H" in result.data.columns
 
-    assert np.allclose(output_data["rolling_median_load_P1D"], rolling_median_expected)
-    assert np.allclose(output_data["rolling_max_load_P1D"], rolling_max_expected)
-    assert np.allclose(output_data["rolling_min_load_P1D"], rolling_min_expected)
+    # Check values (2-hour rolling window)
+    # Index 0: [1] -> mean=1, max=1, min=1
+    # Index 1: [1,2] -> mean=1.5, max=2, min=1
+    # Index 2: [2,3] -> mean=2.5, max=3, min=2
+    # Index 3: [3,4] -> mean=3.5, max=4, min=3
+    # Index 4: [4,5] -> mean=4.5, max=5, min=4
+    expected_mean = [1.0, 1.5, 2.5, 3.5, 4.5]
+    expected_max = [1.0, 2.0, 3.0, 4.0, 5.0]
+    expected_min = [1.0, 1.0, 2.0, 3.0, 4.0]
+
+    assert result.data["rolling_mean_load_PT2H"].tolist() == expected_mean
+    assert result.data["rolling_max_load_PT2H"].tolist() == expected_max
+    assert result.data["rolling_min_load_PT2H"].tolist() == expected_min
 
 
-def test_rolling_aggregate_features_flatline():
+def test_rolling_aggregate_features_with_nan():
+    """Test rolling aggregation handles NaN values correctly."""
     # Arrange
-    num_points = int(24 * 60 / 15 * 2)  # 2 days of data at 15-minute intervals
-    all_ones = [1.0] * num_points
     data = pd.DataFrame(
-        data={"load": all_ones}, index=pd.date_range(start="2023-01-01 00:00:00", freq="15min", periods=num_points)
+        {"load": [1.0, np.nan, 3.0, 4.0]},
+        index=pd.date_range("2023-01-01 00:00:00", periods=4, freq="1h"),
     )
-    dataset = TimeSeriesDataset(data, sample_interval=timedelta(minutes=15))
+    dataset = TimeSeriesDataset(data, sample_interval=timedelta(hours=1))
 
-    transform = RollingAggregateFeatures(
-        rolling_window_size=timedelta(hours=24),
-        aggregation_functions=[
-            AggregationFunction.MEDIAN,
-            AggregationFunction.MIN,
-            AggregationFunction.MAX,
-        ],
+    transform = RollingAggregateTransform(
+        columns=["load"],
+        rolling_window_size=timedelta(hours=2),
+        aggregation_functions=["mean"],
     )
 
     # Act
-    transformed_dataset = transform.fit_transform(dataset)
-    output_data = transformed_dataset.data
+    result = transform.transform(dataset)
 
-    # Verify the columns are created
-    assert "rolling_median_load_P1D" in output_data.columns
-    assert "rolling_max_load_P1D" in output_data.columns
-    assert "rolling_min_load_P1D" in output_data.columns
+    # Assert
+    # Index 0: [1] -> mean=1.0
+    # Index 1: [1, NaN] -> mean=1.0 (pandas ignores NaN)
+    # Index 2: [NaN, 3] -> mean=3.0 (pandas ignores NaN)
+    # Index 3: [3, 4] -> mean=3.5
+    expected_mean = [1.0, 1.0, 3.0, 3.5]
 
-    # Validate the rolling features
-    assert np.all(output_data["rolling_median_load_P1D"] == all_ones)
-    assert np.all(output_data["rolling_max_load_P1D"] == all_ones)
-    assert np.all(output_data["rolling_min_load_P1D"] == all_ones)
+    assert result.data["rolling_mean_load_PT2H"].tolist() == expected_mean
 
 
-def test_rolling_aggregate_features_nans():
+def test_rolling_aggregate_features_multiple_columns():
+    """Test rolling aggregation on multiple columns."""
     # Arrange
-    # Generate data with NaNs in middle and at the end
-    load = [1, 2, np.nan, 4, 5, 6, 7, 8, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan]
-    num_points = len(load)
     data = pd.DataFrame(
-        data={"load": load}, index=pd.date_range(start="2023-01-01 00:00:00", freq="15min", periods=num_points)
+        {
+            "load": [10.0, 20.0, 30.0],
+            "temperature": [1.0, 2.0, 3.0],
+        },
+        index=pd.date_range("2023-01-01 00:00:00", periods=3, freq="1h"),
     )
-    dataset = TimeSeriesDataset(data, sample_interval=timedelta(minutes=15))
+    dataset = TimeSeriesDataset(data, sample_interval=timedelta(hours=1))
 
-    transform = RollingAggregateFeatures(
-        rolling_window_size=timedelta(hours=1),
-        aggregation_functions=[
-            AggregationFunction.MEDIAN,
-            AggregationFunction.MIN,
-            AggregationFunction.MAX,
-        ],
+    transform = RollingAggregateTransform(
+        columns=["load", "temperature"],
+        rolling_window_size=timedelta(hours=2),
+        aggregation_functions=["mean"],
     )
 
     # Act
-    transformed_dataset = transform.fit_transform(dataset)
-    output_data = transformed_dataset.data
+    result = transform.transform(dataset)
 
-    # Verify the columns are created
-    assert "rolling_median_load_PT1H" in output_data.columns
-    assert "rolling_max_load_PT1H" in output_data.columns
-    assert "rolling_min_load_PT1H" in output_data.columns
+    # Assert
+    assert "rolling_mean_load_PT2H" in result.data.columns
+    assert "rolling_mean_temperature_PT2H" in result.data.columns
 
-    # Validate the rolling features
-    assert np.allclose(
-        output_data["rolling_median_load_PT1H"],
-        [1, 1.5, 1.5, 2, 4, 5, 5.5, 6.5, 6.5, 6.5, 6.5, 6.5, 6.5, 6.5],
-    )
-    assert np.allclose(output_data["rolling_max_load_PT1H"], [1, 2, 2, 4, 5, 6, 7, 8, 8, 8, 8, 8, 8, 8])
-    assert np.allclose(output_data["rolling_min_load_PT1H"], [1, 1, 1, 1, 2, 4, 4, 5, 5, 5, 5, 5, 5, 5])
+    # Original columns should still be present
+    assert "load" in result.data.columns
+    assert "temperature" in result.data.columns
+
+    # Check values
+    assert result.data["rolling_mean_load_PT2H"].tolist() == [10.0, 15.0, 25.0]
+    assert result.data["rolling_mean_temperature_PT2H"].tolist() == [1.0, 1.5, 2.5]
 
 
-def test_rolling_aggregate_features_no_load_column():
-    # Test for dataframe without load column
+def test_rolling_aggregate_features_missing_column_raises_error():
+    """Test that transform raises error when required column is missing."""
+    # Arrange
     data = pd.DataFrame(
-        index=pd.date_range(start="2023-01-01 00:00:00", freq="15min", periods=10),
-        columns=["not_load"],
+        {"not_load": [1.0, 2.0, 3.0]},
+        index=pd.date_range("2023-01-01 00:00:00", periods=3, freq="1h"),
     )
     dataset = TimeSeriesDataset(data, sample_interval=timedelta(minutes=15))
+    transform = RollingAggregateTransform(columns=["load"])
 
-    with pytest.raises(ValueError, match="The DataFrame must contain a 'load' column"):
-        RollingAggregateFeatures().fit(dataset)
+    # Act & Assert
+    with pytest.raises(MissingColumnsError, match="Missing required columns"):
+        transform.transform(dataset)
+
+
+def test_rolling_aggregate_features_default_parameters():
+    """Test transform works with default parameters."""
+    # Arrange
+    data = pd.DataFrame(
+        {"load": [1.0, 2.0, 3.0]},
+        index=pd.date_range("2023-01-01 00:00:00", periods=3, freq="1h"),
+    )
+    dataset = TimeSeriesDataset(data, sample_interval=timedelta(hours=1))
+
+    transform = RollingAggregateTransform(columns=["load"])
+
+    # Act
+    result = transform.transform(dataset)
+
+    # Assert - default is 24-hour window with median, min, max
+    assert "rolling_median_load_P1D" in result.data.columns
+    assert "rolling_min_load_P1D" in result.data.columns
+    assert "rolling_max_load_P1D" in result.data.columns

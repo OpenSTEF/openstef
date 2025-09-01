@@ -16,7 +16,25 @@ from collections.abc import Sequence
 import pandas as pd
 
 from openstef_core.datasets.mixins import TimeSeriesMixin
-from openstef_core.exceptions import InvalidColumnTypeError, TimeSeriesValidationError
+from openstef_core.exceptions import InvalidColumnTypeError, MissingColumnsError, TimeSeriesValidationError
+
+
+def validate_required_columns(dataset: TimeSeriesMixin, required_columns: list[str]) -> None:
+    """Check if the dataset contains all required columns.
+
+    Validates that the dataset includes all specified required columns,
+    raising an error if any are missing.
+
+    Args:
+        dataset: The time series dataset to validate.
+        required_columns: List of column names that must be present in the dataset.
+
+    Raises:
+        MissingColumnsError: If any required columns are missing from the dataset.
+    """
+    missing_columns = [col for col in required_columns if col not in dataset.feature_names]
+    if missing_columns:
+        raise MissingColumnsError(missing_columns=missing_columns)
 
 
 def validate_disjoint_columns(datasets: Sequence[TimeSeriesMixin]) -> None:

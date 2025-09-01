@@ -9,14 +9,18 @@ minimum and maximum ranges during training, preventing out-of-range values
 during inference and improving model robustness.
 """
 
+from typing import override
+
 import pandas as pd
+from pydantic import Field, PrivateAttr
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.datasets.transforms import TimeSeriesTransform
+from openstef_core.exceptions import TransformNotFittedError
 
 
-class FeatureClipper(BaseConfig, TimeSeriesTransform):
+class ClippingTransform(BaseConfig, TimeSeriesTransform):
     """Transform that clips specified features to their observed min and max values.
 
     This transform learns the minimum and maximum values of specified features
@@ -55,36 +59,23 @@ class FeatureClipper(BaseConfig, TimeSeriesTransform):
 
     """
 
-    column_names: list[str]
+    column_names: list[str] = Field(description="Columns to apply clipping to.")
 
-    def __init__(self, **kwargs: list[str]) -> None:
-        """Initialize the FeatureClipper transform.
+    _feature_mins: pd.Series = PrivateAttr(default_factory=pd.Series)
+    _feature_maxs: pd.Series = PrivateAttr(default_factory=pd.Series)
+    _is_fitted: bool = PrivateAttr(default=False)
 
-        Args:
-            **kwargs: Configuration parameters for the transform.
-        """
-        super().__init__(**kwargs)
-        self._feature_mins: pd.Series = pd.Series()
-        self._feature_maxs: pd.Series = pd.Series()
-
+    @override
     def fit(self, data: TimeSeriesDataset) -> None:
-        """Fit the transform to the data by learning the min and max values.
-
-        Args:
-            data: Time series dataset.
-        """
         self._feature_mins = data.data.reindex(self.column_names, axis=1).min()
         self._feature_maxs = data.data.reindex(self.column_names, axis=1).max()
+        self._is_fitted = True
 
+    @override
     def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
-        """Transform the input time series data by clipping specified features to their learned min and max values.
+        if not self._is_fitted:
+            raise TransformNotFittedError(self.__class__.__name__)
 
-        Args:
-            data: Time series dataset.
-
-        Returns:
-            Transformed time series dataset with clipped features.
-        """
         min_aligned = self._feature_mins.reindex(data.feature_names)
         max_aligned = self._feature_maxs.reindex(data.feature_names)
 
