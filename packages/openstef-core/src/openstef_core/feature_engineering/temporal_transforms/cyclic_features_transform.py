@@ -72,7 +72,6 @@ class CyclicFeaturesTransform(BaseConfig, TimeSeriesTransform):
         "Options are 'timeOfDay', 'season', 'dayOfWeek', and 'month'.",
     )
 
-
     @staticmethod
     def _compute_cyclic_feature(
         phase: pd.Index,
@@ -114,36 +113,44 @@ class CyclicFeaturesTransform(BaseConfig, TimeSeriesTransform):
         """
         features: list[pd.DataFrame] = []
         if "season" in self.included_features:
-            features.append(self._compute_cyclic_feature(
-                phase=data.index.dayofyear,
-                period=NUM_DAYS_IN_YEAR,
-                index=data.index,
-                name="season",
-            ))
+            features.append(
+                self._compute_cyclic_feature(
+                    phase=data.index.dayofyear,
+                    period=NUM_DAYS_IN_YEAR,
+                    index=data.index,
+                    name="season",
+                )
+            )
 
         if "dayOfWeek" in self.included_features:
-            features.append(self._compute_cyclic_feature(
-                phase=data.index.day_of_week,
-                period=NUM_DAYS_IN_WEEK,
-                index=data.index,
-                name="dayOfWeek",
-            ))
+            features.append(
+                self._compute_cyclic_feature(
+                    phase=data.index.day_of_week,
+                    period=NUM_DAYS_IN_WEEK,
+                    index=data.index,
+                    name="dayOfWeek",
+                )
+            )
 
         if "month" in self.included_features:
-            features.append(self._compute_cyclic_feature(
-                phase=data.index.month,
-                period=NUM_MONTHS_IN_YEAR,
-                index=data.index,
-                name="month",
-            ))
+            features.append(
+                self._compute_cyclic_feature(
+                    phase=data.index.month,
+                    period=NUM_MONTHS_IN_YEAR,
+                    index=data.index,
+                    name="month",
+                )
+            )
 
         if "timeOfDay" in self.included_features:
-            features.append(self._compute_cyclic_feature(
-                phase=data.index.hour * 3600 + data.index.minute * 60 + data.index.second,
-                period=NUM_SECONDS_IN_A_DAY,
-                index=data.index,
-                name="timeOfDay",
-            ))
+            features.append(
+                self._compute_cyclic_feature(
+                    phase=data.index.hour * 3600 + data.index.minute * 60 + data.index.second,
+                    period=NUM_SECONDS_IN_A_DAY,
+                    index=data.index,
+                    name="timeOfDay",
+                )
+            )
 
         return TimeSeriesDataset(
             data=pd.concat(

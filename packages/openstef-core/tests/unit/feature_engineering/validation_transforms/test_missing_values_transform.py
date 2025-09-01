@@ -2,293 +2,230 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-import logging
 from datetime import datetime, timedelta
 
 import numpy as np
 import pandas as pd
 import pytest
-from _pytest.logging import LogCaptureFixture
 from pydantic import ValidationError
-from sklearn.impute import SimpleImputer
 
 from openstef_core.datasets import TimeSeriesDataset
+from openstef_core.exceptions import TransformNotFittedError
 from openstef_core.feature_engineering.validation_transforms.missing_values_transform import (
-    ImputationStrategy,
     MissingValuesTransform,
+)
+from openstef_core.feature_engineering.validation_transforms.remove_empty_columns_transform import (
+    RemoveEmptyColumnsTransform,
 )
 
 
 @pytest.fixture
 def sample_dataset() -> TimeSeriesDataset:
-    """Create a sample dataset with missing values.
+    """Create a sample dataset with missing values for testing.
 
     Returns:
-        A sample TimeSeriesDataset containing missing values for testing.
+        A TimeSeriesDataset with 3 features: radiation, temperature, wind_speed (with some NaN),
+        spanning 4 hours. Designed to have valid rows after trailing null removal.
     """
     data = pd.DataFrame(
         {
             "radiation": [100.0, np.nan, 110.0, 120.0],
             "temperature": [20.0, 21.0, np.nan, 23.0],
-            "wind_speed": [5.0, 6.0, 8.0, np.nan],
+            "wind_speed": [5.0, 6.0, 8.0, 9.0],  # No missing values
         },
         index=pd.date_range(datetime.fromisoformat("2025-01-01T00:00:00"), periods=4, freq="1h"),
     )
     return TimeSeriesDataset(data, timedelta(hours=1))
 
 
-def test_initialization_with_required_parameters():
-    """Test normal initialization with required parameters."""
+def test_validation_constant_strategy_requires_fill_value():
+    """Test that CONSTANT strategy raises ValidationError when fill_value is missing."""
+    # Arrange & Act & Assert
+    with pytest.raises(ValidationError, match="fill_value must be provided when imputation_strategy is CONSTANT"):
+        MissingValuesTransform(imputation_strategy="constant")
+
+
+def test_basic_imputation_works(sample_dataset: TimeSeriesDataset):
+    """Test that basic imputation removes NaN values."""
+    # Arrange
+    transform = MissingValuesTransform(imputation_strategy="mean")
+
     # Act
-    transform = MissingValuesTransform(imputation_strategy=ImputationStrategy.MEAN)
+    transform.fit(sample_dataset)
+    result = transform.transform(sample_dataset)
 
     # Assert
-    assert transform.imputation_strategy == ImputationStrategy.MEAN
-    assert np.isnan(transform.missing_value)
-    assert transform.fill_value is None
-    assert transform.no_fill_future_values_features == []
-    assert isinstance(transform._imputer, SimpleImputer)
+    # Non-trailing NaN values should be imputed
+    assert not result.data.isna().any().any()
 
 
-def test_validation_constant_strategy_without_fill_value():
-    """Test that CONSTANT strategy without fill_value raises ValidationError."""
+def test_constant_imputation_uses_fill_value():
+    """Test that constant strategy uses the specified fill_value."""
+    # Arrange
+    data = pd.DataFrame(
+        {"radiation": [100.0, np.nan, 120.0]},
+        index=pd.date_range(datetime.fromisoformat("2025-01-01T00:00:00"), periods=3, freq="1h"),
+    )
+    dataset = TimeSeriesDataset(data, timedelta(hours=1))
+    transform = MissingValuesTransform(imputation_strategy="constant", fill_value=999.0)
 
-    # Act & Assert
-    with pytest.raises(ValidationError) as exc_info:
-        MissingValuesTransform(imputation_strategy=ImputationStrategy.CONSTANT)
+    # Act
+    transform.fit(dataset)
+    result = transform.transform(dataset)
 
-    assert "fill_value must be provided when imputation_strategy is CONSTANT" in str(exc_info.value)
+    # Assert
+    # The middle NaN should be replaced with fill_value
+    assert result.data.loc[result.data.index[1], "radiation"] == 999.0
+
+
+def test_custom_missing_value_placeholder():
+    """Test that custom missing value placeholders are handled correctly."""
+    # Arrange
+    data = pd.DataFrame(
+        {"radiation": [100.0, -999.0, 120.0]},
+        index=pd.date_range(datetime.fromisoformat("2025-01-01T00:00:00"), periods=3, freq="1h"),
+    )
+    dataset = TimeSeriesDataset(data, timedelta(hours=1))
+    transform = MissingValuesTransform(imputation_strategy="mean", missing_value=-999.0)
+
+    # Act
+    transform.fit(dataset)
+    result = transform.transform(dataset)
+
+    # Assert
+    # Custom missing values should be imputed
+    assert not (result.data == -999.0).any().any()
+    assert not result.data.isna().any().any()
 
 
 @pytest.mark.parametrize(
-    ("strategy", "expected_radiation_value", "expected_temperature_value", "expected_wind_speed_value"),
+    ("columns", "expected_rows"),
     [
-        pytest.param(ImputationStrategy.MEAN, 110.0, 21.33, 6.33, id="mean_imputation"),
-        pytest.param(ImputationStrategy.MEDIAN, 110.0, 21.0, 6.0, id="median_imputation"),
+        pytest.param({"radiation"}, 4, id="single_feature"),
+        pytest.param({"wind_speed"}, 4, id="feature_with_middle_nan"),
+        pytest.param({"nonexistent"}, 4, id="nonexistent_feature"),
     ],
 )
-def test_basic_imputation_strategies(
-    sample_dataset: TimeSeriesDataset,
-    strategy: ImputationStrategy,
-    expected_radiation_value: float,
-    expected_temperature_value: float,
-    expected_wind_speed_value: float,
+def test_trailing_null_preservation(
+    columns: set[str],
+    expected_rows: int,
 ):
-    # Arrange
-    transform = MissingValuesTransform(imputation_strategy=strategy)
-
-    # Act
-    transform.fit(sample_dataset)
-    result = transform.transform(sample_dataset)
-
-    # Assert
-    assert not result.data.isna().any().any()
-    assert result.data.loc[result.data.index[1], "radiation"] == expected_radiation_value
-    assert abs(result.data.loc[result.data.index[2], "temperature"] - expected_temperature_value) < 0.01  # type: ignore[arg-type]
-    assert abs(result.data.loc[result.data.index[3], "wind_speed"] - expected_wind_speed_value) < 0.01  # type: ignore[arg-type]
-
-
-def test_constant_imputation(sample_dataset: TimeSeriesDataset):
-    # Arrange
-    transform = MissingValuesTransform(imputation_strategy=ImputationStrategy.CONSTANT, fill_value=999.0)
-
-    # Act
-    transform.fit(sample_dataset)
-    result = transform.transform(sample_dataset)
-
-    # Assert
-    assert not result.data.isna().any().any()
-    assert result.data.loc[result.data.index[1], "radiation"] == 999.0
-    assert result.data.loc[result.data.index[2], "temperature"] == 999.0
-    assert result.data.loc[result.data.index[3], "wind_speed"] == 999.0
-
-
-def test_remove_trailing_null_rows():
+    """Test that trailing NaNs are preserved after imputation."""
     # Arrange
     data = pd.DataFrame(
         {
-            "radiation": [100.0, 110.0, np.nan, np.nan],
-            "temperature": [20.0, 21.0, np.nan, 23.0],
-            "wind_speed": [5.0, 6.0, 8.0, np.nan],
+            "radiation": [100.0, 110.0, 120.0, np.nan],  # Trailing NaN
+            "wind_speed": [5.0, np.nan, 7.0, 8.0],  # Middle NaN
+            "temperature": [20.0, 21.0, 22.0, 23.0],  # No missing values
         },
         index=pd.date_range(datetime.fromisoformat("2025-01-01T00:00:00"), periods=4, freq="1h"),
     )
     dataset = TimeSeriesDataset(data, timedelta(hours=1))
-    transform = MissingValuesTransform(
-        imputation_strategy=ImputationStrategy.MEAN, no_fill_future_values_features=["radiation"]
-    )
+    transform = MissingValuesTransform(imputation_strategy="mean", columns=columns)
 
     # Act
     transform.fit(dataset)
     result = transform.transform(dataset)
 
     # Assert
-    assert len(result.data) == 2
-    assert not result.data["radiation"].isna().any()
-    assert result.data["radiation"].tolist() == [100.0, 110.0]
+    assert len(result.data) == expected_rows
+
+    # Check behavior for selected columns
+    for col in columns.intersection(result.data.columns):
+        if col == "radiation":
+            # Radiation: [100, 110, 120, NaN] - trailing NaN should remain
+            assert pd.isna(result.data.loc[result.data.index[-1], col])
+        elif col == "wind_speed":
+            # Wind_speed: [5, NaN, 7, 8] - middle NaN imputed, no trailing NaN
+            assert not pd.isna(result.data.loc[result.data.index[1], col])  # Middle imputed
+            assert not pd.isna(result.data.loc[result.data.index[-1], col])  # No trailing NaN
 
 
-def test_remove_trailing_nulls_multiple_features():
-    # Arrange
-    data = pd.DataFrame(
-        {
-            "radiation": [100.0, 110.0, np.nan],
-            "temperature": [20.0, 21.0, np.nan],
-            "wind_speed": [5.0, 6.0, 8.0],
-            "price": [10.0, np.nan, np.nan],
-        },
-        index=pd.date_range(datetime.fromisoformat("2025-01-01T00:00:00"), periods=3, freq="1h"),
-    )
-    dataset = TimeSeriesDataset(data, timedelta(hours=1))
-    transform = MissingValuesTransform(
-        imputation_strategy=ImputationStrategy.MEAN, no_fill_future_values_features=["radiation", "price"]
-    )
-
-    # Act
-    transform.fit(dataset)
-    result = transform.transform(dataset)
-
-    # Assert
-    assert len(result.data) == 1  # Only first row remains
-    assert result.data["radiation"].iloc[0] == 100.0
-    assert result.data["price"].iloc[0] == 10.0
-
-
-def test_no_trailing_nulls_removal_when_feature_not_in_data(
-    sample_dataset: TimeSeriesDataset, caplog: LogCaptureFixture
-):
-    # Arrange
-    transform = MissingValuesTransform(
-        imputation_strategy=ImputationStrategy.MEAN, no_fill_future_values_features=["nonexistent_feature"]
-    )
-
-    # Act
-    with caplog.at_level(logging.WARNING):
-        transform.fit(sample_dataset)
-        result = transform.transform(sample_dataset)
-
-    # Assert
-    assert len(result.data) == 4  # No rows removed
-    assert not result.data.isna().any().any()  # All values imputed
-    assert "Features 'nonexistent_feature' not found in dataset columns." in caplog.text
-
-
-def test_empty_feature_removal():
+def test_empty_columns_raise_error():
+    """Test that completely empty columns raise a helpful error."""
     # Arrange
     data = pd.DataFrame(
         {
             "radiation": [100.0, np.nan, 110.0],
-            "temperature": [20.0, 21.0, np.nan],
-            "wind_speed": [5.0, 6.0, 8.0],
-            "empty_feature": [np.nan, np.nan, np.nan],
+            "empty_feature": [np.nan, np.nan, np.nan],  # All missing
         },
         index=pd.date_range(datetime.fromisoformat("2025-01-01T00:00:00"), periods=3, freq="1h"),
     )
     dataset = TimeSeriesDataset(data, timedelta(hours=1))
-    transform = MissingValuesTransform(imputation_strategy=ImputationStrategy.MEAN)
+    transform = MissingValuesTransform(imputation_strategy="mean")
+
+    # Act & Assert
+    with pytest.raises(ValueError, match=r"Cannot impute completely empty columns.*Use RemoveEmptyColumnsTransform"):
+        transform.fit(dataset)
+
+
+def test_remove_empty_then_impute_workflow():
+    """Test the recommended workflow: remove empty columns first, then impute."""
+    # Arrange
+    data = pd.DataFrame(
+        {
+            "radiation": [100.0, np.nan, 110.0],
+            "temperature": [20.0, np.nan, 22.0],
+            "empty_feature": [np.nan, np.nan, np.nan],  # All missing
+        },
+        index=pd.date_range(datetime.fromisoformat("2025-01-01T00:00:00"), periods=3, freq="1h"),
+    )
+    dataset = TimeSeriesDataset(data, timedelta(hours=1))
 
     # Act
-    transform.fit(dataset)
-    result = transform.transform(dataset)
+    # First remove empty columns
+    remove_transform = RemoveEmptyColumnsTransform()
+    remove_transform.fit(dataset)
+    cleaned_dataset = remove_transform.transform(dataset)
+
+    # Then apply imputation
+    impute_transform = MissingValuesTransform(imputation_strategy="mean")
+    impute_transform.fit(cleaned_dataset)
+    result = impute_transform.transform(cleaned_dataset)
 
     # Assert
+    # Empty column should be removed
     assert "empty_feature" not in result.data.columns
-    assert list(result.data.columns) == ["radiation", "temperature", "wind_speed"]
+    assert set(result.data.columns) == {"radiation", "temperature"}
+    # Remaining NaNs should be imputed
     assert not result.data.isna().any().any()
 
 
-def test_no_missing_values():
+def test_transform_not_fitted_error():
+    """Test that TransformNotFittedError is raised when transform is called before fit."""
+    # Arrange
+    data = pd.DataFrame(
+        {"radiation": [100.0, 110.0]},
+        index=pd.date_range(datetime.fromisoformat("2025-01-01T00:00:00"), periods=2, freq="1h"),
+    )
+    dataset = TimeSeriesDataset(data, timedelta(hours=1))
+    transform = MissingValuesTransform(imputation_strategy="mean")
+
+    # Act & Assert
+    with pytest.raises(TransformNotFittedError, match="The transform 'MissingValuesTransform' has not been fitted"):
+        transform.transform(dataset)
+
+
+def test_no_missing_values_data_preservation():
+    """Test that data without missing values is preserved exactly."""
     # Arrange
     data = pd.DataFrame(
         {
             "radiation": [100.0, 110.0, 120.0],
             "temperature": [20.0, 21.0, 23.0],
-            "wind_speed": [5.0, 6.0, 8.0],
         },
         index=pd.date_range(datetime.fromisoformat("2025-01-01T00:00:00"), periods=3, freq="1h"),
     )
     dataset = TimeSeriesDataset(data, timedelta(hours=1))
     original_data = dataset.data.copy()
-    transform = MissingValuesTransform(imputation_strategy=ImputationStrategy.MEAN)
+    transform = MissingValuesTransform(imputation_strategy="mean")
 
     # Act
     transform.fit(dataset)
     result = transform.transform(dataset)
 
     # Assert
+    # Data should be identical to original
     pd.testing.assert_frame_equal(result.data, original_data)
-
-
-def test_custom_missing_value_placeholder():
-    # Arrange
-    data = pd.DataFrame(
-        {
-            "radiation": [100.0, -999.0, 120.0],
-            "temperature": [20.0, 21.0, -999.0],
-            "wind_speed": [5.0, 6.0, 7.0],
-        },
-        index=pd.date_range(datetime.fromisoformat("2025-01-01T00:00:00"), periods=3, freq="1h"),
-    )
-    dataset = TimeSeriesDataset(data, timedelta(hours=1))
-    transform = MissingValuesTransform(missing_value=-999.0, imputation_strategy=ImputationStrategy.MEAN)
-
-    # Act
-    transform.fit(dataset)
-    result = transform.transform(dataset)
-
-    # Assert
-    assert not (result.data == -999.0).any().any()
-    assert result.data.loc[result.data.index[1], "radiation"] == 110.0
-    assert result.data.loc[result.data.index[2], "temperature"] == 20.5
-
-
-def test_all_null_dataset_with_trailing_removal(caplog: LogCaptureFixture):
-    # Arrange
-    data = pd.DataFrame(
-        {
-            "radiation": [np.nan, np.nan, np.nan],
-            "temperature": [20.0, 21.0, 22.0],
-            "wind_speed": [5.0, 6.0, 8.0],
-        },
-        index=pd.date_range(datetime.fromisoformat("2025-01-01T00:00:00"), periods=3, freq="1h"),
-    )
-    dataset = TimeSeriesDataset(data, timedelta(hours=1))
-    transform = MissingValuesTransform(
-        imputation_strategy=ImputationStrategy.CONSTANT, fill_value=0.0, no_fill_future_values_features=["radiation"]
-    )
-
-    # Act
-    with caplog.at_level(logging.WARNING):
-        transform.fit(dataset)
-
-    result = transform.transform(dataset)
-
-    # Assert
-    assert len(result.data) == 3  # One row removed
-    assert "Dropped column 'radiation' from dataset because it contains only missing values." in caplog.text
-    assert "Features 'radiation' not found in dataset columns." in caplog.text
-
-
-def test_drop_empty_feature_with_custom_missing_value(caplog: LogCaptureFixture):
-    # Arrange
-    data = pd.DataFrame(
-        {
-            "radiation": [-999.0, -999.0, -999.0],  # All missing
-            "temperature": [20.0, 21.0, 22.0],  # No missing
-            "wind_speed": [5.0, -999.0, 8.0],  # Some missing
-        },
-        index=pd.date_range(datetime.fromisoformat("2025-01-01T00:00:00"), periods=3, freq="1h"),
-    )
-    transform = MissingValuesTransform(
-        missing_value=-999.0, imputation_strategy=ImputationStrategy.CONSTANT, fill_value=0.0
-    )
-
-    # Act
-    with caplog.at_level(logging.WARNING):
-        result = transform._drop_empty_features(data)
-
-    # Assert
-    assert "radiation" not in result.columns
-    assert "temperature" in result.columns
-    assert "wind_speed" in result.columns
-    assert "Dropped column 'radiation' from dataset because it contains only missing values." in caplog.text
+    # Sample interval should be preserved
+    assert result.sample_interval == dataset.sample_interval

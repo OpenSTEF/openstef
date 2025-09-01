@@ -9,22 +9,16 @@ to enhance time series datasets with additional insights related to solar radiat
 """
 
 import logging
-from typing import Any, Literal, cast
+from typing import Literal, cast, override
 
 import pandas as pd
 from pydantic import Field
+from pydantic_extra_types.coordinate import Coordinate
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.datasets.transforms import TimeSeriesTransform
-
-try:
-    import pvlib
-except ImportError as e:
-    raise ImportError(
-        "pvlib is required for the RadiationDerivedFeatures transform. Please install it via "
-        "`uv sync --group pvlib --package openstef-core` or `uv sync --all-groups --package openstef-core`."
-    ) from e
+from openstef_core.exceptions import MissingColumnsError, MissingExtraError, TimeSeriesValidationError
 
 logger = logging.getLogger(__name__)
 
@@ -75,18 +69,11 @@ class RadiationDerivedFeaturesTransform(BaseConfig, TimeSeriesTransform):
             "gti",
         ],
         description="List of radiation derived features to include.",
+        min_length=1,
     )
-    latitude: float = Field(
-        ...,
-        description="Latitude of the location for solar calculations.",
-        ge=-90.0,
-        le=90.0,
-    )
-    longitude: float = Field(
-        ...,
-        description="Longitude of the location for solar calculations.",
-        ge=-180.0,
-        le=180.0,
+    coordinate: Coordinate = Field(
+        default=...,
+        description="Geographical coordinates (latitude and longitude) for solar calculations.",
     )
     surface_tilt: float = Field(
         default=34.0,
@@ -100,91 +87,30 @@ class RadiationDerivedFeaturesTransform(BaseConfig, TimeSeriesTransform):
         ge=0.0,
         le=360.0,
     )
+    radiation_column: str = Field(
+        default="radiation",
+        description="Name of the column in the dataset containing radiation data in J/m².",
+    )
 
-    def __init__(self, **kwargs: Any) -> None:
-        """Initialize the RadiationDerivedFeatures transform.
-
-        Args:
-            **kwargs: Configuration parameters for the transform.
-        """
-        super().__init__(**kwargs)
-        self._derived_features: pd.DataFrame = pd.DataFrame()
-
-    @staticmethod
-    def _calculate_gti(
-        solar_position: pd.DataFrame,
-        clearsky_radiation: pd.DataFrame,
-        ghi: pd.Series,
-        dni: pd.Series,
-        surface_tilt: float = 34.0,
-        surface_azimuth: float = 180.0,
-    ) -> pd.Series:
-        return pvlib.irradiance.get_total_irradiance(  # type: ignore[reportUnknownMemberType]
-            surface_tilt=surface_tilt,
-            surface_azimuth=surface_azimuth,
-            solar_zenith=solar_position["apparent_zenith"],
-            solar_azimuth=solar_position["azimuth"],
-            dni=dni,
-            ghi=ghi,
-            dhi=clearsky_radiation["dhi"],
-        )["poa_global"]
-
-    @staticmethod
-    def _calculate_dni(
-        solar_position: pd.DataFrame,
-        clearsky_radiation: pd.DataFrame,
-        ghi: pd.Series,
-    ) -> pd.Series:
-        """Calculate Direct Normal Irradiance (DNI) from Global Horizontal Irradiance (GHI).
-
-        Args:
-            solar_position: The solar position DataFrame containing 'apparent_zenith' and 'azimuth'.
-            clearsky_radiation: The clearsky radiation DataFrame containing 'dhi' and 'dni'.
-            ghi: Global Horizontal Irradiance (GHI) series in kWh/m².
-
-        Returns:
-            Series with Direct Normal Irradiance (DNI) in kWh/m².
-        """
-        return cast(
-            pd.Series,
-            pvlib.irradiance.dni(  # type: ignore[reportUnknownMemberType]
-                ghi=ghi,
-                dhi=clearsky_radiation["dhi"],
-                zenith=solar_position["apparent_zenith"],
-                dni_clear=clearsky_radiation["dni"],
-            ),
-        ).fillna(0.0)
-
-    def fit(self, data: TimeSeriesDataset) -> None:
-        """Fit the transform to the input time series data by calculating radiation derived features.
-
-        Args:
-            data: The time series dataset with a timezone-aware DatetimeIndex and radiation data in J/m².
-
-        Raises:
-            ValueError: If the DatetimeIndex is not timezone-aware.
-        """
+    @override
+    def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
         if not data.index.tz:
-            raise ValueError("The datetime index must be timezone-aware.")
+            raise TimeSeriesValidationError("The datetime index must be timezone-aware.")
 
-        if "radiation" not in data.feature_names:
-            self._derived_features = pd.DataFrame()
-            logger.warning("Skipping calculation of radiation derived features because 'radiation' feature is missing.")
-            return
+        if self.radiation_column not in data.feature_names:
+            raise MissingColumnsError([self.radiation_column])
 
-        if "gti" not in self.included_features and "dni" not in self.included_features:
-            self._derived_features = pd.DataFrame()
-            logger.warning("No radiation derived features selected to include.")
-            return
-
-        radiation: pd.Series = data.data["radiation"]
+        try:
+            import pvlib  # noqa: PLC0415 - delayed import due to optional dependency
+        except ImportError as e:
+            raise MissingExtraError("feature_engineering") from e
 
         # Convert radiation from J/m² to kWh/m² and rename to 'ghi'
-        ghi = (radiation / 3600).rename("ghi")
+        ghi = (data.data[self.radiation_column] / 3600).rename("ghi")
 
         location = pvlib.location.Location(
-            latitude=self.latitude,
-            longitude=self.longitude,
+            latitude=self.coordinate.latitude,
+            longitude=self.coordinate.longitude,
             tz=str(data.index.tz),
         )
 
@@ -196,45 +122,32 @@ class RadiationDerivedFeaturesTransform(BaseConfig, TimeSeriesTransform):
 
         clearsky_radiation: pd.DataFrame = location.get_clearsky(data.index)  # type: ignore[reportUnknownMemberType]
 
-        dni = self._calculate_dni(
-            solar_position=solar_position,
-            clearsky_radiation=clearsky_radiation,
-            ghi=ghi,
-        )
-
-        gti = self._calculate_gti(
-            solar_position=solar_position,
-            clearsky_radiation=clearsky_radiation,
-            ghi=ghi,
-            dni=dni,
-            surface_tilt=self.surface_tilt,
-            surface_azimuth=self.surface_azimuth,
-        )
-
-        # Create derived features DataFrame with proper handling of included features
-        derived_data = {}
-
-        if "dni" in self.included_features and not dni.empty:
-            derived_data["dni"] = dni
-
-        if "gti" in self.included_features and not gti.empty:
-            derived_data["gti"] = gti
-
-        self._derived_features = pd.DataFrame(derived_data, index=data.index)
-
-    def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
-        """Transform the input time series data by adding radiation derived features.
-
-        Args:
-            data: The input time series dataset to be transformed.
-
-        Returns:
-            A new instance of TimeSeriesDataset containing the original and new radiation derived features.
-        """
-        return TimeSeriesDataset(
-            data=pd.concat(
-                [data.data, self._derived_features],
-                axis=1,
+        dni = cast(
+            pd.Series,
+            pvlib.irradiance.dni(  # type: ignore[reportUnknownMemberType]
+                ghi=ghi,
+                dhi=clearsky_radiation["dhi"],
+                zenith=solar_position["apparent_zenith"],
+                dni_clear=clearsky_radiation["dni"],
             ),
+        ).fillna(0.0)
+
+        result = data.data.copy()
+        if "dni" in self.included_features:
+            result["dni"] = dni
+
+        if "gti" in self.included_features:
+            result["gti"] = pvlib.irradiance.get_total_irradiance(  # type: ignore[reportUnknownMemberType]
+                surface_tilt=self.surface_tilt,
+                surface_azimuth=self.surface_azimuth,
+                solar_zenith=solar_position["apparent_zenith"],
+                solar_azimuth=solar_position["azimuth"],
+                dni=dni,
+                ghi=ghi,
+                dhi=clearsky_radiation["dhi"],
+            )["poa_global"]
+
+        return TimeSeriesDataset(
+            data=result,
             sample_interval=data.sample_interval,
         )

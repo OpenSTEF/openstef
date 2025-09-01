@@ -15,10 +15,7 @@ from openstef_core.feature_engineering.temporal_transforms.cyclic_features_trans
 def test_cyclic_features_basic():
     """Test basic cyclic features generation."""
     # Create simple test data
-    data = pd.DataFrame(
-        {"value": [1.0, 2.0, 3.0]},
-        index=pd.date_range("2025-01-01", periods=3, freq="h")
-    )
+    data = pd.DataFrame({"value": [1.0, 2.0, 3.0]}, index=pd.date_range("2025-01-01", periods=3, freq="h"))
     input_data = TimeSeriesDataset(data, timedelta(hours=1))
 
     transform = CyclicFeaturesTransform()
@@ -38,10 +35,7 @@ def test_cyclic_features_basic():
 def test_cyclic_features_midnight_values():
     """Test cyclic values at midnight (known reference point)."""
     # Single timestamp at midnight
-    data = pd.DataFrame(
-        {"value": [1.0]},
-        index=pd.DatetimeIndex(["2025-01-01 00:00:00"])
-    )
+    data = pd.DataFrame({"value": [1.0]}, index=pd.DatetimeIndex(["2025-01-01 00:00:00"]))
     input_data = TimeSeriesDataset(data, timedelta(hours=1))
 
     transform = CyclicFeaturesTransform()
@@ -58,10 +52,7 @@ def test_cyclic_features_midnight_values():
 
 def test_cyclic_features_custom_features():
     """Test with custom feature selection."""
-    data = pd.DataFrame(
-        {"value": [1.0, 2.0]},
-        index=pd.date_range("2025-01-01", periods=2, freq="D")
-    )
+    data = pd.DataFrame({"value": [1.0, 2.0]}, index=pd.date_range("2025-01-01", periods=2, freq="D"))
     input_data = TimeSeriesDataset(data, timedelta(days=1))
 
     # Only season and month features
@@ -76,8 +67,7 @@ def test_cyclic_features_custom_features():
 def test_cyclic_features_preserves_original_data():
     """Test that original data is preserved."""
     data = pd.DataFrame(
-        {"load": [100.0, 200.0], "temperature": [15.5, 16.2]},
-        index=pd.date_range("2025-01-01", periods=2, freq="h")
+        {"load": [100.0, 200.0], "temperature": [15.5, 16.2]}, index=pd.date_range("2025-01-01", periods=2, freq="h")
     )
     input_data = TimeSeriesDataset(data, timedelta(hours=1))
 
@@ -93,10 +83,7 @@ def test_cyclic_features_preserves_original_data():
 
 def test_cyclic_features_sine_cosine_relationship():
     """Test that sine and cosine values satisfy fundamental relationship."""
-    data = pd.DataFrame(
-        {"value": [1.0, 2.0, 3.0, 4.0]},
-        index=pd.date_range("2025-01-01", periods=4, freq="6h")
-    )
+    data = pd.DataFrame({"value": [1.0, 2.0, 3.0, 4.0]}, index=pd.date_range("2025-01-01", periods=4, freq="6h"))
     input_data = TimeSeriesDataset(data, timedelta(hours=6))
 
     transform = CyclicFeaturesTransform()
@@ -118,10 +105,7 @@ def test_cyclic_features_sine_cosine_relationship():
 
 def test_cyclic_features_no_features():
     """Test with empty features list."""
-    data = pd.DataFrame(
-        {"value": [1.0, 2.0]},
-        index=pd.date_range("2025-01-01", periods=2, freq="h")
-    )
+    data = pd.DataFrame({"value": [1.0, 2.0]}, index=pd.date_range("2025-01-01", periods=2, freq="h"))
     input_data = TimeSeriesDataset(data, timedelta(hours=1))
 
     # No features

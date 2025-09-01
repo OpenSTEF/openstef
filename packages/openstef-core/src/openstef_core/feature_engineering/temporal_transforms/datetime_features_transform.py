@@ -75,13 +75,15 @@ class DatetimeFeaturesTransform(BaseConfig, TimeSeriesTransform):
         ]
 
         if not self.onehot_encode:
-            features.append(pd.DataFrame(
-                data={
-                    "month_of_year": data.index.month,
-                    "quarter_of_year": data.index.quarter,
-                },
-                index=data.index,
-            ))
+            features.append(
+                pd.DataFrame(
+                    data={
+                        "month_of_year": data.index.month,
+                        "quarter_of_year": data.index.quarter,
+                    },
+                    index=data.index,
+                )
+            )
         else:
             month_dummies = pd.get_dummies(data.index.month, prefix="month", dtype=int)
             month_dummies.index = data.index

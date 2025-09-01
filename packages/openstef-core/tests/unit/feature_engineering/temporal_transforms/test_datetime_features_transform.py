@@ -17,7 +17,7 @@ def test_datetime_features_basic():
     # Create test data with multiple columns and known dates
     data = pd.DataFrame(
         {"load": [100.0, 200.0], "temperature": [15.5, 16.2]},
-        index=pd.DatetimeIndex(["2025-01-06", "2025-01-07"])  # Mon, Tue
+        index=pd.DatetimeIndex(["2025-01-06", "2025-01-07"]),  # Mon, Tue
     )
     input_data = TimeSeriesDataset(data, timedelta(days=1))
 
@@ -25,7 +25,15 @@ def test_datetime_features_basic():
     result = transform.transform(input_data)
 
     # Check that all expected columns are added
-    expected_cols = {"load", "temperature", "is_week_day", "is_weekend_day", "is_sunday", "month_of_year", "quarter_of_year"}
+    expected_cols = {
+        "load",
+        "temperature",
+        "is_week_day",
+        "is_weekend_day",
+        "is_sunday",
+        "month_of_year",
+        "quarter_of_year",
+    }
     assert set(result.data.columns) == expected_cols
 
     # Original columns should be preserved with exact values
@@ -38,7 +46,7 @@ def test_datetime_features_weekday_weekend():
     # Monday and Saturday to test weekday vs weekend
     data = pd.DataFrame(
         {"value": [1.0, 2.0]},
-        index=pd.DatetimeIndex(["2025-01-06", "2025-01-11"])  # Monday, Saturday
+        index=pd.DatetimeIndex(["2025-01-06", "2025-01-11"]),  # Monday, Saturday
     )
     input_data = TimeSeriesDataset(data, timedelta(days=1))
 
@@ -56,7 +64,7 @@ def test_datetime_features_sunday_detection():
     """Test Sunday detection with known date."""
     data = pd.DataFrame(
         {"value": [1.0, 2.0]},
-        index=pd.DatetimeIndex(["2025-01-11", "2025-01-12"])  # Saturday, Sunday
+        index=pd.DatetimeIndex(["2025-01-11", "2025-01-12"]),  # Saturday, Sunday
     )
     input_data = TimeSeriesDataset(data, timedelta(days=1))
 
@@ -72,7 +80,7 @@ def test_datetime_features_month_quarter():
     """Test month and quarter features with known dates."""
     data = pd.DataFrame(
         {"value": [1.0, 2.0, 3.0]},
-        index=pd.DatetimeIndex(["2025-01-15", "2025-04-15", "2025-10-15"])  # Jan Q1, Apr Q2, Oct Q4
+        index=pd.DatetimeIndex(["2025-01-15", "2025-04-15", "2025-10-15"]),  # Jan Q1, Apr Q2, Oct Q4
     )
     input_data = TimeSeriesDataset(data, timedelta(days=1))
 
@@ -92,7 +100,7 @@ def test_datetime_features_onehot_encoding():
     """Test one-hot encoding functionality."""
     data = pd.DataFrame(
         {"value": [1.0, 2.0]},
-        index=pd.DatetimeIndex(["2025-01-15", "2025-04-15"])  # Jan, Apr
+        index=pd.DatetimeIndex(["2025-01-15", "2025-04-15"]),  # Jan, Apr
     )
     input_data = TimeSeriesDataset(data, timedelta(days=1))
 

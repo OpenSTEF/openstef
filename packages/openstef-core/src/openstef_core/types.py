@@ -16,7 +16,7 @@ from typing import Any, Self, override
 from pydantic import GetCoreSchemaHandler, TypeAdapter
 from pydantic_core import CoreSchema, core_schema
 
-from openstef_core.base_model import BaseConfig, PydanticStringPrimitive
+from openstef_core.base_model import PydanticStringPrimitive
 
 
 class LeadTime(PydanticStringPrimitive):

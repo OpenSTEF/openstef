@@ -23,8 +23,7 @@ def sample_dataset() -> TimeSeriesDataset:
         TimeSeriesDataset: A dataset with daily frequency spanning Christmas period.
     """
     data = pd.DataFrame(
-        {"load": [100.0, 110.0, 120.0, 130.0, 140.0]},
-        index=pd.date_range("2025-12-24", periods=5, freq="D")
+        {"load": [100.0, 110.0, 120.0, 130.0, 140.0]}, index=pd.date_range("2025-12-24", periods=5, freq="D")
     )
     return TimeSeriesDataset(data, timedelta(days=1))
 
@@ -99,7 +98,7 @@ def test_create_general_holiday_feature(sample_dataset: TimeSeriesDataset):
     holidays_df = pd.DataFrame({
         "date": [date(2025, 12, 25), date(2025, 12, 26)],
         "holiday_name": ["Christmas Day", "Second Day of Christmas"],
-        "sanitized_name": ["christmas_day", "second_day_of_christmas"]
+        "sanitized_name": ["christmas_day", "second_day_of_christmas"],
     })
 
     # Act
@@ -122,7 +121,7 @@ def test_create_individual_features(sample_dataset: TimeSeriesDataset):
     holidays_df = pd.DataFrame({
         "date": [date(2025, 12, 25), date(2025, 12, 26)],
         "holiday_name": ["Christmas Day", "Second Day of Christmas"],
-        "sanitized_name": ["christmas_day", "second_day_of_christmas"]
+        "sanitized_name": ["christmas_day", "second_day_of_christmas"],
     })
 
     # Act
@@ -212,14 +211,11 @@ def test_holiday_name_to_feature_mapping(holiday_name: str, expected_feature: st
     """Test that holiday names are correctly mapped to feature names."""
     # Arrange
     sample_index = pd.date_range("2025-01-01", periods=1, freq="D")
-    sample_data = TimeSeriesDataset(
-        pd.DataFrame({"load": [100]}, index=sample_index),
-        timedelta(days=1)
-    )
+    sample_data = TimeSeriesDataset(pd.DataFrame({"load": [100]}, index=sample_index), timedelta(days=1))
     holidays_df = pd.DataFrame({
         "date": [date(2025, 1, 1)],
         "holiday_name": [holiday_name],
-        "sanitized_name": [HolidayFeaturesTransform._sanitize_holiday_name(holiday_name)]
+        "sanitized_name": [HolidayFeaturesTransform._sanitize_holiday_name(holiday_name)],
     })
 
     # Act

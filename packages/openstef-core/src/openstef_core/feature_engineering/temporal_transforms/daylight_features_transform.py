@@ -34,7 +34,6 @@ class DaylightFeaturesTransform(BaseConfig, TimeSeriesTransform):
         >>> from openstef_core.feature_engineering.temporal_transforms.daylight_features_transform import (
         ...     DaylightFeaturesTransform,
         ... )
-        >>> from openstef_core.types import Coordinate
         >>>
         >>> # Create sample dataset with timezone
         >>> data = pd.DataFrame({

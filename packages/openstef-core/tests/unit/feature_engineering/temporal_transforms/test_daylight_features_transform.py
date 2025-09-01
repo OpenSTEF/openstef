@@ -7,8 +7,8 @@
 from datetime import timedelta
 
 import pandas as pd
-from pydantic_extra_types.coordinate import Coordinate
 import pytest
+from pydantic_extra_types.coordinate import Coordinate
 
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.feature_engineering.temporal_transforms.daylight_features_transform import DaylightFeaturesTransform
@@ -21,7 +21,7 @@ def test_daylight_features_basic():
     # Create timezone-aware test data (required for daylight calculations)
     data = pd.DataFrame(
         {"load": [100.0, 200.0], "temperature": [15.5, 16.2]},
-        index=pd.date_range("2025-06-01 12:00:00", periods=2, freq="h", tz="Europe/Amsterdam")
+        index=pd.date_range("2025-06-01 12:00:00", periods=2, freq="h", tz="Europe/Amsterdam"),
     )
     input_data = TimeSeriesDataset(data, timedelta(hours=1))
 
@@ -46,7 +46,7 @@ def test_daylight_features_daytime_values():
     # June midday in Amsterdam should have high solar radiation
     data = pd.DataFrame(
         {"value": [1.0, 2.0]},
-        index=pd.DatetimeIndex(["2025-06-21 12:00:00", "2025-06-21 13:00:00"], tz="Europe/Amsterdam")
+        index=pd.DatetimeIndex(["2025-06-21 12:00:00", "2025-06-21 13:00:00"], tz="Europe/Amsterdam"),
     )
     input_data = TimeSeriesDataset(data, timedelta(hours=1))
 
@@ -64,7 +64,7 @@ def test_daylight_features_nighttime_values():
     # Night time in Amsterdam should have zero solar radiation
     data = pd.DataFrame(
         {"value": [1.0, 2.0]},
-        index=pd.DatetimeIndex(["2025-06-21 02:00:00", "2025-06-21 03:00:00"], tz="Europe/Amsterdam")
+        index=pd.DatetimeIndex(["2025-06-21 02:00:00", "2025-06-21 03:00:00"], tz="Europe/Amsterdam"),
     )
     input_data = TimeSeriesDataset(data, timedelta(hours=1))
 
