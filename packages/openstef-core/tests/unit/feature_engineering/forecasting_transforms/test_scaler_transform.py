@@ -19,7 +19,7 @@ from openstef_core.feature_engineering.forecasting_transforms.scaler_transform i
 def test_scaler_invalid_method():
     """Test ScalerTransform raises ValidationError for invalid scaling method."""
     with pytest.raises(ValidationError, match="Input should be"):
-        ScalerTransform(method="invalid_method")
+        ScalerTransform(method="invalid_method")  # pyright: ignore[reportArgumentType]
 
 
 def test_scaler_not_fitted_error():

@@ -13,6 +13,11 @@ class MissingExtraError(Exception):
     """Exception raised when an extra is missing in the extras list."""
 
     def __init__(self, extra: str):
+        """Initialize the exception with the name of the missing extra.
+
+        Args:
+            extra: Name of the missing extra.
+        """
         self.extra = extra
         super().__init__(
             f"The extras for {extra}. Please install it to use this module using `pip install stef-beam[{extra}]`."
@@ -59,6 +64,18 @@ class TimeSeriesValidationError(Exception):
         super().__init__(message)
 
 
+class FlatlinerDetectedError(Exception):
+    """Exception raised when a flatliner is detected in the data."""
+
+    def __init__(self, message: str):
+        """Initialize the exception with a descriptive error message.
+
+        Args:
+            message: Human-readable description of the flatliner detection error.
+        """
+        super().__init__(message)
+
+
 class TransformNotFittedError(Exception):
     """Exception raised when a transform is used before being fitted."""
 
@@ -84,4 +101,12 @@ class InsufficientlyCompleteError(Exception):
         super().__init__(message)
 
 
-__all__ = ["InsufficientlyCompleteError", "MissingColumnsError", "TimeSeriesValidationError", "TransformNotFittedError"]
+__all__ = [
+    "FlatlinerDetectedError",
+    "InsufficientlyCompleteError",
+    "InvalidColumnTypeError",
+    "MissingColumnsError",
+    "MissingExtraError",
+    "TimeSeriesValidationError",
+    "TransformNotFittedError",
+]
