@@ -72,4 +72,16 @@ class TransformNotFittedError(Exception):
         super().__init__(message)
 
 
-__all__ = ["MissingColumnsError", "TimeSeriesValidationError", "TransformNotFittedError"]
+class InsufficientlyCompleteError(Exception):
+    """Exception raised when a dataset is not sufficiently complete."""
+
+    def __init__(self, message: str):
+        """Initialize the exception with a descriptive error message.
+
+        Args:
+            message: Human-readable description of the completeness error.
+        """
+        super().__init__(message)
+
+
+__all__ = ["InsufficientlyCompleteError", "MissingColumnsError", "TimeSeriesValidationError", "TransformNotFittedError"]

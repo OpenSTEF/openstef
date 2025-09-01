@@ -9,6 +9,7 @@ import pandas as pd
 import pytest
 
 from openstef_core.datasets import TimeSeriesDataset
+from openstef_core.exceptions import InsufficientlyCompleteError
 from openstef_core.feature_engineering.validation_transforms.completeness_check import (
     CompletenessCheckTransform,
 )
@@ -68,19 +69,61 @@ def test_calculate_completeness(
         index=pd.date_range("2025-01-01", periods=4, freq="15min"),
     )
     dataset = TimeSeriesDataset(data, timedelta(minutes=15))
-    transform = CompletenessCheckTransform(columns=columns, weights=weights, completeness_threshold=threshold)
+    transform = CompletenessCheckTransform(
+        columns=columns, weights=weights, completeness_threshold=threshold, error_on_insufficient_completeness=False
+    )
     transform.fit(dataset)
 
     assert transform.completeness == expected_completeness
-    assert transform.sufficiently_complete is expected_sufficiently_complete
+    assert transform.is_sufficiently_complete is expected_sufficiently_complete
 
 
-def test_transform_returns_input() -> None:
+def test_fit_raises_error_on_insufficient_completeness() -> None:
+    # Arrange
+    data = pd.DataFrame(
+        {
+            "radiation": [100, 110, 110, np.nan],
+            "temperature": [20, np.nan, np.nan, 21],
+            "wind_speed": [5, 6, 6, 3],
+        },
+        index=pd.date_range("2025-01-01", periods=4, freq="15min"),
+    )
+    dataset = TimeSeriesDataset(data, timedelta(minutes=15))
+    transform = CompletenessCheckTransform(completeness_threshold=0.8)
+
+    # Act & Assert
+    with pytest.raises(InsufficientlyCompleteError):
+        transform.fit(dataset)
+
+
+def test_transform_insufficiently_complete_data() -> None:
+    # Arrange
+    data = pd.DataFrame(
+        {
+            "radiation": [100, np.nan, np.nan, np.nan],
+            "temperature": [20, np.nan, 24, np.nan],
+            "wind_speed": [np.nan, np.nan, np.nan, np.nan],
+        },
+        index=pd.date_range("2025-01-01", periods=4, freq="15min"),
+    )
+    dataset = TimeSeriesDataset(data, timedelta(minutes=15))
+    transform = CompletenessCheckTransform(completeness_threshold=0.5)
+
+    # Act
+    with pytest.raises(InsufficientlyCompleteError):
+        transform.fit(dataset)
+
+    # Assert
+    assert transform.completeness == 0.25
+    assert transform.is_sufficiently_complete is False
+
+
+def test_transform_not_check_on_completeness() -> None:
     # Arrange
     idx = [datetime.fromisoformat("2025-01-01T00:00:00")]
     df = pd.DataFrame({"radiation": [1]}, index=idx)
     dataset = TimeSeriesDataset(df, timedelta(minutes=1))
-    transform = CompletenessCheckTransform()
+    transform = CompletenessCheckTransform(check_on_transform=False)
 
     # Act
     result = transform.transform(dataset)
