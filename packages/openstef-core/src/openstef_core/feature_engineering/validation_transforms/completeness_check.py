@@ -9,6 +9,7 @@ Completeness is defined as the ratio of non-missing values to the total number o
 """
 
 from typing import override
+
 import pandas as pd
 from pydantic import Field, PrivateAttr
 
@@ -41,12 +42,9 @@ class CompletenessCheckTransform(TimeSeriesTransform, BaseConfig):
     ... index=pd.date_range("2025-01-01", periods=4, freq="15min"))
     >>> dataset = TimeSeriesDataset(data, timedelta(minutes=15))
     >>> transform = CompletenessCheckTransform()
-    >>> try:
-    ...     transform.fit(dataset)
-    ... except NotSufficientlyCompleteError:
-    ...     pass
-    >>> transform.completeness
-    0.25
+    >>> transform.transform(dataset)
+    Traceback (most recent call last):
+    openstef_core.exceptions.InsufficientlyCompleteError: The dataset is not sufficiently complete. Completeness: 0.25
     """
 
     columns: list[str] | None = Field(
@@ -65,22 +63,8 @@ class CompletenessCheckTransform(TimeSeriesTransform, BaseConfig):
         default=True,
         description="Whether to raise an error when the data is not sufficiently complete.",
     )
-    check_on_transform: bool = Field(
-        default=False,
-        description="Whether to check completeness during the transform phase.",
-    )
     _completeness: float = PrivateAttr(default=False)
     _is_sufficiently_complete: bool = PrivateAttr(default=False)
-
-    @property
-    def completeness(self) -> float:
-        """Indicates how complete the data is."""
-        return self._completeness
-
-    @property
-    def is_sufficiently_complete(self) -> bool:
-        """Indicates whether the data is sufficiently complete."""
-        return self._is_sufficiently_complete
 
     def _calculate_sufficiently_complete(self, data: pd.DataFrame) -> bool:
         """Check if the DataFrame is sufficiently complete.
@@ -121,29 +105,8 @@ class CompletenessCheckTransform(TimeSeriesTransform, BaseConfig):
         return float(weighted_completeness / total_weight if total_weight > 0 else 0.0)
 
     @override
-    def fit(self, data: TimeSeriesDataset) -> None:
-        """Calculates and stores the completeness metrics for the provided time series dataset.
-
-        Args:
-            data: The dataset containing time series data to evaluate.
-
-        Raises:
-            InsufficientlyCompleteError: If the dataset is not sufficiently complete.
-        """
-        self._completeness = self._calculate_completeness(
-            data=data.data,
-        )
-        self._is_sufficiently_complete = self._calculate_sufficiently_complete(
-            data=data.data,
-        )
-        if not self._is_sufficiently_complete and self.error_on_insufficient_completeness:
-            raise InsufficientlyCompleteError("The dataset is not sufficiently complete.")
-
-    @override
     def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
-        """Returns the input data unchanged, optionally checking for completeness.
-
-        This method can optionally run completeness checks when `check_on_transform=True`.
+        """Returns the input data unchanged or raises an error if the data is incomplete.
 
         Args:
             data: The input time series dataset to be transformed.
@@ -154,9 +117,6 @@ class CompletenessCheckTransform(TimeSeriesTransform, BaseConfig):
         Raises:
             InsufficientlyCompleteError: If the dataset is not sufficiently complete and `error_on_insufficient_completeness` is True.
         """
-        if not self.check_on_transform:
-            return data
-
         self._completeness = self._calculate_completeness(
             data=data.data,
         )
@@ -164,6 +124,8 @@ class CompletenessCheckTransform(TimeSeriesTransform, BaseConfig):
             data=data.data,
         )
         if not self._is_sufficiently_complete:
-            raise InsufficientlyCompleteError("The dataset is not sufficiently complete.")
+            raise InsufficientlyCompleteError(
+                f"The dataset is not sufficiently complete. Completeness: {self._completeness:.2f}"
+            )
 
         return data
