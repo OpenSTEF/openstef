@@ -11,7 +11,7 @@ import pandas as pd
 import pytest
 
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.feature_engineering.temporal.datetime_features import DatetimeFeatures
+from openstef_core.feature_engineering.temporal_transforms.datetime_features import DatetimeFeatures
 
 
 @pytest.fixture

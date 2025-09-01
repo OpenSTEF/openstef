@@ -11,7 +11,7 @@ import pandas as pd
 import pytest
 
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.feature_engineering.temporal.daylight_features import DaylightFeatures
+from openstef_core.feature_engineering.temporal_transforms.daylight_features import DaylightFeatures
 
 pvlib = pytest.importorskip("pvlib")
 

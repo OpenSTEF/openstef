@@ -72,138 +72,34 @@ class CyclicFeaturesTransform(BaseConfig, TimeSeriesTransform):
         "Options are 'timeOfDay', 'season', 'dayOfWeek', and 'month'.",
     )
 
-    def __init__(self, **kwargs: Any) -> None:
-        """Initialize the CyclicFeatures transform.
-
-        Args:
-            **kwargs: Configuration parameters for the transform.
-        """
-        super().__init__(**kwargs)
-        self._cyclic_features: pd.DataFrame = pd.DataFrame()
 
     @staticmethod
-    def _compute_sine(phase: pd.Index, period: float) -> np.ndarray:
-        """Compute sine component for cyclic encoding.
+    def _compute_cyclic_feature(
+        phase: pd.Index,
+        period: float,
+        index: pd.Index,
+        name: str,
+    ) -> pd.DataFrame:
+        """Compute sine and cosine components for cyclic encoding.
 
         Args:
             phase: Position in cycle (e.g., day of year, hour of day).
             period: Complete cycle length (e.g., 365.25 for yearly).
+            index: Index to align the resulting DataFrame.
+            name: Base name for the resulting columns.
 
         Returns:
-            Sine values ranging from -1 to 1.
+            DataFrame with sine and cosine columns.
         """
-        return np.sin(2 * np.pi * phase / period)
-
-    @staticmethod
-    def _compute_cosine(phase: pd.Index, period: float) -> np.ndarray:
-        """Compute cosine component for cyclic encoding.
-
-        Args:
-            phase: Position in cycle (e.g., day of year, hour of day).
-            period: Complete cycle length (e.g., 365.25 for yearly).
-
-        Returns:
-            Cosine values ranging from -1 to 1.
-        """
-        return np.cos(2 * np.pi * phase / period)
-
-    def _compute_seasonal_feature(self, index: pd.DatetimeIndex) -> pd.DataFrame:
-        """Compute seasonal features based on day of year.
-
-        Args:
-            index: DatetimeIndex to extract day of year from.
-
-        Returns:
-            DataFrame with season_sine and season_cosine columns.
-        """
-        return pd.DataFrame(
-            {
-                "season_sine": self._compute_sine(index.dayofyear, NUM_DAYS_IN_YEAR),
-                "season_cosine": self._compute_cosine(index.dayofyear, NUM_DAYS_IN_YEAR),
-            },
-            index=index,
-        )
-
-    def _compute_monthly_features(self, index: pd.DatetimeIndex) -> pd.DataFrame:
-        """Compute monthly features based on month of year.
-
-        Args:
-            index: DatetimeIndex to extract month from.
-
-        Returns:
-            DataFrame with month_sine and month_cosine columns.
-        """
-        return pd.DataFrame(
-            {
-                "month_sine": self._compute_sine(index.month, NUM_MONTHS_IN_YEAR),
-                "month_cosine": self._compute_cosine(index.month, NUM_MONTHS_IN_YEAR),
-            },
-            index=index,
-        )
-
-    def _compute_weekday_features(self, index: pd.DatetimeIndex) -> pd.DataFrame:
-        """Compute weekday features based on day of week.
-
-        Args:
-            index: DatetimeIndex to extract day of week from.
-
-        Returns:
-            DataFrame with day0fweek_sine and day0fweek_cosine columns.
-        """
-        return pd.DataFrame(
-            {
-                "day0fweek_sine": self._compute_sine(index.day_of_week, NUM_DAYS_IN_WEEK),
-                "day0fweek_cosine": self._compute_cosine(index.day_of_week, NUM_DAYS_IN_WEEK),
-            },
-            index=index,
-        )
-
-    def _compute_time_of_day_features(self, index: pd.DatetimeIndex) -> pd.DataFrame:
-        """Compute time of day features based on seconds in the day.
-
-        Args:
-            index: DatetimeIndex to extract time of day from.
-
-        Returns:
-            DataFrame with time0fday_sine and time0fday_cosine columns.
-        """
-        seconds_in_day = index.second + index.minute * 60 + index.hour * 60 * 60
-        period_of_day = 2 * np.pi * seconds_in_day / NUM_SECONDS_IN_A_DAY
+        t = 2 * np.pi * phase / period
 
         return pd.DataFrame(
             {
-                "time0fday_sine": self._compute_sine(period_of_day, NUM_SECONDS_IN_A_DAY),
-                "time0fday_cosine": self._compute_cosine(period_of_day, NUM_SECONDS_IN_A_DAY),
+                f"{name}_sine": np.sin(t),
+                f"{name}_cosine": np.cos(t),
             },
             index=index,
         )
-
-    @override
-    def fit(self, data: TimeSeriesDataset) -> None:
-        """Fit the transform by computing cyclic features from the dataset's index.
-
-        Args:
-            data: Time series dataset with DatetimeIndex.
-        """
-        feature_dataframes: list[pd.DataFrame] = []
-
-        if "season" in self.included_features:
-            feature_dataframes.append(self._compute_seasonal_feature(data.index))
-
-        if "dayOfWeek" in self.included_features:
-            feature_dataframes.append(self._compute_weekday_features(data.index))
-
-        if "month" in self.included_features:
-            feature_dataframes.append(self._compute_monthly_features(data.index))
-
-        if "timeOfDay" in self.included_features:
-            feature_dataframes.append(self._compute_time_of_day_features(data.index))
-
-        if feature_dataframes:
-            self._cyclic_features = pd.concat(feature_dataframes, axis=1)
-        else:
-            # Create empty DataFrame with the same index if no features are selected
-            self._cyclic_features = pd.DataFrame(index=data.index)
 
     @override
     def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
@@ -216,9 +112,42 @@ class CyclicFeaturesTransform(BaseConfig, TimeSeriesTransform):
             New TimeSeriesDataset with original data plus cyclic features
             (number depends on included_features configuration).
         """
+        features: list[pd.DataFrame] = []
+        if "season" in self.included_features:
+            features.append(self._compute_cyclic_feature(
+                phase=data.index.dayofyear,
+                period=NUM_DAYS_IN_YEAR,
+                index=data.index,
+                name="season",
+            ))
+
+        if "dayOfWeek" in self.included_features:
+            features.append(self._compute_cyclic_feature(
+                phase=data.index.day_of_week,
+                period=NUM_DAYS_IN_WEEK,
+                index=data.index,
+                name="dayOfWeek",
+            ))
+
+        if "month" in self.included_features:
+            features.append(self._compute_cyclic_feature(
+                phase=data.index.month,
+                period=NUM_MONTHS_IN_YEAR,
+                index=data.index,
+                name="month",
+            ))
+
+        if "timeOfDay" in self.included_features:
+            features.append(self._compute_cyclic_feature(
+                phase=data.index.hour * 3600 + data.index.minute * 60 + data.index.second,
+                period=NUM_SECONDS_IN_A_DAY,
+                index=data.index,
+                name="timeOfDay",
+            ))
+
         return TimeSeriesDataset(
             data=pd.concat(
-                [data.data, self._cyclic_features],
+                [data.data, *features],
                 axis=1,
             ),
             sample_interval=data.sample_interval,
