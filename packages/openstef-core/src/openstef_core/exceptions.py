@@ -9,6 +9,16 @@ package to provide clear error reporting and handling for common failure cases.
 """
 
 
+class MissingExtraError(Exception):
+    """Exception raised when an extra is missing in the extras list."""
+
+    def __init__(self, extra: str):
+        self.extra = extra
+        super().__init__(
+            f"The extras for {extra}. Please install it to use this module using `pip install stef-beam[{extra}]`."
+        )
+
+
 class MissingColumnsError(Exception):
     """Exception raised when required columns are missing from a DataFrame."""
 
@@ -49,4 +59,17 @@ class TimeSeriesValidationError(Exception):
         super().__init__(message)
 
 
-__all__ = ["MissingColumnsError", "TimeSeriesValidationError"]
+class TransformNotFittedError(Exception):
+    """Exception raised when a transform is used before being fitted."""
+
+    def __init__(self, transform_name: str):
+        """Initialize the exception with the name of the transform.
+
+        Args:
+            transform_name: Name of the transform that was not fitted.
+        """
+        message = f"The transform '{transform_name}' has not been fitted yet. Please call 'fit' before using it."
+        super().__init__(message)
+
+
+__all__ = ["MissingColumnsError", "TimeSeriesValidationError", "TransformNotFittedError"]

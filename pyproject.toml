@@ -34,7 +34,7 @@ dependencies = [
 optional-dependencies.all = [
   "openstef-beam[boto]",
   "openstef-compatibility",
-  "openstef-core",
+  "openstef-core[feature-engineering]",
   "openstef-models",
 ]
 optional-dependencies.beam = [
@@ -53,6 +53,7 @@ urls.Repository = "https://github.com/OpenSTEF/openstef"
 
 [dependency-groups]
 dev = [
+  "microsoft-python-type-stubs",
   "moto[s3,server]>=5.1.11",
   "openstef-beam",
   "openstef-core",
@@ -189,6 +190,7 @@ openstef-models = { workspace = true }
 openstef-compatibility = { workspace = true }
 openstef-docs = { workspace = true }
 openstef-core = { workspace = true }
+microsoft-python-type-stubs = { git = "git+https://github.com/microsoft/python-type-stubs.git" }
 
 [tool.uv.workspace]
 members = [
