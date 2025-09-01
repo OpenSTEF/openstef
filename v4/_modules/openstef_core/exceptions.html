@@ -450,6 +450,16 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 
+<span class="k">class</span><span class="w"> </span><span class="nc">MissingExtraError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Exception raised when an extra is missing in the extras list.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extra</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extra</span> <span class="o">=</span> <span class="n">extra</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;The extras for </span><span class="si">{</span><span class="n">extra</span><span class="si">}</span><span class="s2">. Please install it to use this module using `pip install stef-beam[</span><span class="si">{</span><span class="n">extra</span><span class="si">}</span><span class="s2">]`.&quot;</span>
+        <span class="p">)</span>
+
+
 <div class="viewcode-block" id="MissingColumnsError">
 <a class="viewcode-back" href="../../api/generated/openstef_core.exceptions.MissingColumnsError.html#openstef_core.exceptions.MissingColumnsError">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">MissingColumnsError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
@@ -502,7 +512,26 @@
 
 
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;MissingColumnsError&quot;</span><span class="p">,</span> <span class="s2">&quot;TimeSeriesValidationError&quot;</span><span class="p">]</span>
+<div class="viewcode-block" id="TransformNotFittedError">
+<a class="viewcode-back" href="../../api/generated/openstef_core.exceptions.TransformNotFittedError.html#openstef_core.exceptions.TransformNotFittedError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TransformNotFittedError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Exception raised when a transform is used before being fitted.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TransformNotFittedError.__init__">
+<a class="viewcode-back" href="../../api/generated/openstef_core.exceptions.TransformNotFittedError.html#openstef_core.exceptions.TransformNotFittedError.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transform_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the exception with the name of the transform.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            transform_name: Name of the transform that was not fitted.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;The transform &#39;</span><span class="si">{</span><span class="n">transform_name</span><span class="si">}</span><span class="s2">&#39; has not been fitted yet. Please call &#39;fit&#39; before using it.&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">)</span></div>
+</div>
+
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;MissingColumnsError&quot;</span><span class="p">,</span> <span class="s2">&quot;TimeSeriesValidationError&quot;</span><span class="p">,</span> <span class="s2">&quot;TransformNotFittedError&quot;</span><span class="p">]</span>
 </pre></div>
 
                 </article>
