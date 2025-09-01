@@ -9,7 +9,7 @@ import pandas as pd
 import pytest
 
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.exceptions import FlatlinerDetectedError
+from openstef_core.exceptions import FlatlinerDetectedError, MissingColumnsError
 from openstef_core.feature_engineering.validation_transforms.flatliner_check import FlatlinerCheckTransform
 
 
@@ -104,6 +104,27 @@ def test_fit_does_not_raise_when_no_flatliner_detected() -> None:
     assert transform.is_flatliner_detected is False
 
 
+def test_different_load_column_name() -> None:
+    # Arrange
+    data = TimeSeriesDataset(
+        data=pd.DataFrame(
+            data={"custom_load": [0, 0, 0, 0]},
+            index=pd.date_range(datetime.fromisoformat("2025-01-01T00:00:00"), periods=4, freq="1h"),
+        ),
+        sample_interval=timedelta(hours=1),
+    )
+    transform = FlatlinerCheckTransform(
+        load_column="custom_load",
+        error_on_flatliner=False,
+    )
+
+    # Act
+    transform.fit(data)
+
+    # Assert
+    assert transform.is_flatliner_detected is True
+
+
 def test_fit_raises_on_missing_load_column() -> None:
     # Arrange
     idx = [datetime.fromisoformat("2025-01-01T00:00:00")]
@@ -111,7 +132,7 @@ def test_fit_raises_on_missing_load_column() -> None:
     dataset = TimeSeriesDataset(df, timedelta(minutes=1))
     transform = FlatlinerCheckTransform()
     # Act & Assert
-    with pytest.raises(ValueError, match=r"The DataFrame must contain a 'load' column."):
+    with pytest.raises(MissingColumnsError, match=r"Missing required columns: load"):
         transform.fit(dataset)
 
 

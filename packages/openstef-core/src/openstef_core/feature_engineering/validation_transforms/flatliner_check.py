@@ -19,7 +19,7 @@ from pydantic import Field, PrivateAttr
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.datasets.transforms import TimeSeriesTransform
-from openstef_core.exceptions import FlatlinerDetectedError
+from openstef_core.exceptions import FlatlinerDetectedError, MissingColumnsError
 
 
 class FlatlinerCheckTransform(TimeSeriesTransform, BaseConfig):
@@ -56,6 +56,10 @@ class FlatlinerCheckTransform(TimeSeriesTransform, BaseConfig):
     True
     """
 
+    load_column: str = Field(
+        default="load",
+        description="Name of the column to check for flatliners.",
+    )
     flatliner_threshold_minutes: int = Field(
         default=1440,
         description="Number of minutes that the load has to be constant to detect a flatliner.",
@@ -124,19 +128,19 @@ class FlatlinerCheckTransform(TimeSeriesTransform, BaseConfig):
     def fit(self, data: TimeSeriesDataset) -> None:
         """Fits the flatliner check by detecting ongoing flatliner patterns.
 
-        This method checks for flatliner patterns in the 'load' column of the provided TimeSeriesDataset.
+        This method checks for flatliner patterns in the load column of the provided TimeSeriesDataset.
 
         Args:
-            data: The dataset containing a DataFrame with a 'load' column to be checked for flatliner patterns.
+            data: The dataset containing a DataFrame with a load column to be checked for flatliner patterns.
 
         Raises:
-            ValueError: If the input DataFrame does not contain a 'load' column.
+            ValueError: If the input DataFrame does not contain a load column.
             FlatlinerDetectedError: If a flatliner is detected and `error_on_flatliner` is set to True.
         """
-        if "load" not in data.data.columns:
-            raise ValueError("The DataFrame must contain a 'load' column.")
+        if self.load_column not in data.data.columns:
+            raise MissingColumnsError([self.load_column])
         self._is_flatliner_detected = self.detect_ongoing_flatliner(
-            data=data.data["load"],
+            data=data.data[self.load_column],
         )
         if self.error_on_flatliner and self._is_flatliner_detected:
             raise FlatlinerDetectedError("Flatliner detected in the provided load data.")
@@ -145,7 +149,7 @@ class FlatlinerCheckTransform(TimeSeriesTransform, BaseConfig):
         """Returns the input data unchanged, optionally checking for flatliners.
 
         This method can optionally run flatliner detection on new incoming data
-        when check_on_transform=True, which is useful for real-time validation
+        when `check_on_transform=True`, which is useful for real-time validation
         during forecasting.
 
         Args:
@@ -155,16 +159,16 @@ class FlatlinerCheckTransform(TimeSeriesTransform, BaseConfig):
             The unmodified input TimeSeriesDataset.
 
         Raises:
-            ValueError: If the input DataFrame does not contain a 'load' column and check_on_transform is True.
+            ValueError: If the input DataFrame does not contain a load column and check_on_transform is True.
             FlatlinerDetectedError: If a flatliner is detected and `error_on_flatliner` is set to True.
         """
         if not self.check_on_transform:
             return data
 
-        if "load" not in data.data.columns:
-            raise ValueError("The DataFrame must contain a 'load' column.")
+        if self.load_column not in data.data.columns:
+            raise MissingColumnsError([self.load_column])
         self._is_flatliner_detected = self.detect_ongoing_flatliner(
-            data=data.data["load"],
+            data=data.data[self.load_column],
         )
         if self.error_on_flatliner and self._is_flatliner_detected:
             raise FlatlinerDetectedError("Flatliner detected in the provided load data.")
