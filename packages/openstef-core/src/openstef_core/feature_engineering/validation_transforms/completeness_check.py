@@ -8,6 +8,7 @@ This module provides functionality for checking the completeness of time series 
 Completeness is defined as the ratio of non-missing values to the total number of values in a given time series.
 """
 
+from typing import override
 import pandas as pd
 from pydantic import Field, PrivateAttr
 
@@ -119,6 +120,7 @@ class CompletenessCheckTransform(TimeSeriesTransform, BaseConfig):
 
         return float(weighted_completeness / total_weight if total_weight > 0 else 0.0)
 
+    @override
     def fit(self, data: TimeSeriesDataset) -> None:
         """Calculates and stores the completeness metrics for the provided time series dataset.
 
@@ -137,6 +139,7 @@ class CompletenessCheckTransform(TimeSeriesTransform, BaseConfig):
         if not self._is_sufficiently_complete and self.error_on_insufficient_completeness:
             raise InsufficientlyCompleteError("The dataset is not sufficiently complete.")
 
+    @override
     def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
         """Returns the input data unchanged, optionally checking for completeness.
 
