@@ -9,7 +9,7 @@ across various domains.
 """
 
 from openstef_models.feature_engineering.general_transforms.clipping_transform import ClippingTransform
-from openstef_models.feature_engineering.general_transforms.missing_values_transform import MissingValuesTransform
+from openstef_models.feature_engineering.general_transforms.imputation_transform import ImputationTransform
 from openstef_models.feature_engineering.general_transforms.remove_empty_columns_transform import (
     RemoveEmptyColumnsTransform,
 )
@@ -17,7 +17,7 @@ from openstef_models.feature_engineering.general_transforms.scaler_transform imp
 
 __all__ = [
     "ClippingTransform",
-    "MissingValuesTransform",
+    "ImputationTransform",
     "RemoveEmptyColumnsTransform",
     "ScalerTransform",
 ]

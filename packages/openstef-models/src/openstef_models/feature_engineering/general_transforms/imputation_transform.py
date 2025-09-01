@@ -49,7 +49,7 @@ def _check_for_empty_columns(data: pd.DataFrame, missing_value: float) -> set[st
     return empty_columns
 
 
-class MissingValuesTransform(BaseConfig, TimeSeriesTransform):
+class ImputationTransform(BaseConfig, TimeSeriesTransform):
     """Transform that imputes missing values in specified columns of time series data.
 
     This transform applies imputation strategies to handle missing values in the dataset.
@@ -70,7 +70,7 @@ class MissingValuesTransform(BaseConfig, TimeSeriesTransform):
     >>> import pandas as pd
     >>> from openstef_core.datasets import TimeSeriesDataset
     >>> from openstef_models.feature_engineering.general_transforms import (
-    ...     MissingValuesTransform,
+    ...     ImputationTransform,
     ... )
     >>> data = pd.DataFrame(
     ...     {
@@ -82,11 +82,11 @@ class MissingValuesTransform(BaseConfig, TimeSeriesTransform):
     ... )
     >>> dataset = TimeSeriesDataset(data, timedelta(hours=1))
     >>> # Apply imputation to all columns (default behavior)
-    >>> transform_all = MissingValuesTransform(imputation_strategy="mean")
+    >>> transform_all = ImputationTransform(imputation_strategy="mean")
     >>> transform_all.fit(dataset)
     >>> result_all = transform_all.transform(dataset)
     >>> # Apply imputation only to specific columns
-    >>> transform_selective = MissingValuesTransform(
+    >>> transform_selective = ImputationTransform(
     ...     imputation_strategy="mean",
     ...     columns={"temperature", "wind_speed"}
     ... )
@@ -120,7 +120,7 @@ class MissingValuesTransform(BaseConfig, TimeSeriesTransform):
     _transform_columns: set[str] = PrivateAttr()
 
     @model_validator(mode="after")
-    def validate_fill_value_with_strategy(self) -> "MissingValuesTransform":
+    def validate_fill_value_with_strategy(self) -> "ImputationTransform":
         """Validate that fill_value is provided when strategy is CONSTANT.
 
         Returns:

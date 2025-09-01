@@ -11,7 +11,7 @@ from pydantic import ValidationError
 
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.exceptions import TransformNotFittedError
-from openstef_models.feature_engineering.general_transforms import MissingValuesTransform, RemoveEmptyColumnsTransform
+from openstef_models.feature_engineering.general_transforms import ImputationTransform, RemoveEmptyColumnsTransform
 
 
 @pytest.fixture
@@ -37,13 +37,13 @@ def test_validation_constant_strategy_requires_fill_value():
     """Test that CONSTANT strategy raises ValidationError when fill_value is missing."""
     # Arrange & Act & Assert
     with pytest.raises(ValidationError, match="fill_value must be provided when imputation_strategy is CONSTANT"):
-        MissingValuesTransform(imputation_strategy="constant")
+        ImputationTransform(imputation_strategy="constant")
 
 
 def test_basic_imputation_works(sample_dataset: TimeSeriesDataset):
     """Test that basic imputation removes NaN values."""
     # Arrange
-    transform = MissingValuesTransform(imputation_strategy="mean")
+    transform = ImputationTransform(imputation_strategy="mean")
 
     # Act
     transform.fit(sample_dataset)
@@ -62,7 +62,7 @@ def test_constant_imputation_uses_fill_value():
         index=pd.date_range(datetime.fromisoformat("2025-01-01T00:00:00"), periods=3, freq="1h"),
     )
     dataset = TimeSeriesDataset(data, timedelta(hours=1))
-    transform = MissingValuesTransform(imputation_strategy="constant", fill_value=999.0)
+    transform = ImputationTransform(imputation_strategy="constant", fill_value=999.0)
 
     # Act
     transform.fit(dataset)
@@ -81,7 +81,7 @@ def test_custom_missing_value_placeholder():
         index=pd.date_range(datetime.fromisoformat("2025-01-01T00:00:00"), periods=3, freq="1h"),
     )
     dataset = TimeSeriesDataset(data, timedelta(hours=1))
-    transform = MissingValuesTransform(imputation_strategy="mean", missing_value=-999.0)
+    transform = ImputationTransform(imputation_strategy="mean", missing_value=-999.0)
 
     # Act
     transform.fit(dataset)
@@ -116,7 +116,7 @@ def test_trailing_null_preservation(
         index=pd.date_range(datetime.fromisoformat("2025-01-01T00:00:00"), periods=4, freq="1h"),
     )
     dataset = TimeSeriesDataset(data, timedelta(hours=1))
-    transform = MissingValuesTransform(imputation_strategy="mean", columns=columns)
+    transform = ImputationTransform(imputation_strategy="mean", columns=columns)
 
     # Act
     transform.fit(dataset)
@@ -147,7 +147,7 @@ def test_empty_columns_raise_error():
         index=pd.date_range(datetime.fromisoformat("2025-01-01T00:00:00"), periods=3, freq="1h"),
     )
     dataset = TimeSeriesDataset(data, timedelta(hours=1))
-    transform = MissingValuesTransform(imputation_strategy="mean")
+    transform = ImputationTransform(imputation_strategy="mean")
 
     # Act & Assert
     with pytest.raises(ValueError, match=r"Cannot impute completely empty columns.*Use RemoveEmptyColumnsTransform"):
@@ -174,7 +174,7 @@ def test_remove_empty_then_impute_workflow():
     cleaned_dataset = remove_transform.transform(dataset)
 
     # Then apply imputation
-    impute_transform = MissingValuesTransform(imputation_strategy="mean")
+    impute_transform = ImputationTransform(imputation_strategy="mean")
     impute_transform.fit(cleaned_dataset)
     result = impute_transform.transform(cleaned_dataset)
 
@@ -194,10 +194,10 @@ def test_transform_not_fitted_error():
         index=pd.date_range(datetime.fromisoformat("2025-01-01T00:00:00"), periods=2, freq="1h"),
     )
     dataset = TimeSeriesDataset(data, timedelta(hours=1))
-    transform = MissingValuesTransform(imputation_strategy="mean")
+    transform = ImputationTransform(imputation_strategy="mean")
 
     # Act & Assert
-    with pytest.raises(TransformNotFittedError, match="The transform 'MissingValuesTransform' has not been fitted"):
+    with pytest.raises(TransformNotFittedError, match="The transform 'ImputationTransform' has not been fitted"):
         transform.transform(dataset)
 
 
@@ -213,7 +213,7 @@ def test_no_missing_values_data_preservation():
     )
     dataset = TimeSeriesDataset(data, timedelta(hours=1))
     original_data = dataset.data.copy()
-    transform = MissingValuesTransform(imputation_strategy="mean")
+    transform = ImputationTransform(imputation_strategy="mean")
 
     # Act
     transform.fit(dataset)
