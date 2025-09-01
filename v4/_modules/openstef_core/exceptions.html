@@ -450,14 +450,25 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 
+<div class="viewcode-block" id="MissingExtraError">
+<a class="viewcode-back" href="../../api/generated/openstef_core.exceptions.MissingExtraError.html#openstef_core.exceptions.MissingExtraError">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">MissingExtraError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Exception raised when an extra is missing in the extras list.&quot;&quot;&quot;</span>
 
+<div class="viewcode-block" id="MissingExtraError.__init__">
+<a class="viewcode-back" href="../../api/generated/openstef_core.exceptions.MissingExtraError.html#openstef_core.exceptions.MissingExtraError.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extra</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the exception with the name of the missing extra.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            extra: Name of the missing extra.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">extra</span> <span class="o">=</span> <span class="n">extra</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;The extras for </span><span class="si">{</span><span class="n">extra</span><span class="si">}</span><span class="s2">. Please install it to use this module using `pip install stef-beam[</span><span class="si">{</span><span class="n">extra</span><span class="si">}</span><span class="s2">]`.&quot;</span>
-        <span class="p">)</span>
+        <span class="p">)</span></div>
+</div>
+
 
 
 <div class="viewcode-block" id="MissingColumnsError">
@@ -479,9 +490,13 @@
 
 
 
+<div class="viewcode-block" id="InvalidColumnTypeError">
+<a class="viewcode-back" href="../../api/generated/openstef_core.exceptions.InvalidColumnTypeError.html#openstef_core.exceptions.InvalidColumnTypeError">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">InvalidColumnTypeError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Exception raised when a DataFrame column has an invalid type.&quot;&quot;&quot;</span>
 
+<div class="viewcode-block" id="InvalidColumnTypeError.__init__">
+<a class="viewcode-back" href="../../api/generated/openstef_core.exceptions.InvalidColumnTypeError.html#openstef_core.exceptions.InvalidColumnTypeError.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">expected_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">actual_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the exception with details about the type mismatch.</span>
 
@@ -491,7 +506,9 @@
 <span class="sd">            actual_type: The actual data type found in the column.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Invalid type for column &#39;</span><span class="si">{</span><span class="n">column</span><span class="si">}</span><span class="s2">&#39;: expected </span><span class="si">{</span><span class="n">expected_type</span><span class="si">}</span><span class="s2">, but got </span><span class="si">{</span><span class="n">actual_type</span><span class="si">}</span><span class="s2">.&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">)</span></div>
+</div>
+
 
 
 <div class="viewcode-block" id="TimeSeriesValidationError">
@@ -506,6 +523,24 @@
 
 <span class="sd">        Args:</span>
 <span class="sd">            message: Human-readable description of the validation error.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="FlatlinerDetectedError">
+<a class="viewcode-back" href="../../api/generated/openstef_core.exceptions.FlatlinerDetectedError.html#openstef_core.exceptions.FlatlinerDetectedError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FlatlinerDetectedError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Exception raised when a flatliner is detected in the data.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="FlatlinerDetectedError.__init__">
+<a class="viewcode-back" href="../../api/generated/openstef_core.exceptions.FlatlinerDetectedError.html#openstef_core.exceptions.FlatlinerDetectedError.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the exception with a descriptive error message.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            message: Human-readable description of the flatliner detection error.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">)</span></div>
 </div>
@@ -549,7 +584,15 @@
 
 
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;InsufficientlyCompleteError&quot;</span><span class="p">,</span> <span class="s2">&quot;MissingColumnsError&quot;</span><span class="p">,</span> <span class="s2">&quot;TimeSeriesValidationError&quot;</span><span class="p">,</span> <span class="s2">&quot;TransformNotFittedError&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;FlatlinerDetectedError&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;InsufficientlyCompleteError&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;InvalidColumnTypeError&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;MissingColumnsError&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;MissingExtraError&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;TimeSeriesValidationError&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;TransformNotFittedError&quot;</span><span class="p">,</span>
+<span class="p">]</span>
 </pre></div>
 
                 </article>

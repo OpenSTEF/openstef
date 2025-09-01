@@ -33,8 +33,11 @@ Classes
    :toctree: .
    :template: custom_class.rst
 
+   FlatlinerDetectedError
    InsufficientlyCompleteError
+   InvalidColumnTypeError
    MissingColumnsError
+   MissingExtraError
    TimeSeriesValidationError
    TransformNotFittedError
 

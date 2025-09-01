@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>TimeSeriesMixin &#8212; OpenSTEF 0.0.0 documentation</title>
+    <title>FlatlinerDetectedError &#8212; OpenSTEF 0.0.0 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../_static/copybutton.js?v=97f0b27d"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'api/generated/openstef_core.datasets.mixins.TimeSeriesMixin';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/generated/openstef_core.exceptions.FlatlinerDetectedError';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = '_static/versions.json';
@@ -59,8 +59,8 @@
     <link rel="icon" href="../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="VersionedTimeSeriesMixin" href="openstef_core.datasets.mixins.VersionedTimeSeriesMixin.html" />
-    <link rel="prev" title="openstef_core.datasets.mixins" href="openstef_core.datasets.mixins.html" />
+    <link rel="next" title="InsufficientlyCompleteError" href="openstef_core.exceptions.InsufficientlyCompleteError.html" />
+    <link rel="prev" title="openstef_core.exceptions" href="openstef_core.exceptions.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="0.0.0" />
@@ -394,9 +394,9 @@
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="openstef_core.datasets.html">openstef_core.datasets</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2 current active has-children"><a class="reference internal" href="openstef_core.datasets.mixins.html">openstef_core.datasets.mixins</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l3 current active"><a class="current reference internal" href="#">TimeSeriesMixin</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="openstef_core.datasets.html">openstef_core.datasets</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="openstef_core.datasets.mixins.html">openstef_core.datasets.mixins</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="openstef_core.datasets.mixins.TimeSeriesMixin.html">TimeSeriesMixin</a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_core.datasets.mixins.VersionedTimeSeriesMixin.html">VersionedTimeSeriesMixin</a></li>
 </ul>
 </details></li>
@@ -423,8 +423,8 @@
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.base_model.PydanticStringPrimitive.html">PydanticStringPrimitive</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="openstef_core.exceptions.html">openstef_core.exceptions</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.FlatlinerDetectedError.html">FlatlinerDetectedError</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="openstef_core.exceptions.html">openstef_core.exceptions</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">FlatlinerDetectedError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.InsufficientlyCompleteError.html">InsufficientlyCompleteError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.InvalidColumnTypeError.html">InvalidColumnTypeError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.MissingColumnsError.html">MissingColumnsError</a></li>
@@ -548,12 +548,9 @@
     <li class="breadcrumb-item"><a href="../index.html" class="nav-link">API Reference</a></li>
     
     
-    <li class="breadcrumb-item"><a href="openstef_core.datasets.html" class="nav-link">openstef_core.datasets</a></li>
+    <li class="breadcrumb-item"><a href="openstef_core.exceptions.html" class="nav-link">openstef_core.exceptions</a></li>
     
-    
-    <li class="breadcrumb-item"><a href="openstef_core.datasets.mixins.html" class="nav-link">openstef_core.datasets.mixins</a></li>
-    
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">TimeSeriesMixin</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">FlatlinerDetectedError</span></li>
   </ul>
 </nav>
 </div>
@@ -570,58 +567,28 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="timeseriesmixin">
-<h1>TimeSeriesMixin<a class="headerlink" href="#timeseriesmixin" title="Link to this heading">#</a></h1>
+  <section id="flatlinerdetectederror">
+<h1>FlatlinerDetectedError<a class="headerlink" href="#flatlinerdetectederror" title="Link to this heading">#</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="openstef_core.datasets.mixins.TimeSeriesMixin">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef_core.datasets.mixins.</span></span><span class="sig-name descname"><span class="pre">TimeSeriesMixin</span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/mixins.html#TimeSeriesMixin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.mixins.TimeSeriesMixin" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
-<p>Abstract base class for time series dataset functionality.</p>
-<p>This mixin defines the essential interface that all time series datasets
-must implement. It provides access to feature metadata, temporal properties,
-and the dataset’s temporal index.</p>
-<p>Classes implementing this mixin must set the required attributes in their __init__ method.
-This interface enables consistent access patterns across different time series
-dataset implementations.</p>
+<dt class="sig sig-object py" id="openstef_core.exceptions.FlatlinerDetectedError">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef_core.exceptions.</span></span><span class="sig-name descname"><span class="pre">FlatlinerDetectedError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/openstef_core/exceptions.html#FlatlinerDetectedError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.exceptions.FlatlinerDetectedError" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Exception raised when a flatliner is detected in the data.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Variables<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>feature_names</strong> – Names of all available features, excluding metadata columns.</p></li>
-<li><p><strong>sample_interval</strong> – The fixed interval between consecutive samples.</p></li>
-<li><p><strong>index</strong> – Datetime index representing all timestamps in the dataset.</p></li>
-</ul>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>message</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>)</p>
 </dd>
 </dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="openstef_core.datasets.mixins.TimeSeriesMixin.feature_names">
-<span class="sig-name descname"><span class="pre">feature_names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><a class="headerlink" href="#openstef_core.datasets.mixins.TimeSeriesMixin.feature_names" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="openstef_core.datasets.mixins.TimeSeriesMixin.sample_interval">
-<span class="sig-name descname"><span class="pre">sample_interval</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">timedelta</span></code></em><a class="headerlink" href="#openstef_core.datasets.mixins.TimeSeriesMixin.sample_interval" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="openstef_core.datasets.mixins.TimeSeriesMixin.index">
-<span class="sig-name descname"><span class="pre">index</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">DatetimeIndex</span></code></em><a class="headerlink" href="#openstef_core.datasets.mixins.TimeSeriesMixin.index" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
 <dl class="py method">
-<dt class="sig sig-object py" id="openstef_core.datasets.mixins.TimeSeriesMixin.calculate_time_coverage">
-<span class="sig-name descname"><span class="pre">calculate_time_coverage</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">timedelta</span></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/mixins.html#TimeSeriesMixin.calculate_time_coverage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.mixins.TimeSeriesMixin.calculate_time_coverage" title="Link to this definition">#</a></dt>
-<dd><p>Calculates the total time span covered by the dataset.</p>
-<p>This method computes the total duration represented by the dataset
-based on its unique timestamps and sample interval.</p>
+<dt class="sig sig-object py" id="openstef_core.exceptions.FlatlinerDetectedError.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/openstef_core/exceptions.html#FlatlinerDetectedError.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.exceptions.FlatlinerDetectedError.__init__" title="Link to this definition">#</a></dt>
+<dd><p>Initialize the exception with a descriptive error message.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">timedelta</span></code></span></p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Total time coverage of the dataset.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>timedelta</p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>message</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Human-readable description of the flatliner detection error.</p></li>
+<li><p><strong>message</strong></p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -641,20 +608,20 @@ based on its unique timestamps and sample interval.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="openstef_core.datasets.mixins.html"
+       href="openstef_core.exceptions.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">openstef_core.datasets.mixins</p>
+        <p class="prev-next-title">openstef_core.exceptions</p>
       </div>
     </a>
     <a class="right-next"
-       href="openstef_core.datasets.mixins.VersionedTimeSeriesMixin.html"
+       href="openstef_core.exceptions.InsufficientlyCompleteError.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">VersionedTimeSeriesMixin</p>
+        <p class="prev-next-title">InsufficientlyCompleteError</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -677,11 +644,8 @@ based on its unique timestamps and sample interval.</p>
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.datasets.mixins.TimeSeriesMixin"><code class="docutils literal notranslate"><span class="pre">TimeSeriesMixin</span></code></a><ul class="visible nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.datasets.mixins.TimeSeriesMixin.feature_names"><code class="docutils literal notranslate"><span class="pre">TimeSeriesMixin.feature_names</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.datasets.mixins.TimeSeriesMixin.sample_interval"><code class="docutils literal notranslate"><span class="pre">TimeSeriesMixin.sample_interval</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.datasets.mixins.TimeSeriesMixin.index"><code class="docutils literal notranslate"><span class="pre">TimeSeriesMixin.index</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.datasets.mixins.TimeSeriesMixin.calculate_time_coverage"><code class="docutils literal notranslate"><span class="pre">TimeSeriesMixin.calculate_time_coverage()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.exceptions.FlatlinerDetectedError"><code class="docutils literal notranslate"><span class="pre">FlatlinerDetectedError</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.exceptions.FlatlinerDetectedError.__init__"><code class="docutils literal notranslate"><span class="pre">FlatlinerDetectedError.__init__()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -691,7 +655,7 @@ based on its unique timestamps and sample interval.</p>
 
   
   <div class="tocsection editthispage">
-    <a href="https://github.com/OpenSTEF/openstef/edit/main/docs/source/api/generated/openstef_core.datasets.mixins.TimeSeriesMixin.rst">
+    <a href="https://github.com/OpenSTEF/openstef/edit/main/docs/source/api/generated/openstef_core.exceptions.FlatlinerDetectedError.rst">
       <i class="fa-solid fa-pencil"></i>
       
       
@@ -707,7 +671,7 @@ based on its unique timestamps and sample interval.</p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../../_sources/api/generated/openstef_core.datasets.mixins.TimeSeriesMixin.rst.txt"
+      <li><a href="../../_sources/api/generated/openstef_core.exceptions.FlatlinerDetectedError.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div></div>
