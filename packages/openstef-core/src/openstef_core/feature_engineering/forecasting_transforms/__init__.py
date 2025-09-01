@@ -8,7 +8,7 @@ This module provides transforms specifically designed for forecasting workflows,
 including feature scaling, trend analysis, and feature clipping utilities that
 prepare time series data for machine learning models.
 """
-from .rolling_aggregate_transform import RollingAggregateTransform
 
+from .rolling_aggregate_transform import RollingAggregateTransform
 
 __all__ = ["RollingAggregateTransform"]
