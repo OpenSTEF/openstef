@@ -11,16 +11,17 @@ whether a date is a holiday or a specific holiday.
 """
 
 from datetime import date
-from pathlib import Path
+from typing import override
 
-import holidays
+import holidays  # TODO: we should either add this to a group, or move the transforms to models module.
 import pandas as pd
 
+from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.datasets.transforms import TimeSeriesTransform
 
 
-class HolidayFeatures(TimeSeriesTransform):
+class HolidayFeaturesTransform(BaseConfig, TimeSeriesTransform):
     """Transform that adds holiday features to time series data.
 
     Computes features that indicate whether a date is a holiday
@@ -55,24 +56,16 @@ class HolidayFeatures(TimeSeriesTransform):
         [0, 0, 0, 0, 0]
     """
 
-    def __init__(
-        self,
-        country_code: str,
-        path_to_school_holidays_ical: Path | None = None,
-        *,
-        include_individual_holiday_features: bool = True,
-    ) -> None:
+    country_code: str
+
+    def __init__(self, **kwargs: str) -> None:
         """Initialize the HolidayFeatures transform.
 
         Args:
-            country_code: Country code for which to compute holidays (e.g., 'NL' for Netherlands).
-            path_to_school_holidays_ical: Optional path to an iCal file with school holidays.
-            include_individual_holiday_features: Whether to include individual holiday features (is_{holiday_name}).
+            **kwargs: Configuration parameters for the transform.
         """
-        self.country_code: str = country_code
-        self.path_to_school_holidays_ical: Path | None = path_to_school_holidays_ical
-        self.include_individual_holidays: bool = include_individual_holiday_features
-        self.holiday_features: pd.DataFrame = pd.DataFrame()
+        super().__init__(**kwargs)
+        self._holiday_features: pd.DataFrame = pd.DataFrame()
 
     def _get_country_holidays(self, index: pd.DatetimeIndex) -> dict[date, str]:
         """Get all holidays for the years covered by the index.
@@ -128,7 +121,7 @@ class HolidayFeatures(TimeSeriesTransform):
         Returns:
             DataFrame with individual holiday features.
         """
-        if not self.include_individual_holidays or not country_holidays:
+        if not country_holidays:
             return pd.DataFrame(index=index)
 
         # Get unique holiday names and create sanitized feature names
@@ -148,6 +141,7 @@ class HolidayFeatures(TimeSeriesTransform):
 
         return holiday_features
 
+    @override
     def fit(self, data: TimeSeriesDataset) -> None:
         """Fit the transform to the data by identifying holidays.
 
@@ -161,8 +155,9 @@ class HolidayFeatures(TimeSeriesTransform):
         individual_features = self._create_individual_holiday_features(data.index, country_holidays)
 
         # Combine all features
-        self.holiday_features = pd.concat([general_feature, individual_features], axis=1)
+        self._holiday_features = pd.concat([general_feature, individual_features], axis=1)
 
+    @override
     def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
         """Transform the dataset by adding holiday features.
 
@@ -173,6 +168,6 @@ class HolidayFeatures(TimeSeriesTransform):
             Transformed dataset with holiday features added.
         """
         return TimeSeriesDataset(
-            data=pd.concat([data.data, self.holiday_features], axis=1),
+            data=pd.concat([data.data, self._holiday_features], axis=1),
             sample_interval=data.sample_interval,
         )

@@ -68,7 +68,7 @@ def test_daylight_features_initialization() -> None:
     # Assert
     assert transform.latitude == latitude
     assert transform.longitude == longitude
-    assert transform.daylight_continuous.empty
+    assert transform._daylight_continuous.empty
 
 
 def test_daylight_features_initialization_parameters() -> None:
@@ -99,9 +99,9 @@ def test_fit_creates_daylight_features(sample_dataset: TimeSeriesDataset, mock_c
         transform.fit(sample_dataset)
 
     # Assert
-    assert not transform.daylight_continuous.empty
-    assert "daylight_continuous" in transform.daylight_continuous.columns
-    assert len(transform.daylight_continuous) == len(sample_dataset.index)
+    assert not transform._daylight_continuous.empty
+    assert "daylight_continuous" in transform._daylight_continuous.columns
+    assert len(transform._daylight_continuous) == len(sample_dataset.index)
 
     # Verify pvlib was called correctly
     mock_pvlib.location.Location.assert_called_once_with(52.0, 5.0, tz=str(sample_dataset.index.tz))

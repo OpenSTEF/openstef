@@ -13,6 +13,7 @@
 from pathlib import Path
 import re
 from typing import Any
+import warnings
 from sphinx_pyproject import SphinxConfig
 from sphinx.application import Sphinx
 import yaml
@@ -62,6 +63,9 @@ autosummary_generate = True
 autosummary_generate_overwrite = True
 autosummary_imported_members = False
 
+# Don't generate separate pages for class members
+autosummary_mock_imports = []
+
 # Autodoc settings for better docstring rendering
 autodoc_default_options = {
     "members": True,
@@ -77,10 +81,10 @@ autodoc_typehints = "description"
 autodoc_typehints_description_target = "documented"
 autodoc_preserve_defaults = True
 autodoc_typehints_format = "short"
-autodoc_typehints_signature = True
+autodoc_typehints_signature = False  # Don't show types in signatures to avoid duplication
 
 autodoc_inherit_docstrings = True
-autodoc_member_order = "bysource"
+autodoc_member_order = "groupwise"
 
 # Respect __all__ definitions
 automodule_skip_lines = 0
@@ -92,16 +96,20 @@ typehints_use_signature = True  # Show in signatures
 typehints_use_signature_return = True  # Include return type in signature
 always_document_param_types = True  # Always show param types even without docstring
 
-# Napoleon settings for NumPy-style docstrings
+# Autosummary configuration for better API reference (scikit-learn style)
+autosummary_filename_map = {}
+autosummary_ignore_module_all = False
+
+# Napoleon settings for Google-style docstrings (similar to scikit-learn)
 napoleon_google_docstring = True
 napoleon_numpy_docstring = False  # Disable NumPy style
-napoleon_include_init_with_doc = False
+napoleon_include_init_with_doc = False  # Don't include __init__ params in class docstring to avoid duplication
 napoleon_include_private_with_doc = False
 napoleon_include_special_with_doc = True
 napoleon_use_admonition_for_examples = False
 napoleon_use_admonition_for_notes = False
 napoleon_use_admonition_for_references = False
-napoleon_use_ivar = False
+napoleon_use_ivar = True  # Enable instance variable documentation
 napoleon_use_param = True
 napoleon_use_rtype = True
 napoleon_preprocess_types = False
@@ -226,10 +234,10 @@ html_theme_options = {
     "search_bar_text": "Search the docs ...",
     "navigation_with_keys": False,
     "collapse_navigation": False,
-    "navigation_depth": 1,  # Only show first level in navbar
-    "show_nav_level": 1,  # Limit navbar to level 1 only
+    "navigation_depth": 3,  # Show more levels for API reference
+    "show_nav_level": 2,  # Show more levels in navbar
     "navbar_center": ["navbar-nav"],  # Use only primary navigation
-    "show_toc_level": 2,  # Keep detailed TOC in sidebar
+    "show_toc_level": 3,  # Show deeper TOC levels in sidebar
     "navbar_align": "left",
     "header_links_before_dropdown": 5,
     "header_dropdown_text": "More",

@@ -27,24 +27,21 @@ classifiers = [
 ]
 
 dependencies = [
-  "holidays>=0.79",
   "numpy>=2.3.2",
   "pandas>=2.3.1",
   "pyarrow>=21",
+]
+
+optional-dependencies.feature_engineering = [
+  "holidays>=0.79",
+  "pvlib>=0.13",
+  "scikit-learn>=1.7.1",
 ]
 
 urls.Documentation = "https://openstef.github.io/openstef/index.html"
 urls.Homepage = "https://lfenergy.org/projects/openstef/"
 urls.Issues = "https://github.com/OpenSTEF/openstef/issues"
 urls.Repository = "https://github.com/OpenSTEF/openstef"
-
-[dependency-groups]
-ml = [
-  "scikit-learn>=1.7.1",
-]
-pvlib = [
-  "pvlib>=0.13",
-]
 
 [tool.hatch.build.targets.wheel]
 packages = [ "src/openstef_core" ]
