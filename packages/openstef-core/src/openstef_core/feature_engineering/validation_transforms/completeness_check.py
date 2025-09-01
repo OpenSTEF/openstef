@@ -59,10 +59,6 @@ class CompletenessCheckTransform(TimeSeriesTransform, BaseConfig):
         default=0.5,
         description="Threshold for completeness below which the data is considered insufficiently complete.",
     )
-    error_on_insufficient_completeness: bool = Field(
-        default=True,
-        description="Whether to raise an error when the data is not sufficiently complete.",
-    )
     _completeness: float = PrivateAttr(default=False)
     _is_sufficiently_complete: bool = PrivateAttr(default=False)
 

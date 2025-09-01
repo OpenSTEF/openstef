@@ -15,71 +15,6 @@ from openstef_core.feature_engineering.validation_transforms.completeness_check 
 )
 
 
-# @pytest.mark.parametrize(
-#     ("columns", "weights", "threshold", "completeness", "sufficiently_complete"),
-#     [
-#         pytest.param(
-#             None,
-#             {"radiation": 1.0, "temperature": 1.0, "wind_speed": 1.0},
-#             0.5,
-#             0.75,
-#             True,
-#             id="sufficient_equal_weights",
-#         ),
-#         pytest.param(None, None, 0.5, 0.75, True, id="sufficient_default_weights"),
-#         pytest.param(
-#             None,
-#             {"radiation": 1.0, "temperature": 1.0, "wind_speed": 1.0},
-#             0.8,
-#             0.75,
-#             False,
-#             id="insufficient_equal_weights",
-#         ),
-#         pytest.param(
-#             None,
-#             {"radiation": 1.0, "temperature": 3.0, "wind_speed": 1.0},
-#             0.5,
-#             0.75,
-#             True,
-#             id="sufficient_unequal_weights",
-#         ),
-#         pytest.param(
-#             ["radiation", "temperature"],
-#             {"radiation": 1.0, "temperature": 1.0},
-#             0.5,
-#             0.75,
-#             True,
-#             id="sufficient_partial_columns",
-#         ),
-#     ],
-# )
-# def test_transform(
-#     columns: list[str] | None,
-#     weights: dict[str, float],
-#     threshold: float,
-#     completeness: float,
-#     sufficiently_complete: bool,
-# ):
-#     data = pd.DataFrame(
-#         {
-#             "radiation": [100, 110, 110, np.nan],
-#             "temperature": [20, np.nan, np.nan, 21],
-#             "wind_speed": [5, 6, 6, 3],
-#         },
-#         index=pd.date_range("2025-01-01", periods=4, freq="15min"),
-#     )
-#     dataset = TimeSeriesDataset(data, timedelta(minutes=15))
-#     transform = CompletenessCheckTransform(
-#         columns=columns, weights=weights, completeness_threshold=threshold, error_on_insufficient_completeness=False
-#     )
-#     if not sufficiently_complete:
-#         with pytest.raises(InsufficientlyCompleteError, match=f"The dataset is not sufficiently complete. Completeness: {completeness}"):
-#             transform.transform(dataset)
-#     else:
-#         result = transform.transform(dataset)
-#         assert result == dataset
-
-
 @pytest.mark.parametrize(
     ("data_dict", "columns", "weights", "threshold", "expected_completeness"),
     [
@@ -154,15 +89,10 @@ def test_transform_sufficient_completeness(
         data_dict,
         index=pd.date_range("2025-01-01", periods=len(next(iter(data_dict.values()))), freq="15min"),
     )
-    
+
     dataset = TimeSeriesDataset(data, timedelta(minutes=15))
-    transform = CompletenessCheckTransform(
-        columns=columns, 
-        weights=weights, 
-        completeness_threshold=threshold,
-        error_on_insufficient_completeness=True
-    )
-    
+    transform = CompletenessCheckTransform(columns=columns, weights=weights, completeness_threshold=threshold)
+
     result = transform.transform(dataset)
     assert result == dataset
     assert abs(transform._completeness - expected_completeness) < 0.01
@@ -243,14 +173,12 @@ def test_transform_insufficient_completeness(
         )
     else:
         data = pd.DataFrame(index=pd.date_range("2025-01-01", periods=0, freq="15min"))
-    
-    dataset = TimeSeriesDataset(data, timedelta(minutes=15))
-    transform = CompletenessCheckTransform(
-        columns=columns, 
-        weights=weights, 
-        completeness_threshold=threshold,
-        error_on_insufficient_completeness=True
-    )
 
-    with pytest.raises(InsufficientlyCompleteError, match=f"The dataset is not sufficiently complete. Completeness: {expected_completeness}"):
+    dataset = TimeSeriesDataset(data, timedelta(minutes=15))
+    transform = CompletenessCheckTransform(columns=columns, weights=weights, completeness_threshold=threshold)
+
+    with pytest.raises(
+        InsufficientlyCompleteError,
+        match=f"The dataset is not sufficiently complete. Completeness: {expected_completeness}",
+    ):
         transform.transform(dataset)
