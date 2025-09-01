@@ -2,11 +2,10 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-"""Flatliner check transform for time series datasets.
+"""Completeness check transform for time series datasets.
 
-This module provides functionality for detecting flatliner patterns in time series load data.
-A flatliner is defined as a period where the load remains constant for a specified duration, which can indicate sensor
-malfunction, data transmission errors, or other anomalies in energy forecasting datasets.
+This module provides functionality for checking the completeness of time series load data.
+Completeness is defined as the ratio of non-missing values to the total number of values in a given time series.
 """
 
 from typing import Any
@@ -20,10 +19,11 @@ from openstef_core.datasets.transforms import TimeSeriesTransform
 
 
 class CompletenessCheckTransform(TimeSeriesTransform, BaseConfig):
-    """Transformer to detect flatliner patterns in time series load data.
+    """Transformer to check the completeness of time series load data.
 
-    A flatliner is a period where the load remains constant for a specified duration.
-    This class can detect both zero and non-zero flatliners, depending on configuration.
+    Completeness is defined as the ratio of non-missing values to the total number of values in a given time series.
+    This class can be configured to check specific columns and apply weights to their importance in the
+    completeness calculation.
 
     Example:
     >>> from datetime import datetime, timedelta
