@@ -16,7 +16,7 @@ from openstef_core.feature_engineering.validation_transforms.completeness_check 
 
 
 @pytest.mark.parametrize(
-    ("data_dict", "columns", "weights", "threshold", "expected_completeness"),
+    ("data_dict", "columns", "weights"),
     [
         pytest.param(
             {
@@ -26,8 +26,6 @@ from openstef_core.feature_engineering.validation_transforms.completeness_check 
             },
             None,
             None,
-            0.5,
-            0.75,
             id="mixed_completeness_default",
         ),
         pytest.param(
@@ -38,8 +36,6 @@ from openstef_core.feature_engineering.validation_transforms.completeness_check 
             },
             None,
             None,
-            0.5,
-            1.0,
             id="fully_complete",
         ),
         pytest.param(
@@ -50,8 +46,6 @@ from openstef_core.feature_engineering.validation_transforms.completeness_check 
             },
             ["temperature", "wind_speed"],
             None,
-            0.5,
-            1.0,
             id="complete_selected_columns",
         ),
         pytest.param(
@@ -62,8 +56,6 @@ from openstef_core.feature_engineering.validation_transforms.completeness_check 
             },
             None,
             {"radiation": 2.0, "temperature": 1.0, "wind_speed": 2.0},
-            0.5,
-            0.8,
             id="weighted_completeness_sufficient",
         ),
         pytest.param(
@@ -72,8 +64,6 @@ from openstef_core.feature_engineering.validation_transforms.completeness_check 
             },
             None,
             None,
-            0.5,
-            0.5,
             id="single_column_exact_threshold",
         ),
     ],
@@ -82,8 +72,6 @@ def test_transform_sufficient_completeness(
     data_dict: dict[str, list[float]],
     columns: list[str] | None,
     weights: dict[str, float] | None,
-    threshold: float,
-    expected_completeness: float,
 ):
     data = pd.DataFrame(
         data_dict,
@@ -91,11 +79,10 @@ def test_transform_sufficient_completeness(
     )
 
     dataset = TimeSeriesDataset(data, timedelta(minutes=15))
-    transform = CompletenessCheckTransform(columns=columns, weights=weights, completeness_threshold=threshold)
+    transform = CompletenessCheckTransform(columns=columns, weights=weights)
 
     result = transform.transform(dataset)
     assert result == dataset
-    assert abs(transform._completeness - expected_completeness) < 0.01
 
 
 @pytest.mark.parametrize(

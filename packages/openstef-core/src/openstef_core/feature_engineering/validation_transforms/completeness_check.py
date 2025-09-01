@@ -11,7 +11,7 @@ Completeness is defined as the ratio of non-missing values to the total number o
 from typing import override
 
 import pandas as pd
-from pydantic import Field, PrivateAttr
+from pydantic import Field
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
@@ -59,8 +59,6 @@ class CompletenessCheckTransform(TimeSeriesTransform, BaseConfig):
         default=0.5,
         description="Threshold for completeness below which the data is considered insufficiently complete.",
     )
-    _completeness: float = PrivateAttr(default=False)
-    _is_sufficiently_complete: bool = PrivateAttr(default=False)
 
     def _calculate_sufficiently_complete(self, data: pd.DataFrame) -> bool:
         """Check if the DataFrame is sufficiently complete.
@@ -113,14 +111,9 @@ class CompletenessCheckTransform(TimeSeriesTransform, BaseConfig):
         Raises:
             InsufficientlyCompleteError: If the dataset is not sufficiently complete.
         """
-        self._completeness = self._calculate_completeness(
-            data=data.data,
-        )
-        self._is_sufficiently_complete = self._calculate_sufficiently_complete(
-            data=data.data,
-        )
-        if not self._is_sufficiently_complete:
-            msg = f"The dataset is not sufficiently complete. Completeness: {self._completeness:.2f}"
+        if not self._calculate_sufficiently_complete(data=data.data):
+            completeness = self._calculate_completeness(data=data.data)
+            msg = f"The dataset is not sufficiently complete. Completeness: {completeness:.2f}"
             raise InsufficientlyCompleteError(msg)
 
         return data
