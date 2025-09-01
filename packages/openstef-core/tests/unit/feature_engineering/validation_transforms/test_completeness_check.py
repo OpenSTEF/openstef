@@ -15,21 +15,49 @@ from openstef_core.feature_engineering.validation_transforms.completeness_check 
 
 
 @pytest.mark.parametrize(
-    ("weights", "threshold", "expected_completeness", "expected_sufficiently_complete"),
+    ("columns", "weights", "threshold", "expected_completeness", "expected_sufficiently_complete"),
     [
         pytest.param(
-            {"radiation": 1.0, "temperature": 1.0, "wind_speed": 1.0}, 0.5, 0.75, True, id="sufficient_equal_weights"
+            None,
+            {"radiation": 1.0, "temperature": 1.0, "wind_speed": 1.0},
+            0.5,
+            0.75,
+            True,
+            id="sufficient_equal_weights",
+        ),
+        pytest.param(None, None, 0.5, 0.75, True, id="sufficient_default_weights"),
+        pytest.param(
+            None,
+            {"radiation": 1.0, "temperature": 1.0, "wind_speed": 1.0},
+            0.8,
+            0.75,
+            False,
+            id="insufficient_equal_weights",
         ),
         pytest.param(
-            {"radiation": 1.0, "temperature": 1.0, "wind_speed": 1.0}, 0.8, 0.75, False, id="insufficient_equal_weights"
+            None,
+            {"radiation": 1.0, "temperature": 3.0, "wind_speed": 1.0},
+            0.5,
+            0.65,
+            True,
+            id="sufficient_unequal_weights",
         ),
         pytest.param(
-            {"radiation": 1.0, "temperature": 3.0, "wind_speed": 1.0}, 0.5, 0.65, True, id="sufficient_unequal_weights"
+            ["radiation", "temperature"],
+            {"radiation": 1.0, "temperature": 1.0},
+            0.5,
+            0.625,
+            True,
+            id="sufficient_partial_columns",
         ),
     ],
 )
 def test_calculate_completeness(
-    weights: dict[str, float], threshold: float, expected_completeness: float, expected_sufficiently_complete: bool
+    columns: list[str] | None,
+    weights: dict[str, float],
+    threshold: float,
+    expected_completeness: float,
+    expected_sufficiently_complete: bool,
 ):
     data = pd.DataFrame(
         {
@@ -40,7 +68,7 @@ def test_calculate_completeness(
         index=pd.date_range("2025-01-01", periods=4, freq="15min"),
     )
     dataset = TimeSeriesDataset(data, timedelta(minutes=15))
-    transform = CompletenessCheckTransform(weights=weights, completeness_threshold=threshold)
+    transform = CompletenessCheckTransform(columns=columns, weights=weights, completeness_threshold=threshold)
     transform.fit(dataset)
 
     assert transform.completeness == expected_completeness
