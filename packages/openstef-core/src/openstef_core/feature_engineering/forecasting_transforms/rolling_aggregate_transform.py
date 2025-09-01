@@ -53,10 +53,12 @@ class RollingAggregateTransform(BaseConfig, TimeSeriesTransform):
         ...     aggregation_functions=["mean", "max"]
         ... )
         >>> transformed_dataset = transform.transform(dataset)
-        >>> 'rolling_mean_load_PT2H' in transformed_dataset.data.columns
-        True
-        >>> 'rolling_max_temperature_PT2H' in transformed_dataset.data.columns
-        True
+        >>> result = transformed_dataset.data[['rolling_mean_load_PT2H', 'rolling_max_temperature_PT2H']]
+        >>> print(result.round(1).head(3))
+                             rolling_mean_load_PT2H  rolling_max_temperature_PT2H
+        2025-01-01 00:00:00                   100.0                          20.0
+        2025-01-01 01:00:00                   110.0                          22.0
+        2025-01-01 02:00:00                   115.0                          22.0
     """
 
     columns: list[str] = Field(

@@ -58,12 +58,11 @@ class CyclicFeaturesTransform(BaseConfig, TimeSeriesTransform):
         >>> # Apply cyclic features with custom configuration
         >>> transform = CyclicFeaturesTransform(included_features=["season", "timeOfDay"])
         >>> transformed = transform.transform(dataset)
-        >>> 'season_sine' in transformed.data.columns
-        True
-        >>> 'timeOfDay_sine' in transformed.data.columns
-        True
-        >>> 'month_sine' in transformed.data.columns
-        False
+        >>> result = transformed.data[['season_sine', 'timeOfDay_sine']].round(3)
+        >>> print(result.head(2))
+                             season_sine  timeOfDay_sine
+        2025-01-01 12:00:00        0.017          -0.000
+        2025-01-01 13:00:00        0.017          -0.259
     """
 
     included_features: list[CyclicFeatureName] = Field(
