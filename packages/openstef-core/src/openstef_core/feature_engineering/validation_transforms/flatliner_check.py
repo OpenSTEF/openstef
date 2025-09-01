@@ -86,11 +86,10 @@ class FlatlinerCheckTransform(TimeSeriesTransform, BaseConfig):
         """Detects if the latest measurements follow a flatliner pattern.
 
         The following equation is used to test whether two floats are equivalent:
-        absolute(latest_measurement - flatliner_value) <= (atol + rtol * absolute(flatliner_value))
+        absolute(measurement - flatliner_value) <= (atol + rtol * absolute(flatliner_value))
 
         Args:
             data: A timeseries of measured load with a DatetimeIndex.
-                The index must be a pd.DatetimeIndex.
             duration_threshold_minutes: A flatliner is only detected if it exceeds the threshold duration.
             detect_non_zero_flatliner: If True, a flatliner is detected for non-zero values. If False,
                 a flatliner is detected for zero values only.
