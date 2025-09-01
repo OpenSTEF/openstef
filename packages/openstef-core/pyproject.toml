@@ -30,6 +30,8 @@ dependencies = [
   "numpy>=2.3.2",
   "pandas>=2.3.1",
   "pyarrow>=21",
+  "pycountry>=24.6.1",
+  "pydantic-extra-types>=2.10.5",
 ]
 
 optional-dependencies.feature_engineering = [
