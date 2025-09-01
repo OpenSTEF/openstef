@@ -49,4 +49,16 @@ class TimeSeriesValidationError(Exception):
         super().__init__(message)
 
 
-__all__ = ["MissingColumnsError", "TimeSeriesValidationError"]
+class FlatlinerDetectedError(Exception):
+    """Exception raised when a flatliner is detected in the data."""
+
+    def __init__(self, message: str):
+        """Initialize the exception with a descriptive error message.
+
+        Args:
+            message: Human-readable description of the flatliner detection error.
+        """
+        super().__init__(message)
+
+
+__all__ = ["FlatlinerDetectedError", "MissingColumnsError", "TimeSeriesValidationError"]

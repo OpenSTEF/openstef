@@ -9,6 +9,7 @@ import pandas as pd
 import pytest
 
 from openstef_core.datasets import TimeSeriesDataset
+from openstef_core.exceptions import FlatlinerDetectedError
 from openstef_core.feature_engineering.validation_transforms.flatliner_check import FlatlinerCheckTransform
 
 
@@ -49,11 +50,58 @@ def test_detect_ongoing_flatliner(
         detect_non_zero_flatliner=detect_non_zero,
         absolute_tolerance=absolute_tolerance,
         relative_tolerance=relative_tolerance,
+        error_on_flatliner=False,
     )
+
     # Act
     transform.fit(data)
+
     # Assert
-    assert transform.flatliner_indicator is expected
+    assert transform.is_flatliner_detected is expected
+
+
+def test_fit_raises_on_flatliner_detected() -> None:
+    # Arrange
+    data = TimeSeriesDataset(
+        data=pd.DataFrame(
+            data={"load": [0, 0, 0, 0]},
+            index=pd.date_range(datetime.fromisoformat("2025-01-01T00:00:00"), periods=4, freq="1h"),
+        ),
+        sample_interval=timedelta(hours=1),
+    )
+
+    transform = FlatlinerCheckTransform(
+        error_on_flatliner=True,
+    )
+
+    # Act & Assert
+    with pytest.raises(FlatlinerDetectedError, match=r"Flatliner detected in the provided load data."):
+        transform.fit(data)
+
+    assert transform.is_flatliner_detected is True
+
+
+def test_fit_does_not_raise_when_no_flatliner_detected() -> None:
+    # Arrange
+    data = TimeSeriesDataset(
+        data=pd.DataFrame(
+            data={"load": [1, 2, 3, 4]},
+            index=pd.date_range(datetime.fromisoformat("2025-01-01T00:00:00"), periods=4, freq="1h"),
+        ),
+        sample_interval=timedelta(hours=1),
+    )
+
+    transform = FlatlinerCheckTransform(
+        error_on_flatliner=True,
+    )
+
+    # Act & Assert
+    try:
+        transform.fit(data)
+    except FlatlinerDetectedError:
+        pytest.fail("FlatlinerDetectedError was raised unexpectedly.")
+
+    assert transform.is_flatliner_detected is False
 
 
 def test_fit_raises_on_missing_load_column() -> None:
@@ -67,13 +115,38 @@ def test_fit_raises_on_missing_load_column() -> None:
         transform.fit(dataset)
 
 
-def test_transform_returns_input() -> None:
+def test_transform_detects_flatliner() -> None:
     # Arrange
-    idx = [datetime.fromisoformat("2025-01-01T00:00:00")]
-    df = pd.DataFrame({"load": [1]}, index=idx)
-    dataset = TimeSeriesDataset(df, timedelta(minutes=1))
-    transform = FlatlinerCheckTransform()
+    data = TimeSeriesDataset(
+        data=pd.DataFrame(
+            data={"load": [0, 0, 0, 0]},
+            index=pd.date_range(datetime.fromisoformat("2025-01-01T00:00:00"), periods=4, freq="1h"),
+        ),
+        sample_interval=timedelta(hours=1),
+    )
+    transform = FlatlinerCheckTransform(error_on_flatliner=True, check_on_transform=True)
+
+    # Act & Assert
+    with pytest.raises(FlatlinerDetectedError):
+        transform.transform(data)
+
+    assert transform.is_flatliner_detected is True
+
+
+def test_transform_no_check_on_flatliner_returns_input() -> None:
+    # Arrange
+    data = TimeSeriesDataset(
+        data=pd.DataFrame(
+            data={"load": [0, 0, 0, 0]},
+            index=pd.date_range(datetime.fromisoformat("2025-01-01T00:00:00"), periods=4, freq="1h"),
+        ),
+        sample_interval=timedelta(hours=1),
+    )
+    transform = FlatlinerCheckTransform(check_on_transform=False)
+
     # Act
-    result = transform.transform(dataset)
+    result = transform.transform(data)
+
     # Assert
-    assert result is dataset
+    assert result is data
+    assert transform.is_flatliner_detected is None
