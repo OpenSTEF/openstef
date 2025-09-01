@@ -54,7 +54,6 @@ def test_standard_scaler_basic():
     # Assert
     assert result.sample_interval == dataset.sample_interval
     assert list(result.data.columns) == ["load"]
-
     # StandardScaler: (x - mean) / std where std uses ddof=1 (sample std)
     # mean=10, std=10, so: 0->-1.0, 10->0.0, 20->1.0 scaled by sqrt(3/2)
     expected = [-1.224744871391589, 0.0, 1.224744871391589]
