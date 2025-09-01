@@ -84,4 +84,4 @@ class TransformNotFittedError(Exception):
         super().__init__(message)
 
 
-__all__ = ["MissingColumnsError", "TimeSeriesValidationError", "TransformNotFittedError", "FlatlinerDetectedError"]
+__all__ = ["MissingColumnsError", "TimeSeriesValidationError", "FlatlinerDetectedError", "TransformNotFittedError"]
