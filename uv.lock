@@ -1591,8 +1591,8 @@ dependencies = [
 all = [
     { name = "openstef-beam", extra = ["boto"] },
     { name = "openstef-compatibility" },
-    { name = "openstef-core", extra = ["feature-engineering"] },
-    { name = "openstef-models" },
+    { name = "openstef-core" },
+    { name = "openstef-models", extra = ["feature-engineering"] },
 ]
 beam = [
     { name = "openstef-beam" },
@@ -1630,10 +1630,10 @@ requires-dist = [
     { name = "openstef-compatibility", marker = "extra == 'all'", editable = "packages/openstef-compatibility" },
     { name = "openstef-compatibility", marker = "extra == 'compatibility'", editable = "packages/openstef-compatibility" },
     { name = "openstef-core", editable = "packages/openstef-core" },
-    { name = "openstef-core", extras = ["feature-engineering"], marker = "extra == 'all'", editable = "packages/openstef-core" },
+    { name = "openstef-core", marker = "extra == 'all'", editable = "packages/openstef-core" },
     { name = "openstef-models", editable = "packages/openstef-models" },
-    { name = "openstef-models", marker = "extra == 'all'", editable = "packages/openstef-models" },
     { name = "openstef-models", marker = "extra == 'models'", editable = "packages/openstef-models" },
+    { name = "openstef-models", extras = ["feature-engineering"], marker = "extra == 'all'", editable = "packages/openstef-models" },
 ]
 provides-extras = ["all", "beam", "compatibility", "models"]
 
@@ -1699,29 +1699,16 @@ dependencies = [
     { name = "numpy" },
     { name = "pandas" },
     { name = "pyarrow" },
-    { name = "pycountry" },
     { name = "pydantic-extra-types" },
-]
-
-[package.optional-dependencies]
-feature-engineering = [
-    { name = "holidays" },
-    { name = "pvlib" },
-    { name = "scikit-learn" },
 ]
 
 [package.metadata]
 requires-dist = [
-    { name = "holidays", marker = "extra == 'feature-engineering'", specifier = ">=0.79" },
     { name = "numpy", specifier = ">=2.3.2" },
     { name = "pandas", specifier = ">=2.3.1" },
-    { name = "pvlib", marker = "extra == 'feature-engineering'", specifier = ">=0.13" },
     { name = "pyarrow", specifier = ">=21" },
-    { name = "pycountry", specifier = ">=24.6.1" },
     { name = "pydantic-extra-types", specifier = ">=2.10.5" },
-    { name = "scikit-learn", marker = "extra == 'feature-engineering'", specifier = ">=1.7.1" },
 ]
-provides-extras = ["feature-engineering"]
 
 [[package]]
 name = "openstef-docs"
@@ -1768,6 +1755,27 @@ requires-dist = [
 name = "openstef-models"
 version = "0.0.0"
 source = { editable = "packages/openstef-models" }
+dependencies = [
+    { name = "openstef-core" },
+    { name = "pycountry" },
+]
+
+[package.optional-dependencies]
+feature-engineering = [
+    { name = "holidays" },
+    { name = "pvlib" },
+    { name = "scikit-learn" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "holidays", marker = "extra == 'feature-engineering'", specifier = ">=0.79" },
+    { name = "openstef-core", editable = "packages/openstef-core" },
+    { name = "pvlib", marker = "extra == 'feature-engineering'", specifier = ">=0.13" },
+    { name = "pycountry", specifier = ">=24.6.1" },
+    { name = "scikit-learn", marker = "extra == 'feature-engineering'", specifier = ">=1.7.1" },
+]
+provides-extras = ["feature-engineering"]
 
 [[package]]
 name = "packaging"
