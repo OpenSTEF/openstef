@@ -47,7 +47,7 @@ class RollingAggregateTransform(BaseConfig, TimeSeriesTransform):
         >>> dataset = TimeSeriesDataset(data, timedelta(hours=1))
         >>>
         >>> # Initialize and apply transform
-        >>> transform = RollingAggregateFeaturesTransform(
+        >>> transform = RollingAggregateTransform(
         ...     columns=['load', 'temperature'],
         ...     rolling_window_size=timedelta(hours=2),
         ...     aggregation_functions=["mean", "max"]

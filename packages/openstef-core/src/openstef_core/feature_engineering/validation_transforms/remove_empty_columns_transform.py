@@ -102,6 +102,6 @@ class RemoveEmptyColumnsTransform(BaseConfig, TimeSeriesTransform):
             raise TransformNotFittedError(self.__class__.__name__)
 
         # Remove empty columns
-        result_data = data.data.loc[:, ~data.data.columns.isin(self._remove_columns)] # pyright: ignore[reportUnknownMemberType]
+        result_data = data.data.loc[:, ~data.data.columns.isin(self._remove_columns)]  # pyright: ignore[reportUnknownMemberType]
 
         return TimeSeriesDataset(data=result_data, sample_interval=data.sample_interval)

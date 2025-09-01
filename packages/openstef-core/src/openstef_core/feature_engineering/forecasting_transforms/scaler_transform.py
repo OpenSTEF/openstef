@@ -51,7 +51,7 @@ class ScalerTransform(BaseConfig, TimeSeriesTransform):
         >>> dataset = TimeSeriesDataset(data, timedelta(hours=1))
         >>>
         >>> # Initialize and apply transform
-        >>> scaler = ScalerTransform(method="standard)
+        >>> scaler = ScalerTransform(method="standard")
         >>> scaler.fit(dataset)
         >>> transformed_dataset = scaler.transform(dataset)
         >>> abs(float(transformed_dataset.data['load'].mean().round(6)))
