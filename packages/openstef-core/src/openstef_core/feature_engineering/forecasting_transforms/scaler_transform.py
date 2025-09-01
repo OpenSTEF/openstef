@@ -9,17 +9,15 @@ from scikit-learn to normalize and standardize features in time series datasets
 for improved machine learning model performance.
 """
 
-from enum import StrEnum
 from typing import Any, Literal, cast, override
 
-from openstef_core.exceptions import MissingExtraError, TransformNotFittedError
 import pandas as pd
+from pydantic import Field, PrivateAttr
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.datasets.transforms import TimeSeriesTransform
-from pydantic import Field, PrivateAttr
-from sklearn.base import TransformerMixin
+from openstef_core.exceptions import MissingExtraError, TransformNotFittedError
 
 try:
     from sklearn.preprocessing import MaxAbsScaler, MinMaxScaler, RobustScaler, StandardScaler
@@ -53,7 +51,7 @@ class ScalerTransform(BaseConfig, TimeSeriesTransform):
         >>> dataset = TimeSeriesDataset(data, timedelta(hours=1))
         >>>
         >>> # Initialize and apply transform
-        >>> scaler = ScalerTransform(method="standard)
+        >>> scaler = ScalerTransform(method="standard")
         >>> scaler.fit(dataset)
         >>> transformed_dataset = scaler.transform(dataset)
         >>> abs(float(transformed_dataset.data['load'].mean().round(6)))

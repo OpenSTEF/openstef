@@ -135,7 +135,7 @@ class FlatlinerCheckTransform(TimeSeriesTransform, BaseConfig):
             data: The dataset containing a DataFrame with a load column to be checked for flatliner patterns.
 
         Raises:
-            ValueError: If the input DataFrame does not contain a load column.
+            MissingColumnsError: If the input DataFrame does not contain a load column.
             FlatlinerDetectedError: If a flatliner is detected and `error_on_flatliner` is set to True.
         """
         if self.load_column not in data.data.columns:
@@ -161,7 +161,7 @@ class FlatlinerCheckTransform(TimeSeriesTransform, BaseConfig):
             The unmodified input TimeSeriesDataset.
 
         Raises:
-            ValueError: If the input DataFrame does not contain a load column and check_on_transform is True.
+            MissingColumnsError: If the input DataFrame does not contain a load column and check_on_transform is True.
             FlatlinerDetectedError: If a flatliner is detected and `error_on_flatliner` is set to True.
         """
         if not self.check_on_transform:

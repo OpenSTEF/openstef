@@ -9,7 +9,8 @@ import pandas as pd
 import pytest
 
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.feature_engineering.forecasting_transforms.clipping_transform import FeatureClipper
+from openstef_core.exceptions import TransformNotFittedError
+from openstef_core.feature_engineering.forecasting_transforms.clipping_transform import ClippingTransform
 
 
 @pytest.fixture
@@ -35,11 +36,11 @@ def test_dataset() -> TimeSeriesDataset:
 
 
 @pytest.fixture
-def clipper() -> FeatureClipper:
-    return FeatureClipper(column_names=["A", "B", "D"])
+def clipper() -> ClippingTransform:
+    return ClippingTransform(column_names=["A", "B", "D"])
 
 
-def test_feature_clipper_fit(clipper: FeatureClipper, train_dataset: TimeSeriesDataset):
+def test_feature_clipper_fit(clipper: ClippingTransform, train_dataset: TimeSeriesDataset):
     """Test if the fit method correctly computes min and max values."""
     clipper.fit(train_dataset)
     pd.testing.assert_series_equal(clipper._feature_mins, pd.Series([1.0, 10.0, np.nan], index=["A", "B", "D"]))
@@ -47,7 +48,7 @@ def test_feature_clipper_fit(clipper: FeatureClipper, train_dataset: TimeSeriesD
 
 
 def test_feature_clipper_transform(
-    clipper: FeatureClipper, train_dataset: TimeSeriesDataset, test_dataset: TimeSeriesDataset
+    clipper: ClippingTransform, train_dataset: TimeSeriesDataset, test_dataset: TimeSeriesDataset
 ):
     """Test if the transform method correctly clips values."""
     clipper.fit(train_dataset)
@@ -66,15 +67,15 @@ def test_feature_clipper_transform(
 
 def test_feature_clipper_invalid_column(train_dataset: TimeSeriesDataset):
     """Test behavior when a column that doesn't exist is specified."""
-    clipper_with_invalid_column = FeatureClipper(column_names=["E"])
+    clipper_with_invalid_column = ClippingTransform(column_names=["E"])
     clipper_with_invalid_column.fit(train_dataset)
     assert np.isnan(clipper_with_invalid_column._feature_mins["E"])
     assert np.isnan(clipper_with_invalid_column._feature_maxs["E"])
 
 
-def test_feature_clipper_transform_without_fit(clipper: FeatureClipper, test_dataset: TimeSeriesDataset):
+def test_feature_clipper_transform_without_fit(clipper: ClippingTransform, test_dataset: TimeSeriesDataset):
     """Test behavior when transform is called without fitting."""
-    clipper = FeatureClipper(column_names=["A", "B"])
-    transformed_df = clipper.transform(test_dataset).data
-    # The transform should return the original DataFrame unchanged
-    pd.testing.assert_frame_equal(transformed_df, test_dataset.data)
+    clipper = ClippingTransform(column_names=["A", "B"])
+    # The transform should raise TransformNotFittedError when not fitted
+    with pytest.raises(TransformNotFittedError, match=r"ClippingTransform.*has not been fitted"):
+        clipper.transform(test_dataset)

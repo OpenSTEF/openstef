@@ -30,7 +30,7 @@ class ClippingTransform(BaseConfig, TimeSeriesTransform):
         >>> import pandas as pd
         >>> from datetime import timedelta
         >>> from openstef_core.datasets import TimeSeriesDataset
-        >>> from openstef_core.feature_engineering.forecasting_transforms.feature_clipper import FeatureClipper
+        >>> from openstef_core.feature_engineering.forecasting_transforms.clipping_transform import ClippingTransform
         >>>
         >>> # Create sample training dataset
         >>> training_data = pd.DataFrame({
@@ -45,7 +45,7 @@ class ClippingTransform(BaseConfig, TimeSeriesTransform):
         ... freq='1h'))
         >>> test_dataset = TimeSeriesDataset(test_data, timedelta(hours=1))
         >>> # Initialize and apply transform
-        >>> clipper = FeatureClipper(column_names=['load', 'temperature'])
+        >>> clipper = ClippingTransform(column_names=['load', 'temperature'])
         >>> clipper.fit(training_dataset)
         >>> transformed_dataset = clipper.transform(test_dataset)
         >>> clipper._feature_mins.to_dict()
