@@ -111,7 +111,7 @@ class CompletenessCheckTransform(TimeSeriesTransform, BaseConfig):
             The unmodified input TimeSeriesDataset.
 
         Raises:
-            InsufficientlyCompleteError: If the dataset is not sufficiently complete and `error_on_insufficient_completeness` is True.
+            InsufficientlyCompleteError: If the dataset is not sufficiently complete.
         """
         self._completeness = self._calculate_completeness(
             data=data.data,
@@ -120,8 +120,7 @@ class CompletenessCheckTransform(TimeSeriesTransform, BaseConfig):
             data=data.data,
         )
         if not self._is_sufficiently_complete:
-            raise InsufficientlyCompleteError(
-                f"The dataset is not sufficiently complete. Completeness: {self._completeness:.2f}"
-            )
+            msg = f"The dataset is not sufficiently complete. Completeness: {self._completeness:.2f}"
+            raise InsufficientlyCompleteError(msg)
 
         return data
