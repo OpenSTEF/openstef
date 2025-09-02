@@ -119,7 +119,7 @@ def test_different_load_column_name() -> None:
         ...
 
 
-def test_fit_raises_on_missing_load_column() -> None:
+def test_transform_raises_on_missing_load_column() -> None:
     # Arrange
     idx = [datetime.fromisoformat("2025-01-01T00:00:00")]
     df = pd.DataFrame({"not_load": [1]}, index=idx)
