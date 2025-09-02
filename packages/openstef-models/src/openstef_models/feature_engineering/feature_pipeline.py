@@ -43,11 +43,29 @@ class FeaturePipeline(BaseModel):
     efficient processing while maintaining forecast data integrity. The pipeline supports both
     versioned and unversioned (single horizon) datasets.
 
-    Example:
-        Creating a forecasting pipeline with horizon-specific transforms:
+    Examples:
+        **Example 1: Pipeline with versioned time series dataset**
 
+        Creating and processing a versioned dataset for multi-horizon forecasting:
+
+        >>> import pandas as pd
+        >>> from datetime import timedelta
         >>> from openstef_core.types import LeadTime
+        >>> from openstef_core.datasets import VersionedTimeSeriesDataset
         >>> from openstef_models.feature_engineering.temporal_transforms import CyclicFeaturesTransform
+        >>>
+        >>> # Create a versioned time series dataset
+        >>> data = pd.DataFrame({
+        ...     "timestamp": pd.to_datetime([
+        ...         "2025-01-01T10:00:00", "2025-01-01T11:00:00", "2025-01-01T12:00:00"
+        ...     ]),
+        ...     "available_at": pd.to_datetime([
+        ...         "2025-01-01T10:05:00", "2025-01-01T11:05:00", "2025-01-01T12:05:00"
+        ...     ]),
+        ...     "load": [100.0, 110.0, 120.0],
+        ...     "temperature": [20.0, 21.0, 22.0],
+        ... })
+        >>> versioned_dataset = VersionedTimeSeriesDataset.from_dataframe(data, timedelta(hours=1))
         >>>
         >>> # Configure pipeline for multiple forecast horizons
         >>> pipeline = FeaturePipeline(
@@ -57,8 +75,39 @@ class FeaturePipeline(BaseModel):
         ...         CyclicFeaturesTransform(included_features=["timeOfDay", "season"])
         ...     ]
         ... )
-        >>> len(pipeline.horizons)
+        >>>
+        >>> # Process the versioned dataset through the pipeline
+        >>> horizon_datasets = pipeline.fit_transform(versioned_dataset)
+        >>> len(horizon_datasets)
         2
+        >>> list(horizon_datasets.keys())  # doctest: +SKIP
+        [LeadTime(timedelta(seconds=3600)), LeadTime(timedelta(days=1))]
+
+        **Example 2: Pipeline with simple time series dataset (single horizon)**
+
+        Processing a simple dataset for single-horizon forecasting:
+
+        >>> from openstef_core.datasets import TimeSeriesDataset
+        >>>
+        >>> # Create a simple time series dataset
+        >>> simple_data = pd.DataFrame(
+        ...     {"load": [100.0, 110.0, 120.0], "temperature": [20.0, 21.0, 22.0]},
+        ...     index=pd.date_range("2025-01-01 10:00", periods=3, freq="1h")
+        ... )
+        >>> simple_dataset = TimeSeriesDataset(simple_data, timedelta(hours=1))
+        >>>
+        >>> # Configure pipeline for single horizon (no versioned transforms allowed)
+        >>> single_pipeline = FeaturePipeline(
+        ...     horizons=[LeadTime.from_string("PT36H")],
+        ...     horizon_transforms=[
+        ...         CyclicFeaturesTransform(included_features=["timeOfDay"])
+        ...     ]
+        ... )
+        >>>
+        >>> # Process the simple dataset through the pipeline
+        >>> single_result = single_pipeline.fit_transform(simple_dataset)
+        >>> len(single_result)
+        1
     """
 
     horizons: list[LeadTime] = Field(
@@ -89,13 +138,15 @@ class FeaturePipeline(BaseModel):
         if len(self.horizons) != 1:
             raise ValueError("When using unversioned data, exactly one horizon must be configured in the pipeline.")
 
-    def fit_transform(self, dataset: VersionedTimeSeriesDataset) -> dict[LeadTime, TimeSeriesDataset]:
+    def fit_transform(
+        self, dataset: VersionedTimeSeriesDataset | TimeSeriesDataset
+    ) -> dict[LeadTime, TimeSeriesDataset]:
         """Fit all transforms and apply them to the input dataset.
 
         Convenience method that combines fitting and transformation in a single call.
 
         Args:
-            dataset: Versioned time series dataset for fitting and transforming.
+            dataset: Versioned or simple time series dataset for fitting and transforming.
 
         Returns:
             Dictionary mapping each lead time to its transformed TimeSeriesDataset.
