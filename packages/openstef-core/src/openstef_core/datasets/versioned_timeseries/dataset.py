@@ -2,287 +2,325 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-"""Versioned time series dataset for tracking data availability over time.
+"""Versioned time series dataset for efficient multi-part composition.
 
-This module provides the VersionedTimeSeriesDataset class, which extends basic
-time series functionality to track when each data point became available. This
-is crucial for realistic dataset construction for both backtesting and
-forecasting, allowing for accurate simulation of real-time data availability
-and revisions.
+This module provides an enhanced implementation of versioned time series datasets
+that track data availability over time. The new architecture supports composable
+datasets from multiple parts and improved filtering capabilities for realistic
+backtesting and forecasting scenarios.
+
+The key improvement over the previous implementation is the ability to combine
+multiple data sources while maintaining versioning information, enabling more
+flexible dataset construction for complex forecasting pipelines.
 """
 
+import functools
 import logging
+import operator
+from collections.abc import Callable, Sequence
 from datetime import datetime, timedelta
-from pathlib import Path
-from typing import Self, cast
+from typing import Literal, Self, cast, override
 
-import numpy as np
 import pandas as pd
+from pydantic import FilePath
 
 from openstef_core.datasets.mixins import VersionedTimeSeriesMixin
-from openstef_core.exceptions import MissingColumnsError
-from openstef_core.utils import (
-    timedelta_from_isoformat,
-    timedelta_to_isoformat,
-)
+from openstef_core.datasets.timeseries_dataset import TimeSeriesDataset
+from openstef_core.datasets.validation import validate_disjoint_columns, validate_same_sample_intervals
+from openstef_core.datasets.versioned_timeseries.dataset_part import VersionedTimeSeriesPart
+from openstef_core.exceptions import TimeSeriesValidationError
+from openstef_core.types import AvailableAt, LeadTime
+from openstef_core.utils.pandas import unsafe_sorted_range_slice_idxs
 
 _logger = logging.getLogger(__name__)
 
 
+type ConcatMode = Literal["left", "outer", "inner"]
+
+
 class VersionedTimeSeriesDataset(VersionedTimeSeriesMixin):
-    """A time series dataset that tracks data availability over time.
+    """A versioned time series dataset composed of multiple data parts.
 
-    This dataset extends the basic time series concept by maintaining version
-    information for each data point, recording when each piece of data became
-    available. This enables realistic backtesting by ensuring that only data
-    that was actually available at a given time is used for predictions.
+    This class combines multiple VersionedTimeSeriesPart instances into a unified
+    dataset that tracks data availability over time. It provides methods to filter
+    datasets by time ranges, availability constraints, and lead times, as well as
+    select specific versions of the data for point-in-time reconstruction.
 
-    Each row in the dataset represents a data point at a specific timestamp
-    along with the time when that data became available. This allows for:
+    The dataset is particularly useful for realistic backtesting scenarios where
+    data arrives with delays or gets revised over time.
 
-    - Accurate simulation of real-time forecasting scenarios
-    - Handling of data revisions and late-arriving measurements
-    - Point-in-time data reconstruction for backtesting
+    Key motivation: This architecture solves the O(n²) space complexity problem
+    that occurs when concatenating DataFrames with misaligned (timestamp, available_at)
+    pairs. Instead of immediately combining data, it uses lazy composition that
+    delays actual DataFrame concatenation until select_version() is called.
 
-    The dataset maintains temporal ordering by both timestamp and availability time.
+    Attributes:
+        data_parts: List of VersionedTimeSeriesPart instances that compose this dataset.
+        index: Datetime index representing all timestamps across all data parts.
+        sample_interval: Fixed time interval between consecutive data points.
+        feature_names: Names of all available features across all data parts.
 
     Example:
-        Create a versioned dataset with energy load data:
+        Create a versioned dataset by combining multiple data parts:
 
         >>> import pandas as pd
         >>> from datetime import datetime, timedelta
-        >>> data = pd.DataFrame({
-        ...     'timestamp': [datetime.fromisoformat('2025-01-01T10:00:00'),
-        ...                   datetime.fromisoformat('2025-01-01T10:15:00'),
-        ...                   datetime.fromisoformat('2025-01-01T10:00:00')],  # Revised data
-        ...     'available_at': [datetime.fromisoformat('2025-01-01T10:05:00'),
-        ...                      datetime.fromisoformat('2025-01-01T10:20:00'),
-        ...                      datetime.fromisoformat('2025-01-01T10:30:00')],  # Later revision
-        ...     'load': [100.0, 120.0, 105.0]  # 105.0 is revised value for 10:00
+        >>>
+        >>> # Create weather data part
+        >>> weather_data = pd.DataFrame({
+        ...     'timestamp': [datetime(2025, 1, 1, 10, 0)],
+        ...     'available_at': [datetime(2025, 1, 1, 16, 0)],
+        ...     'temperature': [20.5]
         ... })
-        >>> dataset = VersionedTimeSeriesDataset(data, timedelta(minutes=15))
-        >>> dataset.feature_names
-        ['load']
+        >>> weather_part = VersionedTimeSeriesPart(weather_data, timedelta(hours=1))
+        >>>
+        >>> # Create load data part
+        >>> load_data = pd.DataFrame({
+        ...     'timestamp': [datetime(2025, 1, 1, 10, 0)],
+        ...     'available_at': [datetime(2025, 1, 1, 11, 0)],
+        ...     'load': [150.0]
+        ... })
+        >>> load_part = VersionedTimeSeriesPart(load_data, timedelta(hours=1))
+        >>>
+        >>> # Combine into versioned dataset
+        >>> dataset = VersionedTimeSeriesDataset([weather_part, load_part])
+        >>> sorted(dataset.feature_names)
+        ['load', 'temperature']
+        >>> dataset.sample_interval
+        datetime.timedelta(seconds=3600)
+
+        Get point-in-time snapshot of data available at specific time:
+
+        >>> snapshot = dataset.select_version(available_before=datetime(2025, 1, 1, 18, 0))
+        >>> sorted(snapshot.data.columns.tolist())
+        ['load', 'temperature']
 
     Note:
-        When multiple versions of the same timestamp exist, `get_window` will
-        return the latest version available before the specified time.
+        All data parts must have identical sample intervals and disjoint feature sets.
+        The final dataset index is the union of all part indices, enabling flexible
+        composition of data sources with different coverage periods.
     """
 
-    data: pd.DataFrame
-    timestamp_column: str
-    available_at_column: str
-    _sample_interval: timedelta
-    _index: pd.DatetimeIndex
-    _feature_names: list[str]
+    data_parts: list[VersionedTimeSeriesPart]
+    index: pd.DatetimeIndex
+    sample_interval: timedelta
+    feature_names: list[str]
 
     def __init__(
         self,
+        data_parts: list[VersionedTimeSeriesPart],
+        index: pd.DatetimeIndex | None = None,
+    ) -> None:
+        """Initialize a VersionedTimeSeriesDataset from multiple data parts.
+
+        Combines multiple VersionedTimeSeriesPart instances into a unified dataset
+        that maintains versioning information across all parts. Validates that
+        parts have compatible configurations before combining.
+
+        Args:
+            data_parts: List of VersionedTimeSeriesPart instances to combine.
+                Must have at least one part with disjoint feature sets and
+                identical sample intervals.
+            index: Optional predefined datetime index covering all parts.
+                If None, computed as union of all part indices.
+
+        Raises:
+            TimeSeriesValidationError: If no data parts provided, or if parts have
+                overlapping features or incompatible sample intervals.
+
+        Example:
+            Combine temperature and load data parts:
+
+            >>> # Create separate data parts for different features
+            >>> temp_data = pd.DataFrame({
+            ...     'timestamp': [datetime.fromisoformat('2025-01-01T10:00:00')],
+            ...     'available_at': [datetime.fromisoformat('2025-01-01T10:05:00')],
+            ...     'temperature': [20.0]
+            ... })
+            >>> load_data = pd.DataFrame({
+            ...     'timestamp': [datetime.fromisoformat('2025-01-01T10:00:00')],
+            ...     'available_at': [datetime.fromisoformat('2025-01-01T10:10:00')],
+            ...     'load': [100.0]
+            ... })
+            >>> temp_part = VersionedTimeSeriesPart(temp_data, timedelta(minutes=15))
+            >>> load_part = VersionedTimeSeriesPart(load_data, timedelta(minutes=15))
+            >>> dataset = VersionedTimeSeriesDataset([temp_part, load_part])
+            >>> sorted(dataset.feature_names)
+            ['load', 'temperature']
+        """
+        if not data_parts:
+            raise TimeSeriesValidationError("At least one data part must be provided.")
+
+        validate_same_sample_intervals(data_parts)
+        validate_disjoint_columns(data_parts)
+
+        self.data_parts = data_parts
+        self.sample_interval = data_parts[0].sample_interval
+        if index is not None:
+            self.index = index
+        else:
+            union_fn = cast(Callable[[pd.DatetimeIndex, pd.DatetimeIndex], pd.DatetimeIndex], pd.DatetimeIndex.union)
+            self.index = functools.reduce(union_fn, [part.index for part in data_parts])
+        self.feature_names = functools.reduce(operator.iadd, [part.feature_names for part in data_parts], [])
+
+    @classmethod
+    def from_dataframe(
+        cls,
         data: pd.DataFrame,
         sample_interval: timedelta,
         timestamp_column: str = "timestamp",
         available_at_column: str = "available_at",
-    ) -> None:
-        """Initialize a VersionedTimeSeriesDataset with the given data and configuration.
+    ) -> Self:
+        """Create a VersionedTimeSeriesDataset from a single DataFrame.
+
+        Convenience constructor for creating a versioned dataset from a single
+        DataFrame containing all features. The DataFrame is wrapped in a single
+        VersionedTimeSeriesPart before creating the dataset.
 
         Args:
-            data: DataFrame containing the time series data.
+            data: DataFrame containing versioned time series data with timestamp
+                and available_at columns.
             sample_interval: The regular interval between consecutive data points.
             timestamp_column: Name of the column containing timestamps. Default is 'timestamp'.
             available_at_column: Name of the column indicating when data became available.
                 Default is 'available_at'.
 
-        Raises:
-            MissingColumnsError: If the required timestamp_column or available_at_column are missing.
-        """
-        missing_columns = {timestamp_column, available_at_column} - set(data.columns)
-        if missing_columns:
-            raise MissingColumnsError(missing_columns=list(missing_columns))
-
-        if not data.attrs.get("is_sorted", False):
-            data = data.sort_values(by=[timestamp_column, available_at_column], ascending=[True, True])
-            data.attrs["is_sorted"] = True
-
-        self.data = data
-        self.timestamp_column = timestamp_column
-        self.available_at_column = available_at_column
-        self._sample_interval = sample_interval
-        self._index = cast(pd.DatetimeIndex, pd.DatetimeIndex(self.data[timestamp_column]))
-        self._feature_names = list(set(self.data.columns) - {self.timestamp_column, self.available_at_column})
-
-    @property
-    def feature_names(self) -> list[str]:
-        """Names of feature columns excluding timestamp and availability columns.
-
         Returns:
-            List of column names that contain actual feature data.
-        """
-        return self._feature_names
-
-    @property
-    def sample_interval(self) -> timedelta:
-        """Fixed time interval between consecutive data points.
-
-        Returns:
-            The sampling interval for this time series.
-        """
-        return self._sample_interval
-
-    @property
-    def index(self) -> pd.DatetimeIndex:
-        """Datetime index based on timestamp column.
-
-        Returns:
-            DatetimeIndex derived from the timestamp column values.
-        """
-        return self._index
-
-    def get_window(self, start: datetime, end: datetime, available_before: datetime | None = None) -> pd.DataFrame:
-        """Retrieve a time window of data that was available before a specified time.
-
-        Returns data points within the specified time range, considering only data
-        that was available before the given availability cutoff. When multiple
-        versions of the same timestamp exist, returns the latest version available
-        before the cutoff.
-
-        Args:
-            start: Inclusive start time of the desired window.
-            end: Exclusive end time of the desired window.
-            available_before: Optional cutoff time for data availability.
-                Only data available at or before this time is included.
-                If None, all data is considered available.
-
-        Returns:
-            DataFrame with timestamp index containing feature data for the
-            requested window. Missing timestamps are filled with NaN values
-            to maintain regular intervals.
+            New VersionedTimeSeriesDataset instance containing the data.
 
         Example:
-            Get data window considering availability:
+            Create dataset from a single DataFrame:
 
-            >>> from datetime import datetime, timedelta
-            >>> import pandas as pd
-            >>> # Create test data
-            >>> data = pd.DataFrame({
-            ...     'timestamp': [datetime.fromisoformat('2025-01-01T10:00:00'),
-            ...                   datetime.fromisoformat('2025-01-01T10:15:00'),
-            ...                   datetime.fromisoformat('2025-01-01T10:30:00')],
-            ...     'available_at': [datetime.fromisoformat('2025-01-01T10:05:00'),
-            ...                      datetime.fromisoformat('2025-01-01T10:20:00'),
-            ...                      datetime.fromisoformat('2025-01-01T10:35:00')],
-            ...     'load': [100.0, 120.0, 110.0]
-            ... })
-            >>> dataset = VersionedTimeSeriesDataset(data, timedelta(minutes=15))
-            >>> window = dataset.get_window(
-            ...     start=datetime.fromisoformat('2025-01-01T10:00:00'),
-            ...     end=datetime.fromisoformat('2025-01-01T10:30:00'),
-            ...     available_before=datetime.fromisoformat('2025-01-01T10:25:00')
-            ... )
-            >>> len(window)  # Should have 2 rows since 10:30 data not available yet
-            2
-
-        Note:
-            The returned DataFrame excludes the availability timestamp column
-            and uses the timestamp column as the index.
-        """
-        start_idx = self.data[self.timestamp_column].searchsorted(start, side="left")
-        end_idx = self.data[self.timestamp_column].searchsorted(end, side="left")
-        subset = self.data.iloc[start_idx:end_idx]
-
-        if available_before is not None:
-            subset = subset[subset[self.available_at_column] <= available_before]
-
-        window_range = pd.date_range(start=start, end=end, freq=self._sample_interval, inclusive="left")
-        return (
-            subset.drop_duplicates(subset=[self.timestamp_column], keep="last")
-            .drop(columns=[self.available_at_column])
-            .set_index(self.timestamp_column)
-            .reindex(window_range, fill_value=np.nan)
-        )
-
-    def to_parquet(
-        self,
-        path: Path,
-    ) -> None:
-        """Save the versioned dataset to a parquet file.
-
-        Stores the data and metadata (sample interval, and column configuration)
-        in parquet for complete reconstruction.
-
-        Args:
-            path: File path where the dataset should be saved.
-
-        Note:
-            Metadata includes sample interval (as ISO 8601 duration), timestamp
-            column name, availability column name, and sort status.
-        """
-        self.data.attrs["sample_interval"] = timedelta_to_isoformat(self._sample_interval)
-        self.data.attrs["timestamp_column"] = self.timestamp_column
-        self.data.attrs["available_at_column"] = self.available_at_column
-        self.data.attrs["is_sorted"] = True
-        self.data.to_parquet(path)
-
-    @classmethod
-    def read_parquet(
-        cls,
-        path: Path,
-    ) -> Self:
-        """Create a VersionedTimeSeriesDataset from a parquet file.
-
-        Loads a complete versioned dataset from a parquet file created with
-        the `to_parquet` method. Handles missing metadata gracefully with
-        reasonable defaults.
-
-        Args:
-            path: Path to the parquet file to load.
-
-        Returns:
-            New VersionedTimeSeriesDataset instance reconstructed from the file.
-
-        Example:
-            Save and reload a versioned dataset:
-
-            >>> from pathlib import Path
-            >>> import tempfile
             >>> import pandas as pd
             >>> from datetime import datetime, timedelta
-            >>> # Create test versioned dataset
             >>> data = pd.DataFrame({
             ...     'timestamp': [datetime.fromisoformat('2025-01-01T10:00:00'),
             ...                   datetime.fromisoformat('2025-01-01T10:15:00')],
             ...     'available_at': [datetime.fromisoformat('2025-01-01T10:05:00'),
             ...                      datetime.fromisoformat('2025-01-01T10:20:00')],
-            ...     'load': [100.0, 120.0]
+            ...     'load': [100.0, 120.0],
+            ...     'temperature': [20.0, 22.0]
             ... })
-            >>> dataset = VersionedTimeSeriesDataset(data, timedelta(minutes=15))
-            >>> # Test save/load cycle
-            >>> with tempfile.TemporaryDirectory() as tmpdir:
-            ...     file_path = Path(tmpdir) / "versioned_data.parquet"
-            ...     dataset.to_parquet(file_path)
-            ...     loaded = VersionedTimeSeriesDataset.read_parquet(file_path)
-            ...     loaded.feature_names == dataset.feature_names
-            True
+            >>> dataset = VersionedTimeSeriesDataset.from_dataframe(data, timedelta(minutes=15))
+            >>> sorted(dataset.feature_names)
+            ['load', 'temperature']
 
         Note:
-            Missing metadata attributes default to: sample_interval='PT15M',
-            timestamp_column='timestamp', available_at_column='available_at'.
+            This is equivalent to creating a VersionedTimeSeriesPart and then
+            wrapping it in a VersionedTimeSeriesDataset, but more convenient
+            for simple cases.
         """
-        data = pd.read_parquet(path)
-        if "sample_interval" not in data.attrs:
-            _logger.warning(
-                "Parquet file does not contain 'sample_interval' attribute. Using default value of 15 minutes."
-            )
-
-        sample_interval = timedelta_from_isoformat(data.attrs.get("sample_interval", "PT15M"))
-        timestamp_column = data.attrs.get("timestamp_column", "timestamp")
-        available_at_column = data.attrs.get("available_at_column", "available_at")
-
-        return cls(
+        part = VersionedTimeSeriesPart(
             data=data,
             sample_interval=sample_interval,
             timestamp_column=timestamp_column,
             available_at_column=available_at_column,
         )
+        return cls(data_parts=[part])
+
+    @override
+    def filter_by_range(self, start: datetime | None = None, end: datetime | None = None) -> Self:
+        start_idx, end_idx = unsafe_sorted_range_slice_idxs(data=cast(pd.Series, self.index), start=start, end=end)
+        index = self.index[start_idx:end_idx]
+
+        return self.__class__(
+            data_parts=[part.filter_by_range(start, end) for part in self.data_parts],
+            index=index,
+        )
+
+    @override
+    def filter_by_available_at(self, available_at: AvailableAt) -> Self:
+        return self.__class__(
+            data_parts=[part.filter_by_available_at(available_at) for part in self.data_parts],
+            index=self.index,
+        )
+
+    @override
+    def filter_by_lead_time(self, lead_time: LeadTime) -> Self:
+        return self.__class__(
+            data_parts=[part.filter_by_lead_time(lead_time) for part in self.data_parts],
+            index=self.index,
+        )
+
+    @override
+    def select_version(self, available_before: datetime | None = None) -> TimeSeriesDataset:
+        selected_parts = [part.select_version(available_before).data for part in self.data_parts]
+        combined_data = pd.concat(selected_parts, axis=1).reindex(self.index)
+        return TimeSeriesDataset(data=combined_data, sample_interval=self.sample_interval)
+
+    @classmethod
+    def concat(cls, datasets: Sequence[Self], mode: ConcatMode) -> Self:
+        """Concatenate multiple versioned datasets into a single dataset.
+
+        Combines multiple VersionedTimeSeriesDataset instances using the specified
+        concatenation mode. Supports different strategies for handling overlapping
+        time indices across datasets.
+
+        This method is useful when you have data from different sources or time
+        periods that need to be combined while preserving their versioning
+        information. For example, combining weather data from different providers
+        or merging historical data with recent updates.
+
+        Args:
+            datasets: Sequence of VersionedTimeSeriesDataset instances to concatenate.
+                Must contain at least one dataset.
+            mode: Concatenation mode determining how to handle overlapping indices:
+                - "left": Use indices from the first dataset only
+                - "outer": Union of all indices across datasets
+                - "inner": Intersection of all indices across datasets
+
+        Returns:
+            New VersionedTimeSeriesDataset containing all data parts from input datasets.
+
+        Raises:
+            TimeSeriesValidationError: If no datasets are provided for concatenation.
+        """
+        if not datasets:
+            raise TimeSeriesValidationError("At least one dataset must be provided for concatenation.")
+
+        indexes = [d.index for d in datasets]
+        match mode:
+            case "left":
+                index = indexes[0]
+            case "outer":
+                index = functools.reduce(lambda x, y: cast(pd.DatetimeIndex, x.union(y)), indexes)
+            case "inner":
+                index = functools.reduce(lambda x, y: x.intersection(y), indexes)
+
+        return cls(
+            data_parts=[part for dataset in datasets for part in dataset.data_parts],
+            index=index,
+        )
+
+    def to_parquet(self, path: FilePath) -> None:
+        """Save dataset to parquet file.
+
+        Args:
+            path: File path for saving.
+
+        Raises:
+            TimeSeriesValidationError: If dataset has multiple data parts.
+        """
+        if len(self.data_parts) > 1:
+            raise TimeSeriesValidationError("to_parquet is only supported for datasets with a single data part.")
+
+        self.data_parts[0].to_parquet(path)
+
+    @classmethod
+    def read_parquet(cls, path: FilePath) -> Self:
+        """Load dataset from parquet file.
+
+        Args:
+            path: Path to parquet file.
+
+        Returns:
+            Loaded VersionedTimeSeriesDataset.
+        """
+        return cls(
+            data_parts=[VersionedTimeSeriesPart.read_parquet(path=path)],
+        )
 
 
-__all__ = ["VersionedTimeSeriesDataset"]
+__all__ = [
+    "VersionedTimeSeriesDataset",
+]

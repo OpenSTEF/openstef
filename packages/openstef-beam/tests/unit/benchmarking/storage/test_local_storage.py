@@ -17,7 +17,7 @@ from openstef_beam.benchmarking.models import BenchmarkTarget
 from openstef_beam.benchmarking.storage import LocalBenchmarkStorage
 from openstef_beam.evaluation import EvaluationReport, EvaluationSubsetReport, Filtering, SubsetMetric
 from openstef_beam.evaluation.models import EvaluationSubset
-from openstef_core.datasets import TimeSeriesDataset, VersionedTimeSeriesDataset
+from openstef_core.datasets import TimeSeriesDataset, VersionedTimeSeriesPart
 from openstef_core.types import AvailableAt, LeadTime
 
 
@@ -55,9 +55,9 @@ def target() -> BenchmarkTarget:
 
 
 @pytest.fixture
-def predictions() -> VersionedTimeSeriesDataset:
+def predictions() -> VersionedTimeSeriesPart:
     """Create test predictions."""
-    return VersionedTimeSeriesDataset(
+    return VersionedTimeSeriesPart(
         data=pd.DataFrame({
             "value": [1.0, 2.0],
             "timestamp": pd.date_range("2023-01-07", periods=2, freq="1h"),
@@ -134,7 +134,7 @@ def test_predictions_path_construction(
 
 
 def test_save_and_load_backtest_output(
-    local_storage: LocalBenchmarkStorage, target: BenchmarkTarget, predictions: VersionedTimeSeriesDataset
+    local_storage: LocalBenchmarkStorage, target: BenchmarkTarget, predictions: VersionedTimeSeriesPart
 ):
     """Test saving and loading backtest output."""
     # Arrange & Act
@@ -164,7 +164,7 @@ def test_save_and_load_evaluation_output(
 
 
 def test_save_backtest_creates_directory_structure(
-    local_storage: LocalBenchmarkStorage, target: BenchmarkTarget, predictions: VersionedTimeSeriesDataset
+    local_storage: LocalBenchmarkStorage, target: BenchmarkTarget, predictions: VersionedTimeSeriesPart
 ):
     """Test that saving backtest output creates proper directory structure."""
     # Arrange

@@ -15,9 +15,9 @@ from datetime import datetime, timedelta
 
 from pydantic import Field
 
+from openstef_beam.backtesting.restricted_horizon_timeseries import RestrictedHorizonVersionedTimeSeries
 from openstef_core.base_model import BaseConfig
-from openstef_core.datasets import TimeSeriesDataset, VersionedTimeSeriesDataset
-from openstef_core.datasets.versioned_timeseries.accessors import RestrictedHorizonVersionedTimeSeries
+from openstef_core.datasets import TimeSeriesDataset, VersionedTimeSeriesPart
 from openstef_core.types import Quantile
 
 
@@ -148,7 +148,7 @@ class BacktestForecasterMixin:
         """
         raise NotImplementedError
 
-    def predict_versioned(self, data: RestrictedHorizonVersionedTimeSeries) -> VersionedTimeSeriesDataset | None:
+    def predict_versioned(self, data: RestrictedHorizonVersionedTimeSeries) -> VersionedTimeSeriesPart | None:
         """Predicts a versioned time series with the model.
 
         Guarantees:
@@ -197,7 +197,7 @@ class BacktestBatchForecasterMixin:
 
     def predict_batch_versioned(
         self, batch: list[RestrictedHorizonVersionedTimeSeries]
-    ) -> Sequence[VersionedTimeSeriesDataset | None]:
+    ) -> Sequence[VersionedTimeSeriesPart | None]:
         """Predicts a batch of versioned time series with the model.
 
         Args:
@@ -216,7 +216,7 @@ class BacktestBatchForecasterMixin:
         ]
 
 
-def _version_timeseries_by_horizon(prediction: TimeSeriesDataset, horizon: datetime) -> VersionedTimeSeriesDataset:
+def _version_timeseries_by_horizon(prediction: TimeSeriesDataset, horizon: datetime) -> VersionedTimeSeriesPart:
     """Adds the 'available_at' column to the prediction DataFrame.
 
     Args:
@@ -228,7 +228,7 @@ def _version_timeseries_by_horizon(prediction: TimeSeriesDataset, horizon: datet
     """
     prediction_data = prediction.data.reset_index(names=["timestamp"])
     prediction_data["available_at"] = horizon
-    return VersionedTimeSeriesDataset(
+    return VersionedTimeSeriesPart(
         data=prediction_data,
         sample_interval=prediction.sample_interval,
     )

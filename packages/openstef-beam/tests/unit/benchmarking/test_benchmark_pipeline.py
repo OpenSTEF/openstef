@@ -22,7 +22,7 @@ from openstef_beam.benchmarking import (
 )
 from openstef_beam.evaluation import EvaluationConfig, EvaluationReport, EvaluationSubsetReport, SubsetMetric
 from openstef_beam.evaluation.models import EvaluationSubset
-from openstef_core.datasets import VersionedTimeSeriesDataset
+from openstef_core.datasets import VersionedTimeSeriesDataset, VersionedTimeSeriesPart
 from openstef_core.types import AvailableAt
 from tests.utils.mocks import MockForecaster, MockMetricsProvider, MockTargetProvider
 
@@ -70,7 +70,7 @@ def test_datasets(test_targets: list[BenchmarkTarget]) -> tuple[VersionedTimeSer
     timestamps = pd.date_range(start_date, end_date, freq="1h")
 
     # Create measurements dataset with value column and necessary metadata
-    measurements = VersionedTimeSeriesDataset(
+    measurements = VersionedTimeSeriesDataset.from_dataframe(
         data=pd.DataFrame({
             "timestamp": timestamps,
             "value": range(len(timestamps)),
@@ -80,7 +80,7 @@ def test_datasets(test_targets: list[BenchmarkTarget]) -> tuple[VersionedTimeSer
     )
 
     # Create predictors dataset with the same sample interval
-    predictors = VersionedTimeSeriesDataset(
+    predictors = VersionedTimeSeriesDataset.from_dataframe(
         data=pd.DataFrame({
             "timestamp": timestamps,
             "feature1": range(len(timestamps)),
@@ -111,7 +111,7 @@ def mock_backtest_run(request: pytest.FixtureRequest, test_targets: list[Benchma
         for q in [0.05, 0.1, 0.3, 0.5, 0.7, 0.9, 0.95]:
             predictions_df[f"quantile_P{int(q * 100)}"] = 50.0
 
-        mock.return_value = VersionedTimeSeriesDataset(
+        mock.return_value = VersionedTimeSeriesPart(
             data=predictions_df,
             sample_interval=timedelta(hours=1),
         )
@@ -244,7 +244,7 @@ def test_benchmark_runner_end_to_end(
 
         backtest_complete_call = callback.on_backtest_complete.call_args_list[i]
         assert backtest_complete_call[1]["target"] == target
-        assert isinstance(backtest_complete_call[1]["predictions"], VersionedTimeSeriesDataset)
+        assert isinstance(backtest_complete_call[1]["predictions"], VersionedTimeSeriesPart)
 
         evaluation_start_call = callback.on_evaluation_start.call_args_list[i]
         assert evaluation_start_call[1]["target"] == target

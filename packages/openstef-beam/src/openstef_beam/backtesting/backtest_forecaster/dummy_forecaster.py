@@ -11,8 +11,8 @@ without requiring actual model training or prediction logic.
 from datetime import timedelta
 
 from openstef_beam.backtesting.backtest_forecaster.mixins import BacktestForecasterConfig, BacktestForecasterMixin
+from openstef_beam.backtesting.restricted_horizon_timeseries import RestrictedHorizonVersionedTimeSeries
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.datasets.versioned_timeseries.accessors import RestrictedHorizonVersionedTimeSeries
 from openstef_core.types import Q, Quantile
 
 

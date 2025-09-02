@@ -9,6 +9,8 @@ different targets, grouped by various criteria like target groups, model runs,
 or combinations thereof.
 """
 
+from typing import override
+
 from openstef_beam.analysis.models import AnalysisAggregation, GroupName, RunName, VisualizationOutput
 from openstef_beam.analysis.plots import GroupedTargetMetricPlotter
 from openstef_beam.analysis.visualizations.base import ReportTuple, VisualizationProvider
@@ -72,12 +74,8 @@ class GroupedTargetMetricVisualization(VisualizationProvider):
     selector_metric: str | None = None
 
     @property
+    @override
     def supported_aggregations(self) -> set[AnalysisAggregation]:
-        """Return the set of aggregation types supported by this provider.
-
-        Returns:
-            Set of supported AnalysisAggregation values.
-        """
         return {
             AnalysisAggregation.TARGET,
             AnalysisAggregation.GROUP,
@@ -230,18 +228,8 @@ class GroupedTargetMetricVisualization(VisualizationProvider):
             metric_values=metric_values,
         )
 
+    @override
     def create_by_target(self, reports: list[ReportTuple]) -> VisualizationOutput:
-        """Create visualization comparing metric values across different targets.
-
-        Args:
-            reports: List of (metadata, report) tuples for each target.
-
-        Returns:
-            Visualization output showing target comparison.
-
-        Raises:
-            ValueError: If no valid metric data is found.
-        """
         targets, _metric_values = self._collect_target_metrics(reports)
 
         if not targets:
@@ -260,21 +248,11 @@ class GroupedTargetMetricVisualization(VisualizationProvider):
 
         return VisualizationOutput(name=self.name, figure=figure)
 
+    @override
     def create_by_run_and_none(
         self,
         reports: dict[RunName, list[ReportTuple]],
     ) -> VisualizationOutput:
-        """Create visualization comparing different model runs.
-
-        Args:
-            reports: Dictionary mapping run names to their report lists.
-
-        Returns:
-            Visualization output showing run comparison.
-
-        Raises:
-            ValueError: If no valid metric data is found.
-        """
         plotter = GroupedTargetMetricPlotter()
 
         for run_name, run_reports in reports.items():
@@ -295,37 +273,20 @@ class GroupedTargetMetricVisualization(VisualizationProvider):
 
         return VisualizationOutput(name=self.name, figure=figure)
 
+    @override
     def create_by_run_and_target(
         self,
         reports: dict[RunName, list[ReportTuple]],
     ) -> VisualizationOutput:
-        """Create visualization comparing different runs on the same targets.
-
-        Args:
-            reports: Dictionary mapping run names to their report lists.
-
-        Returns:
-            Visualization output showing run comparison on targets.
-        """
         return self.create_by_run_and_none(
             reports=reports,
         )
 
+    @override
     def create_by_run_and_group(
         self,
         reports: dict[tuple[RunName, GroupName], list[ReportTuple]],
     ) -> VisualizationOutput:
-        """Create visualization comparing runs across target groups.
-
-        Args:
-            reports: Dictionary mapping (run_name, group_name) to report lists.
-
-        Returns:
-            Visualization output showing run and group comparison.
-
-        Raises:
-            ValueError: If no valid metric data is found.
-        """
         plotter = GroupedTargetMetricPlotter()
         target_to_group_map: dict[str, GroupName] = {}
 
@@ -354,21 +315,11 @@ class GroupedTargetMetricVisualization(VisualizationProvider):
 
         return VisualizationOutput(name=self.name, figure=figure)
 
+    @override
     def create_by_group(
         self,
         reports: dict[GroupName, list[ReportTuple]],
     ) -> VisualizationOutput:
-        """Create visualization comparing different target groups.
-
-        Args:
-            reports: Dictionary mapping group names to their report lists.
-
-        Returns:
-            Visualization output showing group comparison.
-
-        Raises:
-            ValueError: If no valid metric data is found.
-        """
         plotter = GroupedTargetMetricPlotter()
         target_to_group_map: dict[str, GroupName] = {}
 

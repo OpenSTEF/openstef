@@ -72,7 +72,7 @@ def test_target() -> BenchmarkTarget:
     )
 
 
-@patch("openstef_beam.benchmarking.target_provider.concat_featurewise")
+@patch("openstef_beam.benchmarking.target_provider.VersionedTimeSeriesDataset.concat")
 def test_get_predictors_for_target(mock_concat: Mock, tmp_path: Path, test_target: BenchmarkTarget):
     """Test that predictors are correctly concatenated from multiple sources."""
     # Arrange
@@ -108,7 +108,7 @@ def test_get_predictors_for_target(mock_concat: Mock, tmp_path: Path, test_targe
 
     # Assert
     mock_concat.assert_called_once_with(
-        datasets=[mock_weather, mock_profiles, mock_prices],
+        [mock_weather, mock_profiles, mock_prices],
         mode="inner",
     )
     assert result == mock_result

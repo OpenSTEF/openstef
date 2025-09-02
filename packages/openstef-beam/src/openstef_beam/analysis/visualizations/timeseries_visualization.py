@@ -8,6 +8,8 @@ This module provides visualization for time series forecast comparisons,
 displaying measurements alongside forecast quantiles with capacity limits.
 """
 
+from typing import override
+
 from openstef_beam.analysis.models import AnalysisAggregation, RunName, TargetMetadata, VisualizationOutput
 from openstef_beam.analysis.plots import ForecastTimeSeriesPlotter
 from openstef_beam.analysis.visualizations.base import ReportTuple, VisualizationProvider
@@ -45,8 +47,8 @@ class TimeSeriesVisualization(VisualizationProvider):
     """
 
     @property
+    @override
     def supported_aggregations(self) -> set[AnalysisAggregation]:
-        """Return the set of supported aggregation levels for this visualization."""
         return {AnalysisAggregation.NONE, AnalysisAggregation.RUN_AND_NONE}
 
     @staticmethod
@@ -82,20 +84,12 @@ class TimeSeriesVisualization(VisualizationProvider):
 
         return first_run_reports[0]
 
+    @override
     def create_by_none(
         self,
         report: EvaluationSubsetReport,
         metadata: TargetMetadata,
     ) -> VisualizationOutput:
-        """Create time series visualization for a single target from a single run.
-
-        Args:
-            report: Evaluation report containing time series data.
-            metadata: Target metadata with run and target information.
-
-        Returns:
-            Visualization output with time series plot.
-        """
         plotter = ForecastTimeSeriesPlotter()
 
         # Add measurements as the baseline
@@ -113,18 +107,11 @@ class TimeSeriesVisualization(VisualizationProvider):
         figure = plotter.plot(title=f"Measurements vs Forecasts for {metadata.name}")
         return VisualizationOutput(name=self.name, figure=figure)
 
+    @override
     def create_by_run_and_none(
         self,
         reports: dict[RunName, list[ReportTuple]],
     ) -> VisualizationOutput:
-        """Create time series visualization comparing different model runs.
-
-        Args:
-            reports: Dictionary mapping run names to their report lists.
-
-        Returns:
-            Visualization output with time series comparison.
-        """
         plotter = ForecastTimeSeriesPlotter()
 
         # Get reference data from the first target (all targets expected to be the same)

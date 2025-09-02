@@ -26,7 +26,16 @@ classifiers = [
   "Programming Language :: Python :: 3.13",
 ]
 
-dependencies = [  ]
+dependencies = [
+  "openstef-core",
+  "pycountry>=24.6.1",
+]
+
+optional-dependencies.feature_engineering = [
+  "holidays>=0.79",
+  "pvlib>=0.13",
+  "scikit-learn>=1.7.1",
+]
 
 urls.Documentation = "https://openstef.github.io/openstef/index.html"
 urls.Homepage = "https://lfenergy.org/projects/openstef/"

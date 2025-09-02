@@ -13,11 +13,31 @@ import operator
 from collections import Counter
 from collections.abc import Sequence
 
+import pandas as pd
+
 from openstef_core.datasets.mixins import TimeSeriesMixin
-from openstef_core.exceptions import TimeSeriesValidationError
+from openstef_core.exceptions import InvalidColumnTypeError, MissingColumnsError, TimeSeriesValidationError
 
 
-def check_features_are_disjoint(datasets: Sequence[TimeSeriesMixin]) -> None:
+def validate_required_columns(dataset: TimeSeriesMixin, required_columns: list[str]) -> None:
+    """Check if the dataset contains all required columns.
+
+    Validates that the dataset includes all specified required columns,
+    raising an error if any are missing.
+
+    Args:
+        dataset: The time series dataset to validate.
+        required_columns: List of column names that must be present in the dataset.
+
+    Raises:
+        MissingColumnsError: If any required columns are missing from the dataset.
+    """
+    missing_columns = [col for col in required_columns if col not in dataset.feature_names]
+    if missing_columns:
+        raise MissingColumnsError(missing_columns=missing_columns)
+
+
+def validate_disjoint_columns(datasets: Sequence[TimeSeriesMixin]) -> None:
     """Check if the datasets have overlapping feature names.
 
     Validates that all datasets have completely disjoint feature sets,
@@ -35,7 +55,7 @@ def check_features_are_disjoint(datasets: Sequence[TimeSeriesMixin]) -> None:
         raise TimeSeriesValidationError("Datasets have overlapping feature names: " + ", ".join(duplicate_features))
 
 
-def check_sample_intervals(datasets: Sequence[TimeSeriesMixin]) -> None:
+def validate_same_sample_intervals(datasets: Sequence[TimeSeriesMixin]) -> None:
     """Check if the datasets have the same sample interval.
 
     Validates that all datasets use identical sampling intervals, which is
@@ -52,3 +72,17 @@ def check_sample_intervals(datasets: Sequence[TimeSeriesMixin]) -> None:
         raise TimeSeriesValidationError(
             "Datasets have different sample intervals: " + ", ".join(map(str, sample_intervals))
         )
+
+
+def validate_datetime_column(series: pd.Series, column_name: str) -> None:
+    """Validate that a pandas Series is of datetime type.
+
+    Args:
+        series: The pandas Series to validate.
+        column_name: Name of the column being validated (for error messages).
+
+    Raises:
+        InvalidColumnTypeError: If the series is not of datetime type.
+    """
+    if not pd.api.types.is_datetime64_any_dtype(series):
+        raise InvalidColumnTypeError(column_name, expected_type="datetime", actual_type=str(series.dtype))
