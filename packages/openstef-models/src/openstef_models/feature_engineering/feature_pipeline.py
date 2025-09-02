@@ -80,8 +80,8 @@ class FeaturePipeline(BaseModel):
         >>> horizon_datasets = pipeline.fit_transform(versioned_dataset)
         >>> len(horizon_datasets)
         2
-        >>> list(horizon_datasets.keys())  # doctest: +SKIP
-        [LeadTime(timedelta(seconds=3600)), LeadTime(timedelta(days=1))]
+        >>> list(horizon_datasets.keys())
+        [LeadTime(datetime.timedelta(seconds=3600)), LeadTime(datetime.timedelta(days=1))]
 
         **Example 2: Pipeline with simple time series dataset (single horizon)**
 
