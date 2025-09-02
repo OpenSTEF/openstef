@@ -183,6 +183,7 @@ typeCheckingMode = "strict"
 reportPrivateImportUsage = false
 reportMissingTypeStubs = false
 reportPrivateUsage = false
+reportUnusedExpression = false
 
 [tool.uv.sources]
 openstef-beam = { workspace = true }

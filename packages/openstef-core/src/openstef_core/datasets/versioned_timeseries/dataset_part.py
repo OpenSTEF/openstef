@@ -142,6 +142,7 @@ class VersionedTimeSeriesPart(VersionedTimeSeriesMixin):
         self.index = (
             index if index is not None else cast(pd.DatetimeIndex, pd.DatetimeIndex(self.data[timestamp_column]))
         )
+        self.index = cast(pd.DatetimeIndex, cast(pd.Series, self.index).sort_values().drop_duplicates())
         self.feature_names = list(set(self.data.columns) - {self.timestamp_column, self.available_at_column})
 
     @override
