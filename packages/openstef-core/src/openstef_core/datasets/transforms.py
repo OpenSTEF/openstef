@@ -13,6 +13,9 @@ from abc import abstractmethod
 
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.datasets.versioned_timeseries import VersionedTimeSeriesDataset
+from openstef_core.types import LeadTime
+
+type MultiHorizonTimeSeriesDataset = dict[LeadTime, TimeSeriesDataset]
 
 
 class TimeSeriesTransform:
@@ -79,8 +82,57 @@ class TimeSeriesTransform:
         self.fit(data)
         return self.transform(data)
 
+    def fit_horizons(self, data: dict[LeadTime, TimeSeriesDataset]) -> None:
+        """Fit the transform to multiple horizons of time series data.
 
-class TimeSeriesVersionedTransform:
+        This method allows fitting the transform on a dictionary of datasets,
+        each corresponding to a different lead time (horizon). It is useful
+        for transforms that need to learn parameters across multiple horizons.
+
+        Args:
+            data: A dictionary mapping lead times to their corresponding
+                  TimeSeriesDataset instances.
+        """
+
+    def transform_horizons(self, data: MultiHorizonTimeSeriesDataset) -> MultiHorizonTimeSeriesDataset:
+        """Transform multiple horizons of time series data.
+
+        This method applies the transformation to each dataset in the input
+        dictionary, returning a new dictionary with the transformed datasets.
+
+        Args:
+            data: A dictionary mapping lead times to their corresponding
+                  TimeSeriesDataset instances.
+
+        Returns:
+            A new dictionary mapping lead times to their transformed
+            TimeSeriesDataset instances.
+        """
+        transformed_data: MultiHorizonTimeSeriesDataset = {}
+        for horizon, dataset in data.items():
+            transformed_data[horizon] = self.transform(dataset)
+
+        return transformed_data
+
+    def fit_transform_horizons(self, data: MultiHorizonTimeSeriesDataset) -> MultiHorizonTimeSeriesDataset:
+        """Fit the transform to multiple horizons and then transform them.
+
+        This method combines fitting and transforming for multiple horizons
+        into a single step.
+
+        Args:
+            data: A dictionary mapping lead times to their corresponding
+                  TimeSeriesDataset instances.
+
+        Returns:
+            A new dictionary mapping lead times to their transformed
+            TimeSeriesDataset instances.
+        """
+        self.fit_horizons(data)
+        return self.transform_horizons(data)
+
+
+class VersionedTimeSeriesTransform:
     """Abstract base class for transforming versioned time series datasets.
 
     This class defines the interface for data transformations that operate on
@@ -97,7 +149,7 @@ class TimeSeriesVersionedTransform:
     Example:
         Implement a normalization transform for versioned data:
 
-        >>> class VersionedNormalizeTransform(TimeSeriesVersionedTransform):
+        >>> class VersionedNormalizeTransform(VersionedTimeSeriesTransform):
         ...     def __init__(self):
         ...         self.mean = None
         ...         self.std = None
@@ -160,5 +212,5 @@ class TimeSeriesVersionedTransform:
 
 __all__ = [
     "TimeSeriesTransform",
-    "TimeSeriesVersionedTransform",
+    "VersionedTimeSeriesTransform",
 ]
