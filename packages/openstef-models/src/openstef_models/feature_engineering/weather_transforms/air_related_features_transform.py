@@ -54,10 +54,8 @@ class AirRelatedFeaturesTransform(BaseConfig, TimeSeriesTransform):
         >>>
         >>> # Apply transformation
         >>> result = transform.transform(dataset)
-        >>> "dewpoint" in result.data.columns
-        True
-        >>> "air_density" in result.data.columns
-        True
+        >>> result.feature_names
+        ['temperature', 'pressure', 'relative_humidity', 'dewpoint', 'air_density']
     """
 
     included_features: list[AirRelatedFeatureName] = Field(
@@ -76,11 +74,6 @@ class AirRelatedFeaturesTransform(BaseConfig, TimeSeriesTransform):
         default="relative_humidity",
         description="Name of the relative humidity (%) column.",
     )
-
-    def __init__(self, **kwargs: Any) -> None:
-        """Initialize the AirRelatedFeaturesTransform."""
-        super().__init__(**kwargs)
-        self._air_related_features: pd.DataFrame = pd.DataFrame()
 
     @staticmethod
     def _calculate_saturation_vapour_pressure(temperature: pd.Series) -> pd.Series:
@@ -175,22 +168,22 @@ class AirRelatedFeaturesTransform(BaseConfig, TimeSeriesTransform):
         pressure = data.data[self.pressure_column]
         relative_humidity = data.data[self.relative_humidity_column]
 
-        self._air_related_features = pd.DataFrame(index=data.data.index)
+        atmosphere_derived_features = pd.DataFrame(index=data.data.index)
         if "saturation_vapour_pressure" in self.included_features:
-            self._air_related_features["saturation_vapour_pressure"] = self._calculate_saturation_vapour_pressure(
+            atmosphere_derived_features["saturation_vapour_pressure"] = self._calculate_saturation_vapour_pressure(
                 temperature
             )
         if "vapour_pressure" in self.included_features:
-            self._air_related_features["vapour_pressure"] = self._calculate_vapour_pressure(
+            atmosphere_derived_features["vapour_pressure"] = self._calculate_vapour_pressure(
                 temperature, relative_humidity
             )
         if "dewpoint" in self.included_features:
-            self._air_related_features["dewpoint"] = self._calculate_dewpoint(temperature, relative_humidity)
+            atmosphere_derived_features["dewpoint"] = self._calculate_dewpoint(temperature, relative_humidity)
         if "air_density" in self.included_features:
-            self._air_related_features["air_density"] = self._calculate_air_density(
+            atmosphere_derived_features["air_density"] = self._calculate_air_density(
                 temperature, relative_humidity, pressure
             )
 
         return TimeSeriesDataset(
-            data=pd.concat([data.data, self._air_related_features], axis=1), sample_interval=data.sample_interval
+            data=pd.concat([data.data, atmosphere_derived_features], axis=1), sample_interval=data.sample_interval
         )
