@@ -10,8 +10,8 @@ import pytest
 
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.exceptions import MissingColumnsError
-from openstef_models.feature_engineering.weather_transforms.air_related_features_transform import (
-    AirRelatedFeaturesTransform,
+from openstef_models.feature_engineering.weather_transforms.atmosphere_derived_features_transform import (
+    AtmosphereDerivedFeaturesTransform,
 )
 
 
@@ -29,7 +29,7 @@ def sample_data() -> TimeSeriesDataset:
 
 
 def test_transform_adds_all_features(sample_data: TimeSeriesDataset):
-    transform = AirRelatedFeaturesTransform()
+    transform = AtmosphereDerivedFeaturesTransform()
     result = transform.transform(sample_data)
     for feature in ["saturation_vapour_pressure", "vapour_pressure", "dewpoint", "air_density"]:
         assert feature in result.data.columns
@@ -37,7 +37,7 @@ def test_transform_adds_all_features(sample_data: TimeSeriesDataset):
 
 
 def test_transform_included_features_subset(sample_data: TimeSeriesDataset):
-    transform = AirRelatedFeaturesTransform(included_features=["dewpoint", "air_density"])
+    transform = AtmosphereDerivedFeaturesTransform(included_features=["dewpoint", "air_density"])
     result = transform.transform(sample_data)
     assert "dewpoint" in result.data.columns
     assert "air_density" in result.data.columns
@@ -54,14 +54,14 @@ def test_transform_missing_columns_raises():
         index=pd.date_range("2025-01-01", periods=5, freq="h"),
     )
     dataset = TimeSeriesDataset(data=data, sample_interval=timedelta(hours=1))
-    transform = AirRelatedFeaturesTransform()
+    transform = AtmosphereDerivedFeaturesTransform()
     with pytest.raises(MissingColumnsError, match="Missing required columns: pressure"):
         transform.transform(dataset)
 
 
 def test_saturation_vapour_pressure_calculation():
     temperature = pd.Series([-10, 20, 30])
-    result = AirRelatedFeaturesTransform._calculate_saturation_vapour_pressure(temperature)
+    result = AtmosphereDerivedFeaturesTransform._calculate_saturation_vapour_pressure(temperature)
     assert isinstance(result, pd.Series)
     assert np.all(result > 0)
     # Saturation vapour pressure should increase with temperature
@@ -69,7 +69,7 @@ def test_saturation_vapour_pressure_calculation():
 
 
 def test_vapour_pressure_calculation():
-    transform = AirRelatedFeaturesTransform()
+    transform = AtmosphereDerivedFeaturesTransform()
     temperature = pd.Series([-10, 10, 20])
     relative_humidity = pd.Series([50, 50, 80])
     result = transform._calculate_vapour_pressure(temperature, relative_humidity)
@@ -82,14 +82,14 @@ def test_vapour_pressure_calculation():
 def test_dewpoint_calculation():
     temperature = pd.Series([-10, 10, 20])
     relative_humidity = pd.Series([50, 50, 80])
-    result = AirRelatedFeaturesTransform._calculate_dewpoint(temperature, relative_humidity)
+    result = AtmosphereDerivedFeaturesTransform._calculate_dewpoint(temperature, relative_humidity)
     assert isinstance(result, pd.Series)
     # Dewpoint should not exceed temperature
     assert np.all(result < temperature + 1)
 
 
 def test_air_density_calculation():
-    transform = AirRelatedFeaturesTransform()
+    transform = AtmosphereDerivedFeaturesTransform()
     temperature = pd.Series([20, 10, -10])
     relative_humidity = pd.Series([80, 50, 50])
     pressure = pd.Series([1000, 1000, 1020])

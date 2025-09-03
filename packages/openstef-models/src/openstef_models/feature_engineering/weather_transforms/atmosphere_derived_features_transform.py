@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-"""Transform for calculating and adding air-related meteorological features to a time series dataset.
+"""Transform for calculating and adding atmosphere derived meteorological features to a time series dataset.
 
 The transform computes saturation vapour pressure, vapour pressure, dewpoint, and air density
 based on temperature, pressure, and relative humidity columns using established physical equations.
@@ -22,8 +22,8 @@ from openstef_core.exceptions import MissingColumnsError
 type AirRelatedFeatureName = Literal["saturation_vapour_pressure", "vapour_pressure", "dewpoint", "air_density"]
 
 
-class AirRelatedFeaturesTransform(BaseConfig, TimeSeriesTransform):
-    """Transform that calculates air-related meteorological features from basic weather data.
+class AtmosphereDerivedFeaturesTransform(BaseConfig, TimeSeriesTransform):
+    """Transform that calculates atmosphere derived meteorological features from basic weather data.
 
     This transform calculates various air-related features including saturation vapour pressure,
     vapour pressure, dewpoint, and air density using standard meteorological formulas. It requires
@@ -34,8 +34,8 @@ class AirRelatedFeaturesTransform(BaseConfig, TimeSeriesTransform):
     Example:
         >>> import pandas as pd
         >>> from openstef_core.datasets.timeseries_dataset import TimeSeriesDataset
-        >>> from openstef_models.feature_engineering.weather_transforms.air_related_features_transform import (
-        ...     AirRelatedFeaturesTransform
+        >>> from openstef_models.feature_engineering.weather_transforms.atmosphere_derived_features_transform import (
+        ...     AtmosphereDerivedFeaturesTransform
         ... )
         >>>
         >>> # Create sample weather data
@@ -48,7 +48,7 @@ class AirRelatedFeaturesTransform(BaseConfig, TimeSeriesTransform):
         >>> dataset = TimeSeriesDataset(data=data, sample_interval=pd.Timedelta(hours=1))
         >>>
         >>> # Initialize transform with specific features
-        >>> transform = AirRelatedFeaturesTransform(
+        >>> transform = AtmosphereDerivedFeaturesTransform(
         ...     included_features=["dewpoint", "air_density"]
         ... )
         >>>
