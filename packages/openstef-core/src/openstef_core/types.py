@@ -54,6 +54,14 @@ class LeadTime(PydanticStringPrimitive):
         """
         return TypeAdapter(timedelta).dump_python(self.value, mode="json")
 
+    def __repr__(self) -> str:
+        """Returns a detailed string representation for debugging.
+
+        Returns:
+            String representation showing the class name and timedelta value.
+        """
+        return f"LeadTime({self.value!r})"
+
     @classmethod
     def from_string(cls, s: str) -> Self:
         """Creates an instance from an ISO 8601 duration string.

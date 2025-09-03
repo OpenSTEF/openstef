@@ -9,17 +9,20 @@ A flatliner is defined as a period where the load remains constant for a specifi
 malfunction, data transmission errors, or other anomalies in energy forecasting datasets.
 """
 
+import logging
 from datetime import timedelta
 from typing import cast, override
 
 import numpy as np
 import pandas as pd
-from pydantic import Field, PrivateAttr
+from pydantic import Field
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.datasets.transforms import TimeSeriesTransform
 from openstef_core.exceptions import FlatlinerDetectedError, MissingColumnsError
+
+_logger = logging.getLogger(__name__)
 
 
 class FlatlinerCheckTransform(TimeSeriesTransform, BaseConfig):
@@ -49,11 +52,9 @@ class FlatlinerCheckTransform(TimeSeriesTransform, BaseConfig):
     ...     relative_tolerance=1e-5
     ... )
     >>> try:
-    ...     transform.fit(dataset)
+    ...     transformed_data = transform.fit_transform(dataset)
     ... except FlatlinerDetectedError as e:
     ...     pass
-    >>> transform.is_flatliner_detected == True
-    True
     """
 
     load_column: str = Field(
@@ -80,16 +81,6 @@ class FlatlinerCheckTransform(TimeSeriesTransform, BaseConfig):
         default=True,
         description="If True, an error is raised when a flatliner is detected.",
     )
-    check_on_transform: bool = Field(
-        default=False,
-        description="If True, flatliner detection also runs during transform() for new data validation.",
-    )
-    _is_flatliner_detected: bool | None = PrivateAttr(default=None)
-
-    @property
-    def is_flatliner_detected(self) -> bool | None:
-        """Indicates if a flatliner is currently detected after fitting."""
-        return self._is_flatliner_detected
 
     def detect_ongoing_flatliner(
         self,
@@ -126,27 +117,6 @@ class FlatlinerCheckTransform(TimeSeriesTransform, BaseConfig):
         return bool(flatline_condition & non_empty_condition)
 
     @override
-    def fit(self, data: TimeSeriesDataset) -> None:
-        """Fits the flatliner check by detecting ongoing flatliner patterns.
-
-        This method checks for flatliner patterns in the load column of the provided TimeSeriesDataset.
-
-        Args:
-            data: The dataset containing a DataFrame with a load column to be checked for flatliner patterns.
-
-        Raises:
-            MissingColumnsError: If the input DataFrame does not contain a load column.
-            FlatlinerDetectedError: If a flatliner is detected and `error_on_flatliner` is set to True.
-        """
-        if self.load_column not in data.data.columns:
-            raise MissingColumnsError([self.load_column])
-        self._is_flatliner_detected = self.detect_ongoing_flatliner(
-            data=data.data[self.load_column],
-        )
-        if self.error_on_flatliner and self._is_flatliner_detected:
-            raise FlatlinerDetectedError("Flatliner detected in the provided load data.")
-
-    @override
     def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
         """Returns the input data unchanged, optionally checking for flatliners.
 
@@ -164,15 +134,15 @@ class FlatlinerCheckTransform(TimeSeriesTransform, BaseConfig):
             MissingColumnsError: If the input DataFrame does not contain a load column and check_on_transform is True.
             FlatlinerDetectedError: If a flatliner is detected and `error_on_flatliner` is set to True.
         """
-        if not self.check_on_transform:
-            return data
-
         if self.load_column not in data.data.columns:
             raise MissingColumnsError([self.load_column])
-        self._is_flatliner_detected = self.detect_ongoing_flatliner(
+        is_flatliner_detected = self.detect_ongoing_flatliner(
             data=data.data[self.load_column],
         )
-        if self.error_on_flatliner and self._is_flatliner_detected:
-            raise FlatlinerDetectedError("Flatliner detected in the provided load data.")
+
+        if is_flatliner_detected:
+            if self.error_on_flatliner:
+                raise FlatlinerDetectedError("Flatliner detected in the provided load data.")
+            _logger.warning("Flatliner detected in the provided load data.")
 
         return data
