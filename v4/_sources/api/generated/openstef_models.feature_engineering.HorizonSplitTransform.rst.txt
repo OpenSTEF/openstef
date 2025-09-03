@@ -2,11 +2,11 @@
 ..
 .. SPDX-License-Identifier: MPL-2.0
 
-__doc__
-=======
+HorizonSplitTransform
+=====================
 
-.. currentmodule:: openstef_models.exceptions
+.. currentmodule:: openstef_models.feature_engineering
 
-.. autoclass:: __doc__
+.. autoclass:: HorizonSplitTransform
    :show-inheritance:
    :members:

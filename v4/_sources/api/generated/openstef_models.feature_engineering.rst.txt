@@ -21,7 +21,15 @@ openstef_models.feature_engineering
 
 
 
+Classes
+-------
 
+.. autosummary::
+   :toctree: .
+   :template: custom_class.rst
+
+   FeaturePipeline
+   HorizonSplitTransform
 
 
 

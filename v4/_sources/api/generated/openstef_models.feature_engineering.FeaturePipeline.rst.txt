@@ -2,11 +2,11 @@
 ..
 .. SPDX-License-Identifier: MPL-2.0
 
-__cached__
-==========
+FeaturePipeline
+===============
 
-.. currentmodule:: openstef_models.exceptions
+.. currentmodule:: openstef_models.feature_engineering
 
-.. autoclass:: __cached__
+.. autoclass:: FeaturePipeline
    :show-inheritance:
    :members:
