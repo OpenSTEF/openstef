@@ -235,9 +235,11 @@ def test_feature_pipeline_unversioned_dataset_scenarios(
     assert set(horizon_dataset.data.columns) == expected_columns
 
 
-def test_feature_pipeline_unversioned_dataset_validation_errors(sample_timeseries_dataset: TimeSeriesDataset):
-    """Test validation errors for incompatible unversioned dataset configurations."""
-    # Arrange - Pipeline with versioned transforms
+def test_feature_pipeline_unversioned_dataset_rejects_versioned_transforms(
+    sample_timeseries_dataset: TimeSeriesDataset,
+):
+    """Unversioned dataset pipelines must not be configured with versioned transforms."""
+    # Arrange
     pipeline_with_versioned = FeaturePipeline(
         horizons=[LeadTime.from_string("PT1H")], versioned_transforms=[MockVersionedTimeSeriesTransform()]
     )
@@ -246,7 +248,12 @@ def test_feature_pipeline_unversioned_dataset_validation_errors(sample_timeserie
     with pytest.raises(ValueError, match="pipeline cannot contain versioned transforms"):
         pipeline_with_versioned.fit(sample_timeseries_dataset)
 
-    # Arrange - Pipeline with multiple horizons
+
+def test_feature_pipeline_unversioned_dataset_requires_single_horizon(
+    sample_timeseries_dataset: TimeSeriesDataset,
+):
+    """Unversioned dataset pipelines must be configured with exactly one horizon."""
+    # Arrange
     pipeline_multi_horizon = FeaturePipeline(horizons=[LeadTime.from_string("PT1H"), LeadTime.from_string("PT24H")])
 
     # Act & Assert
