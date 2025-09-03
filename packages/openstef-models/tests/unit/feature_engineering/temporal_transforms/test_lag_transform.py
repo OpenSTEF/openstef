@@ -118,9 +118,9 @@ def test_lag_transform_with_horizon_filtering():
     - Available data versions depend on this availability deadline
 
     Expected Behavior:
-    - 5-day lag: needs data 7 days early → only "bad" version qualifies (3d ≤ 7d)
-    - 7-day lag: needs data 9 days early → "okay" version qualifies (5d ≤ 9d)
-    - 12-day lag: needs data 14 days early → "best" version qualifies (10d ≤ 14d)
+    - 5-day lag: needs data available by T-(-5d)-2d = T+3d → "bad" version (3d delay) just qualifies
+    - 7-day lag: needs data available by T-(-7d)-2d = T+5d → "okay" version (5d delay) qualifies
+    - 12-day lag: needs data available by T-(-12d)-2d = T+10d → "best" version (10d delay) qualifies
     """
     # Arrange
     timestamps = pd.date_range("2025-01-01T10:00:00", periods=5, freq="D")
