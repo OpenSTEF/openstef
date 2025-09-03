@@ -66,6 +66,8 @@ def test_saturation_vapour_pressure_calculation():
     assert np.all(result > 0)
     # Saturation vapour pressure should increase with temperature
     assert np.all(result.astype(dtype=float).diff().dropna() > 0)
+    expected_values = pd.Series([286.56, 2338.34, 4245.126])
+    pd.testing.assert_series_equal(result, expected_values, atol=0.001)
 
 
 def test_vapour_pressure_calculation():
@@ -76,7 +78,9 @@ def test_vapour_pressure_calculation():
     assert isinstance(result, pd.Series)
     assert np.all(result > 0)
     # Vapour pressure should increase with temperature
-    assert np.all(result.astype(dtype=float).diff().dropna() > 0)
+    assert np.all(result.astype(dtype=float).diff().dropna() > 0) 
+    expected_values = pd.Series([14328.017,  61393.008, 187067.198])
+    pd.testing.assert_series_equal(result, expected_values, atol=0.001)
 
 
 def test_dewpoint_calculation():
@@ -86,6 +90,8 @@ def test_dewpoint_calculation():
     assert isinstance(result, pd.Series)
     # Dewpoint should not exceed temperature
     assert np.all(result < temperature + 1)
+    expected_values = pd.Series([-18.468,   0.047,  16.444])
+    pd.testing.assert_series_equal(result, expected_values, atol=0.001)
 
 
 def test_air_density_calculation():
@@ -98,3 +104,5 @@ def test_air_density_calculation():
     assert np.all(result > 0)
     # Air density increases as temperature decreases, relative humidity decreases and pressure increases
     assert np.all(result.astype(dtype=float).diff().dropna() > 0)
+    expected_values = pd.Series([0.3480, 0.9448, 1.278])
+    pd.testing.assert_series_equal(result, expected_values, atol=0.001)
