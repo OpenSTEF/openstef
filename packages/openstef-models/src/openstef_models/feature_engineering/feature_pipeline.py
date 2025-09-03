@@ -80,8 +80,12 @@ class FeaturePipeline(BaseModel):
         >>> horizon_datasets = pipeline.fit_transform(versioned_dataset)
         >>> len(horizon_datasets)
         2
-        >>> list(horizon_datasets.keys())  # doctest: +SKIP
-        [LeadTime(timedelta(seconds=3600)), LeadTime(timedelta(days=1))]
+        >>> list(horizon_datasets.keys())
+        [LeadTime(datetime.timedelta(seconds=3600)), LeadTime(datetime.timedelta(days=1))]
+        >>>
+        >>> # Check what columns are created (original + cyclic features)
+        >>> sorted(horizon_datasets[LeadTime.from_string("PT1H")].feature_names)
+        ['load', 'season_cosine', 'season_sine', 'temperature', 'timeOfDay_cosine', 'timeOfDay_sine']
 
         **Example 2: Pipeline with simple time series dataset (single horizon)**
 
@@ -108,6 +112,8 @@ class FeaturePipeline(BaseModel):
         >>> single_result = single_pipeline.fit_transform(simple_dataset)
         >>> len(single_result)
         1
+        >>> sorted(single_result[LeadTime.from_string("PT36H")].feature_names)
+        ['load', 'temperature', 'timeOfDay_cosine', 'timeOfDay_sine']
     """
 
     horizons: list[LeadTime] = Field(
