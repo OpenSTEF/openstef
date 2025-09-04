@@ -96,7 +96,7 @@ class AtmosphereDerivedFeaturesTransform(BaseConfig, TimeSeriesTransform):
             https://en.wikipedia.org/wiki/Vapour_pressure_of_water
         """
         # Buck equation constants
-        a: float = 0.61121  # kPa
+        a: float = 0.61121
         b: float = 18.678
         c: float = 234.5
         d: float = 257.14
