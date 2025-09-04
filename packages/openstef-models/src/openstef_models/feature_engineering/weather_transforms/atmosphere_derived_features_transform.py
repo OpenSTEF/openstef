@@ -30,12 +30,8 @@ class AtmosphereDerivedFeaturesTransform(BaseConfig, TimeSeriesTransform):
     temperature, pressure, and relative humidity as input columns.
     The calculated features can be used to enhance weather-based prediction models by providing
     additional atmospheric state information that may correlate with energy generation patterns.
-    For example: High humidity, caused by increased water vapor in the atmosphere,
-    reduces PV generation by scattering and absorbing sunlight, and by causing water droplets
-    to form on the panel surface (DOI: 10.1088/1748-9326/ab905b).
-    Air pressure increases PV generation by increasing the density of photons reaching the solar cells,
-    which is equivalent to a higher downward force. This effect is greater at lower altitudes
-    where air is denser (DOI: 10.35940/ijitee.J9889.0981119).
+    For example: Higher humidity reduces PV generation by scattering and absorbing sunlight
+    (https://doi.org/10.1016/j.matpr.2020.08.775).
 
 
     Example:
