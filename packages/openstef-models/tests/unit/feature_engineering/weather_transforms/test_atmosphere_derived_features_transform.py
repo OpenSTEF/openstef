@@ -78,8 +78,8 @@ def test_vapour_pressure_calculation():
     assert isinstance(result, pd.Series)
     assert np.all(result > 0)
     # Vapour pressure should increase with temperature
-    assert np.all(result.astype(dtype=float).diff().dropna() > 0) 
-    expected_values = pd.Series([14328.017,  61393.008, 187067.198])
+    assert np.all(result.astype(dtype=float).diff().dropna() > 0)
+    expected_values = pd.Series([14328.017, 61393.008, 187067.198])
     pd.testing.assert_series_equal(result, expected_values, atol=0.001)
 
 
@@ -90,7 +90,7 @@ def test_dewpoint_calculation():
     assert isinstance(result, pd.Series)
     # Dewpoint should not exceed temperature
     assert np.all(result < temperature + 1)
-    expected_values = pd.Series([-18.468,   0.047,  16.444])
+    expected_values = pd.Series([-18.468, 0.047, 16.444])
     pd.testing.assert_series_equal(result, expected_values, atol=0.001)
 
 
