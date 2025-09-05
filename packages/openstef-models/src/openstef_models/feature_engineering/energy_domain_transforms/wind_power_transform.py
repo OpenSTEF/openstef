@@ -5,7 +5,7 @@
 """Transform for calculating wind power features from wind speed data.
 
 The transform computes wind speed at hub height and wind power output
-based on wind speed data.
+based on wind speed data from measurements, forecasts, or model outputs.
 """
 
 from typing import override
@@ -25,9 +25,10 @@ class WindPowerTransform(BaseConfig, TimeSeriesTransform):
 
     This transform calculates wind speed at the wind turbine hub height using
     the wind profile power law, and estimates wind power output via a parameterized power curve.
-    It can utilize either measured wind speed at hub height (if available) or extrapolate
-    from a different measurement height. The resulting wind power feature can significantly improve
-    forecast accuracy, especially for locations with substantial wind resources.
+    It can utilize either wind speed at hub height (if available) or extrapolate
+    from wind speed at a reference height. The input wind speed can come from measurements,
+    weather forecasts, or numerical weather model outputs. The resulting wind power feature
+    can significantly improve forecast accuracy, especially for locations with substantial wind resources.
 
     Example:
     >>> import pandas as pd
@@ -46,13 +47,13 @@ class WindPowerTransform(BaseConfig, TimeSeriesTransform):
     ['windspeed', 'windspeed_hub_height', 'wind_power']
     """
 
-    windspeed_column: str = Field(
+    windspeed_reference_column: str = Field(
         default="windspeed",
-        description="Column representing wind speed.",
+        description="Column containing wind speed at reference height (from measurements or forecasts).",
     )
-    windspeed_height: float = Field(
+    reference_height: float = Field(
         default=10.0,
-        description="Height at which wind speed is measured.",
+        description="Height (in meters) at which the reference wind speed is provided.",
     )
     windspeed_hub_height_column: str = Field(
         default="windspeed_hub_height",
@@ -76,10 +77,10 @@ class WindPowerTransform(BaseConfig, TimeSeriesTransform):
     )
 
     def _calculate_wind_speed_at_hub_height(self, wind_speed: pd.Series) -> pd.Series:
-        """Calculates wind speed at hub height based on the wind speed column.
+        """Calculates wind speed at hub height based on wind speed at reference height.
 
         Args:
-            wind_speed: Wind speed at the measurement height.
+            wind_speed: Wind speed at the reference height.
 
         Returns:
             A series of wind speed values at hub height.
@@ -88,7 +89,7 @@ class WindPowerTransform(BaseConfig, TimeSeriesTransform):
         https://en.wikipedia.org/wiki/Wind_profile_power_law
         """
         alpha = 0.143
-        return wind_speed * (self.hub_height / self.windspeed_height) ** alpha
+        return wind_speed * (self.hub_height / self.reference_height) ** alpha
 
     def _calculate_wind_power(self, wind_speed_hub_height: pd.Series) -> pd.Series:
         """Calculates wind power from wind speed at hub height.
@@ -107,13 +108,13 @@ class WindPowerTransform(BaseConfig, TimeSeriesTransform):
 
     @override
     def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
-        if self.windspeed_column not in data.feature_names:
-            raise MissingColumnsError([self.windspeed_column])
+        if self.windspeed_reference_column not in data.feature_names:
+            raise MissingColumnsError([self.windspeed_reference_column])
 
         features = pd.DataFrame(index=data.data.index)
         if self.windspeed_hub_height_column not in data.feature_names:
             features[self.windspeed_hub_height_column] = self._calculate_wind_speed_at_hub_height(
-                data.data[self.windspeed_column]
+                data.data[self.windspeed_reference_column]
             )
             features["wind_power"] = self._calculate_wind_power(features[self.windspeed_hub_height_column])
         else:

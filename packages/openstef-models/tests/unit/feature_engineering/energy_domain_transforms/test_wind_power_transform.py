@@ -13,20 +13,20 @@ from openstef_models.feature_engineering.energy_domain_transforms.wind_power_tra
 
 
 @pytest.mark.parametrize(
-    ("wind_speed", "windspeed_height", "hub_height", "expected"),
+    ("wind_speed", "reference_height", "hub_height", "expected"),
     [
         pytest.param(10.0, 10.0, 100.0, 13.90, id="standard_case"),
         pytest.param(5.0, 10.0, 100.0, 6.95, id="lower_wind_speed"),
-        pytest.param(10.0, 50.0, 100.0, 11.042, id="different_measurement_height"),
-        pytest.param(5.0, 50.0, 50.0, 5.0, id="custom_hub_height"),
+        pytest.param(10.0, 50.0, 100.0, 11.042, id="different_reference_height"),
+        pytest.param(5.0, 50.0, 50.0, 5.0, id="same_height"),
     ],
 )
 def test_calculate_wind_speed_at_hub_height(
-    wind_speed: float, windspeed_height: float, hub_height: float, expected: float
+    wind_speed: float, reference_height: float, hub_height: float, expected: float
 ) -> None:
     """Test wind speed calculation at hub height using power law."""
     # Arrange
-    transform = WindPowerTransform(windspeed_height=windspeed_height, hub_height=hub_height)
+    transform = WindPowerTransform(reference_height=reference_height, hub_height=hub_height)
     wind_speed_series = pd.Series([wind_speed], index=[datetime.fromisoformat("2025-01-01T00:00:00")])
 
     # Act
