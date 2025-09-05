@@ -54,7 +54,6 @@ class WindPowerTransform(BaseConfig, TimeSeriesTransform):
         default=10.0,
         description="Height at which wind speed is measured.",
     )
-    # NOTE: This is now always called 100m, but what if the hubheigt is not 100m...
     windspeed_hub_height_column: str = Field(
         default="windspeed_hub_height",
         description="Column representing wind speed at hub height.",
@@ -80,10 +79,10 @@ class WindPowerTransform(BaseConfig, TimeSeriesTransform):
         """Calculates wind speed at hub height based on the wind speed column.
 
         Args:
-            wind_speed (pd.Series): Wind speed at the measurement height.
+            wind_speed: Wind speed at the measurement height.
 
         Returns:
-        A series of wind speed values at hub height.
+            A series of wind speed values at hub height.
 
         Reference:
         https://en.wikipedia.org/wiki/Wind_profile_power_law
@@ -97,8 +96,11 @@ class WindPowerTransform(BaseConfig, TimeSeriesTransform):
         Values are related through the power curve, which is described by the rated power, steepness and slope center.
         Default values are used and are normalized to 1MWp.
 
+        Args:
+            wind_speed_hub_height: Wind speed at hub height.
+
         Returns:
-        A series of wind power values in Watt.
+            A series of wind power values in Watt.
         """
         generated_power = self.rated_power / (1 + np.exp(-self.steepness * (wind_speed_hub_height - self.slope_center)))
         return pd.Series(generated_power, index=wind_speed_hub_height.index)
