@@ -4,6 +4,7 @@
 
 from datetime import datetime, timedelta
 from pathlib import Path
+from typing import cast
 
 import pandas as pd
 import pytest
@@ -123,7 +124,9 @@ def test_feature_names_property(dataset_part: VersionedTimeSeriesPart):
 
 def test_index_property(dataset_part: VersionedTimeSeriesPart, sample_data: pd.DataFrame):
     # Arrange
-    expected_index = pd.DatetimeIndex(sample_data["timestamp"])
+    expected_index: pd.DatetimeIndex = cast(
+        pd.DatetimeIndex, cast(pd.Series, pd.DatetimeIndex(sample_data["timestamp"])).drop_duplicates().sort_values()
+    )
 
     # Act
     index = dataset_part.index

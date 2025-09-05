@@ -18,6 +18,8 @@ from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.datasets.transforms import TimeSeriesTransform
 from openstef_core.exceptions import TransformNotFittedError
+from openstef_core.types import LeadTime
+from openstef_models.feature_engineering.horizon_split_transform import concat_horizon_datasets_rowwise
 
 
 class ClippingTransform(BaseConfig, TimeSeriesTransform):
@@ -64,6 +66,11 @@ class ClippingTransform(BaseConfig, TimeSeriesTransform):
     _feature_mins: pd.Series = PrivateAttr(default_factory=pd.Series)
     _feature_maxs: pd.Series = PrivateAttr(default_factory=pd.Series)
     _is_fitted: bool = PrivateAttr(default=False)
+
+    @override
+    def fit_horizons(self, data: dict[LeadTime, TimeSeriesDataset]) -> None:
+        flat_data = concat_horizon_datasets_rowwise(data)
+        return self.fit(flat_data)
 
     @override
     def fit(self, data: TimeSeriesDataset) -> None:

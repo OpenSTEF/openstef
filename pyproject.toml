@@ -62,7 +62,7 @@ dev = [
   "pandas-stubs>=2.3.0.250703",
   "poethepoet>=0.36",
   "pyproject-fmt>=2.6",
-  "pyright>=1.1.403",
+  "pyright>=1.1.404",
   "pytest>=8.4.1",
   "pytest-cov>=6.2.1",
   "pytest-xdist>=3.8",
@@ -177,12 +177,13 @@ include = [
   "examples/**/*.py",
   "packages/*/src/**/*.py",
   "packages/*/examples/**/*.py",
-  # "packages/*/tests/**/*.py",
+  "packages/*/tests/**/*.py",
 ]
 typeCheckingMode = "strict"
 reportPrivateImportUsage = false
 reportMissingTypeStubs = false
 reportPrivateUsage = false
+reportUnusedExpression = false
 
 [tool.uv.sources]
 openstef-beam = { workspace = true }
@@ -225,7 +226,7 @@ cmd = "uv lock --check"
 
 [tool.poe.tasks.type]
 help = "Check typing (with pyright)"
-cmd = "pyright"
+cmd = "pyright tools examples packages/*/src packages/*/examples"
 
 [tool.poe.tasks.tests]
 help = "Run pytest with xdist, marker filtering, and coverage"
