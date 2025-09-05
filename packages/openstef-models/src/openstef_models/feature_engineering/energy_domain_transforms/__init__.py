@@ -9,4 +9,6 @@ including power system specific features and domain knowledge transformations
 that enhance energy forecasting models.
 """
 
-__all__ = []
+from openstef_models.feature_engineering.energy_domain_transforms.wind_power_transform import WindPowerTransform
+
+__all__ = ["WindPowerTransform"]
