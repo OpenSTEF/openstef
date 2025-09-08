@@ -256,6 +256,9 @@ html_theme_options = {
     "surface_warnings": True,
 }
 
+# Disable default "View page source" link (in favor of PyData theme's "Edit this page" link)
+html_show_sourcelink = False
+
 # A shorter title for the navigation bar.  Default is the same as html_title.
 html_short_title = "openstef"
 
@@ -286,9 +289,10 @@ html_sidebars: Any = {
 
 # Repository configuration for edit buttons
 html_context = {
+    # Edit page source
     "github_user": "OpenSTEF",
     "github_repo": "openstef",
-    "github_version": "main",
+    "github_version": "release/v4.0.0",
     "doc_path": "docs/source",
 }
 
