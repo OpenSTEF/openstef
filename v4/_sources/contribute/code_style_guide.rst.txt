@@ -63,7 +63,7 @@ Import standard library modules without abbreviation:
     import sys
     import logging
     from pathlib import Path
-    from typing import Any, Dict, List, Optional, Union
+    from typing import Any
 
 Scientific computing imports
 ----------------------------
@@ -146,10 +146,12 @@ Use these standard names for common objects in energy forecasting:
     pipeline: TrainingPipeline   # Training/inference pipeline
 
     # Predictions and evaluation
-    y_true: np.ndarray          # Ground truth values
-    y_pred: np.ndarray          # Model predictions
+    # Prefer typing with explicit dtypes using numpy.typing
+    # e.g., npt.NDArray[np.float64] for floating-point arrays
+    y_true: npt.NDArray[np.float64]          # Ground truth values
+    y_pred: npt.NDArray[np.float64]          # Model predictions
     forecast: pd.DataFrame       # Forecast output with uncertainty
-    residuals: np.ndarray       # Prediction errors
+    residuals: npt.NDArray[np.float64]       # Prediction errors
 
     # Time-related variables
     horizon: int                # Forecast horizon in hours
@@ -196,7 +198,7 @@ All **public functions** and **class methods** must have type hints:
         def __init__(self, config: XGBoostConfig) -> None:
             self.config = config
 
-        def fit(self, X: np.ndarray, y: np.ndarray) -> "XGBoostForecaster":
+        def fit(self, X: npt.NDArray[np.float64], y: npt.NDArray[np.float64]) -> "XGBoostForecaster":
             # Implementation
             return self
 
@@ -207,8 +209,10 @@ Use these standard patterns for common OpenSTEF types:
 
 .. code-block:: python
 
-    from typing import Optional, Union, Dict, List, Any
+    from typing import Any
     from pathlib import Path
+    import numpy as np
+    import numpy.typing as npt
 
     # File paths - prefer pathlib.Path
     def save_model(model: ForecastModel, path: Path) -> None:
@@ -217,16 +221,16 @@ Use these standard patterns for common OpenSTEF types:
     # Optional parameters with defaults
     def create_forecaster(
         model_type: str = "xgboost",
-        config: Optional[ModelConfig] = None
+        config: ModelConfig | None = None
     ) -> BaseForecaster:
         pass
 
     # Union types for flexible inputs
-    def load_data(source: Union[str, Path, pd.DataFrame]) -> TimeseriesDataset:
+    def load_data(source: str | Path | pd.DataFrame) -> TimeseriesDataset:
         pass
 
     # Generic containers
-    def validate_features(features: List[str]) -> Dict[str, bool]:
+    def validate_features(features: list[str]) -> dict[str, bool]:
         pass
 
 Type checking
@@ -304,7 +308,7 @@ Follow OpenSTEF's **four-level hierarchy** (see the `design decisions document <
 .. code-block:: python
 
     # Level 1: Pure functions
-    def calculate_mae(y_true: np.ndarray, y_pred: np.ndarray) -> float:
+    def calculate_mae(y_true: npt.NDArray[np.float64], y_pred: npt.NDArray[np.float64]) -> float:
         """Standalone utility function."""
         return np.mean(np.abs(y_true - y_pred))
 
@@ -326,7 +330,7 @@ Follow OpenSTEF's **four-level hierarchy** (see the `design decisions document <
         
         def __init__(
             self,
-            transforms: List[BaseTransform],
+            transforms: list[BaseTransform],
             model: BaseForecaster
         ):
             self.transforms = transforms
@@ -642,7 +646,7 @@ a function/class, use ``logging.LoggerAdapter``:
             self.logger.info(f"Feature engineering completed, output shape: {result.shape}")
             return result
 
-    def process_multiple_datasets(datasets: List[TimeseriesDataset]) -> List[TimeseriesDataset]:
+    def process_multiple_datasets(datasets: list[TimeseriesDataset]) -> list[TimeseriesDataset]:
         """Process multiple datasets with batch context."""
         
         # Create adapter for batch processing context
@@ -1022,25 +1026,25 @@ Design stable public APIs:
     def create_forecaster(
         model_type: str = "xgboost",
         *,
-        config: Optional[ModelConfig] = None,
+        config: ModelConfig | None = None,
         **kwargs: Any
     ) -> BaseForecaster:
         """Create a forecaster with backward-compatible interface.
-        
-        Args:
-            model_type: Type of model to create.
-            config: Model configuration (recommended).
-            **kwargs: Legacy parameter support (deprecated).
-        """
-        if kwargs and config is None:
-            # Support legacy parameter format
-            _log.warning(
-                "Using **kwargs for configuration is deprecated. "
-                "Use 'config' parameter instead."
-            )
-            config = ModelConfig(**kwargs)
-        
-        return _create_forecaster_internal(model_type, config or ModelConfig())
+         
+         Args:
+             model_type: Type of model to create.
+             config: Model configuration (recommended).
+             **kwargs: Legacy parameter support (deprecated).
+         """
+         if kwargs and config is None:
+             # Support legacy parameter format
+             _log.warning(
+                 "Using **kwargs for configuration is deprecated. "
+                 "Use 'config' parameter instead."
+             )
+             config = ModelConfig(**kwargs)
+         
+         return _create_forecaster_internal(model_type, config or ModelConfig())
 
 Deprecation warnings
 --------------------

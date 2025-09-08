@@ -514,7 +514,7 @@ poe<span class="w"> </span>format
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
 </pre></div>
 </div>
 </section>
@@ -588,10 +588,12 @@ poe<span class="w"> </span>format
 <span class="n">pipeline</span><span class="p">:</span> <span class="n">TrainingPipeline</span>   <span class="c1"># Training/inference pipeline</span>
 
 <span class="c1"># Predictions and evaluation</span>
-<span class="n">y_true</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>          <span class="c1"># Ground truth values</span>
-<span class="n">y_pred</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>          <span class="c1"># Model predictions</span>
+<span class="c1"># Prefer typing with explicit dtypes using numpy.typing</span>
+<span class="c1"># e.g., npt.NDArray[np.float64] for floating-point arrays</span>
+<span class="n">y_true</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]</span>          <span class="c1"># Ground truth values</span>
+<span class="n">y_pred</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]</span>          <span class="c1"># Model predictions</span>
 <span class="n">forecast</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span>       <span class="c1"># Forecast output with uncertainty</span>
-<span class="n">residuals</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>       <span class="c1"># Prediction errors</span>
+<span class="n">residuals</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]</span>       <span class="c1"># Prediction errors</span>
 
 <span class="c1"># Time-related variables</span>
 <span class="n">horizon</span><span class="p">:</span> <span class="nb">int</span>                <span class="c1"># Forecast horizon in hours</span>
@@ -632,7 +634,7 @@ poe<span class="w"> </span>format
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">XGBoostConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;XGBoostForecaster&quot;</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">],</span> <span class="n">y</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">&quot;XGBoostForecaster&quot;</span><span class="p">:</span>
         <span class="c1"># Implementation</span>
         <span class="k">return</span> <span class="bp">self</span>
 </pre></div>
@@ -641,8 +643,10 @@ poe<span class="w"> </span>format
 <section id="common-type-patterns">
 <h3>Common type patterns<a class="headerlink" href="#common-type-patterns" title="Link to this heading">#</a></h3>
 <p>Use these standard patterns for common OpenSTEF types:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Any</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">npt</span>
 
 <span class="c1"># File paths - prefer pathlib.Path</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">save_model</span><span class="p">(</span><span class="n">model</span><span class="p">:</span> <span class="n">ForecastModel</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -651,16 +655,16 @@ poe<span class="w"> </span>format
 <span class="c1"># Optional parameters with defaults</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">create_forecaster</span><span class="p">(</span>
     <span class="n">model_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;xgboost&quot;</span><span class="p">,</span>
-    <span class="n">config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ModelConfig</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">config</span><span class="p">:</span> <span class="n">ModelConfig</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BaseForecaster</span><span class="p">:</span>
     <span class="k">pass</span>
 
 <span class="c1"># Union types for flexible inputs</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">load_data</span><span class="p">(</span><span class="n">source</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">TimeseriesDataset</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_data</span><span class="p">(</span><span class="n">source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TimeseriesDataset</span><span class="p">:</span>
     <span class="k">pass</span>
 
 <span class="c1"># Generic containers</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">validate_features</span><span class="p">(</span><span class="n">features</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">validate_features</span><span class="p">(</span><span class="n">features</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
     <span class="k">pass</span>
 </pre></div>
 </div>
@@ -728,7 +732,7 @@ poe<span class="w"> </span>all<span class="w"> </span>--check
 <h3>Class hierarchy design<a class="headerlink" href="#class-hierarchy-design" title="Link to this heading">#</a></h3>
 <p>Follow OpenSTEF’s <strong>four-level hierarchy</strong> (see the <a class="reference external" href="https://lf-energy.atlassian.net/wiki/spaces/OS/pages/334037011/OpenSTEF+4.0+Proposal#Feature-Hierarchy-Convention">design decisions document</a>):</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Level 1: Pure functions</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">calculate_mae</span><span class="p">(</span><span class="n">y_true</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">calculate_mae</span><span class="p">(</span><span class="n">y_true</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">],</span> <span class="n">y_pred</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Standalone utility function.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">y_true</span> <span class="o">-</span> <span class="n">y_pred</span><span class="p">))</span>
 
@@ -750,7 +754,7 @@ poe<span class="w"> </span>all<span class="w"> </span>--check
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">transforms</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">BaseTransform</span><span class="p">],</span>
+        <span class="n">transforms</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">BaseTransform</span><span class="p">],</span>
         <span class="n">model</span><span class="p">:</span> <span class="n">BaseForecaster</span>
     <span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">transforms</span> <span class="o">=</span> <span class="n">transforms</span>
@@ -1043,7 +1047,7 @@ a function/class, use <code class="docutils literal notranslate"><span class="pr
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Feature engineering completed, output shape: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">result</span>
 
-<span class="k">def</span><span class="w"> </span><span class="nf">process_multiple_datasets</span><span class="p">(</span><span class="n">datasets</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">TimeseriesDataset</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">TimeseriesDataset</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">process_multiple_datasets</span><span class="p">(</span><span class="n">datasets</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">TimeseriesDataset</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">TimeseriesDataset</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Process multiple datasets with batch context.&quot;&quot;&quot;</span>
 
     <span class="c1"># Create adapter for batch processing context</span>
@@ -1394,25 +1398,25 @@ poe<span class="w"> </span>doctests<span class="w">           </span><span class
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">create_forecaster</span><span class="p">(</span>
     <span class="n">model_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;xgboost&quot;</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
-    <span class="n">config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ModelConfig</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">config</span><span class="p">:</span> <span class="n">ModelConfig</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BaseForecaster</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a forecaster with backward-compatible interface.</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">        model_type: Type of model to create.</span>
-<span class="sd">        config: Model configuration (recommended).</span>
-<span class="sd">        **kwargs: Legacy parameter support (deprecated).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">kwargs</span> <span class="ow">and</span> <span class="n">config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="c1"># Support legacy parameter format</span>
-        <span class="n">_log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-            <span class="s2">&quot;Using **kwargs for configuration is deprecated. &quot;</span>
-            <span class="s2">&quot;Use &#39;config&#39; parameter instead.&quot;</span>
-        <span class="p">)</span>
-        <span class="n">config</span> <span class="o">=</span> <span class="n">ModelConfig</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+<span class="sd">     Args:</span>
+<span class="sd">         model_type: Type of model to create.</span>
+<span class="sd">         config: Model configuration (recommended).</span>
+<span class="sd">         **kwargs: Legacy parameter support (deprecated).</span>
+<span class="sd">     &quot;&quot;&quot;</span>
+     <span class="k">if</span> <span class="n">kwargs</span> <span class="ow">and</span> <span class="n">config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+         <span class="c1"># Support legacy parameter format</span>
+         <span class="n">_log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+             <span class="s2">&quot;Using **kwargs for configuration is deprecated. &quot;</span>
+             <span class="s2">&quot;Use &#39;config&#39; parameter instead.&quot;</span>
+         <span class="p">)</span>
+         <span class="n">config</span> <span class="o">=</span> <span class="n">ModelConfig</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">_create_forecaster_internal</span><span class="p">(</span><span class="n">model_type</span><span class="p">,</span> <span class="n">config</span> <span class="ow">or</span> <span class="n">ModelConfig</span><span class="p">())</span>
+     <span class="k">return</span> <span class="n">_create_forecaster_internal</span><span class="p">(</span><span class="n">model_type</span><span class="p">,</span> <span class="n">config</span> <span class="ow">or</span> <span class="n">ModelConfig</span><span class="p">())</span>
 </pre></div>
 </div>
 </section>
@@ -1579,7 +1583,7 @@ poe<span class="w"> </span>doctests<span class="w">           </span><span class
 
   
   <div class="tocsection editthispage">
-    <a href="https://github.com/OpenSTEF/openstef/edit/main/docs/source/contribute/code_style_guide.rst">
+    <a href="https://github.com/OpenSTEF/openstef/edit/release/v4.0.0/docs/source/contribute/code_style_guide.rst">
       <i class="fa-solid fa-pencil"></i>
       
       
@@ -1590,15 +1594,6 @@ poe<span class="w"> </span>doctests<span class="w">           </span><span class
     </a>
   </div>
 </div>
-
-  <div class="sidebar-secondary-item">
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="../_sources/contribute/code_style_guide.rst.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div></div>
 
 </div></div>
               
