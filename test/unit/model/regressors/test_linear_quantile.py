@@ -213,8 +213,8 @@ class TestLinearQuantile(BaseTestCase):
 
         # Check if the 'day_ahead_electricity_price' feature was clipped during prediction
         clipped_X = model.feature_clipper_.transform(X_test)
-        self.assertTrue(clipped_X["day_ahead_electricity_price"].min() >= -10.0)
-        self.assertTrue(clipped_X["day_ahead_electricity_price"].max() <= 200.0)
+        self.assertTrue(clipped_X["day_ahead_electricity_price"].min() >= -20.0)
+        self.assertTrue(clipped_X["day_ahead_electricity_price"].max() <= 240.0)
 
         # Make predictions
         y_pred = model.predict(X_test)

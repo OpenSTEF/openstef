@@ -4,7 +4,13 @@
 from typing import Dict, List, Optional, Tuple
 
 import pandas as pd
+from pydantic import BaseModel
 from sklearn.base import BaseEstimator, TransformerMixin
+
+
+class FeatureStats(BaseModel):
+    mean: float
+    std: float
 
 
 class FeatureClipper(BaseEstimator, TransformerMixin):
@@ -14,7 +20,7 @@ class FeatureClipper(BaseEstimator, TransformerMixin):
     extrapolating beyond these values during prediction.
     """
 
-    def __init__(self, columns: List[str]):
+    def __init__(self, columns: List[str], clip_number_of_std: float = 2.0):
         """
         Initialize the FeatureClipper.
 
@@ -24,7 +30,8 @@ class FeatureClipper(BaseEstimator, TransformerMixin):
             List of column names to be clipped.
         """
         self.columns: List[str] = columns
-        self.feature_ranges: Dict[str, Tuple[float, float]] = {}
+        self.feature_ranges: Dict[str, Tuple[float, float] | FeatureStats] = {}
+        self.clip_number_of_std = clip_number_of_std
 
     def fit(self, X: pd.DataFrame, y: Optional[pd.Series] = None) -> "FeatureClipper":
         """
@@ -54,7 +61,9 @@ class FeatureClipper(BaseEstimator, TransformerMixin):
 
         for col in self.columns:
             if col in X.columns:
-                self.feature_ranges[col] = (X[col].min(), X[col].max())
+                self.feature_ranges[col] = FeatureStats(
+                    mean=X[col].mean(), std=X[col].std()
+                )
 
         return self
 
@@ -85,7 +94,15 @@ class FeatureClipper(BaseEstimator, TransformerMixin):
 
         for col in self.columns:
             if col in X_copy.columns and col in self.feature_ranges:
-                min_val, max_val = self.feature_ranges[col]
-                X_copy[col] = X_copy[col].clip(lower=min_val, upper=max_val)
+                if isinstance(self.feature_ranges[col], FeatureStats):
+                    stats = self.feature_ranges[col]
+                    X_copy[col] = X_copy[col].clip(
+                        lower=stats.mean - self.clip_number_of_std * stats.std,
+                        upper=stats.mean + self.clip_number_of_std * stats.std,
+                    )
+                else:
+                    # Backward compatibility with previous minmax-based implementation
+                    min_val, max_val = self.feature_ranges[col]
+                    X_copy[col] = X_copy[col].clip(lower=min_val, upper=max_val)
 
         return X_copy

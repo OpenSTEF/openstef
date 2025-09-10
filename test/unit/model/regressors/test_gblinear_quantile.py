@@ -202,8 +202,8 @@ class TestGBLinearQuantile(BaseTestCase):
 
         # Check if the 'APX' feature was clipped during prediction
         clipped_X = model.feature_clipper_.transform(X_test)
-        self.assertTrue(clipped_X["APX"].min() >= -10.0)
-        self.assertTrue(clipped_X["APX"].max() <= 200.0)
+        self.assertTrue(clipped_X["APX"].min() >= -20.0)
+        self.assertTrue(clipped_X["APX"].max() <= 240.0)
 
         # Make predictions
         y_pred = model.predict(X_test)

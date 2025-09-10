@@ -5,7 +5,7 @@ import unittest
 
 import pandas as pd
 
-from openstef.model.metamodels.feature_clipper import FeatureClipper
+from openstef.model.metamodels.feature_clipper import FeatureClipper, FeatureStats
 
 
 class TestFeatureClipper(unittest.TestCase):
@@ -25,8 +25,12 @@ class TestFeatureClipper(unittest.TestCase):
     def test_fit(self):
         """Test if the fit method correctly computes min and max values."""
         self.clipper.fit(self.df_train)
-        self.assertEqual(self.clipper.feature_ranges["A"], (1.0, 3.0))
-        self.assertEqual(self.clipper.feature_ranges["B"], (10.0, 30.0))
+        self.assertEqual(
+            self.clipper.feature_ranges["A"], FeatureStats(mean=2.0, std=1.0)
+        )
+        self.assertEqual(
+            self.clipper.feature_ranges["B"], FeatureStats(mean=20.0, std=10.0)
+        )
         self.assertNotIn("D", self.clipper.feature_ranges)
 
     def test_transform(self):
@@ -35,8 +39,8 @@ class TestFeatureClipper(unittest.TestCase):
         transformed_df = self.clipper.transform(self.df_test)
         expected_df = pd.DataFrame(
             {
-                "A": [1.0, 3.0],  # Clipped to range [1.0, 3.0]
-                "B": [10.0, 30.0],  # Clipped to range [10.0, 30.0]
+                "A": [0.5, 4.0],  # Clipped to range [0.5, 4.0]
+                "B": [5.0, 35.0],  # Clipped to range [5.0, 35.0]
                 "C": [150.0, 350.0],  # Unchanged
             }
         )
