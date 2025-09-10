@@ -413,7 +413,7 @@
 <span id="openstef-model-metamodels-feature-clipper-module"></span><h2>openstef.model.metamodels.feature_clipper module<a class="headerlink" href="#module-openstef.model.metamodels.feature_clipper" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="openstef.model.metamodels.feature_clipper.FeatureClipper">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef.model.metamodels.feature_clipper.</span></span><span class="sig-name descname"><span class="pre">FeatureClipper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">columns</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.metamodels.feature_clipper.FeatureClipper" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef.model.metamodels.feature_clipper.</span></span><span class="sig-name descname"><span class="pre">FeatureClipper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">columns</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clip_number_of_std</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.metamodels.feature_clipper.FeatureClipper" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseEstimator</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TransformerMixin</span></code></p>
 <p>A transformer that clips the values of specified columns to the minimum and
 maximum values observed during training. This prevents the model from
@@ -485,6 +485,28 @@ the min and max range observed during fitting.</p>
 </dl>
 </section>
 </dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="openstef.model.metamodels.feature_clipper.FeatureStats">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef.model.metamodels.feature_clipper.</span></span><span class="sig-name descname"><span class="pre">FeatureStats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.metamodels.feature_clipper.FeatureStats" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.model.metamodels.feature_clipper.FeatureStats.mean">
+<span class="sig-name descname"><span class="pre">mean</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#openstef.model.metamodels.feature_clipper.FeatureStats.mean" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.model.metamodels.feature_clipper.FeatureStats.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">ConfigDict</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#openstef.model.metamodels.feature_clipper.FeatureStats.model_config" title="Link to this definition">¶</a></dt>
+<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef.model.metamodels.feature_clipper.FeatureStats.std">
+<span class="sig-name descname"><span class="pre">std</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#openstef.model.metamodels.feature_clipper.FeatureStats.std" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -1009,6 +1031,44 @@ sub-estimator of a meta-estimator, e.g. used inside a
        <code class="docutils literal notranslate">
         <span class="pre">
          FeatureClipper.transform()
+        </span>
+       </code>
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#openstef.model.metamodels.feature_clipper.FeatureStats">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       FeatureStats
+      </span>
+     </code>
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.model.metamodels.feature_clipper.FeatureStats.mean">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         FeatureStats.mean
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.model.metamodels.feature_clipper.FeatureStats.model_config">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         FeatureStats.model_config
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#openstef.model.metamodels.feature_clipper.FeatureStats.std">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         FeatureStats.std
         </span>
        </code>
       </a>
