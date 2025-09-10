@@ -25,8 +25,12 @@ class TestFeatureClipper(unittest.TestCase):
     def test_fit(self):
         """Test if the fit method correctly computes min and max values."""
         self.clipper.fit(self.df_train)
-        self.assertEqual(self.clipper.feature_ranges["A"], FeatureStats(mean=2.0, std=1.0))
-        self.assertEqual(self.clipper.feature_ranges["B"], FeatureStats(mean=20.0, std=10.0))
+        self.assertEqual(
+            self.clipper.feature_ranges["A"], FeatureStats(mean=2.0, std=1.0)
+        )
+        self.assertEqual(
+            self.clipper.feature_ranges["B"], FeatureStats(mean=20.0, std=10.0)
+        )
         self.assertNotIn("D", self.clipper.feature_ranges)
 
     def test_transform(self):
