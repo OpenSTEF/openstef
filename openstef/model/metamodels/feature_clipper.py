@@ -20,7 +20,7 @@ class FeatureClipper(BaseEstimator, TransformerMixin):
     extrapolating beyond these values during prediction.
     """
 
-    def __init__(self, columns: List[str], clip_std: float = 2.0):
+    def __init__(self, columns: List[str], clip_number_of_std: float = 2.0):
         """
         Initialize the FeatureClipper.
 
@@ -31,7 +31,7 @@ class FeatureClipper(BaseEstimator, TransformerMixin):
         """
         self.columns: List[str] = columns
         self.feature_ranges: Dict[str, Tuple[float, float] | FeatureStats] = {}
-        self.clip_std = clip_std
+        self.clip_number_of_std = clip_number_of_std
 
     def fit(self, X: pd.DataFrame, y: Optional[pd.Series] = None) -> "FeatureClipper":
         """
@@ -97,8 +97,8 @@ class FeatureClipper(BaseEstimator, TransformerMixin):
                 if isinstance(self.feature_ranges[col], FeatureStats):
                     stats = self.feature_ranges[col]
                     X_copy[col] = X_copy[col].clip(
-                        lower=stats.mean - self.clip_std * stats.std,
-                        upper=stats.mean + self.clip_std * stats.std,
+                        lower=stats.mean - self.clip_number_of_std * stats.std,
+                        upper=stats.mean + self.clip_number_of_std * stats.std,
                     )
                 else:
                     # Backward compatibility with previous minmax-based implementation
