@@ -1,0 +1,58 @@
+﻿.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+openstef_core.datasets
+======================
+
+.. currentmodule:: openstef_core.datasets
+
+.. automodule:: openstef_core.datasets
+   :no-members:
+   :no-inherited-members:
+
+
+
+
+
+
+
+
+
+
+
+Submodules
+----------
+
+
+.. autosummary::
+   :toctree: .
+   :template: module_overview.rst
+
+   openstef_core.datasets.mixins
+
+
+
+
+
+
+Classes
+-------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_class.rst
+
+   TimeSeriesDataset
+   TimeSeriesMixin
+   VersionedTimeSeriesDataset
+   VersionedTimeSeriesMixin
+   VersionedTimeSeriesPart
+
+
+
+
+
+
+
+
