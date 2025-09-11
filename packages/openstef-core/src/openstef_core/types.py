@@ -9,9 +9,9 @@ the forecasting pipeline. Ensures consistent serialization and validation of
 key domain types like lead times, availability timestamps, and quantile values.
 """
 
-from enum import StrEnum
 import re
 from datetime import timedelta
+from enum import StrEnum
 from functools import total_ordering
 from typing import Any, Self, override
 
@@ -96,7 +96,7 @@ class LeadTime(PydanticStringPrimitive):
 
         return super().validate(v, _info)
 
-    def __lt__(self, other: Any) -> bool:
+    def __lt__(self, other: object) -> bool:
         """Less-than comparison based on timedelta value.
 
         Returns:

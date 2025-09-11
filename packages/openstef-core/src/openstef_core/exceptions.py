@@ -8,7 +8,7 @@ This module defines specific exception types used throughout the OpenSTEF core
 package to provide clear error reporting and handling for common failure cases.
 """
 
-from typing import Sequence
+from collections.abc import Sequence
 
 
 class MissingExtraError(Exception):

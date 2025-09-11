@@ -1,14 +1,23 @@
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+#
+# SPDX-License-Identifier: MPL-2.0
+
 from abc import ABC, abstractmethod
-from typing import Self, Type, cast, override
+from datetime import datetime, timedelta
+from typing import Self, cast, override
+
+import pandas as pd
 
 from openstef_core.base_model import BaseModel
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
+from openstef_core.datasets.validation import validate_same_sample_intervals
 from openstef_core.types import LeadTime
+from openstef_core.utils.pandas import unsafe_sorted_range_slice_idxs
 from openstef_models.models.forecasting.mixins import (
-    ForecasterConfig,
     BaseForecaster,
-    HorizonForecasterConfig,
     BaseHorizonForecaster,
+    ForecasterConfig,
+    HorizonForecasterConfig,
     ModelState,
 )
 
@@ -98,4 +107,54 @@ class MultiHorizonForecasterAdapter[
 
 
 def combine_horizon_forecasts(forecasts: dict[LeadTime, ForecastDataset]) -> ForecastDataset:
-    raise NotImplementedError
+    """Combine multiple horizon-specific forecasts into a single consolidated forecast.
+
+    Merges forecasts by using each forecast for its specialized time range.
+    Shorter horizon forecasts are used for initial periods, progressively
+    switching to longer horizon forecasts for later periods.
+
+    Args:
+        forecasts: Dictionary mapping lead times to their corresponding forecast
+            datasets. All forecasts must have the same sample interval.
+
+    Returns:
+        Combined forecast dataset with merged time series data, using the
+        earliest forecast start time and common sample interval.
+
+    Raises:
+        ValueError: If forecasts dictionary is empty.
+
+    See Also:
+        MultiHorizonForecasterAdapter: Main class that uses this function.
+        ForecastDataset: The forecast data structure being combined.
+    """
+    if len(forecasts) == 0:
+        raise ValueError("No forecasts to combine")
+
+    sample_interval = validate_same_sample_intervals(forecasts.values())
+
+    timeseries_chunks: list[pd.DataFrame] = []
+    last_lead_time = LeadTime(timedelta(0))
+    forecast_start: datetime | None = None
+    for lead_time in sorted(forecasts.keys()):
+        forecast = forecasts[lead_time]
+        forecast_start = (
+            forecast.forecast_start if forecast_start is None else min(forecast_start, forecast.forecast_start)
+        )
+
+        # Slice the data by it's lead time chunk.
+        # TimeSeries enforce sorting invariants, so we can use binary search.
+        forecast_data = forecasts[lead_time].data
+        start_chunk_idx, end_chunk_idx = unsafe_sorted_range_slice_idxs(
+            data=cast("pd.Series[pd.Timestamp]", forecast_data.index),
+            start=forecast.forecast_start + last_lead_time.value,
+            end=forecast.forecast_start + lead_time.value,
+        )
+        chunk = forecast_data.iloc[start_chunk_idx:end_chunk_idx]
+
+        timeseries_chunks.append(chunk)
+        last_lead_time = lead_time
+
+    return ForecastDataset(
+        data=pd.concat(timeseries_chunks, axis=0), sample_interval=sample_interval, forecast_start=forecast_start
+    )

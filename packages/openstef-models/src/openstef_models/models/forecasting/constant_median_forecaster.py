@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+#
+# SPDX-License-Identifier: MPL-2.0
+
 from typing import Self, override
 
 import pandas as pd
@@ -8,9 +12,9 @@ from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastI
 from openstef_core.exceptions import ModelLoadingError, ModelNotFittedError
 from openstef_core.types import Quantile
 from openstef_models.models.forecasting.mixins import (
+    BaseHorizonForecaster,
     ForecasterHyperParams,
     HorizonForecasterConfig,
-    BaseHorizonForecaster,
     ModelState,
 )
 from openstef_models.models.forecasting.multi_horizon_adapter import MultiHorizonForecasterAdapter

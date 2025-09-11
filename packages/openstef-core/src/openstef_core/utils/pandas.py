@@ -12,7 +12,9 @@ from datetime import datetime
 import pandas as pd
 
 
-def unsafe_sorted_range_slice_idxs(data: pd.Series, start: datetime | None, end: datetime | None) -> tuple[int, int]:
+def unsafe_sorted_range_slice_idxs(
+    data: pd.Series, start: datetime | pd.Timestamp | None, end: datetime | pd.Timestamp | None
+) -> tuple[int, int]:
     """Get sorted slice indices for a datetime range.
 
     Efficiently finds the start and end indices for slicing a sorted datetime series

@@ -1,5 +1,9 @@
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+#
+# SPDX-License-Identifier: MPL-2.0
+
 from datetime import datetime, timedelta
-from typing import override
+from typing import cast, override
 
 import pandas as pd
 
@@ -32,13 +36,14 @@ class ForecastInputDataset(TimeSeriesDataset):
 
 class ForecastDataset(TimeSeriesDataset):
     @override
-    def __init__(self, data: pd.DataFrame, sample_interval: timedelta) -> None:
+    def __init__(self, data: pd.DataFrame, sample_interval: timedelta, forecast_start: datetime | None = None) -> None:
         super().__init__(data, sample_interval)
 
         if not all(Quantile.is_valid_quantile_string(col) for col in self.feature_names):
             raise TimeSeriesValidationError("All feature names must be valid quantile strings.")
 
         self._quantiles = [Quantile.parse(col) for col in self.feature_names]
+        self.forecast_start = forecast_start or cast("pd.Series[pd.Timestamp]", self.index).min().to_pydatetime()
 
     @property
     def quantiles(self) -> list[Quantile]:

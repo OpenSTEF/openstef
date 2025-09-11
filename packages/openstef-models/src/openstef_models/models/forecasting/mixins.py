@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+#
+# SPDX-License-Identifier: MPL-2.0
+
 """Core forecasting model interfaces and configurations.
 
 Provides the fundamental building blocks for implementing forecasting models in OpenSTEF.
@@ -41,6 +45,10 @@ class ForecasterHyperParams(BaseConfig):
         >>> class MyModelHyperParams(ForecasterHyperParams):
         ...     learning_rate: float = Field(default=0.01, gt=0, description="Learning rate for training")
         ...     max_epochs: int = Field(default=100, gt=0, description="Maximum training epochs")
+
+    See Also:
+        ForecasterConfig: Main configuration for operational parameters.
+        BaseForecasterMixin: Base interface that uses hyperparameters.
     """
 
 
@@ -63,6 +71,11 @@ class ForecasterConfig(BaseConfig):
         3
         >>> str(config.max_horizon)
         'P1D'
+
+    See Also:
+        HorizonForecasterConfig: Single-horizon variant of this configuration.
+        BaseForecaster: Multi-horizon forecaster that uses this configuration.
+        ForecasterHyperParams: Hyperparameter configuration used alongside this.
     """
 
     quantiles: list[Quantile] = Field(
@@ -114,6 +127,10 @@ class HorizonForecasterConfig(ForecasterConfig):
         >>> new_config = config.with_horizon(LeadTime.from_string("PT24H"))
         >>> str(new_config.horizons[0])
         'P1D'
+
+    See Also:
+        ForecasterConfig: Multi-horizon base configuration.
+        BaseHorizonForecaster: Single-horizon forecaster that uses this configuration.
     """
 
     horizons: list[LeadTime] = Field(
@@ -178,6 +195,11 @@ class StatefulForecasterMixin(ABC):
         ...         instance = cls(config=Config.model_validate(state["config"]))
         ...         instance.trained_params = state["trained_params"]
         ...         return instance
+
+    See Also:
+        BaseForecasterMixin: Base interface for forecaster capabilities.
+        BaseForecaster: Multi-horizon forecaster using state management.
+        BaseHorizonForecaster: Single-horizon forecaster using state management.
     """
 
     @abstractmethod
@@ -226,6 +248,11 @@ class BaseForecasterMixin(ABC):
 
     Implementing classes should override abstract properties and can customize
     default behaviors by overriding non-abstract properties.
+
+    See Also:
+        StatefulForecasterMixin: State management capabilities for persistence.
+        BaseForecaster: Multi-horizon forecaster using this base.
+        BaseHorizonForecaster: Single-horizon forecaster using this base.
     """
 
     @property
@@ -305,7 +332,7 @@ class BaseHorizonForecaster(BaseForecasterMixin, StatefulForecasterMixin, ABC):
     Example:
         Basic implementation for a simple horizon-specific model:
 
-        >>> class SimpleHorizonForecaster(HorizonForecasterMixin):
+        >>> class SimpleHorizonForecaster(BaseHorizonForecaster):
         ...     def __init__(self, config: HorizonForecasterConfig):
         ...         self._config = config
         ...         self._model_params = None
@@ -318,13 +345,33 @@ class BaseHorizonForecaster(BaseForecasterMixin, StatefulForecasterMixin, ABC):
         ...     def is_fitted(self):
         ...         return self._model_params is not None
         ...
+        ...     def get_state(self):
+        ...         return {"config": self._config, "params": self._model_params}
+        ...
+        ...     @classmethod
+        ...     def from_state(cls, state):
+        ...         instance = cls(state["config"])
+        ...         instance._model_params = state["params"]
+        ...         return instance
+        ...
         ...     def fit_horizon(self, input_data):
         ...         # Train model for the specific horizon
-        ...         self._model_params = self._extract_patterns(input_data)
+        ...         self._model_params = "trained"
         ...
         ...     def predict_horizon(self, input_data):
         ...         # Generate predictions for the trained horizon
-        ...         return self._generate_forecasts(input_data)
+        ...         from openstef_core.datasets.validated_datasets import ForecastDataset
+        ...         import pandas as pd
+        ...         return ForecastDataset(
+        ...             data=pd.DataFrame(),
+        ...             sample_interval=pd.Timedelta("15min"),
+        ...             forecast_start=pd.Timestamp.now()
+        ...         )
+
+    See Also:
+        HorizonForecasterConfig: Configuration used by single-horizon forecasters.
+        BaseForecaster: Multi-horizon alternative to this interface.
+        MultiHorizonForecasterAdapter: Adapter that combines multiple horizon forecasters.
     """
 
     def fit_horizon(self, input_data: ForecastInputDataset) -> None:
@@ -389,7 +436,7 @@ class BaseForecaster(BaseForecasterMixin, StatefulForecasterMixin, ABC):
     Example:
         Implementation for a model that handles multiple horizons:
 
-        >>> class MultiHorizonForecaster(ForecasterMixin):
+        >>> class MultiHorizonForecaster(BaseForecaster):
         ...     def __init__(self, config: ForecasterConfig):
         ...         self._config = config
         ...         self._fitted = False
@@ -402,13 +449,33 @@ class BaseForecaster(BaseForecasterMixin, StatefulForecasterMixin, ABC):
         ...     def is_fitted(self):
         ...         return self._fitted
         ...
+        ...     def get_state(self):
+        ...         return {"config": self._config, "fitted": self._fitted}
+        ...
+        ...     @classmethod
+        ...     def from_state(cls, state):
+        ...         instance = cls(state["config"])
+        ...         instance._fitted = state["fitted"]
+        ...         return instance
+        ...
         ...     def fit(self, input_data):
         ...         # Train on data for all horizons
         ...         self._fitted = True
         ...
         ...     def predict(self, input_data):
         ...         # Generate predictions for all horizons
-        ...         return self._combine_horizon_forecasts(input_data)
+        ...         from openstef_core.datasets.validated_datasets import ForecastDataset
+        ...         import pandas as pd
+        ...         return ForecastDataset(
+        ...             data=pd.DataFrame(),
+        ...             sample_interval=pd.Timedelta("15min"),
+        ...             forecast_start=pd.Timestamp.now()
+        ...         )
+
+    See Also:
+        ForecasterConfig: Configuration used by multi-horizon forecasters.
+        BaseHorizonForecaster: Single-horizon alternative to this interface.
+        MultiHorizonForecasterAdapter: Implementation that uses horizon forecasters.
     """
 
     def fit(self, input_data: dict[LeadTime, ForecastInputDataset]) -> None:
