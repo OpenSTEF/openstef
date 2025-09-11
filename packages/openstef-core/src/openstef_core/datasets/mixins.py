@@ -36,9 +36,6 @@ class TimeSeriesMixin(ABC):
         feature_names: Names of all available features, excluding metadata columns.
         sample_interval: The fixed interval between consecutive samples.
         index: Datetime index representing all timestamps in the dataset.
-
-    Invariants:
-        Hello world
     """
 
     feature_names: list[str]
