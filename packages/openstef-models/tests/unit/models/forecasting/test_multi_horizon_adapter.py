@@ -54,9 +54,16 @@ class PredictableConstantForecaster(BaseHorizonForecaster):
 
     @override
     def fit_horizon(self, input_data: ForecastInputDataset) -> None:
-        # Learn from first data point: fitted_constant = first_value * 1.1
-        # We know the test data contains numeric values, so this is safe
-        self._fitted_constant = 100.0 * 1.1  # Simplified for test predictability
+        # Learn from first data point: fitted_constant = first_target_value * 1.1
+        # Use the target column from the input dataset when available, otherwise
+        # fall back to the first column. We know the test data contains numeric
+        # values, so this is safe for predictable testing.
+        if input_data.target_column and input_data.target_column in input_data.data.columns:
+            series = input_data.data[input_data.target_column]
+        else:
+            series = input_data.data.iloc[:, 0]
+        first_value = float(series.iloc[0])
+        self._fitted_constant = first_value * 1.1
         self._is_fitted = True
 
     @override
