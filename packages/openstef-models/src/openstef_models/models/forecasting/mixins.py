@@ -4,45 +4,19 @@ Provides the fundamental building blocks for implementing forecasting models in 
 These mixins establish contracts that ensure consistent behavior across different model types
 while supporting both single and multi-horizon forecasting scenarios.
 
-The module follows a layered design:
-- Configuration classes define model parameters and horizons
-- Base mixins provide common functionality and properties
-- Specialized mixins handle horizon-specific vs multi-horizon forecasting
-- State management enables model serialization and loading
-
 Key concepts:
-- **Horizon**: The lead time for predictions (e.g., 1 hour, 24 hours ahead)
-- **Quantiles**: Probability levels for uncertainty estimation (e.g., 0.1, 0.5, 0.9)
+- **Horizon**: The lead time for predictions, accounting for data availability and versioning cutoffs
+- **Quantiles**: Probability levels for uncertainty estimation
 - **State**: Serializable model parameters that enable saving/loading trained models
 - **Batching**: Processing multiple prediction requests simultaneously for efficiency
 
-Example implementation:
-    Creating a simple forecasting model:
-
-    >>> from openstef_models.models.forecasting.mixins import HorizonForecasterMixin
-    >>> from openstef_core.datasets.validated_datasets import ForecastDataset
-    >>> import pandas as pd
-    >>>
-    >>> class SimpleForecaster(HorizonForecasterMixin):
-    ...     def __init__(self, config):
-    ...         self.config = config
-    ...         self._fitted = False
-    ...
-    ...     @property
-    ...     def is_fitted(self):
-    ...         return self._fitted
-    ...
-    ...     def fit_horizon(self, input_data):
-    ...         # Train on the data
-    ...         self._fitted = True
-    ...
-    ...     def predict_horizon(self, input_data):
-    ...         # Generate predictions
-    ...         return ForecastDataset(...)
+Multi-horizon forecasting considerations:
+Some models (like linear models) cannot handle missing data or conditional features effectively,
+making them suitable only for single-horizon approaches. Other models (like XGBoost) can
+handle such data complexities and work well for multi-horizon scenarios.
 """
 
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
 from typing import Self
 
 from pydantic import Field
@@ -73,43 +47,40 @@ class ForecasterHyperParams(BaseConfig):
 class ForecasterConfig(BaseConfig):
     """Configuration for forecasting models with support for multiple quantiles and horizons.
 
-    Defines the operational parameters that control forecasting behavior across different
-    prediction horizons and uncertainty levels. This configuration is used by both
-    single-horizon and multi-horizon forecasting models.
-
-    The configuration enforces that at least one quantile and one horizon must be specified,
-    ensuring that every forecaster produces meaningful output. Models use these parameters
-    to determine what predictions to generate and how to structure their outputs.
-
-    Attributes:
-        quantiles: Probability levels for uncertainty estimation. Each quantile represents
-            a confidence level (e.g., 0.1 = 10th percentile, 0.5 = median, 0.9 = 90th percentile).
-            Models must generate predictions for all specified quantiles.
-        horizons: Lead times for predictions, typically expressed as time offsets from the
-            forecast start time. Each horizon defines how far ahead the model should predict.
+    Fundamental configuration parameters that determine forecasting model behavior across
+    different prediction horizons and uncertainty levels. These are operational parameters
+    rather than hyperparameters that affect training.
 
     Example:
         Basic configuration for daily energy forecasting:
 
         >>> from openstef_core.types import LeadTime, Quantile
-        >>> from datetime import timedelta
         >>> config = ForecasterConfig(
         ...     quantiles=[Quantile(0.1), Quantile(0.5), Quantile(0.9)],
-        ...     horizons=[timedelta(hours=1), timedelta(hours=6), timedelta(hours=24)]
+        ...     horizons=[LeadTime.from_string("PT1H"), LeadTime.from_string("PT6H"), LeadTime.from_string("PT24H")]
         ... )
-        >>> isinstance(config.max_horizon, LeadTime)
-        True
+        >>> len(config.horizons)
+        3
+        >>> str(config.max_horizon)
+        'P1D'
     """
 
     quantiles: list[Quantile] = Field(
         default=[Quantile(0.5)],
-        description="List of quantiles that the forecaster will predict.",
+        description=(
+            "Probability levels for uncertainty estimation. Each quantile represents a confidence level "
+            "(e.g., 0.1 = 10th percentile, 0.5 = median, 0.9 = 90th percentile). "
+            "Models must generate predictions for all specified quantiles."
+        ),
         min_length=1,
     )
 
     horizons: list[LeadTime] = Field(
         default=...,
-        description="List of lead times (horizons) that the forecaster will predict.",
+        description=(
+            "Lead times for predictions, accounting for data availability and versioning cutoffs. "
+            "Each horizon defines how far ahead the model should predict."
+        ),
         min_length=1,
     )
 
@@ -130,37 +101,32 @@ class HorizonForecasterConfig(ForecasterConfig):
     """Configuration for single-horizon forecasting models.
 
     Specialized configuration that restricts forecasters to operate on exactly one horizon
-    at a time. This is used by models that need to be trained and predict for specific
-    lead times separately, rather than handling multiple horizons simultaneously.
-
-    The configuration enforces that exactly one horizon is specified, making it suitable
-    for use with HorizonForecasterMixin implementations that focus on single-horizon
-    predictions.
+    at a time. Used by models that need to be trained and predict for specific lead times
+    separately, such as those that cannot handle missing data or conditional features.
 
     Example:
         Configuration for a 6-hour ahead forecaster:
 
-        >>> from datetime import timedelta
         >>> config = HorizonForecasterConfig(
         ...     quantiles=[Quantile(0.1), Quantile(0.5), Quantile(0.9)],
-        ...     horizons=[timedelta(hours=6)]
+        ...     horizons=[LeadTime.from_string("PT6H")]
         ... )
-        >>> new_config = config.with_horizon(timedelta(hours=24))
-        >>> len(new_config.horizons)
-        1
+        >>> new_config = config.with_horizon(LeadTime.from_string("PT24H"))
+        >>> str(new_config.horizons[0])
+        'P1D'
     """
 
     horizons: list[LeadTime] = Field(
         default=...,
         max_length=1,
+        description="Single horizon for prediction. Must contain exactly one lead time.",
     )
 
     def with_horizon(self, horizon: LeadTime) -> Self:
         """Create a new configuration with a different horizon.
 
         Useful for creating multiple forecaster instances for different prediction
-        horizons from a single base configuration. This is commonly used in
-        multi-horizon adapters that need separate models for each lead time.
+        horizons from a single base configuration.
 
         Args:
             horizon: The new lead time to use for predictions.
@@ -174,39 +140,7 @@ class HorizonForecasterConfig(ForecasterConfig):
 type ModelState = object
 
 
-@dataclass
-class BatchResult[T]:
-    """Container for batch operation results with error tracking.
-
-    Provides a structured way to return results from batch operations where some
-    individual items may succeed while others fail. This is essential for robust
-    batch processing where partial failures should not abort the entire operation.
-
-    The length of results and errors lists must always be equal to the number of
-    input items, with None values indicating failures at specific positions.
-
-    Attributes:
-        results: List of successful results, with None for failed items.
-        errors: List of error information, with None for successful items.
-
-    Example:
-        Processing a batch where some items fail:
-
-        >>> from openstef_core.exceptions import ForecastError
-        >>> # Mock some example predictions
-        >>> prediction1 = "forecast_1"
-        >>> prediction3 = "forecast_3"
-        >>> batch_result = BatchResult(
-        ...     results=[prediction1, None, prediction3],
-        ...     errors=[None, ForecastError("Invalid data"), None]
-        ... )
-        >>> successful_count = sum(1 for r in batch_result.results if r is not None)
-        >>> successful_count
-        2
-    """
-
-    results: list[T | None]
-    errors: list[ForecastError | None]
+type BatchResult[T] = list[T | ForecastError]
 
 
 class StatefulForecasterMixin(ABC):
@@ -221,9 +155,8 @@ class StatefulForecasterMixin(ABC):
     patterns. The state format should be JSON-serializable for maximum compatibility.
 
     Guarantees:
-        - get_state() followed by from_state() should restore identical behavior
+        - get_state() followed by from_state() must restore identical behavior
         - State format should be forward-compatible across minor version updates
-        - State should include version information for compatibility checking
 
     Example:
         Basic state management implementation:
@@ -255,13 +188,9 @@ class StatefulForecasterMixin(ABC):
         including configuration, trained parameters, and any internal state variables.
 
         Returns:
-            Serializable representation of the model state. Should be JSON-compatible
-            for maximum portability.
-
-        Raises:
-            NotImplementedError: Must be implemented by subclasses.
+            Serializable representation of the model state.
         """
-        raise NotImplementedError
+        raise NotImplementedError("Subclasses must implement state serialization")
 
     @classmethod
     @abstractmethod
@@ -269,8 +198,8 @@ class StatefulForecasterMixin(ABC):
         """Restore a forecaster from its serialized state.
 
         Must reconstruct the forecaster to match the exact state when get_state()
-        was called. Should handle version compatibility and graceful degradation
-        for older state formats when possible.
+        was called. Should handle version compatibility for older state formats
+        when possible.
 
         Args:
             state: Serialized state returned from get_state().
@@ -280,22 +209,20 @@ class StatefulForecasterMixin(ABC):
 
         Raises:
             ModelLoadingError: If state is invalid or incompatible.
-            NotImplementedError: Must be implemented by subclasses.
         """
-        raise NotImplementedError
+        raise NotImplementedError("Subclasses must implement state deserialization")
 
 
 class BaseForecasterMixin(ABC):
     """Foundation mixin providing essential forecaster capabilities and metadata.
 
     Establishes the basic contract that all forecasting models must implement,
-    including state management, configuration access, and capability flags.
-    This mixin focuses on operational aspects rather than prediction logic.
+    including configuration access and capability flags.
 
     Key responsibilities:
         - Provide access to model configuration and hyperparameters
         - Report training and capability status
-        - Enable runtime behavior customization
+        - Define runtime behavior capabilities
 
     Implementing classes should override abstract properties and can customize
     default behaviors by overriding non-abstract properties.
@@ -306,46 +233,29 @@ class BaseForecasterMixin(ABC):
     def is_fitted(self) -> bool:
         """Check if the model has been trained and is ready for predictions.
 
-        This property should return True only when the model has been successfully
-        trained and contains all necessary parameters to generate forecasts.
-        It's used to prevent predictions on untrained models.
+        Used to prevent predictions on untrained models. For models that don't require
+        training, this should always return True.
+
+        Invariants:
+            - fit() methods will not be called if this returns True
+            - predict() methods should only be called when this returns True
 
         Returns:
             True if model is trained and ready, False otherwise.
-
-        Example:
-            Typical implementation pattern:
-
-            >>> class MyForecaster(BaseForecasterMixin):
-            ...     def __init__(self):
-            ...         self._trained_params = None
-            ...
-            ...     @property
-            ...     def is_fitted(self):
-            ...         return self._trained_params is not None
         """
-        raise NotImplementedError
-
-    @property
-    def requires_fitting(self) -> bool:
-        """Indicate whether this model type requires training before prediction.
-
-        Most forecasting models require training, but some (like simple baselines)
-        may not need explicit fitting. This property allows the system to skip
-        training steps for models that don't need them.
-
-        Returns:
-            True if model needs training, False if it can predict immediately.
-        """
-        return True
+        raise NotImplementedError("Subclasses must implement is_fitted")
 
     @property
     def supports_batching(self) -> bool:
-        """Indicate whether this model can process multiple inputs efficiently.
+        """Indicate whether this model supports batching predictions.
 
         Models that support batching can process multiple prediction requests
         simultaneously, which is typically more efficient than individual calls.
         This is especially important for GPU-based models.
+
+        Invariants:
+            - predict_batch methods will only be called if this returns True
+            - If True, batch methods must be implemented and functional
 
         Returns:
             True if model supports batch operations, False for individual-only processing.
@@ -353,19 +263,14 @@ class BaseForecasterMixin(ABC):
         return False
 
     @property
+    @abstractmethod
     def config(self) -> ForecasterConfig:
         """Access the model's configuration parameters.
 
-        Provides access to the configuration object that defines the model's
-        operational parameters including quantiles, horizons, and other settings.
-
         Returns:
-            Configuration object containing model parameters.
-
-        Raises:
-            NotImplementedError: Must be implemented by subclasses.
+            Configuration object containing fundamental model parameters.
         """
-        raise NotImplementedError
+        raise NotImplementedError("Subclasses must implement config")
 
     @property
     def hyperparams(self) -> ForecasterHyperParams:
@@ -381,21 +286,21 @@ class BaseForecasterMixin(ABC):
         return ForecasterHyperParams()
 
 
-class HorizonForecasterMixin(BaseForecasterMixin, StatefulForecasterMixin, ABC):
+class BaseHorizonForecaster(BaseForecasterMixin, StatefulForecasterMixin, ABC):
     """Mixin for forecasters that predict one specific horizon at a time.
 
-    Designed for models that are trained and operate on a single prediction horizon.
-    This is common for models that need specialized training for each lead time,
-    such as those that adapt their features or parameters based on prediction distance.
+    Designed for models that operate on a single prediction horizon. Common for models
+    that need specialized training for each lead time, such as those that cannot handle
+    missing data or conditional features.
 
     These forecasters are typically used as building blocks in multi-horizon systems
     where separate models handle different prediction distances.
 
-    Key guarantees:
+    Invariants:
         - fit_horizon() must be called before predict_horizon() for the same horizon
-        - predict_horizon() should only be called with data for the trained horizon
+        - predict_horizon() should only be called when is_fitted returns True
         - Predictions must include all quantiles specified in the configuration
-        - State management enables saving/loading trained models
+        - predict_horizon_batch() only called when supports_batching returns True
 
     Example:
         Basic implementation for a simple horizon-specific model:
@@ -426,29 +331,18 @@ class HorizonForecasterMixin(BaseForecasterMixin, StatefulForecasterMixin, ABC):
         """Train the model for a specific prediction horizon.
 
         Prepares the model to generate forecasts for the horizon specified in the
-        configuration. The training data should contain sufficient historical information
-        to learn patterns relevant to the target prediction distance.
+        configuration. Only called when is_fitted returns False.
 
         Args:
             input_data: Historical data for training, including features and targets.
-                Must contain enough history to support the model's learning requirements.
-
-        Raises:
-            NotImplementedError: Default implementation raises this error.
-
-        Note:
-            Most implementations should override this method. The default raises
-            NotImplementedError to indicate models that don't require training.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def predict_horizon(self, input_data: ForecastInputDataset) -> ForecastDataset:
         """Generate forecasts for the trained horizon.
 
         Produces probabilistic forecasts across all configured quantiles for the
-        specific horizon this model was trained on. The model must be fitted before
-        calling this method.
+        specific horizon this model was trained on.
 
         Args:
             input_data: Current data for generating predictions, including recent
@@ -456,49 +350,41 @@ class HorizonForecasterMixin(BaseForecasterMixin, StatefulForecasterMixin, ABC):
 
         Returns:
             Forecasts containing predictions for all configured quantiles.
-            The output must include columns for each quantile formatted as strings.
 
         Raises:
             ModelNotFittedError: If the model hasn't been trained yet.
-            NotImplementedError: Must be implemented by subclasses.
         """
-        raise NotImplementedError
+        raise NotImplementedError("Subclasses must implement predict_horizon")
 
     def predict_horizon_batch(self, input_data: list[ForecastInputDataset]) -> BatchResult[ForecastDataset]:
         """Generate forecasts for multiple input datasets efficiently.
 
-        Processes multiple prediction requests in a single call, which can be more
-        efficient than individual predict_horizon() calls for models that support
-        batch operations.
+        Processes multiple prediction requests in a single call. Only called when
+        supports_batching returns True.
 
         Args:
             input_data: List of datasets for batch prediction.
 
         Returns:
             Results containing forecasts and errors for each input dataset.
-            Successful predictions are in results list, failures in errors list.
-
-        Raises:
-            NotImplementedError: Default implementation for models without batch support.
         """
-        raise NotImplementedError
+        raise NotImplementedError("Models supporting batching must implement predict_horizon_batch")
 
 
-class ForecasterMixin(BaseForecasterMixin, StatefulForecasterMixin, ABC):
+class BaseForecaster(BaseForecasterMixin, StatefulForecasterMixin, ABC):
     """Mixin for forecasters that handle multiple horizons simultaneously.
 
-    Designed for models that can train and predict across multiple prediction horizons
-    in a unified manner. These models typically handle the complexity of different
-    lead times internally, providing a simpler interface for multi-horizon forecasting.
+    Designed for models that train and predict across multiple prediction horizons
+    in a unified manner. These models handle the complexity of different lead times
+    internally, providing a simpler interface for multi-horizon forecasting.
 
-    This approach is efficient for models that can share parameters or features across
-    horizons, avoiding the need to train separate models for each prediction distance.
+    Ideal for models that can share parameters or features across horizons, avoiding
+    the need to train separate models for each prediction distance.
 
-    Key guarantees:
+    Invariants:
         - fit() must be called with data for all required horizons before prediction
-        - predict() should handle all horizons specified in the configuration
-        - Output must combine forecasts across all horizons into a single dataset
-        - State management preserves multi-horizon capabilities
+        - predict() handles all horizons specified in the configuration
+        - Output combines forecasts across all horizons into a single dataset
 
     Example:
         Implementation for a model that handles multiple horizons:
@@ -536,13 +422,9 @@ class ForecasterMixin(BaseForecasterMixin, StatefulForecasterMixin, ABC):
             input_data: Mapping from lead times to corresponding training datasets.
                 Must include data for all horizons specified in the configuration.
 
-        Raises:
-            NotImplementedError: Default implementation for models that don't require training.
-
         Note:
             Models that don't require training can leave this as the default implementation.
         """
-        raise NotImplementedError
 
     @abstractmethod
     def predict(self, input_data: dict[LeadTime, ForecastInputDataset]) -> ForecastDataset:
@@ -562,7 +444,6 @@ class ForecasterMixin(BaseForecasterMixin, StatefulForecasterMixin, ABC):
 
         Raises:
             ModelNotFittedError: If the model hasn't been trained yet.
-            NotImplementedError: Must be implemented by subclasses.
         """
         raise NotImplementedError
 
@@ -578,8 +459,16 @@ class ForecasterMixin(BaseForecasterMixin, StatefulForecasterMixin, ABC):
         Returns:
             Results containing forecasts and errors for each multi-horizon input.
             Successful predictions are in results list, failures in errors list.
-
-        Raises:
-            NotImplementedError: Default implementation for models without batch support.
         """
         raise NotImplementedError
+
+
+__all__ = [
+    "BaseForecaster",
+    "BaseForecasterMixin",
+    "BaseHorizonForecaster",
+    "ForecasterConfig",
+    "ForecasterHyperParams",
+    "HorizonForecasterConfig",
+    "StatefulForecasterMixin",
+]

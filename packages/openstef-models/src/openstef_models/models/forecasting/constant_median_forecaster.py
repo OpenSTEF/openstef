@@ -10,7 +10,7 @@ from openstef_core.types import Quantile
 from openstef_models.models.forecasting.mixins import (
     ForecasterHyperParams,
     HorizonForecasterConfig,
-    HorizonForecasterMixin,
+    BaseHorizonForecaster,
     ModelState,
 )
 from openstef_models.models.forecasting.multi_horizon_adapter import MultiHorizonForecasterAdapter
@@ -38,7 +38,7 @@ class ConstantMedianState(BaseConfig):
     quantile_values: dict[Quantile, float] = Field(default={})
 
 
-class ConstantMedianForecaster(HorizonForecasterMixin):
+class ConstantMedianForecaster(BaseHorizonForecaster):
     def __init__(
         self,
         config: ConstantMedianForecasterConfig,
@@ -62,7 +62,7 @@ class ConstantMedianForecaster(HorizonForecasterMixin):
 
     @classmethod
     @override
-    def from_state(cls, state: object) -> Self:
+    def from_state(cls, state: ModelState) -> Self:
         if not isinstance(state, dict) or "version" not in state or state["version"] > MODEL_CODE_VERSION:
             raise ModelLoadingError("Invalid state for ConstantMedianForecaster")
 

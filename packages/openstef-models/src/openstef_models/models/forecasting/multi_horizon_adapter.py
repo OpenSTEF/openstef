@@ -6,9 +6,9 @@ from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastI
 from openstef_core.types import LeadTime
 from openstef_models.models.forecasting.mixins import (
     ForecasterConfig,
-    ForecasterMixin,
+    BaseForecaster,
     HorizonForecasterConfig,
-    HorizonForecasterMixin,
+    BaseHorizonForecaster,
     ModelState,
 )
 
@@ -24,8 +24,8 @@ class MultiHorizonForecasterState[FC: HorizonForecasterConfig](BaseModel):
 
 class MultiHorizonForecasterAdapter[
     FC: HorizonForecasterConfig,
-    F: HorizonForecasterMixin,
-](ForecasterMixin, ABC):
+    F: BaseHorizonForecaster,
+](BaseForecaster, ABC):
     _config: MultiHorizonForecasterConfig[FC]
     _horizon_forecasters: dict[LeadTime, F]
 
