@@ -866,20 +866,60 @@ Testing and Code Quality
 Test naming and structure
 -------------------------
 
-Write clear, descriptive test names:
+Use concise, consistent test names following these patterns:
+
+**For testing functions or methods:**
+``test_function_name__behavior`` or ``test_function_name__condition``
+
+**For testing classes:**
+``test_class_name__method__behavior`` or ``test_class_name__behavior``
 
 .. code-block:: python
 
-    def test_lag_transform_creates_correct_number_of_features():
+    # Good: Concise function testing
+    def test_lag_transform__creates_expected_features():
         """Test that LagTransform creates expected number of lag features."""
         pass
 
-    def test_forecaster_handles_missing_weather_data_gracefully():
-        """Test forecaster behavior when weather data is incomplete."""
+    def test_calculate_mae__handles_missing_values():
+        """Test MAE calculation with missing data."""
         pass
 
-    def test_training_pipeline_raises_error_with_empty_dataset():
-        """Test that TrainingPipeline raises appropriate error for empty data."""
+    # Good: Class method testing
+    def test_forecaster__fit__raises_error_empty_data():
+        """Test that forecaster raises error when fitting on empty data."""
+        pass
+
+    def test_forecaster__predict__returns_forecast_dataset():
+        """Test that predict returns proper ForecastDataset."""
+        pass
+
+    # Good: Class behavior testing
+    def test_training_pipeline__state_serialize_restore():
+        """Test pipeline state serialization and restoration."""
+        pass
+
+**Naming guidelines:**
+
+* Use double underscores (``__``) to separate components: ``test_<subject>__<behavior>``
+* Keep behavior descriptions concise but clear
+* Focus on **what** is being tested, not implementation details
+* Use verbs for behaviors: ``raises_error``, ``returns_value``, ``creates_features``
+* Group related tests with consistent prefixes
+
+.. code-block:: python
+
+    # Example: Consistent test grouping for a forecaster class
+    def test_constant_median_forecaster__fit_predict():
+        """Test basic fit and predict workflow."""
+        pass
+
+    def test_constant_median_forecaster__predict_not_fitted_raises_error():
+        """Test error when predicting without fitting."""
+        pass
+
+    def test_constant_median_forecaster__state_serialize_restore():
+        """Test state persistence functionality."""
         pass
 
 Code quality checks
@@ -909,27 +949,80 @@ Configuration and Data Patterns
 Configuration classes
 ---------------------
 
-Use dataclasses or Pydantic models for configuration:
+Use dataclasses or Pydantic models for configuration with proper validation:
 
 .. code-block:: python
 
-    from dataclasses import dataclass
-    from typing import Optional, List
+    from pydantic import BaseModel, Field, field_validator
+    from typing import Literal
 
-    @dataclass
-    class ModelConfig:
-        """Configuration for forecasting models."""
+    class ModelConfig(BaseModel):
+        """Configuration for forecasting models with automatic validation."""
         
-        model_type: str = "xgboost"
-        learning_rate: float = 0.1
-        max_depth: int = 6
-        n_estimators: int = 100
-        random_state: Optional[int] = None
+        model_type: Literal["xgboost", "linear", "neural"] = Field(
+            default="xgboost",
+            description="Type of forecasting model to use"
+        )
         
-        def __post_init__(self) -> None:
-            """Validate configuration after initialization."""
-            if self.learning_rate <= 0:
-                raise ValueError("Learning rate must be positive")
+        learning_rate: float = Field(
+            default=0.1,
+            gt=0.0,
+            le=1.0,
+            description="Learning rate for model training"
+        )
+        
+        max_depth: int = Field(
+            default=6,
+            ge=1,
+            le=20,
+            description="Maximum tree depth for tree-based models"
+        )
+        
+        n_estimators: int = Field(
+            default=100,
+            ge=1,
+            le=10000,
+            description="Number of estimators/trees in ensemble"
+        )
+        
+        random_state: int | None = Field(
+            default=None,
+            description="Random seed for reproducibility"
+        )
+        
+        feature_columns: list[str] = Field(
+            default_factory=list,
+            description="List of feature column names to use"
+        )
+        
+        @field_validator('learning_rate')
+        @classmethod
+        def validate_learning_rate(cls, v: float) -> float:
+            """Ensure learning rate is reasonable for the model type."""
+            if v < 0.001:
+                raise ValueError("Learning rate too small, may cause slow convergence")
+            return v
+        
+        @field_validator('feature_columns')
+        @classmethod
+        def validate_features(cls, v: list[str]) -> list[str]:
+            """Validate feature column names."""
+            if len(v) == 0:
+                raise ValueError("At least one feature column must be specified")
+            
+            invalid_names = [name for name in v if not name.replace('_', '').isalnum()]
+            if invalid_names:
+                raise ValueError(f"Invalid feature names: {invalid_names}")
+            
+            return v
+
+**Benefits of Pydantic configuration:**
+
+* **Automatic validation**: Field constraints are enforced automatically
+* **Type conversion**: Automatic conversion between compatible types
+* **Documentation**: Field descriptions serve as inline documentation
+* **Serialization**: Built-in JSON serialization for configuration persistence
+* **IDE support**: Full type hints and autocompletion
 
 Data validation patterns
 ------------------------
