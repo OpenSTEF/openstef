@@ -2,6 +2,13 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+"""Multi-horizon forecasting adapter and utilities.
+
+Provides an abstract adapter that converts single-horizon forecasting models into
+multi-horizon forecasters. The adapter handles training separate models for each
+prediction horizon and combining their outputs.
+"""
+
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta
 from typing import Self, cast, override
@@ -23,10 +30,14 @@ from openstef_models.models.forecasting.mixins import (
 
 
 class MultiHorizonForecasterConfig[FC: ForecasterConfig](ForecasterConfig):
+    """Configuration for multi-horizon forecaster adapters."""
+
     forecaster_config: FC
 
 
 class MultiHorizonForecasterState[FC: HorizonForecasterConfig](BaseModel):
+    """Serializable state for multi-horizon forecaster adapters."""
+
     config: MultiHorizonForecasterConfig[FC]
     forecasters: dict[LeadTime, ModelState]
 
@@ -35,6 +46,52 @@ class MultiHorizonForecasterAdapter[
     FC: HorizonForecasterConfig,
     F: BaseHorizonForecaster,
 ](BaseForecaster, ABC):
+    """Abstract adapter converting single-horizon forecasters to multi-horizon.
+
+    This adapter allows any single-horizon forecaster to work across multiple
+    prediction horizons. It maintains separate forecaster instances for each
+    horizon and coordinates training and prediction across all horizons.
+
+    The adapter handles:
+    - Creating individual forecasters for each horizon
+    - Training each forecaster with horizon-specific data
+    - Combining predictions from all horizons into unified output
+    - State serialization and restoration for model persistence
+
+    Subclasses must implement the abstract methods to specify which forecaster
+    type to use and how to create forecaster instances.
+
+    Example:
+        Creating a multi-horizon adapter:
+
+        >>> from openstef_models.models.forecasting.mixins import HorizonForecasterConfig, BaseHorizonForecaster
+        >>>
+        >>> class MyConfig(HorizonForecasterConfig):
+        ...     pass
+        >>>
+        >>> class MySingleHorizonForecaster(BaseHorizonForecaster):
+        ...     def __init__(self, config): pass
+        ...     def fit_horizon(self, data): pass
+        ...     def predict_horizon(self, data): pass
+        ...     def get_state(self): return {}
+        ...     @classmethod
+        ...     def from_state(cls, state): return cls(None)
+        ...     @property
+        ...     def config(self): return None
+        ...     @property
+        ...     def is_fitted(self): return True
+        >>>
+        >>> class MyMultiHorizonForecaster(
+        ...     MultiHorizonForecasterAdapter[MyConfig, MySingleHorizonForecaster]
+        ... ):
+        ...     @classmethod
+        ...     def get_forecaster_type(cls):
+        ...         return MySingleHorizonForecaster
+        ...     @classmethod
+        ...     def create_forecaster(cls, config):
+        ...         return MySingleHorizonForecaster(config)
+    """
+
     _config: MultiHorizonForecasterConfig[FC]
     _horizon_forecasters: dict[LeadTime, F]
 
@@ -43,6 +100,12 @@ class MultiHorizonForecasterAdapter[
         config: MultiHorizonForecasterConfig[FC],
         horizon_forecasters: dict[LeadTime, F],
     ) -> None:
+        """Initialize the multi-horizon forecaster adapter.
+
+        Args:
+            config: Configuration wrapping the underlying forecaster config.
+            horizon_forecasters: Pre-created forecasters for each horizon.
+        """
         self._config = config
         self._horizon_forecasters = horizon_forecasters
 
@@ -59,11 +122,24 @@ class MultiHorizonForecasterAdapter[
     @classmethod
     @abstractmethod
     def get_forecaster_type(cls) -> type[F]:
+        """Return the type of single-horizon forecaster to use.
+
+        Returns:
+            The forecaster class that will be instantiated for each horizon.
+        """
         raise NotImplementedError
 
     @classmethod
     @abstractmethod
     def create_forecaster(cls, config: FC) -> F:
+        """Create a new single-horizon forecaster instance.
+
+        Args:
+            config: Configuration for the single-horizon forecaster.
+
+        Returns:
+            A new instance of the single-horizon forecaster.
+        """
         raise NotImplementedError
 
     @classmethod
@@ -71,6 +147,17 @@ class MultiHorizonForecasterAdapter[
         cls,
         config: MultiHorizonForecasterConfig[FC],
     ) -> Self:
+        """Create a new multi-horizon forecaster from configuration.
+
+        Creates individual single-horizon forecasters for each specified horizon
+        and wraps them in the multi-horizon adapter.
+
+        Args:
+            config: Multi-horizon configuration with list of horizons.
+
+        Returns:
+            New multi-horizon forecaster ready for training.
+        """
         return cls(
             config=config,
             horizon_forecasters={

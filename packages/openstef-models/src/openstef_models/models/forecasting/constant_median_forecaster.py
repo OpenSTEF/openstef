@@ -2,6 +2,13 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+"""Simple constant median forecasting models for educational and baseline purposes.
+
+Provides basic forecasting models that predict constant values based on historical
+medians. These models serve as educational examples and performance baselines for
+more sophisticated forecasting approaches.
+"""
+
 from typing import Self, override
 
 import pandas as pd
@@ -21,6 +28,8 @@ from openstef_models.models.forecasting.multi_horizon_adapter import MultiHorizo
 
 
 class ConstantMedianForecasterHyperParams(ForecasterHyperParams):
+    """Hyperparameter configuration for constant median forecaster."""
+
     constant: float = Field(
         default=0.01,
         description="Constant to add to the forecasts.",
@@ -28,6 +37,8 @@ class ConstantMedianForecasterHyperParams(ForecasterHyperParams):
 
 
 class ConstantMedianForecasterConfig(HorizonForecasterConfig):
+    """Configuration for constant median forecaster."""
+
     hyperparams: ConstantMedianForecasterHyperParams = Field(
         default=...,
     )
@@ -37,17 +48,47 @@ MODEL_CODE_VERSION = 2
 
 
 class ConstantMedianState(BaseConfig):
+    """Serializable state for constant median forecaster."""
+
     version: int = Field(default=MODEL_CODE_VERSION, description="State version for compatibility checks.")
     config: ConstantMedianForecasterConfig = Field(default=...)
     quantile_values: dict[Quantile, float] = Field(default={})
 
 
 class ConstantMedianForecaster(BaseHorizonForecaster):
+    """Constant median-based forecaster for single horizon predictions.
+
+    Predicts constant values based on historical quantiles from training data.
+    Useful as a baseline model and for educational purposes.
+
+    The forecaster computes quantile values during training and returns these
+    constant values for all future predictions. Performance is typically poor
+    but provides a simple baseline for comparison with more sophisticated models.
+
+    Example:
+        >>> from openstef_core.types import LeadTime, Quantile
+        >>> from datetime import timedelta
+        >>> config = ConstantMedianForecasterConfig(
+        ...     quantiles=[Quantile(0.5), Quantile(0.1), Quantile(0.9)],
+        ...     horizons=[LeadTime(timedelta(hours=1))],
+        ...     hyperparams=ConstantMedianForecasterHyperParams()
+        ... )
+        >>> forecaster = ConstantMedianForecaster(config)
+        >>> # forecaster.fit_horizon(training_data)
+        >>> # predictions = forecaster.predict_horizon(test_data)
+    """
+
     def __init__(
         self,
         config: ConstantMedianForecasterConfig,
         state: ConstantMedianState | None = None,
     ) -> None:
+        """Initialize the constant median forecaster.
+
+        Args:
+            config: Configuration specifying quantiles and hyperparameters.
+            state: Optional pre-trained state for restored models.
+        """
         self._state: ConstantMedianState = state if state is not None else ConstantMedianState(config=config)
 
     @property
@@ -119,6 +160,14 @@ class ConstantMedianForecaster(BaseHorizonForecaster):
 class ConstantMedianHorizonForecaster(
     MultiHorizonForecasterAdapter[ConstantMedianForecasterConfig, ConstantMedianForecaster]
 ):
+    """Multi-horizon adapter for constant median forecasting.
+
+    Creates separate ConstantMedianForecaster models for each prediction horizon
+    and combines their outputs. Each horizon-specific model learns its own median
+    values from training data, then the adapter stitches results together by using
+    each model's predictions for its designated time range.
+    """
+
     @classmethod
     @override
     def get_forecaster_type(cls) -> type[ConstantMedianForecaster]:
