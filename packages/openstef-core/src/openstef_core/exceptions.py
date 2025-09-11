@@ -8,6 +8,8 @@ This module defines specific exception types used throughout the OpenSTEF core
 package to provide clear error reporting and handling for common failure cases.
 """
 
+from typing import Sequence
+
 
 class MissingExtraError(Exception):
     """Exception raised when an extra is missing in the extras list."""
@@ -27,7 +29,7 @@ class MissingExtraError(Exception):
 class MissingColumnsError(Exception):
     """Exception raised when required columns are missing from a DataFrame."""
 
-    def __init__(self, missing_columns: list[str]):
+    def __init__(self, missing_columns: Sequence[str]):
         """Initialize the exception with the list of missing columns.
 
         Args:
@@ -98,6 +100,27 @@ class InsufficientlyCompleteError(Exception):
         Args:
             message: Human-readable description of the completeness error.
         """
+        super().__init__(message)
+
+
+class ForecastError(Exception):
+    """Exception raised for errors during forecasting operations."""
+
+
+class ModelLoadingError(Exception):
+    """Exception raised when a model fails to load properly."""
+
+
+class ModelNotFittedError(Exception):
+    """Exception raised when a model is used before being fitted."""
+
+    def __init__(self, model_class: str):
+        """Initialize the exception with the name of the model class.
+
+        Args:
+            model_class: Name of the model class that was not fitted.
+        """
+        message = f"The {model_class} has not been fitted yet. Please call 'fit' before using it."
         super().__init__(message)
 
 
