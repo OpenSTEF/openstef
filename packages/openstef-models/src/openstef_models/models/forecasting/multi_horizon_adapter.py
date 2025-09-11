@@ -46,6 +46,16 @@ class MultiHorizonForecasterAdapter[
         self._config = config
         self._horizon_forecasters = horizon_forecasters
 
+    @property
+    def config(self) -> MultiHorizonForecasterConfig[FC]:
+        """Access the multi-horizon forecaster configuration."""
+        return self._config
+
+    @property
+    def is_fitted(self) -> bool:
+        """Check if all horizon forecasters are fitted and ready for predictions."""
+        return all(forecaster.is_fitted for forecaster in self._horizon_forecasters.values())
+
     @classmethod
     @abstractmethod
     def get_forecaster_type(cls) -> type[F]:

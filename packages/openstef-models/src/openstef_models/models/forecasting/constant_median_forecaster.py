@@ -103,20 +103,20 @@ class ConstantMedianForecaster(BaseHorizonForecaster):
         return ForecastDataset(
             data=pd.DataFrame(
                 data={
-                    str(quantile): self._state.quantile_values[quantile] + self.hyperparams.constant
+                    quantile.format(): self._state.quantile_values[quantile] + self.hyperparams.constant
                     for quantile in self.config.quantiles
                 },
                 index=(
                     input_data.index[input_data.index > pd.Timestamp(input_data.forecast_start)]
                     if input_data.forecast_start is not None
-                    else input_data.index,
+                    else input_data.index
                 ),
             ),
             sample_interval=input_data.sample_interval,
         )
 
 
-class DummyMedianHorizonForecaster(
+class ConstantMedianHorizonForecaster(
     MultiHorizonForecasterAdapter[ConstantMedianForecasterConfig, ConstantMedianForecaster]
 ):
     @classmethod
