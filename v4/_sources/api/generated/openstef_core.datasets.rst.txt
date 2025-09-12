@@ -43,7 +43,10 @@ Classes
    :toctree: .
    :template: custom_class.rst
 
+   ForecastDataset
+   ForecastInputDataset
    TimeSeriesDataset
+   TimeSeriesEnergyComponentDataset
    TimeSeriesMixin
    VersionedTimeSeriesDataset
    VersionedTimeSeriesMixin

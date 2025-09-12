@@ -400,7 +400,10 @@
 <li class="toctree-l3"><a class="reference internal" href="openstef_core.datasets.mixins.VersionedTimeSeriesMixin.html">VersionedTimeSeriesMixin</a></li>
 </ul>
 </details></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_core.datasets.ForecastDataset.html">ForecastDataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_core.datasets.ForecastInputDataset.html">ForecastInputDataset</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.datasets.TimeSeriesDataset.html">TimeSeriesDataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_core.datasets.TimeSeriesEnergyComponentDataset.html">TimeSeriesEnergyComponentDataset</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.datasets.TimeSeriesMixin.html">TimeSeriesMixin</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.datasets.VersionedTimeSeriesDataset.html">VersionedTimeSeriesDataset</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.datasets.VersionedTimeSeriesMixin.html">VersionedTimeSeriesMixin</a></li>
@@ -570,6 +573,7 @@ over time, enabling realistic backtesting and training and forecasting.</p>
 <dt>The module supports:</dt><dd><ul class="simple">
 <li><p>Regular time series with consistent sampling intervals</p></li>
 <li><p>Versioned time series that track when data became available</p></li>
+<li><p>Validated datasets with domain-specific constraints</p></li>
 <li><p>Data transformations and validation utilities</p></li>
 <li><p>Feature concatenation and horizon restriction operations</p></li>
 </ul>
@@ -590,19 +594,28 @@ over time, enabling realistic backtesting and training and forecasting.</p>
 <h2>Classes<a class="headerlink" href="#classes" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="openstef_core.datasets.ForecastDataset.html#openstef_core.datasets.ForecastDataset" title="openstef_core.datasets.ForecastDataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ForecastDataset</span></code></a>(data, sample_interval[, ...])</p></td>
+<td><p>Time series dataset containing probabilistic forecasts with quantile estimates.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="openstef_core.datasets.ForecastInputDataset.html#openstef_core.datasets.ForecastInputDataset" title="openstef_core.datasets.ForecastInputDataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ForecastInputDataset</span></code></a>(data, sample_interval)</p></td>
+<td><p>Time series dataset for forecasting with validated target column.</p></td>
+</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset" title="openstef_core.datasets.TimeSeriesDataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TimeSeriesDataset</span></code></a>(data, sample_interval)</p></td>
 <td><p>A time series dataset with regular sampling intervals.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="openstef_core.datasets.TimeSeriesMixin.html#openstef_core.datasets.TimeSeriesMixin" title="openstef_core.datasets.TimeSeriesMixin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TimeSeriesMixin</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="openstef_core.datasets.TimeSeriesEnergyComponentDataset.html#openstef_core.datasets.TimeSeriesEnergyComponentDataset" title="openstef_core.datasets.TimeSeriesEnergyComponentDataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TimeSeriesEnergyComponentDataset</span></code></a>(data, ...)</p></td>
+<td><p>Time series dataset for energy generation by component type.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="openstef_core.datasets.TimeSeriesMixin.html#openstef_core.datasets.TimeSeriesMixin" title="openstef_core.datasets.TimeSeriesMixin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TimeSeriesMixin</span></code></a>()</p></td>
 <td><p>Abstract base class for time series dataset functionality.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="openstef_core.datasets.VersionedTimeSeriesDataset.html#openstef_core.datasets.VersionedTimeSeriesDataset" title="openstef_core.datasets.VersionedTimeSeriesDataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VersionedTimeSeriesDataset</span></code></a>(data_parts[, index])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="openstef_core.datasets.VersionedTimeSeriesDataset.html#openstef_core.datasets.VersionedTimeSeriesDataset" title="openstef_core.datasets.VersionedTimeSeriesDataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VersionedTimeSeriesDataset</span></code></a>(data_parts[, index])</p></td>
 <td><p>A versioned time series dataset composed of multiple data parts.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="openstef_core.datasets.VersionedTimeSeriesMixin.html#openstef_core.datasets.VersionedTimeSeriesMixin" title="openstef_core.datasets.VersionedTimeSeriesMixin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VersionedTimeSeriesMixin</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="openstef_core.datasets.VersionedTimeSeriesMixin.html#openstef_core.datasets.VersionedTimeSeriesMixin" title="openstef_core.datasets.VersionedTimeSeriesMixin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VersionedTimeSeriesMixin</span></code></a>()</p></td>
 <td><p>Abstract base class for versioned time series dataset functionality.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="openstef_core.datasets.VersionedTimeSeriesPart.html#openstef_core.datasets.VersionedTimeSeriesPart" title="openstef_core.datasets.VersionedTimeSeriesPart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VersionedTimeSeriesPart</span></code></a>(data, sample_interval)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="openstef_core.datasets.VersionedTimeSeriesPart.html#openstef_core.datasets.VersionedTimeSeriesPart" title="openstef_core.datasets.VersionedTimeSeriesPart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VersionedTimeSeriesPart</span></code></a>(data, sample_interval)</p></td>
 <td><p>A single part of a versioned time series dataset with enhanced filtering capabilities.</p></td>
 </tr>
 </tbody>

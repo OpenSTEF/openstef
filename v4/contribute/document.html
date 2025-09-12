@@ -586,6 +586,7 @@ for all code documentation. This style is clear, readable, and well-supported by
 <li><p><strong>Raises</strong>: Exceptions that may be raised</p></li>
 <li><p><strong>Example</strong>: Code examples showing how to use the function</p></li>
 <li><p><strong>Note</strong>: Additional important information</p></li>
+<li><p><strong>Invariants</strong>: Contract guarantees and requirements (for classes and interfaces)</p></li>
 <li><p><strong>See Also</strong>: References to related functions/classes</p></li>
 </ol>
 </section>
@@ -617,6 +618,49 @@ the type information:</p>
 <span class="sd">        ForecastModel: Trained model ready for forecasting.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 </pre></div>
+</div>
+</section>
+<section id="invariants-section">
+<h3>Invariants section<a class="headerlink" href="#invariants-section" title="Link to this heading">#</a></h3>
+<p>For classes and interfaces, use an <code class="docutils literal notranslate"><span class="pre">Invariants</span></code> section to document the contract
+guarantees and requirements that implementers and users must follow:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">ForecastModel</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for all forecasting models.</span>
+
+<span class="sd">    Provides a standardized interface for training and prediction across</span>
+<span class="sd">    different forecasting algorithms and approaches.</span>
+
+<span class="sd">    Invariants:</span>
+<span class="sd">        - fit() must be called before predict() for stateful models</span>
+<span class="sd">        - predict() should handle all horizons specified in configuration</span>
+<span class="sd">        - Output format must be consistent with ForecastDataset structure</span>
+<span class="sd">        - Model state must remain unchanged during prediction calls</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        Basic model implementation:</span>
+
+<span class="sd">        &gt;&gt;&gt; class SimpleModel(ForecastModel):</span>
+<span class="sd">        ...     def fit(self, data):</span>
+<span class="sd">        ...         self._fitted = True</span>
+<span class="sd">        ...     def predict(self, data):</span>
+<span class="sd">        ...         return generate_forecasts(data)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">Invariants</span></code> section should document:</p>
+<ul class="simple">
+<li><p><strong>Pre-conditions</strong>: What must be true before calling methods</p></li>
+<li><p><strong>Post-conditions</strong>: What the implementation guarantees after execution</p></li>
+<li><p><strong>State requirements</strong>: How object state should be managed</p></li>
+<li><p><strong>Interface contracts</strong>: Consistent behavior expectations across implementations</p></li>
+</ul>
+<p>This helps both implementers understand what they must provide and users understand
+what they can rely on.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">Invariants</span></code> section is an OpenSTEF-specific extension to Google-style
+docstrings. Use it for classes and interfaces where contract guarantees are
+important for correct implementation and usage.</p>
 </div>
 </section>
 </section>
@@ -868,6 +912,7 @@ poe<span class="w"> </span>all<span class="w"> </span>--check
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-docstring-structure">Basic docstring structure</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#docstring-sections">Docstring sections</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#type-hints-and-docstrings">Type hints and docstrings</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#invariants-section">Invariants section</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#examples-in-docstrings">Examples in docstrings</a><ul class="visible nav section-nav flex-column">

@@ -1260,17 +1260,54 @@ a function/class, use <code class="docutils literal notranslate"><span class="pr
 <span id="testing-guidelines"></span><h2>Testing and Code Quality<a class="headerlink" href="#testing-and-code-quality" title="Link to this heading">#</a></h2>
 <section id="test-naming-and-structure">
 <h3>Test naming and structure<a class="headerlink" href="#test-naming-and-structure" title="Link to this heading">#</a></h3>
-<p>Write clear, descriptive test names:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">test_lag_transform_creates_correct_number_of_features</span><span class="p">():</span>
+<p>Use concise, consistent test names following these patterns:</p>
+<p><strong>For testing functions or methods:</strong>
+<code class="docutils literal notranslate"><span class="pre">test_function_name__behavior</span></code> or <code class="docutils literal notranslate"><span class="pre">test_function_name__condition</span></code></p>
+<p><strong>For testing classes:</strong>
+<code class="docutils literal notranslate"><span class="pre">test_class_name__method__behavior</span></code> or <code class="docutils literal notranslate"><span class="pre">test_class_name__behavior</span></code></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Good: Concise function testing</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_lag_transform__creates_expected_features</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Test that LagTransform creates expected number of lag features.&quot;&quot;&quot;</span>
     <span class="k">pass</span>
 
-<span class="k">def</span><span class="w"> </span><span class="nf">test_forecaster_handles_missing_weather_data_gracefully</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Test forecaster behavior when weather data is incomplete.&quot;&quot;&quot;</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_calculate_mae__handles_missing_values</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Test MAE calculation with missing data.&quot;&quot;&quot;</span>
     <span class="k">pass</span>
 
-<span class="k">def</span><span class="w"> </span><span class="nf">test_training_pipeline_raises_error_with_empty_dataset</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Test that TrainingPipeline raises appropriate error for empty data.&quot;&quot;&quot;</span>
+<span class="c1"># Good: Class method testing</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_forecaster__fit__raises_error_empty_data</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Test that forecaster raises error when fitting on empty data.&quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_forecaster__predict__returns_forecast_dataset</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Test that predict returns proper ForecastDataset.&quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+
+<span class="c1"># Good: Class behavior testing</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_training_pipeline__state_serialize_restore</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Test pipeline state serialization and restoration.&quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+<p><strong>Naming guidelines:</strong></p>
+<ul class="simple">
+<li><p>Use double underscores (<code class="docutils literal notranslate"><span class="pre">__</span></code>) to separate components: <code class="docutils literal notranslate"><span class="pre">test_&lt;subject&gt;__&lt;behavior&gt;</span></code></p></li>
+<li><p>Keep behavior descriptions concise but clear</p></li>
+<li><p>Focus on <strong>what</strong> is being tested, not implementation details</p></li>
+<li><p>Use verbs for behaviors: <code class="docutils literal notranslate"><span class="pre">raises_error</span></code>, <code class="docutils literal notranslate"><span class="pre">returns_value</span></code>, <code class="docutils literal notranslate"><span class="pre">creates_features</span></code></p></li>
+<li><p>Group related tests with consistent prefixes</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example: Consistent test grouping for a forecaster class</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_constant_median_forecaster__fit_predict</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Test basic fit and predict workflow.&quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_constant_median_forecaster__predict_not_fitted_raises_error</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Test error when predicting without fitting.&quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_constant_median_forecaster__state_serialize_restore</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Test state persistence functionality.&quot;&quot;&quot;</span>
     <span class="k">pass</span>
 </pre></div>
 </div>
@@ -1296,26 +1333,79 @@ poe<span class="w"> </span>doctests<span class="w">           </span><span class
 <span id="configuration-patterns"></span><h2>Configuration and Data Patterns<a class="headerlink" href="#configuration-and-data-patterns" title="Link to this heading">#</a></h2>
 <section id="configuration-classes">
 <h3>Configuration classes<a class="headerlink" href="#configuration-classes" title="Link to this heading">#</a></h3>
-<p>Use dataclasses or Pydantic models for configuration:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">List</span>
+<p>Use dataclasses or Pydantic models for configuration with proper validation:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">Field</span><span class="p">,</span> <span class="n">field_validator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span>
 
-<span class="nd">@dataclass</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">ModelConfig</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Configuration for forecasting models.&quot;&quot;&quot;</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ModelConfig</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Configuration for forecasting models with automatic validation.&quot;&quot;&quot;</span>
 
-    <span class="n">model_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;xgboost&quot;</span>
-    <span class="n">learning_rate</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.1</span>
-    <span class="n">max_depth</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">6</span>
-    <span class="n">n_estimators</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span>
-    <span class="n">random_state</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">model_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;xgboost&quot;</span><span class="p">,</span> <span class="s2">&quot;linear&quot;</span><span class="p">,</span> <span class="s2">&quot;neural&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;xgboost&quot;</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Type of forecasting model to use&quot;</span>
+    <span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Validate configuration after initialization.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">learning_rate</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Learning rate must be positive&quot;</span><span class="p">)</span>
+    <span class="n">learning_rate</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+        <span class="n">gt</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">le</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Learning rate for model training&quot;</span>
+    <span class="p">)</span>
+
+    <span class="n">max_depth</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
+        <span class="n">ge</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">le</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Maximum tree depth for tree-based models&quot;</span>
+    <span class="p">)</span>
+
+    <span class="n">n_estimators</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+        <span class="n">ge</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">le</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Number of estimators/trees in ensemble&quot;</span>
+    <span class="p">)</span>
+
+    <span class="n">random_state</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Random seed for reproducibility&quot;</span>
+    <span class="p">)</span>
+
+    <span class="n">feature_columns</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;List of feature column names to use&quot;</span>
+    <span class="p">)</span>
+
+    <span class="nd">@field_validator</span><span class="p">(</span><span class="s1">&#39;learning_rate&#39;</span><span class="p">)</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_learning_rate</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Ensure learning rate is reasonable for the model type.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">v</span> <span class="o">&lt;</span> <span class="mf">0.001</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Learning rate too small, may cause slow convergence&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">v</span>
+
+    <span class="nd">@field_validator</span><span class="p">(</span><span class="s1">&#39;feature_columns&#39;</span><span class="p">)</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_features</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Validate feature column names.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;At least one feature column must be specified&quot;</span><span class="p">)</span>
+
+        <span class="n">invalid_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">v</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">isalnum</span><span class="p">()]</span>
+        <span class="k">if</span> <span class="n">invalid_names</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid feature names: </span><span class="si">{</span><span class="n">invalid_names</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">v</span>
 </pre></div>
 </div>
+<p><strong>Benefits of Pydantic configuration:</strong></p>
+<ul class="simple">
+<li><p><strong>Automatic validation</strong>: Field constraints are enforced automatically</p></li>
+<li><p><strong>Type conversion</strong>: Automatic conversion between compatible types</p></li>
+<li><p><strong>Documentation</strong>: Field descriptions serve as inline documentation</p></li>
+<li><p><strong>Serialization</strong>: Built-in JSON serialization for configuration persistence</p></li>
+<li><p><strong>IDE support</strong>: Full type hints and autocompletion</p></li>
+</ul>
 </section>
 <section id="data-validation-patterns">
 <h3>Data validation patterns<a class="headerlink" href="#data-validation-patterns" title="Link to this heading">#</a></h3>

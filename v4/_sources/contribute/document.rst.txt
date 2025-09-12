@@ -132,7 +132,8 @@ Use these sections in your docstrings (order matters):
 5. **Raises**: Exceptions that may be raised
 6. **Example**: Code examples showing how to use the function
 7. **Note**: Additional important information
-8. **See Also**: References to related functions/classes
+8. **Invariants**: Contract guarantees and requirements (for classes and interfaces)
+9. **See Also**: References to related functions/classes
 
 Type hints and docstrings
 -------------------------
@@ -165,6 +166,52 @@ the type information:
         Returns:
             ForecastModel: Trained model ready for forecasting.
         """
+
+Invariants section
+------------------
+
+For classes and interfaces, use an ``Invariants`` section to document the contract 
+guarantees and requirements that implementers and users must follow:
+
+.. code-block:: python
+
+    class ForecastModel(ABC):
+        """Base class for all forecasting models.
+
+        Provides a standardized interface for training and prediction across
+        different forecasting algorithms and approaches.
+
+        Invariants:
+            - fit() must be called before predict() for stateful models
+            - predict() should handle all horizons specified in configuration
+            - Output format must be consistent with ForecastDataset structure
+            - Model state must remain unchanged during prediction calls
+
+        Example:
+            Basic model implementation:
+
+            >>> class SimpleModel(ForecastModel):
+            ...     def fit(self, data):
+            ...         self._fitted = True
+            ...     def predict(self, data):
+            ...         return generate_forecasts(data)
+        """
+
+The ``Invariants`` section should document:
+
+* **Pre-conditions**: What must be true before calling methods
+* **Post-conditions**: What the implementation guarantees after execution  
+* **State requirements**: How object state should be managed
+* **Interface contracts**: Consistent behavior expectations across implementations
+
+This helps both implementers understand what they must provide and users understand 
+what they can rely on.
+
+.. note::
+
+    The ``Invariants`` section is an OpenSTEF-specific extension to Google-style 
+    docstrings. Use it for classes and interfaces where contract guarantees are 
+    important for correct implementation and usage.
 
 Examples in docstrings
 ======================

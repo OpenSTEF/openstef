@@ -430,6 +430,7 @@
  | <a href="#N"><strong>N</strong></a>
  | <a href="#O"><strong>O</strong></a>
  | <a href="#P"><strong>P</strong></a>
+ | <a href="#Q"><strong>Q</strong></a>
  | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
  | <a href="#T"><strong>T</strong></a>
@@ -475,7 +476,13 @@
 </li>
         <li><a href="api/generated/openstef_beam.evaluation.Window.html#openstef_beam.evaluation.Window.__init__">(openstef_beam.evaluation.Window method)</a>
 </li>
+        <li><a href="api/generated/openstef_core.datasets.ForecastDataset.html#openstef_core.datasets.ForecastDataset.__init__">(openstef_core.datasets.ForecastDataset method)</a>
+</li>
+        <li><a href="api/generated/openstef_core.datasets.ForecastInputDataset.html#openstef_core.datasets.ForecastInputDataset.__init__">(openstef_core.datasets.ForecastInputDataset method)</a>
+</li>
         <li><a href="api/generated/openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset.__init__">(openstef_core.datasets.TimeSeriesDataset method)</a>
+</li>
+        <li><a href="api/generated/openstef_core.datasets.TimeSeriesEnergyComponentDataset.html#openstef_core.datasets.TimeSeriesEnergyComponentDataset.__init__">(openstef_core.datasets.TimeSeriesEnergyComponentDataset method)</a>
 </li>
         <li><a href="api/generated/openstef_core.datasets.VersionedTimeSeriesDataset.html#openstef_core.datasets.VersionedTimeSeriesDataset.__init__">(openstef_core.datasets.VersionedTimeSeriesDataset method)</a>
 </li>
@@ -704,7 +711,11 @@
 </li>
       <li><a href="api/generated/openstef_core.exceptions.FlatlinerDetectedError.html#openstef_core.exceptions.FlatlinerDetectedError">FlatlinerDetectedError (class in openstef_core.exceptions)</a>
 </li>
+      <li><a href="api/generated/openstef_core.datasets.ForecastDataset.html#openstef_core.datasets.ForecastDataset">ForecastDataset (class in openstef_core.datasets)</a>
+</li>
       <li><a href="api/generated/openstef_beam.backtesting.BacktestPipeline.html#openstef_beam.backtesting.BacktestPipeline.forecaster">forecaster (openstef_beam.backtesting.BacktestPipeline attribute)</a>
+</li>
+      <li><a href="api/generated/openstef_core.datasets.ForecastInputDataset.html#openstef_core.datasets.ForecastInputDataset">ForecastInputDataset (class in openstef_core.datasets)</a>
 </li>
       <li><a href="api/generated/openstef_core.datasets.VersionedTimeSeriesDataset.html#openstef_core.datasets.VersionedTimeSeriesDataset.from_dataframe">from_dataframe() (openstef_core.datasets.VersionedTimeSeriesDataset class method)</a>
 </li>
@@ -1190,6 +1201,14 @@
   </ul></td>
 </tr></table>
 
+<h2 id="Q">Q</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/openstef_core.datasets.ForecastDataset.html#openstef_core.datasets.ForecastDataset.quantiles">quantiles (openstef_core.datasets.ForecastDataset property)</a>
+</li>
+  </ul></td>
+</tr></table>
+
 <h2 id="R">R</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -1343,6 +1362,8 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/openstef_beam.analysis.AnalysisScope.html#openstef_beam.analysis.AnalysisScope.target_name">target_name (openstef_beam.analysis.AnalysisScope attribute)</a>
 </li>
+      <li><a href="api/generated/openstef_core.datasets.ForecastInputDataset.html#openstef_core.datasets.ForecastInputDataset.target_series">target_series() (openstef_core.datasets.ForecastInputDataset method)</a>
+</li>
       <li><a href="api/generated/openstef_beam.benchmarking.TargetProvider.html#openstef_beam.benchmarking.TargetProvider">TargetProvider (class in openstef_beam.benchmarking)</a>
 </li>
       <li><a href="api/generated/openstef_beam.benchmarking.TargetProviderConfig.html#openstef_beam.benchmarking.TargetProviderConfig">TargetProviderConfig (class in openstef_beam.benchmarking)</a>
@@ -1352,6 +1373,8 @@
       <li><a href="api/generated/openstef_core.utils.timedelta_to_isoformat.html#openstef_core.utils.timedelta_to_isoformat">timedelta_to_isoformat() (in module openstef_core.utils)</a>
 </li>
       <li><a href="api/generated/openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset">TimeSeriesDataset (class in openstef_core.datasets)</a>
+</li>
+      <li><a href="api/generated/openstef_core.datasets.TimeSeriesEnergyComponentDataset.html#openstef_core.datasets.TimeSeriesEnergyComponentDataset">TimeSeriesEnergyComponentDataset (class in openstef_core.datasets)</a>
 </li>
       <li><a href="api/generated/openstef_core.datasets.TimeSeriesMixin.html#openstef_core.datasets.TimeSeriesMixin">TimeSeriesMixin (class in openstef_core.datasets)</a>
 
@@ -1365,6 +1388,8 @@
 </li>
       <li><a href="api/generated/openstef_core.datasets.VersionedTimeSeriesPart.html#openstef_core.datasets.VersionedTimeSeriesPart.timestamp_column">timestamp_column (openstef_core.datasets.VersionedTimeSeriesPart attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/openstef_beam.evaluation.EvaluationReport.html#openstef_beam.evaluation.EvaluationReport.to_parquet">to_parquet() (openstef_beam.evaluation.EvaluationReport method)</a>
 
       <ul>
@@ -1379,8 +1404,6 @@
         <li><a href="api/generated/openstef_core.datasets.VersionedTimeSeriesPart.html#openstef_core.datasets.VersionedTimeSeriesPart.to_parquet">(openstef_core.datasets.VersionedTimeSeriesPart method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/openstef_beam.backtesting.BacktestConfig.html#openstef_beam.backtesting.BacktestConfig.train_interval">train_interval (openstef_beam.backtesting.BacktestConfig attribute)</a>
 </li>
       <li><a href="api/generated/openstef_beam.benchmarking.BenchmarkTarget.html#openstef_beam.benchmarking.BenchmarkTarget.train_start">train_start (openstef_beam.benchmarking.BenchmarkTarget attribute)</a>
