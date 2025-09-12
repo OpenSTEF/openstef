@@ -11,7 +11,8 @@ particularly for operations that combine multiple datasets.
 import functools
 import operator
 from collections import Counter
-from collections.abc import Sequence
+from collections.abc import Iterable
+from datetime import timedelta
 
 import pandas as pd
 
@@ -37,7 +38,7 @@ def validate_required_columns(dataset: TimeSeriesMixin, required_columns: list[s
         raise MissingColumnsError(missing_columns=missing_columns)
 
 
-def validate_disjoint_columns(datasets: Sequence[TimeSeriesMixin]) -> None:
+def validate_disjoint_columns(datasets: Iterable[TimeSeriesMixin]) -> None:
     """Check if the datasets have overlapping feature names.
 
     Validates that all datasets have completely disjoint feature sets,
@@ -55,7 +56,7 @@ def validate_disjoint_columns(datasets: Sequence[TimeSeriesMixin]) -> None:
         raise TimeSeriesValidationError("Datasets have overlapping feature names: " + ", ".join(duplicate_features))
 
 
-def validate_same_sample_intervals(datasets: Sequence[TimeSeriesMixin]) -> None:
+def validate_same_sample_intervals(datasets: Iterable[TimeSeriesMixin]) -> timedelta:
     """Check if the datasets have the same sample interval.
 
     Validates that all datasets use identical sampling intervals, which is
@@ -63,6 +64,9 @@ def validate_same_sample_intervals(datasets: Sequence[TimeSeriesMixin]) -> None:
 
     Args:
         datasets: Sequence of time series datasets to validate.
+
+    Returns:
+        The common sample interval shared by all datasets.
 
     Raises:
         TimeSeriesValidationError: If datasets have different sample intervals.
@@ -72,6 +76,8 @@ def validate_same_sample_intervals(datasets: Sequence[TimeSeriesMixin]) -> None:
         raise TimeSeriesValidationError(
             "Datasets have different sample intervals: " + ", ".join(map(str, sample_intervals))
         )
+
+    return sample_intervals.pop()
 
 
 def validate_datetime_column(series: pd.Series, column_name: str) -> None:

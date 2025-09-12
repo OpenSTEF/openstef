@@ -11,6 +11,8 @@ key domain types like lead times, availability timestamps, and quantile values.
 
 import re
 from datetime import timedelta
+from enum import StrEnum
+from functools import total_ordering
 from typing import Any, Self, override
 
 from pydantic import GetCoreSchemaHandler, TypeAdapter
@@ -19,6 +21,7 @@ from pydantic_core import CoreSchema, core_schema
 from openstef_core.base_model import PydanticStringPrimitive
 
 
+@total_ordering
 class LeadTime(PydanticStringPrimitive):
     """Represents a lead time as a timedelta.
 
@@ -92,6 +95,17 @@ class LeadTime(PydanticStringPrimitive):
             return cls(v)
 
         return super().validate(v, _info)
+
+    def __lt__(self, other: object) -> bool:
+        """Less-than comparison based on timedelta value.
+
+        Returns:
+            True if this LeadTime is less than the other, False otherwise.
+        """
+        if not isinstance(other, LeadTime):
+            return NotImplemented
+
+        return self.value < other.value
 
 
 class AvailableAt(PydanticStringPrimitive):
@@ -254,5 +268,26 @@ class Quantile(float):
         value = float(quantile_str.split("_P")[1]) / 100
         return Quantile(value)
 
+    @staticmethod
+    def is_valid_quantile_string(quantile_str: str) -> bool:
+        """Check if a string is a valid quantile representation.
+
+        Args:
+            quantile_str: String to check.
+
+        Returns:
+            True if the string is a valid quantile representation, False otherwise.
+        """
+        pattern = r"^quantile_P(\d{1,2}(\.\d)?|100)$"
+        return re.match(pattern, quantile_str) is not None
+
 
 Q = Quantile  # Alias for easier imports
+
+
+class EnergyComponentType(StrEnum):
+    """Enumeration of energy component types."""
+
+    WIND = "wind"
+    SOLAR = "solar"
+    OTHER = "other"

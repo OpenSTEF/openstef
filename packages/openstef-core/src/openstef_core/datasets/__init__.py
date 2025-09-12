@@ -11,16 +11,25 @@ over time, enabling realistic backtesting and training and forecasting.
 The module supports:
     - Regular time series with consistent sampling intervals
     - Versioned time series that track when data became available
+    - Validated datasets with domain-specific constraints
     - Data transformations and validation utilities
     - Feature concatenation and horizon restriction operations
 """
 
 from openstef_core.datasets.mixins import TimeSeriesMixin, VersionedTimeSeriesMixin
 from openstef_core.datasets.timeseries_dataset import TimeSeriesDataset
+from openstef_core.datasets.validated_datasets import (
+    ForecastDataset,
+    ForecastInputDataset,
+    TimeSeriesEnergyComponentDataset,
+)
 from openstef_core.datasets.versioned_timeseries import VersionedTimeSeriesDataset, VersionedTimeSeriesPart
 
 __all__ = [
+    "ForecastDataset",
+    "ForecastInputDataset",
     "TimeSeriesDataset",
+    "TimeSeriesEnergyComponentDataset",
     "TimeSeriesMixin",
     "VersionedTimeSeriesDataset",
     "VersionedTimeSeriesMixin",
