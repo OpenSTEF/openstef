@@ -239,7 +239,7 @@ def combine_horizon_forecasts(forecasts: dict[LeadTime, ForecastDataset]) -> For
             forecast.forecast_start if forecast_start is None else min(forecast_start, forecast.forecast_start)
         )
 
-        # Slice the data by it's lead time chunk.
+        # Slice the data by its lead time chunk.
         # TimeSeries enforce sorting invariants, so we can use binary search.
         forecast_data = forecasts[lead_time].data
         start_chunk_idx, end_chunk_idx = unsafe_sorted_range_slice_idxs(
