@@ -61,10 +61,9 @@ Models Package (:mod:`openstef_models`)
    :toctree: generated/
    :template: package_overview.rst
 
-   feature_engineering
+   transforms
    models
    pipelines
-   postprocessing
    explainability
    exceptions
 

@@ -316,7 +316,7 @@ Examples and tutorials are crucial for user onboarding. When adding new examples
 
 2. **Follow naming conventions**:
    
-   * Use descriptive filenames: ``basic_forecasting.py``, ``advanced_feature_engineering.py``
+   * Use descriptive filenames: ``basic_forecasting.py``, ``advanced_transforms.py``
    * Start with a docstring explaining the example's purpose
 
 3. **Structure your example**:
