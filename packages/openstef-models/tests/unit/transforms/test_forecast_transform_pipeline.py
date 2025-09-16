@@ -10,7 +10,7 @@ import pytest
 
 from openstef_core.datasets.transforms import ForecastTransform
 from openstef_core.datasets.validated_datasets import ForecastDataset
-from openstef_models.transforms.postprocessing_pipeline import PostprocessingPipeline
+from openstef_models.transforms.forecast_transform_pipeline import ForecastTransformPipeline
 
 
 class SimpleAddTransform(ForecastTransform):
@@ -77,7 +77,7 @@ def test_postprocessing_pipeline__fit_transform_functionality(
 ):
     """Test PostprocessingPipeline fit_transform with essential scenarios."""
     # Arrange
-    pipeline = PostprocessingPipeline(transforms=transforms)
+    pipeline = ForecastTransformPipeline(transforms=transforms)
 
     # Act - fit is required before transform
     result = pipeline.fit_transform(sample_forecast_dataset)

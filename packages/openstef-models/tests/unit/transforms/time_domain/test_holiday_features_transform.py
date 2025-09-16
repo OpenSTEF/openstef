@@ -5,7 +5,6 @@
 """Unit tests for the HolidayFeaturesTransform."""
 
 from datetime import date, timedelta
-from unittest.mock import MagicMock, patch
 
 import pandas as pd
 import pytest
@@ -26,20 +25,6 @@ def sample_dataset() -> TimeSeriesDataset:
         {"load": [100.0, 110.0, 120.0, 130.0, 140.0]}, index=pd.date_range("2025-12-24", periods=5, freq="D")
     )
     return TimeSeriesDataset(data, timedelta(days=1))
-
-
-@pytest.fixture
-def mock_holidays_dict() -> dict[date, str]:
-    """Mock holidays data for testing.
-
-    Returns:
-        A dictionary mapping dates to holiday names.
-    """
-    return {
-        date(2025, 12, 25): "Christmas Day",
-        date(2025, 12, 26): "Second Day of Christmas",
-        date(2025, 1, 1): "New Year's Day",
-    }
 
 
 def test_holiday_features_initialization():
@@ -67,29 +52,38 @@ def test_sanitize_holiday_name(input_name: str, expected_output: str):
     assert HolidayFeaturesTransform._sanitize_holiday_name(input_name) == expected_output
 
 
-@patch("openstef_models.transforms.time_domain.holiday_features_transform.holidays.country_holidays")
-def test_get_holidays_dataframe_returns_cleaned_data(
-    mock_country_holidays: MagicMock, sample_dataset: TimeSeriesDataset, mock_holidays_dict: dict[date, str]
-):
-    """Test getting holidays DataFrame with cleaned data."""
+def test_get_holidays_dataframe_returns_cleaned_data(sample_dataset: TimeSeriesDataset):
+    """Test getting holidays DataFrame with cleaned data using real holiday data."""
     # Arrange
-    mock_country_holidays.return_value = mock_holidays_dict
     transform = HolidayFeaturesTransform(country_code=CountryAlpha2("NL"))
 
     # Act
     result = transform._get_holidays_dataframe(sample_dataset)
 
     # Assert
-    # Check that holidays library is called correctly
-    mock_country_holidays.assert_called_once_with(
-        "NL", categories=["public"], years=range(2025, 2026), language="en_US"
-    )
     # Check DataFrame structure
     assert set(result.columns) == {"date", "holiday_name", "sanitized_name"}
-    assert len(result) == 3  # Three holidays in mock data
-    # Check sanitized names are present
-    assert "christmas_day" in result["sanitized_name"].to_numpy()
-    assert "second_day_of_christmas" in result["sanitized_name"].to_numpy()
+    assert len(result) >= 2  # Should have at least Christmas Day and Second Day of Christmas
+
+    # Check that specific known holidays are present for the date range (2025-12-24 to 2025-12-28)
+    holiday_dates = result["date"].tolist()
+    holiday_names = result["sanitized_name"].tolist()
+
+    # Christmas Day should be included
+    assert date(2025, 12, 25) in holiday_dates
+    assert "christmas_day" in holiday_names
+
+    # Second Day of Christmas should be included
+    assert date(2025, 12, 26) in holiday_dates
+    assert "second_day_of_christmas" in holiday_names
+
+    # Check that sanitized names are properly formatted (no special characters, lowercase)
+    for name in holiday_names:
+        assert isinstance(name, str)
+        assert name.islower()
+        assert all(c.isalnum() or c == "_" for c in name)
+        assert not name.startswith("_")
+        assert not name.endswith("_")
 
 
 def test_create_general_holiday_feature(sample_dataset: TimeSeriesDataset):
@@ -138,13 +132,9 @@ def test_create_individual_features(sample_dataset: TimeSeriesDataset):
     assert result.loc["2025-12-25", "is_second_day_of_christmas"] == 0
 
 
-@patch("openstef_models.transforms.time_domain.holiday_features_transform.holidays.country_holidays")
-def test_transform_adds_holiday_features(
-    mock_country_holidays: MagicMock, sample_dataset: TimeSeriesDataset, mock_holidays_dict: dict[date, str]
-):
-    """Test that transform adds holiday features to the dataset."""
+def test_transform_adds_holiday_features(sample_dataset: TimeSeriesDataset):
+    """Test that transform adds holiday features to the dataset using real holiday data."""
     # Arrange
-    mock_country_holidays.return_value = mock_holidays_dict
     transform = HolidayFeaturesTransform(country_code=CountryAlpha2("NL"))
 
     # Act
@@ -162,6 +152,12 @@ def test_transform_adds_holiday_features(
     assert "is_holiday" in result.data.columns
     assert "is_christmas_day" in result.data.columns
     assert "is_second_day_of_christmas" in result.data.columns
+    # Check that holiday values are correct for known dates
+    assert result.data.loc["2025-12-25", "is_holiday"] == 1  # Christmas Day
+    assert result.data.loc["2025-12-26", "is_holiday"] == 1  # Second Day of Christmas
+    assert result.data.loc["2025-12-24", "is_holiday"] == 0  # Not a holiday
+    assert result.data.loc["2025-12-25", "is_christmas_day"] == 1
+    assert result.data.loc["2025-12-26", "is_second_day_of_christmas"] == 1
 
 
 def test_transform_with_real_holidays(sample_dataset: TimeSeriesDataset):
@@ -180,22 +176,28 @@ def test_transform_with_real_holidays(sample_dataset: TimeSeriesDataset):
     assert result.data.loc["2025-12-24", "is_holiday"] == 0
 
 
-def test_transform_with_empty_holidays(sample_dataset: TimeSeriesDataset):
-    """Test handling when no holidays are found."""
+def test_transform_with_empty_holidays():
+    """Test handling when no holidays are found in the date range."""
     # Arrange
+    # Create a dataset for a very short period that realistically has no holidays
+    # Use a random Tuesday in March (typically no holidays in Netherlands)
+    data = pd.DataFrame(
+        {"load": [100.0, 110.0]},
+        index=pd.date_range("2025-03-11", periods=2, freq="D"),  # Tuesday-Wednesday in March
+    )
+    dataset = TimeSeriesDataset(data, timedelta(days=1))
+
+    # Use Netherlands but with a date range that has no holidays
     transform = HolidayFeaturesTransform(country_code=CountryAlpha2("NL"))
-    # Mock empty holidays result
-    with patch.object(transform, "_get_holidays_dataframe") as mock_get_holidays:
-        mock_get_holidays.return_value = pd.DataFrame(columns=["date", "holiday_name", "sanitized_name"])
 
-        # Act
-        result = transform.transform(sample_dataset)
+    # Act
+    result = transform.transform(dataset)
 
-        # Assert
-        assert isinstance(result, TimeSeriesDataset)
-        assert "is_holiday" in result.data.columns
-        # All values should be 0 (no holidays)
-        assert (result.data["is_holiday"] == 0).all()
+    # Assert
+    assert isinstance(result, TimeSeriesDataset)
+    assert "is_holiday" in result.data.columns
+    # All values should be 0 (no holidays in this specific date range)
+    assert (result.data["is_holiday"] == 0).all()
 
 
 @pytest.mark.parametrize(

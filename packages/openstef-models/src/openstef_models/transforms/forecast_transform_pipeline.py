@@ -16,7 +16,7 @@ from openstef_core.datasets.validated_datasets import ForecastDataset
 from openstef_core.exceptions import NotFittedError
 
 
-class PostprocessingPipeline(ForecastTransform):
+class ForecastTransformPipeline(ForecastTransform):
     """Sequential pipeline of forecast transformations.
 
     Applies multiple forecast transforms in order, fitting each transform
@@ -30,8 +30,8 @@ class PostprocessingPipeline(ForecastTransform):
     Example:
         Creating and using a postprocessing pipeline:
 
-        >>> # Create an empty pipeline (no postprocessors implemented yet)
-        >>> pipeline = PostprocessingPipeline()
+        >>> # Create an empty pipeline (no forecast transforms implemented yet)
+        >>> pipeline = ForecastTransformPipeline()
         >>>
         >>> # The pipeline can be used even when empty
         >>> # processed_forecasts = pipeline.transform(forecasts)

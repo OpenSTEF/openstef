@@ -15,7 +15,7 @@ from openstef_core.types import LeadTime, Quantile
 from openstef_models.models.forecasting import BaseForecaster, BaseHorizonForecaster
 from openstef_models.models.forecasting.mixins import ForecasterConfig, HorizonForecasterConfig
 from openstef_models.models.forecasting_model import ForecastingModel
-from openstef_models.transforms import FeaturePipeline, PostprocessingPipeline
+from openstef_models.transforms import FeaturePipeline, ForecastTransformPipeline
 
 
 @pytest.fixture
@@ -43,7 +43,7 @@ def test_forecasting_model__init__validates_horizons_and_assigns_components():
     mock_preprocessing = MagicMock(spec=FeaturePipeline)
     mock_preprocessing.horizons = horizons
 
-    mock_postprocessing = MagicMock(spec=PostprocessingPipeline)
+    mock_postprocessing = MagicMock(spec=ForecastTransformPipeline)
 
     # Act
     model = ForecastingModel(
@@ -78,7 +78,7 @@ def test_forecasting_model__init__uses_defaults_and_validates_horizons():
     assert isinstance(model.preprocessing, FeaturePipeline)
     assert model.preprocessing.horizons == mock_forecaster.config.horizons
     assert model.postprocessing is not None
-    assert isinstance(model.postprocessing, PostprocessingPipeline)
+    assert isinstance(model.postprocessing, ForecastTransformPipeline)
     assert model.target_column == "load"  # Default value
 
     # Act & Assert - Test horizon validation error
@@ -114,7 +114,7 @@ def test_forecasting_model__fit_and_predict__orchestrates_correctly(
     mock_preprocessing = MagicMock(spec=FeaturePipeline)
     mock_preprocessing.horizons = horizons
 
-    mock_postprocessing = MagicMock(spec=PostprocessingPipeline)
+    mock_postprocessing = MagicMock(spec=ForecastTransformPipeline)
 
     model = ForecastingModel(
         forecaster=mock_forecaster,

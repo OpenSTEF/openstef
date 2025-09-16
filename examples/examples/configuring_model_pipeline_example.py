@@ -44,7 +44,7 @@ from openstef_models.models.forecasting.constant_median_forecaster import (
     ConstantMedianForecasterConfig,
 )
 from openstef_models.models.forecasting_model import ForecastingModel
-from openstef_models.transforms import FeaturePipeline, PostprocessingPipeline
+from openstef_models.transforms import FeaturePipeline, ForecastTransformPipeline
 from openstef_models.transforms.general import ScalerTransform
 from openstef_models.transforms.time_domain import HolidayFeaturesTransform
 from openstef_models.transforms.time_domain.lag_transform import VersionedLagTransform
@@ -74,7 +74,7 @@ model = ForecastingModel(
             quantiles=[Q(0.5), Q(0.1), Q(0.9)],
         )
     ),
-    postprocessing=PostprocessingPipeline(transforms=[]),
+    postprocessing=ForecastTransformPipeline(transforms=[]),
     target_column="load",
 )
 

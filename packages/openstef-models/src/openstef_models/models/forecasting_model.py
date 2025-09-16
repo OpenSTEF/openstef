@@ -16,7 +16,7 @@ from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastI
 from openstef_core.exceptions import ConfigurationError, NotFittedError, UnreachableStateError
 from openstef_core.types import LeadTime
 from openstef_models.models.forecasting import BaseForecaster, BaseHorizonForecaster
-from openstef_models.transforms import FeaturePipeline, PostprocessingPipeline
+from openstef_models.transforms import FeaturePipeline, ForecastTransformPipeline
 
 
 class ForecastingModel:
@@ -35,7 +35,7 @@ class ForecastingModel:
         Basic forecasting workflow:
 
         >>> from openstef_models.models.forecasting import BaseForecaster
-        >>> from openstef_models.transforms import FeaturePipeline, PostprocessingPipeline
+        >>> from openstef_models.transforms import FeaturePipeline
         >>>
         >>> # Note: This is a conceptual example showing the API structure
         >>> # Real usage requires implemented forecaster classes
@@ -55,14 +55,14 @@ class ForecastingModel:
 
     preprocessing: FeaturePipeline
     forecaster: BaseForecaster | BaseHorizonForecaster
-    postprocessing: PostprocessingPipeline
+    postprocessing: ForecastTransformPipeline
     target_column: str
 
     def __init__(
         self,
         forecaster: BaseForecaster | BaseHorizonForecaster,
         preprocessing: FeaturePipeline | None = None,
-        postprocessing: PostprocessingPipeline | None = None,
+        postprocessing: ForecastTransformPipeline | None = None,
         target_column: str = "load",
     ):
         """Initialize the forecasting model with required and optional components.
@@ -88,7 +88,7 @@ class ForecastingModel:
 
         self.preprocessing = preprocessing
         self.forecaster = forecaster
-        self.postprocessing = postprocessing or PostprocessingPipeline()
+        self.postprocessing = postprocessing or ForecastTransformPipeline()
         self.target_column = target_column
 
     def _prepare_input_data(
