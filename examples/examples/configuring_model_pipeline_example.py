@@ -1,3 +1,30 @@
+"""Configuring Model Pipeline Example.
+
+====================================
+
+This example demonstrates how to configure and use a complete forecasting pipeline
+in OpenSTEF. It shows how to:
+
+1. Create synthetic time series data for demonstration
+2. Configure a full forecasting model with preprocessing and postprocessing
+3. Set up model storage for persistence
+4. Use the workflow pattern for training and prediction
+
+The example uses a ConstantMedianForecaster with feature engineering including
+holiday features, lag transforms, and data scaling. This represents a typical
+OpenSTEF forecasting setup that can be adapted for real-world use cases.
+
+Key Components:
+    - VersionedTimeSeriesDataset: Time series data structure
+    - ForecastingModel: Complete forecasting pipeline
+    - FeaturePipeline: Preprocessing with holidays and lags
+    - LocalModelStorage: File-based model persistence
+    - ForecastingWorkflow: High-level orchestration
+
+This example is useful for understanding how to integrate all OpenSTEF components
+into a working forecasting system.
+"""
+
 # SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
 #
 # SPDX-License-Identifier: MPL-2.0
