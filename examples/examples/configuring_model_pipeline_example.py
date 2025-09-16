@@ -56,7 +56,7 @@ storage = LocalModelStorage(storage_dir=Path("./model_storage"))
 pipeline = ForecastingWorkflow.from_storage(
     model_id="constant_median_forecaster_v1",
     storage=storage,
-    default_model=model,
+    default_model_factory=lambda: model,
 )
 
 pipeline.fit(dataset)

@@ -10,7 +10,7 @@ import pytest
 
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
-from openstef_core.exceptions import ConfigurationError, NotFittedError
+from openstef_core.exceptions import ConfigurationError, NotFittedError, UnreachableStateError
 from openstef_core.types import LeadTime, Quantile
 from openstef_models.models.forecasting import BaseForecaster, BaseHorizonForecaster
 from openstef_models.models.forecasting.mixins import ForecasterConfig, HorizonForecasterConfig
@@ -196,5 +196,5 @@ def test_forecasting_model__error_conditions(sample_timeseries_dataset: TimeSeri
 
     # Test fit with no horizon data - set preprocessing to return empty dict
     mock_preprocessing.transform.return_value = {}
-    with pytest.raises(ValueError, match="No data available for horizon forecasting"):
+    with pytest.raises(UnreachableStateError, match="No data available for horizon forecasting"):
         model.fit(dataset=sample_timeseries_dataset)

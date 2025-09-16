@@ -45,6 +45,16 @@ class TimeSeriesTransform:
         ...         return TimeSeriesDataset(scaled_data, data.sample_interval)
     """
 
+    @property
+    def is_fitted(self) -> bool:
+        """Check if the transform has been fitted.
+
+        Returns:
+            True if the transform is ready for use. Base implementation returns True
+            since most forecast transforms are stateless.
+        """
+        return True
+
     def fit(self, data: TimeSeriesDataset) -> None:
         """Fit the transform to the input time series data.
 
@@ -170,6 +180,16 @@ class VersionedTimeSeriesTransform:
         ...         )
     """
 
+    @property
+    def is_fitted(self) -> bool:
+        """Check if the transform has been fitted.
+
+        Returns:
+            True if the transform is ready for use. Base implementation returns True
+            since most forecast transforms are stateless.
+        """
+        return True
+
     def fit(self, data: VersionedTimeSeriesDataset) -> None:
         """Fit the transform to the input versioned time series data.
 
@@ -212,18 +232,72 @@ class VersionedTimeSeriesTransform:
 
 
 class ForecastTransform:
+    """Base class for forecast transformations.
+
+    Provides the interface for all forecast postprocessing operations that enhance
+    or correct forecast results. Common use cases include forecast calibration to
+    reduce bias, conformalization for uncertainty quantification, quantile sorting
+    to ensure monotonicity, and extrapolating additional quantiles from existing ones.
+
+    Invariants:
+        - fit() must be called before transform() for stateful transforms,
+          and is_fitted must return True, otherwise NotFittedError will be raised
+
+    Example:
+        Implementing a quantile sorting transform to ensure monotonicity:
+
+        >>> import numpy as np
+        >>> class QuantileSortingTransform(ForecastTransform):
+        ...     def transform(self, data: ForecastDataset) -> ForecastDataset:
+        ...         # Ensure quantiles are monotonically increasing across columns
+        ...         sorted_data = data.copy()
+        ...         quantile_cols = [col for col in data.forecast_columns if 'quantile' in col]
+        ...         if quantile_cols:
+        ...             sorted_data.data[quantile_cols] = np.sort(sorted_data.data[quantile_cols], axis=1)
+        ...         return sorted_data
+    """
+
     @property
     def is_fitted(self) -> bool:
+        """Check if the transform has been fitted.
+
+        Returns:
+            True if the transform is ready for use. Base implementation returns True
+            since most forecast transforms are stateless.
+        """
         return True
 
     def fit(self, data: ForecastDataset) -> None:
-        pass
+        """Fit the transform to forecast data.
+
+        For stateful transforms, this method learns parameters from the data.
+        Base implementation is a no-op since most forecast transforms are stateless.
+
+        Args:
+            data: Forecast dataset to fit the transform on.
+        """
 
     @abstractmethod
     def transform(self, data: ForecastDataset) -> ForecastDataset:
+        """Transform forecast data.
+
+        Args:
+            data: Input forecast dataset to transform.
+
+        Returns:
+            Transformed forecast dataset with the same structure as input.
+        """
         raise NotImplementedError
 
     def fit_transform(self, data: ForecastDataset) -> ForecastDataset:
+        """Fit the transform and apply it to the data in one step.
+
+        Args:
+            data: Forecast dataset to fit and transform.
+
+        Returns:
+            Transformed forecast dataset.
+        """
         self.fit(data)
         return self.transform(data)
 

@@ -24,7 +24,12 @@ class MockTimeSeriesTransform(TimeSeriesTransform):
 
     def __init__(self, transform_suffix: str = "_transformed"):
         self.transform_suffix = transform_suffix
-        self.is_fitted = False
+        self._is_fitted = False
+
+    @property
+    @override
+    def is_fitted(self) -> bool:
+        return self._is_fitted
 
     @override
     def fit_horizons(self, data: dict[LeadTime, TimeSeriesDataset]) -> None:
@@ -33,11 +38,11 @@ class MockTimeSeriesTransform(TimeSeriesTransform):
 
     @override
     def fit(self, data: TimeSeriesDataset) -> None:
-        self.is_fitted = True
+        self._is_fitted = True
 
     @override
     def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
-        if not self.is_fitted:
+        if not self._is_fitted:
             raise TransformNotFittedError("Mock transform not fitted")
 
         # Add suffix to column names
@@ -51,11 +56,15 @@ class MockVersionedTimeSeriesTransform(VersionedTimeSeriesTransform):
 
     def __init__(self, transform_suffix: str = "_versioned"):
         self.transform_suffix = transform_suffix
-        self.is_fitted = False
+        self._is_fitted = False
+
+    @property
+    def is_fitted(self) -> bool:
+        return self._is_fitted
 
     @override
     def fit(self, data: VersionedTimeSeriesDataset) -> None:
-        self.is_fitted = True
+        self._is_fitted = True
 
     @override
     def transform(self, data: VersionedTimeSeriesDataset) -> VersionedTimeSeriesDataset:

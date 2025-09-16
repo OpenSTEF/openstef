@@ -137,6 +137,23 @@ class ModelNotFoundError(Exception):
         super().__init__(message)
 
 
+class UnreachableStateError(Exception):
+    """Exception raised when a code path that should be unreachable is executed.
+
+    This indicates a violation of invariants or preconditions that should have
+    been guaranteed by the system design. Typically used when configuration
+    validation should have prevented reaching this state.
+    """
+
+    def __init__(self, message: str):
+        """Initialize the exception with a descriptive error message.
+
+        Args:
+            message: Human-readable description of the unreachable state condition.
+        """
+        super().__init__(message)
+
+
 class ConfigurationError(Exception):
     """Exception raised for errors in configuration settings."""
 
@@ -150,11 +167,17 @@ class ConfigurationError(Exception):
 
 
 __all__ = [
+    "ConfigurationError",
     "FlatlinerDetectedError",
+    "ForecastError",
     "InsufficientlyCompleteError",
     "InvalidColumnTypeError",
     "MissingColumnsError",
     "MissingExtraError",
+    "ModelLoadingError",
+    "ModelNotFoundError",
+    "NotFittedError",
     "TimeSeriesValidationError",
     "TransformNotFittedError",
+    "UnreachableStateError",
 ]
