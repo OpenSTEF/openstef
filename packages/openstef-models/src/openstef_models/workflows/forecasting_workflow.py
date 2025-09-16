@@ -7,7 +7,7 @@ from typing import Self
 
 from openstef_core.datasets import TimeSeriesDataset, VersionedTimeSeriesDataset
 from openstef_core.datasets.validated_datasets import ForecastDataset
-from openstef_core.exceptions import ModelNotFittedError, ModelNotFoundError
+from openstef_core.exceptions import ModelNotFoundError, NotFittedError
 from openstef_models.integrations.callbacks import ForecastingCallback
 from openstef_models.integrations.model_storage import ModelIdentifier, ModelStorage
 from openstef_models.models.forecasting_model import ForecastingModel
@@ -40,7 +40,7 @@ class ForecastingWorkflow:
         self, dataset: VersionedTimeSeriesDataset | TimeSeriesDataset, forecast_start: datetime | None = None
     ) -> ForecastDataset:
         if not self.model.is_fitted:
-            raise ModelNotFittedError(type(self.model).__name__)
+            raise NotFittedError(type(self.model).__name__)
 
         self.callbacks.on_before_predict(pipeline=self, dataset=dataset)
 

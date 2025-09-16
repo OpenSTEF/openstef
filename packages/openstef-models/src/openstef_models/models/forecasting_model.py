@@ -6,7 +6,7 @@ from datetime import datetime
 
 from openstef_core.datasets import TimeSeriesDataset, VersionedTimeSeriesDataset
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
-from openstef_core.exceptions import ConfigurationError, ModelNotFittedError
+from openstef_core.exceptions import ConfigurationError, NotFittedError
 from openstef_core.types import LeadTime
 from openstef_models.models.forecasting import BaseForecaster, BaseHorizonForecaster
 from openstef_models.transforms import FeaturePipeline, PostprocessingPipeline
@@ -25,14 +25,16 @@ class ForecastingModel:
         postprocessing: PostprocessingPipeline | None = None,
         target_column: str = "load",
     ):
-        if forecaster.config.horizons != self.preprocessing.horizons:
+        preprocessing = preprocessing or FeaturePipeline(horizons=forecaster.config.horizons)
+
+        if forecaster.config.horizons != preprocessing.horizons:
             message = (
                 f"The forecaster horizons ({forecaster.config.horizons}) do not match the "
-                "preprocessing horizons ({self.preprocessing.horizons})."
+                f"preprocessing horizons ({preprocessing.horizons})."
             )
             raise ConfigurationError(message)
 
-        self.preprocessing = preprocessing or FeaturePipeline()
+        self.preprocessing = preprocessing
         self.forecaster = forecaster
         self.postprocessing = postprocessing or PostprocessingPipeline()
         self.target_column = target_column
@@ -77,7 +79,7 @@ class ForecastingModel:
         self, dataset: VersionedTimeSeriesDataset | TimeSeriesDataset, forecast_start: datetime | None = None
     ) -> ForecastDataset:
         if not self.is_fitted:
-            raise ModelNotFittedError(type(self.forecaster).__name__)
+            raise NotFittedError(type(self.forecaster).__name__)
 
         # Transform the input data to a valid forecast input
         input_data = self._prepare_input_data(dataset=dataset, forecast_start=forecast_start)

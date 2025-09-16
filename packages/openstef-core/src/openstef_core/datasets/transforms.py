@@ -212,6 +212,10 @@ class VersionedTimeSeriesTransform:
 
 
 class ForecastTransform:
+    @property
+    def is_fitted(self) -> bool:
+        return True
+
     def fit(self, data: ForecastDataset) -> None:
         pass
 

@@ -114,7 +114,8 @@ lint.per-file-ignores."./tools/*" = [
   "T201", # tools are cli scripts and are allowed to use print
 ]
 lint.per-file-ignores."./{docs,examples}/*" = [
-  "T201", # examples are allowed to use print
+  "INP001", # example folders are not packages, so __init__.py is not needed
+  "T201",   # examples are allowed to use print
 ]
 lint.fixable = [ "ALL" ]
 lint.flake8-annotations.allow-star-arg-any = true # *args and **kwargs are allowed to be Any
@@ -155,7 +156,7 @@ fail_under = 20
 show_missing = true
 skip_covered = true
 sort = "-Miss"
-omit = [ "tests/*" ]
+omit = [ "tests/*", "packages/*/tests" ]
 
 [tool.coverage.run]
 source = [

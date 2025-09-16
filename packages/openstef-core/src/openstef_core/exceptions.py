@@ -111,16 +111,16 @@ class ModelLoadingError(Exception):
     """Exception raised when a model fails to load properly."""
 
 
-class ModelNotFittedError(Exception):
-    """Exception raised when a model is used before being fitted."""
+class NotFittedError(Exception):
+    """Exception raised when a model or a transform is used before being fitted."""
 
-    def __init__(self, model_class: str):
-        """Initialize the exception with the name of the model class.
+    def __init__(self, component_class: str):
+        """Initialize the exception with the name of the component class.
 
         Args:
-            model_class: Name of the model class that was not fitted.
+            component_class: Name of the component class that was not fitted.
         """
-        message = f"The {model_class} has not been fitted yet. Please call 'fit' before using it."
+        message = f"The {component_class} has not been fitted yet. Please call 'fit' before using it."
         super().__init__(message)
 
 

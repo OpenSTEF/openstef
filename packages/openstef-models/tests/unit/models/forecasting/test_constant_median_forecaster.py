@@ -8,7 +8,7 @@ import pandas as pd
 import pytest
 
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
-from openstef_core.exceptions import ModelNotFittedError
+from openstef_core.exceptions import NotFittedError
 from openstef_core.types import LeadTime, Quantile
 from openstef_models.models.forecasting.constant_median_forecaster import (
     ConstantMedianForecaster,
@@ -90,7 +90,7 @@ def test_constant_median_forecaster__predict_not_fitted_raises_error(
     input_dataset = ForecastInputDataset(data=dummy_data, sample_interval=timedelta(hours=1), target_column="load")
 
     # Act & Assert
-    with pytest.raises(ModelNotFittedError, match="ConstantMedianForecaster"):
+    with pytest.raises(NotFittedError, match="ConstantMedianForecaster"):
         forecaster.predict_horizon(input_dataset)
 
 
