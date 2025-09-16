@@ -18,10 +18,12 @@ from openstef_models.transforms import (
 )
 from openstef_models.transforms.feature_pipeline import FeaturePipeline
 from openstef_models.transforms.horizon_split_transform import HorizonSplitTransform
+from openstef_models.transforms.postprocessing_pipeline import PostprocessingPipeline
 
 __all__ = [
     "FeaturePipeline",
     "HorizonSplitTransform",
+    "PostprocessingPipeline",
     "energy_domain",
     "general",
     "time_domain",

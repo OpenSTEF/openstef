@@ -16,6 +16,7 @@ This design enables efficient processing of forecasting data where features may 
 different availability times and forecast horizons require different processing.
 """
 
+from collections.abc import Sequence
 from typing import Any, override
 
 from pydantic import Field, PrivateAttr
@@ -121,13 +122,13 @@ class FeaturePipeline(BaseModel):
         description="The lead times (horizons) for which the model will make predictions.",
     )
 
-    versioned_transforms: list[VersionedTimeSeriesTransform] = Field(
+    versioned_transforms: Sequence[VersionedTimeSeriesTransform] = Field(
         default=[],
         description=(
             "Transforms that operate on versioned time series, and usually involve complex time handling logic."
         ),
     )
-    horizon_transforms: list[TimeSeriesTransform] = Field(
+    horizon_transforms: Sequence[TimeSeriesTransform] = Field(
         default=[], description="Transforms that operate on time series with already resolved timestamps."
     )
 

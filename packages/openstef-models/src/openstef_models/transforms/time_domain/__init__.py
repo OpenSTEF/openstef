@@ -17,4 +17,9 @@ from openstef_models.transforms.time_domain.datetime_features_transform import (
 from openstef_models.transforms.time_domain.holiday_features_transform import HolidayFeaturesTransform
 from openstef_models.transforms.time_domain.rolling_aggregate_transform import RollingAggregateTransform
 
-__all__ = ["CyclicFeaturesTransform", "DatetimeFeaturesTransform", "HolidayFeaturesTransform", "RollingAggregateTransform"]
+__all__ = [
+    "CyclicFeaturesTransform",
+    "DatetimeFeaturesTransform",
+    "HolidayFeaturesTransform",
+    "RollingAggregateTransform",
+]

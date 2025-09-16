@@ -37,6 +37,10 @@ optional-dependencies.feature_engineering = [
   "scikit-learn>=1.7.1",
 ]
 
+optional-dependencies.integrations = [
+  "joblib>=1",
+]
+
 urls.Documentation = "https://openstef.github.io/openstef/index.html"
 urls.Homepage = "https://lfenergy.org/projects/openstef/"
 urls.Issues = "https://github.com/OpenSTEF/openstef/issues"

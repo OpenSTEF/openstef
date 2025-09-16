@@ -97,9 +97,6 @@ lint.ignore = [
   "TC006",  # Let's not force quoting the first param of typing.cast
   "TRY003", # simplify exception messages
 ]
-lint.per-file-ignores."./docs/*" = [
-  "T201", # tools are cli scripts and are allowed to use print
-]
 lint.per-file-ignores."./packages/*/tests/*" = [
   "ARG",     # Unused function args -> fixtures nevertheless are functionally relevant...
   "D",       # All docstring rules
@@ -115,6 +112,9 @@ lint.per-file-ignores."./packages/*/tests/*" = [
 ]
 lint.per-file-ignores."./tools/*" = [
   "T201", # tools are cli scripts and are allowed to use print
+]
+lint.per-file-ignores."./{docs,examples}/*" = [
+  "T201", # examples are allowed to use print
 ]
 lint.fixable = [ "ALL" ]
 lint.flake8-annotations.allow-star-arg-any = true # *args and **kwargs are allowed to be Any

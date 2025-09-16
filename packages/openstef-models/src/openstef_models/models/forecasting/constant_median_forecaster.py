@@ -40,7 +40,7 @@ class ConstantMedianForecasterConfig(HorizonForecasterConfig):
     """Configuration for constant median forecaster."""
 
     hyperparams: ConstantMedianForecasterHyperParams = Field(
-        default=...,
+        default=ConstantMedianForecasterHyperParams(),
     )
 
 
@@ -80,7 +80,7 @@ class ConstantMedianForecaster(BaseHorizonForecaster):
 
     def __init__(
         self,
-        config: ConstantMedianForecasterConfig,
+        config: ConstantMedianForecasterConfig | None = None,
         state: ConstantMedianState | None = None,
     ) -> None:
         """Initialize the constant median forecaster.
@@ -89,6 +89,7 @@ class ConstantMedianForecaster(BaseHorizonForecaster):
             config: Configuration specifying quantiles and hyperparameters.
             state: Optional pre-trained state for restored models.
         """
+        config = config or ConstantMedianForecasterConfig()
         self._state: ConstantMedianState = state if state is not None else ConstantMedianState(config=config)
 
     @property

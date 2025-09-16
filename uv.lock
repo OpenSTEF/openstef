@@ -1766,16 +1766,20 @@ feature-engineering = [
     { name = "pvlib" },
     { name = "scikit-learn" },
 ]
+integrations = [
+    { name = "joblib" },
+]
 
 [package.metadata]
 requires-dist = [
     { name = "holidays", marker = "extra == 'feature-engineering'", specifier = ">=0.79" },
+    { name = "joblib", marker = "extra == 'integrations'", specifier = ">=1.0.0" },
     { name = "openstef-core", editable = "packages/openstef-core" },
     { name = "pvlib", marker = "extra == 'feature-engineering'", specifier = ">=0.13" },
     { name = "pycountry", specifier = ">=24.6.1" },
     { name = "scikit-learn", marker = "extra == 'feature-engineering'", specifier = ">=1.7.1" },
 ]
-provides-extras = ["feature-engineering"]
+provides-extras = ["feature-engineering", "integrations"]
 
 [[package]]
 name = "packaging"

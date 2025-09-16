@@ -12,6 +12,7 @@ scikit-learn pattern with separate fit and transform phases.
 from abc import abstractmethod
 
 from openstef_core.datasets import TimeSeriesDataset
+from openstef_core.datasets.validated_datasets import ForecastDataset
 from openstef_core.datasets.versioned_timeseries import VersionedTimeSeriesDataset
 from openstef_core.types import LeadTime
 
@@ -210,7 +211,21 @@ class VersionedTimeSeriesTransform:
         return self.transform(data)
 
 
+class ForecastTransform:
+    def fit(self, data: ForecastDataset) -> None:
+        pass
+
+    @abstractmethod
+    def transform(self, data: ForecastDataset) -> ForecastDataset:
+        raise NotImplementedError
+
+    def fit_transform(self, data: ForecastDataset) -> ForecastDataset:
+        self.fit(data)
+        return self.transform(data)
+
+
 __all__ = [
+    "ForecastTransform",
     "TimeSeriesTransform",
     "VersionedTimeSeriesTransform",
 ]

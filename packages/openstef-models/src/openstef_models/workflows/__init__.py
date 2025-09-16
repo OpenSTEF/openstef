@@ -7,3 +7,7 @@
 High-level training, forecasting and evaluation pipelines that compose
 smaller components (transforms, models, storages, callbacks).
 """
+
+from .forecasting_workflow import ForecastingWorkflow
+
+__all__ = ["ForecastingWorkflow"]

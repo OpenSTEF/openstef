@@ -7,10 +7,10 @@ from datetime import timedelta
 import numpy as np
 import pandas as pd
 import pytest
-from openstef_models.transforms.time_domain import RollingAggregateTransform
 
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.exceptions import MissingColumnsError
+from openstef_models.transforms.time_domain import RollingAggregateTransform
 
 
 def test_rolling_aggregate_features_basic():

@@ -10,7 +10,7 @@ validation to catch data quality issues early.
 """
 
 from datetime import datetime, timedelta
-from typing import cast, override
+from typing import Self, cast, override
 
 import pandas as pd
 
@@ -82,6 +82,30 @@ class ForecastInputDataset(TimeSeriesDataset):
             Time series containing target values with original datetime index.
         """
         return self.data[self.target_column]
+
+    @classmethod
+    def from_timeseries_dataset(
+        cls,
+        dataset: TimeSeriesDataset,
+        target_column: str = "load",
+        forecast_start: datetime | None = None,
+    ) -> Self:
+        """Create ForecastInputDataset from a generic TimeSeriesDataset.
+
+        Args:
+            dataset: Input TimeSeriesDataset to convert.
+            target_column: Name of the target column to forecast.
+            forecast_start: Optional timestamp indicating forecast start.
+
+        Returns:
+            Instance of ForecastInputDataset with specified target column.
+        """
+        return cls(
+            data=dataset.data,
+            sample_interval=dataset.sample_interval,
+            target_column=target_column,
+            forecast_start=forecast_start,
+        )
 
 
 class ForecastDataset(TimeSeriesDataset):

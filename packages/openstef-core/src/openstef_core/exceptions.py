@@ -124,6 +124,31 @@ class ModelNotFittedError(Exception):
         super().__init__(message)
 
 
+class ModelNotFoundError(Exception):
+    """Exception raised when a model is not found in storage."""
+
+    def __init__(self, model_id: str):
+        """Initialize the exception with the model identifier.
+
+        Args:
+            model_id: Identifier of the model that was not found.
+        """
+        message = f"The model with ID '{model_id}' was not found in storage."
+        super().__init__(message)
+
+
+class ConfigurationError(Exception):
+    """Exception raised for errors in configuration settings."""
+
+    def __init__(self, message: str):
+        """Initialize the exception with a descriptive error message.
+
+        Args:
+            message: Human-readable description of the configuration error.
+        """
+        super().__init__(message)
+
+
 __all__ = [
     "FlatlinerDetectedError",
     "InsufficientlyCompleteError",
