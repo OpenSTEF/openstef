@@ -86,7 +86,7 @@ Import OpenSTEF modules using full names to maintain clarity:
 
     # Good: Clear module structure
     from openstef.models.forecasting import XGBoostForecaster
-    from openstef.feature_engineering.temporal_transforms import LagTransform
+    from openstef.transforms.time_domain import LagTransform
     from openstef.pipelines.training import TrainingPipeline
 
     # Avoid: Unclear module imports
@@ -111,7 +111,7 @@ Organize imports in this order with blank lines between sections:
 
     # 3. OpenSTEF modules
     from openstef.models.forecasting import LinearForecaster
-    from openstef.feature_engineering import LagTransform
+    from openstef.transforms import LagTransform
 
 .. _variable-naming:
 
@@ -486,7 +486,7 @@ The ``__name__`` variable contains the full module path (e.g., ``openstef_models
 which provides several benefits:
 
 * **Package-level control**: Users can disable logging for entire packages like ``openstef_models``
-* **Module-level granularity**: Users can control logging for specific modules like ``openstef_models.feature_engineering``
+* **Module-level granularity**: Users can control logging for specific modules like ``openstef_models.transforms``
 * **Hierarchical structure**: Follows Python logging's hierarchical naming convention
 * **Easy filtering**: Log output clearly shows which module generated each message
 

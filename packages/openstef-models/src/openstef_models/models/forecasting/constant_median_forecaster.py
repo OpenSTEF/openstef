@@ -16,7 +16,7 @@ from pydantic import Field
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
-from openstef_core.exceptions import ModelLoadingError, ModelNotFittedError
+from openstef_core.exceptions import ModelLoadingError, NotFittedError
 from openstef_core.types import Quantile
 from openstef_models.models.forecasting.mixins import (
     BaseHorizonForecaster,
@@ -40,7 +40,7 @@ class ConstantMedianForecasterConfig(HorizonForecasterConfig):
     """Configuration for constant median forecaster."""
 
     hyperparams: ConstantMedianForecasterHyperParams = Field(
-        default=...,
+        default=ConstantMedianForecasterHyperParams(),
     )
 
 
@@ -80,7 +80,7 @@ class ConstantMedianForecaster(BaseHorizonForecaster):
 
     def __init__(
         self,
-        config: ConstantMedianForecasterConfig,
+        config: ConstantMedianForecasterConfig | None = None,
         state: ConstantMedianState | None = None,
     ) -> None:
         """Initialize the constant median forecaster.
@@ -89,6 +89,7 @@ class ConstantMedianForecaster(BaseHorizonForecaster):
             config: Configuration specifying quantiles and hyperparameters.
             state: Optional pre-trained state for restored models.
         """
+        config = config or ConstantMedianForecasterConfig()
         self._state: ConstantMedianState = state if state is not None else ConstantMedianState(config=config)
 
     @property
@@ -139,7 +140,7 @@ class ConstantMedianForecaster(BaseHorizonForecaster):
     @override
     def predict_horizon(self, input_data: ForecastInputDataset) -> ForecastDataset:
         if not self.is_fitted:
-            raise ModelNotFittedError(self.__class__.__name__)
+            raise NotFittedError(self.__class__.__name__)
 
         return ForecastDataset(
             data=pd.DataFrame(

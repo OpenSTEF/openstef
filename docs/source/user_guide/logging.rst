@@ -113,7 +113,7 @@ Control logging for specific modules:
     logging.getLogger('openstef_models.pipelines.training').setLevel(logging.ERROR)
     
     # Debug feature engineering specifically
-    logging.getLogger('openstef_models.feature_engineering').setLevel(logging.DEBUG)
+    logging.getLogger('openstef_models.transforms').setLevel(logging.DEBUG)
 
 .. _advanced-configuration:
 
@@ -287,7 +287,7 @@ If OpenSTEF is producing too many log messages:
     logging.getLogger('openstef_beam').setLevel(logging.WARNING)
     
     # Or disable specific noisy modules
-    logging.getLogger('openstef_models.feature_engineering').setLevel(logging.ERROR)
+    logging.getLogger('openstef_models.transforms').setLevel(logging.ERROR)
 
 Performance considerations
 --------------------------

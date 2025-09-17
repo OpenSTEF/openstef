@@ -14,15 +14,17 @@ from collections.abc import Sequence
 class MissingExtraError(Exception):
     """Exception raised when an extra is missing in the extras list."""
 
-    def __init__(self, extra: str):
+    def __init__(self, extra: str, package: str = "stef-beam"):
         """Initialize the exception with the name of the missing extra.
 
         Args:
-            extra: Name of the missing extra.
+            extra: Name of the missing extra package.
+            package: Name of the package requiring the extra.
         """
         self.extra = extra
         super().__init__(
-            f"The extras for {extra}. Please install it to use this module using `pip install stef-beam[{extra}]`."
+            f"Optional package {extra} is missing. Please install it to use this module using `pip install {extra}` "
+            f"or install all optional features using `pip install {package}[all]`."
         )
 
 
@@ -111,25 +113,73 @@ class ModelLoadingError(Exception):
     """Exception raised when a model fails to load properly."""
 
 
-class ModelNotFittedError(Exception):
-    """Exception raised when a model is used before being fitted."""
+class NotFittedError(Exception):
+    """Exception raised when a model or a transform is used before being fitted."""
 
-    def __init__(self, model_class: str):
-        """Initialize the exception with the name of the model class.
+    def __init__(self, component_class: str):
+        """Initialize the exception with the name of the component class.
 
         Args:
-            model_class: Name of the model class that was not fitted.
+            component_class: Name of the component class that was not fitted.
         """
-        message = f"The {model_class} has not been fitted yet. Please call 'fit' before using it."
+        message = f"The {component_class} has not been fitted yet. Please call 'fit' before using it."
+        super().__init__(message)
+
+
+class ModelNotFoundError(Exception):
+    """Exception raised when a model is not found in storage."""
+
+    def __init__(self, model_id: str):
+        """Initialize the exception with the model identifier.
+
+        Args:
+            model_id: Identifier of the model that was not found.
+        """
+        message = f"The model with ID '{model_id}' was not found in storage."
+        super().__init__(message)
+
+
+class UnreachableStateError(Exception):
+    """Exception raised when a code path that should be unreachable is executed.
+
+    This indicates a violation of invariants or preconditions that should have
+    been guaranteed by the system design. Typically used when configuration
+    validation should have prevented reaching this state.
+    """
+
+    def __init__(self, message: str):
+        """Initialize the exception with a descriptive error message.
+
+        Args:
+            message: Human-readable description of the unreachable state condition.
+        """
+        super().__init__(message)
+
+
+class ConfigurationError(Exception):
+    """Exception raised for errors in configuration settings."""
+
+    def __init__(self, message: str):
+        """Initialize the exception with a descriptive error message.
+
+        Args:
+            message: Human-readable description of the configuration error.
+        """
         super().__init__(message)
 
 
 __all__ = [
+    "ConfigurationError",
     "FlatlinerDetectedError",
+    "ForecastError",
     "InsufficientlyCompleteError",
     "InvalidColumnTypeError",
     "MissingColumnsError",
     "MissingExtraError",
+    "ModelLoadingError",
+    "ModelNotFoundError",
+    "NotFittedError",
     "TimeSeriesValidationError",
     "TransformNotFittedError",
+    "UnreachableStateError",
 ]

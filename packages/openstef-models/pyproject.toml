@@ -31,8 +31,9 @@ dependencies = [
   "pycountry>=24.6.1",
 ]
 
-optional-dependencies.feature_engineering = [
+optional-dependencies.all = [
   "holidays>=0.79",
+  "joblib>=1",
   "pvlib>=0.13",
   "scikit-learn>=1.7.1",
 ]
