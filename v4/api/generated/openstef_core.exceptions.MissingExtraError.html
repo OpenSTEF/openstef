@@ -59,7 +59,7 @@
     <link rel="icon" href="../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="TimeSeriesValidationError" href="openstef_core.exceptions.TimeSeriesValidationError.html" />
+    <link rel="next" title="ModelLoadingError" href="openstef_core.exceptions.ModelLoadingError.html" />
     <link rel="prev" title="MissingColumnsError" href="openstef_core.exceptions.MissingColumnsError.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -427,25 +427,30 @@
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="openstef_core.exceptions.html">openstef_core.exceptions</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.ConfigurationError.html">ConfigurationError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.FlatlinerDetectedError.html">FlatlinerDetectedError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.ForecastError.html">ForecastError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.InsufficientlyCompleteError.html">InsufficientlyCompleteError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.InvalidColumnTypeError.html">InvalidColumnTypeError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.MissingColumnsError.html">MissingColumnsError</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">MissingExtraError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.ModelLoadingError.html">ModelLoadingError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.ModelNotFoundError.html">ModelNotFoundError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.NotFittedError.html">NotFittedError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.TimeSeriesValidationError.html">TimeSeriesValidationError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.TransformNotFittedError.html">TransformNotFittedError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.UnreachableStateError.html">UnreachableStateError</a></li>
 </ul>
 </details></li>
 </ul>
 <ul class="nav bd-sidenav">
-<li class="toctree-l1 has-children"><a class="reference internal" href="openstef_models.feature_engineering.html">openstef_models.feature_engineering</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="openstef_models.feature_engineering.FeaturePipeline.html">FeaturePipeline</a></li>
-<li class="toctree-l2"><a class="reference internal" href="openstef_models.feature_engineering.HorizonSplitTransform.html">HorizonSplitTransform</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="openstef_models.transforms.html">openstef_models.transforms</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="openstef_models.transforms.FeaturePipeline.html">FeaturePipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_models.transforms.ForecastTransformPipeline.html">ForecastTransformPipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_models.transforms.HorizonSplitTransform.html">HorizonSplitTransform</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="openstef_models.models.html">openstef_models.models</a></li>
-<li class="toctree-l1"><a class="reference internal" href="openstef_models.pipelines.html">openstef_models.pipelines</a></li>
-<li class="toctree-l1"><a class="reference internal" href="openstef_models.postprocessing.html">openstef_models.postprocessing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="openstef_models.explainability.html">openstef_models.explainability</a></li>
 </ul>
 <ul class="nav bd-sidenav">
@@ -570,23 +575,28 @@
 <h1>MissingExtraError<a class="headerlink" href="#missingextraerror" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="openstef_core.exceptions.MissingExtraError">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef_core.exceptions.</span></span><span class="sig-name descname"><span class="pre">MissingExtraError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">extra</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/openstef_core/exceptions.html#MissingExtraError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.exceptions.MissingExtraError" title="Link to this definition">#</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef_core.exceptions.</span></span><span class="sig-name descname"><span class="pre">MissingExtraError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">extra</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">package</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'stef-beam'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/openstef_core/exceptions.html#MissingExtraError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.exceptions.MissingExtraError" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
 <p>Exception raised when an extra is missing in the extras list.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>extra</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>)</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>extra</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>)</p></li>
+<li><p><strong>package</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>)</p></li>
+</ul>
 </dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="openstef_core.exceptions.MissingExtraError.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">extra</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/openstef_core/exceptions.html#MissingExtraError.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.exceptions.MissingExtraError.__init__" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">extra</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">package</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'stef-beam'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/openstef_core/exceptions.html#MissingExtraError.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.exceptions.MissingExtraError.__init__" title="Link to this definition">#</a></dt>
 <dd><p>Initialize the exception with the name of the missing extra.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>extra</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Name of the missing extra.</p></li>
+<li><p><strong>extra</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Name of the missing extra package.</p></li>
+<li><p><strong>package</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Name of the package requiring the extra.</p></li>
 <li><p><strong>extra</strong></p></li>
+<li><p><strong>package</strong></p></li>
 </ul>
 </dd>
 </dl>
@@ -616,11 +626,11 @@
       </div>
     </a>
     <a class="right-next"
-       href="openstef_core.exceptions.TimeSeriesValidationError.html"
+       href="openstef_core.exceptions.ModelLoadingError.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">TimeSeriesValidationError</p>
+        <p class="prev-next-title">ModelLoadingError</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

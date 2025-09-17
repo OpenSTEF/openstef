@@ -459,15 +459,17 @@
 
 <div class="viewcode-block" id="MissingExtraError.__init__">
 <a class="viewcode-back" href="../../api/generated/openstef_core.exceptions.MissingExtraError.html#openstef_core.exceptions.MissingExtraError.__init__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extra</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extra</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">package</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;stef-beam&quot;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the exception with the name of the missing extra.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            extra: Name of the missing extra.</span>
+<span class="sd">            extra: Name of the missing extra package.</span>
+<span class="sd">            package: Name of the package requiring the extra.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">extra</span> <span class="o">=</span> <span class="n">extra</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;The extras for </span><span class="si">{</span><span class="n">extra</span><span class="si">}</span><span class="s2">. Please install it to use this module using `pip install stef-beam[</span><span class="si">{</span><span class="n">extra</span><span class="si">}</span><span class="s2">]`.&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Optional package </span><span class="si">{</span><span class="n">extra</span><span class="si">}</span><span class="s2"> is missing. Please install it to use this module using `pip install </span><span class="si">{</span><span class="n">extra</span><span class="si">}</span><span class="s2">` &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;or install all optional features using `pip install </span><span class="si">{</span><span class="n">package</span><span class="si">}</span><span class="s2">[all]`.&quot;</span>
         <span class="p">)</span></div>
 </div>
 
@@ -586,35 +588,113 @@
 
 
 
+<div class="viewcode-block" id="ForecastError">
+<a class="viewcode-back" href="../../api/generated/openstef_core.exceptions.ForecastError.html#openstef_core.exceptions.ForecastError">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ForecastError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Exception raised for errors during forecasting operations.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Exception raised for errors during forecasting operations.&quot;&quot;&quot;</span></div>
 
 
+
+<div class="viewcode-block" id="ModelLoadingError">
+<a class="viewcode-back" href="../../api/generated/openstef_core.exceptions.ModelLoadingError.html#openstef_core.exceptions.ModelLoadingError">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ModelLoadingError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Exception raised when a model fails to load properly.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Exception raised when a model fails to load properly.&quot;&quot;&quot;</span></div>
 
 
-<span class="k">class</span><span class="w"> </span><span class="nc">ModelNotFittedError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Exception raised when a model is used before being fitted.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_class</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the exception with the name of the model class.</span>
+<div class="viewcode-block" id="NotFittedError">
+<a class="viewcode-back" href="../../api/generated/openstef_core.exceptions.NotFittedError.html#openstef_core.exceptions.NotFittedError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">NotFittedError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Exception raised when a model or a transform is used before being fitted.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="NotFittedError.__init__">
+<a class="viewcode-back" href="../../api/generated/openstef_core.exceptions.NotFittedError.html#openstef_core.exceptions.NotFittedError.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component_class</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the exception with the name of the component class.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            model_class: Name of the model class that was not fitted.</span>
+<span class="sd">            component_class: Name of the component class that was not fitted.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;The </span><span class="si">{</span><span class="n">model_class</span><span class="si">}</span><span class="s2"> has not been fitted yet. Please call &#39;fit&#39; before using it.&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;The </span><span class="si">{</span><span class="n">component_class</span><span class="si">}</span><span class="s2"> has not been fitted yet. Please call &#39;fit&#39; before using it.&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="ModelNotFoundError">
+<a class="viewcode-back" href="../../api/generated/openstef_core.exceptions.ModelNotFoundError.html#openstef_core.exceptions.ModelNotFoundError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ModelNotFoundError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Exception raised when a model is not found in storage.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ModelNotFoundError.__init__">
+<a class="viewcode-back" href="../../api/generated/openstef_core.exceptions.ModelNotFoundError.html#openstef_core.exceptions.ModelNotFoundError.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the exception with the model identifier.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            model_id: Identifier of the model that was not found.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;The model with ID &#39;</span><span class="si">{</span><span class="n">model_id</span><span class="si">}</span><span class="s2">&#39; was not found in storage.&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="UnreachableStateError">
+<a class="viewcode-back" href="../../api/generated/openstef_core.exceptions.UnreachableStateError.html#openstef_core.exceptions.UnreachableStateError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">UnreachableStateError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Exception raised when a code path that should be unreachable is executed.</span>
+
+<span class="sd">    This indicates a violation of invariants or preconditions that should have</span>
+<span class="sd">    been guaranteed by the system design. Typically used when configuration</span>
+<span class="sd">    validation should have prevented reaching this state.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="UnreachableStateError.__init__">
+<a class="viewcode-back" href="../../api/generated/openstef_core.exceptions.UnreachableStateError.html#openstef_core.exceptions.UnreachableStateError.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the exception with a descriptive error message.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            message: Human-readable description of the unreachable state condition.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="ConfigurationError">
+<a class="viewcode-back" href="../../api/generated/openstef_core.exceptions.ConfigurationError.html#openstef_core.exceptions.ConfigurationError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ConfigurationError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Exception raised for errors in configuration settings.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ConfigurationError.__init__">
+<a class="viewcode-back" href="../../api/generated/openstef_core.exceptions.ConfigurationError.html#openstef_core.exceptions.ConfigurationError.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the exception with a descriptive error message.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            message: Human-readable description of the configuration error.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">)</span></div>
+</div>
+
 
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;ConfigurationError&quot;</span><span class="p">,</span>
     <span class="s2">&quot;FlatlinerDetectedError&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ForecastError&quot;</span><span class="p">,</span>
     <span class="s2">&quot;InsufficientlyCompleteError&quot;</span><span class="p">,</span>
     <span class="s2">&quot;InvalidColumnTypeError&quot;</span><span class="p">,</span>
     <span class="s2">&quot;MissingColumnsError&quot;</span><span class="p">,</span>
     <span class="s2">&quot;MissingExtraError&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ModelLoadingError&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ModelNotFoundError&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;NotFittedError&quot;</span><span class="p">,</span>
     <span class="s2">&quot;TimeSeriesValidationError&quot;</span><span class="p">,</span>
     <span class="s2">&quot;TransformNotFittedError&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;UnreachableStateError&quot;</span><span class="p">,</span>
 <span class="p">]</span>
 </pre></div>
 

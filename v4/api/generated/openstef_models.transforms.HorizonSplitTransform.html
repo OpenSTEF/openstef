@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>openstef_models.postprocessing &#8212; OpenSTEF 0.0.0 documentation</title>
+    <title>HorizonSplitTransform &#8212; OpenSTEF 0.0.0 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../_static/copybutton.js?v=97f0b27d"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'api/generated/openstef_models.postprocessing';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/generated/openstef_models.transforms.HorizonSplitTransform';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = '_static/versions.json';
@@ -59,8 +59,8 @@
     <link rel="icon" href="../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="openstef_models.explainability" href="openstef_models.explainability.html" />
-    <link rel="prev" title="openstef_models.pipelines" href="openstef_models.pipelines.html" />
+    <link rel="next" title="openstef_models.models" href="openstef_models.models.html" />
+    <link rel="prev" title="ForecastTransformPipeline" href="openstef_models.transforms.ForecastTransformPipeline.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="0.0.0" />
@@ -427,25 +427,30 @@
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="openstef_core.exceptions.html">openstef_core.exceptions</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.ConfigurationError.html">ConfigurationError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.FlatlinerDetectedError.html">FlatlinerDetectedError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.ForecastError.html">ForecastError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.InsufficientlyCompleteError.html">InsufficientlyCompleteError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.InvalidColumnTypeError.html">InvalidColumnTypeError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.MissingColumnsError.html">MissingColumnsError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.MissingExtraError.html">MissingExtraError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.ModelLoadingError.html">ModelLoadingError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.ModelNotFoundError.html">ModelNotFoundError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.NotFittedError.html">NotFittedError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.TimeSeriesValidationError.html">TimeSeriesValidationError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.TransformNotFittedError.html">TransformNotFittedError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.UnreachableStateError.html">UnreachableStateError</a></li>
 </ul>
 </details></li>
 </ul>
 <ul class="current nav bd-sidenav">
-<li class="toctree-l1 has-children"><a class="reference internal" href="openstef_models.feature_engineering.html">openstef_models.feature_engineering</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="openstef_models.feature_engineering.FeaturePipeline.html">FeaturePipeline</a></li>
-<li class="toctree-l2"><a class="reference internal" href="openstef_models.feature_engineering.HorizonSplitTransform.html">HorizonSplitTransform</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="openstef_models.transforms.html">openstef_models.transforms</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="openstef_models.transforms.FeaturePipeline.html">FeaturePipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_models.transforms.ForecastTransformPipeline.html">ForecastTransformPipeline</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">HorizonSplitTransform</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="openstef_models.models.html">openstef_models.models</a></li>
-<li class="toctree-l1"><a class="reference internal" href="openstef_models.pipelines.html">openstef_models.pipelines</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">openstef_models.postprocessing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="openstef_models.explainability.html">openstef_models.explainability</a></li>
 </ul>
 <ul class="nav bd-sidenav">
@@ -546,7 +551,10 @@
     
     <li class="breadcrumb-item"><a href="../index.html" class="nav-link">API Reference</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">openstef_models.postprocessing</span></li>
+    
+    <li class="breadcrumb-item"><a href="openstef_models.transforms.html" class="nav-link">openstef_models.transforms</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">HorizonSplitTransform</span></li>
   </ul>
 </nav>
 </div>
@@ -563,12 +571,86 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="module-openstef_models.postprocessing">
-<span id="openstef-models-postprocessing"></span><h1>openstef_models.postprocessing<a class="headerlink" href="#module-openstef_models.postprocessing" title="Link to this heading">#</a></h1>
-<p>Postprocessing utilities for OpenSTEF.</p>
-<p>Top-level package for processing and calibrating probabilistic forecasts.
-Includes quantile processing, calibration methods, reconciliation and
-helpers to produce deterministic summaries from probabilistic outputs.</p>
+  <section id="horizonsplittransform">
+<h1>HorizonSplitTransform<a class="headerlink" href="#horizonsplittransform" title="Link to this heading">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="openstef_models.transforms.HorizonSplitTransform">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef_models.transforms.</span></span><span class="sig-name descname"><span class="pre">HorizonSplitTransform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/openstef_models/transforms/horizon_split_transform.html#HorizonSplitTransform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_models.transforms.HorizonSplitTransform" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="openstef_core.base_model.BaseConfig.html#openstef_core.base_model.BaseConfig" title="openstef_core.base_model.BaseConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseConfig</span></code></a></p>
+<p>Transform that splits versioned datasets into horizon-specific time series.</p>
+<p>This transform is a key component in multi-horizon forecasting pipelines. It takes
+versioned time series data (containing forecast validity timestamps) and produces
+separate regular time series datasets for each specified forecast horizon.</p>
+<p>The transformation process:
+1. Filters data by each configured lead time (forecast horizon)
+2. Resolves timestamps to remove versioning complexity
+3. Returns clean time series datasets ready for standard processing</p>
+<p class="rubric">Example</p>
+<p>Basic usage with energy forecasting data:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">timedelta</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">VersionedTimeSeriesDataset</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">LeadTime</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Create sample versioned dataset</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s1">&#39;timestamp&#39;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">date_range</span><span class="p">(</span><span class="s1">&#39;2025-01-01&#39;</span><span class="p">,</span> <span class="n">periods</span><span class="o">=</span><span class="mi">24</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="s1">&#39;1h&#39;</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="s1">&#39;available_at&#39;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">date_range</span><span class="p">(</span><span class="s1">&#39;2025-01-01&#39;</span><span class="p">,</span> <span class="n">periods</span><span class="o">=</span><span class="mi">24</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="s1">&#39;1h&#39;</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="s1">&#39;load&#39;</span><span class="p">:</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">124</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="s1">&#39;temperature&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">20</span> <span class="o">+</span> <span class="n">i</span><span class="o">*</span><span class="mf">0.5</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">24</span><span class="p">)]</span>
+<span class="gp">... </span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">versioned_dataset</span> <span class="o">=</span> <span class="n">VersionedTimeSeriesDataset</span><span class="o">.</span><span class="n">from_dataframe</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">sample_interval</span><span class="o">=</span><span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Configure horizons</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">horizons</span> <span class="o">=</span> <span class="p">[</span><span class="n">LeadTime</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;PT1H&quot;</span><span class="p">),</span> <span class="n">LeadTime</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;PT24H&quot;</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">splitter</span> <span class="o">=</span> <span class="n">HorizonSplitTransform</span><span class="p">(</span><span class="n">horizons</span><span class="o">=</span><span class="n">horizons</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Split into horizon-specific datasets</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">horizon_datasets</span> <span class="o">=</span> <span class="n">splitter</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">versioned_dataset</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">horizon_datasets</span><span class="p">)</span>
+<span class="go">2</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></span>)</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef_models.transforms.HorizonSplitTransform.horizons">
+<span class="sig-name descname"><span class="pre">horizons</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">LeadTime</span></code><span class="pre">]</span></em><a class="headerlink" href="#openstef_models.transforms.HorizonSplitTransform.horizons" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef_models.transforms.HorizonSplitTransform.transform">
+<span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="openstef_core.datasets.VersionedTimeSeriesDataset.html#openstef_core.datasets.VersionedTimeSeriesDataset" title="openstef_core.datasets.versioned_timeseries.dataset.VersionedTimeSeriesDataset"><span class="pre">VersionedTimeSeriesDataset</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">LeadTime</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset" title="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset"><span class="pre">TimeSeriesDataset</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/openstef_models/transforms/horizon_split_transform.html#HorizonSplitTransform.transform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_models.transforms.HorizonSplitTransform.transform" title="Link to this definition">#</a></dt>
+<dd><p>Split versioned dataset into horizon-specific time series datasets.</p>
+<p>For each configured horizon, filters the versioned data and resolves timestamps
+to create clean time series datasets suitable for standard processing.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dataset</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="openstef_core.datasets.VersionedTimeSeriesDataset.html#openstef_core.datasets.VersionedTimeSeriesDataset" title="openstef_core.datasets.versioned_timeseries.dataset.VersionedTimeSeriesDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">VersionedTimeSeriesDataset</span></code></a></span>) – Versioned time series dataset with forecast validity timestamps.</p></li>
+<li><p><strong>dataset</strong></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dictionary mapping each LeadTime to its corresponding TimeSeriesDataset.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">LeadTime</span></code>, <a class="reference internal" href="openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset" title="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimeSeriesDataset</span></code></a>]</span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef_models.transforms.HorizonSplitTransform.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar[ConfigDict]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'arbitrary_types_allowed':</span> <span class="pre">False,</span> <span class="pre">'extra':</span> <span class="pre">'ignore',</span> <span class="pre">'protected_namespaces':</span> <span class="pre">()}</span></em><a class="headerlink" href="#openstef_models.transforms.HorizonSplitTransform.model_config" title="Link to this definition">#</a></dt>
+<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 
 
@@ -582,20 +664,20 @@ helpers to produce deterministic summaries from probabilistic outputs.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="openstef_models.pipelines.html"
+       href="openstef_models.transforms.ForecastTransformPipeline.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">openstef_models.pipelines</p>
+        <p class="prev-next-title">ForecastTransformPipeline</p>
       </div>
     </a>
     <a class="right-next"
-       href="openstef_models.explainability.html"
+       href="openstef_models.models.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">openstef_models.explainability</p>
+        <p class="prev-next-title">openstef_models.models</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -611,10 +693,27 @@ helpers to produce deterministic summaries from probabilistic outputs.</p>
 
 
   <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.transforms.HorizonSplitTransform"><code class="docutils literal notranslate"><span class="pre">HorizonSplitTransform</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.transforms.HorizonSplitTransform.horizons"><code class="docutils literal notranslate"><span class="pre">HorizonSplitTransform.horizons</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.transforms.HorizonSplitTransform.transform"><code class="docutils literal notranslate"><span class="pre">HorizonSplitTransform.transform()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.transforms.HorizonSplitTransform.model_config"><code class="docutils literal notranslate"><span class="pre">HorizonSplitTransform.model_config</span></code></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
 
   
   <div class="tocsection editthispage">
-    <a href="https://github.com/OpenSTEF/openstef/edit/release/v4.0.0/docs/source/api/generated/openstef_models.postprocessing.rst">
+    <a href="https://github.com/OpenSTEF/openstef/edit/release/v4.0.0/docs/source/api/generated/openstef_models.transforms.HorizonSplitTransform.rst">
       <i class="fa-solid fa-pencil"></i>
       
       

@@ -59,7 +59,7 @@
     <link rel="icon" href="../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="FlatlinerDetectedError" href="openstef_core.exceptions.FlatlinerDetectedError.html" />
+    <link rel="next" title="ConfigurationError" href="openstef_core.exceptions.ConfigurationError.html" />
     <link rel="prev" title="PydanticStringPrimitive" href="openstef_core.base_model.PydanticStringPrimitive.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -427,25 +427,30 @@
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">openstef_core.exceptions</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.ConfigurationError.html">ConfigurationError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.FlatlinerDetectedError.html">FlatlinerDetectedError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.ForecastError.html">ForecastError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.InsufficientlyCompleteError.html">InsufficientlyCompleteError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.InvalidColumnTypeError.html">InvalidColumnTypeError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.MissingColumnsError.html">MissingColumnsError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.MissingExtraError.html">MissingExtraError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.ModelLoadingError.html">ModelLoadingError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.ModelNotFoundError.html">ModelNotFoundError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.NotFittedError.html">NotFittedError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.TimeSeriesValidationError.html">TimeSeriesValidationError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.TransformNotFittedError.html">TransformNotFittedError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.UnreachableStateError.html">UnreachableStateError</a></li>
 </ul>
 </details></li>
 </ul>
 <ul class="nav bd-sidenav">
-<li class="toctree-l1 has-children"><a class="reference internal" href="openstef_models.feature_engineering.html">openstef_models.feature_engineering</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="openstef_models.feature_engineering.FeaturePipeline.html">FeaturePipeline</a></li>
-<li class="toctree-l2"><a class="reference internal" href="openstef_models.feature_engineering.HorizonSplitTransform.html">HorizonSplitTransform</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="openstef_models.transforms.html">openstef_models.transforms</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="openstef_models.transforms.FeaturePipeline.html">FeaturePipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_models.transforms.ForecastTransformPipeline.html">ForecastTransformPipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_models.transforms.HorizonSplitTransform.html">HorizonSplitTransform</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="openstef_models.models.html">openstef_models.models</a></li>
-<li class="toctree-l1"><a class="reference internal" href="openstef_models.pipelines.html">openstef_models.pipelines</a></li>
-<li class="toctree-l1"><a class="reference internal" href="openstef_models.postprocessing.html">openstef_models.postprocessing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="openstef_models.explainability.html">openstef_models.explainability</a></li>
 </ul>
 <ul class="nav bd-sidenav">
@@ -572,8 +577,14 @@ package to provide clear error reporting and handling for common failure cases.<
 <h2>Classes<a class="headerlink" href="#classes" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="openstef_core.exceptions.FlatlinerDetectedError.html#openstef_core.exceptions.FlatlinerDetectedError" title="openstef_core.exceptions.FlatlinerDetectedError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FlatlinerDetectedError</span></code></a>(message)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="openstef_core.exceptions.ConfigurationError.html#openstef_core.exceptions.ConfigurationError" title="openstef_core.exceptions.ConfigurationError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ConfigurationError</span></code></a>(message)</p></td>
+<td><p>Exception raised for errors in configuration settings.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="openstef_core.exceptions.FlatlinerDetectedError.html#openstef_core.exceptions.FlatlinerDetectedError" title="openstef_core.exceptions.FlatlinerDetectedError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FlatlinerDetectedError</span></code></a>(message)</p></td>
 <td><p>Exception raised when a flatliner is detected in the data.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="openstef_core.exceptions.ForecastError.html#openstef_core.exceptions.ForecastError" title="openstef_core.exceptions.ForecastError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ForecastError</span></code></a></p></td>
+<td><p>Exception raised for errors during forecasting operations.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="openstef_core.exceptions.InsufficientlyCompleteError.html#openstef_core.exceptions.InsufficientlyCompleteError" title="openstef_core.exceptions.InsufficientlyCompleteError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">InsufficientlyCompleteError</span></code></a>(message)</p></td>
 <td><p>Exception raised when a dataset is not sufficiently complete.</p></td>
@@ -584,14 +595,26 @@ package to provide clear error reporting and handling for common failure cases.<
 <tr class="row-even"><td><p><a class="reference internal" href="openstef_core.exceptions.MissingColumnsError.html#openstef_core.exceptions.MissingColumnsError" title="openstef_core.exceptions.MissingColumnsError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MissingColumnsError</span></code></a>(missing_columns)</p></td>
 <td><p>Exception raised when required columns are missing from a DataFrame.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="openstef_core.exceptions.MissingExtraError.html#openstef_core.exceptions.MissingExtraError" title="openstef_core.exceptions.MissingExtraError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MissingExtraError</span></code></a>(extra)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="openstef_core.exceptions.MissingExtraError.html#openstef_core.exceptions.MissingExtraError" title="openstef_core.exceptions.MissingExtraError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MissingExtraError</span></code></a>(extra[, package])</p></td>
 <td><p>Exception raised when an extra is missing in the extras list.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="openstef_core.exceptions.TimeSeriesValidationError.html#openstef_core.exceptions.TimeSeriesValidationError" title="openstef_core.exceptions.TimeSeriesValidationError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TimeSeriesValidationError</span></code></a>(message)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="openstef_core.exceptions.ModelLoadingError.html#openstef_core.exceptions.ModelLoadingError" title="openstef_core.exceptions.ModelLoadingError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ModelLoadingError</span></code></a></p></td>
+<td><p>Exception raised when a model fails to load properly.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="openstef_core.exceptions.ModelNotFoundError.html#openstef_core.exceptions.ModelNotFoundError" title="openstef_core.exceptions.ModelNotFoundError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ModelNotFoundError</span></code></a>(model_id)</p></td>
+<td><p>Exception raised when a model is not found in storage.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="openstef_core.exceptions.NotFittedError.html#openstef_core.exceptions.NotFittedError" title="openstef_core.exceptions.NotFittedError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NotFittedError</span></code></a>(component_class)</p></td>
+<td><p>Exception raised when a model or a transform is used before being fitted.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="openstef_core.exceptions.TimeSeriesValidationError.html#openstef_core.exceptions.TimeSeriesValidationError" title="openstef_core.exceptions.TimeSeriesValidationError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TimeSeriesValidationError</span></code></a>(message)</p></td>
 <td><p>Exception raised for validation errors in time series datasets.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="openstef_core.exceptions.TransformNotFittedError.html#openstef_core.exceptions.TransformNotFittedError" title="openstef_core.exceptions.TransformNotFittedError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TransformNotFittedError</span></code></a>(transform_name)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="openstef_core.exceptions.TransformNotFittedError.html#openstef_core.exceptions.TransformNotFittedError" title="openstef_core.exceptions.TransformNotFittedError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TransformNotFittedError</span></code></a>(transform_name)</p></td>
 <td><p>Exception raised when a transform is used before being fitted.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="openstef_core.exceptions.UnreachableStateError.html#openstef_core.exceptions.UnreachableStateError" title="openstef_core.exceptions.UnreachableStateError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UnreachableStateError</span></code></a>(message)</p></td>
+<td><p>Exception raised when a code path that should be unreachable is executed.</p></td>
 </tr>
 </tbody>
 </table>
@@ -619,11 +642,11 @@ package to provide clear error reporting and handling for common failure cases.<
       </div>
     </a>
     <a class="right-next"
-       href="openstef_core.exceptions.FlatlinerDetectedError.html"
+       href="openstef_core.exceptions.ConfigurationError.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">FlatlinerDetectedError</p>
+        <p class="prev-next-title">ConfigurationError</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

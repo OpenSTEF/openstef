@@ -533,7 +533,7 @@ poe<span class="w"> </span>format
 <p>Import OpenSTEF modules using full names to maintain clarity:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Good: Clear module structure</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef.models.forecasting</span><span class="w"> </span><span class="kn">import</span> <span class="n">XGBoostForecaster</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">openstef.feature_engineering.temporal_transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">LagTransform</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef.transforms.time_domain</span><span class="w"> </span><span class="kn">import</span> <span class="n">LagTransform</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef.pipelines.training</span><span class="w"> </span><span class="kn">import</span> <span class="n">TrainingPipeline</span>
 
 <span class="c1"># Avoid: Unclear module imports</span>
@@ -556,7 +556,7 @@ poe<span class="w"> </span>format
 
 <span class="c1"># 3. OpenSTEF modules</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef.models.forecasting</span><span class="w"> </span><span class="kn">import</span> <span class="n">LinearForecaster</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">openstef.feature_engineering</span><span class="w"> </span><span class="kn">import</span> <span class="n">LagTransform</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">LagTransform</span>
 </pre></div>
 </div>
 </section>
@@ -894,7 +894,7 @@ practices for consistent and useful logging throughout the codebase.</p>
 which provides several benefits:</p>
 <ul class="simple">
 <li><p><strong>Package-level control</strong>: Users can disable logging for entire packages like <code class="docutils literal notranslate"><span class="pre">openstef_models</span></code></p></li>
-<li><p><strong>Module-level granularity</strong>: Users can control logging for specific modules like <code class="docutils literal notranslate"><span class="pre">openstef_models.feature_engineering</span></code></p></li>
+<li><p><strong>Module-level granularity</strong>: Users can control logging for specific modules like <code class="docutils literal notranslate"><span class="pre">openstef_models.transforms</span></code></p></li>
 <li><p><strong>Hierarchical structure</strong>: Follows Python logging’s hierarchical naming convention</p></li>
 <li><p><strong>Easy filtering</strong>: Log output clearly shows which module generated each message</p></li>
 </ul>

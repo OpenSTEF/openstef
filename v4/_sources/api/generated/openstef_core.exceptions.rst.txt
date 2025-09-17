@@ -33,13 +33,19 @@ Classes
    :toctree: .
    :template: custom_class.rst
 
+   ConfigurationError
    FlatlinerDetectedError
+   ForecastError
    InsufficientlyCompleteError
    InvalidColumnTypeError
    MissingColumnsError
    MissingExtraError
+   ModelLoadingError
+   ModelNotFoundError
+   NotFittedError
    TimeSeriesValidationError
    TransformNotFittedError
+   UnreachableStateError
 
 
 

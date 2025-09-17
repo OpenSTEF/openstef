@@ -451,7 +451,7 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">cast</span><span class="p">,</span> <span class="n">override</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Self</span><span class="p">,</span> <span class="n">cast</span><span class="p">,</span> <span class="n">override</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 
@@ -530,6 +530,33 @@
 <span class="sd">            Time series containing target values with original datetime index.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">target_column</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="ForecastInputDataset.from_timeseries_dataset">
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.ForecastInputDataset.html#openstef_core.datasets.ForecastInputDataset.from_timeseries_dataset">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_timeseries_dataset</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">dataset</span><span class="p">:</span> <span class="n">TimeSeriesDataset</span><span class="p">,</span>
+        <span class="n">target_column</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;load&quot;</span><span class="p">,</span>
+        <span class="n">forecast_start</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create ForecastInputDataset from a generic TimeSeriesDataset.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            dataset: Input TimeSeriesDataset to convert.</span>
+<span class="sd">            target_column: Name of the target column to forecast.</span>
+<span class="sd">            forecast_start: Optional timestamp indicating forecast start.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Instance of ForecastInputDataset with specified target column.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
+            <span class="n">sample_interval</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">sample_interval</span><span class="p">,</span>
+            <span class="n">target_column</span><span class="o">=</span><span class="n">target_column</span><span class="p">,</span>
+            <span class="n">forecast_start</span><span class="o">=</span><span class="n">forecast_start</span><span class="p">,</span>
+        <span class="p">)</span></div>
 </div>
 
 

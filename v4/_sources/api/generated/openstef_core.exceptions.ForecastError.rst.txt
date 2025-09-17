@@ -2,11 +2,11 @@
 ..
 .. SPDX-License-Identifier: MPL-2.0
 
-HorizonSplitTransform
-=====================
+ForecastError
+=============
 
-.. currentmodule:: openstef_models.feature_engineering
+.. currentmodule:: openstef_core.exceptions
 
-.. autoclass:: HorizonSplitTransform
+.. autoclass:: ForecastError
    :show-inheritance:
    :members:

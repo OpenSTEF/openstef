@@ -2,11 +2,11 @@
 ..
 .. SPDX-License-Identifier: MPL-2.0
 
-FeaturePipeline
-===============
+ModelLoadingError
+=================
 
-.. currentmodule:: openstef_models.feature_engineering
+.. currentmodule:: openstef_core.exceptions
 
-.. autoclass:: FeaturePipeline
+.. autoclass:: ModelLoadingError
    :show-inheritance:
    :members:

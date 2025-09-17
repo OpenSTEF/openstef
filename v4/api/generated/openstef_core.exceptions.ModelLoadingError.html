@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>openstef_models.pipelines &#8212; OpenSTEF 0.0.0 documentation</title>
+    <title>ModelLoadingError &#8212; OpenSTEF 0.0.0 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../_static/copybutton.js?v=97f0b27d"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'api/generated/openstef_models.pipelines';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/generated/openstef_core.exceptions.ModelLoadingError';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = '_static/versions.json';
@@ -59,8 +59,8 @@
     <link rel="icon" href="../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="openstef_models.postprocessing" href="openstef_models.postprocessing.html" />
-    <link rel="prev" title="openstef_models.models" href="openstef_models.models.html" />
+    <link rel="next" title="ModelNotFoundError" href="openstef_core.exceptions.ModelNotFoundError.html" />
+    <link rel="prev" title="MissingExtraError" href="openstef_core.exceptions.MissingExtraError.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="0.0.0" />
@@ -393,7 +393,7 @@
 <nav class="bd-docs-nav bd-links"
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
-  <div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="openstef_core.datasets.html">openstef_core.datasets</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="openstef_core.datasets.mixins.html">openstef_core.datasets.mixins</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="openstef_core.datasets.mixins.TimeSeriesMixin.html">TimeSeriesMixin</a></li>
@@ -426,26 +426,31 @@
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.base_model.PydanticStringPrimitive.html">PydanticStringPrimitive</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="openstef_core.exceptions.html">openstef_core.exceptions</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="openstef_core.exceptions.html">openstef_core.exceptions</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.ConfigurationError.html">ConfigurationError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.FlatlinerDetectedError.html">FlatlinerDetectedError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.ForecastError.html">ForecastError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.InsufficientlyCompleteError.html">InsufficientlyCompleteError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.InvalidColumnTypeError.html">InvalidColumnTypeError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.MissingColumnsError.html">MissingColumnsError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.MissingExtraError.html">MissingExtraError</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">ModelLoadingError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.ModelNotFoundError.html">ModelNotFoundError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.NotFittedError.html">NotFittedError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.TimeSeriesValidationError.html">TimeSeriesValidationError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.TransformNotFittedError.html">TransformNotFittedError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.UnreachableStateError.html">UnreachableStateError</a></li>
 </ul>
 </details></li>
 </ul>
-<ul class="current nav bd-sidenav">
-<li class="toctree-l1 has-children"><a class="reference internal" href="openstef_models.feature_engineering.html">openstef_models.feature_engineering</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="openstef_models.feature_engineering.FeaturePipeline.html">FeaturePipeline</a></li>
-<li class="toctree-l2"><a class="reference internal" href="openstef_models.feature_engineering.HorizonSplitTransform.html">HorizonSplitTransform</a></li>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="openstef_models.transforms.html">openstef_models.transforms</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="openstef_models.transforms.FeaturePipeline.html">FeaturePipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_models.transforms.ForecastTransformPipeline.html">ForecastTransformPipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_models.transforms.HorizonSplitTransform.html">HorizonSplitTransform</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="openstef_models.models.html">openstef_models.models</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">openstef_models.pipelines</a></li>
-<li class="toctree-l1"><a class="reference internal" href="openstef_models.postprocessing.html">openstef_models.postprocessing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="openstef_models.explainability.html">openstef_models.explainability</a></li>
 </ul>
 <ul class="nav bd-sidenav">
@@ -546,7 +551,10 @@
     
     <li class="breadcrumb-item"><a href="../index.html" class="nav-link">API Reference</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">openstef_models.pipelines</span></li>
+    
+    <li class="breadcrumb-item"><a href="openstef_core.exceptions.html" class="nav-link">openstef_core.exceptions</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">ModelLoadingError</span></li>
   </ul>
 </nav>
 </div>
@@ -563,11 +571,15 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="module-openstef_models.pipelines">
-<span id="openstef-models-pipelines"></span><h1>openstef_models.pipelines<a class="headerlink" href="#module-openstef_models.pipelines" title="Link to this heading">#</a></h1>
-<p>Pipeline orchestrations for OpenSTEF.</p>
-<p>High-level training, forecasting and evaluation pipelines that compose
-smaller components (transforms, models, storages, callbacks).</p>
+  <section id="modelloadingerror">
+<h1>ModelLoadingError<a class="headerlink" href="#modelloadingerror" title="Link to this heading">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="openstef_core.exceptions.ModelLoadingError">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef_core.exceptions.</span></span><span class="sig-name descname"><span class="pre">ModelLoadingError</span></span><a class="reference internal" href="../../_modules/openstef_core/exceptions.html#ModelLoadingError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.exceptions.ModelLoadingError" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Exception raised when a model fails to load properly.</p>
+</dd></dl>
+
 </section>
 
 
@@ -581,20 +593,20 @@ smaller components (transforms, models, storages, callbacks).</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="openstef_models.models.html"
+       href="openstef_core.exceptions.MissingExtraError.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">openstef_models.models</p>
+        <p class="prev-next-title">MissingExtraError</p>
       </div>
     </a>
     <a class="right-next"
-       href="openstef_models.postprocessing.html"
+       href="openstef_core.exceptions.ModelNotFoundError.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">openstef_models.postprocessing</p>
+        <p class="prev-next-title">ModelNotFoundError</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -610,10 +622,22 @@ smaller components (transforms, models, storages, callbacks).</p>
 
 
   <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.exceptions.ModelLoadingError"><code class="docutils literal notranslate"><span class="pre">ModelLoadingError</span></code></a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
 
   
   <div class="tocsection editthispage">
-    <a href="https://github.com/OpenSTEF/openstef/edit/release/v4.0.0/docs/source/api/generated/openstef_models.pipelines.rst">
+    <a href="https://github.com/OpenSTEF/openstef/edit/release/v4.0.0/docs/source/api/generated/openstef_core.exceptions.ModelLoadingError.rst">
       <i class="fa-solid fa-pencil"></i>
       
       

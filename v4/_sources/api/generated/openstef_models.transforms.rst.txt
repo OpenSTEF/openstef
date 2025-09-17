@@ -2,12 +2,12 @@
 ..
 .. SPDX-License-Identifier: MPL-2.0
 
-openstef_models.feature_engineering
-===================================
+openstef_models.transforms
+==========================
 
-.. currentmodule:: openstef_models.feature_engineering
+.. currentmodule:: openstef_models.transforms
 
-.. automodule:: openstef_models.feature_engineering
+.. automodule:: openstef_models.transforms
    :no-members:
    :no-inherited-members:
 
@@ -29,6 +29,7 @@ Classes
    :template: custom_class.rst
 
    FeaturePipeline
+   ForecastTransformPipeline
    HorizonSplitTransform
 
 
