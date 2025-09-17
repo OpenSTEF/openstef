@@ -87,7 +87,7 @@ def test_transform_raises_error_when_pvlib_not_available(sample_dataset: TimeSer
     # Act & Assert
     with (
         patch.dict("sys.modules", {"pvlib": None}),
-        pytest.raises(MissingExtraError, match="transforms"),
+        pytest.raises(MissingExtraError, match="pvlib"),
     ):
         transform.transform(sample_dataset)
 

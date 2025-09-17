@@ -24,7 +24,7 @@ from openstef_models.transforms.horizon_split_transform import concat_horizon_da
 try:
     from sklearn.preprocessing import MaxAbsScaler, MinMaxScaler, RobustScaler, StandardScaler
 except ImportError as e:
-    raise MissingExtraError("transforms") from e
+    raise MissingExtraError("sklearn", package="openstef-models") from e
 
 
 type ScalingMethod = Literal["min-max", "max-abs", "standard", "robust"]
@@ -71,6 +71,11 @@ class ScalerTransform(BaseConfig, TimeSeriesTransform):
 
     _scaler: MinMaxScaler | MaxAbsScaler | StandardScaler | RobustScaler = PrivateAttr()
     _is_fitted: bool = PrivateAttr(default=False)
+
+    @property
+    @override
+    def is_fitted(self) -> bool:
+        return self._is_fitted
 
     @override
     def model_post_init(self, context: Any) -> None:

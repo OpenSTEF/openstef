@@ -32,17 +32,17 @@ class ForecastingCallback:
         Creating a logging callback:
 
         >>> class LoggingCallback(ForecastingCallback):
-        ...     def on_before_fit(self, pipeline, dataset):
+        ...     def on_fit_start(self, pipeline, dataset):
         ...         print(f"Starting training with {len(dataset.data)} samples")
         ...
-        ...     def on_after_predict(self, pipeline, dataset, forecasts):
+        ...     def on_predict_end(self, pipeline, dataset, forecasts):
         ...         print(f"Generated {len(forecasts.data)} forecasts")
         >>>
         >>> callback = LoggingCallback()
         >>> workflow = ForecastingWorkflow(model, callbacks=callback) # doctest: +SKIP
     """
 
-    def on_before_fit(self, pipeline: "ForecastingWorkflow", dataset: VersionedTimeSeriesDataset | TimeSeriesDataset):
+    def on_fit_start(self, pipeline: "ForecastingWorkflow", dataset: VersionedTimeSeriesDataset | TimeSeriesDataset):
         """Called before model fitting begins.
 
         Use this hook for pre-training validation, data preprocessing,
@@ -53,7 +53,7 @@ class ForecastingCallback:
             dataset: Training dataset being used for fitting.
         """
 
-    def on_after_fit(self, pipeline: "ForecastingWorkflow", dataset: VersionedTimeSeriesDataset | TimeSeriesDataset):
+    def on_fit_end(self, pipeline: "ForecastingWorkflow", dataset: VersionedTimeSeriesDataset | TimeSeriesDataset):
         """Called after model fitting completes successfully.
 
         Use this hook for post-training validation, model evaluation,
@@ -64,7 +64,7 @@ class ForecastingCallback:
             dataset: Training dataset that was used for fitting.
         """
 
-    def on_before_predict(
+    def on_predict_start(
         self, pipeline: "ForecastingWorkflow", dataset: VersionedTimeSeriesDataset | TimeSeriesDataset
     ):
         """Called before prediction generation begins.
@@ -77,7 +77,7 @@ class ForecastingCallback:
             dataset: Input dataset being used for prediction.
         """
 
-    def on_after_predict(
+    def on_predict_end(
         self,
         pipeline: "ForecastingWorkflow",
         dataset: VersionedTimeSeriesDataset | TimeSeriesDataset,

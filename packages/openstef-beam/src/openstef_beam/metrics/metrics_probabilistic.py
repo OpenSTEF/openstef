@@ -18,6 +18,8 @@ Key concepts:
 import numpy as np
 import numpy.typing as npt
 
+from openstef_core.exceptions import MissingExtraError
+
 
 def crps(
     y_true: npt.NDArray[np.floating],
@@ -61,8 +63,14 @@ def crps(
         CRPS reduces to the absolute error when comparing point forecasts
         (single quantile). For well-calibrated forecasts, CRPS approximately
         equals half the expected absolute error of random forecasts.
+
+    Raises:
+        MissingExtraError: If the `scoringrules` package is not installed.
     """
-    import scoringrules as sr  # noqa: PLC0415 - import is quite slow, so we delay it until this function is called
+    try:
+        import scoringrules as sr  # noqa: PLC0415 - import is quite slow, so we delay it until this function is called
+    except ImportError as e:
+        raise MissingExtraError("scoringrules", package="openstef-beam") from e
 
     return float(np.average(sr.crps_quantile(y_true, y_pred, quantiles), weights=sample_weights))
 

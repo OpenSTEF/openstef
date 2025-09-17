@@ -32,10 +32,10 @@ dependencies = [
 ]
 
 optional-dependencies.all = [
-  "openstef-beam[boto]",
+  "openstef-beam[all]",
   "openstef-compatibility",
   "openstef-core",
-  "openstef-models[feature-engineering]",
+  "openstef-models[all]",
 ]
 optional-dependencies.beam = [
   "openstef-beam",

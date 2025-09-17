@@ -67,6 +67,11 @@ class ClippingTransform(BaseConfig, TimeSeriesTransform):
     _feature_maxs: pd.Series = PrivateAttr(default_factory=pd.Series)
     _is_fitted: bool = PrivateAttr(default=False)
 
+    @property
+    @override
+    def is_fitted(self) -> bool:
+        return self._is_fitted
+
     @override
     def fit_horizons(self, data: dict[LeadTime, TimeSeriesDataset]) -> None:
         flat_data = concat_horizon_datasets_rowwise(data)

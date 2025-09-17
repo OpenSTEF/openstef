@@ -14,15 +14,17 @@ from collections.abc import Sequence
 class MissingExtraError(Exception):
     """Exception raised when an extra is missing in the extras list."""
 
-    def __init__(self, extra: str):
+    def __init__(self, extra: str, package: str = "stef-beam"):
         """Initialize the exception with the name of the missing extra.
 
         Args:
-            extra: Name of the missing extra.
+            extra: Name of the missing extra package.
+            package: Name of the package requiring the extra.
         """
         self.extra = extra
         super().__init__(
-            f"The extras for {extra}. Please install it to use this module using `pip install stef-beam[{extra}]`."
+            f"Optional package {extra} is missing. Please install it to use this module using `pip install {extra}` "
+            f"or install all optional features using `pip install {package}[all]`."
         )
 
 

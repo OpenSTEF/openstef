@@ -69,7 +69,7 @@ class ForecastingWorkflow:
         ... )
         >>>
         >>> class LoggingCallback(ForecastingCallback):
-        ...     def on_after_fit(self, pipeline, dataset):
+        ...     def on_fit_end(self, pipeline, dataset):
         ...         print("Model training completed")
         >>>
         >>> workflow = ForecastingWorkflow(model=model, model_id="my_model", callbacks=LoggingCallback())
@@ -123,11 +123,11 @@ class ForecastingWorkflow:
         Args:
             dataset: Training dataset for the forecasting model.
         """
-        self.callbacks.on_before_fit(pipeline=self, dataset=dataset)
+        self.callbacks.on_fit_start(pipeline=self, dataset=dataset)
 
         self.model.fit(dataset=dataset)
 
-        self.callbacks.on_after_fit(pipeline=self, dataset=dataset)
+        self.callbacks.on_fit_end(pipeline=self, dataset=dataset)
 
     def predict(
         self, dataset: VersionedTimeSeriesDataset | TimeSeriesDataset, forecast_start: datetime | None = None
@@ -150,11 +150,11 @@ class ForecastingWorkflow:
         if not self.model.is_fitted:
             raise NotFittedError(type(self.model).__name__)
 
-        self.callbacks.on_before_predict(pipeline=self, dataset=dataset)
+        self.callbacks.on_predict_start(pipeline=self, dataset=dataset)
 
         forecasts = self.model.predict(dataset=dataset, forecast_start=forecast_start)
 
-        self.callbacks.on_after_predict(pipeline=self, dataset=dataset, forecasts=forecasts)
+        self.callbacks.on_predict_end(pipeline=self, dataset=dataset, forecasts=forecasts)
 
         if self.storage is not None:
             self.storage.save_model(model_id=self.model_id, model=self.model)

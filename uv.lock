@@ -1589,10 +1589,10 @@ dependencies = [
 
 [package.optional-dependencies]
 all = [
-    { name = "openstef-beam", extra = ["boto"] },
+    { name = "openstef-beam", extra = ["all"] },
     { name = "openstef-compatibility" },
     { name = "openstef-core" },
-    { name = "openstef-models", extra = ["feature-engineering"] },
+    { name = "openstef-models", extra = ["all"] },
 ]
 beam = [
     { name = "openstef-beam" },
@@ -1626,14 +1626,14 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "openstef-beam", marker = "extra == 'beam'", editable = "packages/openstef-beam" },
-    { name = "openstef-beam", extras = ["boto"], marker = "extra == 'all'", editable = "packages/openstef-beam" },
+    { name = "openstef-beam", extras = ["all"], marker = "extra == 'all'", editable = "packages/openstef-beam" },
     { name = "openstef-compatibility", marker = "extra == 'all'", editable = "packages/openstef-compatibility" },
     { name = "openstef-compatibility", marker = "extra == 'compatibility'", editable = "packages/openstef-compatibility" },
     { name = "openstef-core", editable = "packages/openstef-core" },
     { name = "openstef-core", marker = "extra == 'all'", editable = "packages/openstef-core" },
     { name = "openstef-models", editable = "packages/openstef-models" },
     { name = "openstef-models", marker = "extra == 'models'", editable = "packages/openstef-models" },
-    { name = "openstef-models", extras = ["feature-engineering"], marker = "extra == 'all'", editable = "packages/openstef-models" },
+    { name = "openstef-models", extras = ["all"], marker = "extra == 'all'", editable = "packages/openstef-models" },
 ]
 provides-extras = ["all", "beam", "compatibility", "models"]
 
@@ -1670,7 +1670,7 @@ dependencies = [
 ]
 
 [package.optional-dependencies]
-boto = [
+all = [
     { name = "s3fs" },
 ]
 
@@ -1680,11 +1680,11 @@ requires-dist = [
     { name = "plotly", specifier = ">=6.3" },
     { name = "pydantic", specifier = ">=2.11.7" },
     { name = "pyyaml", specifier = ">=6.0.2" },
-    { name = "s3fs", marker = "extra == 'boto'", specifier = ">=2025.5.1" },
+    { name = "s3fs", marker = "extra == 'all'", specifier = ">=2025.5.1" },
     { name = "scoringrules", specifier = ">=0.8" },
     { name = "tqdm", specifier = ">=4.67.1" },
 ]
-provides-extras = ["boto"]
+provides-extras = ["all"]
 
 [[package]]
 name = "openstef-compatibility"
@@ -1761,25 +1761,23 @@ dependencies = [
 ]
 
 [package.optional-dependencies]
-feature-engineering = [
+all = [
     { name = "holidays" },
+    { name = "joblib" },
     { name = "pvlib" },
     { name = "scikit-learn" },
-]
-integrations = [
-    { name = "joblib" },
 ]
 
 [package.metadata]
 requires-dist = [
-    { name = "holidays", marker = "extra == 'feature-engineering'", specifier = ">=0.79" },
-    { name = "joblib", marker = "extra == 'integrations'", specifier = ">=1.0.0" },
+    { name = "holidays", marker = "extra == 'all'", specifier = ">=0.79" },
+    { name = "joblib", marker = "extra == 'all'", specifier = ">=1" },
     { name = "openstef-core", editable = "packages/openstef-core" },
-    { name = "pvlib", marker = "extra == 'feature-engineering'", specifier = ">=0.13" },
+    { name = "pvlib", marker = "extra == 'all'", specifier = ">=0.13" },
     { name = "pycountry", specifier = ">=24.6.1" },
-    { name = "scikit-learn", marker = "extra == 'feature-engineering'", specifier = ">=1.7.1" },
+    { name = "scikit-learn", marker = "extra == 'all'", specifier = ">=1.7.1" },
 ]
-provides-extras = ["feature-engineering", "integrations"]
+provides-extras = ["all"]
 
 [[package]]
 name = "packaging"

@@ -35,7 +35,11 @@ class TimeSeriesTransform:
 
         >>> class ScaleTransform(TimeSeriesTransform):
         ...     def __init__(self):
-        ...         self.scale_factor = 1.0
+        ...         self.scale_factor = None
+        ...
+        ...     @property
+        ...     def is_fitted(self) -> bool:
+        ...         return self.scale_factor is not None
         ...
         ...     def fit(self, data):
         ...         self.scale_factor = data.data.max().max()

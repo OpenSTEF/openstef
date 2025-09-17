@@ -81,6 +81,11 @@ class RemoveEmptyColumnsTransform(BaseConfig, TimeSeriesTransform):
     _remove_columns: set[str] = PrivateAttr(default_factory=set)  # pyright: ignore[reportUnknownVariableType]
     _is_fitted: bool = PrivateAttr(default=False)
 
+    @property
+    @override
+    def is_fitted(self) -> bool:
+        return self._is_fitted
+
     @override
     def fit_horizons(self, data: dict[LeadTime, TimeSeriesDataset]) -> None:
         flat_data = concat_horizon_datasets_rowwise(data)

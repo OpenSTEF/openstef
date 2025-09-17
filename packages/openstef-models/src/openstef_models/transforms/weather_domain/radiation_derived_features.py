@@ -107,7 +107,7 @@ class RadiationDerivedFeaturesTransform(BaseConfig, TimeSeriesTransform):
         try:
             import pvlib  # noqa: PLC0415 - delayed import due to optional dependency
         except ImportError as e:
-            raise MissingExtraError("transforms") from e
+            raise MissingExtraError("pvlib", package="openstef-models") from e
 
         # Convert radiation from J/m² to kWh/m² and rename to 'ghi'
         ghi = (data.data[self.radiation_column] / 3600).rename("ghi")

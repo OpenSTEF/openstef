@@ -56,7 +56,7 @@ class DaylightFeaturesTransform(BaseConfig, TimeSeriesTransform):
         try:
             import pvlib  # noqa: PLC0415
         except ImportError as e:
-            raise MissingExtraError("transforms") from e
+            raise MissingExtraError("pvlib", package="openstef-models") from e
 
         location = pvlib.location.Location(self.coordinate.latitude, self.coordinate.longitude, tz=str(data.index.tz))
         clearsky_radiation: pd.DataFrame = location.get_clearsky(data.index)  # type: ignore[reportUnknownMemberType]

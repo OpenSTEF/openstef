@@ -145,6 +145,11 @@ class ImputationTransform(BaseConfig, TimeSeriesTransform):
         )
         self._imputer.set_output(transform="pandas")
 
+    @property
+    @override
+    def is_fitted(self) -> bool:
+        return self._is_fitted
+
     @override
     def fit_horizons(self, data: dict[LeadTime, TimeSeriesDataset]) -> None:
         # Because the imputation computes a global statistic, we fit on the concatenated data

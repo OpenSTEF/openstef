@@ -19,8 +19,8 @@ from openstef_models.models.forecasting_model import ForecastingModel
 
 try:
     import joblib
-except MissingExtraError as e:
-    raise ImportError("integrations") from e
+except ImportError as e:
+    raise MissingExtraError("joblib", package="openstef-models") from e
 
 
 class LocalModelStorage(ModelStorage, BaseModel):
