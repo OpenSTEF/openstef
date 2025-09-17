@@ -98,12 +98,12 @@ class ForecastingModel:
     ) -> dict[LeadTime, ForecastInputDataset]:
         input_data = self.preprocessing.transform(dataset=dataset)
         return {
-            key: ForecastInputDataset.from_timeseries_dataset(
-                dataset=value,
+            lead_time: ForecastInputDataset.from_timeseries_dataset(
+                dataset=timeseries_dataset,
                 target_column=self.target_column,
                 forecast_start=forecast_start,
             )
-            for key, value in input_data.items()
+            for lead_time, timeseries_dataset in input_data.items()
         }
 
     @property
