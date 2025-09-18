@@ -13,8 +13,8 @@ from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastI
 from openstef_core.exceptions import ConfigurationError, NotFittedError, UnreachableStateError
 from openstef_core.types import LeadTime, Quantile
 from openstef_models.models.forecasting import BaseForecaster, BaseHorizonForecaster
-from openstef_models.models.forecasting.mixins import ForecasterConfig, HorizonForecasterConfig
 from openstef_models.models.forecasting_model import ForecastingModel
+from openstef_models.models.mixins.forecaster_mixin import ForecasterConfig, HorizonForecasterConfig
 from openstef_models.transforms import FeaturePipeline, ForecastTransformPipeline
 
 

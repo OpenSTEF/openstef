@@ -20,7 +20,7 @@ from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastI
 from openstef_core.datasets.validation import validate_same_sample_intervals
 from openstef_core.types import LeadTime
 from openstef_core.utils.pandas import unsafe_sorted_range_slice_idxs
-from openstef_models.models.forecasting.mixins import (
+from openstef_models.models.mixins import (
     BaseForecaster,
     BaseHorizonForecaster,
     ForecasterConfig,
@@ -64,7 +64,7 @@ class MultiHorizonForecasterAdapter[
     Example:
         Creating a multi-horizon adapter:
 
-        >>> from openstef_models.models.forecasting.mixins import HorizonForecasterConfig, BaseHorizonForecaster
+        >>> from openstef_models.models.mixins import HorizonForecasterConfig, BaseHorizonForecaster
         >>>
         >>> class MyConfig(HorizonForecasterConfig):
         ...     pass

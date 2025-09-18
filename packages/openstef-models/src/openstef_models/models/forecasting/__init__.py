@@ -19,7 +19,7 @@ Implementations:
 """
 
 from openstef_models.models.forecasting import constant_median_forecaster, multi_horizon_adapter
-from openstef_models.models.forecasting.mixins import (
+from openstef_models.models.mixins import (
     BaseForecaster,
     BaseHorizonForecaster,
     ForecasterConfig,

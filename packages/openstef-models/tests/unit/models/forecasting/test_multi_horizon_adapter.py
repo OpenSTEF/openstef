@@ -10,12 +10,12 @@ import pytest
 
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.types import LeadTime, Quantile
-from openstef_models.models.forecasting.mixins import BaseHorizonForecaster, HorizonForecasterConfig, ModelState
 from openstef_models.models.forecasting.multi_horizon_adapter import (
     MultiHorizonForecasterAdapter,
     MultiHorizonForecasterConfig,
     combine_horizon_forecasts,
 )
+from openstef_models.models.mixins import BaseHorizonForecaster, HorizonForecasterConfig, ModelState
 
 
 class PredictableConstantForecaster(BaseHorizonForecaster):

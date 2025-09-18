@@ -29,6 +29,7 @@ from openstef_core.base_model import BaseConfig
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import ForecastError
 from openstef_core.types import LeadTime, Quantile
+from openstef_models.models.mixins.stateful_model_mixin import StatefulModelMixin
 
 
 class ForecasterHyperParams(BaseConfig):
@@ -154,85 +155,7 @@ class HorizonForecasterConfig(ForecasterConfig):
         return self.model_copy(update={"horizons": [horizon]})
 
 
-type ModelState = object
-
-
 type BatchResult[T] = list[T | ForecastError]
-
-
-class StatefulForecasterMixin(ABC):
-    """Mixin for forecasters that can save and restore their internal state.
-
-    Enables model persistence by providing serialization capabilities. Implementations
-    must handle state management in a way that allows models to be saved to disk,
-    transmitted over networks, or stored in databases, then restored to their exact
-    previous state.
-
-    State typically includes trained parameters, configuration, and any learned
-    patterns. The state format should be JSON-serializable for maximum compatibility.
-
-    Guarantees:
-        - get_state() followed by from_state() must restore identical behavior
-        - State format should be forward-compatible across minor version updates
-
-    Example:
-        Basic state management implementation:
-
-        >>> class MyForecaster(StatefulForecasterMixin):
-        ...     def __init__(self, config):
-        ...         self.config = config
-        ...         self.trained_params = None
-        ...
-        ...     def get_state(self):
-        ...         return {
-        ...             "version": 1,
-        ...             "config": self.config.model_dump(),
-        ...             "trained_params": self.trained_params
-        ...         }
-        ...
-        ...     @classmethod
-        ...     def from_state(cls, state):
-        ...         instance = cls(config=Config.model_validate(state["config"]))
-        ...         instance.trained_params = state["trained_params"]
-        ...         return instance
-
-    See Also:
-        BaseForecasterMixin: Base interface for forecaster capabilities.
-        BaseForecaster: Multi-horizon forecaster using state management.
-        BaseHorizonForecaster: Single-horizon forecaster using state management.
-    """
-
-    @abstractmethod
-    def get_state(self) -> ModelState:
-        """Serialize the current state of the forecaster.
-
-        Must capture all information needed to restore the model to its current state,
-        including configuration, trained parameters, and any internal state variables.
-
-        Returns:
-            Serializable representation of the model state.
-        """
-        raise NotImplementedError("Subclasses must implement state serialization")
-
-    @classmethod
-    @abstractmethod
-    def from_state(cls, state: ModelState) -> Self:
-        """Restore a forecaster from its serialized state.
-
-        Must reconstruct the forecaster to match the exact state when get_state()
-        was called. Should handle version compatibility for older state formats
-        when possible.
-
-        Args:
-            state: Serialized state returned from get_state().
-
-        Returns:
-            Forecaster instance restored to the exact previous state.
-
-        Raises:
-            ModelLoadingError: If state is invalid or incompatible.
-        """
-        raise NotImplementedError("Subclasses must implement state deserialization")
 
 
 class BaseForecasterMixin(ABC):
@@ -313,7 +236,7 @@ class BaseForecasterMixin(ABC):
         return ForecasterHyperParams()
 
 
-class BaseHorizonForecaster(BaseForecasterMixin, StatefulForecasterMixin, ABC):
+class BaseHorizonForecaster(BaseForecasterMixin, StatefulModelMixin, ABC):
     """Mixin for forecasters that predict one specific horizon at a time.
 
     Designed for models that operate on a single prediction horizon. Common for models
@@ -418,7 +341,7 @@ class BaseHorizonForecaster(BaseForecasterMixin, StatefulForecasterMixin, ABC):
         raise NotImplementedError("Models supporting batching must implement predict_horizon_batch")
 
 
-class BaseForecaster(BaseForecasterMixin, StatefulForecasterMixin, ABC):
+class BaseForecaster(BaseForecasterMixin, StatefulModelMixin, ABC):
     """Mixin for forecasters that handle multiple horizons simultaneously.
 
     Designed for models that train and predict across multiple prediction horizons
@@ -537,5 +460,4 @@ __all__ = [
     "ForecasterConfig",
     "ForecasterHyperParams",
     "HorizonForecasterConfig",
-    "StatefulForecasterMixin",
 ]

@@ -18,13 +18,13 @@ from openstef_core.base_model import BaseConfig
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import ModelLoadingError, NotFittedError
 from openstef_core.types import Quantile
-from openstef_models.models.forecasting.mixins import (
+from openstef_models.models.forecasting.multi_horizon_adapter import MultiHorizonForecasterAdapter
+from openstef_models.models.mixins import (
     BaseHorizonForecaster,
     ForecasterHyperParams,
     HorizonForecasterConfig,
     ModelState,
 )
-from openstef_models.models.forecasting.multi_horizon_adapter import MultiHorizonForecasterAdapter
 
 
 class ConstantMedianForecasterHyperParams(ForecasterHyperParams):
