@@ -345,3 +345,129 @@ def fbeta(
         return 0.0
 
     return (1 + beta**2) * (precision * recall) / (beta**2 * precision + recall)
+
+
+def riqd(
+    y_true: npt.NDArray[np.floating],
+    y_pred_lower_q: npt.NDArray[np.floating],
+    y_pred_upper_q: npt.NDArray[np.floating],
+    *,
+    measurement_range_lower_q: float = 0.05,
+    measurement_range_upper_q: float = 0.95,
+) -> float:
+    """Calculate the relative Inter Quantile Distance (rIQD).
+
+    rIQD measures the average distance between two quantiles, normalized by the measurement range.
+
+    Args:
+        y_true: Ground truth values with shape (num_samples,).
+        y_pred_lower_q: Predicted values of lower quantile with shape (num_samples,).
+        y_pred_upper_q: Predicted values of upper quantile with shape (num_samples,).
+        measurement_range_lower_q: Lower quantile for range calculation. Must be in [0, 1].
+        measurement_range_upper_q: Upper quantile for range calculation. Must be in [0, 1]
+            and greater than measurement_range_lower_q.
+
+    Returns:
+        The relative Inter Quantile Distance (rIQD) as a float. Returns NaN if the measurement
+            range is zero.
+
+    Example:
+        Basic usage with energy load data:
+
+        >>> import numpy as np
+        >>> y_true = np.array([100, 120, 110, 130, 105])
+        >>> y_pred_lower_q = np.array([90, 100, 105, 95, 85])
+        >>> y_pred_upper_q = np.array([110, 125, 140, 135, 90])
+        >>> riqd = riqd(y_true, y_pred_lower_q, y_pred_upper_q)
+        >>> round(riqd, 4)
+        0.9259
+
+    """
+    # Ensure inputs are numpy arrays
+    y_true = np.array(y_true)
+    y_pred_lower_q = np.array(y_pred_lower_q)
+    y_pred_upper_q = np.array(y_pred_upper_q)
+
+    y_range = np.quantile(y_true, q=measurement_range_upper_q) - np.quantile(y_true, q=measurement_range_lower_q)
+
+    # Calculate IQD
+    iqd = np.mean(y_pred_upper_q - y_pred_lower_q)
+
+    # Avoid division by zero if range is zero
+    if y_range == 0:
+        return float("NaN")
+
+    # Calculate rIQD
+    riqd = iqd / y_range
+
+    return float(riqd)
+
+
+def relative_pinball_loss(
+    y_true: npt.NDArray[np.floating],
+    y_pred: npt.NDArray[np.floating],
+    *,
+    quantile: float,
+    measurement_range_lower_q: float = 0.05,
+    measurement_range_upper_q: float = 0.95,
+    sample_weights: npt.NDArray[np.floating] | None = None,
+) -> float:
+    """Calculate the relative Pinball Loss (also known as relative Quantile Loss).
+
+    The relative pinball loss normalizes the pinball loss by the range of true values,
+    making it scale-invariant and suitable for comparing quantile prediction errors
+    across different datasets or time periods. The pinball loss can be used to quantify
+    the accuracy of a single quantile.
+
+    Args:
+        y_true: Ground truth values with shape (num_samples,).
+        y_pred: Predicted quantile values with shape (num_samples,).
+        quantile: The quantile level being predicted (e.g., 0.1, 0.5, 0.9).
+            Must be in [0, 1].
+        measurement_range_lower_q: Lower quantile for range calculation. Must be in [0, 1].
+        measurement_range_upper_q: Upper quantile for range calculation. Must be in [0, 1]
+            and greater than measurement_range_lower_q.
+        sample_weights: Optional weights for each sample with shape (num_samples,).
+            If None, all samples are weighted equally.
+
+    Returns:
+        The relative Pinball Loss as a float. Returns NaN if the measurement range
+        is zero.
+
+    Example:
+        Basic usage for 10th percentile predictions:
+
+        >>> import numpy as np
+        >>> y_true = np.array([100, 120, 110, 130, 105])
+        >>> y_pred = np.array([95, 115, 105, 125, 100])  # 10th percentile predictions
+        >>> rpbl = relative_pinball_loss(y_true, y_pred, quantile=0.1, measurement_range_lower_q=0.0,
+        ...                               measurement_range_upper_q=1.0)
+        >>> round(rpbl, 4)
+        0.0167
+    """
+    # Ensure inputs are numpy arrays
+    y_true = np.array(y_true)
+    y_pred = np.array(y_pred)
+
+    # Calculate pinball loss for each sample
+    errors = y_true - y_pred
+    pinball_losses = np.where(
+        errors >= 0,
+        quantile * errors,  # Under-prediction
+        (quantile - 1) * errors,  # Over-prediction
+    )
+
+    # Calculate mean pinball loss (weighted if weights provided)
+    mean_pinball_loss = np.average(pinball_losses, weights=sample_weights)
+
+    # Calculate measurement range for normalization
+    y_range = np.quantile(y_true, q=measurement_range_upper_q) - np.quantile(y_true, q=measurement_range_lower_q)
+
+    # Avoid division by zero if range is zero
+    if y_range == 0:
+        return float("NaN")
+
+    # Calculate relative pinball loss
+    relative_pinball_loss = mean_pinball_loss / y_range
+
+    return float(relative_pinball_loss)

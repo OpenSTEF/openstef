@@ -23,6 +23,8 @@ from openstef_beam.metrics.metrics_deterministic import (
     fbeta,
     mape,
     precision_recall,
+    relative_pinball_loss,
+    riqd,
     rmae,
 )
 from openstef_beam.metrics.metrics_probabilistic import (
@@ -43,5 +45,7 @@ __all__ = [
     "observed_probability",
     "precision_recall",
     "rcrps",
+    "relative_pinball_loss",
+    "riqd",
     "rmae",
 ]

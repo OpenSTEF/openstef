@@ -26,6 +26,8 @@ from openstef_beam.metrics import (
     observed_probability,
     precision_recall,
     rcrps,
+    relative_pinball_loss,
+    riqd,
     rmae,
 )
 from openstef_core.base_model import BaseConfig
@@ -398,4 +400,117 @@ class MeanAbsoluteCalibrationErrorProvider(MetricProvider):
                     quantiles=quantiles,
                 )
             }
+        }
+
+
+class RIQDProvider(MetricProvider):
+    """Provides Relative Inter Quantile Distance metrics.
+
+    Measures the average distance between symmetric quantiles (e.g., 0.1 and 0.9),
+    normalized by the measurement range. For each quantile, finds
+    its symmetric counterpart and computes rIQD between them.
+    """
+
+    median_quantile: float = 0.5
+
+    measurement_range_lower_q: float = Field(
+        default=0.05,
+        description="Lower quantile bound for measurement range normalization.",
+    )
+    measurement_range_upper_q: float = Field(
+        default=0.95,
+        description="Upper quantile bound for measurement range normalization.",
+    )
+
+    @override
+    def compute_probabilistic(
+        self,
+        y_true: npt.NDArray[np.floating],
+        y_pred: npt.NDArray[np.floating],
+        quantiles: npt.NDArray[np.floating],
+    ) -> QuantileMetricsDict:
+        """Compute rIQD for each quantile by finding its symmetric counterpart.
+
+        For each quantile q, finds the symmetric quantile (1-q) and computes
+        rIQD between them. Only processes quantiles for which a symmetric
+        counterpart is available.
+
+        Args:
+            y_true: True values, 1D array of shape (num_samples,).
+            y_pred: Predicted values, 2D array of shape (num_samples, num_quantiles).
+            quantiles: Quantiles used for prediction, 1D array of shape (num_quantiles,).
+
+        Returns:
+            QuantileMetricsDict containing rIQD metrics for each processable quantile.
+        """
+        metrics: QuantileMetricsDict = {}
+
+        for i, quantile in enumerate(quantiles.tolist()):
+            if self.quantiles is not None and quantile not in self.quantiles:
+                continue
+
+            symmetric_quantile = 1.0 - quantile
+
+            if np.isclose(quantile, symmetric_quantile, atol=1e-6):
+                continue  # skip if same quantile (e.g., 0.5)
+
+            symmetric_indices = np.where(np.isclose(quantiles, symmetric_quantile, atol=1e-6))[0]
+
+            if len(symmetric_indices) == 0:
+                continue  # no symmetric quantile found, skip
+
+            symmetric_idx = symmetric_indices[0]
+
+            if quantile < self.median_quantile:
+                lower_pred = y_pred[:, i]
+                upper_pred = y_pred[:, symmetric_idx]
+            else:
+                lower_pred = y_pred[:, symmetric_idx]
+                upper_pred = y_pred[:, i]
+
+            metrics[quantile] = {
+                "rIQD": riqd(
+                    y_true=y_true,
+                    y_pred_lower_q=lower_pred,
+                    y_pred_upper_q=upper_pred,
+                    measurement_range_lower_q=self.measurement_range_lower_q,
+                    measurement_range_upper_q=self.measurement_range_upper_q,
+                )
+            }
+
+        return metrics
+
+
+class RelativePinballLossProvider(MetricProvider):
+    """Provides Relative Pinball Loss metrics for quantile predictions.
+
+    Computes the relative pinball loss (also known as relative quantile loss)
+    for each quantile, normalized by the measurement range to make it scale-invariant
+    and suitable for comparing quantile prediction errors across different datasets.
+    """
+
+    measurement_range_lower_q: float = Field(
+        default=0.01,
+        description="Lower quantile bound for measurement range normalization.",
+    )
+    measurement_range_upper_q: float = Field(
+        default=0.99,
+        description="Upper quantile bound for measurement range normalization.",
+    )
+
+    @override
+    def compute_deterministic(
+        self,
+        y_true: npt.NDArray[np.floating],
+        y_pred: npt.NDArray[np.floating],
+        quantile: float,
+    ) -> MetricsDict:
+        return {
+            "relative_pinball_loss": relative_pinball_loss(
+                y_true=y_true,
+                y_pred=y_pred,
+                quantile=quantile,
+                measurement_range_lower_q=self.measurement_range_lower_q,
+                measurement_range_upper_q=self.measurement_range_upper_q,
+            )
         }
