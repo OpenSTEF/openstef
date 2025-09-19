@@ -39,7 +39,9 @@ class ForecastingModel(BaseModel):
     Example:
         Basic forecasting workflow:
 
-        >>> from openstef_models.models.forecasting.constant_median_forecaster import ConstantMedianForecaster, ConstantMedianForecasterConfig
+        >>> from openstef_models.models.forecasting.constant_median_forecaster import (
+        ...     ConstantMedianForecaster, ConstantMedianForecasterConfig
+        ... )
         >>> from openstef_models.transforms import FeatureEngineeringPipeline
         >>>
         >>> # Note: This is a conceptual example showing the API structure
@@ -78,7 +80,7 @@ class ForecastingModel(BaseModel):
     )
 
     @model_validator(mode="after")
-    def validate_horizons_match(self) -> Self:
+    def _validate_horizons_match(self) -> Self:
         if self.forecaster.config.horizons != self.preprocessing.horizons:
             message = (
                 f"The forecaster horizons ({self.forecaster.config.horizons}) do not match the "

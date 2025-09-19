@@ -1,6 +1,19 @@
 # SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
 #
 # SPDX-License-Identifier: MPL-2.0
+"""Feature engineering pipeline for time series forecasting models.
+
+This module provides the FeaturePipeline class, which coordinates feature engineering
+for multi-horizon forecasting models. It handles the complete feature transformation
+process, from versioned time series data through horizon-specific transformations.
+
+The pipeline operates in two main phases:
+1. Versioned transforms: Handle complex time logic on data with forecast validity timestamps
+2. Horizon transforms: Apply standard transformations on resolved time series data
+
+This design enables efficient processing of forecasting data where features may have
+different availability times and forecast horizons require different processing.
+"""
 
 from typing import Any, override
 

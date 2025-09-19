@@ -2,18 +2,30 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+"""Time series data transformation utilities for forecasting.
+
+This module provides abstract base classes and utilities for transforming
+time series datasets, with support for multi-horizon forecasting scenarios.
+"""
+
 from abc import ABC, abstractmethod
 from typing import override
 
 import pandas as pd
 
 from openstef_core.datasets import MultiHorizonTimeSeriesDataset, TimeSeriesDataset
-from openstef_core.datasets.timeseries_dataset import MultiHorizonTimeSeriesDataset
 from openstef_core.datasets.transforms import SelfTransform
 from openstef_core.types import LeadTime
 
 
 class MultiHorizonTransform(ABC):
+    """Abstract base class for transforms that operate on multiple forecast horizons.
+
+    This class provides an interface for data transformations that need to handle
+    multiple forecast horizons simultaneously, such as feature engineering that
+    requires learning parameters across different lead times.
+    """
+
     @abstractmethod
     def fit_horizons(self, data: MultiHorizonTimeSeriesDataset) -> None:
         """Fit the transform to multiple horizons of time series data.
