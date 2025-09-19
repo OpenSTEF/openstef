@@ -368,8 +368,7 @@ def riqd(
             and greater than measurement_range_lower_q.
 
     Returns:
-        The relative Inter Quantile Distance (rIQD) as a float. May return inf or
-        extremely large values if y_true is close to zero. Returns NaN if the measurement
+        The relative Inter Quantile Distance (rIQD) as a float. Returns NaN if the measurement
             range is zero.
 
     Example:
